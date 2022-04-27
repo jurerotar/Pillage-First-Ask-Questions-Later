@@ -1,25 +1,57 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
+    "baseUrl": "src",
+    "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
+    "jsx": "react-native",
+    "lib": [
+      "DOM",
+      "dom.iterable",
+      "ESNext"
+    ],
+    "moduleResolution": "node",
     "noEmit": true,
-    "jsx": "react-jsx"
+    "strict": true,
+    "target": "esnext",
+    "module": "esnext",
+    "paths": {
+      "components/*": [
+        "components/*"
+      ],
+      "helpers/*": [
+        "helpers/*"
+      ],
+      "i18n/*": [
+        "i18n/*"
+      ],
+      "interfaces/*": [
+        "interfaces/*"
+      ],
+      "layouts/*": [
+        "layouts/*"
+      ],
+      "providers/*": [
+        "providers/*"
+      ],
+      "views/*": [
+        "views/*"
+      ],
+      "services/*": [
+        "services/*"
+      ],
+      "styles/*": [
+        "styles/*"
+      ],
+    }
   },
+  "exclude": [
+    "node_modules"
+  ],
   "include": [
     "src"
   ]
