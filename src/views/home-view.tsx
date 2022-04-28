@@ -14,7 +14,7 @@ import { Hero } from 'interfaces/models/game/hero';
 
 const HomeView: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
-  const setServerId = useContextSelector(GameContext, (v) => v.setServer);
+  const setServer = useContextSelector(GameContext, (v) => v.setServer);
   const hasGameDataLoaded = useContextSelector(GameContext, (v) => v.hasGameDataLoaded);
   const [servers, setServers] = useLocalStorage<Server[]>('servers', []);
 
@@ -27,26 +27,20 @@ const HomeView: React.FC = (): JSX.Element => {
   const createNewServer = async (): Promise<void> => {
     try {
       const serverId = uuidv4();
-      const server: Server = {
+      const serverConfiguration: Server = {
         id: serverId,
         name: `server_${servers.length}`,
         startDate: new Date(),
         configuration: {
           mapSize: 200,
           speed: 1,
-          difficulty: 1
+          difficulty: 1,
+          tribe: 'gauls'
         }
       };
-      const tiles: Tile[] = CreateServerService.createMapData(server.configuration.mapSize);
-      const heroData: Hero = {
-        name: 'Unnamed hero',
-        inventory: {}
-      };
-
-      await localforage.setItem<Tile[]>(`${serverId}-mapData`, tiles);
-      await localforage.setItem<Village[]>(`${serverId}-playerVillageData`, []);
-      await localforage.setItem<Hero>(`${serverId}-heroData`, heroData);
-      setServers([server, ...servers]);
+      const server = new CreateServerService(serverConfiguration);
+      await server.init();
+      setServers([serverConfiguration, ...servers]);
     } catch (e) {
       console.error('Error creating a new server', e);
     }
@@ -63,7 +57,7 @@ const HomeView: React.FC = (): JSX.Element => {
   };
 
   const selectServer = (server: Server): void => {
-    setServerId(server);
+    setServer(server);
   };
 
   return (

@@ -82,6 +82,7 @@
       "error",
       "never",
       {
+        "css": "never",
         "ts": "never",
         "tsx": "never"
       }

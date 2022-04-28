@@ -16,7 +16,29 @@ class CreateServerService {
     this.serverId = server.id;
   }
 
-  private createHero = async () => {
+  public init = async (): Promise<boolean> => {
+    try {
+      await Promise.all([
+        this.createEventQueue(),
+        this.createHero(),
+        this.createReports(),
+        this.createQuests(),
+        this.createAchievements(),
+        this.createResearchLevels(),
+        this.createMapData()
+      ])
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private createEventQueue = async (): Promise<void> => {
+    console.log('eventQueue');
+  };
+
+  private createHero = async (): Promise<void> => {
+    console.log('createHero');
     const { tribe } = this.server.configuration;
     const speed = tribe === 'gauls' ? 14 : 9;
     const attackPower = tribe === 'romans' ? 100 : 80;
@@ -41,21 +63,45 @@ class CreateServerService {
     await localforage.setItem<Hero>(`${this.serverId}-heroData`, <Hero>hero);
   };
 
-  private createMapData = (): Tile[] => {
+  private createReports = async (): Promise<void> => {
+    console.log('createReports');
+
+  };
+
+  private createQuests = async (): Promise<void> => {
+    console.log('createQuests');
+
+  };
+
+  private createAchievements = async (): Promise<void> => {
+    console.log('createAchievements');
+
+  };
+
+  private createResearchLevels = async (): Promise<void> => {
+    console.log('createResearchLevels');
+
+  };
+
+  private createMapData = async (): Promise<void> => {
+    console.log('createMapData');
+
     const size = this.server.configuration.mapSize;
 
-    let xCounter: number = -size / 2 - 1;
-    let yCounter: number = size / 2;
+    let xCoordinateCounter: number = -size / 2 - 1;
+    let yCoordinateCounter: number = size / 2;
 
-    // Create base map
-    const tiles: Tile[] = [...Array(size ** 2 + 2 * size + 1)].map(() => {
-      xCounter += 1;
-      const x: Tile['x'] = xCounter;
-      const y: Tile['x'] = yCounter;
+    // To create an isometric map, we create a cartesian map of double the size that we actually need, then remove the tiles that are never
+    // displayed. Since our map has a border (wood and iron oasis surrounding the map, we have to include those fields as well.
+    const emptyTiles: Tile[] = [...Array(size ** 2 + 2 * size + 1)].map(() => {
+      xCoordinateCounter += 1;
+      const x: Tile['x'] = xCoordinateCounter;
+      const y: Tile['x'] = yCoordinateCounter;
 
-      if (xCounter === size / 2) {
-        xCounter = -size / 2 - 1;
-        yCounter -= 1;
+      // When we reach the end of a row, decrease y and reset x coordinate counters
+      if (xCoordinateCounter === size / 2) {
+        xCoordinateCounter = -size / 2 - 1;
+        yCoordinateCounter -= 1;
       }
       if ((Math.abs(x) + Math.abs(y)) > size / 2) {
         return null;
@@ -73,8 +119,8 @@ class CreateServerService {
       .filter((tile: Tile | null) => tile !== null) as Tile[];
 
     // Loop through all tiles
-    for (let i = 0; i < tiles.length; i += 1) {
-      const currentTile: Tile = tiles[i];
+    for (let i = 0; i < emptyTiles.length; i += 1) {
+      const currentTile: Tile = emptyTiles[i];
       if (currentTile.isOccupied) {
         continue;
       }
@@ -107,7 +153,7 @@ class CreateServerService {
             if (!hasMiddleField && j === x) {
               continue;
             }
-            const tile: Tile | undefined = tiles.find((cell) => cell.y === y - k && cell.x === j);
+            const tile: Tile | undefined = emptyTiles.find((cell) => cell.y === y - k && cell.x === j);
             if (!tile || tile.isOccupied) {
               breakCondition = true;
               break;
@@ -121,7 +167,7 @@ class CreateServerService {
 
         tilesToUpdate.forEach((occupiedCell: Tile) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const cellToUpdate: Tile = tiles.find((cell: Tile) => cell.x === occupiedCell.x && cell.y === occupiedCell.y)!;
+          const cellToUpdate: Tile = emptyTiles.find((cell: Tile) => cell.x === occupiedCell.x && cell.y === occupiedCell.y)!;
           cellToUpdate.isOccupied = true;
           cellToUpdate.backgroundColor = backgroundColor;
           cellToUpdate.oasisGroup = oasisGroup;
@@ -129,7 +175,7 @@ class CreateServerService {
       }
     }
 
-    return tiles.map((cell: Tile): Tile => {
+    const tilesWithOasis = emptyTiles.map((cell: Tile): Tile => {
       if (cell.isOccupied) {
         return cell;
       }
@@ -146,6 +192,8 @@ class CreateServerService {
         backgroundColor: oasisShapes[resourceType].backgroundColor
       };
     });
+    const tiles = tilesWithOasis;
+    await localforage.setItem<Tile[]>(`${this.serverId}-mapData`, tiles);
   };
 }
 
