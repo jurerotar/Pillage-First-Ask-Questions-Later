@@ -1,4 +1,5 @@
 const plugin = require('tailwindcss/plugin');
+const colors = require('tailwindcss/colors')
 
 module.exports = {
   darkMode: 'class',
@@ -8,14 +9,31 @@ module.exports = {
   ],
   theme: {
     screens: {
-      'xs': '475px',
+      'xs': '425px',
       'sm': '640px',
       'md': '768px',
       'lg': '1024px',
       'xl': '1280px',
       '2xl': '1536px',
     },
-    extend: {},
+    colors: {
+      ...colors,
+      brown: {
+        50: '#fdf8f6',
+        100: '#f2e8e5',
+        200: '#eaddd7',
+        300: '#e0cec7',
+        400: '#d2bab0',
+        500: '#bfa094',
+        600: '#a18072',
+        700: '#977669',
+        800: '#846358',
+        900: '#43302b',
+      },
+      burek: '#151d20'
+    },
+    extend: {
+    },
   },
   plugins: [
     plugin(({addVariant}) => {

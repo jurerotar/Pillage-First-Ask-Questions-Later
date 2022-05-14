@@ -1,6 +1,6 @@
 export type IndexedDBKeys =
   '-mapData'
-  | '-playerVillageData'
+  | '-playerVillagesData'
   | '-heroData'
   | '-researchLevels'
   | '-reports'

@@ -75,6 +75,7 @@
       "error",
       "expression"
     ],
+    "class-methods-use-this": "off",
     "arrow-body-style": [
       "off"
     ],
@@ -82,7 +83,7 @@
       "error",
       "never",
       {
-        "css": "never",
+        "css": "always",
         "ts": "never",
         "tsx": "never"
       }

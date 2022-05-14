@@ -1,28 +1,21 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import useLocalStorage from 'helpers/hooks/use-local-storage';
 import { Server } from 'interfaces/models/game/server';
 import Button from 'components/common/button';
 import { v4 as uuidv4 } from 'uuid';
-import { useContextSelector } from 'use-context-selector';
-import { GameContext } from 'providers/game-context';
 import { useNavigate } from 'react-router-dom';
-import { Tile } from 'interfaces/models/game/tile';
 import CreateServerService from 'services/create-server-service';
 import * as localforage from 'localforage';
-import { Village } from 'interfaces/models/game/village';
-import { Hero } from 'interfaces/models/game/hero';
 
-const HomeView: React.FC = (): JSX.Element => {
+type HomeViewProps = {
+  selectServerHandler: (server: Server) => void;
+};
+
+const HomeView: React.FC<HomeViewProps> = (props): JSX.Element => {
+  const { selectServerHandler } = props;
+
   const navigate = useNavigate();
-  const setServer = useContextSelector(GameContext, (v) => v.setServer);
-  const hasGameDataLoaded = useContextSelector(GameContext, (v) => v.hasGameDataLoaded);
   const [servers, setServers] = useLocalStorage<Server[]>('servers', []);
-
-  useEffect(() => {
-    if (hasGameDataLoaded) {
-      navigate('/map');
-    }
-  }, [hasGameDataLoaded]);
 
   const createNewServer = async (): Promise<void> => {
     try {
@@ -57,7 +50,8 @@ const HomeView: React.FC = (): JSX.Element => {
   };
 
   const selectServer = (server: Server): void => {
-    setServer(server);
+    selectServerHandler(server);
+    navigate('/resources');
   };
 
   return (

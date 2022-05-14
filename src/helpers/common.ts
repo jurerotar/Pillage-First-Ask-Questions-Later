@@ -13,3 +13,7 @@ export const isometricToCartesian = (point: Point): Point => {
     y: (2 * point.y - point.x) / 2
   };
 };
+
+export const roundToNearestN = (number: number, numberToRoundTo: number): number => {
+  return Math.round(number / numberToRoundTo) * numberToRoundTo;
+};

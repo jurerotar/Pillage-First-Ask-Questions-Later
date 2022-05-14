@@ -3,7 +3,7 @@ import useWindowSize from 'helpers/hooks/use-window-size';
 import { useOutletContext } from 'react-router-dom';
 import { Tile } from 'interfaces/models/game/tile';
 import { useContextSelector } from 'use-context-selector';
-import { GameContext } from 'providers/game-context';
+import { GameContext } from 'providers/game/game-context';
 import { Size } from 'interfaces/models/common/size';
 import { Point } from 'interfaces/models/common/point';
 
@@ -155,6 +155,21 @@ const MapView: React.FC = (): JSX.Element => {
       //
       // console.log(x - 100, 100 - y);
 
+      // var dx = Math.abs(x - cellCenterX),
+      //   dy = Math.abs(y - cellCenterY);
+      //
+      // if (dx / (cellWidth * 0.5) + dy / (cellHeight * 0.5) <= 1)
+
+      // const mouse_grid_x = Math.floor((mouse_y / tile_height) + (mouse_x / tile_width));
+      // const mouse_grid_y = Math.floor((-mouse_x / tile_width) + (mouse_y / tile_height));
+
+      // console.log(mouse_grid_x, mouse_grid_y)
+
+      // const mouse_grid_x = Math.floor((0.5 * event.offsetY / (tileSize.height)) + (event.offsetX / (tileSize.width)));
+      // const mouse_grid_y = Math.floor((-event.offsetX / (tileSize.width)) + (event.offsetY / (tileSize.height)));
+      //
+      // console.log('x' + mouse_grid_x, 'y' + mouse_grid_y);
+
       if (isDragging.current) {
         const horizontalDifference: Point['x'] = event.clientX - previousPosition.current.x;
         const verticalDifference: Point['y'] = event.clientY - previousPosition.current.y;
@@ -218,7 +233,7 @@ const MapView: React.FC = (): JSX.Element => {
       canvas.current?.removeEventListener('mousedown', (event) => mouseDownHandler(event), false);
       window.removeEventListener('mousemove', (event) => mouseMoveHandler(event), false);
       window.removeEventListener('mouseup', () => mouseUpHandler(), false);
-      window.addEventListener('wheel', (event) => wheelHandler(event), false);
+      window.removeEventListener('wheel', (event) => wheelHandler(event), false);
     };
 
     // tiles.forEach((tile: Tile, index: number) => {

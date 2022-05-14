@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Device } from 'interfaces/models/common/device';
+import { Size } from 'interfaces/models/common/size';
 
 const useWindowSize = () => {
-  const [windowSize, setWindowSize] = useState<Device['size']>({
+  const [windowSize, setWindowSize] = useState<Size>({
     width: 0,
     height: 0
   });

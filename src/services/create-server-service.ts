@@ -5,6 +5,8 @@ import oasisShapes from 'helpers/constants/oasis-shapes';
 import { Server } from 'interfaces/models/game/server';
 import localforage from 'localforage';
 import { Hero } from 'interfaces/models/game/hero';
+import newVillage from 'helpers/constants/new-village';
+import { Village } from 'interfaces/models/game/village';
 
 class CreateServerService {
   private readonly serverId: Server['id'];
@@ -25,13 +27,19 @@ class CreateServerService {
         this.createQuests(),
         this.createAchievements(),
         this.createResearchLevels(),
-        this.createMapData()
-      ])
+        this.createMapData(),
+        this.createPlayerVillageData()
+      ]);
       return true;
     } catch (e) {
       return false;
     }
-  }
+  };
+
+  private createPlayerVillageData = async ():Promise<void> => {
+    const defaultVillage = newVillage;
+    await localforage.setItem<Village[]>(`${this.serverId}-playerVillagesData`, [defaultVillage]);
+  };
 
   private createEventQueue = async (): Promise<void> => {
     console.log('eventQueue');
