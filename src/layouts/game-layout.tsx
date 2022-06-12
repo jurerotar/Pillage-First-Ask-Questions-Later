@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import ResourcesContainer from 'components/game/navigation/resources-container';
 import { useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
@@ -7,6 +7,14 @@ import NavigationButton, { NavigationButtonVariant } from 'components/game/navig
 import TroopPopulationCounter from 'components/game/navigation/population-counters/troop-population-counter';
 import PopulationCounter from 'components/game/navigation/population-counters/population-counter';
 import ReportsContainer from 'components/game/navigation/reports-container';
+import Button from 'components/common/buttons/button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faPowerOff, faGear } from '@fortawesome/free-solid-svg-icons';
+import Tooltip from 'components/common/tooltip';
+import { ModalContext } from 'providers/modal-context';
+import UserPreferences from 'components/user-preferences';
+import { useTranslation } from 'react-i18next';
 
 type MainNavigationLinks = {
   to: string;
@@ -15,9 +23,13 @@ type MainNavigationLinks = {
 };
 
 const GameLayout: React.FC = (): JSX.Element => {
+  const navigate = useNavigate();
   const navigation = useRef<HTMLElement>(null);
   const mainNavigationSection = useRef<HTMLDivElement>(null);
   const hasGameDataLoaded = useContextSelector(GameContext, (v) => v.hasGameDataLoaded);
+  const logout = useContextSelector(GameContext, (v) => v.logout);
+  const openModal = useContextSelector(ModalContext, (v) => v.openModal);
+  const { t } = useTranslation();
 
   const mainNavigationLinks: MainNavigationLinks[] = [
     {
@@ -37,6 +49,23 @@ const GameLayout: React.FC = (): JSX.Element => {
     }
   ];
 
+  const openPreferencesModal = (children: React.ReactNode) => {
+    return () => openModal(children);
+  };
+
+  const openGithub = (): void => {
+    window.location.href = 'https://github.com/jurerotar/crylite';
+  };
+
+  const openDiscord = (): void => {
+    window.location.href = 'https://github.com/jurerotar/crylite';
+  };
+
+  const logoutToHomepage = (): void => {
+    logout();
+    navigate('/');
+  };
+
   return !hasGameDataLoaded ? (
     <p>Loading</p>
   ) : (
@@ -45,8 +74,8 @@ const GameLayout: React.FC = (): JSX.Element => {
         className="flex relative h-[4.5rem] z-10 shadow-md"
         ref={navigation}
       >
-        <div className="flex absolute top-0 left-0 w-full h-1/2 bg-blue-500" />
-        <div className="flex absolute bottom-0 left-0 w-full h-1/2 bg-blue-200" />
+        <div className="flex absolute top-0 left-0 w-full h-1/2 bg-blue-500 transition-colors duration-default dark:bg-slate-900" />
+        <div className="flex absolute bottom-0 left-0 w-full h-1/2 bg-blue-200 transition-colors duration-default dark:bg-slate-900" />
         <div className="container mx-auto flex justify-between relative">
           <div className="" />
           {/* Center section */}
@@ -60,7 +89,7 @@ const GameLayout: React.FC = (): JSX.Element => {
               <PopulationCounter />
             </div>
             {/* Main navigation items */}
-            <ul className="flex gap-2 items-center z-20">
+            <ul className="flex gap-2 items-center z-20 md:mt-1">
               {/* <li className="flex"> */}
               {/*   <HeroInterfaceButton onClick={() => {}} /> */}
               {/* </li> */}
@@ -85,19 +114,56 @@ const GameLayout: React.FC = (): JSX.Element => {
               <ReportsContainer />
             </div>
           </div>
-          <div className="" />
+          <div className="gap-2 flex-end items-start hidden md:flex">
+            <Tooltip tooltipContent={t('PREFERENCES.MODAL.TOOLTIP_LABEL')}>
+              <Button
+                onClick={openPreferencesModal((
+                  <UserPreferences />
+                ))}
+                size="xs"
+                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+              >
+                <FontAwesomeIcon icon={faGear} />
+              </Button>
+            </Tooltip>
+            <Tooltip tooltipContent="Raise an issue or contribute on GitHub">
+              <Button
+                onClick={openGithub}
+                size="xs"
+                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+              >
+                <FontAwesomeIcon icon={faGithub} />
+              </Button>
+            </Tooltip>
+            <Tooltip tooltipContent="Join the community on Discord">
+              <Button
+                onClick={openDiscord}
+                size="xs"
+                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+              >
+                <FontAwesomeIcon icon={faDiscord} />
+              </Button>
+            </Tooltip>
+            <Tooltip tooltipContent="Logout">
+              <Button
+                size="xs"
+                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+                onClick={logoutToHomepage}
+              >
+                <FontAwesomeIcon icon={faPowerOff} />
+              </Button>
+            </Tooltip>
+          </div>
         </div>
         <div className="inline-flex justify-center gap-2 absolute top-[4.5rem] left-1/2 -translate-x-1/2 w-full sm:w-fit sm:p-2 bg-white">
           <ResourcesContainer />
         </div>
       </nav>
-      <div className="mt-4 sm:mt-8 md:mt-0">
-        <Outlet
-          context={{
-            navigationElement: navigation
-          }}
-        />
-      </div>
+      <Outlet
+        context={{
+          navigationElement: navigation
+        }}
+      />
     </>
   );
 };

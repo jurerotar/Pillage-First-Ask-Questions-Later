@@ -23,8 +23,8 @@
       "components/*": [
         "components/*"
       ],
-      "helpers/*": [
-        "helpers/*"
+      "utils/*": [
+        "utils/*"
       ],
       "i18n/*": [
         "i18n/*"

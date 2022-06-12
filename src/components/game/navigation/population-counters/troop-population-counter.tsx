@@ -13,7 +13,7 @@ const TroopPopulationCounter: React.FC = (): JSX.Element => {
         variant="troop-count"
         size="sm"
       />
-      <span className="text-center text-sm">
+      <span className="text-center text-sm transition-colors duration-default dark:text-white">
         {troopPopulationCount}
       </span>
     </div>

@@ -26,7 +26,7 @@ const App: React.FC = (): JSX.Element => {
           />
         </Route>
         <Route element={<AuthenticationGuard isAuthenticated={!!server} />}>
-          <Route element={<GameProvider server={server} />}>
+          <Route element={<GameProvider server={server!} />}>
             <Route element={<VillageProvider />}>
               <Route element={<HeroProvider />}>
                 <Route element={<GameLayout />}>

@@ -2,8 +2,8 @@ import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
 import { Hero } from 'interfaces/models/game/hero';
-import localforage from 'localforage';
 import { Outlet } from 'react-router-dom';
+import StorageService from 'services/storage-service';
 
 type HeroProviderValues = {
   heroData: Hero | null;
@@ -23,7 +23,7 @@ const HeroProvider: React.FC = (): ReactElement => {
     }
     (async () => {
       try {
-        const storageHeroData = await localforage.getItem<Hero>(`${server.id}-heroData`);
+        const storageHeroData = await StorageService.get<Hero>(`${server.id}-hero`);
         setHeroData(storageHeroData);
       } catch (e) {
         console.error('Error fetching hero data from IndexedDB', e);

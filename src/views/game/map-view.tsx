@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import useWindowSize from 'helpers/hooks/use-window-size';
+import useWindowSize from 'utils/hooks/use-window-size';
 import { useOutletContext } from 'react-router-dom';
 import { Tile } from 'interfaces/models/game/tile';
 import { useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
 import { Size } from 'interfaces/models/common/size';
 import { Point } from 'interfaces/models/common/point';
+import AppHelmet from 'components/common/head/app-helmet';
 
 type ContextType = {
   navigationElement: React.RefObject<HTMLElement>;
@@ -104,7 +105,7 @@ const MapView: React.FC = (): JSX.Element => {
       context.beginPath();
       context.font = '10px';
       context.strokeStyle = 'black';
-      context.strokeText(`(${tile.x}, ${tile.y})`, textPosition.x, textPosition.y);
+      context.strokeText(tile?.type ? `${tile.type}` : `(${tile.oasisGroup})`, textPosition.x, textPosition.y);
       context.stroke();
       context.closePath();
     });
@@ -246,24 +247,27 @@ const MapView: React.FC = (): JSX.Element => {
   }, [width, height]);
 
   return (
-    <div
-      className="overflow-hidden relative"
-      style={{
-        height: canvasContainerSize.height,
-        width: canvasContainerSize.width
-      }}
-    >
-      <canvas
-        className="absolute top-0 left-0"
-        ref={canvas}
-        width={canvasSize.width}
-        height={canvasSize.height}
+    <>
+      {/* <AppHelmet viewName="map" /> */}
+      <div
+        className="overflow-hidden relative"
         style={{
-          marginTop: mapMargins.current.y,
-          marginLeft: mapMargins.current.x
+          height: canvasContainerSize.height,
+          width: canvasContainerSize.width
         }}
-      />
-    </div>
+      >
+        <canvas
+          className="absolute top-0 left-0"
+          ref={canvas}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          style={{
+            marginTop: mapMargins.current.y,
+            marginLeft: mapMargins.current.x
+          }}
+        />
+      </div>
+    </>
   );
 };
 export default MapView;

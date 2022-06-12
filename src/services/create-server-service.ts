@@ -1,12 +1,14 @@
 import { Tile } from 'interfaces/models/game/tile';
-import randomArrayElement from 'helpers/random-array-element';
-import { Resource } from 'interfaces/models/game/resources';
-import oasisShapes from 'helpers/constants/oasis-shapes';
+import { Resource } from 'interfaces/models/game/resource';
+import oasisShapes from 'utils/constants/oasis-shapes';
 import { Server } from 'interfaces/models/game/server';
-import localforage from 'localforage';
 import { Hero } from 'interfaces/models/game/hero';
-import newVillage from 'helpers/constants/new-village';
+import newVillage from 'utils/constants/new-village';
 import { Village } from 'interfaces/models/game/village';
+import { randomIntFromInterval, randomArrayElement } from 'utils/common';
+import generateFreeTileType from 'utils/game/generate-free-tile-type';
+import StorageService from 'services/storage-service';
+import { accountEffects } from 'utils/constants/effects';
 
 class CreateServerService {
   private readonly serverId: Server['id'];
@@ -36,17 +38,16 @@ class CreateServerService {
     }
   };
 
-  private createPlayerVillageData = async ():Promise<void> => {
+  private createPlayerVillageData = async (): Promise<void> => {
     const defaultVillage = newVillage;
-    await localforage.setItem<Village[]>(`${this.serverId}-playerVillagesData`, [defaultVillage]);
+    await StorageService.set<Village[]>(`${this.serverId}-playerVillages`, [defaultVillage]);
   };
 
   private createEventQueue = async (): Promise<void> => {
-    console.log('eventQueue');
+    await StorageService.set(`${this.serverId}-events`, []);
   };
 
   private createHero = async (): Promise<void> => {
-    console.log('createHero');
     const { tribe } = this.server.configuration;
     const speed = tribe === 'gauls' ? 14 : 9;
     const attackPower = tribe === 'romans' ? 100 : 80;
@@ -68,32 +69,30 @@ class CreateServerService {
       inventory: []
     };
 
-    await localforage.setItem<Hero>(`${this.serverId}-heroData`, <Hero>hero);
+    await StorageService.set(`${this.serverId}-hero`, <Hero>hero);
   };
 
   private createReports = async (): Promise<void> => {
     console.log('createReports');
-
   };
 
   private createQuests = async (): Promise<void> => {
     console.log('createQuests');
-
   };
 
   private createAchievements = async (): Promise<void> => {
     console.log('createAchievements');
-
   };
 
   private createResearchLevels = async (): Promise<void> => {
     console.log('createResearchLevels');
+  };
 
+  private createAccountEffects = async (): Promise<void> => {
+    await StorageService.set(`${this.serverId}-accountEffects`, accountEffects);
   };
 
   private createMapData = async (): Promise<void> => {
-    console.log('createMapData');
-
     const size = this.server.configuration.mapSize;
 
     let xCoordinateCounter: number = -size / 2 - 1;
@@ -121,7 +120,7 @@ class CreateServerService {
         isOccupied: false,
         isOasis: false,
         backgroundColor: '#B9D580',
-        type: 'normal'
+        type: null
       };
     })
       .filter((tile: Tile | null) => tile !== null) as Tile[];
@@ -129,13 +128,13 @@ class CreateServerService {
     // Loop through all tiles
     for (let i = 0; i < emptyTiles.length; i += 1) {
       const currentTile: Tile = emptyTiles[i];
-      if (currentTile.isOccupied) {
+      if (currentTile.isOasis) {
         continue;
       }
       // Each tile has 1/15 to become an oasis
-      const tileWillBeOasis: boolean = randomArrayElement<number>([...Array(15)
-        .keys()]) === 1;
+      const tileWillBeOasis: boolean = randomIntFromInterval(1, 15) === 1;
 
+      // Determine oasis position and shape
       if (tileWillBeOasis) {
         // Surrounding tiles will have to become oasis as well, depending on shape of the oasis
         const tilesToUpdate: Tile[] = [];
@@ -162,7 +161,7 @@ class CreateServerService {
               continue;
             }
             const tile: Tile | undefined = emptyTiles.find((cell) => cell.y === y - k && cell.x === j);
-            if (!tile || tile.isOccupied) {
+            if (!tile || tile.isOasis) {
               breakCondition = true;
               break;
             }
@@ -174,21 +173,20 @@ class CreateServerService {
         }
 
         tilesToUpdate.forEach((occupiedCell: Tile) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const cellToUpdate: Tile = emptyTiles.find((cell: Tile) => cell.x === occupiedCell.x && cell.y === occupiedCell.y)!;
-          cellToUpdate.isOccupied = true;
+          cellToUpdate.isOasis = true;
           cellToUpdate.backgroundColor = backgroundColor;
           cellToUpdate.oasisGroup = oasisGroup;
         });
       }
     }
 
-    const tilesWithOasis = emptyTiles.map((cell: Tile): Tile => {
-      if (cell.isOccupied) {
+    // To make world feel more alive and give player more options, we sprinkle a bunch of 1x1 oasis on empty fields as well
+    const tilesWithAddedOasis: Tile[] = emptyTiles.map((cell: Tile): Tile => {
+      if (cell.isOasis) {
         return cell;
       }
-      const willBeOccupied = randomArrayElement<number>([...Array(10)
-        .keys()]) === 1;
+      const willBeOccupied = randomIntFromInterval(1, 10) === 1;
       if (!willBeOccupied) {
         return cell;
       }
@@ -196,12 +194,24 @@ class CreateServerService {
       return {
         ...cell,
         oasisGroup: 0,
-        isOccupied: true,
+        isOasis: true,
         backgroundColor: oasisShapes[resourceType].backgroundColor
       };
     });
-    const tiles = tilesWithOasis;
-    await localforage.setItem<Tile[]>(`${this.serverId}-mapData`, tiles);
+
+    const tilesWithTypes = tilesWithAddedOasis.map((tile: Tile) => {
+      if (tile.isOasis) {
+        return tile;
+      }
+      return {
+        ...tile,
+        type: generateFreeTileType()
+      };
+    });
+
+    const tiles = tilesWithTypes;
+
+    await StorageService.set<Tile[]>(`${this.serverId}-map`, tiles);
   };
 }
 

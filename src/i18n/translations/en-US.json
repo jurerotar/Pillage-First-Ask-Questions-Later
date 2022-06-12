@@ -1,6 +1,27 @@
 {
   "VIEWS": {
   },
+  "META": {
+    "SLOGAN": "Browser strategy game",
+    "VIEWS": {
+      "HOME": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "RESOURCES": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "VILLAGE": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "MAP": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      }
+    }
+  },
   "GAME": {
     "UNITS": {
       "ROMANS": {
@@ -300,189 +321,311 @@
     },
     "BUILDINGS": {
       "BAKERY": {
-        "NAME": "",
+        "NAME": "Bakery",
         "DESCRIPTION": ""
       },
       "BRICKYARD": {
-        "NAME": "",
+        "NAME": "Brickyard",
         "DESCRIPTION": ""
       },
       "CLAY_PIT": {
-        "NAME": "",
-        "DESCRIPTION": ""
+        "NAME": "Clay pit",
+        "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay is used in leveling buildings and resource fields, as well as researching and training troops. Clay pit can be extended infinitely in the capital, or to level 10 in non-capital villages."
       },
       "CROPLAND": {
-        "NAME": "",
-        "DESCRIPTION": ""
+        "NAME": "Cropland",
+        "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat is used in leveling buildings and resource fields, as well as researching and training troops. Cropland can be extended infinitely in the capital, or to level 10 in non-capital villages."
       },
       "GRAIN_MILL": {
-        "NAME": "",
+        "NAME": "Grain mill",
         "DESCRIPTION": ""
       },
       "GRANARY": {
-        "NAME": "",
-        "DESCRIPTION": ""
+        "NAME": "Granary",
+        "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
       },
       "GREAT_GRANARY": {
-        "NAME": "",
+        "NAME": "Great granary",
         "DESCRIPTION": ""
       },
       "GREAT_WAREHOUSE": {
-        "NAME": "",
+        "NAME": "Great warehouse",
         "DESCRIPTION": ""
       },
       "IRON_FOUNDRY": {
-        "NAME": "",
+        "NAME": "Iron foundry",
         "DESCRIPTION": ""
       },
       "IRON_MINE": {
-        "NAME": "",
-        "DESCRIPTION": ""
+        "NAME": "Iron mine",
+        "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron is used in leveling buildings and resource fields, as well as researching and training troops. Iron mine can be extended infinitely in the capital, or to level 10 in non-capital villages."
       },
       "SAWMILL": {
-        "NAME": "",
+        "NAME": "Sawmill",
         "DESCRIPTION": ""
       },
       "WAREHOUSE": {
-        "NAME": "",
-        "DESCRIPTION": ""
+        "NAME": "Warehouse",
+        "DESCRIPTION": "Wood, clay and iron are stored in your warehouse. By increasing its level you increase your warehouse's capacity. After upgrading one warehouse to level 20, additional warehouses can be built."
       },
       "WATERWORKS": {
-        "NAME": "",
+        "NAME": "Waterworks",
         "DESCRIPTION": ""
       },
       "WOODCUTTER": {
-        "NAME": "",
-        "DESCRIPTION": ""
+        "NAME": "Woodcutter",
+        "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Wood is used in leveling buildings and resource fields, as well as researching and training troops. Woodcutter can be extended infinitely in the capital, or to level 10 in non-capital villages."
       },
       "ACADEMY": {
-        "NAME": "",
+        "NAME": "Academy",
         "DESCRIPTION": ""
       },
       "SMITHY": {
-        "NAME": "",
+        "NAME": "Smithy",
         "DESCRIPTION": ""
       },
       "BARRACKS": {
-        "NAME": "",
+        "NAME": "Barracks",
         "DESCRIPTION": ""
       },
       "CITY_WALL": {
-        "NAME": "",
+        "NAME": "City wall",
         "DESCRIPTION": ""
       },
       "EARTH_WALL": {
-        "NAME": "",
+        "NAME": "Earth wall",
         "DESCRIPTION": ""
       },
       "GREAT_BARRACKS": {
-        "NAME": "",
+        "NAME": "Great barracks",
         "DESCRIPTION": ""
       },
       "GREAT_STABLE": {
-        "NAME": "",
+        "NAME": "Great stable",
         "DESCRIPTION": ""
       },
       "HERO'S_MANSION": {
-        "NAME": "",
+        "NAME": "Hero's mansion",
         "DESCRIPTION": ""
       },
       "HOSPITAL": {
-        "NAME": "",
+        "NAME": "Hospital",
         "DESCRIPTION": ""
       },
       "MAKESHIFT_WALL": {
-        "NAME": "",
+        "NAME": "Makeshift wall",
         "DESCRIPTION": ""
       },
       "PALISADE": {
-        "NAME": "",
+        "NAME": "Palisade",
         "DESCRIPTION": ""
       },
       "RALLY_POINT": {
-        "NAME": "",
+        "NAME": "Rally point",
         "DESCRIPTION": ""
       },
       "STABLE": {
-        "NAME": "",
+        "NAME": "Stable",
         "DESCRIPTION": ""
       },
       "STONE_WALL": {
-        "NAME": "",
+        "NAME": "Stone wall",
         "DESCRIPTION": ""
       },
       "STONEMASON": {
-        "NAME": "",
+        "NAME": "Stonemason",
         "DESCRIPTION": ""
       },
       "TOURNAMENT_SQUARE": {
-        "NAME": "",
+        "NAME": "Tournament square",
         "DESCRIPTION": ""
       },
       "TRAPPER": {
-        "NAME": "",
+        "NAME": "Trapper",
         "DESCRIPTION": ""
       },
       "WATCHTOWER": {
-        "NAME": "",
+        "NAME": "Watchtower",
         "DESCRIPTION": ""
       },
       "WORKSHOP": {
-        "NAME": "",
+        "NAME": "Workshop",
         "DESCRIPTION": ""
       },
       "BREWERY": {
-        "NAME": "",
+        "NAME": "Brewery",
         "DESCRIPTION": ""
       },
       "COMMAND_CENTER": {
-        "NAME": "",
+        "NAME": "Command center",
         "DESCRIPTION": ""
       },
       "CRANNY": {
-        "NAME": "",
+        "NAME": "Cranny",
         "DESCRIPTION": ""
       },
       "EMBASSY": {
-        "NAME": "",
+        "NAME": "Embassy",
         "DESCRIPTION": ""
       },
       "HORSE_DRINKING_TROUGH": {
-        "NAME": "",
+        "NAME": "Horse drinking trough",
         "DESCRIPTION": ""
       },
       "MAIN_BUILDING": {
-        "NAME": "",
+        "NAME": "Main building",
         "DESCRIPTION": ""
       },
       "MARKETPLACE": {
-        "NAME": "",
+        "NAME": "Marketplace",
         "DESCRIPTION": ""
       },
       "PALACE": {
-        "NAME": "",
+        "NAME": "Palace",
         "DESCRIPTION": ""
       },
       "RESIDENCE": {
-        "NAME": "",
+        "NAME": "Residence",
         "DESCRIPTION": ""
       },
       "TOWN_HALL": {
-        "NAME": "",
+        "NAME": "Town hall",
         "DESCRIPTION": ""
       },
       "TRADE_OFFICE": {
-        "NAME": "",
+        "NAME": "Trade office",
         "DESCRIPTION": ""
       },
       "TREASURY": {
-        "NAME": "",
+        "NAME": "Treasury",
         "DESCRIPTION": ""
       },
       "WONDER_OF_THE_WORLD": {
-        "NAME": "",
+        "NAME": "Wonder of the world",
+        "DESCRIPTION": ""
+      }
+    },
+    "EFFECTS": {
+      "BARRACKS_TRAINING_DURATION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "GREAT_BARRACKS_TRAINING_DURATION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "STABLE_TRAINING_DURATION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "GREAT_STABLE_TRAINING_DURATION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "WORKSHOP_TRAINING_DURATION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "UNLOCKED_UNIT_RESEARCH_LEVELS": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "VILLAGE_DEFENCE_VALUE": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "VILLAGE_DEFENCE_BONUS": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "BUILDING_DURATION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "WOOD_PRODUCTION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "CLAY_PRODUCTION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "IRON_PRODUCTION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "WHEAT_PRODUCTION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "WOOD_PRODUCTION_BONUS": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "CLAY_PRODUCTION_BONUS": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "IRON_PRODUCTION_BONUS": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "WHEAT_PRODUCTION_BONUS": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "CROP_CONSUMPTION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "CULTURE_POINTS_PRODUCTION": {
+        "TITLE": "",
+        "DESCRIPTION": ""
+      },
+      "CULTURE_POINTS_PRODUCTION_BONUS": {
+        "TITLE": "",
         "DESCRIPTION": ""
       }
     }
+  },
+  "PREFERENCES": {
+    "MODAL": {
+      "TOOLTIP_LABEL": "Change settings and preferences",
+      "TITLE": "Preferences",
+      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    "COLOR_SCHEME": {
+      "LABEL": "Enable dark mode",
+      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    "ACCESSIBILITY_MODE": {
+      "LABEL": "Enable enhanced accessibility mode",
+      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    "REDUCED_MOTION": {
+      "LABEL": "Enable reduced motion mode",
+      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    },
+    "LOCALE": {
+      "LABEL": "Application locale",
+      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    }
+  },
+  "GENERAL": {
+    "RESOURCES": {
+      "WOOD": "Wood",
+      "CLAY": "Clay",
+      "IRON": "Iron",
+      "WHEAT": "Wheat"
+    },
+    "BUILDING": {
+      "CONSTRUCT": "Construct building",
+      "UPGRADE_TO": "Upgrade to level",
+      "BUILDING_MAX_LEVEL": "is completely extended",
+      "TOTAL_RESOURCE_COST": "Total resource cost"
+    },
+    "DESCRIPTION": "Description",
+    "BUILDING_UPGRADE_TABLE": "Building upgrade table",
+    "LEVEL": "level"
   }
 }

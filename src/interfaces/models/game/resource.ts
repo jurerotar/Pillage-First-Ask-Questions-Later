@@ -1,5 +1,5 @@
 export type Resource = 'wood' | 'clay' | 'iron' | 'wheat';
 
-export type VillageResources = {
+export type Resources = {
   [key in Resource]: number;
 };

@@ -1,58 +1,53 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { createContext } from 'use-context-selector';
 import { Server } from 'interfaces/models/game/server';
 import { Tile } from 'interfaces/models/game/tile';
-import localforage from 'localforage';
 import { Report } from 'interfaces/models/game/report';
 import { Quest } from 'interfaces/models/game/quest';
 import { Achievement } from 'interfaces/models/game/achievement';
 import { Effects } from 'interfaces/models/game/effect';
 import { Outlet } from 'react-router-dom';
+import { GameEvent } from 'interfaces/models/events/game-event';
+import StorageService from 'services/storage-service';
+import { ResourceFieldId, Village } from 'interfaces/models/game/village';
 
 type GameProviderProps = {
-  server: Server | null;
+  server: Server;
 };
 
 type GameProviderValues = {
   server: Server | null;
-  tiles: Tile[] | null;
-  reports: Report[] | null;
-  setReports: React.Dispatch<React.SetStateAction<Report[] | null>>;
-  quests: Quest[] | null;
-  setQuests: React.Dispatch<React.SetStateAction<Quest[] | null>>;
+  tiles: Tile[];
+  reports: Report[];
+  setReports: React.Dispatch<React.SetStateAction<Report[]>>;
+  quests: Quest[];
+  setQuests: React.Dispatch<React.SetStateAction<Quest[]>>;
   achievements: Achievement[] | null;
-  setAchievements: React.Dispatch<React.SetStateAction<Achievement[] | null>>;
+  setAchievements: React.Dispatch<React.SetStateAction<Achievement[]>>;
   hasGameDataLoaded: boolean;
 
   // Functions
   setIsContextReady: (type: 'village' | 'hero') => void;
   logout: () => void;
+  createResourceUpgradeEvent: (villageId: Village['id'], resourceFieldId: ResourceFieldId, level: number, duration: number) => void;
 };
 
 const GameContext = createContext<GameProviderValues>({} as GameProviderValues);
 
 const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
-  const { server = null } = props;
+  const {
+    server
+  } = props;
 
-  // General server states
-  const [tiles, setTiles] = useState<Tile[] | null>(null);
-  const [reports, setReports] = useState<Report[] | null>(null);
-  const [quests, setQuests] = useState<Quest[] | null>(null);
-  const [achievements, setAchievements] = useState<Achievement[] | null>(null);
-  const [accountEffects, setAccountEffects] = useState<Effects>({
-    barracksTrainingDuration: 1,
-    stableTrainingDuration: 1,
-    workshopTrainingDuration: 1,
-    buildingDuration: 1,
-    woodProductionBonus: 1,
-    clayProductionBonus: 1,
-    ironProductionBonus: 1,
-    wheatProductionBonus: 1,
-    troopSpeedBonus: 1,
-    infantrySpeedBonus: 1,
-    cavalrySpeedBonus: 1,
-    siegeEngineSpeedBonus: 1
-  });
+  // const hasSetInitialEvents = useRef<boolean>(false);
+  // const eventsInProgress = useRef<GameEvent['id'][]>([]);
+
+  const [events, setEvents] = useState<GameEvent[]>([]);
+  const [accountEffects, setAccountEffects] = useState<Partial<Effects>>({});
+  const [tiles, setTiles] = useState<Tile[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   const [contextReady, setContextReady] = useState({
     villageContextReady: false,
@@ -61,7 +56,60 @@ const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
 
   const [hasGameDataLoaded, setHasGameDataLoaded] = useState<boolean>(false);
 
-  const logout = () => {
+  const createNewEvent = (type: GameEvent['type'], data: any) => {
+    setEvents((prevState: GameEvent[]) => {
+      return [
+        ...prevState,
+        {
+          type,
+          data
+        }
+      ];
+    });
+  };
+
+  const createResourceUpgradeEvent = (villageId: Village['id'], resourceFieldId: ResourceFieldId, level: number, duration: number) => {
+    const eventData = {
+      villageId,
+      resourceFieldId,
+      level,
+      duration
+    };
+    createNewEvent('resourceFieldUpgrade', eventData);
+  };
+
+  const completeAchievement = (achievementId: Achievement['id']): void => {
+    setAchievements((prevState: Achievement[]) => {
+      const achievementToComplete = prevState.find((achievement: Achievement) => achievement.id === achievementId)!;
+      achievementToComplete.isCompleted = true;
+      return prevState;
+    });
+  };
+
+  const completeQuest = (questId: Quest['id']): void => {
+    setAchievements((prevState: Quest[]) => {
+      const questToComplete = prevState.find((quest: Quest) => quest.id === questId)!;
+      questToComplete.isCompleted = true;
+      return prevState;
+    });
+  };
+
+  const resolveEvent = (eventId: GameEvent['id']) => {
+    try {
+      const event = events.find((gameEvent: GameEvent) => gameEvent.id === eventId)!;
+      const { eventType } = event;
+    } catch (error) {
+      console.error(`Can't resolve event with id of ${eventId}`, error);
+    }
+  };
+
+  const resolveEvents = () => {
+    events.forEach((event: GameEvent) => {
+
+    });
+  };
+
+  const logout = (): void => {
     setTiles([]);
     setHasGameDataLoaded(false);
   };
@@ -81,36 +129,35 @@ const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
   };
 
   useEffect(() => {
-    if (!server) {
-      return;
-    }
     (async () => {
       try {
-        const storageMapData = await localforage.getItem<Tile[]>(`${server.id}-mapData`);
-        setTiles(storageMapData);
-      } catch (e) {
-        console.error('Error fetching map data from IndexedDB', e);
+        const [
+          eventData,
+          accountEffectData,
+          tileData,
+          reportData,
+          questData,
+          achievementData
+        ] = await Promise.all([
+          StorageService.get<GameEvent[]>(`${server.id}-events`),
+          StorageService.get<Partial<Effects>>(`${server.id}-accountEffects`),
+          StorageService.get<Tile[]>(`${server.id}-map`),
+          StorageService.get<Report[]>(`${server.id}-reports`),
+          StorageService.get<Quest[]>(`${server.id}-quests`),
+          StorageService.get<Achievement[]>(`${server.id}-achievements`)
+        ]);
+
+        setEvents(eventData!);
+        setAccountEffects(accountEffectData!);
+        setTiles(tileData!);
+        setReports(reportData!);
+        setQuests(questData!);
+        setAchievements(achievementData!);
+      } catch (error) {
+        console.error('Error fetching data from the IndexedDB');
       }
     })();
   }, [server]);
-
-  // useEffect(() => {
-  //   // Try to get server name from url to try to redirect user to the server directly
-  //   const [serverName, villageName, page] = window.location.pathname.split('/')
-  //     .filter((path, index) => index !== 0);
-  //   console.log(serverName, villageName, page);
-  //   if (!(serverName && villageName)) {
-  //     navigate('/');
-  //   }
-  //   const serverData: Server | undefined = servers.find((server: Server) => server.name === serverName);
-  //   if (!serverData) {
-  //     navigate('/');
-  //   }
-  //   // Validate villageName
-  //   const village = serverData!.gameData.playerVillages.find((playerVillage: Village) => playerVillage.name === villageName);
-  //   navigate(`/${serverName}/${vi}`);
-  //
-  // }, []);
 
   useEffect(() => {
     setHasGameDataLoaded(contextReady.villageContextReady && contextReady.heroContextReady);
@@ -127,12 +174,14 @@ const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
       achievements,
       setAchievements,
       hasGameDataLoaded,
+      accountEffects,
 
       // Functions
       setIsContextReady,
-      logout
+      logout,
+      createResourceUpgradeEvent
     };
-  }, [server, tiles, reports, quests, achievements, hasGameDataLoaded]);
+  }, [server, tiles, reports, quests, achievements, hasGameDataLoaded, accountEffects]);
 
   return (
     <GameContext.Provider value={value}>

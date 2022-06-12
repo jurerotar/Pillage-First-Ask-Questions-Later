@@ -1,5 +1,5 @@
 import React, { ButtonHTMLAttributes } from 'react';
-import useWindowSize from 'helpers/hooks/use-window-size';
+import useWindowSize from 'utils/hooks/use-window-size';
 import { useContextSelector } from 'use-context-selector';
 import { HeroContext } from 'providers/game/hero-context';
 

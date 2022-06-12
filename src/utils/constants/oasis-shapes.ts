@@ -1,4 +1,4 @@
-import { Resource } from 'interfaces/models/game/resources';
+import { Resource } from 'interfaces/models/game/resource';
 
 type Shape = {
   group: number;
@@ -14,7 +14,7 @@ type OasisShapes = {
 
 const oasisShapes: OasisShapes = {
   wheat: {
-    backgroundColor: '#85A6DB',
+    backgroundColor: '#FFF600',
     shapes: [
       {
         group: 1,

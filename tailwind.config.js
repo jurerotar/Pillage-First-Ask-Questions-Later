@@ -1,5 +1,6 @@
 const plugin = require('tailwindcss/plugin');
-const colors = require('tailwindcss/colors')
+const colors = require('tailwindcss/colors');
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
   darkMode: 'class',
@@ -8,6 +9,9 @@ module.exports = {
     "./src/**/*.tsx",
   ],
   theme: {
+    fontFamily: {
+      'sans': ['Montserrat', ...defaultTheme.fontFamily.sans],
+    },
     screens: {
       'xs': '425px',
       'sm': '640px',
@@ -18,6 +22,12 @@ module.exports = {
     },
     colors: {
       ...colors,
+      resources: {
+        wood: '#426002',
+        iron: '#7B90A1',
+        clay: '#C29760',
+        wheat: '#FFF600'
+      },
       brown: {
         50: '#fdf8f6',
         100: '#f2e8e5',
@@ -30,9 +40,17 @@ module.exports = {
         800: '#846358',
         900: '#43302b',
       },
-      burek: '#151d20'
     },
     extend: {
+      fontFamily: {
+        'permanent-marker': ['Permanent Marker', 'sans-serif']
+      },
+      duration: {
+        default: 300
+      },
+      backdropBlur: {
+        'xs': '1px'
+      }
     },
   },
   plugins: [

@@ -2,21 +2,27 @@ import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { Village } from 'interfaces/models/game/village';
 import { GameContext } from 'providers/game/game-context';
-import { Resource, VillageResources } from 'interfaces/models/game/resources';
-import localforage from 'localforage';
+import { Resource, Resources } from 'interfaces/models/game/resource';
 import { Outlet } from 'react-router-dom';
+import { defaultBuildingFields, defaultResourceFields, defaultResources } from 'utils/constants/defaults';
+import StorageService from 'services/storage-service';
 
 type VillageProviderValues = {
+  selectedVillage: Village;
   // Village states
-  resources: VillageResources | null;
-  setResources: React.Dispatch<React.SetStateAction<VillageResources | null>>;
-  calculatedResources: VillageResources | null;
-  storageCapacity: VillageResources | null;
-  setStorageCapacity: React.Dispatch<React.SetStateAction<VillageResources | null>>;
-  hourlyProduction: VillageResources | null;
-  setHourlyProduction: React.Dispatch<React.SetStateAction<VillageResources | null>>;
+  resources: Resources;
+  setResources: React.Dispatch<React.SetStateAction<Resources>>;
+  calculatedResources: Resources;
+  storageCapacity: Resources;
+  setStorageCapacity: React.Dispatch<React.SetStateAction<Resources>>;
+  hourlyProduction: Resources;
+  setHourlyProduction: React.Dispatch<React.SetStateAction<Resources>>;
   lastUpdatedAt: number;
   setLastUpdatedAt: React.Dispatch<React.SetStateAction<number>>;
+  resourceFields: Village['resourceFields'];
+  setResourceFields: React.Dispatch<React.SetStateAction<Village['resourceFields']>>;
+  buildingFields: Village['buildingFields'];
+  setBuildingFields: React.Dispatch<React.SetStateAction<Village['buildingFields']>>;
 
   // Village memos
   populationCount: number;
@@ -33,15 +39,18 @@ const VillageProvider: React.FC = (): ReactElement => {
   const server = useContextSelector(GameContext, (v) => v.server);
   const setIsContextReady = useContextSelector(GameContext, (v) => v.setIsContextReady);
 
-  const [playerVillages, setPlayerVillages] = useState<Village[] | null>(null);
+  const [playerVillages, setPlayerVillages] = useState<Village[]>(null);
   // Current village data
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   // Gets only on events (troop training, building,...) and is the base for calculated resources
-  const [resources, setResources] = useState<VillageResources | null>(null);
-  // Actual current amount calculated with base resources and hourly production. Used for determining if user can build
-  const [calculatedResources, setCalculatedResources] = useState<VillageResources | null>(null);
-  const [storageCapacity, setStorageCapacity] = useState<VillageResources | null>(null);
-  const [hourlyProduction, setHourlyProduction] = useState<VillageResources | null>(null);
+  const [resources, setResources] = useState<Resources>(defaultResources);
+  // Actual current amount calculated with base resources and hourly production. Used for determining if user can initialize building
+  const [calculatedResources, setCalculatedResources] = useState<Resources>(defaultResources);
+  const [storageCapacity, setStorageCapacity] = useState<Resources>(defaultResources);
+  const [hourlyProduction, setHourlyProduction] = useState<Resources>(defaultResources);
+  const [resourceFields, setResourceFields] = useState<Village['resourceFields']>(defaultResourceFields);
+  const [buildingFields, setBuildingFields] = useState<Village['buildingFields']>(defaultBuildingFields);
+
   // This state gets updated every time village gets / spends resource by an event (building, raid coming back,...) and it's used to
   // calculate 'calculatedResources'
   const [lastUpdatedAt, setLastUpdatedAt] = useState<number>(0);
@@ -65,10 +74,7 @@ const VillageProvider: React.FC = (): ReactElement => {
   };
 
   const updateCalculatedResources = (type: Resource, amount: number): void => {
-    // TODO: This is only called when game is loaded, so prevState is never null. Fix types
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    setCalculatedResources((prevState: VillageResources) => ({
+    setCalculatedResources((prevState: Resources) => ({
       ...prevState,
       [type]: amount
     }));
@@ -80,7 +86,7 @@ const VillageProvider: React.FC = (): ReactElement => {
     }
     (async () => {
       try {
-        const storagePlayerVillageData = await localforage.getItem<Village[]>(`${server.id}-playerVillagesData`);
+        const storagePlayerVillageData = await StorageService.get<Village[]>(`${server.id}-playerVillages`);
         setPlayerVillages(storagePlayerVillageData);
       } catch (e) {
         console.error('Error fetching village data from IndexedDB', e);
@@ -104,6 +110,8 @@ const VillageProvider: React.FC = (): ReactElement => {
     setResources(selectedVillage.resources);
     setStorageCapacity(selectedVillage.storageCapacity);
     setHourlyProduction(selectedVillage.hourlyProduction);
+    setResourceFields(selectedVillage.resourceFields);
+    setBuildingFields(selectedVillage.buildingFields);
   }, [selectedVillage]);
 
   useEffect(() => {
@@ -121,6 +129,8 @@ const VillageProvider: React.FC = (): ReactElement => {
 
   const value = useMemo<VillageProviderValues>(() => {
     return {
+      selectedVillage,
+
       // Village data
       resources,
       setResources,
@@ -131,6 +141,10 @@ const VillageProvider: React.FC = (): ReactElement => {
       setHourlyProduction,
       lastUpdatedAt,
       setLastUpdatedAt,
+      resourceFields,
+      setResourceFields,
+      buildingFields,
+      setBuildingFields,
 
       // Village memos
       populationCount,
@@ -141,7 +155,7 @@ const VillageProvider: React.FC = (): ReactElement => {
       changeVillage
     };
   }, [
-    resources, storageCapacity, hourlyProduction, lastUpdatedAt, selectedVillage,
+    resources, storageCapacity, hourlyProduction, lastUpdatedAt, selectedVillage, calculatedResources,
     populationCount, troopPopulationCount
   ]);
 

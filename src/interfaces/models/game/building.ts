@@ -1,18 +1,25 @@
-export type BuildingIds =
-  'BAKERY'
-  | 'BRICKYARD'
+import { Resource } from 'interfaces/models/game/resource';
+import { EffectId } from 'interfaces/models/game/effect';
+import { Tribe } from 'interfaces/models/game/tribe';
+
+export type ResourceBuildingId =
   | 'CLAY_PIT'
   | 'CROPLAND'
+  | 'WOODCUTTER'
+  | 'IRON_MINE';
+
+export type BuildingId =
+  ResourceBuildingId
+  | 'BAKERY'
+  | 'BRICKYARD'
   | 'GRAIN_MILL'
   | 'GRANARY'
   | 'GREAT_GRANARY'
   | 'GREAT_WAREHOUSE'
   | 'IRON_FOUNDRY'
-  | 'IRON_MINE'
   | 'SAWMILL'
   | 'WAREHOUSE'
   | 'WATERWORKS'
-  | 'WOODCUTTER'
   | 'ACADEMY'
   | 'SMITHY'
   | 'BARRACKS'
@@ -30,7 +37,6 @@ export type BuildingIds =
   | 'STONEMASON'
   | 'TOURNAMENT_SQUARE'
   | 'TRAPPER'
-  | 'WATCHTOWER'
   | 'WORKSHOP'
   | 'BREWERY'
   | 'COMMAND_CENTER'
@@ -46,11 +52,29 @@ export type BuildingIds =
   | 'TREASURY'
   | 'WONDER_OF_THE_WORLD';
 
-export type Building = {
-  name: BuildingIds;
-  maxLevel: number;
-  buildingCostModifier: [number, number, number, number];
-  buildingTimeModifier: number;
-  cropConsumptionPerLevel: number[];
-  culturePointsGenerationPerLevel: number[];
+export type BuildingEffect = {
+  effectId: EffectId;
+  valuesPerLevel: number[];
 };
+
+export type BuildingRequirementType = 'building' | 'tribe' | 'capital';
+
+export type BuildingRequirement = {
+  requirementType: BuildingRequirementType;
+  buildingId?: Building['id'];
+  level?: number;
+  tribe?: Tribe;
+  notBuildableInCapital?: boolean;
+  onlyBuildableInCapital?: boolean;
+};
+
+export type Building = {
+  id: BuildingId;
+  maxLevel: number;
+  buildingDuration: number[];
+  culturePointsProduction: number[];
+  cropConsumption: number[];
+  effects?: BuildingEffect[];
+  buildingRequirements?: BuildingRequirement[];
+  totalResourceCost: number[];
+} & Record<Resource, number[]>;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useContextSelector } from 'use-context-selector';
 import StockContainer from 'components/game/navigation/stock-container';
-import { Resource } from 'interfaces/models/game/resources';
+import { Resource } from 'interfaces/models/game/resource';
 import { VillageContext } from 'providers/game/village-context';
 
 const ResourcesContainer: React.FC = (): JSX.Element => {

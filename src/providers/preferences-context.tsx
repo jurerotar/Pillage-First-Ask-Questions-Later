@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createContext } from 'use-context-selector';
 import { Preferences } from 'interfaces/models/preferences/preferences';
 import { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
-import useLocalStorage from 'helpers/hooks/use-local-storage';
+import useLocalStorage from 'utils/hooks/use-local-storage';
 
 type PreferencesProviderProps = {
   children: ReactElement;
@@ -11,15 +11,13 @@ type PreferencesProviderProps = {
 
 export type PreferencesProviderValues = {
   locale: Preferences['locale'];
-  setLocale: React.Dispatch<React.SetStateAction<Preferences['locale']>>;
   colorScheme: AvailableColorSchemes;
-  setColorScheme: React.Dispatch<React.SetStateAction<AvailableColorSchemes>>;
-  isColorSchemeSetExplicitly: Preferences['isColorSchemeSetExplicitly'];
-  setIsColorSchemeSetExplicitly: React.Dispatch<React.SetStateAction<Preferences['isColorSchemeSetExplicitly']>>;
   isAccessibilityModeEnabled: Preferences['isAccessibilityModeEnabled'];
-  setIsAccessibilityModeEnabled: React.Dispatch<React.SetStateAction<Preferences['isAccessibilityModeEnabled']>>;
   isReducedMotionModeEnabled: Preferences['isReducedMotionModeEnabled'];
-  setIsReducedMotionModeEnabled: React.Dispatch<React.SetStateAction<Preferences['isReducedMotionModeEnabled']>>;
+  changeLocale: (language: Preferences['locale']) => void;
+  toggleColorScheme: () => void;
+  toggleAccessibilityMode: () => void;
+  toggleReducedMotionMode: () => void;
 };
 
 const PreferencesContext = createContext<PreferencesProviderValues>({} as PreferencesProviderValues);
@@ -43,6 +41,41 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
   const [locale, setLocale] = useState<Preferences['locale']>(preferences.locale);
   const [isAccessibilityModeEnabled, setIsAccessibilityModeEnabled] = useState<Preferences['isAccessibilityModeEnabled']>(preferences.isAccessibilityModeEnabled);
   const [isReducedMotionModeEnabled, setIsReducedMotionModeEnabled] = useState<Preferences['isReducedMotionModeEnabled']>(preferences.isReducedMotionModeEnabled);
+
+  const changeLocale = (language: Preferences['locale']): void => {
+    i18n.language = language;
+    setLocale(language);
+  };
+
+  const toggleColorScheme = (): void => {
+    const html = document.querySelector('html')!;
+    const currentColorScheme = colorScheme;
+    const nextColorScheme = colorScheme === 'light' ? 'dark' : 'light';
+    html.classList.remove(currentColorScheme);
+    html.classList.add(nextColorScheme);
+    setIsColorSchemeSetExplicitly(true);
+    setColorScheme(nextColorScheme);
+  };
+
+  const toggleAccessibilityMode = (): void => {
+    const html = document.querySelector('html')!;
+    if (isAccessibilityModeEnabled) {
+      html.classList.remove('accessible');
+    } else {
+      html.classList.add('accessible');
+    }
+    setIsAccessibilityModeEnabled((prev) => !prev);
+  };
+
+  const toggleReducedMotionMode = (): void => {
+    const html = document.querySelector('html')!;
+    if (isReducedMotionModeEnabled) {
+      html.classList.remove('reduced-motion');
+    } else {
+      html.classList.add('reduced-motion');
+    }
+    setIsReducedMotionModeEnabled((prev) => !prev);
+  };
 
   // Update color scheme if user's device default differs from app default and user hasn't explicitly set preference
   useEffect(() => {
@@ -70,9 +103,9 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
   // Save preferences to localStorage on preference change
   useEffect(() => {
     setPreferences({
+      locale,
       colorScheme,
       isColorSchemeSetExplicitly,
-      locale,
       isAccessibilityModeEnabled,
       isReducedMotionModeEnabled
     });
@@ -80,18 +113,16 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
 
   const value = useMemo<PreferencesProviderValues>(() => {
     return {
-      colorScheme,
-      setColorScheme,
-      isColorSchemeSetExplicitly,
-      setIsColorSchemeSetExplicitly,
       locale,
-      setLocale,
+      changeLocale,
+      colorScheme,
       isAccessibilityModeEnabled,
-      setIsAccessibilityModeEnabled,
       isReducedMotionModeEnabled,
-      setIsReducedMotionModeEnabled
+      toggleColorScheme,
+      toggleAccessibilityMode,
+      toggleReducedMotionMode
     };
-  }, [colorScheme, isColorSchemeSetExplicitly, locale, isAccessibilityModeEnabled, isReducedMotionModeEnabled]);
+  }, [colorScheme, locale, isAccessibilityModeEnabled, isReducedMotionModeEnabled]);
 
   return (
     <PreferencesContext.Provider value={value}>

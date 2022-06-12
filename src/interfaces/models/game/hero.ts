@@ -1,4 +1,4 @@
-import { Resource } from 'interfaces/models/game/resources';
+import { Resource } from 'interfaces/models/game/resource';
 
 export type Hero = {
   name: string;

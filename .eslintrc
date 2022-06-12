@@ -26,9 +26,12 @@
     "consistent-return": [
       "warn"
     ],
-    "@typescript-eslint/no-unused-vars": [
-      "error"
-    ],
+    "react/jsx-no-useless-fragment": "warn",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-max-props-per-line": ["error", {
+      "maximum": 1
+    }],
+    "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-non-null-assertion": [
       "off"
     ],
@@ -84,6 +87,8 @@
       "never",
       {
         "css": "always",
+        "scss": "always",
+        "json": "always",
         "ts": "never",
         "tsx": "never"
       }

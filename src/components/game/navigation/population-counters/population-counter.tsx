@@ -10,10 +10,10 @@ const PopulationCounter: React.FC = (): JSX.Element => {
     <div className="flex flex-col">
       <NavigationButton
         onClick={() => {}}
-        variant="troop-count"
+        variant="population-count"
         size="sm"
       />
-      <span className="text-center text-sm">
+      <span className="text-center text-sm transition-colors duration-default dark:text-white">
         {populationCount}
       </span>
     </div>

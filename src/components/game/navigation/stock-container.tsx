@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Resource } from 'interfaces/models/game/resources';
+import { Resource } from 'interfaces/models/game/resource';
 import { useContextSelector } from 'use-context-selector';
 import { VillageContext } from 'providers/game/village-context';
+import { faWheatAwn, faTree, faTrowelBricks, faDrumSteelpan } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type StockContainerProps = {
   resourceType: Resource;
@@ -60,12 +62,24 @@ const StockContainer: React.FC<StockContainerProps> = (props): JSX.Element => {
   }, [calculatedCurrentAmount, storageCapacity]);
 
   // TODO: Replace with images eventually
-  const image = useMemo<string>(() => {
+  const image = useMemo(() => {
     const images = {
-      wood: 'WD',
-      iron: 'IRN',
-      clay: 'CLY',
-      wheat: 'WHE'
+      wood: {
+        icon: faTree,
+        color: 'text-green-600'
+      },
+      iron: {
+        icon: faDrumSteelpan,
+        color: 'text-gray-300'
+      },
+      clay: {
+        icon: faTrowelBricks,
+        color: 'text-red-300'
+      },
+      wheat: {
+        icon: faWheatAwn,
+        color: 'text-yellow-300'
+      }
     };
     return images[resourceType];
   }, [resourceType]);
@@ -126,20 +140,20 @@ const StockContainer: React.FC<StockContainerProps> = (props): JSX.Element => {
   return (
     <div className={`flex flex-col gap-2 border-gray-150 ${hasBorder && 'border-r pr-2'}`}>
       <div className="flex justify-between items-center gap-2 sm:gap-4 md:gap-6">
-        <span className="text-sm font-semibold">
-          [
-          {image}
-          ]
-        </span>
+        <FontAwesomeIcon
+          icon={image.icon}
+          fixedWidth
+          className={`text-base ${image.color}`}
+        />
         <div className="flex gap-1">
-          <span className="text-xs sm:text-sm">
-            <span className="sm:font-bold">
+          <span className="flex text-xs sm:text-sm gap-[2px]">
+            <span className="flex sm:font-bold gap-[2px]">
               {formattedCurrentAmount}
               <span className="font-normal hidden sm:flex">
                 /
               </span>
             </span>
-            <span className="font-light text-xs hidden sm:flex">
+            <span className="font-light hidden sm:flex">
               {storageCapacity}
             </span>
           </span>

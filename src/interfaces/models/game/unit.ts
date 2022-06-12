@@ -1,7 +1,7 @@
 import { Tribe } from 'interfaces/models/game/tribe';
 import { Building } from 'interfaces/models/game/building';
 
-export type UnitIds =
+export type UnitId =
   'LEGIONNAIRE'
   | 'PRAETORIAN'
   | 'IMPERIAN'
@@ -63,10 +63,10 @@ export type UnitIds =
   | 'CROCODILE'
   | 'TIGER';
 
-export type UnitPrerequisites = `${Building['name']}:${string}`;
+export type UnitResearchPrerequisites = `${Building['id']}:${string}`;
 
 export type Unit = {
-  name: UnitIds;
+  name: UnitId;
   baseRecruitmentCost: [number, number, number, number];
   baseRecruitmentTime: number;
   cropConsumption: number;
@@ -77,5 +77,5 @@ export type Unit = {
   carryCapacity: number;
   type: 'infantry' | 'cavalry' | 'siege' | 'special';
   tribe: Tribe;
-  researchPrerequisites: UnitPrerequisites[];
+  researchPrerequisites: UnitResearchPrerequisites[];
 };
