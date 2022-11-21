@@ -1,19 +1,19 @@
 import React, { useRef } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import ResourcesContainer from 'components/game/navigation/resources-container';
+import { ResourcesContainer } from 'components/game/navigation/resources-container';
 import { useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
-import NavigationButton, { NavigationButtonVariant } from 'components/game/navigation/navigation-button';
-import TroopPopulationCounter from 'components/game/navigation/population-counters/troop-population-counter';
-import PopulationCounter from 'components/game/navigation/population-counters/population-counter';
-import ReportsContainer from 'components/game/navigation/reports-container';
-import Button from 'components/common/buttons/button';
+import { NavigationButton, NavigationButtonVariant } from 'components/game/navigation/navigation-button';
+import { TroopPopulationCounter } from 'components/game/navigation/population-counters/troop-population-counter';
+import { PopulationCounter } from 'components/game/navigation/population-counters/population-counter';
+import { ReportsContainer } from 'components/game/navigation/reports-container';
+import { Button } from 'components/common/buttons/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faPowerOff, faGear } from '@fortawesome/free-solid-svg-icons';
-import Tooltip from 'components/common/tooltip';
-import { ModalContext } from 'providers/modal-context';
-import UserPreferences from 'components/user-preferences';
+import { Tooltip } from 'components/common/tooltip';
+import { ModalContext } from 'providers/global/modal-context';
+import { UserPreferences } from 'components/user-preferences';
 import { useTranslation } from 'react-i18next';
 
 type MainNavigationLinks = {
@@ -22,7 +22,33 @@ type MainNavigationLinks = {
   variant: NavigationButtonVariant
 };
 
-const GameLayout: React.FC = (): JSX.Element => {
+const mainNavigationLinks: MainNavigationLinks[] = [
+  {
+    to: '/resources',
+    label: 'Resources',
+    variant: 'resources'
+  },
+  {
+    to: '/village',
+    label: 'Village',
+    variant: 'village'
+  },
+  {
+    to: '/map',
+    label: 'Map',
+    variant: 'map'
+  }
+];
+
+const openGithub = (): void => {
+  window.location.href = 'https://github.com/jurerotar/crylite';
+};
+
+const openDiscord = (): void => {
+  window.location.href = 'https://github.com/jurerotar/crylite';
+};
+
+export const GameLayout: React.FC = () => {
   const navigate = useNavigate();
   const navigation = useRef<HTMLElement>(null);
   const mainNavigationSection = useRef<HTMLDivElement>(null);
@@ -31,34 +57,8 @@ const GameLayout: React.FC = (): JSX.Element => {
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
   const { t } = useTranslation();
 
-  const mainNavigationLinks: MainNavigationLinks[] = [
-    {
-      to: '/resources',
-      label: 'Resources',
-      variant: 'resources'
-    },
-    {
-      to: '/village',
-      label: 'Village',
-      variant: 'village'
-    },
-    {
-      to: '/map',
-      label: 'Map',
-      variant: 'map'
-    }
-  ];
-
   const openPreferencesModal = (children: React.ReactNode) => {
     return () => openModal(children);
-  };
-
-  const openGithub = (): void => {
-    window.location.href = 'https://github.com/jurerotar/crylite';
-  };
-
-  const openDiscord = (): void => {
-    window.location.href = 'https://github.com/jurerotar/crylite';
   };
 
   const logoutToHomepage = (): void => {
@@ -71,25 +71,25 @@ const GameLayout: React.FC = (): JSX.Element => {
   ) : (
     <>
       <nav
-        className="flex relative h-[4.5rem] z-10 shadow-md"
+        className="relative z-10 flex h-[4.5rem] shadow-md"
         ref={navigation}
       >
-        <div className="flex absolute top-0 left-0 w-full h-1/2 bg-blue-500 transition-colors duration-default dark:bg-slate-900" />
-        <div className="flex absolute bottom-0 left-0 w-full h-1/2 bg-blue-200 transition-colors duration-default dark:bg-slate-900" />
-        <div className="container mx-auto flex justify-between relative">
+        <div className="duration-default absolute top-0 left-0 flex h-1/2 w-full bg-blue-500 transition-colors dark:bg-slate-900" />
+        <div className="duration-default absolute bottom-0 left-0 flex h-1/2 w-full bg-blue-200 transition-colors dark:bg-slate-900" />
+        <div className="container relative mx-auto flex justify-between">
           <div className="" />
           {/* Center section */}
           <div
-            className="overflow-x-scroll scrollbar-hidden z-10 flex w-fit gap-4 md:gap-8 relative md:absolute md:top-0 md:left-1/2 md:-translate-x-1/2"
+            className="scrollbar-hidden relative z-10 flex w-fit gap-4 overflow-x-scroll md:absolute md:top-0 md:left-1/2 md:-translate-x-1/2 md:gap-8"
             ref={mainNavigationSection}
           >
             {/* Troop and general population counters */}
-            <div className="flex gap-2 items-start pt-1">
+            <div className="flex items-start gap-2 pt-1">
               <TroopPopulationCounter />
               <PopulationCounter />
             </div>
             {/* Main navigation items */}
-            <ul className="flex gap-2 items-center z-20 md:mt-1">
+            <ul className="z-20 flex items-center gap-2 md:mt-1">
               {/* <li className="flex"> */}
               {/*   <HeroInterfaceButton onClick={() => {}} /> */}
               {/* </li> */}
@@ -110,18 +110,18 @@ const GameLayout: React.FC = (): JSX.Element => {
               ))}
             </ul>
             {/* Hero interface and reports */}
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <ReportsContainer />
             </div>
           </div>
-          <div className="gap-2 flex-end items-start hidden md:flex">
+          <div className="flex-end hidden items-start gap-2 md:flex">
             <Tooltip tooltipContent={t('PREFERENCES.MODAL.TOOLTIP_LABEL')}>
               <Button
                 onClick={openPreferencesModal((
                   <UserPreferences />
                 ))}
                 size="xs"
-                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+                className="rounded-t-none bg-gray-800 dark:bg-gray-600"
               >
                 <FontAwesomeIcon icon={faGear} />
               </Button>
@@ -130,7 +130,7 @@ const GameLayout: React.FC = (): JSX.Element => {
               <Button
                 onClick={openGithub}
                 size="xs"
-                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+                className="rounded-t-none bg-gray-800 dark:bg-gray-600"
               >
                 <FontAwesomeIcon icon={faGithub} />
               </Button>
@@ -139,7 +139,7 @@ const GameLayout: React.FC = (): JSX.Element => {
               <Button
                 onClick={openDiscord}
                 size="xs"
-                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+                className="rounded-t-none bg-gray-800 dark:bg-gray-600"
               >
                 <FontAwesomeIcon icon={faDiscord} />
               </Button>
@@ -147,7 +147,7 @@ const GameLayout: React.FC = (): JSX.Element => {
             <Tooltip tooltipContent="Logout">
               <Button
                 size="xs"
-                className="bg-gray-800 dark:bg-gray-600 rounded-t-none"
+                className="rounded-t-none bg-gray-800 dark:bg-gray-600"
                 onClick={logoutToHomepage}
               >
                 <FontAwesomeIcon icon={faPowerOff} />
@@ -155,7 +155,7 @@ const GameLayout: React.FC = (): JSX.Element => {
             </Tooltip>
           </div>
         </div>
-        <div className="inline-flex justify-center gap-2 absolute top-[4.5rem] left-1/2 -translate-x-1/2 w-full sm:w-fit sm:p-2 bg-white">
+        <div className="absolute top-[4.5rem] left-1/2 inline-flex w-full -translate-x-1/2 justify-center gap-2 bg-white sm:w-fit sm:p-2">
           <ResourcesContainer />
         </div>
       </nav>
@@ -167,5 +167,3 @@ const GameLayout: React.FC = (): JSX.Element => {
     </>
   );
 };
-
-export default GameLayout;

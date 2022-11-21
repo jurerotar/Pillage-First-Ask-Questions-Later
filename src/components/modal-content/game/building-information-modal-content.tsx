@@ -2,16 +2,18 @@ import React, { useMemo } from 'react';
 import { Building } from 'interfaces/models/game/building';
 import _buildings from 'assets/buildings.json';
 import { useTranslation } from 'react-i18next';
-import Paragraph from 'components/common/paragraph';
-import SectionHeading from 'components/common/section-heading';
+import { Paragraph } from 'components/common/paragraph';
+import { SectionHeading } from 'components/common/section-heading';
 import { arrayTupleToObject, formatTime } from 'utils/common';
 import { Resource, Resources } from 'interfaces/models/game/resource';
-import BuildingEffects from 'components/game/modal-content/building-effects';
-import Icon from 'components/common/icon';
-import Tooltip from 'components/common/tooltip';
-import Button from 'components/common/buttons/button';
-import Accordion from 'components/common/accordion';
-import BuildingUpgradeInformationTable from 'components/common/tables/building-upgrade-information-table';
+import { BuildingEffectsModalContent } from 'components/modal-content/game/building-effects-modal-content';
+import { Icon } from 'components/common/icon';
+import { Tooltip } from 'components/common/tooltip';
+import { Button } from 'components/common/buttons/button';
+import { Accordion } from 'components/common/accordion';
+import {
+  BuildingUpgradeInformationTable
+} from 'components/common/tables/building-upgrade-information-table';
 import { useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
 import { BuildingFieldId, ResourceFieldId } from 'interfaces/models/game/village';
@@ -26,7 +28,7 @@ type BuildingInformationProps = {
   canUpgrade: boolean;
 };
 
-const BuildingInformation: React.FC<BuildingInformationProps> = (props): JSX.Element => {
+export const BuildingInformationModalContent: React.FC<BuildingInformationProps> = (props) => {
   const {
     buildingFieldId,
     buildingId,
@@ -65,14 +67,14 @@ const BuildingInformation: React.FC<BuildingInformationProps> = (props): JSX.Ele
         </Paragraph>
       </Accordion>
       {/* Building upgrade information */}
-      <div className="flex flex-col border border-green-300 bg-green-50 rounded-md p-2">
+      <div className="flex flex-col rounded-md border border-green-300 bg-green-50 p-2">
         {isMaxLevel ? (
-          <div className="flex flex-col sm:flex-row justify-between">
+          <div className="flex flex-col justify-between sm:flex-row">
             <span className="">
               {`${t(`GAME.BUILDINGS.${buildingId}.NAME`)} ${t('GENERAL.BUILDING.BUILDING_MAX_LEVEL')}`}
             </span>
             <div className="inline-flex gap-3">
-              <BuildingEffects
+              <BuildingEffectsModalContent
                 building={building}
                 level={buildingLevel}
               />
@@ -100,25 +102,30 @@ const BuildingInformation: React.FC<BuildingInformationProps> = (props): JSX.Ele
                   </Tooltip>
                 ))}
             </div>
-            <div className="flex justify-center gap-4 border-dashed border-y border-gray-300 py-4">
-              <BuildingEffects
+            <div className="flex justify-center gap-4 border-y border-dashed border-gray-300 py-4">
+              <BuildingEffectsModalContent
                 building={building}
                 level={buildingLevel}
               />
             </div>
-            <div className="flex justify-center items-center pt-4">
-              <div className="flex gap-4 items-center">
+            <div className="flex items-center justify-center pt-4">
+              <div className="flex items-center gap-4">
                 {/* Building upgrade button */}
                 <Button
                   variant="confirm"
                   size="sm"
                   disabled={!canUpgrade}
-                  onClick={() => createResourceUpgradeEvent(selectedVillage?.id, buildingFieldId, buildingLevel + 1, building.buildingDuration[buildingLevel])}
+                  onClick={() => createResourceUpgradeEvent(
+                    selectedVillage?.id,
+                    buildingFieldId,
+                    buildingLevel + 1,
+                    building.buildingDuration[buildingLevel]
+                  )}
                 >
                   {t('GENERAL.BUILDING.UPGRADE_TO')} {buildingLevel + 1}
                 </Button>
                 <Tooltip tooltipContent="GAME.EFFECTS.DURATION.TITLE">
-                  <span className="inline-flex gap-2 items-center">
+                  <span className="inline-flex items-center gap-2">
                     <Icon type="buildingDuration" />
                     {formatTime(building?.buildingDuration[buildingLevel])}
                   </span>
@@ -142,5 +149,3 @@ const BuildingInformation: React.FC<BuildingInformationProps> = (props): JSX.Ele
     </div>
   );
 };
-
-export default BuildingInformation;

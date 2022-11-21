@@ -5,7 +5,7 @@ import { GameContext } from 'providers/game/game-context';
 import { Resource, Resources } from 'interfaces/models/game/resource';
 import { Outlet } from 'react-router-dom';
 import { defaultBuildingFields, defaultResourceFields, defaultResources } from 'utils/constants/defaults';
-import StorageService from 'services/storage-service';
+import { StorageService } from 'services/storage-service';
 
 type VillageProviderValues = {
   selectedVillage: Village;
@@ -127,37 +127,32 @@ const VillageProvider: React.FC = (): ReactElement => {
     setIsContextReady('village');
   }, [resources, storageCapacity, hourlyProduction, lastUpdatedAt, selectedVillage]);
 
-  const value = useMemo<VillageProviderValues>(() => {
-    return {
-      selectedVillage,
+  const value = {
+    selectedVillage,
 
-      // Village data
-      resources,
-      setResources,
-      calculatedResources,
-      storageCapacity,
-      setStorageCapacity,
-      hourlyProduction,
-      setHourlyProduction,
-      lastUpdatedAt,
-      setLastUpdatedAt,
-      resourceFields,
-      setResourceFields,
-      buildingFields,
-      setBuildingFields,
+    // Village data
+    resources,
+    setResources,
+    calculatedResources,
+    storageCapacity,
+    setStorageCapacity,
+    hourlyProduction,
+    setHourlyProduction,
+    lastUpdatedAt,
+    setLastUpdatedAt,
+    resourceFields,
+    setResourceFields,
+    buildingFields,
+    setBuildingFields,
 
-      // Village memos
-      populationCount,
-      troopPopulationCount,
+    // Village memos
+    populationCount,
+    troopPopulationCount,
 
-      // Functions
-      updateCalculatedResources,
-      changeVillage
-    };
-  }, [
-    resources, storageCapacity, hourlyProduction, lastUpdatedAt, selectedVillage, calculatedResources,
-    populationCount, troopPopulationCount
-  ]);
+    // Functions
+    updateCalculatedResources,
+    changeVillage
+  };
 
   return (
     <VillageContext.Provider value={value}>

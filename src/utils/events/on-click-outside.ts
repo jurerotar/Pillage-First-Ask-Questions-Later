@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const onClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void): void => {
+export const useOnClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void): void => {
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -16,7 +16,5 @@ const onClickOutside = (ref: React.RefObject<HTMLElement>, callback: () => void)
       // Unbind the event listener on clean up
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [ref]);
+  }, [callback, ref]);
 };
-
-export default onClickOutside;

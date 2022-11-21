@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Point } from 'interfaces/models/common/point';
+import { Point } from 'interfaces/models/common';
+import clsx from 'clsx';
 
 type TooltipProps = {
   tooltipContent: string | React.ReactNode;
@@ -9,7 +10,7 @@ type TooltipProps = {
   children: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const Tooltip: React.FC<TooltipProps> = (props): JSX.Element => {
+export const Tooltip: React.FC<TooltipProps> = (props) => {
   const {
     tooltipContent,
     offsetY = 0,
@@ -33,30 +34,31 @@ const Tooltip: React.FC<TooltipProps> = (props): JSX.Element => {
   };
 
   useEffect(() => {
-    if (!ref.current) {
+    const localRef = ref.current;
+    if (!localRef) {
       return;
     }
-    ref.current?.addEventListener('mousemove', updateCurrentPosition, false);
+    localRef?.addEventListener('mousemove', updateCurrentPosition, false);
     return () => {
-      ref.current?.removeEventListener('mousemove', updateCurrentPosition, false);
+      localRef?.removeEventListener('mousemove', updateCurrentPosition, false);
     };
   }, []);
 
   return (
     <div
       ref={ref}
-      className="inline-flex tooltip"
+      className="tooltip inline-flex"
     >
       {children}
       <div
-        className={`tooltip-popup delay-150 transition-opacity duration-default fixed w-fit z-30 pointer-events-none rounded-md p-2 bg-black ${className}`}
+        className={clsx(className, 'tooltip-popup duration-default pointer-events-none fixed z-30 w-fit rounded-md bg-black p-2 transition-opacity delay-150')}
         style={{
           top: `${position.y + offsetY}px`,
           left: `${position.x + offsetX}px`
         }}
       >
         {typeof tooltipContent === 'string' ? (
-          <p className="text-white text-xs">
+          <p className="text-xs text-white">
             {tooltipContent}
           </p>
         ) : tooltipContent}
@@ -64,5 +66,3 @@ const Tooltip: React.FC<TooltipProps> = (props): JSX.Element => {
     </div>
   );
 };
-
-export default Tooltip;

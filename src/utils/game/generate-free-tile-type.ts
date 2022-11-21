@@ -1,7 +1,7 @@
 import { randomIntFromInterval } from 'utils/common';
 import { ResourceFieldType } from 'interfaces/models/game/village';
 
-const generateFreeTileType = (): ResourceFieldType => {
+export const generateFreeTileType = (): ResourceFieldType => {
   const randomInt: number = randomIntFromInterval(1, 91);
   const weightedResourceFieldType: { [key in number]: ResourceFieldType } = {
     1: '00018',
@@ -27,5 +27,3 @@ const generateFreeTileType = (): ResourceFieldType => {
 
   return '4446';
 };
-
-export default generateFreeTileType;

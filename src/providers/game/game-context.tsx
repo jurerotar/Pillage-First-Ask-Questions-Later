@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { createContext } from 'use-context-selector';
 import { Server } from 'interfaces/models/game/server';
 import { Tile } from 'interfaces/models/game/tile';
@@ -8,7 +8,7 @@ import { Achievement } from 'interfaces/models/game/achievement';
 import { Effects } from 'interfaces/models/game/effect';
 import { Outlet } from 'react-router-dom';
 import { GameEvent } from 'interfaces/models/events/game-event';
-import StorageService from 'services/storage-service';
+import { StorageService } from 'services/storage-service';
 import { ResourceFieldId, Village } from 'interfaces/models/game/village';
 
 type GameProviderProps = {
@@ -163,25 +163,23 @@ const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
     setHasGameDataLoaded(contextReady.villageContextReady && contextReady.heroContextReady);
   }, [contextReady]);
 
-  const value = useMemo<GameProviderValues>(() => {
-    return {
-      server,
-      tiles,
-      reports,
-      setReports,
-      quests,
-      setQuests,
-      achievements,
-      setAchievements,
-      hasGameDataLoaded,
-      accountEffects,
+  const value: GameProviderValues = {
+    server,
+    tiles,
+    reports,
+    setReports,
+    quests,
+    setQuests,
+    achievements,
+    setAchievements,
+    hasGameDataLoaded,
+    accountEffects,
 
-      // Functions
-      setIsContextReady,
-      logout,
-      createResourceUpgradeEvent
-    };
-  }, [server, tiles, reports, quests, achievements, hasGameDataLoaded, accountEffects]);
+    // Functions
+    setIsContextReady,
+    logout,
+    createResourceUpgradeEvent
+  };
 
   return (
     <GameContext.Provider value={value}>

@@ -2,13 +2,23 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useTranslation } from 'react-i18next';
 
+type PublicViewName =
+  | 'home';
+
+type GameViewName =
+  | 'resources'
+  | 'village'
+  | 'map';
+
 type AppHelmetProps = {
-  viewName: 'home' | 'resources' | 'village' | 'map';
+  viewName: PublicViewName | GameViewName;
+  children?: React.ReactNode;
 };
 
-const AppHelmet: React.FC<AppHelmetProps> = (props): JSX.Element => {
+export const Head: React.FC<AppHelmetProps> = (props) => {
   const {
-    viewName
+    viewName,
+    children
   } = props;
 
   const { t } = useTranslation();
@@ -41,8 +51,7 @@ const AppHelmet: React.FC<AppHelmetProps> = (props): JSX.Element => {
         property="og:description"
         content={description}
       />
+      {children}
     </Helmet>
   );
 };
-
-export default AppHelmet;

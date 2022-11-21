@@ -14,6 +14,7 @@ import {
   faShield
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx';
 
 type AvailableIconTypes =
   | 'wood'
@@ -142,7 +143,7 @@ const typeToIconMap: { [key in Partial<AvailableIconTypes>]: IconProperties } = 
 };
 
 // TODO: Some FontAwesome will get replaced by custom icons eventually
-const Icon: React.FC<IconProps> = (props): JSX.Element => {
+export const Icon: React.FC<IconProps> = (props) => {
   const {
     type,
     fixedWidth = true,
@@ -153,9 +154,7 @@ const Icon: React.FC<IconProps> = (props): JSX.Element => {
     <FontAwesomeIcon
       icon={typeToIconMap[type].icon ?? faBan}
       fixedWidth={fixedWidth}
-      className={`${typeToIconMap[type].color ?? 'text-red-500'} ${className}`}
+      className={clsx(typeToIconMap[type].color ?? 'text-red-500', className)}
     />
   );
 };
-
-export default Icon;

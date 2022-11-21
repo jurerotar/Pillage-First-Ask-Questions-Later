@@ -1,9 +1,10 @@
 import React, { ButtonHTMLAttributes, useMemo } from 'react';
-import useWindowSize from 'utils/hooks/use-window-size';
-import breakpoints from 'utils/constants/breakpoints';
+import { useWindowSize } from 'utils/hooks/use-window-size';
+import { breakpoints } from 'utils/constants/breakpoints';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWheatAwn, faCity, faMapLocation, faListCheck, faShield, faUsers, faHandFist } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import clsx from 'clsx';
 
 export type NavigationButtonVariant = 'resources' | 'village' | 'map' | 'reports' | 'troop-count' | 'population-count' | 'hero-interface';
 
@@ -25,7 +26,7 @@ type Sizes = {
   [key in NavigationButtonProps['size']]: string;
 };
 
-const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element => {
+export const NavigationButton: React.FC<NavigationButtonProps> = (props) => {
   const {
     onClick,
     variant,
@@ -67,13 +68,13 @@ const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element =
     }
   };
 
-  const sizes: Sizes = {
-    sm: 'w-10 h-10 p-1',
-    md: 'w-16 h-16 p-3',
-    lg: 'w-16 h-16 p-3'
-  };
-
   const buttonSize = useMemo<string>(() => {
+    const sizes: Sizes = {
+      sm: 'w-10 h-10 p-1',
+      md: 'w-16 h-16 p-3',
+      lg: 'w-16 h-16 p-3'
+    };
+
     if (size === 'sm') {
       return sizes.sm;
     }
@@ -85,16 +86,14 @@ const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element =
 
   return (
     <button
-      className={`flex justify-center items-center h-fit border-[6px] rounded-full bg-gray-100 dark:bg-neutral-900 transition-colors duration-default ${buttonSize} ${isActive ? 'bg-green-100' : 'border-gray-200'}`}
+      className={clsx(buttonSize, isActive ? 'bg-green-100' : 'border-gray-200', 'duration-default flex h-fit items-center justify-center rounded-full border-[6px] bg-gray-100 transition-colors dark:bg-neutral-900')}
       onClick={onClick}
       type="button"
     >
       <FontAwesomeIcon
-        className={`flex justify-center items-center h-full w-full ${navigationButtonContent[variant].color}`}
+        className={clsx(navigationButtonContent[variant].color, 'flex h-full w-full items-center justify-center')}
         icon={navigationButtonContent[variant].icon}
       />
     </button>
   );
 };
-
-export default NavigationButton;

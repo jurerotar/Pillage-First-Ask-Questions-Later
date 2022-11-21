@@ -6,7 +6,7 @@ type CloseButtonProps = {
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const CloseButton: React.FC<CloseButtonProps> = (props): JSX.Element => {
+export const CloseButton: React.FC<CloseButtonProps> = (props) => {
   const {
     onClick,
     className = ''
@@ -19,7 +19,7 @@ const CloseButton: React.FC<CloseButtonProps> = (props): JSX.Element => {
       onClickCapture={onClick}
     >
       <svg
-        className="w-5 h-5"
+        className="h-5 w-5"
         fill="currentColor"
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"
@@ -33,5 +33,3 @@ const CloseButton: React.FC<CloseButtonProps> = (props): JSX.Element => {
     </button>
   );
 };
-
-export default CloseButton;

@@ -1,7 +1,7 @@
 import { LocalForageKey } from 'interfaces/models/storage/storage';
 import localforage from 'localforage';
 
-export default class StorageService {
+export class StorageService {
   public static get = async <T>(key: LocalForageKey): Promise<T | null> => {
     return localforage.getItem<T>(key);
   };

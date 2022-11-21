@@ -3,8 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import { AvailableLocales } from 'interfaces/models/preferences/locale';
 // eslint-disable-next-line import/extensions
 import EnUSLocalization from 'i18n/translations/en-US.json';
-// eslint-disable-next-line import/extensions
-import SlSLLocalization from 'i18n/translations/sl-SL.json';
 
 const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
 
@@ -16,12 +14,10 @@ const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
       fallbackLng: 'en-US',
       load: 'currentOnly',
       supportedLngs: availableLocales,
+      returnObjects: false,
       resources: {
         'en-US': {
           translation: EnUSLocalization
-        },
-        'sl-SL': {
-          translation: SlSLLocalization
         }
       }
     });

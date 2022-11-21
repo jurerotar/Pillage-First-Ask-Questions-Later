@@ -1,6 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import clsx from 'clsx';
 
 type AccordionProps = {
   summary: string;
@@ -10,7 +11,7 @@ type AccordionProps = {
   children: React.ReactNode;
 };
 
-const Accordion: React.FC<AccordionProps> = (props): JSX.Element => {
+export const Accordion: React.FC<AccordionProps> = (props) => {
   const {
     summary,
     opened = false,
@@ -21,10 +22,10 @@ const Accordion: React.FC<AccordionProps> = (props): JSX.Element => {
 
   return (
     <details
-      className="accordion border border-gray-300 rounded-md"
+      className="accordion rounded-md border border-gray-300"
       open={opened}
     >
-      <summary className={`flex p-4 border-gray-300 items-center justify-between cursor-pointer ${summaryClassName}`}>
+      <summary className={clsx(summaryClassName, 'flex cursor-pointer items-center justify-between border-gray-300 p-4')}>
         <span>
           {summary}
         </span>
@@ -34,11 +35,9 @@ const Accordion: React.FC<AccordionProps> = (props): JSX.Element => {
           fixedWidth
         />
       </summary>
-      <div className={`p-4 ${className}`}>
+      <div className={clsx(className, 'p-4')}>
         {children}
       </div>
     </details>
   );
 };
-
-export default Accordion;

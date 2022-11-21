@@ -1,15 +1,15 @@
 import React from 'react';
 import { useContextSelector } from 'use-context-selector';
-import { ModalContext } from 'providers/modal-context';
-import BuildingField from 'components/game/building-field';
-import AppHelmet from 'components/common/head/app-helmet';
+import { ModalContext } from 'providers/global/modal-context';
+import { BuildingField } from 'components/game/building-field';
+import { Head } from 'components/common/head';
 
-const VillageView: React.FC = (): JSX.Element => {
+export const VillageView: React.FC = () => {
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
 
   return (
     <>
-      {/* <AppHelmet viewName="village" /> */}
+      <Head viewName="village" />
       <div>
         <BuildingField
           buildingFieldId="10"
@@ -20,5 +20,3 @@ const VillageView: React.FC = (): JSX.Element => {
     </>
   );
 };
-
-export default VillageView;

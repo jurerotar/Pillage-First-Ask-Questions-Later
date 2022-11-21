@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 type ButtonProps = {
   variant?: 'danger' | 'normal' | 'confirm';
@@ -10,7 +11,7 @@ type ButtonProps = {
   children: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const Button: React.FC<ButtonProps> = (props): JSX.Element => {
+export const Button: React.FC<ButtonProps> = (props) => {
   const {
     variant = 'normal',
     size = 'base',
@@ -26,22 +27,20 @@ const Button: React.FC<ButtonProps> = (props): JSX.Element => {
       type="button"
       disabled={disabled || isLoading}
       onClick={onClick}
-      className={`
-        rounded-md text-white w-fit transition-colors duration-default text-xs sm:text-base
-        ${size === 'xs' && 'px-2 py-1'}
-        ${size === 'sm' && 'px-4 py-2'}
-        ${size === 'base' && 'px-4 py-2'}
-        ${size === 'lg' && 'px-4 py-2'}
-        ${variant === 'normal' && 'bg-blue-400'}
-        ${variant === 'confirm' && 'bg-green-500'}
-        ${variant === 'danger' && 'bg-red-500'}
-        ${(isLoading || disabled) && 'bg-gray-500'}
-        ${className}
-      `}
+      className={clsx(
+        size === 'xs' && 'px-2 py-1',
+        size === 'sm' && 'px-4 py-2',
+        size === 'base' && 'px-4 py-2',
+        size === 'lg' && 'px-4 py-2',
+        variant === 'normal' && 'bg-blue-400',
+        variant === 'confirm' && 'bg-green-500',
+        variant === 'danger' && 'bg-red-500',
+        (isLoading || disabled) && 'bg-gray-500',
+        className,
+        'duration-default w-fit rounded-md text-xs text-white transition-colors sm:text-base'
+      )}
     >
       {children}
     </button>
   );
 };
-
-export default Button;

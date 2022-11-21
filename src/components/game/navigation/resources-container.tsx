@@ -1,10 +1,10 @@
 import React from 'react';
 import { useContextSelector } from 'use-context-selector';
-import StockContainer from 'components/game/navigation/stock-container';
+import { StockContainer } from 'components/game/navigation/stock-container';
 import { Resource } from 'interfaces/models/game/resource';
 import { VillageContext } from 'providers/game/village-context';
 
-const ResourcesContainer: React.FC = (): JSX.Element => {
+export const ResourcesContainer: React.FC = () => {
   const lastUpdatedAt = useContextSelector(VillageContext, (v) => v.lastUpdatedAt);
   const resources = useContextSelector(VillageContext, (v) => v.resources);
   const storageCapacity = useContextSelector(VillageContext, (v) => v.storageCapacity);
@@ -27,5 +27,3 @@ const ResourcesContainer: React.FC = (): JSX.Element => {
     </div>
   );
 };
-
-export default ResourcesContainer;

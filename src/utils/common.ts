@@ -1,4 +1,4 @@
-import { Point } from 'interfaces/models/common/point';
+import { Point } from 'interfaces/models/common';
 
 export const cartesianToIsometric = (point: Point): Point => {
   return {
@@ -58,4 +58,14 @@ export const formatRemainingTime = (endTime: number): string => {
   const now = Date.now() / 1000;
   const difference = endTime - now;
   return formatTime(difference);
+};
+
+export const debounce = (callback: () => void, duration: number = 300) => {
+  let timer: NodeJS.Timeout;
+  return () => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(callback, duration);
+  };
 };

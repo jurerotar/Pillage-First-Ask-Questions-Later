@@ -6,7 +6,7 @@ type HamburgerButtonProps = {
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const HamburgerButton: React.FC<HamburgerButtonProps> = (props): JSX.Element => {
+export const HamburgerButton: React.FC<HamburgerButtonProps> = (props) => {
   const {
     onClick,
     className = ''
@@ -20,7 +20,7 @@ const HamburgerButton: React.FC<HamburgerButtonProps> = (props): JSX.Element => 
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="w-6 h-6"
+        className="h-6 w-6"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -35,5 +35,3 @@ const HamburgerButton: React.FC<HamburgerButtonProps> = (props): JSX.Element => 
     </button>
   );
 };
-
-export default HamburgerButton;

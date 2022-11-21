@@ -6,7 +6,7 @@ type AuthenticationGuardProps = {
   navigateTo?: string;
 };
 
-const AuthenticationGuard: React.FC<AuthenticationGuardProps> = (props): JSX.Element => {
+export const AuthenticationGuard: React.FC<AuthenticationGuardProps> = (props) => {
   const {
     isAuthenticated,
     navigateTo = '/'
@@ -17,5 +17,3 @@ const AuthenticationGuard: React.FC<AuthenticationGuardProps> = (props): JSX.Ele
       : <Navigate to={navigateTo} />
   ) as JSX.Element;
 };
-
-export default AuthenticationGuard;

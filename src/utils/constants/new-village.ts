@@ -1,7 +1,9 @@
 import { BuildingFields, ResourceFieldLayout, ResourceFieldLayoutByFieldType, Village } from 'interfaces/models/game/village';
 import { v4 as uuidv4 } from 'uuid';
-import effects from 'utils/constants/effects';
-import createResourceFieldsFromResourceLayout from 'utils/game/create-resource-fields-from-resource-layout';
+import { effects } from 'utils/constants/effects';
+import {
+  createResourceFieldsFromResourceLayout
+} from 'utils/game/create-resource-fields-from-resource-layout';
 
 const newVillageBuildingFields: BuildingFields = {
   1: {
@@ -224,7 +226,7 @@ const resourceFields: ResourceFieldLayoutByFieldType = {
 };
 
 // This is default new (4-4-4-6) village. Some properties need to be changed on creation based on the type of village
-const newVillage: Village = {
+export const newVillage: Village = {
   id: uuidv4(),
   name: 'New village',
   lastUpdatedAt: Date.now(),
@@ -256,5 +258,3 @@ const newVillage: Village = {
   isCapital: true,
   quests: []
 };
-
-export default newVillage;

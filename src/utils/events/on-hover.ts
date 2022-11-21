@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from 'react';
 
-const onHover = (ref: RefObject<HTMLElement>, onMouseEnter: () => void, onMouseLeave?: () => void): void => {
+export const useOnHover = (ref: RefObject<HTMLElement>, onMouseEnter: () => void, onMouseLeave?: () => void): void => {
   useEffect(() => {
     const immutableRef = ref.current;
     if (immutableRef) {
@@ -13,5 +13,3 @@ const onHover = (ref: RefObject<HTMLElement>, onMouseEnter: () => void, onMouseL
     };
   }, [ref, onMouseEnter, onMouseLeave]);
 };
-
-export default onHover;

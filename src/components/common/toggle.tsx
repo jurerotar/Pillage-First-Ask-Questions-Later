@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import clsx from 'clsx';
 
 type ToggleProps = {
   id: string;
@@ -8,7 +9,7 @@ type ToggleProps = {
   className?: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
-const Toggle: React.FC<ToggleProps> = (props): JSX.Element => {
+export const Toggle: React.FC<ToggleProps> = (props) => {
   const {
     id,
     onChange,
@@ -36,12 +37,10 @@ const Toggle: React.FC<ToggleProps> = (props): JSX.Element => {
       />
       <label
         htmlFor={id}
-        className={`toggle-label relative cursor-pointer block w-12 h-6 rounded-full transition-colors duration-default ease-out ${isChecked ? 'bg-blue-500' : 'bg-gray-300'} ${className}`}
+        className={clsx(isChecked ? 'bg-blue-500' : 'bg-gray-300', className, 'toggle-label duration-default relative block h-6 w-12 cursor-pointer rounded-full transition-colors ease-out')}
       >
         {label}
       </label>
     </>
   );
 };
-
-export default Toggle;

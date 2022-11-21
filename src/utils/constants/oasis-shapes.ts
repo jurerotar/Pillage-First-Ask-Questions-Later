@@ -12,7 +12,7 @@ type OasisShapes = {
   }
 };
 
-const oasisShapes: OasisShapes = {
+export const oasisShapes: OasisShapes = {
   wheat: {
     backgroundColor: '#FFF600',
     shapes: [
@@ -210,5 +210,3 @@ const oasisShapes: OasisShapes = {
     ]
   }
 };
-
-export default oasisShapes;

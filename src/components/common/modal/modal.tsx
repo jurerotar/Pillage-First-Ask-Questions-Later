@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import CloseButton from 'components/common/buttons/close-button';
-import ScreenOverlay from 'components/common/modal/screen-overlay';
-import onClickOutside from 'utils/events/on-click-outside';
+import { CloseButton } from 'components/common/buttons/close-button';
+import { ScreenOverlay } from 'components/common/modal/screen-overlay';
+import { useOnClickOutside } from 'utils/events/on-click-outside';
+import clsx from 'clsx';
 
 type ModalProps = {
   show: boolean;
@@ -11,7 +12,7 @@ type ModalProps = {
   className?: string;
 };
 
-const Modal: React.FC<ModalProps> = (props): JSX.Element => {
+export const Modal: React.FC<ModalProps> = (props) => {
   const {
     show,
     closeHandler,
@@ -21,7 +22,7 @@ const Modal: React.FC<ModalProps> = (props): JSX.Element => {
 
   const ref = useRef<HTMLDivElement>(null);
 
-  onClickOutside(ref, closeHandler);
+  useOnClickOutside(ref, closeHandler);
 
   return (
     <ScreenOverlay show={show}>
@@ -34,9 +35,9 @@ const Modal: React.FC<ModalProps> = (props): JSX.Element => {
         <div
           ref={ref}
           tabIndex={-1}
-          className={`overflow-y-auto scrollbar h-full max-h-[calc(100vh-2rem)] md:max-h-[700px] transition-colors duration-default rounded-md bg-white dark:bg-gray-700 p-4 overflow-x-hidden fixed inset-4 md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 w-[calc(100%-2rem)] md:w-[calc(100%-8rem)] max-w-screen-md ${show ? 'pointer-events-auto flex' : 'pointer-events-none hidden'} ${className}`}
+          className={clsx(show ? 'pointer-events-auto flex' : 'pointer-events-none hidden', className, 'scrollbar duration-default fixed inset-4 z-50 h-full max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-screen-md overflow-y-auto overflow-x-hidden rounded-md bg-white p-4 transition-colors dark:bg-gray-700 md:top-1/2 md:left-1/2 md:max-h-[calc(600px-2rem)] md:w-[calc(100%-8rem)] md:-translate-x-1/2 md:-translate-y-1/2')}
         >
-          <div className="h-full w-full relative">
+          <div className="relative h-full w-full">
             <div className="absolute right-0 top-0">
               <CloseButton onClick={closeHandler} />
             </div>
@@ -47,5 +48,3 @@ const Modal: React.FC<ModalProps> = (props): JSX.Element => {
     </ScreenOverlay>
   );
 };
-
-export default Modal;

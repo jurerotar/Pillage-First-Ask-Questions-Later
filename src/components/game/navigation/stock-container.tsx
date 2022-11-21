@@ -4,6 +4,7 @@ import { useContextSelector } from 'use-context-selector';
 import { VillageContext } from 'providers/game/village-context';
 import { faWheatAwn, faTree, faTrowelBricks, faDrumSteelpan } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx';
 
 type StockContainerProps = {
   resourceType: Resource;
@@ -14,7 +15,7 @@ type StockContainerProps = {
   hasBorder?: boolean;
 };
 
-const StockContainer: React.FC<StockContainerProps> = (props): JSX.Element => {
+export const StockContainer: React.FC<StockContainerProps> = (props) => {
   const {
     resourceType,
     lastKnownAmount,
@@ -138,22 +139,22 @@ const StockContainer: React.FC<StockContainerProps> = (props): JSX.Element => {
   }, [hasHadInitialUpdate]);
 
   return (
-    <div className={`flex flex-col gap-2 border-gray-150 ${hasBorder && 'border-r pr-2'}`}>
-      <div className="flex justify-between items-center gap-2 sm:gap-4 md:gap-6">
+    <div className={clsx(hasBorder && 'border-r pr-2', 'border-gray-150 flex flex-col gap-2')}>
+      <div className="flex items-center justify-between gap-2 sm:gap-4 md:gap-6">
         <FontAwesomeIcon
           icon={image.icon}
           fixedWidth
-          className={`text-base ${image.color}`}
+          className={clsx(image.color, 'text-base')}
         />
         <div className="flex gap-1">
-          <span className="flex text-xs sm:text-sm gap-[2px]">
-            <span className="flex sm:font-bold gap-[2px]">
+          <span className="flex gap-[2px] text-xs sm:text-sm">
+            <span className="flex gap-[2px] sm:font-bold">
               {formattedCurrentAmount}
-              <span className="font-normal hidden sm:flex">
+              <span className="hidden font-normal sm:flex">
                 /
               </span>
             </span>
-            <span className="font-light hidden sm:flex">
+            <span className="hidden font-light sm:flex">
               {storageCapacity}
             </span>
           </span>
@@ -166,7 +167,7 @@ const StockContainer: React.FC<StockContainerProps> = (props): JSX.Element => {
         }}
       >
         <div
-          className={`flex justify-center w-full h-2 ${isStorageFull ? 'bg-red-500' : 'bg-green-400'}`}
+          className={clsx(isStorageFull ? 'bg-red-500' : 'bg-green-400', 'flex h-2 w-full justify-center rounded-sm')}
           style={{
             width: `${resourceBarWidth}%`
           }}
@@ -175,5 +176,3 @@ const StockContainer: React.FC<StockContainerProps> = (props): JSX.Element => {
     </div>
   );
 };
-
-export default StockContainer;

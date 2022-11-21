@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Size } from 'interfaces/models/common/size';
+import { Size } from 'interfaces/models/common';
+import { debounce } from 'utils/common';
 
-const useWindowSize = () => {
+export const useWindowSize = () => {
   const [windowSize, setWindowSize] = useState<Size>({
     width: 0,
     height: 0
@@ -14,12 +15,13 @@ const useWindowSize = () => {
         height: window.innerHeight
       });
     };
-    window.addEventListener('resize', handleResize);
+
+    const debouncedResizeHandler = debounce(handleResize);
+
+    window.addEventListener('resize', debouncedResizeHandler);
     handleResize();
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', debouncedResizeHandler);
   }, []);
 
   return windowSize;
 };
-
-export default useWindowSize;

@@ -1,9 +1,9 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
 import { Hero } from 'interfaces/models/game/hero';
 import { Outlet } from 'react-router-dom';
-import StorageService from 'services/storage-service';
+import { StorageService } from 'services/storage-service';
 
 type HeroProviderValues = {
   heroData: Hero | null;
@@ -38,12 +38,10 @@ const HeroProvider: React.FC = (): ReactElement => {
     setIsContextReady('hero');
   }, [heroData]);
 
-  const value = useMemo<HeroProviderValues>(() => {
-    return {
-      heroData,
-      setHeroData
-    };
-  }, [heroData]);
+  const value: HeroProviderValues = {
+    heroData,
+    setHeroData
+  };
 
   return (
     <HeroContext.Provider value={value}>

@@ -1,9 +1,9 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createContext } from 'use-context-selector';
 import { Preferences } from 'interfaces/models/preferences/preferences';
 import { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
-import useLocalStorage from 'utils/hooks/use-local-storage';
+import { useLocalStorage } from 'utils/hooks/use-local-storage';
 
 type PreferencesProviderProps = {
   children: ReactElement;
@@ -36,7 +36,7 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
     isReducedMotionModeEnabled: false
   });
 
-  const [colorScheme, setColorScheme] = useState<AvailableColorSchemes>(preferences.colorScheme);
+  const [colorScheme, setColorScheme] = useState<AvailableColorSchemes>('light'); // preferences.colorScheme);
   const [isColorSchemeSetExplicitly, setIsColorSchemeSetExplicitly] = useState<Preferences['isColorSchemeSetExplicitly']>(preferences.isColorSchemeSetExplicitly);
   const [locale, setLocale] = useState<Preferences['locale']>(preferences.locale);
   const [isAccessibilityModeEnabled, setIsAccessibilityModeEnabled] = useState<Preferences['isAccessibilityModeEnabled']>(preferences.isAccessibilityModeEnabled);
@@ -111,18 +111,16 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
     });
   }, [colorScheme, isColorSchemeSetExplicitly, locale, isAccessibilityModeEnabled, isReducedMotionModeEnabled]);
 
-  const value = useMemo<PreferencesProviderValues>(() => {
-    return {
-      locale,
-      changeLocale,
-      colorScheme,
-      isAccessibilityModeEnabled,
-      isReducedMotionModeEnabled,
-      toggleColorScheme,
-      toggleAccessibilityMode,
-      toggleReducedMotionMode
-    };
-  }, [colorScheme, locale, isAccessibilityModeEnabled, isReducedMotionModeEnabled]);
+  const value: PreferencesProviderValues = {
+    locale,
+    changeLocale,
+    colorScheme,
+    isAccessibilityModeEnabled,
+    isReducedMotionModeEnabled,
+    toggleColorScheme,
+    toggleAccessibilityMode,
+    toggleReducedMotionMode
+  };
 
   return (
     <PreferencesContext.Provider value={value}>

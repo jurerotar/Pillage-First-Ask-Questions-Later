@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useMemo, useState } from 'react';
 import { createContext } from 'use-context-selector';
-import Modal from 'components/common/modal/modal';
+import { Modal } from 'components/common/modal/modal';
 
 type ModalProviderValues = {
   openModal: (children: ReactNode) => void;

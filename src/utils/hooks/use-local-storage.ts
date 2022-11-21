@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const useLocalStorage = <T>(key: string, initialValue: T): readonly [T, React.Dispatch<React.SetStateAction<T>>] => {
+export const useLocalStorage = <T>(key: string, initialValue: T): readonly [T, React.Dispatch<React.SetStateAction<T>>] => {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -36,5 +36,3 @@ const useLocalStorage = <T>(key: string, initialValue: T): readonly [T, React.Di
   };
   return [storedValue, setValue] as const;
 };
-
-export default useLocalStorage;

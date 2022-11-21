@@ -1,5 +1,5 @@
 import React, { ButtonHTMLAttributes } from 'react';
-import useWindowSize from 'utils/hooks/use-window-size';
+import { useWindowSize } from 'utils/hooks/use-window-size';
 import { useContextSelector } from 'use-context-selector';
 import { HeroContext } from 'providers/game/hero-context';
 
@@ -10,7 +10,7 @@ type NavigationButtonProps = {
 const heroHealthCircleCircumference = 2 * Math.PI * 50;
 const heroExperienceCircleCircumference = 2 * Math.PI * 60;
 
-const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element => {
+const NavigationButton: React.FC<NavigationButtonProps> = (props) => {
   const {
     onClick
   } = props;
@@ -24,19 +24,19 @@ const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element =
 
   return (
     <button
-      className="flex justify-center items-center h-fit border-[6px] rounded-full p-1 bg-white"
+      className="flex h-fit items-center justify-center rounded-full border-[6px] bg-white p-1"
       onClick={onClick}
       type="button"
     >
-      <span className="flex justify-center items-center">
+      <span className="flex items-center justify-center">
         HI
       </span>
-      <div className="fixed inline-flex items-center justify-center overflow-hidden rounded-full bottom-5 left-5">
+      <div className="fixed bottom-5 left-5 inline-flex items-center justify-center overflow-hidden rounded-full">
         <svg
           style={{
             transform: 'scaleX(-1)'
           }}
-          className="w-[100px] h-[100px]"
+          className="h-[100px] w-[100px]"
         >
           <circle
             className="text-gray-300"
@@ -51,7 +51,7 @@ const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element =
             className="text-blue-600"
             strokeWidth="10"
             strokeDasharray={heroHealthCircleCircumference}
-            strokeDashoffset={-heroHealthCircleCircumference - (25) / 100 * heroHealthCircleCircumference}
+            strokeDashoffset={-heroHealthCircleCircumference - ((25) / 100) * heroHealthCircleCircumference}
             // strokeLinecap="round"
             stroke="currentColor"
             fill="transparent"
@@ -64,5 +64,3 @@ const NavigationButton: React.FC<NavigationButtonProps> = (props): JSX.Element =
     </button>
   );
 };
-
-export default NavigationButton;

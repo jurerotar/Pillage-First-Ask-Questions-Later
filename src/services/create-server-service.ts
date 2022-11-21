@@ -1,16 +1,17 @@
 import { Tile } from 'interfaces/models/game/tile';
 import { Resource } from 'interfaces/models/game/resource';
-import oasisShapes from 'utils/constants/oasis-shapes';
+import { oasisShapes } from 'utils/constants/oasis-shapes';
 import { Server } from 'interfaces/models/game/server';
 import { Hero } from 'interfaces/models/game/hero';
-import newVillage from 'utils/constants/new-village';
+import { newVillage } from 'utils/constants/new-village';
 import { Village } from 'interfaces/models/game/village';
 import { randomIntFromInterval, randomArrayElement } from 'utils/common';
-import generateFreeTileType from 'utils/game/generate-free-tile-type';
-import StorageService from 'services/storage-service';
+import { generateFreeTileType } from 'utils/game/generate-free-tile-type';
+import { StorageService } from 'services/storage-service';
 import { accountEffects } from 'utils/constants/effects';
+import { RandomizerService } from 'services/randomizer-service';
 
-class CreateServerService {
+export class CreateServerService {
   private readonly serverId: Server['id'];
 
   private readonly server: Server;
@@ -20,7 +21,7 @@ class CreateServerService {
     this.serverId = server.id;
   }
 
-  public init = async (): Promise<boolean> => {
+  public init = async (seed: string): Promise<boolean> => {
     try {
       await Promise.all([
         this.createEventQueue(),
@@ -29,7 +30,7 @@ class CreateServerService {
         this.createQuests(),
         this.createAchievements(),
         this.createResearchLevels(),
-        this.createMapData(),
+        this.createMapData(seed),
         this.createPlayerVillageData()
       ]);
       return true;
@@ -92,15 +93,13 @@ class CreateServerService {
     await StorageService.set(`${this.serverId}-accountEffects`, accountEffects);
   };
 
-  private createMapData = async (): Promise<void> => {
-    const size = this.server.configuration.mapSize;
-
+  private createIsometricMapData = async (size: number): Promise<Tile[]> => {
     let xCoordinateCounter: number = -size / 2 - 1;
     let yCoordinateCounter: number = size / 2;
 
     // To create an isometric map, we create a cartesian map of double the size that we actually need, then remove the tiles that are never
     // displayed. Since our map has a border (wood and iron oasis surrounding the map, we have to include those fields as well.
-    const emptyTiles: Tile[] = [...Array(size ** 2 + 2 * size + 1)].map(() => {
+    return [...Array(size ** 2 + 2 * size + 1)].map(() => {
       xCoordinateCounter += 1;
       const x: Tile['x'] = xCoordinateCounter;
       const y: Tile['x'] = yCoordinateCounter;
@@ -122,8 +121,41 @@ class CreateServerService {
         backgroundColor: '#B9D580',
         type: null
       };
-    })
-      .filter((tile: Tile | null) => tile !== null) as Tile[];
+    }).filter((tile: Tile | null) => tile !== null) as Tile[];
+  };
+
+  private createSquareMapData = async (size: number): Promise<Tile[]> => {
+    let xCoordinateCounter: number = -size / 2 - 1;
+    let yCoordinateCounter: number = size / 2;
+
+    // To create an isometric map, we create a cartesian map of double the size that we actually need, then remove the tiles that are never
+    // displayed. Since our map has a border (wood and iron oasis surrounding the map, we have to include those fields as well.
+    return [...Array(size ** 2 + 1)].map(() => {
+      xCoordinateCounter += 1;
+      const x: Tile['x'] = xCoordinateCounter;
+      const y: Tile['x'] = yCoordinateCounter;
+
+      // When we reach the end of a row, decrease y and reset x coordinate counters
+      if (xCoordinateCounter === size / 2) {
+        xCoordinateCounter = -size / 2 - 1;
+        yCoordinateCounter -= 1;
+      }
+
+      return {
+        x,
+        y,
+        isOccupied: false,
+        isOasis: false,
+        backgroundColor: '#B9D580',
+        type: null
+      };
+    });
+  };
+
+  private createMapData = async (seed: string = RandomizerService.generateSeed(), type: 'square' | 'isometric' = 'square'): Promise<void> => {
+    const size = this.server.configuration.mapSize;
+
+    const emptyTiles = await (type === 'square' ? this.createSquareMapData(size) : this.createIsometricMapData(size));
 
     // Loop through all tiles
     for (let i = 0; i < emptyTiles.length; i += 1) {
@@ -214,5 +246,3 @@ class CreateServerService {
     await StorageService.set<Tile[]>(`${this.serverId}-map`, tiles);
   };
 }
-
-export default CreateServerService;

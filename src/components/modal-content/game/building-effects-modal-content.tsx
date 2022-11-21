@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { Building, BuildingEffect } from 'interfaces/models/game/building';
 import { partialArraySum, snakeToCamelCase } from 'utils/common';
-import Tooltip from 'components/common/tooltip';
+import { Tooltip } from 'components/common/tooltip';
 import { useTranslation } from 'react-i18next';
-import Icon from 'components/common/icon';
+import { Icon } from 'components/common/icon';
 
 type BuildingEffectsProps = {
   building: Building;
@@ -16,7 +16,7 @@ type CompiledBuildingEffect = {
   nextLevelAmount: number;
 };
 
-const BuildingEffects: React.FC<BuildingEffectsProps> = (props): JSX.Element => {
+export const BuildingEffectsModalContent: React.FC<BuildingEffectsProps> = (props) => {
   const {
     building,
     level
@@ -57,7 +57,7 @@ const BuildingEffects: React.FC<BuildingEffectsProps> = (props): JSX.Element => 
           key={buildingEffect.type}
           tooltipContent={t(`GAME.EFFECTS.${snakeToCamelCase(buildingEffect.type).toUpperCase()}.TITLE`)}
         >
-          <span className="inline-flex text-sm sm:text-base gap-1 sm:gap-2 items-center scrollbar-hidden overflow-x-scroll">
+          <span className="scrollbar-hidden inline-flex items-center gap-1 overflow-x-scroll text-sm sm:gap-2 sm:text-base">
             <Icon type={buildingEffect.type} />
             <span className="inline-flex gap-1 font-semibold">
               {buildingEffect.totalAmountToCurrentLevel}{buildingEffect.type.includes('Bonus') && '%'}
@@ -73,5 +73,3 @@ const BuildingEffects: React.FC<BuildingEffectsProps> = (props): JSX.Element => 
     </>
   );
 };
-
-export default BuildingEffects;

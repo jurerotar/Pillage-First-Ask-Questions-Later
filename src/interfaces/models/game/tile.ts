@@ -1,4 +1,4 @@
-import { Point } from 'interfaces/models/common/point';
+import { Point } from 'interfaces/models/common';
 import { ResourceFieldType } from 'interfaces/models/game/village';
 
 export type Tile = {

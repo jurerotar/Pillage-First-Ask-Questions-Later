@@ -69,7 +69,7 @@ export const newVillageEffects: Partial<Effects> = {
   warehouseCapacity: 1
 };
 
-const effects: Effects = {
+export const effects: Effects = {
   heroSpeedBonus: 1,
   heroResourceProductionBonus: 1,
   heroStrengthBonus: 1,
@@ -116,5 +116,3 @@ const effects: Effects = {
   granaryCapacity: 1,
   warehouseCapacity: 1
 };
-
-export default effects;

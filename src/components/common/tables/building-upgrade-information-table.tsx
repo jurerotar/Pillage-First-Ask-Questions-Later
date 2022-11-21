@@ -1,10 +1,10 @@
 import React from 'react';
 import { Building, BuildingEffect } from 'interfaces/models/game/building';
-import Tooltip from 'components/common/tooltip';
-import Icon from 'components/common/icon';
+import { Tooltip } from 'components/common/tooltip';
+import { Icon } from 'components/common/icon';
 import { useTranslation } from 'react-i18next';
 import { formatTime, snakeToCamelCase } from 'utils/common';
-import Paragraph from 'components/common/paragraph';
+import { Paragraph } from 'components/common/paragraph';
 
 type BuildingUpgradeInformationTableProps = {
   building: Building;
@@ -13,7 +13,7 @@ type BuildingUpgradeInformationTableProps = {
 
 type DisplayedProperty = keyof Omit<Building, 'id' | 'maxLevel' | 'effects' | 'buildingRequirements'> | 'level';
 
-const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableProps> = (props): JSX.Element => {
+export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableProps> = (props) => {
   const {
     building,
     level
@@ -46,14 +46,14 @@ const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableP
   };
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
-      <div className="rounded-md min-w-full dark:shadow-none shadow-md overflow-x-scroll">
-        <table className="w-full h-full">
-          <thead className="text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <div className="scrollbar-hidden overflow-x-scroll">
+      <div className="min-w-full overflow-x-scroll rounded-md shadow-md dark:shadow-none">
+        <table className="h-full w-full">
+          <thead className="bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               {propertiesToShow.map((property: DisplayedProperty) => (
                 <td
-                  className="min-w-[70px] text-center py-2"
+                  className="min-w-[70px] py-2 text-center"
                   key={property}
                 >
                   {property === 'level' ? (
@@ -69,7 +69,7 @@ const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableP
               ))}
               {building?.effects && building.effects.map((effect: BuildingEffect) => (
                 <td
-                  className="min-w-[70px] text-center py-2"
+                  className="min-w-[70px] py-2 text-center"
                   key={effect.effectId}
                 >
                   <Tooltip tooltipContent={t(`GAME.EFFECTS.${snakeToCamelCase(effect.effectId).toUpperCase()}`)}>
@@ -82,7 +82,7 @@ const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableP
           <tbody>
             {[...Array(building.maxLevel).keys()].map((row: number) => (
               <tr
-                className="border-b dark:bg-gray-800 dark:border-gray-700 odd:bg-white even:bg-gray-50 odd:dark:bg-gray-800 even:dark:bg-gray-700"
+                className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 odd:dark:bg-gray-800 even:dark:bg-gray-700"
                 key={row}
               >
                 {propertiesToShow.map((property) => (
@@ -126,5 +126,3 @@ const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableP
     </div>
   );
 };
-
-export default BuildingUpgradeInformationTable;

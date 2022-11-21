@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": "./",
     "allowJs": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "jsx": "react-native",
+    "jsx": "preserve",
     "lib": [
       "DOM",
       "dom.iterable",
@@ -21,38 +21,46 @@
     "module": "esnext",
     "paths": {
       "components/*": [
-        "components/*"
+        "src/components/*"
       ],
       "utils/*": [
-        "utils/*"
+        "src/utils/*"
       ],
       "i18n/*": [
-        "i18n/*"
+        "src/i18n/*"
       ],
       "interfaces/*": [
-        "interfaces/*"
+        "src/interfaces/*"
       ],
       "layouts/*": [
-        "layouts/*"
+        "src/layouts/*"
       ],
       "providers/*": [
-        "providers/*"
+        "src/providers/*"
       ],
       "views/*": [
-        "views/*"
+        "src/views/*"
       ],
       "services/*": [
-        "services/*"
+        "src/services/*"
       ],
       "styles/*": [
-        "styles/*"
+        "src/styles/*"
       ],
+      "assets/*": [
+        "src/assets/*"
+      ],
+      "config/*": [
+        "src/config/*"
+      ]
     }
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "src"
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ]
 }

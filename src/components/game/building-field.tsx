@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useContextSelector } from 'use-context-selector';
 import { VillageContext } from 'providers/game/village-context';
-import BuildingInformation from 'components/game/modal-content/building-information';
-import { ModalContext } from 'providers/modal-context';
+import { BuildingInformationModalContent } from 'components/modal-content/game/building-information-modal-content';
+import { ModalContext } from 'providers/global/modal-context';
 import { Building } from 'interfaces/models/game/building';
 import { Resource, Resources } from 'interfaces/models/game/resource';
 import { arrayTupleToObject } from 'utils/common';
@@ -25,7 +25,7 @@ type BuildingFieldProps = {
   className?: string;
 };
 
-const BuildingField: React.FC<BuildingFieldProps> = (props): JSX.Element => {
+export const BuildingField: React.FC<BuildingFieldProps> = (props) => {
   const {
     buildingFieldId,
     buildingId,
@@ -79,7 +79,7 @@ const BuildingField: React.FC<BuildingFieldProps> = (props): JSX.Element => {
     <button
       type="button"
       onClick={() => openModal((
-        <BuildingInformation
+        <BuildingInformationModalContent
           buildingFieldId={buildingFieldId}
           buildingId={buildingId}
           buildingLevel={buildingLevel}
@@ -90,12 +90,12 @@ const BuildingField: React.FC<BuildingFieldProps> = (props): JSX.Element => {
     >
       <span className="relative">
         <span
-          className="absolute rounded-full absolute-centering h-[26px] w-[26px]"
+          className="absolute-centering absolute h-[26px] w-[26px] rounded-full"
           style={{
             backgroundImage: buildingIconGradient
           }}
         >
-          <span className="flex items-center justify-center leading-none rounded-full text-gray-700 bg-white text-sm absolute absolute-centering h-[18px] w-[18px]">
+          <span className="absolute-centering absolute flex h-[18px] w-[18px] items-center justify-center rounded-full bg-white text-sm leading-none text-gray-700">
             {buildingLevel}
           </span>
         </span>
@@ -103,5 +103,3 @@ const BuildingField: React.FC<BuildingFieldProps> = (props): JSX.Element => {
     </button>
   );
 };
-
-export default BuildingField;

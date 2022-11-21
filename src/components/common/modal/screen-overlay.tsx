@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
+import clsx from 'clsx';
 
 type ScreenOverlayProps = {
   show: boolean;
@@ -7,7 +8,7 @@ type ScreenOverlayProps = {
   children?: React.ReactNode;
 };
 
-const ScreenOverlay: React.FC<ScreenOverlayProps> = (props): JSX.Element => {
+export const ScreenOverlay: React.FC<ScreenOverlayProps> = (props) => {
   const {
     show,
     className = '',
@@ -24,7 +25,7 @@ const ScreenOverlay: React.FC<ScreenOverlayProps> = (props): JSX.Element => {
       classNames="fade"
     >
       <div
-        className={`h-screen w-screen backdrop-blur-xs z-20 fixed top-0 left-0 bg-gray-700 ${show ? 'pointer-events-auto flex' : 'pointer-events-none hidden'} ${className}`}
+        className={clsx(show ? 'pointer-events-auto flex' : 'pointer-events-none hidden', className, 'fixed top-0 left-0 z-20 h-screen w-screen bg-gray-700 backdrop-blur-xs')}
         style={{
           backgroundColor: 'rgba(55, 65, 81, 0.3)'
         }}
@@ -34,5 +35,3 @@ const ScreenOverlay: React.FC<ScreenOverlayProps> = (props): JSX.Element => {
     </CSSTransition>
   );
 };
-
-export default ScreenOverlay;

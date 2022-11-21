@@ -11,5 +11,6 @@ export type Server = {
   id: string;
   name: string;
   startDate: Date;
+  seed: string;
   configuration: ServerConfiguration;
 };
