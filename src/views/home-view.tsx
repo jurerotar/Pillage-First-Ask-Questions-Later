@@ -8,6 +8,7 @@ import { useContextSelector } from 'use-context-selector';
 import { ModalContext } from 'providers/global/modal-context';
 import { CreateServerModalContent } from 'components/modal-content/public/create-server-modal-content';
 import { ServerCard } from 'components/public/home-view/server-card';
+import { ApplicationContext } from 'providers/global/application-context';
 
 type HomeViewProps = {
   selectServerHandler: (server: Server) => void;
@@ -17,7 +18,7 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
   const { selectServerHandler } = props;
 
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
-  const [servers] = useLocalStorage<Server[]>('servers', []);
+  const servers = useContextSelector(ApplicationContext, (v) => v.servers);
 
   return (
     <>
@@ -55,6 +56,7 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
           <div className="flex gap-4 overflow-x-scroll">
             {servers.map((server: Server) => (
               <ServerCard
+                key={server.id}
                 server={server}
                 selectServerHandler={selectServerHandler}
               />

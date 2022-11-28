@@ -12,7 +12,9 @@
     "lib": [
       "DOM",
       "dom.iterable",
-      "ESNext"
+      "ESNext",
+      ,
+      "webworker"
     ],
     "moduleResolution": "node",
     "noEmit": true,

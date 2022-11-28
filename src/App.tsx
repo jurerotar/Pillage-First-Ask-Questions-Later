@@ -11,10 +11,12 @@ import { DefaultLayout } from 'layouts/default-layout';
 import { GameProvider } from 'providers/game/game-context';
 import { VillageProvider } from 'providers/game/village-context';
 import { HeroProvider } from 'providers/game/hero-context';
-import { Server } from 'interfaces/models/game/server';
+import { useContextSelector } from 'use-context-selector';
+import { ApplicationContext } from 'providers/global/application-context';
 
 export const App: React.FC = () => {
-  const [server, setServer] = useState<Server | null>(null);
+  const selectedServer = useContextSelector(ApplicationContext, (v) => v.selectedServer);
+  const setSelectedServer = useContextSelector(ApplicationContext, (v) => v.setSelectedServer);
 
   return (
     <BrowserRouter>
@@ -22,11 +24,11 @@ export const App: React.FC = () => {
         <Route element={<DefaultLayout />}>
           <Route
             path="/"
-            element={<HomeView selectServerHandler={setServer} />}
+            element={<HomeView selectServerHandler={setSelectedServer} />}
           />
         </Route>
-        <Route element={<AuthenticationGuard isAuthenticated={!!server} />}>
-          <Route element={<GameProvider server={server!} />}>
+        <Route element={<AuthenticationGuard isAuthenticated={!!selectedServer} />}>
+          <Route element={<GameProvider server={selectedServer!} />}>
             <Route element={<VillageProvider />}>
               <Route element={<HeroProvider />}>
                 <Route element={<GameLayout />}>

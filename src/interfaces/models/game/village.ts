@@ -1,4 +1,4 @@
-import { Point } from 'interfaces/models/common/point';
+import { Point } from 'interfaces/models/common';
 import { Resource, Resources } from 'interfaces/models/game/resource';
 import { Effects } from 'interfaces/models/game/effect';
 import { Building } from 'interfaces/models/game/building';

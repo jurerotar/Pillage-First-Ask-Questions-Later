@@ -36,7 +36,8 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
     isReducedMotionModeEnabled: false
   });
 
-  const [colorScheme, setColorScheme] = useState<AvailableColorSchemes>('light'); // preferences.colorScheme);
+  // const [colorScheme, setColorScheme] = useState<AvailableColorSchemes>(preferences.colorScheme);
+  const [colorScheme, setColorScheme] = useState<AvailableColorSchemes>('light');
   const [isColorSchemeSetExplicitly, setIsColorSchemeSetExplicitly] = useState<Preferences['isColorSchemeSetExplicitly']>(preferences.isColorSchemeSetExplicitly);
   const [locale, setLocale] = useState<Preferences['locale']>(preferences.locale);
   const [isAccessibilityModeEnabled, setIsAccessibilityModeEnabled] = useState<Preferences['isAccessibilityModeEnabled']>(preferences.isAccessibilityModeEnabled);
@@ -80,7 +81,8 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
   // Update color scheme if user's device default differs from app default and user hasn't explicitly set preference
   useEffect(() => {
     if (!isColorSchemeSetExplicitly && colorScheme !== devicePreferredColorScheme) {
-      setColorScheme(devicePreferredColorScheme);
+      // setColorScheme(devicePreferredColorScheme);
+      setColorScheme('light');
     }
   }, []);
 

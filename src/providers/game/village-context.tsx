@@ -39,7 +39,7 @@ const VillageProvider: React.FC = (): ReactElement => {
   const server = useContextSelector(GameContext, (v) => v.server);
   const setIsContextReady = useContextSelector(GameContext, (v) => v.setIsContextReady);
 
-  const [playerVillages, setPlayerVillages] = useState<Village[]>(null);
+  const [playerVillages, setPlayerVillages] = useState<Village[]>([]);
   // Current village data
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   // Gets only on events (troop training, building,...) and is the base for calculated resources

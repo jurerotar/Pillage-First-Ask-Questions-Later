@@ -9,6 +9,7 @@ import { Tribe } from 'interfaces/models/game/tribe';
 import { RandomizerService } from 'services/randomizer-service';
 import { useContextSelector } from 'use-context-selector';
 import { ModalContext } from 'providers/global/modal-context';
+import { ApplicationContext } from 'providers/global/application-context';
 
 export const CreateServerModalContent: React.FC = () => {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ export const CreateServerModalContent: React.FC = () => {
   const serverSeed = useRef<string>('');
   const selectedTribe = useRef<Tribe>('gauls');
 
-  const [, setServers] = useLocalStorage<Server[]>('servers', []);
+  const setServers = useContextSelector(ApplicationContext, (v) => v.setServers);
 
   const createNewServer = async (): Promise<void> => {
     const a = RandomizerService.generateSeed();
@@ -43,12 +44,14 @@ export const CreateServerModalContent: React.FC = () => {
       };
       const server = new CreateServerService(serverConfiguration);
       const result = await server.init(seed);
+      console.log(result);
       if (result) {
         setServers((prevState: Server[]) => [...prevState, serverConfiguration]);
-        closeModal();
       }
     } catch (e) {
       console.error('Error creating a new server', e);
+    } finally {
+      closeModal();
     }
   };
 
