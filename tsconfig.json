@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext", "webworker"],
+    "types": ["vite/client", "vite-plugin-svgr/client"],
     "baseUrl": "./",
     "allowJs": false,
     "skipLibCheck": true,
@@ -9,17 +12,9 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "jsx": "preserve",
-    "lib": [
-      "DOM",
-      "dom.iterable",
-      "ESNext",
-      ,
-      "webworker"
-    ],
     "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
-    "target": "esnext",
     "module": "esnext",
     "paths": {
       "components/*": [
@@ -61,8 +56,7 @@
     "node_modules"
   ],
   "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
+    "vite-env.d.ts",
+    "src"
   ]
 }
