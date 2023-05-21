@@ -5,7 +5,7 @@ import { ResourceFieldId } from 'interfaces/models/game/village';
 import { useContextSelector } from 'use-context-selector';
 import { VillageContext } from 'providers/game/village-context';
 import { BuildingField } from 'components/game/building-field';
-import { resourceToBuildingMap } from 'utils/maps/resource-to-building-map';
+import { resourceToBuildingMap } from 'maps/resource-to-building-map';
 import clsx from 'clsx';
 
 // TODO: This will eventually get replaced by graphics

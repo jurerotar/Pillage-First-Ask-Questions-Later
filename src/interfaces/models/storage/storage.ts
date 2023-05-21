@@ -1,5 +1,5 @@
 export type IndexedDBKey =
-  'map'
+  | 'map'
   | 'playerVillages'
   | 'hero'
   | 'researchLevels'
@@ -9,4 +9,6 @@ export type IndexedDBKey =
   | 'accountEffects'
   | 'events';
 
-export type LocalForageKey = `${string}-${IndexedDBKey}`;
+export type LocalForageKey =
+  | 'servers'
+  | `${string}-${IndexedDBKey}`;

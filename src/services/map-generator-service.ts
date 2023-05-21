@@ -3,12 +3,14 @@ import { randomArrayElement, randomIntFromInterval } from 'utils/common';
 import { Tile } from 'interfaces/models/game/tile';
 import { Point } from 'interfaces/models/common';
 import { Resource } from 'interfaces/models/game/resource';
-import { oasisShapes } from 'utils/constants/oasis-shapes';
+import { oasisShapes } from 'constants/oasis-shapes';
+import { Server } from 'interfaces/models/game/server';
 
 export class MapGeneratorService {
   public static readonly BORDER_SIZE: number = 20;
 
-  public static generateMap = (size: number = 100, seed?: string) => {
+  public static generateMap = (server: Server) => {
+    const { seed, id, configuration: { mapSize: size } } = server;
     const emptyTiles = this.generateIsometricMapTiles(size);
     const borderedTiles = this.generateBorderTiles(size, emptyTiles);
 
@@ -104,7 +106,12 @@ export class MapGeneratorService {
       };
     });
 
-    return tilesWithTypes;
+    const tilesWithServerId = tilesWithTypes.map((tile: Tile) => ({
+      ...tile,
+      serverId: id
+    }));
+
+    return tilesWithServerId;
   };
 
   private static generateIsometricMapTiles = (size: number) => {

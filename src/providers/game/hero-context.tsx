@@ -1,9 +1,7 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { FunctionComponentWithChildren, ReactElement, useEffect, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
 import { Hero } from 'interfaces/models/game/hero';
-import { Outlet } from 'react-router-dom';
-import { StorageService } from 'services/storage-service';
 
 type HeroProviderValues = {
   heroData: Hero | null;
@@ -12,7 +10,9 @@ type HeroProviderValues = {
 
 const HeroContext = createContext<HeroProviderValues>({} as HeroProviderValues);
 
-const HeroProvider: React.FC = (): ReactElement => {
+const HeroProvider: FunctionComponentWithChildren = (props): ReactElement => {
+  const { children } = props;
+
   const server = useContextSelector(GameContext, (v) => v.server);
   const setIsContextReady = useContextSelector(GameContext, (v) => v.setIsContextReady);
   const [heroData, setHeroData] = useState<Hero | null>(null);
@@ -23,8 +23,8 @@ const HeroProvider: React.FC = (): ReactElement => {
     }
     (async () => {
       try {
-        const storageHeroData = await StorageService.get<Hero>(`${server.id}-hero`);
-        setHeroData(storageHeroData);
+        // const storageHeroData = await StorageService.get<Hero>(`${server.id}-hero`);
+        // setHeroData(storageHeroData);
       } catch (e) {
         console.error('Error fetching hero data from IndexedDB', e);
       }
@@ -45,7 +45,7 @@ const HeroProvider: React.FC = (): ReactElement => {
 
   return (
     <HeroContext.Provider value={value}>
-      <Outlet />
+      {children}
     </HeroContext.Provider>
   );
 };

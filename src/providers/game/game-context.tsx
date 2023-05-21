@@ -6,13 +6,12 @@ import { Report } from 'interfaces/models/game/report';
 import { Quest } from 'interfaces/models/game/quest';
 import { Achievement } from 'interfaces/models/game/achievement';
 import { Effects } from 'interfaces/models/game/effect';
-import { Outlet } from 'react-router-dom';
 import { GameEvent } from 'interfaces/models/events/game-event';
-import { StorageService } from 'services/storage-service';
 import { ResourceFieldId, Village } from 'interfaces/models/game/village';
 
 type GameProviderProps = {
   server: Server;
+  children: React.ReactNode;
 };
 
 type GameProviderValues = {
@@ -36,6 +35,7 @@ const GameContext = createContext<GameProviderValues>({} as GameProviderValues);
 
 const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
   const {
+    children,
     server
   } = props;
 
@@ -139,12 +139,12 @@ const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
           questData,
           achievementData
         ] = await Promise.all([
-          StorageService.get<GameEvent[]>(`${server.id}-events`),
-          StorageService.get<Partial<Effects>>(`${server.id}-accountEffects`),
-          StorageService.get<Tile[]>(`${server.id}-map`),
-          StorageService.get<Report[]>(`${server.id}-reports`),
-          StorageService.get<Quest[]>(`${server.id}-quests`),
-          StorageService.get<Achievement[]>(`${server.id}-achievements`)
+          // StorageService.get<GameEvent[]>(`${server.id}-events`),
+          // StorageService.get<Partial<Effects>>(`${server.id}-accountEffects`),
+          // StorageService.get<Tile[]>(`${server.id}-map`),
+          // StorageService.get<Report[]>(`${server.id}-reports`),
+          // StorageService.get<Quest[]>(`${server.id}-quests`),
+          // StorageService.get<Achievement[]>(`${server.id}-achievements`)
         ]);
 
         setEvents(eventData!);
@@ -183,7 +183,7 @@ const GameProvider: React.FC<GameProviderProps> = (props): ReactElement => {
 
   return (
     <GameContext.Provider value={value}>
-      <Outlet />
+      {children}
     </GameContext.Provider>
   );
 };

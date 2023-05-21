@@ -1,9 +1,9 @@
 import { BuildingFields, ResourceFieldLayout, ResourceFieldLayoutByFieldType, Village } from 'interfaces/models/game/village';
 import { v4 as uuidv4 } from 'uuid';
-import { effects } from 'utils/constants/effects';
+import { effects } from 'constants/effects';
 import {
   createResourceFieldsFromResourceLayout
-} from 'utils/helpers/game/create-resource-fields-from-resource-layout';
+} from 'utils/game/create-resource-fields-from-resource-layout';
 
 const newVillageBuildingFields: BuildingFields = {
   1: {

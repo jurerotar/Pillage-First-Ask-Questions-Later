@@ -1,39 +1,19 @@
 import React from 'react';
 import { Server } from 'interfaces/models/game/server';
-import localforage from 'localforage';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from 'components/common/buttons/button';
-import { useContextSelector } from 'use-context-selector';
-import { ApplicationContext } from 'providers/global/application-context';
+import { useAvailableServers } from 'hooks/use-available-servers';
 
 type ServerCardProps = {
   server: Server;
-  selectServerHandler: (server: Server) => void;
 };
 
 export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const {
-    server,
-    selectServerHandler
+    server
   } = props;
 
-  const navigate = useNavigate();
-  const setServers = useContextSelector(ApplicationContext, (v) => v.setServers);
-
-  const selectServer = (s: Server): void => {
-    selectServerHandler(s);
-    setTimeout(() => navigate('/resources'), 0);
-  };
-
-  const deleteServer = async (serverId: Server['id']): Promise<void> => {
-    setServers((prevState) => prevState.filter((s: Server) => s.id !== serverId));
-    const keysInStorage = await localforage.keys();
-    keysInStorage.forEach((key: string) => {
-      if (key.startsWith(serverId)) {
-        localforage.removeItem(key);
-      }
-    });
-  };
+  const { deleteServer } = useAvailableServers();
 
   return (
     <div
@@ -46,10 +26,10 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
         </span>
         <span className="flex gap-1 text-xs">
           <span className="font-semibold">
-            Server id:
+            Server seed:
           </span>
           <span>
-            {server.id}
+            {server.seed}
           </span>
         </span>
         <span className="flex gap-1 text-xs">
@@ -61,13 +41,15 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           </span>
         </span>
       </div>
-      <Button onClick={() => selectServer(server)}>
-        Enter server
-      </Button>
+      <Link to={`/game/${server.name}/resources`}>
+        <Button>
+          Enter server
+        </Button>
+      </Link>
       <button
         type="button"
-        className="absolute -top-2 -right-2 flex items-center justify-center rounded-full border border-gray-400 bg-white p-2"
-        onClick={() => deleteServer(server.id)}
+        className="absolute -right-2 -top-2 flex items-center justify-center rounded-full border border-gray-400 bg-white p-2"
+        onClick={() => deleteServer(server)}
       >
         <span className="h-2 w-2 leading-none">
           x

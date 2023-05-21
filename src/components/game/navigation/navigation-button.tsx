@@ -1,10 +1,10 @@
 import React, { ButtonHTMLAttributes, useMemo } from 'react';
-import { useWindowSize } from 'utils/hooks/use-window-size';
-import { breakpoints } from 'utils/constants/breakpoints';
+import { breakpoints } from 'constants/breakpoints';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWheatAwn, faCity, faMapLocation, faListCheck, faShield, faUsers, faHandFist } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import clsx from 'clsx';
+import { useWindowSize } from 'usehooks-ts';
 
 export type NavigationButtonVariant = 'resources' | 'village' | 'map' | 'reports' | 'troop-count' | 'population-count' | 'hero-interface';
 

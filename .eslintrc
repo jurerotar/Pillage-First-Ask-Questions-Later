@@ -46,7 +46,13 @@
     "arrow-body-style": "off",
     "comma-dangle": [
       "error",
-      "never"
+      {
+        "arrays": "never",
+        "objects": "never",
+        "imports": "never",
+        "exports": "never",
+        "functions": "never"
+      }
     ],
     "max-len": [
       "error",
@@ -59,6 +65,12 @@
         "ignoreStrings": true,
         "ignoreTemplateLiterals": true,
         "ignoreRegExpLiterals": true
+      }
+    ],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true
       }
     ],
     "import/prefer-default-export": "off",

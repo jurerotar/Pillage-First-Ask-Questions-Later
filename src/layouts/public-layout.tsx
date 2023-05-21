@@ -7,7 +7,7 @@ import { ModalContext } from 'providers/global/modal-context';
 import { Button } from 'components/common/buttons/button';
 import { CreateServerModalContent } from 'components/modal-content/public/create-server-modal-content';
 
-export const DefaultLayout: React.FC = () => {
+export const PublicLayout: React.FC = () => {
   const { t } = useTranslation();
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
 

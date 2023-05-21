@@ -1,7 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { AvailableLocales } from 'interfaces/models/preferences/locale';
-// eslint-disable-next-line import/extensions
 import EnUSLocalization from 'i18n/translations/en-US.json';
 
 const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];

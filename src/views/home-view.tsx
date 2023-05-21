@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLocalStorage } from 'utils/hooks/use-local-storage';
 import { Server } from 'interfaces/models/game/server';
 import { Button } from 'components/common/buttons/button';
 import { Paragraph } from 'components/common/paragraph';
@@ -8,17 +7,12 @@ import { useContextSelector } from 'use-context-selector';
 import { ModalContext } from 'providers/global/modal-context';
 import { CreateServerModalContent } from 'components/modal-content/public/create-server-modal-content';
 import { ServerCard } from 'components/public/home-view/server-card';
-import { ApplicationContext } from 'providers/global/application-context';
+import { useAvailableServers } from 'hooks/use-available-servers';
 
-type HomeViewProps = {
-  selectServerHandler: (server: Server) => void;
-};
-
-export const HomeView: React.FC<HomeViewProps> = (props) => {
-  const { selectServerHandler } = props;
-
+export const HomeView: React.FC = () => {
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
-  const servers = useContextSelector(ApplicationContext, (v) => v.servers);
+
+  const { availableServers } = useAvailableServers();
 
   return (
     <>
@@ -54,11 +48,10 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
             Active servers
           </h2>
           <div className="flex gap-4 overflow-x-scroll">
-            {servers.map((server: Server) => (
+            {availableServers.map((server: Server) => (
               <ServerCard
                 key={server.id}
                 server={server}
-                selectServerHandler={selectServerHandler}
               />
             ))}
           </div>

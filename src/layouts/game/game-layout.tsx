@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import React, { FunctionComponentWithChildren, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ResourcesContainer } from 'components/game/navigation/resources-container';
 import { useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';
@@ -48,7 +48,9 @@ const openDiscord = (): void => {
   window.location.href = 'https://github.com/jurerotar/crylite';
 };
 
-export const GameLayout: React.FC = () => {
+export const GameLayout: FunctionComponentWithChildren = (props) => {
+  const { children } = props;
+
   const navigate = useNavigate();
   const navigation = useRef<HTMLElement>(null);
   const mainNavigationSection = useRef<HTMLDivElement>(null);
@@ -57,8 +59,8 @@ export const GameLayout: React.FC = () => {
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
   const { t } = useTranslation();
 
-  const openPreferencesModal = (children: React.ReactNode) => {
-    return () => openModal(children);
+  const openPreferencesModal = (contents: React.ReactNode) => {
+    return () => openModal(contents);
   };
 
   const logoutToHomepage = (): void => {
@@ -74,13 +76,13 @@ export const GameLayout: React.FC = () => {
         className="relative z-10 flex h-[4.5rem] shadow-md"
         ref={navigation}
       >
-        <div className="duration-default absolute top-0 left-0 flex h-1/2 w-full bg-blue-500 transition-colors dark:bg-slate-900" />
+        <div className="duration-default absolute left-0 top-0 flex h-1/2 w-full bg-blue-500 transition-colors dark:bg-slate-900" />
         <div className="duration-default absolute bottom-0 left-0 flex h-1/2 w-full bg-blue-200 transition-colors dark:bg-slate-900" />
         <div className="container relative mx-auto flex justify-between">
           <div className="" />
           {/* Center section */}
           <div
-            className="scrollbar-hidden relative z-10 flex w-fit gap-4 overflow-x-scroll md:absolute md:top-0 md:left-1/2 md:-translate-x-1/2 md:gap-8"
+            className="scrollbar-hidden relative z-10 flex w-fit gap-4 overflow-x-scroll md:absolute md:left-1/2 md:top-0 md:-translate-x-1/2 md:gap-8"
             ref={mainNavigationSection}
           >
             {/* Troop and general population counters */}
@@ -155,15 +157,11 @@ export const GameLayout: React.FC = () => {
             </Tooltip>
           </div>
         </div>
-        <div className="absolute top-[4.5rem] left-1/2 inline-flex w-full -translate-x-1/2 justify-center gap-2 bg-white sm:w-fit sm:p-2">
+        <div className="absolute left-1/2 top-[4.5rem] inline-flex w-full -translate-x-1/2 justify-center gap-2 bg-white sm:w-fit sm:p-2">
           <ResourcesContainer />
         </div>
       </nav>
-      <Outlet
-        context={{
-          navigationElement: navigation
-        }}
-      />
+      {children}
     </>
   );
 };

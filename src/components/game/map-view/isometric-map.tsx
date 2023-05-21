@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useWindowSize } from 'utils/hooks/use-window-size';
+import { useWindowSize } from 'hooks/use-window-size';
 import { useOutletContext } from 'react-router-dom';
 import { useContextSelector } from 'use-context-selector';
 import { GameContext } from 'providers/game/game-context';

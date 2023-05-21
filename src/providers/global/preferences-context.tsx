@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { createContext } from 'use-context-selector';
 import { Preferences } from 'interfaces/models/preferences/preferences';
 import { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
-import { useLocalStorage } from 'utils/hooks/use-local-storage';
+import { useLocalStorage } from 'usehooks-ts';
 
 type PreferencesProviderProps = {
   children: ReactElement;

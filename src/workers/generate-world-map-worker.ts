@@ -1,11 +1,12 @@
 import { MapGeneratorService } from 'services/map-generator-service';
+import { Server } from 'interfaces/models/game/server';
 
-type GenerateWorldMapWorkerPayload = [number, string];
+type GenerateWorldMapWorkerPayload = [Server];
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 self.addEventListener('message', (event: MessageEvent<GenerateWorldMapWorkerPayload>) => {
-  const [size, seed] = event.data;
-  const tiles = MapGeneratorService.generateMap(size, seed);
+  const [server] = event.data;
+  const tiles = MapGeneratorService.generateMap(server);
   self.postMessage({ tiles });
 });

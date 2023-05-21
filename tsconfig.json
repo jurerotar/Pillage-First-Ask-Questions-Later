@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
@@ -20,8 +20,20 @@
       "components/*": [
         "src/components/*"
       ],
+      "database/*": [
+        "src/database/*"
+      ],
       "utils/*": [
         "src/utils/*"
+      ],
+      "hooks/*": [
+        "src/hooks/*"
+      ],
+      "constants/*": [
+        "src/constants/*"
+      ],
+      "maps/*": [
+        "src/maps/*"
       ],
       "i18n/*": [
         "src/i18n/*"
@@ -48,7 +60,7 @@
         "src/assets/*"
       ],
       "config/*": [
-        "src/config/*"
+        "config/*"
       ]
     }
   },
@@ -57,6 +69,7 @@
   ],
   "include": [
     "vite-env.d.ts",
-    "src"
+    "src",
+    "config"
   ]
 }

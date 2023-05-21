@@ -1,11 +1,11 @@
 import { Tile } from 'interfaces/models/game/tile';
 import { Server } from 'interfaces/models/game/server';
 import { Hero } from 'interfaces/models/game/hero';
-import { newVillage } from 'utils/constants/new-village';
+import { newVillage } from 'constants/new-village';
 import { Village } from 'interfaces/models/game/village';
-import { StorageService } from 'services/storage-service';
-import { accountEffects } from 'utils/constants/effects';
+import { accountEffects } from 'constants/effects';
 import { RandomizerService } from 'services/randomizer-service';
+import { database } from 'database/database';
 
 export class CreateServerService {
   private readonly serverId: Server['id'];
@@ -17,7 +17,7 @@ export class CreateServerService {
     this.serverId = server.id;
   }
 
-  public init = async (seed: string): Promise<boolean> => {
+  public init = async (): Promise<boolean> => {
     try {
       await Promise.all([
         this.createEventQueue(),
@@ -26,7 +26,7 @@ export class CreateServerService {
         this.createQuests(),
         this.createAchievements(),
         this.createResearchLevels(),
-        this.createMapData(seed),
+        this.createMapData(this.server),
         this.createPlayerVillageData()
       ]);
       return true;
@@ -37,11 +37,11 @@ export class CreateServerService {
 
   private createPlayerVillageData = async (): Promise<void> => {
     const defaultVillage = newVillage;
-    await StorageService.set<Village[]>(`${this.serverId}-playerVillages`, [defaultVillage]);
+    // await StorageService.set<Village[]>(`${this.serverId}-playerVillages`, [defaultVillage]);
   };
 
   private createEventQueue = async (): Promise<void> => {
-    await StorageService.set(`${this.serverId}-events`, []);
+    //  await StorageService.set(`${this.serverId}-events`, []);
   };
 
   private createHero = async (): Promise<void> => {
@@ -66,7 +66,7 @@ export class CreateServerService {
       inventory: []
     };
 
-    await StorageService.set(`${this.serverId}-hero`, <Hero>hero);
+    // await StorageService.set(`${this.serverId}-hero`, <Hero>hero);
   };
 
   private createReports = async (): Promise<void> => {
@@ -86,16 +86,18 @@ export class CreateServerService {
   };
 
   private createAccountEffects = async (): Promise<void> => {
-    await StorageService.set(`${this.serverId}-accountEffects`, accountEffects);
+    // await StorageService.set(`${this.serverId}-accountEffects`, accountEffects);
   };
 
-  private createMapData = async (seed: string = RandomizerService.generateSeed()): Promise<boolean> => {
+  private createMapData = async (server: Server): Promise<boolean> => {
     return new Promise((resolve, reject) => {
-      const createNewServerWorker = new Worker(new URL('../workers/generate-world-map-worker', import.meta.url));
-      createNewServerWorker.postMessage([this.server.configuration.mapSize, seed]);
+      const createNewServerWorker = new Worker(new URL('../workers/generate-world-map-worker', import.meta.url), {
+        type: 'module'
+      });
+      createNewServerWorker.postMessage([server]);
       createNewServerWorker.addEventListener('message', async (event: MessageEvent<{ tiles: Tile[] }>) => {
         const { tiles } = event.data;
-        await StorageService.set<Tile[]>(`${this.serverId}-map`, tiles);
+        database.maps.bulkAdd(tiles);
         resolve(true);
       });
       createNewServerWorker.addEventListener('error', () => {
