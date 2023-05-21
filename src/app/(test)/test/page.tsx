@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-export const TestView: React.FC = () => {
+export const TestPage: React.FC = () => {
   const location = useLocation();
   return (
     <>
