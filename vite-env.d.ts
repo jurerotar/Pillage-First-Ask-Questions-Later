@@ -1,9 +1,9 @@
 /// <reference types="vite/client" />
-
 import React from 'react';
 
 interface ImportMetaEnv {
-  readonly VITE_ENVIRONMENT: 'local' | 'production'
+  readonly VITE_ENVIRONMENT: 'local' | 'production';
+  readonly VITE_DATABASE_NAME: string;
 }
 
 interface ImportMeta {

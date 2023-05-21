@@ -2,7 +2,7 @@ import { Tribe } from 'interfaces/models/game/tribe';
 import { Building } from 'interfaces/models/game/building';
 
 export type UnitId =
-  'LEGIONNAIRE'
+  | 'LEGIONNAIRE'
   | 'PRAETORIAN'
   | 'IMPERIAN'
   | 'EQUITES_LEGATI'

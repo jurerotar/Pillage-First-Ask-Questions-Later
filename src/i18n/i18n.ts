@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { AvailableLocales } from 'interfaces/models/preferences/locale';
-import EnUSLocalization from 'i18n/translations/en-US.json';
+import enUsLocalization from 'i18n/translations/en-US.json';
 
 const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
 
@@ -16,7 +16,7 @@ const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
       returnObjects: false,
       resources: {
         'en-US': {
-          translation: EnUSLocalization
+          translation: enUsLocalization
         }
       }
     });
