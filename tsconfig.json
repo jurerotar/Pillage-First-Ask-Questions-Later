@@ -17,6 +17,9 @@
     "strict": true,
     "module": "esnext",
     "paths": {
+      "app/*": [
+        "src/app/*"
+      ],
       "components/*": [
         "src/components/*"
       ],
@@ -41,14 +44,8 @@
       "interfaces/*": [
         "src/interfaces/*"
       ],
-      "layouts/*": [
-        "src/layouts/*"
-      ],
       "providers/*": [
         "src/providers/*"
-      ],
-      "views/*": [
-        "src/views/*"
       ],
       "services/*": [
         "src/services/*"

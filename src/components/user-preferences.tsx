@@ -1,10 +1,10 @@
 import React from 'react';
 import { useContextSelector } from 'use-context-selector';
 import { PreferencesContext } from 'providers/global/preferences-context';
-import { Toggle } from 'components/common/toggle';
-import { SectionHeading } from 'components/common/section-heading';
+import { Toggle } from 'components/toggle';
+import { SectionHeading } from 'components/section-heading';
 import { useTranslation } from 'react-i18next';
-import { Paragraph } from 'components/common/paragraph';
+import { Paragraph } from 'components/paragraph';
 
 export const UserPreferences: React.FC = () => {
   const locale = useContextSelector(PreferencesContext, (v) => v.locale);
