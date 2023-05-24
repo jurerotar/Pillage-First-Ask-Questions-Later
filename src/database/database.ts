@@ -9,6 +9,7 @@ import { Achievement } from 'interfaces/models/game/achievement';
 import { ResearchLevel } from 'interfaces/models/game/research-level';
 import { GameEvent } from 'interfaces/models/events/game-event';
 import { env } from 'config/env';
+import { Effect } from 'interfaces/models/game/effect';
 
 export class CryliteDatabase extends Dexie {
   servers!: Table<Server>;
@@ -20,20 +21,22 @@ export class CryliteDatabase extends Dexie {
   achievements!: Table<Achievement>;
   researchLevels!: Table<ResearchLevel>;
   events!: Table<GameEvent>;
+  effects!: Table<Effect>;
 
   constructor() {
     super(env.databaseName);
     // https://dexie.org/docs/Version/Version.stores()
     this.version(1).stores({
-      servers: '++id',
-      maps: '++id',
-      heroes: '++id',
-      villages: '++id',
-      reports: '++id',
-      quests: '++id',
-      achievements: '++id',
-      researchLevels: '++id',
-      events: '++id'
+      servers: '++id, name',
+      maps: '++id, serverId',
+      heroes: '++id, serverId',
+      villages: '++id, serverId, slug',
+      reports: '++id, serverId',
+      quests: '++id, serverId',
+      achievements: '++id, serverId',
+      researchLevels: '++id, serverId',
+      events: '++id, serverId',
+      effects: '++id, serverId'
     });
   }
 }

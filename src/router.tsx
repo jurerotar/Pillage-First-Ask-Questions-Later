@@ -2,8 +2,8 @@ import React from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
 import { PublicLayout } from 'app/(public)/layout';
 import { HomePage } from 'app/(public)/home/page';
-import { GameProviders } from 'app/(game)/game-providers';
 import { TestPage } from 'app/(test)/test/page';
+import { GameLoader } from 'app/(game)/loader';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,8 +20,8 @@ export const router = createBrowserRouter(
       </Route>
       {/* Game paths */}
       <Route
-        path="/game/:serverId/"
-        element={<GameProviders />}
+        path="/game/:serverName/:villageSlug/"
+        element={<GameLoader />}
       >
         <Route
           path="resources"

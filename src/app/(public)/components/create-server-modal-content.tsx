@@ -23,7 +23,7 @@ export const CreateServerModalContent: React.FC = () => {
     const a = RandomizerService.generateSeed();
     const nameId = RandomizerService.generateSeed(4);
     // Create a random name if user hasn't set one themselves
-    const name = serverName.current !== '' ? serverName.current : `server_${nameId}`;
+    const name = serverName.current !== '' ? serverName.current : `server-${nameId}`;
     const seed = serverSeed.current !== '' ? serverSeed.current : a;
     const tribe = selectedTribe.current;
 

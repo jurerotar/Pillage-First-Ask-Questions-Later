@@ -1,7 +1,6 @@
 import React, { FunctionComponentWithChildren, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useContextSelector } from 'use-context-selector';
-import { GameContext } from 'providers/game/game-context';
 import { Button } from 'components/buttons/button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
@@ -51,11 +50,15 @@ const openDiscord = (): void => {
 export const GameLayout: FunctionComponentWithChildren = (props) => {
   const { children } = props;
 
+  return (
+    <>
+      {children}
+    </>
+  );
+
   const navigate = useNavigate();
   const navigation = useRef<HTMLElement>(null);
   const mainNavigationSection = useRef<HTMLDivElement>(null);
-  const hasGameDataLoaded = useContextSelector(GameContext, (v) => v.hasGameDataLoaded);
-  const logout = useContextSelector(GameContext, (v) => v.logout);
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
   const { t } = useTranslation();
 
@@ -64,13 +67,10 @@ export const GameLayout: FunctionComponentWithChildren = (props) => {
   };
 
   const logoutToHomepage = (): void => {
-    logout();
     navigate('/');
   };
 
-  return !hasGameDataLoaded ? (
-    <p>Loading</p>
-  ) : (
+  return (
     <>
       <nav
         className="relative z-10 flex h-[4.5rem] shadow-md"

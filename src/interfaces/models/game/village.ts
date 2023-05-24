@@ -1,8 +1,6 @@
 import { Point } from 'interfaces/models/common';
 import { Resource, Resources } from 'interfaces/models/game/resource';
-import { Effects } from 'interfaces/models/game/effect';
 import { Building } from 'interfaces/models/game/building';
-import { Quest } from 'interfaces/models/game/quest';
 
 export type ResourceFieldId =
   '1'
@@ -90,14 +88,13 @@ export type BuildingFields = {
 export type Village = {
   id: string;
   name: string;
+  slug: string;
   lastUpdatedAt: number;
   position: Point;
   resources: Resources;
   storageCapacity: Resources;
   hourlyProduction: Resources;
-  effects: Effects;
   resourceFields: ResourceFields;
   buildingFields: BuildingFields;
   isCapital: boolean;
-  quests: Quest[];
 };

@@ -2,6 +2,7 @@
  * Effects represent bonuses and unlocked village/account benefits. Some effects are account-level, which means they apply to all villages,
  * while others effect only specific village.
  */
+import { Village } from 'interfaces/models/game/village';
 
 export type HeroEffectId =
   | 'heroSpeedBonus'
@@ -70,6 +71,10 @@ export type EffectId =
   | 'granaryCapacity'
   | 'warehouseCapacity';
 
-export type Effects = {
-  [key in EffectId]: number;
+export type Effect = {
+  // Server effects affect actions from all villages, village effects affect only actions from a particular village
+  scope: 'server' | 'village';
+  village_id?: Village['id'];
+  effectId: EffectId;
+  value: number;
 };
