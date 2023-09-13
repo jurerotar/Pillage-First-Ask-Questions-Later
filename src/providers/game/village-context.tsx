@@ -1,7 +1,6 @@
 import React, { FunctionComponentWithChildren, ReactElement, useEffect, useMemo, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { Village } from 'interfaces/models/game/village';
-import { GameContext } from 'providers/game/game-context';
 import { Resource, Resources } from 'interfaces/models/game/resource';
 import { defaultBuildingFields, defaultResourceFields, defaultResources } from 'constants/defaults';
 
@@ -35,8 +34,6 @@ const VillageContext = createContext<VillageProviderValues>({} as VillageProvide
 
 const VillageProvider: FunctionComponentWithChildren = (props): ReactElement => {
   const { children } = props;
-  const server = useContextSelector(GameContext, (v) => v.server);
-  const setIsContextReady = useContextSelector(GameContext, (v) => v.setIsContextReady);
 
   const [playerVillages, setPlayerVillages] = useState<Village[]>([]);
   // Current village data
@@ -79,19 +76,19 @@ const VillageProvider: FunctionComponentWithChildren = (props): ReactElement => 
     }));
   };
 
-  useEffect(() => {
-    if (!server) {
-      return;
-    }
-    (async () => {
-      try {
-        // const storagePlayerVillageData = await StorageService.get<Village[]>(`${server.id}-playerVillages`);
-        // setPlayerVillages(storagePlayerVillageData);
-      } catch (e) {
-        console.error('Error fetching village data from IndexedDB', e);
-      }
-    })();
-  }, [server]);
+  // useEffect(() => {
+  //   if (!server) {
+  //     return;
+  //   }
+  //   (async () => {
+  //     try {
+  //       // const storagePlayerVillageData = await StorageService.get<Village[]>(`${server.id}-playerVillages`);
+  //       // setPlayerVillages(storagePlayerVillageData);
+  //     } catch (e) {
+  //       console.error('Error fetching village data from IndexedDB', e);
+  //     }
+  //   })();
+  // }, [server]);
 
   useEffect(() => {
     if (!(playerVillages && playerVillages.length > 0)) {

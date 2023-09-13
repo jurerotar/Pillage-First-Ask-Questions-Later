@@ -96,6 +96,7 @@
     "react/jsx-no-constructed-context-values": "warn",
     "react/require-default-props": "off",
     "react/prop-types": "off",
+    "react/jsx-props-no-spreading": "off",
     "react/jsx-filename-extension": [
       "error",
       {

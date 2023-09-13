@@ -13,7 +13,6 @@ export type Hero = {
   attackBonus: number;
   defenceBonus: number;
   unitType: 'infantry' | 'cavalry';
-  wornItems: HeroItem[];
   inventory: HeroItem[];
 };
 
@@ -26,4 +25,5 @@ export type HeroItem = {
   slot: HeroItemSlot;
   baseSellPrice: number;
   baseBuyPrice: number;
+  isWorn: boolean;
 };

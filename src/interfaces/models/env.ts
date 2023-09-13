@@ -1,4 +1,4 @@
 export type Env = {
-  environment: 'local' | 'production';
+  environment: 'development' | 'production';
   databaseName: string;
 };

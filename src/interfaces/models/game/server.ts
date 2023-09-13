@@ -10,6 +10,7 @@ export type ServerConfiguration = {
 export type Server = {
   id: string;
   name: string;
+  slug: string;
   startDate: Date;
   seed: string;
   configuration: ServerConfiguration;

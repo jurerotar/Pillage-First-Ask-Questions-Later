@@ -2,8 +2,6 @@ import React from 'react';
 import { Resource } from 'interfaces/models/game/resource';
 import { useNavigate } from 'react-router-dom';
 import { ResourceFieldId } from 'interfaces/models/game/village';
-import { useContextSelector } from 'use-context-selector';
-import { VillageContext } from 'providers/game/village-context';
 import { resourceToBuildingMap } from 'maps/resource-to-building-map';
 import clsx from 'clsx';
 import { BuildingField } from '../components/building-field';
@@ -27,7 +25,6 @@ const chunkedFieldsIds: (ResourceFieldId | 'x')[][] = [
 
 export const ResourcesPage: React.FC = () => {
   const navigate = useNavigate();
-  const resourceFields = useContextSelector(VillageContext, (v) => v.resourceFields);
 
   return (
     <main className="mt-16 md:mt-20">
@@ -53,12 +50,13 @@ export const ResourcesPage: React.FC = () => {
                     </button>
                   </>
                 ) : (
-                  <BuildingField
-                    buildingFieldId={resourceFieldId}
-                    buildingId={resourceToBuildingMap[resourceFields[resourceFieldId]!.type]}
-                    buildingLevel={resourceFields[resourceFieldId]!.level}
-                    className={clsx(backgroundColors[resourceFields[resourceFieldId]!.type], 'align-center hexagon__cell flex justify-center')}
-                  />
+                  <></>
+                  // <BuildingField
+                  //   buildingFieldId={resourceFieldId}
+                  //   buildingId={resourceToBuildingMap[resourceFields[resourceFieldId]!.type]}
+                  //   buildingLevel={resourceFields[resourceFieldId]!.level}
+                  //   className={clsx(backgroundColors[resourceFields[resourceFieldId]!.type], 'align-center hexagon__cell flex justify-center')}
+                  // />
                 )}
               </React.Fragment>
             ))}

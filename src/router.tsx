@@ -3,11 +3,15 @@ import { createBrowserRouter, createRoutesFromElements, Route } from 'react-rout
 import { PublicLayout } from 'app/(public)/layout';
 import { HomePage } from 'app/(public)/home/page';
 import { TestPage } from 'app/(test)/test/page';
-import { GameLoader } from 'app/(game)/loader';
+import { MapPage } from 'app/(game)/map/page';
+import { AppLayout } from 'app/layout';
+import { GameLayout } from 'app/(game)/layout';
+import { GameEngineProvider } from 'app/(game)/game-engine';
 
+// TODO: Lazy load pages with @loadable
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <>
+    <Route element={<AppLayout />}>
       {/* Public paths */}
       <Route
         path="/"
@@ -19,23 +23,26 @@ export const router = createBrowserRouter(
         />
       </Route>
       {/* Game paths */}
-      <Route
-        path="/game/:serverName/:villageSlug/"
-        element={<GameLoader />}
-      >
+      <Route element={<GameEngineProvider />}>
         <Route
-          path="resources"
-          element={<TestPage />}
-        />
-        <Route
-          path="villages"
-          element={<TestPage />}
-        />
-        <Route
-          path="map"
-          element={<TestPage />}
-        />
+          path="/game/:serverSlug/:villageSlug/"
+          element={<GameLayout />}
+        >
+          <Route
+            path="resources"
+            element={<TestPage />}
+          />
+          <Route
+            path="villages"
+            element={<TestPage />}
+          />
+          <Route
+            index
+            path="map"
+            element={<MapPage />}
+          />
+        </Route>
       </Route>
-    </>
+    </Route>
   )
 );

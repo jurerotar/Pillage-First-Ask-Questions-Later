@@ -1,50 +1,28 @@
 import { Tile } from 'interfaces/models/game/tile';
 import { Server } from 'interfaces/models/game/server';
-import { Hero } from 'interfaces/models/game/hero';
 import { newVillage } from 'constants/new-village';
-import { Village } from 'interfaces/models/game/village';
-import { accountEffects } from 'constants/effects';
-import { RandomizerService } from 'services/randomizer-service';
 import { database } from 'database/database';
 
 export class CreateServerService {
-  private readonly serverId: Server['id'];
+  public readonly serverId: Server['id'];
 
-  private readonly server: Server;
+  public readonly server: Server;
 
   constructor(server: Server) {
     this.server = server;
     this.serverId = server.id;
   }
 
-  public init = async (): Promise<boolean> => {
-    try {
-      await Promise.all([
-        this.createEventQueue(),
-        this.createHero(),
-        this.createReports(),
-        this.createQuests(),
-        this.createAchievements(),
-        this.createResearchLevels(),
-        this.createMapData(this.server),
-        this.createPlayerVillageData()
-      ]);
-      return true;
-    } catch (e) {
-      throw new Error('Error occurred when creating new world.');
-    }
-  };
-
-  private createPlayerVillageData = async (): Promise<void> => {
+  public createPlayerVillageData = async (): Promise<void> => {
     const defaultVillage = newVillage;
     // await StorageService.set<Village[]>(`${this.serverId}-playerVillages`, [defaultVillage]);
   };
 
-  private createEventQueue = async (): Promise<void> => {
+  public createEventQueue = async (): Promise<void> => {
     //  await StorageService.set(`${this.serverId}-events`, []);
   };
 
-  private createHero = async (): Promise<void> => {
+  public createHero = async (): Promise<void> => {
     const { tribe } = this.server.configuration;
     const speed = tribe === 'gauls' ? 14 : 9;
     const attackPower = tribe === 'romans' ? 100 : 80;
@@ -69,27 +47,23 @@ export class CreateServerService {
     // await StorageService.set(`${this.serverId}-hero`, <Hero>hero);
   };
 
-  private createReports = async (): Promise<void> => {
-    console.log('createReports');
-  };
-
-  private createQuests = async (): Promise<void> => {
+  public createQuests = async (): Promise<void> => {
     console.log('createQuests');
   };
 
-  private createAchievements = async (): Promise<void> => {
+  public createAchievements = async (): Promise<void> => {
     console.log('createAchievements');
   };
 
-  private createResearchLevels = async (): Promise<void> => {
+  public createResearchLevels = async (): Promise<void> => {
     console.log('createResearchLevels');
   };
 
-  private createAccountEffects = async (): Promise<void> => {
+  public createAccountEffects = async (): Promise<void> => {
     // await StorageService.set(`${this.serverId}-accountEffects`, accountEffects);
   };
 
-  private createMapData = async (server: Server): Promise<boolean> => {
+  public static createMapData = async (server: Server): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       const createNewServerWorker = new Worker(new URL('../workers/generate-world-map-worker', import.meta.url), {
         type: 'module'
@@ -97,7 +71,7 @@ export class CreateServerService {
       createNewServerWorker.postMessage([server]);
       createNewServerWorker.addEventListener('message', async (event: MessageEvent<{ tiles: Tile[] }>) => {
         const { tiles } = event.data;
-        database.maps.bulkAdd(tiles);
+        await database.maps.bulkAdd(tiles);
         resolve(true);
       });
       createNewServerWorker.addEventListener('error', () => {

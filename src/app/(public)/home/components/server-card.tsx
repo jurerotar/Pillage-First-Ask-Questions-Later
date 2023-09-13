@@ -3,6 +3,7 @@ import { Server } from 'interfaces/models/game/server';
 import { Link } from 'react-router-dom';
 import { Button } from 'components/buttons/button';
 import { useAvailableServers } from 'hooks/use-available-servers';
+import { usePlayerVillages } from 'hooks/use-player-villages';
 
 type ServerCardProps = {
   server: Server;
@@ -14,6 +15,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   } = props;
 
   const { deleteServer } = useAvailableServers();
+  const { villages } = usePlayerVillages(server.id);
 
   return (
     <div
@@ -41,7 +43,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           </span>
         </span>
       </div>
-      <Link to={`/game/${server.name}/resources`}>
+      <Link to={`/game/${server.name}/v-1/resources`}>
         <Button>
           Enter server
         </Button>

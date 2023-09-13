@@ -3,14 +3,14 @@ import { Point } from 'interfaces/models/common';
 export const cartesianToIsometric = (point: Point): Point => {
   return {
     x: point.x - point.y,
-    y: (point.x + point.y) / 2,
+    y: (point.x + point.y) / 2
   };
 };
 
 export const isometricToCartesian = (point: Point): Point => {
   return {
     x: (2 * point.y + point.x) / 2,
-    y: (2 * point.y - point.x) / 2,
+    y: (2 * point.y - point.x) / 2
   };
 };
 
@@ -40,7 +40,7 @@ export const partialArraySum = (array: number[], index: number): number => {
 export const arrayTupleToObject = <K = (string | number | symbol)[], V = any[]>(array1: K, array2: V): { [p: string]: any } => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  return Object.fromEntries(array1.map((key, index) => [key, array2[index], ]));
+  return Object.fromEntries(array1.map((key, index) => [key, array2[index]]));
 };
 
 export const snakeToCamelCase = (string: string): string => {
@@ -76,3 +76,5 @@ export const debounce = (callback: () => void, duration: number = 300) => {
 export const sleep = (ms: number) => {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 };
+
+export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);

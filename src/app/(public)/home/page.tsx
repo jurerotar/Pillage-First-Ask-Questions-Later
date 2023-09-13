@@ -32,9 +32,9 @@ export const HomePage: React.FC = () => {
               dolorum ea, et excepturi exercitationem facere iure mollitia nihil officia quas sunt unde velit voluptate.
             </Paragraph>
             <Button
-              onClick={() => openModal((
-                <CreateServerModalContent />
-              ))}
+              onClick={() => openModal(<CreateServerModalContent />, {
+                hasTitle: false
+              })}
             >
               Create new server
             </Button>

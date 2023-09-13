@@ -37,9 +37,9 @@ export const PublicLayout: React.FC = () => {
           <div className="hidden md:flex">
             <Button
               size="xs"
-              onClick={() => openModal((
-                <CreateServerModalContent />
-              ))}
+              onClick={() => openModal(<CreateServerModalContent />, {
+                hasTitle: false
+              })}
             >
               Create new server
             </Button>
@@ -47,9 +47,9 @@ export const PublicLayout: React.FC = () => {
           <div className="flex items-center md:hidden">
             <HamburgerButton
               className="h-min rounded-full bg-gray-200/30"
-              onClick={() => openModal((
-                <></>
-              ))}
+              onClick={() => openModal(<></>, {
+                title: 'burek'
+              })}
             />
           </div>
         </div>

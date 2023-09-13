@@ -14,7 +14,7 @@ import {
   BuildingUpgradeInformationTable
 } from 'components/tables/building-upgrade-information-table';
 import { useContextSelector } from 'use-context-selector';
-import { GameContext } from 'providers/game/game-context';
+
 import { BuildingFieldId, ResourceFieldId } from 'interfaces/models/game/village';
 import { VillageContext } from 'providers/game/village-context';
 import { BuildingEffectsModalContent } from './building-effects-modal-content';

@@ -97,4 +97,5 @@ export type Village = {
   resourceFields: ResourceFields;
   buildingFields: BuildingFields;
   isCapital: boolean;
+  ownedBy: number;
 };

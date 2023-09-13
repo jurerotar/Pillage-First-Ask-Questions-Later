@@ -7,7 +7,7 @@ import { oasisShapes } from 'constants/oasis-shapes';
 import { Server } from 'interfaces/models/game/server';
 
 export class MapGeneratorService {
-  public static readonly BORDER_SIZE: number = 20;
+  public static readonly BORDER_SIZE: number = 0;
 
   public static generateMap = (server: Server) => {
     const { seed, id, configuration: { mapSize: size } } = server;
@@ -121,7 +121,7 @@ export class MapGeneratorService {
 
     // To create an isometric map, we create a cartesian map of double the size that we actually need, then remove the tiles that are never
     // displayed.
-    return [...Array(sizeWithBorder ** 2 + 2 * sizeWithBorder + 1)].flatMap(() => {
+    return [...Array(sizeWithBorder ** 2 + 1)].flatMap(() => {
       xCoordinateCounter += 1;
       const x: Point['x'] = xCoordinateCounter;
       const y: Point['y'] = yCoordinateCounter;
@@ -133,9 +133,9 @@ export class MapGeneratorService {
       }
 
       // Remove the tiles that will not be used
-      if ((Math.abs(x) + Math.abs(y)) > sizeWithBorder / 2) {
-        return [];
-      }
+      // if ((Math.abs(x) + Math.abs(y)) > sizeWithBorder / 2) {
+      //   return [];
+      // }
 
       const coordinates: Point = {
         x,
@@ -144,7 +144,7 @@ export class MapGeneratorService {
 
       return {
         coordinates,
-        isOccupied: false,
+        isOccupied: x === 0 && y === 0,
         isOasis: false,
         backgroundColor: '#B9D580',
         type: null

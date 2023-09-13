@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useContextSelector } from 'use-context-selector';
-import { GameContext } from 'providers/game/game-context';
+
 import { Point, Size } from 'interfaces/models/common';
 import { Tile } from 'interfaces/models/game/tile';
 import { MapGeneratorService } from 'services/map-generator-service';

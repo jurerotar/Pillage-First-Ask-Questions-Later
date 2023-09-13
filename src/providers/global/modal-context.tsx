@@ -1,9 +1,9 @@
 import React, { ReactElement, ReactNode, useCallback, useRef, useState } from 'react';
 import { createContext } from 'use-context-selector';
-import { Modal } from 'components/modal/modal';
+import { Modal, PassableModalProps } from 'components/modal/modal';
 
 type ModalProviderValues = {
-  openModal: (children: ReactNode) => void;
+  openModal: (children: ReactNode, passableModalProps: PassableModalProps) => void;
   closeModal: () => void;
 };
 
@@ -19,16 +19,16 @@ const ModalProvider: React.FC<ModalProviderProps> = (props): ReactElement => {
   } = props;
 
   const [modalChildren, setModalChildren] = useState<ReactNode | null>(null);
-  const modalClassname = useRef<string>('');
+  const modalProps = useRef<PassableModalProps | null>(null);
 
-  const openModal = useCallback((modalContent: ReactNode, className: string = ''): void => {
+  const openModal = useCallback((modalContent: ReactNode, passableModalProps: PassableModalProps): void => {
+    modalProps.current = passableModalProps;
     setModalChildren(modalContent);
-    modalClassname.current = className;
   }, []);
 
   const closeModal = useCallback((): void => {
     setModalChildren(() => null);
-    modalClassname.current = '';
+    modalProps.current = null;
   }, []);
 
   const value: ModalProviderValues = {
@@ -40,9 +40,9 @@ const ModalProvider: React.FC<ModalProviderProps> = (props): ReactElement => {
     <ModalContext.Provider value={value}>
       {children}
       <Modal
-        className={modalClassname.current}
         show={!!modalChildren}
         closeHandler={closeModal}
+        {...(modalProps.current ?? {})}
       >
         {modalChildren}
       </Modal>
