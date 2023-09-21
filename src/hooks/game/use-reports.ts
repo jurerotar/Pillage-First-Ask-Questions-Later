@@ -1,50 +1,70 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { Report } from 'interfaces/models/game/report';
-import { useCallback } from 'react';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
+import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+
+const cacheKey = 'reports';
 
 export const useReports = () => {
-  const { serverId } = useCurrentServer();
+  const { serverId, hasLoadedServer } = useCurrentServer();
+  const { mutate: mutateReports } = useDatabaseMutation({ cacheKey });
 
   const {
     data: reports,
     isLoading: isLoadingReports,
     isSuccess: hasLoadedReports,
     status: reportsQueryStatus
-  } = useAsyncLiveQuery<Report[]>(async () => {
-    return database.reports.where({ serverId }).toArray();
-  }, [serverId], []);
+  } = useAsyncLiveQuery<Report[]>({
+    queryFn: () => database.reports.where({ serverId }).toArray(),
+    deps: [serverId],
+    fallback: [],
+    cacheKey,
+    enabled: hasLoadedServer
+  });
 
   const archivedReports = reports.filter((report: Report) => true);
   const unArchivedReports = reports.filter((report: Report) => false);
 
-  const createReport = useCallback(() => {
+  const createReport = () => {
 
-  }, []);
+  };
 
-  const deleteReport = useCallback(async (reportId: Report['id']) => {
-    await database.reports.where({ serverId, id: reportId }).delete();
-  }, [serverId]);
+  const deleteReport = async (reportId: Report['id']) => {
+    await mutateReports(async () => {
+      await database.reports.where({ serverId, id: reportId }).delete();
+    });
+  };
 
-  const markAsRead = useCallback(async (reportId: Report['id']) => {
-    await database.reports.where({ serverId, id: reportId }).modify({ opened: true });
-  }, [serverId]);
+  const markAsRead = async (reportId: Report['id']) => {
+    await mutateReports(async () => {
+      await database.reports.where({ serverId, id: reportId }).delete();
+    });
+  };
 
-  const markAsUnread = useCallback(async (reportId: Report['id']) => {
-    await database.reports.where({ serverId, id: reportId }).modify({ opened: false });
-  }, [serverId]);
+  const markAsUnread = async (reportId: Report['id']) => {
+    await mutateReports(async () => {
+      await database.reports.where({ serverId, id: reportId }).modify({ opened: false });
+    });
+  };
 
-  const archiveReport = useCallback(async (reportId: Report['id']) => {
-    await database.reports.where({ serverId, id: reportId }).modify({ archived: true });
-  }, [serverId]);
+  const archiveReport = async (reportId: Report['id']) => {
+    await mutateReports(async () => {
+      await database.reports.where({ serverId, id: reportId }).modify({ archived: true });
+    });
+  };
 
-  const unArchiveReport = useCallback(async (reportId: Report['id']) => {
-    await database.reports.where({ serverId, id: reportId }).modify({ archived: false });
-  }, [serverId]);
+  const unArchiveReport = async (reportId: Report['id']) => {
+    await mutateReports(async () => {
+      await database.reports.where({ serverId, id: reportId }).modify({ archived: false });
+    });
+  };
 
   return {
     reports,
+    isLoadingReports,
+    hasLoadedReports,
+    reportsQueryStatus,
     archivedReports,
     unArchivedReports,
     createReport,

@@ -1,14 +1,13 @@
 import { Point } from 'interfaces/models/common';
 import { ResourceFieldType } from 'interfaces/models/game/village';
+import { WithServerId } from 'interfaces/models/game/server';
 
-export type Tile = {
+export type Tile = WithServerId<{
   coordinates: Point;
-  // Border fields surround the map and are a type of wood/iron oasis with no way to occupy them
   isOasis: boolean;
   isOccupied: boolean;
   type?: ResourceFieldType | null;
-  isBorderField?: boolean;
   // Temporary
   backgroundColor: string;
   oasisGroup?: number;
-};
+}>;

@@ -1,6 +1,7 @@
 import { Resource } from 'interfaces/models/game/resource';
+import { WithServerId } from 'interfaces/models/game/server';
 
-export type Hero = {
+export type Hero = WithServerId<{
   name: string;
   level: number;
   experience: number;
@@ -14,7 +15,7 @@ export type Hero = {
   defenceBonus: number;
   unitType: 'infantry' | 'cavalry';
   inventory: HeroItem[];
-};
+}>;
 
 export type HeroItemSlot = 'head' | 'torso' | 'legs' | 'gloves' | 'right-hand' | 'left-hand' | 'horse' | 'consumable';
 

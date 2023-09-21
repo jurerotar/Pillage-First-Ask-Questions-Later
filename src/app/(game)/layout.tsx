@@ -50,7 +50,6 @@ const openDiscord = (): void => {
 
 export const GameLayout = () => {
   const { currentVillage } = useCurrentVillage();
-  console.log({ currentVillage });
 
   return (
     <Outlet />

@@ -7,6 +7,7 @@ import { MapPage } from 'app/(game)/map/page';
 import { AppLayout } from 'app/layout';
 import { GameLayout } from 'app/(game)/layout';
 import { GameEngineProvider } from 'app/(game)/game-engine';
+import { GameLoader } from 'app/(game)/loader';
 
 // TODO: Lazy load pages with @loadable
 export const router = createBrowserRouter(
@@ -23,24 +24,26 @@ export const router = createBrowserRouter(
         />
       </Route>
       {/* Game paths */}
-      <Route element={<GameEngineProvider />}>
-        <Route
-          path="/game/:serverSlug/:villageSlug/"
-          element={<GameLayout />}
-        >
+      <Route element={<GameLoader />}>
+        <Route element={<GameEngineProvider />}>
           <Route
-            path="resources"
-            element={<TestPage />}
-          />
-          <Route
-            path="villages"
-            element={<TestPage />}
-          />
-          <Route
-            index
-            path="map"
-            element={<MapPage />}
-          />
+            path="/game/:serverSlug/:villageSlug/"
+            element={<GameLayout />}
+          >
+            <Route
+              path="resources"
+              element={<TestPage />}
+            />
+            <Route
+              path="villages"
+              element={<TestPage />}
+            />
+            <Route
+              index
+              path="map"
+              element={<MapPage />}
+            />
+          </Route>
         </Route>
       </Route>
     </Route>

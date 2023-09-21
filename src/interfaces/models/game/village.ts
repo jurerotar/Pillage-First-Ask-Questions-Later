@@ -1,6 +1,7 @@
 import { Point } from 'interfaces/models/common';
 import { Resource, Resources } from 'interfaces/models/game/resource';
 import { Building } from 'interfaces/models/game/building';
+import { Server } from 'interfaces/models/game/server';
 
 export type ResourceFieldId =
   '1'
@@ -86,6 +87,7 @@ export type BuildingFields = {
 };
 
 export type Village = {
+  serverId: Server['id'];
   id: string;
   name: string;
   slug: string;

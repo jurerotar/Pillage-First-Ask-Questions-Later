@@ -3,6 +3,7 @@
  * while others effect only specific village.
  */
 import { Village } from 'interfaces/models/game/village';
+import { WithServerId } from 'interfaces/models/game/server';
 
 export type HeroEffectId =
   | 'heroSpeedBonus'
@@ -71,10 +72,10 @@ export type EffectId =
   | 'granaryCapacity'
   | 'warehouseCapacity';
 
-export type Effect = {
+export type Effect = WithServerId<{
   // Server effects affect actions from all villages, village effects affect only actions from a particular village
   scope: 'server' | 'village';
   village_id?: Village['id'];
   effectId: EffectId;
   value: number;
-};
+}>;

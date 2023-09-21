@@ -1,18 +1,4 @@
-import { Point } from 'interfaces/models/common';
-
-export const cartesianToIsometric = (point: Point): Point => {
-  return {
-    x: point.x - point.y,
-    y: (point.x + point.y) / 2
-  };
-};
-
-export const isometricToCartesian = (point: Point): Point => {
-  return {
-    x: (2 * point.y + point.x) / 2,
-    y: (2 * point.y - point.x) / 2
-  };
-};
+import { prng_alea } from 'esm-seedrandom';
 
 export const roundToNearestN = (number: number, numberToRoundTo: number): number => {
   return Math.round(number / numberToRoundTo) * numberToRoundTo;
@@ -26,6 +12,15 @@ export const randomArrayElement = <T>(array: T[]): T => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
+export const seededRandomIntFromInterval = (seed: string, min: number, max: number): number => { // min and max included
+  const seededRandom = prng_alea(seed);
+  return Math.floor(seededRandom() * (max - min + 1) + min);
+};
+
+export const seededRandomArrayElement = <T>(seed: string, array: T[]): T => {
+  const seededRandom = prng_alea(seed);
+  return array[Math.floor(seededRandom() * array.length)];
+};
 export const isFloat = (number: number): boolean => {
   return !Number.isInteger(number) && !Number.isNaN(number);
 };
@@ -37,7 +32,7 @@ export const partialArraySum = (array: number[], index: number): number => {
 };
 
 // TODO: Properly type this
-export const arrayTupleToObject = <K = (string | number | symbol)[], V = any[]>(array1: K, array2: V): { [p: string]: any } => {
+export const arrayTupleToObject = <K = (string | number | symbol)[], V = any[]>(array1: K, array2: V): Record<string, any> => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return Object.fromEntries(array1.map((key, index) => [key, array2[index]]));
@@ -64,7 +59,7 @@ export const formatRemainingTime = (endTime: number): string => {
 };
 
 export const debounce = (callback: () => void, duration: number = 300) => {
-  let timer;
+  let timer: number | undefined;
   return () => {
     if (timer) {
       clearTimeout(timer);
@@ -74,7 +69,17 @@ export const debounce = (callback: () => void, duration: number = 300) => {
 };
 
 export const sleep = (ms: number) => {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 };
 
 export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
+
+export const chunk = <T, >(array: T[], size: number): T[][] => {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+};

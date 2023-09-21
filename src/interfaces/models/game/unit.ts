@@ -66,7 +66,7 @@ export type UnitId =
 export type UnitResearchPrerequisites = `${Building['id']}:${string}`;
 
 export type Unit = {
-  name: UnitId;
+  id: UnitId;
   baseRecruitmentCost: [number, number, number, number];
   baseRecruitmentTime: number;
   cropConsumption: number;

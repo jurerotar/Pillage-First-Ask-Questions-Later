@@ -1,9 +1,9 @@
 import React from 'react';
 import { Server } from 'interfaces/models/game/server';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from 'components/buttons/button';
 import { useAvailableServers } from 'hooks/use-available-servers';
-import { usePlayerVillages } from 'hooks/use-player-villages';
+import { setToCache } from 'database/cache';
 
 type ServerCardProps = {
   server: Server;
@@ -14,8 +14,13 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
     server
   } = props;
 
+  const navigate = useNavigate();
   const { deleteServer } = useAvailableServers();
-  const { villages } = usePlayerVillages(server.id);
+
+  const hydrateCurrentServerCache = (server: Server) => {
+    setToCache('current-server', server);
+    navigate(`/game/${server.name}/v-1/map`);
+  };
 
   return (
     <div
@@ -43,11 +48,9 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           </span>
         </span>
       </div>
-      <Link to={`/game/${server.name}/v-1/resources`}>
-        <Button>
-          Enter server
-        </Button>
-      </Link>
+      <Button onClick={() => hydrateCurrentServerCache(server)}>
+        Enter server
+      </Button>
       <button
         type="button"
         className="absolute -right-2 -top-2 flex items-center justify-center rounded-full border border-gray-400 bg-white p-2"

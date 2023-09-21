@@ -11,42 +11,54 @@ import { env } from 'config/env';
 import { Effect } from 'interfaces/models/game/effect';
 import { Bank } from 'interfaces/models/game/bank';
 import { ResearchLevel } from 'interfaces/models/game/research-level';
+import { CryliteTableName } from 'interfaces/models/database/crylite-table';
 
+type TableIndex = string;
+
+const DEFAULT_TABLE_INDEX: TableIndex[] = ['++id'];
+
+const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
+  ['servers', ['slug']],
+  ['maps', ['serverId']],
+  ['heroes', ['serverId']],
+  ['villages', ['serverId', 'slug']],
+  ['reports', ['serverId']],
+  ['quests', ['serverId']],
+  ['achievements', ['serverId']],
+  ['events', ['serverId']],
+  ['effects', ['serverId']],
+  ['banks', ['serverId']],
+  ['researchLevels', ['serverId']]
+]);
+
+export const CRYLITE_TABLE_NAMES = CRYLITE_TABLES.keys();
+
+// https://dexie.org/docs/Version/Version.stores()
 export class CryliteDatabase extends Dexie {
-  servers!: Table<Server>;
-  maps!: Table<Tile>;
-  heroes!: Table<Hero>;
-  villages!: Table<Village>;
-  reports!: Table<Report>;
-  quests!: Table<Quest>;
-  achievements!: Table<Achievement>;
-  events!: Table<GameEvent>;
-  effects!: Table<Effect>;
-  banks!: Table<Bank>;
-  researchLevels!: Table<ResearchLevel>;
+  public servers!: Table<Server>;
+  public maps!: Table<Tile>;
+  public heroes!: Table<Hero>;
+  public villages!: Table<Village>;
+  public reports!: Table<Report>;
+  public quests!: Table<Quest>;
+  public achievements!: Table<Achievement>;
+  public events!: Table<GameEvent>;
+  public effects!: Table<Effect>;
+  public banks!: Table<Bank>;
+  public researchLevels!: Table<ResearchLevel>;
 
   public amountOfTables: number;
 
   constructor() {
     super(env.databaseName);
-    // https://dexie.org/docs/Version/Version.stores()
-    const schema = {
-      servers: '++id, slug',
-      maps: '++id, serverId',
-      heroes: '++id, serverId',
-      villages: '++id, serverId, slug',
-      reports: '++id, serverId',
-      quests: '++id, serverId',
-      achievements: '++id, serverId',
-      events: '++id, serverId',
-      effects: '++id, serverId',
-      banks: '++id, serverId',
-      researchLevels: '++id, serverId'
-    };
+
+    const schema = Object.fromEntries([...Array.from(CRYLITE_TABLES)
+      .map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')])]);
 
     this.amountOfTables = Object.keys(schema).length;
 
-    this.version(1).stores(schema);
+    this.version(1)
+      .stores(schema);
   }
 }
 
