@@ -2,7 +2,7 @@ import { Tribe } from 'interfaces/models/game/tribe';
 import { Building } from 'interfaces/models/game/building';
 
 export type UnitId =
-  'LEGIONNAIRE'
+  | 'LEGIONNAIRE'
   | 'PRAETORIAN'
   | 'IMPERIAN'
   | 'EQUITES_LEGATI'
@@ -66,7 +66,7 @@ export type UnitId =
 export type UnitResearchPrerequisites = `${Building['id']}:${string}`;
 
 export type Unit = {
-  name: UnitId;
+  id: UnitId;
   baseRecruitmentCost: [number, number, number, number];
   baseRecruitmentTime: number;
   cropConsumption: number;

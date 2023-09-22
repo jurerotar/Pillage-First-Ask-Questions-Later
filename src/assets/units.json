@@ -1,6 +1,6 @@
 [
   {
-    "name": "LEGIONNAIRE",
+    "id": "LEGIONNAIRE",
     "baseRecruitmentCost": [
       120,
       100,
@@ -19,7 +19,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "PRAETORIAN",
+    "id": "PRAETORIAN",
     "baseRecruitmentCost": [
       100,
       130,
@@ -41,7 +41,7 @@
     ]
   },
   {
-    "name": "IMPERIAN",
+    "id": "IMPERIAN",
     "baseRecruitmentCost": [
       150,
       160,
@@ -63,7 +63,7 @@
     ]
   },
   {
-    "name": "EQUITES_LEGATI",
+    "id": "EQUITES_LEGATI",
     "baseRecruitmentCost": [
       140,
       160,
@@ -85,7 +85,7 @@
     ]
   },
   {
-    "name": "EQUITES_IMPERATORIS",
+    "id": "EQUITES_IMPERATORIS",
     "baseRecruitmentCost": [
       550,
       440,
@@ -107,7 +107,7 @@
     ]
   },
   {
-    "name": "EQUITES_CAESARIS",
+    "id": "EQUITES_CAESARIS",
     "baseRecruitmentCost": [
       550,
       640,
@@ -129,7 +129,7 @@
     ]
   },
   {
-    "name": "BATTERING_RAM",
+    "id": "BATTERING_RAM",
     "baseRecruitmentCost": [
       900,
       360,
@@ -151,7 +151,7 @@
     ]
   },
   {
-    "name": "FIRE_CATAPULT",
+    "id": "FIRE_CATAPULT",
     "baseRecruitmentCost": [
       950,
       1350,
@@ -173,7 +173,7 @@
     ]
   },
   {
-    "name": "SENATOR",
+    "id": "SENATOR",
     "baseRecruitmentCost": [
       30750,
       27200,
@@ -195,7 +195,7 @@
     ]
   },
   {
-    "name": "SETTLER",
+    "id": "SETTLER",
     "baseRecruitmentCost": [
       4600,
       4200,
@@ -214,7 +214,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "MACEMAN",
+    "id": "MACEMAN",
     "baseRecruitmentCost": [
       95,
       75,
@@ -233,7 +233,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "SPEARMAN",
+    "id": "SPEARMAN",
     "baseRecruitmentCost": [
       145,
       70,
@@ -255,7 +255,7 @@
     ]
   },
   {
-    "name": "AXEMAN",
+    "id": "AXEMAN",
     "baseRecruitmentCost": [
       130,
       120,
@@ -277,7 +277,7 @@
     ]
   },
   {
-    "name": "SCOUT",
+    "id": "SCOUT",
     "baseRecruitmentCost": [
       160,
       100,
@@ -299,7 +299,7 @@
     ]
   },
   {
-    "name": "PALADIN",
+    "id": "PALADIN",
     "baseRecruitmentCost": [
       370,
       270,
@@ -321,7 +321,7 @@
     ]
   },
   {
-    "name": "TEUTONIC_KNIGHT",
+    "id": "TEUTONIC_KNIGHT",
     "baseRecruitmentCost": [
       450,
       515,
@@ -343,7 +343,7 @@
     ]
   },
   {
-    "name": "RAM",
+    "id": "RAM",
     "baseRecruitmentCost": [
       1000,
       300,
@@ -365,7 +365,7 @@
     ]
   },
   {
-    "name": "CATAPULT",
+    "id": "CATAPULT",
     "baseRecruitmentCost": [
       900,
       1200,
@@ -387,7 +387,7 @@
     ]
   },
   {
-    "name": "CHIEF",
+    "id": "CHIEF",
     "baseRecruitmentCost": [
       35500,
       26600,
@@ -409,7 +409,7 @@
     ]
   },
   {
-    "name": "SETTLER",
+    "id": "SETTLER",
     "baseRecruitmentCost": [
       5800,
       4400,
@@ -428,7 +428,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "PHALANX",
+    "id": "PHALANX",
     "baseRecruitmentCost": [
       100,
       130,
@@ -447,7 +447,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "SWORDSMAN",
+    "id": "SWORDSMAN",
     "baseRecruitmentCost": [
       140,
       150,
@@ -469,7 +469,7 @@
     ]
   },
   {
-    "name": "PATHFINDER",
+    "id": "PATHFINDER",
     "baseRecruitmentCost": [
       170,
       150,
@@ -491,7 +491,7 @@
     ]
   },
   {
-    "name": "THEUTATES_THUNDER",
+    "id": "THEUTATES_THUNDER",
     "baseRecruitmentCost": [
       350,
       450,
@@ -513,7 +513,7 @@
     ]
   },
   {
-    "name": "DRUIDRIDER",
+    "id": "DRUIDRIDER",
     "baseRecruitmentCost": [
       360,
       330,
@@ -535,7 +535,7 @@
     ]
   },
   {
-    "name": "HAEDUAN",
+    "id": "HAEDUAN",
     "baseRecruitmentCost": [
       500,
       620,
@@ -557,7 +557,7 @@
     ]
   },
   {
-    "name": "RAM",
+    "id": "RAM",
     "baseRecruitmentCost": [
       950,
       555,
@@ -579,7 +579,7 @@
     ]
   },
   {
-    "name": "TREBUCHET",
+    "id": "TREBUCHET",
     "baseRecruitmentCost": [
       960,
       1450,
@@ -601,7 +601,7 @@
     ]
   },
   {
-    "name": "CHIEFTAIN",
+    "id": "CHIEFTAIN",
     "baseRecruitmentCost": [
       30750,
       45400,
@@ -623,7 +623,7 @@
     ]
   },
   {
-    "name": "SETTLER",
+    "id": "SETTLER",
     "baseRecruitmentCost": [
       4400,
       5600,
@@ -642,7 +642,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "PIKEMAN",
+    "id": "PIKEMAN",
     "baseRecruitmentCost": [
       0,
       0,
@@ -661,7 +661,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "THORNED_WARRIOR",
+    "id": "THORNED_WARRIOR",
     "baseRecruitmentCost": [
       0,
       0,
@@ -683,7 +683,7 @@
     ]
   },
   {
-    "name": "GUARDSMAN",
+    "id": "GUARDSMAN",
     "baseRecruitmentCost": [
       0,
       0,
@@ -705,7 +705,7 @@
     ]
   },
   {
-    "name": "BIRDS_OF_PREY",
+    "id": "BIRDS_OF_PREY",
     "baseRecruitmentCost": [
       0,
       0,
@@ -727,7 +727,7 @@
     ]
   },
   {
-    "name": "AXERIDER",
+    "id": "AXERIDER",
     "baseRecruitmentCost": [
       0,
       0,
@@ -749,7 +749,7 @@
     ]
   },
   {
-    "name": "NATARIAN_KNIGHT",
+    "id": "NATARIAN_KNIGHT",
     "baseRecruitmentCost": [
       0,
       0,
@@ -771,7 +771,7 @@
     ]
   },
   {
-    "name": "WARELEPHANT",
+    "id": "WARELEPHANT",
     "baseRecruitmentCost": [
       0,
       0,
@@ -793,7 +793,7 @@
     ]
   },
   {
-    "name": "BALLISTA",
+    "id": "BALLISTA",
     "baseRecruitmentCost": [
       0,
       0,
@@ -815,7 +815,7 @@
     ]
   },
   {
-    "name": "NATARIAN_EMPEROR",
+    "id": "NATARIAN_EMPEROR",
     "baseRecruitmentCost": [
       0,
       0,
@@ -837,7 +837,7 @@
     ]
   },
   {
-    "name": "SETTLER",
+    "id": "SETTLER",
     "baseRecruitmentCost": [
       0,
       0,
@@ -856,7 +856,7 @@
     "researchPrerequisites": []
   },
   {
-    "name": "RAT",
+    "id": "RAT",
     "baseRecruitmentCost": [
       0,
       0,
@@ -877,7 +877,7 @@
     ]
   },
   {
-    "name": "SPIDER",
+    "id": "SPIDER",
     "baseRecruitmentCost": [
       0,
       0,
@@ -898,7 +898,7 @@
     ]
   },
   {
-    "name": "SERPENT",
+    "id": "SERPENT",
     "baseRecruitmentCost": [
       0,
       0,
@@ -919,7 +919,7 @@
     ]
   },
   {
-    "name": "BAT",
+    "id": "BAT",
     "baseRecruitmentCost": [
       0,
       0,
@@ -940,7 +940,7 @@
     ]
   },
   {
-    "name": "WILD_BOAR",
+    "id": "WILD_BOAR",
     "baseRecruitmentCost": [
       0,
       0,
@@ -961,7 +961,7 @@
     ]
   },
   {
-    "name": "WOLF",
+    "id": "WOLF",
     "baseRecruitmentCost": [
       0,
       0,
@@ -982,7 +982,7 @@
     ]
   },
   {
-    "name": "BEAR",
+    "id": "BEAR",
     "baseRecruitmentCost": [
       0,
       0,
@@ -1003,7 +1003,7 @@
     ]
   },
   {
-    "name": "CROCODILE",
+    "id": "CROCODILE",
     "baseRecruitmentCost": [
       0,
       0,
@@ -1024,7 +1024,7 @@
     ]
   },
   {
-    "name": "TIGER",
+    "id": "TIGER",
     "baseRecruitmentCost": [
       0,
       0,
@@ -1045,7 +1045,7 @@
     ]
   },
   {
-    "name": "ELEPHANT",
+    "id": "ELEPHANT",
     "baseRecruitmentCost": [
       0,
       0,
@@ -1066,7 +1066,7 @@
     ]
   },
   {
-    "name": "SLAVE_MILITIA",
+    "id": "SLAVE_MILITIA",
     "baseRecruitmentCost": [
       45,
       60,
@@ -1087,7 +1087,7 @@
     ]
   },
   {
-    "name": "ASH_WARDEN",
+    "id": "ASH_WARDEN",
     "baseRecruitmentCost": [
       115,
       100,
@@ -1108,7 +1108,7 @@
     ]
   },
   {
-    "name": "KHOPESH_WARRIOR",
+    "id": "KHOPESH_WARRIOR",
     "baseRecruitmentCost": [
       170,
       180,
@@ -1129,7 +1129,7 @@
     ]
   },
   {
-    "name": "SOPDU_EXPLORER",
+    "id": "SOPDU_EXPLORER",
     "baseRecruitmentCost": [
       170,
       150,
@@ -1150,7 +1150,7 @@
     ]
   },
   {
-    "name": "ANHUR_GUARD",
+    "id": "ANHUR_GUARD",
     "baseRecruitmentCost": [
       360,
       330,
@@ -1171,7 +1171,7 @@
     ]
   },
   {
-    "name": "RESHEPH_CHARIOT",
+    "id": "RESHEPH_CHARIOT",
     "baseRecruitmentCost": [
       450,
       560,
@@ -1192,7 +1192,7 @@
     ]
   },
   {
-    "name": "RAM",
+    "id": "RAM",
     "baseRecruitmentCost": [
       995,
       575,
@@ -1213,7 +1213,7 @@
     ]
   },
   {
-    "name": "STONE_CATAPULT",
+    "id": "STONE_CATAPULT",
     "baseRecruitmentCost": [
       980,
       1510,
@@ -1234,7 +1234,7 @@
     ]
   },
   {
-    "name": "NOMARCH",
+    "id": "NOMARCH",
     "baseRecruitmentCost": [
       34000,
       50000,
@@ -1255,7 +1255,7 @@
     ]
   },
   {
-    "name": "SETTLER",
+    "id": "SETTLER",
     "baseRecruitmentCost": [
       5040,
       6510,
@@ -1268,7 +1268,7 @@
     "infantryDefence": 80,
     "cavalryDefence": 80,
     "travelSpeed": 5,
-    
+
     "carryCapacity": 3000,
     "type": "infantry",
     "tribe": "egyptians",
@@ -1277,7 +1277,7 @@
     ]
   },
   {
-    "name": "MERCENARY",
+    "id": "MERCENARY",
     "baseRecruitmentCost": [
       130,
       80,
@@ -1298,7 +1298,7 @@
     ]
   },
   {
-    "name": "BOWMAN",
+    "id": "BOWMAN",
     "baseRecruitmentCost": [
       140,
       110,
@@ -1319,7 +1319,7 @@
     ]
   },
   {
-    "name": "SPOTTER",
+    "id": "SPOTTER",
     "baseRecruitmentCost": [
       170,
       150,
@@ -1340,7 +1340,7 @@
     ]
   },
   {
-    "name": "STEPPE_RIDER",
+    "id": "STEPPE_RIDER",
     "baseRecruitmentCost": [
       290,
       370,
@@ -1361,7 +1361,7 @@
     ]
   },
   {
-    "name": "MARKSMAN",
+    "id": "MARKSMAN",
     "baseRecruitmentCost": [
       320,
       350,
@@ -1382,7 +1382,7 @@
     ]
   },
   {
-    "name": "MARAUDER",
+    "id": "MARAUDER",
     "baseRecruitmentCost": [
       450,
       560,
@@ -1403,7 +1403,7 @@
     ]
   },
   {
-    "name": "RAM",
+    "id": "RAM",
     "baseRecruitmentCost": [
       1060,
       330,
@@ -1424,7 +1424,7 @@
     ]
   },
   {
-    "name": "CATAPULT",
+    "id": "CATAPULT",
     "baseRecruitmentCost": [
       950,
       1280,
@@ -1445,7 +1445,7 @@
     ]
   },
   {
-    "name": "LOGADES",
+    "id": "LOGADES",
     "baseRecruitmentCost": [
       37200,
       27600,
@@ -1466,7 +1466,7 @@
     ]
   },
   {
-    "name": "SETTLER",
+    "id": "SETTLER",
     "baseRecruitmentCost": [
       6100,
       4600,

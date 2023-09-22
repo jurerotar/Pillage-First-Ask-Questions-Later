@@ -1,58 +1,77 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
-    "allowJs": false,
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext", "webworker"],
+    "types": ["vite/client", "vite-plugin-svgr/client", "jest"],
+    "baseUrl": "./",
+    "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "jsx": "react-native",
-    "lib": [
-      "DOM",
-      "dom.iterable",
-      "ESNext"
-    ],
+    "jsx": "react-jsx",
     "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
-    "target": "esnext",
     "module": "esnext",
     "paths": {
+      "app/*": [
+        "src/app/*"
+      ],
       "components/*": [
-        "components/*"
+        "src/components/*"
+      ],
+      "database/*": [
+        "src/database/*"
       ],
       "utils/*": [
-        "utils/*"
+        "src/utils/*"
+      ],
+      "hooks/*": [
+        "src/hooks/*"
+      ],
+      "constants/*": [
+        "src/constants/*"
+      ],
+      "maps/*": [
+        "src/maps/*"
       ],
       "i18n/*": [
-        "i18n/*"
+        "src/i18n/*"
       ],
       "interfaces/*": [
-        "interfaces/*"
-      ],
-      "layouts/*": [
-        "layouts/*"
+        "src/interfaces/*"
       ],
       "providers/*": [
-        "providers/*"
-      ],
-      "views/*": [
-        "views/*"
+        "src/providers/*"
       ],
       "services/*": [
-        "services/*"
+        "src/services/*"
       ],
       "styles/*": [
-        "styles/*"
+        "src/styles/*"
       ],
+      "assets/*": [
+        "src/assets/*"
+      ],
+      "config/*": [
+        "config/*"
+      ],
+      "mocks/*": [
+        "__mocks__/*"
+      ]
     }
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
-    "src"
+    "vite-env.d.ts",
+    "src",
+    "config",
+    "**.config.ts",
+    "__mocks__"
   ]
 }

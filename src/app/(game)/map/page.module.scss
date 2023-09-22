@@ -1,0 +1,15 @@
+$TILE_SIZE: 25;
+
+.map {
+  display: grid;
+  width: #{$TILE_SIZE * 2 * 200}px;
+  height: #{$TILE_SIZE * 200}px;
+  grid-template-columns: repeat(auto-fit, minmax(#{$TILE_SIZE * 2}px, 1fr));
+}
+
+.tile {
+  display: grid;
+  width: #{$TILE_SIZE * 2}px;
+  height: #{$TILE_SIZE}px;
+  transform: rotateX(0deg) rotateZ(-45deg);
+}

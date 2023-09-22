@@ -1,8 +1,0 @@
-node_modules/
-.expo-shared/
-.expo/
-dist/
-*.config.js
-.eslintrc
-index.js
-assets/

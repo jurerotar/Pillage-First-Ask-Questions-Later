@@ -1,12 +1,12 @@
 import React from 'react';
 import { useContextSelector } from 'use-context-selector';
-import { PreferencesContext } from 'providers/preferences-context';
-import Toggle from 'components/common/toggle';
-import SectionHeading from 'components/common/section-heading';
+import { PreferencesContext } from 'providers/global/preferences-context';
+import { Toggle } from 'components/toggle';
+import { SectionHeading } from 'components/section-heading';
 import { useTranslation } from 'react-i18next';
-import Paragraph from 'components/common/paragraph';
+import { Paragraph } from 'components/paragraph';
 
-const UserPreferences: React.FC = (): JSX.Element => {
+export const UserPreferences: React.FC = () => {
   const locale = useContextSelector(PreferencesContext, (v) => v.locale);
   const changeLocale = useContextSelector(PreferencesContext, (v) => v.changeLocale);
   const colorScheme = useContextSelector(PreferencesContext, (v) => v.colorScheme);
@@ -28,7 +28,7 @@ const UserPreferences: React.FC = (): JSX.Element => {
           {t('PREFERENCES.MODAL.DESCRIPTION')}
         </Paragraph>
       </div>
-      <div className="flex flex-col gap-2 border-dashed border-y border-gray-300 py-2">
+      <div className="flex flex-col gap-2 border-y border-dashed border-gray-300 py-2">
         <SectionHeading className="md:text-base">
           {t('PREFERENCES.COLOR_SCHEME.LABEL')}
         </SectionHeading>
@@ -41,7 +41,7 @@ const UserPreferences: React.FC = (): JSX.Element => {
           onChange={toggleColorScheme}
         />
       </div>
-      <div className="flex flex-col gap-2 border-dashed border-b border-gray-300 pb-2">
+      <div className="flex flex-col gap-2 border-b border-dashed border-gray-300 pb-2">
         <SectionHeading className="md:text-base">
           {t('PREFERENCES.ACCESSIBILITY_MODE.LABEL')}
         </SectionHeading>
@@ -70,5 +70,3 @@ const UserPreferences: React.FC = (): JSX.Element => {
     </div>
   );
 };
-
-export default UserPreferences;

@@ -6,7 +6,7 @@ type CountdownProps = {
   className?: string;
 };
 
-const Countdown: React.FC<CountdownProps> = (props): JSX.Element => {
+export const Countdown: React.FC<CountdownProps> = (props) => {
   const {
     endTime,
     className = ''
@@ -30,5 +30,3 @@ const Countdown: React.FC<CountdownProps> = (props): JSX.Element => {
     </span>
   );
 };
-
-export default Countdown;

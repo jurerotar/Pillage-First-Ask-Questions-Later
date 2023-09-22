@@ -1,44 +1,59 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
   "plugins": [
     "import",
     "react-hooks",
     "eslint-plugin-import",
     "@typescript-eslint"
   ],
+  "parserOptions": {
+    "project": [
+      "./tsconfig.json"
+    ]
+  },
   "extends": [
     "airbnb",
+    "airbnb/hooks",
     "airbnb-typescript",
     "plugin:import/typescript",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:tailwindcss/recommended"
   ],
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "project": "./tsconfig.json",
-    "tsconfigRootDir": "./"
-  },
+  "ignorePatterns": [
+    "*.js",
+    "*.json",
+    "node_modules/"
+  ],
   "rules": {
-    "consistent-return": [
-      "warn"
-    ],
-    "react/jsx-no-useless-fragment": "warn",
-    "react/jsx-one-expression-per-line": "off",
-    "react/jsx-max-props-per-line": ["error", {
-      "maximum": 1
-    }],
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-non-null-assertion": [
-      "off"
-    ],
     "no-continue": "off",
     "no-trailing-spaces": "off",
-    "react/require-default-props": "off",
-    "react/prop-types": "off",
+    "consistent-return": "warn",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "ExportDefaultDeclaration",
+        "message": "Prefer named exports"
+      }
+    ],
+    "object-curly-newline": "off",
+    "linebreak-style": "off",
+    "eol-last": "off",
+    "func-style": [
+      "error",
+      "expression"
+    ],
+    "class-methods-use-this": "off",
+    "arrow-body-style": "off",
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "never",
+        "objects": "never",
+        "imports": "never",
+        "exports": "never",
+        "functions": "never"
+      }
+    ],
     "max-len": [
       "error",
       {
@@ -52,36 +67,13 @@
         "ignoreRegExpLiterals": true
       }
     ],
-    "object-curly-newline": "off",
-    "linebreak-style": "off",
-    "eol-last": "off",
-    "comma-dangle": [
-      "error",
-      "never"
-    ],
-    "@typescript-eslint/comma-dangle": "off",
-    "react/jsx-filename-extension": [
+    "import/no-extraneous-dependencies": [
       "error",
       {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
+        "devDependencies": true
       }
     ],
-    "react/function-component-definition": [
-      "off"
-    ],
-    "func-style": [
-      "error",
-      "expression"
-    ],
-    "class-methods-use-this": "off",
-    "arrow-body-style": [
-      "off"
-    ],
+    "import/prefer-default-export": "off",
     "import/extensions": [
       "error",
       "never",
@@ -93,6 +85,43 @@
         "tsx": "never"
       }
     ],
-    "@typescript-eslint/no-inferrable-types": "off"
-  }
+    "react/jsx-no-useless-fragment": "warn",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-max-props-per-line": [
+      "error",
+      {
+        "maximum": 1
+      }
+    ],
+    "react/jsx-no-constructed-context-values": "warn",
+    "react/require-default-props": "off",
+    "react/prop-types": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-filename-extension": [
+      "error",
+      {
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
+      }
+    ],
+    "react/function-component-definition": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/comma-dangle": "off",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "tailwindcss/no-custom-classname": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.config.ts"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ]
 }

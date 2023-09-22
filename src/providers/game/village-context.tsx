@@ -1,11 +1,8 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { FunctionComponentWithChildren, ReactElement, useEffect, useMemo, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { Village } from 'interfaces/models/game/village';
-import { GameContext } from 'providers/game/game-context';
 import { Resource, Resources } from 'interfaces/models/game/resource';
-import { Outlet } from 'react-router-dom';
-import { defaultBuildingFields, defaultResourceFields, defaultResources } from 'utils/constants/defaults';
-import StorageService from 'services/storage-service';
+import { defaultBuildingFields, defaultResourceFields, defaultResources } from 'constants/defaults';
 
 type VillageProviderValues = {
   selectedVillage: Village;
@@ -35,11 +32,10 @@ type VillageProviderValues = {
 
 const VillageContext = createContext<VillageProviderValues>({} as VillageProviderValues);
 
-const VillageProvider: React.FC = (): ReactElement => {
-  const server = useContextSelector(GameContext, (v) => v.server);
-  const setIsContextReady = useContextSelector(GameContext, (v) => v.setIsContextReady);
+const VillageProvider: FunctionComponentWithChildren = (props): ReactElement => {
+  const { children } = props;
 
-  const [playerVillages, setPlayerVillages] = useState<Village[]>(null);
+  const [playerVillages, setPlayerVillages] = useState<Village[]>([]);
   // Current village data
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   // Gets only on events (troop training, building,...) and is the base for calculated resources
@@ -80,19 +76,19 @@ const VillageProvider: React.FC = (): ReactElement => {
     }));
   };
 
-  useEffect(() => {
-    if (!server) {
-      return;
-    }
-    (async () => {
-      try {
-        const storagePlayerVillageData = await StorageService.get<Village[]>(`${server.id}-playerVillages`);
-        setPlayerVillages(storagePlayerVillageData);
-      } catch (e) {
-        console.error('Error fetching village data from IndexedDB', e);
-      }
-    })();
-  }, [server]);
+  // useEffect(() => {
+  //   if (!server) {
+  //     return;
+  //   }
+  //   (async () => {
+  //     try {
+  //       // const storagePlayerVillageData = await StorageService.get<Village[]>(`${server.id}-playerVillages`);
+  //       // setPlayerVillages(storagePlayerVillageData);
+  //     } catch (e) {
+  //       console.error('Error fetching village data from IndexedDB', e);
+  //     }
+  //   })();
+  // }, [server]);
 
   useEffect(() => {
     if (!(playerVillages && playerVillages.length > 0)) {
@@ -127,41 +123,36 @@ const VillageProvider: React.FC = (): ReactElement => {
     setIsContextReady('village');
   }, [resources, storageCapacity, hourlyProduction, lastUpdatedAt, selectedVillage]);
 
-  const value = useMemo<VillageProviderValues>(() => {
-    return {
-      selectedVillage,
+  const value = {
+    selectedVillage,
 
-      // Village data
-      resources,
-      setResources,
-      calculatedResources,
-      storageCapacity,
-      setStorageCapacity,
-      hourlyProduction,
-      setHourlyProduction,
-      lastUpdatedAt,
-      setLastUpdatedAt,
-      resourceFields,
-      setResourceFields,
-      buildingFields,
-      setBuildingFields,
+    // Village data
+    resources,
+    setResources,
+    calculatedResources,
+    storageCapacity,
+    setStorageCapacity,
+    hourlyProduction,
+    setHourlyProduction,
+    lastUpdatedAt,
+    setLastUpdatedAt,
+    resourceFields,
+    setResourceFields,
+    buildingFields,
+    setBuildingFields,
 
-      // Village memos
-      populationCount,
-      troopPopulationCount,
+    // Village memos
+    populationCount,
+    troopPopulationCount,
 
-      // Functions
-      updateCalculatedResources,
-      changeVillage
-    };
-  }, [
-    resources, storageCapacity, hourlyProduction, lastUpdatedAt, selectedVillage, calculatedResources,
-    populationCount, troopPopulationCount
-  ]);
+    // Functions
+    updateCalculatedResources,
+    changeVillage
+  };
 
   return (
     <VillageContext.Provider value={value}>
-      <Outlet />
+      {children}
     </VillageContext.Provider>
   );
 };
