@@ -5,15 +5,36 @@ import { Point } from 'interfaces/models/common';
 import { Resource } from 'interfaces/models/game/resource';
 import { oasisShapes } from 'constants/oasis-shapes';
 import { Server } from 'interfaces/models/game/server';
+import { createHash } from 'sha1-uint8array';
+
+const weightedResourceFieldType: Record<number, ResourceFieldType> = {
+  1: '00018',
+  2: '11115',
+  3: '3339',
+  6: '4437',
+  9: '4347',
+  12: '3447',
+  20: '3456',
+  28: '4356',
+  36: '3546',
+  44: '4536',
+  52: '5346',
+  60: '5436'
+};
 
 export class MapGeneratorService {
-  private static generateGrid = (server: Server) => {
-    const { id, configuration: { mapSize: size } } = server;
+  private static generateGrid = (server: Server): Tile[] => {
+    const {
+      id,
+      configuration: { mapSize: size }
+    } = server;
 
     let xCoordinateCounter: number = -size / 2 - 1;
     let yCoordinateCounter: number = size / 2;
+    let counter: number = 0;
 
     return [...Array(size ** 2 + 2 * size + 1)].flatMap(() => {
+      counter += 1;
       xCoordinateCounter += 1;
       const x: Point['x'] = xCoordinateCounter;
       const y: Point['y'] = yCoordinateCounter;
@@ -30,12 +51,16 @@ export class MapGeneratorService {
       };
 
       return {
+        seed: createHash()
+          .update(`${server.seed}${counter}`)
+          .digest('hex'),
         serverId: id,
         coordinates,
         isOccupied: x === 0 && y === 0,
         isOasis: false,
         backgroundColor: '#B9D580',
-        type: null
+        type: x === 0 && y === 0 ? '4446' : null,
+        oasisType: null
       };
     });
   };
@@ -43,22 +68,8 @@ export class MapGeneratorService {
   /**
    * Generates resource layout for an empty tile
    */
-  private static generateFreeTileType = (seed: string, i: number): ResourceFieldType => {
-    const randomInt: number = seededRandomIntFromInterval(`${seed}${i}`, i, 91);
-    const weightedResourceFieldType: Record<number, ResourceFieldType> = {
-      1: '00018',
-      2: '11115',
-      3: '3339',
-      6: '4437',
-      9: '4347',
-      12: '3447',
-      20: '3456',
-      28: '4356',
-      36: '3546',
-      44: '4536',
-      52: '5346',
-      60: '5436'
-    };
+  private static generateFreeTileType = (tile: Tile): ResourceFieldType => {
+    const randomInt: number = seededRandomIntFromInterval(tile.seed, 1, 91);
 
     // eslint-disable-next-line no-restricted-syntax
     for (const weight in weightedResourceFieldType) {
@@ -70,8 +81,7 @@ export class MapGeneratorService {
     return '4446';
   };
 
-  public static generateMap = (server: Server) => {
-    const { seed } = server;
+  public static generateMap = (server: Server): Tile[] => {
     const emptyTiles = this.generateGrid(server);
 
     // Loop through all tiles
@@ -80,17 +90,17 @@ export class MapGeneratorService {
       if (currentTile.isOasis) {
         continue;
       }
-      // Each tile has 1/12 to become an oasis
-      const tileWillBeOasis: boolean = seededRandomIntFromInterval(`${seed}${i}`, i, i + 12) === i;
+      // Each tile has 1/15 to become an oasis
+      const tileWillBeOasis: boolean = seededRandomIntFromInterval(currentTile.seed, 1, 12) === 1;
 
       // Determine oasis position and shape
       if (tileWillBeOasis) {
         // Surrounding tiles will have to become oasis as well, depending on shape of the oasis
         const tilesToUpdate: Tile[] = [];
-        const resourceType: Resource = seededRandomArrayElement<Resource>(`${seed}${i}`, ['wheat', 'wood', 'iron', 'clay']);
+        const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.seed, ['wheat', 'iron', 'clay', 'wood']);
         const { backgroundColor } = oasisShapes[resourceType];
         const { shapes } = oasisShapes[resourceType];
-        const selectedOasis = shapes[seededRandomArrayElement(`${seed}${i}`, [...Array(shapes.length)
+        const selectedOasis = shapes[seededRandomArrayElement(currentTile.seed, [...Array(shapes.length)
           .keys()])];
         const {
           shape: oasisShape,
@@ -104,6 +114,7 @@ export class MapGeneratorService {
 
         let breakCondition: boolean = false;
 
+        // Find tiles to update based on oasis shape
         // Y-axis movement
         for (let k = 0; k < oasisShape.length; k += 1) {
           if (breakCondition) {
@@ -116,7 +127,7 @@ export class MapGeneratorService {
               continue;
             }
             const tile: Tile | undefined = emptyTiles.find((cell: Tile) => cell.coordinates.y === y - k && cell.coordinates.x === j);
-            if (!tile || tile.isOasis) {
+            if (!tile || tile.isOasis || tile.isOccupied) {
               breakCondition = true;
               break;
             }
@@ -132,6 +143,7 @@ export class MapGeneratorService {
             return cell.coordinates.x === occupiedCell.coordinates.x && cell.coordinates.y === occupiedCell.coordinates.y;
           })!;
           cellToUpdate.isOasis = true;
+          cellToUpdate.oasisType = resourceType;
           cellToUpdate.backgroundColor = backgroundColor;
           cellToUpdate.oasisGroup = oasisGroup;
         });
@@ -139,15 +151,18 @@ export class MapGeneratorService {
     }
 
     // To make world feel more alive and give player more options, we sprinkle a bunch of 1x1 oasis on empty fields as well
-    const tilesWithAddedOasis: Tile[] = emptyTiles.map((cell: Tile, i: number): Tile => {
-      if (cell.isOasis) {
+    const tilesWithAddedOasis: Tile[] = emptyTiles.map((cell: Tile): Tile => {
+      if (cell.isOasis || cell.type !== null) {
         return cell;
       }
-      const willBeOccupied = seededRandomIntFromInterval(`${seed}${i}`, i, i + 5) === i;
+      const willBeOccupied = seededRandomIntFromInterval(cell.seed, 1, 5) === 1;
       if (!willBeOccupied) {
-        return cell;
+        return {
+          ...cell,
+          type: this.generateFreeTileType(cell)
+        };
       }
-      const resourceType = seededRandomArrayElement<Resource>(`${seed}${i}`, ['wheat', 'wood', 'iron', 'clay']);
+      const resourceType: Resource = seededRandomArrayElement<Resource>(cell.seed, ['wheat', 'iron', 'clay', 'wood']);
       return {
         ...cell,
         oasisGroup: 0,
@@ -156,16 +171,6 @@ export class MapGeneratorService {
       };
     });
 
-    const tilesWithTypes = tilesWithAddedOasis.map((tile: Tile, i: number) => {
-      if (tile.isOasis) {
-        return tile;
-      }
-      return {
-        ...tile,
-        type: this.generateFreeTileType(`${seed}${i}`, i)
-      };
-    });
-
-    return tilesWithTypes;
+    return tilesWithAddedOasis;
   };
 }

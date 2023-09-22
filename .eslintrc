@@ -115,5 +115,13 @@
     "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/lines-between-class-members": "off",
     "tailwindcss/no-custom-classname": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.config.ts"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ]
 }

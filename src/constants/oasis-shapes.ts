@@ -5,12 +5,10 @@ type Shape = {
   shape: number[][];
 };
 
-type OasisShapes = {
-  [key in Resource]: {
-    backgroundColor: string;
-    shapes: Shape[];
-  }
-};
+type OasisShapes = Record<Resource, {
+  backgroundColor: string;
+  shapes: Shape[];
+}>;
 
 export const oasisShapes: OasisShapes = {
   wheat: {

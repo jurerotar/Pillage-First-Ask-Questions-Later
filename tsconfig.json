@@ -4,7 +4,7 @@
     "lib": ["dom", "dom.iterable", "esnext", "webworker"],
     "types": ["vite/client", "vite-plugin-svgr/client", "jest"],
     "baseUrl": "./",
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
@@ -71,7 +71,7 @@
     "vite-env.d.ts",
     "src",
     "config",
-    "jest.config.ts",
+    "**.config.ts",
     "__mocks__"
   ]
 }

@@ -23,7 +23,7 @@ export const Cell: React.FC<CellProps> = (props) => {
         backgroundColor: tile.backgroundColor
       }}
     >
-      {tile.coordinates.x}, {tile.coordinates.y}
+      {tile.coordinates.x}, {tile.coordinates.y} {tile?.type}
     </button>
   );
 };
