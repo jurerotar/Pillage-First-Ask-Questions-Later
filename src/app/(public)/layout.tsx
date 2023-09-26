@@ -12,14 +12,14 @@ export const PublicLayout: React.FC = () => {
   const openModal = useContextSelector(ModalContext, (v) => v.openModal);
 
   return (
-    <div className="duration-default bg-gray-100 transition-colors">
+    <div className="bg-gray-100 transition-colors">
       <nav className="relative z-10 flex w-full bg-white">
         <div className="container mx-auto flex justify-between px-4 py-2">
           <div className="flex flex-col gap-1">
-            <span className="duration-default text-2xl font-semibold leading-none transition-colors dark:text-gray-200">
+            <span className="text-2xl font-semibold leading-none dark:text-gray-200">
               Crylite
             </span>
-            <span className="duration-default text-sm transition-colors dark:text-gray-200">
+            <span className="text-sm dark:text-gray-200">
               {t('META.SLOGAN')}
             </span>
           </div>

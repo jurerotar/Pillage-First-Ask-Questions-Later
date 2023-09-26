@@ -51,7 +51,7 @@ export const Tooltip: React.FC<TooltipProps> = (props) => {
     >
       {children}
       <div
-        className={clsx(className, 'tooltip-popup duration-default pointer-events-none fixed z-30 w-fit rounded-md bg-black p-2 transition-opacity delay-150')}
+        className={clsx(className, 'tooltip-popup pointer-events-none fixed z-30 w-fit rounded-md bg-black p-2 transition-opacity delay-150')}
         style={{
           top: `${position.y + offsetY}px`,
           left: `${position.x + offsetX}px`

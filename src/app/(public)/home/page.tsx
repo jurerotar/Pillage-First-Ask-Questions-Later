@@ -21,10 +21,10 @@ export const HomePage: React.FC = () => {
         {/* Landing section */}
         <section className="container relative mx-auto flex h-[calc(100vh-4rem-200px)] min-h-[600px] flex-col gap-4 lg:flex-row">
           <div className="flex flex-1 flex-col justify-center gap-2 p-4">
-            <h1 className="duration-default text-3xl font-semibold transition-colors dark:text-white">
+            <h1 className="text-3xl font-semibold dark:text-white">
               Crylite
             </h1>
-            <h2 className="duration-default text-xl transition-colors dark:text-white">
+            <h2 className="text-xl dark:text-white">
               Lorem ipsum dolor sit amet, consectetur adipisicing elit.
             </h2>
             <Paragraph>

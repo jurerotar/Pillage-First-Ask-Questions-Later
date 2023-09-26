@@ -82,9 +82,7 @@ export type BuildingField = {
   level: number;
 };
 
-export type BuildingFields = {
-  [key in BuildingFieldId]: BuildingField | null;
-};
+export type BuildingFields = Record<BuildingFieldId, BuildingField | null>;
 
 export type Village = {
   serverId: Server['id'];

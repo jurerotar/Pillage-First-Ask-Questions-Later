@@ -3,8 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { useEnvironment } from 'hooks/environment/use-environment';
 import { useLocalStorage } from 'usehooks-ts';
 import { Button } from 'components/buttons/button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { CloseButton } from 'components/buttons/close-button';
 import { SectionHeading } from 'components/section-heading';
 
@@ -20,7 +18,6 @@ const DevTools = () => {
           onClick={() => setAreDevToolsOpen(true)}
         >
           <span>Devtools</span>
-          <FontAwesomeIcon icon={faGear} />
         </Button>
       )}
       {areDevToolsOpen && (

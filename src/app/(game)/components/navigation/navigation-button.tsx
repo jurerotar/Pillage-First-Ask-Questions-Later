@@ -86,7 +86,7 @@ export const NavigationButton: React.FC<NavigationButtonProps> = (props) => {
 
   return (
     <button
-      className={clsx(buttonSize, isActive ? 'bg-green-100' : 'border-gray-200', 'duration-default flex h-fit items-center justify-center rounded-full border-[6px] bg-gray-100 transition-colors dark:bg-neutral-900')}
+      className={clsx(buttonSize, isActive ? 'bg-green-100' : 'border-gray-200', 'flex h-fit items-center justify-center rounded-full border-[6px] bg-gray-100 dark:bg-neutral-900')}
       onClick={onClick}
       type="button"
     >

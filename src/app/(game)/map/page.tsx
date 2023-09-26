@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useMap } from 'hooks/game/use-map';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { FixedSizeGrid } from 'react-window';
 import { useWindowSize } from 'usehooks-ts';
 import { Cell } from 'app/(game)/map/components/cell';
+import { Icon } from 'components/icon';
 
-const TILE_BASE_SIZE = 25;
+const TILE_BASE_SIZE = 30;
 
 export const MapPage: React.FC = () => {
   const {
@@ -34,12 +35,6 @@ export const MapPage: React.FC = () => {
 
   const mapRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    return () => {
-
-    };
-  }, []);
-
   return (
     <>
       {isLoading && (
@@ -57,7 +52,6 @@ export const MapPage: React.FC = () => {
           itemData={map}
           overscanColumnCount={5}
           overscanRowCount={5}
-          className="max-w-screen max-h-screen"
         >
           {Cell}
         </FixedSizeGrid>

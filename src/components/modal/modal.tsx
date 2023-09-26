@@ -42,7 +42,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
         <div
           ref={ref}
           tabIndex={-1}
-          className={clsx(show ? 'pointer-events-auto flex' : 'pointer-events-none hidden', className, 'scrollbar duration-default fixed inset-4 z-50 h-full max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-screen-md overflow-y-auto overflow-x-hidden rounded-md bg-white p-4 transition-colors dark:bg-gray-700 md:left-1/2 md:top-1/2 md:max-h-[calc(600px-2rem)] md:w-[calc(100%-8rem)] md:-translate-x-1/2 md:-translate-y-1/2')}
+          className={clsx(show ? 'pointer-events-auto flex' : 'pointer-events-none hidden', className, 'scrollbar fixed inset-4 z-50 h-full max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-screen-md overflow-y-auto overflow-x-hidden rounded-md bg-white p-4 dark:bg-gray-700 md:left-1/2 md:top-1/2 md:max-h-[calc(600px-2rem)] md:w-[calc(100%-8rem)] md:-translate-x-1/2 md:-translate-y-1/2')}
         >
           <div className="relative h-full w-full">
             {/* Modal header */}

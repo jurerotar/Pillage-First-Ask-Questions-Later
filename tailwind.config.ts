@@ -30,6 +30,9 @@ export default {
       backdropBlur: {
         xs: '1px'
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))'
+      },
       colors: {
         ...defaultTheme.colors,
         resources: {

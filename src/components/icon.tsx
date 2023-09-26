@@ -1,37 +1,34 @@
-import React from 'react';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import {
-  faClock,
-  faDrumSteelpan,
-  faLandmark,
-  faRoadSpikes,
-  faTree,
-  faTrowelBricks,
-  faUserPlus,
-  faWheatAwn,
-  faBan,
-  faBuildingShield,
-  faShield
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { lazy, Suspense } from 'react';
+import { IconBaseProps } from 'react-icons';
+import { ConditionalWrapper } from 'components/conditional-wrapper';
+import { BorderIndicator, BorderIndicatorProps } from 'components/border-indicator';
 import clsx from 'clsx';
+
+const IconWheat = lazy(async () => ({ default: (await import('components/icons/icon-wheat')).IconWheat }));
+const IconIron = lazy(async () => ({ default: (await import('components/icons/icon-iron')).IconIron }));
+const IconWood = lazy(async () => ({ default: (await import('components/icons/icon-wood')).IconWood }));
+const IconClay = lazy(async () => ({ default: (await import('components/icons/icon-clay')).IconClay }));
 
 type AvailableIconTypes =
   | 'wood'
   | 'clay'
   | 'iron'
   | 'wheat'
-  | 'cropConsumption'
-  | 'culturePointsProduction'
-  | 'trapperCapacity'
-  | 'buildingDuration'
-  | 'woodProduction'
-  | 'clayProduction'
-  | 'ironProduction'
-  | 'wheatProduction'
-  | 'totalResourceCost'
-  | 'villageDefenceValue'
-  | 'villageDefenceBonus';
+  | 'woodWheat'
+  | 'clayWheat'
+  | 'ironWheat'
+  | 'wheatWheat';
+// | 'cropConsumption'
+// | 'culturePointsProduction'
+// | 'trapperCapacity'
+// | 'buildingDuration'
+// | 'woodProduction'
+// | 'clayProduction'
+// | 'ironProduction'
+// | 'wheatProduction'
+// | 'totalResourceCost'
+// | 'villageDefenceValue'
+// | 'villageDefenceBonus';
 
 /**
  *   TODO: Implement following icons
@@ -68,93 +65,46 @@ type AvailableIconTypes =
  *   | 'warehouseCapacity';
  */
 
-type IconProps = {
+export type IconProps = IconBaseProps & {
   type: AvailableIconTypes;
-  fixedWidth?: boolean;
-  className?: string;
+  borderVariant?: BorderIndicatorProps['variant'];
 };
 
-type IconProperties = {
-  icon: IconDefinition,
-  color: string;
+const typeToIconMap = {
+  wood: IconWood,
+  clay: IconClay,
+  iron: IconIron,
+  wheat: IconWheat,
+  woodWheat: IconWood,
+  clayWheat: IconClay,
+  ironWheat: IconIron,
+  wheatWheat: IconWheat
 };
 
-const typeToIconMap: { [key in Partial<AvailableIconTypes>]: IconProperties } = {
-  wood: {
-    icon: faTree,
-    color: 'text-green-600'
-  },
-  clay: {
-    icon: faTrowelBricks,
-    color: 'text-red-300'
-  },
-  iron: {
-    icon: faDrumSteelpan,
-    color: 'text-gray-300'
-  },
-  wheat: {
-    icon: faWheatAwn,
-    color: 'text-yellow-300'
-  },
-  cropConsumption: {
-    icon: faUserPlus,
-    color: 'text-gray-800'
-  },
-  culturePointsProduction: {
-    icon: faLandmark,
-    color: 'text-stone-500'
-  },
-  buildingDuration: {
-    icon: faClock,
-    color: 'text-gray-300'
-  },
-  woodProduction: {
-    icon: faTree,
-    color: 'text-green-600'
-  },
-  clayProduction: {
-    icon: faTrowelBricks,
-    color: 'text-red-300'
-  },
-  ironProduction: {
-    icon: faDrumSteelpan,
-    color: 'text-gray-300'
-  },
-  wheatProduction: {
-    icon: faWheatAwn,
-    color: 'text-yellow-300'
-  },
-  totalResourceCost: {
-    icon: faWheatAwn,
-    color: 'text-yellow-300'
-  },
-  trapperCapacity: {
-    icon: faRoadSpikes,
-    color: 'text-gray-300'
-  },
-  villageDefenceValue: {
-    icon: faBuildingShield,
-    color: 'text-red-300'
-  },
-  villageDefenceBonus: {
-    icon: faShield,
-    color: 'text-gray-300'
-  }
+const IconPlaceholder = () => {
+  return <span className="" />;
 };
 
-// TODO: Some FontAwesome will get replaced by custom icons eventually
+// TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
   const {
     type,
-    fixedWidth = true,
+    borderVariant,
     className = ''
   } = props;
 
+  const ComputedIcon = typeToIconMap[type];
+
   return (
-    <FontAwesomeIcon
-      icon={typeToIconMap[type].icon ?? faBan}
-      fixedWidth={fixedWidth}
-      className={clsx(typeToIconMap[type].color ?? 'text-red-500', className)}
-    />
+    <ConditionalWrapper
+      condition={!!borderVariant}
+      wrapper={(children) => <BorderIndicator variant={borderVariant}>{children}</BorderIndicator>}
+    >
+      <Suspense fallback={<IconPlaceholder />}>
+        <span className={clsx(className)}>
+          <ComputedIcon />
+        </span>
+      </Suspense>
+    </ConditionalWrapper>
   );
 };

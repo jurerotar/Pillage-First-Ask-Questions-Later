@@ -75,8 +75,8 @@ export const GameLayout = () => {
   //       className="relative z-10 flex h-[4.5rem] shadow-md"
   //       ref={navigation}
   //     >
-  //       <div className="duration-default absolute left-0 top-0 flex h-1/2 w-full bg-blue-500 transition-colors dark:bg-slate-900" />
-  //       <div className="duration-default absolute bottom-0 left-0 flex h-1/2 w-full bg-blue-200 transition-colors dark:bg-slate-900" />
+  //       <div className="absolute left-0 top-0 flex h-1/2 w-full bg-blue-500 dark:bg-slate-900" />
+  //       <div className="absolute bottom-0 left-0 flex h-1/2 w-full bg-blue-200 dark:bg-slate-900" />
   //       <div className="container relative mx-auto flex justify-between">
   //         <div className="" />
   //         {/* Center section */}

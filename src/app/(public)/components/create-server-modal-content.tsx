@@ -45,7 +45,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
         ...submittedValues,
         id,
         slug,
-        startDate: new Date()
+        startDate: (new Date()).toString()
       });
     }
   });
