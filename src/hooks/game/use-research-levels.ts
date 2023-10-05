@@ -4,12 +4,15 @@ import { ResearchLevel } from 'interfaces/models/game/research-level';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
 import { useTribe } from 'hooks/game/use-tribe';
+import { Server } from 'interfaces/models/game/server';
 
-const cacheKey = 'research-levels';
+export const researchLevelsCacheKey = 'research-levels';
+
+export const getResearchLevels = (serverId: Server['id']) => database.researchLevels.where({ serverId }).toArray();
 
 export const useResearchLevels = () => {
   const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateResearchLevels } = useDatabaseMutation({ cacheKey });
+  const { mutate: mutateResearchLevels } = useDatabaseMutation({ cacheKey: researchLevelsCacheKey });
   const { tribe } = useTribe();
 
   const {
@@ -18,10 +21,10 @@ export const useResearchLevels = () => {
     isSuccess: hasLoadedResearchLevels,
     status: researchLevelsQueryStatus
   } = useAsyncLiveQuery<ResearchLevel[]>({
-    queryFn: () => database.researchLevels.where({ serverId }).toArray(),
+    queryFn: () => getResearchLevels(serverId),
     deps: [serverId],
     fallback: [],
-    cacheKey,
+    cacheKey: researchLevelsCacheKey,
     enabled: hasLoadedServer
   });
 

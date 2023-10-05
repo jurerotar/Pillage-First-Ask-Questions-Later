@@ -21,7 +21,7 @@ const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['servers', ['slug']],
   ['maps', ['serverId']],
   ['heroes', ['serverId']],
-  ['villages', ['serverId', 'slug']],
+  ['villages', ['[serverId+slug]']],
   ['reports', ['serverId']],
   ['quests', ['serverId']],
   ['achievements', ['serverId']],

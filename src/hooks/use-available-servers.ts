@@ -3,7 +3,7 @@ import { database } from 'database/database';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
 
-const cacheKey = 'available-servers';
+export const cacheKey = 'available-servers';
 
 export const useAvailableServers = () => {
   const { mutate: mutateAvailableServers } = useDatabaseMutation({ cacheKey });

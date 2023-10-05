@@ -3,7 +3,9 @@ import { useRouteSegments } from 'hooks/game/routes/use-route-segments';
 import { Server } from 'interfaces/models/game/server';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 
-const cacheKey = 'current-server';
+export const currentServerCacheKey = 'current-server';
+
+export const getCurrentServer = (serverSlug: Server['slug']) => database.servers.where({ slug: serverSlug }).first();
 
 export const useCurrentServer = () => {
   const { serverSlug } = useRouteSegments();
@@ -14,12 +16,12 @@ export const useCurrentServer = () => {
     isSuccess: hasLoadedServer,
     status: serverQueryStatus
   } = useAsyncLiveQuery<Server | undefined>({
-    queryFn: () => database.servers.where({ slug: serverSlug }).first(),
+    queryFn: () => getCurrentServer(serverSlug),
     deps: [serverSlug],
-    cacheKey
+    cacheKey: currentServerCacheKey
   });
 
-  const serverId = server?.id ?? '';
+  const serverId = server!.id;
 
   return {
     server,

@@ -3,12 +3,15 @@ import { useCurrentServer } from 'hooks/game/use-current-server';
 import { Report } from 'interfaces/models/game/report';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { Server } from 'interfaces/models/game/server';
 
-const cacheKey = 'reports';
+export const reportsCacheKey = 'reports';
+
+export const getReports = (serverId: Server['id']) => database.reports.where({ serverId }).toArray();
 
 export const useReports = () => {
   const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateReports } = useDatabaseMutation({ cacheKey });
+  const { mutate: mutateReports } = useDatabaseMutation({ cacheKey: reportsCacheKey });
 
   const {
     data: reports,
@@ -16,10 +19,10 @@ export const useReports = () => {
     isSuccess: hasLoadedReports,
     status: reportsQueryStatus
   } = useAsyncLiveQuery<Report[]>({
-    queryFn: () => database.reports.where({ serverId }).toArray(),
+    queryFn: () => getReports(serverId),
     deps: [serverId],
     fallback: [],
-    cacheKey,
+    cacheKey: reportsCacheKey,
     enabled: hasLoadedServer
   });
 

@@ -4,12 +4,15 @@ import { GameEvent } from 'interfaces/models/events/game-event';
 import { useCallback, useEffect, useState } from 'react';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { Server } from 'interfaces/models/game/server';
 
-const cacheKey = 'events';
+export const eventsCacheKey = 'events';
+
+export const getEvents = (serverId: Server['id']) => database.events.where({ serverId }).toArray();
 
 export const useEvents = () => {
   const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateEvents } = useDatabaseMutation({ cacheKey });
+  const { mutate: mutateEvents } = useDatabaseMutation({ cacheKey: eventsCacheKey });
 
   const [isResolvingEvents, setIsResolvingEvents] = useState<boolean>(false);
 
@@ -19,10 +22,10 @@ export const useEvents = () => {
     isSuccess: hasLoadedEvents,
     status: eventsQueryStatus
   } = useAsyncLiveQuery<GameEvent[]>({
-    queryFn: () => database.events.where({ serverId }).toArray(),
+    queryFn: () => getEvents(serverId),
     deps: [serverId],
     fallback: [],
-    cacheKey,
+    cacheKey: eventsCacheKey,
     enabled: hasLoadedServer
   });
 
