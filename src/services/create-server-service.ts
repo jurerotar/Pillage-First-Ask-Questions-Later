@@ -48,10 +48,7 @@ export class CreateServerService {
   };
 
   public static createBank = (server: Server): Bank => {
-    return {
-      serverId: server.id,
-      amount: 0
-    } satisfies Bank;
+
   };
 
   public static createResearchLevels = (server: Server): ResearchLevel[] => {

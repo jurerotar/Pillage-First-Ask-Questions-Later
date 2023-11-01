@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from 'components/buttons/button';
-import { v4 as uuidv4 } from 'uuid';
 import { Server } from 'interfaces/models/game/server';
 import { CreateServerService } from 'services/create-server-service';
 import { RandomizerService } from 'services/randomizer-service';
@@ -9,8 +8,10 @@ import { ProgressBar } from 'components/progress-bar';
 import { database } from 'database/database';
 import { useFormik } from 'formik';
 import { Tile } from 'interfaces/models/game/tile';
+import { serverFactory } from 'factories/server-factory';
+import { researchLevelsFactory } from 'factories/research-levels-factory';
 
-type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration'>;
+type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 type CreateServerModalView = 'configuration' | 'loader';
 
 type CreateServerConfigurationViewProps = {
@@ -29,24 +30,19 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
       seed: RandomizerService.generateSeed(),
       name: `server-${RandomizerService.generateSeed(4)}`,
       configuration: {
-        tribe: 'gauls',
         mapSize: 100,
-        speed: 1,
-        difficulty: 1
+        speed: 1
+      },
+      playerConfiguration: {
+        tribe: 'gauls'
       }
     },
     validate: (valuesToValidate) => {
       return {};
     },
     onSubmit: (submittedValues) => {
-      const id = uuidv4();
-      const slug = submittedValues.name;
-      onSubmit({
-        ...submittedValues,
-        id,
-        slug,
-        startDate: (new Date()).toString()
-      });
+      const server = serverFactory({ ...submittedValues });
+      onSubmit(server);
     }
   });
 
@@ -83,7 +79,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
             <label htmlFor="server-configuration-tribe">Tribe</label>
             <input
               id="server-configuration-tribe"
-              defaultValue={values.configuration.tribe}
+              defaultValue={values.playerConfiguration.tribe}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -209,7 +205,7 @@ export const CreateServerModalContent: React.FC = () => {
         });
         // Research levels
         await executeStep('Creating research levels data...', 'Created research levels data.', async () => {
-          const researchLevels = CreateServerService.createResearchLevels(serverConfig);
+          const researchLevels = researchLevelsFactory({ server: serverConfig });
           await database.researchLevels.bulkAdd(researchLevels);
         });
         // Bank data

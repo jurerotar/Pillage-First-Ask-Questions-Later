@@ -26,6 +26,9 @@
       "database/*": [
         "src/database/*"
       ],
+      "factories/*": [
+        "src/factories/*"
+      ],
       "utils/*": [
         "src/utils/*"
       ],

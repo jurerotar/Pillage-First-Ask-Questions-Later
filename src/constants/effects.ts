@@ -1,7 +1,7 @@
-import { Effects } from 'interfaces/models/game/effect';
+import { Effect } from 'interfaces/models/game/effect';
 
 // These effects effect all villages and multiply with village-specific effects
-export const accountEffects: Partial<Effects> = {
+export const accountEffects: Partial<Effect> = {
   heroSpeedBonus: 1,
   heroResourceProductionBonus: 1,
   heroStrengthBonus: 1,
