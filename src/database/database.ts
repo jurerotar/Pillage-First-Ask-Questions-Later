@@ -7,7 +7,6 @@ import { Report } from 'interfaces/models/game/report';
 import { Quest } from 'interfaces/models/game/quest';
 import { Achievement } from 'interfaces/models/game/achievement';
 import { GameEvent } from 'interfaces/models/events/game-event';
-import { env } from 'config/env';
 import { Effect } from 'interfaces/models/game/effect';
 import { Bank } from 'interfaces/models/game/bank';
 import { ResearchLevel } from 'interfaces/models/game/research-level';
@@ -50,7 +49,7 @@ export class CryliteDatabase extends Dexie {
   public amountOfTables: number;
 
   constructor() {
-    super(env.databaseName);
+    super('crylite');
 
     const schema = Object.fromEntries([...Array.from(CRYLITE_TABLES)
       .map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')])]);
