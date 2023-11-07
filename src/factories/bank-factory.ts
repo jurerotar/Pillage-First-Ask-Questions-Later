@@ -5,9 +5,9 @@ type BankFactoryProps = {
   server: Server;
 };
 
-export const bankFactory = ({ server }: BankFactoryProps): Bank => {
+export const bankFactory = ({ server: { id: serverId } }: BankFactoryProps): Bank => {
   return {
-    serverId: server.id,
+    serverId,
     amount: 0
   };
 };

@@ -50,9 +50,6 @@
       "providers/*": [
         "src/providers/*"
       ],
-      "services/*": [
-        "src/services/*"
-      ],
       "styles/*": [
         "src/styles/*"
       ],

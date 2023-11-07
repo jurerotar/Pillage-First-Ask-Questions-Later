@@ -12,6 +12,6 @@ const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 self.addEventListener('message', (event: MessageEvent<GenerateWorldMapWorkerPayload>) => {
   const { server, tiles } = event.data;
-  const villages: Village[] = villageFactory();
-  self.postMessage({ villages });
+  // const villages: Village[] = villageFactory();
+  self.postMessage({ villages: [] });
 });

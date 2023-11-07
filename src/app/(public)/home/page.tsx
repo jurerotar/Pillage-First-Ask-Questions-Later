@@ -3,15 +3,18 @@ import { Server } from 'interfaces/models/game/server';
 import { Button } from 'components/buttons/button';
 import { Paragraph } from 'components/paragraph';
 import { Head } from 'components/head';
-import { useContextSelector } from 'use-context-selector';
-import { ModalContext } from 'providers/global/modal-context';
 import { CreateServerModalContent } from 'app/(public)/components/create-server-modal-content';
 import { useAvailableServers } from 'hooks/use-available-servers';
 import { ServerCard } from './components/server-card';
+import { useDialog } from 'hooks/utils/use-dialog';
+import { Modal } from 'components/modal/modal';
 
 export const HomePage: React.FC = () => {
-  const openModal = useContextSelector(ModalContext, (v) => v.openModal);
-
+  const {
+    isOpen: isCreateServerModalOpen,
+    openModal: openCreateServerModal,
+    closeModal: closeCreateServerModal
+  } = useDialog();
   const { availableServers } = useAvailableServers();
 
   return (
@@ -32,12 +35,18 @@ export const HomePage: React.FC = () => {
               dolorum ea, et excepturi exercitationem facere iure mollitia nihil officia quas sunt unde velit voluptate.
             </Paragraph>
             <Button
-              onClick={() => openModal(<CreateServerModalContent />, {
-                hasTitle: false
-              })}
+              onClick={() => openCreateServerModal()}
             >
               Create new server
             </Button>
+            <Modal
+              isOpen={isCreateServerModalOpen}
+              closeHandler={closeCreateServerModal}
+              hasTitle
+              title="Create new server"
+            >
+              <CreateServerModalContent />
+            </Modal>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">
             Something beautiful here

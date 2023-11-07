@@ -2,14 +2,18 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HamburgerButton } from 'components/buttons/hamburger-button';
-import { useContextSelector } from 'use-context-selector';
-import { ModalContext } from 'providers/global/modal-context';
 import { Button } from 'components/buttons/button';
 import { CreateServerModalContent } from './components/create-server-modal-content';
+import { useDialog } from 'hooks/utils/use-dialog';
+import { Modal } from 'components/modal/modal';
 
 export const PublicLayout: React.FC = () => {
   const { t } = useTranslation();
-  const openModal = useContextSelector(ModalContext, (v) => v.openModal);
+  const {
+    isOpen: isCreateServerModalOpen,
+    openModal: openCreateServerModal,
+    closeModal: closeCreateServerModal
+  } = useDialog();
 
   return (
     <div className="bg-gray-100 transition-colors">
@@ -37,9 +41,7 @@ export const PublicLayout: React.FC = () => {
           <div className="hidden md:flex">
             <Button
               size="xs"
-              onClick={() => openModal(<CreateServerModalContent />, {
-                hasTitle: false
-              })}
+              onClick={() => openCreateServerModal()}
             >
               Create new server
             </Button>
@@ -47,14 +49,18 @@ export const PublicLayout: React.FC = () => {
           <div className="flex items-center md:hidden">
             <HamburgerButton
               className="h-min rounded-full bg-gray-200/30"
-              onClick={() => openModal(<></>, {
-                title: 'burek'
-              })}
+              onClick={() => {}}
             />
           </div>
         </div>
       </nav>
       <Outlet />
+      <Modal
+        isOpen={isCreateServerModalOpen}
+        closeHandler={closeCreateServerModal}
+      >
+        <CreateServerModalContent />
+      </Modal>
       {/* <footer className="w-full flex bg-blue-500"> */}
       {/*   <div className="container mx-auto p-4"> */}
       {/*     Footer */}
