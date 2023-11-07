@@ -2,9 +2,6 @@ import React from 'react';
 import { Resource } from 'interfaces/models/game/resource';
 import { useNavigate } from 'react-router-dom';
 import { ResourceFieldId } from 'interfaces/models/game/village';
-import { resourceToBuildingMap } from 'maps/resource-to-building-map';
-import clsx from 'clsx';
-import { BuildingField } from '../components/building-field';
 
 // TODO: This will eventually get replaced by graphics
 const backgroundColors: { [key in Resource]: string } = {

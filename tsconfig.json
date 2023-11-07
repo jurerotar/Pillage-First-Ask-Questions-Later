@@ -26,6 +26,9 @@
       "database/*": [
         "src/database/*"
       ],
+      "factories/*": [
+        "src/factories/*"
+      ],
       "utils/*": [
         "src/utils/*"
       ],
@@ -46,9 +49,6 @@
       ],
       "providers/*": [
         "src/providers/*"
-      ],
-      "services/*": [
-        "src/services/*"
       ],
       "styles/*": [
         "src/styles/*"

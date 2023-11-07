@@ -1,6 +1,5 @@
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState, createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createContext } from 'use-context-selector';
 import { Preferences } from 'interfaces/models/preferences/preferences';
 import { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
 import { useLocalStorage } from 'usehooks-ts';
@@ -131,7 +130,9 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
   );
 };
 
+const usePreferences = () => useContext(PreferencesContext);
+
 export {
-  PreferencesContext,
+  usePreferences,
   PreferencesProvider
 };

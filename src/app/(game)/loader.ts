@@ -30,39 +30,42 @@ type GameLoaderParams = Record<'serverSlug' | 'villageSlug', string>;
 const promiseErrorFunction = (resolvedPromise: PromiseSettledResult<unknown>) => resolvedPromise.status === 'rejected' || resolvedPromise?.value === undefined;
 
 export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) => {
-  const { serverSlug } = params as GameLoaderParams;
-  const currentServer = await getAndSetCacheData<Server | undefined>(currentServerCacheKey, () => getCurrentServer(serverSlug));
+  try {
+    const { serverSlug, villageSlug } = params as GameLoaderParams;
+    const currentServer = await getAndSetCacheData<Server | undefined>(currentServerCacheKey, () => getCurrentServer(serverSlug));
 
-  if (!currentServer) {
-    throw new MissingServerError(serverSlug);
+    if (!currentServer) {
+      throw new MissingServerError(serverSlug);
+    }
+
+    const serverId = currentServer.id!;
+
+    // TODO: Check if village from url exists
+    const currentVillage = getAndSetCacheData<Village | undefined>(currentVillageCacheKey, () => getCurrentVillage(serverId, 'v-1'));
+
+    // Cache hydration
+    const resolvedPromises = await Promise.allSettled([
+      getAndSetCacheData<Achievement[]>(achievementsCacheKey, () => getAchievements(serverId)),
+      getAndSetCacheData<Bank | undefined>(banksCacheKey, () => getBank(serverId)),
+      getAndSetCacheData<Effect[]>(effectsCacheKey, () => getEffects(serverId)),
+      getAndSetCacheData<GameEvent[]>(eventsCacheKey, () => getEvents(serverId)),
+      getAndSetCacheData<Hero | undefined>(heroCacheKey, () => getHero(serverId)),
+      getAndSetCacheData<Tile[]>(mapCacheKey, () => getMap(serverId)),
+      getAndSetCacheData<Quest[]>(questsCacheKey, () => getQuests(serverId)),
+      getAndSetCacheData<Report[]>(reportsCacheKey, () => getReports(serverId)),
+      getAndSetCacheData<ResearchLevel[]>(researchLevelsCacheKey, () => getResearchLevels(serverId)),
+      getAndSetCacheData<Village[]>(villagesCacheKey, () => getVillages(serverId))
+    ]);
+
+    const hasHydrationErrorOccurred = resolvedPromises.some(promiseErrorFunction);
+
+    if (hasHydrationErrorOccurred) {
+      throw new CacheHydrationError(serverId);
+    }
+    return {
+      resolved: true
+    };
+  } catch (error) {
+
   }
-
-  const serverId = currentServer.id!;
-
-  // TODO: Check if village from url exists
-  const currentVillage = getAndSetCacheData<Village | undefined>(currentVillageCacheKey, () => getCurrentVillage(serverId, 'v-1'));
-
-  // Cache hydration
-  const resolvedPromises = await Promise.allSettled([
-    getAndSetCacheData<Achievement[]>(achievementsCacheKey, () => getAchievements(serverId)),
-    getAndSetCacheData<Bank | undefined>(banksCacheKey, () => getBank(serverId)),
-    getAndSetCacheData<Effect[]>(effectsCacheKey, () => getEffects(serverId)),
-    getAndSetCacheData<GameEvent[]>(eventsCacheKey, () => getEvents(serverId)),
-    getAndSetCacheData<Hero | undefined>(heroCacheKey, () => getHero(serverId)),
-    getAndSetCacheData<Tile[]>(mapCacheKey, () => getMap(serverId)),
-    getAndSetCacheData<Quest[]>(questsCacheKey, () => getQuests(serverId)),
-    getAndSetCacheData<Report[]>(reportsCacheKey, () => getReports(serverId)),
-    getAndSetCacheData<ResearchLevel[]>(researchLevelsCacheKey, () => getResearchLevels(serverId)),
-    getAndSetCacheData<Village[]>(villagesCacheKey, () => getVillages(serverId))
-  ]);
-
-  const hasHydrationErrorOccurred = resolvedPromises.some(promiseErrorFunction);
-
-  if (hasHydrationErrorOccurred) {
-    throw new CacheHydrationError(serverId);
-  }
-
-  return {
-    resolved: true
-  };
 };

@@ -4,7 +4,6 @@ import { useCurrentServer } from 'hooks/game/use-current-server';
 import { FixedSizeGrid } from 'react-window';
 import { useWindowSize } from 'usehooks-ts';
 import { Cell } from 'app/(game)/map/components/cell';
-import { Icon } from 'components/icon';
 
 const TILE_BASE_SIZE = 30;
 

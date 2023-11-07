@@ -8,8 +8,12 @@ export const getFromCache = <TData>(key: string): TData | undefined => {
   return CACHE.get(key) as TData | undefined;
 };
 
+export const cacheHasKey = (key: string): boolean => {
+  return CACHE.has(key);
+};
+
 export const getAndSetCacheData = async <TData>(key: string, updater: () => Promise<TData>): Promise<TData> => {
-  if (CACHE.has(key)) {
+  if (cacheHasKey(key)) {
     return CACHE.get(key) as TData;
   }
   const data: TData = await updater();

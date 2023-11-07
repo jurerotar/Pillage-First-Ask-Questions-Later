@@ -1,10 +1,11 @@
-import { MapGeneratorService } from 'services/map-generator-service';
 import { serverMock } from 'mocks/models/game/server-mock';
 import { OccupiedFreeTile, Tile } from 'interfaces/models/game/tile';
 import { predefinedVillagesCoordinates100x100Mock } from 'mocks/game/map/predefined-villages-coordinates-100x100-mock';
 import { Point } from 'interfaces/models/common';
+import { mapFactory } from 'factories/map-factory';
 
 const serverMockSize100 = serverMock;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const serverMockSize200 = {
   ...serverMock,
   configuration: {
@@ -50,9 +51,9 @@ const expectToBeCloseTo = (amount: number, expected: number, amountOfTiles: numb
     .toBeLessThan(expected + acceptableDeviation);
 };
 
-describe('MapGeneratorService', () => {
+describe('Map factory', () => {
   describe('100x100 map size', () => {
-    const tiles = MapGeneratorService.generateMap(serverMockSize100);
+    const tiles = mapFactory({ server: serverMockSize100 });
 
     describe('Grid generation', () => {
       test('Creates an array of correct size', () => {

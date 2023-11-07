@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from 'components/buttons/button';
-import { v4 as uuidv4 } from 'uuid';
 import { Server } from 'interfaces/models/game/server';
-import { CreateServerService } from 'services/create-server-service';
-import { RandomizerService } from 'services/randomizer-service';
 import { useAvailableServers } from 'hooks/use-available-servers';
 import { ProgressBar } from 'components/progress-bar';
 import { database } from 'database/database';
 import { useFormik } from 'formik';
 import { Tile } from 'interfaces/models/game/tile';
+import { serverFactory } from 'factories/server-factory';
+import { researchLevelsFactory } from 'factories/research-levels-factory';
+import { bankFactory } from 'factories/bank-factory';
+import { heroFactory } from 'factories/hero-factory';
+import { Village } from 'interfaces/models/game/village';
+import { v4 as uuidv4 } from 'uuid';
 
-type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration'>;
+type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 type CreateServerModalView = 'configuration' | 'loader';
 
 type CreateServerConfigurationViewProps = {
   onSubmit: (server: Server) => void;
+};
+
+const generateSeed = (length: number = 10): string => {
+  return uuidv4().replaceAll('-', '').substring(0, length);
 };
 
 const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps> = (props) => {
@@ -26,27 +33,22 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
     submitForm
   } = useFormik<CreateServerFormValues>({
     initialValues: {
-      seed: RandomizerService.generateSeed(),
-      name: `server-${RandomizerService.generateSeed(4)}`,
+      seed: generateSeed(),
+      name: `s-${generateSeed(4)}`,
       configuration: {
-        tribe: 'gauls',
         mapSize: 100,
-        speed: 1,
-        difficulty: 1
+        speed: 1
+      },
+      playerConfiguration: {
+        tribe: 'gauls'
       }
     },
     validate: (valuesToValidate) => {
       return {};
     },
     onSubmit: (submittedValues) => {
-      const id = uuidv4();
-      const slug = submittedValues.name;
-      onSubmit({
-        ...submittedValues,
-        id,
-        slug,
-        startDate: (new Date()).toString()
-      });
+      const server = serverFactory({ ...submittedValues });
+      onSubmit(server);
     }
   });
 
@@ -83,7 +85,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
             <label htmlFor="server-configuration-tribe">Tribe</label>
             <input
               id="server-configuration-tribe"
-              defaultValue={values.configuration.tribe}
+              defaultValue={values.playerConfiguration.tribe}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -175,7 +177,7 @@ export const CreateServerModalContent: React.FC = () => {
     setProgressHistory((prev) => [...prev, message]);
   };
 
-  const onSubmit = (serverConfig: Server) => {
+  const onSubmit = useCallback((server: Server) => {
     setView('loader');
 
     (async () => {
@@ -194,57 +196,85 @@ export const CreateServerModalContent: React.FC = () => {
       try {
         // Server data
         await executeStep('Creating server data...', 'Created server data.', async () => {
-          await createServer(serverConfig);
+          await createServer(server);
         });
         // Map data
         const tiles = await executeStep<Tile[]>('Creating map data...', 'Created map data.', async () => {
-          const mapData = await CreateServerService.createMapData(serverConfig);
+          const mapData = await new Promise<Tile[]>((resolve, reject) => {
+            const createMapWorker = new Worker(new URL('../workers/generate-world-map-worker', import.meta.url), {
+              type: 'module'
+            });
+            createMapWorker.postMessage({ server });
+            createMapWorker.addEventListener('message', async (event: MessageEvent<{ tiles: Tile[] }>) => {
+              const { tiles } = event.data;
+              resolve(tiles);
+            });
+            createMapWorker.addEventListener('error', () => {
+              reject(new Error('Error occurred when creating world data'));
+            });
+          });
+
           await database.maps.bulkAdd(mapData);
           return mapData;
         });
         // Villages
         await executeStep('Creating village data...', 'Created village data.', async () => {
-          const villages = await CreateServerService.createVillages(serverConfig, tiles);
+          const villages = await new Promise<Village[]>((resolve, reject) => {
+            const createVillagesWorker = new Worker(new URL('../workers/generate-villages-worker', import.meta.url), {
+              type: 'module'
+            });
+            createVillagesWorker.postMessage({
+              server,
+              tiles
+            });
+            createVillagesWorker.addEventListener('message', async (event: MessageEvent<{ villages: Village[] }>) => {
+              const { villages } = event.data;
+              resolve(villages);
+            });
+            createVillagesWorker.addEventListener('error', () => {
+              reject(new Error('Error occurred when creating villages'));
+            });
+          });
           await database.villages.bulkAdd(villages);
         });
         // Research levels
         await executeStep('Creating research levels data...', 'Created research levels data.', async () => {
-          const researchLevels = CreateServerService.createResearchLevels(serverConfig);
+          const researchLevels = researchLevelsFactory({ server });
           await database.researchLevels.bulkAdd(researchLevels);
         });
         // Bank data
         await executeStep('Creating bank data...', 'Created bank data.', async () => {
-          const bank = CreateServerService.createBank(serverConfig);
+          const bank = bankFactory({ server });
           await database.banks.add(bank);
         });
         // Hero data
         await executeStep('Creating hero data...', 'Created hero data.', async () => {
-          const hero = CreateServerService.createHero(serverConfig);
+          const hero = heroFactory({ server });
           await database.heroes.add(hero);
         });
         // Quests
         await executeStep('Creating quests...', 'Created quests.', async () => {
-          const quests = CreateServerService.createQuests();
-          await database.quests.bulkAdd(quests);
+          // const quests = CreateServerService.createQuests();
+          await database.quests.bulkAdd([]);
         });
         // Achievements
         await executeStep('Creating achievements...', 'Created achievements.', async () => {
-          const achievements = CreateServerService.createAchievements();
-          await database.achievements.bulkAdd(achievements);
+          // const achievements = CreateServerService.createAchievements();
+          await database.achievements.bulkAdd([]);
         });
         // Effects
         await executeStep('Creating effects...', 'Created effects.', async () => {
-          const effects = CreateServerService.createAccountEffects();
-          await database.effects.bulkAdd(effects);
+          // const effects = CreateServerService.createAccountEffects();
+          await database.effects.bulkAdd([]);
         });
         setHasCreatedServer(true);
       } catch (err) {
         setError(err as string);
-        await deleteServer(serverConfig);
+        await deleteServer(server);
       }
     })();
     setView('loader');
-  };
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">
