@@ -18,6 +18,7 @@ export const seededRandomIntFromInterval = (seed: string, min: number, max: numb
 };
 
 export const seededRandomArrayElement = <T>(seed: string, array: T[]): T => {
+  // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
   return array[Math.floor(Math.random() * array.length)];
 };
 
@@ -83,3 +84,14 @@ export const chunk = <T, >(array: T[], size: number): T[][] => {
   }
   return result;
 };
+
+export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+
+  return copy;
+}

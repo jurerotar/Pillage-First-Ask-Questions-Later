@@ -3,7 +3,12 @@ import { useRouteError } from 'react-router-dom';
 
 export const GameErrorBoundary = () => {
   const error = useRouteError();
+  const { name, message } = error as Error;
+
   return (
-    <p>Error... </p>
+    <>
+      <h1>{name}</h1>
+      <p>{message}</p>
+    </>
   );
 };

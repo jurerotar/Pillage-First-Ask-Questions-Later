@@ -10,8 +10,21 @@ import { serverFactory } from 'factories/server-factory';
 import { researchLevelsFactory } from 'factories/research-levels-factory';
 import { bankFactory } from 'factories/bank-factory';
 import { heroFactory } from 'factories/hero-factory';
-import { Village } from 'interfaces/models/game/village';
-import { v4 as uuidv4 } from 'uuid';
+import { workerFactory } from 'utils/workers';
+import { GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn } from 'app/(public)/workers/generate-players-worker';
+import { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from 'app/(public)/workers/generate-reputations-worker';
+import { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from 'app/(public)/workers/generate-world-map-worker';
+import { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/(public)/workers/generate-villages-worker';
+import { GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn } from 'app/(public)/workers/generate-quests-worker';
+import { GenerateAchievementsWorkerPayload, GenerateAchievementsWorkerReturn } from 'app/(public)/workers/generate-achievements-worker';
+import { GenerateEffectsWorkerPayload, GenerateEffectsWorkerReturn } from 'app/(public)/workers/generate-effects-worker';
+import CreateVillagesWorker from '../workers/generate-villages-worker?worker&url';
+import CreateMapWorker from '../workers/generate-world-map-worker?worker&url';
+import CreatePlayersWorker from '../workers/generate-players-worker?worker&url';
+import CreateReputationsWorker from '../workers/generate-reputations-worker?worker&url';
+import CreateQuestsWorker from '../workers/generate-quests-worker?worker&url';
+import CreateAchievementsWorker from '../workers/generate-achievements-worker?worker&url';
+import CreateEffectsWorker from '../workers/generate-effects-worker?worker&url';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 type CreateServerModalView = 'configuration' | 'loader';
@@ -21,7 +34,7 @@ type CreateServerConfigurationViewProps = {
 };
 
 const generateSeed = (length: number = 10): string => {
-  return uuidv4().replaceAll('-', '').substring(0, length);
+  return crypto.randomUUID().replaceAll('-', '').substring(0, length);
 };
 
 const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps> = (props) => {
@@ -34,7 +47,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   } = useFormik<CreateServerFormValues>({
     initialValues: {
       seed: generateSeed(),
-      name: `s-${generateSeed(4)}`,
+      name: `server-${generateSeed(4)}`,
       configuration: {
         mapSize: 100,
         speed: 1
@@ -185,7 +198,7 @@ export const CreateServerModalContent: React.FC = () => {
         setProgressPercentage((prevState) => prevState + percentage);
       };
 
-      const executeStep = async <T,>(currentMessage: string, historyMessage: string, promise: () => Promise<T>): Promise<T> => {
+      const executeStep = async <T, >(currentMessage: string, historyMessage: string, promise: () => Promise<T>): Promise<T> => {
         setProgressMessage(currentMessage);
         updatePercentage();
         const result = await promise();
@@ -198,75 +211,102 @@ export const CreateServerModalContent: React.FC = () => {
         await executeStep('Creating server data...', 'Created server data.', async () => {
           await createServer(server);
         });
+
+        // Players/factions
+        const players = await executeStep('Creating factions...', 'Created factions.', async () => {
+          const { players: generatedPlayers } = await workerFactory<GeneratePlayersWorkerReturn, GeneratePlayersWorkerPayload>(
+            CreatePlayersWorker,
+            { server },
+            ''
+          );
+          await database.players.bulkAdd(generatedPlayers);
+          return generatedPlayers;
+        });
+
+        const userPlayer = players.find(({ faction }) => faction === 'player')!;
+
+        // Reputations
+        await executeStep('Creating reputations...', 'Created reputations.', async () => {
+          const { reputations } = await workerFactory<GenerateReputationsWorkerReturn, GenerateReputationsWorkerPayload>(
+            CreateReputationsWorker,
+            { server, players },
+            ''
+          );
+          await database.reputations.bulkAdd(reputations);
+        });
+
         // Map data
         const tiles = await executeStep<Tile[]>('Creating map data...', 'Created map data.', async () => {
-          const mapData = await new Promise<Tile[]>((resolve, reject) => {
-            const createMapWorker = new Worker(new URL('../workers/generate-world-map-worker', import.meta.url), {
-              type: 'module'
-            });
-            createMapWorker.postMessage({ server });
-            createMapWorker.addEventListener('message', async (event: MessageEvent<{ tiles: Tile[] }>) => {
-              const { tiles } = event.data;
-              resolve(tiles);
-            });
-            createMapWorker.addEventListener('error', () => {
-              reject(new Error('Error occurred when creating world data'));
-            });
-          });
+          const { tiles: generatedTiles } = await workerFactory<GenerateWorldMapWorkerReturn, GenerateWorldMapWorkerPayload>(
+            CreateMapWorker,
+            { server, players },
+            ''
+          );
+          await database.maps.bulkAdd(generatedTiles);
+          return generatedTiles;
+        });
 
-          await database.maps.bulkAdd(mapData);
-          return mapData;
-        });
         // Villages
-        await executeStep('Creating village data...', 'Created village data.', async () => {
-          const villages = await new Promise<Village[]>((resolve, reject) => {
-            const createVillagesWorker = new Worker(new URL('../workers/generate-villages-worker', import.meta.url), {
-              type: 'module'
-            });
-            createVillagesWorker.postMessage({
-              server,
-              tiles
-            });
-            createVillagesWorker.addEventListener('message', async (event: MessageEvent<{ villages: Village[] }>) => {
-              const { villages } = event.data;
-              resolve(villages);
-            });
-            createVillagesWorker.addEventListener('error', () => {
-              reject(new Error('Error occurred when creating villages'));
-            });
-          });
-          await database.villages.bulkAdd(villages);
+        const villages = await executeStep('Creating village data...', 'Created village data.', async () => {
+          const { villages: generatedVillages } = await workerFactory<GenerateVillageWorkerReturn, GenerateVillageWorkerPayload>(
+            CreateVillagesWorker,
+            { server, tiles, players },
+            ''
+          );
+          await database.villages.bulkAdd(generatedVillages);
+          return generatedVillages;
         });
+
+        const playerStartingVillage = villages.find(({ playerId }) => playerId === userPlayer.id)!;
+
         // Research levels
         await executeStep('Creating research levels data...', 'Created research levels data.', async () => {
           const researchLevels = researchLevelsFactory({ server });
           await database.researchLevels.bulkAdd(researchLevels);
         });
+
         // Bank data
         await executeStep('Creating bank data...', 'Created bank data.', async () => {
           const bank = bankFactory({ server });
           await database.banks.add(bank);
         });
+
         // Hero data
         await executeStep('Creating hero data...', 'Created hero data.', async () => {
           const hero = heroFactory({ server });
           await database.heroes.add(hero);
         });
+
         // Quests
         await executeStep('Creating quests...', 'Created quests.', async () => {
-          // const quests = CreateServerService.createQuests();
-          await database.quests.bulkAdd([]);
+          const { quests } = await workerFactory<GenerateQuestsWorkerReturn, GenerateQuestsWorkerPayload>(
+            CreateQuestsWorker,
+            { server, village: playerStartingVillage },
+            ''
+          );
+          await database.quests.bulkAdd(quests);
         });
+
         // Achievements
         await executeStep('Creating achievements...', 'Created achievements.', async () => {
-          // const achievements = CreateServerService.createAchievements();
-          await database.achievements.bulkAdd([]);
+          const { achievements } = await workerFactory<GenerateAchievementsWorkerReturn, GenerateAchievementsWorkerPayload>(
+            CreateAchievementsWorker,
+            { server },
+            ''
+          );
+          await database.achievements.bulkAdd(achievements);
         });
+
         // Effects
         await executeStep('Creating effects...', 'Created effects.', async () => {
-          // const effects = CreateServerService.createAccountEffects();
-          await database.effects.bulkAdd([]);
+          const { effects } = await workerFactory<GenerateEffectsWorkerReturn, GenerateEffectsWorkerPayload>(
+            CreateEffectsWorker,
+            { server, village: playerStartingVillage },
+            ''
+          );
+          await database.effects.bulkAdd(effects);
         });
+
         setHasCreatedServer(true);
       } catch (err) {
         setError(err as string);

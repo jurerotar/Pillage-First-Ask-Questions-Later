@@ -1,11 +1,14 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { PreferencesProvider } from 'providers/global/preferences-context';
+import { PreferencesProvider } from './providers/preferences-context';
+import { ViewportProvider } from 'app/providers/viewport-context';
 
 export const AppLayout: React.FC = () => {
   return (
-    <PreferencesProvider>
-      <Outlet />
-    </PreferencesProvider>
+    <ViewportProvider>
+      <PreferencesProvider>
+        <Outlet />
+      </PreferencesProvider>
+    </ViewportProvider>
   );
 };

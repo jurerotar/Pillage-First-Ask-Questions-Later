@@ -10,6 +10,10 @@ import { GridChildComponentProps } from 'react-window';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { OccupiableOasisIcon } from 'app/(game)/map/components/occupiable-oasis-icon';
 import { useMapOptions } from 'app/(game)/map/providers/map-context';
+import clsx from 'clsx';
+import { usePlayers } from 'hooks/game/use-players';
+import { useReputations } from 'hooks/game/use-reputations';
+import { ReputationLevel } from 'interfaces/models/game/reputation';
 
 type CellProps = GridChildComponentProps<TileType[]>;
 
@@ -23,7 +27,7 @@ const OasisTile: React.FC<OccupiableOasisProps> = (props) => {
   const { mapFilters: { shouldShowOasisIcons } } = useMapOptions();
 
   const isOccupiable = tile.oasisBonus !== null;
-  const isOccupied = Object.hasOwn(tile, 'ownerVillageId');
+  const isOccupied = Object.hasOwn(tile, 'villageId');
 
   return (
     <span
@@ -44,8 +48,17 @@ const OasisTile: React.FC<OccupiableOasisProps> = (props) => {
   );
 };
 
+const reputationColorMap = new Map<ReputationLevel, string>([
+  ['ecstatic', 'border-purple-800'],
+  ['respected', 'border-violet-500'],
+  ['friendly', 'border-green-600'],
+  ['neutral', 'border-gray-500'],
+  ['unfriendly', 'border-yellow-300'],
+  ['hostile', 'border-red-600'],
+]);
+
 type FreeTileProps = {
-  tile: FreeTileType | OccupiedFreeTileType;
+  tile: FreeTileType;
 };
 
 const FreeTile: React.FC<FreeTileProps> = (props) => {
@@ -53,7 +66,30 @@ const FreeTile: React.FC<FreeTileProps> = (props) => {
 
   return (
     <span
-      className="flex h-full w-full"
+      className="flex h-full w-full items-center justify-center"
+      style={{ backgroundColor: tile.graphics.backgroundColor }}
+    >
+      {tile.coordinates.x}, {tile.coordinates.y} {tile.resourceFieldComposition}
+    </span>
+  );
+};
+
+type OccupiedFreeTileProps = {
+  tile: OccupiedFreeTileType;
+};
+
+const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = (props) => {
+  const { tile } = props;
+
+  const { getFactionByPlayerId } = usePlayers();
+  const { getReputationByFaction } = useReputations();
+
+  const faction = getFactionByPlayerId(tile.ownedBy);
+  const { reputationLevel } = getReputationByFaction(faction);
+
+  return (
+    <span
+      className={clsx('flex h-full w-full items-center justify-center', !!faction && reputationColorMap.get(reputationLevel), 'border-dashed border-[3px] rounded-[1px]')}
       style={{ backgroundColor: tile.graphics.backgroundColor }}
     >
       {tile.coordinates.x}, {tile.coordinates.y} {tile.resourceFieldComposition}
@@ -77,18 +113,26 @@ export const Cell: React.FC<CellProps> = (props) => {
 
   const isOasis = tile.type === 'oasis-tile';
   const isFreeTile = tile.type === 'free-tile';
+  const isOccupiedFreeTile = isFreeTile && Object.hasOwn(tile, 'ownedBy');
 
   return (
     <button
       type="button"
-      className="relative flex h-full w-full items-center justify-center border border-black/25 text-xs hover:border-black"
+      className="relative flex h-full w-full items-center justify-center text-xs border border-gray-500 rounded-[1px]"
       style={style}
     >
       {isOasis && (
         <OasisTile tile={tile} />
       )}
-      {isFreeTile && (
-        <FreeTile tile={tile} />
+      {!isOasis && (
+        <>
+          {isOccupiedFreeTile && (
+            <OccupiedFreeTile tile={tile as OccupiedFreeTileType} />
+          )}
+          {!isOccupiedFreeTile && (
+            <FreeTile tile={tile as OccupiedFreeTileType} />
+          )}
+        </>
       )}
     </button>
   );

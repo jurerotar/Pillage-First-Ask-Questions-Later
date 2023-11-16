@@ -1,8 +1,9 @@
 import { serverMock } from 'mocks/models/game/server-mock';
 import { OccupiedFreeTile, Tile } from 'interfaces/models/game/tile';
-import { predefinedVillagesCoordinates100x100Mock } from 'mocks/game/map/predefined-villages-coordinates-100x100-mock';
+import { predefinedVillagesCoordinates100x100Mock } from 'mocks/game/map/predefined-villages-coordinates-mock';
 import { Point } from 'interfaces/models/common';
 import { mapFactory } from 'factories/map-factory';
+import { playersMock } from 'mocks/models/game/player-mock';
 
 const serverMockSize100 = serverMock;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,7 +54,7 @@ const expectToBeCloseTo = (amount: number, expected: number, amountOfTiles: numb
 
 describe('Map factory', () => {
   describe('100x100 map size', () => {
-    const tiles = mapFactory({ server: serverMockSize100 });
+    const tiles = mapFactory({ server: serverMockSize100, players: playersMock });
 
     describe('Grid generation', () => {
       test('Creates an array of correct size', () => {
@@ -85,10 +86,7 @@ describe('Map factory', () => {
     describe('Village generation', () => {
       predefinedVillagesTests('Initial user', tiles.find(({ coordinates }) => coordinates.x === 0 && coordinates.y === 0)! as OccupiedFreeTile);
 
-      const {
-        artifactVillagesCoordinates,
-        quadrantBaseCoordinates
-      } = predefinedVillagesCoordinates100x100Mock;
+      const { artifactVillagesCoordinates } = predefinedVillagesCoordinates100x100Mock;
 
       artifactVillagesCoordinates.forEach((mockCoordinates: Point) => {
         const {
@@ -96,14 +94,6 @@ describe('Map factory', () => {
           y
         } = mockCoordinates;
         predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedFreeTile);
-      });
-
-      quadrantBaseCoordinates.forEach((mockCoordinates: Point) => {
-        const {
-          x,
-          y
-        } = mockCoordinates;
-        predefinedVillagesTests('Quadrant base', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedFreeTile);
       });
     });
   });

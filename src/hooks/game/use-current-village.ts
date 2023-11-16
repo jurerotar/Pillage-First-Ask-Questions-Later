@@ -29,10 +29,14 @@ export const useCurrentVillage = () => {
     cacheKey: currentVillageCacheKey
   });
 
+  const currentVillageId = currentVillage!.id;
+
   return {
     currentVillage,
     isLoadingCurrentVillage,
     hasLoadedCurrentVillage,
-    currentVillageStatus
+    currentVillageStatus,
+    mutateCurrentVillage,
+    currentVillageId,
   };
 };

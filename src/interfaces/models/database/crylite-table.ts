@@ -9,4 +9,6 @@ export type CryliteTableName =
   | 'events'
   | 'effects'
   | 'banks'
+  | 'players'
+  | 'reputations'
   | 'researchLevels';

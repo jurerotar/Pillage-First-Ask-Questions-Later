@@ -1,6 +1,6 @@
 import React from 'react';
 import { Server } from 'interfaces/models/game/server';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from 'components/buttons/button';
 import { useAvailableServers } from 'hooks/use-available-servers';
 import { setToCache } from 'database/cache';
@@ -19,7 +19,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
 
   const hydrateCurrentServerCache = (server: Server) => {
     setToCache('current-server', server);
-    navigate(`/game/${server.name}/v-1/map`);
+    navigate(`/game/${server.slug}/v-1/map`);
   };
 
   return (

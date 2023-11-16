@@ -4,6 +4,8 @@ import { useCurrentServer } from 'hooks/game/use-current-server';
 import { FixedSizeGrid } from 'react-window';
 import { useWindowSize } from 'usehooks-ts';
 import { Cell } from 'app/(game)/map/components/cell';
+import { useCurrentVillage } from 'hooks/game/use-current-village';
+import { usePlayers } from 'hooks/game/use-players';
 
 const TILE_BASE_SIZE = 30;
 
@@ -23,10 +25,13 @@ export const MapPage: React.FC = () => {
     width
   } = useWindowSize();
 
-  // const { currentVillage } = useCurrentVillage();
+  const { currentVillage } = useCurrentVillage();
+  const { players } = usePlayers();
 
   const mapSize = server?.configuration?.mapSize;
   const isLoading = isLoadingMap || isLoadingServer;
+
+  console.log(players);
 
   const [magnification, setMagnification] = useState<number>(2);
   const tileSize = TILE_BASE_SIZE * magnification;
@@ -41,6 +46,9 @@ export const MapPage: React.FC = () => {
       )}
       {!isLoading && (
         <FixedSizeGrid
+          style={{
+            backgroundColor: '#B9D580'
+          }}
           outerRef={mapRef}
           columnCount={gridSize}
           columnWidth={tileSize}

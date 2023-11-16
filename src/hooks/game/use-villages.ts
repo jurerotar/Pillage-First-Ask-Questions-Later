@@ -29,12 +29,18 @@ export const useVillages = () => {
   const playerVillages: Village[] = villages?.filter((village: Village) => true);
   const npcVillages: Village[] = villages?.filter((village: Village) => true);
 
+  const getVillageByCoordinates = (coordinates: Village['coordinates']): Village | null => {
+    return villages.find(({ coordinates: { x, y }}) => coordinates.x === x && coordinates.y === y) ?? null;
+  }
+
   return {
     villages,
     isLoadingVillages,
     hasLoadedVillages,
     villagesQueryStatus,
+    mutateVillages,
     playerVillages,
-    npcVillages
+    npcVillages,
+    getVillageByCoordinates
   };
 };

@@ -35,20 +35,11 @@
       "hooks/*": [
         "src/hooks/*"
       ],
-      "constants/*": [
-        "src/constants/*"
-      ],
-      "maps/*": [
-        "src/maps/*"
-      ],
       "i18n/*": [
         "src/i18n/*"
       ],
       "interfaces/*": [
         "src/interfaces/*"
-      ],
-      "providers/*": [
-        "src/providers/*"
       ],
       "styles/*": [
         "src/styles/*"
@@ -72,6 +63,7 @@
     "src",
     "config",
     "**.config.ts",
-    "__mocks__"
+    "__mocks__",
+    "jest-setup.ts"
   ]
 }

@@ -11,12 +11,14 @@ import { Effect } from 'interfaces/models/game/effect';
 import { Bank } from 'interfaces/models/game/bank';
 import { ResearchLevel } from 'interfaces/models/game/research-level';
 import { CryliteTableName } from 'interfaces/models/database/crylite-table';
+import { Player } from 'interfaces/models/game/player';
+import { Reputation } from 'interfaces/models/game/reputation';
 
 type TableIndex = string;
 
 const DEFAULT_TABLE_INDEX: TableIndex[] = ['++id'];
 
-const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
+export const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['servers', ['slug']],
   ['maps', ['serverId']],
   ['heroes', ['serverId']],
@@ -27,7 +29,9 @@ const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['events', ['serverId']],
   ['effects', ['serverId']],
   ['banks', ['serverId']],
-  ['researchLevels', ['serverId']]
+  ['researchLevels', ['serverId']],
+  ['players', ['serverId']],
+  ['reputations', ['serverId']],
 ]);
 
 export const CRYLITE_TABLE_NAMES = CRYLITE_TABLES.keys();
@@ -45,6 +49,8 @@ export class CryliteDatabase extends Dexie {
   public effects!: Table<Effect>;
   public banks!: Table<Bank>;
   public researchLevels!: Table<ResearchLevel>;
+  public players!: Table<Player>;
+  public reputations!: Table<Reputation>;
 
   public amountOfTables: number;
 

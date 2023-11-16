@@ -42,11 +42,17 @@ export const useAvailableServers = () => {
           .delete(),
         database.achievements.where({ serverId })
           .delete(),
-        database.researchLevels.where({ serverId })
-          .delete(),
         database.events.where({ serverId })
           .delete(),
         database.effects.where({ serverId })
+          .delete(),
+        database.banks.where({ serverId })
+          .delete(),
+        database.researchLevels.where({ serverId })
+          .delete(),
+        database.players.where({ serverId })
+          .delete(),
+        database.reputations.where({ serverId })
           .delete()
       ]);
     });

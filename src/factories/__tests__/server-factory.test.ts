@@ -1,5 +1,3 @@
-import { serverMock } from 'mocks/models/game/server-mock';
-import { bankFactory } from 'factories/bank-factory';
 import { serverFactory } from 'factories/server-factory';
 
 describe('Server factory', () => {

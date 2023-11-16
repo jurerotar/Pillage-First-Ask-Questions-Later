@@ -1,14 +1,21 @@
 import { Server } from 'interfaces/models/game/server';
 import { mapFactory } from 'factories/map-factory';
+import { Tile } from 'interfaces/models/game/tile';
+import { Player } from 'interfaces/models/game/player';
 
-type GenerateWorldMapWorkerPayload = {
+export type GenerateWorldMapWorkerPayload = {
   server: Server;
+  players: Player[];
+};
+
+export type GenerateWorldMapWorkerReturn = {
+  tiles: Tile[];
 };
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 self.addEventListener('message', (event: MessageEvent<GenerateWorldMapWorkerPayload>) => {
-  const { server } = event.data;
-  const tiles = mapFactory({ server });
+  const { server, players } = event.data;
+  const tiles = mapFactory({ server, players });
   self.postMessage({ tiles });
 });

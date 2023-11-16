@@ -10,6 +10,21 @@ export default defineConfig({
     open: true
   },
   optimizeDeps: {
-    include: ['react', 'esm-seedrandom', 'uuid', 'dexie', 'formik', 'sha1-uint8array']
+    include: [
+      'react',
+      'esm-seedrandom',
+      'uuid',
+      'dexie',
+      'formik',
+      'sha1-uint8array',
+      'react-helmet',
+      'react-modal',
+      'tailwind-override',
+      'usehooks-ts',
+      'clsx'
+    ]
+  },
+  worker: {
+    format: 'es'
   }
 }) satisfies UserConfig;

@@ -9,7 +9,7 @@ export type ResourceBuildingId =
   | 'IRON_MINE';
 
 export type BuildingId =
-  ResourceBuildingId
+  | ResourceBuildingId
   | 'BAKERY'
   | 'BRICKYARD'
   | 'GRAIN_MILL'
@@ -49,8 +49,7 @@ export type BuildingId =
   | 'RESIDENCE'
   | 'TOWN_HALL'
   | 'TRADE_OFFICE'
-  | 'TREASURY'
-  | 'WONDER_OF_THE_WORLD';
+  | 'TREASURY';
 
 export type BuildingEffect = {
   effectId: EffectId;
@@ -70,11 +69,9 @@ export type BuildingRequirement = {
 
 export type Building = {
   id: BuildingId;
-  maxLevel: number;
   buildingDuration: number[];
   culturePointsProduction: number[];
   cropConsumption: number[];
-  effects?: BuildingEffect[];
-  buildingRequirements?: BuildingRequirement[];
-  totalResourceCost: number[];
+  effects: BuildingEffect[];
+  buildingRequirements: BuildingRequirement[];
 } & Record<Resource, number[]>;

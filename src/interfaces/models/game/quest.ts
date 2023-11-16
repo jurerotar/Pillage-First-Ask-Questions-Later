@@ -6,7 +6,7 @@ import { WithServerId } from 'interfaces/models/game/server';
  */
 export type Quest = WithServerId<{
   id: number;
-  scope: 'server' | 'village';
-  villageId: Village['id'];
+  scope: 'global' | 'village';
+  villageId?: Village['id'];
   isCompleted: boolean;
 }>;
