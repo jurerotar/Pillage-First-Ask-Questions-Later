@@ -1,11 +1,11 @@
-import React, { FunctionComponentWithChildren } from 'react';
+import React, { FCWithChildren } from 'react';
 
 type ConditionalWrapperProps = {
   condition: boolean;
   wrapper: (children: React.ReactNode) => React.ReactNode;
 };
 
-export const ConditionalWrapper: FunctionComponentWithChildren<ConditionalWrapperProps> = (props) => {
+export const ConditionalWrapper: FCWithChildren<ConditionalWrapperProps> = (props) => {
   const {
     condition,
     wrapper,

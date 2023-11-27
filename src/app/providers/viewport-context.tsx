@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, useEffect, useMemo, FunctionComponentWithChildren } from 'react';
+import React, { useState, createContext, useContext, useEffect, useMemo, FCWithChildren } from 'react';
 
 type WindowSize = {
   height: number;
@@ -25,11 +25,12 @@ export const breakpoints = {
 
 const ViewportContext = createContext<ViewportContextValues>({} as never);
 
-const ViewportProvider: FunctionComponentWithChildren = ({ children }) => {
-  const [windowSize, setWindowSize] = useState<WindowSize>({
-    height: 0,
-    width: 0
-  });
+type ViewportProviderProps = {
+  initialSize?: WindowSize;
+};
+
+const ViewportProvider: FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
+  const [windowSize, setWindowSize] = useState<WindowSize>(initialSize);
 
   const { width, height } = windowSize;
 

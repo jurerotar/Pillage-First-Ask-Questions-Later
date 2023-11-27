@@ -37,17 +37,6 @@
   }
 }
 
-.tooltip {
-  &:hover {
-    & .tooltip-popup {
-      opacity: .8;
-    }
-  }
-  &-popup {
-    opacity: 0;
-  }
-}
-
 .fade-enter {
   opacity: 0;
 }

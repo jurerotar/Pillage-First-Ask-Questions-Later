@@ -1,11 +1,18 @@
-import React, { FunctionComponentWithChildren } from 'react';
+import React, { FCWithChildren } from 'react';
 import clsx from 'clsx';
 
+type BorderIndicatorVariant =
+  | 'green'
+  | 'blue'
+  | 'red'
+  | 'gray'
+  | 'yellow';
+
 export type BorderIndicatorProps = {
-  variant?: 'green' | 'blue' | 'red' | 'gray';
+  variant?: BorderIndicatorVariant;
 } & React.HTMLProps<HTMLDivElement>;
 
-const variantToClassNameMap = {
+const variantToClassNameMap: Record<BorderIndicatorVariant, string> = {
   green: 'from-[#7da100] to-[#c7e94f]',
   blue: 'from-[#0d648e] to-[#b1e4ff]',
   red: 'from-[#] to-[#]',
@@ -13,7 +20,7 @@ const variantToClassNameMap = {
   gray: 'from-[#606060] to-[#c8c8c8]'
 };
 
-export const BorderIndicator: FunctionComponentWithChildren<BorderIndicatorProps> = (props) => {
+export const BorderIndicator: FCWithChildren<BorderIndicatorProps> = (props) => {
   const {
     variant = 'gray',
     className,

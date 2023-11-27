@@ -33,6 +33,7 @@ export type FreeTile = BaseTile & {
 
 export type OccupiedFreeTile = FreeTile & {
   ownedBy: Player['id'];
+  treasureType: 'artifact' | 'hero-item' | 'currency' | 'resources' | null;
 };
 
 export type Tile =

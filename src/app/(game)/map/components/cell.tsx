@@ -14,6 +14,8 @@ import clsx from 'clsx';
 import { usePlayers } from 'hooks/game/use-players';
 import { useReputations } from 'hooks/game/use-reputations';
 import { ReputationLevel } from 'interfaces/models/game/reputation';
+import { WheatFieldIcon } from 'app/(game)/map/components/wheat-field-icon';
+import { TreasureIcon } from 'app/(game)/map/components/treasure-icon';
 
 type CellProps = GridChildComponentProps<TileType[]>;
 
@@ -21,9 +23,7 @@ type OccupiableOasisProps = {
   tile: OasisTileType | OccupiedOasisTileType;
 };
 
-const OasisTile: React.FC<OccupiableOasisProps> = (props) => {
-  const { tile } = props;
-
+const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
   const { mapFilters: { shouldShowOasisIcons } } = useMapOptions();
 
   const isOccupiable = tile.oasisBonus !== null;
@@ -31,10 +31,10 @@ const OasisTile: React.FC<OccupiableOasisProps> = (props) => {
 
   return (
     <span
+      // id={`tile-id-${tile.tileId}`}
+      // data-tooltip-content={tile.oasisBonus}
       className="flex h-full w-full items-start justify-end"
-      style={{
-        backgroundColor: tile.graphics.backgroundColor
-      }}
+      style={{ backgroundColor: tile.graphics.backgroundColor }}
     >
       {shouldShowOasisIcons && isOccupiable && (
         <OccupiableOasisIcon
@@ -61,16 +61,26 @@ type FreeTileProps = {
   tile: FreeTileType;
 };
 
-const FreeTile: React.FC<FreeTileProps> = (props) => {
-  const { tile } = props;
+const FreeTile: React.FC<FreeTileProps> = ({ tile }) => {
+  const { mapFilters: { shouldShowWheatFields } } = useMapOptions();
+
+  const wheatFields = ['00018', '11115', '3339'];
+  const isWheatField = wheatFields.includes(tile.resourceFieldComposition);
+
+  const [wood, clay, iron, ...wheat] = tile.resourceFieldComposition.split('');
+  const readableResourceComposition = `${wood}-${clay}-${iron}-${wheat.join('')}`;
 
   return (
-    <span
-      className="flex h-full w-full items-center justify-center"
+    <a
+      id={`tile-id-${tile.tileId}`}
+      data-tooltip-content={readableResourceComposition}
+      className="flex h-full w-full items-start justify-end"
       style={{ backgroundColor: tile.graphics.backgroundColor }}
     >
-      {tile.coordinates.x}, {tile.coordinates.y} {tile.resourceFieldComposition}
-    </span>
+      {isWheatField && shouldShowWheatFields && (
+        <WheatFieldIcon resourceFieldComposition={tile.resourceFieldComposition} />
+      )}
+    </a>
   );
 };
 
@@ -78,22 +88,27 @@ type OccupiedFreeTileProps = {
   tile: OccupiedFreeTileType;
 };
 
-const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = (props) => {
-  const { tile } = props;
-
+const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = ({ tile }) => {
+  const { mapFilters: { shouldShowFactionReputation, shouldShowTreasureIcons } } = useMapOptions();
   const { getFactionByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
 
   const faction = getFactionByPlayerId(tile.ownedBy);
   const { reputationLevel } = getReputationByFaction(faction);
 
+  const isTileWithTreasury = tile.treasureType !== null;
+
   return (
-    <span
-      className={clsx('flex h-full w-full items-center justify-center', !!faction && reputationColorMap.get(reputationLevel), 'border-dashed border-[3px] rounded-[1px]')}
+    <a
+      id={`tile-id-${tile.tileId}`}
+      data-tooltip-content={`${faction} - ${reputationLevel}`}
+      className={clsx('flex h-full w-full items-start justify-end', (shouldShowFactionReputation && !!faction) && reputationColorMap.get(reputationLevel), shouldShowFactionReputation && 'border-dashed border-[3px] rounded-[1px]')}
       style={{ backgroundColor: tile.graphics.backgroundColor }}
     >
-      {tile.coordinates.x}, {tile.coordinates.y} {tile.resourceFieldComposition}
-    </span>
+      {isTileWithTreasury && shouldShowTreasureIcons && (
+        <TreasureIcon treasureType={tile.treasureType} />
+      )}
+    </a>
   );
 };
 
@@ -106,7 +121,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   } = props;
 
   const { server } = useCurrentServer();
-  const mapSize = server?.configuration?.mapSize;
+  const { mapSize } = server.configuration;
   const gridSize = mapSize! + 1;
 
   const tile: TileType = data[gridSize * rowIndex + columnIndex];

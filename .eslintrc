@@ -28,6 +28,7 @@
     "no-continue": "off",
     "no-trailing-spaces": "off",
     "consistent-return": "warn",
+    "no-unused-vars": "error",
     "no-restricted-syntax": [
       "error",
       {
@@ -47,8 +48,8 @@
     "comma-dangle": [
       "error",
       {
-        "arrays": "never",
-        "objects": "never",
+        "arrays": "always",
+        "objects": "always",
         "imports": "never",
         "exports": "never",
         "functions": "never"

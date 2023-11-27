@@ -1,9 +1,9 @@
-import React, { FunctionComponentWithChildren } from 'react';
+import React, { FCWithChildren } from 'react';
 import clsx from 'clsx';
 
 type ParagraphProps = React.HTMLProps<HTMLParagraphElement>;
 
-export const Paragraph: FunctionComponentWithChildren<ParagraphProps> = (props) => {
+export const Paragraph: FCWithChildren<ParagraphProps> = (props) => {
   const {
     className = '',
     children,

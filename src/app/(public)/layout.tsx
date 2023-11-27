@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HamburgerButton } from 'components/buttons/hamburger-button';
 import { Button } from 'components/buttons/button';
-import { CreateServerModalContent } from './components/create-server-modal-content';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
+
+const CreateServerModalContent = lazy(async () => ({ default: (await import('app/(public)/components/create-server-modal-content')).CreateServerModalContent }));
 
 export const PublicLayout: React.FC = () => {
   const { t } = useTranslation();

@@ -23,8 +23,8 @@ export const useCurrentVillage = () => {
     isLoading: isLoadingCurrentVillage,
     isSuccess: hasLoadedCurrentVillage,
     status: currentVillageStatus
-  } = useAsyncLiveQuery<Village | undefined>({
-    queryFn: () => getCurrentVillage(serverId, villageSlug),
+  } = useAsyncLiveQuery<Village>({
+    queryFn: () => getCurrentVillage(serverId, villageSlug) as unknown as Promise<Village>,
     deps: [villageSlug, serverId],
     cacheKey: currentVillageCacheKey
   });

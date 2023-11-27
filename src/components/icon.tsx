@@ -9,7 +9,39 @@ const IconIron = lazy(async () => ({ default: (await import('components/icons/ic
 const IconWood = lazy(async () => ({ default: (await import('components/icons/icon-wood')).IconWood }));
 const IconClay = lazy(async () => ({ default: (await import('components/icons/icon-clay')).IconClay }));
 
-type AvailableIconTypes =
+// Map controls
+const IconMapMagnificationIncrease = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-magnification-increase')).IconMapMagnificationIncrease }));
+const IconMapMagnificationDecrease = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-magnification-decrease')).IconMapMagnificationDecrease }));
+const IconMapReputationToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-reputation-toggle')).IconMapReputationToggle }));
+const IconMapOasisIconsToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-oasis-icons-toggle')).IconMapOasisIconsToggle }));
+const IconMapTroopMovementsToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-troop-movements-toggle')).IconMapTroopMovementsToggle }));
+const IconMapWheatFieldIconToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-wheat-field-icon-toggle')).IconMapWheatFieldIconToggle }));
+const IconMapTileTooltipToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-tile-tooltip-toggle')).IconMapTileTooltipToggle }));
+const IconMapTreasuresToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-treasures-toggle')).IconMapTreasuresToggle }));
+
+// Map occupied tile icons
+const IconTreasureTileItem = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-item')).IconTreasureTileItem }));
+const IconTreasureTileResources = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-resources')).IconTreasureTileResources }));
+const IconTreasureTileArtifact = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-artifact')).IconTreasureTileArtifact }));
+const IconTreasureTileCurrency = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-currency')).IconTreasureTileCurrency }));
+
+type MapControlsIconType =
+  | 'mapMagnificationIncrease'
+  | 'mapMagnificationDecrease'
+  | 'mapReputationToggle'
+  | 'mapOasisIconsToggle'
+  | 'mapTroopMovementsToggle'
+  | 'mapWheatFieldIconToggle'
+  | 'mapTileTooltipToggle'
+  | 'mapTreasureIconToggle'
+
+export type TreasureTileIconType =
+  | 'treasureTileItem'
+  | 'treasureTileResources'
+  | 'treasureTileArtifact'
+  | 'treasureTileCurrency'
+
+type IconType =
   | 'wood'
   | 'clay'
   | 'iron'
@@ -17,7 +49,11 @@ type AvailableIconTypes =
   | 'woodWheat'
   | 'clayWheat'
   | 'ironWheat'
-  | 'wheatWheat';
+  | 'wheatWheat'
+  | MapControlsIconType
+  | TreasureTileIconType;
+
+
 // | 'cropConsumption'
 // | 'culturePointsProduction'
 // | 'trapperCapacity'
@@ -66,11 +102,11 @@ type AvailableIconTypes =
  */
 
 export type IconProps = IconBaseProps & {
-  type: AvailableIconTypes;
+  type: IconType;
   borderVariant?: BorderIndicatorProps['variant'];
 };
 
-const typeToIconMap = {
+const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   wood: IconWood,
   clay: IconClay,
   iron: IconIron,
@@ -78,7 +114,19 @@ const typeToIconMap = {
   woodWheat: IconWood,
   clayWheat: IconClay,
   ironWheat: IconIron,
-  wheatWheat: IconWheat
+  wheatWheat: IconWheat,
+  mapMagnificationIncrease: IconMapMagnificationIncrease,
+  mapMagnificationDecrease: IconMapMagnificationDecrease,
+  mapReputationToggle: IconMapReputationToggle,
+  mapOasisIconsToggle: IconMapOasisIconsToggle,
+  mapTroopMovementsToggle: IconMapTroopMovementsToggle,
+  mapWheatFieldIconToggle: IconMapWheatFieldIconToggle,
+  mapTileTooltipToggle: IconMapTileTooltipToggle,
+  mapTreasureIconToggle: IconMapTreasuresToggle,
+  treasureTileItem: IconTreasureTileItem,
+  treasureTileResources: IconTreasureTileResources,
+  treasureTileArtifact: IconTreasureTileArtifact,
+  treasureTileCurrency: IconTreasureTileCurrency,
 };
 
 const IconPlaceholder = () => {

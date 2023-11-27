@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Server } from 'interfaces/models/game/server';
 import { Button } from 'components/buttons/button';
 import { Paragraph } from 'components/paragraph';
 import { Head } from 'components/head';
-import { CreateServerModalContent } from 'app/(public)/components/create-server-modal-content';
 import { useAvailableServers } from 'hooks/use-available-servers';
 import { ServerCard } from './components/server-card';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
+
+const CreateServerModalContent = lazy(async () => ({ default: (await import('app/(public)/components/create-server-modal-content')).CreateServerModalContent }));
 
 export const HomePage: React.FC = () => {
   const {

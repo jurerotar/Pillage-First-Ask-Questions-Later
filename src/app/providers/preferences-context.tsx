@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState, createContext, useContext } from 'react';
+import React, { ReactElement, useState, createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Preferences } from 'interfaces/models/preferences/preferences';
 import { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
@@ -21,9 +21,7 @@ export type PreferencesProviderValues = {
 
 const PreferencesContext = createContext<PreferencesProviderValues>({} as PreferencesProviderValues);
 
-const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactElement => {
-  const { children } = props;
-
+const PreferencesProvider: React.FC<PreferencesProviderProps> = ({ children }): ReactElement => {
   const { i18n } = useTranslation();
   const devicePreferredColorScheme: AvailableColorSchemes = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
 
@@ -77,40 +75,40 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = (props): ReactEl
     setIsReducedMotionModeEnabled((prev) => !prev);
   };
 
-  // Update color scheme if user's device default differs from app default and user hasn't explicitly set preference
-  useEffect(() => {
-    if (!isColorSchemeSetExplicitly && colorScheme !== devicePreferredColorScheme) {
-      // setColorScheme(devicePreferredColorScheme);
-      setColorScheme('light');
-    }
-  }, []);
-
-  useEffect(() => {
-    const html = document.querySelector<HTMLHtmlElement>('html');
-    if (html) {
-      const previousColorScheme: AvailableColorSchemes = colorScheme === 'dark' ? 'light' : 'dark';
-      html.classList.remove(previousColorScheme);
-      html.classList.add(colorScheme);
-    }
-  }, [colorScheme]);
-
-  // If preferred language is different from default, update language
-  useEffect(() => {
-    if (locale !== i18n.language) {
-      i18n.language = locale;
-    }
-  }, [locale]);
-
-  // Save preferences to localStorage on preference change
-  useEffect(() => {
-    setPreferences({
-      locale,
-      colorScheme,
-      isColorSchemeSetExplicitly,
-      isAccessibilityModeEnabled,
-      isReducedMotionModeEnabled
-    });
-  }, [colorScheme, isColorSchemeSetExplicitly, locale, isAccessibilityModeEnabled, isReducedMotionModeEnabled]);
+  // // Update color scheme if user's device default differs from app default and user hasn't explicitly set preference
+  // useEffect(() => {
+  //   if (!isColorSchemeSetExplicitly && colorScheme !== devicePreferredColorScheme) {
+  //     // setColorScheme(devicePreferredColorScheme);
+  //     setColorScheme('light');
+  //   }
+  // }, []);
+  //
+  // useEffect(() => {
+  //   const html = document.querySelector<HTMLHtmlElement>('html');
+  //   if (html) {
+  //     const previousColorScheme: AvailableColorSchemes = colorScheme === 'dark' ? 'light' : 'dark';
+  //     html.classList.remove(previousColorScheme);
+  //     html.classList.add(colorScheme);
+  //   }
+  // }, [colorScheme]);
+  //
+  // // If preferred language is different from default, update language
+  // useEffect(() => {
+  //   if (locale !== i18n.language) {
+  //     i18n.language = locale;
+  //   }
+  // }, [locale]);
+  //
+  // // Save preferences to localStorage on preference change
+  // useEffect(() => {
+  //   setPreferences({
+  //     locale,
+  //     colorScheme,
+  //     isColorSchemeSetExplicitly,
+  //     isAccessibilityModeEnabled,
+  //     isReducedMotionModeEnabled
+  //   });
+  // }, [colorScheme, isColorSchemeSetExplicitly, locale, isAccessibilityModeEnabled, isReducedMotionModeEnabled]);
 
   const value: PreferencesProviderValues = {
     locale,

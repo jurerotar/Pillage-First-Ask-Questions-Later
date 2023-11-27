@@ -385,6 +385,7 @@ const generateInitialUserVillage = (tiles: BaseTile[], player: Player): MaybeOcc
     type: 'free-tile',
     resourceFieldComposition: '4446',
     ownedBy: player.id,
+    treasureType: null,
   } satisfies OccupiedFreeTile;
 
   return tilesToUpdate;
@@ -399,7 +400,7 @@ const generatePredefinedVillages = (server: Server, npcPlayers: Player[], tiles:
   // Since there's 4 npc players and 8 predefined villages, we just duplicate the npc players array, so each faction gets 2 villages
   const players = seededShuffleArray<Player>(joinedSeeds, [...npcPlayers, ...npcPlayers]);
 
-  [...artifactVillagesCoordinates,].forEach(({x, y}: Point, index: number) => {
+  [...artifactVillagesCoordinates,].forEach(({ x, y }: Point, index: number) => {
     const playerId = players[index].id;
     const tileFindFunction = ({ coordinates }: BaseTile) => coordinates.x === x && coordinates.y === y;
 
@@ -410,7 +411,8 @@ const generatePredefinedVillages = (server: Server, npcPlayers: Player[], tiles:
       ...tileToUpdate,
       type: 'free-tile',
       resourceFieldComposition: '4446',
-      ownedBy: playerId
+      ownedBy: playerId,
+      treasureType: 'artifact'
     } satisfies OccupiedFreeTile;
   });
 
@@ -543,15 +545,20 @@ const populateOasis = (tiles: Tile[]): Tile[] => {
 // This method will mark which fields will have villages
 const populateFreeTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
   return tiles.map((tile: Tile) => {
-    if(tile.type !== 'free-tile' && !Object.hasOwn(tile, 'ownedBy')) {
+    if (tile.type !== 'free-tile' && !Object.hasOwn(tile, 'ownedBy')) {
       return tile;
     }
     const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 4) === 1;
+    const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(tile.tileId, 1, 3) === 1 : false;
+    const treasureType = willBeATreasureVillage
+      ? seededRandomArrayElement<Exclude<OccupiedFreeTile['treasureType'], 'null' | 'artifact'>>(tile.tileId, ['hero-item', 'currency', 'resources'])
+      : null;
 
     return {
       ...tile,
       ...(willBeOccupied && {
-        ownedBy: seededRandomArrayElement<Player>(tile.tileId, npcPlayers).id
+        ownedBy: seededRandomArrayElement<Player>(tile.tileId, npcPlayers).id,
+        treasureType,
       })
     };
   });

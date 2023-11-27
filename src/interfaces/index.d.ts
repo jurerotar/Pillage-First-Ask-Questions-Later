@@ -21,7 +21,7 @@ import React from 'react';
 // }
 
 declare module 'react' {
-  export type FunctionComponentWithChildren<P = {}> = React.FC<P & {
+  export type FCWithChildren<P = {}> = React.FC<P & {
     children: React.ReactNode;
   }>;
 }
