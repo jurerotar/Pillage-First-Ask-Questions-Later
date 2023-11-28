@@ -32,13 +32,6 @@ export const partialArraySum = (array: number[], index: number): number => {
   return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
 };
 
-// TODO: Properly type this
-export const arrayTupleToObject = <K = (string | number | symbol)[], V = any[]>(array1: K, array2: V): Record<string, any> => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Object.fromEntries(array1.map((key, index) => [key, array2[index]]));
-};
-
 export const snakeToCamelCase = (string: string): string => {
   return string.split(/(?=[A-Z])/)
     .join('_')
@@ -87,7 +80,7 @@ export const chunk = <T, >(array: T[], size: number): T[][] => {
 
 export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
   const copy = [...array];
-  for (let i = copy.length - 1; i > 0; i--) {
+  for (let i = copy.length - 1; i > 0; i -= 1) {
     // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
     const j = Math.floor(Math.random() * (i + 1));
     [copy[i], copy[j]] = [copy[j], copy[i]];

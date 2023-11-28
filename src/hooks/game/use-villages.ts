@@ -4,6 +4,7 @@ import { Village } from 'interfaces/models/game/village';
 import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
 import { Server } from 'interfaces/models/game/server';
+import { usePlayers } from 'hooks/game/use-players';
 
 export const villagesCacheKey = 'villages';
 
@@ -12,26 +13,27 @@ export const getVillages = (serverId: Server['id']) => database.villages.where({
 export const useVillages = () => {
   const { serverId, hasLoadedServer } = useCurrentServer();
   const { mutate: mutateVillages } = useDatabaseMutation({ cacheKey: villagesCacheKey });
+  const { playerId } = usePlayers();
 
   const {
     data: villages,
     isLoading: isLoadingVillages,
     isSuccess: hasLoadedVillages,
-    status: villagesQueryStatus
+    status: villagesQueryStatus,
   } = useAsyncLiveQuery<Village[]>({
     queryFn: () => getVillages(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: villagesCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
-  const playerVillages: Village[] = villages?.filter((village: Village) => true);
-  const npcVillages: Village[] = villages?.filter((village: Village) => true);
+  const playerVillages: Village[] = villages?.filter((village: Village) => village.playerId === playerId);
+  const npcVillages: Village[] = villages?.filter((village: Village) => village.playerId !== playerId);
 
   const getVillageByCoordinates = (coordinates: Village['coordinates']): Village | null => {
-    return villages.find(({ coordinates: { x, y }}) => coordinates.x === x && coordinates.y === y) ?? null;
-  }
+    return villages.find(({ coordinates: { x, y } }) => coordinates.x === x && coordinates.y === y) ?? null;
+  };
 
   return {
     villages,
@@ -41,6 +43,6 @@ export const useVillages = () => {
     mutateVillages,
     playerVillages,
     npcVillages,
-    getVillageByCoordinates
+    getVillageByCoordinates,
   };
 };

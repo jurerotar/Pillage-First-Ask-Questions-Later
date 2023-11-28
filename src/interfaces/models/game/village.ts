@@ -77,4 +77,4 @@ export type VillageBuildingFieldsPresetName =
 export type VillageBuildingFieldsPreset = {
   preset: VillageBuildingFieldsPresetName;
   buildingFields: BuildingField[];
-}
+};

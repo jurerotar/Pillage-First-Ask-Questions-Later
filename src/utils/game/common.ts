@@ -1,13 +1,12 @@
 import { BuildingField, ResourceField } from 'interfaces/models/game/village';
-import { Resource } from 'interfaces/models/game/resource';
 import { Building } from 'interfaces/models/game/building';
 import { partialArraySum } from 'utils/common';
 
 export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
   let sum: number = 0;
 
-  buildingFields.forEach(({ buildingId , level }) => {
-    if(buildingId === null) {
+  buildingFields.forEach(({ buildingId, level }) => {
+    if (buildingId === null) {
       return;
     }
 
@@ -21,8 +20,8 @@ export const calculatePopulationFromBuildingFields = (buildingFields: BuildingFi
 export const calculateCulturePointsProductionFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
   let sum: number = 0;
 
-  buildingFields.forEach(({ buildingId , level }) => {
-    if(buildingId === null) {
+  buildingFields.forEach(({ buildingId, level }) => {
+    if (buildingId === null) {
       return;
     }
 
@@ -40,6 +39,4 @@ export const calculateResourceProductionFromResourceFields = (resourceFields: Re
     resourceFields.filter(({ type }) => type === 'iron'),
     resourceFields.filter(({ type }) => type === 'wheat'),
   ];
-
-
 };

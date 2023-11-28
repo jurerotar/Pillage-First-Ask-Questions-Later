@@ -10,7 +10,7 @@ export type GenerateQuestsWorkerPayload = {
 
 export type GenerateQuestsWorkerReturn = {
   quests: Quest[];
-}
+};
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 

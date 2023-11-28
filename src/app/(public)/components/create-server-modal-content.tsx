@@ -43,18 +43,18 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   const {
     values,
     handleSubmit,
-    submitForm
+    submitForm,
   } = useFormik<CreateServerFormValues>({
     initialValues: {
       seed: generateSeed(),
       name: `server-${generateSeed(4)}`,
       configuration: {
         mapSize: 100,
-        speed: 1
+        speed: 1,
       },
       playerConfiguration: {
-        tribe: 'gauls'
-      }
+        tribe: 'gauls',
+      },
     },
     validate: (valuesToValidate) => {
       return {};
@@ -62,7 +62,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
     onSubmit: (submittedValues) => {
       const server = serverFactory({ ...submittedValues });
       onSubmit(server);
-    }
+    },
   });
 
   return (
@@ -134,7 +134,7 @@ const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) =>
     progressHistory,
     progressPercentage,
     hasCreatedServer,
-    errorMessage
+    errorMessage,
   } = props;
 
   return (
@@ -173,7 +173,7 @@ const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) =>
 export const CreateServerModalContent: React.FC = () => {
   const {
     createServer,
-    deleteServer
+    deleteServer,
   } = useAvailableServers();
 
   const [view, setView] = useState<CreateServerModalView>('configuration');

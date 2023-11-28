@@ -10,7 +10,7 @@ export type GenerateEffectsWorkerPayload = {
 
 export type GenerateEffectsWorkerReturn = {
   effects: Effect[];
-}
+};
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 

@@ -19,7 +19,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
     isLoading = false,
     onClick = () => {},
     className = '',
-    children
+    children,
   } = props;
 
   return (

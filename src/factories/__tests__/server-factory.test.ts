@@ -6,11 +6,11 @@ describe('Server factory', () => {
     seed: '00000000',
     configuration: {
       speed: 1,
-      mapSize: 100
+      mapSize: 100,
     },
     playerConfiguration: {
-      tribe: 'gauls'
-    }
+      tribe: 'gauls',
+    },
   });
 
   test('Has id', () => {

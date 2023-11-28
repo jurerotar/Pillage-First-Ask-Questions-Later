@@ -18,13 +18,13 @@ export const useReputations = () => {
     data: reputations,
     isLoading: isLoadingReputations,
     isSuccess: hasLoadedReputations,
-    status: reputationsQueryStatus
+    status: reputationsQueryStatus,
   } = useAsyncLiveQuery<Reputation[]>({
     queryFn: () => getReputations(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: reputationsCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   const getReputationByFaction = (faction: PlayerFaction): Reputation => {
@@ -37,6 +37,6 @@ export const useReputations = () => {
     hasLoadedReputations,
     reputationsQueryStatus,
     mutateReputations,
-    getReputationByFaction
+    getReputationByFaction,
   };
 };

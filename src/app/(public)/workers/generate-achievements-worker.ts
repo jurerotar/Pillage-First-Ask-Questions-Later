@@ -7,7 +7,7 @@ export type GenerateAchievementsWorkerPayload = {
 
 export type GenerateAchievementsWorkerReturn = {
   achievements: Achievement[];
-}
+};
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 

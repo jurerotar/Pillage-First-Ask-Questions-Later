@@ -6,7 +6,7 @@ export const Tooltip: React.FC<ReactTooltipProps> = (props) => {
   const { className, ...rest } = props;
   return (
     <ReactTooltip
-      className={clsx('!px-2 !py-1 !rounded-lg !text-xs !z-10', className)}
+      className={clsx('!z-10 !rounded-lg !px-2 !py-1 !text-xs', className)}
       {...rest}
     />
   );

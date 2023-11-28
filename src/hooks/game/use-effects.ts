@@ -19,13 +19,13 @@ export const useEffects = () => {
     data: effects,
     isLoading: isLoadingEffects,
     isSuccess: hasLoadedEffects,
-    status: effectsQueryStatus
+    status: effectsQueryStatus,
   } = useAsyncLiveQuery<Effect[]>({
     queryFn: () => getEffects(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: effectsCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   const globalEffects = effects.filter(({ scope }) => scope === 'global');
@@ -38,6 +38,6 @@ export const useEffects = () => {
     effectsQueryStatus,
     mutateEffects,
     globalEffects,
-    currentVillageEffects
+    currentVillageEffects,
   };
 };

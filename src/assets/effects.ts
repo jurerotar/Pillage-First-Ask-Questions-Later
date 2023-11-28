@@ -10,5 +10,5 @@ export const villageEffects: Effect[] = [
 
 export const effects: Effect[] = [
   ...villageEffects,
-  ...globalEffects
+  ...globalEffects,
 ];

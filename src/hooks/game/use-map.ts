@@ -17,19 +17,20 @@ export const useMap = () => {
     data: map,
     isLoading: isLoadingMap,
     isSuccess: hasLoadedMap,
-    status: mapQueryStatus
+    status: mapQueryStatus,
   } = useAsyncLiveQuery<Tile[]>({
     queryFn: () => getMap(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: mapCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   return {
     map,
     isLoadingMap,
     hasLoadedMap,
-    mapQueryStatus
+    mapQueryStatus,
+    mutateMap,
   };
 };

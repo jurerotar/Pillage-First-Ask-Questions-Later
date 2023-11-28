@@ -15,7 +15,7 @@ export const Toggle: React.FC<ToggleProps> = (props) => {
     onChange,
     label = '',
     checked = false,
-    className = ''
+    className = '',
   } = props;
 
   const [isChecked, setIsChecked] = useState<boolean>(checked);

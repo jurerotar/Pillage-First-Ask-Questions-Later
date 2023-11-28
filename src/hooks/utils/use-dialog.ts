@@ -19,6 +19,6 @@ export const useDialog = (isOpenInitially: boolean = false) => {
     isOpen,
     closeModal,
     openModal,
-    toggleModal
-  }
-}
+    toggleModal,
+  };
+};

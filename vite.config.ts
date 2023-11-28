@@ -8,7 +8,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
   server: {
-    open: true
+    open: true,
   },
   optimizeDeps: {
     include: [
@@ -30,25 +30,26 @@ export default defineConfig({
       'react-window',
       'react-transition-group',
       'react-tooltip',
-    ]
+    ],
   },
   resolve: {
     alias: {
-      'app': path.resolve(__dirname, 'src/app'),
-      'components': path.resolve(__dirname, 'src/components'),
-      'database': path.resolve(__dirname, 'src/database'),
-      'factories': path.resolve(__dirname, 'src/factories'),
-      'utils': path.resolve(__dirname, 'src/utils'),
-      'hooks': path.resolve(__dirname, 'src/hooks'),
-      'i18n': path.resolve(__dirname, 'src/i18n'),
-      'interfaces': path.resolve(__dirname, 'src/interfaces'),
-      'styles': path.resolve(__dirname, 'src/styles'),
-      'assets': path.resolve(__dirname, 'src/assets'),
-      'config': path.resolve(__dirname, 'config'),
-      'mocks': path.resolve(__dirname, '__mocks__')
-    }
+      app: path.resolve(__dirname, 'src/app'),
+      components: path.resolve(__dirname, 'src/components'),
+      database: path.resolve(__dirname, 'src/database'),
+      factories: path.resolve(__dirname, 'src/factories'),
+      utils: path.resolve(__dirname, 'src/utils'),
+      hooks: path.resolve(__dirname, 'src/hooks'),
+      i18n: path.resolve(__dirname, 'src/i18n'),
+      interfaces: path.resolve(__dirname, 'src/interfaces'),
+      styles: path.resolve(__dirname, 'src/styles'),
+      assets: path.resolve(__dirname, 'src/assets'),
+      config: path.resolve(__dirname, 'config'),
+      mocks: path.resolve(__dirname, '__mocks__'),
+      'test-utils': path.resolve(__dirname, 'src/test-utils'),
+    },
   },
   worker: {
-    format: 'es'
-  }
+    format: 'es',
+  },
 }) satisfies UserConfig;

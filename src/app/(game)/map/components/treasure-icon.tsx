@@ -1,5 +1,5 @@
 import React from 'react';
-import { FreeTile, OccupiedFreeTile as OccupiedFreeTileType, OccupiedFreeTile } from 'interfaces/models/game/tile';
+import { OccupiedFreeTile as OccupiedFreeTileType, OccupiedFreeTile } from 'interfaces/models/game/tile';
 import { Icon, IconProps, TreasureTileIconType } from 'components/icon';
 
 type TreasureIconProps = Pick<OccupiedFreeTile, 'treasureType'> & Omit<IconProps, 'type'>;
@@ -18,7 +18,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ treasureType, ...res
     <Icon
       {...rest}
       borderVariant="blue"
-      className="select-none w-3 h-3"
+      className="h-3 w-3 select-none"
       type={iconType}
     />
   );

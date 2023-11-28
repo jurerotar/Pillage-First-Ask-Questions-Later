@@ -19,13 +19,13 @@ export const useQuests = () => {
     data: quests,
     isLoading: isLoadingQuests,
     isSuccess: hasLoadedQuests,
-    status: questsQueryStatus
+    status: questsQueryStatus,
   } = useAsyncLiveQuery<Quest[]>({
     queryFn: () => getQuests(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: questsCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   const globalQuests = quests.filter(({ scope }) => scope === 'global');
@@ -38,6 +38,6 @@ export const useQuests = () => {
     questsQueryStatus,
     mutateQuests,
     globalQuests,
-    currentVillageQuests
+    currentVillageQuests,
   };
 };

@@ -102,7 +102,7 @@ const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = ({ tile }) => {
     <a
       id={`tile-id-${tile.tileId}`}
       data-tooltip-content={`${faction} - ${reputationLevel}`}
-      className={clsx('flex h-full w-full items-start justify-end', (shouldShowFactionReputation && !!faction) && reputationColorMap.get(reputationLevel), shouldShowFactionReputation && 'border-dashed border-[3px] rounded-[1px]')}
+      className={clsx('flex h-full w-full items-start justify-end', (shouldShowFactionReputation && !!faction) && reputationColorMap.get(reputationLevel), shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed')}
       style={{ backgroundColor: tile.graphics.backgroundColor }}
     >
       {isTileWithTreasury && shouldShowTreasureIcons && (
@@ -117,7 +117,7 @@ export const Cell: React.FC<CellProps> = (props) => {
     data,
     style,
     rowIndex,
-    columnIndex
+    columnIndex,
   } = props;
 
   const { server } = useCurrentServer();
@@ -133,7 +133,7 @@ export const Cell: React.FC<CellProps> = (props) => {
   return (
     <button
       type="button"
-      className="relative flex h-full w-full items-center justify-center text-xs border border-gray-500 rounded-[1px]"
+      className="relative flex h-full w-full items-center justify-center rounded-[1px] border border-gray-500 text-xs"
       style={style}
     >
       {isOasis && (

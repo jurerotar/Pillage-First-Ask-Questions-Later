@@ -17,17 +17,19 @@ export const usePlayers = () => {
     data: players,
     isLoading: isLoadingPlayers,
     isSuccess: hasLoadedPlayers,
-    status: playersQueryStatus
+    status: playersQueryStatus,
   } = useAsyncLiveQuery<Player[]>({
     queryFn: () => getPlayers(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: playersCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
-  const getFactionByPlayerId = (playerId: Player['id']): PlayerFaction => {
-    return players.find(({ id }) => playerId === id)?.faction!;
+  const playerId = players.find((player) => player.faction === 'player')!.id;
+
+  const getFactionByPlayerId = (playerIdToSearchFor: Player['id']): PlayerFaction => {
+    return players.find(({ id }) => playerIdToSearchFor === id)!.faction!;
   };
 
   return {
@@ -36,6 +38,7 @@ export const usePlayers = () => {
     hasLoadedPlayers,
     playersQueryStatus,
     mutatePlayers,
-    getFactionByPlayerId
+    getFactionByPlayerId,
+    playerId,
   };
 };

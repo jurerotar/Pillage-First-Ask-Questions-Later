@@ -40,7 +40,7 @@ export const useAsyncLiveQuery = <TData, TDefault = TData>(
     deps = [],
     fallback,
     cacheKey,
-    enabled = true
+    enabled = true,
   } = params;
 
   const cachedData = cacheKey && CACHE.has(cacheKey) ? getFromCache<TData>(cacheKey) : null;
@@ -71,6 +71,6 @@ export const useAsyncLiveQuery = <TData, TDefault = TData>(
     isFresh: cacheStatus === CacheStatus.FRESH,
     status,
     cacheStatus,
-    data
+    data,
   };
 };

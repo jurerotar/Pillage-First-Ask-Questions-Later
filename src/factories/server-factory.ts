@@ -13,6 +13,6 @@ export const serverFactory = ({ name, seed, configuration, playerConfiguration }
     slug,
     startDate: (new Date()).toString(),
     configuration,
-    playerConfiguration
+    playerConfiguration,
   };
 };

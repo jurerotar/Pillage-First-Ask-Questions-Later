@@ -13,7 +13,7 @@ export const PublicLayout: React.FC = () => {
   const {
     isOpen: isCreateServerModalOpen,
     openModal: openCreateServerModal,
-    closeModal: closeCreateServerModal
+    closeModal: closeCreateServerModal,
   } = useDialog();
 
   return (

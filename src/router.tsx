@@ -42,12 +42,10 @@ export const router = createBrowserRouter(
             path="villages"
             element={<TestPage />}
           />
-          <Route element={<MapProvider />}>
-            <Route
-              path="map"
-              element={<MapPage />}
-            />
-          </Route>
+          <Route
+            path="map"
+            element={(<MapProvider><MapPage /></MapProvider>)}
+          />
         </Route>
       </Route>
     </Route>

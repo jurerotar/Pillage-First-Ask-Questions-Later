@@ -7,6 +7,6 @@ export const useFormatCurrency = (amount: number) => {
   return {
     cooper,
     silver,
-    gold: temp
+    gold: temp,
   };
 };

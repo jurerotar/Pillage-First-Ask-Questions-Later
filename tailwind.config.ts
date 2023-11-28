@@ -6,11 +6,11 @@ export default {
   darkMode: 'class',
   content: [
     './public/index.html',
-    './src/**/*.tsx'
+    './src/**/*.tsx',
   ],
   theme: {
     fontFamily: {
-      sans: ['Montserrat', ...defaultTheme.fontFamily.sans]
+      sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
     },
     screens: {
       xs: '425px',
@@ -18,20 +18,20 @@ export default {
       md: '768px',
       lg: '1024px',
       xl: '1280px',
-      '2xl': '1536px'
+      '2xl': '1536px',
     },
     extend: {
       fontFamily: {
-        'permanent-marker': ['Permanent Marker', 'sans-serif']
+        'permanent-marker': ['Permanent Marker', 'sans-serif'],
       },
       duration: {
-        default: 300
+        default: 300,
       },
       backdropBlur: {
-        xs: '1px'
+        xs: '1px',
       },
       backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))'
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
       colors: {
         ...defaultTheme.colors,
@@ -39,7 +39,7 @@ export default {
           wood: '#426002',
           iron: '#7B90A1',
           clay: '#C29760',
-          wheat: '#FFF600'
+          wheat: '#FFF600',
         },
         brown: {
           50: '#fdf8f6',
@@ -51,10 +51,10 @@ export default {
           600: '#a18072',
           700: '#977669',
           800: '#846358',
-          900: '#43302b'
-        }
-      }
-    }
+          900: '#43302b',
+        },
+      },
+    },
   },
   plugins: [
     plugin(({ addVariant }) => {
@@ -62,6 +62,6 @@ export default {
       addVariant('reduced-motion', ':merge(.reduced-motion):first-child &');
       // :merge() is important to merge all variant pseudos on that selector and not the child
       // this is inspirted by the core .group plugin https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js#L107
-    })
-  ]
+    }),
+  ],
 } satisfies Config;

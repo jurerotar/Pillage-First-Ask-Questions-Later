@@ -15,7 +15,6 @@ export type ReputationLevel =
   // Trade is not possible. Faction will be sending attacks and raids.
   | 'hostile';
 
-
 export type Reputation = WithServerId<{
   faction: PlayerFaction;
   percentage: number;

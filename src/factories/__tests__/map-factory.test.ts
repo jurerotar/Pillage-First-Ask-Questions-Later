@@ -11,16 +11,16 @@ const serverMockSize200 = {
   ...serverMock,
   configuration: {
     ...serverMock.configuration,
-    size: 200 // 40401
-  }
+    size: 200, // 40401
+  },
 };
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const serverMockSize400 = {
   ...serverMock,
   configuration: {
     ...serverMock.configuration,
-    size: 400 // 160801
-  }
+    size: 400, // 160801
+  },
 };
 
 const predefinedVillagesTests = (name: string, tile: OccupiedFreeTile) => {
@@ -91,7 +91,7 @@ describe('Map factory', () => {
       artifactVillagesCoordinates.forEach((mockCoordinates: Point) => {
         const {
           x,
-          y
+          y,
         } = mockCoordinates;
         predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedFreeTile);
       });

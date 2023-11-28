@@ -43,9 +43,10 @@ export const renderHookWithContext = <TProps, TResult>(callback: (props: TProps)
     ),
   });
 };
-const renderWithContext = <T = HTMLElement, >(
+
+export const renderWithContext = <T = HTMLElement, >(
   ui: React.ReactElement<T, string | React.JSXElementConstructor<T>>,
-  options?: RenderOptions,
+  options?: RenderOptions
 ) => {
   return render(ui, {
     wrapper: ({ children }) => (

@@ -10,6 +10,6 @@ export const playerFactory = ({ server, faction }: PlayerFactoryProps): Player =
   return {
     id: crypto.randomUUID(),
     serverId: server.id,
-    faction
+    faction,
   };
 };

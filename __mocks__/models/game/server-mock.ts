@@ -8,11 +8,11 @@ export const serverMock: Server = {
     speed: 1,
   },
   playerConfiguration: {
-    tribe: 'gauls'
+    tribe: 'gauls',
   },
   id: 'b27f14e1-4b45-443b-a89d-adb0b0179bf3',
   slug: 'server-067b',
-  startDate: '2023-09-21T09:46:04.435Z'
+  startDate: '2023-09-21T09:46:04.435Z',
 };
 
 export const gaulServerMock: Server = {
@@ -22,34 +22,34 @@ export const gaulServerMock: Server = {
 export const teutonServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
-    tribe: 'teutons'
-  }
+    tribe: 'teutons',
+  },
 };
 
 export const romanServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
-    tribe: 'romans'
-  }
+    tribe: 'romans',
+  },
 };
 
 export const egyptianServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
-    tribe: 'egyptians'
-  }
+    tribe: 'egyptians',
+  },
 };
 
 export const hunServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
-    tribe: 'huns'
-  }
+    tribe: 'huns',
+  },
 };
 
 export const spartanServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
-    tribe: 'spartans'
-  }
+    tribe: 'spartans',
+  },
 };

@@ -9,7 +9,7 @@ type HamburgerButtonProps = {
 export const HamburgerButton: React.FC<HamburgerButtonProps> = (props) => {
   const {
     onClick,
-    className = ''
+    className = '',
   } = props;
 
   return (

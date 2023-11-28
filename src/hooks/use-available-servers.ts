@@ -12,11 +12,11 @@ export const useAvailableServers = () => {
     data: availableServers,
     isLoading: areAvailableServersLoading,
     isSuccess: haveAvailableServersLoaded,
-    status: availableServersQueryStatus
+    status: availableServersQueryStatus,
   } = useAsyncLiveQuery<Server[]>({
     queryFn: () => database.servers.toArray(),
     fallback: [],
-    cacheKey
+    cacheKey,
   });
 
   const createServer = async (server: Server) => {
@@ -53,7 +53,7 @@ export const useAvailableServers = () => {
         database.players.where({ serverId })
           .delete(),
         database.reputations.where({ serverId })
-          .delete()
+          .delete(),
       ]);
     });
   };
@@ -64,6 +64,6 @@ export const useAvailableServers = () => {
     haveAvailableServersLoaded,
     availableServersQueryStatus,
     createServer,
-    deleteServer
+    deleteServer,
   };
 };

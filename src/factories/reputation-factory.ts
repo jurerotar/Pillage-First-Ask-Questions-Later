@@ -22,6 +22,6 @@ export const reputationFactory = ({ server, faction }: ReputationFactoryProps): 
     serverId: server.id,
     faction,
     percentage: 0,
-    reputationLevel
+    reputationLevel,
   };
 };

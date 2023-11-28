@@ -17,7 +17,7 @@ const variantToClassNameMap: Record<BorderIndicatorVariant, string> = {
   blue: 'from-[#0d648e] to-[#b1e4ff]',
   red: 'from-[#] to-[#]',
   yellow: 'from-[#988b42] to-[#fdf15f]',
-  gray: 'from-[#606060] to-[#c8c8c8]'
+  gray: 'from-[#606060] to-[#c8c8c8]',
 };
 
 export const BorderIndicator: FCWithChildren<BorderIndicatorProps> = (props) => {

@@ -46,4 +46,3 @@ export type MaybeOccupiedBaseTile = BaseTile | OccupiedFreeTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;
 export type MaybeOccupiedOrOasisFreeTile = FreeTile | OccupiedFreeTile | OasisTile;
 export type MaybeOccupiedFreeTile = FreeTile | OccupiedFreeTile;
-

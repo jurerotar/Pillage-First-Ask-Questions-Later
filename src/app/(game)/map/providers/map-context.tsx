@@ -1,5 +1,4 @@
-import React, { useContext, useState, createContext } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useContext, useState, createContext, useMemo, useCallback, FCWithChildren } from 'react';
 
 type MapFilterOption =
   | 'shouldShowFactionReputation'
@@ -24,7 +23,7 @@ const MapContext = createContext<MapProviderValues>({} as MapProviderValues);
 const MAX_MAGNIFICATION = 3;
 const MIN_MAGNIFICATION = 1;
 
-const MapProvider = () => {
+const MapProvider: FCWithChildren = ({ children }) => {
   const [magnification, setMagnification] = useState<number>(2);
   const [mapFilters, setMapFilters] = useState<MapFilters>({
     shouldShowFactionReputation: true,
@@ -35,40 +34,40 @@ const MapProvider = () => {
     shouldShowTreasureIcons: true,
   });
 
-  const increaseMagnification = () => {
-    if(magnification === MAX_MAGNIFICATION) {
+  const increaseMagnification = useCallback(() => {
+    if (magnification === MAX_MAGNIFICATION) {
       return;
     }
 
     setMagnification((prevState) => prevState + 1);
-  };
+  }, [magnification]);
 
-  const decreaseMagnification = () => {
-    if(magnification === MIN_MAGNIFICATION) {
+  const decreaseMagnification = useCallback(() => {
+    if (magnification === MIN_MAGNIFICATION) {
       return;
     }
 
     setMagnification((prevState) => prevState - 1);
-  };
+  }, [magnification]);
 
-  const toggleMapFilter = (name: MapFilterOption) => {
+  const toggleMapFilter = useCallback((name: MapFilterOption) => {
     setMapFilters((prevState) => ({
       ...prevState,
-      [name]: !prevState[name]
+      [name]: !prevState[name],
     }));
-  };
+  }, []);
 
-  const value: MapProviderValues = {
+  const value: MapProviderValues = useMemo(() => ({
     magnification,
     increaseMagnification,
     decreaseMagnification,
     mapFilters,
-    toggleMapFilter
-  };
+    toggleMapFilter,
+  }), [magnification, mapFilters, increaseMagnification, decreaseMagnification, toggleMapFilter]);
 
   return (
     <MapContext.Provider value={value}>
-      <Outlet />
+      {children}
     </MapContext.Provider>
   );
 };

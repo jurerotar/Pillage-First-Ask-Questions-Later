@@ -8,7 +8,7 @@ import { Server } from 'interfaces/models/game/server';
 
 const DEFAULT_BANK: Bank = {
   serverId: '',
-  amount: 0
+  amount: 0,
 };
 
 export const banksCacheKey = 'banks';
@@ -23,13 +23,13 @@ export const useBank = () => {
     data: bank,
     isLoading: isLoadingBank,
     isSuccess: hasLoadedBank,
-    status: bankQueryStatus
+    status: bankQueryStatus,
   } = useAsyncLiveQuery<Bank | undefined, Bank>({
     queryFn: () => getBank(serverId),
     deps: [serverId],
     fallback: DEFAULT_BANK,
     cacheKey: banksCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   const { amount } = (bank!);
@@ -37,7 +37,7 @@ export const useBank = () => {
   const {
     cooper,
     silver,
-    gold
+    gold,
   } = useFormatCurrency(amount);
 
   return {
@@ -45,9 +45,10 @@ export const useBank = () => {
     isLoadingBank,
     hasLoadedBank,
     bankQueryStatus,
+    mutateBank,
     amount,
     cooper,
     silver,
-    gold
+    gold,
   };
 };

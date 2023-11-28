@@ -43,18 +43,10 @@
       "error",
       "expression"
     ],
+    "max-classes-per-file": "off",
     "class-methods-use-this": "off",
     "arrow-body-style": "off",
-    "comma-dangle": [
-      "error",
-      {
-        "arrays": "always",
-        "objects": "always",
-        "imports": "never",
-        "exports": "never",
-        "functions": "never"
-      }
-    ],
+    "comma-dangle": ["error", "only-multiline"],
     "max-len": [
       "error",
       {
@@ -86,6 +78,7 @@
         "tsx": "never"
       }
     ],
+    "react/react-in-jsx-scope": "off",
     "react/jsx-no-useless-fragment": "warn",
     "react/jsx-one-expression-per-line": "off",
     "react/jsx-max-props-per-line": [

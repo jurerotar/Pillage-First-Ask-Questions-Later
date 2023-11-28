@@ -9,7 +9,7 @@ type SectionHeadingProps = {
 export const SectionHeading: React.FC<SectionHeadingProps> = (props) => {
   const {
     className,
-    children
+    children,
   } = props;
 
   return (

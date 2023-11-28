@@ -9,7 +9,7 @@ type CloseButtonProps = {
 export const CloseButton: React.FC<CloseButtonProps> = (props) => {
   const {
     onClick,
-    className = ''
+    className = '',
   } = props;
 
   return (

@@ -5,7 +5,7 @@ type HeroFactoryProps = {
   server: Server;
 };
 
-export const heroFactory = ({ server: { id: serverId, playerConfiguration: { tribe }} }: HeroFactoryProps): Hero => {
+export const heroFactory = ({ server: { id: serverId, playerConfiguration: { tribe } } }: HeroFactoryProps): Hero => {
   // Gaul hero is faster when on horse
   const mountedSpeed = tribe === 'gauls' ? 19 : 14;
   // Teuton hero regenerates health at increased rate
@@ -24,7 +24,7 @@ export const heroFactory = ({ server: { id: serverId, playerConfiguration: { tri
     stats: {
       level: 0,
       experience: 0,
-      health: 100
+      health: 100,
     },
     staticAttributes: {
       unmountedSpeed: 7,
@@ -43,6 +43,6 @@ export const heroFactory = ({ server: { id: serverId, playerConfiguration: { tri
     },
     resourceToProduce: 'shared',
     unitType: 'infantry',
-    inventory: []
+    inventory: [],
   };
 };

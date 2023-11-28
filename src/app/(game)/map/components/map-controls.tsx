@@ -6,7 +6,7 @@ import { Tooltip } from 'components/tooltip';
 
 type MagnificationButtonProps = {
   direction: 'increase' | 'decrease';
-}
+};
 
 const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) => {
   const { magnification, increaseMagnification, decreaseMagnification } = useMapOptions();
@@ -29,7 +29,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
         <Icon type="mapMagnificationDecrease" />
       )}
     </button>
-  )
+  );
 };
 
 export const MapControls: React.FC = () => {
@@ -40,19 +40,19 @@ export const MapControls: React.FC = () => {
     shouldShowTroopMovements,
     shouldShowWheatFields,
     shouldShowTileTooltips,
-    shouldShowTreasureIcons
+    shouldShowTreasureIcons,
   } = mapFilters;
 
   return (
     <>
       <Tooltip id="map-controls-tooltip" />
-      <div className="flex flex-col gap-2 fixed bottom-8 right-8 items-end pointer-events-none">
-        <div className="flex flex-col p-2 gap-2 rounded-md bg-white w-fit pointer-events-auto">
-         <MagnificationButton direction="increase" />
-          <span className="w-full h-1 bg-gray-300 rounded-md" />
+      <div className="pointer-events-none fixed bottom-8 right-8 flex flex-col items-end gap-2">
+        <div className="pointer-events-auto flex w-fit flex-col gap-2 rounded-md bg-white p-2">
+          <MagnificationButton direction="increase" />
+          <span className="h-1 w-full rounded-md bg-gray-300" />
           <MagnificationButton direction="decrease" />
         </div>
-        <div className="flex gap-2 p-2 rounded-md bg-white pointer-events-auto">
+        <div className="pointer-events-auto flex gap-2 rounded-md bg-white p-2">
           <a
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content="Hello to you too!"
@@ -66,7 +66,7 @@ export const MapControls: React.FC = () => {
               <Icon type="mapReputationToggle" />
             </button>
           </a>
-          <span className="flex w-1 bg-gray-300 rounded-md" />
+          <span className="flex w-1 rounded-md bg-gray-300" />
           <a
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content="Hello to you too!"
@@ -80,7 +80,7 @@ export const MapControls: React.FC = () => {
               <Icon type="mapOasisIconsToggle" />
             </button>
           </a>
-          <span className="flex w-1 bg-gray-300 rounded-md" />
+          <span className="flex w-1 rounded-md bg-gray-300" />
           <a
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content="Hello to you too!"
@@ -94,7 +94,7 @@ export const MapControls: React.FC = () => {
               <Icon type="mapTreasureIconToggle" />
             </button>
           </a>
-          <span className="flex w-1 bg-gray-300 rounded-md" />
+          <span className="flex w-1 rounded-md bg-gray-300" />
           <a
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content="Hello to you too!"
@@ -108,7 +108,7 @@ export const MapControls: React.FC = () => {
               <Icon type="mapTroopMovementsToggle" />
             </button>
           </a>
-          <span className="flex w-1 bg-gray-300 rounded-md" />
+          <span className="flex w-1 rounded-md bg-gray-300" />
           <a
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content="Hello to you too!"
@@ -122,7 +122,7 @@ export const MapControls: React.FC = () => {
               <Icon type="mapWheatFieldIconToggle" />
             </button>
           </a>
-          <span className="flex w-1 bg-gray-300 rounded-md" />
+          <span className="flex w-1 rounded-md bg-gray-300" />
           <a
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content="Hello to you too!"

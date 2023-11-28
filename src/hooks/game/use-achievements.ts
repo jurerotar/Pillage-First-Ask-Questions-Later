@@ -17,19 +17,20 @@ export const useAchievements = () => {
     data: achievements,
     isLoading: isLoadingAchievements,
     isSuccess: hasLoadedAchievements,
-    status: achievementsQueryStatus
+    status: achievementsQueryStatus,
   } = useAsyncLiveQuery<Achievement[]>({
     queryFn: () => getAchievements(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: achievementsCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   return {
     achievements,
     isLoadingAchievements,
     hasLoadedAchievements,
-    achievementsQueryStatus
+    achievementsQueryStatus,
+    mutateAchievements,
   };
 };

@@ -10,13 +10,13 @@ export type GenerateReputationsWorkerPayload = {
 
 export type GenerateReputationsWorkerReturn = {
   reputations: Reputation[];
-}
+};
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 self.addEventListener('message', (event: MessageEvent<GenerateReputationsWorkerPayload>) => {
   const { server, players } = event.data;
   const npcPlayers = players.filter(({ faction }) => faction !== 'player');
-  const reputations = npcPlayers.map(({ faction }) => reputationFactory({ server, faction }))
+  const reputations = npcPlayers.map(({ faction }) => reputationFactory({ server, faction }));
   self.postMessage({ reputations });
 });

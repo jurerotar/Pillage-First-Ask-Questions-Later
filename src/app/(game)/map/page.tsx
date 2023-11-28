@@ -13,11 +13,11 @@ import { Point } from 'interfaces/models/common';
 const TILE_BASE_SIZE = 30;
 
 const onMouseMoveHandler = (e: MouseEvent, isDragging: boolean) => {
-  if(!isDragging) {
+  if (!isDragging) {
     return;
   }
   const [startX, startY] = [e.screenX, e.screenY];
-}
+};
 
 export const MapPage: React.FC = () => {
   const {
@@ -30,7 +30,7 @@ export const MapPage: React.FC = () => {
 
   const {
     height,
-    width
+    width,
   } = useWindowSize();
 
   const { currentVillage } = useCurrentVillage();
@@ -49,8 +49,14 @@ export const MapPage: React.FC = () => {
     y: 0,
   });
 
-  useEventListener('mousedown', () => isDragging.current = true, mapRef);
-  useEventListener('mouseup', () => isDragging.current = false, mapRef);
+  useEventListener('mousedown', () => {
+    isDragging.current = true;
+  }, mapRef);
+
+  useEventListener('mouseup', () => {
+    isDragging.current = false;
+  }, mapRef);
+
   useEventListener('mousemove', (event: MouseEvent) => onMouseMoveHandler(event, isDragging.current), mapRef);
 
   return (
@@ -60,14 +66,14 @@ export const MapPage: React.FC = () => {
         anchorSelect={'[id^="tile-id-"]'}
         place="top"
         closeEvents={{
-          mouseleave: true
+          mouseleave: true,
         }}
         hidden={!shouldShowTileTooltips}
       />
       <FixedSizeGrid
         useIsScrolling
         style={{
-          backgroundColor: '#B9D580'
+          backgroundColor: '#B9D580',
         }}
         initialScrollTop={coordinates.y * tileSize}
         initialScrollLeft={coordinates.x * tileSize}

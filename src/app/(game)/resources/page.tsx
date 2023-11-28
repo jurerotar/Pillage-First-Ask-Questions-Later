@@ -8,7 +8,7 @@ const backgroundColors: { [key in Resource]: string } = {
   wood: 'bg-resources-wood',
   iron: 'bg-resources-iron',
   clay: 'bg-resources-clay',
-  wheat: 'bg-resources-wheat'
+  wheat: 'bg-resources-wheat',
 };
 
 // Chunk field ids to render hexagons more easily, x represents village icon
@@ -17,7 +17,7 @@ const chunkedFieldsIds: (ResourceFieldId | 'x')[][] = [
   ['4', '5', '6', '7'],
   ['8', '9', 'x', '10', '11'],
   ['12', '13', '14', '15'],
-  ['16', '17', '18']
+  ['16', '17', '18'],
 ];
 
 export const ResourcesPage: React.FC = () => {

@@ -14,6 +14,6 @@ export const researchLevelsFactory = ({ server: { id: serverId } }: ResearchLeve
     serverId,
     unitTribe: tribe,
     unitId: id,
-    level: 0
+    level: 0,
   }));
 };

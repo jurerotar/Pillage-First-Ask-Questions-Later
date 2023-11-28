@@ -6,7 +6,7 @@ export type PlayerFaction =
   | 'npc1'
   | 'npc2'
   | 'npc3'
-  | 'npc4'
+  | 'npc4';
 
 export type Player = WithServerId<{
   id: string;

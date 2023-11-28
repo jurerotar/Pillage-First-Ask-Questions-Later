@@ -5,8 +5,7 @@ export const VillagePage: React.FC = () => {
   return (
     <>
       <Head viewName="village" />
-      <div>
-      </div>
+      <div />
     </>
   );
 };

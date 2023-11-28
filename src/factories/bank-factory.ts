@@ -8,6 +8,6 @@ type BankFactoryProps = {
 export const bankFactory = ({ server: { id: serverId } }: BankFactoryProps): Bank => {
   return {
     serverId,
-    amount: 0
+    amount: 0,
   };
 };

@@ -17,17 +17,17 @@ export const useReports = () => {
     data: reports,
     isLoading: isLoadingReports,
     isSuccess: hasLoadedReports,
-    status: reportsQueryStatus
+    status: reportsQueryStatus,
   } = useAsyncLiveQuery<Report[]>({
     queryFn: () => getReports(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: reportsCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
-  const archivedReports = reports.filter((report: Report) => true);
-  const unArchivedReports = reports.filter((report: Report) => false);
+  const archivedReports = reports.filter(({ archived }) => archived);
+  const unArchivedReports = reports.filter(({ archived }) => !archived);
 
   const createReport = () => {
 
@@ -75,6 +75,6 @@ export const useReports = () => {
     markAsRead,
     markAsUnread,
     archiveReport,
-    unArchiveReport
+    unArchiveReport,
   };
 };

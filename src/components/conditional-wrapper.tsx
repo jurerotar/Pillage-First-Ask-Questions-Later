@@ -9,7 +9,7 @@ export const ConditionalWrapper: FCWithChildren<ConditionalWrapperProps> = (prop
   const {
     condition,
     wrapper,
-    children
+    children,
   } = props;
 
   return (

@@ -18,7 +18,7 @@ type AppHelmetProps = {
 export const Head: React.FC<AppHelmetProps> = (props) => {
   const {
     viewName,
-    children
+    children,
   } = props;
 
   const { t } = useTranslation();

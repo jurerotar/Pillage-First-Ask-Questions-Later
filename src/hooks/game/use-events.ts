@@ -18,13 +18,13 @@ export const useEvents = () => {
     data: events,
     isLoading: isLoadingEvents,
     isSuccess: hasLoadedEvents,
-    status: eventsQueryStatus
+    status: eventsQueryStatus,
   } = useAsyncLiveQuery<GameEvent[]>({
     queryFn: () => getEvents(serverId),
     deps: [serverId],
     fallback: [],
     cacheKey: eventsCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   const createEvent = useCallback(() => {
@@ -36,5 +36,7 @@ export const useEvents = () => {
     isLoadingEvents,
     hasLoadedEvents,
     eventsQueryStatus,
+    mutateEvents,
+    createEvent,
   };
 };

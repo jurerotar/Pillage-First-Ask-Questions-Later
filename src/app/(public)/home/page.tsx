@@ -4,9 +4,9 @@ import { Button } from 'components/buttons/button';
 import { Paragraph } from 'components/paragraph';
 import { Head } from 'components/head';
 import { useAvailableServers } from 'hooks/use-available-servers';
-import { ServerCard } from './components/server-card';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
+import { ServerCard } from './components/server-card';
 
 const CreateServerModalContent = lazy(async () => ({ default: (await import('app/(public)/components/create-server-modal-content')).CreateServerModalContent }));
 
@@ -14,7 +14,7 @@ export const HomePage: React.FC = () => {
   const {
     isOpen: isCreateServerModalOpen,
     openModal: openCreateServerModal,
-    closeModal: closeCreateServerModal
+    closeModal: closeCreateServerModal,
   } = useDialog();
   const { availableServers } = useAvailableServers();
 

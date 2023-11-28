@@ -17,7 +17,7 @@ export const Accordion: React.FC<AccordionProps> = (props) => {
     opened = false,
     summaryClassName = '',
     className = '',
-    children
+    children,
   } = props;
 
   return (

@@ -11,7 +11,7 @@ type ServerCardProps = {
 
 export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const {
-    server
+    server,
   } = props;
 
   const navigate = useNavigate();

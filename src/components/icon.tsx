@@ -33,13 +33,13 @@ type MapControlsIconType =
   | 'mapTroopMovementsToggle'
   | 'mapWheatFieldIconToggle'
   | 'mapTileTooltipToggle'
-  | 'mapTreasureIconToggle'
+  | 'mapTreasureIconToggle';
 
 export type TreasureTileIconType =
   | 'treasureTileItem'
   | 'treasureTileResources'
   | 'treasureTileArtifact'
-  | 'treasureTileCurrency'
+  | 'treasureTileCurrency';
 
 type IconType =
   | 'wood'
@@ -52,7 +52,6 @@ type IconType =
   | 'wheatWheat'
   | MapControlsIconType
   | TreasureTileIconType;
-
 
 // | 'cropConsumption'
 // | 'culturePointsProduction'
@@ -138,7 +137,7 @@ export const Icon: React.FC<IconProps> = (props) => {
   const {
     type,
     borderVariant,
-    className = ''
+    className = '',
   } = props;
 
   const ComputedIcon = typeToIconMap[type];

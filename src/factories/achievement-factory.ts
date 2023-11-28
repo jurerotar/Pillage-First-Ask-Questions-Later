@@ -8,6 +8,6 @@ type AchievementFactoryProps = {
 export const achievementFactory = ({ server, ...achievement }: AchievementFactoryProps): Achievement => {
   return {
     serverId: server.id,
-    ...achievement
-  }
+    ...achievement,
+  };
 };

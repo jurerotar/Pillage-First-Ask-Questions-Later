@@ -9,8 +9,6 @@ import {
 } from 'mocks/models/game/server-mock';
 import { heroFactory } from 'factories/hero-factory';
 
-const hero = heroFactory({ server: serverMock });
-
 describe('Hero factory', () => {
   const hero = heroFactory({ server: serverMock });
 

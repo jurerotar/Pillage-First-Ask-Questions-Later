@@ -30,7 +30,7 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = ({ children }): 
     colorScheme: 'light',
     isColorSchemeSetExplicitly: false,
     isAccessibilityModeEnabled: false,
-    isReducedMotionModeEnabled: false
+    isReducedMotionModeEnabled: false,
   });
 
   // const [colorScheme, setColorScheme] = useState<AvailableColorSchemes>(preferences.colorScheme);
@@ -118,7 +118,7 @@ const PreferencesProvider: React.FC<PreferencesProviderProps> = ({ children }): 
     isReducedMotionModeEnabled,
     toggleColorScheme,
     toggleAccessibilityMode,
-    toggleReducedMotionMode
+    toggleReducedMotionMode,
   };
 
   return (

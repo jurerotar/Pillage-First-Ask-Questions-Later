@@ -5,6 +5,6 @@ export const useTribe = () => {
   const { tribe } = server!.playerConfiguration;
 
   return {
-    tribe
+    tribe,
   };
 };

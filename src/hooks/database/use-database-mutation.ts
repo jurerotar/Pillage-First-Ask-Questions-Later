@@ -12,7 +12,7 @@ export const useDatabaseMutation = (
   params: UseDatabaseMutationParams
 ): UseDatabaseMutationParamsReturn => {
   const {
-    cacheKey
+    cacheKey,
   } = params;
 
   const mutate = async (mutationFn: () => Promise<void>) => {
@@ -24,6 +24,6 @@ export const useDatabaseMutation = (
   };
 
   return {
-    mutate
+    mutate,
   };
 };

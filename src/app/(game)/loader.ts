@@ -68,7 +68,7 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
 
   const currentVillage = await getAndSetCacheData<Village | undefined>(currentVillageCacheKey, () => getCurrentVillage(serverId, villageSlug));
 
-  if(!currentVillage) {
+  if (!currentVillage) {
     throw new MissingVillageError(serverSlug, villageSlug);
   }
 
@@ -85,7 +85,7 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
     getAndSetCacheData<Quest[]>(questsCacheKey, () => getQuests(serverId)),
     getAndSetCacheData<Report[]>(reportsCacheKey, () => getReports(serverId)),
     getAndSetCacheData<ResearchLevel[]>(researchLevelsCacheKey, () => getResearchLevels(serverId)),
-    getAndSetCacheData<Village[]>(villagesCacheKey, () => getVillages(serverId))
+    getAndSetCacheData<Village[]>(villagesCacheKey, () => getVillages(serverId)),
   ]);
 
   const hasHydrationErrorOccurred = resolvedPromises.some(promiseErrorFunction);
@@ -95,6 +95,6 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
   }
 
   return {
-    resolved: true
+    resolved: true,
   };
 };

@@ -52,6 +52,9 @@
       ],
       "mocks/*": [
         "__mocks__/*"
+      ],
+      "test-utils": [
+        "src/test-utils"
       ]
     }
   },

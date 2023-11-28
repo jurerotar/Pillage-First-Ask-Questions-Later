@@ -8,16 +8,16 @@ export type GeneratePlayersWorkerPayload = {
 
 export type GeneratePlayersWorkerReturn = {
   players: Player[];
-}
+};
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 const factions: PlayerFaction[] = [
-  'player', 'npc1', 'npc2', 'npc3', 'npc4'
+  'player', 'npc1', 'npc2', 'npc3', 'npc4',
 ];
 
 self.addEventListener('message', (event: MessageEvent<GeneratePlayersWorkerPayload>) => {
   const { server } = event.data;
-  const players = factions.map((faction: PlayerFaction) => playerFactory({ server, faction }))
+  const players = factions.map((faction: PlayerFaction) => playerFactory({ server, faction }));
   self.postMessage({ players });
 });

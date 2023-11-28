@@ -17,18 +17,19 @@ export const useHero = () => {
     data: hero,
     isLoading: isLoadingHero,
     isSuccess: hasLoadedHero,
-    status: heroQueryStatus
+    status: heroQueryStatus,
   } = useAsyncLiveQuery<Hero | undefined>({
     queryFn: () => getHero(serverId),
     deps: [serverId],
     cacheKey: heroCacheKey,
-    enabled: hasLoadedServer
+    enabled: hasLoadedServer,
   });
 
   return {
     hero,
     isLoadingHero,
     hasLoadedHero,
-    heroQueryStatus
+    heroQueryStatus,
+    mutateHero,
   };
 };
