@@ -30,23 +30,26 @@ export type BuildingEffectId =
   | 'buildingDurabilityBonus'
   | 'buildingDuration';
 
+export type ResourceProductionEffectId =
+  | 'woodProduction'
+  | 'clayProduction'
+  | 'ironProduction'
+  | 'wheatProduction';
+
 // Joined effect ids
 export type EffectId =
   | HeroEffectId
   | TroopTrainingDurationEffectId
   | TroopSpeedBonusEffectId
   | BuildingEffectId
+  | ResourceProductionEffectId
   | 'amountOfUncoveredAttackingUnits'
   // Research levels
   | 'amountOfUnlockedUnitResearchLevels'
   // Defence modifiers
 
   // Building duration
-  // Resource production
-  | 'woodProduction'
-  | 'clayProduction'
-  | 'ironProduction'
-  | 'wheatProduction'
+
   | 'woodProductionBonus'
   | 'clayProductionBonus'
   | 'ironProductionBonus'

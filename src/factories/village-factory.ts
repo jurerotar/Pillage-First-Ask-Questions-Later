@@ -10,11 +10,11 @@ import { Server } from 'interfaces/models/game/server';
 import { villagePresets } from 'assets/village-presets';
 import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
-import { FreeTile, OccupiedFreeTile } from 'interfaces/models/game/tile';
+import { OccupiedFreeTile } from 'interfaces/models/game/tile';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
-const fullWheatLayout: ResourceFieldLayout = Object.fromEntries([...(new Array(18))].map((_, i) => [[i + 1], ['wheat']]));
+const fullWheatLayout: ResourceFieldLayout = Object.fromEntries([...(new Array(18))].map((_, i) => [[i + 1], 'wheat']));
 
 // We set only non-wheat fields, since wheat field is the most common type
 const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayout> = {

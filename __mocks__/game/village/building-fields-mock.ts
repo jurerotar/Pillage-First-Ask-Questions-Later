@@ -1,4 +1,14 @@
 import { BuildingField } from 'interfaces/models/game/village';
-import { villagePresets } from 'assets/village-presets';
 
-export const newVillageBuildingFieldsMock: BuildingField[] = villagePresets.find(({ preset }) => preset === 'new-village')!.buildingFields;
+export const newVillageBuildingFieldsMock: BuildingField[] = [
+  {
+    buildingId: 'MAIN_BUILDING',
+    buildingFieldId: '1',
+    level: 1,
+  },
+  {
+    buildingId: 'RALLY_POINT',
+    buildingFieldId: '2',
+    level: 1,
+  },
+];

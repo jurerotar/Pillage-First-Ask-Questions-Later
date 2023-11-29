@@ -2,7 +2,6 @@ import React, { lazy, Suspense } from 'react';
 import { IconBaseProps } from 'react-icons';
 import { ConditionalWrapper } from 'components/conditional-wrapper';
 import { BorderIndicator, BorderIndicatorProps } from 'components/border-indicator';
-import clsx from 'clsx';
 
 const IconWheat = lazy(async () => ({ default: (await import('components/icons/icon-wheat')).IconWheat }));
 const IconIron = lazy(async () => ({ default: (await import('components/icons/icon-iron')).IconIron }));
@@ -100,11 +99,6 @@ type IconType =
  *   | 'warehouseCapacity';
  */
 
-export type IconProps = IconBaseProps & {
-  type: IconType;
-  borderVariant?: BorderIndicatorProps['variant'];
-};
-
 const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   wood: IconWood,
   clay: IconClay,
@@ -132,12 +126,17 @@ const IconPlaceholder = () => {
   return <span className="" />;
 };
 
+export type IconProps = IconBaseProps & React.HTMLAttributes<HTMLSpanElement> & {
+  type: IconType;
+  borderVariant?: BorderIndicatorProps['variant'];
+};
+
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
   const {
     type,
     borderVariant,
-    className = '',
+    ...rest
   } = props;
 
   const ComputedIcon = typeToIconMap[type];
@@ -148,7 +147,10 @@ export const Icon: React.FC<IconProps> = (props) => {
       wrapper={(children) => <BorderIndicator variant={borderVariant}>{children}</BorderIndicator>}
     >
       <Suspense fallback={<IconPlaceholder />}>
-        <span className={clsx(className)}>
+        <span
+          role="img"
+          {...rest}
+        >
           <ComputedIcon />
         </span>
       </Suspense>

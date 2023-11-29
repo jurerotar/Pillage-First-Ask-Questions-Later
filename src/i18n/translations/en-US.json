@@ -1,614 +1,587 @@
 {
-  "VIEWS": {
+  "APP": {
+    "GAME": {
+      "MAP": {
+        "MAP_CONTROLS": {
+          "MAGNIFICATION_INCREASE": "Zoom in",
+          "MAGNIFICATION_DECREASE": "Zoom out",
+          "TOGGLE_REPUTATION_DISPLAY": "Toggle faction reputation",
+          "TOGGLE_OASIS_ICON_DISPLAY": "",
+          "TOGGLE_TREASURES_DISPLAY": "",
+          "TOGGLE_TROOP_MOVEMENTS_DISPLAY": "",
+          "TOGGLE_WHEAT_FIELDS_ICON_DISPLAY": "",
+          "TOGGLE_TILE_TOOLTIP_DISPLAY": ""
+        }
+      }
+    },
+    "PUBLIC": {
+    }
   },
   "META": {
-    "SLOGAN": "Browser strategy game",
-    "VIEWS": {
-      "HOME": {
-        "TITLE": "",
+    "SLOGAN": "Browser strategy game"
+  },
+  "UNITS": {
+    "ROMANS": {
+      "LEGIONNAIRE": {
+        "NAME": "",
         "DESCRIPTION": ""
       },
-      "RESOURCES": {
-        "TITLE": "",
+      "PRAETORIAN": {
+        "NAME": "",
         "DESCRIPTION": ""
       },
-      "VILLAGE": {
-        "TITLE": "",
+      "IMPERIAN": {
+        "NAME": "",
         "DESCRIPTION": ""
       },
-      "MAP": {
-        "TITLE": "",
+      "EQUITES_LEGATI": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "EQUITES_IMPERATORIS": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "EQUITES_CAESARIS": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "BATTERING_RAM": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "FIRE_CATAPULT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SENATOR": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SETTLER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      }
+    },
+    "TEUTONS": {
+      "MACEMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SPEARMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "AXEMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SCOUT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "PALADIN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "TEUTONIC_KNIGHT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "RAM": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "CATAPULT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "CHIEF": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SETTLER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      }
+    },
+    "GAULS": {
+      "PHALANX": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SWORDSMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "PATHFINDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "THEUTATES_THUNDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "DRUIDRIDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "HAEDUAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "RAM": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "TREBUCHET": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "CHIEFTAIN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SETTLER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      }
+    },
+    "HUNS": {
+      "MERCENARY": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "BOWMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SPOTTER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "STEPPE_RIDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "MARKSMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "MARAUDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "RAM": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "CATAPULT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "LOGADES": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SETTLER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      }
+    },
+    "EGYPTIANS": {
+      "SLAVE_MILITIA": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "ASH_WARDEN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "KHOPESH_WARRIOR": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SOPDU_EXPLORER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "ANHUR_GUARD": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "RESHEPH_CHARIOT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "RAM": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "STONE_CATAPULT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "NOMARCH": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SETTLER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      }
+    },
+    "NATARS": {
+      "PIKEMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "THORNED_WARRIOR": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "GUARDSMAN": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "BIRDS_OF_PREY": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "AXERIDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "NATARIAN_KNIGHT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "WARELEPHANT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "BALLISTA": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "NATARIAN_EMPEROR": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SETTLER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      }
+    },
+    "NATURE": {
+      "RAT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SPIDER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "SERPENT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "BAT": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "WILD_BOAR": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "WOLF": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "BEAR": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "CROCODILE": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "TIGER": {
+        "NAME": "",
+        "DESCRIPTION": ""
+      },
+      "ELEPHANT": {
+        "NAME": "",
         "DESCRIPTION": ""
       }
     }
   },
-  "GAME": {
-    "UNITS": {
-      "ROMANS": {
-        "LEGIONNAIRE": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "PRAETORIAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "IMPERIAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "EQUITES_LEGATI": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "EQUITES_IMPERATORIS": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "EQUITES_CAESARIS": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "BATTERING_RAM": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "FIRE_CATAPULT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SENATOR": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SETTLER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      },
-      "TEUTONS": {
-        "MACEMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SPEARMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "AXEMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SCOUT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "PALADIN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "TEUTONIC_KNIGHT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "RAM": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "CATAPULT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "CHIEF": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SETTLER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      },
-      "GAULS": {
-        "PHALANX": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SWORDSMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "PATHFINDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "THEUTATES_THUNDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "DRUIDRIDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "HAEDUAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "RAM": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "TREBUCHET": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "CHIEFTAIN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SETTLER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      },
-      "HUNS": {
-        "MERCENARY": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "BOWMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SPOTTER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "STEPPE_RIDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "MARKSMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "MARAUDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "RAM": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "CATAPULT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "LOGADES": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SETTLER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      },
-      "EGYPTIANS": {
-        "SLAVE_MILITIA": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "ASH_WARDEN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "KHOPESH_WARRIOR": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SOPDU_EXPLORER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "ANHUR_GUARD": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "RESHEPH_CHARIOT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "RAM": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "STONE_CATAPULT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "NOMARCH": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SETTLER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      },
-      "NATARS": {
-        "PIKEMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "THORNED_WARRIOR": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "GUARDSMAN": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "BIRDS_OF_PREY": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "AXERIDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "NATARIAN_KNIGHT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "WARELEPHANT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "BALLISTA": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "NATARIAN_EMPEROR": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SETTLER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      },
-      "NATURE": {
-        "RAT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SPIDER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "SERPENT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "BAT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "WILD_BOAR": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "WOLF": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "BEAR": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "CROCODILE": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "TIGER": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        },
-        "ELEPHANT": {
-          "NAME": "",
-          "DESCRIPTION": ""
-        }
-      }
+  "BUILDINGS": {
+    "BAKERY": {
+      "NAME": "Bakery",
+      "DESCRIPTION": ""
     },
-    "BUILDINGS": {
-      "BAKERY": {
-        "NAME": "Bakery",
-        "DESCRIPTION": ""
-      },
-      "BRICKYARD": {
-        "NAME": "Brickyard",
-        "DESCRIPTION": ""
-      },
-      "CLAY_PIT": {
-        "NAME": "Clay pit",
-        "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay is used in leveling buildings and resource fields, as well as researching and training troops. Clay pit can be extended infinitely in the capital, or to level 10 in non-capital villages."
-      },
-      "CROPLAND": {
-        "NAME": "Cropland",
-        "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat is used in leveling buildings and resource fields, as well as researching and training troops. Cropland can be extended infinitely in the capital, or to level 10 in non-capital villages."
-      },
-      "GRAIN_MILL": {
-        "NAME": "Grain mill",
-        "DESCRIPTION": ""
-      },
-      "GRANARY": {
-        "NAME": "Granary",
-        "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
-      },
-      "GREAT_GRANARY": {
-        "NAME": "Great granary",
-        "DESCRIPTION": ""
-      },
-      "GREAT_WAREHOUSE": {
-        "NAME": "Great warehouse",
-        "DESCRIPTION": ""
-      },
-      "IRON_FOUNDRY": {
-        "NAME": "Iron foundry",
-        "DESCRIPTION": ""
-      },
-      "IRON_MINE": {
-        "NAME": "Iron mine",
-        "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron is used in leveling buildings and resource fields, as well as researching and training troops. Iron mine can be extended infinitely in the capital, or to level 10 in non-capital villages."
-      },
-      "SAWMILL": {
-        "NAME": "Sawmill",
-        "DESCRIPTION": ""
-      },
-      "WAREHOUSE": {
-        "NAME": "Warehouse",
-        "DESCRIPTION": "Wood, clay and iron are stored in your warehouse. By increasing its level you increase your warehouse's capacity. After upgrading one warehouse to level 20, additional warehouses can be built."
-      },
-      "WATERWORKS": {
-        "NAME": "Waterworks",
-        "DESCRIPTION": ""
-      },
-      "WOODCUTTER": {
-        "NAME": "Woodcutter",
-        "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Wood is used in leveling buildings and resource fields, as well as researching and training troops. Woodcutter can be extended infinitely in the capital, or to level 10 in non-capital villages."
-      },
-      "ACADEMY": {
-        "NAME": "Academy",
-        "DESCRIPTION": ""
-      },
-      "SMITHY": {
-        "NAME": "Smithy",
-        "DESCRIPTION": ""
-      },
-      "BARRACKS": {
-        "NAME": "Barracks",
-        "DESCRIPTION": ""
-      },
-      "CITY_WALL": {
-        "NAME": "City wall",
-        "DESCRIPTION": ""
-      },
-      "EARTH_WALL": {
-        "NAME": "Earth wall",
-        "DESCRIPTION": ""
-      },
-      "GREAT_BARRACKS": {
-        "NAME": "Great barracks",
-        "DESCRIPTION": ""
-      },
-      "GREAT_STABLE": {
-        "NAME": "Great stable",
-        "DESCRIPTION": ""
-      },
-      "HERO'S_MANSION": {
-        "NAME": "Hero's mansion",
-        "DESCRIPTION": ""
-      },
-      "HOSPITAL": {
-        "NAME": "Hospital",
-        "DESCRIPTION": ""
-      },
-      "MAKESHIFT_WALL": {
-        "NAME": "Makeshift wall",
-        "DESCRIPTION": ""
-      },
-      "PALISADE": {
-        "NAME": "Palisade",
-        "DESCRIPTION": ""
-      },
-      "RALLY_POINT": {
-        "NAME": "Rally point",
-        "DESCRIPTION": ""
-      },
-      "STABLE": {
-        "NAME": "Stable",
-        "DESCRIPTION": ""
-      },
-      "STONE_WALL": {
-        "NAME": "Stone wall",
-        "DESCRIPTION": ""
-      },
-      "STONEMASON": {
-        "NAME": "Stonemason",
-        "DESCRIPTION": ""
-      },
-      "TOURNAMENT_SQUARE": {
-        "NAME": "Tournament square",
-        "DESCRIPTION": ""
-      },
-      "TRAPPER": {
-        "NAME": "Trapper",
-        "DESCRIPTION": ""
-      },
-      "WATCHTOWER": {
-        "NAME": "Watchtower",
-        "DESCRIPTION": ""
-      },
-      "WORKSHOP": {
-        "NAME": "Workshop",
-        "DESCRIPTION": ""
-      },
-      "BREWERY": {
-        "NAME": "Brewery",
-        "DESCRIPTION": ""
-      },
-      "COMMAND_CENTER": {
-        "NAME": "Command center",
-        "DESCRIPTION": ""
-      },
-      "CRANNY": {
-        "NAME": "Cranny",
-        "DESCRIPTION": ""
-      },
-      "EMBASSY": {
-        "NAME": "Embassy",
-        "DESCRIPTION": ""
-      },
-      "HORSE_DRINKING_TROUGH": {
-        "NAME": "Horse drinking trough",
-        "DESCRIPTION": ""
-      },
-      "MAIN_BUILDING": {
-        "NAME": "Main building",
-        "DESCRIPTION": ""
-      },
-      "MARKETPLACE": {
-        "NAME": "Marketplace",
-        "DESCRIPTION": ""
-      },
-      "PALACE": {
-        "NAME": "Palace",
-        "DESCRIPTION": ""
-      },
-      "RESIDENCE": {
-        "NAME": "Residence",
-        "DESCRIPTION": ""
-      },
-      "TOWN_HALL": {
-        "NAME": "Town hall",
-        "DESCRIPTION": ""
-      },
-      "TRADE_OFFICE": {
-        "NAME": "Trade office",
-        "DESCRIPTION": ""
-      },
-      "TREASURY": {
-        "NAME": "Treasury",
-        "DESCRIPTION": ""
-      },
-      "WONDER_OF_THE_WORLD": {
-        "NAME": "Wonder of the world",
-        "DESCRIPTION": ""
-      }
+    "BRICKYARD": {
+      "NAME": "Brickyard",
+      "DESCRIPTION": ""
     },
-    "EFFECTS": {
-      "BARRACKS_TRAINING_DURATION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "GREAT_BARRACKS_TRAINING_DURATION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "STABLE_TRAINING_DURATION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "GREAT_STABLE_TRAINING_DURATION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "WORKSHOP_TRAINING_DURATION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "UNLOCKED_UNIT_RESEARCH_LEVELS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "VILLAGE_DEFENCE_VALUE": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "VILLAGE_DEFENCE_BONUS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "BUILDING_DURATION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "WOOD_PRODUCTION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "CLAY_PRODUCTION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "IRON_PRODUCTION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "WHEAT_PRODUCTION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "WOOD_PRODUCTION_BONUS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "CLAY_PRODUCTION_BONUS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "IRON_PRODUCTION_BONUS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "WHEAT_PRODUCTION_BONUS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "CROP_CONSUMPTION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "CULTURE_POINTS_PRODUCTION": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      },
-      "CULTURE_POINTS_PRODUCTION_BONUS": {
-        "TITLE": "",
-        "DESCRIPTION": ""
-      }
+    "CLAY_PIT": {
+      "NAME": "Clay pit",
+      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay is used in leveling buildings and resource fields, as well as researching and training troops. Clay pit can be extended infinitely in the capital, or to level 10 in non-capital villages."
+    },
+    "CROPLAND": {
+      "NAME": "Cropland",
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat is used in leveling buildings and resource fields, as well as researching and training troops. Cropland can be extended infinitely in the capital, or to level 10 in non-capital villages."
+    },
+    "GRAIN_MILL": {
+      "NAME": "Grain mill",
+      "DESCRIPTION": ""
+    },
+    "GRANARY": {
+      "NAME": "Granary",
+      "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
+    },
+    "GREAT_GRANARY": {
+      "NAME": "Great granary",
+      "DESCRIPTION": ""
+    },
+    "GREAT_WAREHOUSE": {
+      "NAME": "Great warehouse",
+      "DESCRIPTION": ""
+    },
+    "IRON_FOUNDRY": {
+      "NAME": "Iron foundry",
+      "DESCRIPTION": ""
+    },
+    "IRON_MINE": {
+      "NAME": "Iron mine",
+      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron is used in leveling buildings and resource fields, as well as researching and training troops. Iron mine can be extended infinitely in the capital, or to level 10 in non-capital villages."
+    },
+    "SAWMILL": {
+      "NAME": "Sawmill",
+      "DESCRIPTION": ""
+    },
+    "WAREHOUSE": {
+      "NAME": "Warehouse",
+      "DESCRIPTION": "Wood, clay and iron are stored in your warehouse. By increasing its level you increase your warehouse's capacity. After upgrading one warehouse to level 20, additional warehouses can be built."
+    },
+    "WATERWORKS": {
+      "NAME": "Waterworks",
+      "DESCRIPTION": ""
+    },
+    "WOODCUTTER": {
+      "NAME": "Woodcutter",
+      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Wood is used in leveling buildings and resource fields, as well as researching and training troops. Woodcutter can be extended infinitely in the capital, or to level 10 in non-capital villages."
+    },
+    "ACADEMY": {
+      "NAME": "Academy",
+      "DESCRIPTION": ""
+    },
+    "SMITHY": {
+      "NAME": "Smithy",
+      "DESCRIPTION": ""
+    },
+    "BARRACKS": {
+      "NAME": "Barracks",
+      "DESCRIPTION": ""
+    },
+    "CITY_WALL": {
+      "NAME": "City wall",
+      "DESCRIPTION": ""
+    },
+    "EARTH_WALL": {
+      "NAME": "Earth wall",
+      "DESCRIPTION": ""
+    },
+    "GREAT_BARRACKS": {
+      "NAME": "Great barracks",
+      "DESCRIPTION": ""
+    },
+    "GREAT_STABLE": {
+      "NAME": "Great stable",
+      "DESCRIPTION": ""
+    },
+    "HERO'S_MANSION": {
+      "NAME": "Hero's mansion",
+      "DESCRIPTION": ""
+    },
+    "HOSPITAL": {
+      "NAME": "Hospital",
+      "DESCRIPTION": ""
+    },
+    "MAKESHIFT_WALL": {
+      "NAME": "Makeshift wall",
+      "DESCRIPTION": ""
+    },
+    "PALISADE": {
+      "NAME": "Palisade",
+      "DESCRIPTION": ""
+    },
+    "RALLY_POINT": {
+      "NAME": "Rally point",
+      "DESCRIPTION": ""
+    },
+    "STABLE": {
+      "NAME": "Stable",
+      "DESCRIPTION": ""
+    },
+    "STONE_WALL": {
+      "NAME": "Stone wall",
+      "DESCRIPTION": ""
+    },
+    "STONEMASON": {
+      "NAME": "Stonemason",
+      "DESCRIPTION": ""
+    },
+    "TOURNAMENT_SQUARE": {
+      "NAME": "Tournament square",
+      "DESCRIPTION": ""
+    },
+    "TRAPPER": {
+      "NAME": "Trapper",
+      "DESCRIPTION": ""
+    },
+    "WATCHTOWER": {
+      "NAME": "Watchtower",
+      "DESCRIPTION": ""
+    },
+    "WORKSHOP": {
+      "NAME": "Workshop",
+      "DESCRIPTION": ""
+    },
+    "BREWERY": {
+      "NAME": "Brewery",
+      "DESCRIPTION": ""
+    },
+    "COMMAND_CENTER": {
+      "NAME": "Command center",
+      "DESCRIPTION": ""
+    },
+    "CRANNY": {
+      "NAME": "Cranny",
+      "DESCRIPTION": ""
+    },
+    "EMBASSY": {
+      "NAME": "Embassy",
+      "DESCRIPTION": ""
+    },
+    "HORSE_DRINKING_TROUGH": {
+      "NAME": "Horse drinking trough",
+      "DESCRIPTION": ""
+    },
+    "MAIN_BUILDING": {
+      "NAME": "Main building",
+      "DESCRIPTION": ""
+    },
+    "MARKETPLACE": {
+      "NAME": "Marketplace",
+      "DESCRIPTION": ""
+    },
+    "PALACE": {
+      "NAME": "Palace",
+      "DESCRIPTION": ""
+    },
+    "RESIDENCE": {
+      "NAME": "Residence",
+      "DESCRIPTION": ""
+    },
+    "TOWN_HALL": {
+      "NAME": "Town hall",
+      "DESCRIPTION": ""
+    },
+    "TRADE_OFFICE": {
+      "NAME": "Trade office",
+      "DESCRIPTION": ""
+    },
+    "TREASURY": {
+      "NAME": "Treasury",
+      "DESCRIPTION": ""
+    },
+    "WONDER_OF_THE_WORLD": {
+      "NAME": "Wonder of the world",
+      "DESCRIPTION": ""
     }
   },
-  "PREFERENCES": {
-    "MODAL": {
-      "TOOLTIP_LABEL": "Change settings and preferences",
-      "TITLE": "Preferences",
-      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  "EFFECTS": {
+    "BARRACKS_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
     },
-    "COLOR_SCHEME": {
-      "LABEL": "Enable dark mode",
-      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    "GREAT_BARRACKS_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
     },
-    "ACCESSIBILITY_MODE": {
-      "LABEL": "Enable enhanced accessibility mode",
-      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    "STABLE_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
     },
-    "REDUCED_MOTION": {
-      "LABEL": "Enable reduced motion mode",
-      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    "GREAT_STABLE_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
     },
-    "LOCALE": {
-      "LABEL": "Application locale",
-      "DESCRIPTION": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    "WORKSHOP_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "UNLOCKED_UNIT_RESEARCH_LEVELS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "VILLAGE_DEFENCE_VALUE": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "VILLAGE_DEFENCE_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "BUILDING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WOOD_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CLAY_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "IRON_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WHEAT_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WOOD_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CLAY_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "IRON_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WHEAT_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CROP_CONSUMPTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CULTURE_POINTS_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CULTURE_POINTS_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
     }
   },
   "GENERAL": {

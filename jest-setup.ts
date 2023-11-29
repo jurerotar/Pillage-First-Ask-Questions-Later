@@ -10,3 +10,9 @@ Object.defineProperty(globalThis, 'crypto', {
 Object.defineProperty(globalThis, 'ResizeObserver', {
   value: ResizeObserverModule.default
 });
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (str: string): string => str,
+  }),
+}));

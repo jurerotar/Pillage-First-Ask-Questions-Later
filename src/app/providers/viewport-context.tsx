@@ -32,15 +32,6 @@ type ViewportProviderProps = {
 const ViewportProvider: FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
   const [windowSize, setWindowSize] = useState<WindowSize>(initialSize);
 
-  const { width, height } = windowSize;
-
-  const isWiderThanXs: boolean = width >= breakpoints.xs;
-  const isWiderThanSm: boolean = width >= breakpoints.sm;
-  const isWiderThanMd: boolean = width >= breakpoints.md;
-  const isWiderThanLg: boolean = width >= breakpoints.lg;
-  const isWiderThanXl: boolean = width >= breakpoints.xl;
-  const isWiderThan2Xl: boolean = width >= breakpoints['2xl'];
-
   // TODO: Add debounce, maybe through lodash, don't wanna maintain own version
   useEffect(() => {
     const debouncedHandleResize = () => {
@@ -56,6 +47,14 @@ const ViewportProvider: FCWithChildren<ViewportProviderProps> = ({ initialSize =
   }, []);
 
   const value = useMemo<ViewportContextValues>(() => {
+    const { width, height } = windowSize;
+    const isWiderThanXs: boolean = width >= breakpoints.xs;
+    const isWiderThanSm: boolean = width >= breakpoints.sm;
+    const isWiderThanMd: boolean = width >= breakpoints.md;
+    const isWiderThanLg: boolean = width >= breakpoints.lg;
+    const isWiderThanXl: boolean = width >= breakpoints.xl;
+    const isWiderThan2Xl: boolean = width >= breakpoints['2xl'];
+
     return {
       width,
       height,
