@@ -6,7 +6,7 @@ import { Button } from 'components/buttons/button';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
 
-const CreateServerModalContent = lazy(async () => ({ default: (await import('app/(public)/components/create-server-modal-content')).CreateServerModalContent }));
+const CreateServerModalContent = lazy(async () => ({ default: (await import('./components/create-server-modal-content')).CreateServerModalContent }));
 
 export const PublicLayout: React.FC = () => {
   const { t } = useTranslation();

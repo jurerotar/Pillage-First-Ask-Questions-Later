@@ -5,12 +5,12 @@
         "MAP_CONTROLS": {
           "MAGNIFICATION_INCREASE": "Zoom in",
           "MAGNIFICATION_DECREASE": "Zoom out",
-          "TOGGLE_REPUTATION_DISPLAY": "Toggle faction reputation",
-          "TOGGLE_OASIS_ICON_DISPLAY": "",
-          "TOGGLE_TREASURES_DISPLAY": "",
-          "TOGGLE_TROOP_MOVEMENTS_DISPLAY": "",
-          "TOGGLE_WHEAT_FIELDS_ICON_DISPLAY": "",
-          "TOGGLE_TILE_TOOLTIP_DISPLAY": ""
+          "TOGGLE_REPUTATION_DISPLAY": "Toggle faction reputation display",
+          "TOGGLE_OASIS_ICON_DISPLAY": "Toggle oasis resource icons display",
+          "TOGGLE_TREASURES_DISPLAY": "Toggle treasure villages icons display",
+          "TOGGLE_TROOP_MOVEMENTS_DISPLAY": "Toggle troop movements display",
+          "TOGGLE_WHEAT_FIELDS_ICON_DISPLAY": "Toggle wheat field icons display",
+          "TOGGLE_TILE_TOOLTIP_DISPLAY": "Toggle tooltip popups"
         }
       }
     },

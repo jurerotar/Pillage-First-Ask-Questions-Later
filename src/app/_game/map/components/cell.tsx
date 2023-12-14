@@ -8,16 +8,20 @@ import {
 import React from 'react';
 import { GridChildComponentProps } from 'react-window';
 import { useCurrentServer } from 'hooks/game/use-current-server';
-import { OccupiableOasisIcon } from 'app/(game)/map/components/occupiable-oasis-icon';
-import { useMapOptions } from 'app/(game)/map/providers/map-context';
 import clsx from 'clsx';
 import { usePlayers } from 'hooks/game/use-players';
 import { useReputations } from 'hooks/game/use-reputations';
 import { ReputationLevel } from 'interfaces/models/game/reputation';
-import { WheatFieldIcon } from 'app/(game)/map/components/wheat-field-icon';
-import { TreasureIcon } from 'app/(game)/map/components/treasure-icon';
+import { useMapOptions } from '../providers/map-context';
+import { OccupiableOasisIcon } from './occupiable-oasis-icon';
+import { WheatFieldIcon } from './wheat-field-icon';
+import { TreasureIcon } from './treasure-icon';
 
-type CellProps = GridChildComponentProps<TileType[]>;
+type CellProps = GridChildComponentProps<{
+  map: TileType[];
+  openModal: () => void;
+  setModalContents: React.Dispatch<React.SetStateAction<React.ReactNode>>;
+}>;
 
 type OccupiableOasisProps = {
   tile: OasisTileType | OccupiedOasisTileType;
@@ -71,7 +75,7 @@ const FreeTile: React.FC<FreeTileProps> = ({ tile }) => {
   const readableResourceComposition = `${wood}-${clay}-${iron}-${wheat.join('')}`;
 
   return (
-    <a
+    <span
       id={`tile-id-${tile.tileId}`}
       data-tooltip-content={readableResourceComposition}
       className="flex h-full w-full items-start justify-end"
@@ -80,7 +84,7 @@ const FreeTile: React.FC<FreeTileProps> = ({ tile }) => {
       {isWheatField && shouldShowWheatFields && (
         <WheatFieldIcon resourceFieldComposition={tile.resourceFieldComposition} />
       )}
-    </a>
+    </span>
   );
 };
 
@@ -99,7 +103,7 @@ const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = ({ tile }) => {
   const isTileWithTreasury = tile.treasureType !== null;
 
   return (
-    <a
+    <span
       id={`tile-id-${tile.tileId}`}
       data-tooltip-content={`${faction} - ${reputationLevel}`}
       className={clsx('flex h-full w-full items-start justify-end', (shouldShowFactionReputation && !!faction) && reputationColorMap.get(reputationLevel), shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed')}
@@ -108,23 +112,24 @@ const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = ({ tile }) => {
       {isTileWithTreasury && shouldShowTreasureIcons && (
         <TreasureIcon treasureType={tile.treasureType} />
       )}
-    </a>
+    </span>
   );
 };
 
-export const Cell: React.FC<CellProps> = (props) => {
-  const {
-    data,
-    style,
-    rowIndex,
-    columnIndex,
-  } = props;
+const A = () => {
+  console.log('burek');
+
+  return null;
+};
+
+export const Cell: React.FC<CellProps> = ({ data, style, rowIndex, columnIndex }) => {
+  const { map, openModal, setModalContents } = data;
 
   const { server } = useCurrentServer();
   const { mapSize } = server.configuration;
   const gridSize = mapSize! + 1;
 
-  const tile: TileType = data[gridSize * rowIndex + columnIndex];
+  const tile: TileType = map[gridSize * rowIndex + columnIndex];
 
   const isOasis = tile.type === 'oasis-tile';
   const isFreeTile = tile.type === 'free-tile';
@@ -133,8 +138,12 @@ export const Cell: React.FC<CellProps> = (props) => {
   return (
     <button
       type="button"
-      className="relative flex h-full w-full items-center justify-center rounded-[1px] border border-gray-500 text-xs"
+      className="relative flex h-full w-full items-center justify-center rounded-[1px] border border-gray-500"
       style={style}
+      onClick={() => {
+        setModalContents(<A />);
+        openModal();
+      }}
     >
       {isOasis && (
         <OasisTile tile={tile} />

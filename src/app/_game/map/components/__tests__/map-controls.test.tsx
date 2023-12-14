@@ -1,7 +1,7 @@
 import { screen, render } from '@testing-library/react';
-import { MapControls } from 'app/(game)/map/components/map-controls';
-import { MapProvider } from 'app/(game)/map/providers/map-context';
 import userEvent from '@testing-library/user-event';
+import { MapControls } from '../map-controls';
+import { MapProvider } from '../../providers/map-context';
 
 const functionalityEnabledButtonClassName = 'bg-green-200';
 

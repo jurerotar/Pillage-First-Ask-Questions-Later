@@ -19,10 +19,6 @@ export const Modal: React.FC<ModalProps> = (props) => {
     ...rest
   } = props;
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <Suspense fallback={null}>
       <ReactModal

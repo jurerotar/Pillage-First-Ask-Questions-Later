@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Await, Outlet, useRouteLoaderData } from 'react-router-dom';
-import { GameLayoutSkeleton } from 'app/(game)/skeleton';
+import { GameLayoutSkeleton } from 'app/_game/skeleton';
 
 type RouteLoaderData = {
   resolved: boolean;

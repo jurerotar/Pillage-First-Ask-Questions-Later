@@ -24,7 +24,7 @@ const MAX_MAGNIFICATION = 3;
 const MIN_MAGNIFICATION = 1;
 
 const MapProvider: FCWithChildren = ({ children }) => {
-  const [magnification, setMagnification] = useState<number>(2);
+  const [magnification, setMagnification] = useState<number>(3);
   const [mapFilters, setMapFilters] = useState<MapFilters>({
     shouldShowFactionReputation: true,
     shouldShowOasisIcons: true,

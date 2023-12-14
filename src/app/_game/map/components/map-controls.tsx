@@ -1,9 +1,9 @@
 import React from 'react';
-import { useMapOptions } from 'app/(game)/map/providers/map-context';
 import clsx from 'clsx';
 import { Icon } from 'components/icon';
 import { Tooltip } from 'components/tooltip';
 import { useTranslation } from 'react-i18next';
+import { useMapOptions } from '../providers/map-context';
 
 type DividerProps = {
   orientation?: 'vertical' | 'horizontal';
@@ -69,7 +69,7 @@ export const MapControls: React.FC = () => {
         <div className="pointer-events-auto flex gap-2 rounded-md bg-white p-2">
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content="Hello to you too!"
+            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_REPUTATION_DISPLAY')}
           >
             <button
               data-testid="map-controls-toggle-faction-reputation-button"
@@ -84,7 +84,7 @@ export const MapControls: React.FC = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content="Hello to you too!"
+            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_OASIS_ICON_DISPLAY')}
           >
             <button
               data-testid="map-controls-toggle-oasis-button"
@@ -99,7 +99,7 @@ export const MapControls: React.FC = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content="Hello to you too!"
+            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TREASURES_DISPLAY')}
           >
             <button
               data-testid="map-controls-toggle-treasures-button"
@@ -114,7 +114,7 @@ export const MapControls: React.FC = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content="Hello to you too!"
+            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TROOP_MOVEMENTS_DISPLAY')}
           >
             <button
               data-testid="map-controls-toggle-troop-movements-button"
@@ -129,7 +129,7 @@ export const MapControls: React.FC = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content="Hello to you too!"
+            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_WHEAT_FIELDS_ICON_DISPLAY')}
           >
             <button
               data-testid="map-controls-toggle-wheat-fields-button"
@@ -144,7 +144,7 @@ export const MapControls: React.FC = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content="Hello to you too!"
+            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TILE_TOOLTIP_DISPLAY')}
           >
             <button
               data-testid="map-controls-toggle-tile-tooltips-button"

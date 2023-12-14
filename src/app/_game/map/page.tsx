@@ -1,14 +1,16 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useMap } from 'hooks/game/use-map';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { FixedSizeGrid } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
-import { Cell } from 'app/(game)/map/components/cell';
 import { useCurrentVillage } from 'hooks/game/use-current-village';
-import { useMapOptions } from 'app/(game)/map/providers/map-context';
-import { MapControls } from 'app/(game)/map/components/map-controls';
 import { Tooltip } from 'components/tooltip';
 import { Point } from 'interfaces/models/common';
+import { useDialog } from 'hooks/utils/use-dialog';
+import { Modal } from 'components/modal/modal';
+import { MapControls } from './components/map-controls';
+import { Cell } from './components/cell';
+import { useMapOptions } from './providers/map-context';
 
 const TILE_BASE_SIZE = 30;
 
@@ -20,6 +22,8 @@ const onMouseMoveHandler = (e: MouseEvent, isDragging: boolean) => {
 };
 
 export const MapPage: React.FC = () => {
+  const { isOpen, openModal, closeModal } = useDialog();
+
   const {
     map,
   } = useMap();
@@ -36,6 +40,8 @@ export const MapPage: React.FC = () => {
   const { currentVillage } = useCurrentVillage();
   const { coordinates } = currentVillage;
   const { magnification, mapFilters: { shouldShowTileTooltips } } = useMapOptions();
+
+  const [modalContents, setModalContents] = useState<React.ReactNode>(null);
 
   const mapSize = server?.configuration?.mapSize;
 
@@ -70,11 +76,18 @@ export const MapPage: React.FC = () => {
         }}
         hidden={!shouldShowTileTooltips}
       />
-      <FixedSizeGrid
-        useIsScrolling
-        style={{
-          backgroundColor: '#B9D580',
+      <Modal
+        isOpen={isOpen}
+        closeHandler={() => {
+          setModalContents(() => null);
+          closeModal();
         }}
+      >
+        {modalContents}
+      </Modal>
+      <FixedSizeGrid
+        className="bg-[#B9D580]"
+        useIsScrolling
         initialScrollTop={coordinates.y * tileSize}
         initialScrollLeft={coordinates.x * tileSize}
         outerRef={mapRef}
@@ -84,7 +97,11 @@ export const MapPage: React.FC = () => {
         rowHeight={tileSize}
         height={height}
         width={width}
-        itemData={map}
+        itemData={{
+          map,
+          openModal,
+          setModalContents
+        }}
         overscanColumnCount={5}
         overscanRowCount={5}
       >

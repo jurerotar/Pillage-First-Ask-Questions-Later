@@ -8,7 +8,7 @@ import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
 import { ServerCard } from './components/server-card';
 
-const CreateServerModalContent = lazy(async () => ({ default: (await import('app/(public)/components/create-server-modal-content')).CreateServerModalContent }));
+const CreateServerModalContent = lazy(async () => ({ default: (await import('../components/create-server-modal-content')).CreateServerModalContent }));
 
 export const HomePage: React.FC = () => {
   const {
