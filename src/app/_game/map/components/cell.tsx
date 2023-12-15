@@ -1,7 +1,7 @@
 import {
-  FreeTile as FreeTileType,
+  OccupiableTile as OccupiableTileType,
   OasisTile as OasisTileType,
-  OccupiedFreeTile as OccupiedFreeTileType,
+  OccupiedOccupiableTile as OccupiedOccupiableTileType,
   OccupiedOasisTile as OccupiedOasisTileType,
   Tile as TileType
 } from 'interfaces/models/game/tile';
@@ -61,11 +61,11 @@ const reputationColorMap = new Map<ReputationLevel, string>([
   ['hostile', 'border-red-600'],
 ]);
 
-type FreeTileProps = {
-  tile: FreeTileType;
+type OccupiableTileProps = {
+  tile: OccupiableTileType;
 };
 
-const FreeTile: React.FC<FreeTileProps> = ({ tile }) => {
+const OccupiableTile: React.FC<OccupiableTileProps> = ({ tile }) => {
   const { mapFilters: { shouldShowWheatFields } } = useMapOptions();
 
   const wheatFields = ['00018', '11115', '3339'];
@@ -88,11 +88,11 @@ const FreeTile: React.FC<FreeTileProps> = ({ tile }) => {
   );
 };
 
-type OccupiedFreeTileProps = {
-  tile: OccupiedFreeTileType;
+type OccupiedOccupiableTileProps = {
+  tile: OccupiedOccupiableTileType;
 };
 
-const OccupiedFreeTile: React.FC<OccupiedFreeTileProps> = ({ tile }) => {
+const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile }) => {
   const { mapFilters: { shouldShowFactionReputation, shouldShowTreasureIcons } } = useMapOptions();
   const { getFactionByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
@@ -132,8 +132,8 @@ export const Cell: React.FC<CellProps> = ({ data, style, rowIndex, columnIndex }
   const tile: TileType = map[gridSize * rowIndex + columnIndex];
 
   const isOasis = tile.type === 'oasis-tile';
-  const isFreeTile = tile.type === 'free-tile';
-  const isOccupiedFreeTile = isFreeTile && Object.hasOwn(tile, 'ownedBy');
+  const isOccupiableTile = tile.type === 'free-tile';
+  const isOccupiedOccupiableTile = isOccupiableTile && Object.hasOwn(tile, 'ownedBy');
 
   return (
     <button
@@ -150,11 +150,11 @@ export const Cell: React.FC<CellProps> = ({ data, style, rowIndex, columnIndex }
       )}
       {!isOasis && (
         <>
-          {isOccupiedFreeTile && (
-            <OccupiedFreeTile tile={tile as OccupiedFreeTileType} />
+          {isOccupiedOccupiableTile && (
+            <OccupiedOccupiableTile tile={tile as OccupiedOccupiableTileType} />
           )}
-          {!isOccupiedFreeTile && (
-            <FreeTile tile={tile as OccupiedFreeTileType} />
+          {!isOccupiedOccupiableTile && (
+            <OccupiableTile tile={tile as OccupiedOccupiableTileType} />
           )}
         </>
       )}

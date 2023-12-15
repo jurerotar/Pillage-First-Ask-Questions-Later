@@ -10,7 +10,7 @@ import { Server } from 'interfaces/models/game/server';
 import { villagePresets } from 'assets/village-presets';
 import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
-import { OccupiedFreeTile } from 'interfaces/models/game/tile';
+import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
@@ -208,7 +208,7 @@ const getVillageBuildingFields = (presetName: VillageBuildingFieldsPresetName): 
 
 type VillageFactoryProps = {
   server: Server;
-  tile: OccupiedFreeTile;
+  tile: OccupiedOccupiableTile;
   players: Player[];
   slug: Village['slug'];
 };

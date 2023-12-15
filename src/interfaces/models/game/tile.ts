@@ -26,12 +26,12 @@ export type OccupiedOasisTile = OasisTile & {
   villageId: Village['id'] | null;
 };
 
-export type FreeTile = BaseTile & {
+export type OccupiableTile = BaseTile & {
   type: 'free-tile';
   resourceFieldComposition: ResourceFieldComposition;
 };
 
-export type OccupiedFreeTile = FreeTile & {
+export type OccupiedOccupiableTile = OccupiableTile & {
   ownedBy: Player['id'];
   treasureType: 'artifact' | 'hero-item' | 'currency' | 'resources' | null;
 };
@@ -39,10 +39,10 @@ export type OccupiedFreeTile = FreeTile & {
 export type Tile =
   | OasisTile
   | OccupiedOasisTile
-  | FreeTile
-  | OccupiedFreeTile;
+  | OccupiableTile
+  | OccupiedOccupiableTile;
 
-export type MaybeOccupiedBaseTile = BaseTile | OccupiedFreeTile;
+export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;
-export type MaybeOccupiedOrOasisFreeTile = FreeTile | OccupiedFreeTile | OasisTile;
-export type MaybeOccupiedFreeTile = FreeTile | OccupiedFreeTile;
+export type MaybeOccupiedOrOasisOccupiableTile = OccupiableTile | OccupiedOccupiableTile | OasisTile;
+export type MaybeOccupiedOccupiableTile = OccupiableTile | OccupiedOccupiableTile;

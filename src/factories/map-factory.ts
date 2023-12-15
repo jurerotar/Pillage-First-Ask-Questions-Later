@@ -2,12 +2,12 @@ import { ResourceFieldComposition } from 'interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomIntFromInterval, seededShuffleArray } from 'utils/common';
 import {
   BaseTile,
-  FreeTile,
+  OccupiableTile,
   MaybeOccupiedBaseTile,
   MaybeOccupiedOrOasisBaseTile,
-  MaybeOccupiedOrOasisFreeTile,
+  MaybeOccupiedOrOasisOccupiableTile,
   OasisTile,
-  OccupiedFreeTile,
+  OccupiedOccupiableTile,
   Tile
 } from 'interfaces/models/game/tile';
 import { Point } from 'interfaces/models/common';
@@ -243,7 +243,7 @@ const weightedResourceFieldComposition: Record<number, ResourceFieldComposition>
   60: '5436',
 };
 
-const generateFreeTileType = (tile: MaybeOccupiedOrOasisBaseTile): ResourceFieldComposition => {
+const generateOccupiableTileType = (tile: MaybeOccupiedOrOasisBaseTile): ResourceFieldComposition => {
   const randomInt: number = seededRandomIntFromInterval(tile.tileId, 1, 80);
 
   // eslint-disable-next-line no-restricted-syntax
@@ -386,7 +386,7 @@ const generateInitialUserVillage = (tiles: BaseTile[], player: Player): MaybeOcc
     resourceFieldComposition: '4446',
     ownedBy: player.id,
     treasureType: null,
-  } satisfies OccupiedFreeTile;
+  } satisfies OccupiedOccupiableTile;
 
   return tilesToUpdate;
 };
@@ -413,7 +413,7 @@ const generatePredefinedVillages = (server: Server, npcPlayers: Player[], tiles:
       resourceFieldComposition: '4446',
       ownedBy: playerId,
       treasureType: 'artifact',
-    } satisfies OccupiedFreeTile;
+    } satisfies OccupiedOccupiableTile;
   });
 
   return tilesToUpdate;
@@ -512,16 +512,16 @@ const generateSingleOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
   });
 };
 
-const generateFreeTileTypes = (tiles: MaybeOccupiedOrOasisBaseTile[]): MaybeOccupiedOrOasisFreeTile[] => {
+const generateOccupiableTileTypes = (tiles: MaybeOccupiedOrOasisBaseTile[]): MaybeOccupiedOrOasisOccupiableTile[] => {
   return tiles.map((tile: MaybeOccupiedOrOasisBaseTile) => {
     if (Object.hasOwn(tile, 'type') || Object.hasOwn(tile, 'oasisType')) {
-      return tile as MaybeOccupiedOrOasisFreeTile;
+      return tile as MaybeOccupiedOrOasisOccupiableTile;
     }
     return {
       ...tile,
       type: 'free-tile',
-      resourceFieldComposition: generateFreeTileType(tile),
-    } satisfies FreeTile;
+      resourceFieldComposition: generateOccupiableTileType(tile),
+    } satisfies OccupiableTile;
   });
 };
 
@@ -543,7 +543,7 @@ const populateOasis = (tiles: Tile[]): Tile[] => {
 };
 
 // This method will mark which fields will have villages
-const populateFreeTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
+const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
   return tiles.map((tile: Tile) => {
     if (tile.type !== 'free-tile' && !Object.hasOwn(tile, 'ownedBy')) {
       return tile;
@@ -551,7 +551,7 @@ const populateFreeTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
     const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 4) === 1;
     const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(tile.tileId, 1, 3) === 1 : false;
     const treasureType = willBeATreasureVillage
-      ? seededRandomArrayElement<Exclude<OccupiedFreeTile['treasureType'], 'null' | 'artifact'>>(tile.tileId, ['hero-item', 'currency', 'resources'])
+      ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(tile.tileId, ['hero-item', 'currency', 'resources'])
       : null;
 
     return {
@@ -578,9 +578,9 @@ export const mapFactory = ({ server, players }: MapFactoryProps): Tile[] => {
   const tilesWithPredefinedVillages = generatePredefinedVillages(server, npcPlayers, tilesWithInitialUserVillage);
   const tilesWithShapedOasisFields = generateShapedOasisFields(tilesWithPredefinedVillages);
   const tilesWithSingleOasisFields = generateSingleOasisFields(tilesWithShapedOasisFields);
-  const tilesWithFreeTileTypes = generateFreeTileTypes(tilesWithSingleOasisFields);
-  const tilesWithPopulatedOasis = populateOasis(tilesWithFreeTileTypes);
-  const tilesWithPopulatedFreeTiles = populateFreeTiles(tilesWithPopulatedOasis, npcPlayers);
+  const tilesWithOccupiableTileTypes = generateOccupiableTileTypes(tilesWithSingleOasisFields);
+  const tilesWithPopulatedOasis = populateOasis(tilesWithOccupiableTileTypes);
+  const tilesWithPopulatedOccupiableTiles = populateOccupiableTiles(tilesWithPopulatedOasis, npcPlayers);
 
-  return tilesWithPopulatedFreeTiles;
+  return tilesWithPopulatedOccupiableTiles;
 };

@@ -17,9 +17,9 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const navigate = useNavigate();
   const { deleteServer } = useAvailableServers();
 
-  const hydrateCurrentServerCache = (server: Server) => {
-    setToCache('current-server', server);
-    navigate(`/game/${server.slug}/v-1/map`);
+  const hydrateCurrentServerCache = (selectedServer: Server) => {
+    setToCache('current-server', selectedServer);
+    navigate(`/game/${selectedServer.slug}/v-1/map`);
   };
 
   return (

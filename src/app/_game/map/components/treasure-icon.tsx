@@ -1,10 +1,10 @@
 import React from 'react';
-import { OccupiedFreeTile as OccupiedFreeTileType, OccupiedFreeTile } from 'interfaces/models/game/tile';
+import { OccupiedOccupiableTile as OccupiedOccupiableTileType, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import { Icon, IconProps, TreasureTileIconType } from 'components/icon';
 
-type TreasureIconProps = Pick<OccupiedFreeTile, 'treasureType'> & Omit<IconProps, 'type'>;
+type TreasureIconProps = Pick<OccupiedOccupiableTile, 'treasureType'> & Omit<IconProps, 'type'>;
 
-const treasureTypeToIconMap = new Map<Exclude<OccupiedFreeTileType['treasureType'], null>, TreasureTileIconType>([
+const treasureTypeToIconMap = new Map<Exclude<OccupiedOccupiableTileType['treasureType'], null>, TreasureTileIconType>([
   ['resources', 'treasureTileResources'],
   ['currency', 'treasureTileCurrency'],
   ['artifact', 'treasureTileArtifact'],

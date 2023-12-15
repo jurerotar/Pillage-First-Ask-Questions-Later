@@ -1,5 +1,5 @@
 import { serverMock } from 'mocks/models/game/server-mock';
-import { OccupiedFreeTile, Tile } from 'interfaces/models/game/tile';
+import { OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
 import { predefinedVillagesCoordinates100x100Mock } from 'mocks/game/map/predefined-villages-coordinates-mock';
 import { Point } from 'interfaces/models/common';
 import { mapFactory } from 'factories/map-factory';
@@ -23,7 +23,7 @@ const serverMockSize400 = {
   },
 };
 
-const predefinedVillagesTests = (name: string, tile: OccupiedFreeTile) => {
+const predefinedVillagesTests = (name: string, tile: OccupiedOccupiableTile) => {
   describe(`${name} village at [${tile.coordinates.x}, ${tile.coordinates.y}]`, () => {
     test('is a free-tile', () => {
       expect(tile.type === 'free-tile')
@@ -84,7 +84,7 @@ describe('Map factory', () => {
     });
 
     describe('Village generation', () => {
-      predefinedVillagesTests('Initial user', tiles.find(({ coordinates }) => coordinates.x === 0 && coordinates.y === 0)! as OccupiedFreeTile);
+      predefinedVillagesTests('Initial user', tiles.find(({ coordinates }) => coordinates.x === 0 && coordinates.y === 0)! as OccupiedOccupiableTile);
 
       const { artifactVillagesCoordinates } = predefinedVillagesCoordinates100x100Mock;
 
@@ -93,7 +93,7 @@ describe('Map factory', () => {
           x,
           y,
         } = mockCoordinates;
-        predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedFreeTile);
+        predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedOccupiableTile);
       });
     });
   });

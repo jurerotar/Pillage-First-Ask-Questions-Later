@@ -1,8 +1,8 @@
 import React from 'react';
-import { FreeTile } from 'interfaces/models/game/tile';
+import { OccupiableTile } from 'interfaces/models/game/tile';
 import { Icon, IconProps } from 'components/icon';
 
-type WheatFieldIconProps = Pick<FreeTile, 'resourceFieldComposition'> & Omit<IconProps, 'type'>;
+type WheatFieldIconProps = Pick<OccupiableTile, 'resourceFieldComposition'> & Omit<IconProps, 'type'>;
 
 export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({ resourceFieldComposition, ...rest }) => {
   return (
