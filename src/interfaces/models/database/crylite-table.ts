@@ -1,5 +1,7 @@
-export type CryliteTableName =
-  | 'servers'
+type CommonTableName =
+  | 'servers';
+
+type ServerSpecificTableName =
   | 'maps'
   | 'heroes'
   | 'villages'
@@ -11,4 +13,9 @@ export type CryliteTableName =
   | 'banks'
   | 'players'
   | 'reputations'
-  | 'researchLevels';
+  | 'researchLevels'
+  | 'mapFilters';
+
+export type CryliteTableName =
+  | CommonTableName
+  | ServerSpecificTableName;

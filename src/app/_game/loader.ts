@@ -27,6 +27,8 @@ import { Player } from 'interfaces/models/game/player';
 import { getPlayers, playersCacheKey } from 'hooks/game/use-players';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { getReputations, reputationsCacheKey } from 'hooks/game/use-reputations';
+import { getMapFilters, mapFiltersCacheKey } from 'hooks/game/preferences/use-map-filters';
+import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
 
 class CacheHydrationError extends Error {
   constructor(serverId: Server['id']) {
@@ -86,6 +88,7 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
     getAndSetCacheData<Report[]>(reportsCacheKey, () => getReports(serverId)),
     getAndSetCacheData<ResearchLevel[]>(researchLevelsCacheKey, () => getResearchLevels(serverId)),
     getAndSetCacheData<Village[]>(villagesCacheKey, () => getVillages(serverId)),
+    getAndSetCacheData<MapFilters>(mapFiltersCacheKey, () => getMapFilters(serverId)),
   ]);
 
   const hasHydrationErrorOccurred = resolvedPromises.some(promiseErrorFunction);

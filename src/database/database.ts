@@ -13,6 +13,7 @@ import { ResearchLevel } from 'interfaces/models/game/research-level';
 import { CryliteTableName } from 'interfaces/models/database/crylite-table';
 import { Player } from 'interfaces/models/game/player';
 import { Reputation } from 'interfaces/models/game/reputation';
+import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
 
 type TableIndex = string;
 
@@ -20,6 +21,7 @@ const DEFAULT_TABLE_INDEX: TableIndex[] = ['++id'];
 
 export const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['servers', ['slug']],
+  ['mapFilters', ['serverId']],
   ['maps', ['serverId']],
   ['heroes', ['serverId']],
   ['villages', ['[serverId+slug]']],
@@ -38,7 +40,10 @@ export const CRYLITE_TABLE_NAMES = CRYLITE_TABLES.keys();
 
 // https://dexie.org/docs/Version/Version.stores()
 export class CryliteDatabase extends Dexie {
+  // Common tables
   public servers!: Table<Server>;
+
+  // Server specific tables
   public maps!: Table<Tile>;
   public heroes!: Table<Hero>;
   public villages!: Table<Village>;
@@ -51,6 +56,7 @@ export class CryliteDatabase extends Dexie {
   public researchLevels!: Table<ResearchLevel>;
   public players!: Table<Player>;
   public reputations!: Table<Reputation>;
+  public mapFilters!: Table<MapFilters>;
 
   public amountOfTables: number;
 

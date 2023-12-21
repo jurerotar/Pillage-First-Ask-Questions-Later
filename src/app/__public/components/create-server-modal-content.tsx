@@ -307,6 +307,19 @@ export const CreateServerModalContent: React.FC = () => {
           await database.effects.bulkAdd(effects);
         });
 
+        // Map filters
+        await executeStep('Creating effects...', 'Created effects.', async () => {
+          await database.mapFilters.add({
+            serverId: server.id,
+            shouldShowFactionReputation: true,
+            shouldShowOasisIcons: true,
+            shouldShowTroopMovements: true,
+            shouldShowWheatFields: true,
+            shouldShowTileTooltips: true,
+            shouldShowTreasureIcons: true,
+          });
+        });
+
         setHasCreatedServer(true);
       } catch (err) {
         setError(err as string);
