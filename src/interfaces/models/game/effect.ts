@@ -30,23 +30,26 @@ export type BuildingEffectId =
   | 'buildingDurabilityBonus'
   | 'buildingDuration';
 
+export type ResourceProductionEffectId =
+  | 'woodProduction'
+  | 'clayProduction'
+  | 'ironProduction'
+  | 'wheatProduction';
+
 // Joined effect ids
 export type EffectId =
   | HeroEffectId
   | TroopTrainingDurationEffectId
   | TroopSpeedBonusEffectId
   | BuildingEffectId
+  | ResourceProductionEffectId
   | 'amountOfUncoveredAttackingUnits'
   // Research levels
   | 'amountOfUnlockedUnitResearchLevels'
   // Defence modifiers
 
   // Building duration
-  // Resource production
-  | 'woodProduction'
-  | 'clayProduction'
-  | 'ironProduction'
-  | 'wheatProduction'
+
   | 'woodProductionBonus'
   | 'clayProductionBonus'
   | 'ironProductionBonus'
@@ -74,8 +77,8 @@ export type EffectId =
 
 export type Effect = WithServerId<{
   // Server effects affect actions from all villages, village effects affect only actions from a particular village
-  scope: 'server' | 'village';
-  village_id?: Village['id'];
+  scope: 'global' | 'village';
+  villageId?: Village['id'];
   effectId: EffectId;
   value: number;
 }>;

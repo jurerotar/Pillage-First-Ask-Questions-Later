@@ -9,7 +9,7 @@ type CountdownProps = {
 export const Countdown: React.FC<CountdownProps> = (props) => {
   const {
     endTime,
-    className = ''
+    className = '',
   } = props;
 
   const [formattedTime, setFormattedTime] = useState<string>('');

@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+commitMessage=$(cat $1)
+
+# Allow git merge messages
+gitMergeMessage="Merge"
+
+commitMessageRegex="^(build|ci|docs|feat|chore|fix|perf|refactor|style|test|revert):.*$"
+
+if [[ ! "$commitMessage" =~ $commitMessageRegex && ! "$commitMessage" == "$gitMergeMessage"* ]]; then
+  printf 'The commit message is invalid. Consult CONTRIBUTING.md for the naming convention.'
+  exit 1
+fi

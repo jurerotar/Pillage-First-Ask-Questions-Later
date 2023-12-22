@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { FCWithChildren } from 'react';
 import clsx from 'clsx';
 
-type ParagraphProps = {
-  className?: string;
-  children: React.ReactNode;
-} & React.ParamHTMLAttributes<HTMLParagraphElement>;
+type ParagraphProps = React.HTMLProps<HTMLParagraphElement>;
 
-export const Paragraph: React.FC<ParagraphProps> = (props) => {
+export const Paragraph: FCWithChildren<ParagraphProps> = (props) => {
   const {
     className = '',
-    children
+    children,
+    ...rest
   } = props;
 
   return (
-    <p className={clsx(className, 'duration-default text-base text-gray-800 transition-colors dark:text-white')}>
+    <p
+      className={clsx(className, 'text-base text-gray-800 dark:text-white')}
+      {...rest}
+    >
       {children}
     </p>
   );

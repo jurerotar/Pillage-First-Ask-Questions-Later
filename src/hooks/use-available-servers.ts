@@ -1,35 +1,38 @@
 import { Server } from 'interfaces/models/game/server';
 import { database } from 'database/database';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-const cacheKey = 'available-servers';
+export const availableServerCacheKey = 'available-servers';
 
 export const useAvailableServers = () => {
-  const { mutate: mutateAvailableServers } = useDatabaseMutation({ cacheKey });
+  const queryClient = useQueryClient();
 
   const {
     data: availableServers,
     isLoading: areAvailableServersLoading,
     isSuccess: haveAvailableServersLoaded,
     status: availableServersQueryStatus
-  } = useAsyncLiveQuery<Server[]>({
+  } = useQuery<Server[]>({
+    queryKey: [availableServerCacheKey],
     queryFn: () => database.servers.toArray(),
-    fallback: [],
-    cacheKey
+    initialData: []
   });
 
-  const createServer = async (server: Server) => {
-    await mutateAvailableServers(async () => {
-      await database.servers.add(server, server.id);
-    });
-  };
+  const { mutateAsync: createServer } = useMutation<void, Error, { server: Server }>({
+    mutationFn: async ({ server }) => {
+      await database.servers.add(server);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [availableServerCacheKey],
+      });
+    }
+  });
 
-  const deleteServer = async (server: Server) => {
-    await mutateAvailableServers(async () => {
+  const { mutateAsync: deleteServer } = useMutation<void, Error, { server: Server }>({
+    mutationFn: async ({ server }) => {
       const { id: serverId } = server;
       await Promise.all([
-        database.servers.delete(server.id),
         database.maps.where({ serverId })
           .delete(),
         database.heroes.where({ serverId })
@@ -42,15 +45,29 @@ export const useAvailableServers = () => {
           .delete(),
         database.achievements.where({ serverId })
           .delete(),
-        database.researchLevels.where({ serverId })
-          .delete(),
         database.events.where({ serverId })
           .delete(),
         database.effects.where({ serverId })
+          .delete(),
+        database.banks.where({ serverId })
+          .delete(),
+        database.researchLevels.where({ serverId })
+          .delete(),
+        database.players.where({ serverId })
+          .delete(),
+        database.reputations.where({ serverId })
+          .delete(),
+        database.mapFilters.where({ serverId })
           .delete()
       ]);
-    });
-  };
+    },
+    onMutate: async ({ server }) => {
+      await database.servers.where({ id: server.id }).delete();
+      queryClient.invalidateQueries({
+        queryKey: [availableServerCacheKey]
+      });
+    },
+  });
 
   return {
     availableServers,

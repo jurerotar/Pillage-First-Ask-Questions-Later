@@ -15,7 +15,7 @@ export const Toggle: React.FC<ToggleProps> = (props) => {
     onChange,
     label = '',
     checked = false,
-    className = ''
+    className = '',
   } = props;
 
   const [isChecked, setIsChecked] = useState<boolean>(checked);
@@ -37,7 +37,7 @@ export const Toggle: React.FC<ToggleProps> = (props) => {
       />
       <label
         htmlFor={id}
-        className={clsx(isChecked ? 'bg-blue-500' : 'bg-gray-300', className, 'toggle-label duration-default relative block h-6 w-12 cursor-pointer rounded-full transition-colors ease-out')}
+        className={clsx(isChecked ? 'bg-blue-500' : 'bg-gray-300', className, 'toggle-label relative block h-6 w-12 cursor-pointer rounded-full ease-out')}
       >
         {label}
       </label>

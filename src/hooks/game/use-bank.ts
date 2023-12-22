@@ -1,32 +1,25 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
 import { Bank } from 'interfaces/models/game/bank';
 import { useFormatCurrency } from 'hooks/utils/use-format-currency';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { Server } from 'interfaces/models/game/server';
+import { useQuery } from '@tanstack/react-query';
 
-const DEFAULT_BANK: Bank = {
-  serverId: '',
-  amount: 0
-};
+export const banksCacheKey = 'banks';
 
-const cacheKey = 'banks';
+export const getBank = (serverId: Server['id']) => (database.banks.where({ serverId }).first() as Promise<Bank>);
 
 export const useBank = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateBank } = useDatabaseMutation({ cacheKey });
+  const { serverId } = useCurrentServer();
 
   const {
     data: bank,
     isLoading: isLoadingBank,
     isSuccess: hasLoadedBank,
-    status: bankQueryStatus
-  } = useAsyncLiveQuery<Bank | undefined, Bank>({
-    queryFn: () => database.banks.where({ serverId }).first(),
-    deps: [serverId],
-    fallback: DEFAULT_BANK,
-    cacheKey,
-    enabled: hasLoadedServer
+    status: bankQueryStatus,
+  } = useQuery<Bank>({
+    queryKey: [banksCacheKey, serverId],
+    queryFn: () => getBank(serverId),
   });
 
   const { amount } = (bank!);
@@ -34,7 +27,7 @@ export const useBank = () => {
   const {
     cooper,
     silver,
-    gold
+    gold,
   } = useFormatCurrency(amount);
 
   return {
@@ -45,6 +38,6 @@ export const useBank = () => {
     amount,
     cooper,
     silver,
-    gold
+    gold,
   };
 };

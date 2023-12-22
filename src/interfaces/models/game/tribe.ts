@@ -4,5 +4,6 @@ export type Tribe =
   | 'teutons'
   | 'egyptians'
   | 'huns'
+  | 'spartans'
   | 'nature'
   | 'natars';

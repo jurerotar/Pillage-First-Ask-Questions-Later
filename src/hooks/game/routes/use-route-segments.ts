@@ -8,11 +8,11 @@ type UseRouteSegmentsReturn = {
 export const useRouteSegments = (): UseRouteSegmentsReturn => {
   const {
     serverSlug,
-    villageSlug
+    villageSlug,
   } = useParams();
 
   return {
     serverSlug: serverSlug as string,
-    villageSlug: villageSlug as string
+    villageSlug: villageSlug as string,
   };
 };

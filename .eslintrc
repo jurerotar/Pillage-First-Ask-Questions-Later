@@ -28,6 +28,7 @@
     "no-continue": "off",
     "no-trailing-spaces": "off",
     "consistent-return": "warn",
+    "no-unused-vars": "error",
     "no-restricted-syntax": [
       "error",
       {
@@ -42,18 +43,10 @@
       "error",
       "expression"
     ],
+    "max-classes-per-file": "off",
     "class-methods-use-this": "off",
     "arrow-body-style": "off",
-    "comma-dangle": [
-      "error",
-      {
-        "arrays": "never",
-        "objects": "never",
-        "imports": "never",
-        "exports": "never",
-        "functions": "never"
-      }
-    ],
+    "comma-dangle": ["error", "only-multiline"],
     "max-len": [
       "error",
       {
@@ -85,6 +78,7 @@
         "tsx": "never"
       }
     ],
+    "react/react-in-jsx-scope": "off",
     "react/jsx-no-useless-fragment": "warn",
     "react/jsx-one-expression-per-line": "off",
     "react/jsx-max-props-per-line": [
@@ -97,6 +91,9 @@
     "react/require-default-props": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
+    "react/no-unstable-nested-components": ["error", {
+      "allowAsProps": true
+    }],
     "react/jsx-filename-extension": [
       "error",
       {

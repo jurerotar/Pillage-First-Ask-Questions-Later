@@ -19,7 +19,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
     isLoading = false,
     onClick = () => {},
     className = '',
-    children
+    children,
   } = props;
 
   return (
@@ -37,7 +37,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
         variant === 'danger' && 'bg-red-500',
         (isLoading || disabled) && 'bg-gray-500',
         className,
-        'duration-default w-fit rounded-md text-xs text-white transition-colors sm:text-base'
+        'w-fit rounded-md text-xs text-white sm:text-base'
       )}
     >
       {children}

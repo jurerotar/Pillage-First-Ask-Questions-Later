@@ -1,32 +1,38 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { Effect } from 'interfaces/models/game/effect';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useQuery } from '@tanstack/react-query';
+import { Server } from 'interfaces/models/game/server';
+import { useCurrentVillage } from 'hooks/game/use-current-village';
 
-const cacheKey = 'effects';
+export const effectsCacheKey = 'effects';
+
+export const getEffects = (serverId: Server['id']) => database.effects.where({ serverId }).toArray();
 
 export const useEffects = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateEffects } = useDatabaseMutation({ cacheKey });
+  const { serverId } = useCurrentServer();
+  const { currentVillageId } = useCurrentVillage();
 
   const {
     data: effects,
     isLoading: isLoadingEffects,
     isSuccess: hasLoadedEffects,
-    status: effectsQueryStatus
-  } = useAsyncLiveQuery<Effect[]>({
-    queryFn: () => database.effects.where({ serverId }).toArray(),
-    deps: [serverId],
-    fallback: [],
-    cacheKey,
-    enabled: hasLoadedServer
+    status: effectsQueryStatus,
+  } = useQuery<Effect[]>({
+    queryFn: () => getEffects(serverId),
+    queryKey: [effectsCacheKey, serverId],
+    initialData: [],
   });
+
+  const globalEffects = effects.filter(({ scope }) => scope === 'global');
+  const currentVillageEffects = effects.filter(({ villageId }) => villageId === currentVillageId);
 
   return {
     effects,
     isLoadingEffects,
     hasLoadedEffects,
-    effectsQueryStatus
+    effectsQueryStatus,
+    globalEffects,
+    currentVillageEffects,
   };
 };

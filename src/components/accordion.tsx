@@ -1,6 +1,4 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import clsx from 'clsx';
 
 type AccordionProps = {
@@ -17,7 +15,7 @@ export const Accordion: React.FC<AccordionProps> = (props) => {
     opened = false,
     summaryClassName = '',
     className = '',
-    children
+    children,
   } = props;
 
   return (
@@ -29,11 +27,10 @@ export const Accordion: React.FC<AccordionProps> = (props) => {
         <span>
           {summary}
         </span>
-        <FontAwesomeIcon
-          className="scale-75"
-          icon={faChevronUp}
-          fixedWidth
-        />
+        {/* <Icon */}
+        {/*  className="scale-75" */}
+        {/*  icon={faChevronUp} */}
+        {/* /> */}
       </summary>
       <div className={clsx(className, 'p-4')}>
         {children}

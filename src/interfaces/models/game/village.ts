@@ -2,9 +2,10 @@ import { Point } from 'interfaces/models/common';
 import { Resource, Resources } from 'interfaces/models/game/resource';
 import { Building } from 'interfaces/models/game/building';
 import { Server } from 'interfaces/models/game/server';
+import { Player } from 'interfaces/models/game/player';
 
 export type ResourceFieldId =
-  '1'
+  | '1'
   | '2'
   | '3'
   | '4'
@@ -24,12 +25,13 @@ export type ResourceFieldId =
   | '18';
 
 export type ResourceField = {
+  resourceFieldId: ResourceFieldId;
   type: Resource;
   level: number;
 };
 
-export type ResourceFieldType =
-  '4446'
+export type ResourceFieldComposition =
+  | '4446'
   | '5436'
   | '5346'
   | '4536'
@@ -43,61 +45,36 @@ export type ResourceFieldType =
   | '11115'
   | '00018';
 
-export type ResourceFieldLayout = {
-  [key in ResourceFieldId]: Resource;
-};
-
-export type ResourceFieldLayoutByFieldType = {
-  [key in ResourceFieldType]: ResourceFieldLayout;
-};
-
-export type ResourceFields = {
-  [key in ResourceFieldId]: ResourceField | null;
-};
-
+// Just kinda reusing a type, since there's no differences between most ids
 export type BuildingFieldId =
-  '1'
-  | '2'
-  | '3'
-  | '4'
-  | '5'
-  | '6'
-  | '7'
-  | '8'
-  | '9'
-  | '10'
-  | '11'
-  | '12'
-  | '13'
-  | '14'
-  | '15'
-  | '16'
-  | '17'
-  | '18'
+  | ResourceFieldId
   | '19'
   | '20';
 
 export type BuildingField = {
-  buildingId: Building['id'];
+  buildingFieldId: BuildingFieldId;
+  buildingId: Building['id'] | null;
   level: number;
-};
-
-export type BuildingFields = {
-  [key in BuildingFieldId]: BuildingField | null;
 };
 
 export type Village = {
   serverId: Server['id'];
   id: string;
+  playerId: Player['id'];
   name: string;
   slug: string;
   lastUpdatedAt: number;
-  position: Point;
+  coordinates: Point;
   resources: Resources;
-  storageCapacity: Resources;
-  hourlyProduction: Resources;
-  resourceFields: ResourceFields;
-  buildingFields: BuildingFields;
+  resourceFields: ResourceField[];
+  buildingFields: BuildingField[];
   isCapital: boolean;
-  ownedBy: number;
+};
+
+export type VillageBuildingFieldsPresetName =
+  | 'new-village';
+
+export type VillageBuildingFieldsPreset = {
+  preset: VillageBuildingFieldsPresetName;
+  buildingFields: BuildingField[];
 };

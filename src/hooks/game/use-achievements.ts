@@ -1,32 +1,31 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { Achievement } from 'interfaces/models/game/achievement';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useQuery } from '@tanstack/react-query';
+import { Server } from 'interfaces/models/game/server';
 
-const cacheKey = 'achievements';
+export const achievementsCacheKey = 'achievements';
+
+export const getAchievements = (serverId: Server['id']) => database.achievements.where({ serverId }).toArray();
 
 export const useAchievements = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateAchievements } = useDatabaseMutation({ cacheKey });
+  const { serverId } = useCurrentServer();
 
   const {
     data: achievements,
     isLoading: isLoadingAchievements,
     isSuccess: hasLoadedAchievements,
-    status: achievementsQueryStatus
-  } = useAsyncLiveQuery<Achievement[]>({
-    queryFn: () => database.achievements.where({ serverId }).toArray(),
-    deps: [serverId],
-    fallback: [],
-    cacheKey,
-    enabled: hasLoadedServer
+    status: achievementsQueryStatus,
+  } = useQuery<Achievement[]>({
+    queryFn: () => getAchievements(serverId),
+    queryKey: [achievementsCacheKey, serverId],
+    initialData: [],
   });
 
   return {
     achievements,
     isLoadingAchievements,
     hasLoadedAchievements,
-    achievementsQueryStatus
+    achievementsQueryStatus,
   };
 };

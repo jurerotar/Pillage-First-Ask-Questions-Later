@@ -1,44 +1,37 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { GameEvent } from 'interfaces/models/events/game-event';
-import { useCallback, useEffect, useState } from 'react';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Server } from 'interfaces/models/game/server';
 
-const cacheKey = 'events';
+export const eventsCacheKey = 'events';
+
+export const getEvents = (serverId: Server['id']) => database.events.where({ serverId }).toArray();
 
 export const useEvents = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateEvents } = useDatabaseMutation({ cacheKey });
-
-  const [isResolvingEvents, setIsResolvingEvents] = useState<boolean>(false);
+  const { serverId } = useCurrentServer();
 
   const {
     data: events,
     isLoading: isLoadingEvents,
     isSuccess: hasLoadedEvents,
-    status: eventsQueryStatus
-  } = useAsyncLiveQuery<GameEvent[]>({
-    queryFn: () => database.events.where({ serverId }).toArray(),
-    deps: [serverId],
-    fallback: [],
-    cacheKey,
-    enabled: hasLoadedServer
+    status: eventsQueryStatus,
+  } = useQuery<GameEvent[]>({
+    queryFn: () => getEvents(serverId),
+    queryKey: [eventsCacheKey, serverId],
+    initialData: [],
   });
 
   const createEvent = useCallback(() => {
 
   }, []);
 
-  useEffect(() => {
-
-  }, [isResolvingEvents]);
-
   return {
     events,
     isLoadingEvents,
     hasLoadedEvents,
     eventsQueryStatus,
-    isResolvingEvents
+    createEvent,
   };
 };

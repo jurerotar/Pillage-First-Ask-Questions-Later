@@ -16,8 +16,8 @@ const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
       returnObjects: false,
       resources: {
         'en-US': {
-          translation: enUsLocalization
-        }
-      }
+          translation: enUsLocalization,
+        },
+      },
     });
 })();

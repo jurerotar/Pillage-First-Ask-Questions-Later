@@ -2,20 +2,38 @@ import { Resource } from 'interfaces/models/game/resource';
 import { WithServerId } from 'interfaces/models/game/server';
 
 export type Hero = WithServerId<{
-  name: string;
-  level: number;
-  experience: number;
-  health: number;
-  healthRegenerationRate: number;
-  speed: number;
-  attackPower: number;
-  resourceProduction: number;
+  stats: HeroStats;
+  // Attributes determined by tribe
+  staticAttributes: HeroStaticAttributes;
+  // Attributes, selectable on every level
+  selectableAttributes: HeroSelectableAttributes;
   resourceToProduce: Resource | 'shared';
-  attackBonus: number;
-  defenceBonus: number;
   unitType: 'infantry' | 'cavalry';
   inventory: HeroItem[];
 }>;
+
+export type HeroStats = {
+  level: number;
+  experience: number;
+  health: number;
+};
+
+export type HeroStaticAttributes = {
+  unmountedSpeed: number;
+  mountedSpeed: number;
+  baseAttackPower: number;
+  baseHealthRegenerationRate: number;
+  resourceProduction: number;
+  infantryTroopSpeedBonus: number;
+  mountedTroopSpeedBonus: number;
+};
+
+export type HeroSelectableAttributes = {
+  attackPower: number;
+  resourceProduction: number;
+  attackBonus: number;
+  defenceBonus: number;
+};
 
 export type HeroItemSlot = 'head' | 'torso' | 'legs' | 'gloves' | 'right-hand' | 'left-hand' | 'horse' | 'consumable';
 

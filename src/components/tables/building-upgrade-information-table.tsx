@@ -16,7 +16,7 @@ type DisplayedProperty = keyof Omit<Building, 'id' | 'maxLevel' | 'effects' | 'b
 export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableProps> = (props) => {
   const {
     building,
-    level
+    level,
   } = props;
 
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformatio
     'totalResourceCost',
     'cropConsumption',
     'culturePointsProduction',
-    'buildingDuration'
+    'buildingDuration',
   ];
 
   const propertyTranslationMap: { [key in DisplayedProperty]: string } = {
@@ -42,7 +42,7 @@ export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformatio
     totalResourceCost: 'GENERAL.BUILDING.TOTAL_RESOURCE_COST',
     cropConsumption: 'GAME.EFFECTS.CROP_CONSUMPTION',
     culturePointsProduction: 'GAME.EFFECTS.CULTURE_POINTS_PRODUCTION',
-    buildingDuration: 'GAME.EFFECTS.BUILDING_DURATION'
+    buildingDuration: 'GAME.EFFECTS.BUILDING_DURATION',
   };
 
   return (

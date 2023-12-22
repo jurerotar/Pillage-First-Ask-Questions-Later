@@ -3,6 +3,6 @@ import { env } from 'config/env';
 
 export const useEnvironment = (): Env => {
   return {
-    ...env
+    ...env,
   };
 };
