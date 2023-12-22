@@ -8,8 +8,8 @@ import { Tooltip } from 'components/tooltip';
 import { Point } from 'interfaces/models/common';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
-import { useMapFilters } from 'hooks/game/preferences/use-map-filters';
-import { useMapOptions } from 'app/_game/map/providers/map-context';
+import { useMapFilters } from 'hooks/game/use-map-filters';
+import { useMapOptions } from './providers/map-context';
 import { MapControls } from './components/map-controls';
 import { Cell } from './components/cell';
 

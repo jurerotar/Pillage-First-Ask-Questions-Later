@@ -26,7 +26,7 @@ import { Player } from 'interfaces/models/game/player';
 import { getPlayers, playersCacheKey } from 'hooks/game/use-players';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { getReputations, reputationsCacheKey } from 'hooks/game/use-reputations';
-import { getMapFilters, mapFiltersCacheKey } from 'hooks/game/preferences/use-map-filters';
+import { getMapFilters, mapFiltersCacheKey } from 'hooks/game/use-map-filters';
 import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 

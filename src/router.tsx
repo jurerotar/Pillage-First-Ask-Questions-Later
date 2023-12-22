@@ -3,12 +3,12 @@ import { createBrowserRouter, createRoutesFromElements, Route } from 'react-rout
 import { AppLayout } from 'app/layout';
 import { gameLoader } from 'app/_game/loader';
 
-const PublicLayout = lazy(async () => ({ default: (await import('app/__public/layout')).PublicLayout }));
-const HomePage = lazy(async () => ({ default: (await import('app/__public/home/page')).HomePage }));
-const VillagePage = lazy(async () => ({ default: (await import('app/_game/village/page')).VillagePage }));
-const ResourcesPage = lazy(async () => ({ default: (await import('app/_game/resources/page')).ResourcesPage }));
-const MapPage = lazy(async () => ({ default: (await import('app/_game/map/page')).MapPage }));
-const MapProvider = lazy(async () => ({ default: (await import('app/_game/map/providers/map-context')).MapProvider }));
+const PublicLayout = lazy(async () => ({ default: (await import('app/[public]/layout')).PublicLayout }));
+const HomePage = lazy(async () => ({ default: (await import('app/[public]/_index/page')).HomePage }));
+const VillagePage = lazy(async () => ({ default: (await import('app/_game/_village/page')).VillagePage }));
+const ResourcesPage = lazy(async () => ({ default: (await import('app/_game/_resources/page')).ResourcesPage }));
+const MapPage = lazy(async () => ({ default: (await import('app/_game/_map/page')).MapPage }));
+const MapProvider = lazy(async () => ({ default: (await import('app/_game/_map/providers/map-context')).MapProvider }));
 const GameLayout = lazy(async () => ({ default: (await import('app/_game/layout')).GameLayout }));
 const GameProviders = lazy(async () => ({ default: (await import('app/_game/providers/game-providers')).GameProviders }));
 const GameErrorBoundary = lazy(async () => ({ default: (await import('app/_game/error-boundary')).GameErrorBoundary }));

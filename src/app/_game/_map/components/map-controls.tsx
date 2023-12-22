@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Icon } from 'components/icon';
 import { Tooltip } from 'components/tooltip';
 import { useTranslation } from 'react-i18next';
-import { useMapFilters } from 'hooks/game/preferences/use-map-filters';
+import { useMapFilters } from 'hooks/game/use-map-filters';
 import { useMapOptions } from '../providers/map-context';
 
 type DividerProps = {
