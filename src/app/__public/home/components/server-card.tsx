@@ -1,9 +1,8 @@
 import React from 'react';
 import { Server } from 'interfaces/models/game/server';
-import { useNavigate } from 'react-router-dom';
-import { Button } from 'components/buttons/button';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAvailableServers } from 'hooks/use-available-servers';
-import { setToCache } from 'database/cache';
+import { Button } from 'components/buttons/button';
 
 type ServerCardProps = {
   server: Server;
@@ -11,16 +10,10 @@ type ServerCardProps = {
 
 export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const {
-    server,
+    server
   } = props;
 
-  const navigate = useNavigate();
   const { deleteServer } = useAvailableServers();
-
-  const hydrateCurrentServerCache = (selectedServer: Server) => {
-    setToCache('current-server', selectedServer);
-    navigate(`/game/${selectedServer.slug}/v-1/map`);
-  };
 
   return (
     <div
@@ -48,13 +41,15 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           </span>
         </span>
       </div>
-      <Button onClick={() => hydrateCurrentServerCache(server)}>
-        Enter server
-      </Button>
+      <Link to={`/game/${server.slug}/v-1/map`}>
+        <Button>
+          Enter server
+        </Button>
+      </Link>
       <button
         type="button"
         className="absolute -right-2 -top-2 flex items-center justify-center rounded-full border border-gray-400 bg-white p-2"
-        onClick={() => deleteServer(server)}
+        onClick={() => deleteServer({ server })}
       >
         <span className="h-2 w-2 leading-none">
           x

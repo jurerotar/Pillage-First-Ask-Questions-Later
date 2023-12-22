@@ -121,8 +121,6 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
 };
 
 type CreateServerLoaderViewProps = {
-  progressMessage: string;
-  progressHistory: string[];
   progressPercentage: number;
   hasCreatedServer: boolean;
   errorMessage: string | null;
@@ -130,8 +128,6 @@ type CreateServerLoaderViewProps = {
 
 const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) => {
   const {
-    progressMessage,
-    progressHistory,
     progressPercentage,
     hasCreatedServer,
     errorMessage,
@@ -152,18 +148,8 @@ const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) =>
             </p>
           )}
           {!hasCreatedServer && (
-            <>
-              <p>
-                {progressMessage}
-              </p>
-              <ProgressBar value={progressPercentage} />
-            </>
+            <ProgressBar value={progressPercentage} />
           )}
-          <ol>
-            {progressHistory.map((history: string) => (
-              <li key={history}>{history}</li>
-            ))}
-          </ol>
         </>
       )}
     </div>
@@ -178,17 +164,11 @@ export const CreateServerModalContent: React.FC = () => {
 
   const [view, setView] = useState<CreateServerModalView>('configuration');
   const [progressPercentage, setProgressPercentage] = useState<number>(0);
-  const [progressMessage, setProgressMessage] = useState<string>('');
-  const [progressHistory, setProgressHistory] = useState<string[]>([]);
   const [hasCreatedServer, setHasCreatedServer] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   const { amountOfTables } = database;
   const percentageIncrease = Math.round(100 / amountOfTables);
-
-  const updateProgressHistory = (message: string) => {
-    setProgressHistory((prev) => [...prev, message]);
-  };
 
   const onSubmit = useCallback((server: Server) => {
     setView('loader');
@@ -198,22 +178,15 @@ export const CreateServerModalContent: React.FC = () => {
         setProgressPercentage((prevState) => prevState + percentage);
       };
 
-      const executeStep = async <T, >(currentMessage: string, historyMessage: string, promise: () => Promise<T>): Promise<T> => {
-        setProgressMessage(currentMessage);
+      const executeStep = async <T, >(promise: () => Promise<T>): Promise<T> => {
         updatePercentage();
         const result = await promise();
-        updateProgressHistory(historyMessage);
         return result;
       };
 
       try {
-        // Server data
-        await executeStep('Creating server data...', 'Created server data.', async () => {
-          await createServer(server);
-        });
-
         // Players/factions
-        const players = await executeStep('Creating factions...', 'Created factions.', async () => {
+        const players = await executeStep(async () => {
           const { players: generatedPlayers } = await workerFactory<GeneratePlayersWorkerReturn, GeneratePlayersWorkerPayload>(
             CreatePlayersWorker,
             { server },
@@ -226,7 +199,7 @@ export const CreateServerModalContent: React.FC = () => {
         const userPlayer = players.find(({ faction }) => faction === 'player')!;
 
         // Reputations
-        await executeStep('Creating reputations...', 'Created reputations.', async () => {
+        await executeStep(async () => {
           const { reputations } = await workerFactory<GenerateReputationsWorkerReturn, GenerateReputationsWorkerPayload>(
             CreateReputationsWorker,
             { server, players },
@@ -236,7 +209,7 @@ export const CreateServerModalContent: React.FC = () => {
         });
 
         // Map data
-        const tiles = await executeStep<Tile[]>('Creating map data...', 'Created map data.', async () => {
+        const tiles = await executeStep<Tile[]>(async () => {
           const { tiles: generatedTiles } = await workerFactory<GenerateWorldMapWorkerReturn, GenerateWorldMapWorkerPayload>(
             CreateMapWorker,
             { server, players },
@@ -247,7 +220,7 @@ export const CreateServerModalContent: React.FC = () => {
         });
 
         // Villages
-        const villages = await executeStep('Creating village data...', 'Created village data.', async () => {
+        const villages = await executeStep(async () => {
           const { villages: generatedVillages } = await workerFactory<GenerateVillageWorkerReturn, GenerateVillageWorkerPayload>(
             CreateVillagesWorker,
             { server, tiles, players },
@@ -260,25 +233,25 @@ export const CreateServerModalContent: React.FC = () => {
         const playerStartingVillage = villages.find(({ playerId }) => playerId === userPlayer.id)!;
 
         // Research levels
-        await executeStep('Creating research levels data...', 'Created research levels data.', async () => {
+        await executeStep(async () => {
           const researchLevels = researchLevelsFactory({ server });
           await database.researchLevels.bulkAdd(researchLevels);
         });
 
         // Bank data
-        await executeStep('Creating bank data...', 'Created bank data.', async () => {
+        await executeStep(async () => {
           const bank = bankFactory({ server });
           await database.banks.add(bank);
         });
 
         // Hero data
-        await executeStep('Creating hero data...', 'Created hero data.', async () => {
+        await executeStep(async () => {
           const hero = heroFactory({ server });
           await database.heroes.add(hero);
         });
 
         // Quests
-        await executeStep('Creating quests...', 'Created quests.', async () => {
+        await executeStep(async () => {
           const { quests } = await workerFactory<GenerateQuestsWorkerReturn, GenerateQuestsWorkerPayload>(
             CreateQuestsWorker,
             { server, village: playerStartingVillage },
@@ -288,7 +261,7 @@ export const CreateServerModalContent: React.FC = () => {
         });
 
         // Achievements
-        await executeStep('Creating achievements...', 'Created achievements.', async () => {
+        await executeStep(async () => {
           const { achievements } = await workerFactory<GenerateAchievementsWorkerReturn, GenerateAchievementsWorkerPayload>(
             CreateAchievementsWorker,
             { server },
@@ -298,7 +271,7 @@ export const CreateServerModalContent: React.FC = () => {
         });
 
         // Effects
-        await executeStep('Creating effects...', 'Created effects.', async () => {
+        await executeStep(async () => {
           const { effects } = await workerFactory<GenerateEffectsWorkerReturn, GenerateEffectsWorkerPayload>(
             CreateEffectsWorker,
             { server, village: playerStartingVillage },
@@ -308,7 +281,7 @@ export const CreateServerModalContent: React.FC = () => {
         });
 
         // Map filters
-        await executeStep('Creating effects...', 'Created effects.', async () => {
+        await executeStep(async () => {
           await database.mapFilters.add({
             serverId: server.id,
             shouldShowFactionReputation: true,
@@ -320,10 +293,15 @@ export const CreateServerModalContent: React.FC = () => {
           });
         });
 
+        // Server
+        await executeStep(async () => {
+          await createServer({ server });
+        });
+
         setHasCreatedServer(true);
       } catch (err) {
         setError(err as string);
-        await deleteServer(server);
+        await deleteServer({ server });
       }
     })();
     setView('loader');
@@ -336,9 +314,7 @@ export const CreateServerModalContent: React.FC = () => {
       )}
       {view === 'loader' && (
         <CreateServerLoaderView
-          progressMessage={progressMessage}
           progressPercentage={progressPercentage}
-          progressHistory={progressHistory}
           hasCreatedServer={hasCreatedServer}
           errorMessage={error}
         />

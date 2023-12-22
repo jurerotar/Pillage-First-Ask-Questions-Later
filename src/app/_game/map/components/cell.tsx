@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import { usePlayers } from 'hooks/game/use-players';
 import { useReputations } from 'hooks/game/use-reputations';
 import { ReputationLevel } from 'interfaces/models/game/reputation';
+import { useMapFilters } from 'hooks/game/preferences/use-map-filters';
 import { useMapOptions } from '../providers/map-context';
 import { OccupiableOasisIcon } from './occupiable-oasis-icon';
 import { WheatFieldIcon } from './wheat-field-icon';
@@ -28,7 +29,7 @@ type OccupiableOasisProps = {
 };
 
 const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
-  const { mapFilters: { shouldShowOasisIcons } } = useMapOptions();
+  const { mapFilters: { shouldShowOasisIcons } } = useMapFilters();
 
   const isOccupiable = tile.oasisBonus !== null;
   const isOccupied = Object.hasOwn(tile, 'villageId');
@@ -66,7 +67,7 @@ type OccupiableTileProps = {
 };
 
 const OccupiableTile: React.FC<OccupiableTileProps> = ({ tile }) => {
-  const { mapFilters: { shouldShowWheatFields } } = useMapOptions();
+  const { mapFilters: { shouldShowWheatFields } } = useMapFilters();
 
   const wheatFields = ['00018', '11115', '3339'];
   const isWheatField = wheatFields.includes(tile.resourceFieldComposition);
@@ -93,7 +94,7 @@ type OccupiedOccupiableTileProps = {
 };
 
 const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile }) => {
-  const { mapFilters: { shouldShowFactionReputation, shouldShowTreasureIcons } } = useMapOptions();
+  const { mapFilters: { shouldShowFactionReputation, shouldShowTreasureIcons } } = useMapFilters();
   const { getFactionByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
 
@@ -125,8 +126,7 @@ const A = () => {
 export const Cell: React.FC<CellProps> = ({ data, style, rowIndex, columnIndex }) => {
   const { map, openModal, setModalContents } = data;
 
-  const { server } = useCurrentServer();
-  const { mapSize } = server.configuration;
+  const { server: { configuration: { mapSize } } } = useCurrentServer();
   const gridSize = mapSize! + 1;
 
   const tile: TileType = map[gridSize * rowIndex + columnIndex];

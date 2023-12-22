@@ -2,7 +2,6 @@ import React, { lazy } from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
 import { AppLayout } from 'app/layout';
 import { gameLoader } from 'app/_game/loader';
-import { GameErrorBoundary } from 'app/_game/error-boundary';
 
 const PublicLayout = lazy(async () => ({ default: (await import('app/__public/layout')).PublicLayout }));
 const HomePage = lazy(async () => ({ default: (await import('app/__public/home/page')).HomePage }));
@@ -11,7 +10,8 @@ const ResourcesPage = lazy(async () => ({ default: (await import('app/_game/reso
 const MapPage = lazy(async () => ({ default: (await import('app/_game/map/page')).MapPage }));
 const MapProvider = lazy(async () => ({ default: (await import('app/_game/map/providers/map-context')).MapProvider }));
 const GameLayout = lazy(async () => ({ default: (await import('app/_game/layout')).GameLayout }));
-const GameEngineProvider = lazy(async () => ({ default: (await import('app/_game/game-engine')).GameEngineProvider }));
+const GameProviders = lazy(async () => ({ default: (await import('app/_game/providers/game-providers')).GameProviders }));
+const GameErrorBoundary = lazy(async () => ({ default: (await import('app/_game/error-boundary')).GameErrorBoundary }));
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,7 +30,7 @@ export const router = createBrowserRouter(
       <Route
         id="game-engine"
         path="/game/:serverSlug/:villageSlug/"
-        element={<GameEngineProvider />}
+        element={<GameProviders />}
         loader={gameLoader}
         errorElement={<GameErrorBoundary />}
       >

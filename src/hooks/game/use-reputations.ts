@@ -1,7 +1,6 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useQuery } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { PlayerFaction } from 'interfaces/models/game/player';
@@ -11,20 +10,17 @@ export const reputationsCacheKey = 'reputations';
 export const getReputations = (serverId: Server['id']) => database.reputations.where({ serverId }).toArray();
 
 export const useReputations = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateReputations } = useDatabaseMutation({ cacheKey: reputationsCacheKey });
+  const { serverId } = useCurrentServer();
 
   const {
     data: reputations,
     isLoading: isLoadingReputations,
     isSuccess: hasLoadedReputations,
     status: reputationsQueryStatus,
-  } = useAsyncLiveQuery<Reputation[]>({
+  } = useQuery<Reputation[]>({
     queryFn: () => getReputations(serverId),
-    deps: [serverId],
-    fallback: [],
-    cacheKey: reputationsCacheKey,
-    enabled: hasLoadedServer,
+    queryKey: [reputationsCacheKey, serverId],
+    initialData: [],
   });
 
   const getReputationByFaction = (faction: PlayerFaction): Reputation => {
@@ -36,7 +32,6 @@ export const useReputations = () => {
     isLoadingReputations,
     hasLoadedReputations,
     reputationsQueryStatus,
-    mutateReputations,
     getReputationByFaction,
   };
 };

@@ -10,7 +10,6 @@ import { getReports, reportsCacheKey } from 'hooks/game/use-reports';
 import { getResearchLevels, researchLevelsCacheKey } from 'hooks/game/use-research-levels';
 import { getVillages, villagesCacheKey } from 'hooks/game/use-villages';
 import { currentServerCacheKey, getCurrentServer } from 'hooks/game/use-current-server';
-import { getAndSetCacheData } from 'database/cache';
 import { Achievement } from 'interfaces/models/game/achievement';
 import { Bank } from 'interfaces/models/game/bank';
 import { Village } from 'interfaces/models/game/village';
@@ -29,14 +28,7 @@ import { Reputation } from 'interfaces/models/game/reputation';
 import { getReputations, reputationsCacheKey } from 'hooks/game/use-reputations';
 import { getMapFilters, mapFiltersCacheKey } from 'hooks/game/preferences/use-map-filters';
 import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
-
-class CacheHydrationError extends Error {
-  constructor(serverId: Server['id']) {
-    super();
-    this.name = 'CacheHydrationError';
-    this.message = `One or more database entries are missing for server with id: ${serverId}.`;
-  }
-}
+import { dehydrate, QueryClient } from '@tanstack/react-query';
 
 class MissingServerError extends Error {
   constructor(serverSlug: Server['slug']) {
@@ -56,48 +48,90 @@ class MissingVillageError extends Error {
 
 type GameLoaderParams = Record<'serverSlug' | 'villageSlug', string>;
 
-const promiseErrorFunction = (resolvedPromise: PromiseSettledResult<unknown>) => resolvedPromise.status === 'rejected' || resolvedPromise?.value === undefined;
-
 export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) => {
-  const { serverSlug, villageSlug } = params as GameLoaderParams;
-  const currentServer = await getAndSetCacheData<Server | undefined>(currentServerCacheKey, () => getCurrentServer(serverSlug));
+  const {
+    serverSlug,
+    villageSlug
+  } = params as GameLoaderParams;
+
+  const queryClient = new QueryClient();
+
+  const currentServer: Server | undefined = await getCurrentServer(serverSlug);
 
   if (!currentServer) {
     throw new MissingServerError(serverSlug);
   }
 
-  const serverId = currentServer.id!;
+  queryClient.setQueryData<Server>([currentServerCacheKey, serverSlug], currentServer);
 
-  const currentVillage = await getAndSetCacheData<Village | undefined>(currentVillageCacheKey, () => getCurrentVillage(serverId, villageSlug));
+  const { id: serverId } = currentServer;
+
+  const currentVillage: Village | undefined = await getCurrentVillage(serverId, villageSlug);
 
   if (!currentVillage) {
     throw new MissingVillageError(serverSlug, villageSlug);
   }
 
+  queryClient.setQueryData<Village>([currentVillageCacheKey, serverId, villageSlug], currentVillage);
+
   // Cache hydration
-  const resolvedPromises = await Promise.allSettled([
-    getAndSetCacheData<Player[]>(playersCacheKey, () => getPlayers(serverId)),
-    getAndSetCacheData<Reputation[]>(reputationsCacheKey, () => getReputations(serverId)),
-    getAndSetCacheData<Achievement[]>(achievementsCacheKey, () => getAchievements(serverId)),
-    getAndSetCacheData<Bank | undefined>(banksCacheKey, () => getBank(serverId)),
-    getAndSetCacheData<Effect[]>(effectsCacheKey, () => getEffects(serverId)),
-    getAndSetCacheData<GameEvent[]>(eventsCacheKey, () => getEvents(serverId)),
-    getAndSetCacheData<Hero | undefined>(heroCacheKey, () => getHero(serverId)),
-    getAndSetCacheData<Tile[]>(mapCacheKey, () => getMap(serverId)),
-    getAndSetCacheData<Quest[]>(questsCacheKey, () => getQuests(serverId)),
-    getAndSetCacheData<Report[]>(reportsCacheKey, () => getReports(serverId)),
-    getAndSetCacheData<ResearchLevel[]>(researchLevelsCacheKey, () => getResearchLevels(serverId)),
-    getAndSetCacheData<Village[]>(villagesCacheKey, () => getVillages(serverId)),
-    getAndSetCacheData<MapFilters>(mapFiltersCacheKey, () => getMapFilters(serverId)),
+  await Promise.allSettled([
+    queryClient.prefetchQuery<Player[]>({
+      queryKey: [playersCacheKey, serverId],
+      queryFn: () => getPlayers(serverId)
+    }),
+    queryClient.prefetchQuery<Reputation[]>({
+      queryKey: [reputationsCacheKey, serverId],
+      queryFn: () => getReputations(serverId)
+    }),
+    queryClient.prefetchQuery<Achievement[]>({
+      queryKey: [achievementsCacheKey, serverId],
+      queryFn: () => getAchievements(serverId)
+    }),
+    queryClient.prefetchQuery<Bank>({
+      queryKey: [banksCacheKey, serverId],
+      queryFn: () => getBank(serverId)
+    }),
+    queryClient.prefetchQuery<Effect[]>({
+      queryKey: [effectsCacheKey, serverId],
+      queryFn: () => getEffects(serverId)
+    }),
+    queryClient.prefetchQuery<GameEvent[]>({
+      queryKey: [eventsCacheKey, serverId],
+      queryFn: () => getEvents(serverId)
+    }),
+    queryClient.prefetchQuery<Hero>({
+      queryKey: [heroCacheKey, serverId],
+      queryFn: () => getHero(serverId)
+    }),
+    queryClient.prefetchQuery<Tile[]>({
+      queryKey: [mapCacheKey, serverId],
+      queryFn: () => getMap(serverId)
+    }),
+    queryClient.prefetchQuery<Quest[]>({
+      queryKey: [questsCacheKey, serverId],
+      queryFn: () => getQuests(serverId)
+    }),
+    queryClient.prefetchQuery<Report[]>({
+      queryKey: [reportsCacheKey, serverId],
+      queryFn: () => getReports(serverId)
+    }),
+    queryClient.prefetchQuery<ResearchLevel[]>({
+      queryKey: [researchLevelsCacheKey, serverId],
+      queryFn: () => getResearchLevels(serverId)
+    }),
+    queryClient.prefetchQuery<Village[]>({
+      queryKey: [villagesCacheKey, serverId],
+      queryFn: () => getVillages(serverId)
+    }),
+    queryClient.prefetchQuery<MapFilters>({
+      queryKey: [mapFiltersCacheKey, serverId],
+      queryFn: () => getMapFilters(serverId)
+    })
   ]);
-
-  const hasHydrationErrorOccurred = resolvedPromises.some(promiseErrorFunction);
-
-  if (hasHydrationErrorOccurred) {
-    throw new CacheHydrationError(serverId);
-  }
 
   return {
     resolved: true,
+    dehydratedState: dehydrate(queryClient),
   };
 };

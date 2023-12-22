@@ -1,27 +1,29 @@
 import { database } from 'database/database';
 import { useRouteSegments } from 'hooks/game/routes/use-route-segments';
 import { Server } from 'interfaces/models/game/server';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
+import { useQuery } from '@tanstack/react-query';
 
 export const currentServerCacheKey = 'current-server';
 
-export const getCurrentServer = (serverSlug: Server['slug']) => database.servers.where({ slug: serverSlug }).first();
+export const getCurrentServer = (serverSlug: Server['slug']) => (database.servers.where({ slug: serverSlug }).first() as Promise<Server>);
 
 export const useCurrentServer = () => {
   const { serverSlug } = useRouteSegments();
 
   const {
-    data: server,
+    data,
     isLoading: isLoadingServer,
     isSuccess: hasLoadedServer,
     status: serverQueryStatus,
-  } = useAsyncLiveQuery<Server>({
-    queryFn: () => getCurrentServer(serverSlug) as unknown as Promise<Server>,
-    deps: [serverSlug],
-    cacheKey: currentServerCacheKey,
+  } = useQuery<Server>({
+    queryKey: [currentServerCacheKey, serverSlug],
+    queryFn: () => getCurrentServer(serverSlug),
   });
 
-  const serverId = server!.id;
+  // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
+  const server = data as Server;
+
+  const serverId = server.id;
 
   return {
     server,

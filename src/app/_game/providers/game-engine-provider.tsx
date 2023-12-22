@@ -1,11 +1,10 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { createContext, FCWithChildren, useContext, useMemo } from 'react';
 
 type GameEngineValues = void;
 
 const GameEngine = createContext<GameEngineValues | null>(null);
 
-export const GameEngineProvider = () => {
+export const GameEngineProvider: FCWithChildren = ({ children }) => {
   // const {} = useEvents();
   //
   // const [isResolvingEvents, setIsResolvingEvents] = useState<boolean>(false);
@@ -16,7 +15,7 @@ export const GameEngineProvider = () => {
 
   return (
     <GameEngine.Provider value={value}>
-      <Outlet />
+      {children}
     </GameEngine.Provider>
   );
 };

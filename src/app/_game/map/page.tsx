@@ -8,9 +8,10 @@ import { Tooltip } from 'components/tooltip';
 import { Point } from 'interfaces/models/common';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
+import { useMapFilters } from 'hooks/game/preferences/use-map-filters';
+import { useMapOptions } from 'app/_game/map/providers/map-context';
 import { MapControls } from './components/map-controls';
 import { Cell } from './components/cell';
-import { useMapOptions } from './providers/map-context';
 
 const TILE_BASE_SIZE = 30;
 
@@ -39,7 +40,8 @@ export const MapPage: React.FC = () => {
 
   const { currentVillage } = useCurrentVillage();
   const { coordinates } = currentVillage;
-  const { magnification, mapFilters: { shouldShowTileTooltips } } = useMapOptions();
+  const { mapFilters: { shouldShowTileTooltips } } = useMapFilters();
+  const { magnification } = useMapOptions();
 
   const [modalContents, setModalContents] = useState<React.ReactNode>(null);
 

@@ -1,10 +1,17 @@
 import { WithServerId } from 'interfaces/models/game/server';
 
-export type ReportTypes = 'attack' | 'defence' | 'miscellaneous';
+export type ReportTypes =
+  | 'attack'
+  | 'defence'
+  | 'miscellaneous';
+
+export type ReportTag =
+  | 'read'
+  | 'archived'
+  | 'deleted';
 
 export type Report = WithServerId<{
   id: number;
   type: ReportTypes;
-  opened: boolean;
-  archived: boolean;
+  tags: ReportTag[];
 }>;

@@ -1,8 +1,7 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { Village } from 'interfaces/models/game/village';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useQuery } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
 import { usePlayers } from 'hooks/game/use-players';
 
@@ -11,8 +10,7 @@ export const villagesCacheKey = 'villages';
 export const getVillages = (serverId: Server['id']) => database.villages.where({ serverId }).toArray();
 
 export const useVillages = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutateVillages } = useDatabaseMutation({ cacheKey: villagesCacheKey });
+  const { serverId } = useCurrentServer();
   const { playerId } = usePlayers();
 
   const {
@@ -20,12 +18,10 @@ export const useVillages = () => {
     isLoading: isLoadingVillages,
     isSuccess: hasLoadedVillages,
     status: villagesQueryStatus,
-  } = useAsyncLiveQuery<Village[]>({
+  } = useQuery<Village[]>({
     queryFn: () => getVillages(serverId),
-    deps: [serverId],
-    fallback: [],
-    cacheKey: villagesCacheKey,
-    enabled: hasLoadedServer,
+    queryKey: [villagesCacheKey, serverId],
+    initialData: [],
   });
 
   const playerVillages: Village[] = villages?.filter((village: Village) => village.playerId === playerId);
@@ -40,7 +36,6 @@ export const useVillages = () => {
     isLoadingVillages,
     hasLoadedVillages,
     villagesQueryStatus,
-    mutateVillages,
     playerVillages,
     npcVillages,
     getVillageByCoordinates,

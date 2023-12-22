@@ -1,7 +1,6 @@
 import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
-import { useAsyncLiveQuery } from 'hooks/database/use-async-live-query';
-import { useDatabaseMutation } from 'hooks/database/use-database-mutation';
+import { useQuery } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
 import { Player, PlayerFaction } from 'interfaces/models/game/player';
 
@@ -10,20 +9,17 @@ export const playersCacheKey = 'players';
 export const getPlayers = (serverId: Server['id']) => database.players.where({ serverId }).toArray();
 
 export const usePlayers = () => {
-  const { serverId, hasLoadedServer } = useCurrentServer();
-  const { mutate: mutatePlayers } = useDatabaseMutation({ cacheKey: playersCacheKey });
+  const { serverId } = useCurrentServer();
 
   const {
     data: players,
     isLoading: isLoadingPlayers,
     isSuccess: hasLoadedPlayers,
     status: playersQueryStatus,
-  } = useAsyncLiveQuery<Player[]>({
+  } = useQuery<Player[]>({
     queryFn: () => getPlayers(serverId),
-    deps: [serverId],
-    fallback: [],
-    cacheKey: playersCacheKey,
-    enabled: hasLoadedServer,
+    queryKey: [playersCacheKey, serverId],
+    initialData: [],
   });
 
   const playerId = players.find((player) => player.faction === 'player')!.id;
@@ -37,7 +33,6 @@ export const usePlayers = () => {
     isLoadingPlayers,
     hasLoadedPlayers,
     playersQueryStatus,
-    mutatePlayers,
     getFactionByPlayerId,
     playerId,
   };
