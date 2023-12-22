@@ -7,7 +7,7 @@ type RouteLoaderData = {
 };
 
 export const GameLayout = () => {
-  const { resolved } = useRouteLoaderData('game-engine') as RouteLoaderData;
+  const { resolved } = useRouteLoaderData('game') as RouteLoaderData;
 
   return (
     <Suspense fallback={<GameLayoutSkeleton />}>

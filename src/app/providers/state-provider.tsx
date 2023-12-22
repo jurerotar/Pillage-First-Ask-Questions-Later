@@ -2,8 +2,12 @@ import React, { FCWithChildren, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-export const StateProvider: FCWithChildren = ({ children }) => {
-  const [queryClient] = useState<QueryClient>(() => new QueryClient({
+type StateProviderProps = {
+  queryClient?: QueryClient;
+};
+
+export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, queryClient: providedQueryClient }) => {
+  const [queryClient] = useState<QueryClient>(providedQueryClient ?? new QueryClient({
     defaultOptions: {
       queries: {
         networkMode: 'always'

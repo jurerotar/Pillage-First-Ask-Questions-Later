@@ -11,6 +11,7 @@ export const getMapFilters = (serverId: Server['id']) => (database.mapFilters.wh
 
 export const useMapFilters = () => {
   const queryClient = useQueryClient();
+
   const {
     serverId,
     hasLoadedServer

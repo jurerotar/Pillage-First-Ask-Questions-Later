@@ -28,7 +28,7 @@ export const router = createBrowserRouter(
       </Route>
       {/* Game paths */}
       <Route
-        id="game-engine"
+        id="game"
         path="/game/:serverSlug/:villageSlug/"
         element={<GameProviders />}
         loader={gameLoader}

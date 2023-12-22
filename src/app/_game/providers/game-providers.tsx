@@ -9,7 +9,7 @@ type RouteLoaderData = {
 
 export const GameProviders = () => {
   const queryClient = useQueryClient();
-  const { dehydratedState } = useRouteLoaderData('game-engine') as RouteLoaderData;
+  const { dehydratedState } = useRouteLoaderData('game') as RouteLoaderData;
 
   hydrate(queryClient, dehydratedState);
 

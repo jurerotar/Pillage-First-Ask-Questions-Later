@@ -9,6 +9,7 @@ import { Point } from 'interfaces/models/common';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
 import { useMapFilters } from 'hooks/game/use-map-filters';
+import { useHero } from 'hooks/game/use-hero';
 import { useMapOptions } from './providers/map-context';
 import { MapControls } from './components/map-controls';
 import { Cell } from './components/cell';
@@ -40,8 +41,11 @@ export const MapPage: React.FC = () => {
 
   const { currentVillage } = useCurrentVillage();
   const { coordinates } = currentVillage;
-  const { mapFilters: { shouldShowTileTooltips } } = useMapFilters();
+  const { mapFilters: { shouldShowTileTooltips }, mapFilters } = useMapFilters();
   const { magnification } = useMapOptions();
+  const { hero } = useHero();
+
+  console.log(hero, currentVillage);
 
   const [modalContents, setModalContents] = useState<React.ReactNode>(null);
 
