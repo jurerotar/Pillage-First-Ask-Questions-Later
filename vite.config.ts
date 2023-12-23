@@ -19,7 +19,7 @@ export default defineConfig({
       'dexie',
       'formik',
       'sha1-uint8array',
-      'react-helmet',
+      'react-helmet-async',
       'react-modal',
       'tailwind-override',
       'usehooks-ts',

@@ -29,7 +29,7 @@ import { playersCacheKey } from 'hooks/game/use-players';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { reputationsCacheKey } from 'hooks/game/use-reputations';
 import { mapFiltersCacheKey } from 'hooks/game/use-map-filters';
-import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
+import { MapFilters } from 'interfaces/models/game/map-filters';
 import { mapFiltersMock } from 'mocks/game/map-filters-mock';
 import { heroMock } from 'mocks/game/hero-mock';
 import { villageMock } from 'mocks/game/village/village-mock';

@@ -21,102 +21,110 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
   '00018': fullWheatLayout,
   3339: {
     ...fullWheatLayout,
-    // 1: '',
-    // 1: '',
-    // 1: '',
-    // 1: '',
-    // 1: '',
-    // 1: '',
-    // 1: '',
-    // 1: '',
-    // 1: ''
+    1: 'wheat',
+    4: 'wheat',
+    5: 'wheat',
+    3: 'wood',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   3447: {
     ...fullWheatLayout,
-    // 1: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'iron',
+    3: 'wheat',
+    4: 'iron',
+    5: 'clay',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   3456: {
     ...fullWheatLayout,
-    // 1: '',
-    // 3: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'iron',
+    3: 'wood',
+    4: 'iron',
+    5: 'clay',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   3546: {
     ...fullWheatLayout,
-    // 1: '',
-    // 3: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'iron',
+    3: 'wood',
+    4: 'clay',
+    5: 'clay',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   4347: {
     ...fullWheatLayout,
-    // 1: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'wood',
+    3: 'wheat',
+    4: 'iron',
+    5: 'wood',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   4356: {
     ...fullWheatLayout,
-    // 1: '',
-    // 3: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'iron',
+    2: 'wood',
+    3: 'wood',
+    4: 'iron',
+    5: 'wood',
+    6: 'wheat',
+    7: 'wheat',
+    8: 'iron',
+    9: 'iron',
+    10: 'clay',
+    11: 'clay',
+    12: 'iron',
+    13: 'wood',
+    16: 'clay'
   },
   4437: {
     ...fullWheatLayout,
-    // 1: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'wood',
+    3: 'wheat',
+    4: 'iron',
+    5: 'clay',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   4446: {
     ...fullWheatLayout,
@@ -131,59 +139,59 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay',
+    18: 'clay'
   },
   4536: {
     ...fullWheatLayout,
-    // 1: '',
-    // 3: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'wood',
+    3: 'wood',
+    4: 'clay',
+    5: 'clay',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   5346: {
     ...fullWheatLayout,
-    // 1: '',
-    // 3: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'wood',
+    3: 'wood',
+    4: 'iron',
+    5: 'wood',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   5436: {
     ...fullWheatLayout,
-    // 1: '',
-    // 3: '',
-    // 4: '',
-    // 5: '',
-    // 6: '',
-    // 7: '',
-    // 10: '',
-    // 11: '',
-    // 14: '',
-    // 16: '',
-    // 17: '',
-    // 18: ''
+    1: 'wood',
+    3: 'wood',
+    4: 'wood',
+    5: 'clay',
+    6: 'clay',
+    7: 'iron',
+    10: 'iron',
+    11: 'iron',
+    14: 'wood',
+    16: 'clay',
+    17: 'wood',
+    18: 'clay'
   },
   11115: {
     ...fullWheatLayout,
     3: 'wood',
     4: 'iron',
-    16: 'clay',
-  },
+    16: 'clay'
+  }
 };
 
 const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): ResourceField[] => {
@@ -192,7 +200,7 @@ const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: Resource
     return {
       resourceFieldId,
       type,
-      level: 0,
+      level: 0
     };
   });
 };
@@ -213,9 +221,20 @@ type VillageFactoryProps = {
   slug: Village['slug'];
 };
 
-export const villageFactory = ({ server, tile, players, slug }: VillageFactoryProps): Village => {
-  const { coordinates, resourceFieldComposition } = tile;
-  const { id: playerId, faction } = players.find((player) => player.id === tile.ownedBy)!;
+export const villageFactory = ({
+  server,
+  tile,
+  players,
+  slug
+}: VillageFactoryProps): Village => {
+  const {
+    coordinates,
+    resourceFieldComposition
+  } = tile;
+  const {
+    id: playerId,
+    faction
+  } = players.find((player) => player.id === tile.ownedBy)!;
 
   const resourceFields = getVillageResourceFields(resourceFieldComposition);
   const buildingFields = getVillageBuildingFields('new-village');
@@ -235,7 +254,7 @@ export const villageFactory = ({ server, tile, players, slug }: VillageFactoryPr
       wood: 750,
       clay: 750,
       iron: 750,
-      wheat: 750,
-    },
+      wheat: 750
+    }
   };
 };

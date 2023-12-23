@@ -27,7 +27,7 @@ import { getPlayers, playersCacheKey } from 'hooks/game/use-players';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { getReputations, reputationsCacheKey } from 'hooks/game/use-reputations';
 import { getMapFilters, mapFiltersCacheKey } from 'hooks/game/use-map-filters';
-import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
+import { MapFilters } from 'interfaces/models/game/map-filters';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 
 class MissingServerError extends Error {

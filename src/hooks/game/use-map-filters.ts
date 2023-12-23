@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { MapFilterName, MapFilters } from 'interfaces/models/game/preferences/map-filters';
+import { MapFilterName, MapFilters } from 'interfaces/models/game/map-filters';
 import { database } from 'database/database';
 import { Server } from 'interfaces/models/game/server';
 import { useCurrentServer } from 'hooks/game/use-current-server';
@@ -11,18 +11,13 @@ export const getMapFilters = (serverId: Server['id']) => (database.mapFilters.wh
 
 export const useMapFilters = () => {
   const queryClient = useQueryClient();
-
-  const {
-    serverId,
-    hasLoadedServer
-  } = useCurrentServer();
+  const { serverId } = useCurrentServer();
 
   const {
     data
   } = useQuery<MapFilters>({
     queryKey: [mapFiltersCacheKey, serverId],
     queryFn: () => getMapFilters(serverId),
-    enabled: hasLoadedServer
   });
 
   // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere

@@ -37,11 +37,11 @@ export const router = createBrowserRouter(
         <Route element={<GameLayout />}>
           <Route
             path="resources"
-            element={<VillagePage />}
+            element={<ResourcesPage />}
           />
           <Route
-            path="villages"
-            element={<ResourcesPage />}
+            path="village"
+            element={<VillagePage />}
           />
           <Route
             path="map"

@@ -5,24 +5,6 @@ import { Point } from 'interfaces/models/common';
 import { mapFactory } from 'factories/map-factory';
 import { playersMock } from 'mocks/models/game/player-mock';
 
-const serverMockSize100 = serverMock;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const serverMockSize200 = {
-  ...serverMock,
-  configuration: {
-    ...serverMock.configuration,
-    size: 200, // 40401
-  },
-};
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const serverMockSize400 = {
-  ...serverMock,
-  configuration: {
-    ...serverMock.configuration,
-    size: 400, // 160801
-  },
-};
-
 const predefinedVillagesTests = (name: string, tile: OccupiedOccupiableTile) => {
   describe(`${name} village at [${tile.coordinates.x}, ${tile.coordinates.y}]`, () => {
     test('is a free-tile', () => {
@@ -53,58 +35,51 @@ const expectToBeCloseTo = (amount: number, expected: number, amountOfTiles: numb
 };
 
 describe('Map factory', () => {
-  describe('100x100 map size', () => {
-    const tiles = mapFactory({ server: serverMockSize100, players: playersMock });
+  const tiles = mapFactory({
+    server: serverMock,
+    players: playersMock
+  });
 
-    describe('Grid generation', () => {
-      test('Creates an array of correct size', () => {
-        expect(tiles.length)
-          .toBe(10201);
-      });
-      describe('Each tile contains required properties', () => {
-        test('serverId, equal to server.id', () => {
-          expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'serverId') && tile.serverId === serverMock.id))
-            .toBe(true);
-        });
-        test('coordinates', () => {
-          expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'coordinates')))
-            .toBe(true);
-        });
-        test('type, if it\'s a free tile, or oasisType, if it\'s an oasis tile', () => {
-          expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'type')))
-            .toBe(true);
-        });
-        test('All tiles are either oasis or free tile', () => {
-          const oasis = tiles.filter((tile: Tile) => tile.type === 'oasis-tile');
-          const freeTiles = tiles.filter((tile: Tile) => tile.type === 'free-tile');
-          expect(oasis.length + freeTiles.length)
-            .toBe(tiles.length);
-        });
-      });
+  describe('Grid generation', () => {
+    test('Creates an array of correct size', () => {
+      expect(tiles.length)
+        .toBe(10201);
     });
-
-    describe('Village generation', () => {
-      predefinedVillagesTests('Initial user', tiles.find(({ coordinates }) => coordinates.x === 0 && coordinates.y === 0)! as OccupiedOccupiableTile);
-
-      const { artifactVillagesCoordinates } = predefinedVillagesCoordinates100x100Mock;
-
-      artifactVillagesCoordinates.forEach((mockCoordinates: Point) => {
-        const {
-          x,
-          y,
-        } = mockCoordinates;
-        predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedOccupiableTile);
+    describe('Each tile contains required properties', () => {
+      test('serverId, equal to server.id', () => {
+        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'serverId') && tile.serverId === serverMock.id))
+          .toBe(true);
+      });
+      test('coordinates', () => {
+        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'coordinates')))
+          .toBe(true);
+      });
+      test('type, if it\'s a free tile, or oasisType, if it\'s an oasis tile', () => {
+        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'type')))
+          .toBe(true);
+      });
+      test('All tiles are either oasis or free tile', () => {
+        const oasis = tiles.filter((tile: Tile) => tile.type === 'oasis-tile');
+        const freeTiles = tiles.filter((tile: Tile) => tile.type === 'free-tile');
+        expect(oasis.length + freeTiles.length)
+          .toBe(tiles.length);
       });
     });
   });
 
-  // describe('200x200 map size', () => {
-  //   const tiles = MapGeneratorService.generateMap(serverMockSize200);
-  // });
-  //
-  // describe('400x400 map size', () => {
-  //   const tiles = MapGeneratorService.generateMap(serverMockSize400);
-  // });
+  describe('Village generation', () => {
+    predefinedVillagesTests('Initial user', tiles.find(({ coordinates }) => coordinates.x === 0 && coordinates.y === 0)! as OccupiedOccupiableTile);
+
+    const { artifactVillagesCoordinates } = predefinedVillagesCoordinates100x100Mock;
+
+    artifactVillagesCoordinates.forEach((mockCoordinates: Point) => {
+      const {
+        x,
+        y
+      } = mockCoordinates;
+      predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedOccupiableTile);
+    });
+  });
 
   // All of these tests are limited by randomness, so we must give some leeway
   // describe('Tile type occurrence', () => {

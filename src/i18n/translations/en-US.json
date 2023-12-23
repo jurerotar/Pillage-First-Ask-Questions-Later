@@ -2,6 +2,10 @@
   "APP": {
     "GAME": {
       "MAP": {
+        "META": {
+          "TITLE": "Map - {{currentVillageName}}",
+          "DESCRIPTION": ""
+        },
         "MAP_CONTROLS": {
           "MAGNIFICATION_INCREASE": "Zoom in",
           "MAGNIFICATION_DECREASE": "Zoom out",
@@ -12,9 +16,27 @@
           "TOGGLE_WHEAT_FIELDS_ICON_DISPLAY": "Toggle wheat field icons display",
           "TOGGLE_TILE_TOOLTIP_DISPLAY": "Toggle tooltip popups"
         }
+      },
+      "VILLAGE": {
+        "META": {
+          "TITLE": "Village - {{currentVillageName}}",
+          "DESCRIPTION": ""
+        }
+      },
+      "RESOURCES": {
+        "META": {
+          "TITLE": "Resources - {{currentVillageName}}",
+          "DESCRIPTION": ""
+        }
       }
     },
     "PUBLIC": {
+      "INDEX": {
+        "META": {
+          "TITLE": "Resources - {{currentVillageName}}",
+          "DESCRIPTION": ""
+        }
+      }
     }
   },
   "META": {

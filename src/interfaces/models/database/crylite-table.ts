@@ -14,6 +14,7 @@ type ServerSpecificTableName =
   | 'players'
   | 'reputations'
   | 'researchLevels'
+  | 'mapMarkers'
   | 'mapFilters';
 
 export type CryliteTableName =

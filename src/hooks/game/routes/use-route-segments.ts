@@ -1,11 +1,6 @@
 import { useParams } from 'react-router-dom';
 
-type UseRouteSegmentsReturn = {
-  serverSlug: string;
-  villageSlug: string;
-};
-
-export const useRouteSegments = (): UseRouteSegmentsReturn => {
+export const useRouteSegments = () => {
   const {
     serverSlug,
     villageSlug,

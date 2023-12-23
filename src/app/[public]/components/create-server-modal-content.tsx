@@ -11,6 +11,7 @@ import { researchLevelsFactory } from 'factories/research-levels-factory';
 import { bankFactory } from 'factories/bank-factory';
 import { heroFactory } from 'factories/hero-factory';
 import { workerFactory } from 'utils/workers';
+import { mapFiltersFactory } from 'factories/map-filters-factory';
 import { GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn } from '../workers/generate-players-worker';
 import { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from '../workers/generate-reputations-worker';
 import { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from '../workers/generate-world-map-worker';
@@ -282,15 +283,9 @@ export const CreateServerModalContent: React.FC = () => {
 
         // Map filters
         await executeStep(async () => {
-          await database.mapFilters.add({
-            serverId: server.id,
-            shouldShowFactionReputation: true,
-            shouldShowOasisIcons: true,
-            shouldShowTroopMovements: true,
-            shouldShowWheatFields: true,
-            shouldShowTileTooltips: true,
-            shouldShowTreasureIcons: true,
-          });
+          const mapFilters = mapFiltersFactory({ server });
+
+          await database.mapFilters.add(mapFilters);
         });
 
         // Server
