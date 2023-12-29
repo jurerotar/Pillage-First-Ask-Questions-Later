@@ -20,7 +20,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      <Head viewName="home" />
+      <Head viewName="index" />
       <main className="flex flex-col">
         {/* Landing section */}
         <section className="container relative mx-auto flex h-[calc(100vh-4rem-200px)] min-h-[600px] flex-col gap-4 lg:flex-row">

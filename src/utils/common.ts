@@ -1,3 +1,5 @@
+import { Point } from 'interfaces/models/common';
+
 export const roundToNearestN = (number: number, numberToRoundTo: number): number => {
   return Math.round(number / numberToRoundTo) * numberToRoundTo;
 };
@@ -87,4 +89,16 @@ export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
   }
 
   return copy;
+};
+
+export const capitalize = <T extends string, >(string: T): Capitalize<T> => {
+  return (string.charAt(0).toUpperCase() + string.slice(1)) as Capitalize<T>;
+};
+
+export const calculateDistanceBetweenPoints = (firstPoint: Point, secondPoint: Point): number => {
+  return Math.sqrt((secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2);
+};
+
+export const roundTo2DecimalPoints = (number: number): number => {
+  return Math.round(number * 100) / 100;
 };

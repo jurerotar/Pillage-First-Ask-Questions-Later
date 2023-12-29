@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Village } from 'interfaces/models/game/village';
 import { Server } from 'interfaces/models/game/server';
 import { useCurrentServer } from 'hooks/game/use-current-server';
+import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'utils/common';
+import { Point } from 'interfaces/models/common';
 
 export const currentVillageCacheKey = 'current-village';
 
@@ -31,11 +33,16 @@ export const useCurrentVillage = () => {
 
   const currentVillageId = currentVillage!.id;
 
+  const distanceFromCurrentVillage = (tileCoordinates: Point): number => {
+    return roundTo2DecimalPoints(calculateDistanceBetweenPoints(currentVillage.coordinates, tileCoordinates));
+  };
+
   return {
     currentVillage: currentVillage!,
     isLoadingCurrentVillage,
     hasLoadedCurrentVillage,
     currentVillageStatus,
     currentVillageId,
+    distanceFromCurrentVillage,
   };
 };

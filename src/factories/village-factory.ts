@@ -231,9 +231,10 @@ export const villageFactory = ({
     coordinates,
     resourceFieldComposition
   } = tile;
+
   const {
     id: playerId,
-    faction
+    name
   } = players.find((player) => player.id === tile.ownedBy)!;
 
   const resourceFields = getVillageResourceFields(resourceFieldComposition);
@@ -242,7 +243,7 @@ export const villageFactory = ({
   return {
     serverId: server.id,
     id: crypto.randomUUID(),
-    name: `${faction}-${tile.tileId}`,
+    name: `${name}'s village`,
     slug,
     coordinates,
     resourceFields,

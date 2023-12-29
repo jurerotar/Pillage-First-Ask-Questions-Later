@@ -4,7 +4,7 @@ import { Icon } from 'components/icon';
 import { Tooltip } from 'components/tooltip';
 import { useTranslation } from 'react-i18next';
 import { useMapFilters } from 'hooks/game/use-map-filters';
-import { useMapOptions } from '../providers/map-context';
+import { MAX_MAGNIFICATION, MIN_MAGNIFICATION, useMapOptions } from '../providers/map-context';
 
 type DividerProps = {
   orientation?: 'vertical' | 'horizontal';
@@ -25,7 +25,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
   const { magnification, increaseMagnification, decreaseMagnification } = useMapOptions();
 
   const onClick = direction === 'increase' ? increaseMagnification : decreaseMagnification;
-  const isDisabled = direction === 'increase' ? magnification === 3 : magnification === 1;
+  const isDisabled = direction === 'increase' ? magnification === MAX_MAGNIFICATION : magnification === MIN_MAGNIFICATION;
 
   return (
     <button

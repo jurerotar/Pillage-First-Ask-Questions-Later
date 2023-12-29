@@ -9,6 +9,7 @@ describe('Server factory', () => {
       mapSize: 100,
     },
     playerConfiguration: {
+      name: 'Player name',
       tribe: 'gauls',
     },
   });

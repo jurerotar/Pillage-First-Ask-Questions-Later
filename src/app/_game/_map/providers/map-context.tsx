@@ -8,11 +8,11 @@ export type MapProviderValues = {
 
 const MapContext = createContext<MapProviderValues>({} as MapProviderValues);
 
-const MAX_MAGNIFICATION = 3;
-const MIN_MAGNIFICATION = 1;
+export const MAX_MAGNIFICATION = 4;
+export const MIN_MAGNIFICATION = 2;
 
 const MapProvider: FCWithChildren = ({ children }) => {
-  const [magnification, setMagnification] = useState<number>(3);
+  const [magnification, setMagnification] = useState<number>(4);
 
   const increaseMagnification = useCallback(() => {
     if (magnification === MAX_MAGNIFICATION) {

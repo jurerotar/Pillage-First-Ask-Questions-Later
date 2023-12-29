@@ -12,6 +12,8 @@ import { bankFactory } from 'factories/bank-factory';
 import { heroFactory } from 'factories/hero-factory';
 import { workerFactory } from 'utils/workers';
 import { mapFiltersFactory } from 'factories/map-filters-factory';
+import { Tribe } from 'interfaces/models/game/tribe';
+import { userPlayerFactory } from 'factories/player-factory';
 import { GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn } from '../workers/generate-players-worker';
 import { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from '../workers/generate-reputations-worker';
 import { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from '../workers/generate-world-map-worker';
@@ -30,8 +32,14 @@ import CreateEffectsWorker from '../workers/generate-effects-worker?worker&url';
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 type CreateServerModalView = 'configuration' | 'loader';
 
+type OnSubmitParams = {
+  server: Server;
+  tribe: Tribe;
+  name: string;
+};
+
 type CreateServerConfigurationViewProps = {
-  onSubmit: (server: Server) => void;
+  onSubmit: (params: OnSubmitParams) => void;
 };
 
 const generateSeed = (length: number = 10): string => {
@@ -54,6 +62,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
         speed: 1,
       },
       playerConfiguration: {
+        name: 'Player name',
         tribe: 'gauls',
       },
     },
@@ -61,8 +70,9 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
       return {};
     },
     onSubmit: (submittedValues) => {
+      const { tribe, name } = submittedValues.playerConfiguration;
       const server = serverFactory({ ...submittedValues });
-      onSubmit(server);
+      onSubmit({ server, tribe, name });
     },
   });
 
@@ -171,7 +181,7 @@ export const CreateServerModalContent: React.FC = () => {
   const { amountOfTables } = database;
   const percentageIncrease = Math.round(100 / amountOfTables);
 
-  const onSubmit = useCallback((server: Server) => {
+  const onSubmit = useCallback(({ server, tribe, name }: OnSubmitParams) => {
     setView('loader');
 
     (async () => {
@@ -186,28 +196,33 @@ export const CreateServerModalContent: React.FC = () => {
       };
 
       try {
-        // Players/factions
-        const players = await executeStep(async () => {
-          const { players: generatedPlayers } = await workerFactory<GeneratePlayersWorkerReturn, GeneratePlayersWorkerPayload>(
-            CreatePlayersWorker,
+        // Reputations
+        const factions = await executeStep(async () => {
+          const { reputations } = await workerFactory<GenerateReputationsWorkerReturn, GenerateReputationsWorkerPayload>(
+            CreateReputationsWorker,
             { server },
             ''
           );
+          await database.reputations.bulkAdd(reputations);
+          return reputations;
+        });
+
+        const npcFactions = factions.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
+
+        // Players/factions
+        const players = await executeStep(async () => {
+          const { players: npcPlayers } = await workerFactory<GeneratePlayersWorkerReturn, GeneratePlayersWorkerPayload>(
+            CreatePlayersWorker,
+            { server, factions: npcFactions },
+            ''
+          );
+          const userPlayer = userPlayerFactory({ server, faction: 'player', tribe, name });
+          const generatedPlayers = [userPlayer, ...npcPlayers];
           await database.players.bulkAdd(generatedPlayers);
           return generatedPlayers;
         });
 
         const userPlayer = players.find(({ faction }) => faction === 'player')!;
-
-        // Reputations
-        await executeStep(async () => {
-          const { reputations } = await workerFactory<GenerateReputationsWorkerReturn, GenerateReputationsWorkerPayload>(
-            CreateReputationsWorker,
-            { server, players },
-            ''
-          );
-          await database.reputations.bulkAdd(reputations);
-        });
 
         // Map data
         const tiles = await executeStep<Tile[]>(async () => {

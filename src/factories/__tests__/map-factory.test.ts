@@ -1,38 +1,7 @@
 import { serverMock } from 'mocks/models/game/server-mock';
-import { OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
-import { predefinedVillagesCoordinates100x100Mock } from 'mocks/game/map/predefined-villages-coordinates-mock';
-import { Point } from 'interfaces/models/common';
+import { OasisTile, Tile } from 'interfaces/models/game/tile';
 import { mapFactory } from 'factories/map-factory';
 import { playersMock } from 'mocks/models/game/player-mock';
-
-const predefinedVillagesTests = (name: string, tile: OccupiedOccupiableTile) => {
-  describe(`${name} village at [${tile.coordinates.x}, ${tile.coordinates.y}]`, () => {
-    test('is a free-tile', () => {
-      expect(tile.type === 'free-tile')
-        .toBe(true);
-    });
-    describe('Resource field composition', () => {
-      test('exists', () => {
-        expect(Object.hasOwn(tile, 'resourceFieldComposition'))
-          .toBe(true);
-      });
-      test('is of type "4446"', () => {
-        expect(tile?.resourceFieldComposition)
-          .toBe('4446');
-      });
-    });
-  });
-};
-
-const percentage = (a: number, b: number) => (a / b) * 100;
-
-const expectToBeCloseTo = (amount: number, expected: number, amountOfTiles: number): void => {
-  const acceptableDeviation = 2;
-  expect(percentage(amount, amountOfTiles))
-    .toBeGreaterThan(expected - acceptableDeviation);
-  expect(percentage(amount, amountOfTiles))
-    .toBeLessThan(expected + acceptableDeviation);
-};
 
 describe('Map factory', () => {
   const tiles = mapFactory({
@@ -54,7 +23,7 @@ describe('Map factory', () => {
         expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'coordinates')))
           .toBe(true);
       });
-      test('type, if it\'s a free tile, or oasisType, if it\'s an oasis tile', () => {
+      test('type', () => {
         expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'type')))
           .toBe(true);
       });
@@ -67,25 +36,48 @@ describe('Map factory', () => {
     });
   });
 
-  describe('Village generation', () => {
-    predefinedVillagesTests('Initial user', tiles.find(({ coordinates }) => coordinates.x === 0 && coordinates.y === 0)! as OccupiedOccupiableTile);
+  describe('Oasis resource bonus', () => {
+    const oasisTiles = tiles.filter(({ type }) => type === 'oasis-tile') as OasisTile[];
 
-    const { artifactVillagesCoordinates } = predefinedVillagesCoordinates100x100Mock;
+    test('Some oasis tile have no bonus', () => {
+      expect(oasisTiles.some(({ oasisResourceBonus }) => oasisResourceBonus.length === 0))
+        .toBe(true);
+    });
 
-    artifactVillagesCoordinates.forEach((mockCoordinates: Point) => {
-      const {
-        x,
-        y
-      } = mockCoordinates;
-      predefinedVillagesTests('Artifact', tiles.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)! as OccupiedOccupiableTile);
+    test('Some oasis tile have only 25% single-resource bonus', () => {
+      expect(oasisTiles.some(({ oasisResourceBonus }) => {
+        if (oasisResourceBonus.length !== 1) {
+          return false;
+        }
+        const { bonus } = oasisResourceBonus[0];
+        return bonus === '25%';
+      })).toBe(true);
+    });
+
+    test('Some oasis tile have 50% single-resource bonus', () => {
+      expect(oasisTiles.some(({ oasisResourceBonus }) => {
+        if (oasisResourceBonus.length !== 1) {
+          return false;
+        }
+        const { bonus } = oasisResourceBonus[0];
+        return bonus === '50%';
+      })).toBe(true);
+    });
+
+    test('Some oasis tile have double 25% single-resource bonus', () => {
+      expect(oasisTiles.some(({ oasisResourceBonus }) => {
+        if (oasisResourceBonus.length !== 2) {
+          return false;
+        }
+        const [firstBonus, secondBonus] = oasisResourceBonus;
+        return firstBonus.bonus === '25%' && secondBonus.bonus === '25%';
+      })).toBe(true);
     });
   });
 
-  // All of these tests are limited by randomness, so we must give some leeway
-  // describe('Tile type occurrence', () => {
-  //   const normalFields = tiles.filter((tile: Tile) => !tile.type !== null);
-  //   const oasis = tiles.filter((tile: Tile) => tile.oasisType !== null);
-  //
+  describe('Tile type occurrence', () => {
+
+  });
 
   //
   // TODO: Re-enable this test once nice percentages are defined

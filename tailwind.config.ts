@@ -7,6 +7,7 @@ export default {
   content: [
     './public/index.html',
     './src/**/*.tsx',
+    './src/utils/game/color-maps.ts',
   ],
   theme: {
     fontFamily: {
@@ -41,17 +42,14 @@ export default {
           clay: '#C29760',
           wheat: '#FFF600',
         },
-        brown: {
-          50: '#fdf8f6',
-          100: '#f2e8e5',
-          200: '#eaddd7',
-          300: '#e0cec7',
-          400: '#d2bab0',
-          500: '#bfa094',
-          600: '#a18072',
-          700: '#977669',
-          800: '#846358',
-          900: '#43302b',
+        reputation: {
+          player: '#4338ca',
+          ecstatic: '#1d4ed8',
+          respected: '#0891b2',
+          friendly: '#22c55e',
+          neutral: '#facc15',
+          unfriendly: '#f97316',
+          hostile: '#e11d48'
         },
       },
     },

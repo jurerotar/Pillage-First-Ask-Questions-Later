@@ -3,6 +3,7 @@ import { useCurrentServer } from 'hooks/game/use-current-server';
 import { useQuery } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
 import { Player, PlayerFaction } from 'interfaces/models/game/player';
+import { Tribe } from 'interfaces/models/game/tribe';
 
 export const playersCacheKey = 'players';
 
@@ -24,8 +25,8 @@ export const usePlayers = () => {
 
   const playerId = players.find((player) => player.faction === 'player')!.id;
 
-  const getFactionByPlayerId = (playerIdToSearchFor: Player['id']): PlayerFaction => {
-    return players.find(({ id }) => playerIdToSearchFor === id)!.faction!;
+  const getPlayerByPlayerId = (playerIdToSearchFor: Player['id']): Player => {
+    return players.find(({ id }) => playerIdToSearchFor === id)!;
   };
 
   return {
@@ -33,7 +34,7 @@ export const usePlayers = () => {
     isLoadingPlayers,
     hasLoadedPlayers,
     playersQueryStatus,
-    getFactionByPlayerId,
+    getPlayerByPlayerId,
     playerId,
   };
 };

@@ -6,6 +6,7 @@ export type ServerConfiguration = {
 };
 
 export type PlayerConfiguration = {
+  name: string;
   tribe: Tribe;
 };
 

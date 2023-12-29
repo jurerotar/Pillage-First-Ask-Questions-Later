@@ -1,5 +1,5 @@
 export type Tribe =
-  'gauls'
+  | 'gauls'
   | 'romans'
   | 'teutons'
   | 'egyptians'

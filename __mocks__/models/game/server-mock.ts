@@ -8,6 +8,7 @@ export const serverMock: Server = {
     speed: 1,
   },
   playerConfiguration: {
+    name: 'Player name',
     tribe: 'gauls',
   },
   id: 'b27f14e1-4b45-443b-a89d-adb0b0179bf3',
@@ -22,6 +23,7 @@ export const gaulServerMock: Server = {
 export const teutonServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
+    ...serverMock.playerConfiguration,
     tribe: 'teutons',
   },
 };
@@ -29,6 +31,7 @@ export const teutonServerMock: Server = {
 export const romanServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
+    ...serverMock.playerConfiguration,
     tribe: 'romans',
   },
 };
@@ -36,6 +39,7 @@ export const romanServerMock: Server = {
 export const egyptianServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
+    ...serverMock.playerConfiguration,
     tribe: 'egyptians',
   },
 };
@@ -43,6 +47,7 @@ export const egyptianServerMock: Server = {
 export const hunServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
+    ...serverMock.playerConfiguration,
     tribe: 'huns',
   },
 };
@@ -50,6 +55,7 @@ export const hunServerMock: Server = {
 export const spartanServerMock: Server = {
   ...serverMock,
   playerConfiguration: {
+    ...serverMock.playerConfiguration,
     tribe: 'spartans',
   },
 };
