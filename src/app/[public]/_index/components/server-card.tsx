@@ -1,6 +1,6 @@
 import React from 'react';
 import { Server } from 'interfaces/models/game/server';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAvailableServers } from 'hooks/use-available-servers';
 import { Button } from 'components/buttons/button';
 

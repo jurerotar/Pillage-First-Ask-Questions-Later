@@ -2,8 +2,7 @@ import { database } from 'database/database';
 import { useCurrentServer } from 'hooks/game/use-current-server';
 import { useQuery } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
-import { Player, PlayerFaction } from 'interfaces/models/game/player';
-import { Tribe } from 'interfaces/models/game/tribe';
+import { Player } from 'interfaces/models/game/player';
 
 export const playersCacheKey = 'players';
 
