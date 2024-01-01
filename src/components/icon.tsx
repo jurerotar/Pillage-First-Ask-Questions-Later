@@ -9,37 +9,87 @@ const IconResourceWood = lazy(async () => ({ default: (await import('components/
 const IconResourceClay = lazy(async () => ({ default: (await import('components/icons/resources/icon-clay')).IconClay }));
 
 // Resource combinations - WIP - We're using single-resource icons for now
-const IconResourceCombinationWoodWheat = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-wood')).IconWood }));
-const IconResourceCombinationIronWheat = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-iron')).IconIron }));
-const IconResourceCombinationClayWheat = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-clay')).IconClay }));
-const IconResourceCombinationWoodWood = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-wood')).IconWood }));
-const IconResourceCombinationIronIron = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-iron')).IconIron }));
-const IconResourceCombinationClayClay = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-clay')).IconClay }));
-const IconResourceCombinationWheatWheat = lazy(async () => ({ default: (await import('components/icons/resource-combinations/icon-wheat')).IconWheat }));
+const IconResourceCombinationWoodWheat = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-wood')).IconWood,
+}));
+const IconResourceCombinationIronWheat = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-iron')).IconIron,
+}));
+const IconResourceCombinationClayWheat = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-clay')).IconClay,
+}));
+const IconResourceCombinationWoodWood = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-wood')).IconWood,
+}));
+const IconResourceCombinationIronIron = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-iron')).IconIron,
+}));
+const IconResourceCombinationClayClay = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-clay')).IconClay,
+}));
+const IconResourceCombinationWheatWheat = lazy(async () => ({
+  default: (await import('components/icons/resource-combinations/icon-wheat')).IconWheat,
+}));
 
 // Map controls
-const IconMapMagnificationIncrease = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-magnification-increase')).IconMapMagnificationIncrease }));
-const IconMapMagnificationDecrease = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-magnification-decrease')).IconMapMagnificationDecrease }));
-const IconMapReputationToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-reputation-toggle')).IconMapReputationToggle }));
-const IconMapOasisIconsToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-oasis-icons-toggle')).IconMapOasisIconsToggle }));
-const IconMapTroopMovementsToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-troop-movements-toggle')).IconMapTroopMovementsToggle }));
-const IconMapWheatFieldIconToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-wheat-field-icon-toggle')).IconMapWheatFieldIconToggle }));
-const IconMapTileTooltipToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-tile-tooltip-toggle')).IconMapTileTooltipToggle }));
-const IconMapTreasuresToggle = lazy(async () => ({ default: (await import('components/icons/map-controls/icon-map-treasures-toggle')).IconMapTreasuresToggle }));
+const IconMapMagnificationIncrease = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-magnification-increase')).IconMapMagnificationIncrease,
+}));
+const IconMapMagnificationDecrease = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-magnification-decrease')).IconMapMagnificationDecrease,
+}));
+const IconMapReputationToggle = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-reputation-toggle')).IconMapReputationToggle,
+}));
+const IconMapOasisIconsToggle = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-oasis-icons-toggle')).IconMapOasisIconsToggle,
+}));
+const IconMapTroopMovementsToggle = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-troop-movements-toggle')).IconMapTroopMovementsToggle,
+}));
+const IconMapWheatFieldIconToggle = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-wheat-field-icon-toggle')).IconMapWheatFieldIconToggle,
+}));
+const IconMapTileTooltipToggle = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-tile-tooltip-toggle')).IconMapTileTooltipToggle,
+}));
+const IconMapTreasuresToggle = lazy(async () => ({
+  default: (await import('components/icons/map-controls/icon-map-treasures-toggle')).IconMapTreasuresToggle,
+}));
 
 // Map occupied tile icons
-const IconTreasureTileItem = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-item')).IconTreasureTileItem }));
-const IconTreasureTileResources = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-resources')).IconTreasureTileResources }));
-const IconTreasureTileArtifact = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-artifact')).IconTreasureTileArtifact }));
-const IconTreasureTileCurrency = lazy(async () => ({ default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-currency')).IconTreasureTileCurrency }));
+const IconTreasureTileItem = lazy(async () => ({
+  default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-item')).IconTreasureTileItem,
+}));
+const IconTreasureTileResources = lazy(async () => ({
+  default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-resources')).IconTreasureTileResources,
+}));
+const IconTreasureTileArtifact = lazy(async () => ({
+  default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-artifact')).IconTreasureTileArtifact,
+}));
+const IconTreasureTileCurrency = lazy(async () => ({
+  default: (await import('components/icons/treasure-tile-icons/icon-treasure-tile-currency')).IconTreasureTileCurrency,
+}));
 
 // Report icons
-const IconAttackerNoLoss = lazy(async () => ({ default: (await import('components/icons/report/icon-attacker-no-loss')).IconAttackerNoLoss }));
-const IconAttackerSomeLoss = lazy(async () => ({ default: (await import('components/icons/report/icon-attacker-some-loss')).IconAttackerSomeLoss }));
-const IconAttackerFullLoss = lazy(async () => ({ default: (await import('components/icons/report/icon-attacker-full-loss')).IconAttackerNoLoss }));
-const IconDefenderNoLoss = lazy(async () => ({ default: (await import('components/icons/report/icon-defender-no-loss')).IconDefenderNoLoss }));
-const IconDefenderSomeLoss = lazy(async () => ({ default: (await import('components/icons/report/icon-defender-some-loss')).IconDefenderSomeLoss }));
-const IconDefenderFullLoss = lazy(async () => ({ default: (await import('components/icons/report/icon-defender-full-loss')).IconDefenderFullLoss }));
+const IconAttackerNoLoss = lazy(async () => ({
+  default: (await import('components/icons/report/icon-attacker-no-loss')).IconAttackerNoLoss,
+}));
+const IconAttackerSomeLoss = lazy(async () => ({
+  default: (await import('components/icons/report/icon-attacker-some-loss')).IconAttackerSomeLoss,
+}));
+const IconAttackerFullLoss = lazy(async () => ({
+  default: (await import('components/icons/report/icon-attacker-full-loss')).IconAttackerNoLoss,
+}));
+const IconDefenderNoLoss = lazy(async () => ({
+  default: (await import('components/icons/report/icon-defender-no-loss')).IconDefenderNoLoss,
+}));
+const IconDefenderSomeLoss = lazy(async () => ({
+  default: (await import('components/icons/report/icon-defender-some-loss')).IconDefenderSomeLoss,
+}));
+const IconDefenderFullLoss = lazy(async () => ({
+  default: (await import('components/icons/report/icon-defender-full-loss')).IconDefenderFullLoss,
+}));
 
 export type ReportIconType =
   | 'attackerNoLoss'
@@ -59,33 +109,13 @@ type MapControlsIconType =
   | 'mapTileTooltipToggle'
   | 'mapTreasureIconToggle';
 
-export type TreasureTileIconType =
-  | 'treasureTileItem'
-  | 'treasureTileResources'
-  | 'treasureTileArtifact'
-  | 'treasureTileCurrency';
+export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 
-export type ResourceCombinationIconType =
-  | 'woodWheat'
-  | 'clayWheat'
-  | 'ironWheat'
-  | 'woodWood'
-  | 'clayClay'
-  | 'ironIron'
-  | 'wheatWheat';
+export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
 
-export type ResourceIconType =
-  | 'wood'
-  | 'clay'
-  | 'iron'
-  | 'wheat';
+export type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
-type IconType =
-  | ReportIconType
-  | ResourceCombinationIconType
-  | ResourceIconType
-  | MapControlsIconType
-  | TreasureTileIconType;
+type IconType = ReportIconType | ResourceCombinationIconType | ResourceIconType | MapControlsIconType | TreasureTileIconType;
 
 // | 'cropConsumption'
 // | 'culturePointsProduction'
@@ -170,18 +200,15 @@ const IconPlaceholder = () => {
   return <span className="" />;
 };
 
-export type IconProps = IconBaseProps & React.HTMLAttributes<HTMLSpanElement> & {
-  type: IconType;
-  borderVariant?: BorderIndicatorProps['variant'];
-};
+export type IconProps = IconBaseProps &
+  React.HTMLAttributes<HTMLSpanElement> & {
+    type: IconType;
+    borderVariant?: BorderIndicatorProps['variant'];
+  };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const {
-    type,
-    borderVariant,
-    ...rest
-  } = props;
+  const { type, borderVariant, ...rest } = props;
 
   const ComputedIcon = typeToIconMap[type];
 

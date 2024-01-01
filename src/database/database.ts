@@ -66,13 +66,13 @@ export class CryliteDatabase extends Dexie {
   constructor() {
     super('crylite');
 
-    const schema = Object.fromEntries([...Array.from(CRYLITE_TABLES)
-      .map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')])]);
+    const schema = Object.fromEntries([
+      ...Array.from(CRYLITE_TABLES).map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')]),
+    ]);
 
     this.amountOfTables = Object.keys(schema).length;
 
-    this.version(1)
-      .stores(schema);
+    this.version(1).stores(schema);
   }
 }
 

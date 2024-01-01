@@ -26,23 +26,13 @@ const onMouseMoveHandler = (e: MouseEvent, isDragging: boolean) => {
 
 export const MapPage: React.FC = () => {
   const { isOpen, openModal, closeModal } = useDialog();
-
-  const {
-    map,
-    getTileByTileId,
-  } = useMap();
-
-  const {
-    server,
-  } = useCurrentServer();
-
-  const {
-    height,
-    width,
-  } = useWindowSize();
-
+  const { map, getTileByTileId } = useMap();
+  const { server } = useCurrentServer();
+  const { height, width } = useWindowSize();
   const { currentVillage } = useCurrentVillage();
-  const { mapFilters: { shouldShowTileTooltips } } = useMapFilters();
+  const {
+    mapFilters: { shouldShowTileTooltips },
+  } = useMapFilters();
   const { magnification } = useMapOptions();
 
   const [modalContents, setModalContents] = useState<React.ReactNode>(null);
@@ -61,17 +51,25 @@ export const MapPage: React.FC = () => {
 
   const itemData = useMemo(() => {
     return {
-      map
+      map,
     };
   }, [map]);
 
-  useEventListener('mousedown', () => {
-    isDragging.current = true;
-  }, mapRef);
+  useEventListener(
+    'mousedown',
+    () => {
+      isDragging.current = true;
+    },
+    mapRef
+  );
 
-  useEventListener('mouseup', () => {
-    isDragging.current = false;
-  }, mapRef);
+  useEventListener(
+    'mouseup',
+    () => {
+      isDragging.current = false;
+    },
+    mapRef
+  );
 
   useEventListener('mousemove', (event: MouseEvent) => onMouseMoveHandler(event, isDragging.current), mapRef);
 
@@ -80,7 +78,7 @@ export const MapPage: React.FC = () => {
       <Head
         viewName="map"
         tFunctionArgs={{
-          currentVillageName: currentVillage.name
+          currentVillageName: currentVillage.name,
         }}
       />
       <Tooltip
@@ -100,9 +98,7 @@ export const MapPage: React.FC = () => {
 
           const tile = getTileByTileId(tileId);
 
-          return (
-            <TileTooltip tile={tile} />
-          );
+          return <TileTooltip tile={tile} />;
         }}
       />
       <Modal

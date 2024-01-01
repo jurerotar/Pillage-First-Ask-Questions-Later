@@ -6,7 +6,7 @@ import { Server } from 'interfaces/models/game/server';
 
 export const heroCacheKey = 'hero';
 
-export const getHero = (serverId: Server['id']) => (database.heroes.where({ serverId }).first() as Promise<Hero>);
+export const getHero = (serverId: Server['id']) => database.heroes.where({ serverId }).first() as Promise<Hero>;
 
 export const useHero = () => {
   const { serverId } = useCurrentServer();

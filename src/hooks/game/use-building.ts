@@ -18,6 +18,6 @@ export const useBuilding = (buildingId: Building['id'], level: number) => {
 
   return {
     isMaxLevel,
-    canUpgradeBuilding
+    canUpgradeBuilding,
   };
 };

@@ -40,10 +40,7 @@ export type ResourceFieldComposition =
   | '00018';
 
 // Just kinda reusing a type, since there's no differences between most ids
-export type BuildingFieldId =
-  | ResourceFieldId
-  | '19'
-  | '20';
+export type BuildingFieldId = ResourceFieldId | '19' | '20';
 
 export type BuildingField = {
   buildingFieldId: BuildingFieldId;
@@ -52,7 +49,7 @@ export type BuildingField = {
 };
 
 export type EmptyBuildingField = BuildingField & {
-  buildingId: null
+  buildingId: null;
 };
 
 export type Village = {
@@ -69,8 +66,7 @@ export type Village = {
   isCapital: boolean;
 };
 
-export type VillageBuildingFieldsPresetName =
-  | 'new-village';
+export type VillageBuildingFieldsPresetName = 'new-village';
 
 export type VillageBuildingFieldsPreset = {
   preset: VillageBuildingFieldsPresetName;

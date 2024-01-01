@@ -69,9 +69,7 @@ export const useReports = () => {
 
   const { mutate: createReport } = useMutation<void, Error, any>({
     mutationFn: async ({}) => {},
-    onMutate: ({}) => {
-
-    }
+    onMutate: ({}) => {},
   });
 
   const { mutate: markReport } = useMutation<void, Error, { reportId: Report['id']; as: ReportMark }>({
@@ -86,7 +84,7 @@ export const useReports = () => {
       const clonedReports = [...reports];
       clonedReports[clonedReports.findIndex(({ id }) => id === reportId)] = markedReport;
       queryClient.setQueryData<Report[]>([reportsCacheKey, serverId], clonedReports);
-    }
+    },
   });
 
   return {

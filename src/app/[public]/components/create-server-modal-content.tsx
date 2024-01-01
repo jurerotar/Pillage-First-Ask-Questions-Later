@@ -49,11 +49,7 @@ const generateSeed = (length: number = 10): string => {
 const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps> = (props) => {
   const { onSubmit } = props;
 
-  const {
-    values,
-    handleSubmit,
-    submitForm,
-  } = useFormik<CreateServerFormValues>({
+  const { values, handleSubmit, submitForm } = useFormik<CreateServerFormValues>({
     initialValues: {
       seed: generateSeed(),
       name: `server-${generateSeed(4)}`,
@@ -66,7 +62,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
         tribe: 'gauls',
       },
     },
-    validate: (valuesToValidate) => {
+    validate: () => {
       return {};
     },
     onSubmit: (submittedValues) => {
@@ -138,29 +134,15 @@ type CreateServerLoaderViewProps = {
 };
 
 const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) => {
-  const {
-    progressPercentage,
-    hasCreatedServer,
-    errorMessage,
-  } = props;
+  const { progressPercentage, hasCreatedServer, errorMessage } = props;
 
   return (
     <div className="mx-auto flex w-full flex-col gap-4 md:max-w-[50%]">
-      {!!errorMessage && (
-        <span>
-          {errorMessage.toString()}
-        </span>
-      )}
+      {!!errorMessage && <span>{errorMessage.toString()}</span>}
       {!errorMessage && (
         <>
-          {hasCreatedServer && (
-            <p>
-              Server created!
-            </p>
-          )}
-          {!hasCreatedServer && (
-            <ProgressBar value={progressPercentage} />
-          )}
+          {hasCreatedServer && <p>Server created!</p>}
+          {!hasCreatedServer && <ProgressBar value={progressPercentage} />}
         </>
       )}
     </div>
@@ -168,10 +150,7 @@ const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) =>
 };
 
 export const CreateServerModalContent: React.FC = () => {
-  const {
-    createServer,
-    deleteServer,
-  } = useAvailableServers();
+  const { createServer, deleteServer } = useAvailableServers();
 
   const [view, setView] = useState<CreateServerModalView>('configuration');
   const [progressPercentage, setProgressPercentage] = useState<number>(0);
@@ -189,7 +168,7 @@ export const CreateServerModalContent: React.FC = () => {
         setProgressPercentage((prevState) => prevState + percentage);
       };
 
-      const executeStep = async <T, >(promise: () => Promise<T>): Promise<T> => {
+      const executeStep = async <T,>(promise: () => Promise<T>): Promise<T> => {
         updatePercentage();
         const result = await promise();
         return result;
@@ -319,9 +298,7 @@ export const CreateServerModalContent: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      {view === 'configuration' && (
-        <CreateServerConfigurationView onSubmit={onSubmit} />
-      )}
+      {view === 'configuration' && <CreateServerConfigurationView onSubmit={onSubmit} />}
       {view === 'loader' && (
         <CreateServerLoaderView
           progressPercentage={progressPercentage}

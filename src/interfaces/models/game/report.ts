@@ -12,15 +12,9 @@ export type ReportTypes =
   | 'reinforcements-sent'
   | 'reinforcements-received';
 
-export type ReportTag =
-  | 'read'
-  | 'archived'
-  | 'deleted';
+export type ReportTag = 'read' | 'archived' | 'deleted';
 
-export type ReportStatus =
-  | 'no-loss'
-  | 'some-loss'
-  | 'full-loss';
+export type ReportStatus = 'no-loss' | 'some-loss' | 'full-loss';
 
 export type Report = WithServerId<{
   id: number;

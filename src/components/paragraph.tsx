@@ -4,11 +4,7 @@ import clsx from 'clsx';
 type ParagraphProps = React.HTMLProps<HTMLParagraphElement>;
 
 export const Paragraph: FCWithChildren<ParagraphProps> = (props) => {
-  const {
-    className = '',
-    children,
-    ...rest
-  } = props;
+  const { className = '', children, ...rest } = props;
 
   return (
     <p

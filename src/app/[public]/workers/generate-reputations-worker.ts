@@ -17,9 +17,11 @@ const factions: PlayerFaction[] = ['player', 'npc1', 'npc2', 'npc3', 'npc4', 'np
 
 self.addEventListener('message', (event: MessageEvent<GenerateReputationsWorkerPayload>) => {
   const { server } = event.data;
-  const reputations = factions.map((faction) => reputationFactory({
-    server,
-    faction
-  }));
+  const reputations = factions.map((faction) =>
+    reputationFactory({
+      server,
+      faction,
+    })
+  );
   self.postMessage({ reputations });
 });

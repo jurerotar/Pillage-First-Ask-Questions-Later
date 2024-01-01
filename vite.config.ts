@@ -30,7 +30,7 @@ export default defineConfig({
       'react-window',
       'react-transition-group',
       'react-tooltip',
-      '@tanstack/react-query'
+      '@tanstack/react-query',
     ],
   },
   resolve: {

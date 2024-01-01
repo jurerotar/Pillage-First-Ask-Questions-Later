@@ -9,7 +9,7 @@ export const VillagePage: React.FC = () => {
     <Head
       viewName="village"
       tFunctionArgs={{
-        currentVillageName: currentVillage.name
+        currentVillageName: currentVillage.name,
       }}
     />
   );

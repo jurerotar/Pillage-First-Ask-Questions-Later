@@ -10,13 +10,7 @@ type AccordionProps = {
 };
 
 export const Accordion: React.FC<AccordionProps> = (props) => {
-  const {
-    summary,
-    opened = false,
-    summaryClassName = '',
-    className = '',
-    children,
-  } = props;
+  const { summary, opened = false, summaryClassName = '', className = '', children } = props;
 
   return (
     <details
@@ -24,17 +18,13 @@ export const Accordion: React.FC<AccordionProps> = (props) => {
       open={opened}
     >
       <summary className={clsx(summaryClassName, 'flex cursor-pointer items-center justify-between border-gray-300 p-4')}>
-        <span>
-          {summary}
-        </span>
+        <span>{summary}</span>
         {/* <Icon */}
         {/*  className="scale-75" */}
         {/*  icon={faChevronUp} */}
         {/* /> */}
       </summary>
-      <div className={clsx(className, 'p-4')}>
-        {children}
-      </div>
+      <div className={clsx(className, 'p-4')}>{children}</div>
     </details>
   );
 };

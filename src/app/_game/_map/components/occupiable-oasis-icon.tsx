@@ -20,10 +20,7 @@ const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconProps['type'
 };
 
 export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (props) => {
-  const {
-    oasisResourceBonus,
-    ...rest
-  } = props;
+  const { oasisResourceBonus, ...rest } = props;
 
   const iconType = getIconType(oasisResourceBonus);
 

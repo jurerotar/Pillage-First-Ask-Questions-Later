@@ -6,16 +6,13 @@ import { useCurrentServer } from 'hooks/game/use-current-server';
 
 export const mapFiltersCacheKey = 'map-filters';
 
-export const getMapFilters = (serverId: Server['id']) => (database.mapFilters.where({ serverId })
-  .first() as Promise<MapFilters>);
+export const getMapFilters = (serverId: Server['id']) => database.mapFilters.where({ serverId }).first() as Promise<MapFilters>;
 
 export const useMapFilters = () => {
   const queryClient = useQueryClient();
   const { serverId } = useCurrentServer();
 
-  const {
-    data
-  } = useQuery<MapFilters>({
+  const { data } = useQuery<MapFilters>({
     queryKey: [mapFiltersCacheKey, serverId],
     queryFn: () => getMapFilters(serverId),
   });
@@ -25,15 +22,14 @@ export const useMapFilters = () => {
 
   const { mutate: toggleMapFilter } = useMutation<void, Error, MapFilterName>({
     mutationFn: async (filterName) => {
-      database.mapFilters.where({ serverId })
-        .modify({
-          [filterName]: !mapFilters![filterName]
-        });
+      database.mapFilters.where({ serverId }).modify({
+        [filterName]: !mapFilters![filterName],
+      });
     },
     onMutate: (filterName) => {
       const updatedMapFilters = {
         ...mapFilters,
-        [filterName]: !mapFilters[filterName]
+        [filterName]: !mapFilters[filterName],
       };
 
       queryClient.setQueryData<MapFilters>([mapFiltersCacheKey, serverId], updatedMapFilters);
@@ -42,6 +38,6 @@ export const useMapFilters = () => {
 
   return {
     mapFilters,
-    toggleMapFilter
+    toggleMapFilter,
   };
 };

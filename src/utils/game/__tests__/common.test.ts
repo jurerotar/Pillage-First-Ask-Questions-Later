@@ -1,7 +1,7 @@
 import {
   calculateCulturePointsProductionFromBuildingFields,
   calculatePopulationFromBuildingFields,
-  calculateResourceProductionFromResourceFields
+  calculateResourceProductionFromResourceFields,
 } from 'utils/game/common';
 import { buildings } from 'assets/buildings';
 import { newVillageBuildingFieldsMock } from 'mocks/game/village/building-fields-mock';

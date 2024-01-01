@@ -3,7 +3,7 @@ import {
   OasisTile as OasisTileType,
   OccupiedOccupiableTile as OccupiedOccupiableTileType,
   OccupiedOasisTile as OccupiedOasisTileType,
-  Tile as TileType
+  Tile as TileType,
 } from 'interfaces/models/game/tile';
 import React, { memo } from 'react';
 import { areEqual, GridChildComponentProps } from 'react-window';
@@ -56,9 +56,7 @@ const OccupiableTile: React.FC<OccupiableTileProps> = ({ tile }) => {
     return null;
   }
 
-  return (
-    <WheatFieldIcon resourceFieldComposition={tile.resourceFieldComposition} />
-  );
+  return <WheatFieldIcon resourceFieldComposition={tile.resourceFieldComposition} />;
 };
 
 type OccupiedOccupiableTileProps = {
@@ -66,7 +64,9 @@ type OccupiedOccupiableTileProps = {
 };
 
 const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile }) => {
-  const { mapFilters: { shouldShowFactionReputation, shouldShowTreasureIcons } } = useMapFilters();
+  const {
+    mapFilters: { shouldShowFactionReputation, shouldShowTreasureIcons },
+  } = useMapFilters();
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
 
@@ -77,11 +77,13 @@ const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile })
 
   return (
     <span
-      className={clsx('flex h-full w-full items-start justify-end', (shouldShowFactionReputation && !!faction) && reputationColorMap.get(reputationLevel)!.border, shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed')}
-    >
-      {isTileWithTreasury && shouldShowTreasureIcons && (
-        <TreasureIcon treasureType={tile.treasureType} />
+      className={clsx(
+        'flex h-full w-full items-start justify-end',
+        shouldShowFactionReputation && !!faction && reputationColorMap.get(reputationLevel)!.border,
+        shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed'
       )}
+    >
+      {isTileWithTreasury && shouldShowTreasureIcons && <TreasureIcon treasureType={tile.treasureType} />}
     </span>
   );
 };
@@ -89,8 +91,14 @@ const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile })
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
   const { map } = data;
 
-  const { mapFilters: { shouldShowWheatFields, shouldShowOasisIcons } } = useMapFilters();
-  const { server: { configuration: { mapSize } } } = useCurrentServer();
+  const {
+    mapFilters: { shouldShowWheatFields, shouldShowOasisIcons },
+  } = useMapFilters();
+  const {
+    server: {
+      configuration: { mapSize },
+    },
+  } = useCurrentServer();
   const gridSize = mapSize! + 1;
 
   const tile: TileType = map[gridSize * rowIndex + columnIndex];
@@ -105,21 +113,15 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       className="relative flex h-full w-full justify-end rounded-[1px] border border-gray-500"
       style={{
         ...style,
-        backgroundColor: tile.graphics.backgroundColor
+        backgroundColor: tile.graphics.backgroundColor,
       }}
       id={`tile-id-${tile.tileId}`}
     >
-      {isOasis && shouldShowOasisIcons && (
-        <OasisTile tile={tile} />
-      )}
+      {isOasis && shouldShowOasisIcons && <OasisTile tile={tile} />}
       {!isOasis && (
         <>
-          {isOccupiedOccupiableTile && (
-            <OccupiedOccupiableTile tile={tile as OccupiedOccupiableTileType} />
-          )}
-          {!isOccupiedOccupiableTile && shouldShowWheatFields && (
-            <OccupiableTile tile={tile as OccupiedOccupiableTileType} />
-          )}
+          {isOccupiedOccupiableTile && <OccupiedOccupiableTile tile={tile as OccupiedOccupiableTileType} />}
+          {!isOccupiedOccupiableTile && shouldShowWheatFields && <OccupiableTile tile={tile as OccupiedOccupiableTileType} />}
         </>
       )}
     </button>

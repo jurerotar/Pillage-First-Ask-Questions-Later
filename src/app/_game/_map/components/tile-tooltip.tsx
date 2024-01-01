@@ -19,7 +19,9 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const distance = distanceFromCurrentVillage(tile.coordinates);
 
   return (
-    <span className="text-xs text-gray-300">({tile.coordinates.x}|{tile.coordinates.y}) - {t('GENERAL.FIELD', { count: distance })}</span>
+    <span className="text-xs text-gray-300">
+      ({tile.coordinates.x}|{tile.coordinates.y}) - {t('GENERAL.FIELD', { count: distance })}
+    </span>
   );
 };
 
@@ -68,17 +70,18 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
     <>
       <span className="font-semibold">{t(title)}</span>
       <TileTooltipLocation tile={tile} />
-      {isOccupiable && tile.oasisResourceBonus.map(({ resource, bonus }: OasisResourceBonus) => (
-        <span
-          key={resource}
-          className="flex gap-1"
-        >
-          <Icon type={resource} />
-          <span>
-            {t(resourceTranslationMap.get(resource)!)} - {bonus}
+      {isOccupiable &&
+        tile.oasisResourceBonus.map(({ resource, bonus }: OasisResourceBonus) => (
+          <span
+            key={resource}
+            className="flex gap-1"
+          >
+            <Icon type={resource} />
+            <span>
+              {t(resourceTranslationMap.get(resource)!)} - {bonus}
+            </span>
           </span>
-        </span>
-      ))}
+        ))}
       <TileTooltipReports tile={tile} />
     </>
   );
@@ -122,9 +125,15 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
     <>
       <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
-      <span>{t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}</span>
-      <span>{t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}</span>
-      <span>{t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}</span>
+      <span>
+        {t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}
+      </span>
+      <span>
+        {t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}
+      </span>
+      <span>
+        {t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}
+      </span>
       <TileTooltipReports tile={tile} />
     </>
   );
@@ -137,17 +146,11 @@ export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
 
   return (
     <div className="flex flex-col gap-1">
-      {isOasis && (
-        <OasisTileTooltip tile={tile} />
-      )}
+      {isOasis && <OasisTileTooltip tile={tile} />}
       {!isOasis && (
         <>
-          {isOccupiedOccupiableTile && (
-            <OccupiedOccupiableTileTooltip tile={tile as OccupiedOccupiableTile} />
-          )}
-          {!isOccupiedOccupiableTile && (
-            <OccupiableTileTooltip tile={tile} />
-          )}
+          {isOccupiedOccupiableTile && <OccupiedOccupiableTileTooltip tile={tile as OccupiedOccupiableTile} />}
+          {!isOccupiedOccupiableTile && <OccupiableTileTooltip tile={tile} />}
         </>
       )}
     </div>

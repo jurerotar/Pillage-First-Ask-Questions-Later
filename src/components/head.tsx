@@ -2,17 +2,11 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
-type PublicPageName =
-  | 'index';
+type PublicPageName = 'index';
 
-type GamePageName =
-  | 'resources'
-  | 'village'
-  | 'map';
+type GamePageName = 'resources' | 'village' | 'map';
 
-type ViewName =
-  | PublicPageName
-  | GamePageName;
+type ViewName = PublicPageName | GamePageName;
 
 const viewNameToMetaMap = new Map<ViewName, string>([
   ['index', 'APP.PUBLIC.INDEX.META'],
@@ -28,11 +22,7 @@ type AppHelmetProps = {
 };
 
 export const Head: React.FC<AppHelmetProps> = (props) => {
-  const {
-    viewName,
-    tFunctionArgs,
-    children,
-  } = props;
+  const { viewName, tFunctionArgs, children } = props;
 
   const { t } = useTranslation();
 
@@ -43,9 +33,7 @@ export const Head: React.FC<AppHelmetProps> = (props) => {
 
   return (
     <Helmet>
-      <title>
-        {title}
-      </title>
+      <title>{title}</title>
       <meta
         name="description"
         content={description}

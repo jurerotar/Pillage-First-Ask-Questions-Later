@@ -28,7 +28,7 @@ export type OasisTile = BaseTile & {
     oasisGroup: number;
     // Position in the oasisShape matrix [rowIndex, columnIndex]
     oasisGroupPosition: number[];
-  }
+  };
 };
 
 export type OccupiedOasisTile = OasisTile & {
@@ -45,11 +45,7 @@ export type OccupiedOccupiableTile = OccupiableTile & {
   treasureType: 'artifact' | 'hero-item' | 'currency' | 'resources' | null;
 };
 
-export type Tile =
-  | OasisTile
-  | OccupiedOasisTile
-  | OccupiableTile
-  | OccupiedOccupiableTile;
+export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccupiableTile;
 
 export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;

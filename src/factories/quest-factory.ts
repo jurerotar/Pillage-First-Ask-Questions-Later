@@ -14,7 +14,7 @@ export const questFactory = ({ server, ...quest }: QuestFactoryProps & Omit<Ques
   };
 };
 
-export const newVillageQuestsFactory = ({ server, village }: QuestFactoryProps & { village: Village; }): Quest[] => {
+export const newVillageQuestsFactory = ({ server, village }: QuestFactoryProps & { village: Village }): Quest[] => {
   return villageQuests.map((quest) => questFactory({ server, villageId: village.id, ...quest }));
 };
 

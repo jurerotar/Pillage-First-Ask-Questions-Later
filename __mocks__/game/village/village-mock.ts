@@ -22,20 +22,20 @@ export const villageMock: Village = {
   slug: 'v-1',
   coordinates: {
     x: 0,
-    y: 0
+    y: 0,
   },
   resourceFields: resourceFields4446Mock,
   buildingFields: [
     {
       buildingId: 'MAIN_BUILDING',
       buildingFieldId: '1',
-      level: 1
+      level: 1,
     },
     {
       buildingId: 'RALLY_POINT',
       buildingFieldId: '2',
-      level: 1
-    }
+      level: 1,
+    },
   ],
   playerId,
   isCapital: false,
@@ -44,6 +44,6 @@ export const villageMock: Village = {
     wood: 750,
     clay: 750,
     iron: 750,
-    wheat: 750
-  }
+    wheat: 750,
+  },
 };

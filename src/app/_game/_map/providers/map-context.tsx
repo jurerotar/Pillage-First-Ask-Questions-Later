@@ -30,22 +30,18 @@ const MapProvider: FCWithChildren = ({ children }) => {
     setMagnification((prevState) => prevState - 1);
   }, [magnification]);
 
-  const value: MapProviderValues = useMemo(() => ({
-    magnification,
-    increaseMagnification,
-    decreaseMagnification,
-  }), [magnification, increaseMagnification, decreaseMagnification]);
-
-  return (
-    <MapContext.Provider value={value}>
-      {children}
-    </MapContext.Provider>
+  const value: MapProviderValues = useMemo(
+    () => ({
+      magnification,
+      increaseMagnification,
+      decreaseMagnification,
+    }),
+    [magnification, increaseMagnification, decreaseMagnification]
   );
+
+  return <MapContext.Provider value={value}>{children}</MapContext.Provider>;
 };
 
 const useMapOptions = () => useContext<MapProviderValues>(MapContext);
 
-export {
-  MapProvider,
-  useMapOptions
-};
+export { MapProvider, useMapOptions };

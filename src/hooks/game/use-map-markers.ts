@@ -14,9 +14,7 @@ export const useMapMarkers = () => {
   const queryClient = useQueryClient();
   const { serverId } = useCurrentServer();
 
-  const {
-    data: mapMarkers
-  } = useQuery<MapMarker[]>({
+  const { data: mapMarkers } = useQuery<MapMarker[]>({
     queryKey: [mapMarkersCacheKey, serverId],
     queryFn: () => getMapMarkers(serverId),
     initialData: [],

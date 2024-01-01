@@ -10,14 +10,7 @@ type ModalProps = ReactModalProps & {
 };
 
 export const Modal: React.FC<ModalProps> = (props) => {
-  const {
-    isOpen = false,
-    closeHandler,
-    hasTitle,
-    title,
-    children,
-    ...rest
-  } = props;
+  const { isOpen = false, closeHandler, hasTitle, title, children, ...rest } = props;
 
   return (
     <Suspense fallback={null}>
@@ -36,9 +29,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
             <div className="mb-2 border-b border-gray-300">
               {/* Modal title */}
               <div className="flex max-w-[90%] items-center pb-2">
-                <SectionHeading>
-                  {title}
-                </SectionHeading>
+                <SectionHeading>{title}</SectionHeading>
               </div>
             </div>
           )}

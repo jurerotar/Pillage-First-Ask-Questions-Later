@@ -37,6 +37,6 @@ export const useMap = () => {
     hasLoadedMap,
     mapQueryStatus,
     getTileByCoordinates,
-    getTileByTileId
+    getTileByTileId,
   };
 };

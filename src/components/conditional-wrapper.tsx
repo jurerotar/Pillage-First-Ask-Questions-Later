@@ -6,13 +6,7 @@ type ConditionalWrapperProps = {
 };
 
 export const ConditionalWrapper: FCWithChildren<ConditionalWrapperProps> = (props) => {
-  const {
-    condition,
-    wrapper,
-    children,
-  } = props;
+  const { condition, wrapper, children } = props;
 
-  return (
-    condition ? wrapper(children) : children
-  );
+  return condition ? wrapper(children) : children;
 };

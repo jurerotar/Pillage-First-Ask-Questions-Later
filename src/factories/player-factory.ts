@@ -3,18 +3,7 @@ import { Player, PlayerFaction } from 'interfaces/models/game/player';
 import { Tribe } from 'interfaces/models/game/tribe';
 import { seededRandomArrayElement } from 'utils/common';
 
-const romanFirstNames = [
-  'Acacius',
-  'Fulgentius',
-  'Faustus',
-  'Kaius',
-  'Anastius',
-  'Anthea',
-  'Iantha',
-  'Ligea',
-  'Athena',
-  'Circe',
-];
+const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 
 const romanSecondNames = [
   'Hispallus',
@@ -29,31 +18,9 @@ const romanSecondNames = [
   'Augur',
 ];
 
-const teutonFirstNames = [
-  'Aldwin',
-  'Gilbert',
-  'Arda',
-  'Arnulf',
-  'Hubert',
-  'Hartwin',
-  'Ermenrich',
-  'Herman',
-  'Egilhard',
-  'Ferdinand',
-];
+const teutonFirstNames = ['Aldwin', 'Gilbert', 'Arda', 'Arnulf', 'Hubert', 'Hartwin', 'Ermenrich', 'Herman', 'Egilhard', 'Ferdinand'];
 
-const teutonSecondNames = [
-  'Drechslerg',
-  'Fryee',
-  'Forstg',
-  'Bluee',
-  'Grafg',
-  'Bradleye',
-  'Fairburne',
-  'Beutelg',
-  'Gerverg',
-  'Brauerl',
-];
+const teutonSecondNames = ['Drechslerg', 'Fryee', 'Forstg', 'Bluee', 'Grafg', 'Bradleye', 'Fairburne', 'Beutelg', 'Gerverg', 'Brauerl'];
 
 const gaulNames = [
   'Aneirin',

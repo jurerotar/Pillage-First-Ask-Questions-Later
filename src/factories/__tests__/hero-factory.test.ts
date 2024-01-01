@@ -5,7 +5,7 @@ import {
   egyptianServerMock,
   hunServerMock,
   spartanServerMock,
-  serverMock
+  serverMock,
 } from 'mocks/models/game/server-mock';
 import { heroFactory } from 'factories/hero-factory';
 

@@ -1,15 +1,8 @@
 {
   "root": true,
-  "plugins": [
-    "import",
-    "react-hooks",
-    "eslint-plugin-import",
-    "@typescript-eslint"
-  ],
+  "plugins": ["import", "react-hooks", "eslint-plugin-import", "@typescript-eslint"],
   "parserOptions": {
-    "project": [
-      "./tsconfig.json"
-    ]
+    "project": ["./tsconfig.json"]
   },
   "extends": [
     "airbnb",
@@ -17,13 +10,10 @@
     "airbnb-typescript",
     "plugin:import/typescript",
     "plugin:@typescript-eslint/recommended",
-    "plugin:tailwindcss/recommended"
+    "plugin:tailwindcss/recommended",
+    "prettier"
   ],
-  "ignorePatterns": [
-    "*.js",
-    "*.json",
-    "node_modules/"
-  ],
+  "ignorePatterns": ["*.js", "*.json", "node_modules/"],
   "rules": {
     "no-continue": "off",
     "no-trailing-spaces": "off",
@@ -39,10 +29,7 @@
     "object-curly-newline": "off",
     "linebreak-style": "off",
     "eol-last": "off",
-    "func-style": [
-      "error",
-      "expression"
-    ],
+    "func-style": ["error", "expression"],
     "max-classes-per-file": "off",
     "class-methods-use-this": "off",
     "arrow-body-style": "off",
@@ -91,18 +78,16 @@
     "react/require-default-props": "off",
     "react/prop-types": "off",
     "react/jsx-props-no-spreading": "off",
-    "react/no-unstable-nested-components": ["error", {
-      "allowAsProps": true
-    }],
+    "react/no-unstable-nested-components": [
+      "error",
+      {
+        "allowAsProps": true
+      }
+    ],
     "react/jsx-filename-extension": [
       "error",
       {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     ],
     "react/function-component-definition": "off",

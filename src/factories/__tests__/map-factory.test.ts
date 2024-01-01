@@ -6,32 +6,27 @@ import { playersMock } from 'mocks/models/game/player-mock';
 describe('Map factory', () => {
   const tiles = mapFactory({
     server: serverMock,
-    players: playersMock
+    players: playersMock,
   });
 
   describe('Grid generation', () => {
     test('Creates an array of correct size', () => {
-      expect(tiles.length)
-        .toBe(10201);
+      expect(tiles.length).toBe(10201);
     });
     describe('Each tile contains required properties', () => {
       test('serverId, equal to server.id', () => {
-        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'serverId') && tile.serverId === serverMock.id))
-          .toBe(true);
+        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'serverId') && tile.serverId === serverMock.id)).toBe(true);
       });
       test('coordinates', () => {
-        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'coordinates')))
-          .toBe(true);
+        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'coordinates'))).toBe(true);
       });
       test('type', () => {
-        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'type')))
-          .toBe(true);
+        expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'type'))).toBe(true);
       });
       test('All tiles are either oasis or free tile', () => {
         const oasis = tiles.filter((tile: Tile) => tile.type === 'oasis-tile');
         const freeTiles = tiles.filter((tile: Tile) => tile.type === 'free-tile');
-        expect(oasis.length + freeTiles.length)
-          .toBe(tiles.length);
+        expect(oasis.length + freeTiles.length).toBe(tiles.length);
       });
     });
   });
@@ -40,44 +35,47 @@ describe('Map factory', () => {
     const oasisTiles = tiles.filter(({ type }) => type === 'oasis-tile') as OasisTile[];
 
     test('Some oasis tile have no bonus', () => {
-      expect(oasisTiles.some(({ oasisResourceBonus }) => oasisResourceBonus.length === 0))
-        .toBe(true);
+      expect(oasisTiles.some(({ oasisResourceBonus }) => oasisResourceBonus.length === 0)).toBe(true);
     });
 
     test('Some oasis tile have only 25% single-resource bonus', () => {
-      expect(oasisTiles.some(({ oasisResourceBonus }) => {
-        if (oasisResourceBonus.length !== 1) {
-          return false;
-        }
-        const { bonus } = oasisResourceBonus[0];
-        return bonus === '25%';
-      })).toBe(true);
+      expect(
+        oasisTiles.some(({ oasisResourceBonus }) => {
+          if (oasisResourceBonus.length !== 1) {
+            return false;
+          }
+          const { bonus } = oasisResourceBonus[0];
+          return bonus === '25%';
+        })
+      ).toBe(true);
     });
 
     test('Some oasis tile have 50% single-resource bonus', () => {
-      expect(oasisTiles.some(({ oasisResourceBonus }) => {
-        if (oasisResourceBonus.length !== 1) {
-          return false;
-        }
-        const { bonus } = oasisResourceBonus[0];
-        return bonus === '50%';
-      })).toBe(true);
+      expect(
+        oasisTiles.some(({ oasisResourceBonus }) => {
+          if (oasisResourceBonus.length !== 1) {
+            return false;
+          }
+          const { bonus } = oasisResourceBonus[0];
+          return bonus === '50%';
+        })
+      ).toBe(true);
     });
 
     test('Some oasis tile have double 25% single-resource bonus', () => {
-      expect(oasisTiles.some(({ oasisResourceBonus }) => {
-        if (oasisResourceBonus.length !== 2) {
-          return false;
-        }
-        const [firstBonus, secondBonus] = oasisResourceBonus;
-        return firstBonus.bonus === '25%' && secondBonus.bonus === '25%';
-      })).toBe(true);
+      expect(
+        oasisTiles.some(({ oasisResourceBonus }) => {
+          if (oasisResourceBonus.length !== 2) {
+            return false;
+          }
+          const [firstBonus, secondBonus] = oasisResourceBonus;
+          return firstBonus.bonus === '25%' && secondBonus.bonus === '25%';
+        })
+      ).toBe(true);
     });
   });
 
-  describe('Tile type occurrence', () => {
-
-  });
+  describe('Tile type occurrence', () => {});
 
   //
   // TODO: Re-enable this test once nice percentages are defined

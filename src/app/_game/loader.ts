@@ -49,10 +49,7 @@ class MissingVillageError extends Error {
 type GameLoaderParams = Record<'serverSlug' | 'villageSlug', string>;
 
 export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) => {
-  const {
-    serverSlug,
-    villageSlug
-  } = params as GameLoaderParams;
+  const { serverSlug, villageSlug } = params as GameLoaderParams;
 
   const queryClient = new QueryClient();
 
@@ -78,56 +75,56 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
   await Promise.allSettled([
     queryClient.prefetchQuery<Player[]>({
       queryKey: [playersCacheKey, serverId],
-      queryFn: () => getPlayers(serverId)
+      queryFn: () => getPlayers(serverId),
     }),
     queryClient.prefetchQuery<Reputation[]>({
       queryKey: [reputationsCacheKey, serverId],
-      queryFn: () => getReputations(serverId)
+      queryFn: () => getReputations(serverId),
     }),
     queryClient.prefetchQuery<Achievement[]>({
       queryKey: [achievementsCacheKey, serverId],
-      queryFn: () => getAchievements(serverId)
+      queryFn: () => getAchievements(serverId),
     }),
     queryClient.prefetchQuery<Bank>({
       queryKey: [banksCacheKey, serverId],
-      queryFn: () => getBank(serverId)
+      queryFn: () => getBank(serverId),
     }),
     queryClient.prefetchQuery<Effect[]>({
       queryKey: [effectsCacheKey, serverId],
-      queryFn: () => getEffects(serverId)
+      queryFn: () => getEffects(serverId),
     }),
     queryClient.prefetchQuery<GameEvent[]>({
       queryKey: [eventsCacheKey, serverId],
-      queryFn: () => getEvents(serverId)
+      queryFn: () => getEvents(serverId),
     }),
     queryClient.prefetchQuery<Hero>({
       queryKey: [heroCacheKey, serverId],
-      queryFn: () => getHero(serverId)
+      queryFn: () => getHero(serverId),
     }),
     queryClient.prefetchQuery<Tile[]>({
       queryKey: [mapCacheKey, serverId],
-      queryFn: () => getMap(serverId)
+      queryFn: () => getMap(serverId),
     }),
     queryClient.prefetchQuery<Quest[]>({
       queryKey: [questsCacheKey, serverId],
-      queryFn: () => getQuests(serverId)
+      queryFn: () => getQuests(serverId),
     }),
     queryClient.prefetchQuery<Report[]>({
       queryKey: [reportsCacheKey, serverId],
-      queryFn: () => getReports(serverId)
+      queryFn: () => getReports(serverId),
     }),
     queryClient.prefetchQuery<ResearchLevel[]>({
       queryKey: [researchLevelsCacheKey, serverId],
-      queryFn: () => getResearchLevels(serverId)
+      queryFn: () => getResearchLevels(serverId),
     }),
     queryClient.prefetchQuery<Village[]>({
       queryKey: [villagesCacheKey, serverId],
-      queryFn: () => getVillages(serverId)
+      queryFn: () => getVillages(serverId),
     }),
     queryClient.prefetchQuery<MapFilters>({
       queryKey: [mapFiltersCacheKey, serverId],
-      queryFn: () => getMapFilters(serverId)
-    })
+      queryFn: () => getMapFilters(serverId),
+    }),
   ]);
 
   return {

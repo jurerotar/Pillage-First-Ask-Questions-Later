@@ -9,15 +9,11 @@ type BuildingUpgradeIndicatorProps = {
 };
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId }) => {
-  const { currentVillage: { resourceFields } } = useCurrentVillage();
   const {
-    buildingId,
-    level
-  } = resourceFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId)!;
-  const {
-    isMaxLevel,
-    canUpgradeBuilding
-  } = useBuilding(buildingId, level);
+    currentVillage: { resourceFields },
+  } = useCurrentVillage();
+  const { buildingId, level } = resourceFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId)!;
+  const { isMaxLevel, canUpgradeBuilding } = useBuilding(buildingId, level);
 
   const variant = ((): BorderIndicatorVariant => {
     if (isMaxLevel) {
@@ -29,9 +25,5 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
     return 'green';
   })();
 
-  return (
-    <BorderIndicator variant={variant}>
-      {level}
-    </BorderIndicator>
-  );
+  return <BorderIndicator variant={variant}>{level}</BorderIndicator>;
 };

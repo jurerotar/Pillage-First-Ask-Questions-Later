@@ -1,10 +1,7 @@
 import { useParams } from 'react-router-dom';
 
 export const useRouteSegments = () => {
-  const {
-    serverSlug,
-    villageSlug,
-  } = useParams();
+  const { serverSlug, villageSlug } = useParams();
 
   return {
     serverSlug: serverSlug as string,

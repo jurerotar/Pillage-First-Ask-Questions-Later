@@ -3,7 +3,7 @@ import {
   ResourceFieldComposition,
   ResourceFieldId,
   Village,
-  VillageBuildingFieldsPresetName
+  VillageBuildingFieldsPresetName,
 } from 'interfaces/models/game/village';
 import { Server } from 'interfaces/models/game/server';
 import { villagePresets } from 'assets/village-presets';
@@ -14,7 +14,7 @@ import { resourceTypeToResourceBuildingIdMap } from 'utils/game/maps';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
-const fullWheatLayout: ResourceFieldLayout = Object.fromEntries([...(new Array(18))].map((_, i) => [[i + 1], 'wheat']));
+const fullWheatLayout: ResourceFieldLayout = Object.fromEntries([...new Array(18)].map((_, i) => [[i + 1], 'wheat']));
 
 // We set only non-wheat fields, since wheat field is the most common type
 const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayout> = {
@@ -32,7 +32,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   3447: {
     ...fullWheatLayout,
@@ -47,7 +47,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   3456: {
     ...fullWheatLayout,
@@ -62,7 +62,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   3546: {
     ...fullWheatLayout,
@@ -77,7 +77,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   4347: {
     ...fullWheatLayout,
@@ -92,7 +92,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   4356: {
     ...fullWheatLayout,
@@ -109,7 +109,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     11: 'clay',
     12: 'iron',
     13: 'wood',
-    16: 'clay'
+    16: 'clay',
   },
   4437: {
     ...fullWheatLayout,
@@ -124,7 +124,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   4446: {
     ...fullWheatLayout,
@@ -139,7 +139,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   4536: {
     ...fullWheatLayout,
@@ -154,7 +154,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   5346: {
     ...fullWheatLayout,
@@ -169,7 +169,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   5436: {
     ...fullWheatLayout,
@@ -184,14 +184,14 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
     14: 'wood',
     16: 'clay',
     17: 'wood',
-    18: 'clay'
+    18: 'clay',
   },
   11115: {
     ...fullWheatLayout,
     3: 'wood',
     4: 'iron',
-    16: 'clay'
-  }
+    16: 'clay',
+  },
 };
 
 const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): BuildingField[] => {
@@ -200,7 +200,7 @@ const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: Resource
     return {
       buildingFieldId,
       level: 0,
-      buildingId: resourceTypeToResourceBuildingIdMap.get(type)!
+      buildingId: resourceTypeToResourceBuildingIdMap.get(type)!,
     };
   });
 };
@@ -221,21 +221,10 @@ type VillageFactoryProps = {
   slug: Village['slug'];
 };
 
-export const villageFactory = ({
-  server,
-  tile,
-  players,
-  slug
-}: VillageFactoryProps): Village => {
-  const {
-    coordinates,
-    resourceFieldComposition
-  } = tile;
+export const villageFactory = ({ server, tile, players, slug }: VillageFactoryProps): Village => {
+  const { coordinates, resourceFieldComposition } = tile;
 
-  const {
-    id: playerId,
-    name
-  } = players.find((player) => player.id === tile.ownedBy)!;
+  const { id: playerId, name } = players.find((player) => player.id === tile.ownedBy)!;
 
   const resourceFields = getVillageResourceFields(resourceFieldComposition);
   const buildingFields = getVillageBuildingFields('new-village');
@@ -255,7 +244,7 @@ export const villageFactory = ({
       wood: 750,
       clay: 750,
       iron: 750,
-      wheat: 750
-    }
+      wheat: 750,
+    },
   };
 };

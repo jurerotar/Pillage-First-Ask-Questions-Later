@@ -9,5 +9,5 @@ export type Point = {
 };
 
 export type Device = {
-  size: Size
+  size: Size;
 };

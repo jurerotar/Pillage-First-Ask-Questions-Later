@@ -45,7 +45,11 @@ export const router = createBrowserRouter(
           />
           <Route
             path="map"
-            element={(<MapProvider><MapPage /></MapProvider>)}
+            element={
+              <MapProvider>
+                <MapPage />
+              </MapProvider>
+            }
           />
         </Route>
       </Route>

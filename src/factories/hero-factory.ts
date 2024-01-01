@@ -5,7 +5,12 @@ type HeroFactoryProps = {
   server: Server;
 };
 
-export const heroFactory = ({ server: { id: serverId, playerConfiguration: { tribe } } }: HeroFactoryProps): Hero => {
+export const heroFactory = ({
+  server: {
+    id: serverId,
+    playerConfiguration: { tribe },
+  },
+}: HeroFactoryProps): Hero => {
   // Gaul hero is faster when on horse
   const mountedSpeed = tribe === 'gauls' ? 19 : 14;
   // Teuton hero regenerates health at increased rate

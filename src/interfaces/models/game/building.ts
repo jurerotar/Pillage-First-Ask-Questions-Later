@@ -1,15 +1,11 @@
-import { Resource } from 'interfaces/models/game/resource';
 import { EffectId } from 'interfaces/models/game/effect';
 import { Tribe } from 'interfaces/models/game/tribe';
 
-export type ResourceBuildingId =
+export type BuildingId =
   | 'CLAY_PIT'
   | 'CROPLAND'
   | 'WOODCUTTER'
-  | 'IRON_MINE';
-
-export type BuildingId =
-  | ResourceBuildingId
+  | 'IRON_MINE'
   | 'BAKERY'
   | 'BRICKYARD'
   | 'GRAIN_MILL'

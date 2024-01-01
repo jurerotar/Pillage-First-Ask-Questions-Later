@@ -1,5 +1,4 @@
-type CommonTableName =
-  | 'servers';
+type CommonTableName = 'servers';
 
 type ServerSpecificTableName =
   | 'maps'
@@ -17,6 +16,4 @@ type ServerSpecificTableName =
   | 'mapMarkers'
   | 'mapFilters';
 
-export type CryliteTableName =
-  | CommonTableName
-  | ServerSpecificTableName;
+export type CryliteTableName = CommonTableName | ServerSpecificTableName;

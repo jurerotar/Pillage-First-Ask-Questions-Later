@@ -15,13 +15,11 @@ export const ResourcesPage: React.FC = () => {
       <Head
         viewName="resources"
         tFunctionArgs={{
-          currentVillageName: currentVillage.name
+          currentVillageName: currentVillage.name,
         }}
       />
       <main className="">
-        <div
-          className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]"
-        >
+        <div className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]">
           {[...Array(18)].map((_, resourceBuildingFieldId) => (
             <ResourceField
               // eslint-disable-next-line react/no-array-index-key

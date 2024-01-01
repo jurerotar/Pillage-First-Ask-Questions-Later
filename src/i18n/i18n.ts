@@ -6,18 +6,17 @@ import enUsLocalization from 'i18n/translations/en-US.json';
 const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
 
 (async () => {
-  await i18n.use(initReactI18next)
-    .init({
-      lng: 'en-US',
-      debug: true,
-      fallbackLng: 'en-US',
-      load: 'currentOnly',
-      supportedLngs: availableLocales,
-      returnObjects: false,
-      resources: {
-        'en-US': {
-          translation: enUsLocalization,
-        },
+  await i18n.use(initReactI18next).init({
+    lng: 'en-US',
+    debug: true,
+    fallbackLng: 'en-US',
+    load: 'currentOnly',
+    supportedLngs: availableLocales,
+    returnObjects: false,
+    resources: {
+      'en-US': {
+        translation: enUsLocalization,
       },
-    });
+    },
+  });
 })();

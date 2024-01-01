@@ -10,8 +10,7 @@ import { Point } from 'interfaces/models/common';
 export const currentVillageCacheKey = 'current-village';
 
 export const getCurrentVillage = (serverId: Server['id'], villageSlug: string) => {
-  return (database.villages.where({ serverId, slug: villageSlug })
-    .first() as Promise<Village>);
+  return database.villages.where({ serverId, slug: villageSlug }).first() as Promise<Village>;
 };
 
 export const useCurrentVillage = () => {

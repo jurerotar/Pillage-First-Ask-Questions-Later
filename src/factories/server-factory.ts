@@ -11,7 +11,7 @@ export const serverFactory = ({ name, seed, configuration, playerConfiguration }
     name,
     seed,
     slug,
-    startDate: (new Date()).toString(),
+    startDate: new Date().toString(),
     configuration,
     playerConfiguration,
   };

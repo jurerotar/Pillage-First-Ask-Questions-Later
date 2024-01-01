@@ -14,7 +14,6 @@ export const npcPlayerMock: Player = {
   name: 'Npc name',
   faction: 'npc3',
   tribe: 'romans',
-
 };
 
 export const playersMock: Player[] = [

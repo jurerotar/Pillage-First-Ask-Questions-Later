@@ -13,11 +13,7 @@ export const GameEngineProvider: FCWithChildren = ({ children }) => {
     return {};
   }, []);
 
-  return (
-    <GameEngine.Provider value={value}>
-      {children}
-    </GameEngine.Provider>
-  );
+  return <GameEngine.Provider value={value}>{children}</GameEngine.Provider>;
 };
 
 export const useGameEngine = () => useContext(GameEngine);
