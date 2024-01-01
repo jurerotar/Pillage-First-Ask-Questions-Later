@@ -1,5 +1,5 @@
 import { Point } from 'interfaces/models/common';
-import { Resource, Resources } from 'interfaces/models/game/resource';
+import { Resources } from 'interfaces/models/game/resource';
 import { Building } from 'interfaces/models/game/building';
 import { Server } from 'interfaces/models/game/server';
 import { Player } from 'interfaces/models/game/player';
@@ -24,12 +24,6 @@ export type ResourceFieldId =
   | '17'
   | '18';
 
-export type ResourceField = {
-  resourceFieldId: ResourceFieldId;
-  type: Resource;
-  level: number;
-};
-
 export type ResourceFieldComposition =
   | '4446'
   | '5436'
@@ -53,8 +47,12 @@ export type BuildingFieldId =
 
 export type BuildingField = {
   buildingFieldId: BuildingFieldId;
-  buildingId: Building['id'] | null;
+  buildingId: Building['id'];
   level: number;
+};
+
+export type EmptyBuildingField = BuildingField & {
+  buildingId: null
 };
 
 export type Village = {
@@ -66,7 +64,7 @@ export type Village = {
   lastUpdatedAt: number;
   coordinates: Point;
   resources: Resources;
-  resourceFields: ResourceField[];
+  resourceFields: BuildingField[];
   buildingFields: BuildingField[];
   isCapital: boolean;
 };

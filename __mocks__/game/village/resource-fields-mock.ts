@@ -1,280 +1,280 @@
-import { ResourceField } from 'interfaces/models/game/village';
+import { BuildingField } from 'interfaces/models/game/village';
 
-export const resourceFields00018Mock: ResourceField[] = [
+export const resourceFields00018Mock: BuildingField[] = [
   {
-    resourceFieldId: '1',
-    type: 'wheat',
+    buildingFieldId: '1',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '2',
-    type: 'wheat',
+    buildingFieldId: '2',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '3',
-    type: 'wheat',
+    buildingFieldId: '3',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '4',
-    type: 'wheat',
+    buildingFieldId: '4',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '5',
-    type: 'wheat',
+    buildingFieldId: '5',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '6',
-    type: 'wheat',
+    buildingFieldId: '6',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '7',
-    type: 'wheat',
+    buildingFieldId: '7',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '8',
-    type: 'wheat',
+    buildingFieldId: '8',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '9',
-    type: 'wheat',
+    buildingFieldId: '9',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '10',
-    type: 'wheat',
+    buildingFieldId: '10',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '11',
-    type: 'wheat',
+    buildingFieldId: '11',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '12',
-    type: 'wheat',
+    buildingFieldId: '12',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '13',
-    type: 'wheat',
+    buildingFieldId: '13',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '14',
-    type: 'wheat',
+    buildingFieldId: '14',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '15',
-    type: 'wheat',
+    buildingFieldId: '15',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '16',
-    type: 'wheat',
+    buildingFieldId: '16',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '17',
-    type: 'wheat',
+    buildingFieldId: '17',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '18',
-    type: 'wheat',
+    buildingFieldId: '18',
+    buildingId: 'CROPLAND',
     level: 0
   }
 ];
 
-export const resourceFields11115Mock: ResourceField[] = [
+export const resourceFields11115Mock: BuildingField[] = [
   {
-    resourceFieldId: '1',
-    type: 'wheat',
+    buildingFieldId: '1',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '2',
-    type: 'wheat',
+    buildingFieldId: '2',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '3',
-    type: 'wood',
+    buildingFieldId: '3',
+    buildingId: 'WOODCUTTER',
     level: 0
   },
   {
-    resourceFieldId: '4',
-    type: 'iron',
+    buildingFieldId: '4',
+    buildingId: 'IRON_MINE',
     level: 0
   },
   {
-    resourceFieldId: '5',
-    type: 'wheat',
+    buildingFieldId: '5',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '6',
-    type: 'wheat',
+    buildingFieldId: '6',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '7',
-    type: 'wheat',
+    buildingFieldId: '7',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '8',
-    type: 'wheat',
+    buildingFieldId: '8',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '9',
-    type: 'wheat',
+    buildingFieldId: '9',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '10',
-    type: 'wheat',
+    buildingFieldId: '10',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '11',
-    type: 'wheat',
+    buildingFieldId: '11',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '12',
-    type: 'wheat',
+    buildingFieldId: '12',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '13',
-    type: 'wheat',
+    buildingFieldId: '13',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '14',
-    type: 'wheat',
+    buildingFieldId: '14',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '15',
-    type: 'wheat',
+    buildingFieldId: '15',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '16',
-    type: 'clay',
+    buildingFieldId: '16',
+    buildingId: 'CLAY_PIT',
     level: 0
   },
   {
-    resourceFieldId: '17',
-    type: 'wheat',
+    buildingFieldId: '17',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '18',
-    type: 'wheat',
+    buildingFieldId: '18',
+    buildingId: 'CROPLAND',
     level: 0
   },
 ];
 
-export const resourceFields4446Mock: ResourceField[] = [
+export const resourceFields4446Mock: BuildingField[] = [
   {
-    resourceFieldId: '1',
-    type: 'wood',
+    buildingFieldId: '1',
+    buildingId: 'WOODCUTTER',
     level: 0
   },
   {
-    resourceFieldId: '2',
-    type: 'wheat',
+    buildingFieldId: '2',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '3',
-    type: 'wood',
+    buildingFieldId: '3',
+    buildingId: 'WOODCUTTER',
     level: 0
   },
   {
-    resourceFieldId: '4',
-    type: 'iron',
+    buildingFieldId: '4',
+    buildingId: 'IRON_MINE',
     level: 0
   },
   {
-    resourceFieldId: '5',
-    type: 'clay',
+    buildingFieldId: '5',
+    buildingId: 'CLAY_PIT',
     level: 0
   },
   {
-    resourceFieldId: '6',
-    type: 'clay',
+    buildingFieldId: '6',
+    buildingId: 'CLAY_PIT',
     level: 0
   },
   {
-    resourceFieldId: '7',
-    type: 'iron',
+    buildingFieldId: '7',
+    buildingId: 'IRON_MINE',
     level: 0
   },
   {
-    resourceFieldId: '8',
-    type: 'wheat',
+    buildingFieldId: '8',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '9',
-    type: 'wheat',
+    buildingFieldId: '9',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '10',
-    type: 'iron',
+    buildingFieldId: '10',
+    buildingId: 'IRON_MINE',
     level: 0
   },
   {
-    resourceFieldId: '11',
-    type: 'iron',
+    buildingFieldId: '11',
+    buildingId: 'IRON_MINE',
     level: 0
   },
   {
-    resourceFieldId: '12',
-    type: 'wheat',
+    buildingFieldId: '12',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '13',
-    type: 'wheat',
+    buildingFieldId: '13',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '14',
-    type: 'wood',
+    buildingFieldId: '14',
+    buildingId: 'WOODCUTTER',
     level: 0
   },
   {
-    resourceFieldId: '15',
-    type: 'wheat',
+    buildingFieldId: '15',
+    buildingId: 'CROPLAND',
     level: 0
   },
   {
-    resourceFieldId: '16',
-    type: 'clay',
+    buildingFieldId: '16',
+    buildingId: 'CLAY_PIT',
     level: 0
   },
   {
-    resourceFieldId: '17',
-    type: 'wood',
+    buildingFieldId: '17',
+    buildingId: 'WOODCUTTER',
     level: 0
   },
   {
-    resourceFieldId: '18',
-    type: 'clay',
+    buildingFieldId: '18',
+    buildingId: 'CLAY_PIT',
     level: 0
   },
 ];

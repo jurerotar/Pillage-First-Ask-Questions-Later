@@ -1,7 +1,7 @@
 import React, { FCWithChildren } from 'react';
 import clsx from 'clsx';
 
-type BorderIndicatorVariant =
+export type BorderIndicatorVariant =
   | 'green'
   | 'blue'
   | 'red'
@@ -30,10 +30,10 @@ export const BorderIndicator: FCWithChildren<BorderIndicatorProps> = (props) => 
 
   return (
     <span
-      className={clsx(className, variantToClassNameMap[variant], 'inline-flex items-center justify-center rounded-full bg-gradient-radial p-1')}
+      className={clsx(className, variantToClassNameMap[variant], 'inline-flex items-center justify-center rounded-full bg-gradient-to-t p-1')}
       {...rest}
     >
-      <span className="relative inline-flex items-center justify-center rounded-full bg-white p-1">
+      <span className="relative inline-flex size-5 items-center justify-center rounded-full bg-white text-xs">
         {children}
       </span>
     </span>

@@ -74,4 +74,5 @@ export type Building = {
   cropConsumption: number[];
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
-} & Record<Resource, number[]>;
+  buildingCost: number[][];
+};

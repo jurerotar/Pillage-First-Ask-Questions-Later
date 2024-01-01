@@ -17,26 +17,6 @@
   @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
 }
 
-.hexagon {
-  &__grid {
-    display: grid;
-    grid-template-rows: repeat(5, 1fr);
-    justify-content: center;
-    --cell-size: 100px;
-    --cell-margin: 4px;
-  }
-
-  &__cell {
-    width: var(--cell-size);
-    margin: var(--cell-margin);
-    height: calc(var(--cell-size) * 1.1547);
-    display: inline-block;
-    font-size: initial;
-    clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
-    margin-bottom: calc(var(--cell-margin) - var(--cell-size) * 0.2885);
-  }
-}
-
 .fade-enter {
   opacity: 0;
 }

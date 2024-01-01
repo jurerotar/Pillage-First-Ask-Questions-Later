@@ -1,6 +1,5 @@
 import {
   BuildingField,
-  ResourceField,
   ResourceFieldComposition,
   ResourceFieldId,
   Village,
@@ -11,6 +10,7 @@ import { villagePresets } from 'assets/village-presets';
 import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
 import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
+import { resourceTypeToResourceBuildingIdMap } from 'utils/game/maps';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
@@ -194,18 +194,18 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
   }
 };
 
-const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): ResourceField[] => {
-  return (Object.keys(resourceFieldLayout) as ResourceFieldId[]).map((resourceFieldId: ResourceFieldId) => {
-    const type = resourceFieldLayout[resourceFieldId];
+const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): BuildingField[] => {
+  return (Object.keys(resourceFieldLayout) as ResourceFieldId[]).map((buildingFieldId: ResourceFieldId) => {
+    const type = resourceFieldLayout[buildingFieldId];
     return {
-      resourceFieldId,
-      type,
-      level: 0
+      buildingFieldId,
+      level: 0,
+      buildingId: resourceTypeToResourceBuildingIdMap.get(type)!
     };
   });
 };
 
-const getVillageResourceFields = (resourceFieldComposition: ResourceFieldComposition): ResourceField[] => {
+const getVillageResourceFields = (resourceFieldComposition: ResourceFieldComposition): BuildingField[] => {
   const resourceFieldsLayout = resourceFieldsLayouts[resourceFieldComposition];
   return convertResourceFieldLayoutToResourceField(resourceFieldsLayout);
 };
