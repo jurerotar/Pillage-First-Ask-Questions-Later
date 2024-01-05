@@ -7,10 +7,7 @@ type CountdownProps = {
 };
 
 export const Countdown: React.FC<CountdownProps> = (props) => {
-  const {
-    endTime,
-    className = '',
-  } = props;
+  const { endTime, className = '' } = props;
 
   const [formattedTime, setFormattedTime] = useState<string>('');
 
@@ -24,9 +21,5 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
     };
   }, []);
 
-  return (
-    <span className={className}>
-      {formattedTime}
-    </span>
-  );
+  return <span className={className}>{formattedTime}</span>;
 };

@@ -1,12 +1,7 @@
 [
   {
     "id": "LEGIONNAIRE",
-    "baseRecruitmentCost": [
-      120,
-      100,
-      150,
-      30
-    ],
+    "baseRecruitmentCost": [120, 100, 150, 30],
     "baseRecruitmentTime": 1600,
     "cropConsumption": 1,
     "attack": 40,
@@ -20,12 +15,7 @@
   },
   {
     "id": "PRAETORIAN",
-    "baseRecruitmentCost": [
-      100,
-      130,
-      160,
-      70
-    ],
+    "baseRecruitmentCost": [100, 130, 160, 70],
     "baseRecruitmentTime": 1760,
     "cropConsumption": 1,
     "attack": 30,
@@ -35,19 +25,11 @@
     "carryCapacity": 20,
     "type": "infantry",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:1",
-      "SMITHY:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:1", "SMITHY:1"]
   },
   {
     "id": "IMPERIAN",
-    "baseRecruitmentCost": [
-      150,
-      160,
-      210,
-      80
-    ],
+    "baseRecruitmentCost": [150, 160, 210, 80],
     "baseRecruitmentTime": 1920,
     "cropConsumption": 1,
     "attack": 70,
@@ -57,19 +39,11 @@
     "carryCapacity": 50,
     "type": "infantry",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "SMITHY:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "SMITHY:1"]
   },
   {
     "id": "EQUITES_LEGATI",
-    "baseRecruitmentCost": [
-      140,
-      160,
-      20,
-      40
-    ],
+    "baseRecruitmentCost": [140, 160, 20, 40],
     "baseRecruitmentTime": 1360,
     "cropConsumption": 2,
     "attack": 0,
@@ -79,19 +53,11 @@
     "carryCapacity": 0,
     "type": "cavalry",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:1"]
   },
   {
     "id": "EQUITES_IMPERATORIS",
-    "baseRecruitmentCost": [
-      550,
-      440,
-      320,
-      100
-    ],
+    "baseRecruitmentCost": [550, 440, 320, 100],
     "baseRecruitmentTime": 2640,
     "cropConsumption": 3,
     "attack": 120,
@@ -101,19 +67,11 @@
     "carryCapacity": 100,
     "type": "cavalry",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:5"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:5"]
   },
   {
     "id": "EQUITES_CAESARIS",
-    "baseRecruitmentCost": [
-      550,
-      640,
-      800,
-      180
-    ],
+    "baseRecruitmentCost": [550, 640, 800, 180],
     "baseRecruitmentTime": 3520,
     "cropConsumption": 4,
     "attack": 180,
@@ -123,19 +81,11 @@
     "carryCapacity": 70,
     "type": "cavalry",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "STABLE:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "STABLE:10"]
   },
   {
     "id": "BATTERING_RAM",
-    "baseRecruitmentCost": [
-      900,
-      360,
-      500,
-      70
-    ],
+    "baseRecruitmentCost": [900, 360, 500, 70],
     "baseRecruitmentTime": 4600,
     "cropConsumption": 3,
     "attack": 60,
@@ -145,19 +95,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:10",
-      "WORKSHOP:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:10", "WORKSHOP:1"]
   },
   {
     "id": "FIRE_CATAPULT",
-    "baseRecruitmentCost": [
-      950,
-      1350,
-      600,
-      90
-    ],
+    "baseRecruitmentCost": [950, 1350, 600, 90],
     "baseRecruitmentTime": 9000,
     "cropConsumption": 6,
     "attack": 75,
@@ -167,19 +109,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "WORKSHOP:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "WORKSHOP:10"]
   },
   {
     "id": "SENATOR",
-    "baseRecruitmentCost": [
-      30750,
-      27200,
-      45000,
-      37500
-    ],
+    "baseRecruitmentCost": [30750, 27200, 45000, 37500],
     "baseRecruitmentTime": 90700,
     "cropConsumption": 5,
     "attack": 50,
@@ -189,19 +123,11 @@
     "carryCapacity": 0,
     "type": "special",
     "tribe": "romans",
-    "researchPrerequisites": [
-      "RALLY_POINT:10",
-      "ACADEMY:20"
-    ]
+    "researchPrerequisites": ["RALLY_POINT:10", "ACADEMY:20"]
   },
   {
     "id": "SETTLER",
-    "baseRecruitmentCost": [
-      4600,
-      4200,
-      5800,
-      4400
-    ],
+    "baseRecruitmentCost": [4600, 4200, 5800, 4400],
     "baseRecruitmentTime": 26900,
     "cropConsumption": 1,
     "attack": 0,
@@ -215,12 +141,7 @@
   },
   {
     "id": "MACEMAN",
-    "baseRecruitmentCost": [
-      95,
-      75,
-      40,
-      40
-    ],
+    "baseRecruitmentCost": [95, 75, 40, 40],
     "baseRecruitmentTime": 720,
     "cropConsumption": 1,
     "attack": 40,
@@ -234,12 +155,7 @@
   },
   {
     "id": "SPEARMAN",
-    "baseRecruitmentCost": [
-      145,
-      70,
-      85,
-      40
-    ],
+    "baseRecruitmentCost": [145, 70, 85, 40],
     "baseRecruitmentTime": 1120,
     "cropConsumption": 1,
     "attack": 10,
@@ -249,19 +165,11 @@
     "carryCapacity": 40,
     "type": "infantry",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:1",
-      "BARRACKS:3"
-    ]
+    "researchPrerequisites": ["ACADEMY:1", "BARRACKS:3"]
   },
   {
     "id": "AXEMAN",
-    "baseRecruitmentCost": [
-      130,
-      120,
-      170,
-      70
-    ],
+    "baseRecruitmentCost": [130, 120, 170, 70],
     "baseRecruitmentTime": 1200,
     "cropConsumption": 1,
     "attack": 60,
@@ -271,19 +179,11 @@
     "carryCapacity": 50,
     "type": "infantry",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:3",
-      "SMITHY:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:3", "SMITHY:1"]
   },
   {
     "id": "SCOUT",
-    "baseRecruitmentCost": [
-      160,
-      100,
-      50,
-      50
-    ],
+    "baseRecruitmentCost": [160, 100, 50, 50],
     "baseRecruitmentTime": 1120,
     "cropConsumption": 1,
     "attack": 0,
@@ -293,19 +193,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:1",
-      "MAIN_BUILDING:5"
-    ]
+    "researchPrerequisites": ["ACADEMY:1", "MAIN_BUILDING:5"]
   },
   {
     "id": "PALADIN",
-    "baseRecruitmentCost": [
-      370,
-      270,
-      290,
-      75
-    ],
+    "baseRecruitmentCost": [370, 270, 290, 75],
     "baseRecruitmentTime": 2400,
     "cropConsumption": 2,
     "attack": 55,
@@ -315,19 +207,11 @@
     "carryCapacity": 110,
     "type": "cavalry",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:5"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:5"]
   },
   {
     "id": "TEUTONIC_KNIGHT",
-    "baseRecruitmentCost": [
-      450,
-      515,
-      480,
-      80
-    ],
+    "baseRecruitmentCost": [450, 515, 480, 80],
     "baseRecruitmentTime": 2960,
     "cropConsumption": 3,
     "attack": 150,
@@ -337,19 +221,11 @@
     "carryCapacity": 80,
     "type": "cavalry",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "STABLE:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "STABLE:10"]
   },
   {
     "id": "RAM",
-    "baseRecruitmentCost": [
-      1000,
-      300,
-      350,
-      70
-    ],
+    "baseRecruitmentCost": [1000, 300, 350, 70],
     "baseRecruitmentTime": 4200,
     "cropConsumption": 3,
     "attack": 65,
@@ -359,19 +235,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "WORKSHOP:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "WORKSHOP:1"]
   },
   {
     "id": "CATAPULT",
-    "baseRecruitmentCost": [
-      900,
-      1200,
-      600,
-      60
-    ],
+    "baseRecruitmentCost": [900, 1200, 600, 60],
     "baseRecruitmentTime": 9000,
     "cropConsumption": 6,
     "attack": 50,
@@ -381,19 +249,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "WORKSHOP:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "WORKSHOP:10"]
   },
   {
     "id": "CHIEF",
-    "baseRecruitmentCost": [
-      35500,
-      26600,
-      25000,
-      27200
-    ],
+    "baseRecruitmentCost": [35500, 26600, 25000, 27200],
     "baseRecruitmentTime": 70500,
     "cropConsumption": 4,
     "attack": 40,
@@ -403,19 +263,11 @@
     "carryCapacity": 0,
     "type": "special",
     "tribe": "teutons",
-    "researchPrerequisites": [
-      "ACADEMY:20",
-      "RALLY_POINT:5"
-    ]
+    "researchPrerequisites": ["ACADEMY:20", "RALLY_POINT:5"]
   },
   {
     "id": "SETTLER",
-    "baseRecruitmentCost": [
-      5800,
-      4400,
-      4600,
-      5200
-    ],
+    "baseRecruitmentCost": [5800, 4400, 4600, 5200],
     "baseRecruitmentTime": 31000,
     "cropConsumption": 1,
     "attack": 0,
@@ -429,12 +281,7 @@
   },
   {
     "id": "PHALANX",
-    "baseRecruitmentCost": [
-      100,
-      130,
-      55,
-      30
-    ],
+    "baseRecruitmentCost": [100, 130, 55, 30],
     "baseRecruitmentTime": 1040,
     "cropConsumption": 1,
     "attack": 15,
@@ -448,12 +295,7 @@
   },
   {
     "id": "SWORDSMAN",
-    "baseRecruitmentCost": [
-      140,
-      150,
-      185,
-      60
-    ],
+    "baseRecruitmentCost": [140, 150, 185, 60],
     "baseRecruitmentTime": 1440,
     "cropConsumption": 1,
     "attack": 65,
@@ -463,19 +305,11 @@
     "carryCapacity": 45,
     "type": "infantry",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:3",
-      "SMITHY:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:3", "SMITHY:1"]
   },
   {
     "id": "PATHFINDER",
-    "baseRecruitmentCost": [
-      170,
-      150,
-      20,
-      40
-    ],
+    "baseRecruitmentCost": [170, 150, 20, 40],
     "baseRecruitmentTime": 1360,
     "cropConsumption": 2,
     "attack": 0,
@@ -485,19 +319,11 @@
     "carryCapacity": 0,
     "type": "cavalry",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:1"]
   },
   {
     "id": "THEUTATES_THUNDER",
-    "baseRecruitmentCost": [
-      350,
-      450,
-      230,
-      60
-    ],
+    "baseRecruitmentCost": [350, 450, 230, 60],
     "baseRecruitmentTime": 2480,
     "cropConsumption": 2,
     "attack": 90,
@@ -507,19 +333,11 @@
     "carryCapacity": 75,
     "type": "cavalry",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:3"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:3"]
   },
   {
     "id": "DRUIDRIDER",
-    "baseRecruitmentCost": [
-      360,
-      330,
-      280,
-      120
-    ],
+    "baseRecruitmentCost": [360, 330, 280, 120],
     "baseRecruitmentTime": 2560,
     "cropConsumption": 2,
     "attack": 45,
@@ -529,19 +347,11 @@
     "carryCapacity": 35,
     "type": "cavalry",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:5"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:5"]
   },
   {
     "id": "HAEDUAN",
-    "baseRecruitmentCost": [
-      500,
-      620,
-      675,
-      170
-    ],
+    "baseRecruitmentCost": [500, 620, 675, 170],
     "baseRecruitmentTime": 3120,
     "cropConsumption": 3,
     "attack": 140,
@@ -551,19 +361,11 @@
     "carryCapacity": 65,
     "type": "cavalry",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "STABLE:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "STABLE:10"]
   },
   {
     "id": "RAM",
-    "baseRecruitmentCost": [
-      950,
-      555,
-      330,
-      75
-    ],
+    "baseRecruitmentCost": [950, 555, 330, 75],
     "baseRecruitmentTime": 5000,
     "cropConsumption": 3,
     "attack": 50,
@@ -573,19 +375,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:10",
-      "WORKSHOP:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:10", "WORKSHOP:1"]
   },
   {
     "id": "TREBUCHET",
-    "baseRecruitmentCost": [
-      960,
-      1450,
-      630,
-      90
-    ],
+    "baseRecruitmentCost": [960, 1450, 630, 90],
     "baseRecruitmentTime": 9000,
     "cropConsumption": 6,
     "attack": 70,
@@ -595,19 +389,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "WORKSHOP:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "WORKSHOP:10"]
   },
   {
     "id": "CHIEFTAIN",
-    "baseRecruitmentCost": [
-      30750,
-      45400,
-      31000,
-      37500
-    ],
+    "baseRecruitmentCost": [30750, 45400, 31000, 37500],
     "baseRecruitmentTime": 90700,
     "cropConsumption": 4,
     "attack": 40,
@@ -617,19 +403,11 @@
     "carryCapacity": 0,
     "type": "special",
     "tribe": "gauls",
-    "researchPrerequisites": [
-      "ACADEMY:20",
-      "RALLY_POINT:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:20", "RALLY_POINT:10"]
   },
   {
     "id": "SETTLER",
-    "baseRecruitmentCost": [
-      4400,
-      5600,
-      4200,
-      3900
-    ],
+    "baseRecruitmentCost": [4400, 5600, 4200, 3900],
     "baseRecruitmentTime": 22700,
     "cropConsumption": 1,
     "attack": 0,
@@ -643,12 +421,7 @@
   },
   {
     "id": "PIKEMAN",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 20,
@@ -662,12 +435,7 @@
   },
   {
     "id": "THORNED_WARRIOR",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 65,
@@ -677,19 +445,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:3",
-      "SMITHY:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:3", "SMITHY:1"]
   },
   {
     "id": "GUARDSMAN",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 100,
@@ -699,19 +459,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "SMITHY:5"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "SMITHY:5"]
   },
   {
     "id": "BIRDS_OF_PREY",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": null,
@@ -721,19 +473,11 @@
     "carryCapacity": 0,
     "type": "cavalry",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:1"]
   },
   {
     "id": "AXERIDER",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 2,
     "attack": 155,
@@ -743,19 +487,11 @@
     "carryCapacity": 0,
     "type": "cavalry",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:5",
-      "STABLE:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:5", "STABLE:1"]
   },
   {
     "id": "NATARIAN_KNIGHT",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 3,
     "attack": 170,
@@ -765,19 +501,11 @@
     "carryCapacity": 0,
     "type": "cavalry",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "STABLE:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "STABLE:10"]
   },
   {
     "id": "WARELEPHANT",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 4,
     "attack": 250,
@@ -787,19 +515,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:10",
-      "WORKSHOP:1"
-    ]
+    "researchPrerequisites": ["ACADEMY:10", "WORKSHOP:1"]
   },
   {
     "id": "BALLISTA",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 5,
     "attack": 60,
@@ -809,19 +529,11 @@
     "carryCapacity": 0,
     "type": "siege",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:15",
-      "WORKSHOP:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:15", "WORKSHOP:10"]
   },
   {
     "id": "NATARIAN_EMPEROR",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 80,
@@ -831,19 +543,11 @@
     "carryCapacity": 0,
     "type": "special",
     "tribe": "natars",
-    "researchPrerequisites": [
-      "ACADEMY:20",
-      "RALLY_POINT:10"
-    ]
+    "researchPrerequisites": ["ACADEMY:20", "RALLY_POINT:10"]
   },
   {
     "id": "SETTLER",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 30,
@@ -857,12 +561,7 @@
   },
   {
     "id": "RAT",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      100
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 100],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 10,
@@ -872,18 +571,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SPIDER",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 20,
@@ -893,18 +585,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SERPENT",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 60,
@@ -914,18 +599,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "BAT",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 1,
     "attack": 80,
@@ -935,18 +613,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "WILD_BOAR",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 2,
     "attack": 50,
@@ -956,18 +627,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "WOLF",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 2,
     "attack": 100,
@@ -977,18 +641,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "BEAR",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 3,
     "attack": 250,
@@ -998,18 +655,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "CROCODILE",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 3,
     "attack": 450,
@@ -1019,18 +669,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "TIGER",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 3,
     "attack": 200,
@@ -1040,18 +683,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "ELEPHANT",
-    "baseRecruitmentCost": [
-      0,
-      0,
-      0,
-      0
-    ],
+    "baseRecruitmentCost": [0, 0, 0, 0],
     "baseRecruitmentTime": null,
     "cropConsumption": 5,
     "attack": 600,
@@ -1061,18 +697,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "nature",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SLAVE_MILITIA",
-    "baseRecruitmentCost": [
-      45,
-      60,
-      30,
-      15
-    ],
+    "baseRecruitmentCost": [45, 60, 30, 15],
     "baseRecruitmentTime": 530,
     "cropConsumption": 1,
     "attack": 10,
@@ -1082,18 +711,11 @@
     "carryCapacity": 15,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "ASH_WARDEN",
-    "baseRecruitmentCost": [
-      115,
-      100,
-      145,
-      60
-    ],
+    "baseRecruitmentCost": [115, 100, 145, 60],
     "baseRecruitmentTime": 1320,
     "cropConsumption": 1,
     "attack": 30,
@@ -1103,18 +725,11 @@
     "carryCapacity": 50,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "KHOPESH_WARRIOR",
-    "baseRecruitmentCost": [
-      170,
-      180,
-      220,
-      80
-    ],
+    "baseRecruitmentCost": [170, 180, 220, 80],
     "baseRecruitmentTime": 1440,
     "cropConsumption": 1,
     "attack": 65,
@@ -1124,18 +739,11 @@
     "carryCapacity": 45,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SOPDU_EXPLORER",
-    "baseRecruitmentCost": [
-      170,
-      150,
-      20,
-      40
-    ],
+    "baseRecruitmentCost": [170, 150, 20, 40],
     "baseRecruitmentTime": 1360,
     "cropConsumption": 2,
     "attack": 0,
@@ -1145,18 +753,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "ANHUR_GUARD",
-    "baseRecruitmentCost": [
-      360,
-      330,
-      280,
-      120
-    ],
+    "baseRecruitmentCost": [360, 330, 280, 120],
     "baseRecruitmentTime": 2560,
     "cropConsumption": 2,
     "attack": 50,
@@ -1166,18 +767,11 @@
     "carryCapacity": 50,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "RESHEPH_CHARIOT",
-    "baseRecruitmentCost": [
-      450,
-      560,
-      610,
-      180
-    ],
+    "baseRecruitmentCost": [450, 560, 610, 180],
     "baseRecruitmentTime": 3240,
     "cropConsumption": 3,
     "attack": 110,
@@ -1187,18 +781,11 @@
     "carryCapacity": 70,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "RAM",
-    "baseRecruitmentCost": [
-      995,
-      575,
-      340,
-      80
-    ],
+    "baseRecruitmentCost": [995, 575, 340, 80],
     "baseRecruitmentTime": 4800,
     "cropConsumption": 3,
     "attack": 55,
@@ -1208,18 +795,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "STONE_CATAPULT",
-    "baseRecruitmentCost": [
-      980,
-      1510,
-      660,
-      100
-    ],
+    "baseRecruitmentCost": [980, 1510, 660, 100],
     "baseRecruitmentTime": 9000,
     "cropConsumption": 6,
     "attack": 65,
@@ -1229,18 +809,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "NOMARCH",
-    "baseRecruitmentCost": [
-      34000,
-      50000,
-      34000,
-      42000
-    ],
+    "baseRecruitmentCost": [34000, 50000, 34000, 42000],
     "baseRecruitmentTime": 90700,
     "cropConsumption": 4,
     "attack": 40,
@@ -1250,18 +823,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SETTLER",
-    "baseRecruitmentCost": [
-      5040,
-      6510,
-      4830,
-      4620
-    ],
+    "baseRecruitmentCost": [5040, 6510, 4830, 4620],
     "baseRecruitmentTime": 24800,
     "cropConsumption": 1,
     "attack": null,
@@ -1272,18 +838,11 @@
     "carryCapacity": 3000,
     "type": "infantry",
     "tribe": "egyptians",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "MERCENARY",
-    "baseRecruitmentCost": [
-      130,
-      80,
-      40,
-      40
-    ],
+    "baseRecruitmentCost": [130, 80, 40, 40],
     "baseRecruitmentTime": 810,
     "cropConsumption": 1,
     "attack": 35,
@@ -1293,18 +852,11 @@
     "carryCapacity": 50,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "BOWMAN",
-    "baseRecruitmentCost": [
-      140,
-      110,
-      60,
-      60
-    ],
+    "baseRecruitmentCost": [140, 110, 60, 60],
     "baseRecruitmentTime": 1120,
     "cropConsumption": 1,
     "attack": 50,
@@ -1314,18 +866,11 @@
     "carryCapacity": 30,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SPOTTER",
-    "baseRecruitmentCost": [
-      170,
-      150,
-      20,
-      40
-    ],
+    "baseRecruitmentCost": [170, 150, 20, 40],
     "baseRecruitmentTime": 1360,
     "cropConsumption": 2,
     "attack": 0,
@@ -1335,18 +880,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "STEPPE_RIDER",
-    "baseRecruitmentCost": [
-      290,
-      370,
-      190,
-      45
-    ],
+    "baseRecruitmentCost": [290, 370, 190, 45],
     "baseRecruitmentTime": 2400,
     "cropConsumption": 2,
     "attack": 120,
@@ -1356,18 +894,11 @@
     "carryCapacity": 75,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "MARKSMAN",
-    "baseRecruitmentCost": [
-      320,
-      350,
-      330,
-      50
-    ],
+    "baseRecruitmentCost": [320, 350, 330, 50],
     "baseRecruitmentTime": 2480,
     "cropConsumption": 2,
     "attack": 115,
@@ -1377,18 +908,11 @@
     "carryCapacity": 105,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "MARAUDER",
-    "baseRecruitmentCost": [
-      450,
-      560,
-      610,
-      140
-    ],
+    "baseRecruitmentCost": [450, 560, 610, 140],
     "baseRecruitmentTime": 2990,
     "cropConsumption": 3,
     "attack": 180,
@@ -1398,18 +922,11 @@
     "carryCapacity": 80,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "RAM",
-    "baseRecruitmentCost": [
-      1060,
-      330,
-      360,
-      70
-    ],
+    "baseRecruitmentCost": [1060, 330, 360, 70],
     "baseRecruitmentTime": 4400,
     "cropConsumption": 3,
     "attack": 65,
@@ -1419,18 +936,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "CATAPULT",
-    "baseRecruitmentCost": [
-      950,
-      1280,
-      620,
-      60
-    ],
+    "baseRecruitmentCost": [950, 1280, 620, 60],
     "baseRecruitmentTime": 9000,
     "cropConsumption": 6,
     "attack": 45,
@@ -1440,18 +950,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "LOGADES",
-    "baseRecruitmentCost": [
-      37200,
-      27600,
-      25200,
-      27600
-    ],
+    "baseRecruitmentCost": [37200, 27600, 25200, 27600],
     "baseRecruitmentTime": 90700,
     "cropConsumption": 4,
     "attack": 50,
@@ -1461,18 +964,11 @@
     "carryCapacity": 0,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   },
   {
     "id": "SETTLER",
-    "baseRecruitmentCost": [
-      6100,
-      4600,
-      4800,
-      5400
-    ],
+    "baseRecruitmentCost": [6100, 4600, 4800, 5400],
     "baseRecruitmentTime": 28950,
     "cropConsumption": 1,
     "attack": 10,
@@ -1482,8 +978,6 @@
     "carryCapacity": 3000,
     "type": "infantry",
     "tribe": "huns",
-    "researchPrerequisites": [
-      "ACADEMY:"
-    ]
+    "researchPrerequisites": ["ACADEMY:"]
   }
 ]

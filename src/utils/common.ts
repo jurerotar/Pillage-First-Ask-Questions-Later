@@ -1,8 +1,11 @@
+import { Point } from 'interfaces/models/common';
+
 export const roundToNearestN = (number: number, numberToRoundTo: number): number => {
   return Math.round(number / numberToRoundTo) * numberToRoundTo;
 };
 
-export const randomIntFromInterval = (min: number, max: number): number => { // min and max included
+export const randomIntFromInterval = (min: number, max: number): number => {
+  // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
@@ -10,7 +13,8 @@ export const randomArrayElement = <T>(array: T[]): T => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export const seededRandomIntFromInterval = (seed: string, min: number, max: number): number => { // min and max included
+export const seededRandomIntFromInterval = (seed: string, min: number, max: number): number => {
+  // min and max included
   // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
   // const seededRandom = prngAlgorithm(seed);
   // const advancedSeededFunction = advancePrngState(seededRandom, 10);
@@ -27,13 +31,13 @@ export const isFloat = (number: number): boolean => {
 };
 
 export const partialArraySum = (array: number[], index: number): number => {
-  const sum: number = array.filter((e, i) => i < index)
-    .reduce((a, b) => a + b, 0);
+  const sum: number = array.filter((e, i) => i < index).reduce((a, b) => a + b, 0);
   return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
 };
 
 export const snakeToCamelCase = (string: string): string => {
-  return string.split(/(?=[A-Z])/)
+  return string
+    .split(/(?=[A-Z])/)
     .join('_')
     .toLowerCase();
 };
@@ -70,7 +74,7 @@ export const sleep = (ms: number) => {
 
 export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
 
-export const chunk = <T, >(array: T[], size: number): T[][] => {
+export const chunk = <T>(array: T[], size: number): T[][] => {
   const result = [];
   for (let i = 0; i < array.length; i += size) {
     result.push(array.slice(i, i + size));
@@ -88,3 +92,17 @@ export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
 
   return copy;
 };
+
+export const capitalize = <T extends string>(string: T): Capitalize<T> => {
+  return (string.charAt(0).toUpperCase() + string.slice(1)) as Capitalize<T>;
+};
+
+export const calculateDistanceBetweenPoints = (firstPoint: Point, secondPoint: Point): number => {
+  return Math.sqrt((secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2);
+};
+
+export const roundTo2DecimalPoints = (number: number): number => {
+  return Math.round(number * 100) / 100;
+};
+
+export const invertMap = <T, K>(map: Map<K, T>) => new Map<T, K>(Array.from(map, (_) => _.reverse() as [T, K]));

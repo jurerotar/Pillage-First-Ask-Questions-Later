@@ -20,21 +20,11 @@ export type TroopTrainingDurationEffectId =
   | 'workshopTrainingDuration'
   | 'hospitalTrainingDuration';
 
-export type TroopSpeedBonusEffectId =
-  | 'unitSpeedBonus'
-  | 'unitSpeedAfter20TilesBonus';
+export type TroopSpeedBonusEffectId = 'unitSpeedBonus' | 'unitSpeedAfter20TilesBonus';
 
-export type BuildingEffectId =
-  | 'villageDefenceValue'
-  | 'villageDefenceBonus'
-  | 'buildingDurabilityBonus'
-  | 'buildingDuration';
+export type BuildingEffectId = 'villageDefenceValue' | 'villageDefenceBonus' | 'buildingDurabilityBonus' | 'buildingDuration';
 
-export type ResourceProductionEffectId =
-  | 'woodProduction'
-  | 'clayProduction'
-  | 'ironProduction'
-  | 'wheatProduction';
+export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction';
 
 // Joined effect ids
 export type EffectId =
@@ -49,7 +39,6 @@ export type EffectId =
   // Defence modifiers
 
   // Building duration
-
   | 'woodProductionBonus'
   | 'clayProductionBonus'
   | 'ironProductionBonus'

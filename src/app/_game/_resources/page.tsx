@@ -1,65 +1,51 @@
 import React from 'react';
-import { Resource } from 'interfaces/models/game/resource';
-import { useNavigate } from 'react-router-dom';
-import { ResourceFieldId } from 'interfaces/models/game/village';
-
-// TODO: This will eventually get replaced by graphics
-const backgroundColors: { [key in Resource]: string } = {
-  wood: 'bg-resources-wood',
-  iron: 'bg-resources-iron',
-  clay: 'bg-resources-clay',
-  wheat: 'bg-resources-wheat',
-};
-
-// Chunk field ids to render hexagons more easily, x represents village icon
-const chunkedFieldsIds: (ResourceFieldId | 'x')[][] = [
-  ['1', '2', '3'],
-  ['4', '5', '6', '7'],
-  ['8', '9', 'x', '10', '11'],
-  ['12', '13', '14', '15'],
-  ['16', '17', '18'],
-];
+import { Head } from 'components/head';
+import { useGameNavigation } from 'hooks/game/routes/use-game-navigation';
+import { Link } from 'react-router-dom';
+import { BuildingFieldId, ResourceFieldId } from 'interfaces/models/game/village';
+import { Tooltip } from 'components/tooltip';
+import { BuildingFieldTooltip } from 'app/_game/components/building-field-tooltip';
+import { ResourceField } from './components/resource-field';
 
 export const ResourcesPage: React.FC = () => {
-  const navigate = useNavigate();
+  const { villagePath } = useGameNavigation();
 
   return (
-    <main className="mt-16 md:mt-20">
-      <div className="hexagon__grid scale-[.60] xs:scale-75 sm:scale-100">
-        {chunkedFieldsIds.map((resourceFieldsIdArray: (ResourceFieldId | 'x')[]) => (
-          <div
-            key={resourceFieldsIdArray[0]}
-            className="relative flex justify-center"
-          >
-            {resourceFieldsIdArray.map((resourceFieldId: ResourceFieldId | 'x') => (
-              // eslint-disable-next-line react/jsx-no-useless-fragment
-              <React.Fragment key={resourceFieldId}>
-                {resourceFieldId === 'x' ? (
-                  <>
-                    {/* Display a transparent cell to reserve the space for village link */}
-                    <div className="hexagon__cell" />
-                    <button
-                      type="button"
-                      className="absolute left-1/2 top-1/2 h-[100px] w-[100px] -translate-x-1/2 -translate-y-[36%] rounded-full bg-red-500"
-                      onClick={() => navigate('/village')}
-                    >
-                      Village
-                    </button>
-                  </>
-                ) : (
-                  <></>
-                  // <BuildingField
-                  //   buildingFieldId={resourceFieldId}
-                  //   buildingId={resourceToBuildingMap[resourceFields[resourceFieldId]!.type]}
-                  //   buildingLevel={resourceFields[resourceFieldId]!.level}
-                  //   className={clsx(backgroundColors[resourceFields[resourceFieldId]!.type], 'align-center hexagon__cell flex justify-center')}
-                  // />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
+    <>
+      <Head viewName="resources" />
+      <Tooltip
+        anchorSelect="[data-building-field-id]"
+        closeEvents={{
+          mouseleave: true
+        }}
+        render={({ activeAnchor }) => {
+          const buildingFieldIdAttribute = activeAnchor?.getAttribute('data-building-field-id');
+
+          if (!buildingFieldIdAttribute) {
+            return null;
+          }
+
+          const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingFieldId;
+
+          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />
+        }}
+      />
+      <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]">
+        {[...Array(18)].map((_, resourceBuildingFieldId) => (
+          <ResourceField
+            // eslint-disable-next-line react/no-array-index-key
+            key={resourceBuildingFieldId}
+            resourceFieldId={(resourceBuildingFieldId + 1) as ResourceFieldId}
+          />
         ))}
-      </div>
-    </main>
+
+        <Link
+          to={villagePath}
+          className="absolute left-[50%] top-[50%] flex size-[14.4%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
+        >
+          Village
+        </Link>
+      </main>
+    </>
   );
 };

@@ -2,6 +2,18 @@
   "APP": {
     "GAME": {
       "MAP": {
+        "META": {
+          "TITLE": "Map",
+          "DESCRIPTION": ""
+        },
+        "OASIS_TILE": {
+          "OCCUPIED_OASIS": "Occupied oasis",
+          "UNOCCUPIED_OASIS": "Unoccupied oasis",
+          "WILDERNESS": "Wilderness"
+        },
+        "OCCUPIABLE_TILE": {
+          "UNOCCUPIED_TILE": "Abandoned valley"
+        },
         "MAP_CONTROLS": {
           "MAGNIFICATION_INCREASE": "Zoom in",
           "MAGNIFICATION_DECREASE": "Zoom out",
@@ -12,9 +24,32 @@
           "TOGGLE_WHEAT_FIELDS_ICON_DISPLAY": "Toggle wheat field icons display",
           "TOGGLE_TILE_TOOLTIP_DISPLAY": "Toggle tooltip popups"
         }
+      },
+      "VILLAGE": {
+        "META": {
+          "TITLE": "Village",
+          "DESCRIPTION": ""
+        },
+        "BUILDING_FIELD": {
+          "EMPTY": "Building site",
+          "MAX_LEVEL": "Max level",
+          "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
+        }
+      },
+      "RESOURCES": {
+        "META": {
+          "TITLE": "Resources",
+          "DESCRIPTION": ""
+        }
       }
     },
     "PUBLIC": {
+      "INDEX": {
+        "META": {
+          "TITLE": "Homepage",
+          "DESCRIPTION": ""
+        }
+      }
     }
   },
   "META": {
@@ -584,13 +619,42 @@
       "DESCRIPTION": ""
     }
   },
+  "TRIBES": {
+    "ROMANS": "Romans",
+    "GAULS": "Gauls",
+    "TEUTONS": "Teutons",
+    "HUNS": "Huns",
+    "EGYPTIANS": "Egyptians",
+    "SPARTANS": "Spartans",
+    "NATURE": "Nature",
+    "NATARS": "Natars"
+  },
+  "RESOURCES": {
+    "WOOD": "Wood",
+    "CLAY": "Clay",
+    "IRON": "Iron",
+    "WHEAT": "Wheat"
+  },
+  "REPUTATION_LEVELS": {
+    "ECSTATIC": "Ecstatic",
+    "RESPECTED": "Respected",
+    "FRIENDLY": "Friendly",
+    "NEUTRAL": "Neutral",
+    "UNFRIENDLY": "Unfriendly",
+    "HOSTILE": "Hostile"
+  },
+  "FACTIONS": {
+    "NPC1": "npc1",
+    "NPC2": "npc2",
+    "NPC3": "npc3",
+    "NPC4": "npc4",
+    "NPC5": "npc5",
+    "NPC6": "npc6",
+    "NPC7": "npc7",
+    "NPC8": "npc8",
+    "PLAYER": "Player"
+  },
   "GENERAL": {
-    "RESOURCES": {
-      "WOOD": "Wood",
-      "CLAY": "Clay",
-      "IRON": "Iron",
-      "WHEAT": "Wheat"
-    },
     "BUILDING": {
       "CONSTRUCT": "Construct building",
       "UPGRADE_TO": "Upgrade to level",
@@ -599,6 +663,13 @@
     },
     "DESCRIPTION": "Description",
     "BUILDING_UPGRADE_TABLE": "Building upgrade table",
-    "LEVEL": "level"
+    "LEVEL": "Level {{level}}",
+    "FACTION": "Faction",
+    "TRIBE": "Tribe",
+    "REPUTATION_LEVEL": "Reputation",
+    "DISTANCE": "Distance",
+    "FIELD_one": "{{count}} field",
+    "FIELD_other": "{{count}} fields",
+    "PLAYER": "Player"
   }
 }

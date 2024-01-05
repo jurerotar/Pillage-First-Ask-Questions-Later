@@ -1,86 +1,72 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useMap } from 'hooks/game/use-map';
-import { useCurrentServer } from 'hooks/game/use-current-server';
-import { FixedSizeGrid } from 'react-window';
-import { useEventListener, useWindowSize } from 'usehooks-ts';
-import { useCurrentVillage } from 'hooks/game/use-current-village';
+import { FixedSizeGrid, FixedSizeList } from 'react-window';
+import { useWindowSize } from 'usehooks-ts';
 import { Tooltip } from 'components/tooltip';
-import { Point } from 'interfaces/models/common';
 import { useDialog } from 'hooks/utils/use-dialog';
 import { Modal } from 'components/modal/modal';
-import { useMapFilters } from 'hooks/game/use-map-filters';
-import { useHero } from 'hooks/game/use-hero';
+import { Head } from 'components/head';
+import { useMapFilters } from './hooks/use-map-filters';
 import { useMapOptions } from './providers/map-context';
 import { MapControls } from './components/map-controls';
 import { Cell } from './components/cell';
-
-const TILE_BASE_SIZE = 30;
-
-const onMouseMoveHandler = (e: MouseEvent, isDragging: boolean) => {
-  if (!isDragging) {
-    return;
-  }
-  const [startX, startY] = [e.screenX, e.screenY];
-};
+import { TileTooltip } from './components/tile-tooltip';
+import { MapRulerCell } from './components/map-ruler-cell';
 
 export const MapPage: React.FC = () => {
-  const { isOpen, openModal, closeModal } = useDialog();
-
+  const {
+    isOpen,
+    openModal,
+    closeModal
+  } = useDialog();
   const {
     map,
+    getTileByTileId
   } = useMap();
-
-  const {
-    server,
-  } = useCurrentServer();
-
   const {
     height,
-    width,
+    width
   } = useWindowSize();
-
-  const { currentVillage } = useCurrentVillage();
-  const { coordinates } = currentVillage;
-  const { mapFilters: { shouldShowTileTooltips }, mapFilters } = useMapFilters();
-  const { magnification } = useMapOptions();
-  const { hero } = useHero();
-
-  console.log(hero, currentVillage);
+  const {
+    mapFilters: { shouldShowTileTooltips }
+  } = useMapFilters();
+  const {
+    gridSize,
+    tileSize
+  } = useMapOptions();
 
   const [modalContents, setModalContents] = useState<React.ReactNode>(null);
 
-  const mapSize = server?.configuration?.mapSize;
-
-  const tileSize = TILE_BASE_SIZE * magnification;
-  const gridSize = mapSize! + 1;
-
   const mapRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef<boolean>(false);
-  const currentPosition = useRef<Point>({
-    x: 0,
-    y: 0,
-  });
+  const leftMapRulerRef = useRef<FixedSizeList>(null);
+  const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  useEventListener('mousedown', () => {
-    isDragging.current = true;
-  }, mapRef);
-
-  useEventListener('mouseup', () => {
-    isDragging.current = false;
-  }, mapRef);
-
-  useEventListener('mousemove', (event: MouseEvent) => onMouseMoveHandler(event, isDragging.current), mapRef);
+  const itemData = useMemo(() => {
+    return {
+      map
+    };
+  }, [map]);
 
   return (
     <>
+      <Head viewName="map" />
       <Tooltip
-        id="map-page-id"
-        anchorSelect={'[id^="tile-id-"]'}
-        place="top"
+        anchorSelect="[data-tile-id]"
         closeEvents={{
-          mouseleave: true,
+          mouseleave: true
         }}
         hidden={!shouldShowTileTooltips}
+        render={({ activeAnchor }) => {
+          const tileId = activeAnchor?.getAttribute('data-tile-id');
+
+          if (!tileId) {
+            return null;
+          }
+
+          const tile = getTileByTileId(tileId);
+
+          return <TileTooltip tile={tile} />;
+        }}
       />
       <Modal
         isOpen={isOpen}
@@ -92,27 +78,63 @@ export const MapPage: React.FC = () => {
         {modalContents}
       </Modal>
       <FixedSizeGrid
-        className="bg-[#B9D580]"
-        useIsScrolling
-        initialScrollTop={coordinates.y * tileSize}
-        initialScrollLeft={coordinates.x * tileSize}
+        className="scrollbar-hidden mb-[20px] ml-[20px] bg-[#B9D580]"
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height}
-        width={width}
-        itemData={{
-          map,
-          openModal,
-          setModalContents
+        height={height - 20}
+        width={width - 20}
+        itemData={itemData}
+        initialScrollLeft={width / 2}
+        initialScrollTop={height / 2}
+        onScroll={({ scrollTop, scrollLeft }) => {
+          if(bottomMapRulerRef.current) {
+            bottomMapRulerRef.current.scrollTo(scrollLeft);
+          }
+
+          if(leftMapRulerRef.current) {
+            leftMapRulerRef.current.scrollTo(scrollTop);
+          }
         }}
-        overscanColumnCount={5}
-        overscanRowCount={5}
       >
         {Cell}
       </FixedSizeGrid>
+      {/* Y-axis ruler */}
+      <div className="absolute left-0 top-0">
+        <FixedSizeList
+          className="scrollbar-hidden"
+          ref={leftMapRulerRef}
+          itemSize={tileSize}
+          height={height - 20}
+          itemCount={gridSize}
+          width={20}
+          layout="vertical"
+          itemData={{
+            layout: 'vertical'
+          }}
+        >
+          {MapRulerCell}
+        </FixedSizeList>
+      </div>
+      {/* X-axis ruler */}
+      <div className="absolute bottom-0 left-0">
+        <FixedSizeList
+          className="scrollbar-hidden ml-[20px]"
+          ref={bottomMapRulerRef}
+          itemSize={tileSize}
+          height={20}
+          itemCount={gridSize}
+          width={width - 20}
+          layout="horizontal"
+          itemData={{
+            layout: 'horizontal'
+          }}
+        >
+          {MapRulerCell}
+        </FixedSizeList>
+      </div>
       <MapControls />
     </>
   );

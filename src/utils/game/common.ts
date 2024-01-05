@@ -1,7 +1,34 @@
-import { BuildingField, ResourceField } from 'interfaces/models/game/village';
+import { BuildingField, BuildingFieldId, Village } from 'interfaces/models/game/village';
 import { Building } from 'interfaces/models/game/building';
 import { partialArraySum } from 'utils/common';
-import { resourceBuildingIdToEffectIdMap, resourceTypeToResourceBuildingIdMap } from 'utils/game/maps';
+import { resourceBuildingIdToEffectIdMap, resourceBuildingIdToResourceTypeMap } from 'utils/game/maps';
+import { buildings } from 'assets/buildings';
+
+export const getBuildingData = (buildingId: Building['id'], level: number) => {
+  const building: Building = buildings.find(({ id }) => id === buildingId)!;
+  const isMaxLevel = building.cropConsumption.length === level;
+  const cumulativeCropConsumption = partialArraySum(building.cropConsumption, level);
+  const cumulativeCulturePointsProduction = partialArraySum(building.culturePointsProduction, level);
+  const nextLevelCropConsumption = building.cropConsumption[level + 1] ?? 0;
+  const nextLevelCulturePointsProduction = building.cropConsumption[level + 1] ?? 0;
+  const nextLevelResourceCost = building.buildingCost[level + 1] ?? [0, 0, 0, 0];
+  const nextLevelBuildingDuration = building.buildingDuration[level + 1] ?? 0;
+
+  return {
+    building,
+    isMaxLevel,
+    cumulativeCropConsumption,
+    cumulativeCulturePointsProduction,
+    nextLevelCropConsumption,
+    nextLevelCulturePointsProduction,
+    nextLevelResourceCost,
+    nextLevelBuildingDuration
+  };
+};
+
+export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, buildingFieldId: BuildingFieldId): BuildingField | null => {
+  return currentVillage.buildingFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId) ?? null;
+}
 
 export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
   let sum: number = 0;
@@ -33,22 +60,21 @@ export const calculateCulturePointsProductionFromBuildingFields = (buildingField
   return sum;
 };
 
-export const getResourceProductionByResourceField = (resourceField: ResourceField, buildingData: Building[]): number => {
-  const { type, level } = resourceField;
-  const buildingId = resourceTypeToResourceBuildingIdMap.get(type)!;
+export const getResourceProductionByResourceField = (resourceField: BuildingField, buildingData: Building[]): number => {
+  const { buildingId, level } = resourceField;
   const resourceProductionEffectId = resourceBuildingIdToEffectIdMap.get(buildingId);
   const fullBuildingData: Building = buildingData.find(({ id }) => id === buildingId)!;
   const resourceProduction = fullBuildingData.effects.find(({ effectId }) => effectId === resourceProductionEffectId)!.valuesPerLevel;
   return resourceProduction[level];
 };
 
-export const calculateResourceProductionFromResourceFields = (resourceFields: ResourceField[], buildingData: Building[]) => {
+export const calculateResourceProductionFromResourceFields = (resourceFields: BuildingField[], buildingData: Building[]) => {
   const [woodProduction, clayProduction, ironProduction, wheatProduction] = [
-    resourceFields.filter(({ type }) => type === 'wood'),
-    resourceFields.filter(({ type }) => type === 'clay'),
-    resourceFields.filter(({ type }) => type === 'iron'),
-    resourceFields.filter(({ type }) => type === 'wheat'),
-  ].map((resourceFieldsByResourceType: ResourceField[]) => {
+    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'wood'),
+    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'clay'),
+    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'iron'),
+    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'wheat'),
+  ].map((resourceFieldsByResourceType: BuildingField[]) => {
     return resourceFieldsByResourceType.reduce((acc, current) => acc + getResourceProductionByResourceField(current, buildingData), 0);
   });
 
@@ -56,6 +82,6 @@ export const calculateResourceProductionFromResourceFields = (resourceFields: Re
     woodProduction,
     clayProduction,
     ironProduction,
-    wheatProduction
+    wheatProduction,
   };
 };

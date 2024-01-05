@@ -1,18 +1,26 @@
 import React, { createContext, FCWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+import { useCurrentServer } from 'hooks/game/use-current-server';
 
 export type MapProviderValues = {
   magnification: number;
   increaseMagnification: () => void;
   decreaseMagnification: () => void;
+  tileSize: number;
+  gridSize: number;
 };
 
 const MapContext = createContext<MapProviderValues>({} as MapProviderValues);
 
-const MAX_MAGNIFICATION = 3;
-const MIN_MAGNIFICATION = 1;
+export const MAX_MAGNIFICATION = 4;
+export const MIN_MAGNIFICATION = 2;
+const TILE_BASE_SIZE = 30;
 
 const MapProvider: FCWithChildren = ({ children }) => {
-  const [magnification, setMagnification] = useState<number>(3);
+  const { mapSize } = useCurrentServer();
+
+  const [magnification, setMagnification] = useState<number>(4);
+  const tileSize = TILE_BASE_SIZE * magnification;
+  const gridSize = mapSize + 1;
 
   const increaseMagnification = useCallback(() => {
     if (magnification === MAX_MAGNIFICATION) {
@@ -30,22 +38,20 @@ const MapProvider: FCWithChildren = ({ children }) => {
     setMagnification((prevState) => prevState - 1);
   }, [magnification]);
 
-  const value: MapProviderValues = useMemo(() => ({
-    magnification,
-    increaseMagnification,
-    decreaseMagnification,
-  }), [magnification, increaseMagnification, decreaseMagnification]);
-
-  return (
-    <MapContext.Provider value={value}>
-      {children}
-    </MapContext.Provider>
+  const value = useMemo<MapProviderValues>(
+    () => ({
+      magnification,
+      increaseMagnification,
+      decreaseMagnification,
+      tileSize,
+      gridSize
+    }),
+    [magnification, increaseMagnification, decreaseMagnification, tileSize, gridSize]
   );
+
+  return <MapContext.Provider value={value}>{children}</MapContext.Provider>;
 };
 
 const useMapOptions = () => useContext<MapProviderValues>(MapContext);
 
-export {
-  MapProvider,
-  useMapOptions
-};
+export { MapProvider, useMapOptions };

@@ -17,56 +17,21 @@
     "strict": true,
     "module": "esnext",
     "paths": {
-      "app/*": [
-        "src/app/*"
-      ],
-      "components/*": [
-        "src/components/*"
-      ],
-      "database/*": [
-        "src/database/*"
-      ],
-      "factories/*": [
-        "src/factories/*"
-      ],
-      "utils/*": [
-        "src/utils/*"
-      ],
-      "hooks/*": [
-        "src/hooks/*"
-      ],
-      "i18n/*": [
-        "src/i18n/*"
-      ],
-      "interfaces/*": [
-        "src/interfaces/*"
-      ],
-      "styles/*": [
-        "src/styles/*"
-      ],
-      "assets/*": [
-        "src/assets/*"
-      ],
-      "config/*": [
-        "config/*"
-      ],
-      "mocks/*": [
-        "__mocks__/*"
-      ],
-      "test-utils": [
-        "src/test-utils"
-      ]
+      "app/*": ["src/app/*"],
+      "components/*": ["src/components/*"],
+      "database/*": ["src/database/*"],
+      "factories/*": ["src/factories/*"],
+      "utils/*": ["src/utils/*"],
+      "hooks/*": ["src/hooks/*"],
+      "i18n/*": ["src/i18n/*"],
+      "interfaces/*": ["src/interfaces/*"],
+      "styles/*": ["src/styles/*"],
+      "assets/*": ["src/assets/*"],
+      "config/*": ["config/*"],
+      "mocks/*": ["__mocks__/*"],
+      "test-utils": ["src/test-utils"]
     }
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "vite-env.d.ts",
-    "src",
-    "config",
-    "**.config.ts",
-    "__mocks__",
-    "jest-setup.ts"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["vite-env.d.ts", "src", "config", "**.config.ts", "__mocks__", "jest-setup.ts"]
 }

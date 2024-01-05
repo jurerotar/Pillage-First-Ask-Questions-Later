@@ -12,15 +12,7 @@ type ButtonProps = {
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button: React.FC<ButtonProps> = (props) => {
-  const {
-    variant = 'normal',
-    size = 'base',
-    disabled = false,
-    isLoading = false,
-    onClick = () => {},
-    className = '',
-    children,
-  } = props;
+  const { variant = 'normal', size = 'base', disabled = false, isLoading = false, onClick = () => {}, className = '', children } = props;
 
   return (
     <button

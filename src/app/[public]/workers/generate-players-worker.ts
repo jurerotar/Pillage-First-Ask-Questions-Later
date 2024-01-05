@@ -1,9 +1,11 @@
 import { Server } from 'interfaces/models/game/server';
 import { playerFactory } from 'factories/player-factory';
 import { Player, PlayerFaction } from 'interfaces/models/game/player';
+import { seededRandomArrayElement } from 'utils/common';
 
 export type GeneratePlayersWorkerPayload = {
   server: Server;
+  factions: PlayerFaction[];
 };
 
 export type GeneratePlayersWorkerReturn = {
@@ -12,12 +14,14 @@ export type GeneratePlayersWorkerReturn = {
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
-const factions: PlayerFaction[] = [
-  'player', 'npc1', 'npc2', 'npc3', 'npc4',
-];
+const PLAYER_COUNT = 50;
 
 self.addEventListener('message', (event: MessageEvent<GeneratePlayersWorkerPayload>) => {
-  const { server } = event.data;
-  const players = factions.map((faction: PlayerFaction) => playerFactory({ server, faction }));
+  const { server, factions } = event.data;
+  const players = [...Array(PLAYER_COUNT)].map((_, index) => {
+    const faction = seededRandomArrayElement<PlayerFaction>(server.id, factions);
+    return playerFactory({ server, faction, index });
+  });
+
   self.postMessage({ players });
 });

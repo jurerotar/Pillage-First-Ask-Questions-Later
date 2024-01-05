@@ -13,7 +13,8 @@ import { ResearchLevel } from 'interfaces/models/game/research-level';
 import { CryliteTableName } from 'interfaces/models/database/crylite-table';
 import { Player } from 'interfaces/models/game/player';
 import { Reputation } from 'interfaces/models/game/reputation';
-import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
+import { MapFilters } from 'interfaces/models/game/map-filters';
+import { MapMarker } from 'interfaces/models/game/map-marker';
 
 type TableIndex = string;
 
@@ -25,7 +26,7 @@ export const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['maps', ['serverId']],
   ['heroes', ['serverId']],
   ['villages', ['[serverId+slug]']],
-  ['reports', ['serverId']],
+  ['reports', ['serverId', '&timestamp']],
   ['quests', ['serverId']],
   ['achievements', ['serverId']],
   ['events', ['serverId']],
@@ -34,6 +35,7 @@ export const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['researchLevels', ['serverId']],
   ['players', ['serverId']],
   ['reputations', ['serverId']],
+  ['mapMarkers', ['serverId']],
 ]);
 
 export const CRYLITE_TABLE_NAMES = CRYLITE_TABLES.keys();
@@ -57,19 +59,20 @@ export class CryliteDatabase extends Dexie {
   public players!: Table<Player>;
   public reputations!: Table<Reputation>;
   public mapFilters!: Table<MapFilters>;
+  public mapMarkers!: Table<MapMarker>;
 
   public amountOfTables: number;
 
   constructor() {
     super('crylite');
 
-    const schema = Object.fromEntries([...Array.from(CRYLITE_TABLES)
-      .map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')])]);
+    const schema = Object.fromEntries([
+      ...Array.from(CRYLITE_TABLES).map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')]),
+    ]);
 
     this.amountOfTables = Object.keys(schema).length;
 
-    this.version(1)
-      .stores(schema);
+    this.version(1).stores(schema);
   }
 }
 

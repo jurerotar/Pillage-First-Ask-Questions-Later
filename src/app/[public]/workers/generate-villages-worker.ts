@@ -19,7 +19,9 @@ const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 self.addEventListener('message', (event: MessageEvent<GenerateVillageWorkerPayload>) => {
   const { server, tiles, players } = event.data;
 
-  const freeTiles: OccupiedOccupiableTile[] = tiles.filter((tile) => tile.type === 'free-tile' && Object.hasOwn(tile, 'ownedBy')) as OccupiedOccupiableTile[];
+  const freeTiles: OccupiedOccupiableTile[] = tiles.filter(
+    (tile) => tile.type === 'free-tile' && Object.hasOwn(tile, 'ownedBy')
+  ) as OccupiedOccupiableTile[];
 
   const villages: Village[] = freeTiles.map((tile) => {
     const { faction } = players.find(({ id }) => tile.ownedBy === id)!;

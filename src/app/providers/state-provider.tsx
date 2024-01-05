@@ -7,16 +7,20 @@ type StateProviderProps = {
 };
 
 export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, queryClient: providedQueryClient }) => {
-  const [queryClient] = useState<QueryClient>(providedQueryClient ?? new QueryClient({
-    defaultOptions: {
-      queries: {
-        networkMode: 'always'
-      },
-      mutations: {
-        networkMode: 'always'
-      }
-    }
-  }));
+  const [queryClient] = useState<QueryClient>(
+    providedQueryClient ??
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            gcTime: Infinity,
+            networkMode: 'always',
+          },
+          mutations: {
+            networkMode: 'always',
+          },
+        },
+      })
+  );
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -8,7 +8,7 @@ Object.defineProperty(globalThis, 'crypto', {
 });
 
 Object.defineProperty(globalThis, 'ResizeObserver', {
-  value: ResizeObserverModule.default
+  value: ResizeObserverModule.default,
 });
 
 jest.mock('react-i18next', () => ({

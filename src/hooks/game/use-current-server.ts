@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export const currentServerCacheKey = 'current-server';
 
-export const getCurrentServer = (serverSlug: Server['slug']) => (database.servers.where({ slug: serverSlug }).first() as Promise<Server>);
+export const getCurrentServer = (serverSlug: Server['slug']) => database.servers.where({ slug: serverSlug }).first() as Promise<Server>;
 
 export const useCurrentServer = () => {
   const { serverSlug } = useRouteSegments();
@@ -24,6 +24,7 @@ export const useCurrentServer = () => {
   const server = data as Server;
 
   const serverId = server.id;
+  const { mapSize, speed: serverSpeed } = server.configuration;
 
   return {
     server,
@@ -31,5 +32,7 @@ export const useCurrentServer = () => {
     hasLoadedServer,
     serverQueryStatus,
     serverId,
+    mapSize,
+    serverSpeed
   };
 };

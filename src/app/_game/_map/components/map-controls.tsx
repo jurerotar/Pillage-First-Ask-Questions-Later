@@ -3,17 +3,15 @@ import clsx from 'clsx';
 import { Icon } from 'components/icon';
 import { Tooltip } from 'components/tooltip';
 import { useTranslation } from 'react-i18next';
-import { useMapFilters } from 'hooks/game/use-map-filters';
-import { useMapOptions } from '../providers/map-context';
+import { useMapFilters } from '../hooks/use-map-filters';
+import { MAX_MAGNIFICATION, MIN_MAGNIFICATION, useMapOptions } from '../providers/map-context';
 
 type DividerProps = {
   orientation?: 'vertical' | 'horizontal';
 };
 
 const Divider: React.FC<DividerProps> = ({ orientation = 'vertical' }) => {
-  return (
-    <span className={clsx(orientation === 'vertical' ? 'flex w-1' : 'h-1 w-full', 'rounded-md bg-gray-300')} />
-  );
+  return <span className={clsx(orientation === 'vertical' ? 'flex w-1' : 'h-1 w-full', 'rounded-md bg-gray-300')} />;
 };
 
 type MagnificationButtonProps = {
@@ -25,7 +23,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
   const { magnification, increaseMagnification, decreaseMagnification } = useMapOptions();
 
   const onClick = direction === 'increase' ? increaseMagnification : decreaseMagnification;
-  const isDisabled = direction === 'increase' ? magnification === 3 : magnification === 1;
+  const isDisabled = direction === 'increase' ? magnification === MAX_MAGNIFICATION : magnification === MIN_MAGNIFICATION;
 
   return (
     <button
@@ -34,14 +32,12 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
       disabled={isDisabled}
       className={clsx('rounded-md p-1', isDisabled && 'bg-gray-200')}
       data-testid={direction === 'increase' ? 'map-controls-magnification-increase-button' : 'map-controls-magnification-decrease-button'}
-      aria-label={t(direction === 'increase' ? 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_INCREASE' : 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_DECREASE')}
+      aria-label={t(
+        direction === 'increase' ? 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_INCREASE' : 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_DECREASE'
+      )}
     >
-      {direction === 'increase' && (
-        <Icon type="mapMagnificationIncrease" />
-      )}
-      {direction === 'decrease' && (
-        <Icon type="mapMagnificationDecrease" />
-      )}
+      {direction === 'increase' && <Icon type="mapMagnificationIncrease" />}
+      {direction === 'decrease' && <Icon type="mapMagnificationDecrease" />}
     </button>
   );
 };

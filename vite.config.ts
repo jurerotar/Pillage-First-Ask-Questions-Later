@@ -19,7 +19,7 @@ export default defineConfig({
       'dexie',
       'formik',
       'sha1-uint8array',
-      'react-helmet',
+      'react-helmet-async',
       'react-modal',
       'tailwind-override',
       'usehooks-ts',
@@ -30,7 +30,7 @@ export default defineConfig({
       'react-window',
       'react-transition-group',
       'react-tooltip',
-      '@tanstack/react-query'
+      '@tanstack/react-query',
     ],
   },
   resolve: {

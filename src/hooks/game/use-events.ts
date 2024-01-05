@@ -23,9 +23,7 @@ export const useEvents = () => {
     initialData: [],
   });
 
-  const createEvent = useCallback(() => {
-
-  }, []);
+  const createEvent = useCallback(() => {}, []);
 
   return {
     events,

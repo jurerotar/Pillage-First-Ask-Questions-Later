@@ -14,7 +14,7 @@ export const effectFactory = ({ server, ...effect }: EffectFactoryProps & Omit<E
   };
 };
 
-export const newVillageEffectsFactory = ({ server, village }: EffectFactoryProps & { village: Village; }): Effect[] => {
+export const newVillageEffectsFactory = ({ server, village }: EffectFactoryProps & { village: Village }): Effect[] => {
   return villageEffects.map((effect) => effectFactory({ server, ...effect }));
 };
 

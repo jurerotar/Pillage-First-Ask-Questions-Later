@@ -14,10 +14,7 @@ type BuildingUpgradeInformationTableProps = {
 type DisplayedProperty = keyof Omit<Building, 'id' | 'maxLevel' | 'effects' | 'buildingRequirements'> | 'level';
 
 export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformationTableProps> = (props) => {
-  const {
-    building,
-    level,
-  } = props;
+  const { building, level } = props;
 
   const { t } = useTranslation();
 
@@ -57,9 +54,7 @@ export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformatio
                   key={property}
                 >
                   {property === 'level' ? (
-                    <>
-                      {t('GENERAL.LEVEL')}
-                    </>
+                    <>{t('GENERAL.LEVEL')}</>
                   ) : (
                     <Tooltip tooltipContent={t(propertyTranslationMap[property])}>
                       <Icon type={property} />
@@ -67,16 +62,17 @@ export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformatio
                   )}
                 </td>
               ))}
-              {building?.effects && building.effects.map((effect: BuildingEffect) => (
-                <td
-                  className="min-w-[70px] py-2 text-center"
-                  key={effect.effectId}
-                >
-                  <Tooltip tooltipContent={t(`GAME.EFFECTS.${snakeToCamelCase(effect.effectId).toUpperCase()}`)}>
-                    <Icon type={effect.effectId} />
-                  </Tooltip>
-                </td>
-              ))}
+              {building?.effects &&
+                building.effects.map((effect: BuildingEffect) => (
+                  <td
+                    className="min-w-[70px] py-2 text-center"
+                    key={effect.effectId}
+                  >
+                    <Tooltip tooltipContent={t(`GAME.EFFECTS.${snakeToCamelCase(effect.effectId).toUpperCase()}`)}>
+                      <Icon type={effect.effectId} />
+                    </Tooltip>
+                  </td>
+                ))}
             </tr>
           </thead>
           <tbody>
@@ -93,14 +89,8 @@ export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformatio
                     <Paragraph className="text-center">
                       {property === 'level' || property === 'buildingDuration' ? (
                         <>
-                          {property === 'level' && (
-                            <span className="font-semibold">
-                              {row + 1}
-                            </span>
-                          )}
-                          {property === 'buildingDuration' && (
-                            formatTime(building[property][row])
-                          )}
+                          {property === 'level' && <span className="font-semibold">{row + 1}</span>}
+                          {property === 'buildingDuration' && formatTime(building[property][row])}
                         </>
                       ) : (
                         building[property][row]
@@ -108,16 +98,15 @@ export const BuildingUpgradeInformationTable: React.FC<BuildingUpgradeInformatio
                     </Paragraph>
                   </td>
                 ))}
-                {building?.effects && building.effects.map((effect: BuildingEffect) => (
-                  <td
-                    className="py-2"
-                    key={effect.effectId}
-                  >
-                    <Paragraph className="text-center">
-                      {effect.valuesPerLevel[row]}
-                    </Paragraph>
-                  </td>
-                ))}
+                {building?.effects &&
+                  building.effects.map((effect: BuildingEffect) => (
+                    <td
+                      className="py-2"
+                      key={effect.effectId}
+                    >
+                      <Paragraph className="text-center">{effect.valuesPerLevel[row]}</Paragraph>
+                    </td>
+                  ))}
               </tr>
             ))}
           </tbody>

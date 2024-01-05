@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export const banksCacheKey = 'banks';
 
-export const getBank = (serverId: Server['id']) => (database.banks.where({ serverId }).first() as Promise<Bank>);
+export const getBank = (serverId: Server['id']) => database.banks.where({ serverId }).first() as Promise<Bank>;
 
 export const useBank = () => {
   const { serverId } = useCurrentServer();
@@ -22,13 +22,9 @@ export const useBank = () => {
     queryFn: () => getBank(serverId),
   });
 
-  const { amount } = (bank!);
+  const { amount } = bank!;
 
-  const {
-    cooper,
-    silver,
-    gold,
-  } = useFormatCurrency(amount);
+  const { cooper, silver, gold } = useFormatCurrency(amount);
 
   return {
     bank,

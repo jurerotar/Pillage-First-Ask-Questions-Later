@@ -10,6 +10,7 @@
 import { Village } from 'interfaces/models/game/village';
 import { serverMock } from 'mocks/models/game/server-mock';
 import { playerMock } from 'mocks/models/game/player-mock';
+import { resourceFields4446Mock } from 'mocks/game/village/resource-fields-mock';
 
 const { id: serverId } = serverMock;
 const { id: playerId } = playerMock;
@@ -21,111 +22,20 @@ export const villageMock: Village = {
   slug: 'v-1',
   coordinates: {
     x: 0,
-    y: 0
+    y: 0,
   },
-  resourceFields: [
-    {
-      resourceFieldId: '1',
-      type: 'wood',
-      level: 0
-    },
-    {
-      resourceFieldId: '2',
-      type: 'wheat',
-      level: 0
-    },
-    {
-      resourceFieldId: '3',
-      type: 'wood',
-      level: 0
-    },
-    {
-      resourceFieldId: '4',
-      type: 'iron',
-      level: 0
-    },
-    {
-      resourceFieldId: '5',
-      type: 'clay',
-      level: 0
-    },
-    {
-      resourceFieldId: '6',
-      type: 'clay',
-      level: 0
-    },
-    {
-      resourceFieldId: '7',
-      type: 'iron',
-      level: 0
-    },
-    {
-      resourceFieldId: '8',
-      type: 'wheat',
-      level: 0
-    },
-    {
-      resourceFieldId: '9',
-      type: 'wheat',
-      level: 0
-    },
-    {
-      resourceFieldId: '10',
-      type: 'iron',
-      level: 0
-    },
-    {
-      resourceFieldId: '11',
-      type: 'iron',
-      level: 0
-    },
-    {
-      resourceFieldId: '12',
-      type: 'wheat',
-      level: 0
-    },
-    {
-      resourceFieldId: '13',
-      type: 'wheat',
-      level: 0
-    },
-    {
-      resourceFieldId: '14',
-      type: 'wood',
-      level: 0
-    },
-    {
-      resourceFieldId: '15',
-      type: 'wheat',
-      level: 0
-    },
-    {
-      resourceFieldId: '16',
-      type: 'clay',
-      level: 0
-    },
-    {
-      resourceFieldId: '17',
-      type: 'wood',
-      level: 0
-    },
-    {
-      resourceFieldId: '18',
-      type: 'clay',
-      level: 0
-    }
-  ],
   buildingFields: [
+    ...resourceFields4446Mock,
     {
       buildingId: 'MAIN_BUILDING',
-      buildingFieldId: '1',
-      level: 1
+      buildingFieldId: 38,
+      level: 1,
     },
     {
       buildingId: 'RALLY_POINT',
-      buildingFieldId: '2',
-      level: 1
-    }
+      buildingFieldId: 39,
+      level: 1,
+    },
   ],
   playerId,
   isCapital: false,
@@ -134,6 +44,6 @@ export const villageMock: Village = {
     wood: 750,
     clay: 750,
     iron: 750,
-    wheat: 750
-  }
+    wheat: 750,
+  },
 };

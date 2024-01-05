@@ -22,12 +22,7 @@ export type RenderOptions = {
 // Game components relly on url pathname params to determine correct data to display, so this testing environments mocks that. You're also provided
 // a default set of game data in form of 'gameEnvironment', which you may override by providing your own query client.
 const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
-  const {
-    wrapper = [],
-    deviceSize,
-    children,
-    queryClient: providedQueryClient
-  } = props;
+  const { wrapper = [], deviceSize, children, queryClient: providedQueryClient } = props;
 
   const queryClient = gameEnvironment;
 
@@ -53,12 +48,7 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
 };
 
 const TestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
-  const {
-    wrapper = [],
-    deviceSize,
-    children,
-    queryClient: providedQueryClient
-  } = props;
+  const { wrapper = [], deviceSize, children, queryClient: providedQueryClient } = props;
 
   const queryClient = providedQueryClient ?? new QueryClient();
 
@@ -75,36 +65,30 @@ const defaultOptions: RenderOptions = {
   wrapper: [],
   deviceSize: {
     height: 0,
-    width: 0
-  }
+    width: 0,
+  },
 };
 
 export const renderHookWithContext = <TProps, TResult>(callback: (props: TProps) => TResult, options?: RenderOptions) => {
   return renderHook(callback, {
-    wrapper: ({ children }) => (
-      <TestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</TestingEnvironment>
-    ),
+    wrapper: ({ children }) => <TestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</TestingEnvironment>,
   });
 };
 
-export const renderWithContext = <T = HTMLElement, >(
+export const renderWithContext = <T = HTMLElement,>(
   ui: React.ReactElement<T, string | React.JSXElementConstructor<T>>,
   options?: RenderOptions
 ) => {
   return render(ui, {
-    wrapper: ({ children }) => (
-      <TestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</TestingEnvironment>
-    )
+    wrapper: ({ children }) => <TestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</TestingEnvironment>,
   });
 };
 
-export const renderWithGameContext = <T = HTMLElement, >(
+export const renderWithGameContext = <T = HTMLElement,>(
   ui: React.ReactElement<T, string | React.JSXElementConstructor<T>>,
   options?: RenderOptions
 ) => {
   return render(ui, {
-    wrapper: ({ children }) => (
-      <GameTestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</GameTestingEnvironment>
-    )
+    wrapper: ({ children }) => <GameTestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</GameTestingEnvironment>,
   });
 };

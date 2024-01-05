@@ -1,5 +1,5 @@
 import { serverMock } from 'mocks/models/game/server-mock';
-import { MapFilters } from 'interfaces/models/game/preferences/map-filters';
+import { MapFilters } from 'interfaces/models/game/map-filters';
 
 const { id: serverId } = serverMock;
 

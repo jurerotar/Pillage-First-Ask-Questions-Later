@@ -2,6 +2,8 @@ import { WithServerId } from 'interfaces/models/game/server';
 import { PlayerFaction } from 'interfaces/models/game/player';
 
 export type ReputationLevel =
+  // Essentially a 'helper' reputation, this makes sure we don't have to have a bunch of hacks throughout the codebase
+  | 'player'
   // Trade is possible. Trade ratio is set at 1:1. Faction may reinforce the player in defensive battles. Faction may offer quests.
   | 'ecstatic'
   // Trade is possible. Trade ratio is set at 2:1. Faction may offer quests.

@@ -10,13 +10,7 @@ type ToggleProps = {
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export const Toggle: React.FC<ToggleProps> = (props) => {
-  const {
-    id,
-    onChange,
-    label = '',
-    checked = false,
-    className = '',
-  } = props;
+  const { id, onChange, label = '', checked = false, className = '' } = props;
 
   const [isChecked, setIsChecked] = useState<boolean>(checked);
 
@@ -37,7 +31,11 @@ export const Toggle: React.FC<ToggleProps> = (props) => {
       />
       <label
         htmlFor={id}
-        className={clsx(isChecked ? 'bg-blue-500' : 'bg-gray-300', className, 'toggle-label relative block h-6 w-12 cursor-pointer rounded-full ease-out')}
+        className={clsx(
+          isChecked ? 'bg-blue-500' : 'bg-gray-300',
+          className,
+          'toggle-label relative block h-6 w-12 cursor-pointer rounded-full ease-out'
+        )}
       >
         {label}
       </label>

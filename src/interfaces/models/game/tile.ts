@@ -1,7 +1,7 @@
 import { Point } from 'interfaces/models/common';
 import { ResourceFieldComposition, Village } from 'interfaces/models/game/village';
 import { WithServerId } from 'interfaces/models/game/server';
-import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
+import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
 
 export type BaseTile = WithServerId<{
@@ -12,14 +12,23 @@ export type BaseTile = WithServerId<{
   // Both backgroundColor & oasisGroup will be replaced by an actual graphic once they exist
   graphics: {
     backgroundColor: string;
-    oasisGroup?: number;
   };
 }>;
 
+export type OasisResourceBonus = {
+  resource: Resource;
+  bonus: '25%' | '50%';
+};
+
 export type OasisTile = BaseTile & {
   type: 'oasis-tile';
-  oasisType: Resource | ResourceCombination;
-  oasisBonus: '25%' | '50%' | null;
+  oasisResourceBonus: OasisResourceBonus[];
+  graphics: {
+    // Different oasis groups have different graphics
+    oasisGroup: number;
+    // Position in the oasisShape matrix [rowIndex, columnIndex]
+    oasisGroupPosition: number[];
+  };
 };
 
 export type OccupiedOasisTile = OasisTile & {
@@ -36,11 +45,7 @@ export type OccupiedOccupiableTile = OccupiableTile & {
   treasureType: 'artifact' | 'hero-item' | 'currency' | 'resources' | null;
 };
 
-export type Tile =
-  | OasisTile
-  | OccupiedOasisTile
-  | OccupiableTile
-  | OccupiedOccupiableTile;
+export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccupiableTile;
 
 export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;

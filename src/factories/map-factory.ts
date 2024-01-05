@@ -2,13 +2,14 @@ import { ResourceFieldComposition } from 'interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomIntFromInterval, seededShuffleArray } from 'utils/common';
 import {
   BaseTile,
-  OccupiableTile,
   MaybeOccupiedBaseTile,
   MaybeOccupiedOrOasisBaseTile,
   MaybeOccupiedOrOasisOccupiableTile,
+  OasisResourceBonus,
   OasisTile,
+  OccupiableTile,
   OccupiedOccupiableTile,
-  Tile
+  Tile,
 } from 'interfaces/models/game/tile';
 import { Point } from 'interfaces/models/common';
 import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
@@ -16,13 +17,16 @@ import { Server } from 'interfaces/models/game/server';
 import { createHash } from 'sha1-uint8array';
 import { Player } from 'interfaces/models/game/player';
 
-export type OasisShapes = Record<Resource, {
-  backgroundColor: string;
-  shapes: Array<{
-    group: number;
-    shape: number[][];
-  }>;
-}>;
+export type OasisShapes = Record<
+  Resource,
+  {
+    backgroundColor: string;
+    shapes: Array<{
+      group: number;
+      shape: number[][];
+    }>;
+  }
+>;
 
 const oasisShapes: OasisShapes = {
   wheat: {
@@ -37,9 +41,7 @@ const oasisShapes: OasisShapes = {
       },
       {
         group: 2,
-        shape: [
-          [0, 1, 1],
-        ],
+        shape: [[0, 1, 1]],
       },
       {
         group: 3,
@@ -104,9 +106,7 @@ const oasisShapes: OasisShapes = {
       },
       {
         group: 3,
-        shape: [
-          [0, 1, 1],
-        ],
+        shape: [[0, 1, 1]],
       },
       {
         group: 4,
@@ -138,9 +138,7 @@ const oasisShapes: OasisShapes = {
     shapes: [
       {
         group: 1,
-        shape: [
-          [0, 1, 1],
-        ],
+        shape: [[0, 1, 1]],
       },
       {
         group: 2,
@@ -215,9 +213,7 @@ const oasisShapes: OasisShapes = {
       },
       {
         group: 5,
-        shape: [
-          [0, 1, 1],
-        ],
+        shape: [[0, 1, 1]],
       },
     ],
   },
@@ -256,24 +252,85 @@ const generateOccupiableTileType = (tile: MaybeOccupiedOrOasisBaseTile): Resourc
   return '4446';
 };
 
-const generateOasisTile = (tile: MaybeOccupiedOrOasisBaseTile, shapes: OasisShapes): OasisTile => {
-  const resourceType = seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['wheat', 'iron', 'clay', 'wood', 'wood-wheat', 'clay-wheat', 'iron-wheat']);
-  const typeForGraphic = (resourceType.includes('-') ? resourceType.split('-')[0] : resourceType) as Resource;
+const generateOasisTile = (
+  tile: MaybeOccupiedOrOasisBaseTile,
+  oasisGroup: number,
+  oasisGroupPosition: number[],
+  preGeneratedResourceType?: Resource
+): OasisTile => {
+  const resourceType = (() => {
+    if (!preGeneratedResourceType) {
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, [
+        'wheat',
+        'iron',
+        'clay',
+        'wood',
+        'wood-wheat',
+        'clay-wheat',
+        'iron-wheat',
+      ]);
+    }
+
+    if (preGeneratedResourceType === 'wood') {
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['wood', 'wood-wheat']);
+    }
+
+    if (preGeneratedResourceType === 'clay') {
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['clay', 'clay-wheat']);
+    }
+
+    if (preGeneratedResourceType === 'iron') {
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['iron', 'iron-wheat']);
+    }
+
+    return 'wheat';
+  })();
+
+  const isResourceCombination = resourceType.includes('-');
+
+  // wood-wheat -> wood
+  const typeForGraphic = (isResourceCombination ? resourceType.split('-')[0] : resourceType) as Resource;
+  const willOasisHaveABonus = seededRandomIntFromInterval(tile.tileId, 1, 3) >= 2;
+
+  const oasisResourceBonus = ((): OasisResourceBonus[] => {
+    if (!willOasisHaveABonus) {
+      return [];
+    }
+
+    if (isResourceCombination) {
+      const resourceTypes = resourceType.split('-') as Resource[];
+      return resourceTypes.map((resource: Resource) => ({
+        resource,
+        bonus: '25%',
+      }));
+    }
+
+    const willBe50PercentBonus = seededRandomIntFromInterval(tile.tileId, 1, 10) === 1;
+
+    return [
+      {
+        resource: resourceType as Resource,
+        bonus: willBe50PercentBonus ? '50%' : '25%',
+      },
+    ];
+  })();
 
   return {
     ...tile,
     type: 'oasis-tile',
-    oasisType: resourceType,
-    oasisBonus: null,
+    oasisResourceBonus,
     graphics: {
-      oasisGroup: 0,
-      backgroundColor: shapes[typeForGraphic].backgroundColor,
+      oasisGroup,
+      backgroundColor: oasisShapes[typeForGraphic].backgroundColor,
+      oasisGroupPosition,
     },
   };
 };
 
 const getPredefinedVillagesDistances = (server: Server): Distances => {
-  const { configuration: { mapSize } } = server;
+  const {
+    configuration: { mapSize },
+  } = server;
   // Artifact villages are positioned 80% distance from center at the points of a rotated octagon. You can picture a stop sign.
   const distanceFromCenter = Math.round(0.8 * (mapSize / 2));
   const octagonSideLengthFormula = (incircleRadius: number) => (2 * incircleRadius) / (1 + Math.sqrt(2));
@@ -287,10 +344,7 @@ const getPredefinedVillagesDistances = (server: Server): Distances => {
 };
 
 const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[]> => {
-  const {
-    offset,
-    distanceFromCenter,
-  } = getPredefinedVillagesDistances(server);
+  const { offset, distanceFromCenter } = getPredefinedVillagesDistances(server);
 
   const artifactVillagesCoordinates = [
     {
@@ -360,9 +414,7 @@ const generateGrid = (server: Server): BaseTile[] => {
     };
 
     return {
-      tileId: createHash()
-        .update(`${server.seed}${counter}`)
-        .digest('hex'),
+      tileId: createHash().update(`${server.seed}${counter}`).digest('hex'),
       serverId: id,
       coordinates,
       graphics: {
@@ -428,7 +480,7 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
       continue;
     }
 
-    const tileWillBeOasis: boolean = seededRandomIntFromInterval(currentTile.tileId, 1, 15) === 1;
+    const tileWillBeOasis: boolean = seededRandomIntFromInterval(currentTile.tileId, 1, 25) === 1;
 
     // Determine oasis position and shape
     if (tileWillBeOasis) {
@@ -436,18 +488,14 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
       const tilesToUpdate: BaseTile[] = [];
       const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.tileId, ['wheat', 'iron', 'clay', 'wood']);
       const { shapes } = oasisShapes[resourceType];
-      const selectedOasis = shapes[seededRandomArrayElement(currentTile.tileId, [...Array(shapes.length)
-        .keys()])];
-      const {
-        shape: oasisShape,
-      } = selectedOasis;
+      const selectedOasis = shapes[seededRandomArrayElement(currentTile.tileId, [...Array(shapes.length).keys()])];
+      const { group: oasisGroup, shape: oasisShape } = selectedOasis;
 
-      const {
-        x,
-        y,
-      }: Point = currentTile.coordinates;
+      const { x, y }: Point = currentTile.coordinates;
 
       let breakCondition: boolean = false;
+      // Get the position of individual tile in oasisShapes matrix, this way we know which graphic to show
+      const oasisGroupPositions: number[][] = [];
 
       // Find tiles to update based on oasis shape
       // Y-axis movement
@@ -473,6 +521,7 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
             break;
           }
 
+          oasisGroupPositions.push([k, j]);
           tilesToUpdate.push(tile);
         }
       }
@@ -480,15 +529,17 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
         continue;
       }
 
-      tilesToUpdate.forEach((occupiedCell: BaseTile) => {
+      tilesToUpdate.forEach((occupiedCell: BaseTile, index) => {
         const cellToUpdateFindFunction = (cell: BaseTile) => {
           return cell.coordinates.x === occupiedCell.coordinates.x && cell.coordinates.y === occupiedCell.coordinates.y;
         };
 
+        const oasisGroupPosition = oasisGroupPositions[index];
+
         const cellToUpdateIndex = tilesWithOasisShapes.findIndex(cellToUpdateFindFunction);
         const cellToUpdate = tilesWithOasisShapes[cellToUpdateIndex];
 
-        tilesWithOasisShapes[cellToUpdateIndex] = generateOasisTile(cellToUpdate, oasisShapes);
+        tilesWithOasisShapes[cellToUpdateIndex] = generateOasisTile(cellToUpdate, oasisGroup, oasisGroupPosition, resourceType);
       });
     }
   }
@@ -508,7 +559,7 @@ const generateSingleOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
       return tile;
     }
 
-    return generateOasisTile(tile, oasisShapes);
+    return generateOasisTile(tile, 0, [0, 0]);
   });
 };
 
@@ -525,33 +576,20 @@ const generateOccupiableTileTypes = (tiles: MaybeOccupiedOrOasisBaseTile[]): May
   });
 };
 
-// This method will mark which oasis will be actual resource oasis, but it does not add animals to them
-const populateOasis = (tiles: Tile[]): Tile[] => {
-  return tiles.map((tile: Tile) => {
-    const willOasisHaveABonus = seededRandomIntFromInterval(tile.tileId, 1, 3) >= 2;
-
-    if (tile.type !== 'oasis-tile' || !willOasisHaveABonus) {
-      return tile;
-    }
-
-    const oasisBonus = seededRandomArrayElement<OasisTile['oasisBonus']>(tile.tileId, ['25%', '50%', null]);
-    return {
-      ...tile,
-      oasisBonus,
-    };
-  });
-};
-
 // This method will mark which fields will have villages
 const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
   return tiles.map((tile: Tile) => {
     if (tile.type !== 'free-tile' && !Object.hasOwn(tile, 'ownedBy')) {
       return tile;
     }
-    const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 4) === 1;
-    const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(tile.tileId, 1, 3) === 1 : false;
+    const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 3) === 1;
+    const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(tile.tileId, 1, 5) === 1 : false;
     const treasureType = willBeATreasureVillage
-      ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(tile.tileId, ['hero-item', 'currency', 'resources'])
+      ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(tile.tileId, [
+          'hero-item',
+          'currency',
+          'resources',
+        ])
       : null;
 
     return {
@@ -579,8 +617,7 @@ export const mapFactory = ({ server, players }: MapFactoryProps): Tile[] => {
   const tilesWithShapedOasisFields = generateShapedOasisFields(tilesWithPredefinedVillages);
   const tilesWithSingleOasisFields = generateSingleOasisFields(tilesWithShapedOasisFields);
   const tilesWithOccupiableTileTypes = generateOccupiableTileTypes(tilesWithSingleOasisFields);
-  const tilesWithPopulatedOasis = populateOasis(tilesWithOccupiableTileTypes);
-  const tilesWithPopulatedOccupiableTiles = populateOccupiableTiles(tilesWithPopulatedOasis, npcPlayers);
+  const tilesWithPopulatedOccupiableTiles = populateOccupiableTiles(tilesWithOccupiableTileTypes, npcPlayers);
 
   return tilesWithPopulatedOccupiableTiles;
 };
