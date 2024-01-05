@@ -118,7 +118,7 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
 
   const village = getVillageByCoordinates(tile.coordinates)!;
   const title = village.name;
-  const { faction, tribe } = getPlayerByPlayerId(tile.ownedBy);
+  const { faction, tribe, name } = getPlayerByPlayerId(tile.ownedBy);
   const { reputationLevel } = getReputationByFaction(faction);
 
   return (
@@ -126,11 +126,18 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
       <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
       <span>
-        {t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}
+        {t('GENERAL.PLAYER')} - {name}
       </span>
-      <span>
-        {t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}
-      </span>
+      {faction !== 'player' && (
+        <>
+          <span>
+            {t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}
+          </span>
+          <span>
+            {t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}
+          </span>
+        </>
+      )}
       <span>
         {t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}
       </span>

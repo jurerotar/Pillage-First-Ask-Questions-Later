@@ -1,26 +1,21 @@
 import { BuildingFieldId } from 'interfaces/models/game/village';
 import React from 'react';
 import { useCurrentVillage } from 'hooks/game/use-current-village';
-import { useBuilding } from 'hooks/game/use-building';
 import { BorderIndicator, BorderIndicatorVariant } from 'components/border-indicator';
+import { getBuildingData } from 'utils/game/common';
 
 type BuildingUpgradeIndicatorProps = {
   buildingFieldId: BuildingFieldId;
 };
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId }) => {
-  const {
-    currentVillage: { resourceFields },
-  } = useCurrentVillage();
-  const { buildingId, level } = resourceFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId)!;
-  const { isMaxLevel, canUpgradeBuilding } = useBuilding(buildingId, level);
+  const { currentVillage } = useCurrentVillage();
+  const { buildingId, level } = currentVillage.buildingFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId)!;
+  const { isMaxLevel } = getBuildingData(buildingId, level);
 
   const variant = ((): BorderIndicatorVariant => {
     if (isMaxLevel) {
       return 'blue';
-    }
-    if (!canUpgradeBuilding) {
-      return 'gray';
     }
     return 'green';
   })();

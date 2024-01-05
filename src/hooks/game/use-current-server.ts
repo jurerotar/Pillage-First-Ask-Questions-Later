@@ -24,6 +24,7 @@ export const useCurrentServer = () => {
   const server = data as Server;
 
   const serverId = server.id;
+  const { mapSize, speed: serverSpeed } = server.configuration;
 
   return {
     server,
@@ -31,5 +32,7 @@ export const useCurrentServer = () => {
     hasLoadedServer,
     serverQueryStatus,
     serverId,
+    mapSize,
+    serverSpeed
   };
 };

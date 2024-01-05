@@ -1,7 +1,34 @@
-import { BuildingField } from 'interfaces/models/game/village';
+import { BuildingField, BuildingFieldId, Village } from 'interfaces/models/game/village';
 import { Building } from 'interfaces/models/game/building';
 import { partialArraySum } from 'utils/common';
 import { resourceBuildingIdToEffectIdMap, resourceBuildingIdToResourceTypeMap } from 'utils/game/maps';
+import { buildings } from 'assets/buildings';
+
+export const getBuildingData = (buildingId: Building['id'], level: number) => {
+  const building: Building = buildings.find(({ id }) => id === buildingId)!;
+  const isMaxLevel = building.cropConsumption.length === level;
+  const cumulativeCropConsumption = partialArraySum(building.cropConsumption, level);
+  const cumulativeCulturePointsProduction = partialArraySum(building.culturePointsProduction, level);
+  const nextLevelCropConsumption = building.cropConsumption[level + 1] ?? 0;
+  const nextLevelCulturePointsProduction = building.cropConsumption[level + 1] ?? 0;
+  const nextLevelResourceCost = building.buildingCost[level + 1] ?? [0, 0, 0, 0];
+  const nextLevelBuildingDuration = building.buildingDuration[level + 1] ?? 0;
+
+  return {
+    building,
+    isMaxLevel,
+    cumulativeCropConsumption,
+    cumulativeCulturePointsProduction,
+    nextLevelCropConsumption,
+    nextLevelCulturePointsProduction,
+    nextLevelResourceCost,
+    nextLevelBuildingDuration
+  };
+};
+
+export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, buildingFieldId: BuildingFieldId): BuildingField | null => {
+  return currentVillage.buildingFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId) ?? null;
+}
 
 export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
   let sum: number = 0;

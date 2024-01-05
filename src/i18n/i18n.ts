@@ -3,7 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import { AvailableLocales } from 'interfaces/models/preferences/locale';
 import enUsLocalization from 'i18n/translations/en-US.json';
 
-const availableLocales: AvailableLocales[] = ['en-US', 'sl-SL'];
+const availableLocales: AvailableLocales[] = ['en-US'];
 
 (async () => {
   await i18n.use(initReactI18next).init({

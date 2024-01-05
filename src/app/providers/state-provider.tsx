@@ -12,6 +12,7 @@ export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, qu
       new QueryClient({
         defaultOptions: {
           queries: {
+            gcTime: Infinity,
             networkMode: 'always',
           },
           mutations: {

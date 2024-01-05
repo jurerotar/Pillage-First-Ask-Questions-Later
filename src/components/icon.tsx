@@ -91,6 +91,11 @@ const IconDefenderFullLoss = lazy(async () => ({
   default: (await import('components/icons/report/icon-defender-full-loss')).IconDefenderFullLoss,
 }));
 
+// Building field
+const IconBuildingDuration = lazy(async () => ({
+  default: (await import('components/icons/building-field/icon-building-duration')).IconBuildingDuration,
+}));
+
 export type ReportIconType =
   | 'attackerNoLoss'
   | 'attackerSomeLoss'
@@ -109,13 +114,22 @@ type MapControlsIconType =
   | 'mapTileTooltipToggle'
   | 'mapTreasureIconToggle';
 
+type BuildingFieldIcons =
+  | 'buildingDuration';
+
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 
 export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
 
 export type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
-type IconType = ReportIconType | ResourceCombinationIconType | ResourceIconType | MapControlsIconType | TreasureTileIconType;
+type IconType =
+  | ReportIconType
+  | ResourceCombinationIconType
+  | ResourceIconType
+  | MapControlsIconType
+  | TreasureTileIconType
+  | BuildingFieldIcons;
 
 // | 'cropConsumption'
 // | 'culturePointsProduction'
@@ -194,6 +208,7 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   defenderNoLoss: IconDefenderNoLoss,
   defenderSomeLoss: IconDefenderSomeLoss,
   defenderFullLoss: IconDefenderFullLoss,
+  buildingDuration: IconBuildingDuration,
 };
 
 const IconPlaceholder = () => {

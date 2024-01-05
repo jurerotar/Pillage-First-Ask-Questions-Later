@@ -11,8 +11,8 @@ import { useCurrentServer } from 'hooks/game/use-current-server';
 import clsx from 'clsx';
 import { usePlayers } from 'hooks/game/use-players';
 import { useReputations } from 'hooks/game/use-reputations';
-import { useMapFilters } from 'hooks/game/use-map-filters';
 import { reputationColorMap } from 'utils/game/color-maps';
+import { useMapFilters } from '../hooks/use-map-filters';
 import { OccupiableOasisIcon } from './occupiable-oasis-icon';
 import { WheatFieldIcon } from './wheat-field-icon';
 import { TreasureIcon } from './treasure-icon';
@@ -115,7 +115,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
         ...style,
         backgroundColor: tile.graphics.backgroundColor,
       }}
-      id={`tile-id-${tile.tileId}`}
+      data-tile-id={tile.tileId}
     >
       {isOasis && shouldShowOasisIcons && <OasisTile tile={tile} />}
       {!isOasis && (

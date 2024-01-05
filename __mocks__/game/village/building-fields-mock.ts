@@ -3,12 +3,12 @@ import { BuildingField } from 'interfaces/models/game/village';
 export const newVillageBuildingFieldsMock: BuildingField[] = [
   {
     buildingId: 'MAIN_BUILDING',
-    buildingFieldId: '1',
+    buildingFieldId: 38,
     level: 1,
   },
   {
     buildingId: 'RALLY_POINT',
-    buildingFieldId: '2',
+    buildingFieldId: 39,
     level: 1,
   },
 ];

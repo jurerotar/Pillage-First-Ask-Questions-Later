@@ -3,7 +3,7 @@
     "GAME": {
       "MAP": {
         "META": {
-          "TITLE": "Map - {{currentVillageName}}",
+          "TITLE": "Map",
           "DESCRIPTION": ""
         },
         "OASIS_TILE": {
@@ -27,13 +27,18 @@
       },
       "VILLAGE": {
         "META": {
-          "TITLE": "Village - {{currentVillageName}}",
+          "TITLE": "Village",
           "DESCRIPTION": ""
+        },
+        "BUILDING_FIELD": {
+          "EMPTY": "Building site",
+          "MAX_LEVEL": "Max level",
+          "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
         }
       },
       "RESOURCES": {
         "META": {
-          "TITLE": "Resources - {{currentVillageName}}",
+          "TITLE": "Resources",
           "DESCRIPTION": ""
         }
       }
@@ -658,12 +663,13 @@
     },
     "DESCRIPTION": "Description",
     "BUILDING_UPGRADE_TABLE": "Building upgrade table",
-    "LEVEL": "level",
+    "LEVEL": "Level {{level}}",
     "FACTION": "Faction",
     "TRIBE": "Tribe",
     "REPUTATION_LEVEL": "Reputation",
     "DISTANCE": "Distance",
     "FIELD_one": "{{count}} field",
-    "FIELD_other": "{{count}} fields"
+    "FIELD_other": "{{count}} fields",
+    "PLAYER": "Player"
   }
 }

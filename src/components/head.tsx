@@ -17,19 +17,18 @@ const viewNameToMetaMap = new Map<ViewName, string>([
 
 type AppHelmetProps = {
   viewName: ViewName;
-  tFunctionArgs?: Record<string, unknown>;
   children?: React.ReactNode;
 };
 
 export const Head: React.FC<AppHelmetProps> = (props) => {
-  const { viewName, tFunctionArgs, children } = props;
+  const { viewName, children } = props;
 
   const { t } = useTranslation();
 
   const meta = viewNameToMetaMap.get(viewName);
 
-  const title = t(`${meta}.TITLE`, { ...tFunctionArgs });
-  const description = t(`${meta}.DESCRIPTION`, { ...tFunctionArgs });
+  const title = t(`${meta}.TITLE`);
+  const description = t(`${meta}.DESCRIPTION`);
 
   return (
     <Helmet>

@@ -18,6 +18,7 @@
     "@tanstack/react-query-devtools": "5.15.3",
     "alea": "1.0.1",
     "clsx": "2.0.0",
+    "dayjs": "^1.11.10",
     "dexie": "3.2.4",
     "dexie-react-hooks": "1.1.7",
     "esm-seedrandom": "3.0.5",

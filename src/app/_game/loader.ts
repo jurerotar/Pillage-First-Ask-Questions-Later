@@ -26,9 +26,13 @@ import { Player } from 'interfaces/models/game/player';
 import { getPlayers, playersCacheKey } from 'hooks/game/use-players';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { getReputations, reputationsCacheKey } from 'hooks/game/use-reputations';
-import { getMapFilters, mapFiltersCacheKey } from 'hooks/game/use-map-filters';
+import { getMapFilters, mapFiltersCacheKey } from 'app/_game/_map/hooks/use-map-filters';
 import { MapFilters } from 'interfaces/models/game/map-filters';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { MapMarker } from 'interfaces/models/game/map-marker';
+import { getMapMarkers, mapMarkersCacheKey } from 'app/_game/_map/hooks/use-map-markers';
+
+// TODO: These imports should be lazy loaded
 
 class MissingServerError extends Error {
   constructor(serverSlug: Server['slug']) {
@@ -124,6 +128,10 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
     queryClient.prefetchQuery<MapFilters>({
       queryKey: [mapFiltersCacheKey, serverId],
       queryFn: () => getMapFilters(serverId),
+    }),
+    queryClient.prefetchQuery<MapMarker[]>({
+      queryKey: [mapMarkersCacheKey, serverId],
+      queryFn: () => getMapMarkers(serverId),
     }),
   ]);
 

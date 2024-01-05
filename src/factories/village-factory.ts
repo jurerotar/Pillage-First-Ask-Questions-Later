@@ -195,10 +195,11 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
 };
 
 const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): BuildingField[] => {
-  return (Object.keys(resourceFieldLayout) as ResourceFieldId[]).map((buildingFieldId: ResourceFieldId) => {
+  return (Object.keys(resourceFieldLayout)).map((fieldId) => {
+    const buildingFieldId = Number(fieldId) as ResourceFieldId;
     const type = resourceFieldLayout[buildingFieldId];
     return {
-      buildingFieldId,
+      buildingFieldId: Number(buildingFieldId) as ResourceFieldId,
       level: 0,
       buildingId: resourceTypeToResourceBuildingIdMap.get(type)!,
     };
@@ -226,8 +227,7 @@ export const villageFactory = ({ server, tile, players, slug }: VillageFactoryPr
 
   const { id: playerId, name } = players.find((player) => player.id === tile.ownedBy)!;
 
-  const resourceFields = getVillageResourceFields(resourceFieldComposition);
-  const buildingFields = getVillageBuildingFields('new-village');
+  const buildingFields = [...getVillageResourceFields(resourceFieldComposition), ...getVillageBuildingFields('new-village')];
 
   return {
     serverId: server.id,
@@ -235,7 +235,6 @@ export const villageFactory = ({ server, tile, players, slug }: VillageFactoryPr
     name: `${name}'s village`,
     slug,
     coordinates,
-    resourceFields,
     buildingFields,
     playerId,
     isCapital: false,

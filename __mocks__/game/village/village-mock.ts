@@ -24,16 +24,16 @@ export const villageMock: Village = {
     x: 0,
     y: 0,
   },
-  resourceFields: resourceFields4446Mock,
   buildingFields: [
+    ...resourceFields4446Mock,
     {
       buildingId: 'MAIN_BUILDING',
-      buildingFieldId: '1',
+      buildingFieldId: 38,
       level: 1,
     },
     {
       buildingId: 'RALLY_POINT',
-      buildingFieldId: '2',
+      buildingFieldId: 39,
       level: 1,
     },
   ],

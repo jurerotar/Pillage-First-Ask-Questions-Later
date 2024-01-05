@@ -28,7 +28,7 @@ import { Player } from 'interfaces/models/game/player';
 import { playersCacheKey } from 'hooks/game/use-players';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { reputationsCacheKey } from 'hooks/game/use-reputations';
-import { mapFiltersCacheKey } from 'hooks/game/use-map-filters';
+import { mapFiltersCacheKey } from 'app/_game/_map/hooks/use-map-filters';
 import { MapFilters } from 'interfaces/models/game/map-filters';
 import { mapFiltersMock } from 'mocks/game/map-filters-mock';
 import { heroMock } from 'mocks/game/hero-mock';
