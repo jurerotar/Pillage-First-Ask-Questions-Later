@@ -36,11 +36,7 @@ export default defineConfig({
   resolve: {
     alias: {
       app: path.resolve(__dirname, 'src/app'),
-      components: path.resolve(__dirname, 'src/components'),
       database: path.resolve(__dirname, 'src/database'),
-      factories: path.resolve(__dirname, 'src/factories'),
-      utils: path.resolve(__dirname, 'src/utils'),
-      hooks: path.resolve(__dirname, 'src/hooks'),
       i18n: path.resolve(__dirname, 'src/i18n'),
       interfaces: path.resolve(__dirname, 'src/interfaces'),
       styles: path.resolve(__dirname, 'src/styles'),

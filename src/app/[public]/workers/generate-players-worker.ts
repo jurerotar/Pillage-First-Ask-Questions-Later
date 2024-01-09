@@ -1,7 +1,7 @@
 import { Server } from 'interfaces/models/game/server';
-import { playerFactory } from 'factories/player-factory';
+import { playerFactory } from 'app/[game]/factories/player-factory';
 import { Player, PlayerFaction } from 'interfaces/models/game/player';
-import { seededRandomArrayElement } from 'utils/common';
+import { seededRandomArrayElement } from 'app/utils/common';
 
 export type GeneratePlayersWorkerPayload = {
   server: Server;

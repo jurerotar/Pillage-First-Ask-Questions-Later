@@ -1,5 +1,5 @@
 import { Server } from 'interfaces/models/game/server';
-import { mapFactory } from 'factories/map-factory';
+import { mapFactory } from 'app/[game]/factories/map-factory';
 import { Tile } from 'interfaces/models/game/tile';
 import { Player } from 'interfaces/models/game/player';
 

@@ -1,12 +1,12 @@
 import React, { FCWithChildren } from 'react';
 import { render, renderHook } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { ViewportProvider } from 'app/providers/viewport-context';
-import { composeComponents } from 'utils/jsx';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
-import { StateProvider } from 'app/providers/state-provider';
-import { serverMock } from 'mocks/models/game/server-mock';
 import { gameEnvironment } from 'mocks/game/game-environment';
+import { serverMock } from 'mocks/models/game/server-mock';
+import { ViewportProvider } from 'app/providers/viewport-context';
+import { composeComponents } from 'app/utils/jsx';
+import { StateProvider } from 'app/providers/state-provider';
 
 export type RenderOptions = {
   path?: string;
