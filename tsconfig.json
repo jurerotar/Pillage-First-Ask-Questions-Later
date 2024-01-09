@@ -18,11 +18,7 @@
     "module": "esnext",
     "paths": {
       "app/*": ["src/app/*"],
-      "components/*": ["src/components/*"],
       "database/*": ["src/database/*"],
-      "factories/*": ["src/factories/*"],
-      "utils/*": ["src/utils/*"],
-      "hooks/*": ["src/hooks/*"],
       "i18n/*": ["src/i18n/*"],
       "interfaces/*": ["src/interfaces/*"],
       "styles/*": ["src/styles/*"],

@@ -1,5 +1,5 @@
 import { Server } from 'interfaces/models/game/server';
-import { globalEffectsFactory, newVillageEffectsFactory } from 'factories/effect-factory';
+import { globalEffectsFactory, newVillageEffectsFactory } from 'app/[game]/factories/effect-factory';
 import { Village } from 'interfaces/models/game/village';
 import { Effect } from 'interfaces/models/game/effect';
 

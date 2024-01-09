@@ -4,7 +4,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
   darkMode: 'class',
-  content: ['./public/index.html', './src/**/*.tsx', './src/utils/game/color-maps.ts'],
+  content: ['./public/index.html', './src/**/*.tsx', './src/app/[game]/utils/color-maps.ts'],
   theme: {
     fontFamily: {
       sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
