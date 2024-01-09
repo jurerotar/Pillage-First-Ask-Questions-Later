@@ -16,4 +16,4 @@ type ServerSpecificTableName =
   | 'mapMarkers'
   | 'mapFilters';
 
-export type CryliteTableName = CommonTableName | ServerSpecificTableName;
+export type TableName = CommonTableName | ServerSpecificTableName;

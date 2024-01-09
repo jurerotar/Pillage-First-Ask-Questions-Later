@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
-import { CRYLITE_TABLE_NAMES, database } from 'database/database';
-import { CryliteTableName } from 'interfaces/models/database/crylite-table';
+import { database, TABLE_NAMES } from 'database/database';
+import { TableName } from 'interfaces/models/database/table-name';
 
 describe('Database', () => {
   test('Database initializes', () => {
@@ -8,7 +8,7 @@ describe('Database', () => {
   });
 
   describe('Check for table existence', () => {
-    Array.from(CRYLITE_TABLE_NAMES).forEach((tableName: CryliteTableName) => {
+    Array.from(TABLE_NAMES).forEach((tableName: TableName) => {
       test(`Table "${tableName}" exists`, () => {
         const table = database[tableName];
         expect(table).not.toBe(undefined);
