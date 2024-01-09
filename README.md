@@ -1,8 +1,9 @@
-# Crylite - single-player only, persistent, browser strategy game inspired by Travian
+# Echoes of Travian
+
+Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It's browser based and requires no downloads or account creation.
+Using browser's native IndexedDb, game data is persisted and progressed through sessions, just like you would expect from an online game.
 
 **Note: Very much still work in progress, not much to see at the moment.**
-
-Crylite is a single-player only, persistent, browser strategy game, inspired by Travian, where you're the sole architect of your destiny as you strive to build a thriving kingdom and rise to power.
 
 ## Built with
 
@@ -18,7 +19,7 @@ Crylite is a single-player only, persistent, browser strategy game, inspired by 
 
 ```sh
 # clone the project
-git clone https://github.com/jurerotar/crylite.git
+git clone https://github.com/jurerotar/Echoes-of-Travian.git
 
 # Install dependencies
 npm install
