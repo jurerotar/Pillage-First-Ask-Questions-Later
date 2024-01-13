@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade-indicator';
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { useDialog } from 'app/hooks/use-dialog';
 
 const buildingFieldIdToStyleMap = new Map<VillageFieldId | ReservedFieldId, string>([
   [19, 'top-[33%] left-[26%]'],
@@ -32,12 +31,11 @@ const buildingFieldIdToStyleMap = new Map<VillageFieldId | ReservedFieldId, stri
 ]);
 
 type EmptyBuildingFieldProps = {
+  onClick: () => void;
   buildingFieldId: VillageFieldId;
 };
 
-const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
-  const {} = useDialog();
-
+const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId, onClick }) => {
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
 
   return (
@@ -45,6 +43,7 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
       type="button"
       className={clsx(styles, 'absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
       data-building-field-id={buildingFieldId}
+      onClick={onClick}
     >
       {buildingFieldId}
     </button>
@@ -52,10 +51,11 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
 };
 
 type OccupiedBuildingFieldProps = {
+  onClick: () => void;
   buildingField: BuildingFieldType;
 };
 
-const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
+const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField, onClick }) => {
   const { buildingFieldId } = buildingField;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
@@ -65,6 +65,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       type="button"
       className={clsx(styles, 'absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
       data-building-field-id={buildingFieldId}
+      onClick={onClick}
     >
       <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
     </button>
@@ -72,17 +73,28 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 };
 
 type BuildingFieldProps = {
+  onClick: () => void;
   buildingFieldId: VillageFieldId;
 };
 
-export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
+export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, onClick }) => {
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
 
   if (buildingField === null) {
-    return <EmptyBuildingField buildingFieldId={buildingFieldId} />
+    return (
+      <EmptyBuildingField
+        buildingFieldId={buildingFieldId}
+        onClick={onClick}
+      />
+    )
   }
 
-  return <OccupiedBuildingField buildingField={buildingField} />
+  return (
+    <OccupiedBuildingField
+      buildingField={buildingField}
+      onClick={onClick}
+    />
+  )
 };

@@ -94,7 +94,7 @@ export const MapPage: React.FC = () => {
         {Cell}
       </FixedSizeGrid>
       {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0">
+      <div className="absolute left-0 top-0 bg-slate-800">
         <FixedSizeList
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
@@ -111,7 +111,7 @@ export const MapPage: React.FC = () => {
         </FixedSizeList>
       </div>
       {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0">
+      <div className="absolute bottom-0 left-0 bg-slate-800">
         <FixedSizeList
           className="scrollbar-hidden ml-[20px]"
           ref={bottomMapRulerRef}

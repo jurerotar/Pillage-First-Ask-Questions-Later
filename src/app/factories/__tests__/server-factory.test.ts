@@ -1,4 +1,4 @@
-import { serverFactory } from 'app/[public]/factories/server-factory';
+import { serverFactory } from 'app/factories/server-factory';
 
 describe('Server factory', () => {
   const server = serverFactory({
@@ -20,5 +20,9 @@ describe('Server factory', () => {
 
   test('Has start date', () => {
     expect(Object.hasOwn(server, 'startDate')).toBe(true);
+  });
+
+  test('Server slug starts with "s-"', () => {
+    expect(server.slug.startsWith('s-')).toBe(true);
   });
 });

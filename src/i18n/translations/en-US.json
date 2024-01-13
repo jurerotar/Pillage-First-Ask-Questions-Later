@@ -34,6 +34,17 @@
           "EMPTY": "Building site",
           "MAX_LEVEL": "Max level",
           "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
+        },
+        "BUILDING_CONSTRUCTION_MODAL": {
+          "TITLE": "Construct new building",
+          "TABS": {
+            "INFRASTRUCTURE": "Infrastructure",
+            "MILITARY": "Military",
+            "RESOURCES": "Resources"
+          }
+        },
+        "BUILDING_UPGRADE_MODAL": {
+          "TITLE": "{{buildingName}} - level {{level}}"
         }
       },
       "RESOURCES": {

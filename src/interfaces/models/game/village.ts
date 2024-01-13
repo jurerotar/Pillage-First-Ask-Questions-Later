@@ -92,10 +92,3 @@ export type Village = {
   buildingFields: BuildingField[];
   isCapital: boolean;
 };
-
-export type VillageBuildingFieldsPresetName = 'new-village';
-
-export type VillageBuildingFieldsPreset = {
-  preset: VillageBuildingFieldsPresetName;
-  buildingFields: BuildingField[];
-};

@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { Button } from 'app/components/buttons/button';
 import { Server } from 'interfaces/models/game/server';
-import { useAvailableServers } from 'app/[public]/hooks/use-available-servers';
+import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { ProgressBar } from 'app/components/progress-bar';
 import { database } from 'database/database';
 import { useFormik } from 'formik';
 import { Tile } from 'interfaces/models/game/tile';
-import { serverFactory } from 'app/[public]/factories/server-factory';
+import { serverFactory } from 'app/factories/server-factory';
 import { researchLevelsFactory } from 'app/[game]/factories/research-levels-factory';
 import { bankFactory } from 'app/[game]/factories/bank-factory';
 import { heroFactory } from 'app/[game]/factories/hero-factory';
@@ -52,7 +52,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   const { values, handleSubmit, submitForm } = useFormik<CreateServerFormValues>({
     initialValues: {
       seed: generateSeed(),
-      name: `server-${generateSeed(4)}`,
+      name: "Server name",
       configuration: {
         mapSize: 100,
         speed: 1,
