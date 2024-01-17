@@ -630,6 +630,9 @@
       "DESCRIPTION": ""
     }
   },
+  "HERO_ITEMS": {
+
+  },
   "TRIBES": {
     "ROMANS": "Romans",
     "GAULS": "Gauls",

@@ -9,6 +9,10 @@ export const eventsCacheKey = 'events';
 
 export const getEvents = (serverId: Server['id']) => database.events.where({ serverId }).toArray();
 
+type CreateEventArgs = {
+  type: GameEvent['type'];
+};
+
 export const useEvents = () => {
   const { serverId } = useCurrentServer();
 
@@ -23,7 +27,7 @@ export const useEvents = () => {
     initialData: [],
   });
 
-  const createEvent = useCallback(() => {}, []);
+  const createEvent = useCallback((args: CreateEventArgs) => {}, []);
 
   return {
     events,

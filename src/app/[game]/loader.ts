@@ -1,5 +1,4 @@
 import { achievementsCacheKey, getAchievements } from 'app/[game]/hooks/use-achievements';
-import { banksCacheKey, getBank } from 'app/[game]/hooks/use-bank';
 import { currentVillageCacheKey, getCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { effectsCacheKey, getEffects } from 'app/[game]/hooks/use-effects';
 import { eventsCacheKey, getEvents } from 'app/[game]/hooks/use-events';
@@ -11,7 +10,6 @@ import { getResearchLevels, researchLevelsCacheKey } from 'app/[game]/hooks/use-
 import { getVillages, villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { currentServerCacheKey, getCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { Achievement } from 'interfaces/models/game/achievement';
-import { Bank } from 'interfaces/models/game/bank';
 import { Village } from 'interfaces/models/game/village';
 import { Effect } from 'interfaces/models/game/effect';
 import { Hero } from 'interfaces/models/game/hero';
@@ -88,10 +86,6 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
     queryClient.prefetchQuery<Achievement[]>({
       queryKey: [achievementsCacheKey, serverId],
       queryFn: () => getAchievements(serverId),
-    }),
-    queryClient.prefetchQuery<Bank>({
-      queryKey: [banksCacheKey, serverId],
-      queryFn: () => getBank(serverId),
     }),
     queryClient.prefetchQuery<Effect[]>({
       queryKey: [effectsCacheKey, serverId],

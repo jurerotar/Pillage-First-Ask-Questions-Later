@@ -8,7 +8,6 @@ import { useFormik } from 'formik';
 import { Tile } from 'interfaces/models/game/tile';
 import { serverFactory } from 'app/factories/server-factory';
 import { researchLevelsFactory } from 'app/[game]/factories/research-levels-factory';
-import { bankFactory } from 'app/[game]/factories/bank-factory';
 import { heroFactory } from 'app/[game]/factories/hero-factory';
 import { workerFactory } from 'app/utils/workers';
 import { mapFiltersFactory } from 'app/[game]/factories/map-filters-factory';
@@ -231,12 +230,6 @@ export const CreateServerModalContent: React.FC = () => {
         await executeStep(async () => {
           const researchLevels = researchLevelsFactory({ server });
           await database.researchLevels.bulkAdd(researchLevels);
-        });
-
-        // Bank data
-        await executeStep(async () => {
-          const bank = bankFactory({ server });
-          await database.banks.add(bank);
         });
 
         // Hero data
