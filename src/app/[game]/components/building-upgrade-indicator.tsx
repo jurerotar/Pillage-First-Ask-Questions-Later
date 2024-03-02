@@ -1,7 +1,7 @@
 import { BuildingFieldId } from 'interfaces/models/game/village';
 import React from 'react';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { BorderIndicator, BorderIndicatorVariant } from 'app/components/border-indicator';
+import { BorderIndicator, BorderIndicatorVariant } from 'app/[game]/components/border-indicator';
 import { getBuildingData } from 'app/[game]/utils/common';
 
 type BuildingUpgradeIndicatorProps = {

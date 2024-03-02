@@ -2,7 +2,7 @@ import { Tribe } from 'interfaces/models/game/tribe';
 
 export type ServerConfiguration = {
   speed: 1 | 3 | 5 | 10;
-  mapSize: 100 | 200;
+  mapSize: 100;
 };
 
 export type PlayerConfiguration = {
@@ -10,14 +10,19 @@ export type PlayerConfiguration = {
   tribe: Tribe;
 };
 
+export type ServerStatistics = {
+  lastLoggedInTime: number | null;
+};
+
 export type Server = {
   id: string;
   name: string;
   slug: string;
-  startDate: string;
+  createdAt: number;
   seed: string;
   configuration: ServerConfiguration;
   playerConfiguration: PlayerConfiguration;
+  statistics: ServerStatistics;
 };
 
 export type WithServerId<T> = T & {

@@ -3,14 +3,20 @@ import {
   ResourceFieldComposition,
   ResourceFieldId,
   Village,
-  VillageBuildingFieldsPresetName,
 } from 'interfaces/models/game/village';
 import { Server } from 'interfaces/models/game/server';
-import { villagePresets } from 'assets/village-presets';
 import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
 import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import { resourceTypeToResourceBuildingIdMap } from 'app/[game]/utils/maps';
+import { Tribe } from 'interfaces/models/game/tribe';
+import {
+  egyptianNewVillageBuildingFieldsPreset,
+  gaulNewVillageBuildingFieldsPreset,
+  hunNewVillageBuildingFieldsPreset,
+  romanNewVillageBuildingFieldsPreset,
+  teutonNewVillageBuildingFieldsPreset,
+} from 'assets/village-presets';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
@@ -211,8 +217,16 @@ const getVillageResourceFields = (resourceFieldComposition: ResourceFieldComposi
   return convertResourceFieldLayoutToResourceField(resourceFieldsLayout);
 };
 
-const getVillageBuildingFields = (presetName: VillageBuildingFieldsPresetName): BuildingField[] => {
-  return villagePresets.find(({ preset }) => preset === presetName)!.buildingFields;
+const getNewVillageBuildingFields = (tribe: Tribe): BuildingField[] => {
+  const tribeToNewVillageBuildingFieldsMap = new Map<Tribe, BuildingField[]>([
+    ['romans', romanNewVillageBuildingFieldsPreset],
+    ['gauls', gaulNewVillageBuildingFieldsPreset],
+    ['teutons', teutonNewVillageBuildingFieldsPreset],
+    ['huns', hunNewVillageBuildingFieldsPreset],
+    ['egyptians', egyptianNewVillageBuildingFieldsPreset],
+  ]);
+
+  return tribeToNewVillageBuildingFieldsMap.get(tribe)!;
 };
 
 type VillageFactoryProps = {
@@ -225,9 +239,9 @@ type VillageFactoryProps = {
 export const villageFactory = ({ server, tile, players, slug }: VillageFactoryProps): Village => {
   const { coordinates, resourceFieldComposition } = tile;
 
-  const { id: playerId, name } = players.find((player) => player.id === tile.ownedBy)!;
+  const { id: playerId, name, tribe } = players.find((player) => player.id === tile.ownedBy)!;
 
-  const buildingFields = [...getVillageResourceFields(resourceFieldComposition), ...getVillageBuildingFields('new-village')];
+  const buildingFields = [...getVillageResourceFields(resourceFieldComposition), ...getNewVillageBuildingFields(tribe)];
 
   return {
     serverId: server.id,

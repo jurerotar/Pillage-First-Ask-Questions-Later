@@ -3,6 +3,7 @@ import { Building } from 'interfaces/models/game/building';
 export const buildings: Building[] = [
   {
     id: 'BAKERY',
+    category: 'resource-booster',
     buildingDuration: [3680, 6720, 11280, 18120, 28380],
     culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [4, 2, 2, 2, 2],
@@ -14,17 +15,17 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'CROPLAND',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'GRAIN_MILL',
         level: 5,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
@@ -39,6 +40,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'BRICKYARD',
+    category: 'resource-booster',
     buildingDuration: [2840, 5460, 9390, 15290, 24130],
     culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [3, 2, 2, 2, 2],
@@ -50,12 +52,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'CLAY_PIT',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
@@ -70,6 +72,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'CLAY_PIT',
+    category: 'resource-production',
     buildingDuration: [
       220, 550, 1080, 1930, 3290, 5470, 8950, 14520, 23430, 37690, 60510, 97010, 155420, 248870, 398390, 637620, 1020390, 1632820, 2612710,
       4180540, 6689060, 10702690,
@@ -110,6 +113,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'CROPLAND',
+    category: 'resource-production',
     buildingDuration: [
       150, 440, 900, 1650, 2830, 4730, 7780, 12640, 20430, 32880, 52810, 84700, 135710, 217340, 347950, 556910, 891260, 1426210, 2282140,
       3651630, 5842810, 9348690,
@@ -150,6 +154,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'GRAIN_MILL',
+    category: 'resource-booster',
     buildingDuration: [1840, 3960, 7140, 11910, 19070],
     culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [3, 2, 2, 2, 2],
@@ -161,7 +166,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'CROPLAND',
         level: 5,
       },
@@ -176,6 +181,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'GRANARY',
+    category: 'infrastructure',
     buildingDuration: [
       1600, 2160, 2800, 3550, 4420, 5420, 6590, 7950, 9520, 11340, 13450, 15910, 18750, 22050, 25880, 30320, 35470, 41450, 48380, 56420,
     ],
@@ -191,7 +197,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
       },
@@ -221,6 +227,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'GREAT_GRANARY',
+    category: 'infrastructure',
     buildingDuration: [
       7000, 8420, 10070, 11980, 14190, 16770, 19750, 23210, 27220, 31880, 37280, 43540, 50810, 59240, 69010, 80360, 93510, 108780, 126480,
       147020,
@@ -238,7 +245,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },
@@ -268,6 +275,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'GREAT_WAREHOUSE',
+    category: 'infrastructure',
     buildingDuration: [
       9000, 10740, 12760, 15100, 17820, 20970, 24620, 28860, 33780, 39480, 46100, 53780, 62680, 73010, 84990, 98890, 115010, 133710, 155400,
       180570,
@@ -285,7 +293,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },
@@ -315,6 +323,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'IRON_FOUNDRY',
+    category: 'resource-booster',
     buildingDuration: [4080, 7320, 12180, 19470, 30410],
     culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [6, 3, 3, 3, 3],
@@ -326,12 +335,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'IRON_MINE',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
@@ -346,6 +355,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'IRON_MINE',
+    category: 'resource-production',
     buildingDuration: [
       450, 920, 1670, 2880, 4800, 7880, 12810, 20690, 33310, 53500, 85800, 137470, 220160, 352450, 564120, 902790, 1444660, 2311660,
       3698850, 5918370, 9469590, 15151540,
@@ -386,6 +396,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'SAWMILL',
+    category: 'resource-booster',
     buildingDuration: [3000, 5700, 9750, 15830, 24940],
     culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [4, 2, 2, 2, 2],
@@ -397,12 +408,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'WOODCUTTER',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
@@ -417,6 +428,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'WAREHOUSE',
+    category: 'infrastructure',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -432,7 +444,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
       },
@@ -462,6 +474,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'WATERWORKS',
+    category: 'infrastructure',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -475,12 +488,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'HEROS_MANSION',
         level: 10,
       },
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'egyptians',
       },
     ],
@@ -509,6 +522,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'WOODCUTTER',
+    category: 'resource-production',
     buildingDuration: [
       260, 620, 1190, 2100, 3560, 5890, 9620, 15590, 25150, 40440, 64900, 104050, 166680, 266880, 427210, 683730, 1094170, 1750880, 2801600,
       4482770, 7172630, 11476400,
@@ -549,6 +563,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'ACADEMY',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -557,12 +572,12 @@ export const buildings: Building[] = [
     effects: [],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'BARRACKS',
         level: 3,
       },
@@ -592,6 +607,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'SMITHY',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -605,12 +621,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'ACADEMY',
         level: 1,
       },
@@ -640,6 +656,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'BARRACKS',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -656,12 +673,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'RALLY_POINT',
         level: 1,
       },
@@ -691,6 +708,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'CITY_WALL',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -710,7 +728,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'romans',
       },
     ],
@@ -739,6 +757,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'EARTH_WALL',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -758,7 +777,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'teutons',
       },
     ],
@@ -787,6 +806,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'GREAT_BARRACKS',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -803,12 +823,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'BARRACKS',
         level: 20,
       },
       {
-        requirementType: 'capital',
+        type: 'capital',
         notBuildableInCapital: true,
       },
     ],
@@ -837,6 +857,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'GREAT_STABLE',
+    category: 'military',
     buildingDuration: [
       2200, 2850, 3610, 4490, 5500, 6680, 8050, 9640, 11480, 13620, 16100, 18980, 22310, 26180, 30670, 35880, 41920, 48930, 57060, 66490,
     ],
@@ -853,12 +874,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'STABLE',
         level: 20,
       },
       {
-        requirementType: 'capital',
+        type: 'capital',
         notBuildableInCapital: true,
       },
     ],
@@ -887,6 +908,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'HEROS_MANSION',
+    category: 'military',
     buildingDuration: [
       2300, 2670, 3090, 3590, 4160, 4830, 5600, 6500, 7540, 8750, 10150, 11770, 13650, 15840, 18370, 21310, 24720, 28680, 33260, 38590,
     ],
@@ -900,12 +922,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'RALLY_POINT',
         level: 1,
       },
@@ -935,6 +957,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'HOSPITAL',
+    category: 'military',
     buildingDuration: [
       3000, 3780, 4680, 5730, 6950, 8360, 10000, 11900, 14110, 16660, 19630, 23070, 27060, 31690, 37060, 43290, 50520, 58900, 68630, 79910,
     ],
@@ -951,12 +974,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'ACADEMY',
         level: 15,
       },
@@ -986,6 +1009,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'MAKESHIFT_WALL',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1005,7 +1029,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'huns',
       },
     ],
@@ -1034,6 +1058,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'PALISADE',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1053,7 +1078,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'gauls',
       },
     ],
@@ -1082,6 +1107,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'RALLY_POINT',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1119,6 +1145,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'STABLE',
+    category: 'military',
     buildingDuration: [
       2200, 2850, 3610, 4490, 5500, 6680, 8050, 9640, 11480, 13620, 16100, 18980, 22310, 26180, 30670, 35880, 41920, 48930, 57060, 66490,
     ],
@@ -1135,12 +1162,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
-        buildingId: 'SMITHY',
-        level: 3,
-      },
-      {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'ACADEMY',
         level: 5,
       },
@@ -1170,6 +1192,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'STONE_WALL',
+    category: 'military',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1189,7 +1212,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'egyptians',
       },
     ],
@@ -1218,6 +1241,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'STONEMASON',
+    category: 'infrastructure',
     buildingDuration: [
       2200, 3150, 4260, 5540, 7020, 8750, 10750, 13070, 15760, 18880, 22500, 26700, 31570, 37220, 43780, 51380, 60200, 70430, 82300, 96070,
     ],
@@ -1231,12 +1255,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
-        requirementType: 'capital',
+        type: 'capital',
         onlyBuildableInCapital: true,
       },
     ],
@@ -1265,6 +1289,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'TOURNAMENT_SQUARE',
+    category: 'military',
     buildingDuration: [
       3500, 4360, 5360, 6510, 7860, 9410, 11220, 13320, 15750, 18570, 21840, 25630, 30030, 35140, 41060, 47930, 55900, 65140, 75860, 88300,
     ],
@@ -1278,7 +1303,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'RALLY_POINT',
         level: 15,
       },
@@ -1308,6 +1333,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'TRAPPER',
+    category: 'military',
     buildingDuration: [
       2000, 2320, 2690, 3120, 3620, 4200, 4870, 5650, 6560, 7610, 8820, 10230, 11870, 13770, 15980, 18530, 21500, 24940, 28930, 33550,
     ],
@@ -1321,12 +1347,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'RALLY_POINT',
         level: 1,
       },
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'gauls',
       },
     ],
@@ -1355,6 +1381,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'WORKSHOP',
+    category: 'military',
     buildingDuration: [
       3000, 3780, 4680, 5730, 6950, 8360, 10000, 11900, 14110, 16660, 19630, 23070, 27060, 31690, 37060, 43290, 50520, 58900, 68630, 79910,
     ],
@@ -1371,12 +1398,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'ACADEMY',
         level: 10,
       },
@@ -1406,6 +1433,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'BREWERY',
+    category: 'infrastructure',
     buildingDuration: [
       8000, 9880, 12060, 14590, 17530, 20930, 24880, 29460, 34770, 40930, 48080, 56380, 66000, 77160, 90100, 105120, 122540, 142750, 166180,
       193370,
@@ -1422,17 +1450,17 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'GRANARY',
         level: 20,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'RALLY_POINT',
         level: 10,
       },
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'teutons',
       },
     ],
@@ -1461,6 +1489,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'COMMAND_CENTER',
+    category: 'infrastructure',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1474,12 +1503,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'huns',
       },
     ],
@@ -1508,6 +1537,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'CRANNY',
+    category: 'infrastructure',
     buildingDuration: [300, 650, 1050, 1520, 2060, 2690, 3420, 4270, 5260, 6400],
     culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6],
     cropConsumption: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
@@ -1533,6 +1563,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'EMBASSY',
+    category: 'infrastructure',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1546,7 +1577,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
       },
@@ -1576,6 +1607,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'HORSE_DRINKING_TROUGH',
+    category: 'infrastructure',
     buildingDuration: [
       2200, 3150, 4260, 5540, 7020, 8750, 10750, 13070, 15760, 18880, 22500, 26700, 31570, 37220, 43780, 51380, 60200, 70430, 82300, 96070,
     ],
@@ -1597,17 +1629,17 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'RALLY_POINT',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'STABLE',
         level: 20,
       },
       {
-        requirementType: 'tribe',
+        type: 'tribe',
         tribe: 'romans',
       },
     ],
@@ -1636,6 +1668,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'MAIN_BUILDING',
+    category: 'infrastructure',
     buildingDuration: [
       2500, 2620, 3220, 3880, 4610, 5410, 6300, 7280, 8380, 9590, 10940, 12440, 14120, 15980, 18050, 20370, 22950, 25830, 29040, 32630,
     ],
@@ -1673,6 +1706,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'MARKETPLACE',
+    category: 'infrastructure',
     buildingDuration: [
       1800, 2390, 3070, 3860, 4780, 5840, 7080, 8510, 10170, 12100, 14340, 16930, 19940, 23430, 27480, 32180, 37620, 43940, 51270, 59780,
     ],
@@ -1686,17 +1720,17 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'WAREHOUSE',
         level: 1,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'GRANARY',
         level: 1,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
@@ -1726,6 +1760,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'PALACE',
+    category: 'infrastructure',
     buildingDuration: [
       5000, 6100, 7380, 8860, 10570, 12560, 14880, 17560, 20660, 24270, 28450, 33310, 38940, 45460, 53040, 61830, 72020, 83840, 97550,
       113460,
@@ -1740,12 +1775,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'EMBASSY',
         level: 1,
       },
@@ -1775,6 +1810,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'RESIDENCE',
+    category: 'infrastructure',
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
@@ -1788,7 +1824,7 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
@@ -1818,6 +1854,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'TOWN_HALL',
+    category: 'infrastructure',
     buildingDuration: [
       12500, 14800, 17470, 20560, 24150, 28320, 33150, 38750, 45250, 52790, 61540, 71690, 83460, 97110, 112950, 131320, 152630, 177350,
       206020, 239290,
@@ -1827,12 +1864,12 @@ export const buildings: Building[] = [
     effects: [],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'ACADEMY',
         level: 10,
       },
@@ -1862,6 +1899,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'TRADE_OFFICE',
+    category: 'infrastructure',
     buildingDuration: [
       3000, 3780, 4680, 5730, 6950, 8360, 10000, 11900, 14110, 16660, 19630, 23070, 27060, 31690, 37060, 43290, 50520, 58900, 68630, 79910,
     ],
@@ -1875,12 +1913,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MARKETPLACE',
         level: 20,
       },
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'STABLE',
         level: 10,
       },
@@ -1910,6 +1948,7 @@ export const buildings: Building[] = [
   },
   {
     id: 'TREASURY',
+    category: 'infrastructure',
     buildingDuration: [
       8000, 9580, 11410, 13540, 16010, 18870, 22180, 26030, 30500, 35680, 41690, 48660, 56740, 66120, 77000, 89620, 104260, 121240, 140940,
       163790,
@@ -1919,7 +1958,7 @@ export const buildings: Building[] = [
     effects: [],
     buildingRequirements: [
       {
-        requirementType: 'building',
+        type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },

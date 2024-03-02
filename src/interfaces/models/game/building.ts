@@ -55,13 +55,15 @@ export type BuildingEffect = {
 export type BuildingRequirementType = 'building' | 'tribe' | 'capital';
 
 export type BuildingRequirement = {
-  requirementType: BuildingRequirementType;
+  type: BuildingRequirementType;
   buildingId?: Building['id'];
   level?: number;
   tribe?: Tribe;
   notBuildableInCapital?: boolean;
   onlyBuildableInCapital?: boolean;
 };
+
+export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster' | 'resource-production';
 
 export type Building = {
   id: BuildingId;
@@ -71,4 +73,5 @@ export type Building = {
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
   buildingCost: number[][];
+  category: BuildingCategory;
 };

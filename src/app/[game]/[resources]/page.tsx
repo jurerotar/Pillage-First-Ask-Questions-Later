@@ -6,9 +6,18 @@ import { BuildingFieldId, ResourceFieldId } from 'interfaces/models/game/village
 import { Tooltip } from 'app/components/tooltip';
 import { BuildingFieldTooltip } from 'app/[game]/components/building-field-tooltip';
 import { ResourceField } from 'app/[game]/[resources]/components/resource-field';
+import { useDialog } from 'app/hooks/use-dialog';
+import { Modal } from 'app/components/modal';
+import { BuildingUpgradeModal } from 'app/[game]/components/building-upgrade-modal';
 
 export const ResourcesPage: React.FC = () => {
   const { villagePath } = useGameNavigation();
+  const {
+    modalArgs,
+    isOpen: isBuildingUpgradeModalOpen,
+    closeModal: closeBuildingUpgradeModal,
+    openModal: openBuildingUpgradeModal,
+  } = useDialog<BuildingFieldId>();
 
   return (
     <>
@@ -16,7 +25,7 @@ export const ResourcesPage: React.FC = () => {
       <Tooltip
         anchorSelect="[data-building-field-id]"
         closeEvents={{
-          mouseleave: true
+          mouseleave: true,
         }}
         render={({ activeAnchor }) => {
           const buildingFieldIdAttribute = activeAnchor?.getAttribute('data-building-field-id');
@@ -30,9 +39,16 @@ export const ResourcesPage: React.FC = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />
         }}
       />
+      <Modal
+        isOpen={isBuildingUpgradeModalOpen}
+        closeHandler={closeBuildingUpgradeModal}
+      >
+        <BuildingUpgradeModal buildingFieldId={modalArgs as BuildingFieldId} />
+      </Modal>
       <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]">
         {[...Array(18)].map((_, resourceBuildingFieldId) => (
           <ResourceField
+            onClick={() => openBuildingUpgradeModal((resourceBuildingFieldId + 1) as ResourceFieldId)}
             // eslint-disable-next-line react/no-array-index-key
             key={resourceBuildingFieldId}
             resourceFieldId={(resourceBuildingFieldId + 1) as ResourceFieldId}
