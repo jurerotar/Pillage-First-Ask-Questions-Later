@@ -10,7 +10,7 @@ import { GameEvent } from 'interfaces/models/events/game-event';
 import { Effect } from 'interfaces/models/game/effect';
 import { Bank } from 'interfaces/models/game/bank';
 import { ResearchLevel } from 'interfaces/models/game/research-level';
-import { CryliteTableName } from 'interfaces/models/database/crylite-table';
+import { TableName } from 'interfaces/models/database/table-name';
 import { Player } from 'interfaces/models/game/player';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { MapFilters } from 'interfaces/models/game/map-filters';
@@ -20,7 +20,7 @@ type TableIndex = string;
 
 const DEFAULT_TABLE_INDEX: TableIndex[] = ['++id'];
 
-export const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
+export const TABLES = new Map<TableName, TableIndex[]>([
   ['servers', ['slug']],
   ['mapFilters', ['serverId']],
   ['maps', ['serverId']],
@@ -38,10 +38,10 @@ export const CRYLITE_TABLES = new Map<CryliteTableName, TableIndex[]>([
   ['mapMarkers', ['serverId']],
 ]);
 
-export const CRYLITE_TABLE_NAMES = CRYLITE_TABLES.keys();
+export const TABLE_NAMES = TABLES.keys();
 
 // https://dexie.org/docs/Version/Version.stores()
-export class CryliteDatabase extends Dexie {
+export class Database extends Dexie {
   // Common tables
   public servers!: Table<Server>;
 
@@ -67,7 +67,7 @@ export class CryliteDatabase extends Dexie {
     super('crylite');
 
     const schema = Object.fromEntries([
-      ...Array.from(CRYLITE_TABLES).map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')]),
+      ...Array.from(TABLES).map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')]),
     ]);
 
     this.amountOfTables = Object.keys(schema).length;
@@ -76,4 +76,4 @@ export class CryliteDatabase extends Dexie {
   }
 }
 
-export const database = new CryliteDatabase();
+export const database = new Database();
