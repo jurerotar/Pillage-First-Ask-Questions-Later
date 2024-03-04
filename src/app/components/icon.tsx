@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { IconBaseProps } from 'react-icons';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
-import { BorderIndicator, BorderIndicatorProps } from 'app/components/border-indicator';
+import { BorderIndicator, BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 
 const IconResourceWheat = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wheat')).IconWheat }));
 const IconResourceIron = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-iron')).IconIron }));

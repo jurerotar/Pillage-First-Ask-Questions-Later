@@ -56,6 +56,24 @@ export const useAvailableServers = () => {
     },
   });
 
+  const { mutateAsync: updateLastLoggedIn } = useMutation<void, Error, { server: Server }>({
+    mutationFn: async ({ server }) => {
+      const updatedServer = {
+        ...server,
+        statistics: {
+          ...server.statistics,
+          lastLoggedInTime: Date.now()
+        }
+      }
+      await database.servers.put(updatedServer);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [availableServerCacheKey],
+      });
+    },
+  });
+
   return {
     availableServers,
     areAvailableServersLoading,
@@ -63,5 +81,6 @@ export const useAvailableServers = () => {
     availableServersQueryStatus,
     createServer,
     deleteServer,
+    updateLastLoggedIn,
   };
 };

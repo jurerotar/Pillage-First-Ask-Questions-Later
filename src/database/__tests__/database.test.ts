@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { database, TABLE_NAMES } from 'database/database';
+import { TABLE_NAMES, database } from 'database/database';
 import { TableName } from 'interfaces/models/database/table-name';
 
 describe('Database', () => {

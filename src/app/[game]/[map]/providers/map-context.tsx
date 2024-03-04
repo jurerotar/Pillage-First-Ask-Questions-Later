@@ -11,14 +11,14 @@ export type MapProviderValues = {
 
 const MapContext = createContext<MapProviderValues>({} as MapProviderValues);
 
-export const MAX_MAGNIFICATION = 4;
+export const MAX_MAGNIFICATION = 3;
 export const MIN_MAGNIFICATION = 2;
 const TILE_BASE_SIZE = 30;
 
 const MapProvider: FCWithChildren = ({ children }) => {
   const { mapSize } = useCurrentServer();
 
-  const [magnification, setMagnification] = useState<number>(4);
+  const [magnification, setMagnification] = useState<number>(3);
   const tileSize = TILE_BASE_SIZE * magnification;
   const gridSize = mapSize + 1;
 

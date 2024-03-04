@@ -15,7 +15,7 @@ export const MapRulerCell: React.FC<ListChildComponentProps<MapRulerCellProps>> 
 
   return (
     <span
-      className={clsx(layout === 'vertical' ? 'border-y' : 'border-x', 'flex items-center justify-center border-gray-400 text-xs')}
+      className={clsx(layout === 'vertical' ? 'border-y' : 'border-x', 'flex font-medium items-center justify-center border-gray-400 text-xs text-white bg-slate-800')}
       style={style}
     >
       {cellIndex}

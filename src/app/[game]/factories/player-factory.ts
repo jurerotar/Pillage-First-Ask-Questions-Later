@@ -148,7 +148,8 @@ type PlayerFactoryProps = {
 
 export const playerFactory = ({ server, faction, index }: PlayerFactoryProps): Player => {
   const seed = `${server.id}-${index}`;
-  const tribe = seededRandomArrayElement<Tribe>(seed, ['romans', 'gauls', 'teutons', 'egyptians', 'huns', 'spartans']);
+  // Spartans are not enabled yet, because we're missing data
+  const tribe = seededRandomArrayElement<Tribe>(seed, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
 
   return {
     id: crypto.randomUUID(),

@@ -4,15 +4,18 @@ type ServerFactoryProps = Pick<Server, 'name' | 'seed' | 'configuration' | 'play
 
 export const serverFactory = ({ name, seed, configuration, playerConfiguration }: ServerFactoryProps): Server => {
   const id = crypto.randomUUID();
-  const slug = `server-${id.substring(0, 4)}`;
+  const slug = `s-${id.substring(0, 4)}`;
 
   return {
     id,
     name,
     seed,
     slug,
-    startDate: new Date().toString(),
+    createdAt: Date.now(),
     configuration,
     playerConfiguration,
+    statistics: {
+      lastLoggedInTime: null,
+    }
   };
 };

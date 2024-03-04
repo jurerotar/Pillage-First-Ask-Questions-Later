@@ -8,13 +8,12 @@ import { Quest } from 'interfaces/models/game/quest';
 import { Achievement } from 'interfaces/models/game/achievement';
 import { GameEvent } from 'interfaces/models/events/game-event';
 import { Effect } from 'interfaces/models/game/effect';
-import { Bank } from 'interfaces/models/game/bank';
 import { ResearchLevel } from 'interfaces/models/game/research-level';
+import { TableName } from 'interfaces/models/database/table-name';
 import { Player } from 'interfaces/models/game/player';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { MapFilters } from 'interfaces/models/game/map-filters';
 import { MapMarker } from 'interfaces/models/game/map-marker';
-import { TableName } from 'interfaces/models/database/table-name';
 
 type TableIndex = string;
 
@@ -31,11 +30,12 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['achievements', ['serverId']],
   ['events', ['serverId']],
   ['effects', ['serverId']],
-  ['banks', ['serverId']],
   ['researchLevels', ['serverId']],
   ['players', ['serverId']],
   ['reputations', ['serverId']],
   ['mapMarkers', ['serverId']],
+  ['auctions', ['serverId']],
+  ['adventures', ['serverId']],
 ]);
 
 export const TABLE_NAMES = TABLES.keys();
@@ -54,12 +54,13 @@ export class Database extends Dexie {
   public achievements!: Table<Achievement>;
   public events!: Table<GameEvent>;
   public effects!: Table<Effect>;
-  public banks!: Table<Bank>;
   public researchLevels!: Table<ResearchLevel>;
   public players!: Table<Player>;
   public reputations!: Table<Reputation>;
   public mapFilters!: Table<MapFilters>;
   public mapMarkers!: Table<MapMarker>;
+  public auctions!: Table<unknown>;
+  public adventures!: Table<unknown>;
 
   public amountOfTables: number;
 

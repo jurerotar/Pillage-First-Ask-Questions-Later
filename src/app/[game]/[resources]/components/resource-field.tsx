@@ -7,6 +7,7 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { BuildingId } from 'interfaces/models/game/building';
 
 type ResourceFieldProps = {
+  onClick: () => void;
   resourceFieldId: ResourceFieldId;
 };
 
@@ -39,7 +40,7 @@ const backgroundColors = new Map<BuildingId, string>([
   ['CROPLAND', 'bg-resources-wheat'],
 ]);
 
-export const ResourceField: React.FC<ResourceFieldProps> = ({ resourceFieldId }) => {
+export const ResourceField: React.FC<ResourceFieldProps> = ({ resourceFieldId, onClick }) => {
   const { currentVillage } = useCurrentVillage();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, resourceFieldId)!;
   const backgroundColor = backgroundColors.get(buildingId);
@@ -51,6 +52,7 @@ export const ResourceField: React.FC<ResourceFieldProps> = ({ resourceFieldId })
       type="button"
       className={clsx(styles, backgroundColor, 'absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
       data-building-field-id={resourceFieldId}
+      onClick={onClick}
     >
       <BuildingUpgradeIndicator buildingFieldId={resourceFieldId} />
     </button>
