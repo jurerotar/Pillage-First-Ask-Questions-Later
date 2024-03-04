@@ -19,7 +19,7 @@ describe('Server factory', () => {
   });
 
   test('Has start date', () => {
-    expect(Object.hasOwn(server, 'startDate')).toBe(true);
+    expect(Object.hasOwn(server, 'createdAt')).toBe(true);
   });
 
   test('Server slug starts with "s-"', () => {
