@@ -30,7 +30,6 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['achievements', ['serverId']],
   ['events', ['serverId']],
   ['effects', ['serverId']],
-  ['banks', ['serverId']],
   ['researchLevels', ['serverId']],
   ['players', ['serverId']],
   ['reputations', ['serverId']],

@@ -9,7 +9,6 @@ type ServerSpecificTableName =
   | 'achievements'
   | 'events'
   | 'effects'
-  | 'banks'
   | 'players'
   | 'reputations'
   | 'researchLevels'
