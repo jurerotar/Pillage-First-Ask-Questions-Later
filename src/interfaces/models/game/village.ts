@@ -82,7 +82,7 @@ export type EmptyBuildingField = BuildingField & {
 
 export type Village = {
   serverId: Server['id'];
-  id: string;
+  villageId: string;
   playerId: Player['id'];
   name: string;
   slug: string;

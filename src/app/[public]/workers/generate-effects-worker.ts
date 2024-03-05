@@ -20,4 +20,5 @@ self.addEventListener('message', (event: MessageEvent<GenerateEffectsWorkerPaylo
   const globalEffects = globalEffectsFactory({ server });
   const effects = [...villageEffects, globalEffects];
   self.postMessage({ effects });
+  self.close();
 });

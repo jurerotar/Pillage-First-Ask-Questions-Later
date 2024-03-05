@@ -579,7 +579,8 @@ const generateOccupiableTileTypes = (tiles: MaybeOccupiedOrOasisBaseTile[]): May
 // This method will mark which fields will have villages
 const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
   return tiles.map((tile: Tile) => {
-    if (tile.type !== 'free-tile' && !Object.hasOwn(tile, 'ownedBy')) {
+    // Make sure player's starting tile is never overwritten
+    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy')) {
       return tile;
     }
     const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 3) === 1;

@@ -30,7 +30,7 @@ export const useCurrentVillage = () => {
   // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
   const currentVillage = data as Village;
 
-  const currentVillageId = currentVillage!.id;
+  const currentVillageId = currentVillage!.villageId;
 
   const distanceFromCurrentVillage = (tileCoordinates: Point): number => {
     return roundTo2DecimalPoints(calculateDistanceBetweenPoints(currentVillage.coordinates, tileCoordinates));

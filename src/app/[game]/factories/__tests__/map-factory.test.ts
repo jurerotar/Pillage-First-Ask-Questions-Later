@@ -3,6 +3,8 @@ import { OasisTile, Tile } from 'interfaces/models/game/tile';
 import { mapFactory } from 'app/[game]/factories/map-factory';
 import { playersMock } from 'mocks/models/game/player-mock';
 
+// TODO: Add test to make sure player village always exists
+
 describe('Map factory', () => {
   const tiles = mapFactory({
     server: serverMock,
