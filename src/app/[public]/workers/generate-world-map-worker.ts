@@ -18,4 +18,5 @@ self.addEventListener('message', (event: MessageEvent<GenerateWorldMapWorkerPayl
   const { server, players } = event.data;
   const tiles = mapFactory({ server, players });
   self.postMessage({ tiles });
+  self.close();
 });

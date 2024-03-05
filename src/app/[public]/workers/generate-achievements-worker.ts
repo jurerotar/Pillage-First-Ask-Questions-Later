@@ -15,4 +15,5 @@ self.addEventListener('message', (event: MessageEvent<GenerateAchievementsWorker
   const { server } = event.data;
   const achievements: Achievement[] = [];
   self.postMessage({ achievements });
+  self.close();
 });

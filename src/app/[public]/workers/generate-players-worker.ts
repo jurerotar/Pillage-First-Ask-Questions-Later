@@ -24,4 +24,5 @@ self.addEventListener('message', (event: MessageEvent<GeneratePlayersWorkerPaylo
   });
 
   self.postMessage({ players });
+  self.close();
 });

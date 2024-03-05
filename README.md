@@ -1,9 +1,12 @@
 # Echoes of Travian
 
 Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It's browser based and requires no downloads or account creation.
-Using browser's native IndexedDb, game data is persisted and progressed through sessions, just like you would expect from an online game.
+Using browser's native IndexedDb, game data is persisted and progressed between game sessions, just like you would expect from an online game.
 
 **Note: Very much still work in progress, not much to see at the moment.**
+
+## Known issues
+- Database schema is likely to change between builds. Make sure to always reset your local database by pressing the "Reset database" button on app's starting page.
 
 ## Built with
 

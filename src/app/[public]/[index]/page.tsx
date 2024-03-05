@@ -15,6 +15,13 @@ export const HomePage: React.FC = () => {
   const { isOpen: isCreateServerModalOpen, openModal: openCreateServerModal, closeModal: closeCreateServerModal } = useDialog();
   const { availableServers } = useAvailableServers();
 
+  const resetDatabase = () => {
+    const dbOpenDBRequest = indexedDB.deleteDatabase('echoes-of-travian');
+    dbOpenDBRequest.onsuccess = () => {
+      window.location.reload();
+    }
+  }
+
   return (
     <>
       <Head viewName="index" />
@@ -25,6 +32,16 @@ export const HomePage: React.FC = () => {
             <h1 className="text-3xl font-semibold dark:text-white">Echoes of Travian</h1>
             <h2 className="text-xl dark:text-white">Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It runs purely in the browser, requiring no downloads or installations.</h2>
             <Button onClick={() => openCreateServerModal()}>Create new server</Button>
+            <p className="">
+              Database schema is likely to change between builds. Make sure to always reset your local database after changing branches or trying a new build!
+              Clicking on this button will delete "echoes-of-travian" database and refresh the page.
+            </p>
+            <Button
+              onClick={resetDatabase}
+              variant="danger"
+            >
+              Reset database
+            </Button>
             <Modal
               isOpen={isCreateServerModalOpen}
               closeHandler={closeCreateServerModal}

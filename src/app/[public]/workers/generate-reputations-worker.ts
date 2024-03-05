@@ -24,4 +24,5 @@ self.addEventListener('message', (event: MessageEvent<GenerateReputationsWorkerP
     })
   );
   self.postMessage({ reputations });
+  self.close();
 });

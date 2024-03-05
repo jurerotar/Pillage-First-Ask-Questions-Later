@@ -232,20 +232,20 @@ const getNewVillageBuildingFields = (tribe: Tribe): BuildingField[] => {
 type VillageFactoryProps = {
   server: Server;
   tile: OccupiedOccupiableTile;
-  players: Player[];
+  player: Player;
   slug: Village['slug'];
 };
 
-export const villageFactory = ({ server, tile, players, slug }: VillageFactoryProps): Village => {
+export const villageFactory = ({ server, tile, player, slug }: VillageFactoryProps): Village => {
   const { coordinates, resourceFieldComposition } = tile;
 
-  const { id: playerId, name, tribe } = players.find((player) => player.id === tile.ownedBy)!;
+  const { id: playerId, name, tribe } = player;
 
   const buildingFields = [...getVillageResourceFields(resourceFieldComposition), ...getNewVillageBuildingFields(tribe)];
 
   return {
     serverId: server.id,
-    id: crypto.randomUUID(),
+    villageId: crypto.randomUUID(),
     name: `${name}'s village`,
     slug,
     coordinates,

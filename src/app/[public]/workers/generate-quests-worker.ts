@@ -20,4 +20,5 @@ self.addEventListener('message', (event: MessageEvent<GenerateQuestsWorkerPayloa
   const globalQuests = globalQuestsFactory({ server });
   const quests = [...villageQuests, globalQuests];
   self.postMessage({ quests });
+  self.close();
 });
