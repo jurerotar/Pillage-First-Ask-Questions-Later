@@ -17,18 +17,18 @@ import { MapMarker } from 'interfaces/models/game/map-marker';
 
 type TableIndex = string;
 
-const DEFAULT_TABLE_INDEX: TableIndex[] = ['++id'];
+const DEFAULT_TABLE_INDEX: TableIndex[] = ['++key'];
 
 export const TABLES = new Map<TableName, TableIndex[]>([
   ['servers', ['slug']],
   ['mapFilters', ['serverId']],
   ['maps', ['serverId']],
   ['heroes', ['serverId']],
-  ['villages', ['[serverId+slug]']],
+  ['villages', ['[serverId+slug],[serverId+id]']],
   ['reports', ['serverId', '&timestamp']],
   ['quests', ['serverId']],
   ['achievements', ['serverId']],
-  ['events', ['serverId']],
+  ['events', ['serverId,[serverId+id]']],
   ['effects', ['serverId']],
   ['researchLevels', ['serverId']],
   ['players', ['serverId']],

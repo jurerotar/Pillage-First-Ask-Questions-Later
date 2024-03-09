@@ -1,11 +1,11 @@
 import { BuildingFieldId } from 'interfaces/models/game/village';
 import React from 'react';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useTranslation } from 'react-i18next';
 import { Icon } from 'app/components/icon';
 import { Resources } from 'app/[game]/components/resources';
 import { formatTime } from 'app/utils/time';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 
 type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingFieldId;

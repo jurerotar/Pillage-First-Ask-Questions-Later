@@ -240,7 +240,7 @@ const weightedResourceFieldComposition: Record<number, ResourceFieldComposition>
 };
 
 const generateOccupiableTileType = (tile: MaybeOccupiedOrOasisBaseTile): ResourceFieldComposition => {
-  const randomInt: number = seededRandomIntFromInterval(tile.tileId, 1, 80);
+  const randomInt: number = seededRandomIntFromInterval(tile.id, 1, 80);
 
   // eslint-disable-next-line no-restricted-syntax
   for (const weight in weightedResourceFieldComposition) {
@@ -260,7 +260,7 @@ const generateOasisTile = (
 ): OasisTile => {
   const resourceType = (() => {
     if (!preGeneratedResourceType) {
-      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, [
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.id, [
         'wheat',
         'iron',
         'clay',
@@ -272,15 +272,15 @@ const generateOasisTile = (
     }
 
     if (preGeneratedResourceType === 'wood') {
-      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['wood', 'wood-wheat']);
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.id, ['wood', 'wood-wheat']);
     }
 
     if (preGeneratedResourceType === 'clay') {
-      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['clay', 'clay-wheat']);
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.id, ['clay', 'clay-wheat']);
     }
 
     if (preGeneratedResourceType === 'iron') {
-      return seededRandomArrayElement<Resource | ResourceCombination>(tile.tileId, ['iron', 'iron-wheat']);
+      return seededRandomArrayElement<Resource | ResourceCombination>(tile.id, ['iron', 'iron-wheat']);
     }
 
     return 'wheat';
@@ -290,7 +290,7 @@ const generateOasisTile = (
 
   // wood-wheat -> wood
   const typeForGraphic = (isResourceCombination ? resourceType.split('-')[0] : resourceType) as Resource;
-  const willOasisHaveABonus = seededRandomIntFromInterval(tile.tileId, 1, 3) >= 2;
+  const willOasisHaveABonus = seededRandomIntFromInterval(tile.id, 1, 3) >= 2;
 
   const oasisResourceBonus = ((): OasisResourceBonus[] => {
     if (!willOasisHaveABonus) {
@@ -305,7 +305,7 @@ const generateOasisTile = (
       }));
     }
 
-    const willBe50PercentBonus = seededRandomIntFromInterval(tile.tileId, 1, 10) === 1;
+    const willBe50PercentBonus = seededRandomIntFromInterval(tile.id, 1, 10) === 1;
 
     return [
       {
@@ -414,7 +414,7 @@ const generateGrid = (server: Server): BaseTile[] => {
     };
 
     return {
-      tileId: createHash().update(`${server.seed}${counter}`).digest('hex'),
+      id: createHash().update(`${server.seed}${counter}`).digest('hex'),
       serverId: id,
       coordinates,
       graphics: {
@@ -447,7 +447,7 @@ const generatePredefinedVillages = (server: Server, npcPlayers: Player[], tiles:
   const tilesToUpdate = [...tiles];
   const { artifactVillagesCoordinates } = getPredefinedVillagesCoordinates(server);
   // Used for seeding array shuffling, so we get same result every time
-  const joinedSeeds: string = tiles.reduce((accumulator: string, tile) => accumulator + tile.tileId, '');
+  const joinedSeeds: string = tiles.reduce((accumulator: string, tile) => accumulator + tile.id, '');
 
   // Since there's 4 npc players and 8 predefined villages, we just duplicate the npc players array, so each faction gets 2 villages
   const players = seededShuffleArray<Player>(joinedSeeds, [...npcPlayers, ...npcPlayers]);
@@ -480,15 +480,15 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
       continue;
     }
 
-    const tileWillBeOasis: boolean = seededRandomIntFromInterval(currentTile.tileId, 1, 25) === 1;
+    const tileWillBeOasis: boolean = seededRandomIntFromInterval(currentTile.id, 1, 25) === 1;
 
     // Determine oasis position and shape
     if (tileWillBeOasis) {
       // Surrounding tiles will have to become oasis as well, depending on shape of the oasis
       const tilesToUpdate: BaseTile[] = [];
-      const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.tileId, ['wheat', 'iron', 'clay', 'wood']);
+      const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.id, ['wheat', 'iron', 'clay', 'wood']);
       const { shapes } = oasisShapes[resourceType];
-      const selectedOasis = shapes[seededRandomArrayElement(currentTile.tileId, [...Array(shapes.length).keys()])];
+      const selectedOasis = shapes[seededRandomArrayElement(currentTile.id, [...Array(shapes.length).keys()])];
       const { group: oasisGroup, shape: oasisShape } = selectedOasis;
 
       const { x, y }: Point = currentTile.coordinates;
@@ -554,7 +554,7 @@ const generateSingleOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
     if (Object.hasOwn(tile, 'type') || Object.hasOwn(tile, 'oasisType')) {
       return tile;
     }
-    const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 5) === 1;
+    const willBeOccupied = seededRandomIntFromInterval(tile.id, 1, 5) === 1;
     if (!willBeOccupied) {
       return tile;
     }
@@ -583,10 +583,10 @@ const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] =>
     if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy')) {
       return tile;
     }
-    const willBeOccupied = seededRandomIntFromInterval(tile.tileId, 1, 3) === 1;
-    const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(tile.tileId, 1, 5) === 1 : false;
+    const willBeOccupied = seededRandomIntFromInterval(tile.id, 1, 3) === 1;
+    const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(tile.id, 1, 5) === 1 : false;
     const treasureType = willBeATreasureVillage
-      ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(tile.tileId, [
+      ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(tile.id, [
           'hero-item',
           'currency',
           'resources',
@@ -596,7 +596,7 @@ const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] =>
     return {
       ...tile,
       ...(willBeOccupied && {
-        ownedBy: seededRandomArrayElement<Player>(tile.tileId, npcPlayers).id,
+        ownedBy: seededRandomArrayElement<Player>(tile.id, npcPlayers).id,
         treasureType,
       }),
     };

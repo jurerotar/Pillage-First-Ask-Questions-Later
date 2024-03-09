@@ -5,9 +5,7 @@ import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
 
 export type BaseTile = WithServerId<{
-  // Tile id is constructed from server.id and tile index and is used for seeded prng. This property can't be named 'id', because otherwise Dexie
-  // auto-sorts by it, and it messes up the map
-  tileId: string;
+  id: string;
   coordinates: Point;
   // Both backgroundColor & oasisGroup will be replaced by an actual graphic once they exist
   graphics: {

@@ -76,13 +76,9 @@ export type BuildingField = {
   level: number;
 };
 
-export type EmptyBuildingField = BuildingField & {
-  buildingId: null;
-};
-
 export type Village = {
+  id: string;
   serverId: Server['id'];
-  villageId: string;
   playerId: Player['id'];
   name: string;
   slug: string;

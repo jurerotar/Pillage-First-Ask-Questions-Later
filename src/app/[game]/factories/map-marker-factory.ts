@@ -4,7 +4,7 @@ import { Server } from 'interfaces/models/game/server';
 
 type MapMarkerFactoryProps = {
   serverId: Server['id'];
-  tileId: Tile['tileId'];
+  tileId: Tile['id'];
 };
 
 export const mapMarkerFactory = ({ tileId, serverId }: MapMarkerFactoryProps): MapMarker => {
