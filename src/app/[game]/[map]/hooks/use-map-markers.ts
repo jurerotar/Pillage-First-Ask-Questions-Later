@@ -20,7 +20,7 @@ export const useMapMarkers = () => {
     initialData: [],
   });
 
-  const { mutate: createMapMarker } = useMutation<void, Error, { tileId: Tile['tileId'] }>({
+  const { mutate: createMapMarker } = useMutation<void, Error, { tileId: Tile['id'] }>({
     mutationFn: async ({ tileId }) => {
       const mapMarker = mapMarkerFactory({ tileId, serverId });
       database.mapMarkers.add(mapMarker);
@@ -33,7 +33,7 @@ export const useMapMarkers = () => {
     },
   });
 
-  const { mutate: deleteMapMarker } = useMutation<void, Error, { tileId: Tile['tileId'] }>({
+  const { mutate: deleteMapMarker } = useMutation<void, Error, { tileId: Tile['id'] }>({
     mutationFn: async ({ tileId }) => {
       database.mapMarkers.where({ serverId, tileId }).delete();
     },

@@ -27,8 +27,8 @@ export const useMap = () => {
     return map.find(({ coordinates }) => coordinates.x === x && coordinates.y === y)!;
   };
 
-  const getTileByTileId = (tileId: Tile['tileId']): Tile => {
-    return map.find(({ tileId: id }) => tileId === id)!;
+  const getTileByTileId = (tileId: Tile['id']): Tile => {
+    return map.find(({ id }) => tileId === id)!;
   };
 
   return {

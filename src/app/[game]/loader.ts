@@ -1,5 +1,4 @@
 import { achievementsCacheKey, getAchievements } from 'app/[game]/hooks/use-achievements';
-import { currentVillageCacheKey, getCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { effectsCacheKey, getEffects } from 'app/[game]/hooks/use-effects';
 import { eventsCacheKey, getEvents } from 'app/[game]/hooks/use-events';
 import { getHero, heroCacheKey } from 'app/[game]/hooks/use-hero';
@@ -29,6 +28,7 @@ import { MapFilters } from 'interfaces/models/game/map-filters';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { MapMarker } from 'interfaces/models/game/map-marker';
 import { getMapMarkers, mapMarkersCacheKey } from 'app/[game]/[map]/hooks/use-map-markers';
+import { database } from 'database/database';
 
 // TODO: These imports should be lazy loaded
 
@@ -65,13 +65,11 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
 
   const { id: serverId } = currentServer;
 
-  const currentVillage: Village | undefined = await getCurrentVillage(serverId, villageSlug);
+  const currentVillage: Village | undefined = await database.villages.where({ serverId, slug: villageSlug }).first();
 
   if (!currentVillage) {
     throw new MissingVillageError(serverSlug, villageSlug);
   }
-
-  queryClient.setQueryData<Village>([currentVillageCacheKey, serverId, villageSlug], currentVillage);
 
   // Cache hydration
   await Promise.allSettled([

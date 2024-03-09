@@ -108,7 +108,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
         ...style,
         backgroundColor: tile.graphics.backgroundColor,
       }}
-      data-tile-id={tile.tileId}
+      data-tile-id={tile.id}
       onClick={() => openModal(tile)}
     >
       {isOasis && shouldShowOasisIcons && <OasisTile tile={tile} />}

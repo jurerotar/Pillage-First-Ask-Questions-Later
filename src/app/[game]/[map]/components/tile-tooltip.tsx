@@ -28,7 +28,7 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
 const TileTooltipReports: React.FC<TileTooltipProps> = ({ tile }) => {
   const { getReportsByTileId } = useReports();
 
-  const last3reports = getReportsByTileId(tile.tileId).filter((_, index) => index < 3);
+  const last3reports = getReportsByTileId(tile.id).filter((_, index) => index < 3);
 
   if (last3reports.length === 0) {
     return null;

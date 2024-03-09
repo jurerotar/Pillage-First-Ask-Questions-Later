@@ -43,7 +43,10 @@ export const ResourcesPage: React.FC = () => {
         isOpen={isBuildingUpgradeModalOpen}
         closeHandler={closeBuildingUpgradeModal}
       >
-        <BuildingUpgradeModal buildingFieldId={modalArgs as BuildingFieldId} />
+        <BuildingUpgradeModal
+          buildingFieldId={modalArgs as BuildingFieldId}
+          modalCloseHandler={closeBuildingUpgradeModal}
+        />
       </Modal>
       <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]">
         {[...Array(18)].map((_, resourceBuildingFieldId) => (

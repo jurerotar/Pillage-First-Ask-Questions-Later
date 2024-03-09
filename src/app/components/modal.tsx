@@ -36,7 +36,9 @@ export const Modal: React.FC<ModalProps> = (props) => {
           <div className="absolute right-0 top-0">
             <CloseButton onClick={closeHandler} />
           </div>
-          {children}
+          <div className="max-h-[500px] overflow-y-scroll">
+            {children}
+          </div>
         </div>
       </ReactModal>
     </Suspense>

@@ -15,6 +15,7 @@
   ],
   "ignorePatterns": ["*.js", "*.json", "node_modules/"],
   "rules": {
+    "no-param-reassign": "warn",
     "no-continue": "off",
     "no-trailing-spaces": "off",
     "consistent-return": "warn",

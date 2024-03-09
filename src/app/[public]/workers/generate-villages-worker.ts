@@ -26,7 +26,7 @@ self.addEventListener('message', (event: MessageEvent<GenerateVillageWorkerPaylo
   const villages: Village[] = occupiedTiles.map((tile) => {
     const player = players.find(({ id }) => tile.ownedBy === id)!;
 
-    const slug = player.faction === 'player' ? 'v-1' : tile.tileId;
+    const slug = player.faction === 'player' ? 'v-1' : tile.id;
     return villageFactory({ server, player, tile, slug });
   });
 

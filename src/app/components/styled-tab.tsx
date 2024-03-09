@@ -7,7 +7,7 @@ type StyledTabProps = TabProps & {
 };
 
 const styleMap = new Map<StyledTabProps['variant'], string>([
-  ['default', '']
+  ['default', 'flex flex-1 text-center justify-center py-4 px-2 cursor-pointer']
 ]);
 
 export const StyledTab: ReactTabsFunctionComponent<StyledTabProps> = ({ variant = 'default', children, ...rest }) => {

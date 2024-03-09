@@ -20,7 +20,7 @@ export type Report = WithServerId<{
   id: number;
   type: ReportTypes;
   tags: ReportTag[];
-  tileId: Tile['tileId'];
+  tileId: Tile['id'];
   timestamp: Date;
   status?: ReportStatus;
 }>;

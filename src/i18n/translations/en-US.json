@@ -365,11 +365,11 @@
   "BUILDINGS": {
     "BAKERY": {
       "NAME": "Bakery",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
     },
     "BRICKYARD": {
       "NAME": "Brickyard",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent."
     },
     "CLAY_PIT": {
       "NAME": "Clay pit",
@@ -381,7 +381,7 @@
     },
     "GRAIN_MILL": {
       "NAME": "Grain mill",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The grain mill grinds grain into flour. Based on its level, your grain mill can increase your crop production by up to 25 percent."
     },
     "GRANARY": {
       "NAME": "Granary",
@@ -389,15 +389,15 @@
     },
     "GREAT_GRANARY": {
       "NAME": "Great granary",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The great granary has 3 times the capacity of a normal granary. This building can only be built in wonder of the world villages or with a special Natarian artefact."
     },
     "GREAT_WAREHOUSE": {
       "NAME": "Great warehouse",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The great warehouse has 3 times the capacity of a normal warehouse. This building can only be built in wonder of the world villages or with a special Natarian artefact."
     },
     "IRON_FOUNDRY": {
       "NAME": "Iron foundry",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The iron foundry melts iron. Based on its level, your iron foundry can increase your iron production by up to 25 percent."
     },
     "IRON_MINE": {
       "NAME": "Iron mine",
@@ -405,7 +405,7 @@
     },
     "SAWMILL": {
       "NAME": "Sawmill",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Lumber cut by your woodcutters is processed here. Based on its level, your sawmill can increase your lumber production by up to 25 percent."
     },
     "WAREHOUSE": {
       "NAME": "Warehouse",
@@ -421,15 +421,15 @@
     },
     "ACADEMY": {
       "NAME": "Academy",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "New unit types can be researched in the academy. By increasing its level, you can order the research of better units."
     },
     "SMITHY": {
       "NAME": "Smithy",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The weapons and armor of your warriors are enhanced in the smithy's melting furnaces. By increasing its level, you can order the fabrication of even better weapons and armor."
     },
     "BARRACKS": {
       "NAME": "Barracks",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Infantry can be trained in the barracks. The higher its level, the faster the troops are trained."
     },
     "CITY_WALL": {
       "NAME": "City wall",
@@ -453,7 +453,7 @@
     },
     "HOSPITAL": {
       "NAME": "Hospital",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The hospital allows you to treat wounded troops after combat. These can be healed and made ready for war again. Together with regular training in barracks and stable your army can recover faster than ever."
     },
     "MAKESHIFT_WALL": {
       "NAME": "Makeshift wall",
@@ -461,15 +461,15 @@
     },
     "PALISADE": {
       "NAME": "Palisade",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "By building a palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic earth wall and the Roman city wall."
     },
     "RALLY_POINT": {
       "NAME": "Rally point",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages.\n\nThe rally point can only be built on the green grassland below and to the right of your main building.\n\nIf there are less attacking units than the level of the rally point, you can see the type of unit attacking."
     },
     "STABLE": {
       "NAME": "Stable",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Cavalry can be trained in the stable. The higher its level, the faster the troops are trained.\n"
     },
     "STONE_WALL": {
       "NAME": "Stone wall",
@@ -477,15 +477,15 @@
     },
     "STONEMASON": {
       "NAME": "Stonemason",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The stonemason's lodge is an expert at cutting stone. The further the building is extended, the higher the stability of the village's buildings.\n\nIt can only be built in the capital."
     },
     "TOURNAMENT_SQUARE": {
       "NAME": "Tournament square",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Your troops can increase their stamina at the Tournament Square. The further the building is upgraded, the faster your troops are beyond a minimum distance of 20 squares."
     },
     "TRAPPER": {
       "NAME": "Trapper",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more.\n\nTroops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically.\n\nThe trapper can only be constructed by Gauls."
     },
     "WATCHTOWER": {
       "NAME": "Watchtower",
@@ -493,7 +493,7 @@
     },
     "WORKSHOP": {
       "NAME": "Workshop",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Siege engines, like catapults and rams, can be built in the workshop. The higher its level, the faster these units are produced."
     },
     "BREWERY": {
       "NAME": "Brewery",
@@ -505,11 +505,11 @@
     },
     "CRANNY": {
       "NAME": "Cranny",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen.\n\nAt level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger.\n\nIf a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
     },
     "EMBASSY": {
       "NAME": "Embassy",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The embassy is a place for diplomats. At level 1 you can join an alliance, and after extending it to level 3 you may even found one yourself.\n\nThe maximum number of members in an alliance is 60."
     },
     "HORSE_DRINKING_TROUGH": {
       "NAME": "Horse drinking trough",
@@ -517,35 +517,35 @@
     },
     "MAIN_BUILDING": {
       "NAME": "Main building",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The village's master builders live in the main building. The higher its level the faster your master builders complete the construction of new buildings.\n"
     },
     "MARKETPLACE": {
       "NAME": "Marketplace",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time.\n"
     },
     "PALACE": {
       "NAME": "Palace",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The palace building is unique. You can only build one in your whole realm and you can proclaim that village as your capital. It also protects the village against enemy conquests. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the palace provides an expansion slot at levels 10, 15 and 20 each."
     },
     "RESIDENCE": {
       "NAME": "Residence",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the residence provides an expansion slot at levels 10 and 20 each."
     },
     "TOWN_HALL": {
       "NAME": "Town hall",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "In the town hall, you can hold pompous celebrations. Such a celebration increases your culture points.\n\nCulture points are necessary to found or conquer new villages. Each building produces culture points and the higher its level, the more CP it produces."
     },
     "TRADE_OFFICE": {
       "NAME": "Trade office",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "In the trade office, the merchants' carts get improved and equipped with more powerful horses. The higher its level, the more your merchants are able to carry."
     },
     "TREASURY": {
       "NAME": "Treasury",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time.\n\nYou need a treasury at level 10 for a small artefact, or level 20 for a great one."
     },
     "WONDER_OF_THE_WORLD": {
       "NAME": "Wonder of the world",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The Wonder of the World represents the pride of all architecture. Only the mightiest and richest are able to build such a master work and defend it against envious enemies.\n\nWonders of the World can only be erected in one of the old Natarian villages. However, a construction plan is also necessary. Starting with level 50, an additional plan is needed for its completion. The second plan one has to be owned by another player in the same alliance."
     }
   },
   "EFFECTS": {

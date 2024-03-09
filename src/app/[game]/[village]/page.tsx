@@ -11,6 +11,11 @@ import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { BuildingConstructionModal } from 'app/[game]/components/building-construction-modal';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useTranslation } from 'react-i18next';
+import { useEvents } from 'app/[game]/hooks/use-events';
+
+const BuildingTimers = () => {
+  const { events } = useEvents();
+}
 
 export const VillagePage: React.FC = () => {
   const { t } = useTranslation();
@@ -60,8 +65,14 @@ export const VillagePage: React.FC = () => {
         hasTitle
       >
         {hasBuilding ?
-          <BuildingUpgradeModal buildingFieldId={modalArgs as BuildingFieldId} /> :
-          <BuildingConstructionModal buildingFieldId={modalArgs as BuildingFieldId} />
+          <BuildingUpgradeModal
+            buildingFieldId={modalArgs as BuildingFieldId}
+            modalCloseHandler={closeBuildingUpgradeModal}
+          /> :
+          <BuildingConstructionModal
+            buildingFieldId={modalArgs as BuildingFieldId}
+            modalCloseHandler={closeBuildingUpgradeModal}
+          />
         }
       </Modal>
       <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]">

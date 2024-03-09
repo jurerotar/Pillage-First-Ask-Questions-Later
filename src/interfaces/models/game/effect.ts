@@ -68,6 +68,6 @@ export type Effect = WithServerId<{
   // Server effects affect actions from all villages, village effects affect only actions from a particular village
   scope: 'global' | 'village';
   villageId?: Village['id'];
-  effectId: EffectId;
+  id: EffectId;
   value: number;
 }>;

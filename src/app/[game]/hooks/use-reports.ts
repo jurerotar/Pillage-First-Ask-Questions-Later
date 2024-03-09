@@ -63,7 +63,7 @@ export const useReports = () => {
   const deletedReports = reports.filter(({ tags }) => tags.includes('deleted'));
   const archivedReports = reports.filter(({ tags }) => tags.includes('archived'));
 
-  const getReportsByTileId = (tileIdToSearchBy: Tile['tileId']): Report[] => {
+  const getReportsByTileId = (tileIdToSearchBy: Tile['id']): Report[] => {
     return reports.filter(({ tileId }) => tileId === tileIdToSearchBy);
   };
 
