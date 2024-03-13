@@ -56,18 +56,18 @@ type OccupiedBuildingFieldProps = {
 };
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField, onClick }) => {
-  const { buildingFieldId } = buildingField;
+  const { id } = buildingField;
 
-  const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
+  const styles = buildingFieldIdToStyleMap.get(id as VillageFieldId | ReservedFieldId);
 
   return (
     <button
       type="button"
       className={clsx(styles, 'absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
-      data-building-field-id={buildingFieldId}
+      data-building-field-id={id}
       onClick={onClick}
     >
-      <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
+      <BuildingUpgradeIndicator buildingFieldId={id} />
     </button>
   );
 };

@@ -9,6 +9,7 @@ import {
   buildingDestructionResolver,
   buildingLevelChangeResolver,
 } from 'app/[game]/resolvers/building-resolvers';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 
 export const eventsCacheKey = 'events';
 
@@ -44,9 +45,18 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
   }
 }
 
+const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUILDING_CONSTRUCTION> => {
+  return [
+    GameEventType.BUILDING_CONSTRUCTION,
+    GameEventType.BUILDING_DESTRUCTION,
+    GameEventType.BUILDING_LEVEL_CHANGE
+  ].includes(event.type);
+}
+
 export const useEvents = () => {
   const queryClient = useQueryClient();
   const { serverId } = useCurrentServer();
+  const { currentVillageId } = useCurrentVillage();
 
   const {
     data: events,
@@ -71,12 +81,21 @@ export const useEvents = () => {
     },
   });
 
+  const currentVillageBuildingEvents = events.filter((event) => {
+    if(!isBuildingEvent(event)) {
+      return false;
+    }
+
+    return event.villageId === currentVillageId;
+  }) as GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
+
   return {
     events,
     isLoadingEvents,
     hasLoadedEvents,
     eventsQueryStatus,
     resolveEvent,
+    currentVillageBuildingEvents,
   };
 };
 

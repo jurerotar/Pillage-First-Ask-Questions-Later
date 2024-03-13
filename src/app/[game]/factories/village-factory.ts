@@ -205,7 +205,7 @@ const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: Resource
     const buildingFieldId = Number(fieldId) as ResourceFieldId;
     const type = resourceFieldLayout[buildingFieldId];
     return {
-      buildingFieldId: Number(buildingFieldId) as ResourceFieldId,
+      id: Number(buildingFieldId) as ResourceFieldId,
       level: 0,
       buildingId: resourceTypeToResourceBuildingIdMap.get(type)!,
     };

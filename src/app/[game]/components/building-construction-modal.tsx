@@ -1,4 +1,4 @@
-import { BuildingFieldId } from 'interfaces/models/game/village';
+import { BuildingField } from 'interfaces/models/game/village';
 import React, { useState } from 'react';
 import { buildings } from 'assets/buildings';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
@@ -12,7 +12,7 @@ import { Button } from 'app/components/buttons/button';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
 };
 
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory, buildingFieldId }) => {
@@ -61,7 +61,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
 };
 
 type BuildingConstructionModalProps = {
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
   modalCloseHandler: () => void;
 }
 

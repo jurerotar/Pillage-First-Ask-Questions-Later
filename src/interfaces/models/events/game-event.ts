@@ -1,5 +1,5 @@
 import { Server } from 'interfaces/models/game/server';
-import { BuildingFieldId, Village } from 'interfaces/models/game/village';
+import { BuildingField, Village } from 'interfaces/models/game/village';
 import { Building } from 'interfaces/models/game/building';
 
 export enum GameEventType {
@@ -10,19 +10,19 @@ export enum GameEventType {
 
 export type BuildingConstructionEventArgs = {
   villageId: Village['id'];
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
   buildingId: Building['id'];
 }
 
 export type BuildingLevelChangeEventArgs = {
   villageId: Village['id'];
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
   level: number;
 }
 
 export type BuildingDestructionEventArgs = {
   villageId: Village['id'];
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
 }
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {

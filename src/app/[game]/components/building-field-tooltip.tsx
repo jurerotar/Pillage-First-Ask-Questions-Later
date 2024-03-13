@@ -1,6 +1,6 @@
-import { BuildingFieldId } from 'interfaces/models/game/village';
+import { BuildingField } from 'interfaces/models/game/village';
 import React from 'react';
-import { getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { getBuildingData, getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useTranslation } from 'react-i18next';
 import { Icon } from 'app/components/icon';
 import { Resources } from 'app/[game]/components/resources';
@@ -8,7 +8,7 @@ import { formatTime } from 'app/utils/time';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 
 type BuildingFieldTooltipProps = {
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
 };
 
 export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buildingFieldId }) => {
@@ -21,7 +21,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
   }
 
   const { level, buildingId } = buildingField;
-  const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingData(buildingId, level);
+  const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, level);
 
   const title = `${t(`BUILDINGS.${buildingId}.NAME`)} ${t('GENERAL.LEVEL', { level }).toLowerCase()}`;
   const formattedTime = formatTime(nextLevelBuildingDuration * 1000);

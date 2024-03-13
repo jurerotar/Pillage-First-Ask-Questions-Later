@@ -1,4 +1,4 @@
-import { BuildingFieldId } from 'interfaces/models/game/village';
+import { BuildingField } from 'interfaces/models/game/village';
 import React from 'react';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
@@ -7,7 +7,7 @@ import { Button } from 'app/components/buttons/button';
 import { GameEventType } from 'interfaces/models/events/game-event';
 
 type BuildingUpgradeModalProps = {
-  buildingFieldId: BuildingFieldId;
+  buildingFieldId: BuildingField['id'];
   modalCloseHandler: () => void;
 }
 
