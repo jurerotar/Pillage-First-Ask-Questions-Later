@@ -20,7 +20,7 @@ type TableIndex = string;
 const DEFAULT_TABLE_INDEX: TableIndex[] = ['++key'];
 
 export const TABLES = new Map<TableName, TableIndex[]>([
-  ['servers', ['slug']],
+  ['servers', ['id,slug']],
   ['mapFilters', ['serverId']],
   ['maps', ['serverId']],
   ['heroes', ['[serverId+id]']],
