@@ -75,7 +75,6 @@ export type CapitalBuildingRequirement = {
   canBuildOnlyOutsideOfCapital: boolean;
 }
 
-
 export type BuildingRequirement =
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement

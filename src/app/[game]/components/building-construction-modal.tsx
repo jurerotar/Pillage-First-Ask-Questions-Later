@@ -6,9 +6,12 @@ import { Building, BuildingCategory, BuildingId } from 'interfaces/models/game/b
 import { useTranslation } from 'react-i18next';
 import { StyledTab } from 'app/components/styled-tab';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { useCreateEvent } from 'app/[game]/hooks/use-events';
+import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { GameEventType } from 'interfaces/models/events/game-event';
 import { Button } from 'app/components/buttons/button';
+import { assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
+import { useVillages } from 'app/[game]/hooks/use-villages';
+import { useTribe } from 'app/[game]/hooks/use-tribe';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -17,7 +20,10 @@ type BuildingCategoryPanelProps = {
 
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory, buildingFieldId }) => {
   const { t } = useTranslation();
-  const { currentVillageId } = useCurrentVillage();
+  const { playerVillages } = useVillages();
+  const { currentVillage, currentVillageId } = useCurrentVillage();
+  const { tribe } = useTribe();
+  const { currentVillageBuildingEvents } = useEvents();
   const createBuildingConstructionEvent = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
@@ -32,6 +38,14 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       resolvesAt: Date.now() + 5000
     });
   }
+
+  buildingsByCategory.forEach((e) => console.log(e.id, assessBuildingConstructionReadiness({
+    buildingId: e.id,
+    tribe,
+    currentVillageBuildingEvents,
+    playerVillages,
+    currentVillage
+  })));
 
   return (
     <div className="flex flex-col gap-8">

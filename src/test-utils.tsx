@@ -28,8 +28,8 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
 
   // Overwrite data in game env client
   if (providedQueryClient) {
-    providedQueryClient.getQueryCache().getAll().forEach((query) => {
-      queryClient.setQueryData(query.queryKey, providedQueryClient.getQueryData(query.queryKey))
+    providedQueryClient.getQueryCache().getAll().forEach(({ queryKey }) => {
+      queryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey))
     });
   }
 

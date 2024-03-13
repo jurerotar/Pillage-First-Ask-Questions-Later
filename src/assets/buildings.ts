@@ -209,6 +209,10 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        type: 'amount',
+        amount: Infinity,
+      },
+      {
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
@@ -256,6 +260,10 @@ export const buildings: Building[] = [
       },
     ],
     buildingRequirements: [
+      {
+        type: 'amount',
+        amount: Infinity,
+      },
       {
         type: 'building',
         buildingId: 'MAIN_BUILDING',
@@ -309,6 +317,10 @@ export const buildings: Building[] = [
       },
     ],
     buildingRequirements: [
+      {
+        type: 'amount',
+        amount: Infinity,
+      },
       {
         type: 'building',
         buildingId: 'MAIN_BUILDING',
@@ -473,6 +485,10 @@ export const buildings: Building[] = [
       },
     ],
     buildingRequirements: [
+      {
+        type: 'amount',
+        amount: Infinity,
+      },
       {
         type: 'building',
         buildingId: 'MAIN_BUILDING',
@@ -1670,7 +1686,12 @@ export const buildings: Building[] = [
         valuesPerLevel: [100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
       },
     ],
-    buildingRequirements: [],
+    buildingRequirements: [
+      {
+        type: 'amount',
+        amount: Infinity,
+      },
+    ],
     buildingCost: [
       [40, 50, 30, 10],
       [50, 65, 40, 15],
@@ -1917,7 +1938,7 @@ export const buildings: Building[] = [
       {
         type: 'amount',
         amount: 1,
-        appliesGlobally: true
+        appliesGlobally: true,
       },
       {
         type: 'building',
@@ -1976,6 +1997,11 @@ export const buildings: Building[] = [
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
+      },
+      {
+        type: 'capital',
+        canBuildOnlyInCapital: false,
+        canBuildOnlyOutsideOfCapital: true,
       },
     ],
     buildingCost: [
