@@ -2,7 +2,7 @@ import React from 'react';
 import { Head } from 'app/components/head';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
 import { Link } from 'react-router-dom';
-import { BuildingFieldId, ResourceFieldId } from 'interfaces/models/game/village';
+import { BuildingField, ResourceFieldId } from 'interfaces/models/game/village';
 import { Tooltip } from 'app/components/tooltip';
 import { BuildingFieldTooltip } from 'app/[game]/components/building-field-tooltip';
 import { ResourceField } from 'app/[game]/[resources]/components/resource-field';
@@ -17,7 +17,7 @@ export const ResourcesPage: React.FC = () => {
     isOpen: isBuildingUpgradeModalOpen,
     closeModal: closeBuildingUpgradeModal,
     openModal: openBuildingUpgradeModal,
-  } = useDialog<BuildingFieldId>();
+  } = useDialog<BuildingField['id']>();
 
   return (
     <>
@@ -34,7 +34,7 @@ export const ResourcesPage: React.FC = () => {
             return null;
           }
 
-          const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingFieldId;
+          const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingField['id'];
 
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />
         }}
@@ -44,7 +44,7 @@ export const ResourcesPage: React.FC = () => {
         closeHandler={closeBuildingUpgradeModal}
       >
         <BuildingUpgradeModal
-          buildingFieldId={modalArgs as BuildingFieldId}
+          buildingFieldId={modalArgs as BuildingField['id']}
           modalCloseHandler={closeBuildingUpgradeModal}
         />
       </Modal>

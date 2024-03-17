@@ -68,10 +68,8 @@ export type ReservedFieldId =
   | 39
   | 40
 
-export type BuildingFieldId = ResourceFieldId | VillageFieldId | ReservedFieldId;
-
 export type BuildingField = {
-  buildingFieldId: BuildingFieldId;
+  id: ResourceFieldId | VillageFieldId | ReservedFieldId;
   buildingId: Building['id'];
   level: number;
 };

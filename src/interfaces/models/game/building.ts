@@ -52,16 +52,38 @@ export type BuildingEffect = {
   valuesPerLevel: number[];
 };
 
-export type BuildingRequirementType = 'building' | 'tribe' | 'capital';
+export type BuildingLevelBuildingRequirement = {
+  id: number;
+  type: 'building';
+  buildingId: Building['id'];
+  level: number;
+}
 
-export type BuildingRequirement = {
-  type: BuildingRequirementType;
-  buildingId?: Building['id'];
-  level?: number;
-  tribe?: Tribe;
-  notBuildableInCapital?: boolean;
-  onlyBuildableInCapital?: boolean;
-};
+export type TribeBuildingRequirement = {
+  id: number;
+  type: 'tribe';
+  tribe: Tribe;
+}
+
+export type AmountBuildingRequirement = {
+  id: number;
+  type: 'amount';
+  amount: number;
+  appliesGlobally?: true;
+}
+
+export type CapitalBuildingRequirement = {
+  id: number;
+  type: 'capital';
+  canBuildOnlyInCapital: boolean;
+  canBuildOnlyOutsideOfCapital: boolean;
+}
+
+export type BuildingRequirement =
+  | BuildingLevelBuildingRequirement
+  | TribeBuildingRequirement
+  | CapitalBuildingRequirement
+  | AmountBuildingRequirement;
 
 export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster' | 'resource-production';
 

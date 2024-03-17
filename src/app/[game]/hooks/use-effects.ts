@@ -25,7 +25,7 @@ export const useEffects = () => {
   });
 
   const globalEffects = effects.filter(({ scope }) => scope === 'global');
-  const currentVillageEffects = effects.filter(({ villageId }) => villageId === currentVillageId);
+  const currentVillageEffects = effects.filter((effect) => effect.scope === 'village' && effect.villageId === currentVillageId);
 
   return {
     effects,

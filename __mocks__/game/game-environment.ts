@@ -1,6 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
 import { achievementsCacheKey } from 'app/[game]/hooks/use-achievements';
-import { currentVillageCacheKey } from 'app/[game]/hooks/use-current-village';
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
 import { eventsCacheKey } from 'app/[game]/hooks/use-events';
 import { heroCacheKey } from 'app/[game]/hooks/use-hero';
@@ -29,23 +28,29 @@ import { mapFiltersCacheKey } from 'app/[game]/[map]/hooks/use-map-filters';
 import { MapFilters } from 'interfaces/models/game/map-filters';
 import { mapFiltersMock } from 'mocks/game/map-filters-mock';
 import { heroMock } from 'mocks/game/hero-mock';
-import { villageMock } from 'mocks/game/village/village-mock';
+import { reputationsMock } from 'mocks/game/reputations-mock';
+import { playersMock } from 'mocks/game/players-mock';
+import { villagesMock } from 'mocks/game/villages-mock';
 
 const { id: serverId, slug } = serverMock;
 
-export const gameEnvironment = new QueryClient();
+export const createGameEnvironment = () => {
+  const queryClient = new QueryClient();
+  queryClient.setQueryData<Server>([currentServerCacheKey, slug], serverMock);
+  queryClient.setQueryData<Achievement[]>([achievementsCacheKey, serverId], []);
+  queryClient.setQueryData<Report[]>([reportsCacheKey, serverId], []);
+  queryClient.setQueryData<Effect[]>([effectsCacheKey, serverId], []);
+  queryClient.setQueryData<Quest[]>([questsCacheKey, serverId], []);
+  queryClient.setQueryData<ResearchLevel[]>([researchLevelsCacheKey, serverId], []);
+  queryClient.setQueryData<Hero>([heroCacheKey, serverId], heroMock);
+  queryClient.setQueryData<Tile[]>([mapCacheKey, serverId], []);
+  queryClient.setQueryData<GameEvent[]>([eventsCacheKey, serverId], []);
+  queryClient.setQueryData<Village[]>([villagesCacheKey, serverId], villagesMock);
+  queryClient.setQueryData<Player[]>([playersCacheKey, serverId], playersMock);
+  queryClient.setQueryData<Reputation[]>([reputationsCacheKey, serverId], reputationsMock);
+  queryClient.setQueryData<MapFilters>([mapFiltersCacheKey, serverId], mapFiltersMock);
 
-gameEnvironment.setQueryData<Server>([currentServerCacheKey, slug], serverMock);
-gameEnvironment.setQueryData<Achievement[]>([achievementsCacheKey, serverId], []);
-gameEnvironment.setQueryData<Village>([currentVillageCacheKey, serverId], villageMock);
-gameEnvironment.setQueryData<Report[]>([reportsCacheKey, serverId], []);
-gameEnvironment.setQueryData<Effect[]>([effectsCacheKey, serverId], []);
-gameEnvironment.setQueryData<Quest[]>([questsCacheKey, serverId], []);
-gameEnvironment.setQueryData<ResearchLevel[]>([researchLevelsCacheKey, serverId], []);
-gameEnvironment.setQueryData<Hero>([heroCacheKey, serverId], heroMock);
-gameEnvironment.setQueryData<Tile[]>([mapCacheKey, serverId], []);
-gameEnvironment.setQueryData<GameEvent[]>([eventsCacheKey, serverId], []);
-gameEnvironment.setQueryData<Village[]>([villagesCacheKey, serverId], []);
-gameEnvironment.setQueryData<Player[]>([playersCacheKey, serverId], []);
-gameEnvironment.setQueryData<Reputation[]>([reputationsCacheKey, serverId], []);
-gameEnvironment.setQueryData<MapFilters>([mapFiltersCacheKey, serverId], mapFiltersMock);
+  return queryClient;
+}
+
+

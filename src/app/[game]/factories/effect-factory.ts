@@ -7,10 +7,12 @@ type EffectFactoryProps = {
   server: Server;
 };
 
-export const effectFactory = ({ server, ...effect }: EffectFactoryProps & Omit<Effect, 'serverId'>): Effect => {
+export const effectFactory = (args: Omit<Effect, 'id'>): Effect => {
+  const id = crypto.randomUUID();
+
   return {
-    serverId: server.id,
-    ...effect,
+    id,
+    ...args,
   };
 };
 

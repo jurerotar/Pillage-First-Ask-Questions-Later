@@ -15,16 +15,24 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'CROPLAND',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'GRAIN_MILL',
         level: 5,
       },
       {
+        id: 4,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
@@ -52,11 +60,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'CLAY_PIT',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
@@ -166,6 +181,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'CROPLAND',
         level: 5,
@@ -197,6 +218,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: Infinity,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
@@ -245,9 +272,21 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: Infinity,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'GRANARY',
+        level: 20,
       },
     ],
     buildingCost: [
@@ -293,9 +332,21 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: Infinity,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'WAREHOUSE',
+        level: 20,
       },
     ],
     buildingCost: [
@@ -335,11 +386,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'IRON_MINE',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
@@ -408,11 +466,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'WOODCUTTER',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
@@ -444,6 +509,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: Infinity,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
@@ -488,11 +559,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'HEROS_MANSION',
         level: 10,
       },
       {
+        id: 3,
         type: 'tribe',
         tribe: 'egyptians',
       },
@@ -572,11 +650,18 @@ export const buildings: Building[] = [
     effects: [],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'BARRACKS',
         level: 3,
@@ -621,11 +706,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'ACADEMY',
         level: 1,
@@ -673,11 +765,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'RALLY_POINT',
         level: 1,
@@ -728,6 +827,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'tribe',
         tribe: 'romans',
       },
@@ -777,6 +882,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'tribe',
         tribe: 'teutons',
       },
@@ -823,13 +934,21 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'BARRACKS',
         level: 20,
       },
       {
+        id: 3,
         type: 'capital',
-        notBuildableInCapital: true,
+        canBuildOnlyInCapital: false,
+        canBuildOnlyOutsideOfCapital: true,
       },
     ],
     buildingCost: [
@@ -874,13 +993,21 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'STABLE',
         level: 20,
       },
       {
+        id: 3,
         type: 'capital',
-        notBuildableInCapital: true,
+        canBuildOnlyInCapital: false,
+        canBuildOnlyOutsideOfCapital: true,
       },
     ],
     buildingCost: [
@@ -922,11 +1049,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'RALLY_POINT',
         level: 1,
@@ -974,11 +1108,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'ACADEMY',
         level: 15,
@@ -1029,6 +1170,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'tribe',
         tribe: 'huns',
       },
@@ -1078,6 +1225,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'tribe',
         tribe: 'gauls',
       },
@@ -1119,7 +1272,13 @@ export const buildings: Building[] = [
         valuesPerLevel: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
       },
     ],
-    buildingRequirements: [],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+    ],
     buildingCost: [
       [110, 160, 90, 70],
       [140, 205, 115, 90],
@@ -1162,6 +1321,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'ACADEMY',
         level: 5,
@@ -1212,6 +1377,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'tribe',
         tribe: 'egyptians',
       },
@@ -1255,13 +1426,21 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
+        id: 3,
         type: 'capital',
-        onlyBuildableInCapital: true,
+        canBuildOnlyInCapital: true,
+        canBuildOnlyOutsideOfCapital: false,
       },
     ],
     buildingCost: [
@@ -1303,6 +1482,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'RALLY_POINT',
         level: 15,
@@ -1347,11 +1532,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'RALLY_POINT',
         level: 1,
       },
       {
+        id: 3,
         type: 'tribe',
         tribe: 'gauls',
       },
@@ -1398,11 +1590,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'ACADEMY',
         level: 10,
@@ -1450,18 +1649,32 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'GRANARY',
         level: 20,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'RALLY_POINT',
         level: 10,
       },
       {
+        id: 4,
         type: 'tribe',
         tribe: 'teutons',
+      },
+      {
+        id: 5,
+        type: 'capital',
+        canBuildOnlyInCapital: true,
+        canBuildOnlyOutsideOfCapital: false,
       },
     ],
     buildingCost: [
@@ -1503,11 +1716,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
+        id: 3,
         type: 'tribe',
         tribe: 'huns',
       },
@@ -1547,7 +1767,13 @@ export const buildings: Building[] = [
         valuesPerLevel: [100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
       },
     ],
-    buildingRequirements: [],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: Infinity,
+      },
+    ],
     buildingCost: [
       [40, 50, 30, 10],
       [50, 65, 40, 15],
@@ -1577,6 +1803,12 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 1,
@@ -1629,16 +1861,24 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'RALLY_POINT',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'STABLE',
         level: 20,
       },
       {
+        id: 4,
         type: 'tribe',
         tribe: 'romans',
       },
@@ -1680,7 +1920,13 @@ export const buildings: Building[] = [
         valuesPerLevel: [1, 0.98, 0.96, 0.94, 0.92, 0.9, 0.88, 0.86, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5],
       },
     ],
-    buildingRequirements: [],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+    ],
     buildingCost: [
       [70, 40, 60, 20],
       [90, 50, 75, 25],
@@ -1720,16 +1966,24 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'WAREHOUSE',
         level: 1,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'GRANARY',
         level: 1,
       },
       {
+        id: 4,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 3,
@@ -1775,11 +2029,19 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+        appliesGlobally: true,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'EMBASSY',
         level: 1,
@@ -1824,9 +2086,21 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
+      },
+      {
+        id: 3,
+        type: 'capital',
+        canBuildOnlyInCapital: false,
+        canBuildOnlyOutsideOfCapital: true,
       },
     ],
     buildingCost: [
@@ -1864,11 +2138,18 @@ export const buildings: Building[] = [
     effects: [],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'ACADEMY',
         level: 10,
@@ -1913,11 +2194,18 @@ export const buildings: Building[] = [
     ],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MARKETPLACE',
         level: 20,
       },
       {
+        id: 3,
         type: 'building',
         buildingId: 'STABLE',
         level: 10,
@@ -1958,6 +2246,12 @@ export const buildings: Building[] = [
     effects: [],
     buildingRequirements: [
       {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 10,

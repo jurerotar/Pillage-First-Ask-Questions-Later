@@ -1,8 +1,8 @@
 import React, { FCWithChildren } from 'react';
 import { render, renderHook } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
-import { gameEnvironment } from 'mocks/game/game-environment';
+import { QueryClient } from '@tanstack/react-query';
+import { createGameEnvironment } from 'mocks/game/game-environment';
 import { serverMock } from 'mocks/models/game/server-mock';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { composeComponents } from 'app/utils/jsx';
@@ -24,10 +24,13 @@ export type RenderOptions = {
 const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient } = props;
 
-  const queryClient = gameEnvironment;
+  const queryClient = createGameEnvironment();
 
+  // Overwrite data in game env client
   if (providedQueryClient) {
-    hydrate(queryClient, dehydrate(providedQueryClient));
+    providedQueryClient.getQueryCache().getAll().forEach(({ queryKey }) => {
+      queryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey))
+    });
   }
 
   return (
@@ -89,6 +92,12 @@ export const renderWithGameContext = <T = HTMLElement,>(
   options?: RenderOptions
 ) => {
   return render(ui, {
+    wrapper: ({ children }) => <GameTestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</GameTestingEnvironment>,
+  });
+};
+
+export const renderHookWithGameContext = <TProps, TResult>(callback: (props: TProps) => TResult, options?: RenderOptions) => {
+  return renderHook(callback, {
     wrapper: ({ children }) => <GameTestingEnvironment {...{ ...defaultOptions, ...options }}>{children}</GameTestingEnvironment>,
   });
 };

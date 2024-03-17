@@ -1,11 +1,16 @@
-import { BuildingField, BuildingFieldId, Village } from 'interfaces/models/game/village';
-import { Building, BuildingCategory } from 'interfaces/models/game/building';
+import { BuildingField, Village } from 'interfaces/models/game/village';
+import { Building } from 'interfaces/models/game/building';
 import { partialArraySum } from 'app/utils/common';
 import { resourceBuildingIdToEffectIdMap, resourceBuildingIdToResourceTypeMap } from 'app/[game]/utils/maps';
 import { buildings } from 'assets/buildings';
 
-export const getBuildingData = (buildingId: Building['id'], level: number) => {
+export const getBuildingData = (buildingId: Building['id']) => {
   const building: Building = buildings.find(({ id }) => id === buildingId)!;
+  return building;
+}
+
+export const getBuildingDataForLevel = (buildingId: Building['id'], level: number) => {
+  const building = getBuildingData(buildingId);
   const isMaxLevel = building.cropConsumption.length === level;
   const cumulativeCropConsumption = partialArraySum(building.cropConsumption, level);
   const cumulativeCulturePointsProduction = partialArraySum(building.culturePointsProduction, level);
@@ -26,12 +31,8 @@ export const getBuildingData = (buildingId: Building['id'], level: number) => {
   };
 };
 
-export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, buildingFieldId: BuildingFieldId): BuildingField | null => {
-  return currentVillage.buildingFields.find(({ buildingFieldId: fieldId }) => buildingFieldId === fieldId) ?? null;
-}
-
-export const getBuildingsByCategory = (buildingCategory: BuildingCategory): Building[] => {
-  return buildings.filter(({ category }) => category === buildingCategory);
+export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, buildingFieldId: BuildingField['id']): BuildingField | null => {
+  return currentVillage.buildingFields.find(({ id: fieldId }) => buildingFieldId === fieldId) ?? null;
 }
 
 export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {

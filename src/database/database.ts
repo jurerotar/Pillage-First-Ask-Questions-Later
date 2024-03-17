@@ -20,22 +20,22 @@ type TableIndex = string;
 const DEFAULT_TABLE_INDEX: TableIndex[] = ['++key'];
 
 export const TABLES = new Map<TableName, TableIndex[]>([
-  ['servers', ['slug']],
+  ['servers', ['id,slug']],
   ['mapFilters', ['serverId']],
-  ['maps', ['serverId']],
-  ['heroes', ['serverId']],
-  ['villages', ['[serverId+slug],[serverId+id]']],
-  ['reports', ['serverId', '&timestamp']],
-  ['quests', ['serverId']],
-  ['achievements', ['serverId']],
+  ['maps', ['serverId,[serverId+id]']],
+  ['heroes', ['serverId,[serverId+id]']],
+  ['villages', ['serverId,[serverId+slug],[serverId+id]']],
+  ['reports', ['serverId,[serverId+id],&timestamp']],
+  ['quests', ['serverId,[serverId+id]']],
+  ['achievements', ['serverId,[serverId+id]']],
   ['events', ['serverId,[serverId+id]']],
-  ['effects', ['serverId']],
-  ['researchLevels', ['serverId']],
-  ['players', ['serverId']],
-  ['reputations', ['serverId']],
+  ['effects', ['serverId,[serverId+id]']],
+  ['researchLevels', ['serverId,[serverId+unitId]']],
+  ['players', ['serverId,[serverId+id]']],
+  ['reputations', ['serverId,[serverId+id]']],
   ['mapMarkers', ['serverId']],
-  ['auctions', ['serverId']],
-  ['adventures', ['serverId']],
+  ['auctions', ['serverId,[serverId+id]']],
+  ['adventures', ['serverId,[serverId+id]']],
 ]);
 
 export const TABLE_NAMES = TABLES.keys();
