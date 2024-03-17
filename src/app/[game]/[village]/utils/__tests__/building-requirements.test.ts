@@ -189,6 +189,15 @@ describe('building-requirements', () => {
   });
 
   describe('Amount requirement', () => {
+    it('Can build a granary', () => {
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        buildingId: 'GRANARY',
+      };
+      const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
+      expect(fulfilled).toBe(true);
+    });
+
     it('Can\'t build a second main building', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
@@ -248,6 +257,7 @@ describe('building-requirements', () => {
         currentVillageBuildingEvents: [buildingConstructionEventMock],
         buildingId: 'CRANNY',
       };
+
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
     });

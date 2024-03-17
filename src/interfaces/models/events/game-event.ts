@@ -11,10 +11,11 @@ export enum GameEventType {
 export type BuildingConstructionEventArgs = {
   villageId: Village['id'];
   buildingFieldId: BuildingField['id'];
-  buildingId: Building['id'];
+  building: Building;
 }
 
 export type BuildingLevelChangeEventArgs = {
+  building: Building;
   villageId: Village['id'];
   buildingFieldId: BuildingField['id'];
   level: number;
@@ -23,6 +24,7 @@ export type BuildingLevelChangeEventArgs = {
 export type BuildingDestructionEventArgs = {
   villageId: Village['id'];
   buildingFieldId: BuildingField['id'];
+  building: Building;
 }
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {

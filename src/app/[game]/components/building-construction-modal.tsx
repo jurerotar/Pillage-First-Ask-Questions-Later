@@ -2,16 +2,24 @@ import { BuildingField } from 'interfaces/models/game/village';
 import React, { useState } from 'react';
 import { buildings } from 'assets/buildings';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
-import { Building, BuildingCategory, BuildingId } from 'interfaces/models/game/building';
+import { Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
 import { useTranslation } from 'react-i18next';
 import { StyledTab } from 'app/components/styled-tab';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
-import { GameEventType } from 'interfaces/models/events/game-event';
-import { Button } from 'app/components/buttons/button';
+import { useEvents } from 'app/[game]/hooks/use-events';
 import { assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
 import { useVillages } from 'app/[game]/hooks/use-villages';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
+import { Tribe } from 'interfaces/models/game/tribe';
+import { BuildingCard } from 'app/[game]/[village]/components/building-card';
+import { partition } from 'app/utils/common';
+
+const getBuildingsBuildableByTribe = (buildingsToFilter: Building[], tribe: Tribe): Building[] => {
+  return buildingsToFilter.filter(({ buildingRequirements }) => {
+    const tribeRequirement = buildingRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
+    return !tribeRequirement ? true : tribeRequirement.tribe === tribe;
+  });
+};
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -19,54 +27,62 @@ type BuildingCategoryPanelProps = {
 };
 
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory, buildingFieldId }) => {
-  const { t } = useTranslation();
   const { playerVillages } = useVillages();
-  const { currentVillage, currentVillageId } = useCurrentVillage();
+  const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useEvents();
-  const createBuildingConstructionEvent = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
+  const buildingBuildableByCurrentTribe = getBuildingsBuildableByTribe(buildingsByCategory, tribe);
 
-  const hasNoAvailableBuildings = buildingCategory.length === 0;
+  const [currentlyAvailableBuildings, currentlyUnavailableBuildings] = partition<Building>(
+    buildingBuildableByCurrentTribe,
+    ({ id: buildingId }: Building) => {
+      const { canBuild } = assessBuildingConstructionReadiness({
+        buildingId,
+        tribe,
+        currentVillageBuildingEvents,
+        playerVillages,
+        currentVillage,
+      });
+      return canBuild;
+    },
+  );
 
-  const constructBuilding = (buildingId: BuildingId) => {
-    createBuildingConstructionEvent({
-      buildingFieldId,
-      buildingId,
-      villageId: currentVillageId,
-      resolvesAt: Date.now() + 5000
-    });
-  }
-
-  buildingsByCategory.forEach((e) => console.log(e.id, assessBuildingConstructionReadiness({
-    buildingId: e.id,
-    tribe,
-    currentVillageBuildingEvents,
-    playerVillages,
-    currentVillage
-  })));
+  const hasNoAvailableBuildings = buildingBuildableByCurrentTribe.length === 0;
 
   return (
     <div className="flex flex-col gap-8">
-      {buildingsByCategory.map((building: Building) => (
-        <div
-          className="flex justify-between border-b-2 border-gray-300 py-2"
-          key={building.id}
-        >
-          <div className="flex flex-col gap-2">
-            <span className="font-medium">
-              {t(`BUILDINGS.${building.id}.NAME`)}
-            </span>
-            <span className="">
-              {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
-            </span>
-            <Button onClick={() => constructBuilding(building.id)}>
-              Construct
-            </Button>
-          </div>
-        </div>
-      ))}
+      {!hasNoAvailableBuildings && (
+        <>
+          {currentlyAvailableBuildings.length > 0 && (
+            <section>
+              Available buildings
+              {currentlyAvailableBuildings.map((building: Building) => (
+                <BuildingCard
+                  location="building-construction-modal"
+                  buildingId={building.id}
+                  buildingFieldId={buildingFieldId}
+                  key={building.id}
+                />
+              ))}
+            </section>
+          )}
+          {currentlyUnavailableBuildings.length > 0 && (
+            <section>
+              Unavailable buildings
+              {currentlyUnavailableBuildings.map((building: Building) => (
+                <BuildingCard
+                  location="building-construction-modal"
+                  buildingId={building.id}
+                  buildingFieldId={buildingFieldId}
+                  key={building.id}
+                />
+              ))}
+            </section>
+          )}
+        </>
+      )}
       {hasNoAvailableBuildings && (
         <>No buildings available</>
       )}

@@ -2,7 +2,7 @@
  * Effects represent bonuses and unlocked village/account benefits. Some effects are account-level, which means they apply to all villages,
  * while others effect only specific village.
  */
-import { Village } from 'interfaces/models/game/village';
+import { BuildingField, Village } from 'interfaces/models/game/village';
 import { WithServerId } from 'interfaces/models/game/server';
 
 export type HeroEffectId =
@@ -20,13 +20,22 @@ export type TroopTrainingDurationEffectId =
   | 'workshopTrainingDuration'
   | 'hospitalTrainingDuration';
 
-export type TroopSpeedBonusEffectId = 'unitSpeedBonus' | 'unitSpeedAfter20TilesBonus';
+export type TroopSpeedBonusEffectId =
+  | 'unitSpeedBonus'
+  | 'unitSpeedAfter20TilesBonus';
 
-export type BuildingEffectId = 'villageDefenceValue' | 'villageDefenceBonus' | 'buildingDurabilityBonus' | 'buildingDuration';
+export type BuildingEffectId =
+  | 'villageDefenceValue'
+  | 'villageDefenceBonus'
+  | 'buildingDurabilityBonus'
+  | 'buildingDuration';
 
-export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction';
+export type ResourceProductionEffectId =
+  | 'woodProduction'
+  | 'clayProduction'
+  | 'ironProduction'
+  | 'wheatProduction';
 
-// Joined effect ids
 export type EffectId =
   | HeroEffectId
   | TroopTrainingDurationEffectId
@@ -64,10 +73,18 @@ export type EffectId =
   | 'granaryCapacity'
   | 'warehouseCapacity';
 
-export type Effect = WithServerId<{
-  // Server effects affect actions from all villages, village effects affect only actions from a particular village
-  scope: 'global' | 'village';
-  villageId?: Village['id'];
-  id: EffectId;
+type GlobalEffect = {
+  scope: 'global';
   value: number;
-}>;
+};
+
+type VillageEffect = {
+  scope: 'village';
+  villageId: Village['id'];
+  buildingFieldId: BuildingField['id'];
+  value: number;
+};
+
+export type Effect = WithServerId<VillageEffect | GlobalEffect> & {
+  id: string;
+};

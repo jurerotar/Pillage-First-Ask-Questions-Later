@@ -1,6 +1,7 @@
 import { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
 import { villageMock } from 'mocks/models/game/village/village-mock';
 import { serverMock } from 'mocks/models/game/server-mock';
+import { getBuildingData } from 'app/[game]/utils/common';
 
 export const buildingConstructionEventMock: GameEvent<GameEventType.BUILDING_CONSTRUCTION> = {
   id: 'id',
@@ -8,6 +9,6 @@ export const buildingConstructionEventMock: GameEvent<GameEventType.BUILDING_CON
   resolvesAt: Date.now(),
   villageId: villageMock.id,
   serverId: serverMock.id,
-  buildingId: 'CRANNY',
+  building: getBuildingData('CRANNY'),
   buildingFieldId: 38
 }

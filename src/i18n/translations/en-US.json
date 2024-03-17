@@ -413,7 +413,7 @@
     },
     "WATERWORKS": {
       "NAME": "Waterworks",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The Waterworks allows you to regulate the water flow to your oases. This not only helps to grow trees and crops, but it is also useful for quarries and mines as it supplies workers with water and resource transportation.\n\nThis building increases the bonus of all annexed oases. Its maximum effect at level 20 doubles the effect of oases.\n\nThe Waterworks can only be built by Egyptians."
     },
     "WOODCUTTER": {
       "NAME": "Woodcutter",
@@ -433,23 +433,23 @@
     },
     "CITY_WALL": {
       "NAME": "City wall",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "By building a city wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe city wall can only be built by Romans.\n\nThe city wall offers the biggest defence bonus, but it is easier to destroy than the Gaulish palisade or the Teutonic earth wall."
     },
     "EARTH_WALL": {
       "NAME": "Earth wall",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "By building an earth wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe earth wall can only be built by Teutons.\n\nThe earth wall offers the lowest defence bonus but it is almost impossible to destroy it."
     },
     "GREAT_BARRACKS": {
       "NAME": "Great barracks",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The great barracks allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
     },
     "GREAT_STABLE": {
       "NAME": "Great stable",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The great stable allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
     },
-    "HERO'S_MANSION": {
+    "HEROS_MANSION": {
       "NAME": "Hero's mansion",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The hero's mansion is the home of your glorious hero.\n\nAt building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource (or even two resources, from some oases)."
     },
     "HOSPITAL": {
       "NAME": "Hospital",
@@ -457,7 +457,7 @@
     },
     "MAKESHIFT_WALL": {
       "NAME": "Makeshift wall",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "By building a Makeshift Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Makeshift Wall can only be built by Huns, its defense bonus is lower than the Teutonic Earth Wall and its durability is comparable with the Roman City Wall."
     },
     "PALISADE": {
       "NAME": "Palisade",
@@ -473,7 +473,7 @@
     },
     "STONE_WALL": {
       "NAME": "Stone wall",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."
     },
     "STONEMASON": {
       "NAME": "Stonemason",
@@ -497,11 +497,11 @@
     },
     "BREWERY": {
       "NAME": "Brewery",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations.\n\nThese drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits.\n\nIt can only be built by Teutons and only in their capital. It affects the whole empire."
     },
     "COMMAND_CENTER": {
       "NAME": "Command center",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The Command Center protects the village against enemy conquests. You can build one Command Center per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the command center provides an expansion slot at levels 10, 15 and 20 each.\n\nThe Command Center can only be built by the Huns."
     },
     "CRANNY": {
       "NAME": "Cranny",
@@ -513,7 +513,7 @@
     },
     "HORSE_DRINKING_TROUGH": {
       "NAME": "Horse drinking trough",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training.\n\nThe horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20.\n\nThe horse drinking trough can only be built by Romans."
     },
     "MAIN_BUILDING": {
       "NAME": "Main building",

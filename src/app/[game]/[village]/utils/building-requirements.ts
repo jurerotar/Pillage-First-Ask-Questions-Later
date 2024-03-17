@@ -43,14 +43,14 @@ const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuilding
   const sameBuildingFields: BuildingField[] = buildingFields.filter(({ buildingId: id }) => id === buildingId);
 
   // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist
-  if(requirement.amount > 1) {
-    return sameBuildingFields.some(({ level }) => level === building.buildingCost.length);
+  if (requirement.amount > 1) {
+    return sameBuildingFields.length === 0 ? true : sameBuildingFields.some(({ level }) => level === building.buildingCost.length);
   }
 
   // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
   return !(
     sameBuildingFields.length > 0 ||
-    currentVillageBuildingEvents.find(({ buildingId: buildingIdUnderConstruction }) => buildingIdUnderConstruction === buildingId)
+    currentVillageBuildingEvents.find(({ building: { id: buildingIdUnderConstruction } }) => buildingIdUnderConstruction === buildingId)
   );
 }
 
@@ -98,7 +98,7 @@ export const assessBuildingConstructionReadiness = (
 
     return {
       ...requirement,
-      fulfilled
+      fulfilled,
     }
   });
 

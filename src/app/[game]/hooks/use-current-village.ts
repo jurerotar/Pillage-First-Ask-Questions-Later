@@ -4,8 +4,6 @@ import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils
 import { Point } from 'interfaces/models/common';
 import { useVillages } from 'app/[game]/hooks/use-villages';
 
-export const currentVillageCacheKey = 'current-village';
-
 export const useCurrentVillage = () => {
   const { playerVillages } = useVillages();
   const { villageSlug } = useRouteSegments();
@@ -14,6 +12,8 @@ export const useCurrentVillage = () => {
   const currentVillage: Village = playerVillages.find(({ slug}) => slug === villageSlug)!;
 
   const currentVillageId = currentVillage!.id;
+  const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
+  const canRearrangeBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 15;
 
   const distanceFromCurrentVillage = (tileCoordinates: Point): number => {
     return roundTo2DecimalPoints(calculateDistanceBetweenPoints(currentVillage.coordinates, tileCoordinates));
@@ -23,5 +23,7 @@ export const useCurrentVillage = () => {
     currentVillage: currentVillage!,
     currentVillageId,
     distanceFromCurrentVillage,
+    canDemolishBuildings,
+    canRearrangeBuildings
   };
 };

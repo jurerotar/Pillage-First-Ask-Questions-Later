@@ -70,14 +70,15 @@ export const buildingLevelChangeResolver: Resolver<GameEventType.BUILDING_LEVEL_
 };
 
 export const buildingConstructionResolver: Resolver<GameEventType.BUILDING_CONSTRUCTION> = async (args, queryClient) => {
-  const { serverId, villageId, buildingFieldId, buildingId } = args;
+  const { serverId, villageId, buildingFieldId, building } = args;
+  const { id: buildingId } = building;
 
   queryClient.setQueryData<Village[]>([villagesCacheKey, serverId], (prevData) => {
     return addBuildingField(prevData!, villageId, buildingFieldId, buildingId);
   });
 
   database.villages.where({ serverId, id: villageId }).modify((value) => {
-    value.buildingFields = [...value.buildingFields, { level: 1, id: buildingFieldId, buildingId }];
+    value.buildingFields = [...value.buildingFields, { level: 0, id: buildingFieldId, buildingId }];
   });
 };
 
