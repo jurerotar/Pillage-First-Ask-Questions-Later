@@ -41,17 +41,19 @@ const assessBuildingLevelRequirement = (args: AssessFunctionArgs<BuildingLevelBu
 const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuildingRequirement>): boolean => {
   const { building, requirement, currentVillage: { buildingFields }, currentVillageBuildingEvents, buildingId } = args;
   const sameBuildingFields: BuildingField[] = buildingFields.filter(({ buildingId: id }) => id === buildingId);
+  const buildingExistsInQueue = !!currentVillageBuildingEvents.find(
+    ({ building: { id: buildingIdUnderConstruction } }) => buildingIdUnderConstruction === buildingId
+  );
 
-  // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist
+  // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist or isn't being constructed
   if (requirement.amount > 1) {
-    return sameBuildingFields.length === 0 ? true : sameBuildingFields.some(({ level }) => level === building.buildingCost.length);
+    return sameBuildingFields.length === 0 && !buildingExistsInQueue
+      ? true
+      : sameBuildingFields.some(({ level }) => level === building.buildingCost.length);
   }
 
   // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
-  return !(
-    sameBuildingFields.length > 0 ||
-    currentVillageBuildingEvents.find(({ building: { id: buildingIdUnderConstruction } }) => buildingIdUnderConstruction === buildingId)
-  );
+  return !(sameBuildingFields.length > 0 || buildingExistsInQueue);
 }
 
 const assessCapitalRequirement = (args: AssessFunctionArgs<CapitalBuildingRequirement>): boolean => {
