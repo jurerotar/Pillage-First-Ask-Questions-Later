@@ -48,7 +48,7 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
     >
       {buildingFieldId}
     </button>
-  )
+  );
 };
 
 type OccupiedBuildingFieldProps = {
@@ -91,7 +91,7 @@ export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, o
         buildingFieldId={buildingFieldId}
         onClick={onClick}
       />
-    )
+    );
   }
 
   return (
@@ -99,5 +99,5 @@ export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, o
       buildingField={buildingField}
       onClick={onClick}
     />
-  )
+  );
 };

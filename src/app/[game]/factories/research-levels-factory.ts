@@ -3,7 +3,6 @@ import { Unit } from 'interfaces/models/game/unit';
 import { Server } from 'interfaces/models/game/server';
 import { units } from 'assets/units';
 
-
 type ResearchLevelsFactoryProps = {
   server: Server;
 };

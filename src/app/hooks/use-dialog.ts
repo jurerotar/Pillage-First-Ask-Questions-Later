@@ -12,7 +12,7 @@ export const useDialog = <TArgs = unknown>(isOpenInitially: boolean = false) => 
   const openModal = useCallback((data?: TArgs) => {
     modalArgs.current = data ?? null;
     setIsOpen(true);
-    }, []);
+  }, []);
 
   const toggleModal = useCallback(() => {
     setIsOpen((prevState) => !prevState);

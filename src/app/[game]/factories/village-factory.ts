@@ -1,9 +1,4 @@
-import {
-  BuildingField,
-  ResourceFieldComposition,
-  ResourceFieldId,
-  Village,
-} from 'interfaces/models/game/village';
+import { BuildingField, ResourceFieldComposition, ResourceFieldId, Village } from 'interfaces/models/game/village';
 import { Server } from 'interfaces/models/game/server';
 import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
@@ -201,7 +196,7 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
 };
 
 const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): BuildingField[] => {
-  return (Object.keys(resourceFieldLayout)).map((fieldId) => {
+  return Object.keys(resourceFieldLayout).map((fieldId) => {
     const buildingFieldId = Number(fieldId) as ResourceFieldId;
     const type = resourceFieldLayout[buildingFieldId];
     return {

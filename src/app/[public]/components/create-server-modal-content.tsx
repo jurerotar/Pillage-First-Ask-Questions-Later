@@ -51,7 +51,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   const { values, handleSubmit, submitForm } = useFormik<CreateServerFormValues>({
     initialValues: {
       seed: generateSeed(),
-      name: "Server name",
+      name: 'Server name',
       configuration: {
         mapSize: 100,
         speed: 1,

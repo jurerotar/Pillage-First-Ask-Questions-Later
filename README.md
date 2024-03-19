@@ -6,6 +6,7 @@ Using browser's native IndexedDb, game data is persisted and progressed between 
 **Note: Very much still work in progress, not much to see at the moment.**
 
 ## Known issues
+
 - Database schema is likely to change between builds. Make sure to always reset your local database by pressing the "Reset database" button on app's starting page.
 
 ## Built with

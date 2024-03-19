@@ -8,30 +8,30 @@ export const reputationsMock: Reputation[] = [
   },
   {
     ...npcReputationMock,
-    faction: 'npc2'
+    faction: 'npc2',
   },
   {
     ...npcReputationMock,
-    faction: 'npc3'
+    faction: 'npc3',
   },
   {
     ...npcReputationMock,
-    faction: 'npc4'
+    faction: 'npc4',
   },
   {
     ...npcReputationMock,
-    faction: 'npc5'
+    faction: 'npc5',
   },
   {
     ...npcReputationMock,
-    faction: 'npc6'
+    faction: 'npc6',
   },
   {
     ...npcReputationMock,
-    faction: 'npc7'
+    faction: 'npc7',
   },
   {
     ...npcReputationMock,
-    faction: 'npc8'
+    faction: 'npc8',
   },
-]
+];

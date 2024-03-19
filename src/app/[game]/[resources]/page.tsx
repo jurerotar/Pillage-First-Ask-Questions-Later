@@ -36,7 +36,7 @@ export const ResourcesPage: React.FC = () => {
 
           const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingField['id'];
 
-          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />
+          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
       <Modal

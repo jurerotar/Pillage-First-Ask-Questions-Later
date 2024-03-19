@@ -10,5 +10,5 @@ export const buildingConstructionEventMock: GameEvent<GameEventType.BUILDING_CON
   villageId: villageMock.id,
   serverId: serverMock.id,
   building: getBuildingData('CRANNY'),
-  buildingFieldId: 38
-}
+  buildingFieldId: 38,
+};

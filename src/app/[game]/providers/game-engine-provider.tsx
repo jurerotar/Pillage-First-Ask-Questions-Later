@@ -33,11 +33,10 @@ export const GameEngineProvider: FCWithChildren = ({ children }) => {
 
     timeoutId = window.setTimeout(() => {
       resolveEvent(id);
-    }, (resolvesAt - Date.now()));
+    }, resolvesAt - Date.now());
 
     return () => window.clearTimeout(timeoutId);
   }, [events, resolveEvent]);
-
 
   const value = useMemo<GameEngineValues>(() => {
     return {};

@@ -114,8 +114,7 @@ type MapControlsIconType =
   | 'mapTileTooltipToggle'
   | 'mapTreasureIconToggle';
 
-type BuildingFieldIcons =
-  | 'buildingDuration';
+type BuildingFieldIcons = 'buildingDuration';
 
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 

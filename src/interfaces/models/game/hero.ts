@@ -46,16 +46,9 @@ export type HeroHeadItemId =
   | 'HELMET_OF_THE_HORSEMAN'
   | 'HELMET_OF_THE_MERCENARY';
 
-export type HeroTorsoItemId =
-  | 'ARMOUR_OF_REGENERATION'
-  | 'SCALE_ARMOUR'
-  | 'BREAST_PLATE'
-  | 'SEGMENTED_ARMOUR';
+export type HeroTorsoItemId = 'ARMOUR_OF_REGENERATION' | 'SCALE_ARMOUR' | 'BREAST_PLATE' | 'SEGMENTED_ARMOUR';
 
-export type HeroLegsItemId =
-  | 'BOOTS_OF_REGENERATION'
-  | 'BOOTS_OF_THE_MERCENARY'
-  | 'SMALL_SPURS';
+export type HeroLegsItemId = 'BOOTS_OF_REGENERATION' | 'BOOTS_OF_THE_MERCENARY' | 'SMALL_SPURS';
 
 export type RomanRightHandItems =
   | 'SWORD_OF_THE_LEGIONNAIRE'
@@ -93,11 +86,11 @@ export type HunRightHandItems =
   | 'SWORD_OF_THE_MARAUDER';
 
 export type SpartanRightHandItems =
- | 'SPEAR_OF_THE_HOPLITE'
- | 'SPEAR_OF_THE_SHIELDSMAN'
- | 'SWORD_OF_THE_TWINSTEEL_THERION'
- | 'SWORD_OF_THE_ELPIDA_RIDER'
- | 'SPEAR_OF_THE_CORINTHIAN_CRUSHER';
+  | 'SPEAR_OF_THE_HOPLITE'
+  | 'SPEAR_OF_THE_SHIELDSMAN'
+  | 'SWORD_OF_THE_TWINSTEEL_THERION'
+  | 'SWORD_OF_THE_ELPIDA_RIDER'
+  | 'SPEAR_OF_THE_CORINTHIAN_CRUSHER';
 
 export type HeroRightHandItemId =
   | RomanRightHandItems
@@ -107,26 +100,18 @@ export type HeroRightHandItemId =
   | HunRightHandItems
   | SpartanRightHandItems;
 
-export type HeroLeftHandItemId =
-  | 'SHIELD'
-  | 'NATARIAN_HORN'
-  | 'MAP'
-  | 'PENNANT';
+export type HeroLeftHandItemId = 'SHIELD' | 'NATARIAN_HORN' | 'MAP' | 'PENNANT';
 
-export type HeroHorseItemId =
-  | 'GELDING'
-  | 'THOROUGHBRED'
-  | 'WARHORSE';
+export type HeroHorseItemId = 'GELDING' | 'THOROUGHBRED' | 'WARHORSE';
 
-export type HeroConsumableItemId =
-  | 'BUCKET'
-  | 'BOOK_OF_WISDOM'
-  | 'OINTMENT'
-  | 'EXPERIENCE_SCROLL'
-  | 'CAGE';
+export type HeroConsumableItemId = 'BUCKET' | 'BOOK_OF_WISDOM' | 'OINTMENT' | 'EXPERIENCE_SCROLL' | 'CAGE';
 
 export type HeroItemId =
-  | HeroHeadItemId | HeroTorsoItemId | HeroLegsItemId | HeroLeftHandItemId | HeroRightHandItemId
+  | HeroHeadItemId
+  | HeroTorsoItemId
+  | HeroLegsItemId
+  | HeroLeftHandItemId
+  | HeroRightHandItemId
   | HeroHorseItemId
   | HeroConsumableItemId;
 

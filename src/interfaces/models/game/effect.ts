@@ -22,21 +22,11 @@ export type TroopTrainingDurationEffectId =
   | 'workshopTrainingDuration'
   | 'hospitalTrainingDuration';
 
-export type TroopSpeedBonusEffectId =
-  | 'unitSpeedBonus'
-  | 'unitSpeedAfter20TilesBonus';
+export type TroopSpeedBonusEffectId = 'unitSpeedBonus' | 'unitSpeedAfter20TilesBonus';
 
-export type BuildingEffectId =
-  | 'villageDefenceValue'
-  | 'villageDefenceBonus'
-  | 'buildingDurabilityBonus'
-  | 'buildingDuration';
+export type BuildingEffectId = 'villageDefenceValue' | 'villageDefenceBonus' | 'buildingDurabilityBonus' | 'buildingDuration';
 
-export type ResourceProductionEffectId =
-  | 'woodProduction'
-  | 'clayProduction'
-  | 'ironProduction'
-  | 'wheatProduction';
+export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction';
 
 export type EffectId =
   | HeroEffectId
@@ -105,16 +95,16 @@ export type VillageOasisProductionBonusEffect = {
   oasisExpansionSlotId: number;
 } & Record<Resource, number>;
 
-type EffectTypeToEffectPropertiesMap<T extends  EffectType> = {
+type EffectTypeToEffectPropertiesMap<T extends EffectType> = {
   [EffectType.GLOBAL]: GlobalEffect;
   [EffectType.VILLAGE]: VillageEffect;
   [EffectType.VILLAGE_BUILDING]: VillageBuildingEffect;
   [EffectType.VILLAGE_OASIS]: VillageOasisProductionBonusEffect;
 }[T];
 
-export type Effect <T extends EffectType | void = void> = WithServerId<{
-  id: EffectId;
-  scope: 'global' | 'village';
-}
-// @ts-expect-error - We need a generic GameEvent as well as more defined one
- & (T extends void ? object : EffectTypeToEffectPropertiesMap<T>)>;
+export type Effect<T extends EffectType | void = void> = WithServerId<
+  {
+    id: EffectId;
+    scope: 'global' | 'village';
+  } & (T extends void ? object : EffectTypeToEffectPropertiesMap<T>) // @ts-expect-error - We need a generic GameEvent as well as more defined one
+>;

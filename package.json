@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint ./ --ignore-path .gitignore --ext .ts,.tsx ",
+    "lint": "eslint ./ --ignore-path .gitignore --ext .ts,.tsx",
     "lint:fix": "eslint ./ --ignore-path .gitignore --ext .ts,.tsx --fix",
+    "format": "prettier . --write --ignore-unknown",
     "check:types": "tsc",
     "test": "vitest",
     "prepare": "husky install"
@@ -98,8 +99,9 @@
       "last 1 safari version"
     ]
   },
-  "*.{js,jsx,ts,tsx}": [
-    "eslint --quiet --fix",
-    "prettier --write --ignore-unknown"
-  ]
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "npm run format --quiet"
+    ]
+  }
 }

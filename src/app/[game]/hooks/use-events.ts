@@ -28,7 +28,7 @@ export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): Game
   events.splice(indexToInsert, 0, event);
 
   return events;
-}
+};
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   // eslint-disable-next-line default-case
@@ -43,15 +43,13 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
       return buildingDestructionResolver;
     }
   }
-}
+};
 
 const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUILDING_CONSTRUCTION> => {
-  return [
-    GameEventType.BUILDING_CONSTRUCTION,
-    GameEventType.BUILDING_DESTRUCTION,
-    GameEventType.BUILDING_LEVEL_CHANGE,
-  ].includes(event.type);
-}
+  return [GameEventType.BUILDING_CONSTRUCTION, GameEventType.BUILDING_DESTRUCTION, GameEventType.BUILDING_LEVEL_CHANGE].includes(
+    event.type
+  );
+};
 
 export const useEvents = () => {
   const queryClient = useQueryClient();
@@ -122,14 +120,15 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const { events } = useEvents();
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
-    mutationFn: async (args: CreateEventArgs<T>) => createEventFn<T>({
-      queryClient,
-      events,
-      serverId,
-      type: eventType,
-      ...args,
-    }),
+    mutationFn: async (args: CreateEventArgs<T>) =>
+      createEventFn<T>({
+        queryClient,
+        events,
+        serverId,
+        type: eventType,
+        ...args,
+      }),
   });
 
   return createEvent;
-}
+};

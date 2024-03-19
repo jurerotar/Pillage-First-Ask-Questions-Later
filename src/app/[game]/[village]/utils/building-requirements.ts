@@ -13,12 +13,12 @@ import { getBuildingData } from 'app/[game]/utils/common';
 
 export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;
-}
+};
 
 export type AssessBuildingConstructionReadinessReturn = {
   canBuild: boolean;
   assessedRequirements: AssessedBuildingRequirement[];
-}
+};
 
 export type AssessBuildingConstructionReadinessArgs = {
   tribe: Tribe;
@@ -26,20 +26,29 @@ export type AssessBuildingConstructionReadinessArgs = {
   currentVillage: Village;
   currentVillageBuildingEvents: GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
   buildingId: Building['id'];
-}
+};
 
 type AssessFunctionArgs<T extends BuildingRequirement> = AssessBuildingConstructionReadinessArgs & {
   requirement: T;
   building: Building;
-}
+};
 
 const assessBuildingLevelRequirement = (args: AssessFunctionArgs<BuildingLevelBuildingRequirement>): boolean => {
-  const { requirement, currentVillage: { buildingFields } } = args;
+  const {
+    requirement,
+    currentVillage: { buildingFields },
+  } = args;
   return (buildingFields.find(({ buildingId: id }) => requirement.buildingId === id)?.level ?? 0) >= requirement.level;
-}
+};
 
 const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuildingRequirement>): boolean => {
-  const { building, requirement, currentVillage: { buildingFields }, currentVillageBuildingEvents, buildingId } = args;
+  const {
+    building,
+    requirement,
+    currentVillage: { buildingFields },
+    currentVillageBuildingEvents,
+    buildingId,
+  } = args;
   const sameBuildingFields: BuildingField[] = buildingFields.filter(({ buildingId: id }) => id === buildingId);
   const buildingExistsInQueue = !!currentVillageBuildingEvents.find(
     ({ building: { id: buildingIdUnderConstruction } }) => buildingIdUnderConstruction === buildingId
@@ -54,20 +63,23 @@ const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuilding
 
   // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
   return !(sameBuildingFields.length > 0 || buildingExistsInQueue);
-}
+};
 
 const assessCapitalRequirement = (args: AssessFunctionArgs<CapitalBuildingRequirement>): boolean => {
-  const { requirement, currentVillage: { isCapital } } = args;
+  const {
+    requirement,
+    currentVillage: { isCapital },
+  } = args;
   return requirement.canBuildOnlyInCapital === isCapital;
-}
+};
 
 const assessTribeRequirement = (args: AssessFunctionArgs<TribeBuildingRequirement>): boolean => {
   const { requirement, tribe } = args;
   return requirement.tribe === tribe;
-}
+};
 
 export const assessBuildingConstructionReadiness = (
-  args: AssessBuildingConstructionReadinessArgs,
+  args: AssessBuildingConstructionReadinessArgs
 ): AssessBuildingConstructionReadinessReturn => {
   const { buildingId } = args;
 
@@ -101,7 +113,7 @@ export const assessBuildingConstructionReadiness = (
     return {
       ...requirement,
       fulfilled,
-    }
+    };
   });
 
   const canBuild = assessedRequirements.length > 0 ? assessedRequirements.every(({ fulfilled }) => fulfilled) : true;
@@ -110,4 +122,4 @@ export const assessBuildingConstructionReadiness = (
     canBuild,
     assessedRequirements,
   };
-}
+};

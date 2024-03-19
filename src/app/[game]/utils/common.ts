@@ -7,7 +7,7 @@ import { buildings } from 'assets/buildings';
 export const getBuildingData = (buildingId: Building['id']) => {
   const building: Building = buildings.find(({ id }) => id === buildingId)!;
   return building;
-}
+};
 
 export const getBuildingDataForLevel = (buildingId: Building['id'], level: number) => {
   const building = getBuildingData(buildingId);
@@ -27,13 +27,13 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
     nextLevelCropConsumption,
     nextLevelCulturePointsProduction,
     nextLevelResourceCost,
-    nextLevelBuildingDuration
+    nextLevelBuildingDuration,
   };
 };
 
 export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, buildingFieldId: BuildingField['id']): BuildingField | null => {
   return currentVillage.buildingFields.find(({ id: fieldId }) => buildingFieldId === fieldId) ?? null;
-}
+};
 
 export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
   let sum: number = 0;

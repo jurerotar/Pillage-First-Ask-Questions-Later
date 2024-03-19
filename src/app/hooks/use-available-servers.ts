@@ -61,9 +61,9 @@ export const useAvailableServers = () => {
         ...server,
         statistics: {
           ...server.statistics,
-          lastLoggedInTime: Date.now()
-        }
-      }
+          lastLoggedInTime: Date.now(),
+        },
+      };
       await database.servers.put(updatedServer);
     },
     onSettled: () => {

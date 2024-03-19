@@ -51,7 +51,7 @@ export const VillagePage: React.FC = () => {
 
           const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingFieldType['id'];
 
-          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />
+          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
       <Modal
@@ -60,16 +60,17 @@ export const VillagePage: React.FC = () => {
         title={title}
         hasTitle
       >
-        {hasBuilding ?
+        {hasBuilding ? (
           <BuildingUpgradeModal
             buildingFieldId={modalArgs as BuildingFieldType['id']}
             modalCloseHandler={closeBuildingUpgradeModal}
-          /> :
+          />
+        ) : (
           <BuildingConstructionModal
             buildingFieldId={modalArgs as BuildingFieldType['id']}
             modalCloseHandler={closeBuildingUpgradeModal}
           />
-        }
+        )}
       </Modal>
       <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px]">
         {[...Array(22)].map((_, buildingFieldId) => (

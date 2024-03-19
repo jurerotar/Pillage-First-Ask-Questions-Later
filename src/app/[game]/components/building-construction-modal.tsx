@@ -27,19 +27,16 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
-  const [currentlyAvailableBuildings, unavailableBuildings] = partition<Building>(
-    buildingsByCategory,
-    ({ id: buildingId }: Building) => {
-      const { canBuild } = assessBuildingConstructionReadiness({
-        buildingId,
-        tribe,
-        currentVillageBuildingEvents,
-        playerVillages,
-        currentVillage,
-      });
-      return canBuild;
-    },
-  );
+  const [currentlyAvailableBuildings, unavailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
+    const { canBuild } = assessBuildingConstructionReadiness({
+      buildingId,
+      tribe,
+      currentVillageBuildingEvents,
+      playerVillages,
+      currentVillage,
+    });
+    return canBuild;
+  });
 
   const [currentlyUnavailableBuildings] = partition<Building>(unavailableBuildings, ({ id: buildingId }: Building) => {
     const { assessedRequirements } = assessBuildingConstructionReadiness({
@@ -51,7 +48,9 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
     });
 
     const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
-    const amountRequirement = assessedRequirements.find(({ type }) => type === 'amount') as AmountBuildingRequirement & AssessedBuildingRequirement | undefined;
+    const amountRequirement = assessedRequirements.find(({ type }) => type === 'amount') as
+      | (AmountBuildingRequirement & AssessedBuildingRequirement)
+      | undefined;
 
     // Other tribes' building or unique buildings can never be built again, so we filter them out
     return (
@@ -102,17 +101,15 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
           )}
         </>
       )}
-      {hasNoAvailableBuildings && (
-        <>No buildings available</>
-      )}
+      {hasNoAvailableBuildings && <>No buildings available</>}
     </div>
-  )
+  );
 };
 
 type BuildingConstructionModalProps = {
   buildingFieldId: BuildingField['id'];
   modalCloseHandler: () => void;
-}
+};
 
 export const BuildingConstructionModal: React.FC<BuildingConstructionModalProps> = ({ buildingFieldId, modalCloseHandler }) => {
   const { t } = useTranslation();

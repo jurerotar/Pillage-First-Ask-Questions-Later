@@ -11,19 +11,19 @@ export const getEffects = (serverId: Server['id']) => database.effects.where({ s
 
 const globalEffectGuard = (effect: Effect): effect is Effect<EffectType.GLOBAL> => {
   return effect.scope === 'global';
-}
+};
 
 const villageEffectGuard = (effect: Effect): effect is Effect<EffectType.VILLAGE> => {
   return effect.scope === 'village';
-}
+};
 
 const villageBuildingEffectGuard = (effect: Effect): effect is Effect<EffectType.VILLAGE_BUILDING> => {
   return effect.scope === 'village' && Object.hasOwn(effect, 'buildingFieldId');
-}
+};
 
 const villageOasisBonusEffectGuard = (effect: Effect): effect is Effect<EffectType.VILLAGE_OASIS> => {
   return effect.scope === 'village' && Object.hasOwn(effect, 'tileId');
-}
+};
 
 export const useEffects = () => {
   const { serverId } = useCurrentServer();

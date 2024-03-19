@@ -6,11 +6,11 @@ import { useEffects } from 'app/[game]/hooks/use-effects';
 // TODO: Finish this
 export const useCurrentResources = (resource: Resource) => {
   const {} = useEffects();
-  const { currentVillage: { resources, lastUpdatedAt } } = useCurrentVillage();
+  const {
+    currentVillage: { resources, lastUpdatedAt },
+  } = useCurrentVillage();
 
-  useEffect(() => {
-
-  }, []);
+  useEffect(() => {}, []);
 
   console.log(resources, lastUpdatedAt);
 

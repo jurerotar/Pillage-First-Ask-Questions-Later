@@ -33,6 +33,6 @@ export const useCurrentServer = () => {
     serverQueryStatus,
     serverId,
     mapSize,
-    serverSpeed
+    serverSpeed,
   };
 };
