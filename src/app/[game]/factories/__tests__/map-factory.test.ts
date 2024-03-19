@@ -77,7 +77,7 @@ describe('Map factory', () => {
     });
   });
 
-  describe('Tile type occurrence', () => {});
+  // describe('Tile type occurrence', () => {});
 
   //
   // TODO: Re-enable this test once nice percentages are defined

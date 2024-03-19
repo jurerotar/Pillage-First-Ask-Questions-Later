@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import * as ResizeObserverModule from 'resize-observer-polyfill';
+import { vi } from 'vitest';
 
 Object.defineProperty(globalThis, 'crypto', {
   value: {
@@ -11,7 +12,7 @@ Object.defineProperty(globalThis, 'ResizeObserver', {
   value: ResizeObserverModule.default,
 });
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (str: string): string => str,
   }),

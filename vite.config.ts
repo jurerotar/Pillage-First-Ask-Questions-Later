@@ -60,4 +60,9 @@ export default defineConfig({
   worker: {
     format: 'es',
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './vitest-setup.ts'
+  }
 }) satisfies UserConfig;
