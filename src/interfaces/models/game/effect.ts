@@ -4,6 +4,8 @@
  */
 import { BuildingField, Village } from 'interfaces/models/game/village';
 import { WithServerId } from 'interfaces/models/game/server';
+import { Tile } from 'interfaces/models/game/tile';
+import { Resource } from 'interfaces/models/game/resource';
 
 export type HeroEffectId =
   | 'heroSpeedBonus'
@@ -73,18 +75,46 @@ export type EffectId =
   | 'granaryCapacity'
   | 'warehouseCapacity';
 
-type GlobalEffect = {
+export enum EffectType {
+  GLOBAL = 'global',
+  VILLAGE = 'village',
+  VILLAGE_BUILDING = 'village-building',
+  VILLAGE_OASIS = 'village-oasis',
+}
+
+export type GlobalEffect = WithServerId<{
   scope: 'global';
+  value: number;
+}>;
+
+export type VillageEffect = {
+  villageId: Village['id'];
+  scope: 'village';
   value: number;
 };
 
-type VillageEffect = {
-  scope: 'village';
-  villageId: Village['id'];
+export type VillageBuildingEffect = VillageEffect & {
   buildingFieldId: BuildingField['id'];
   value: number;
 };
 
-export type Effect = WithServerId<VillageEffect | GlobalEffect> & {
-  id: string;
-};
+export type VillageOasisProductionBonusEffect = {
+  scope: 'village';
+  villageId: Village['id'];
+  tileId: Tile['id'] | null;
+  oasisExpansionSlotId: number;
+} & Record<Resource, number>;
+
+type EffectTypeToEffectPropertiesMap<T extends  EffectType> = {
+  [EffectType.GLOBAL]: GlobalEffect;
+  [EffectType.VILLAGE]: VillageEffect;
+  [EffectType.VILLAGE_BUILDING]: VillageBuildingEffect;
+  [EffectType.VILLAGE_OASIS]: VillageOasisProductionBonusEffect;
+}[T];
+
+export type Effect <T extends EffectType | void = void> = WithServerId<{
+  id: EffectId;
+  scope: 'global' | 'village';
+}
+// @ts-expect-error - We need a generic GameEvent as well as more defined one
+ & (T extends void ? object : EffectTypeToEffectPropertiesMap<T>)>;

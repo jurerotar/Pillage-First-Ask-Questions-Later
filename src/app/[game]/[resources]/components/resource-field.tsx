@@ -5,6 +5,7 @@ import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { BuildingId } from 'interfaces/models/game/building';
+import { useTranslation } from 'react-i18next';
 
 type ResourceFieldProps = {
   onClick: () => void;
@@ -41,6 +42,7 @@ const backgroundColors = new Map<BuildingId, string>([
 ]);
 
 export const ResourceField: React.FC<ResourceFieldProps> = ({ resourceFieldId, onClick }) => {
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, resourceFieldId)!;
   const backgroundColor = backgroundColors.get(buildingId);
@@ -49,6 +51,7 @@ export const ResourceField: React.FC<ResourceFieldProps> = ({ resourceFieldId, o
 
   return (
     <button
+      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       type="button"
       className={clsx(styles, backgroundColor, 'absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
       data-building-field-id={resourceFieldId}

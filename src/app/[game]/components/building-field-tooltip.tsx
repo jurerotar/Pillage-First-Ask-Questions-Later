@@ -1,6 +1,6 @@
 import { BuildingField } from 'interfaces/models/game/village';
 import React from 'react';
-import { getBuildingData, getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useTranslation } from 'react-i18next';
 import { Icon } from 'app/components/icon';
 import { Resources } from 'app/[game]/components/resources';

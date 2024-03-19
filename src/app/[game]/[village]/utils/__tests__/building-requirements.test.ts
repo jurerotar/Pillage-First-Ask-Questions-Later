@@ -247,7 +247,6 @@ describe('building-requirements', () => {
         buildingId: 'CRANNY',
       };
 
-      console.log(currentVillageBuildingEvents);
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(false);
     });

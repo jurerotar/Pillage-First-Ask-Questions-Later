@@ -77,7 +77,6 @@ export const useEvents = () => {
       resolver(event, queryClient);
       database.events.where({ serverId, id }).delete();
       queryClient.invalidateQueries({ queryKey: [eventsCacheKey, serverId] });
-      console.log('resolved ', id, event);
     },
   });
 

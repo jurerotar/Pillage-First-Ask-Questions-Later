@@ -22,7 +22,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
         onRequestClose={closeHandler}
         appElement={document.getElementById('root') as HTMLElement}
       >
-        <div className="relative h-full w-full">
+        <div className="relative size-full">
           {/* Modal header */}
           {hasTitle && (
             <div className="mb-2 border-b border-gray-300">

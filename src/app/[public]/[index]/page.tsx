@@ -33,8 +33,9 @@ export const HomePage: React.FC = () => {
             <h2 className="text-xl dark:text-white">Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It runs purely in the browser, requiring no downloads or installations.</h2>
             <Button onClick={() => openCreateServerModal()}>Create new server</Button>
             <p className="">
-              Database schema is likely to change between builds. Make sure to always reset your local database after changing branches or trying a new build!
-              Clicking on this button will delete "echoes-of-travian" database and refresh the page.
+              Database schema is likely to change between builds.
+              Make sure to always reset your local database after changing branches or trying a new build!
+              Clicking on this button will delete &quot;echoes-of-travian&quot; database and refresh the page.
             </p>
             <Button
               onClick={resetDatabase}

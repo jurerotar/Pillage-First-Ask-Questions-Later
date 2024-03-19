@@ -87,15 +87,12 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   };
 
   return (
-    <>
-      <article className="flex flex-col gap-4 border-y-2 border-gray-400 py-2">
+    <article className="flex flex-col gap-4 py-2">
         <div className="flex flex-col gap-2">
           <h2 className="font-semibold">{t(`BUILDINGS.${building.id}.NAME`)}</h2>
           <p>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
         </div>
-        <div className="">
-
-        </div>
+        <div className="" />
         {canBuild && (
           <div className="flex gap-2">
             {doesBuildingExist && (
@@ -141,18 +138,22 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
           <section>
             Requirements
             <ul className="flex gap-2">
-              {assessedRequirements.map((assessedRequirement: AssessedBuildingRequirement) => (
-                <li key={assessedRequirement.id}>
-                  <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                   {assessedRequirement.type === 'capital' && 'Capital'}
-                   {assessedRequirement.type === 'building' && `${t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level ${assessedRequirement.level}`}
-                  </span>
-                </li>
+              {assessedRequirements.map((assessedRequirement: AssessedBuildingRequirement, index) => (
+                <React.Fragment key={assessedRequirement.id}>
+                  {['capital', 'building'].includes(assessedRequirement.type) && (
+                    <li>
+                      <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
+                        {assessedRequirement.type === 'capital' && 'Capital'}
+                        {assessedRequirement.type === 'building' && `${t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level ${assessedRequirement.level}`}
+                        {index !== assessedRequirements.length - 1 && ','}
+                      </span>
+                    </li>
+                  )}
+                </React.Fragment>
               ))}
             </ul>
           </section>
         )}
       </article>
-    </>
   );
 };

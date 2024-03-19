@@ -10,7 +10,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'wheatProductionBonus',
-        valuesPerLevel: [5, 10, 15, 20, 25],
+        valuesPerLevel: [0, 5, 10, 15, 20, 25],
       },
     ],
     buildingRequirements: [
@@ -55,7 +55,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'clayProductionBonus',
-        valuesPerLevel: [5, 10, 15, 20, 25],
+        valuesPerLevel: [0, 5, 10, 15, 20, 25],
       },
     ],
     buildingRequirements: [
@@ -98,7 +98,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'clayProduction',
-        valuesPerLevel: [4, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
+        valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
       },
     ],
     buildingCost: [
@@ -139,7 +139,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'wheatProduction',
-        valuesPerLevel: [4, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
+        valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
       },
     ],
     buildingCost: [
@@ -176,7 +176,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'wheatProductionBonus',
-        valuesPerLevel: [5, 10, 15, 20, 25],
+        valuesPerLevel: [0, 5, 10, 15, 20, 25],
       },
     ],
     buildingRequirements: [
@@ -212,7 +212,8 @@ export const buildings: Building[] = [
       {
         effectId: 'granaryCapacity',
         valuesPerLevel: [
-          1200, 1700, 2300, 3100, 4000, 5000, 6300, 7800, 9600, 11800, 14400, 17600, 21400, 25900, 31300, 37900, 45700, 55100, 66400, 80000,
+          0, 400, 900, 1500, 2300, 3200, 4200, 5500, 7000, 8800, 11000, 13600,
+          16800, 20600, 25100, 30500, 37100, 44900, 54300, 65600, 79200,
         ],
       },
     ],
@@ -265,8 +266,26 @@ export const buildings: Building[] = [
       {
         effectId: 'granaryCapacity',
         valuesPerLevel: [
-          3600, 5100, 6900, 9300, 12000, 15000, 18900, 23400, 28800, 35400, 43200, 52800, 64200, 77700, 93900, 113700, 137100, 165300,
-          199200, 240000,
+          1200,
+          2700,
+          4500,
+          6900,
+          9600,
+          12600,
+          16500,
+          21000,
+          26400,
+          33000,
+          40800,
+          50400,
+          61800,
+          75300,
+          91500,
+          111300,
+          134700,
+          162900,
+          196800,
+          237600
         ],
       },
     ],
@@ -325,8 +344,26 @@ export const buildings: Building[] = [
       {
         effectId: 'warehouseCapacity',
         valuesPerLevel: [
-          3600, 5100, 6900, 9300, 12000, 15000, 18900, 23400, 28800, 35400, 43200, 52800, 64200, 77700, 93900, 113700, 137100, 165300,
-          199200, 240000,
+          1200,
+          2700,
+          4500,
+          6900,
+          9600,
+          12600,
+          16500,
+          21000,
+          26400,
+          33000,
+          40800,
+          50400,
+          61800,
+          75300,
+          91500,
+          111300,
+          134700,
+          162900,
+          196800,
+          237600
         ],
       },
     ],
@@ -381,7 +418,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'ironProductionBonus',
-        valuesPerLevel: [5, 10, 15, 20, 25],
+        valuesPerLevel: [0, 5, 10, 15, 20, 25],
       },
     ],
     buildingRequirements: [
@@ -424,7 +461,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'ironProduction',
-        valuesPerLevel: [4, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
+        valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
       },
     ],
     buildingCost: [
@@ -461,7 +498,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'woodProductionBonus',
-        valuesPerLevel: [5, 10, 15, 20, 25],
+        valuesPerLevel: [0, 5, 10, 15, 20, 25],
       },
     ],
     buildingRequirements: [
@@ -503,7 +540,7 @@ export const buildings: Building[] = [
       {
         effectId: 'warehouseCapacity',
         valuesPerLevel: [
-          1200, 1700, 2300, 3100, 4000, 5000, 6300, 7800, 9600, 11800, 14400, 17600, 21400, 25900, 31300, 37900, 45700, 55100, 66400, 80000,
+          400, 900, 1500, 2300, 3200, 4200, 5500, 7000, 8800, 11000, 13600, 16800, 20600, 25100, 30500, 37100, 44900, 54300, 65600, 79200,
         ],
       },
     ],
@@ -554,7 +591,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'oasisProductionBonus',
-        valuesPerLevel: [1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2],
+        valuesPerLevel: [0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2],
       },
     ],
     buildingRequirements: [
@@ -611,7 +648,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'woodProduction',
-        valuesPerLevel: [4, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
+        valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
       },
     ],
     buildingCost: [
@@ -701,7 +738,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'amountOfUnlockedUnitResearchLevels',
-        valuesPerLevel: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
       },
     ],
     buildingRequirements: [
@@ -758,8 +795,8 @@ export const buildings: Building[] = [
       {
         effectId: 'barracksTrainingDuration',
         valuesPerLevel: [
-          1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852,
-          0.1667, 0.1493, 0.1351,
+          1, 1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846,
+          0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852, 0.1667, 0.1493, 0.1351,
         ],
       },
     ],
@@ -816,12 +853,12 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+        valuesPerLevel: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
       },
       {
         effectId: 'villageDefenceBonus',
         valuesPerLevel: [
-          1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
+          1, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
         ],
       },
     ],
@@ -871,12 +908,12 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
       },
       {
         effectId: 'villageDefenceBonus',
         valuesPerLevel: [
-          1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
+          1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
         ],
       },
     ],
@@ -927,8 +964,8 @@ export const buildings: Building[] = [
       {
         effectId: 'greatBarracksTrainingDuration',
         valuesPerLevel: [
-          1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852,
-          0.1667, 0.1493, 0.1351,
+          1, 1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846,
+          0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852, 0.1667, 0.1493, 0.1351,
         ],
       },
     ],
@@ -986,8 +1023,8 @@ export const buildings: Building[] = [
       {
         effectId: 'greatStableTrainingDuration',
         valuesPerLevel: [
-          1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852,
-          0.1667, 0.1493, 0.1351,
+          1, 1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846,
+          0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852, 0.1667, 0.1493, 0.1351,
         ],
       },
     ],
@@ -1044,7 +1081,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'oasisExpansionSlot',
-        valuesPerLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3],
+        valuesPerLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3],
       },
     ],
     buildingRequirements: [
@@ -1101,8 +1138,8 @@ export const buildings: Building[] = [
       {
         effectId: 'hospitalTrainingDuration',
         valuesPerLevel: [
-          1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852,
-          0.1667, 0.1493, 0.1351,
+          1, 1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846,
+          0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852, 0.1667, 0.1493, 0.1351,
         ],
       },
     ],
@@ -1159,12 +1196,12 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
       },
       {
         effectId: 'villageDefenceBonus',
         valuesPerLevel: [
-          1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
+          0, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
         ],
       },
     ],
@@ -1214,12 +1251,12 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
       },
       {
         effectId: 'villageDefenceBonus',
         valuesPerLevel: [
-          1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
+          0, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
         ],
       },
     ],
@@ -1269,7 +1306,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'amountOfUncoveredAttackingUnits',
-        valuesPerLevel: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
       },
     ],
     buildingRequirements: [
@@ -1314,8 +1351,8 @@ export const buildings: Building[] = [
       {
         effectId: 'stableTrainingDuration',
         valuesPerLevel: [
-          1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852,
-          0.1667, 0.1493, 0.1351,
+          1, 1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448,
+          0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852, 0.1667, 0.1493, 0.1351,
         ],
       },
     ],
@@ -1366,12 +1403,12 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
       },
       {
         effectId: 'villageDefenceBonus',
         valuesPerLevel: [
-          1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
+          1, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
         ],
       },
     ],
@@ -1421,7 +1458,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'buildingDurabilityBonus',
-        valuesPerLevel: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3],
+        valuesPerLevel: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3],
       },
     ],
     buildingRequirements: [
@@ -1477,7 +1514,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'unitSpeedAfter20TilesBonus',
-        valuesPerLevel: [1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.2, 4.4, 4.6, 4.8, 5],
+        valuesPerLevel: [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.2, 4.4, 4.6, 4.8, 5],
       },
     ],
     buildingRequirements: [
@@ -1527,7 +1564,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'trapperCapacity',
-        valuesPerLevel: [10, 22, 35, 49, 64, 80, 97, 115, 134, 154, 175, 196, 218, 241, 265, 290, 316, 343, 371, 400],
+        valuesPerLevel: [0, 10, 22, 35, 49, 64, 80, 97, 115, 134, 154, 175, 196, 218, 241, 265, 290, 316, 343, 371, 400],
       },
     ],
     buildingRequirements: [
@@ -1643,7 +1680,7 @@ export const buildings: Building[] = [
       {
         effectId: 'breweryAttackBonus',
         valuesPerLevel: [
-          1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2,
+          1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2,
         ],
       },
     ],
@@ -1711,7 +1748,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
+        valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
     buildingRequirements: [
@@ -1764,7 +1801,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'crannyCapacity',
-        valuesPerLevel: [100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
+        valuesPerLevel: [0, 100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
       },
     ],
     buildingRequirements: [
@@ -1798,7 +1835,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'embassyCapacity',
-        valuesPerLevel: [0, 0, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60],
+        valuesPerLevel: [0, 0, 0, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60],
       },
     ],
     buildingRequirements: [
@@ -1849,13 +1886,15 @@ export const buildings: Building[] = [
       {
         effectId: 'stableTrainingDuration',
         valuesPerLevel: [
-          0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89, 0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
+          1, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89,
+          0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
         ],
       },
       {
         effectId: 'greatStableTrainingDuration',
         valuesPerLevel: [
-          0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89, 0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
+          1, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89,
+          0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
         ],
       },
     ],
@@ -1917,7 +1956,9 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'buildingDuration',
-        valuesPerLevel: [1, 0.98, 0.96, 0.94, 0.92, 0.9, 0.88, 0.86, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5],
+        valuesPerLevel: [
+          5, 1, 0.98, 0.96, 0.94, 0.92, 0.9, 0.88, 0.86, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5,
+        ],
       },
     ],
     buildingRequirements: [
@@ -1961,7 +2002,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'merchantAmount',
-        valuesPerLevel: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
       },
     ],
     buildingRequirements: [
@@ -2024,7 +2065,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
+        valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
     buildingRequirements: [
@@ -2081,7 +2122,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'villageDefenceValue',
-        valuesPerLevel: [2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
+        valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
     buildingRequirements: [
@@ -2189,7 +2230,7 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'merchantCapacityBonus',
-        valuesPerLevel: [120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 420, 440, 460, 480, 500],
+        valuesPerLevel: [1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0],
       },
     ],
     buildingRequirements: [
