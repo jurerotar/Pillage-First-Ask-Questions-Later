@@ -70,6 +70,7 @@
     "fake-indexeddb": "5.0.2",
     "husky": "9.0.11",
     "identity-obj-proxy": "3.0.0",
+    "jsdom": "^24.0.0",
     "knip": "5.1.4",
     "lint-staged": "15.2.2",
     "postcss": "8.4.37",
