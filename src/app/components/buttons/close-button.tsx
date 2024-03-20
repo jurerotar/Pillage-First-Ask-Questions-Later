@@ -11,6 +11,7 @@ export const CloseButton: React.FC<CloseButtonProps> = (props) => {
 
   return (
     <button
+      aria-label="Close button"
       type="button"
       className={overrideTailwindClasses(
         `text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white ${className}`
@@ -18,7 +19,7 @@ export const CloseButton: React.FC<CloseButtonProps> = (props) => {
       onClickCapture={onClick}
     >
       <svg
-        className="h-5 w-5"
+        className="size-5"
         fill="currentColor"
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"

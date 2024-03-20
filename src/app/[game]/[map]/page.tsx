@@ -14,26 +14,12 @@ import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
 import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
 
 export const MapPage: React.FC = () => {
-  const {
-    modalArgs,
-    isOpen,
-    openModal,
-    closeModal
-  } = useDialog();
+  const { modalArgs, isOpen, openModal, closeModal } = useDialog();
 
-  const {
-    map,
-    getTileByTileId
-  } = useMap();
-  const {
-    height,
-    width
-  } = useWindowSize();
+  const { map, getTileByTileId } = useMap();
+  const { height, width } = useWindowSize();
   const { shouldShowTileTooltips } = useMapFilters();
-  const {
-    gridSize,
-    tileSize
-  } = useMapOptions();
+  const { gridSize, tileSize } = useMapOptions();
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
@@ -45,7 +31,7 @@ export const MapPage: React.FC = () => {
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{
-          mouseleave: true
+          mouseleave: true,
         }}
         hidden={!shouldShowTileTooltips}
         render={({ activeAnchor }) => {
@@ -82,11 +68,11 @@ export const MapPage: React.FC = () => {
         initialScrollLeft={width / 2}
         initialScrollTop={height / 2}
         onScroll={({ scrollTop, scrollLeft }) => {
-          if(bottomMapRulerRef.current) {
+          if (bottomMapRulerRef.current) {
             bottomMapRulerRef.current.scrollTo(scrollLeft);
           }
 
-          if(leftMapRulerRef.current) {
+          if (leftMapRulerRef.current) {
             leftMapRulerRef.current.scrollTo(scrollTop);
           }
         }}
@@ -104,7 +90,7 @@ export const MapPage: React.FC = () => {
           width={20}
           layout="vertical"
           itemData={{
-            layout: 'vertical'
+            layout: 'vertical',
           }}
         >
           {MapRulerCell}
@@ -121,7 +107,7 @@ export const MapPage: React.FC = () => {
           width={width - 20}
           layout="horizontal"
           itemData={{
-            layout: 'horizontal'
+            layout: 'horizontal',
           }}
         >
           {MapRulerCell}

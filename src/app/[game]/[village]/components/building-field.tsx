@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade-indicator';
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useTranslation } from 'react-i18next';
 
 const buildingFieldIdToStyleMap = new Map<VillageFieldId | ReservedFieldId, string>([
   [19, 'top-[33%] left-[26%]'],
@@ -47,7 +48,7 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
     >
       {buildingFieldId}
     </button>
-  )
+  );
 };
 
 type OccupiedBuildingFieldProps = {
@@ -56,12 +57,14 @@ type OccupiedBuildingFieldProps = {
 };
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField, onClick }) => {
-  const { id } = buildingField;
+  const { t } = useTranslation();
+  const { id, buildingId } = buildingField;
 
   const styles = buildingFieldIdToStyleMap.get(id as VillageFieldId | ReservedFieldId);
 
   return (
     <button
+      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       type="button"
       className={clsx(styles, 'absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
       data-building-field-id={id}
@@ -88,7 +91,7 @@ export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, o
         buildingFieldId={buildingFieldId}
         onClick={onClick}
       />
-    )
+    );
   }
 
   return (
@@ -96,5 +99,5 @@ export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, o
       buildingField={buildingField}
       onClick={onClick}
     />
-  )
+  );
 };

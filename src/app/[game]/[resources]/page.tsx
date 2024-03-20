@@ -36,7 +36,7 @@ export const ResourcesPage: React.FC = () => {
 
           const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingField['id'];
 
-          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />
+          return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
       <Modal
@@ -60,7 +60,7 @@ export const ResourcesPage: React.FC = () => {
 
         <Link
           to={villagePath}
-          className="absolute left-[50%] top-[50%] flex size-[14.4%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
+          className="absolute left-1/2 top-1/2 flex size-[14.4%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
         >
           Village
         </Link>

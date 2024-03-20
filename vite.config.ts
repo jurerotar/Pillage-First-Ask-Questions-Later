@@ -12,6 +12,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
+      // Game data
+      'assets/buildings',
+      'assets/units',
+      // Third-party deps
       'react',
       'react-dom',
       'react-router-dom',
@@ -59,5 +63,10 @@ export default defineConfig({
   },
   worker: {
     format: 'es',
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './vitest-setup.ts',
   },
 }) satisfies UserConfig;

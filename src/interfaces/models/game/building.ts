@@ -57,27 +57,27 @@ export type BuildingLevelBuildingRequirement = {
   type: 'building';
   buildingId: Building['id'];
   level: number;
-}
+};
 
 export type TribeBuildingRequirement = {
   id: number;
   type: 'tribe';
   tribe: Tribe;
-}
+};
 
 export type AmountBuildingRequirement = {
   id: number;
   type: 'amount';
   amount: number;
   appliesGlobally?: true;
-}
+};
 
 export type CapitalBuildingRequirement = {
   id: number;
   type: 'capital';
   canBuildOnlyInCapital: boolean;
   canBuildOnlyOutsideOfCapital: boolean;
-}
+};
 
 export type BuildingRequirement =
   | BuildingLevelBuildingRequirement

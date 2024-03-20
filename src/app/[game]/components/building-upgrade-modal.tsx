@@ -7,7 +7,7 @@ import { BuildingCard } from 'app/[game]/[village]/components/building-card';
 type BuildingUpgradeModalProps = {
   buildingFieldId: BuildingField['id'];
   modalCloseHandler: () => void;
-}
+};
 
 export const BuildingUpgradeModal: React.FC<BuildingUpgradeModalProps> = ({ buildingFieldId, modalCloseHandler }) => {
   const { currentVillage } = useCurrentVillage();

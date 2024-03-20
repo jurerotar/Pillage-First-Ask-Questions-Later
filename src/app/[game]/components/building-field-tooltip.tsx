@@ -1,6 +1,6 @@
 import { BuildingField } from 'interfaces/models/game/village';
 import React from 'react';
-import { getBuildingData, getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useTranslation } from 'react-i18next';
 import { Icon } from 'app/components/icon';
 import { Resources } from 'app/[game]/components/resources';
@@ -29,9 +29,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
   return (
     <div className="flex flex-col gap-1">
       <span className="font-semibold">{title}</span>
-      {isMaxLevel && (
-        <span>{t('APP.GAME.VILLAGE.BUILDING_FIELD.MAX_LEVEL')}</span>
-      )}
+      {isMaxLevel && <span>{t('APP.GAME.VILLAGE.BUILDING_FIELD.MAX_LEVEL')}</span>}
       {!isMaxLevel && (
         <>
           <span className="text-gray-300">{t('APP.GAME.VILLAGE.BUILDING_FIELD.NEXT_LEVEL_COST', { level: level + 1 })}</span>
@@ -44,4 +42,4 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
       )}
     </div>
   );
-}
+};

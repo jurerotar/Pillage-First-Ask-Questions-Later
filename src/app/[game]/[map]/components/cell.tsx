@@ -40,7 +40,7 @@ const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
     <OccupiableOasisIcon
       oasisResourceBonus={oasisResourceBonus}
       borderVariant={isOccupied ? 'red' : 'green'}
-      className="h-3 w-3"
+      className="size-3"
     />
   );
 };
@@ -77,7 +77,7 @@ const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile })
   return (
     <span
       className={clsx(
-        'flex h-full w-full items-start justify-end',
+        'flex size-full items-start justify-end',
         shouldShowFactionReputation && !!faction && reputationColorMap.get(reputationLevel)!.border,
         shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed'
       )}
@@ -103,7 +103,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
   return (
     <button
       type="button"
-      className="relative flex h-full w-full justify-end rounded-[1px] border border-gray-500"
+      className="relative flex size-full justify-end rounded-[1px] border border-gray-500"
       style={{
         ...style,
         backgroundColor: tile.graphics.backgroundColor,

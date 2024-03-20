@@ -85,27 +85,9 @@ export type NatarUnitId =
   | 'NATARIAN_EMPEROR'
   | 'NATARIAN_SETTLER';
 
-export type NatureUnitId =
-  | 'RAT'
-  | 'SPIDER'
-  | 'SERPENT'
-  | 'BAT'
-  | 'WILD_BOAR'
-  | 'WOLF'
-  | 'BEAR'
-  | 'CROCODILE'
-  | 'TIGER'
-  | 'ELEPHANT';
+export type NatureUnitId = 'RAT' | 'SPIDER' | 'SERPENT' | 'BAT' | 'WILD_BOAR' | 'WOLF' | 'BEAR' | 'CROCODILE' | 'TIGER' | 'ELEPHANT';
 
-export type UnitId =
-  | RomanUnitId
-  | GaulUnitId
-  | TeutonUnitId
-  | EgyptianUnitId
-  | HunUnitId
-  | SpartanUnitId
-  | NatarUnitId
-  | NatureUnitId;
+export type UnitId = RomanUnitId | GaulUnitId | TeutonUnitId | EgyptianUnitId | HunUnitId | SpartanUnitId | NatarUnitId | NatureUnitId;
 
 export type UnitResearchPrerequisites = `${Building['id']}:${string}`;
 

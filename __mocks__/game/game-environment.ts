@@ -51,6 +51,4 @@ export const createGameEnvironment = () => {
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey, serverId], mapFiltersMock);
 
   return queryClient;
-}
-
-
+};

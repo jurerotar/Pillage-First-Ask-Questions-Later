@@ -16,10 +16,7 @@ export const villageMock: Village = {
     x: 0,
     y: 0,
   },
-  buildingFields: [
-    ...resourceFields4446Mock,
-    ...newVillageBuildingFieldsMock
-  ],
+  buildingFields: [...resourceFields4446Mock, ...newVillageBuildingFieldsMock],
   playerId,
   isCapital: true,
   lastUpdatedAt: 1703165323113,

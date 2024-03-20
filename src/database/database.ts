@@ -29,7 +29,7 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['quests', ['serverId,[serverId+id]']],
   ['achievements', ['serverId,[serverId+id]']],
   ['events', ['serverId,[serverId+id]']],
-  ['effects', ['serverId,[serverId+id]']],
+  ['effects', ['serverId,[serverId+villageId+id],[serverId+id]']],
   ['researchLevels', ['serverId,[serverId+unitId]']],
   ['players', ['serverId,[serverId+id]']],
   ['reputations', ['serverId,[serverId+id]']],

@@ -2,24 +2,17 @@ import { BuildingField } from 'interfaces/models/game/village';
 import React, { useState } from 'react';
 import { buildings } from 'assets/buildings';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
-import { Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
+import { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
 import { useTranslation } from 'react-i18next';
 import { StyledTab } from 'app/components/styled-tab';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useEvents } from 'app/[game]/hooks/use-events';
-import { assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
+import { assessBuildingConstructionReadiness, AssessedBuildingRequirement } from 'app/[game]/[village]/utils/building-requirements';
 import { useVillages } from 'app/[game]/hooks/use-villages';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
-import { Tribe } from 'interfaces/models/game/tribe';
 import { BuildingCard } from 'app/[game]/[village]/components/building-card';
-import { partition } from 'app/utils/common';
-
-const getBuildingsBuildableByTribe = (buildingsToFilter: Building[], tribe: Tribe): Building[] => {
-  return buildingsToFilter.filter(({ buildingRequirements }) => {
-    const tribeRequirement = buildingRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
-    return !tribeRequirement ? true : tribeRequirement.tribe === tribe;
-  });
-};
+import { partition } from 'lodash-es';
+import clsx from 'clsx';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -33,67 +26,90 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { currentVillageBuildingEvents } = useEvents();
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
-  const buildingBuildableByCurrentTribe = getBuildingsBuildableByTribe(buildingsByCategory, tribe);
 
-  const [currentlyAvailableBuildings, currentlyUnavailableBuildings] = partition<Building>(
-    buildingBuildableByCurrentTribe,
-    ({ id: buildingId }: Building) => {
-      const { canBuild } = assessBuildingConstructionReadiness({
-        buildingId,
-        tribe,
-        currentVillageBuildingEvents,
-        playerVillages,
-        currentVillage,
-      });
-      return canBuild;
-    },
-  );
+  const [currentlyAvailableBuildings, unavailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
+    const { canBuild } = assessBuildingConstructionReadiness({
+      buildingId,
+      tribe,
+      currentVillageBuildingEvents,
+      playerVillages,
+      currentVillage,
+    });
+    return canBuild;
+  });
 
-  const hasNoAvailableBuildings = buildingBuildableByCurrentTribe.length === 0;
+  const [currentlyUnavailableBuildings] = partition<Building>(unavailableBuildings, ({ id: buildingId }: Building) => {
+    const { assessedRequirements } = assessBuildingConstructionReadiness({
+      buildingId,
+      tribe,
+      currentVillageBuildingEvents,
+      playerVillages,
+      currentVillage,
+    });
+
+    const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
+    const amountRequirement = assessedRequirements.find(({ type }) => type === 'amount') as
+      | (AmountBuildingRequirement & AssessedBuildingRequirement)
+      | undefined;
+
+    // Other tribes' building or unique buildings can never be built again, so we filter them out
+    return (
+      (!tribeRequirement || tribeRequirement.tribe === tribe) &&
+      !(amountRequirement && amountRequirement.amount === 1 && !amountRequirement.fulfilled)
+    );
+  });
+
+  const hasNoAvailableBuildings = currentlyAvailableBuildings.length + currentlyUnavailableBuildings.length === 0;
 
   return (
     <div className="flex flex-col gap-8">
       {!hasNoAvailableBuildings && (
         <>
           {currentlyAvailableBuildings.length > 0 && (
-            <section>
-              Available buildings
-              {currentlyAvailableBuildings.map((building: Building) => (
-                <BuildingCard
-                  location="building-construction-modal"
-                  buildingId={building.id}
-                  buildingFieldId={buildingFieldId}
+            <section className="flex flex-col gap-2">
+              <h2>Available buildings</h2>
+              {currentlyAvailableBuildings.map((building: Building, index) => (
+                <div
+                  className={clsx(index !== currentlyAvailableBuildings.length - 1 && 'border-b', 'border-gray-200')}
                   key={building.id}
-                />
+                >
+                  <BuildingCard
+                    location="building-construction-modal"
+                    buildingId={building.id}
+                    buildingFieldId={buildingFieldId}
+                  />
+                </div>
               ))}
             </section>
           )}
           {currentlyUnavailableBuildings.length > 0 && (
-            <section>
-              Unavailable buildings
-              {currentlyUnavailableBuildings.map((building: Building) => (
-                <BuildingCard
-                  location="building-construction-modal"
-                  buildingId={building.id}
-                  buildingFieldId={buildingFieldId}
+            <section className="flex flex-col gap-2">
+              <h2>Buildable in the future</h2>
+              {currentlyUnavailableBuildings.map((building: Building, index) => (
+                <div
+                  className={clsx(index !== currentlyUnavailableBuildings.length - 1 && 'border-b', 'border-gray-200')}
                   key={building.id}
-                />
+                >
+                  <BuildingCard
+                    location="building-construction-modal"
+                    buildingId={building.id}
+                    buildingFieldId={buildingFieldId}
+                  />
+                </div>
               ))}
             </section>
           )}
         </>
       )}
-      {hasNoAvailableBuildings && (
-        <>No buildings available</>
-      )}
+      {hasNoAvailableBuildings && <>No buildings available</>}
     </div>
-  )
+  );
 };
 
 type BuildingConstructionModalProps = {
   buildingFieldId: BuildingField['id'];
   modalCloseHandler: () => void;
-}
+};
 
 export const BuildingConstructionModal: React.FC<BuildingConstructionModalProps> = ({ buildingFieldId, modalCloseHandler }) => {
   const { t } = useTranslation();

@@ -16,6 +16,6 @@ export const serverFactory = ({ name, seed, configuration, playerConfiguration }
     playerConfiguration,
     statistics: {
       lastLoggedInTime: null,
-    }
+    },
   };
 };

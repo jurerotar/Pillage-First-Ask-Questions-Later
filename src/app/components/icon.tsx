@@ -3,6 +3,8 @@ import { IconBaseProps } from 'react-icons';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import { BorderIndicator, BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 
+const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
+
 const IconResourceWheat = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wheat')).IconWheat }));
 const IconResourceIron = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-iron')).IconIron }));
 const IconResourceWood = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wood')).IconWood }));
@@ -96,6 +98,8 @@ const IconBuildingDuration = lazy(async () => ({
   default: (await import('app/components/icons/building-field/icon-building-duration')).IconBuildingDuration,
 }));
 
+export type MissingIconType = 'missingIcon';
+
 export type ReportIconType =
   | 'attackerNoLoss'
   | 'attackerSomeLoss'
@@ -114,8 +118,7 @@ type MapControlsIconType =
   | 'mapTileTooltipToggle'
   | 'mapTreasureIconToggle';
 
-type BuildingFieldIcons =
-  | 'buildingDuration';
+type BuildingFieldIcons = 'buildingDuration';
 
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 
@@ -124,6 +127,7 @@ export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat
 export type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
 type IconType =
+  | MissingIconType
   | ReportIconType
   | ResourceCombinationIconType
   | ResourceIconType
@@ -179,6 +183,7 @@ type IconType =
  */
 
 const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
+  missingIcon: IconMissingIcon,
   wood: IconResourceWood,
   clay: IconResourceClay,
   iron: IconResourceIron,
@@ -225,7 +230,7 @@ export type IconProps = IconBaseProps &
 export const Icon: React.FC<IconProps> = (props) => {
   const { type, borderVariant, ...rest } = props;
 
-  const ComputedIcon = typeToIconMap[type];
+  const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
 
   return (
     <ConditionalWrapper

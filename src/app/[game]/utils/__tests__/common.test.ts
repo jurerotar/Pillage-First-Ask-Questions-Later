@@ -18,12 +18,12 @@ describe('Game util functions', () => {
 
   test('calculateResourceProductionFromResourceFields', () => {
     const village4446Production = calculateResourceProductionFromResourceFields(resourceFields4446Mock, buildings);
-    expect(village4446Production).toMatchObject({ clayProduction: 16, ironProduction: 16, wheatProduction: 24, woodProduction: 16 });
+    expect(village4446Production).toMatchObject({ clayProduction: 12, ironProduction: 12, wheatProduction: 18, woodProduction: 12 });
 
     const village11115Production = calculateResourceProductionFromResourceFields(resourceFields11115Mock, buildings);
-    expect(village11115Production).toMatchObject({ clayProduction: 4, ironProduction: 4, wheatProduction: 60, woodProduction: 4 });
+    expect(village11115Production).toMatchObject({ clayProduction: 3, ironProduction: 3, wheatProduction: 45, woodProduction: 3 });
 
     const village00018Production = calculateResourceProductionFromResourceFields(resourceFields00018Mock, buildings);
-    expect(village00018Production).toMatchObject({ clayProduction: 0, ironProduction: 0, wheatProduction: 72, woodProduction: 0 });
+    expect(village00018Production).toMatchObject({ clayProduction: 0, ironProduction: 0, wheatProduction: 54, woodProduction: 0 });
   });
 });

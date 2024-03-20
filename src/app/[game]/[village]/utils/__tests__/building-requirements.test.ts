@@ -27,19 +27,25 @@ const defaultArgs = {
   tribe,
 };
 
-const getAssessedRequirementByType = (requirementType: BuildingRequirement['type'], assessedReadiness: AssessBuildingConstructionReadinessReturn): AssessedBuildingRequirement => {
+const getAssessedRequirementByType = (
+  requirementType: BuildingRequirement['type'],
+  assessedReadiness: AssessBuildingConstructionReadinessReturn
+): AssessedBuildingRequirement => {
   return assessedReadiness.assessedRequirements.find(({ type }) => type === requirementType)!;
-}
+};
 
-const getAssessedRequirementsByType = (requirementType: BuildingRequirement['type'], assessedReadiness: AssessBuildingConstructionReadinessReturn): AssessedBuildingRequirement[] => {
+const getAssessedRequirementsByType = (
+  requirementType: BuildingRequirement['type'],
+  assessedReadiness: AssessBuildingConstructionReadinessReturn
+): AssessedBuildingRequirement[] => {
   return assessedReadiness.assessedRequirements.filter(({ type }) => type === requirementType)!;
-}
+};
 
 describe('building-requirements', () => {
   describe('Capital requirement', () => {
     describe('Is capital village', () => {
       const capitalVillage = { ...villageMock, isCapital: true };
-      it('Great barracks can\'t be built in capital', () => {
+      it("Great barracks can't be built in capital", () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           currentVillage: capitalVillage,
@@ -49,7 +55,7 @@ describe('building-requirements', () => {
         expect(fulfilled).toBe(false);
       });
 
-      it('Great stable can\'t be built in capital', () => {
+      it("Great stable can't be built in capital", () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           currentVillage: capitalVillage,
@@ -95,13 +101,13 @@ describe('building-requirements', () => {
         expect(fulfilled).toBe(true);
       });
 
-      it('Brewery can\'t be built in non-capitals', () => {
+      it("Brewery can't be built in non-capitals", () => {
         const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, currentVillage: nonCapitalVillage, buildingId: 'BREWERY' };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
 
-      it('Stonemason can\'t be built in non-capitals', () => {
+      it("Stonemason can't be built in non-capitals", () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           currentVillage: nonCapitalVillage,
@@ -198,7 +204,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(true);
     });
 
-    it('Can\'t build a second main building', () => {
+    it("Can't build a second main building", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'MAIN_BUILDING',
@@ -207,7 +213,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(false);
     });
 
-    it('Can\'t build a second main building even if first is max level', () => {
+    it("Can't build a second main building even if first is max level", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: [{ buildingId: 'MAIN_BUILDING', id: 1, level: 20 }] },
@@ -232,7 +238,10 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: {
           ...currentVillage,
-          buildingFields: [{ buildingId: 'CRANNY', id: 1, level: 1 }, { buildingId: 'CRANNY', id: 2, level: 10 }],
+          buildingFields: [
+            { buildingId: 'CRANNY', id: 1, level: 1 },
+            { buildingId: 'CRANNY', id: 2, level: 10 },
+          ],
         },
         buildingId: 'CRANNY',
       };
@@ -240,14 +249,13 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(true);
     });
 
-    it('Can\'t build a cranny if one is already in building queue', () => {
+    it("Can't build a cranny if one is already in building queue", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         currentVillageBuildingEvents: [buildingConstructionEventMock],
         buildingId: 'CRANNY',
       };
 
-      console.log(currentVillageBuildingEvents);
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(false);
     });
@@ -303,13 +311,15 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(true);
     });
 
-    it('Can not build brickyard with clay pit lvl 10 if it\'s missing main building', () => {
+    it("Can not build brickyard with clay pit lvl 10 if it's missing main building", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: [{ buildingId: 'CLAY_PIT', id: 1, level: 10 }] },
         buildingId: 'BRICKYARD',
       };
-      const canBuild = getAssessedRequirementsByType('building', assessBuildingConstructionReadiness(args)).every(({ fulfilled }) => fulfilled);
+      const canBuild = getAssessedRequirementsByType('building', assessBuildingConstructionReadiness(args)).every(
+        ({ fulfilled }) => fulfilled
+      );
       expect(canBuild).toBe(false);
     });
   });

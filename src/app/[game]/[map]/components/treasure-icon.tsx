@@ -18,7 +18,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ treasureType, ...res
     <Icon
       {...rest}
       borderVariant="blue"
-      className="h-3 w-3 select-none"
+      className="size-3 select-none"
       type={iconType}
     />
   );

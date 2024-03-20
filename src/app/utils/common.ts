@@ -35,13 +35,6 @@ export const partialArraySum = (array: number[], index: number): number => {
   return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
 };
 
-export const snakeToCamelCase = (string: string): string => {
-  return string
-    .split(/(?=[A-Z])/)
-    .join('_')
-    .toLowerCase();
-};
-
 export const formatTime = (time: number): string => {
   const hours = Math.floor(time / 3600);
   const remainingMinutes = time % 3600;
@@ -56,32 +49,6 @@ export const formatRemainingTime = (endTime: number): string => {
   return formatTime(difference);
 };
 
-export const debounce = (callback: () => void, duration: number = 300) => {
-  let timer: NodeJS.Timeout;
-  return () => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    timer = setTimeout(callback, duration);
-  };
-};
-
-export const sleep = (ms: number) => {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
-};
-
-export const clamp = (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
-
-export const chunk = <T>(array: T[], size: number): T[][] => {
-  const result = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  return result;
-};
-
 export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -93,10 +60,6 @@ export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
   return copy;
 };
 
-export const capitalize = <T extends string>(string: T): Capitalize<T> => {
-  return (string.charAt(0).toUpperCase() + string.slice(1)) as Capitalize<T>;
-};
-
 export const calculateDistanceBetweenPoints = (firstPoint: Point, secondPoint: Point): number => {
   return Math.sqrt((secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2);
 };
@@ -106,10 +69,3 @@ export const roundTo2DecimalPoints = (number: number): number => {
 };
 
 export const invertMap = <T, K>(map: Map<K, T>) => new Map<T, K>(Array.from(map, (_) => _.reverse() as [T, K]));
-
-export const partition = <T>(array: T[], isValid: (element: T) => boolean) => {
-  return array.reduce(([pass, fail]: T[][], elem: T) => {
-    return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
-  }, [[], []]);
-};
-

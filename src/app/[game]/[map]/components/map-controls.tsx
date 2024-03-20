@@ -51,9 +51,8 @@ export const MapControls: React.FC = () => {
     shouldShowWheatFields,
     shouldShowTileTooltips,
     shouldShowTreasureIcons,
-    toggleMapFilter
-  }  = useMapFilters();
-
+    toggleMapFilter,
+  } = useMapFilters();
 
   return (
     <>

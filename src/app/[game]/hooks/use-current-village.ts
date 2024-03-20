@@ -9,7 +9,7 @@ export const useCurrentVillage = () => {
   const { villageSlug } = useRouteSegments();
 
   // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
-  const currentVillage: Village = playerVillages.find(({ slug}) => slug === villageSlug)!;
+  const currentVillage: Village = playerVillages.find(({ slug }) => slug === villageSlug)!;
 
   const currentVillageId = currentVillage!.id;
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
@@ -24,6 +24,6 @@ export const useCurrentVillage = () => {
     currentVillageId,
     distanceFromCurrentVillage,
     canDemolishBuildings,
-    canRearrangeBuildings
+    canRearrangeBuildings,
   };
 };

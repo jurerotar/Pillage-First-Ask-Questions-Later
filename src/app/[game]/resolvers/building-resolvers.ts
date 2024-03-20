@@ -5,7 +5,12 @@ import { Resolver } from 'interfaces/models/common';
 import { BuildingId } from 'interfaces/models/game/building';
 import { GameEventType } from 'interfaces/models/events/game-event';
 
-const updateBuildingFieldLevel = (villages: Village[], villageId: Village['id'], buildingFieldId: BuildingField['id'], level: number): Village[] => {
+const updateBuildingFieldLevel = (
+  villages: Village[],
+  villageId: Village['id'],
+  buildingFieldId: BuildingField['id'],
+  level: number
+): Village[] => {
   return villages.map((village) => {
     if (village.id === villageId) {
       return {
@@ -14,8 +19,8 @@ const updateBuildingFieldLevel = (villages: Village[], villageId: Village['id'],
           if (buildingField.id === buildingFieldId) {
             return {
               ...buildingField,
-              level
-            }
+              level,
+            };
           }
           return buildingField;
         }),
@@ -25,7 +30,12 @@ const updateBuildingFieldLevel = (villages: Village[], villageId: Village['id'],
   });
 };
 
-const addBuildingField = (villages: Village[], villageId: Village['id'], buildingFieldId: BuildingField['id'], buildingId: BuildingId): Village[] => {
+const addBuildingField = (
+  villages: Village[],
+  villageId: Village['id'],
+  buildingFieldId: BuildingField['id'],
+  buildingId: BuildingId
+): Village[] => {
   return villages.map((village) => {
     if (village.id === villageId) {
       return {
@@ -62,7 +72,7 @@ export const buildingLevelChangeResolver: Resolver<GameEventType.BUILDING_LEVEL_
         return {
           ...buildingField,
           level,
-        }
+        };
       }
       return buildingField;
     });
@@ -88,8 +98,8 @@ export const buildingDestructionResolver: Resolver<GameEventType.BUILDING_DESTRU
   // Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
   const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
 
-  if(specialFieldIds.includes(buildingFieldId)) {
-    buildingLevelChangeResolver({...args, level: 0}, queryClient);
+  if (specialFieldIds.includes(buildingFieldId)) {
+    buildingLevelChangeResolver({ ...args, level: 0 }, queryClient);
     return;
   }
 
@@ -101,5 +111,3 @@ export const buildingDestructionResolver: Resolver<GameEventType.BUILDING_DESTRU
     value.buildingFields = value.buildingFields.filter(({ id }) => id !== buildingFieldId);
   });
 };
-
-

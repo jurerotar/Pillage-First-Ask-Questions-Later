@@ -13,10 +13,10 @@ import { useVillages } from 'app/[game]/hooks/use-villages';
 import clsx from 'clsx';
 
 type BuildingCardProps = {
-  location: 'building-construction-modal' | 'building-upgrade-modal'
+  location: 'building-construction-modal' | 'building-upgrade-modal';
   buildingId: Building['id'];
   buildingFieldId: BuildingField['id'];
-}
+};
 
 export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, buildingFieldId, location }) => {
   const { t } = useTranslation();
@@ -87,72 +87,74 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   };
 
   return (
-    <>
-      <article className="flex flex-col gap-4 border-y-2 border-gray-400 py-2">
-        <div className="flex flex-col gap-2">
-          <h2 className="font-semibold">{t(`BUILDINGS.${building.id}.NAME`)}</h2>
-          <p>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
-        </div>
-        <div className="">
-
-        </div>
-        {canBuild && (
-          <div className="flex gap-2">
-            {doesBuildingExist && (
-              <>
-                <Button
-                  variant="confirm"
-                  onClick={upgradeBuilding}
-                >
-                  Construct
-                </Button>
-                {canDemolishBuildings && (
-                  <>
-                    {buildingLevel > 1 && (
-                      <Button
-                        variant="confirm"
-                        onClick={downgradeBuilding}
-                      >
-                        Downgrade by 1 level
-                      </Button>
-                    )}
-                    <Button
-                      variant="confirm"
-                      onClick={demolishBuilding}
-                    >
-                      Demolish completely
-                    </Button>
-                  </>
-                )}
-              </>
-            )}
-            {!doesBuildingExist && (
+    <article className="flex flex-col gap-4 py-2">
+      <div className="flex flex-col gap-2">
+        <h2 className="font-semibold">{t(`BUILDINGS.${building.id}.NAME`)}</h2>
+        <p>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
+      </div>
+      <div className="" />
+      {canBuild && (
+        <div className="flex gap-2">
+          {doesBuildingExist && (
+            <>
               <Button
                 variant="confirm"
-                onClick={constructBuilding}
+                onClick={upgradeBuilding}
               >
                 Construct
               </Button>
-            )}
-          </div>
-        )}
-        {/* Show building requirements if building can't be built */}
-        {!canBuild && location === 'building-construction-modal' && (
-          <section>
-            Requirements
-            <ul className="flex gap-2">
-              {assessedRequirements.map((assessedRequirement: AssessedBuildingRequirement) => (
-                <li key={assessedRequirement.id}>
-                  <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                   {assessedRequirement.type === 'capital' && 'Capital'}
-                   {assessedRequirement.type === 'building' && `${t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level ${assessedRequirement.level}`}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </article>
-    </>
+              {canDemolishBuildings && (
+                <>
+                  {buildingLevel > 1 && (
+                    <Button
+                      variant="confirm"
+                      onClick={downgradeBuilding}
+                    >
+                      Downgrade by 1 level
+                    </Button>
+                  )}
+                  <Button
+                    variant="confirm"
+                    onClick={demolishBuilding}
+                  >
+                    Demolish completely
+                  </Button>
+                </>
+              )}
+            </>
+          )}
+          {!doesBuildingExist && (
+            <Button
+              variant="confirm"
+              onClick={constructBuilding}
+            >
+              Construct
+            </Button>
+          )}
+        </div>
+      )}
+      {/* Show building requirements if building can't be built */}
+      {!canBuild && location === 'building-construction-modal' && (
+        <section>
+          Requirements
+          <ul className="flex gap-2">
+            {assessedRequirements.map((assessedRequirement: AssessedBuildingRequirement, index) => (
+              <React.Fragment key={assessedRequirement.id}>
+                {['capital', 'building'].includes(assessedRequirement.type) && (
+                  <li>
+                    <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
+                      {assessedRequirement.type === 'capital' && 'Capital'}
+                      {assessedRequirement.type === 'building' &&
+                        `${t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level ${assessedRequirement.level}`}
+                      {index !== assessedRequirements.length - 1 && ','}
+                    </span>
+                  </li>
+                )}
+              </React.Fragment>
+            ))}
+          </ul>
+        </section>
+      )}
+    </article>
   );
 };

@@ -44,7 +44,7 @@ const MapProvider: FCWithChildren = ({ children }) => {
       increaseMagnification,
       decreaseMagnification,
       tileSize,
-      gridSize
+      gridSize,
     }),
     [magnification, increaseMagnification, decreaseMagnification, tileSize, gridSize]
   );

@@ -22,7 +22,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
         onRequestClose={closeHandler}
         appElement={document.getElementById('root') as HTMLElement}
       >
-        <div className="relative h-full w-full">
+        <div className="relative size-full">
           {/* Modal header */}
           {hasTitle && (
             <div className="mb-2 border-b border-gray-300">
@@ -36,9 +36,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
           <div className="absolute right-0 top-0">
             <CloseButton onClick={closeHandler} />
           </div>
-          <div className="max-h-[500px] overflow-y-scroll">
-            {children}
-          </div>
+          <div className="max-h-[500px] overflow-y-scroll">{children}</div>
         </div>
       </ReactModal>
     </Suspense>

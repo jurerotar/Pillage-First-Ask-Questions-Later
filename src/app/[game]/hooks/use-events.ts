@@ -28,7 +28,7 @@ export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): Game
   events.splice(indexToInsert, 0, event);
 
   return events;
-}
+};
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   // eslint-disable-next-line default-case
@@ -43,15 +43,13 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
       return buildingDestructionResolver;
     }
   }
-}
+};
 
 const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUILDING_CONSTRUCTION> => {
-  return [
-    GameEventType.BUILDING_CONSTRUCTION,
-    GameEventType.BUILDING_DESTRUCTION,
-    GameEventType.BUILDING_LEVEL_CHANGE,
-  ].includes(event.type);
-}
+  return [GameEventType.BUILDING_CONSTRUCTION, GameEventType.BUILDING_DESTRUCTION, GameEventType.BUILDING_LEVEL_CHANGE].includes(
+    event.type
+  );
+};
 
 export const useEvents = () => {
   const queryClient = useQueryClient();
@@ -73,11 +71,10 @@ export const useEvents = () => {
     mutationFn: async (id) => {
       const event = events!.find(({ id: eventIdToFind }) => eventIdToFind === id)!;
       const resolver = gameEventTypeToResolverFunctionMapper(event.type);
-      // @ts-expect-error - TODO: Fix this type
+      // @ts-expect-error - Each event has all required properties to resolve the event, we check this on event creation
       resolver(event, queryClient);
       database.events.where({ serverId, id }).delete();
       queryClient.invalidateQueries({ queryKey: [eventsCacheKey, serverId] });
-      console.log('resolved ', id, event);
     },
   });
 
@@ -99,17 +96,16 @@ export const useEvents = () => {
   };
 };
 
-type CreateEventArgs<T extends GameEventType> = Omit<GameEvent<T>, 'serverId' | 'id' | 'type'>;
-
-type CreateEventFnArgs<T extends GameEventType> = CreateEventArgs<T> & {
+type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
   queryClient: QueryClient;
-  serverId: Server['id'];
-  type: GameEventType;
 };
 
+type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'serverId' | 'type' | 'queryClient'>;
+
 export const createEventFn = async <T extends GameEventType>(args: CreateEventFnArgs<T>): Promise<void> => {
-  const { queryClient, serverId, type, ...createEventArgs } = args;
-  const event = eventFactory<T>({ serverId, type, ...createEventArgs });
+  const { queryClient, ...rest } = args;
+  const { serverId } = rest;
+  const event: GameEvent<T> = eventFactory<T>(args);
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey, serverId], (previousEvents) => {
     return insertEvent(previousEvents!, event);
   });
@@ -120,17 +116,17 @@ export const createEventFn = async <T extends GameEventType>(args: CreateEventFn
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
   const { serverId } = useCurrentServer();
-  const { events } = useEvents();
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
-    mutationFn: async (args: CreateEventArgs<T>) => createEventFn<T>({
-      queryClient,
-      events,
-      serverId,
-      type: eventType,
-      ...args,
-    }),
+    mutationFn: async (args: CreateEventArgs<T>) =>
+      // @ts-expect-error - TODO: Event definition is kinda garbage, but I've no clue how to fix it
+      createEventFn<T>({
+        queryClient,
+        serverId,
+        type: eventType,
+        ...args,
+      }),
   });
 
   return createEvent;
-}
+};

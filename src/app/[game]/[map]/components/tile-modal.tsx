@@ -6,16 +6,11 @@ type TileModalProps = {
 };
 
 const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
-  return (
-    <></>
-  );
+  return <></>;
 };
 
 const TileModalReports: React.FC<TileModalProps> = ({ tile }) => {
-  return (
-    <>
-    </>
-  );
+  return <></>;
 };
 
 type OasisTileModalProps = {
@@ -23,10 +18,7 @@ type OasisTileModalProps = {
 };
 
 const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
-  return (
-    <>
-    </>
-  );
+  return <></>;
 };
 
 type OccupiableTileModalProps = {
@@ -34,10 +26,7 @@ type OccupiableTileModalProps = {
 };
 
 const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
-  return (
-    <>
-    </>
-  );
+  return <></>;
 };
 
 type OccupiedOccupiableTileModalProps = {
@@ -45,10 +34,7 @@ type OccupiedOccupiableTileModalProps = {
 };
 
 const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = ({ tile }) => {
-  return (
-    <>
-    </>
-  );
+  return <></>;
 };
 
 export const TileModal: React.FC<TileModalProps> = ({ tile }) => {
