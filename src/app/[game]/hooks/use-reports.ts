@@ -4,7 +4,7 @@ import { Report, ReportTag } from 'interfaces/models/game/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
 import { Tile } from 'interfaces/models/game/tile';
-import { ReportIconType } from 'app/components/icon';
+import { MissingIconType, ReportIconType } from 'app/components/icon';
 
 type ReportMark = ReportTag | `un${ReportTag}`;
 
@@ -13,30 +13,40 @@ export const reportsCacheKey = 'reports';
 export const getReports = (serverId: Server['id']) => database.reports.where({ serverId }).sortBy('timestamp');
 
 // TODO: Finish this
-export const getReportIconType = ({ type, status }: Report): ReportIconType => {
-  if (type === 'attack') {
-    if (status === 'no-loss') {
-      return 'attackerNoLoss';
+export const getReportIconType = ({ type, status }: Report): ReportIconType | MissingIconType => {
+  let iconType: ReportIconType | MissingIconType;
+
+  switch (true) {
+    case type === 'attack' && status === 'no-loss': {
+      iconType = 'attackerNoLoss';
+      break;
     }
-    if (status === 'some-loss') {
-      return 'attackerSomeLoss';
+    case type === 'attack' && status === 'some-loss': {
+      iconType = 'attackerSomeLoss';
+      break;
     }
-    if (status === 'full-loss') {
-      return 'attackerFullLoss';
+    case type === 'attack' && status === 'full-loss': {
+      iconType = 'attackerFullLoss';
+      break;
+    }
+    case type === 'defence' && status === 'no-loss': {
+      iconType = 'defenderNoLoss';
+      break;
+    }
+    case type === 'defence' && status === 'some-loss': {
+      iconType = 'defenderSomeLoss';
+      break;
+    }
+    case type === 'defence' && status === 'full-loss': {
+      iconType = 'defenderFullLoss';
+      break;
+    }
+    default: {
+      iconType = 'missingIcon';
     }
   }
 
-  if (type === 'defence') {
-    if (status === 'no-loss') {
-      return 'defenderNoLoss';
-    }
-    if (status === 'some-loss') {
-      return 'defenderSomeLoss';
-    }
-    if (status === 'full-loss') {
-      return 'defenderFullLoss';
-    }
-  }
+  return iconType;
 };
 
 // TODO: Implement this

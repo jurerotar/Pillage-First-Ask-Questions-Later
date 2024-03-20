@@ -1,5 +1,5 @@
 import React from 'react';
-import { clamp } from 'app/utils/common';
+import { clamp } from 'lodash-es';
 
 type ProgressBarProps = {
   value: number;

@@ -21,5 +21,8 @@ jobs:
       - name: Install modules
         run: npm install
 
+      - name: Type check
+        run: npm run type-check
+
       - name: Run tests
         run: npm test

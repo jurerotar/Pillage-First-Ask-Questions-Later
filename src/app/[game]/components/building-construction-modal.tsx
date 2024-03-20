@@ -11,7 +11,7 @@ import { assessBuildingConstructionReadiness, AssessedBuildingRequirement } from
 import { useVillages } from 'app/[game]/hooks/use-villages';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { BuildingCard } from 'app/[game]/[village]/components/building-card';
-import { partition } from 'app/utils/common';
+import { partition } from 'lodash-es';
 import clsx from 'clsx';
 
 type BuildingCategoryPanelProps = {
