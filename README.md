@@ -1,5 +1,12 @@
 # Echoes of Travian
 
+<p style="display: flex; gap: 5px; flex-wrap: wrap">
+  <img src="https://github.com/jurerotar/echoes-of-travian/actions/workflows/master-ci.yml/badge.svg" alt="master branch CI">
+  <img src="https://github.com/jurerotar/echoes-of-travian/actions/workflows/develop-ci.yml/badge.svg" alt="develop branch CI">
+  <img src="https://img.shields.io/netlify/d5146a5a-0a15-4619-bf86-a5c7552b406f" alt="Netlify">
+  <img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="Contributions">
+</p>
+
 Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It's browser based and requires no downloads or account creation.
 Using browser's native IndexedDb, game data is persisted and progressed between game sessions, just like you would expect from an online game.
 
