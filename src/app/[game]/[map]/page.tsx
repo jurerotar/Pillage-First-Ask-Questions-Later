@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useMap } from 'app/[game]/hooks/use-map';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
-import { useWindowSize } from 'usehooks-ts';
+import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import { Modal } from 'app/components/modal';
@@ -12,18 +12,116 @@ import { MapControls } from 'app/[game]/[map]/components/map-controls';
 import { Cell } from 'app/[game]/[map]/components/cell';
 import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
 import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { OccupiedOccupiableTile, Tile as TileType } from 'interfaces/models/game/tile';
+import { usePlayers } from 'app/[game]/hooks/use-players';
+import { useReputations } from 'app/[game]/hooks/use-reputations';
 
 export const MapPage: React.FC = () => {
-  const { modalArgs, isOpen, openModal, closeModal } = useDialog();
+  const { isOpen, closeModal } = useDialog();
 
+  const {
+    server: { configuration },
+  } = useCurrentServer();
   const { map, getTileByTileId } = useMap();
   const { height, width } = useWindowSize();
-  const { shouldShowTileTooltips } = useMapFilters();
+  const { mapFilters } = useMapFilters();
   const { gridSize, tileSize } = useMapOptions();
+  const {
+    currentVillage: { coordinates },
+  } = useCurrentVillage();
+  const { players, getPlayerByPlayerId } = usePlayers();
+  const { reputations, getReputationByFaction } = useReputations();
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
+
+  const isScrolling = useRef<boolean>(false);
+  const mouseDownPosition = useRef({
+    x: 0,
+    y: 0,
+  });
+
+  // Fun fact, using any kind of hooks in rendered tiles absolutely hammers performance.
+  // We need to get all tile information in here and pass it down as props
+  const tilesWithFactions = useMemo(() => {
+    return map.map((tile: TileType) => {
+      const isOccupiedOccupiableTile = tile.type === 'free-tile' && Object.hasOwn(tile, 'ownedBy');
+
+      if (isOccupiedOccupiableTile) {
+        const { faction } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
+        const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
+
+        return {
+          ...tile,
+          faction,
+          reputationLevel,
+        };
+      }
+
+      return {
+        ...tile,
+      };
+    });
+    // This is intentional, missing functions don't have stable reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, players, reputations]);
+
+  const fixedGridData = useMemo(() => {
+    return {
+      tilesWithFactions,
+      mapFilters,
+    };
+  }, [tilesWithFactions, mapFilters]);
+
+  useEventListener(
+    'mousedown',
+    ({ clientX, clientY }) => {
+      mouseDownPosition.current = {
+        x: clientX,
+        y: clientY,
+      };
+
+      isScrolling.current = true;
+    },
+    mapRef
+  );
+
+  useEventListener(
+    'mousemove',
+    ({ clientX, clientY }) => {
+      if (!isScrolling.current || !mapRef.current) {
+        return;
+      }
+
+      const deltaX = clientX - mouseDownPosition.current.x;
+      const deltaY = clientY - mouseDownPosition.current.y;
+
+      const currentX = mapRef.current.scrollLeft;
+      const currentY = mapRef.current.scrollTop;
+
+      mouseDownPosition.current = {
+        x: clientX,
+        y: clientY,
+      };
+
+      mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+    },
+    mapRef
+  );
+
+  useEventListener(
+    'mouseup',
+    () => {
+      isScrolling.current = false;
+    },
+    mapRef
+  );
+
+  const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2;
+  const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2;
 
   return (
     <>
@@ -33,7 +131,7 @@ export const MapPage: React.FC = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!shouldShowTileTooltips}
+        hidden={!mapFilters.shouldShowTileTooltips}
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 
@@ -61,12 +159,14 @@ export const MapPage: React.FC = () => {
         rowHeight={tileSize}
         height={height - 20}
         width={width - 20}
-        itemData={{
-          map,
-          openModal,
+        itemData={fixedGridData}
+        initialScrollTop={initialScrollTop}
+        initialScrollLeft={initialScrollLeft}
+        itemKey={({ columnIndex, data, rowIndex }) => {
+          const size = Math.sqrt(data.tilesWithFactions.length);
+          const tile: TileType = map[size * rowIndex + columnIndex];
+          return tile.id;
         }}
-        initialScrollLeft={width / 2}
-        initialScrollTop={height / 2}
         onScroll={({ scrollTop, scrollLeft }) => {
           if (bottomMapRulerRef.current) {
             bottomMapRulerRef.current.scrollTo(scrollLeft);
@@ -88,6 +188,7 @@ export const MapPage: React.FC = () => {
           height={height - 20}
           itemCount={gridSize}
           width={20}
+          initialScrollOffset={initialScrollTop}
           layout="vertical"
           itemData={{
             layout: 'vertical',
@@ -104,6 +205,7 @@ export const MapPage: React.FC = () => {
           itemSize={tileSize}
           height={20}
           itemCount={gridSize}
+          initialScrollOffset={initialScrollLeft}
           width={width - 20}
           layout="horizontal"
           itemData={{

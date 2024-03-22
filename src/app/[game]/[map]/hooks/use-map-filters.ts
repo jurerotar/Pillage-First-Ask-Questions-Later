@@ -37,7 +37,8 @@ export const useMapFilters = () => {
   });
 
   return {
-    ...mapFilters,
+    mapFilters,
     toggleMapFilter,
+    ...mapFilters,
   };
 };

@@ -1,26 +1,24 @@
 import {
-  OccupiableTile as OccupiableTileType,
   OasisTile as OasisTileType,
-  OccupiedOccupiableTile as OccupiedOccupiableTileType,
+  OccupiableTile as OccupiableTileType,
   OccupiedOasisTile as OccupiedOasisTileType,
+  OccupiedOccupiableTile as OccupiedOccupiableTileType,
   Tile as TileType,
 } from 'interfaces/models/game/tile';
 import React, { memo } from 'react';
 import { areEqual, GridChildComponentProps } from 'react-window';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import clsx from 'clsx';
-import { usePlayers } from 'app/[game]/hooks/use-players';
-import { useReputations } from 'app/[game]/hooks/use-reputations';
 import { reputationColorMap } from 'app/[game]/utils/color-maps';
-import { useMapFilters } from 'app/[game]/[map]/hooks/use-map-filters';
 import { OccupiableOasisIcon } from 'app/[game]/[map]/components/occupiable-oasis-icon';
 import { WheatFieldIcon } from 'app/[game]/[map]/components/wheat-field-icon';
 import { TreasureIcon } from 'app/[game]/[map]/components/treasure-icon';
+import { PlayerFaction } from 'interfaces/models/game/player';
+import { ReputationLevel } from 'interfaces/models/game/reputation';
+import { MapFilters } from 'interfaces/models/game/map-filters';
 
-type CellProps = GridChildComponentProps<{
-  map: TileType[];
-  openModal: (data?: unknown) => void;
-}>;
+type TileWithFilters<T extends TileType> = T & {
+  mapFilters: MapFilters;
+};
 
 type OccupiableOasisProps = {
   tile: OasisTileType | OccupiedOasisTileType;
@@ -46,7 +44,7 @@ const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
 };
 
 type OccupiableTileProps = {
-  tile: OccupiableTileType;
+  tile: TileWithFilters<OccupiableTileType>;
 };
 
 const OccupiableTile: React.FC<OccupiableTileProps> = ({ tile }) => {
@@ -60,18 +58,19 @@ const OccupiableTile: React.FC<OccupiableTileProps> = ({ tile }) => {
   return <WheatFieldIcon resourceFieldComposition={tile.resourceFieldComposition} />;
 };
 
-type OccupiedOccupiableTileProps = {
-  tile: OccupiedOccupiableTileType;
+type OccupiedTileWithFaction = OccupiedOccupiableTileType & {
+  faction: PlayerFaction;
+  reputationLevel: ReputationLevel;
 };
 
-const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile }) => {
-  const { shouldShowFactionReputation, shouldShowTreasureIcons } = useMapFilters();
-  const { getPlayerByPlayerId } = usePlayers();
-  const { getReputationByFaction } = useReputations();
+type OccupiedOccupiableTileProps = {
+  tile: OccupiedTileWithFaction;
+  mapFilters: MapFilters;
+};
 
-  const { faction } = getPlayerByPlayerId(tile.ownedBy);
-  const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
-
+const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile, mapFilters }) => {
+  const { faction, reputationLevel } = tile;
+  const { shouldShowFactionReputation, shouldShowTreasureIcons } = mapFilters;
   const isTileWithTreasury = tile.treasureType !== null;
 
   return (
@@ -82,19 +81,23 @@ const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile })
         shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed'
       )}
     >
-      {isTileWithTreasury && shouldShowTreasureIcons && <TreasureIcon treasureType={tile.treasureType} />}
+      {shouldShowTreasureIcons && isTileWithTreasury && <TreasureIcon treasureType={tile.treasureType} />}
     </span>
   );
 };
 
+type CellProps = GridChildComponentProps<{
+  tilesWithFactions: (TileType | OccupiedTileWithFaction)[];
+  mapFilters: MapFilters;
+}>;
+
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { map, openModal } = data;
+  const { tilesWithFactions, mapFilters } = data;
 
-  const { shouldShowWheatFields, shouldShowOasisIcons } = useMapFilters();
-  const { mapSize } = useCurrentServer();
-  const gridSize = mapSize! + 1;
+  const gridSize = Math.sqrt(data.tilesWithFactions.length);
 
-  const tile: TileType = map[gridSize * rowIndex + columnIndex];
+  const tile: TileType | OccupiedTileWithFaction = tilesWithFactions[gridSize * rowIndex + columnIndex];
+  const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
   const isOasis = tile.type === 'oasis-tile';
   const isOccupiableTile = tile.type === 'free-tile';
@@ -109,13 +112,19 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
         backgroundColor: tile.graphics.backgroundColor,
       }}
       data-tile-id={tile.id}
-      onClick={() => openModal(tile)}
     >
       {isOasis && shouldShowOasisIcons && <OasisTile tile={tile} />}
       {!isOasis && (
         <>
-          {isOccupiedOccupiableTile && <OccupiedOccupiableTile tile={tile as OccupiedOccupiableTileType} />}
-          {!isOccupiedOccupiableTile && shouldShowWheatFields && <OccupiableTile tile={tile as OccupiedOccupiableTileType} />}
+          {isOccupiedOccupiableTile && (
+            <OccupiedOccupiableTile
+              tile={tile as TileWithFilters<OccupiedTileWithFaction>}
+              mapFilters={mapFilters}
+            />
+          )}
+          {!isOccupiedOccupiableTile && shouldShowWheatFields && (
+            <OccupiableTile tile={tile as TileWithFilters<OccupiedOccupiableTileType>} />
+          )}
         </>
       )}
     </button>

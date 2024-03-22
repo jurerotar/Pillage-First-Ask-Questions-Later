@@ -1,4 +1,4 @@
-name: Other branches - ci
+name: other branches ci
 
 on:
   push:
