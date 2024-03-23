@@ -18,6 +18,13 @@ import { OccupiedOccupiableTile, Tile as TileType } from 'interfaces/models/game
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
 
+// Height/width of ruler on the left-bottom
+const RULER_SIZE = 20;
+
+// TODO: Scroll out/in map zoom event handling
+// TODO: Zooming out should keep current tile centered
+// TODO: Tiles should be smaller on mobile
+
 export const MapPage: React.FC = () => {
   const { isOpen, closeModal } = useDialog();
 
@@ -120,8 +127,8 @@ export const MapPage: React.FC = () => {
     mapRef
   );
 
-  const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2;
-  const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2;
+  const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2 + RULER_SIZE / 2;
+  const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2 + RULER_SIZE / 2;
 
   return (
     <>
@@ -185,9 +192,9 @@ export const MapPage: React.FC = () => {
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
           itemSize={tileSize}
-          height={height - 20}
+          height={height - RULER_SIZE}
           itemCount={gridSize}
-          width={20}
+          width={RULER_SIZE}
           initialScrollOffset={initialScrollTop}
           layout="vertical"
           itemData={{
@@ -203,10 +210,10 @@ export const MapPage: React.FC = () => {
           className="scrollbar-hidden ml-[20px]"
           ref={bottomMapRulerRef}
           itemSize={tileSize}
-          height={20}
+          height={RULER_SIZE}
           itemCount={gridSize}
           initialScrollOffset={initialScrollLeft}
-          width={width - 20}
+          width={width - RULER_SIZE}
           layout="horizontal"
           itemData={{
             layout: 'horizontal',

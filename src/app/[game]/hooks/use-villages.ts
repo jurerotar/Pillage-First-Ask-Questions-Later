@@ -4,6 +4,7 @@ import { Village } from 'interfaces/models/game/village';
 import { useQuery } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
 import { usePlayers } from 'app/[game]/hooks/use-players';
+import { OccupiedOasisTile } from 'interfaces/models/game/tile';
 
 export const villagesCacheKey = 'villages';
 
@@ -31,6 +32,10 @@ export const useVillages = () => {
     return villages.find(({ coordinates: { x, y } }) => coordinates.x === x && coordinates.y === y) ?? null;
   };
 
+  const getVillageByOasis = ({ villageId }: OccupiedOasisTile): Village => {
+    return villages.find(({ id }) => villageId === id)!;
+  };
+
   return {
     villages,
     isLoadingVillages,
@@ -39,5 +44,6 @@ export const useVillages = () => {
     playerVillages,
     npcVillages,
     getVillageByCoordinates,
+    getVillageByOasis,
   };
 };

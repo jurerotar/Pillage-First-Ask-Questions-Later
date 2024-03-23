@@ -1,7 +1,9 @@
 import { serverMock } from 'mocks/models/game/server-mock';
-import { OasisTile, Tile } from 'interfaces/models/game/tile';
+import { Tile } from 'interfaces/models/game/tile';
 import { mapFactory } from 'app/[game]/factories/map-factory';
 import { playersMock } from 'mocks/models/game/player-mock';
+import { describe, expect } from 'vitest';
+import { isOasisTile, isOccupiableTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/map';
 
 // TODO: Add test to make sure player village always exists
 
@@ -10,6 +12,11 @@ describe('Map factory', () => {
     server: serverMock,
     players: playersMock,
   });
+
+  const occupiableTiles = tiles.filter(isOccupiableTile);
+  const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
+  const oasisTiles = tiles.filter(isOasisTile);
+  const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
 
   describe('Grid generation', () => {
     test('Creates an array of correct size', () => {
@@ -26,16 +33,12 @@ describe('Map factory', () => {
         expect(tiles.every((tile: Tile) => Object.hasOwn(tile, 'type'))).toBe(true);
       });
       test('All tiles are either oasis or free tile', () => {
-        const oasis = tiles.filter((tile: Tile) => tile.type === 'oasis-tile');
-        const freeTiles = tiles.filter((tile: Tile) => tile.type === 'free-tile');
-        expect(oasis.length + freeTiles.length).toBe(tiles.length);
+        expect(oasisTiles.length + occupiableTiles.length).toBe(tiles.length);
       });
     });
   });
 
   describe('Oasis resource bonus', () => {
-    const oasisTiles = tiles.filter(({ type }) => type === 'oasis-tile') as OasisTile[];
-
     test('Some oasis tile have no bonus', () => {
       expect(oasisTiles.some(({ oasisResourceBonus }) => oasisResourceBonus.length === 0)).toBe(true);
     });
@@ -74,6 +77,45 @@ describe('Map factory', () => {
           return firstBonus.bonus === '25%' && secondBonus.bonus === '25%';
         })
       ).toBe(true);
+    });
+  });
+
+  describe('Npc oasis', () => {
+    test('Some oasis are occupied by npc players', () => {
+      expect(occupiedOasisTiles.length > 0).toBe(true);
+    });
+
+    test('No oasis is occupied by villages of size "xs"', () => {
+      const extraSmallVillageTileIds = occupiedOccupiableTiles.filter(({ villageSize }) => villageSize === 'xs').map(({ id }) => id);
+      const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
+
+      const listOfOccurrences = extraSmallVillageTileIds.map((id) => occupiedOasisVillageIds.filter((villageId) => villageId === id));
+      expect(listOfOccurrences.every((occurrence) => occurrence.length === 0)).toBe(true);
+    });
+
+    // We're counting how many times occupying tile id appears in list of occupied oasis ids
+    test('No more than 1 oasis per village is occupied by villages of size "sm"', () => {
+      const smallVillageTileIds = occupiedOccupiableTiles.filter(({ villageSize }) => villageSize === 'sm').map(({ id }) => id);
+      const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
+
+      const listOfOccurrences = smallVillageTileIds.map((id) => occupiedOasisVillageIds.filter((villageId) => villageId === id));
+      expect(listOfOccurrences.every((occurrence) => occurrence.length <= 1)).toBe(true);
+    });
+
+    test('No more than 2 oasis per village is occupied by villages of size "md"', () => {
+      const mediumVillageTileIds = occupiedOccupiableTiles.filter(({ villageSize }) => villageSize === 'md').map(({ id }) => id);
+      const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
+
+      const listOfOccurrences = mediumVillageTileIds.map((id) => occupiedOasisVillageIds.filter((villageId) => villageId === id));
+      expect(listOfOccurrences.every((occurrence) => occurrence.length <= 2)).toBe(true);
+    });
+
+    test('No more than 3 oasis per village is occupied by villages of size "lg"', () => {
+      const largeVillageTileIds = occupiedOccupiableTiles.filter(({ villageSize }) => villageSize === 'md').map(({ id }) => id);
+      const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
+
+      const listOfOccurrences = largeVillageTileIds.map((id) => occupiedOasisVillageIds.filter((villageId) => villageId === id));
+      expect(listOfOccurrences.every((occurrence) => occurrence.length <= 3)).toBe(true);
     });
   });
 

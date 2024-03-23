@@ -1,5 +1,12 @@
 import React from 'react';
-import { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
+import {
+  OasisResourceBonus,
+  OasisTile,
+  OccupiableTile,
+  OccupiedOasisTile,
+  OccupiedOccupiableTile,
+  Tile,
+} from 'interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { usePlayers } from 'app/[game]/hooks/use-players';
@@ -8,6 +15,7 @@ import { useVillages } from 'app/[game]/hooks/use-villages';
 import { Icon } from 'app/components/icon';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import { getReportIconType, useReports } from 'app/[game]/hooks/use-reports';
+import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/map';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -22,6 +30,39 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
     <span className="text-xs text-gray-300">
       ({tile.coordinates.x}|{tile.coordinates.y}) - {t('GENERAL.FIELD', { count: distance })}
     </span>
+  );
+};
+
+const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
+  const { t } = useTranslation();
+  const { getVillageByOasis, getVillageByCoordinates } = useVillages();
+  const { getPlayerByPlayerId } = usePlayers();
+  const { getReputationByFaction } = useReputations();
+
+  const { playerId } =
+    tile.type === 'oasis-tile' ? getVillageByOasis(tile as OccupiedOasisTile)! : getVillageByCoordinates(tile.coordinates)!;
+  const { faction, tribe, name } = getPlayerByPlayerId(playerId);
+  const { reputationLevel } = getReputationByFaction(faction);
+
+  return (
+    <>
+      <span>
+        {t('GENERAL.PLAYER')} - {name}
+      </span>
+      {faction !== 'player' && (
+        <>
+          <span>
+            {t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}
+          </span>
+          <span>
+            {t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}
+          </span>
+        </>
+      )}
+      <span>
+        {t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}
+      </span>
+    </>
   );
 };
 
@@ -57,8 +98,8 @@ type OasisTileTooltipProps = {
 const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
 
-  const isOccupiable = tile.oasisResourceBonus.length > 0;
-  const isOccupied = Object.hasOwn(tile, 'villageId');
+  const isOccupiable = isOccupiableOasisTile(tile);
+  const isOccupied = isOccupiedOasisTile(tile);
   const title = (() => {
     if (!isOccupiable) {
       return 'APP.GAME.MAP.OASIS_TILE.WILDERNESS';
@@ -66,22 +107,32 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
     return isOccupied ? 'APP.GAME.MAP.OASIS_TILE.OCCUPIED_OASIS' : 'APP.GAME.MAP.OASIS_TILE.UNOCCUPIED_OASIS';
   })();
 
+  // Wilderness
+  if (!isOccupiable) {
+    return (
+      <>
+        <span className="font-semibold">{t(title)}</span>
+        <TileTooltipLocation tile={tile} />
+      </>
+    );
+  }
+
   return (
     <>
       <span className="font-semibold">{t(title)}</span>
       <TileTooltipLocation tile={tile} />
-      {isOccupiable &&
-        tile.oasisResourceBonus.map(({ resource, bonus }: OasisResourceBonus) => (
-          <span
-            key={resource}
-            className="flex gap-1"
-          >
-            <Icon type={resource} />
-            <span>
-              {t(resourceTranslationMap.get(resource)!)} - {bonus}
-            </span>
+      {tile.oasisResourceBonus.map(({ resource, bonus }: OasisResourceBonus) => (
+        <span
+          key={resource}
+          className="flex gap-1"
+        >
+          <Icon type={resource} />
+          <span>
+            {t(resourceTranslationMap.get(resource)!)} - {bonus}
           </span>
-        ))}
+        </span>
+      ))}
+      {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
       <TileTooltipReports tile={tile} />
     </>
   );
@@ -111,53 +162,32 @@ type OccupiedOccupiableTileTooltipProps = {
 };
 
 const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps> = ({ tile }) => {
-  const { t } = useTranslation();
-  const { getPlayerByPlayerId } = usePlayers();
-  const { getReputationByFaction } = useReputations();
   const { getVillageByCoordinates } = useVillages();
 
   const village = getVillageByCoordinates(tile.coordinates)!;
   const title = village.name;
-  const { faction, tribe, name } = getPlayerByPlayerId(tile.ownedBy);
-  const { reputationLevel } = getReputationByFaction(faction);
 
   return (
     <>
       <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
-      <span>
-        {t('GENERAL.PLAYER')} - {name}
-      </span>
-      {faction !== 'player' && (
-        <>
-          <span>
-            {t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}
-          </span>
-          <span>
-            {t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}
-          </span>
-        </>
-      )}
-      <span>
-        {t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}
-      </span>
+      <TileTooltipPlayerInfo tile={tile} />
       <TileTooltipReports tile={tile} />
     </>
   );
 };
 
 export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
-  const isOasis = tile.type === 'oasis-tile';
-  const isOccupiableTile = tile.type === 'free-tile';
-  const isOccupiedOccupiableTile = isOccupiableTile && Object.hasOwn(tile, 'ownedBy');
+  const isOasisCell = isOasisTile(tile);
+  const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
 
   return (
     <div className="flex flex-col gap-1">
-      {isOasis && <OasisTileTooltip tile={tile} />}
-      {!isOasis && (
+      {isOasisCell && <OasisTileTooltip tile={tile as OasisTile} />}
+      {!isOasisCell && (
         <>
-          {isOccupiedOccupiableTile && <OccupiedOccupiableTileTooltip tile={tile as OccupiedOccupiableTile} />}
-          {!isOccupiedOccupiableTile && <OccupiableTileTooltip tile={tile} />}
+          {isOccupiedOccupiableCell && <OccupiedOccupiableTileTooltip tile={tile as OccupiedOccupiableTile} />}
+          {!isOccupiedOccupiableCell && <OccupiableTileTooltip tile={tile as OccupiableTile} />}
         </>
       )}
     </div>

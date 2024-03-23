@@ -11,12 +11,7 @@ export const getHero = (serverId: Server['id']) => database.heroes.where({ serve
 export const useHero = () => {
   const { serverId } = useCurrentServer();
 
-  const {
-    data,
-    isLoading: isLoadingHero,
-    isSuccess: hasLoadedHero,
-    status: heroQueryStatus,
-  } = useQuery<Hero>({
+  const { data } = useQuery<Hero>({
     queryFn: () => getHero(serverId),
     queryKey: [heroCacheKey, serverId],
   });
@@ -26,8 +21,5 @@ export const useHero = () => {
 
   return {
     hero,
-    isLoadingHero,
-    hasLoadedHero,
-    heroQueryStatus,
   };
 };

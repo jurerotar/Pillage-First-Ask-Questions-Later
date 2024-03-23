@@ -240,7 +240,7 @@ export const villageFactory = ({ server, tile, player, slug }: VillageFactoryPro
 
   return {
     serverId: server.id,
-    id: crypto.randomUUID(),
+    id: tile.id,
     name: `${name}'s village`,
     slug,
     coordinates,

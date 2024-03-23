@@ -12,12 +12,7 @@ export const getMap = (serverId: Server['id']) => database.maps.where({ serverId
 export const useMap = () => {
   const { serverId } = useCurrentServer();
 
-  const {
-    data: map,
-    isLoading: isLoadingMap,
-    isSuccess: hasLoadedMap,
-    status: mapQueryStatus,
-  } = useQuery<Tile[]>({
+  const { data: map } = useQuery<Tile[]>({
     queryFn: () => getMap(serverId),
     queryKey: [mapCacheKey, serverId],
     initialData: [],
@@ -33,9 +28,6 @@ export const useMap = () => {
 
   return {
     map,
-    isLoadingMap,
-    hasLoadedMap,
-    mapQueryStatus,
     getTileByCoordinates,
     getTileByTileId,
   };

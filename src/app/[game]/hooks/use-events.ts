@@ -50,12 +50,7 @@ export const useEvents = () => {
   const { serverId } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
 
-  const {
-    data: events,
-    isLoading: isLoadingEvents,
-    isSuccess: hasLoadedEvents,
-    status: eventsQueryStatus,
-  } = useQuery<GameEvent[]>({
+  const { data: events } = useQuery<GameEvent[]>({
     queryFn: () => getEvents(serverId),
     queryKey: [eventsCacheKey, serverId],
     initialData: [],
@@ -82,9 +77,6 @@ export const useEvents = () => {
 
   return {
     events,
-    isLoadingEvents,
-    hasLoadedEvents,
-    eventsQueryStatus,
     resolveEvent,
     currentVillageBuildingEvents,
   };

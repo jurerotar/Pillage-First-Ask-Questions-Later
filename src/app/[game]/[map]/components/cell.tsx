@@ -15,6 +15,7 @@ import { TreasureIcon } from 'app/[game]/[map]/components/treasure-icon';
 import { PlayerFaction } from 'interfaces/models/game/player';
 import { ReputationLevel } from 'interfaces/models/game/reputation';
 import { MapFilters } from 'interfaces/models/game/map-filters';
+import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile, isTreasuryTile } from 'app/[game]/utils/map';
 
 type TileWithFilters<T extends TileType> = T & {
   mapFilters: MapFilters;
@@ -27,18 +28,13 @@ type OccupiableOasisProps = {
 const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
   const { oasisResourceBonus } = tile;
 
-  const isOccupiable = tile.oasisResourceBonus.length > 0;
-  const isOccupied = Object.hasOwn(tile, 'villageId');
-
-  if (!isOccupiable) {
-    return null;
-  }
+  const isOccupied = isOccupiedOasisTile(tile);
 
   return (
     <OccupiableOasisIcon
       oasisResourceBonus={oasisResourceBonus}
       borderVariant={isOccupied ? 'red' : 'green'}
-      className="size-3"
+      className="size-2 md:size-3"
     />
   );
 };
@@ -71,7 +67,7 @@ type OccupiedOccupiableTileProps = {
 const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile, mapFilters }) => {
   const { faction, reputationLevel } = tile;
   const { shouldShowFactionReputation, shouldShowTreasureIcons } = mapFilters;
-  const isTileWithTreasury = tile.treasureType !== null;
+  const isTileWithTreasury = isTreasuryTile(tile);
 
   return (
     <span
@@ -93,15 +89,15 @@ type CellProps = GridChildComponentProps<{
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
   const { tilesWithFactions, mapFilters } = data;
+  const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
   const gridSize = Math.sqrt(data.tilesWithFactions.length);
 
   const tile: TileType | OccupiedTileWithFaction = tilesWithFactions[gridSize * rowIndex + columnIndex];
-  const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
-  const isOasis = tile.type === 'oasis-tile';
-  const isOccupiableTile = tile.type === 'free-tile';
-  const isOccupiedOccupiableTile = isOccupiableTile && Object.hasOwn(tile, 'ownedBy');
+  const isOasisCell = isOasisTile(tile);
+  const isOccupiableOasisCell = isOccupiableOasisTile(tile);
+  const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
 
   return (
     <button
@@ -113,16 +109,16 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       }}
       data-tile-id={tile.id}
     >
-      {isOasis && shouldShowOasisIcons && <OasisTile tile={tile} />}
-      {!isOasis && (
+      {isOasisCell && isOccupiableOasisCell && shouldShowOasisIcons && <OasisTile tile={tile as OasisTileType} />}
+      {!isOasisCell && (
         <>
-          {isOccupiedOccupiableTile && (
+          {isOccupiedOccupiableCell && (
             <OccupiedOccupiableTile
               tile={tile as TileWithFilters<OccupiedTileWithFaction>}
               mapFilters={mapFilters}
             />
           )}
-          {!isOccupiedOccupiableTile && shouldShowWheatFields && (
+          {!isOccupiedOccupiableCell && shouldShowWheatFields && (
             <OccupiableTile tile={tile as TileWithFilters<OccupiedOccupiableTileType>} />
           )}
         </>

@@ -1,6 +1,6 @@
-// @ts-nocheck
 // TODO: Some units have missing values, fill them in and remove the ts-nocheck comment
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Unit } from 'interfaces/models/game/unit';
 
 export const romanUnits: Unit[] = [
@@ -30,7 +30,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 20,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:1', 'SMITHY:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 1 },
+      { buildingId: 'SMITHY', level: 1 },
+    ],
   },
   {
     id: 'IMPERIAN',
@@ -44,7 +47,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:5', 'SMITHY:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'SMITHY', level: 1 },
+    ],
   },
   {
     id: 'EQUITES_LEGATI',
@@ -58,7 +64,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
+    ],
   },
   {
     id: 'EQUITES_IMPERATORIS',
@@ -72,7 +81,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 100,
     category: 'cavalry',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:5'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 5 },
+    ],
   },
   {
     id: 'EQUITES_CAESARIS',
@@ -86,7 +98,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 70,
     category: 'cavalry',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:15', 'STABLE:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'STABLE', level: 10 },
+    ],
   },
   {
     id: 'BATTERING_RAM',
@@ -100,7 +115,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:10', 'WORKSHOP:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 10 },
+      { buildingId: 'WORKSHOP', level: 1 },
+    ],
   },
   {
     id: 'FIRE_CATAPULT',
@@ -114,7 +132,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'romans',
-    researchPrerequisites: ['ACADEMY:15', 'WORKSHOP:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
+    ],
   },
   {
     id: 'SENATOR',
@@ -128,7 +149,10 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'romans',
-    researchPrerequisites: ['RALLY_POINT:10', 'ACADEMY:20'],
+    researchPrerequisites: [
+      { buildingId: 'RALLY_POINT', level: 10 },
+      { buildingId: 'ACADEMY', level: 20 },
+    ],
   },
   {
     id: 'ROMAN_SETTLER',
@@ -173,7 +197,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 45,
     category: 'infantry',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:3', 'SMITHY:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 3 },
+      { buildingId: 'SMITHY', level: 1 },
+    ],
   },
   {
     id: 'PATHFINDER',
@@ -187,7 +214,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
+    ],
   },
   {
     id: 'THEUTATES_THUNDER',
@@ -201,7 +231,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 75,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:3'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 3 },
+    ],
   },
   {
     id: 'DRUIDRIDER',
@@ -215,7 +248,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 35,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:5'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 5 },
+    ],
   },
   {
     id: 'HAEDUAN',
@@ -229,7 +265,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 65,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:15', 'STABLE:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'STABLE', level: 10 },
+    ],
   },
   {
     id: 'GAUL_RAM',
@@ -243,7 +282,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:10', 'WORKSHOP:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 10 },
+      { buildingId: 'WORKSHOP', level: 1 },
+    ],
   },
   {
     id: 'TREBUCHET',
@@ -257,7 +299,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:15', 'WORKSHOP:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
+    ],
   },
   {
     id: 'CHIEFTAIN',
@@ -271,7 +316,10 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'gauls',
-    researchPrerequisites: ['ACADEMY:20', 'RALLY_POINT:10'],
+    researchPrerequisites: [
+      { buildingId: 'RALLY_POINT', level: 10 },
+      { buildingId: 'ACADEMY', level: 20 },
+    ],
   },
   {
     id: 'GAUL_SETTLER',
@@ -316,7 +364,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 40,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:1', 'BARRACKS:3'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 1 },
+      { buildingId: 'BARRACKS', level: 3 },
+    ],
   },
   {
     id: 'AXEMAN',
@@ -330,7 +381,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:3', 'SMITHY:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 3 },
+      { buildingId: 'SMITHY', level: 1 },
+    ],
   },
   {
     id: 'SCOUT',
@@ -344,7 +398,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:1', 'MAIN_BUILDING:5'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 1 },
+      { buildingId: 'MAIN_BUILDING', level: 5 },
+    ],
   },
   {
     id: 'PALADIN',
@@ -358,7 +415,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 110,
     category: 'cavalry',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:5'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 5 },
+    ],
   },
   {
     id: 'TEUTONIC_KNIGHT',
@@ -372,7 +432,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 80,
     category: 'cavalry',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:15', 'STABLE:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'STABLE', level: 10 },
+    ],
   },
   {
     id: 'TEUTONIC_RAM',
@@ -386,7 +449,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:15', 'WORKSHOP:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 1 },
+    ],
   },
   {
     id: 'ONAGER',
@@ -400,7 +466,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:15', 'WORKSHOP:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
+    ],
   },
   {
     id: 'CHIEF',
@@ -414,7 +483,10 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'teutons',
-    researchPrerequisites: ['ACADEMY:20', 'RALLY_POINT:5'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 5 },
+    ],
   },
   {
     id: 'TEUTONIC_SETTLER',
@@ -445,7 +517,7 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 15,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'ASH_WARDEN',
@@ -459,7 +531,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'SMITHY', level: 1 },
+      { buildingId: 'ACADEMY', level: 1 },
+    ],
   },
   {
     id: 'KHOPESH_WARRIOR',
@@ -473,7 +548,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 45,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'SMITHY', level: 1 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'SOPDU_EXPLORER',
@@ -487,7 +565,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 1 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'ANHUR_GUARD',
@@ -501,7 +582,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 5 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'RESHEPH_CHARIOT',
@@ -515,7 +599,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 70,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 10 },
+      { buildingId: 'ACADEMY', level: 15 },
+    ],
   },
   {
     id: 'EGYPTIAN_RAM',
@@ -529,7 +616,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'WORKSHOP', level: 1 },
+      { buildingId: 'ACADEMY', level: 10 },
+    ],
   },
   {
     id: 'STONE_CATAPULT',
@@ -543,7 +633,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'WORKSHOP', level: 10 },
+      { buildingId: 'ACADEMY', level: 15 },
+    ],
   },
   {
     id: 'NOMARCH',
@@ -557,7 +650,10 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'RALLY_POINT', level: 10 },
+      { buildingId: 'ACADEMY', level: 20 },
+    ],
   },
   {
     id: 'EGYPTIAN_SETTLER',
@@ -572,7 +668,7 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
 ];
 
@@ -589,7 +685,7 @@ export const hunUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'BOWMAN',
@@ -603,7 +699,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 30,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'SMITHY', level: 1 },
+      { buildingId: 'ACADEMY', level: 3 },
+    ],
   },
   {
     id: 'SPOTTER',
@@ -617,7 +716,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 1 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'STEPPE_RIDER',
@@ -631,7 +733,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 75,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 3 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'MARKSMAN',
@@ -645,7 +750,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 105,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 5 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'MARAUDER',
@@ -659,7 +767,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 80,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 10 },
+      { buildingId: 'ACADEMY', level: 15 },
+    ],
   },
   {
     id: 'HUN_RAM',
@@ -673,7 +784,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'WORKSHOP', level: 1 },
+      { buildingId: 'ACADEMY', level: 10 },
+    ],
   },
   {
     id: 'MANGONEL',
@@ -687,7 +801,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'WORKSHOP', level: 10 },
+      { buildingId: 'ACADEMY', level: 15 },
+    ],
   },
   {
     id: 'LOGADES',
@@ -701,7 +818,10 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [
+      { buildingId: 'RALLY_POINT', level: 10 },
+      { buildingId: 'ACADEMY', level: 20 },
+    ],
   },
   {
     id: 'HUN_SETTLER',
@@ -715,7 +835,7 @@ export const hunUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
 ];
 
@@ -732,7 +852,7 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 60,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: ['BARRACKS:1'],
+    researchPrerequisites: [],
   },
   {
     id: 'SENTINEL',
@@ -746,7 +866,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: ['SMITHY:1', 'ACADEMY:1'],
+    researchPrerequisites: [
+      { buildingId: 'SMITHY', level: 1 },
+      { buildingId: 'ACADEMY', level: 1 },
+    ],
   },
   {
     id: 'SHIELDSMAN',
@@ -760,7 +883,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 40,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: ['SMITHY:1', 'ACADEMY:5'],
+    researchPrerequisites: [
+      { buildingId: 'SMITHY', level: 1 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'TWINSTEEL_THERION',
@@ -774,7 +900,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: ['SMITHY:5', 'ACADEMY:10'],
+    researchPrerequisites: [
+      { buildingId: 'SMITHY', level: 5 },
+      { buildingId: 'ACADEMY', level: 10 },
+    ],
   },
   {
     id: 'ELPIDA_RIDER',
@@ -788,7 +917,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 110,
     category: 'cavalry',
     tribe: 'spartans',
-    researchPrerequisites: ['STABLE:1', 'ACADEMY:5'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 1 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'CORINTHIAN_CRUSHER',
@@ -802,7 +934,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 80,
     category: 'cavalry',
     tribe: 'spartans',
-    researchPrerequisites: ['STABLE:10', 'ACADEMY:5'],
+    researchPrerequisites: [
+      { buildingId: 'STABLE', level: 10 },
+      { buildingId: 'ACADEMY', level: 5 },
+    ],
   },
   {
     id: 'SPARTAN_RAM',
@@ -816,7 +951,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'spartans',
-    researchPrerequisites: ['WORKSHOP:1', 'ACADEMY:10'],
+    researchPrerequisites: [
+      { buildingId: 'WORKSHOP', level: 1 },
+      { buildingId: 'ACADEMY', level: 10 },
+    ],
   },
   {
     id: 'BALLISTA',
@@ -830,7 +968,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'spartans',
-    researchPrerequisites: ['WORKSHOP:10', 'ACADEMY:15'],
+    researchPrerequisites: [
+      { buildingId: 'WORKSHOP', level: 10 },
+      { buildingId: 'ACADEMY', level: 15 },
+    ],
   },
   {
     id: 'EPHOR',
@@ -844,7 +985,10 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'spartans',
-    researchPrerequisites: ['RALLY_POINT:10', 'ACADEMY:20'],
+    researchPrerequisites: [
+      { buildingId: 'RALLY_POINT', level: 10 },
+      { buildingId: 'ACADEMY', level: 20 },
+    ],
   },
   {
     id: 'SPARTAN_SETTLER',
@@ -862,10 +1006,11 @@ export const spartanUnits: Unit[] = [
   },
 ];
 
+// TODO: Think of cost and recruitment time for nature & natar units
 export const natureUnits: Unit[] = [
   {
     id: 'RAT',
-    baseRecruitmentCost: [0, 0, 0, 100],
+    baseRecruitmentCost: [null, null, null, null],
     baseRecruitmentTime: null,
     cropConsumption: 1,
     attack: 10,
@@ -875,7 +1020,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'SPIDER',
@@ -889,7 +1034,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'SERPENT',
@@ -903,7 +1048,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'BAT',
@@ -917,7 +1062,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'WILD_BOAR',
@@ -931,7 +1076,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'WOLF',
@@ -945,7 +1090,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'BEAR',
@@ -959,7 +1104,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'CROCODILE',
@@ -973,7 +1118,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'TIGER',
@@ -987,7 +1132,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
   {
     id: 'ELEPHANT',
@@ -1001,7 +1146,7 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: ['ACADEMY:'],
+    researchPrerequisites: [],
   },
 ];
 
@@ -1032,7 +1177,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:3', 'SMITHY:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 3 },
+      { buildingId: 'SMITHY', level: 1 },
+    ],
   },
   {
     id: 'GUARDSMAN',
@@ -1046,7 +1194,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:5', 'SMITHY:5'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'SMITHY', level: 5 },
+    ],
   },
   {
     id: 'BIRDS_OF_PREY',
@@ -1060,7 +1211,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
+    ],
   },
   {
     id: 'AXERIDER',
@@ -1074,7 +1228,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:5', 'STABLE:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
+    ],
   },
   {
     id: 'NATARIAN_KNIGHT',
@@ -1088,7 +1245,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:15', 'STABLE:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'STABLE', level: 10 },
+    ],
   },
   {
     id: 'WARELEPHANT',
@@ -1102,7 +1262,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:10', 'WORKSHOP:1'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 10 },
+      { buildingId: 'WORKSHOP', level: 1 },
+    ],
   },
   {
     id: 'NATARIAN_BALLISTA',
@@ -1116,7 +1279,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:15', 'WORKSHOP:10'],
+    researchPrerequisites: [
+      { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
+    ],
   },
   {
     id: 'NATARIAN_EMPEROR',
@@ -1130,7 +1296,10 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'natars',
-    researchPrerequisites: ['ACADEMY:20', 'RALLY_POINT:10'],
+    researchPrerequisites: [
+      { buildingId: 'RALLY_POINT', level: 10 },
+      { buildingId: 'ACADEMY', level: 20 },
+    ],
   },
   {
     id: 'NATARIAN_SETTLER',

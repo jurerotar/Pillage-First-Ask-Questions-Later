@@ -10,12 +10,7 @@ export const getCurrentServer = (serverSlug: Server['slug']) => database.servers
 export const useCurrentServer = () => {
   const { serverSlug } = useRouteSegments();
 
-  const {
-    data,
-    isLoading: isLoadingServer,
-    isSuccess: hasLoadedServer,
-    status: serverQueryStatus,
-  } = useQuery<Server>({
+  const { data } = useQuery<Server>({
     queryKey: [currentServerCacheKey, serverSlug],
     queryFn: () => getCurrentServer(serverSlug),
   });
@@ -28,9 +23,6 @@ export const useCurrentServer = () => {
 
   return {
     server,
-    isLoadingServer,
-    hasLoadedServer,
-    serverQueryStatus,
     serverId,
     mapSize,
     serverSpeed,

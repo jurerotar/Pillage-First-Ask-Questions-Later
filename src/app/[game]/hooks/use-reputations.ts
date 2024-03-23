@@ -12,12 +12,7 @@ export const getReputations = (serverId: Server['id']) => database.reputations.w
 export const useReputations = () => {
   const { serverId } = useCurrentServer();
 
-  const {
-    data: reputations,
-    isLoading: isLoadingReputations,
-    isSuccess: hasLoadedReputations,
-    status: reputationsQueryStatus,
-  } = useQuery<Reputation[]>({
+  const { data: reputations } = useQuery<Reputation[]>({
     queryFn: () => getReputations(serverId),
     queryKey: [reputationsCacheKey, serverId],
     initialData: [],
@@ -29,9 +24,6 @@ export const useReputations = () => {
 
   return {
     reputations,
-    isLoadingReputations,
-    hasLoadedReputations,
-    reputationsQueryStatus,
     getReputationByFaction,
   };
 };

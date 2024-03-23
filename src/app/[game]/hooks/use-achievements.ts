@@ -11,12 +11,7 @@ export const getAchievements = (serverId: Server['id']) => database.achievements
 export const useAchievements = () => {
   const { serverId } = useCurrentServer();
 
-  const {
-    data: achievements,
-    isLoading: isLoadingAchievements,
-    isSuccess: hasLoadedAchievements,
-    status: achievementsQueryStatus,
-  } = useQuery<Achievement[]>({
+  const { data: achievements } = useQuery<Achievement[]>({
     queryFn: () => getAchievements(serverId),
     queryKey: [achievementsCacheKey, serverId],
     initialData: [],
@@ -24,8 +19,5 @@ export const useAchievements = () => {
 
   return {
     achievements,
-    isLoadingAchievements,
-    hasLoadedAchievements,
-    achievementsQueryStatus,
   };
 };
