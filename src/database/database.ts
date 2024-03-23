@@ -14,6 +14,7 @@ import { Player } from 'interfaces/models/game/player';
 import { Reputation } from 'interfaces/models/game/reputation';
 import { MapFilters } from 'interfaces/models/game/map-filters';
 import { MapMarker } from 'interfaces/models/game/map-marker';
+import { Troop } from 'interfaces/models/game/troop';
 
 type TableIndex = string;
 
@@ -36,6 +37,7 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['mapMarkers', ['serverId']],
   ['auctions', ['serverId,[serverId+id]']],
   ['adventures', ['serverId,[serverId+id]']],
+  ['troops', ['serverId,[serverId+villageId]']],
 ]);
 
 export const TABLE_NAMES = TABLES.keys();
@@ -61,6 +63,7 @@ export class Database extends Dexie {
   public mapMarkers!: Table<MapMarker>;
   public auctions!: Table<unknown>;
   public adventures!: Table<unknown>;
+  public troops!: Table<Troop>;
 
   public amountOfTables: number;
 

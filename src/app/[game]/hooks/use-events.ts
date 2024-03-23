@@ -10,6 +10,7 @@ import {
   buildingLevelChangeResolver,
 } from 'app/[game]/resolvers/building-resolvers';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { findLastIndex } from 'lodash-es';
 
 export const eventsCacheKey = 'events';
 
@@ -18,15 +19,8 @@ export const getEvents = (serverId: Server['id']) => database.events.where({ ser
 // To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
 export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): GameEvent[] => {
   const events: GameEvent[] = [...previousEvents];
-
-  // Find the correct position to insert the new element
-  let indexToInsert = 0;
-  while (indexToInsert < events.length && event.resolvesAt > events[indexToInsert].resolvesAt) {
-    indexToInsert += 1;
-  }
-
-  events.splice(indexToInsert, 0, event);
-
+  const lastIndex = findLastIndex<GameEvent>(events, ({ resolvesAt }) => event.resolvesAt >= resolvesAt);
+  events.splice(lastIndex === -1 ? events.length : lastIndex + 1, 0, event);
   return events;
 };
 
@@ -56,12 +50,7 @@ export const useEvents = () => {
   const { serverId } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
 
-  const {
-    data: events,
-    isLoading: isLoadingEvents,
-    isSuccess: hasLoadedEvents,
-    status: eventsQueryStatus,
-  } = useQuery<GameEvent[]>({
+  const { data: events } = useQuery<GameEvent[]>({
     queryFn: () => getEvents(serverId),
     queryKey: [eventsCacheKey, serverId],
     initialData: [],
@@ -88,9 +77,6 @@ export const useEvents = () => {
 
   return {
     events,
-    isLoadingEvents,
-    hasLoadedEvents,
-    eventsQueryStatus,
     resolveEvent,
     currentVillageBuildingEvents,
   };

@@ -58,12 +58,7 @@ export const useReports = () => {
   const { serverId } = useCurrentServer();
   const queryClient = useQueryClient();
 
-  const {
-    data: reports,
-    isLoading: isLoadingReports,
-    isSuccess: hasLoadedReports,
-    status: reportsQueryStatus,
-  } = useQuery<Report[]>({
+  const { data: reports } = useQuery<Report[]>({
     queryFn: () => getReports(serverId),
     queryKey: [reportsCacheKey, serverId],
     initialData: [],
@@ -99,9 +94,6 @@ export const useReports = () => {
 
   return {
     reports,
-    isLoadingReports,
-    hasLoadedReports,
-    reportsQueryStatus,
     archivedReports,
     deletedReports,
     readReports,

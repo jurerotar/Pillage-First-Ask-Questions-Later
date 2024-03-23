@@ -44,11 +44,11 @@ export const TileModal: React.FC<TileModalProps> = ({ tile }) => {
 
   return (
     <div className="flex flex-col gap-1">
-      {isOasis && <OasisTileModal tile={tile} />}
+      {isOasis && <OasisTileModal tile={tile as OasisTile} />}
       {!isOasis && (
         <>
           {isOccupiedOccupiableTile && <OccupiedOccupiableTileModal tile={tile as OccupiedOccupiableTile} />}
-          {!isOccupiedOccupiableTile && <OccupiableTileModal tile={tile} />}
+          {!isOccupiedOccupiableTile && <OccupiableTileModal tile={tile as OccupiableTile} />}
         </>
       )}
     </div>

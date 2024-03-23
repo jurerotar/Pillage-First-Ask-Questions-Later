@@ -15,6 +15,7 @@ type ServerSpecificTableName =
   | 'auctions'
   | 'mapMarkers'
   | 'adventures'
-  | 'mapFilters';
+  | 'mapFilters'
+  | 'troops';
 
 export type TableName = CommonTableName | ServerSpecificTableName;

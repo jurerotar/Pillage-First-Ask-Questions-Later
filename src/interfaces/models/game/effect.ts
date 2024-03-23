@@ -106,6 +106,6 @@ export type Effect<T extends EffectType | void = void> = WithServerId<
   {
     id: EffectId;
     scope: 'global' | 'village';
-  } & // @ts-expect-error - We need a generic GameEvent as well as more defined one
+  } & // @ts-expect-error - We need a generic GameEvent as well as more defined on.
   (T extends void ? object : EffectTypeToEffectPropertiesMap<T>)
 >;

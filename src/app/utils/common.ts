@@ -26,6 +26,31 @@ export const seededRandomArrayElement = <T>(seed: string, array: T[]): T => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
+export const seededRandomArrayElements = <T>(seed: string, array: T[], n: number): T[] => {
+  const result: T[] = [];
+  let len = array.length;
+
+  // If n is greater than array length, return the whole array
+  if (n >= len) {
+    return array;
+  }
+
+  // Select n random elements
+  for (let i = 0; i < n; i += 1) {
+    if (len === 0) {
+      return result;
+    }
+    // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
+    const randomIndex = Math.floor(Math.random() * len);
+    result.push(array[randomIndex]);
+    // Remove the selected element to avoid duplicates
+    array.splice(randomIndex, 1);
+    len -= 1;
+  }
+
+  return result;
+};
+
 export const isFloat = (number: number): boolean => {
   return !Number.isInteger(number) && !Number.isNaN(number);
 };

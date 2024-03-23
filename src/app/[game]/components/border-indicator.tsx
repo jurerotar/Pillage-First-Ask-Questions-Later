@@ -10,7 +10,7 @@ export type BorderIndicatorProps = {
 const variantToClassNameMap: Record<BorderIndicatorVariant, string> = {
   green: 'from-[#7da100] to-[#c7e94f]',
   blue: 'from-[#0d648e] to-[#b1e4ff]',
-  red: 'from-[#] to-[#]',
+  red: 'from-[#D40000] to-[#F58C8C]',
   yellow: 'from-[#988b42] to-[#fdf15f]',
   gray: 'from-[#606060] to-[#c8c8c8]',
 };

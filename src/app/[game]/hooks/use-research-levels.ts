@@ -11,12 +11,7 @@ export const getResearchLevels = (serverId: Server['id']) => database.researchLe
 export const useResearchLevels = () => {
   const { serverId } = useCurrentServer();
 
-  const {
-    data: researchLevels,
-    isLoading: isLoadingResearchLevels,
-    isSuccess: hasLoadedResearchLevels,
-    status: researchLevelsQueryStatus,
-  } = useQuery<ResearchLevel[]>({
+  const { data: researchLevels } = useQuery<ResearchLevel[]>({
     queryFn: () => getResearchLevels(serverId),
     queryKey: [researchLevelsCacheKey, serverId],
     initialData: [],
@@ -24,8 +19,5 @@ export const useResearchLevels = () => {
 
   return {
     researchLevels,
-    isLoadingResearchLevels,
-    hasLoadedResearchLevels,
-    researchLevelsQueryStatus,
   };
 };

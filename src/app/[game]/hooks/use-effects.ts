@@ -29,12 +29,7 @@ export const useEffects = () => {
   const { serverId } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
 
-  const {
-    data: effects,
-    isLoading: isLoadingEffects,
-    isSuccess: hasLoadedEffects,
-    status: effectsQueryStatus,
-  } = useQuery<Effect[]>({
+  const { data: effects } = useQuery<Effect[]>({
     queryFn: () => getEffects(serverId),
     queryKey: [effectsCacheKey, serverId],
     initialData: [],
@@ -47,9 +42,6 @@ export const useEffects = () => {
 
   return {
     effects,
-    isLoadingEffects,
-    hasLoadedEffects,
-    effectsQueryStatus,
     globalEffects,
     currentVillageEffects,
   };

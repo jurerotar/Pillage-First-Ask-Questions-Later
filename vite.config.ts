@@ -65,6 +65,7 @@ export default defineConfig({
     format: 'es',
   },
   test: {
+    watch: false,
     globals: true,
     environment: 'jsdom',
     setupFiles: './vitest-setup.ts',

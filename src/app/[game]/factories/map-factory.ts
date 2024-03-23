@@ -1,5 +1,5 @@
 import { ResourceFieldComposition } from 'interfaces/models/game/village';
-import { seededRandomArrayElement, seededRandomIntFromInterval, seededShuffleArray } from 'app/utils/common';
+import { seededRandomArrayElement, seededRandomArrayElements, seededRandomIntFromInterval, seededShuffleArray } from 'app/utils/common';
 import {
   BaseTile,
   MaybeOccupiedBaseTile,
@@ -8,6 +8,7 @@ import {
   OasisResourceBonus,
   OasisTile,
   OccupiableTile,
+  OccupiedOasisTile,
   OccupiedOccupiableTile,
   Tile,
 } from 'interfaces/models/game/tile';
@@ -16,6 +17,7 @@ import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import { Server } from 'interfaces/models/game/server';
 import { createHash } from 'sha1-uint8array';
 import { Player } from 'interfaces/models/game/player';
+import { isOccupiedOccupiableTile } from 'app/[game]/utils/map';
 
 export type OasisShapes = Record<
   Resource,
@@ -224,6 +226,24 @@ type Distances = {
   distanceFromCenter: number;
 };
 
+const weightedVillageSize: Record<number, OccupiedOccupiableTile['villageSize']> = {
+  5: 'lg',
+  20: 'md',
+  50: 'sm',
+};
+
+const generateVillageSize = (tile: MaybeOccupiedOrOasisBaseTile): OccupiedOccupiableTile['villageSize'] => {
+  const randomInt: number = seededRandomIntFromInterval(tile.id, 1, 100);
+
+  for (const weight in weightedVillageSize) {
+    if (randomInt <= Number(weight)) {
+      return weightedVillageSize[weight];
+    }
+  }
+
+  return 'xs';
+};
+
 const weightedResourceFieldComposition: Record<number, ResourceFieldComposition> = {
   1: '00018',
   2: '11115',
@@ -242,7 +262,6 @@ const weightedResourceFieldComposition: Record<number, ResourceFieldComposition>
 const generateOccupiableTileType = (tile: MaybeOccupiedOrOasisBaseTile): ResourceFieldComposition => {
   const randomInt: number = seededRandomIntFromInterval(tile.id, 1, 80);
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const weight in weightedResourceFieldComposition) {
     if (randomInt <= Number(weight)) {
       return weightedResourceFieldComposition[weight];
@@ -319,6 +338,7 @@ const generateOasisTile = (
     ...tile,
     type: 'oasis-tile',
     oasisResourceBonus,
+    villageId: null,
     graphics: {
       oasisGroup,
       backgroundColor: oasisShapes[typeForGraphic].backgroundColor,
@@ -396,7 +416,7 @@ const generateGrid = (server: Server): BaseTile[] => {
   let yCoordinateCounter: number = size / 2;
   let counter: number = 0;
 
-  return [...Array(size ** 2 + 2 * size + 1)].flatMap(() => {
+  return [...Array((size + 1) ** 2)].flatMap(() => {
     counter += 1;
     xCoordinateCounter += 1;
     const x: Point['x'] = xCoordinateCounter;
@@ -438,6 +458,7 @@ const generateInitialUserVillage = (tiles: BaseTile[], player: Player): MaybeOcc
     resourceFieldComposition: '4446',
     ownedBy: player.id,
     treasureType: null,
+    villageSize: 'xs',
   } satisfies OccupiedOccupiableTile;
 
   return tilesToUpdate;
@@ -465,6 +486,7 @@ const generatePredefinedVillages = (server: Server, npcPlayers: Player[], tiles:
       resourceFieldComposition: '4446',
       ownedBy: playerId,
       treasureType: 'artifact',
+      villageSize: 'lg',
     } satisfies OccupiedOccupiableTile;
   });
 
@@ -579,7 +601,6 @@ const generateOccupiableTileTypes = (tiles: MaybeOccupiedOrOasisBaseTile[]): May
 // This method will mark which fields will have villages
 const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] => {
   return tiles.map((tile: Tile) => {
-    // Make sure player's starting tile is never overwritten
     if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy')) {
       return tile;
     }
@@ -593,14 +614,63 @@ const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] =>
         ])
       : null;
 
+    const villageSize = generateVillageSize(tile);
+
     return {
       ...tile,
       ...(willBeOccupied && {
         ownedBy: seededRandomArrayElement<Player>(tile.id, npcPlayers).id,
         treasureType,
+        villageSize,
       }),
     };
   });
+};
+
+// Some NPC villages have occupied oasis tiles
+const assignOasisToNpcVillages = (tiles: Tile[]): Tile[] => {
+  const tilesWithAssignedOasis = [...tiles];
+
+  const villageSizeToMaxOasisAmountMap = new Map<OccupiedOccupiableTile['villageSize'], number>([
+    ['xs', 0],
+    ['sm', 1],
+    ['md', 2],
+    ['lg', 3],
+  ]);
+
+  tilesWithAssignedOasis.forEach((tile: Tile) => {
+    if (!isOccupiedOccupiableTile(tile)) {
+      return;
+    }
+
+    const {
+      coordinates: { x: villageXCoordinate, y: villageYCoordinate },
+      villageSize,
+    } = tile;
+
+    // Only 3x3 tiles around current village are eligible for having occupied oasis
+    const eligibleTiles: OasisTile[] = tilesWithAssignedOasis.filter(({ type, coordinates: { x, y } }) => {
+      return (
+        type === 'oasis-tile' &&
+        villageXCoordinate >= x - 3 &&
+        villageXCoordinate <= x + 3 &&
+        villageYCoordinate >= y - 3 &&
+        villageYCoordinate <= y + 3
+      );
+    }) as OasisTile[];
+
+    const unoccupiedEligibleTiles = eligibleTiles.filter(({ villageId }) => villageId === null);
+
+    const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
+    const selectedOasis = seededRandomArrayElements(tile.id, unoccupiedEligibleTiles, maxOasisAmount);
+
+    selectedOasis.forEach(({ id }) => {
+      const tileToUpdate = tilesWithAssignedOasis.find(({ id: idToFind }) => id === idToFind) as OccupiedOasisTile;
+      tileToUpdate.villageId = tile.id;
+    });
+  });
+
+  return tilesWithAssignedOasis;
 };
 
 type MapFactoryProps = {
@@ -619,6 +689,7 @@ export const mapFactory = ({ server, players }: MapFactoryProps): Tile[] => {
   const tilesWithSingleOasisFields = generateSingleOasisFields(tilesWithShapedOasisFields);
   const tilesWithOccupiableTileTypes = generateOccupiableTileTypes(tilesWithSingleOasisFields);
   const tilesWithPopulatedOccupiableTiles = populateOccupiableTiles(tilesWithOccupiableTileTypes, npcPlayers);
+  const tilesWithAssignedOasis = assignOasisToNpcVillages(tilesWithPopulatedOccupiableTiles);
 
-  return tilesWithPopulatedOccupiableTiles;
+  return tilesWithAssignedOasis;
 };

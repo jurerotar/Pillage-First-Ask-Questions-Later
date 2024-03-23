@@ -11,12 +11,7 @@ export const getPlayers = (serverId: Server['id']) => database.players.where({ s
 export const usePlayers = () => {
   const { serverId } = useCurrentServer();
 
-  const {
-    data: players,
-    isLoading: isLoadingPlayers,
-    isSuccess: hasLoadedPlayers,
-    status: playersQueryStatus,
-  } = useQuery<Player[]>({
+  const { data: players } = useQuery<Player[]>({
     queryFn: () => getPlayers(serverId),
     queryKey: [playersCacheKey, serverId],
     initialData: [],
@@ -30,9 +25,6 @@ export const usePlayers = () => {
 
   return {
     players,
-    isLoadingPlayers,
-    hasLoadedPlayers,
-    playersQueryStatus,
     getPlayerByPlayerId,
     playerId,
   };

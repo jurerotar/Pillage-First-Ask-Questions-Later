@@ -1,8 +1,11 @@
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 
 export const useTribe = () => {
-  const { server } = useCurrentServer();
-  const { tribe } = server!.playerConfiguration;
+  const {
+    server: {
+      playerConfiguration: { tribe },
+    },
+  } = useCurrentServer();
 
   return {
     tribe,

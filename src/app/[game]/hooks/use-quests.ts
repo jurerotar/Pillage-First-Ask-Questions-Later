@@ -13,12 +13,7 @@ export const useQuests = () => {
   const { serverId } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
 
-  const {
-    data: quests,
-    isLoading: isLoadingQuests,
-    isSuccess: hasLoadedQuests,
-    status: questsQueryStatus,
-  } = useQuery<Quest[]>({
+  const { data: quests } = useQuery<Quest[]>({
     queryFn: () => getQuests(serverId),
     queryKey: [questsCacheKey, serverId],
     initialData: [],
@@ -29,9 +24,6 @@ export const useQuests = () => {
 
   return {
     quests,
-    isLoadingQuests,
-    hasLoadedQuests,
-    questsQueryStatus,
     globalQuests,
     currentVillageQuests,
   };

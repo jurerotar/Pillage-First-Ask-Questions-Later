@@ -27,10 +27,15 @@ export type OasisTile = BaseTile & {
     // Position in the oasisShape matrix [rowIndex, columnIndex]
     oasisGroupPosition: number[];
   };
+  villageId: null;
 };
 
-export type OccupiedOasisTile = OasisTile & {
-  villageId: Village['id'] | null;
+export type OccupiableOasisTile = OasisTile & {
+  villageId: null;
+};
+
+export type OccupiedOasisTile = Omit<OasisTile, 'villageId'> & {
+  villageId: Village['id'];
 };
 
 export type OccupiableTile = BaseTile & {
@@ -41,6 +46,7 @@ export type OccupiableTile = BaseTile & {
 export type OccupiedOccupiableTile = OccupiableTile & {
   ownedBy: Player['id'];
   treasureType: 'artifact' | 'hero-item' | 'currency' | 'resources' | null;
+  villageSize: 'xs' | 'sm' | 'md' | 'lg';
 };
 
 export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccupiableTile;

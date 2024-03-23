@@ -29,6 +29,8 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { MapMarker } from 'interfaces/models/game/map-marker';
 import { getMapMarkers, mapMarkersCacheKey } from 'app/[game]/[map]/hooks/use-map-markers';
 import { database } from 'database/database';
+import { Troop } from 'interfaces/models/game/troop';
+import { getTroops, troopsCacheKey } from 'app/[game]/hooks/use-troops';
 
 // TODO: These imports should be lazy loaded
 
@@ -124,6 +126,10 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
     queryClient.prefetchQuery<MapMarker[]>({
       queryKey: [mapMarkersCacheKey, serverId],
       queryFn: () => getMapMarkers(serverId),
+    }),
+    queryClient.prefetchQuery<Troop[]>({
+      queryKey: [troopsCacheKey, serverId],
+      queryFn: () => getTroops(serverId),
     }),
   ]);
 
