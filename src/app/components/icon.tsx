@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { IconBaseProps } from 'react-icons';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import { BorderIndicator, BorderIndicatorProps } from 'app/[game]/components/border-indicator';
+import clsx from 'clsx';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
 
@@ -61,16 +62,16 @@ const IconMapTreasuresToggle = lazy(async () => ({
 
 // Map occupied tile icons
 const IconTreasureTileItem = lazy(async () => ({
-  default: (await import('app/components/icons/treasure-tile-icons/icon-treasure-tile-item')).IconTreasureTileItem,
+  default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-item')).IconTreasureTileItem,
 }));
 const IconTreasureTileResources = lazy(async () => ({
-  default: (await import('app/components/icons/treasure-tile-icons/icon-treasure-tile-resources')).IconTreasureTileResources,
+  default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-resources')).IconTreasureTileResources,
 }));
 const IconTreasureTileArtifact = lazy(async () => ({
-  default: (await import('app/components/icons/treasure-tile-icons/icon-treasure-tile-artifact')).IconTreasureTileArtifact,
+  default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-artifact')).IconTreasureTileArtifact,
 }));
 const IconTreasureTileCurrency = lazy(async () => ({
-  default: (await import('app/components/icons/treasure-tile-icons/icon-treasure-tile-currency')).IconTreasureTileCurrency,
+  default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-currency')).IconTreasureTileCurrency,
 }));
 
 // Report icons
@@ -96,6 +97,39 @@ const IconDefenderFullLoss = lazy(async () => ({
 // Building field
 const IconBuildingDuration = lazy(async () => ({
   default: (await import('app/components/icons/building-field/icon-building-duration')).IconBuildingDuration,
+}));
+
+// Effects
+const IconWarehouseCapacity = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-warehouse-capacity')).IconWarehouseCapacity,
+}));
+const IconGranaryCapacity = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-granary-capacity')).IconGranaryCapacity,
+}));
+const IconFreeCrop = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-free-crop')).IconFreeCrop,
+}));
+
+// Village
+const IconPopulationCropConsumption = lazy(async () => ({
+  default: (await import('app/components/icons/village/icon-population-crop-consumption')).IconPopulationCropConsumption,
+}));
+const IconTroopsCropConsumption = lazy(async () => ({
+  default: (await import('app/components/icons/village/icon-troops-crop-consumption')).IconTroopsCropConsumption,
+}));
+
+// Variants
+const IconNegativeBonusVariant = lazy(async () => ({
+  default: (await import('app/components/icons/variants/icon-negative-bonus-variant')).IconNegativeBonusVariant,
+}));
+const IconNegativeChangeVariant = lazy(async () => ({
+  default: (await import('app/components/icons/variants/icon-negative-change-variant')).IconNegativeChangeVariant,
+}));
+const IconPositiveBonusVariant = lazy(async () => ({
+  default: (await import('app/components/icons/variants/icon-positive-bonus-variant')).IconPositiveBonusVariant,
+}));
+const IconPositiveChangeVariant = lazy(async () => ({
+  default: (await import('app/components/icons/variants/icon-positive-change-variant')).IconPositiveChangeVariant,
 }));
 
 export type MissingIconType = 'missingIcon';
@@ -126,6 +160,10 @@ export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat
 
 export type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
+export type EffectIconType = 'freeCrop' | 'warehouseCapacity' | 'granaryCapacity';
+
+export type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
+
 type IconType =
   | MissingIconType
   | ReportIconType
@@ -133,54 +171,9 @@ type IconType =
   | ResourceIconType
   | MapControlsIconType
   | TreasureTileIconType
-  | BuildingFieldIcons;
-
-// | 'cropConsumption'
-// | 'culturePointsProduction'
-// | 'trapperCapacity'
-// | 'buildingDuration'
-// | 'woodProduction'
-// | 'clayProduction'
-// | 'ironProduction'
-// | 'wheatProduction'
-// | 'totalResourceCost'
-// | 'villageDefenceValue'
-// | 'villageDefenceBonus';
-
-/**
- *   TODO: Implement following icons
- *   'barracksTrainingDuration'
- *   | 'greatBarracksTrainingDuration'
- *   | 'stableTrainingDuration'
- *   | 'greatStableTrainingDuration'
- *   | 'workshopTrainingDuration'
- *   | 'hospitalTrainingDuration'
- *   | 'unitSpeedBonus'
- *   | 'unitSpeedAfter20TilesBonus'
- *   | 'amountOfUncoveredAttackingUnits'
- *   | 'amountOfUnlockedUnitResearchLevels'
-
- *   | 'buildingDurabilityBonus'
- *   | 'woodProductionBonus'
- *   | 'clayProductionBonus'
- *   | 'ironProductionBonus'
- *   | 'wheatProductionBonus'
- *   | 'oasisProductionBonus'
- *   | 'woodOasisProductionBonus'
- *   | 'clayOasisProductionBonus'
- *   | 'ironOasisProductionBonus'
- *   | 'wheatOasisProductionBonus'
- *   | 'oasisExpansionSlot'
- *   | 'culturePointsProductionBonus'
- *   | 'crannyCapacity'
- *   | 'crannyCapacityBonus'
- *   | 'breweryAttackBonus'
- *   | 'embassyCapacity'
- *   | 'merchantAmount'
- *   | 'merchantCapacityBonus'
- *   | 'granaryCapacity'
- *   | 'warehouseCapacity';
- */
+  | BuildingFieldIcons
+  | VillageIconType
+  | EffectIconType;
 
 const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   missingIcon: IconMissingIcon,
@@ -213,6 +206,11 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   defenderNoLoss: IconDefenderNoLoss,
   defenderSomeLoss: IconDefenderSomeLoss,
   defenderFullLoss: IconDefenderFullLoss,
+  freeCrop: IconFreeCrop,
+  populationCropConsumption: IconPopulationCropConsumption,
+  troopsCropConsumption: IconTroopsCropConsumption,
+  warehouseCapacity: IconWarehouseCapacity,
+  granaryCapacity: IconGranaryCapacity,
   buildingDuration: IconBuildingDuration,
 };
 
@@ -223,14 +221,17 @@ const IconPlaceholder = () => {
 export type IconProps = IconBaseProps &
   React.HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
+    variant?: 'positive-change' | 'negative-change' | 'positive-bonus' | 'negative-bonus';
     borderVariant?: BorderIndicatorProps['variant'];
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, borderVariant, ...rest } = props;
+  const { type, variant, borderVariant, className, ...rest } = props;
 
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
+
+  const hasVariantIcon = !!variant;
 
   return (
     <ConditionalWrapper
@@ -240,9 +241,18 @@ export const Icon: React.FC<IconProps> = (props) => {
       <Suspense fallback={<IconPlaceholder />}>
         <span
           role="img"
+          className={clsx(hasVariantIcon && 'relative', className)}
           {...rest}
         >
           <ComputedIcon />
+          {hasVariantIcon && (
+            <span className="absolute bottom-0 right-0 size-1/2 rounded-full border border-black bg-white">
+              {variant === 'positive-change' && <IconPositiveChangeVariant />}
+              {variant === 'negative-change' && <IconNegativeChangeVariant />}
+              {variant === 'positive-bonus' && <IconPositiveBonusVariant />}
+              {variant === 'negative-bonus' && <IconNegativeBonusVariant />}
+            </span>
+          )}
         </span>
       </Suspense>
     </ConditionalWrapper>

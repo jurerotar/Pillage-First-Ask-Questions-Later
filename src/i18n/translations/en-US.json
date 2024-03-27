@@ -52,6 +52,12 @@
           "TITLE": "Resources",
           "DESCRIPTION": ""
         }
+      },
+      "REPORTS": {
+        "META": {
+          "TITLE": "Reports",
+          "DESCRIPTION": ""
+        }
       }
     },
     "PUBLIC": {
@@ -530,10 +536,6 @@
     "RESIDENCE": {
       "NAME": "Residence",
       "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the residence provides an expansion slot at levels 10 and 20 each."
-    },
-    "TOWN_HALL": {
-      "NAME": "Town hall",
-      "DESCRIPTION": "In the town hall, you can hold pompous celebrations. Such a celebration increases your culture points.\n\nCulture points are necessary to found or conquer new villages. Each building produces culture points and the higher its level, the more CP it produces."
     },
     "TRADE_OFFICE": {
       "NAME": "Trade office",

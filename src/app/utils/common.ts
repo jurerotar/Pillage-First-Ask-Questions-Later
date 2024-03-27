@@ -60,20 +60,6 @@ export const partialArraySum = (array: number[], index: number): number => {
   return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
 };
 
-export const formatTime = (time: number): string => {
-  const hours = Math.floor(time / 3600);
-  const remainingMinutes = time % 3600;
-  const minutes = Math.floor(remainingMinutes / 60);
-  const remainingSeconds = Math.floor(remainingMinutes % 60);
-  return `${hours}:${minutes > 9 ? minutes : `0${minutes}`}:${remainingSeconds > 9 ? remainingSeconds : `0${remainingSeconds}`}`;
-};
-
-export const formatRemainingTime = (endTime: number): string => {
-  const now = Date.now() / 1000;
-  const difference = endTime - now;
-  return formatTime(difference);
-};
-
 export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i -= 1) {
@@ -94,3 +80,7 @@ export const roundTo2DecimalPoints = (number: number): number => {
 };
 
 export const invertMap = <T, K>(map: Map<K, T>) => new Map<T, K>(Array.from(map, (_) => _.reverse() as [T, K]));
+
+export const formatNumberWithCommas = (number: number): string => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};

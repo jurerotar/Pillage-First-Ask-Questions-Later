@@ -49,7 +49,7 @@ export const villageWithBarracksRequirementsMetBuildingFieldsMock: BuildingField
   },
 ];
 
-export const villageWithTownHallRequirementsMetBuildingFieldsMock: BuildingField[] = [
+export const villageWithWorkshopRequirementsMetBuildingFieldsMock: BuildingField[] = [
   {
     buildingId: 'MAIN_BUILDING',
     id: 38,

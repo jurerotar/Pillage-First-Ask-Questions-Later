@@ -59,7 +59,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
         </span>
 
         <div className="mt-4 flex">
-          <Link to={`/game/${server.slug}/v-1/village`}>
+          <Link to={`/game/${server.slug}/v-1/resources`}>
             <Button variant="confirm">Enter server</Button>
           </Link>
         </div>

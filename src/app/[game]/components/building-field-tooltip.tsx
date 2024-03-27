@@ -6,6 +6,7 @@ import { Icon } from 'app/components/icon';
 import { Resources } from 'app/[game]/components/resources';
 import { formatTime } from 'app/utils/time';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 
 type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingField['id'];
@@ -15,6 +16,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
+  const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   if (!buildingField) {
     return t('APP.GAME.VILLAGE.BUILDING_FIELD.EMPTY');
@@ -24,7 +26,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, level);
 
   const title = `${t(`BUILDINGS.${buildingId}.NAME`)} ${t('GENERAL.LEVEL', { level }).toLowerCase()}`;
-  const formattedTime = formatTime(nextLevelBuildingDuration * 1000);
+  const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration * 1000);
 
   return (
     <div className="flex flex-col gap-1">

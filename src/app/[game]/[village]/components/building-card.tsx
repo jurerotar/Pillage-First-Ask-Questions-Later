@@ -13,12 +13,11 @@ import { useVillages } from 'app/[game]/hooks/use-villages';
 import clsx from 'clsx';
 
 type BuildingCardProps = {
-  location: 'building-construction-modal' | 'building-upgrade-modal';
   buildingId: Building['id'];
   buildingFieldId: BuildingField['id'];
 };
 
-export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, buildingFieldId, location }) => {
+export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, buildingFieldId }) => {
   const { t } = useTranslation();
   const { tribe } = useTribe();
   const { playerVillages } = useVillages();
@@ -134,7 +133,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
         </div>
       )}
       {/* Show building requirements if building can't be built */}
-      {!canBuild && location === 'building-construction-modal' && (
+      {!canBuild && (
         <section>
           Requirements
           <ul className="flex gap-2">

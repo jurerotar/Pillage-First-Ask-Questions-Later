@@ -3,7 +3,7 @@ import { Tile } from 'interfaces/models/game/tile';
 import { mapFactory } from 'app/[game]/factories/map-factory';
 import { playersMock } from 'mocks/models/game/player-mock';
 import { describe, expect } from 'vitest';
-import { isOasisTile, isOccupiableTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/map';
+import { isOasisTile, isOccupiableTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 
 // TODO: Add test to make sure player village always exists
 

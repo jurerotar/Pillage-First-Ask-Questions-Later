@@ -1,18 +1,5 @@
-/**
- * Effects represent bonuses and unlocked village/account benefits. Some effects are account-level, which means they apply to all villages,
- * while others effect only specific village.
- */
 import { BuildingField, Village } from 'interfaces/models/game/village';
 import { WithServerId } from 'interfaces/models/game/server';
-import { Tile } from 'interfaces/models/game/tile';
-import { Resource } from 'interfaces/models/game/resource';
-
-export type HeroEffectId =
-  | 'heroSpeedBonus'
-  | 'heroResourceProductionBonus'
-  | 'heroStrengthBonus'
-  | 'heroCarryCapacityBonus'
-  | 'heroMountedUnitSpeedBonus';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
@@ -22,90 +9,62 @@ export type TroopTrainingDurationEffectId =
   | 'workshopTrainingDuration'
   | 'hospitalTrainingDuration';
 
-export type TroopSpeedBonusEffectId = 'unitSpeedBonus' | 'unitSpeedAfter20TilesBonus';
-
-export type BuildingEffectId = 'villageDefenceValue' | 'villageDefenceBonus' | 'buildingDurabilityBonus' | 'buildingDuration';
-
 export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction';
 
 export type EffectId =
-  | HeroEffectId
-  | TroopTrainingDurationEffectId
-  | TroopSpeedBonusEffectId
-  | BuildingEffectId
-  | ResourceProductionEffectId
-  | 'amountOfUncoveredAttackingUnits'
-  // Research levels
-  | 'amountOfUnlockedUnitResearchLevels'
-  // Defence modifiers
-
-  // Building duration
-  | 'woodProductionBonus'
-  | 'clayProductionBonus'
-  | 'ironProductionBonus'
-  | 'wheatProductionBonus'
-  | 'oasisProductionBonus'
-  | 'woodOasisProductionBonus'
-  | 'clayOasisProductionBonus'
-  | 'ironOasisProductionBonus'
-  | 'wheatOasisProductionBonus'
-  | 'oasisExpansionSlot'
-  // Crop consumption
-  | 'cropConsumption'
-  // Culture points production
-  | 'culturePointsProduction'
-  | 'culturePointsProductionBonus'
-  | 'trapperCapacity'
-  | 'crannyCapacity'
-  | 'crannyCapacityBonus'
-  | 'breweryAttackBonus'
-  | 'embassyCapacity'
-  | 'merchantAmount'
-  | 'merchantCapacityBonus'
+  | 'attack'
+  | 'defence'
+  | 'warehouseCapacity'
   | 'granaryCapacity'
-  | 'warehouseCapacity';
+  | 'unitSpeed'
+  | 'unitWheatConsumptionReduction'
+  | 'buildingDurability'
+  | 'buildingDuration'
+  | 'merchantSpeed'
+  | 'merchantCapacity'
+  | 'crannyCapacity'
+  | 'trapperCapacity'
+  | ResourceProductionEffectId
+  | TroopTrainingDurationEffectId;
 
-export enum EffectType {
-  GLOBAL = 'global',
-  VILLAGE = 'village',
-  VILLAGE_BUILDING = 'village-building',
-  VILLAGE_OASIS = 'village-oasis',
-}
+type EffectIdBonus = `${EffectId}Bonus`;
 
-export type GlobalEffect = WithServerId<{
-  scope: 'global';
+export type Effect = WithServerId<{
+  id: EffectId | EffectIdBonus;
+  // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
+  scope: 'global' | 'village' | 'server';
   value: number;
+  source: 'hero' | 'oasis' | 'artifact' | 'building' | 'tribe' | 'server';
 }>;
 
-export type VillageEffect = {
-  villageId: Village['id'];
-  scope: 'village';
-  value: number;
+export type ServerEffect = Omit<Effect, 'scope'> & {
+  scope: 'server';
 };
 
-export type VillageBuildingEffect = VillageEffect & {
+export type GlobalEffect = Omit<Effect, 'scope' | 'source'> & {
+  scope: 'global';
+  source: 'hero' | 'tribe' | 'artifact';
+};
+
+export type TribalEffect = Omit<GlobalEffect, 'source'> & {
+  source: 'tribe';
+};
+
+export type HeroEffect = Omit<GlobalEffect, 'source'> & {
+  source: 'hero';
+};
+
+export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
+  scope: 'village';
+  source: 'building' | 'oasis' | 'server';
+  villageId: Village['id'];
+};
+
+export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
+  source: 'building';
   buildingFieldId: BuildingField['id'];
-  value: number;
 };
 
-export type VillageOasisProductionBonusEffect = {
-  scope: 'village';
-  villageId: Village['id'];
-  tileId: Tile['id'] | null;
-  oasisExpansionSlotId: number;
-} & Record<Resource, number>;
-
-type EffectTypeToEffectPropertiesMap<T extends EffectType> = {
-  [EffectType.GLOBAL]: GlobalEffect;
-  [EffectType.VILLAGE]: VillageEffect;
-  [EffectType.VILLAGE_BUILDING]: VillageBuildingEffect;
-  [EffectType.VILLAGE_OASIS]: VillageOasisProductionBonusEffect;
-}[T];
-
-export type Effect<T extends EffectType | void = void> = WithServerId<
-  {
-    id: EffectId;
-    scope: 'global' | 'village';
-  } & // @ts-expect-error - We need a generic GameEvent as well as more defined on.
-  (T extends void ? object : EffectTypeToEffectPropertiesMap<T>)
->;
+export type VillageOasisEffect = Omit<VillageEffect, 'source'> & {
+  source: 'oasis';
+};

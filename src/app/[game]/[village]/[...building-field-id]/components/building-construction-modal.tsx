@@ -13,6 +13,7 @@ import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { BuildingCard } from 'app/[game]/[village]/components/building-card';
 import { partition } from 'lodash-es';
 import clsx from 'clsx';
+import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -74,7 +75,6 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
                   key={building.id}
                 >
                   <BuildingCard
-                    location="building-construction-modal"
                     buildingId={building.id}
                     buildingFieldId={buildingFieldId}
                   />
@@ -91,7 +91,6 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
                   key={building.id}
                 >
                   <BuildingCard
-                    location="building-construction-modal"
                     buildingId={building.id}
                     buildingFieldId={buildingFieldId}
                   />
@@ -106,13 +105,9 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   );
 };
 
-type BuildingConstructionModalProps = {
-  buildingFieldId: BuildingField['id'];
-  modalCloseHandler: () => void;
-};
-
-export const BuildingConstructionModal: React.FC<BuildingConstructionModalProps> = ({ buildingFieldId, modalCloseHandler }) => {
+export const BuildingConstructionModal: React.FC = () => {
   const { t } = useTranslation();
+  const { buildingFieldId } = useRouteSegments();
 
   const [buildingTab, setBuildingTab] = useState<BuildingCategory>('infrastructure');
 
@@ -141,19 +136,19 @@ export const BuildingConstructionModal: React.FC<BuildingConstructionModalProps>
       <TabPanel>
         <BuildingCategoryPanel
           buildingCategory="infrastructure"
-          buildingFieldId={buildingFieldId}
+          buildingFieldId={buildingFieldId!}
         />
       </TabPanel>
       <TabPanel>
         <BuildingCategoryPanel
           buildingCategory="military"
-          buildingFieldId={buildingFieldId}
+          buildingFieldId={buildingFieldId!}
         />
       </TabPanel>
       <TabPanel>
         <BuildingCategoryPanel
           buildingCategory="resource-booster"
-          buildingFieldId={buildingFieldId}
+          buildingFieldId={buildingFieldId!}
         />
       </TabPanel>
     </Tabs>

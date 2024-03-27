@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useMap } from 'app/[game]/hooks/use-map';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
-import { useEventListener, useWindowSize } from 'usehooks-ts';
+import { useEventListener } from 'usehooks-ts';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import { Modal } from 'app/components/modal';
@@ -17,6 +17,7 @@ import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { OccupiedOccupiableTile, Tile as TileType } from 'interfaces/models/game/tile';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
+import { useViewport } from 'app/providers/viewport-context';
 
 // Height/width of ruler on the left-bottom
 const RULER_SIZE = 20;
@@ -32,7 +33,7 @@ export const MapPage: React.FC = () => {
     server: { configuration },
   } = useCurrentServer();
   const { map, getTileByTileId } = useMap();
-  const { height, width } = useWindowSize();
+  const { height, width, isWiderThanLg } = useViewport();
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize } = useMapOptions();
   const {
@@ -138,7 +139,7 @@ export const MapPage: React.FC = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!mapFilters.shouldShowTileTooltips}
+        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg}
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 

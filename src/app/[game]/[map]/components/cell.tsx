@@ -15,7 +15,13 @@ import { TreasureIcon } from 'app/[game]/[map]/components/treasure-icon';
 import { PlayerFaction } from 'interfaces/models/game/player';
 import { ReputationLevel } from 'interfaces/models/game/reputation';
 import { MapFilters } from 'interfaces/models/game/map-filters';
-import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile, isTreasuryTile } from 'app/[game]/utils/map';
+import {
+  isOasisTile,
+  isOccupiableOasisTile,
+  isOccupiedOasisTile,
+  isOccupiedOccupiableTile,
+  isTreasuryTile,
+} from 'app/[game]/utils/guards/map-guards';
 
 type TileWithFilters<T extends TileType> = T & {
   mapFilters: MapFilters;
