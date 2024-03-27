@@ -3,6 +3,7 @@ import { Village } from 'interfaces/models/game/village';
 import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils/common';
 import { Point } from 'interfaces/models/common';
 import { useVillages } from 'app/[game]/hooks/use-villages';
+import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/common';
 
 export const useCurrentVillage = () => {
   const { playerVillages } = useVillages();
@@ -19,11 +20,14 @@ export const useCurrentVillage = () => {
     return roundTo2DecimalPoints(calculateDistanceBetweenPoints(currentVillage.coordinates, tileCoordinates));
   };
 
+  const population = calculatePopulationFromBuildingFields(currentVillage.buildingFields);
+
   return {
     currentVillage: currentVillage!,
     currentVillageId,
     distanceFromCurrentVillage,
     canDemolishBuildings,
     canRearrangeBuildings,
+    population,
   };
 };

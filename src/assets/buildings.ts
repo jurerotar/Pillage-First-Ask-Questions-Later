@@ -5,12 +5,11 @@ export const buildings: Building[] = [
     id: 'BAKERY',
     category: 'resource-booster',
     buildingDuration: [3680, 6720, 11280, 18120, 28380],
-    culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [4, 2, 2, 2, 2],
     effects: [
       {
         effectId: 'wheatProductionBonus',
-        valuesPerLevel: [0, 5, 10, 15, 20, 25],
+        valuesPerLevel: [1, 1.05, 1.1, 1.15, 1.2, 1.25],
       },
     ],
     buildingRequirements: [
@@ -50,12 +49,11 @@ export const buildings: Building[] = [
     id: 'BRICKYARD',
     category: 'resource-booster',
     buildingDuration: [2840, 5460, 9390, 15290, 24130],
-    culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [3, 2, 2, 2, 2],
     effects: [
       {
         effectId: 'clayProductionBonus',
-        valuesPerLevel: [0, 5, 10, 15, 20, 25],
+        valuesPerLevel: [1, 1.05, 1.1, 1.15, 1.2, 1.25],
       },
     ],
     buildingRequirements: [
@@ -92,7 +90,6 @@ export const buildings: Building[] = [
       220, 550, 1080, 1930, 3290, 5470, 8950, 14520, 23430, 37690, 60510, 97010, 155420, 248870, 398390, 637620, 1020390, 1632820, 2612710,
       4180540, 6689060, 10702690,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38, 46, 55],
     cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3],
     buildingRequirements: [],
     effects: [
@@ -133,7 +130,6 @@ export const buildings: Building[] = [
       150, 440, 900, 1650, 2830, 4730, 7780, 12640, 20430, 32880, 52810, 84700, 135710, 217340, 347950, 556910, 891260, 1426210, 2282140,
       3651630, 5842810, 9348690,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38, 46, 55],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2],
     buildingRequirements: [],
     effects: [
@@ -171,12 +167,11 @@ export const buildings: Building[] = [
     id: 'GRAIN_MILL',
     category: 'resource-booster',
     buildingDuration: [1840, 3960, 7140, 11910, 19070],
-    culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [3, 2, 2, 2, 2],
     effects: [
       {
         effectId: 'wheatProductionBonus',
-        valuesPerLevel: [0, 5, 10, 15, 20, 25],
+        valuesPerLevel: [1, 1.05, 1.1, 1.15, 1.2, 1.25],
       },
     ],
     buildingRequirements: [
@@ -206,7 +201,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       1600, 2160, 2800, 3550, 4420, 5420, 6590, 7950, 9520, 11340, 13450, 15910, 18750, 22050, 25880, 30320, 35470, 41450, 48380, 56420,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
@@ -260,7 +254,6 @@ export const buildings: Building[] = [
       7000, 8420, 10070, 11980, 14190, 16770, 19750, 23210, 27220, 31880, 37280, 43540, 50810, 59240, 69010, 80360, 93510, 108780, 126480,
       147020,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
@@ -320,7 +313,6 @@ export const buildings: Building[] = [
       9000, 10740, 12760, 15100, 17820, 20970, 24620, 28860, 33780, 39480, 46100, 53780, 62680, 73010, 84990, 98890, 115010, 133710, 155400,
       180570,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
@@ -377,12 +369,11 @@ export const buildings: Building[] = [
     id: 'IRON_FOUNDRY',
     category: 'resource-booster',
     buildingDuration: [4080, 7320, 12180, 19470, 30410],
-    culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [6, 3, 3, 3, 3],
     effects: [
       {
         effectId: 'ironProductionBonus',
-        valuesPerLevel: [0, 5, 10, 15, 20, 25],
+        valuesPerLevel: [1, 1.05, 1.1, 1.15, 1.2, 1.25],
       },
     ],
     buildingRequirements: [
@@ -419,7 +410,6 @@ export const buildings: Building[] = [
       450, 920, 1670, 2880, 4800, 7880, 12810, 20690, 33310, 53500, 85800, 137470, 220160, 352450, 564120, 902790, 1444660, 2311660,
       3698850, 5918370, 9469590, 15151540,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38, 46, 55],
     cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4],
     buildingRequirements: [],
     effects: [
@@ -457,12 +447,11 @@ export const buildings: Building[] = [
     id: 'SAWMILL',
     category: 'resource-booster',
     buildingDuration: [3000, 5700, 9750, 15830, 24940],
-    culturePointsProduction: [1, 1, 2, 2, 2],
     cropConsumption: [4, 2, 2, 2, 2],
     effects: [
       {
         effectId: 'woodProductionBonus',
-        valuesPerLevel: [0, 5, 10, 15, 20, 25],
+        valuesPerLevel: [1, 1.05, 1.1, 1.15, 1.2, 1.25],
       },
     ],
     buildingRequirements: [
@@ -498,7 +487,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
@@ -550,11 +538,22 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'oasisProductionBonus',
+        effectId: 'woodProductionBonus',
+        valuesPerLevel: [0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2],
+      },
+      {
+        effectId: 'clayProductionBonus',
+        valuesPerLevel: [0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2],
+      },
+      {
+        effectId: 'ironProductionBonus',
+        valuesPerLevel: [0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2],
+      },
+      {
+        effectId: 'wheatProductionBonus',
         valuesPerLevel: [0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2],
       },
     ],
@@ -606,7 +605,6 @@ export const buildings: Building[] = [
       260, 620, 1190, 2100, 3560, 5890, 9620, 15590, 25150, 40440, 64900, 104050, 166680, 266880, 427210, 683730, 1094170, 1750880, 2801600,
       4482770, 7172630, 11476400,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38, 46, 55],
     cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3],
     buildingRequirements: [],
     effects: [
@@ -646,7 +644,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [5, 6, 7, 8, 10, 12, 14, 17, 21, 25, 30, 36, 43, 51, 62, 74, 89, 106, 128, 153],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
     effects: [],
     buildingRequirements: [
@@ -697,14 +694,8 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-    effects: [
-      {
-        effectId: 'amountOfUnlockedUnitResearchLevels',
-        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      },
-    ],
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -753,7 +744,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
     effects: [
       {
@@ -812,15 +802,14 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
       },
       {
-        effectId: 'villageDefenceBonus',
+        effectId: 'defenceBonus',
         valuesPerLevel: [
           1, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
         ],
@@ -867,15 +856,14 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
       },
       {
-        effectId: 'villageDefenceBonus',
+        effectId: 'defenceBonus',
         valuesPerLevel: [
           1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
         ],
@@ -922,7 +910,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
     effects: [
       {
@@ -981,7 +968,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2200, 2850, 3610, 4490, 5500, 6680, 8050, 9640, 11480, 13620, 16100, 18980, 22310, 26180, 30670, 35880, 41920, 48930, 57060, 66490,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     effects: [
       {
@@ -1040,14 +1026,8 @@ export const buildings: Building[] = [
     buildingDuration: [
       2300, 2670, 3090, 3590, 4160, 4830, 5600, 6500, 7540, 8750, 10150, 11770, 13650, 15840, 18370, 21310, 24720, 28680, 33260, 38590,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
-    effects: [
-      {
-        effectId: 'oasisExpansionSlot',
-        valuesPerLevel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3],
-      },
-    ],
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -1096,7 +1076,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       3000, 3780, 4680, 5730, 6950, 8360, 10000, 11900, 14110, 16660, 19630, 23070, 27060, 31690, 37060, 43290, 50520, 58900, 68630, 79910,
     ],
-    culturePointsProduction: [5, 6, 7, 8, 10, 12, 14, 17, 21, 25, 30, 36, 43, 51, 62, 74, 89, 106, 128, 153],
     cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     effects: [
       {
@@ -1155,15 +1134,14 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
       },
       {
-        effectId: 'villageDefenceBonus',
+        effectId: 'defenceBonus',
         valuesPerLevel: [
           0, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
         ],
@@ -1210,15 +1188,14 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
       },
       {
-        effectId: 'villageDefenceBonus',
+        effectId: 'defenceBonus',
         valuesPerLevel: [
           0, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
         ],
@@ -1265,14 +1242,8 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    effects: [
-      {
-        effectId: 'amountOfUncoveredAttackingUnits',
-        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      },
-    ],
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -1309,7 +1280,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2200, 2850, 3610, 4490, 5500, 6680, 8050, 9640, 11480, 13620, 16100, 18980, 22310, 26180, 30670, 35880, 41920, 48930, 57060, 66490,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     effects: [
       {
@@ -1362,15 +1332,14 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
       },
       {
-        effectId: 'villageDefenceBonus',
+        effectId: 'defenceBonus',
         valuesPerLevel: [
           1, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
         ],
@@ -1417,7 +1386,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2200, 3150, 4260, 5540, 7020, 8750, 10750, 13070, 15760, 18880, 22500, 26700, 31570, 37220, 43780, 51380, 60200, 70430, 82300, 96070,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
     effects: [
       {
@@ -1473,11 +1441,10 @@ export const buildings: Building[] = [
     buildingDuration: [
       3500, 4360, 5360, 6510, 7860, 9410, 11220, 13320, 15750, 18570, 21840, 25630, 30030, 35140, 41060, 47930, 55900, 65140, 75860, 88300,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'unitSpeedAfter20TilesBonus',
+        effectId: 'unitSpeedBonus',
         valuesPerLevel: [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.2, 4.4, 4.6, 4.8, 5],
       },
     ],
@@ -1523,7 +1490,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2320, 2690, 3120, 3620, 4200, 4870, 5650, 6560, 7610, 8820, 10230, 11870, 13770, 15980, 18530, 21500, 24940, 28930, 33550,
     ],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 9, 11, 13, 15, 18, 22, 27, 32, 38],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
     effects: [
       {
@@ -1578,7 +1544,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       3000, 3780, 4680, 5730, 6950, 8360, 10000, 11900, 14110, 16660, 19630, 23070, 27060, 31690, 37060, 43290, 50520, 58900, 68630, 79910,
     ],
-    culturePointsProduction: [4, 4, 5, 6, 7, 9, 11, 13, 15, 19, 22, 27, 32, 39, 46, 55, 67, 80, 96, 115],
     cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     effects: [
       {
@@ -1638,11 +1603,10 @@ export const buildings: Building[] = [
       8000, 9880, 12060, 14590, 17530, 20930, 24880, 29460, 34770, 40930, 48080, 56380, 66000, 77160, 90100, 105120, 122540, 142750, 166180,
       193370,
     ],
-    culturePointsProduction: [5, 6, 7, 8, 10, 12, 14, 17, 21, 25, 30, 36, 43, 51, 62, 74, 89, 106, 128, 153],
     cropConsumption: [6, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5],
     effects: [
       {
-        effectId: 'breweryAttackBonus',
+        effectId: 'attackBonus',
         valuesPerLevel: [
           1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2,
         ],
@@ -1707,11 +1671,10 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
@@ -1760,7 +1723,6 @@ export const buildings: Building[] = [
     id: 'CRANNY',
     category: 'infrastructure',
     buildingDuration: [300, 650, 1050, 1520, 2060, 2690, 3420, 4270, 5260, 6400],
-    culturePointsProduction: [1, 1, 2, 2, 2, 3, 4, 4, 5, 6],
     cropConsumption: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
     effects: [
       {
@@ -1794,14 +1756,8 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [5, 6, 7, 8, 10, 12, 14, 17, 21, 25, 30, 36, 43, 51, 62, 74, 89, 106, 128, 153],
     cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-    effects: [
-      {
-        effectId: 'embassyCapacity',
-        valuesPerLevel: [0, 0, 0, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60],
-      },
-    ],
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -1844,7 +1800,6 @@ export const buildings: Building[] = [
     buildingDuration: [
       2200, 3150, 4260, 5540, 7020, 8750, 10750, 13070, 15760, 18880, 22500, 26700, 31570, 37220, 43780, 51380, 60200, 70430, 82300, 96070,
     ],
-    culturePointsProduction: [4, 4, 5, 6, 7, 9, 11, 13, 15, 19, 22, 27, 32, 39, 46, 55, 67, 80, 96, 115],
     cropConsumption: [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     effects: [
       {
@@ -1915,13 +1870,13 @@ export const buildings: Building[] = [
     buildingDuration: [
       2500, 2620, 3220, 3880, 4610, 5410, 6300, 7280, 8380, 9590, 10940, 12440, 14120, 15980, 18050, 20370, 22950, 25830, 29040, 32630,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
     effects: [
       {
         effectId: 'buildingDuration',
         valuesPerLevel: [
-          5, 1, 0.98, 0.96, 0.94, 0.92, 0.9, 0.88, 0.86, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5,
+          0.2, 0.2, 0.196, 0.192, 0.188, 0.184, 0.18, 0.176, 0.172, 0.166, 0.162, 0.156, 0.15, 0.146, 0.14, 0.134, 0.128, 0.12, 0.114,
+          0.108, 0.1,
         ],
       },
     ],
@@ -1961,14 +1916,8 @@ export const buildings: Building[] = [
     buildingDuration: [
       1800, 2390, 3070, 3860, 4780, 5840, 7080, 8510, 10170, 12100, 14340, 16930, 19940, 23430, 27480, 32180, 37620, 43940, 51270, 59780,
     ],
-    culturePointsProduction: [4, 4, 5, 6, 7, 9, 11, 13, 15, 19, 22, 27, 32, 39, 46, 55, 67, 80, 96, 115],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-    effects: [
-      {
-        effectId: 'merchantAmount',
-        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      },
-    ],
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -2024,11 +1973,10 @@ export const buildings: Building[] = [
       5000, 6100, 7380, 8860, 10570, 12560, 14880, 17560, 20660, 24270, 28450, 33310, 38940, 45460, 53040, 61830, 72020, 83840, 97550,
       113460,
     ],
-    culturePointsProduction: [6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 45, 53, 64, 77, 92, 111, 133, 160, 192],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
@@ -2081,11 +2029,10 @@ export const buildings: Building[] = [
     buildingDuration: [
       2000, 2620, 3340, 4170, 5140, 6260, 7570, 9080, 10830, 12860, 15220, 17950, 21130, 24810, 29080, 34030, 39770, 46440, 54170, 63130,
     ],
-    culturePointsProduction: [2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 44, 53, 64, 77],
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'villageDefenceValue',
+        effectId: 'defence',
         valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
@@ -2132,64 +2079,11 @@ export const buildings: Building[] = [
     ],
   },
   {
-    id: 'TOWN_HALL',
-    category: 'infrastructure',
-    buildingDuration: [
-      12500, 14800, 17470, 20560, 24150, 28320, 33150, 38750, 45250, 52790, 61540, 71690, 83460, 97110, 112950, 131320, 152630, 177350,
-      206020, 239290,
-    ],
-    culturePointsProduction: [6, 7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 45, 53, 64, 77, 92, 111, 133, 160, 192],
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
-    effects: [],
-    buildingRequirements: [
-      {
-        id: 1,
-        type: 'amount',
-        amount: 1,
-      },
-      {
-        id: 2,
-        type: 'building',
-        buildingId: 'MAIN_BUILDING',
-        level: 10,
-      },
-      {
-        id: 3,
-        type: 'building',
-        buildingId: 'ACADEMY',
-        level: 10,
-      },
-    ],
-    buildingCost: [
-      [1250, 1110, 1260, 600],
-      [1600, 1420, 1615, 770],
-      [2050, 1820, 2065, 985],
-      [2620, 2330, 2640, 1260],
-      [3355, 2980, 3380, 1610],
-      [4295, 3815, 4330, 2060],
-      [5500, 4880, 5540, 2640],
-      [7035, 6250, 7095, 3380],
-      [9005, 8000, 9080, 4325],
-      [11530, 10240, 11620, 5535],
-      [14755, 13105, 14875, 7085],
-      [18890, 16775, 19040, 9065],
-      [24180, 21470, 24370, 11605],
-      [30950, 27480, 31195, 14855],
-      [39615, 35175, 39930, 19015],
-      [50705, 45025, 51110, 24340],
-      [64905, 57635, 65425, 31155],
-      [83075, 73770, 83740, 39875],
-      [106340, 94430, 107190, 51040],
-      [136115, 120870, 137200, 65335],
-    ],
-  },
-  {
     id: 'TRADE_OFFICE',
     category: 'infrastructure',
     buildingDuration: [
       3000, 3780, 4680, 5730, 6950, 8360, 10000, 11900, 14110, 16660, 19630, 23070, 27060, 31690, 37060, 43290, 50520, 58900, 68630, 79910,
     ],
-    culturePointsProduction: [4, 4, 5, 6, 7, 9, 11, 13, 15, 19, 22, 27, 32, 39, 46, 55, 67, 80, 96, 115],
     cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
     effects: [
       {
@@ -2246,7 +2140,6 @@ export const buildings: Building[] = [
       8000, 9580, 11410, 13540, 16010, 18870, 22180, 26030, 30500, 35680, 41690, 48660, 56740, 66120, 77000, 89620, 104260, 121240, 140940,
       163790,
     ],
-    culturePointsProduction: [7, 9, 10, 12, 15, 18, 21, 26, 31, 37, 45, 53, 64, 77, 92, 111, 133, 160, 192, 230],
     cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
     effects: [],
     buildingRequirements: [

@@ -12,9 +12,15 @@ Using browser's native IndexedDb, game data is persisted and progressed between 
 
 **Note: Very much still work in progress, not much to see at the moment.**
 
-## Known issues
-
-- Database schema is likely to change between builds. Make sure to always reset your local database by pressing the "Reset database" button on app's starting page.
+## Game design differences between Travian and Echoes of Travian
+  - Smithy upgrades are account-wide. Upgrading units in one village will upgrade them globally.
+  - Hero bonuses are account-wide. Applies to attack bonus, defence bonus as well as resource production.
+  - Hero production bonus is percentage based (up to 20%).
+  - Culture points removal. Make as many villages as you want, whenever you can afford them.
+  - Removal of town hall.
+  - Natars & nature as playable tribes.
+  - NPC factions, faction reputation system which determined trading options & hostility.
+  - 8 account-wide artifacts.
 
 ## Built with
 

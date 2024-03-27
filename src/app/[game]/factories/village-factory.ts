@@ -3,7 +3,6 @@ import { Server } from 'interfaces/models/game/server';
 import { Resource } from 'interfaces/models/game/resource';
 import { Player } from 'interfaces/models/game/player';
 import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { resourceTypeToResourceBuildingIdMap } from 'app/[game]/utils/maps';
 import { Tribe } from 'interfaces/models/game/tribe';
 import {
   egyptianNewVillageBuildingFieldsPreset,
@@ -12,6 +11,7 @@ import {
   romanNewVillageBuildingFieldsPreset,
   teutonNewVillageBuildingFieldsPreset,
 } from 'assets/village-presets';
+import { BuildingId } from 'interfaces/models/game/building';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
@@ -196,6 +196,13 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
 };
 
 const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): BuildingField[] => {
+  const resourceTypeToResourceBuildingIdMap = new Map<Resource, BuildingId>([
+    ['wood', 'WOODCUTTER'],
+    ['clay', 'CLAY_PIT'],
+    ['iron', 'IRON_MINE'],
+    ['wheat', 'CROPLAND'],
+  ]);
+
   return Object.keys(resourceFieldLayout).map((fieldId) => {
     const buildingFieldId = Number(fieldId) as ResourceFieldId;
     const type = resourceFieldLayout[buildingFieldId];

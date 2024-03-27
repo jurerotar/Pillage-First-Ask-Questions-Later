@@ -17,7 +17,7 @@ import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import { Server } from 'interfaces/models/game/server';
 import { createHash } from 'sha1-uint8array';
 import { Player } from 'interfaces/models/game/player';
-import { isOccupiedOccupiableTile } from 'app/[game]/utils/map';
+import { isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 
 export type OasisShapes = Record<
   Resource,
@@ -367,38 +367,14 @@ const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[
   const { offset, distanceFromCenter } = getPredefinedVillagesDistances(server);
 
   const artifactVillagesCoordinates = [
-    {
-      x: -offset,
-      y: distanceFromCenter,
-    },
-    {
-      x: offset,
-      y: distanceFromCenter,
-    },
-    {
-      x: -offset,
-      y: -distanceFromCenter,
-    },
-    {
-      x: offset,
-      y: -distanceFromCenter,
-    },
-    {
-      x: distanceFromCenter,
-      y: offset,
-    },
-    {
-      x: distanceFromCenter,
-      y: -offset,
-    },
-    {
-      x: -distanceFromCenter,
-      y: offset,
-    },
-    {
-      x: -distanceFromCenter,
-      y: -offset,
-    },
+    { x: -offset, y: distanceFromCenter },
+    { x: offset, y: distanceFromCenter },
+    { x: -offset, y: -distanceFromCenter },
+    { x: offset, y: -distanceFromCenter },
+    { x: distanceFromCenter, y: offset },
+    { x: distanceFromCenter, y: -offset },
+    { x: -distanceFromCenter, y: offset },
+    { x: -distanceFromCenter, y: -offset },
   ];
 
   return {

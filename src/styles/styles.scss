@@ -28,6 +28,13 @@
 //  --backdrop-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
 //}
 
+@layer base {
+  .text-xxs {
+    font-size: 0.65rem;
+    line-height: 1rem;
+  }
+}
+
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }

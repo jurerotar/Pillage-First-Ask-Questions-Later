@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 type PublicPageName = 'index';
 
-type GamePageName = 'resources' | 'village' | 'map';
+type GamePageName = 'resources' | 'village' | 'map' | 'reports';
 
 type ViewName = PublicPageName | GamePageName;
 
@@ -13,6 +13,7 @@ const viewNameToMetaMap = new Map<ViewName, string>([
   ['resources', 'APP.GAME.RESOURCES.META'],
   ['village', 'APP.GAME.VILLAGE.META'],
   ['map', 'APP.GAME.MAP.META'],
+  ['reports', 'APP.GAME.REPORTS.META'],
 ]);
 
 type AppHelmetProps = {

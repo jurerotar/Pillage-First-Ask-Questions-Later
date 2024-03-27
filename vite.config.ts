@@ -13,8 +13,8 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       // Game data
-      'assets/buildings',
-      'assets/units',
+      // 'assets/buildings',
+      // 'assets/units',
       // Third-party deps
       'react',
       'react-dom',

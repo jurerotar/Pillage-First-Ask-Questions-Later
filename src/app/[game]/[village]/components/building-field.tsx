@@ -5,8 +5,27 @@ import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
 
-const buildingFieldIdToStyleMap = new Map<VillageFieldId | ReservedFieldId, string>([
+const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
+  [1, 'top-[20%] left-[33%]'],
+  [2, 'top-[10%] left-[47%]'],
+  [3, 'top-[17%] left-[63%]'],
+  [4, 'top-[35%] left-[20%]'],
+  [5, 'top-[30%] left-[43%]'],
+  [6, 'top-[27%] left-[52%]'],
+  [7, 'top-[24%] left-[77%]'],
+  [8, 'top-[54%] left-[14%]'],
+  [9, 'top-[51%] left-[26%]'],
+  [10, 'top-[39%] left-[69%]'],
+  [11, 'top-[39%] left-[86%]'],
+  [12, 'top-[68%] left-[19%]'],
+  [13, 'top-[59%] left-[32%]'],
+  [14, 'top-[71%] left-[48%]'],
+  [15, 'top-[59%] left-[76%]'],
+  [16, 'top-[77%] left-[36%]'],
+  [17, 'top-[86%] left-[50%]'],
+  [18, 'top-[76%] left-[62%]'],
   [19, 'top-[33%] left-[26%]'],
   [20, 'top-[24%] left-[36%]'],
   [21, 'top-[18%] left-[47%]'],
@@ -32,72 +51,68 @@ const buildingFieldIdToStyleMap = new Map<VillageFieldId | ReservedFieldId, stri
 ]);
 
 type EmptyBuildingFieldProps = {
-  onClick: () => void;
-  buildingFieldId: VillageFieldId;
+  buildingFieldId: BuildingFieldType['id'];
 };
 
-const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId, onClick }) => {
+const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
+  const { pathname } = useLocation();
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
 
+  const href = `${pathname}/${buildingFieldId}`;
+
   return (
-    <button
-      type="button"
-      className={clsx(styles, 'absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
+    <Link
+      to={href}
+      className={clsx(
+        styles,
+        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16'
+      )}
       data-building-field-id={buildingFieldId}
-      onClick={onClick}
     >
       {buildingFieldId}
-    </button>
+    </Link>
   );
 };
 
 type OccupiedBuildingFieldProps = {
-  onClick: () => void;
   buildingField: BuildingFieldType;
 };
 
-const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField, onClick }) => {
+const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t } = useTranslation();
-  const { id, buildingId } = buildingField;
+  const { pathname } = useLocation();
+  const { id: buildingFieldId, buildingId } = buildingField;
 
-  const styles = buildingFieldIdToStyleMap.get(id as VillageFieldId | ReservedFieldId);
+  const href = `${pathname}/${buildingFieldId}`;
+  const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
 
   return (
-    <button
+    <Link
+      to={href}
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
-      type="button"
-      className={clsx(styles, 'absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-400')}
-      data-building-field-id={id}
-      onClick={onClick}
+      className={clsx(
+        styles,
+        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16'
+      )}
+      data-building-field-id={buildingFieldId}
     >
-      <BuildingUpgradeIndicator buildingFieldId={id} />
-    </button>
+      <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
+    </Link>
   );
 };
 
 type BuildingFieldProps = {
-  onClick: () => void;
-  buildingFieldId: VillageFieldId;
+  buildingFieldId: BuildingFieldType['id'];
 };
 
-export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, onClick }) => {
+export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
 
   if (buildingField === null) {
-    return (
-      <EmptyBuildingField
-        buildingFieldId={buildingFieldId}
-        onClick={onClick}
-      />
-    );
+    return <EmptyBuildingField buildingFieldId={buildingFieldId} />;
   }
 
-  return (
-    <OccupiedBuildingField
-      buildingField={buildingField}
-      onClick={onClick}
-    />
-  );
+  return <OccupiedBuildingField buildingField={buildingField} />;
 };

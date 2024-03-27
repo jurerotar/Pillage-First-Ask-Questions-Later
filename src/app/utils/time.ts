@@ -12,3 +12,14 @@ export const formatTime = (milliseconds: number): string => {
 export const formatToRelativeTime = (timestamp: number): string => {
   return dayjs().from(timestamp);
 };
+
+export const formatFutureTimestamp = (futureTimestamp: number) => {
+  const now = dayjs();
+  const futureTime = dayjs(futureTimestamp);
+
+  // Calculate the difference between the future timestamp and now
+  const length = dayjs.duration(futureTime.diff(now));
+
+  // Format the difference as 'HH:mm:ss'
+  return dayjs(length.asMilliseconds()).format('HH:mm:ss');
+};

@@ -1,7 +1,6 @@
 import { BuildingField, Village } from 'interfaces/models/game/village';
 import { Building } from 'interfaces/models/game/building';
 import { partialArraySum } from 'app/utils/common';
-import { resourceBuildingIdToEffectIdMap, resourceBuildingIdToResourceTypeMap } from 'app/[game]/utils/maps';
 import { buildings } from 'assets/buildings';
 
 export const getBuildingData = (buildingId: Building['id']) => {
@@ -13,9 +12,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const building = getBuildingData(buildingId);
   const isMaxLevel = building.cropConsumption.length === level;
   const cumulativeCropConsumption = partialArraySum(building.cropConsumption, level);
-  const cumulativeCulturePointsProduction = partialArraySum(building.culturePointsProduction, level);
   const nextLevelCropConsumption = building.cropConsumption[level + 1] ?? 0;
-  const nextLevelCulturePointsProduction = building.cropConsumption[level + 1] ?? 0;
   const nextLevelResourceCost = building.buildingCost[level + 1] ?? [0, 0, 0, 0];
   const nextLevelBuildingDuration = building.buildingDuration[level + 1] ?? 0;
 
@@ -23,9 +20,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
     building,
     isMaxLevel,
     cumulativeCropConsumption,
-    cumulativeCulturePointsProduction,
     nextLevelCropConsumption,
-    nextLevelCulturePointsProduction,
     nextLevelResourceCost,
     nextLevelBuildingDuration,
   };
@@ -35,7 +30,7 @@ export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, build
   return currentVillage.buildingFields.find(({ id: fieldId }) => buildingFieldId === fieldId) ?? null;
 };
 
-export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
+export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[]): number => {
   let sum: number = 0;
 
   buildingFields.forEach(({ buildingId, level }) => {
@@ -43,44 +38,29 @@ export const calculatePopulationFromBuildingFields = (buildingFields: BuildingFi
       return;
     }
 
-    const fullBuildingData: Building = buildingData.find(({ id }) => id === buildingId)!;
+    const fullBuildingData: Building = buildings.find(({ id }) => id === buildingId)!;
     sum += partialArraySum(fullBuildingData.cropConsumption, level);
   });
 
   return sum;
 };
 
-export const calculateCulturePointsProductionFromBuildingFields = (buildingFields: BuildingField[], buildingData: Building[]): number => {
-  let sum: number = 0;
-
-  buildingFields.forEach(({ buildingId, level }) => {
-    if (buildingId === null) {
-      return;
-    }
-
-    const fullBuildingData: Building = buildingData.find(({ id }) => id === buildingId)!;
-    sum += partialArraySum(fullBuildingData.culturePointsProduction, level);
-  });
-
-  return sum;
-};
-
-export const getResourceProductionByResourceField = (resourceField: BuildingField, buildingData: Building[]): number => {
+export const getResourceProductionByResourceField = (resourceField: BuildingField): number => {
   const { buildingId, level } = resourceField;
-  const resourceProductionEffectId = resourceBuildingIdToEffectIdMap.get(buildingId);
-  const fullBuildingData: Building = buildingData.find(({ id }) => id === buildingId)!;
-  const resourceProduction = fullBuildingData.effects.find(({ effectId }) => effectId === resourceProductionEffectId)!.valuesPerLevel;
+  const fullBuildingData: Building = buildings.find(({ id }) => id === buildingId)!;
+  // There's only 1 effect on production buildings, this should be fine
+  const resourceProduction = fullBuildingData.effects[0]!.valuesPerLevel;
   return resourceProduction[level];
 };
 
-export const calculateResourceProductionFromResourceFields = (resourceFields: BuildingField[], buildingData: Building[]) => {
+export const calculateResourceProductionFromResourceFields = (resourceFields: BuildingField[]) => {
   const [woodProduction, clayProduction, ironProduction, wheatProduction] = [
-    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'wood'),
-    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'clay'),
-    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'iron'),
-    resourceFields.filter(({ buildingId }) => resourceBuildingIdToResourceTypeMap.get(buildingId) === 'wheat'),
+    resourceFields.filter(({ buildingId }) => buildingId === 'WOODCUTTER'),
+    resourceFields.filter(({ buildingId }) => buildingId === 'CLAY_PIT'),
+    resourceFields.filter(({ buildingId }) => buildingId === 'IRON_MINE'),
+    resourceFields.filter(({ buildingId }) => buildingId === 'CROPLAND'),
   ].map((resourceFieldsByResourceType: BuildingField[]) => {
-    return resourceFieldsByResourceType.reduce((acc, current) => acc + getResourceProductionByResourceField(current, buildingData), 0);
+    return resourceFieldsByResourceType.reduce((acc, current) => acc + getResourceProductionByResourceField(current), 0);
   });
 
   return {

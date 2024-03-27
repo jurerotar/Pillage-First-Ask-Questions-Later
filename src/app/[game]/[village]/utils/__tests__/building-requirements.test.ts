@@ -11,7 +11,7 @@ import { Village } from 'interfaces/models/game/village';
 import { BuildingRequirement } from 'interfaces/models/game/building';
 import {
   villageWithBarracksRequirementsMetBuildingFieldsMock,
-  villageWithTownHallRequirementsMetBuildingFieldsMock,
+  villageWithWorkshopRequirementsMetBuildingFieldsMock,
 } from 'mocks/models/game/village/building-fields-mock';
 import { buildingConstructionEventMock } from 'mocks/models/game/event-mock';
 
@@ -290,11 +290,11 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(true);
     });
 
-    it('Can build town hall with academy and main building at lvl 10', () => {
+    it('Can build workshop with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: { ...currentVillage, buildingFields: villageWithTownHallRequirementsMetBuildingFieldsMock },
-        buildingId: 'TOWN_HALL',
+        currentVillage: { ...currentVillage, buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock },
+        buildingId: 'WORKSHOP',
       };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -304,7 +304,7 @@ describe('building-requirements', () => {
     it('Can build smithy with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: { ...currentVillage, buildingFields: villageWithTownHallRequirementsMetBuildingFieldsMock },
+        currentVillage: { ...currentVillage, buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock },
         buildingId: 'SMITHY',
       };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));

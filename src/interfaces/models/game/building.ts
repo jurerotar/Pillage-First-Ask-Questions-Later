@@ -1,4 +1,4 @@
-import { EffectId } from 'interfaces/models/game/effect';
+import { Effect } from 'interfaces/models/game/effect';
 import { Tribe } from 'interfaces/models/game/tribe';
 
 export type BuildingId =
@@ -43,12 +43,11 @@ export type BuildingId =
   | 'MARKETPLACE'
   | 'PALACE'
   | 'RESIDENCE'
-  | 'TOWN_HALL'
   | 'TRADE_OFFICE'
   | 'TREASURY';
 
 export type BuildingEffect = {
-  effectId: EffectId;
+  effectId: Effect['id'];
   valuesPerLevel: number[];
 };
 
@@ -90,7 +89,6 @@ export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster
 export type Building = {
   id: BuildingId;
   buildingDuration: number[];
-  culturePointsProduction: number[];
   cropConsumption: number[];
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];

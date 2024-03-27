@@ -15,7 +15,7 @@ import { useVillages } from 'app/[game]/hooks/use-villages';
 import { Icon } from 'app/components/icon';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import { getReportIconType, useReports } from 'app/[game]/hooks/use-reports';
-import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/map';
+import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 
 type TileTooltipProps = {
   tile: Tile;
