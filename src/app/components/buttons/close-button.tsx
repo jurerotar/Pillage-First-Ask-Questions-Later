@@ -1,21 +1,17 @@
 import React from 'react';
-import { overrideTailwindClasses } from 'tailwind-override';
 
 type CloseButtonProps = {
   onClick: () => void;
-  className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const CloseButton: React.FC<CloseButtonProps> = (props) => {
-  const { onClick, className = '' } = props;
+  const { onClick } = props;
 
   return (
     <button
       aria-label="Close button"
       type="button"
-      className={overrideTailwindClasses(
-        `text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white ${className}`
-      )}
+      className="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
       onClickCapture={onClick}
     >
       <svg

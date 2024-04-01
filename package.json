@@ -12,12 +12,12 @@
     "format": "prettier . --write --ignore-unknown",
     "type-check": "tsc --noEmit",
     "test": "vitest",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "analyze-bundle": "npx vite-bundle-visualizer"
   },
   "dependencies": {
     "@tanstack/react-query": "5.28.9",
     "@tanstack/react-query-devtools": "5.28.10",
-    "alea": "1.0.1",
     "clsx": "2.1.0",
     "dayjs": "1.11.10",
     "dexie": "4.0.1",
@@ -34,10 +34,8 @@
     "react-router-dom": "6.22.3",
     "react-tabs": "6.0.2",
     "react-tooltip": "5.26.3",
-    "react-transition-group": "4.4.5",
     "react-window": "1.8.10",
     "sha1-uint8array": "0.10.7",
-    "tailwind-override": "0.6.1",
     "usehooks-ts": "3.0.2"
   },
   "devDependencies": {
