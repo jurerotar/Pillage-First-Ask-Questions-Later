@@ -19,15 +19,12 @@
     "paths": {
       "app/*": ["src/app/*"],
       "database/*": ["src/database/*"],
-      "i18n/*": ["src/i18n/*"],
       "interfaces/*": ["src/interfaces/*"],
-      "styles/*": ["src/styles/*"],
       "assets/*": ["src/assets/*"],
-      "config/*": ["config/*"],
-      "mocks/*": ["__mocks__/*"],
-      "test-utils": ["src/test-utils"]
+      "test-utils": ["src/test-utils"],
+      "mocks/*": ["__mocks__/*"]
     }
   },
   "exclude": ["node_modules"],
-  "include": ["vite-env.d.ts", "src", "config", "**.config.ts", "__mocks__", "vitest-setup.ts"]
+  "include": ["vite-env.d.ts", "src", "**.config.ts", "__mocks__", "vitest-setup.ts"]
 }
