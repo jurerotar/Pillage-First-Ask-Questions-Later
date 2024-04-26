@@ -22,7 +22,7 @@ export default defineConfig({
       'esm-seedrandom',
       'react-tabs',
       'dexie',
-      'formik',
+      'react-hook-form',
       'sha1-uint8array',
       'react-helmet-async',
       'react-modal',

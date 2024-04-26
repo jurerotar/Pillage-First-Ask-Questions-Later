@@ -4,7 +4,6 @@ import { Server } from 'interfaces/models/game/server';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { ProgressBar } from 'app/components/progress-bar';
 import { database } from 'database/database';
-import { useFormik } from 'formik';
 import { Tile } from 'interfaces/models/game/tile';
 import { serverFactory } from 'app/factories/server-factory';
 import { researchLevelsFactory } from 'app/[game]/factories/research-levels-factory';
@@ -27,6 +26,7 @@ import CreateReputationsWorker from 'app/[public]/workers/generate-reputations-w
 import CreateQuestsWorker from 'app/[public]/workers/generate-quests-worker?worker&url';
 import CreateAchievementsWorker from 'app/[public]/workers/generate-achievements-worker?worker&url';
 import CreateEffectsWorker from 'app/[public]/workers/generate-effects-worker?worker&url';
+import { useForm } from 'react-hook-form';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 type CreateServerModalView = 'configuration' | 'loader';
@@ -48,8 +48,8 @@ const generateSeed = (length: number = 10): string => {
 const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps> = (props) => {
   const { onSubmit } = props;
 
-  const { values, handleSubmit, submitForm } = useFormik<CreateServerFormValues>({
-    initialValues: {
+  const { handleSubmit, register } = useForm<CreateServerFormValues>({
+    defaultValues: {
       seed: generateSeed(),
       name: 'Server name',
       configuration: {
@@ -64,15 +64,16 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
     validate: () => {
       return {};
     },
-    onSubmit: (submittedValues) => {
-      const { tribe, name } = submittedValues.playerConfiguration;
-      const server = serverFactory({ ...submittedValues });
-      onSubmit({ server, tribe, name });
-    },
   });
 
+  const submitForm = (data: CreateServerFormValues) => {
+    const { tribe, name } = data.playerConfiguration;
+    const server = serverFactory({ ...data });
+    onSubmit({ server, tribe, name });
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(submitForm)}>
       <div className="flex flex-col gap-8 md:flex-row">
         <div className="flex flex-col gap-4">
           <h3>Server configuration</h3>
@@ -80,14 +81,14 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
             <label htmlFor="server-configuration-seed">Server seed</label>
             <input
               id="server-configuration-seed"
-              defaultValue={values.seed}
+              {...register('seed')}
             />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="server-configuration-name">Server name</label>
             <input
               id="server-configuration-name"
-              defaultValue={values.name}
+              {...register('name')}
             />
           </div>
         </div>
@@ -97,28 +98,28 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
             <label htmlFor="server-configuration-world-size">World size</label>
             <input
               id="server-configuration-world-size"
-              defaultValue={values.configuration.mapSize}
+              {...register('configuration.mapSize')}
             />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="server-configuration-tribe">Tribe</label>
             <input
               id="server-configuration-tribe"
-              defaultValue={values.playerConfiguration.tribe}
+              {...register('playerConfiguration.tribe')}
             />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="server-configuration-speed">Game speed</label>
             <input
               id="server-configuration-speed"
-              defaultValue={values.configuration.speed}
+              {...register('configuration.speed')}
             />
           </div>
         </div>
       </div>
       <Button
         type="submit"
-        onClick={submitForm}
+        onClick={handleSubmit(submitForm)}
       >
         Create server
       </Button>
