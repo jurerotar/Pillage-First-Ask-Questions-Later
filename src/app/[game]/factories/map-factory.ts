@@ -7,6 +7,7 @@ import {
   MaybeOccupiedOrOasisOccupiableTile,
   OasisResourceBonus,
   OasisTile,
+  OccupiableOasisTile,
   OccupiableTile,
   OccupiedOasisTile,
   OccupiedOccupiableTile,
@@ -15,9 +16,9 @@ import {
 import { Point } from 'interfaces/models/common';
 import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import { Server } from 'interfaces/models/game/server';
-import { createHash } from 'sha1-uint8array';
 import { Player } from 'interfaces/models/game/player';
-import { isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import { isOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import { xxHash32 } from 'js-xxhash';
 
 export type OasisShapes = Record<
   Resource,
@@ -388,12 +389,11 @@ const generateGrid = (server: Server): BaseTile[] => {
     configuration: { mapSize: size },
   } = server;
 
+  const textEncoder = new TextEncoder();
   let xCoordinateCounter: number = -size / 2 - 1;
   let yCoordinateCounter: number = size / 2;
-  let counter: number = 0;
 
-  return [...Array((size + 1) ** 2)].flatMap(() => {
-    counter += 1;
+  return [...Array((size + 1) ** 2)].flatMap((_, index) => {
     xCoordinateCounter += 1;
     const x: Point['x'] = xCoordinateCounter;
     const y: Point['y'] = yCoordinateCounter;
@@ -410,7 +410,7 @@ const generateGrid = (server: Server): BaseTile[] => {
     };
 
     return {
-      id: createHash().update(`${server.seed}${counter}`).digest('hex'),
+      id: xxHash32(textEncoder.encode(`${server.seed}${index}`), 0).toString(32),
       serverId: id,
       coordinates,
       graphics: {
@@ -474,70 +474,58 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
 
   for (let i = 0; i < tilesWithOasisShapes.length; i += 1) {
     const currentTile: MaybeOccupiedBaseTile = tilesWithOasisShapes[i];
+    // Exclude
     if (Object.hasOwn(currentTile, 'type')) {
       continue;
     }
 
-    const tileWillBeOasis: boolean = seededRandomIntFromInterval(currentTile.id, 1, 25) === 1;
+    const willTileBeOasis: boolean = seededRandomIntFromInterval(currentTile.id, 1, 25) === 1;
 
-    // Determine oasis position and shape
-    if (tileWillBeOasis) {
-      // Surrounding tiles will have to become oasis as well, depending on shape of the oasis
-      const tilesToUpdate: BaseTile[] = [];
-      const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.id, ['wheat', 'iron', 'clay', 'wood']);
-      const { shapes } = oasisShapes[resourceType];
-      const selectedOasis = shapes[seededRandomArrayElement(currentTile.id, [...Array(shapes.length).keys()])];
-      const { group: oasisGroup, shape: oasisShape } = selectedOasis;
+    if (!willTileBeOasis) {
+      continue;
+    }
 
-      const { x, y }: Point = currentTile.coordinates;
+    const { coordinates: tileCoordinates } = currentTile;
 
-      let breakCondition: boolean = false;
-      // Get the position of individual tile in oasisShapes matrix, this way we know which graphic to show
-      const oasisGroupPositions: number[][] = [];
+    const tilesToUpdate: BaseTile[] = [];
+    // Get the position of individual tile in oasisShapes matrix, this way we know which graphic to show
+    const oasisGroupPositions: number[][] = [];
 
-      // Find tiles to update based on oasis shape
-      // Y-axis movement
-      for (let k = 0; k < oasisShape.length; k += 1) {
-        if (breakCondition) {
+    const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.id, ['wheat', 'iron', 'clay', 'wood']);
+    const { shapes } = oasisShapes[resourceType];
+    const selectedOasis = shapes[seededRandomArrayElement(currentTile.id, [...Array(shapes.length).keys()])];
+    const { group: oasisGroup, shape: oasisShape } = selectedOasis;
+
+    let breakCondition: boolean = false;
+
+    // Find tiles to update based on oasis shape
+    // Y-axis movement
+    for (let k = 0; k < oasisShape.length; k += 1) {
+      if (breakCondition) {
+        break;
+      }
+      // X-axis movement
+      const [xMovementLeft, hasMiddleField, xMovementRight] = oasisShape[k];
+      for (let j = tileCoordinates.x - xMovementLeft; j <= tileCoordinates.x + xMovementRight; j += 1) {
+        if (!hasMiddleField && j === tileCoordinates.x) {
+          continue;
+        }
+        const tile: MaybeOccupiedBaseTile | undefined = tilesWithOasisShapes.find(
+          (cell: MaybeOccupiedBaseTile) => cell.coordinates.y === tileCoordinates.y - k && cell.coordinates.x === j
+        );
+
+        if (!tile || Object.hasOwn(tile, 'type')) {
+          breakCondition = true;
           break;
         }
-        // X-axis movement
-        const [xMovementLeft, hasMiddleField, xMovementRight] = oasisShape[k];
-        for (let j = x - xMovementLeft; j <= x + xMovementRight; j += 1) {
-          if (!hasMiddleField && j === x) {
-            continue;
-          }
-          const tile: MaybeOccupiedBaseTile | undefined = tilesWithOasisShapes.find(
-            (cell: MaybeOccupiedBaseTile) => cell.coordinates.y === y - k && cell.coordinates.x === j
-          );
-          if (!tile) {
-            breakCondition = true;
-            break;
-          }
-          if (Object.hasOwn(tile, 'type')) {
-            breakCondition = true;
-            break;
-          }
 
-          oasisGroupPositions.push([k, j]);
-          tilesToUpdate.push(tile);
-        }
-      }
-      if (breakCondition) {
-        continue;
+        oasisGroupPositions.push([k, j]);
+        tilesToUpdate.push(tile);
       }
 
-      tilesToUpdate.forEach((occupiedCell: BaseTile, index) => {
-        const cellToUpdateFindFunction = (cell: BaseTile) => {
-          return cell.coordinates.x === occupiedCell.coordinates.x && cell.coordinates.y === occupiedCell.coordinates.y;
-        };
-
-        const oasisGroupPosition = oasisGroupPositions[index];
-
-        const cellToUpdateIndex = tilesWithOasisShapes.findIndex(cellToUpdateFindFunction);
-        const cellToUpdate = tilesWithOasisShapes[cellToUpdateIndex];
-
-        tilesWithOasisShapes[cellToUpdateIndex] = generateOasisTile(cellToUpdate, oasisGroup, oasisGroupPosition, resourceType);
+      tilesToUpdate.forEach((tile, index) => {
+        const oasisTile = generateOasisTile(tile, oasisGroup, oasisGroupPositions[index], resourceType);
+        Object.assign(tile, oasisTile);
       });
     }
   }
@@ -608,41 +596,43 @@ const assignOasisToNpcVillages = (tiles: Tile[]): Tile[] => {
   const tilesWithAssignedOasis = [...tiles];
 
   const villageSizeToMaxOasisAmountMap = new Map<OccupiedOccupiableTile['villageSize'], number>([
-    ['xs', 0],
     ['sm', 1],
     ['md', 2],
     ['lg', 3],
   ]);
 
-  tilesWithAssignedOasis.forEach((tile: Tile) => {
+  const oasisTiles = tilesWithAssignedOasis.filter(isOasisTile);
+
+  const npcVillagesEligibleForOasis = tilesWithAssignedOasis.filter((tile: Tile) => {
     if (!isOccupiedOccupiableTile(tile)) {
-      return;
+      return false;
     }
 
-    const {
-      coordinates: { x: villageXCoordinate, y: villageYCoordinate },
-      villageSize,
-    } = tile;
+    if (tile.ownedBy === 'player') {
+      return false;
+    }
 
-    // Only 3x3 tiles around current village are eligible for having occupied oasis
-    const eligibleTiles: OasisTile[] = tilesWithAssignedOasis.filter(({ type, coordinates: { x, y } }) => {
+    return tile.villageSize !== 'xs';
+  }) as OccupiedOccupiableTile[];
+
+  npcVillagesEligibleForOasis.forEach((tile) => {
+    const { villageSize, coordinates: villageCoordinates } = tile;
+
+    // Only oasis tiles in a 3x3 square around current village, which are currently not occupied, are eligible for being occupied
+    const eligibleOasisTiles: OccupiableOasisTile[] = oasisTiles.filter(({ villageId, coordinates: oasisCoordinates }) => {
       return (
-        type === 'oasis-tile' &&
-        villageXCoordinate >= x - 3 &&
-        villageXCoordinate <= x + 3 &&
-        villageYCoordinate >= y - 3 &&
-        villageYCoordinate <= y + 3
+        villageId === null &&
+        Math.abs(villageCoordinates.x - oasisCoordinates.x) <= 3 &&
+        Math.abs(villageCoordinates.y - oasisCoordinates.y) <= 3
       );
-    }) as OasisTile[];
-
-    const unoccupiedEligibleTiles = eligibleTiles.filter(({ villageId }) => villageId === null);
+    });
 
     const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
-    const selectedOasis = seededRandomArrayElements(tile.id, unoccupiedEligibleTiles, maxOasisAmount);
+    const selectedOasis = seededRandomArrayElements<OccupiableOasisTile>(tile.id, eligibleOasisTiles, maxOasisAmount);
 
-    selectedOasis.forEach(({ id }) => {
-      const tileToUpdate = tilesWithAssignedOasis.find(({ id: idToFind }) => id === idToFind) as OccupiedOasisTile;
-      tileToUpdate.villageId = tile.id;
+    selectedOasis.forEach((tileToUpdate) => {
+      // This assertion is okay, since by assigning a villageId, it's now a OccupiedOasisTile
+      (tileToUpdate as never as OccupiedOasisTile).villageId = tile.id;
     });
   });
 

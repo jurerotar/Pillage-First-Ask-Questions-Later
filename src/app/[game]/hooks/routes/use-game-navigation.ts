@@ -9,8 +9,9 @@ const AUCTIONS_PAGE_PATH = '/auctions';
 export const useGameNavigation = () => {
   const { pathname } = useLocation();
 
-  const [, ...segments] = pathname.split('/').reverse();
-  const basePath = segments.reverse().join('/');
+  const [, game, server, village] = pathname.split('/');
+
+  const basePath = `/${game}/${server}/${village}`;
 
   const resourcesPath = `${basePath}${RESOURCES_PAGE_PATH}`;
   const villagePath = `${basePath}${VILLAGE_PAGE_PATH}`;

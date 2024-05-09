@@ -1,4 +1,8 @@
-export const workerFactory = async <TReturn, TPayload>(worker: string, payload: TPayload, errorMessage: string): Promise<TReturn> => {
+export const workerFactory = async <TPayload, TReturn = void>(
+  worker: string,
+  payload: TPayload,
+  errorMessage: string
+): Promise<TReturn> => {
   return new Promise<TReturn>((resolve, reject) => {
     const workerInstance: Worker = new Worker(worker, { type: 'module' });
     workerInstance.postMessage(payload);

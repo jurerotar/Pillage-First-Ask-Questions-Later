@@ -37,11 +37,14 @@ const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
   const isOccupied = isOccupiedOasisTile(tile);
 
   return (
-    <OccupiableOasisIcon
-      oasisResourceBonus={oasisResourceBonus}
-      borderVariant={isOccupied ? 'red' : 'green'}
-      className="size-2 md:size-3"
-    />
+    <>
+      <OccupiableOasisIcon
+        oasisResourceBonus={oasisResourceBonus}
+        borderVariant={isOccupied ? 'red' : 'green'}
+        className="size-2 md:size-3"
+      />
+      {tile.graphics.oasisGroup}
+    </>
   );
 };
 
