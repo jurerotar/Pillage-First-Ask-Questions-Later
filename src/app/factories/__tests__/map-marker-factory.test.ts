@@ -1,5 +1,5 @@
 import { serverMock } from 'mocks/models/game/server-mock';
-import { mapMarkerFactory } from 'app/[game]/factories/map-marker-factory';
+import { mapMarkerFactory } from 'app/factories/map-marker-factory';
 
 describe('Mar marker factory', () => {
   const mapMarker = mapMarkerFactory({ tileId: '1', serverId: serverMock.id });

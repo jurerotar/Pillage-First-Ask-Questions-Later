@@ -7,7 +7,7 @@ import {
   spartanServerMock,
   serverMock,
 } from 'mocks/models/game/server-mock';
-import { heroFactory } from 'app/[game]/factories/hero-factory';
+import { heroFactory } from 'app/factories/hero-factory';
 
 describe('Hero factory', () => {
   const hero = heroFactory({ server: serverMock });

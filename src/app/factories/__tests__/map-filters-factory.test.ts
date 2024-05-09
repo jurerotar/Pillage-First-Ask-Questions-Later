@@ -1,5 +1,5 @@
 import { serverMock } from 'mocks/models/game/server-mock';
-import { mapFiltersFactory } from 'app/[game]/factories/map-filters-factory';
+import { mapFiltersFactory } from 'app/factories/map-filters-factory';
 
 describe('Bank factory', () => {
   const mapFilters = mapFiltersFactory({ server: serverMock });

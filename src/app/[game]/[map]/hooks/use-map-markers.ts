@@ -4,7 +4,7 @@ import { Server } from 'interfaces/models/game/server';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { MapMarker } from 'interfaces/models/game/map-marker';
 import { Tile } from 'interfaces/models/game/tile';
-import { mapMarkerFactory } from 'app/[game]/factories/map-marker-factory';
+import { mapMarkerFactory } from 'app/factories/map-marker-factory';
 
 export const mapMarkersCacheKey = 'map-markers';
 

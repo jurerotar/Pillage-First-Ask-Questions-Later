@@ -1,7 +1,7 @@
 import { Server } from 'interfaces/models/game/server';
 import { PlayerFaction } from 'interfaces/models/game/player';
 import { Reputation } from 'interfaces/models/game/reputation';
-import { reputationFactory } from 'app/[game]/factories/reputation-factory';
+import { reputationFactory } from 'app/factories/reputation-factory';
 import { database } from 'database/database';
 
 export type GenerateReputationsWorkerPayload = {

@@ -3,7 +3,7 @@ import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Server } from 'interfaces/models/game/server';
-import { eventFactory } from 'app/[game]/factories/event-factory';
+import { eventFactory } from 'app/factories/event-factory';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,

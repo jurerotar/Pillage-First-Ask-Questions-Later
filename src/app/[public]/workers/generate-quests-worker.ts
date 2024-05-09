@@ -1,5 +1,5 @@
 import { Server } from 'interfaces/models/game/server';
-import { globalQuestsFactory, newVillageQuestsFactory } from 'app/[game]/factories/quest-factory';
+import { globalQuestsFactory, newVillageQuestsFactory } from 'app/factories/quest-factory';
 import { Village } from 'interfaces/models/game/village';
 import { database } from 'database/database';
 import { Quest } from 'interfaces/models/game/quest';

@@ -1,7 +1,7 @@
 import { OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
 import { Village } from 'interfaces/models/game/village';
 import { Server } from 'interfaces/models/game/server';
-import { villageFactory } from 'app/[game]/factories/village-factory';
+import { villageFactory } from 'app/factories/village-factory';
 import { Player } from 'interfaces/models/game/player';
 import { database } from 'database/database';
 import { chunk } from 'lodash-es';
