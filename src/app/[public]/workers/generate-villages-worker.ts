@@ -35,12 +35,13 @@ self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorke
   self.postMessage({ villages });
 
   const promises = [];
-  const chunkedVillages = chunk(tiles, 300);
+  const chunkedVillages = chunk(villages, 300);
 
   for (let i = 0; i < chunkedVillages.length; i += 1) {
-    promises.push(database.maps.bulkAdd(chunkedVillages[i]));
+    promises.push(database.villages.bulkAdd(chunkedVillages[i]));
   }
 
   await Promise.all(promises);
+
   self.close();
 });
