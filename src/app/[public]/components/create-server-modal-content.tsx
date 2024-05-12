@@ -4,7 +4,6 @@ import { Server } from 'interfaces/models/game/server';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { ProgressBar } from 'app/components/progress-bar';
 import { database } from 'database/database';
-import { Tile } from 'interfaces/models/game/tile';
 import { serverFactory } from 'app/factories/server-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { workerFactory } from 'app/utils/workers';
@@ -29,7 +28,9 @@ import CreateQuestsWorker from 'app/[public]/workers/generate-quests-worker?work
 import CreateAchievementsWorker from 'app/[public]/workers/generate-achievements-worker?worker&url';
 import CreateEffectsWorker from 'app/[public]/workers/generate-effects-worker?worker&url';
 import CreateResearchLevelsWorker from 'app/[public]/workers/generate-research-levels-worker?worker&url';
+import CreateTroopsWorker from 'app/[public]/workers/generate-troops-worker?worker&url';
 import { useForm } from 'react-hook-form';
+import { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'app/[public]/workers/generate-troops-worker';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 type CreateServerModalView = 'configuration' | 'loader';
@@ -149,7 +150,6 @@ const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) =>
   );
 };
 
-// TODO: DB inserts should be done in the workers
 export const CreateServerModalContent: React.FC = () => {
   const { createServer, deleteServer } = useAvailableServers();
 
@@ -177,53 +177,46 @@ export const CreateServerModalContent: React.FC = () => {
 
       try {
         // Reputations
-        const factions = await executeStep(async () => {
-          const { reputations } = await workerFactory<GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn>(
-            CreateReputationsWorker,
-            { server },
-            ''
-          );
-          return reputations;
+        const { reputations } = await executeStep<GenerateReputationsWorkerReturn>(async () => {
+          return workerFactory<GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn>(CreateReputationsWorker, { server }, '');
         });
 
-        const npcFactions = factions.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
+        const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
 
         // Players/factions
-        const players = await executeStep(async () => {
-          const { players: generatedPlayers } = await workerFactory<GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn>(
+        const { players } = await executeStep<GeneratePlayersWorkerReturn>(async () => {
+          return workerFactory<GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn>(
             CreatePlayersWorker,
             { server, factions: npcFactions, name, tribe },
             ''
           );
-          return generatedPlayers;
         });
 
-        const userPlayer = players.find(({ faction }) => faction === 'player')!;
-
         // Map data
-        const tiles = await executeStep<Tile[]>(async () => {
-          const { tiles: generatedTiles } = await workerFactory<GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn>(
-            CreateMapWorker,
-            { server, players },
-            ''
-          );
-          return generatedTiles;
+        const { occupiedOccupiableTiles, occupiableOasisTiles } = await executeStep<GenerateWorldMapWorkerReturn>(async () => {
+          return workerFactory<GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn>(CreateMapWorker, { server, players }, '');
         });
 
         // Villages
-        const villages = await executeStep(async () => {
-          const { villages: generatedVillages } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
+        const { playerStartingVillage } = await executeStep<GenerateVillageWorkerReturn>(async () => {
+          return workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
             CreateVillagesWorker,
-            { server, tiles, players },
+            { server, occupiedOccupiableTiles, players },
             ''
           );
-          return generatedVillages;
         });
-
-        const playerStartingVillage = villages.find(({ playerId }) => playerId === userPlayer.id)!;
 
         // Non-dependant factories can run in sync
         await Promise.all([
+          // Troops
+          executeStep(async () => {
+            await workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(
+              CreateTroopsWorker,
+              { server, occupiedOccupiableTiles, occupiableOasisTiles },
+              ''
+            );
+          }),
+
           // Research levels
           executeStep(async () => {
             await workerFactory<GenerateResearchLevelsWorkerPayload, GenerateResearchLevelsWorkerReturn>(
@@ -243,7 +236,7 @@ export const CreateServerModalContent: React.FC = () => {
           executeStep(async () => {
             await workerFactory<GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn>(
               CreateQuestsWorker,
-              { server, village: playerStartingVillage },
+              { server, villageId: playerStartingVillage.id },
               ''
             );
           }),

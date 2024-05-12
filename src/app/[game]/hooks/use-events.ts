@@ -11,6 +11,13 @@ import {
 } from 'app/[game]/resolvers/building-resolvers';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { findLastIndex } from 'lodash-es';
+import { Village } from 'interfaces/models/game/village';
+import { getVillageById, villagesCacheKey } from 'app/[game]/hooks/use-villages';
+import { doesEventRequireResourceCheck } from 'app/[game]/utils/guards/event-guards';
+import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
+import { Effect } from 'interfaces/models/game/effect';
+import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
+import { calculateCurrentAmount } from 'app/[game]/hooks/use-current-resources';
 
 export const eventsCacheKey = 'events';
 
@@ -86,15 +93,92 @@ type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
   queryClient: QueryClient;
 };
 
-type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'serverId' | 'type' | 'queryClient'>;
+type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'serverId' | 'type' | 'queryClient' | 'villageId'>;
 
 export const createEventFn = async <T extends GameEventType>(args: CreateEventFnArgs<T>): Promise<void> => {
   const { queryClient, ...rest } = args;
-  const { serverId } = rest;
+  const { serverId, villageId } = rest;
   const event: GameEvent<T> = eventFactory<T>(args);
+
+  console.log(args);
+  if (doesEventRequireResourceCheck(event)) {
+    const { resourceCost } = event;
+    const villages = queryClient.getQueryData<Village[]>([villagesCacheKey, serverId])!;
+    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey, serverId])!;
+    const { lastUpdatedAt, resources, id } = getVillageById(villages, villageId);
+    const { total: warehouseCapacity } = calculateComputedEffect('warehouseCapacity', effects, id);
+    const { total: granaryCapacity } = calculateComputedEffect('granaryCapacity', effects, id);
+    const { total: woodProduction } = calculateComputedEffect('woodProduction', effects, id);
+    const { total: clayProduction } = calculateComputedEffect('clayProduction', effects, id);
+    const { total: ironProduction } = calculateComputedEffect('ironProduction', effects, id);
+    const { total: wheatProduction } = calculateComputedEffect('wheatProduction', effects, id);
+
+    const { currentAmount: currentWood } = calculateCurrentAmount({
+      lastUpdatedAt,
+      resourceAmount: resources.wood,
+      hourlyProduction: woodProduction,
+      storageCapacity: warehouseCapacity,
+    });
+    const { currentAmount: currentClay } = calculateCurrentAmount({
+      lastUpdatedAt,
+      resourceAmount: resources.clay,
+      hourlyProduction: clayProduction,
+      storageCapacity: warehouseCapacity,
+    });
+    const { currentAmount: currentIron } = calculateCurrentAmount({
+      lastUpdatedAt,
+      resourceAmount: resources.iron,
+      hourlyProduction: ironProduction,
+      storageCapacity: warehouseCapacity,
+    });
+    const { currentAmount: currentWheat } = calculateCurrentAmount({
+      lastUpdatedAt,
+      resourceAmount: resources.wheat,
+      hourlyProduction: wheatProduction,
+      storageCapacity: granaryCapacity,
+    });
+
+    const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
+    if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
+      return;
+    }
+
+    const newLastUpdatedAt = Date.now();
+
+    queryClient.setQueryData<Village[]>([villagesCacheKey, serverId], (prevVillages) => {
+      const villageToUpdate = getVillageById(prevVillages!, id);
+      const {
+        resources: { wood, clay, iron, wheat },
+      } = villageToUpdate;
+
+      villageToUpdate.resources = {
+        wood: wood - woodCost,
+        clay: clay - clayCost,
+        iron: iron - ironCost,
+        wheat: wheat - wheatCost,
+      };
+      villageToUpdate.lastUpdatedAt = newLastUpdatedAt;
+      return prevVillages;
+    });
+
+    database.villages.where({ serverId, id }).modify((villageToUpdate) => {
+      const {
+        resources: { wood, clay, iron, wheat },
+      } = villageToUpdate;
+      villageToUpdate.resources = {
+        wood: wood - woodCost,
+        clay: clay - clayCost,
+        iron: iron - ironCost,
+        wheat: wheat - wheatCost,
+      };
+      villageToUpdate.lastUpdatedAt = newLastUpdatedAt;
+    });
+  }
+
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey, serverId], (previousEvents) => {
     return insertEvent(previousEvents!, event);
   });
+
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey, serverId]);
   database.events.bulkPut(events!);
 };
@@ -102,6 +186,7 @@ export const createEventFn = async <T extends GameEventType>(args: CreateEventFn
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
   const { serverId } = useCurrentServer();
+  const { currentVillageId } = useCurrentVillage();
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
     mutationFn: async (args: CreateEventArgs<T>) =>
@@ -110,6 +195,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
         queryClient,
         serverId,
         type: eventType,
+        villageId: currentVillageId,
         ...args,
       }),
   });

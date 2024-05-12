@@ -6,7 +6,7 @@ import { Quest } from 'interfaces/models/game/quest';
 
 export type GenerateQuestsWorkerPayload = {
   server: Server;
-  village: Village;
+  villageId: Village['id'];
 };
 
 export type GenerateQuestsWorkerReturn = {
@@ -16,8 +16,8 @@ export type GenerateQuestsWorkerReturn = {
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 self.addEventListener('message', async (event: MessageEvent<GenerateQuestsWorkerPayload>) => {
-  const { server, village } = event.data;
-  const villageQuests = newVillageQuestsFactory({ server, village });
+  const { server, villageId } = event.data;
+  const villageQuests = newVillageQuestsFactory({ server, villageId });
   const globalQuests = globalQuestsFactory({ server });
   const quests = [...villageQuests, ...globalQuests];
   self.postMessage({ quests });

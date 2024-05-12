@@ -17,7 +17,7 @@ import { Point } from 'interfaces/models/common';
 import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import { Server } from 'interfaces/models/game/server';
 import { Player } from 'interfaces/models/game/player';
-import { isOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import { xxHash32 } from 'js-xxhash';
 
 export type OasisShapes = Record<
@@ -593,17 +593,15 @@ const populateOccupiableTiles = (tiles: Tile[], npcPlayers: Player[]): Tile[] =>
 
 // Some NPC villages have occupied oasis tiles
 const assignOasisToNpcVillages = (tiles: Tile[]): Tile[] => {
-  const tilesWithAssignedOasis = [...tiles];
-
   const villageSizeToMaxOasisAmountMap = new Map<OccupiedOccupiableTile['villageSize'], number>([
     ['sm', 1],
     ['md', 2],
     ['lg', 3],
   ]);
 
-  const oasisTiles = tilesWithAssignedOasis.filter(isOasisTile);
+  const oasisTiles = tiles.filter(isOccupiableOasisTile);
 
-  const npcVillagesEligibleForOasis = tilesWithAssignedOasis.filter((tile: Tile) => {
+  const npcVillagesEligibleForOasis = tiles.filter((tile: Tile) => {
     if (!isOccupiedOccupiableTile(tile)) {
       return false;
     }
@@ -636,7 +634,7 @@ const assignOasisToNpcVillages = (tiles: Tile[]): Tile[] => {
     });
   });
 
-  return tilesWithAssignedOasis;
+  return tiles;
 };
 
 type MapFactoryProps = {

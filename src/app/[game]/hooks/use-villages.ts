@@ -10,6 +10,18 @@ export const villagesCacheKey = 'villages';
 
 export const getVillages = (serverId: Server['id']) => database.villages.where({ serverId }).toArray();
 
+export const getVillageById = (villages: Village[], villageId: Village['id']): Village => {
+  return villages.find(({ id }) => id === villageId)!;
+};
+
+// const getVillageByCoordinates = (villages: Village[], coordinates: Village['coordinates']): Village | null => {
+//   return villages.find(({ coordinates: { x, y } }) => coordinates.x === x && coordinates.y === y) ?? null;
+// };
+//
+// const getVillageByOasis = (villages: Village[], { villageId }: OccupiedOasisTile): Village => {
+//   return villages.find(({ id }) => villageId === id)!;
+// };
+
 export const useVillages = () => {
   const { serverId } = useCurrentServer();
   const { playerId } = usePlayers();

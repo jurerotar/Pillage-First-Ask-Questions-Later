@@ -13,23 +13,34 @@ const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId
   ['wheat', 'wheatProduction'],
 ]);
 
-type CalculateCurrentAmountArgs = {
+export type CalculateCurrentAmountArgs = {
   lastUpdatedAt: Village['lastUpdatedAt'];
   resourceAmount: number;
   hourlyProduction: number;
   storageCapacity: number;
 };
 
-const calculateCurrentAmount = ({ lastUpdatedAt, resourceAmount, hourlyProduction, storageCapacity }: CalculateCurrentAmountArgs) => {
-  const secondsForResourceGeneration = 3600 / hourlyProduction;
+export const calculateCurrentAmount = ({
+  lastUpdatedAt,
+  resourceAmount,
+  hourlyProduction,
+  storageCapacity,
+}: CalculateCurrentAmountArgs) => {
+  if (hourlyProduction === 0) {
+    Math.min(resourceAmount, storageCapacity);
+  }
+
+  const hasNegativeProduction = hourlyProduction < 0;
+  const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
   const timeSinceLastUpdateInSeconds = dayjs().diff(dayjs(lastUpdatedAt), 'second');
   const producedResources = Math.floor(timeSinceLastUpdateInSeconds / secondsForResourceGeneration);
-  const calculatedCurrentAmount = Math.min(resourceAmount + producedResources, storageCapacity);
+  const calculatedCurrentAmount = resourceAmount + producedResources * (hasNegativeProduction ? -1 : 1);
+  const currentAmount = hasNegativeProduction ? Math.max(calculatedCurrentAmount, 0) : Math.min(calculatedCurrentAmount, storageCapacity);
 
   return {
     timeSinceLastUpdateInSeconds,
     secondsForResourceGeneration,
-    calculatedCurrentAmount,
+    currentAmount,
   };
 };
 
@@ -44,14 +55,14 @@ export const useCurrentResources = (resource: Resource) => {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
 
-  const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration, calculatedCurrentAmount } = calculateCurrentAmount({
+  const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration, currentAmount } = calculateCurrentAmount({
     lastUpdatedAt,
     resourceAmount,
     storageCapacity,
     hourlyProduction,
   });
 
-  const [calculatedResourceAmount, setCalculatedResourceAmount] = useState<number>(calculatedCurrentAmount);
+  const [calculatedResourceAmount, setCalculatedResourceAmount] = useState<number>(currentAmount);
   const [hasSetInitialResourceUnit, setHasSetInitialResourceUnit] = useState<boolean>(false);
 
   const hasNegativeProduction = hourlyProduction < 0;
@@ -61,6 +72,7 @@ export const useCurrentResources = (resource: Resource) => {
     if (isFull || hasSetInitialResourceUnit) {
       if (timeoutId.current !== null) {
         clearTimeout(timeoutId.current!);
+        timeoutId.current = null;
       }
       return;
     }
@@ -74,7 +86,10 @@ export const useCurrentResources = (resource: Resource) => {
       (secondsForResourceGeneration - (timeSinceLastUpdateInSeconds % secondsForResourceGeneration)) * 1000
     );
 
-    return () => clearTimeout(timeoutId.current!);
+    return () => {
+      clearTimeout(timeoutId.current!);
+      timeoutId.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
 
@@ -82,6 +97,7 @@ export const useCurrentResources = (resource: Resource) => {
     if (isFull || !hasSetInitialResourceUnit) {
       if (intervalId.current !== null) {
         clearInterval(intervalId.current!);
+        intervalId.current = null;
       }
       return;
     }
@@ -90,7 +106,10 @@ export const useCurrentResources = (resource: Resource) => {
       setCalculatedResourceAmount((prevState) => Math.min(prevState + 1, storageCapacity));
     }, secondsForResourceGeneration * 1000);
 
-    return () => clearInterval(intervalId.current!);
+    return () => {
+      clearInterval(intervalId.current!);
+      intervalId.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
 

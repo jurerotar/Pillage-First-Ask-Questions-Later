@@ -99,7 +99,7 @@ export const buildingDestructionResolver: Resolver<GameEventType.BUILDING_DESTRU
   const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
 
   if (specialFieldIds.includes(buildingFieldId)) {
-    buildingLevelChangeResolver({ ...args, level: 0 }, queryClient);
+    await buildingLevelChangeResolver({ ...args, resourceCost: [0, 0, 0, 0], level: 0 }, queryClient);
     return;
   }
 

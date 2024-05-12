@@ -12,6 +12,7 @@ Using browser's native IndexedDb, game data is persisted and progressed between 
 
 **Note: Very much still work in progress, not much to see at the moment.**
 
+
 ## Game design differences between Travian and Echoes of Travian
 
 - Smithy upgrades are account-wide. Upgrading units in one village will upgrade them globally.
@@ -20,7 +21,7 @@ Using browser's native IndexedDb, game data is persisted and progressed between 
 - Culture points removal. Make as many villages as you want, whenever you can afford them.
 - Removal of town hall.
 - Natars & nature as playable tribes.
-- NPC factions, faction reputation system which determined trading options & hostility.
+- NPC factions, faction reputation system which determines trading options & hostility.
 - 8 account-wide artifacts.
 
 ## Built with

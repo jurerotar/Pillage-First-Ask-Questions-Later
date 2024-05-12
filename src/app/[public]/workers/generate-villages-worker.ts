@@ -1,4 +1,4 @@
-import { OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
+import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import { Village } from 'interfaces/models/game/village';
 import { Server } from 'interfaces/models/game/server';
 import { villageFactory } from 'app/factories/village-factory';
@@ -8,31 +8,34 @@ import { chunk } from 'lodash-es';
 
 export type GenerateVillageWorkerPayload = {
   server: Server;
-  tiles: Tile[];
+  occupiedOccupiableTiles: OccupiedOccupiableTile[];
   players: Player[];
 };
 
 export type GenerateVillageWorkerReturn = {
-  villages: Village[];
+  playerStartingVillage: Village;
 };
 
 const self = globalThis as unknown as DedicatedWorkerGlobalScope;
 
 self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorkerPayload>) => {
-  const { server, tiles, players } = event.data;
+  const { server, occupiedOccupiableTiles, players } = event.data;
 
-  const occupiedTiles: OccupiedOccupiableTile[] = tiles.filter(
-    (tile) => tile.type === 'free-tile' && Object.hasOwn(tile, 'ownedBy')
-  ) as OccupiedOccupiableTile[];
+  const userPlayer = players.find(({ faction }) => faction === 'player')!;
+  const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
+  const playerStartingVillage = villageFactory({ server, player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
-  const villages: Village[] = occupiedTiles.map((tile) => {
+  // Send the player starting village asap, because it's needed in other factories
+  self.postMessage({ playerStartingVillage });
+
+  const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
+
+  const villages: Village[] = npcOccupiedTiles.map((tile) => {
     const player = players.find(({ id }) => tile.ownedBy === id)!;
 
     const slug = player.faction === 'player' ? 'v-1' : tile.id;
     return villageFactory({ server, player, tile, slug });
   });
-
-  self.postMessage({ villages });
 
   const promises = [];
   const chunkedVillages = chunk(villages, 300);
