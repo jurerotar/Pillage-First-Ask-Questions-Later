@@ -1,4 +1,4 @@
-import { Quest } from 'interfaces/models/game/quest';
+import type { Quest } from 'interfaces/models/game/quest';
 
 export const globalQuests: Quest[] = [];
 

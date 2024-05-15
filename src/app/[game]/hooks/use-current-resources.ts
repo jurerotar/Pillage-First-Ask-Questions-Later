@@ -1,10 +1,10 @@
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { Resource } from 'interfaces/models/game/resource';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { ResourceProductionEffectId } from 'interfaces/models/game/effect';
-import { useEffect, useRef, useState } from 'react';
-import { Village } from 'interfaces/models/game/village';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import dayjs from 'dayjs';
+import type { ResourceProductionEffectId } from 'interfaces/models/game/effect';
+import type { Resource } from 'interfaces/models/game/resource';
+import type { Village } from 'interfaces/models/game/village';
+import { useEffect, useRef, useState } from 'react';
 
 const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
   ['wood', 'woodProduction'],
@@ -68,6 +68,7 @@ export const useCurrentResources = (resource: Resource) => {
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This component is quite broken, fix when available
   useEffect(() => {
     if (isFull || hasSetInitialResourceUnit) {
       if (timeoutId.current !== null) {
@@ -90,9 +91,9 @@ export const useCurrentResources = (resource: Resource) => {
       clearTimeout(timeoutId.current!);
       timeoutId.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This component is quite broken, fix when available
   useEffect(() => {
     if (isFull || !hasSetInitialResourceUnit) {
       if (intervalId.current !== null) {
@@ -110,7 +111,6 @@ export const useCurrentResources = (resource: Resource) => {
       clearInterval(intervalId.current!);
       intervalId.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
 
   return {

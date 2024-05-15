@@ -1,8 +1,4 @@
-import { Point } from 'interfaces/models/common';
-
-export const roundToNearestN = (number: number, numberToRoundTo: number): number => {
-  return Math.round(number / numberToRoundTo) * numberToRoundTo;
-};
+import type { Point } from 'interfaces/models/common';
 
 export const randomIntFromInterval = (min: number, max: number): number => {
   // min and max included
@@ -13,7 +9,7 @@ export const randomArrayElement = <T>(array: T[]): T => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export const seededRandomIntFromInterval = (seed: string, min: number, max: number): number => {
+export const seededRandomIntFromInterval = (_seed: string, min: number, max: number): number => {
   // min and max included
   // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
   // const seededRandom = prngAlgorithm(seed);
@@ -21,12 +17,12 @@ export const seededRandomIntFromInterval = (seed: string, min: number, max: numb
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const seededRandomArrayElement = <T>(seed: string, array: T[]): T => {
+export const seededRandomArrayElement = <T>(_seed: string, array: T[]): T => {
   // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export const seededRandomArrayElements = <T>(seed: string, array: T[], n: number): T[] => {
+export const seededRandomArrayElements = <T>(_seed: string, array: T[], n: number): T[] => {
   const result: T[] = [];
   let len = array.length;
 
@@ -56,11 +52,11 @@ export const isFloat = (number: number): boolean => {
 };
 
 export const partialArraySum = (array: number[], index: number): number => {
-  const sum: number = array.filter((e, i) => i < index).reduce((a, b) => a + b, 0);
+  const sum: number = array.filter((_, i) => i < index).reduce((a, b) => a + b, 0);
   return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
 };
 
-export const seededShuffleArray = <T>(seed: string, array: T[]): T[] => {
+export const seededShuffleArray = <T>(_seed: string, array: T[]): T[] => {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i -= 1) {
     // TODO: Seeding isn't working for whichever reason, it's disabled for now. Fix when you have the nerve for it.

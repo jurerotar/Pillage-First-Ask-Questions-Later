@@ -1,5 +1,6 @@
-import React, { FCWithChildren } from 'react';
 import clsx from 'clsx';
+import type React from 'react';
+import type { FCWithChildren } from 'react';
 
 export type BorderIndicatorVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow';
 

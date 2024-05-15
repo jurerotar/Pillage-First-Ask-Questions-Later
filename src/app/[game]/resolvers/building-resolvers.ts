@@ -1,9 +1,9 @@
-import { BuildingField, Village } from 'interfaces/models/game/village';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { database } from 'database/database';
-import { Resolver } from 'interfaces/models/common';
-import { BuildingId } from 'interfaces/models/game/building';
-import { GameEventType } from 'interfaces/models/events/game-event';
+import type { Resolver } from 'interfaces/models/common';
+import type { GameEventType } from 'interfaces/models/events/game-event';
+import type { BuildingId } from 'interfaces/models/game/building';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 const updateBuildingFieldLevel = (
   villages: Village[],

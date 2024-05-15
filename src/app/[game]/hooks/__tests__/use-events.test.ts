@@ -1,6 +1,6 @@
-import { describe, test } from 'vitest';
 import { insertEvent } from 'app/[game]/hooks/use-events';
-import { GameEvent } from 'interfaces/models/events/game-event';
+import type { GameEvent } from 'interfaces/models/events/game-event';
+import { describe, test } from 'vitest';
 
 describe('useEvents', () => {
   // Super important this works correctly, otherwise event resolving doesn't work correctly

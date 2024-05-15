@@ -1,5 +1,5 @@
-import { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
-import { AvailableLocales } from 'interfaces/models/preferences/locale';
+import type { AvailableColorSchemes } from 'interfaces/models/preferences/color-scheme';
+import type { AvailableLocales } from 'interfaces/models/preferences/locale';
 
 export type Preferences = {
   locale: AvailableLocales;

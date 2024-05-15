@@ -1,23 +1,24 @@
-import React, { useMemo, useRef } from 'react';
-import { useMap } from 'app/[game]/hooks/use-map';
-import { FixedSizeGrid, FixedSizeList } from 'react-window';
-import { useEventListener } from 'usehooks-ts';
-import { Tooltip } from 'app/components/tooltip';
-import { useDialog } from 'app/hooks/use-dialog';
-import { Modal } from 'app/components/modal';
-import { Head } from 'app/components/head';
+import { Cell } from 'app/[game]/[map]/components/cell';
+import { MapControls } from 'app/[game]/[map]/components/map-controls';
+import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
+import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
 import { useMapFilters } from 'app/[game]/[map]/hooks/use-map-filters';
 import { useMapOptions } from 'app/[game]/[map]/providers/map-context';
-import { MapControls } from 'app/[game]/[map]/components/map-controls';
-import { Cell } from 'app/[game]/[map]/components/cell';
-import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
-import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { OccupiedOccupiableTile, Tile as TileType } from 'interfaces/models/game/tile';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useMap } from 'app/[game]/hooks/use-map';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
+import { Head } from 'app/components/head';
+import { Modal } from 'app/components/modal';
+import { Tooltip } from 'app/components/tooltip';
+import { useDialog } from 'app/hooks/use-dialog';
 import { useViewport } from 'app/providers/viewport-context';
+import type { OccupiedOccupiableTile, Tile as TileType } from 'interfaces/models/game/tile';
+import type React from 'react';
+import { useMemo, useRef } from 'react';
+import { FixedSizeGrid, FixedSizeList } from 'react-window';
+import { useEventListener } from 'usehooks-ts';
 
 // Height/width of ruler on the left-bottom
 const RULER_SIZE = 20;
@@ -39,8 +40,8 @@ export const MapPage: React.FC = () => {
   const {
     currentVillage: { coordinates },
   } = useCurrentVillage();
-  const { players, getPlayerByPlayerId } = usePlayers();
-  const { reputations, getReputationByFaction } = useReputations();
+  const { getPlayerByPlayerId } = usePlayers();
+  const { getReputationByFaction } = useReputations();
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
@@ -73,9 +74,7 @@ export const MapPage: React.FC = () => {
         ...tile,
       };
     });
-    // This is intentional, missing functions don't have stable reference
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, players, reputations]);
+  }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
   const fixedGridData = useMemo(() => {
     return {

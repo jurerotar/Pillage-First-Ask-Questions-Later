@@ -1,5 +1,5 @@
-import { Achievement } from 'interfaces/models/game/achievement';
-import { Server } from 'interfaces/models/game/server';
+import type { Achievement } from 'interfaces/models/game/achievement';
+import type { Server } from 'interfaces/models/game/server';
 
 type AchievementFactoryProps = {
   server: Server;

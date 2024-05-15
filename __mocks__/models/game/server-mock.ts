@@ -1,4 +1,4 @@
-import { Server } from 'interfaces/models/game/server';
+import type { Server } from 'interfaces/models/game/server';
 
 export const serverMock: Server = {
   seed: '23223ca711',

@@ -1,11 +1,9 @@
-import React, { createContext, FCWithChildren, useContext, useEffect, useMemo } from 'react';
 import { useEvents } from 'app/[game]/hooks/use-events';
-
-type GameEngineValues = void;
+import React, { createContext, type FCWithChildren, useContext, useEffect, useMemo } from 'react';
 
 let timeoutId: number | undefined;
 
-const GameEngine = createContext<GameEngineValues | null>(null);
+const GameEngine = createContext<null>(null);
 
 export const GameEngineProvider: FCWithChildren = ({ children }) => {
   const { events, resolveEvent } = useEvents();
@@ -19,9 +17,9 @@ export const GameEngineProvider: FCWithChildren = ({ children }) => {
 
     const alreadyResolvedEvents = events.filter(({ resolvesAt }) => resolvesAt <= Date.now());
 
-    alreadyResolvedEvents.forEach(({ id }) => {
+    for (const { id } of alreadyResolvedEvents) {
       resolveEvent(id);
-    });
+    }
 
     const unresolvedEvents = events.filter(({ resolvesAt }) => resolvesAt > Date.now());
 
@@ -38,11 +36,7 @@ export const GameEngineProvider: FCWithChildren = ({ children }) => {
     return () => window.clearTimeout(timeoutId);
   }, [events, resolveEvent]);
 
-  const value = useMemo<GameEngineValues>(() => {
-    return {};
-  }, []);
-
-  return <GameEngine.Provider value={value}>{children}</GameEngine.Provider>;
+  return <GameEngine.Provider value={null}>{children}</GameEngine.Provider>;
 };
 
 export const useGameEngine = () => useContext(GameEngine);

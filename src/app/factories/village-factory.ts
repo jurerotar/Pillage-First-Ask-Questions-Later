@@ -1,9 +1,3 @@
-import { BuildingField, ResourceFieldComposition, ResourceFieldId, Village } from 'interfaces/models/game/village';
-import { Server } from 'interfaces/models/game/server';
-import { Resource } from 'interfaces/models/game/resource';
-import { Player } from 'interfaces/models/game/player';
-import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { Tribe } from 'interfaces/models/game/tribe';
 import {
   egyptianNewVillageBuildingFieldsPreset,
   gaulNewVillageBuildingFieldsPreset,
@@ -11,7 +5,13 @@ import {
   romanNewVillageBuildingFieldsPreset,
   teutonNewVillageBuildingFieldsPreset,
 } from 'assets/village-presets';
-import { BuildingId } from 'interfaces/models/game/building';
+import type { BuildingId } from 'interfaces/models/game/building';
+import type { Player } from 'interfaces/models/game/player';
+import type { Resource } from 'interfaces/models/game/resource';
+import type { Server } from 'interfaces/models/game/server';
+import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
+import type { Tribe } from 'interfaces/models/game/tribe';
+import type { BuildingField, ResourceFieldComposition, ResourceFieldId, Village } from 'interfaces/models/game/village';
 
 export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 

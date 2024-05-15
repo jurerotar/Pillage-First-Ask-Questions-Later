@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { formatFutureTimestamp } from 'app/utils/time';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type CountdownProps = {
   endsAt: number;

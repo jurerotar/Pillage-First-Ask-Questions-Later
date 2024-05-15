@@ -1,6 +1,10 @@
-import { ResourceFieldComposition } from 'interfaces/models/game/village';
+import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import { seededRandomArrayElement, seededRandomArrayElements, seededRandomIntFromInterval, seededShuffleArray } from 'app/utils/common';
-import {
+import type { Point } from 'interfaces/models/common';
+import type { Player } from 'interfaces/models/game/player';
+import type { Resource, ResourceCombination } from 'interfaces/models/game/resource';
+import type { Server } from 'interfaces/models/game/server';
+import type {
   BaseTile,
   MaybeOccupiedBaseTile,
   MaybeOccupiedOrOasisBaseTile,
@@ -13,11 +17,7 @@ import {
   OccupiedOccupiableTile,
   Tile,
 } from 'interfaces/models/game/tile';
-import { Point } from 'interfaces/models/common';
-import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
-import { Server } from 'interfaces/models/game/server';
-import { Player } from 'interfaces/models/game/player';
-import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import type { ResourceFieldComposition } from 'interfaces/models/game/village';
 import { xxHash32 } from 'js-xxhash';
 
 export type OasisShapes = Record<
@@ -496,7 +496,7 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
     const selectedOasis = shapes[seededRandomArrayElement(currentTile.id, [...Array(shapes.length).keys()])];
     const { group: oasisGroup, shape: oasisShape } = selectedOasis;
 
-    let breakCondition: boolean = false;
+    let breakCondition = false;
 
     // Find tiles to update based on oasis shape
     // Y-axis movement
@@ -613,7 +613,7 @@ const assignOasisToNpcVillages = (tiles: Tile[]): Tile[] => {
     return tile.villageSize !== 'xs';
   }) as OccupiedOccupiableTile[];
 
-  npcVillagesEligibleForOasis.forEach((tile) => {
+  for (const tile of npcVillagesEligibleForOasis) {
     const { villageSize, coordinates: villageCoordinates } = tile;
 
     // Only oasis tiles in a 3x3 square around current village, which are currently not occupied, are eligible for being occupied
@@ -628,11 +628,11 @@ const assignOasisToNpcVillages = (tiles: Tile[]): Tile[] => {
     const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
     const selectedOasis = seededRandomArrayElements<OccupiableOasisTile>(tile.id, eligibleOasisTiles, maxOasisAmount);
 
-    selectedOasis.forEach((tileToUpdate) => {
+    for (const tileToUpdate of selectedOasis) {
       // This assertion is okay, since by assigning a villageId, it's now a OccupiedOasisTile
       (tileToUpdate as never as OccupiedOasisTile).villageId = tile.id;
-    });
-  });
+    }
+  }
 
   return tiles;
 };

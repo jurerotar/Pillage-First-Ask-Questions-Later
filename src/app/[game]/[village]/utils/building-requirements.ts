@@ -1,7 +1,6 @@
-import { Tribe } from 'interfaces/models/game/tribe';
-import { BuildingField, Village } from 'interfaces/models/game/village';
-import { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
-import {
+import { getBuildingData } from 'app/[game]/utils/common';
+import type { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
+import type {
   AmountBuildingRequirement,
   Building,
   BuildingLevelBuildingRequirement,
@@ -9,7 +8,8 @@ import {
   CapitalBuildingRequirement,
   TribeBuildingRequirement,
 } from 'interfaces/models/game/building';
-import { getBuildingData } from 'app/[game]/utils/common';
+import type { Tribe } from 'interfaces/models/game/tribe';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;

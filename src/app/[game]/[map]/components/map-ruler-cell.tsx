@@ -1,7 +1,7 @@
-import React from 'react';
-import { ListChildComponentProps } from 'react-window';
-import clsx from 'clsx';
 import { useMapOptions } from 'app/[game]/[map]/providers/map-context';
+import clsx from 'clsx';
+import type React from 'react';
+import type { ListChildComponentProps } from 'react-window';
 
 type MapRulerCellProps = {
   layout: 'vertical' | 'horizontal';

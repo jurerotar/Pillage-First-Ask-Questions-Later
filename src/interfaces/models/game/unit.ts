@@ -1,5 +1,5 @@
-import { Tribe } from 'interfaces/models/game/tribe';
-import { Building } from 'interfaces/models/game/building';
+import type { Building } from 'interfaces/models/game/building';
+import type { Tribe } from 'interfaces/models/game/tribe';
 
 export type RomanUnitId =
   | 'LEGIONNAIRE'

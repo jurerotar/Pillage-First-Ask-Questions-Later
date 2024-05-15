@@ -1,5 +1,5 @@
-import { Hero } from 'interfaces/models/game/hero';
-import { Server } from 'interfaces/models/game/server';
+import type { Hero } from 'interfaces/models/game/hero';
+import type { Server } from 'interfaces/models/game/server';
 
 type HeroFactoryProps = {
   server: Server;

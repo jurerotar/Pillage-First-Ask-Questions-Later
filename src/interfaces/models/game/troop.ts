@@ -1,6 +1,6 @@
-import { Unit } from 'interfaces/models/game/unit';
-import { WithServerId } from 'interfaces/models/game/server';
-import { Tile } from 'interfaces/models/game/tile';
+import type { WithServerId } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
+import type { Unit } from 'interfaces/models/game/unit';
 
 export type Troop = WithServerId<{
   unitId: Unit['id'];

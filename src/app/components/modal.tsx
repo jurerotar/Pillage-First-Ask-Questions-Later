@@ -1,6 +1,7 @@
-import React, { Suspense } from 'react';
-import ReactModal, { Props as ReactModalProps } from 'react-modal';
 import { CloseButton } from 'app/components/buttons/close-button';
+import type React from 'react';
+import { Suspense } from 'react';
+import ReactModal, { type Props as ReactModalProps } from 'react-modal';
 
 type ModalProps = ReactModalProps & {
   closeHandler: () => void;

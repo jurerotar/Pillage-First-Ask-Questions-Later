@@ -1,6 +1,6 @@
-import { Tile } from 'interfaces/models/game/tile';
-import { MapMarker } from 'interfaces/models/game/map-marker';
-import { Server } from 'interfaces/models/game/server';
+import type { MapMarker } from 'interfaces/models/game/map-marker';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
 
 type MapMarkerFactoryProps = {
   serverId: Server['id'];

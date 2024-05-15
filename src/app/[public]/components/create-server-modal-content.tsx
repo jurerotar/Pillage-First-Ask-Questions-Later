@@ -1,35 +1,38 @@
-import React from 'react';
-import { Button } from 'app/components/buttons/button';
-import { Server } from 'interfaces/models/game/server';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
-import { database } from 'database/database';
-import { serverFactory } from 'app/factories/server-factory';
-import { heroFactory } from 'app/factories/hero-factory';
-import { workerFactory } from 'app/utils/workers';
-import { mapFiltersFactory } from 'app/factories/map-filters-factory';
-import { GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn } from 'app/[public]/workers/generate-players-worker';
-import { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from 'app/[public]/workers/generate-reputations-worker';
-import { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from 'app/[public]/workers/generate-world-map-worker';
-import { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/[public]/workers/generate-villages-worker';
-import { GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn } from 'app/[public]/workers/generate-quests-worker';
-import { GenerateAchievementsWorkerPayload, GenerateAchievementsWorkerReturn } from 'app/[public]/workers/generate-achievements-worker';
-import { GenerateEffectsWorkerPayload, GenerateEffectsWorkerReturn } from 'app/[public]/workers/generate-effects-worker';
-import {
+import { useMutation } from '@tanstack/react-query';
+import type {
+  GenerateAchievementsWorkerPayload,
+  GenerateAchievementsWorkerReturn,
+} from 'app/[public]/workers/generate-achievements-worker';
+import CreateAchievementsWorker from 'app/[public]/workers/generate-achievements-worker?worker&url';
+import type { GenerateEffectsWorkerPayload, GenerateEffectsWorkerReturn } from 'app/[public]/workers/generate-effects-worker';
+import CreateEffectsWorker from 'app/[public]/workers/generate-effects-worker?worker&url';
+import type { GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn } from 'app/[public]/workers/generate-players-worker';
+import CreatePlayersWorker from 'app/[public]/workers/generate-players-worker?worker&url';
+import type { GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn } from 'app/[public]/workers/generate-quests-worker';
+import CreateQuestsWorker from 'app/[public]/workers/generate-quests-worker?worker&url';
+import type { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from 'app/[public]/workers/generate-reputations-worker';
+import CreateReputationsWorker from 'app/[public]/workers/generate-reputations-worker?worker&url';
+import type {
   GenerateResearchLevelsWorkerPayload,
   GenerateResearchLevelsWorkerReturn,
 } from 'app/[public]/workers/generate-research-levels-worker';
-import CreateVillagesWorker from 'app/[public]/workers/generate-villages-worker?worker&url';
-import CreateMapWorker from 'app/[public]/workers/generate-world-map-worker?worker&url';
-import CreatePlayersWorker from 'app/[public]/workers/generate-players-worker?worker&url';
-import CreateReputationsWorker from 'app/[public]/workers/generate-reputations-worker?worker&url';
-import CreateQuestsWorker from 'app/[public]/workers/generate-quests-worker?worker&url';
-import CreateAchievementsWorker from 'app/[public]/workers/generate-achievements-worker?worker&url';
-import CreateEffectsWorker from 'app/[public]/workers/generate-effects-worker?worker&url';
 import CreateResearchLevelsWorker from 'app/[public]/workers/generate-research-levels-worker?worker&url';
+import type { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'app/[public]/workers/generate-troops-worker';
 import CreateTroopsWorker from 'app/[public]/workers/generate-troops-worker?worker&url';
+import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/[public]/workers/generate-villages-worker';
+import CreateVillagesWorker from 'app/[public]/workers/generate-villages-worker?worker&url';
+import type { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from 'app/[public]/workers/generate-world-map-worker';
+import CreateMapWorker from 'app/[public]/workers/generate-world-map-worker?worker&url';
+import { Button } from 'app/components/buttons/button';
+import { heroFactory } from 'app/factories/hero-factory';
+import { mapFiltersFactory } from 'app/factories/map-filters-factory';
+import { serverFactory } from 'app/factories/server-factory';
+import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { workerFactory } from 'app/utils/workers';
+import { database } from 'database/database';
+import type { Server } from 'interfaces/models/game/server';
+import type React from 'react';
 import { useForm } from 'react-hook-form';
-import { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'app/[public]/workers/generate-troops-worker';
-import { useMutation } from '@tanstack/react-query';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 
@@ -41,7 +44,7 @@ type CreateServerConfigurationViewProps = {
   onSubmit: (params: OnSubmitArgs) => void;
 };
 
-const generateSeed = (length: number = 10): string => {
+const generateSeed = (length = 10): string => {
   return crypto.randomUUID().replaceAll('-', '').substring(0, length);
 };
 

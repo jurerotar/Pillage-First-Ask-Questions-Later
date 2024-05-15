@@ -1,5 +1,5 @@
+import { type CalculateCurrentAmountArgs, calculateCurrentAmount } from 'app/[game]/hooks/use-current-resources';
 import { describe, expect, test } from 'vitest';
-import { calculateCurrentAmount, CalculateCurrentAmountArgs } from 'app/[game]/hooks/use-current-resources';
 
 describe('useCurrentResources', () => {
   describe('calculateCurrentAmount', () => {

@@ -1,4 +1,4 @@
-import { Server } from 'interfaces/models/game/server';
+import type { Server } from 'interfaces/models/game/server';
 
 type ServerFactoryProps = Pick<Server, 'name' | 'seed' | 'configuration' | 'playerConfiguration'>;
 

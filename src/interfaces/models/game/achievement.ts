@@ -1,4 +1,4 @@
-import { WithServerId } from 'interfaces/models/game/server';
+import type { WithServerId } from 'interfaces/models/game/server';
 
 export type Achievement = WithServerId<{
   id: number;

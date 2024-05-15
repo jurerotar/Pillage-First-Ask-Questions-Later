@@ -1,12 +1,12 @@
-import { database } from 'database/database';
-import { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { Server } from 'interfaces/models/game/server';
-import { Troop } from 'interfaces/models/game/troop';
-import { Resource, ResourceCombination } from 'interfaces/models/game/resource';
-import { NatureUnitId, UnitId } from 'interfaces/models/game/unit';
 import { seededRandomIntFromInterval } from 'app/utils/common';
-import { Player } from 'interfaces/models/game/player';
-import { Tribe } from 'interfaces/models/game/tribe';
+import { database } from 'database/database';
+import type { Player } from 'interfaces/models/game/player';
+import type { Resource, ResourceCombination } from 'interfaces/models/game/resource';
+import type { Server } from 'interfaces/models/game/server';
+import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
+import type { Tribe } from 'interfaces/models/game/tribe';
+import type { Troop } from 'interfaces/models/game/troop';
+import type { NatureUnitId, UnitId } from 'interfaces/models/game/unit';
 
 export type GenerateTroopsWorkerPayload = {
   server: Server;

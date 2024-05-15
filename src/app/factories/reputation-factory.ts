@@ -1,6 +1,6 @@
-import { Server } from 'interfaces/models/game/server';
-import { Reputation, ReputationLevel } from 'interfaces/models/game/reputation';
-import { PlayerFaction } from 'interfaces/models/game/player';
+import type { PlayerFaction } from 'interfaces/models/game/player';
+import type { Reputation, ReputationLevel } from 'interfaces/models/game/reputation';
+import type { Server } from 'interfaces/models/game/server';
 
 type ReputationFactoryProps = {
   server: Server;

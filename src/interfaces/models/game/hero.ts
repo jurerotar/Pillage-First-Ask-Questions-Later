@@ -1,5 +1,5 @@
-import { Resource } from 'interfaces/models/game/resource';
-import { WithServerId } from 'interfaces/models/game/server';
+import type { Resource } from 'interfaces/models/game/resource';
+import type { WithServerId } from 'interfaces/models/game/server';
 
 export type Hero = WithServerId<{
   stats: HeroStats;

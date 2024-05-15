@@ -1,20 +1,7 @@
-import {
-  OasisTile as OasisTileType,
-  OccupiableTile as OccupiableTileType,
-  OccupiedOasisTile as OccupiedOasisTileType,
-  OccupiedOccupiableTile as OccupiedOccupiableTileType,
-  Tile as TileType,
-} from 'interfaces/models/game/tile';
-import React, { memo } from 'react';
-import { areEqual, GridChildComponentProps } from 'react-window';
-import clsx from 'clsx';
-import { reputationColorMap } from 'app/[game]/utils/color-maps';
 import { OccupiableOasisIcon } from 'app/[game]/[map]/components/occupiable-oasis-icon';
-import { WheatFieldIcon } from 'app/[game]/[map]/components/wheat-field-icon';
 import { TreasureIcon } from 'app/[game]/[map]/components/treasure-icon';
-import { PlayerFaction } from 'interfaces/models/game/player';
-import { ReputationLevel } from 'interfaces/models/game/reputation';
-import { MapFilters } from 'interfaces/models/game/map-filters';
+import { WheatFieldIcon } from 'app/[game]/[map]/components/wheat-field-icon';
+import { reputationColorMap } from 'app/[game]/utils/color-maps';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -22,6 +9,20 @@ import {
   isOccupiedOccupiableTile,
   isTreasuryTile,
 } from 'app/[game]/utils/guards/map-guards';
+import clsx from 'clsx';
+import type { MapFilters } from 'interfaces/models/game/map-filters';
+import type { PlayerFaction } from 'interfaces/models/game/player';
+import type { ReputationLevel } from 'interfaces/models/game/reputation';
+import type {
+  OasisTile as OasisTileType,
+  OccupiableTile as OccupiableTileType,
+  OccupiedOasisTile as OccupiedOasisTileType,
+  OccupiedOccupiableTile as OccupiedOccupiableTileType,
+  Tile as TileType,
+} from 'interfaces/models/game/tile';
+import type React from 'react';
+import { memo } from 'react';
+import { type GridChildComponentProps, areEqual } from 'react-window';
 
 type TileWithFilters<T extends TileType> = T & {
   mapFilters: MapFilters;

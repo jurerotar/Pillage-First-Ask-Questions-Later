@@ -1,8 +1,8 @@
-import { Server } from 'interfaces/models/game/server';
 import { globalQuestsFactory, newVillageQuestsFactory } from 'app/factories/quest-factory';
-import { Village } from 'interfaces/models/game/village';
 import { database } from 'database/database';
-import { Quest } from 'interfaces/models/game/quest';
+import type { Quest } from 'interfaces/models/game/quest';
+import type { Server } from 'interfaces/models/game/server';
+import type { Village } from 'interfaces/models/game/village';
 
 export type GenerateQuestsWorkerPayload = {
   server: Server;

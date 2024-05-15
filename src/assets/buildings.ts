@@ -1,4 +1,4 @@
-import { Building } from 'interfaces/models/game/building';
+import type { Building } from 'interfaces/models/game/building';
 
 export const buildings: Building[] = [
   {
@@ -215,7 +215,7 @@ export const buildings: Building[] = [
       {
         id: 1,
         type: 'amount',
-        amount: Infinity,
+        amount: Number.POSITIVE_INFINITY,
       },
       {
         id: 2,
@@ -268,7 +268,7 @@ export const buildings: Building[] = [
       {
         id: 1,
         type: 'amount',
-        amount: Infinity,
+        amount: Number.POSITIVE_INFINITY,
       },
       {
         id: 2,
@@ -327,7 +327,7 @@ export const buildings: Building[] = [
       {
         id: 1,
         type: 'amount',
-        amount: Infinity,
+        amount: Number.POSITIVE_INFINITY,
       },
       {
         id: 2,
@@ -500,7 +500,7 @@ export const buildings: Building[] = [
       {
         id: 1,
         type: 'amount',
-        amount: Infinity,
+        amount: Number.POSITIVE_INFINITY,
       },
       {
         id: 2,
@@ -1734,7 +1734,7 @@ export const buildings: Building[] = [
       {
         id: 1,
         type: 'amount',
-        amount: Infinity,
+        amount: Number.POSITIVE_INFINITY,
       },
     ],
     buildingCost: [

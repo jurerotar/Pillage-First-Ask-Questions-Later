@@ -1,12 +1,13 @@
-import React, { FCWithChildren } from 'react';
-import { render, renderHook } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient } from '@tanstack/react-query';
-import { createGameEnvironment } from 'mocks/game/game-environment';
-import { serverMock } from 'mocks/models/game/server-mock';
+import { render, renderHook } from '@testing-library/react';
+import { StateProvider } from 'app/providers/state-provider';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { composeComponents } from 'app/utils/jsx';
-import { StateProvider } from 'app/providers/state-provider';
+import { createGameEnvironment } from 'mocks/game/game-environment';
+import { serverMock } from 'mocks/models/game/server-mock';
+import type React from 'react';
+import type { FCWithChildren } from 'react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 export type RenderOptions = {
   path?: string;
@@ -28,12 +29,10 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
 
   // Overwrite data in game env client
   if (providedQueryClient) {
-    providedQueryClient
-      .getQueryCache()
-      .getAll()
-      .forEach(({ queryKey }) => {
-        queryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey));
-      });
+    const queries = providedQueryClient.getQueryCache().getAll();
+    for (const { queryKey } of queries) {
+      queryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey));
+    }
   }
 
   return (
@@ -81,7 +80,7 @@ export const renderHookWithContext = <TProps, TResult>(callback: (props: TProps)
   });
 };
 
-export const renderWithContext = <T = HTMLElement,>(
+export const renderWithContext = <T = HTMLElement>(
   ui: React.ReactElement<T, string | React.JSXElementConstructor<T>>,
   options?: RenderOptions
 ) => {
@@ -90,7 +89,7 @@ export const renderWithContext = <T = HTMLElement,>(
   });
 };
 
-export const renderWithGameContext = <T = HTMLElement,>(
+export const renderWithGameContext = <T = HTMLElement>(
   ui: React.ReactElement<T, string | React.JSXElementConstructor<T>>,
   options?: RenderOptions
 ) => {

@@ -1,7 +1,7 @@
-import { ResearchLevel } from 'interfaces/models/game/research-level';
-import { Unit } from 'interfaces/models/game/unit';
-import { Server } from 'interfaces/models/game/server';
 import { units } from 'assets/units';
+import type { ResearchLevel } from 'interfaces/models/game/research-level';
+import type { Server } from 'interfaces/models/game/server';
+import type { Unit } from 'interfaces/models/game/unit';
 
 type ResearchLevelsFactoryProps = {
   server: Server;

@@ -1,9 +1,9 @@
-import React from 'react';
-import { BuildingField as BuildingFieldType, ReservedFieldId, VillageFieldId } from 'interfaces/models/game/village';
-import clsx from 'clsx';
 import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade-indicator';
-import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import clsx from 'clsx';
+import type { BuildingField as BuildingFieldType, ReservedFieldId, VillageFieldId } from 'interfaces/models/game/village';
+import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 

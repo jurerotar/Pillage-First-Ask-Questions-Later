@@ -1,6 +1,6 @@
-import { Server } from 'interfaces/models/game/server';
-import { BuildingField, Village } from 'interfaces/models/game/village';
-import { Building } from 'interfaces/models/game/building';
+import type { Building } from 'interfaces/models/game/building';
+import type { Server } from 'interfaces/models/game/server';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 export enum GameEventType {
   BUILDING_CONSTRUCTION = 'buildingConstruction',
@@ -34,6 +34,7 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   [GameEventType.BUILDING_DESTRUCTION]: BuildingDestructionEventArgs;
 }[T];
 
+// biome-ignore lint/suspicious/noConfusingVoidType: This type is super hacky. Need to figure out a solution.
 export type GameEvent<T extends GameEventType | void = void> = {
   id: string;
   serverId: Server['id'];

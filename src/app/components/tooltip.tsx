@@ -1,6 +1,6 @@
-import React from 'react';
 import clsx from 'clsx';
-import { Tooltip as ReactTooltip, ITooltip as ReactTooltipProps } from 'react-tooltip';
+import type React from 'react';
+import { Tooltip as ReactTooltip, type ITooltip as ReactTooltipProps } from 'react-tooltip';
 
 export const Tooltip: React.FC<ReactTooltipProps> = (props) => {
   const { className, ...rest } = props;

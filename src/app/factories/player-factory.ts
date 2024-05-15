@@ -1,7 +1,7 @@
-import { Server } from 'interfaces/models/game/server';
-import { Player, PlayerFaction } from 'interfaces/models/game/player';
-import { Tribe } from 'interfaces/models/game/tribe';
 import { seededRandomArrayElement } from 'app/utils/common';
+import type { Player, PlayerFaction } from 'interfaces/models/game/player';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tribe } from 'interfaces/models/game/tribe';
 
 const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 

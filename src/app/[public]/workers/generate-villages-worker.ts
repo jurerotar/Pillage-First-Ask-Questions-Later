@@ -1,9 +1,9 @@
-import { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { Village } from 'interfaces/models/game/village';
-import { Server } from 'interfaces/models/game/server';
 import { villageFactory } from 'app/factories/village-factory';
-import { Player } from 'interfaces/models/game/player';
 import { database } from 'database/database';
+import type { Player } from 'interfaces/models/game/player';
+import type { Server } from 'interfaces/models/game/server';
+import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
+import type { Village } from 'interfaces/models/game/village';
 import { chunk } from 'lodash-es';
 
 export type GenerateVillageWorkerPayload = {

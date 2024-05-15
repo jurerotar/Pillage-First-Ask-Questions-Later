@@ -1,12 +1,12 @@
-import { BuildingField } from 'interfaces/models/game/village';
-import React from 'react';
-import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
-import { useTranslation } from 'react-i18next';
-import { Icon } from 'app/components/icon';
 import { Resources } from 'app/[game]/components/resources';
-import { formatTime } from 'app/utils/time';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { Icon } from 'app/components/icon';
+import { formatTime } from 'app/utils/time';
+import type { BuildingField } from 'interfaces/models/game/village';
+import type React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingField['id'];

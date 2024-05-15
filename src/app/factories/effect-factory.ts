@@ -1,5 +1,7 @@
-import { Server } from 'interfaces/models/game/server';
-import {
+import { getBuildingData } from 'app/[game]/utils/common';
+import { merchants } from 'assets/merchants';
+import type { BuildingEffect } from 'interfaces/models/game/building';
+import type {
   Effect,
   GlobalEffect,
   HeroEffect,
@@ -8,10 +10,8 @@ import {
   VillageBuildingEffect,
   VillageEffect,
 } from 'interfaces/models/game/effect';
-import { BuildingField, Village } from 'interfaces/models/game/village';
-import { getBuildingData } from 'app/[game]/utils/common';
-import { BuildingEffect } from 'interfaces/models/game/building';
-import { merchants } from 'assets/merchants';
+import type { Server } from 'interfaces/models/game/server';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 type NewBuildingEffectFactoryArgs = {
   villageId: Village['id'];

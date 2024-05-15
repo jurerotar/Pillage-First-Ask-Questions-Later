@@ -1,7 +1,7 @@
-import { BuildingField, Village } from 'interfaces/models/game/village';
-import { Building } from 'interfaces/models/game/building';
 import { partialArraySum } from 'app/utils/common';
 import { buildings } from 'assets/buildings';
+import type { Building } from 'interfaces/models/game/building';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 export const getBuildingData = (buildingId: Building['id']) => {
   const building: Building = buildings.find(({ id }) => id === buildingId)!;
@@ -31,16 +31,16 @@ export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, build
 };
 
 export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[]): number => {
-  let sum: number = 0;
+  let sum = 0;
 
-  buildingFields.forEach(({ buildingId, level }) => {
+  for (const { buildingId, level } of buildingFields) {
     if (buildingId === null) {
-      return;
+      continue;
     }
 
     const fullBuildingData: Building = buildings.find(({ id }) => id === buildingId)!;
     sum += partialArraySum(fullBuildingData.cropConsumption, level);
-  });
+  }
 
   return sum;
 };

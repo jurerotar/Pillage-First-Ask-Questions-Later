@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 

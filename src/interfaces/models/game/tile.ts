@@ -1,8 +1,8 @@
-import { Point } from 'interfaces/models/common';
-import { ResourceFieldComposition, Village } from 'interfaces/models/game/village';
-import { WithServerId } from 'interfaces/models/game/server';
-import { Resource } from 'interfaces/models/game/resource';
-import { Player } from 'interfaces/models/game/player';
+import type { Point } from 'interfaces/models/common';
+import type { Player } from 'interfaces/models/game/player';
+import type { Resource } from 'interfaces/models/game/resource';
+import type { WithServerId } from 'interfaces/models/game/server';
+import type { ResourceFieldComposition, Village } from 'interfaces/models/game/village';
 
 export type BaseTile = WithServerId<{
   id: string;

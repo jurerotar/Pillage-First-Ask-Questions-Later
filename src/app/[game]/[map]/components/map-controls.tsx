@@ -1,10 +1,10 @@
-import React from 'react';
-import clsx from 'clsx';
-import { Icon } from 'app/components/icon';
-import { Tooltip } from 'app/components/tooltip';
-import { useTranslation } from 'react-i18next';
 import { useMapFilters } from 'app/[game]/[map]/hooks/use-map-filters';
 import { MAX_MAGNIFICATION, MIN_MAGNIFICATION, useMapOptions } from 'app/[game]/[map]/providers/map-context';
+import { Icon } from 'app/components/icon';
+import { Tooltip } from 'app/components/tooltip';
+import clsx from 'clsx';
+import type React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type DividerProps = {
   orientation?: 'vertical' | 'horizontal';

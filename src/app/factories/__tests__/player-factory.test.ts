@@ -1,5 +1,5 @@
-import { serverMock } from 'mocks/models/game/server-mock';
 import { playerFactory } from 'app/factories/player-factory';
+import { serverMock } from 'mocks/models/game/server-mock';
 
 describe('Player factory', () => {
   const player = playerFactory({ server: serverMock, faction: 'npc1', index: 1 });

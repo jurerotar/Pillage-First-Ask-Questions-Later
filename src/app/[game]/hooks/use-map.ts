@@ -1,9 +1,9 @@
-import { database } from 'database/database';
-import { Tile } from 'interfaces/models/game/tile';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
-import { Point } from 'interfaces/models/common';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { Point } from 'interfaces/models/common';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
 
 export const mapCacheKey = 'map';
 

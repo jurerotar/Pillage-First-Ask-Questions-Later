@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-export const useDialog = <TArgs = unknown>(isOpenInitially: boolean = false) => {
+export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
   const [isOpen, setIsOpen] = useState<boolean>(isOpenInitially);
   const modalArgs = useRef<TArgs | null>(null);
 

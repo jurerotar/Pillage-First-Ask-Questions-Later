@@ -1,6 +1,6 @@
-import React from 'react';
-import { OccupiedOccupiableTile as OccupiedOccupiableTileType, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { Icon, IconProps, TreasureTileIconType } from 'app/components/icon';
+import { Icon, type IconProps, type TreasureTileIconType } from 'app/components/icon';
+import type { OccupiedOccupiableTile, OccupiedOccupiableTile as OccupiedOccupiableTileType } from 'interfaces/models/game/tile';
+import type React from 'react';
 
 type TreasureIconProps = Pick<OccupiedOccupiableTile, 'treasureType'> & Omit<IconProps, 'type'>;
 

@@ -1,16 +1,16 @@
-import React from 'react';
-import { Building } from 'interfaces/models/game/building';
-import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
-import { BuildingField } from 'interfaces/models/game/village';
+import { type AssessedBuildingRequirement, assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { GameEventType } from 'interfaces/models/events/game-event';
-import { getBuildingData } from 'app/[game]/utils/common';
-import { useTranslation } from 'react-i18next';
-import { Button } from 'app/components/buttons/button';
-import { assessBuildingConstructionReadiness, AssessedBuildingRequirement } from 'app/[game]/[village]/utils/building-requirements';
+import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
+import { getBuildingData } from 'app/[game]/utils/common';
+import { Button } from 'app/components/buttons/button';
 import clsx from 'clsx';
+import { GameEventType } from 'interfaces/models/events/game-event';
+import type { Building } from 'interfaces/models/game/building';
+import type { BuildingField } from 'interfaces/models/game/village';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type BuildingCardProps = {
   buildingId: Building['id'];

@@ -1,8 +1,8 @@
-import { Effect, EffectId, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useEffects } from 'app/[game]/hooks/use-effects';
 import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/[game]/utils/guards/effect-guards';
-import { Village } from 'interfaces/models/game/village';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import type { Effect, EffectId, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
+import type { Village } from 'interfaces/models/game/village';
 
 export const calculateComputedEffect = (effectId: EffectId, effects: Effect[], currentVillageId: Village['id']) => {
   const serverEffects: ServerEffect[] = effects.filter(isServerEffect);

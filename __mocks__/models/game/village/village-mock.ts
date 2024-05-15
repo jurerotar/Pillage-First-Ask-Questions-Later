@@ -1,8 +1,8 @@
-import { Village } from 'interfaces/models/game/village';
-import { serverMock } from 'mocks/models/game/server-mock';
+import type { Village } from 'interfaces/models/game/village';
 import { playerMock } from 'mocks/models/game/player-mock';
-import { resourceFields4446Mock } from './resource-fields-mock';
+import { serverMock } from 'mocks/models/game/server-mock';
 import { newVillageBuildingFieldsMock } from './building-fields-mock';
+import { resourceFields4446Mock } from './resource-fields-mock';
 
 const { id: serverId } = serverMock;
 const { id: playerId } = playerMock;

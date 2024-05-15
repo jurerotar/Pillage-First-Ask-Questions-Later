@@ -1,13 +1,13 @@
-import {
-  gaulServerMock,
-  teutonServerMock,
-  romanServerMock,
-  egyptianServerMock,
-  hunServerMock,
-  spartanServerMock,
-  serverMock,
-} from 'mocks/models/game/server-mock';
 import { heroFactory } from 'app/factories/hero-factory';
+import {
+  egyptianServerMock,
+  gaulServerMock,
+  hunServerMock,
+  romanServerMock,
+  serverMock,
+  spartanServerMock,
+  teutonServerMock,
+} from 'mocks/models/game/server-mock';
 
 describe('Hero factory', () => {
   const hero = heroFactory({ server: serverMock });

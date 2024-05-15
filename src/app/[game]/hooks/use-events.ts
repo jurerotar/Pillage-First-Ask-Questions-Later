@@ -1,23 +1,23 @@
-import { database } from 'database/database';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
+import { calculateCurrentAmount } from 'app/[game]/hooks/use-current-resources';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
-import { eventFactory } from 'app/factories/event-factory';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
+import { getVillageById, villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
 } from 'app/[game]/resolvers/building-resolvers';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { findLastIndex } from 'lodash-es';
-import { Village } from 'interfaces/models/game/village';
-import { getVillageById, villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { doesEventRequireResourceCheck } from 'app/[game]/utils/guards/event-guards';
-import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { Effect } from 'interfaces/models/game/effect';
-import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
-import { calculateCurrentAmount } from 'app/[game]/hooks/use-current-resources';
+import { eventFactory } from 'app/factories/event-factory';
+import { database } from 'database/database';
+import { type GameEvent, GameEventType } from 'interfaces/models/events/game-event';
+import type { Effect } from 'interfaces/models/game/effect';
+import type { Server } from 'interfaces/models/game/server';
+import type { Village } from 'interfaces/models/game/village';
+import { findLastIndex } from 'lodash-es';
 
 export const eventsCacheKey = 'events';
 
@@ -32,7 +32,6 @@ export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): Game
 };
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
-  // eslint-disable-next-line default-case
   switch (gameEventType) {
     case GameEventType.BUILDING_LEVEL_CHANGE: {
       return buildingLevelChangeResolver;

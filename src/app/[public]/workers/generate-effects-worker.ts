@@ -1,8 +1,8 @@
-import { Server } from 'interfaces/models/game/server';
 import { globalEffectsFactory, newVillageEffectsFactory, serverEffectsFactory } from 'app/factories/effect-factory';
-import { Village } from 'interfaces/models/game/village';
 import { database } from 'database/database';
-import { Effect } from 'interfaces/models/game/effect';
+import type { Effect } from 'interfaces/models/game/effect';
+import type { Server } from 'interfaces/models/game/server';
+import type { Village } from 'interfaces/models/game/village';
 
 export type GenerateEffectsWorkerPayload = {
   server: Server;

@@ -1,5 +1,5 @@
-import { Server } from 'interfaces/models/game/server';
-import { MapFilters } from 'interfaces/models/game/map-filters';
+import type { MapFilters } from 'interfaces/models/game/map-filters';
+import type { Server } from 'interfaces/models/game/server';
 
 type MapFiltersFactoryProps = {
   server: Server;

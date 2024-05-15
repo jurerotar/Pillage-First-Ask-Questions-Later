@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { database } from 'database/database';
-import { Server } from 'interfaces/models/game/server';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { MapMarker } from 'interfaces/models/game/map-marker';
-import { Tile } from 'interfaces/models/game/tile';
 import { mapMarkerFactory } from 'app/factories/map-marker-factory';
+import { database } from 'database/database';
+import type { MapMarker } from 'interfaces/models/game/map-marker';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
 
 export const mapMarkersCacheKey = 'map-markers';
 

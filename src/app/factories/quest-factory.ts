@@ -1,7 +1,7 @@
-import { Quest } from 'interfaces/models/game/quest';
-import { Server } from 'interfaces/models/game/server';
 import { globalQuests, villageQuests } from 'assets/quests';
-import { Village } from 'interfaces/models/game/village';
+import type { Quest } from 'interfaces/models/game/quest';
+import type { Server } from 'interfaces/models/game/server';
+import type { Village } from 'interfaces/models/game/village';
 
 type QuestFactoryProps = {
   server: Server;

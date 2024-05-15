@@ -1,5 +1,13 @@
-import React from 'react';
-import {
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { usePlayers } from 'app/[game]/hooks/use-players';
+import { getReportIconType, useReports } from 'app/[game]/hooks/use-reports';
+import { useReputations } from 'app/[game]/hooks/use-reputations';
+import { useTroops } from 'app/[game]/hooks/use-troops';
+import { useVillages } from 'app/[game]/hooks/use-villages';
+import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
+import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
+import type {
   OasisResourceBonus,
   OasisTile,
   OccupiableOasisTile,
@@ -8,16 +16,8 @@ import {
   OccupiedOccupiableTile,
   Tile,
 } from 'interfaces/models/game/tile';
+import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { usePlayers } from 'app/[game]/hooks/use-players';
-import { useReputations } from 'app/[game]/hooks/use-reputations';
-import { useVillages } from 'app/[game]/hooks/use-villages';
-import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
-import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
-import { getReportIconType, useReports } from 'app/[game]/hooks/use-reports';
-import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
-import { useTroops } from 'app/[game]/hooks/use-troops';
 
 type TileTooltipProps = {
   tile: Tile;

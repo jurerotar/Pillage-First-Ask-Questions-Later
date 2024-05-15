@@ -1,10 +1,10 @@
-import { Server } from 'interfaces/models/game/server';
-import { mapFactory } from 'app/factories/map-factory';
-import { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { Player } from 'interfaces/models/game/player';
-import { database } from 'database/database';
-import { chunk } from 'lodash-es';
 import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
+import { mapFactory } from 'app/factories/map-factory';
+import { database } from 'database/database';
+import type { Player } from 'interfaces/models/game/player';
+import type { Server } from 'interfaces/models/game/server';
+import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
+import { chunk } from 'lodash-es';
 
 export type GenerateWorldMapWorkerPayload = {
   server: Server;

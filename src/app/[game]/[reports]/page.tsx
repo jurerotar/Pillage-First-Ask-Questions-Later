@@ -1,5 +1,5 @@
-import React from 'react';
 import { Head } from 'app/components/head';
+import type React from 'react';
 
 export const ReportsPage: React.FC = () => {
   return (

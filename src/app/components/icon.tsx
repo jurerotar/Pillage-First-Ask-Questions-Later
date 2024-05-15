@@ -1,10 +1,11 @@
-import React, { lazy, Suspense } from 'react';
-import { IconBaseProps } from 'react-icons';
+import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
-import { BorderIndicator, BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import clsx from 'clsx';
-import { Unit } from 'interfaces/models/game/unit';
+import type { Unit } from 'interfaces/models/game/unit';
 import { camelCase } from 'lodash-es';
+import type React from 'react';
+import { Suspense, lazy } from 'react';
+import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
 

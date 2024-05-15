@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import React from 'react';
+import type React from 'react';
 
 // TODO: Re-enable these types once maps are seeded again
 // type PRNGFunction = () => number;

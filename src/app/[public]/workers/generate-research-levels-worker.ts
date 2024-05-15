@@ -1,7 +1,7 @@
-import { Server } from 'interfaces/models/game/server';
-import { database } from 'database/database';
 import { researchLevelsFactory } from 'app/factories/research-levels-factory';
-import { ResearchLevel } from 'interfaces/models/game/research-level';
+import { database } from 'database/database';
+import type { ResearchLevel } from 'interfaces/models/game/research-level';
+import type { Server } from 'interfaces/models/game/server';
 
 export type GenerateResearchLevelsWorkerPayload = {
   server: Server;

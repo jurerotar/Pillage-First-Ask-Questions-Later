@@ -1,9 +1,9 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
-import { Tile } from 'interfaces/models/game/tile';
-import { Troop } from 'interfaces/models/game/troop';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
+import type { Troop } from 'interfaces/models/game/troop';
 
 export const troopsCacheKey = 'units';
 

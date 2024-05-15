@@ -1,10 +1,10 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { Village } from 'interfaces/models/game/village';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { usePlayers } from 'app/[game]/hooks/use-players';
-import { OccupiedOasisTile } from 'interfaces/models/game/tile';
+import { database } from 'database/database';
+import type { Server } from 'interfaces/models/game/server';
+import type { OccupiedOasisTile } from 'interfaces/models/game/tile';
+import type { Village } from 'interfaces/models/game/village';
 
 export const villagesCacheKey = 'villages';
 
