@@ -1,14 +1,12 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { Button } from 'app/components/buttons/button';
 import { Server } from 'interfaces/models/game/server';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
-import { ProgressBar } from 'app/components/progress-bar';
 import { database } from 'database/database';
 import { serverFactory } from 'app/factories/server-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { workerFactory } from 'app/utils/workers';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';
-import { Tribe } from 'interfaces/models/game/tribe';
 import { GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn } from 'app/[public]/workers/generate-players-worker';
 import { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from 'app/[public]/workers/generate-reputations-worker';
 import { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from 'app/[public]/workers/generate-world-map-worker';
@@ -31,18 +29,16 @@ import CreateResearchLevelsWorker from 'app/[public]/workers/generate-research-l
 import CreateTroopsWorker from 'app/[public]/workers/generate-troops-worker?worker&url';
 import { useForm } from 'react-hook-form';
 import { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'app/[public]/workers/generate-troops-worker';
+import { useMutation } from '@tanstack/react-query';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
-type CreateServerModalView = 'configuration' | 'loader';
 
-type OnSubmitParams = {
+type OnSubmitArgs = {
   server: Server;
-  tribe: Tribe;
-  name: string;
 };
 
 type CreateServerConfigurationViewProps = {
-  onSubmit: (params: OnSubmitParams) => void;
+  onSubmit: (params: OnSubmitArgs) => void;
 };
 
 const generateSeed = (length: number = 10): string => {
@@ -68,9 +64,8 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   });
 
   const submitForm = (data: CreateServerFormValues) => {
-    const { tribe, name } = data.playerConfiguration;
     const server = serverFactory({ ...data });
-    onSubmit({ server, tribe, name });
+    onSubmit({ server });
   };
 
   return (
@@ -128,168 +123,114 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   );
 };
 
-type CreateServerLoaderViewProps = {
-  progressPercentage: number;
-  hasCreatedServer: boolean;
-  errorMessage: string | null;
-};
-
-const CreateServerLoaderView: React.FC<CreateServerLoaderViewProps> = (props) => {
-  const { progressPercentage, hasCreatedServer, errorMessage } = props;
-
-  return (
-    <div className="mx-auto flex w-full flex-col gap-4 md:max-w-[50%]">
-      {!!errorMessage && <span>{errorMessage.toString()}</span>}
-      {!errorMessage && (
-        <>
-          {hasCreatedServer && <p>Server created!</p>}
-          {!hasCreatedServer && <ProgressBar value={progressPercentage} />}
-        </>
-      )}
-    </div>
+export const initializeServer = async ({ server }: OnSubmitArgs) => {
+  // Reputations
+  const { reputations } = await workerFactory<GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn>(
+    CreateReputationsWorker,
+    { server },
+    ''
   );
+
+  const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
+
+  // Players/factions
+  const { players } = await workerFactory<GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn>(
+    CreatePlayersWorker,
+    { server, factions: npcFactions },
+    ''
+  );
+
+  // Map data
+  const { occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<
+    GenerateWorldMapWorkerPayload,
+    GenerateWorldMapWorkerReturn
+  >(CreateMapWorker, { server, players }, '');
+
+  // Villages
+  const { playerStartingVillage } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
+    CreateVillagesWorker,
+    { server, occupiedOccupiableTiles, players },
+    ''
+  );
+
+  // Non-dependant factories can run in sync
+  await Promise.all([
+    // Troops
+    workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(
+      CreateTroopsWorker,
+      { server, occupiedOccupiableTiles, occupiableOasisTiles, players },
+      ''
+    ),
+
+    // Research levels
+    workerFactory<GenerateResearchLevelsWorkerPayload, GenerateResearchLevelsWorkerReturn>(CreateResearchLevelsWorker, { server }, ''),
+
+    // Hero data
+    (async () => {
+      const hero = heroFactory({ server });
+      await database.heroes.add(hero);
+    })(),
+
+    // Quests
+    workerFactory<GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn>(
+      CreateQuestsWorker,
+      { server, villageId: playerStartingVillage.id },
+      ''
+    ),
+
+    // Achievements
+    workerFactory<GenerateAchievementsWorkerPayload, GenerateAchievementsWorkerReturn>(CreateAchievementsWorker, { server }, ''),
+
+    // Effects
+    workerFactory<GenerateEffectsWorkerPayload, GenerateEffectsWorkerReturn>(
+      CreateEffectsWorker,
+      { server, village: playerStartingVillage },
+      ''
+    ),
+
+    // Map filters
+    (async () => {
+      const mapFilters = mapFiltersFactory({ server });
+
+      await database.mapFilters.add(mapFilters);
+    })(),
+  ]);
 };
 
-export const CreateServerModalContent: React.FC = () => {
+export const CreateServerModalContent = () => {
   const { createServer, deleteServer } = useAvailableServers();
 
-  const [view, setView] = useState<CreateServerModalView>('configuration');
-  const [progressPercentage, setProgressPercentage] = useState<number>(0);
-  const [hasCreatedServer, setHasCreatedServer] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const {
+    mutate: onSubmit,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useMutation<void, Error, OnSubmitArgs>({
+    mutationFn: async ({ server }) => {
+      await initializeServer({ server });
+    },
+    onSuccess: async (_, { server }) => {
+      await createServer({ server });
+    },
+    onError: async (_, { server }) => {
+      await deleteServer({ server });
+    },
+  });
 
-  const { amountOfTables } = database;
-  const percentageIncrease = Math.round(100 / amountOfTables);
-
-  const onSubmit = useCallback(({ server, tribe, name }: OnSubmitParams) => {
-    setView('loader');
-
-    (async () => {
-      const updatePercentage = (percentage: number = percentageIncrease) => {
-        setProgressPercentage((prevState) => prevState + percentage);
-      };
-
-      const executeStep = async <T,>(promise: () => Promise<T>): Promise<T> => {
-        updatePercentage();
-        const result = await promise();
-        return result;
-      };
-
-      try {
-        // Reputations
-        const { reputations } = await executeStep<GenerateReputationsWorkerReturn>(async () => {
-          return workerFactory<GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn>(CreateReputationsWorker, { server }, '');
-        });
-
-        const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
-
-        // Players/factions
-        const { players } = await executeStep<GeneratePlayersWorkerReturn>(async () => {
-          return workerFactory<GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn>(
-            CreatePlayersWorker,
-            { server, factions: npcFactions, name, tribe },
-            ''
-          );
-        });
-
-        // Map data
-        const { occupiedOccupiableTiles, occupiableOasisTiles } = await executeStep<GenerateWorldMapWorkerReturn>(async () => {
-          return workerFactory<GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn>(CreateMapWorker, { server, players }, '');
-        });
-
-        // Villages
-        const { playerStartingVillage } = await executeStep<GenerateVillageWorkerReturn>(async () => {
-          return workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
-            CreateVillagesWorker,
-            { server, occupiedOccupiableTiles, players },
-            ''
-          );
-        });
-
-        // Non-dependant factories can run in sync
-        await Promise.all([
-          // Troops
-          executeStep(async () => {
-            await workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(
-              CreateTroopsWorker,
-              { server, occupiedOccupiableTiles, occupiableOasisTiles },
-              ''
-            );
-          }),
-
-          // Research levels
-          executeStep(async () => {
-            await workerFactory<GenerateResearchLevelsWorkerPayload, GenerateResearchLevelsWorkerReturn>(
-              CreateResearchLevelsWorker,
-              { server },
-              ''
-            );
-          }),
-
-          // Hero data
-          executeStep(async () => {
-            const hero = heroFactory({ server });
-            await database.heroes.add(hero);
-          }),
-
-          // Quests
-          executeStep(async () => {
-            await workerFactory<GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn>(
-              CreateQuestsWorker,
-              { server, villageId: playerStartingVillage.id },
-              ''
-            );
-          }),
-
-          // Achievements
-          executeStep(async () => {
-            await workerFactory<GenerateAchievementsWorkerPayload, GenerateAchievementsWorkerReturn>(
-              CreateAchievementsWorker,
-              { server },
-              ''
-            );
-          }),
-
-          // Effects
-          executeStep(async () => {
-            await workerFactory<GenerateEffectsWorkerPayload, GenerateEffectsWorkerReturn>(
-              CreateEffectsWorker,
-              { server, village: playerStartingVillage },
-              ''
-            );
-          }),
-
-          // Map filters
-          executeStep(async () => {
-            const mapFilters = mapFiltersFactory({ server });
-
-            await database.mapFilters.add(mapFilters);
-          }),
-          // Server
-          executeStep(async () => {
-            await createServer({ server });
-          }),
-        ]);
-
-        setHasCreatedServer(true);
-      } catch (err) {
-        setError(err as string);
-        await deleteServer({ server });
-      }
-    })();
-    setView('loader');
-  }, []);
+  if (error !== null) {
+    return (
+      <div className="flex flex-col gap-4">
+        <span>{error.message}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      {view === 'configuration' && <CreateServerConfigurationView onSubmit={onSubmit} />}
-      {view === 'loader' && (
-        <CreateServerLoaderView
-          progressPercentage={progressPercentage}
-          hasCreatedServer={hasCreatedServer}
-          errorMessage={error}
-        />
-      )}
+      {!isPending && !isSuccess && !isError && <CreateServerConfigurationView onSubmit={onSubmit} />}
+      {isPending && <div className="mx-auto flex w-full flex-col gap-4 md:max-w-[50%]">Loading</div>}
+      {isSuccess && <div>Success</div>}
     </div>
   );
 };

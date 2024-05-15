@@ -16,8 +16,6 @@ export type GenerateVillageWorkerReturn = {
   playerStartingVillage: Village;
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorkerPayload>) => {
   const { server, occupiedOccupiableTiles, players } = event.data;
 

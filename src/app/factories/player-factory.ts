@@ -162,17 +162,18 @@ export const playerFactory = ({ server, faction, index }: PlayerFactoryProps): P
 
 type UserPlayerFactoryProps = {
   server: Server;
-  faction: PlayerFaction;
-  tribe: Tribe;
-  name: string;
 };
 
-export const userPlayerFactory = ({ server, faction, tribe, name }: UserPlayerFactoryProps): Player => {
+export const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player => {
+  const {
+    name,
+    playerConfiguration: { tribe },
+  } = server;
   return {
     id: crypto.randomUUID(),
     serverId: server.id,
     name,
     tribe,
-    faction,
+    faction: 'player',
   };
 };

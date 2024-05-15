@@ -12,8 +12,6 @@ export type GenerateReputationsWorkerReturn = {
   reputations: Reputation[];
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 const factions: PlayerFaction[] = ['player', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6', 'npc7', 'npc8'];
 
 self.addEventListener('message', async (event: MessageEvent<GenerateReputationsWorkerPayload>) => {

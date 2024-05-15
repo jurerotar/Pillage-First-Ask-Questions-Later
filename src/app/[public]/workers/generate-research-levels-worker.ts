@@ -11,8 +11,6 @@ export type GenerateResearchLevelsWorkerReturn = {
   researchLevels: ResearchLevel[];
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 self.addEventListener('message', async (event: MessageEvent<GenerateResearchLevelsWorkerPayload>) => {
   const { server } = event.data;
   const researchLevels = researchLevelsFactory({ server });

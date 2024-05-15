@@ -6,4 +6,5 @@ export type Troop = WithServerId<{
   unitId: Unit['id'];
   amount: number;
   tileId: Tile['id'];
+  role: 'own' | 'reinforcements';
 }>;

@@ -13,8 +13,6 @@ export type GenerateEffectsWorkerReturn = {
   effects: Effect[];
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 self.addEventListener('message', async (event: MessageEvent<GenerateEffectsWorkerPayload>) => {
   const { server, village } = event.data;
   const serverEffects = serverEffectsFactory({ server });

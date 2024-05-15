@@ -104,7 +104,7 @@ export const romanUnits: Unit[] = [
     ],
   },
   {
-    id: 'BATTERING_RAM',
+    id: 'ROMAN_RAM',
     baseRecruitmentCost: [900, 360, 500, 70],
     baseRecruitmentTime: 4600,
     cropConsumption: 3,

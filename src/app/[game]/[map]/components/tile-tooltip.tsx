@@ -2,6 +2,7 @@ import React from 'react';
 import {
   OasisResourceBonus,
   OasisTile,
+  OccupiableOasisTile,
   OccupiableTile,
   OccupiedOasisTile,
   OccupiedOccupiableTile,
@@ -12,10 +13,11 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
 import { useVillages } from 'app/[game]/hooks/use-villages';
-import { Icon } from 'app/components/icon';
+import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import { getReportIconType, useReports } from 'app/[game]/hooks/use-reports';
 import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import { useTroops } from 'app/[game]/hooks/use-troops';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -91,6 +93,33 @@ const TileTooltipReports: React.FC<TileTooltipProps> = ({ tile }) => {
   );
 };
 
+type TileTooltipAnimalsProps = {
+  tile: OccupiableOasisTile;
+};
+
+const TileTooltipAnimals: React.FC<TileTooltipAnimalsProps> = ({ tile }) => {
+  const { getTroopsByTileId } = useTroops();
+  const troops = getTroopsByTileId(tile.id);
+
+  if (troops.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {troops.map(({ unitId, amount }) => (
+        <span
+          key={unitId}
+          className="flex gap-1"
+        >
+          <Icon type={unitIdToUnitIconMapper(unitId)} />
+          {amount}
+        </span>
+      ))}
+    </>
+  );
+};
+
 type OasisTileTooltipProps = {
   tile: OasisTile;
 };
@@ -133,6 +162,7 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
         </span>
       ))}
       {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
+      {!isOccupied && <TileTooltipAnimals tile={tile} />}
       <TileTooltipReports tile={tile} />
     </>
   );

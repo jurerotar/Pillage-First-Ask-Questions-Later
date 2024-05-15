@@ -13,8 +13,6 @@ export type GenerateQuestsWorkerReturn = {
   quests: Quest[];
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 self.addEventListener('message', async (event: MessageEvent<GenerateQuestsWorkerPayload>) => {
   const { server, villageId } = event.data;
   const villageQuests = newVillageQuestsFactory({ server, villageId });

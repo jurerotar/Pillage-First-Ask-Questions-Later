@@ -16,11 +16,11 @@ export const isOccupiableOasisTile = (tile: Tile): tile is OasisTile => {
 };
 
 export const isUnoccupiedOasisTile = (tile: Tile): tile is OccupiableOasisTile => {
-  return isOasisTile(tile) && tile.villageId === null;
+  return isOccupiableOasisTile(tile) && tile.villageId === null;
 };
 
 export const isOccupiedOasisTile = (tile: Tile): tile is OccupiedOasisTile => {
-  return isOasisTile(tile) && tile.villageId !== null;
+  return isOccupiableOasisTile(tile) && tile.villageId !== null;
 };
 
 export const isOccupiableTile = (tile: Tile): tile is OccupiableTile => {

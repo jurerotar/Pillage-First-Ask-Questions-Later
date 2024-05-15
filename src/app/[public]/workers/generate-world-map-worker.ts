@@ -16,8 +16,6 @@ export type GenerateWorldMapWorkerReturn = {
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 self.addEventListener('message', async (event: MessageEvent<GenerateWorldMapWorkerPayload>) => {
   const { server, players } = event.data;
   const tiles = mapFactory({ server, players });

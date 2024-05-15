@@ -10,8 +10,6 @@ export type GenerateAchievementsWorkerReturn = {
   achievements: Achievement[];
 };
 
-const self = globalThis as unknown as DedicatedWorkerGlobalScope;
-
 self.addEventListener('message', async (event: MessageEvent<GenerateAchievementsWorkerPayload>) => {
   const { server } = event.data;
   const achievements: Achievement[] = [];

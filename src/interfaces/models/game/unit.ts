@@ -8,7 +8,7 @@ export type RomanUnitId =
   | 'EQUITES_LEGATI'
   | 'EQUITES_IMPERATORIS'
   | 'EQUITES_CAESARIS'
-  | 'BATTERING_RAM'
+  | 'ROMAN_RAM'
   | 'FIRE_CATAPULT'
   | 'SENATOR'
   | 'ROMAN_SETTLER';
