@@ -6,17 +6,17 @@ import type { Server } from 'interfaces/models/game/server';
 import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import { chunk } from 'lodash-es';
 
-export type GenerateWorldMapWorkerPayload = {
+export type GenerateMapWorkerPayload = {
   server: Server;
   players: Player[];
 };
 
-export type GenerateWorldMapWorkerReturn = {
+export type GenerateMapWorkerReturn = {
   occupiableOasisTiles: OccupiableOasisTile[];
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
 };
 
-self.addEventListener('message', async (event: MessageEvent<GenerateWorldMapWorkerPayload>) => {
+self.addEventListener('message', async (event: MessageEvent<GenerateMapWorkerPayload>) => {
   const { server, players } = event.data;
   const tiles = mapFactory({ server, players });
   const occupiableOasisTiles = tiles.filter(isUnoccupiedOasisTile);

@@ -21,8 +21,8 @@ import type { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'ap
 import CreateTroopsWorker from 'app/[public]/workers/generate-troops-worker?worker&url';
 import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/[public]/workers/generate-villages-worker';
 import CreateVillagesWorker from 'app/[public]/workers/generate-villages-worker?worker&url';
-import type { GenerateWorldMapWorkerPayload, GenerateWorldMapWorkerReturn } from 'app/[public]/workers/generate-world-map-worker';
-import CreateMapWorker from 'app/[public]/workers/generate-world-map-worker?worker&url';
+import type { GenerateMapWorkerPayload, GenerateMapWorkerReturn } from 'app/[public]/workers/generate-map-worker';
+import CreateMapWorker from 'app/[public]/workers/generate-map-worker?worker&url';
 import { Button } from 'app/components/buttons/button';
 import { heroFactory } from 'app/factories/hero-factory';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';
@@ -144,10 +144,11 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   );
 
   // Map data
-  const { occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<
-    GenerateWorldMapWorkerPayload,
-    GenerateWorldMapWorkerReturn
-  >(CreateMapWorker, { server, players }, '');
+  const { occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
+    CreateMapWorker,
+    { server, players },
+    ''
+  );
 
   // Villages
   const { playerStartingVillage } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(

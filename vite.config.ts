@@ -1,6 +1,6 @@
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
-import { type UserConfig, defineConfig } from 'vite';
+import { defineConfig, type UserConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
@@ -23,7 +23,6 @@ export default defineConfig({
       'react-tabs',
       'dexie',
       'react-hook-form',
-      'js-xxhash',
       'react-helmet-async',
       'react-modal',
       'usehooks-ts',
