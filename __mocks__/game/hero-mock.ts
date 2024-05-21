@@ -1,4 +1,4 @@
-import { Hero } from 'interfaces/models/game/hero';
+import type { Hero } from 'interfaces/models/game/hero';
 import { serverMock } from 'mocks/models/game/server-mock';
 
 const { id: serverId } = serverMock;

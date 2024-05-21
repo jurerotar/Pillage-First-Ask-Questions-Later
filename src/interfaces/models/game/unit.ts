@@ -1,5 +1,5 @@
-import { Tribe } from 'interfaces/models/game/tribe';
-import { Building } from 'interfaces/models/game/building';
+import type { Building } from 'interfaces/models/game/building';
+import type { Tribe } from 'interfaces/models/game/tribe';
 
 export type RomanUnitId =
   | 'LEGIONNAIRE'
@@ -8,7 +8,7 @@ export type RomanUnitId =
   | 'EQUITES_LEGATI'
   | 'EQUITES_IMPERATORIS'
   | 'EQUITES_CAESARIS'
-  | 'BATTERING_RAM'
+  | 'ROMAN_RAM'
   | 'FIRE_CATAPULT'
   | 'SENATOR'
   | 'ROMAN_SETTLER';

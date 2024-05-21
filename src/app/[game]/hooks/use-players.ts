@@ -1,8 +1,9 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
-import { Player } from 'interfaces/models/game/player';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { Player } from 'interfaces/models/game/player';
+import type { Server } from 'interfaces/models/game/server';
+import { useCallback } from 'react';
 
 export const playersCacheKey = 'players';
 
@@ -19,9 +20,12 @@ export const usePlayers = () => {
 
   const playerId = players.find((player) => player.faction === 'player')!.id;
 
-  const getPlayerByPlayerId = (playerIdToSearchFor: Player['id']): Player => {
-    return players.find(({ id }) => playerIdToSearchFor === id)!;
-  };
+  const getPlayerByPlayerId = useCallback(
+    (playerIdToSearchFor: Player['id']): Player => {
+      return players.find(({ id }) => playerIdToSearchFor === id)!;
+    },
+    [players]
+  );
 
   return {
     players,

@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { MapFilterName, MapFilters } from 'interfaces/models/game/map-filters';
-import { database } from 'database/database';
-import { Server } from 'interfaces/models/game/server';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { MapFilterName, MapFilters } from 'interfaces/models/game/map-filters';
+import type { Server } from 'interfaces/models/game/server';
 
 export const mapFiltersCacheKey = 'map-filters';
 

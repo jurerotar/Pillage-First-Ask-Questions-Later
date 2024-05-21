@@ -1,6 +1,7 @@
-import React, { HTMLAttributes } from 'react';
-import clsx from 'clsx';
 import { Icon } from 'app/components/icon';
+import clsx from 'clsx';
+import type React from 'react';
+import type { HTMLAttributes } from 'react';
 
 type ResourcesProps = {
   resources: number[];

@@ -1,20 +1,20 @@
-import Dexie, { Table } from 'dexie';
-import { Server } from 'interfaces/models/game/server';
-import { Tile } from 'interfaces/models/game/tile';
-import { Hero } from 'interfaces/models/game/hero';
-import { Village } from 'interfaces/models/game/village';
-import { Report } from 'interfaces/models/game/report';
-import { Quest } from 'interfaces/models/game/quest';
-import { Achievement } from 'interfaces/models/game/achievement';
-import { GameEvent } from 'interfaces/models/events/game-event';
-import { Effect } from 'interfaces/models/game/effect';
-import { ResearchLevel } from 'interfaces/models/game/research-level';
-import { TableName } from 'interfaces/models/database/table-name';
-import { Player } from 'interfaces/models/game/player';
-import { Reputation } from 'interfaces/models/game/reputation';
-import { MapFilters } from 'interfaces/models/game/map-filters';
-import { MapMarker } from 'interfaces/models/game/map-marker';
-import { Troop } from 'interfaces/models/game/troop';
+import Dexie, { type Table } from 'dexie';
+import type { TableName } from 'interfaces/models/database/table-name';
+import type { GameEvent } from 'interfaces/models/events/game-event';
+import type { Achievement } from 'interfaces/models/game/achievement';
+import type { Effect } from 'interfaces/models/game/effect';
+import type { Hero } from 'interfaces/models/game/hero';
+import type { MapFilters } from 'interfaces/models/game/map-filters';
+import type { MapMarker } from 'interfaces/models/game/map-marker';
+import type { Player } from 'interfaces/models/game/player';
+import type { Quest } from 'interfaces/models/game/quest';
+import type { Report } from 'interfaces/models/game/report';
+import type { Reputation } from 'interfaces/models/game/reputation';
+import type { ResearchLevel } from 'interfaces/models/game/research-level';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
+import type { Troop } from 'interfaces/models/game/troop';
+import type { Village } from 'interfaces/models/game/village';
 
 type TableIndex = string;
 
@@ -39,8 +39,6 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['adventures', ['serverId,[serverId+id]']],
   ['troops', ['serverId,[serverId+villageId]']],
 ]);
-
-export const TABLE_NAMES = TABLES.keys();
 
 // https://dexie.org/docs/Version/Version.stores()
 export class Database extends Dexie {

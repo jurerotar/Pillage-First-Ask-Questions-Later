@@ -1,13 +1,13 @@
-import { Effect, EffectId, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
-import { useEffects } from 'app/[game]/hooks/use-effects';
-import { globalEffectGuard, serverEffectGuard, villageEffectGuard } from 'app/[game]/utils/guards/effect-guards';
-import { Village } from 'interfaces/models/game/village';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useEffects } from 'app/[game]/hooks/use-effects';
+import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/[game]/utils/guards/effect-guards';
+import type { Effect, EffectId, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
+import type { Village } from 'interfaces/models/game/village';
 
-const calculateComputedEffect = (effectId: EffectId, effects: Effect[], currentVillageId: Village['id']) => {
-  const serverEffects: ServerEffect[] = effects.filter(serverEffectGuard);
-  const globalEffects: GlobalEffect[] = effects.filter(globalEffectGuard);
-  const villageEffects: VillageEffect[] = effects.filter(villageEffectGuard);
+export const calculateComputedEffect = (effectId: EffectId, effects: Effect[], currentVillageId: Village['id']) => {
+  const serverEffects: ServerEffect[] = effects.filter(isServerEffect);
+  const globalEffects: GlobalEffect[] = effects.filter(isGlobalEffect);
+  const villageEffects: VillageEffect[] = effects.filter(isVillageEffect);
   const currentVillageEffects: VillageEffect[] = villageEffects.filter(({ villageId }) => villageId === currentVillageId);
 
   const baseEffects = [...currentVillageEffects.filter(({ id }) => id === effectId), ...globalEffects.filter(({ id }) => id === effectId)];

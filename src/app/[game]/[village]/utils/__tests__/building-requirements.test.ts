@@ -1,19 +1,19 @@
-import { villageMock } from 'mocks/models/game/village/village-mock';
 import {
+  type AssessBuildingConstructionReadinessArgs,
+  type AssessBuildingConstructionReadinessReturn,
+  type AssessedBuildingRequirement,
   assessBuildingConstructionReadiness,
-  AssessBuildingConstructionReadinessArgs,
-  AssessBuildingConstructionReadinessReturn,
-  AssessedBuildingRequirement,
 } from 'app/[game]/[village]/utils/building-requirements';
-import { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
-import { Tribe } from 'interfaces/models/game/tribe';
-import { Village } from 'interfaces/models/game/village';
-import { BuildingRequirement } from 'interfaces/models/game/building';
+import type { GameEvent, GameEventType } from 'interfaces/models/events/game-event';
+import type { BuildingRequirement } from 'interfaces/models/game/building';
+import type { Tribe } from 'interfaces/models/game/tribe';
+import type { Village } from 'interfaces/models/game/village';
+import { buildingConstructionEventMock } from 'mocks/models/game/event-mock';
 import {
   villageWithBarracksRequirementsMetBuildingFieldsMock,
   villageWithWorkshopRequirementsMetBuildingFieldsMock,
 } from 'mocks/models/game/village/building-fields-mock';
-import { buildingConstructionEventMock } from 'mocks/models/game/event-mock';
+import { villageMock } from 'mocks/models/game/village/village-mock';
 
 const currentVillage: Village = villageMock;
 const playerVillages: Village[] = [villageMock, villageMock];

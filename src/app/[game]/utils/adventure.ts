@@ -1,4 +1,5 @@
-import {
+import { randomIntFromInterval } from 'app/utils/common';
+import type {
   HeroConsumableItemId,
   HeroHeadItemId,
   HeroItemCategory,
@@ -6,7 +7,6 @@ import {
   HeroRightHandItemId,
   HeroTorsoItemId,
 } from 'interfaces/models/game/hero';
-import { randomIntFromInterval } from 'app/utils/common';
 
 type ModifierFunction = (heroLevel: number) => number;
 
@@ -20,9 +20,9 @@ type TierRoll<D> = {
   tier: ModifierFunction;
 };
 
-const currencyLootTable = new Map<number, AmountRoll<'currency'>>([[1, { type: 'currency', amount: (heroLevel) => heroLevel * 10 }]]);
+const _currencyLootTable = new Map<number, AmountRoll<'currency'>>([[1, { type: 'currency', amount: (heroLevel) => heroLevel * 10 }]]);
 
-const troopLootTable = new Map<number, string>([
+const _troopLootTable = new Map<number, string>([
   [6, 'tier1'],
   [5, 'tier2'],
   [4, 'tier3'],
@@ -31,7 +31,7 @@ const troopLootTable = new Map<number, string>([
   [1, 'tier6'],
 ]);
 
-const consumableLootTable = new Map<number, HeroConsumableItemId>([
+const _consumableLootTable = new Map<number, HeroConsumableItemId>([
   [7, 'OINTMENT'],
   [7, 'CAGE'],
   [3, 'EXPERIENCE_SCROLL'],
@@ -39,9 +39,9 @@ const consumableLootTable = new Map<number, HeroConsumableItemId>([
   [1, 'BUCKET'],
 ]);
 
-const itemLootTable = new Map<number, TierRoll<HeroHeadItemId> | HeroTorsoItemId | HeroRightHandItemId | HeroLeftHandItemId>([]);
+const _itemLootTable = new Map<number, TierRoll<HeroHeadItemId> | HeroTorsoItemId | HeroRightHandItemId | HeroLeftHandItemId>([]);
 
-const lootCategoryTable = new Map<number, HeroItemCategory>([
+const _lootCategoryTable = new Map<number, HeroItemCategory>([
   [10, 'resources'],
   [8, 'currency'],
   [7, 'consumables'],
@@ -49,27 +49,10 @@ const lootCategoryTable = new Map<number, HeroItemCategory>([
   [2, 'items'],
 ]);
 
-const choose = <T>(lootTable: Map<number, T>): T => {
+const _choose = <T>(lootTable: Map<number, T>): T => {
   const keys = [...lootTable.keys()];
   const weightSum = keys.reduce((a, b) => a + b, 0);
   const selectedNum = randomIntFromInterval(0, weightSum);
   const selection = keys.find((weight) => weight - selectedNum >= 0)!;
   return lootTable.get(selection)!;
-};
-
-export const rollLootTable = (heroLevel: number) => {
-  const lootCategory = choose<HeroItemCategory>(lootCategoryTable);
-
-  switch (lootCategory) {
-    case 'consumables': {
-    }
-    case 'currency': {
-    }
-    case 'items': {
-    }
-    case 'resources': {
-    }
-    case 'troops': {
-    }
-  }
 };

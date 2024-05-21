@@ -1,5 +1,5 @@
-import { WithServerId } from 'interfaces/models/game/server';
-import { PlayerFaction } from 'interfaces/models/game/player';
+import type { PlayerFaction } from 'interfaces/models/game/player';
+import type { WithServerId } from 'interfaces/models/game/server';
 
 export type ReputationLevel =
   // Essentially a 'helper' reputation, this makes sure we don't have to have a bunch of hacks throughout the codebase

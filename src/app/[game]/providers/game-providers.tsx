@@ -1,7 +1,7 @@
-import React from 'react';
-import { DehydratedState, hydrate, useQueryClient } from '@tanstack/react-query';
-import { Outlet, useRouteLoaderData } from 'react-router-dom';
+import { type DehydratedState, hydrate, useQueryClient } from '@tanstack/react-query';
 import { GameEngineProvider } from 'app/[game]/providers/game-engine-provider';
+import React from 'react';
+import { Outlet, useRouteLoaderData } from 'react-router-dom';
 
 type RouteLoaderData = {
   dehydratedState: DehydratedState;

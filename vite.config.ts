@@ -1,8 +1,8 @@
-import { defineConfig, UserConfig } from 'vite';
+import path from 'node:path';
 import react from '@vitejs/plugin-react';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig, type UserConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
-import path from 'path';
+import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,11 +22,9 @@ export default defineConfig({
       'esm-seedrandom',
       'react-tabs',
       'dexie',
-      'formik',
-      'sha1-uint8array',
+      'react-hook-form',
       'react-helmet-async',
       'react-modal',
-      'tailwind-override',
       'usehooks-ts',
       'clsx',
       'react-icons/gi',

@@ -1,8 +1,8 @@
-import { describe, expect } from 'vitest';
-import { renderHookWithGameContext } from 'test-utils';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
 import { serverMock } from 'mocks/models/game/server-mock';
 import { villageMock } from 'mocks/models/game/village/village-mock';
+import { renderHookWithGameContext } from 'test-utils';
+import { describe, expect } from 'vitest';
 
 const { slug: serverSlug } = serverMock;
 const { slug: villageSlug } = villageMock;

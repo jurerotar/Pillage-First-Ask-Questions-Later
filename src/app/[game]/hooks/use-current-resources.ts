@@ -1,10 +1,10 @@
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { Resource } from 'interfaces/models/game/resource';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { ResourceProductionEffectId } from 'interfaces/models/game/effect';
-import { useEffect, useRef, useState } from 'react';
-import { Village } from 'interfaces/models/game/village';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import dayjs from 'dayjs';
+import type { ResourceProductionEffectId } from 'interfaces/models/game/effect';
+import type { Resource } from 'interfaces/models/game/resource';
+import type { Village } from 'interfaces/models/game/village';
+import { useEffect, useRef, useState } from 'react';
 
 const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
   ['wood', 'woodProduction'],
@@ -13,23 +13,34 @@ const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId
   ['wheat', 'wheatProduction'],
 ]);
 
-type CalculateCurrentAmountArgs = {
+export type CalculateCurrentAmountArgs = {
   lastUpdatedAt: Village['lastUpdatedAt'];
   resourceAmount: number;
   hourlyProduction: number;
   storageCapacity: number;
 };
 
-const calculateCurrentAmount = ({ lastUpdatedAt, resourceAmount, hourlyProduction, storageCapacity }: CalculateCurrentAmountArgs) => {
-  const secondsForResourceGeneration = 3600 / hourlyProduction;
+export const calculateCurrentAmount = ({
+  lastUpdatedAt,
+  resourceAmount,
+  hourlyProduction,
+  storageCapacity,
+}: CalculateCurrentAmountArgs) => {
+  if (hourlyProduction === 0) {
+    Math.min(resourceAmount, storageCapacity);
+  }
+
+  const hasNegativeProduction = hourlyProduction < 0;
+  const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
   const timeSinceLastUpdateInSeconds = dayjs().diff(dayjs(lastUpdatedAt), 'second');
   const producedResources = Math.floor(timeSinceLastUpdateInSeconds / secondsForResourceGeneration);
-  const calculatedCurrentAmount = Math.min(resourceAmount + producedResources, storageCapacity);
+  const calculatedCurrentAmount = resourceAmount + producedResources * (hasNegativeProduction ? -1 : 1);
+  const currentAmount = hasNegativeProduction ? Math.max(calculatedCurrentAmount, 0) : Math.min(calculatedCurrentAmount, storageCapacity);
 
   return {
     timeSinceLastUpdateInSeconds,
     secondsForResourceGeneration,
-    calculatedCurrentAmount,
+    currentAmount,
   };
 };
 
@@ -44,23 +55,25 @@ export const useCurrentResources = (resource: Resource) => {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
 
-  const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration, calculatedCurrentAmount } = calculateCurrentAmount({
+  const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration, currentAmount } = calculateCurrentAmount({
     lastUpdatedAt,
     resourceAmount,
     storageCapacity,
     hourlyProduction,
   });
 
-  const [calculatedResourceAmount, setCalculatedResourceAmount] = useState<number>(calculatedCurrentAmount);
+  const [calculatedResourceAmount, setCalculatedResourceAmount] = useState<number>(currentAmount);
   const [hasSetInitialResourceUnit, setHasSetInitialResourceUnit] = useState<boolean>(false);
 
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This component is quite broken, fix when available
   useEffect(() => {
     if (isFull || hasSetInitialResourceUnit) {
       if (timeoutId.current !== null) {
         clearTimeout(timeoutId.current!);
+        timeoutId.current = null;
       }
       return;
     }
@@ -74,14 +87,18 @@ export const useCurrentResources = (resource: Resource) => {
       (secondsForResourceGeneration - (timeSinceLastUpdateInSeconds % secondsForResourceGeneration)) * 1000
     );
 
-    return () => clearTimeout(timeoutId.current!);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearTimeout(timeoutId.current!);
+      timeoutId.current = null;
+    };
   }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This component is quite broken, fix when available
   useEffect(() => {
     if (isFull || !hasSetInitialResourceUnit) {
       if (intervalId.current !== null) {
         clearInterval(intervalId.current!);
+        intervalId.current = null;
       }
       return;
     }
@@ -90,8 +107,10 @@ export const useCurrentResources = (resource: Resource) => {
       setCalculatedResourceAmount((prevState) => Math.min(prevState + 1, storageCapacity));
     }, secondsForResourceGeneration * 1000);
 
-    return () => clearInterval(intervalId.current!);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearInterval(intervalId.current!);
+      intervalId.current = null;
+    };
   }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
 
   return {

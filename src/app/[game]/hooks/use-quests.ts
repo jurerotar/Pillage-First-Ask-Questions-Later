@@ -1,9 +1,9 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { Quest } from 'interfaces/models/game/quest';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { database } from 'database/database';
+import type { Quest } from 'interfaces/models/game/quest';
+import type { Server } from 'interfaces/models/game/server';
 
 export const questsCacheKey = 'quests';
 

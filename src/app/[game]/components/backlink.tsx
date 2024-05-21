@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
+import { Link, useLocation } from 'react-router-dom';
 
 export const Backlink = () => {
   const { pathname } = useLocation();

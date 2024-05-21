@@ -1,4 +1,4 @@
-import { BuildingField } from 'interfaces/models/game/village';
+import type { BuildingField } from 'interfaces/models/game/village';
 
 export const resourceFields00018Mock: BuildingField[] = [
   {

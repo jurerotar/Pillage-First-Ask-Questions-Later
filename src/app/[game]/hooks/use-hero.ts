@@ -1,8 +1,8 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { Hero } from 'interfaces/models/game/hero';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { Hero } from 'interfaces/models/game/hero';
+import type { Server } from 'interfaces/models/game/server';
 
 export const heroCacheKey = 'hero';
 

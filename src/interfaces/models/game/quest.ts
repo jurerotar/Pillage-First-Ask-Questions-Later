@@ -1,5 +1,5 @@
-import { Village } from 'interfaces/models/game/village';
-import { WithServerId } from 'interfaces/models/game/server';
+import type { WithServerId } from 'interfaces/models/game/server';
+import type { Village } from 'interfaces/models/game/village';
 
 /**
  * Quests can be server-wide (make an n-th village, kill x enemy troops,...), or village-wide (upgrade a building to lvl. 5,...)

@@ -1,7 +1,7 @@
-import { database } from 'database/database';
-import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
-import { Server } from 'interfaces/models/game/server';
 import { useQuery } from '@tanstack/react-query';
+import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
+import { database } from 'database/database';
+import type { Server } from 'interfaces/models/game/server';
 
 export const currentServerCacheKey = 'current-server';
 

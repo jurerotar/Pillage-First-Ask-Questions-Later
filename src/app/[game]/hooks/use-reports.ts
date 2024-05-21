@@ -1,10 +1,10 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { Report, ReportTag } from 'interfaces/models/game/report';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
-import { Tile } from 'interfaces/models/game/tile';
-import { MissingIconType, ReportIconType } from 'app/components/icon';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import type { MissingIconType, ReportIconType } from 'app/components/icon';
+import { database } from 'database/database';
+import type { Report, ReportTag } from 'interfaces/models/game/report';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
 
 type ReportMark = ReportTag | `un${ReportTag}`;
 
@@ -50,7 +50,7 @@ export const getReportIconType = ({ type, status }: Report): ReportIconType | Mi
 };
 
 // TODO: Implement this
-const markAs = (report: Report, as: ReportMark): Report => {
+const markAs = (report: Report, _as: ReportMark): Report => {
   return report;
 };
 
@@ -72,10 +72,10 @@ export const useReports = () => {
     return reports.filter(({ tileId }) => tileId === tileIdToSearchBy);
   };
 
-  const { mutate: createReport } = useMutation<void, Error, any>({
-    mutationFn: async ({}) => {},
-    onMutate: ({}) => {},
-  });
+  // const { mutate: createReport } = useMutation<void, Error, any>({
+  //   mutationFn: async ({}) => {},
+  //   onMutate: ({}) => {},
+  // });
 
   const { mutate: markReport } = useMutation<void, Error, { reportId: Report['id']; as: ReportMark }>({
     mutationFn: async ({ reportId, as }) => {
@@ -98,7 +98,7 @@ export const useReports = () => {
     deletedReports,
     readReports,
     markReport,
-    createReport,
+    // createReport,
     getReportsByTileId,
   };
 };

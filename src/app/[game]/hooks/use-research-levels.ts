@@ -1,8 +1,8 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { ResearchLevel } from 'interfaces/models/game/research-level';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { ResearchLevel } from 'interfaces/models/game/research-level';
+import type { Server } from 'interfaces/models/game/server';
 
 export const researchLevelsCacheKey = 'research-levels';
 

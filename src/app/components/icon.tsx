@@ -1,8 +1,11 @@
-import React, { lazy, Suspense } from 'react';
-import { IconBaseProps } from 'react-icons';
+import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
-import { BorderIndicator, BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import clsx from 'clsx';
+import type { Unit } from 'interfaces/models/game/unit';
+import { camelCase } from 'lodash-es';
+import type React from 'react';
+import { Suspense, lazy } from 'react';
+import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
 
@@ -118,6 +121,70 @@ const IconTroopsCropConsumption = lazy(async () => ({
   default: (await import('app/components/icons/village/icon-troops-crop-consumption')).IconTroopsCropConsumption,
 }));
 
+// Roman troops
+const IconUnitRomanLegionnaire = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-legionnaire')).IconLegionnaire,
+}));
+const IconUnitRomanPraetorian = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-praetorian')).IconPraetorian,
+}));
+const IconUnitRomanImperian = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-imperian')).IconImperian,
+}));
+const IconUnitRomanEquitesLegati = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-equites-legati')).IconEquitesLegati,
+}));
+const IconUnitRomanEquitesImperatoris = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-equites-imperatoris')).IconEquitesImperatoris,
+}));
+const IconUnitRomanEquitesCaesaris = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-equites-caesaris')).IconEquitesCaesaris,
+}));
+const IconUnitRomanRomanRam = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-roman-ram')).IconRomanRam,
+}));
+const IconUnitRomanFireCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-fire-catapult')).IconFireCatapult,
+}));
+const IconUnitRomanSenator = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-senator')).IconSenator,
+}));
+const IconUnitRomanRomanSettler = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-roman-settler')).IconRomanSettler,
+}));
+
+// Nature troops
+const IconUnitNatureRat = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-rat')).IconRat,
+}));
+const IconUnitNatureSpider = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-spider')).IconSpider,
+}));
+const IconUnitNatureSerpent = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-serpent')).IconSerpent,
+}));
+const IconUnitNatureBat = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-bat')).IconBat,
+}));
+const IconUnitNatureWildBoar = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-wild-boar')).IconWildBoar,
+}));
+const IconUnitNatureWolf = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-wolf')).IconWolf,
+}));
+const IconUnitNatureBear = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-bear')).IconBear,
+}));
+const IconUnitNatureCrocodile = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-crocodile')).IconCrocodile,
+}));
+const IconUnitNatureTiger = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-tiger')).IconTiger,
+}));
+const IconUnitNatureElephant = lazy(async () => ({
+  default: (await import('app/components/icons/troops/nature/icon-elephant')).IconElephant,
+}));
+
 // Variants
 const IconNegativeBonusVariant = lazy(async () => ({
   default: (await import('app/components/icons/variants/icon-negative-bonus-variant')).IconNegativeBonusVariant,
@@ -164,6 +231,22 @@ export type EffectIconType = 'freeCrop' | 'warehouseCapacity' | 'granaryCapacity
 
 export type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
+export type RomanTroopIconType =
+  | 'legionnaire'
+  | 'praetorian'
+  | 'imperian'
+  | 'equitesLegati'
+  | 'equitesImperatoris'
+  | 'equitesCaesaris'
+  | 'romanRam'
+  | 'fireCatapult'
+  | 'senator'
+  | 'romanSettler';
+
+export type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | 'wolf' | 'bear' | 'crocodile' | 'tiger' | 'elephant';
+
+type UnitIconType = RomanTroopIconType | NatureTroopIconType;
+
 type IconType =
   | MissingIconType
   | ReportIconType
@@ -173,6 +256,7 @@ type IconType =
   | TreasureTileIconType
   | BuildingFieldIcons
   | VillageIconType
+  | UnitIconType
   | EffectIconType;
 
 const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
@@ -212,10 +296,34 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   warehouseCapacity: IconWarehouseCapacity,
   granaryCapacity: IconGranaryCapacity,
   buildingDuration: IconBuildingDuration,
+  legionnaire: IconUnitRomanLegionnaire,
+  praetorian: IconUnitRomanPraetorian,
+  imperian: IconUnitRomanImperian,
+  equitesLegati: IconUnitRomanEquitesLegati,
+  equitesImperatoris: IconUnitRomanEquitesImperatoris,
+  equitesCaesaris: IconUnitRomanEquitesCaesaris,
+  romanRam: IconUnitRomanRomanRam,
+  fireCatapult: IconUnitRomanFireCatapult,
+  senator: IconUnitRomanSenator,
+  romanSettler: IconUnitRomanRomanSettler,
+  rat: IconUnitNatureRat,
+  spider: IconUnitNatureSpider,
+  serpent: IconUnitNatureSerpent,
+  bat: IconUnitNatureBat,
+  wildBoar: IconUnitNatureWildBoar,
+  wolf: IconUnitNatureWolf,
+  bear: IconUnitNatureBear,
+  crocodile: IconUnitNatureCrocodile,
+  tiger: IconUnitNatureTiger,
+  elephant: IconUnitNatureElephant,
 };
 
 const IconPlaceholder = () => {
   return <span className="" />;
+};
+
+export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {
+  return camelCase(unitId) as UnitIconType;
 };
 
 export type IconProps = IconBaseProps &

@@ -1,19 +1,20 @@
-import { BuildingField } from 'interfaces/models/game/village';
-import React, { useState } from 'react';
-import { buildings } from 'assets/buildings';
-import { TabList, TabPanel, Tabs } from 'react-tabs';
-import { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
-import { useTranslation } from 'react-i18next';
-import { StyledTab } from 'app/components/styled-tab';
+import { BuildingCard } from 'app/[game]/[village]/components/building-card';
+import { type AssessedBuildingRequirement, assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
+import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useEvents } from 'app/[game]/hooks/use-events';
-import { assessBuildingConstructionReadiness, AssessedBuildingRequirement } from 'app/[game]/[village]/utils/building-requirements';
-import { useVillages } from 'app/[game]/hooks/use-villages';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
-import { BuildingCard } from 'app/[game]/[village]/components/building-card';
-import { partition } from 'lodash-es';
+import { useVillages } from 'app/[game]/hooks/use-villages';
+import { StyledTab } from 'app/components/styled-tab';
+import { buildings } from 'assets/buildings';
 import clsx from 'clsx';
-import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
+import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
+import type { BuildingField } from 'interfaces/models/game/village';
+import { partition } from 'lodash-es';
+import type React from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { TabList, TabPanel, Tabs } from 'react-tabs';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -100,7 +101,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
           )}
         </>
       )}
-      {hasNoAvailableBuildings && <>No buildings available</>}
+      {hasNoAvailableBuildings && <p>No buildings available</p>}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Reputation } from 'interfaces/models/game/reputation';
+import type { Reputation } from 'interfaces/models/game/reputation';
 import { npcReputationMock, playerReputationMock } from 'mocks/models/game/reputation-mock';
 
 export const reputationsMock: Reputation[] = [

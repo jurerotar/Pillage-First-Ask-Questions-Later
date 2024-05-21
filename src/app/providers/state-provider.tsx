@@ -1,5 +1,5 @@
-import React, { FCWithChildren, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { type FCWithChildren, useState } from 'react';
 
 type StateProviderProps = {
   queryClient?: QueryClient;
@@ -11,7 +11,7 @@ export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, qu
       new QueryClient({
         defaultOptions: {
           queries: {
-            gcTime: Infinity,
+            gcTime: Number.POSITIVE_INFINITY,
             networkMode: 'always',
           },
           mutations: {

@@ -1,6 +1,6 @@
-import React, { createContext, FCWithChildren, useCallback, useContext, useMemo, useState } from 'react';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useViewport } from 'app/providers/viewport-context';
+import React, { createContext, type FCWithChildren, useCallback, useContext, useMemo, useState } from 'react';
 
 export type MapProviderValues = {
   magnification: number;

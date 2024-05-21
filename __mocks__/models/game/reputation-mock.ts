@@ -1,5 +1,5 @@
+import type { Reputation } from 'interfaces/models/game/reputation';
 import { serverMock } from 'mocks/models/game/server-mock';
-import { Reputation } from 'interfaces/models/game/reputation';
 
 export const playerReputationMock: Reputation = {
   serverId: serverMock.id,

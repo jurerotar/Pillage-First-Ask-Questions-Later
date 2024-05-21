@@ -1,6 +1,6 @@
-import { Server } from 'interfaces/models/game/server';
-import { database } from 'database/database';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { database } from 'database/database';
+import type { Server } from 'interfaces/models/game/server';
 
 export const availableServerCacheKey = 'available-servers';
 

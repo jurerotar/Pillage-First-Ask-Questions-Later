@@ -1,19 +1,20 @@
-import React, { Suspense } from 'react';
-import { Await, Link, Outlet, useRouteLoaderData } from 'react-router-dom';
-import { GameLayoutSkeleton } from 'app/[game]/skeleton';
-import { useViewport } from 'app/providers/viewport-context';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
+import { useCurrentResources } from 'app/[game]/hooks/use-current-resources';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { Resource } from 'interfaces/models/game/resource';
+import { GameLayoutSkeleton } from 'app/[game]/skeleton';
 import { Icon } from 'app/components/icon';
+import { useViewport } from 'app/providers/viewport-context';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
+import type { Resource } from 'interfaces/models/game/resource';
+import type React from 'react';
+import { Suspense } from 'react';
 import { GiWheat } from 'react-icons/gi';
-import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
+import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
-import { useCurrentResources } from 'app/[game]/hooks/use-current-resources';
+import { Await, Link, Outlet, useRouteLoaderData } from 'react-router-dom';
 
 type ResourceCounterProps = {
   resource: Resource;

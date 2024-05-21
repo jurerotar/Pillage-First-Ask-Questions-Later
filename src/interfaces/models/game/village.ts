@@ -1,8 +1,8 @@
-import { Point } from 'interfaces/models/common';
-import { Resources } from 'interfaces/models/game/resource';
-import { Building } from 'interfaces/models/game/building';
-import { Server } from 'interfaces/models/game/server';
-import { Player } from 'interfaces/models/game/player';
+import type { Point } from 'interfaces/models/common';
+import type { Building } from 'interfaces/models/game/building';
+import type { Player } from 'interfaces/models/game/player';
+import type { Resources } from 'interfaces/models/game/resource';
+import type { Server } from 'interfaces/models/game/server';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -39,7 +39,8 @@ export type Village = {
   serverId: Server['id'];
   playerId: Player['id'];
   name: string;
-  slug: string;
+  // Only user villages need a slug
+  slug: string | null;
   lastUpdatedAt: number;
   coordinates: Point;
   resources: Resources;

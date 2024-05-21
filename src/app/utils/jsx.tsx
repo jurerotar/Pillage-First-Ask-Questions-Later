@@ -1,4 +1,5 @@
-import React, { FCWithChildren } from 'react';
+import type React from 'react';
+import type { FCWithChildren } from 'react';
 
 export const composeComponents = (WrappedComponent: React.ReactNode, Layout: FCWithChildren[]) => {
   const InitialComponent: FCWithChildren = ({ children }) => children;

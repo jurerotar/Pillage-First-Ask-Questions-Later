@@ -1,9 +1,10 @@
-import { Unit } from 'interfaces/models/game/unit';
-import { Village } from 'interfaces/models/game/village';
-import { WithServerId } from 'interfaces/models/game/server';
+import type { WithServerId } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
+import type { Unit } from 'interfaces/models/game/unit';
 
 export type Troop = WithServerId<{
   unitId: Unit['id'];
   amount: number;
-  villageId: Village['id'];
+  tileId: Tile['id'];
+  role: 'own' | 'reinforcements';
 }>;

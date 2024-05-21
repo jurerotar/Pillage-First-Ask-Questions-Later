@@ -1,7 +1,6 @@
 // TODO: Some units have missing values, fill them in and remove the ts-nocheck comment
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Unit } from 'interfaces/models/game/unit';
+import type { Unit } from 'interfaces/models/game/unit';
 
 export const romanUnits: Unit[] = [
   {
@@ -104,7 +103,7 @@ export const romanUnits: Unit[] = [
     ],
   },
   {
-    id: 'BATTERING_RAM',
+    id: 'ROMAN_RAM',
     baseRecruitmentCost: [900, 360, 500, 70],
     baseRecruitmentTime: 4600,
     cropConsumption: 3,

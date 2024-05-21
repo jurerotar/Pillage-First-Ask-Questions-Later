@@ -1,4 +1,4 @@
-import { ReputationLevel } from 'interfaces/models/game/reputation';
+import type { ReputationLevel } from 'interfaces/models/game/reputation';
 
 export const reputationColorMap = new Map<ReputationLevel, Record<'border' | 'text', string>>([
   ['player', { border: 'border-reputation-player', text: 'text-reputation-player' }],

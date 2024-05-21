@@ -1,10 +1,10 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { Effect, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { globalEffectGuard, serverEffectGuard, villageEffectGuard } from 'app/[game]/utils/guards/effect-guards';
+import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/[game]/utils/guards/effect-guards';
+import { database } from 'database/database';
+import type { Effect, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
+import type { Server } from 'interfaces/models/game/server';
 
 export const effectsCacheKey = 'effects';
 
@@ -20,9 +20,9 @@ export const useEffects = () => {
     initialData: [],
   });
 
-  const serverEffects: ServerEffect[] = effects.filter(serverEffectGuard);
-  const globalEffects: GlobalEffect[] = effects.filter(globalEffectGuard);
-  const villageEffects: VillageEffect[] = effects.filter(villageEffectGuard);
+  const serverEffects: ServerEffect[] = effects.filter(isServerEffect);
+  const globalEffects: GlobalEffect[] = effects.filter(isGlobalEffect);
+  const villageEffects: VillageEffect[] = effects.filter(isVillageEffect);
   const currentVillageEffects: VillageEffect[] = villageEffects.filter(({ villageId }) => villageId === currentVillageId);
 
   return {

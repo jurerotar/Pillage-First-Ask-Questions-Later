@@ -1,5 +1,5 @@
-import { Effect } from 'interfaces/models/game/effect';
-import { Tribe } from 'interfaces/models/game/tribe';
+import type { Effect } from 'interfaces/models/game/effect';
+import type { Tribe } from 'interfaces/models/game/tribe';
 
 export type BuildingId =
   | 'CLAY_PIT'

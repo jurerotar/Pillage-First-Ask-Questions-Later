@@ -1,10 +1,10 @@
-import React from 'react';
-import { Head } from 'app/components/head';
 import { BuildingField } from 'app/[game]/[village]/components/building-field';
-import { BuildingField as BuildingFieldType } from 'interfaces/models/game/village';
-import { Tooltip } from 'app/components/tooltip';
 import { BuildingFieldTooltip } from 'app/[game]/components/building-field-tooltip';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
+import { Head } from 'app/components/head';
+import { Tooltip } from 'app/components/tooltip';
+import type { BuildingField as BuildingFieldType } from 'interfaces/models/game/village';
+import type React from 'react';
 import { Link } from 'react-router-dom';
 
 export const VillagePage: React.FC = () => {

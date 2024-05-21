@@ -1,11 +1,11 @@
-import React from 'react';
-import { Server } from 'interfaces/models/game/server';
-import { Link } from 'react-router-dom';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { Button } from 'app/components/buttons/button';
+import { CloseButton } from 'app/components/buttons/close-button';
+import { useAvailableServers } from 'app/hooks/use-available-servers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { CloseButton } from 'app/components/buttons/close-button';
+import type { Server } from 'interfaces/models/game/server';
+import type React from 'react';
+import { Link } from 'react-router-dom';
 
 dayjs.extend(relativeTime);
 

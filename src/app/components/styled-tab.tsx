@@ -1,6 +1,6 @@
-import React from 'react';
-import { ReactTabsFunctionComponent, Tab, TabProps } from 'react-tabs';
 import clsx from 'clsx';
+import React from 'react';
+import { type ReactTabsFunctionComponent, Tab, type TabProps } from 'react-tabs';
 
 type StyledTabProps = TabProps & {
   variant?: 'default';

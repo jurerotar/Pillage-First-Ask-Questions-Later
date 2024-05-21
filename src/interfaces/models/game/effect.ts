@@ -1,5 +1,5 @@
-import { BuildingField, Village } from 'interfaces/models/game/village';
-import { WithServerId } from 'interfaces/models/game/server';
+import type { WithServerId } from 'interfaces/models/game/server';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'

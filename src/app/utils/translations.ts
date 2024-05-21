@@ -1,7 +1,7 @@
-import { Tribe } from 'interfaces/models/game/tribe';
-import { ReputationLevel } from 'interfaces/models/game/reputation';
-import { PlayerFaction } from 'interfaces/models/game/player';
-import { Resource } from 'interfaces/models/game/resource';
+import type { PlayerFaction } from 'interfaces/models/game/player';
+import type { ReputationLevel } from 'interfaces/models/game/reputation';
+import type { Resource } from 'interfaces/models/game/resource';
+import type { Tribe } from 'interfaces/models/game/tribe';
 
 export const resourceTranslationMap = new Map<Resource, string>([
   ['wood', 'RESOURCES.WOOD'],

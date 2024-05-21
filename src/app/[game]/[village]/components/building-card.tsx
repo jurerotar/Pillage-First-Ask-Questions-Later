@@ -1,16 +1,16 @@
-import React from 'react';
-import { Building } from 'interfaces/models/game/building';
-import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
-import { BuildingField } from 'interfaces/models/game/village';
+import { type AssessedBuildingRequirement, assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { GameEventType } from 'interfaces/models/events/game-event';
-import { getBuildingData } from 'app/[game]/utils/common';
-import { useTranslation } from 'react-i18next';
-import { Button } from 'app/components/buttons/button';
-import { assessBuildingConstructionReadiness, AssessedBuildingRequirement } from 'app/[game]/[village]/utils/building-requirements';
+import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
+import { getBuildingData } from 'app/[game]/utils/common';
+import { Button } from 'app/components/buttons/button';
 import clsx from 'clsx';
+import { GameEventType } from 'interfaces/models/events/game-event';
+import type { Building } from 'interfaces/models/game/building';
+import type { BuildingField } from 'interfaces/models/game/village';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -21,15 +21,19 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   const { t } = useTranslation();
   const { tribe } = useTribe();
   const { playerVillages } = useVillages();
-  const { currentVillage, currentVillageId, canDemolishBuildings } = useCurrentVillage();
+  const { currentVillage, canDemolishBuildings } = useCurrentVillage();
   const { currentVillageBuildingEvents } = useEvents();
   const createBuildingConstructionEvent = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
   const createBuildingLevelChangeEvent = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
   const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
 
+  const { events } = useEvents();
+
+  console.log(events);
+
   const building = getBuildingData(buildingId);
   const buildingLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
-  const doesBuildingExist = buildingLevel > 0;
+  const doesBuildingExist = !!building;
 
   const { canBuild, assessedRequirements } = assessBuildingConstructionReadiness({
     buildingId,
@@ -43,43 +47,45 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
     createBuildingConstructionEvent({
       buildingFieldId,
       building,
-      villageId: currentVillageId,
       resolvesAt: Date.now(),
+      resourceCost: building.buildingCost[0],
     });
 
     createBuildingLevelChangeEvent({
       buildingFieldId,
       level: 1,
-      villageId: currentVillageId,
       resolvesAt: Date.now() + 5000,
       building,
+      // Cost can be 0, since it's already accounted for in the construction event
+      resourceCost: [0, 0, 0, 0],
     });
   };
 
   const upgradeBuilding = () => {
+    const level = buildingLevel + 1;
+
     createBuildingLevelChangeEvent({
       resolvesAt: Date.now() + 500,
-      villageId: currentVillageId,
       buildingFieldId,
-      level: buildingLevel + 1,
+      level,
       building,
+      resourceCost: building.buildingCost[level],
     });
   };
 
   const downgradeBuilding = () => {
     createBuildingLevelChangeEvent({
       resolvesAt: Date.now() + 5000,
-      villageId: currentVillageId,
       buildingFieldId,
       level: buildingLevel - 1,
       building,
+      resourceCost: [0, 0, 0, 0],
     });
   };
 
   const demolishBuilding = () => {
     createBuildingDestructionEvent({
       resolvesAt: Date.now() + 5000,
-      villageId: currentVillageId,
       buildingFieldId,
       building,
     });
@@ -100,7 +106,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
                 variant="confirm"
                 onClick={upgradeBuilding}
               >
-                Construct
+                Upgrade
               </Button>
               {canDemolishBuildings && (
                 <>

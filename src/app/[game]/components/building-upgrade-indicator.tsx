@@ -1,10 +1,10 @@
-import { BuildingField } from 'interfaces/models/game/village';
-import React from 'react';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { BorderIndicator, BorderIndicatorVariant } from 'app/[game]/components/border-indicator';
-import { getBuildingDataForLevel } from 'app/[game]/utils/common';
+import { BorderIndicator, type BorderIndicatorVariant } from 'app/[game]/components/border-indicator';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useCurrentResources } from 'app/[game]/hooks/use-current-resources';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { getBuildingDataForLevel } from 'app/[game]/utils/common';
+import type { BuildingField } from 'interfaces/models/game/village';
+import type React from 'react';
 
 type BuildingUpgradeIndicatorProps = {
   buildingFieldId: BuildingField['id'];

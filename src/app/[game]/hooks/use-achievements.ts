@@ -1,8 +1,8 @@
-import { database } from 'database/database';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { Achievement } from 'interfaces/models/game/achievement';
 import { useQuery } from '@tanstack/react-query';
-import { Server } from 'interfaces/models/game/server';
+import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { database } from 'database/database';
+import type { Achievement } from 'interfaces/models/game/achievement';
+import type { Server } from 'interfaces/models/game/server';
 
 export const achievementsCacheKey = 'achievements';
 

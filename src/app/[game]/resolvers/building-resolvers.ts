@@ -1,9 +1,9 @@
-import { BuildingField, Village } from 'interfaces/models/game/village';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { database } from 'database/database';
-import { Resolver } from 'interfaces/models/common';
-import { BuildingId } from 'interfaces/models/game/building';
-import { GameEventType } from 'interfaces/models/events/game-event';
+import type { Resolver } from 'interfaces/models/common';
+import type { GameEventType } from 'interfaces/models/events/game-event';
+import type { BuildingId } from 'interfaces/models/game/building';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 const updateBuildingFieldLevel = (
   villages: Village[],
@@ -99,7 +99,7 @@ export const buildingDestructionResolver: Resolver<GameEventType.BUILDING_DESTRU
   const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
 
   if (specialFieldIds.includes(buildingFieldId)) {
-    buildingLevelChangeResolver({ ...args, level: 0 }, queryClient);
+    await buildingLevelChangeResolver({ ...args, resourceCost: [0, 0, 0, 0], level: 0 }, queryClient);
     return;
   }
 

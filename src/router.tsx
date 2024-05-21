@@ -1,7 +1,7 @@
-import React, { lazy } from 'react';
-import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
 import { gameLoader } from 'app/[game]/loader';
 import { AppLayout } from 'app/layout';
+import React, { lazy } from 'react';
+import { Route, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 
 const PublicLayout = lazy(async () => ({ default: (await import('app/[public]/layout')).PublicLayout }));
 const HomePage = lazy(async () => ({ default: (await import('app/[public]/[index]/page')).HomePage }));

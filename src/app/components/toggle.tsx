@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 import clsx from 'clsx';
+import type React from 'react';
+import { useState } from 'react';
 
 type ToggleProps = {
   id: string;
