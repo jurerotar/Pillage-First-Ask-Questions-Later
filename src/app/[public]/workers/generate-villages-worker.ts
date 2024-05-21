@@ -1,4 +1,4 @@
-import { villageFactory } from 'app/factories/village-factory';
+import { npcVillageFactory, userVillageFactory } from 'app/factories/village-factory';
 import { database } from 'database/database';
 import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
@@ -21,7 +21,7 @@ self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorke
 
   const userPlayer = players.find(({ faction }) => faction === 'player')!;
   const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
-  const playerStartingVillage = villageFactory({ server, player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
+  const playerStartingVillage = userVillageFactory({ server, player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
   // Send the player starting village asap, because it's needed in other factories
   self.postMessage({ playerStartingVillage });
@@ -30,13 +30,11 @@ self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorke
 
   const villages: Village[] = npcOccupiedTiles.map((tile) => {
     const player = players.find(({ id }) => tile.ownedBy === id)!;
-
-    const slug = player.faction === 'player' ? 'v-1' : tile.id;
-    return villageFactory({ server, player, tile, slug });
+    return npcVillageFactory({ server, player, tile });
   });
 
   const promises = [];
-  const chunkedVillages = chunk(villages, 300);
+  const chunkedVillages = chunk([playerStartingVillage, ...villages], 300);
 
   for (let i = 0; i < chunkedVillages.length; i += 1) {
     promises.push(database.villages.bulkAdd(chunkedVillages[i]));

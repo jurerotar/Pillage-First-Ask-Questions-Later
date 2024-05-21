@@ -7,7 +7,7 @@ import {
 } from 'assets/village-presets';
 import type { BuildingId } from 'interfaces/models/game/building';
 import type { Player } from 'interfaces/models/game/player';
-import type { Resource } from 'interfaces/models/game/resource';
+import type { Resource, Resources } from 'interfaces/models/game/resource';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import type { Tribe } from 'interfaces/models/game/tribe';
@@ -195,7 +195,15 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
   },
 };
 
-const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout): BuildingField[] => {
+const villageSizeToResourceFieldsLevel = new Map<OccupiedOccupiableTile['villageSize'] | 'player', number>([
+  ['player', 0],
+  ['xs', 3],
+  ['sm', 5],
+  ['md', 8],
+  ['lg', 10],
+]);
+
+const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout, level: number): BuildingField[] => {
   const resourceTypeToResourceBuildingIdMap = new Map<Resource, BuildingId>([
     ['wood', 'WOODCUTTER'],
     ['clay', 'CLAY_PIT'],
@@ -208,18 +216,41 @@ const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: Resource
     const type = resourceFieldLayout[buildingFieldId];
     return {
       id: Number(buildingFieldId) as ResourceFieldId,
-      level: 0,
+      level,
       buildingId: resourceTypeToResourceBuildingIdMap.get(type)!,
     };
   });
 };
 
-const getVillageResourceFields = (resourceFieldComposition: ResourceFieldComposition): BuildingField[] => {
+const getVillageResourceFields = (
+  resourceFieldComposition: ResourceFieldComposition,
+  villageSize: OccupiedOccupiableTile['villageSize'] | 'player'
+): BuildingField[] => {
   const resourceFieldsLayout = resourceFieldsLayouts[resourceFieldComposition];
-  return convertResourceFieldLayoutToResourceField(resourceFieldsLayout);
+  const resourceFieldsLevel = villageSizeToResourceFieldsLevel.get(villageSize)!;
+  return convertResourceFieldLayoutToResourceField(resourceFieldsLayout, resourceFieldsLevel);
 };
 
-const getNewVillageBuildingFields = (tribe: Tribe): BuildingField[] => {
+// TODO: Resources should be affected by village size as well
+const getVillageResources = (villageSize: OccupiedOccupiableTile['villageSize'] | 'player'): Resources => {
+  if (villageSize === 'player') {
+    return {
+      wood: 750,
+      clay: 750,
+      iron: 750,
+      wheat: 750,
+    };
+  }
+  return {
+    wood: 750,
+    clay: 750,
+    iron: 750,
+    wheat: 750,
+  };
+};
+
+// TODO: NPC villages must also have different level buildings created
+const getNewVillageBuildingFields = (tribe: Tribe, _villageSize: OccupiedOccupiableTile['villageSize'] | 'player'): BuildingField[] => {
   const tribeToNewVillageBuildingFieldsMap = new Map<Tribe, BuildingField[]>([
     ['romans', romanNewVillageBuildingFieldsPreset],
     ['gauls', gaulNewVillageBuildingFieldsPreset],
@@ -238,12 +269,12 @@ type VillageFactoryProps = {
   slug: Village['slug'];
 };
 
-export const villageFactory = ({ server, tile, player, slug }: VillageFactoryProps): Village => {
+export const userVillageFactory = ({ server, tile, player, slug }: VillageFactoryProps): Village => {
   const { coordinates, resourceFieldComposition } = tile;
 
   const { id: playerId, name, tribe } = player;
 
-  const buildingFields = [...getVillageResourceFields(resourceFieldComposition), ...getNewVillageBuildingFields(tribe)];
+  const buildingFields = [...getVillageResourceFields(resourceFieldComposition, 'player'), ...getNewVillageBuildingFields(tribe, 'player')];
 
   return {
     serverId: server.id,
@@ -253,7 +284,7 @@ export const villageFactory = ({ server, tile, player, slug }: VillageFactoryPro
     coordinates,
     buildingFields,
     playerId,
-    isCapital: false,
+    isCapital: true,
     lastUpdatedAt: Date.now(),
     resources: {
       wood: 750,
@@ -261,5 +292,31 @@ export const villageFactory = ({ server, tile, player, slug }: VillageFactoryPro
       iron: 750,
       wheat: 750,
     },
+  };
+};
+
+type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'>;
+
+export const npcVillageFactory = ({ server, tile, player }: NpcVillageFactoryProps): Village => {
+  const { coordinates, resourceFieldComposition, villageSize } = tile;
+
+  const { id: playerId, name, tribe } = player;
+
+  const buildingFields = [
+    ...getVillageResourceFields(resourceFieldComposition, villageSize),
+    ...getNewVillageBuildingFields(tribe, villageSize),
+  ];
+
+  return {
+    serverId: server.id,
+    id: tile.id,
+    name: `${name}'s village`,
+    slug: null,
+    coordinates,
+    buildingFields,
+    playerId,
+    isCapital: false,
+    lastUpdatedAt: Date.now(),
+    resources: getVillageResources(villageSize),
   };
 };

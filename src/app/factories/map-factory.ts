@@ -19,206 +19,93 @@ import type {
 } from 'interfaces/models/game/tile';
 import type { ResourceFieldComposition } from 'interfaces/models/game/village';
 
-export type OasisShapes = Record<
-  Resource,
-  {
-    backgroundColor: string;
-    shapes: Array<{
-      group: number;
-      shape: number[][];
-    }>;
-  }
->;
+export type OasisShapes = Record<Resource, Array<{ group: number; shape: number[] }>>;
 
 const oasisShapes: OasisShapes = {
-  wheat: {
-    backgroundColor: '#FFF600',
-    shapes: [
-      {
-        group: 1,
-        shape: [
-          [0, 1, 1],
-          [0, 1, 1],
-        ],
-      },
-      {
-        group: 2,
-        shape: [[0, 1, 1]],
-      },
-      {
-        group: 3,
-        shape: [
-          [0, 1, 3],
-          [0, 1, 2],
-          [1, 1, 2],
-          [0, 1, 1],
-        ],
-      },
-      {
-        group: 4,
-        shape: [
-          [0, 1, 1],
-          [0, 1, 2],
-          [0, 1, 2],
-        ],
-      },
-      {
-        group: 5,
-        shape: [
-          [0, 1, 1],
-          [1, 1, 2],
-          [1, 1, 1],
-          [1, 1, 0],
-        ],
-      },
-      {
-        group: 6,
-        shape: [
-          [0, 1, 0],
-          [0, 1, 0],
-        ],
-      },
-      // {
-      //   group: 6,
-      //   shape: [
-      //     [0, 1, 2],
-      //     [0, 1, 2],
-      //     [0, 1, 3],
-      //     [0, 0, 3]
-      //   ]
-      // },
-    ],
-  },
-  iron: {
-    backgroundColor: '#7B90A1',
-    shapes: [
-      {
-        group: 1,
-        shape: [
-          [0, 1, 2],
-          [0, 1, 2],
-        ],
-      },
-      {
-        group: 2,
-        shape: [
-          [0, 1, 0],
-          [0, 1, 1],
-        ],
-      },
-      {
-        group: 3,
-        shape: [[0, 1, 1]],
-      },
-      {
-        group: 4,
-        shape: [
-          [0, 1, 1],
-          [0, 1, 0],
-          [0, 1, 0],
-        ],
-      },
-      {
-        group: 5,
-        shape: [
-          [0, 1, 1],
-          [0, 1, 2],
-          [0, 1, 2],
-        ],
-      },
-      {
-        group: 8,
-        shape: [
-          [0, 1, 0],
-          [0, 1, 0],
-        ],
-      },
-    ],
-  },
-  wood: {
-    backgroundColor: '#426002',
-    shapes: [
-      {
-        group: 1,
-        shape: [[0, 1, 1]],
-      },
-      {
-        group: 2,
-        shape: [
-          [0, 1, 1],
-          [0, 0, 1],
-          [0, 0, 1],
-        ],
-      },
-      {
-        group: 3,
-        shape: [
-          [0, 1, 2],
-          [0, 0, 1],
-        ],
-      },
-      {
-        group: 4,
-        shape: [
-          [0, 1, 1],
-          [0, 1, 0],
-          [0, 1, 0],
-        ],
-      },
-      {
-        group: 5,
-        shape: [
-          [0, 1, 0],
-          [0, 1, 0],
-        ],
-      },
-      {
-        group: 6,
-        shape: [
-          [1, 0, 1],
-          [1, 1, 1],
-        ],
-      },
-    ],
-  },
-  clay: {
-    backgroundColor: '#C29760',
-    shapes: [
-      {
-        group: 1,
-        shape: [
-          [0, 1, 0],
-          [0, 1, 1],
-        ],
-      },
-      {
-        group: 2,
-        shape: [
-          [0, 1, 1],
-          [0, 0, 1],
-        ],
-      },
-      {
-        group: 3,
-        shape: [
-          [0, 1, 1],
-          [0, 1, 0],
-        ],
-      },
-      {
-        group: 4,
-        shape: [
-          [0, 1, 0],
-          [0, 1, 1],
-          [0, 0, 1],
-        ],
-      },
-      {
-        group: 5,
-        shape: [[0, 1, 1]],
-      },
-    ],
-  },
+  wheat: [
+    {
+      group: 1,
+      shape: [2, 2],
+    },
+    {
+      group: 2,
+      shape: [2],
+    },
+    {
+      group: 3,
+      shape: [3, 3, 2],
+    },
+    {
+      group: 4,
+      shape: [1, 3, 3],
+    },
+    {
+      group: 5,
+      shape: [3, 3],
+    },
+  ],
+  iron: [
+    {
+      group: 1,
+      shape: [3, 3],
+    },
+    {
+      group: 2,
+      shape: [1, 2],
+    },
+    {
+      group: 3,
+      shape: [2],
+    },
+    {
+      group: 4,
+      shape: [2, 1, 1],
+    },
+    {
+      group: 5,
+      shape: [2, 3, 3],
+    },
+    {
+      group: 8,
+      shape: [1, 1],
+    },
+  ],
+  wood: [
+    {
+      group: 1,
+      shape: [2],
+    },
+    {
+      group: 2,
+      shape: [2, 2, 3],
+    },
+    {
+      group: 3,
+      shape: [3, 2],
+    },
+    {
+      group: 4,
+      shape: [2, 1],
+    },
+  ],
+  clay: [
+    {
+      group: 1,
+      shape: [2, 1],
+    },
+    {
+      group: 2,
+      shape: [2, 3],
+    },
+    {
+      group: 3,
+      shape: [1, 1],
+    },
+    {
+      group: 4,
+      shape: [2],
+    },
+  ],
 };
 
 type Distances = {
@@ -307,8 +194,6 @@ const generateOasisTile = (
 
   const isResourceCombination = resourceType.includes('-');
 
-  // wood-wheat -> wood
-  const typeForGraphic = (isResourceCombination ? resourceType.split('-')[0] : resourceType) as Resource;
   const willOasisHaveABonus = seededRandomIntFromInterval(tile.id, 1, 3) >= 2;
 
   const oasisResourceBonus = ((): OasisResourceBonus[] => {
@@ -334,14 +219,22 @@ const generateOasisTile = (
     ];
   })();
 
+  const oasisResource = (() => {
+    if (isResourceCombination) {
+      return (resourceType.split('-') as Resource[])[0];
+    }
+
+    return resourceType;
+  })() as Resource;
+
   return {
     ...tile,
     type: 'oasis-tile',
     oasisResourceBonus,
     villageId: null,
     graphics: {
+      oasisResource,
       oasisGroup,
-      backgroundColor: oasisShapes[typeForGraphic].backgroundColor,
       oasisGroupPosition,
     },
   };
@@ -478,7 +371,8 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
     {} as Record<string, MaybeOccupiedBaseTile>
   );
 
-  for (const currentTile of tilesWithOasisShapes) {
+  for (let i = 0; i < tilesWithOasisShapes.length; i += 1) {
+    const currentTile = tilesWithOasisShapes[i];
     if (Object.hasOwn(currentTile, 'type')) {
       continue; // Skip already occupied tiles
     }
@@ -492,34 +386,30 @@ const generateShapedOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
     const { coordinates: tileCoordinates } = currentTile;
     const resourceType: Resource = seededRandomArrayElement<Resource>(currentTile.id, ['wheat', 'iron', 'clay', 'wood']);
     const oasisShapesForResource = oasisShapes[resourceType];
-    const selectedOasis = seededRandomArrayElement(currentTile.id, oasisShapesForResource.shapes);
-    const { group: oasisGroup, shape: originalShape } = selectedOasis;
+    const selectedOasis = seededRandomArrayElement(currentTile.id, oasisShapesForResource);
+    const { group: oasisGroup, shape: oasisShape } = selectedOasis;
 
     const tilesToUpdate: BaseTile[] = [];
     const oasisGroupPositions: number[][] = [];
 
-    outerLoop: for (let y = 0; y < originalShape.length; y++) {
-      const row = originalShape[y];
-      for (let x = 0; x < row.length; x++) {
-        const [xMovementLeft, hasMiddleField, xMovementRight] = row;
-        for (let dx = -xMovementLeft; dx <= xMovementRight; dx++) {
-          if (!(dx === 0 && !hasMiddleField)) {
-            const coordsKey = `${tileCoordinates.x + dx},${tileCoordinates.y - y}`;
-            const tile = tilesByCoordinates[coordsKey];
-            if (!tile || Object.hasOwn(tile, 'type')) {
-              break outerLoop; // Move to the next tile
-            }
-            tilesToUpdate.push(tile);
-            oasisGroupPositions.push([y, dx]);
-          }
-        }
-      }
-    }
+    outer: for (let k = 0; k < oasisShape.length; k += 1) {
+      const amountOfTiles = oasisShape[k];
+      for (let j = 0; j < amountOfTiles; j += 1) {
+        const tile: MaybeOccupiedBaseTile | undefined = tilesByCoordinates[`${j + tileCoordinates.x},${tileCoordinates.y - k}`];
 
-    tilesToUpdate.forEach((tile, index) => {
-      const oasisTile = generateOasisTile(tile, oasisGroup, oasisGroupPositions[index], resourceType);
-      Object.assign(tile, oasisTile);
-    });
+        if (!tile || Object.hasOwn(tile, 'type')) {
+          break outer;
+        }
+
+        oasisGroupPositions.push([k, j]);
+        tilesToUpdate.push(tile);
+      }
+
+      tilesToUpdate.forEach((tile, index) => {
+        const oasisTile = generateOasisTile(tile, oasisGroup, oasisGroupPositions[index], resourceType);
+        Object.assign(tile, oasisTile);
+      });
+    }
   }
 
   return tilesWithOasisShapes;
@@ -529,10 +419,10 @@ const generateSingleOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
   // To make world feel more alive and give player more options, we sprinkle a bunch of 1x1 oasis on empty fields as well
   return tiles.map((tile: MaybeOccupiedBaseTile) => {
     // If field is already an oasis, or a free field, continue
-    if (Object.hasOwn(tile, 'type') || Object.hasOwn(tile, 'oasisType')) {
+    if (Object.hasOwn(tile, 'type')) {
       return tile;
     }
-    const willBeOccupied = seededRandomIntFromInterval(tile.id, 1, 5) === 1;
+    const willBeOccupied = seededRandomIntFromInterval(tile.id, 1, 20) === 1;
     if (!willBeOccupied) {
       return tile;
     }
@@ -543,7 +433,7 @@ const generateSingleOasisFields = (tiles: MaybeOccupiedBaseTile[]): MaybeOccupie
 
 const generateOccupiableTileTypes = (tiles: MaybeOccupiedOrOasisBaseTile[]): MaybeOccupiedOrOasisOccupiableTile[] => {
   return tiles.map((tile: MaybeOccupiedOrOasisBaseTile) => {
-    if (Object.hasOwn(tile, 'type') || Object.hasOwn(tile, 'oasisType')) {
+    if (Object.hasOwn(tile, 'type')) {
       return tile as MaybeOccupiedOrOasisOccupiableTile;
     }
     return {

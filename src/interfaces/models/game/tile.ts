@@ -7,10 +7,6 @@ import type { ResourceFieldComposition, Village } from 'interfaces/models/game/v
 export type BaseTile = WithServerId<{
   id: string;
   coordinates: Point;
-  // Both backgroundColor & oasisGroup will be replaced by an actual graphic once they exist
-  graphics: {
-    backgroundColor: string;
-  };
 }>;
 
 export type OasisResourceBonus = {
@@ -22,6 +18,7 @@ export type OasisTile = BaseTile & {
   type: 'oasis-tile';
   oasisResourceBonus: OasisResourceBonus[];
   graphics: {
+    oasisResource: Resource;
     // Different oasis groups have different graphics
     oasisGroup: number;
     // Position in the oasisShape matrix [rowIndex, columnIndex]

@@ -39,7 +39,8 @@ export type Village = {
   serverId: Server['id'];
   playerId: Player['id'];
   name: string;
-  slug: string;
+  // Only user villages need a slug
+  slug: string | null;
   lastUpdatedAt: number;
   coordinates: Point;
   resources: Resources;

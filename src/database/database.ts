@@ -40,8 +40,6 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['troops', ['serverId,[serverId+villageId]']],
 ]);
 
-export const TABLE_NAMES = TABLES.keys();
-
 // https://dexie.org/docs/Version/Version.stores()
 export class Database extends Dexie {
   // Common tables
