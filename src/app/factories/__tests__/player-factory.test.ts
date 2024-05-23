@@ -1,8 +1,10 @@
 import { playerFactory } from 'app/factories/player-factory';
 import { serverMock } from 'mocks/models/game/server-mock';
+import { prng_alea } from 'esm-seedrandom';
 
 describe('Player factory', () => {
-  const player = playerFactory({ server: serverMock, faction: 'npc1', index: 1 });
+  const prng = prng_alea(serverMock.seed);
+  const player = playerFactory({ server: serverMock, faction: 'npc1', prng });
 
   test('Has correct server id', () => {
     expect(player.serverId).toBe(serverMock.id);
