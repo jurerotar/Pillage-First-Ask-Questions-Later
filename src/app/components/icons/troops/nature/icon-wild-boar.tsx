@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiBoar } from 'react-icons/gi';
 
 export const IconWildBoar = () => {

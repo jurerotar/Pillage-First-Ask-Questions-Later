@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaWheatAwnCircleExclamation } from 'react-icons/fa6';
 
 export const IconFreeCrop = () => {

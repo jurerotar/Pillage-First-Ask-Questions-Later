@@ -1,4 +1,3 @@
-import React from 'react';
 import { CgTimelapse } from 'react-icons/cg';
 
 export const IconBuildingDuration = () => {

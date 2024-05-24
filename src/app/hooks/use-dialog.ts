@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { startTransition, useCallback, useRef, useState } from 'react';
 
 export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
   const [isOpen, setIsOpen] = useState<boolean>(isOpenInitially);
@@ -11,7 +11,9 @@ export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
 
   const openModal = useCallback((data?: TArgs) => {
     modalArgs.current = data ?? null;
-    setIsOpen(true);
+    startTransition(() => {
+      setIsOpen(true);
+    });
   }, []);
 
   const toggleModal = useCallback(() => {

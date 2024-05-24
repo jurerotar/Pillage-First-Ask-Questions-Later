@@ -27,10 +27,6 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   const createBuildingLevelChangeEvent = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
   const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
 
-  const { events } = useEvents();
-
-  console.log(events);
-
   const building = getBuildingData(buildingId);
   const buildingLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
   const doesBuildingExist = !!building;

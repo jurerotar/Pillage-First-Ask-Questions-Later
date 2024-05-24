@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiSaberToothedCatHead } from 'react-icons/gi';
 
 export const IconTiger = () => {

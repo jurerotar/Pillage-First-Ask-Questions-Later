@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiWoodPile } from 'react-icons/gi';
 
 export const IconWood = () => {

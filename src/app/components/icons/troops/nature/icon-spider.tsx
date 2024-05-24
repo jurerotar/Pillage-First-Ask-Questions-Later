@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaSpider } from 'react-icons/fa';
 
 export const IconSpider = () => {

@@ -17,7 +17,6 @@ import { type GameEvent, GameEventType } from 'interfaces/models/events/game-eve
 import type { Effect } from 'interfaces/models/game/effect';
 import type { Server } from 'interfaces/models/game/server';
 import type { Village } from 'interfaces/models/game/village';
-import { findLastIndex } from 'lodash-es';
 
 export const eventsCacheKey = 'events';
 
@@ -26,7 +25,7 @@ export const getEvents = (serverId: Server['id']) => database.events.where({ ser
 // To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
 export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): GameEvent[] => {
   const events: GameEvent[] = [...previousEvents];
-  const lastIndex = findLastIndex<GameEvent>(events, ({ resolvesAt }) => event.resolvesAt >= resolvesAt);
+  const lastIndex = events.findLastIndex(({ resolvesAt }) => event.resolvesAt >= resolvesAt);
   events.splice(lastIndex === -1 ? events.length : lastIndex + 1, 0, event);
   return events;
 };
@@ -99,7 +98,6 @@ export const createEventFn = async <T extends GameEventType>(args: CreateEventFn
   const { serverId, villageId } = rest;
   const event: GameEvent<T> = eventFactory<T>(args);
 
-  console.log(args);
   if (doesEventRequireResourceCheck(event)) {
     const { resourceCost } = event;
     const villages = queryClient.getQueryData<Village[]>([villagesCacheKey, serverId])!;

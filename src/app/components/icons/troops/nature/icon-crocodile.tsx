@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiCrocJaws } from 'react-icons/gi';
 
 export const IconCrocodile = () => {

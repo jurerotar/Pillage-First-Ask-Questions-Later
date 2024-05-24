@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiRat } from 'react-icons/gi';
 
 export const IconRat = () => {

@@ -1,5 +1,4 @@
 import type React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 
 type PublicPageName = 'index';
@@ -21,6 +20,7 @@ type AppHelmetProps = {
   children?: React.ReactNode;
 };
 
+// TODO: Implement when on React 19
 export const Head: React.FC<AppHelmetProps> = (props) => {
   const { viewName, children } = props;
 
@@ -32,7 +32,7 @@ export const Head: React.FC<AppHelmetProps> = (props) => {
   const description = t(`${meta}.DESCRIPTION`);
 
   return (
-    <Helmet>
+    <>
       <title>{title}</title>
       <meta
         name="description"
@@ -55,6 +55,6 @@ export const Head: React.FC<AppHelmetProps> = (props) => {
         content={description}
       />
       {children}
-    </Helmet>
+    </>
   );
 };

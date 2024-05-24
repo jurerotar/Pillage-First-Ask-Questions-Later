@@ -10,11 +10,11 @@ import { buildings } from 'assets/buildings';
 import clsx from 'clsx';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
 import type { BuildingField } from 'interfaces/models/game/village';
-import { partition } from 'lodash-es';
 import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
+import { partition } from 'app/utils/common';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;

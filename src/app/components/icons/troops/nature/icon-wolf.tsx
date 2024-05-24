@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiWolfHead } from 'react-icons/gi';
 
 export const IconWolf = () => {

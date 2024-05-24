@@ -1,6 +1,6 @@
 import { Icon, type IconProps, type ResourceCombinationIconType } from 'app/components/icon';
 import type { OasisResourceBonus, OasisTile } from 'interfaces/models/game/tile';
-import { capitalize } from 'lodash-es';
+import { capitalize } from 'moderndash';
 import type React from 'react';
 
 type OccupiableOasisIconProps = Pick<OasisTile, 'oasisResourceBonus'> & Omit<IconProps, 'type'>;

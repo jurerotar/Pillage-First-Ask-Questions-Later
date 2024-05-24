@@ -74,3 +74,17 @@ export const invertMap = <T, K>(map: Map<K, T>) => new Map<T, K>(Array.from(map,
 export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
+
+export const partition = <T>(array: T[], callback: (element: T) => boolean): [T[], T[]] => {
+  return array.reduce(
+    (result, element) => {
+      result[callback(element) ? 0 : 1].push(element);
+      return result;
+    },
+    [[] as T[], [] as T[]]
+  );
+};
+
+export const clamp = (value: number, min: number, max: number): number => {
+  return Math.min(Math.max(value, min), max);
+};

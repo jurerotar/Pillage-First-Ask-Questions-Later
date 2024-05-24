@@ -1,4 +1,3 @@
-import React from 'react';
 import { PiSword } from 'react-icons/pi';
 
 export const IconImperian = () => {

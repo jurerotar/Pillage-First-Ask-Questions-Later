@@ -1,7 +1,6 @@
 import { BuildingField } from 'app/[game]/[village]/components/building-field';
 import { BuildingFieldTooltip } from 'app/[game]/components/building-field-tooltip';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
-import { Head } from 'app/components/head';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'interfaces/models/game/village';
 import type React from 'react';
@@ -10,14 +9,13 @@ import { Link } from 'react-router-dom';
 export const VillagePage: React.FC = () => {
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
-  const viewName = isResourcesPageOpen ? 'resources' : 'village';
+  const _viewName = isResourcesPageOpen ? 'resources' : 'village';
   const buildingFieldIdsToDisplay = (
     isResourcesPageOpen ? [...Array(18)].map((_, i) => i + 1) : [...Array(22)].map((_, i) => i + 19)
   ) as BuildingFieldType['id'][];
 
   return (
     <>
-      <Head viewName={viewName} />
       <Tooltip
         anchorSelect="[data-building-field-id]"
         closeEvents={{

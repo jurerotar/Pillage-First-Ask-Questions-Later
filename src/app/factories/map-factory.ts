@@ -354,8 +354,6 @@ const generatePredefinedVillages = ({ server, tiles, npcPlayers }: GeneratePrede
 
   const prng = prng_alea(server.seed);
 
-  console.log(prng, prng());
-
   // Since there's 4 npc players and 8 predefined villages, we just duplicate the npc players array, so each faction gets 2 villages
   const players = seededShuffleArray<Player>(prng, [...npcPlayers, ...npcPlayers]);
 
