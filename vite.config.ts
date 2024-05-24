@@ -23,7 +23,6 @@ export default defineConfig({
       'react-tabs',
       'dexie',
       'react-hook-form',
-      'react-helmet-async',
       'react-modal',
       'usehooks-ts',
       'moderndash',
