@@ -8,7 +8,7 @@
     "lineEnding": "lf",
     "lineWidth": 140,
     "attributePosition": "multiline",
-    "ignore": ["./build", "./coverage", "./dist", "./out", "./public", "./.husky", "./.github", "./docs"]
+    "ignore": ["./build", "./coverage", "./dist", "./out", "./public", "./.husky", "./.github", "./docs", "*.json"]
   },
   "organizeImports": { "enabled": true },
   "linter": {
