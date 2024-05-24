@@ -9,7 +9,6 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useMap } from 'app/[game]/hooks/use-map';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
-import { Head } from 'app/components/head';
 import { Modal } from 'app/components/modal';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -132,7 +131,6 @@ export const MapPage: React.FC = () => {
 
   return (
     <>
-      <Head viewName="map" />
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{

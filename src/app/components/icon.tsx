@@ -2,7 +2,7 @@ import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/component
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
 import type { Unit } from 'interfaces/models/game/unit';
-import { camelCase } from 'lodash-es';
+import { camelCase } from 'moderndash';
 import type React from 'react';
 import { Suspense, lazy } from 'react';
 import type { IconBaseProps } from 'react-icons';

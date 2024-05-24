@@ -7,12 +7,7 @@ export const availableServerCacheKey = 'available-servers';
 export const useAvailableServers = () => {
   const queryClient = useQueryClient();
 
-  const {
-    data: availableServers,
-    isLoading: areAvailableServersLoading,
-    isSuccess: haveAvailableServersLoaded,
-    status: availableServersQueryStatus,
-  } = useQuery<Server[]>({
+  const { data: availableServers } = useQuery<Server[]>({
     queryKey: [availableServerCacheKey],
     queryFn: () => database.servers.toArray(),
     initialData: [],
@@ -22,8 +17,8 @@ export const useAvailableServers = () => {
     mutationFn: async ({ server }) => {
       await database.servers.add(server);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
     },
@@ -45,11 +40,14 @@ export const useAvailableServers = () => {
         database.players.where({ serverId }).delete(),
         database.reputations.where({ serverId }).delete(),
         database.mapFilters.where({ serverId }).delete(),
+        database.troops.where({ serverId }).delete(),
+        database.auctions.where({ serverId }).delete(),
+        database.adventures.where({ serverId }).delete(),
       ]);
     },
     onMutate: async ({ server }) => {
       await database.servers.where({ id: server.id }).delete();
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
     },
@@ -66,8 +64,8 @@ export const useAvailableServers = () => {
       };
       await database.servers.put(updatedServer);
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
     },
@@ -75,9 +73,6 @@ export const useAvailableServers = () => {
 
   return {
     availableServers,
-    areAvailableServersLoading,
-    haveAvailableServersLoaded,
-    availableServersQueryStatus,
     createServer,
     deleteServer,
     updateLastLoggedIn,

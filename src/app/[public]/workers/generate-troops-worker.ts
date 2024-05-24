@@ -7,6 +7,7 @@ import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/mod
 import type { Tribe } from 'interfaces/models/game/tribe';
 import type { Troop } from 'interfaces/models/game/troop';
 import type { NatureUnitId, UnitId } from 'interfaces/models/game/unit';
+import { prng_alea } from 'esm-seedrandom';
 
 export type GenerateTroopsWorkerPayload = {
   server: Server;
@@ -288,11 +289,13 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
 
 self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorkerPayload>) => {
   const {
-    server: { id: serverId },
+    server: { seed, id: serverId },
     occupiableOasisTiles,
     occupiedOccupiableTiles,
     players,
   } = event.data;
+
+  const prng = prng_alea(seed);
 
   const oasisTroops: Troop[] = occupiableOasisTiles.flatMap(({ id: tileId, oasisResourceBonus }) => {
     const resourceCombination = oasisResourceBonus.map(({ resource }) => resource).join('-') as Resource | ResourceCombination;
@@ -303,7 +306,7 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
       return {
         serverId,
         unitId,
-        amount: seededRandomIntFromInterval(tileId, min, max),
+        amount: seededRandomIntFromInterval(prng, min, max),
         role: 'own',
         tileId,
       };
@@ -326,7 +329,7 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
       return {
         serverId,
         unitId,
-        amount: seededRandomIntFromInterval(tileId, min, max),
+        amount: seededRandomIntFromInterval(prng, min, max),
         role: 'own',
         tileId,
       };

@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import React from 'react';
 import { type ReactTabsFunctionComponent, Tab, type TabProps } from 'react-tabs';
 
 type StyledTabProps = TabProps & {

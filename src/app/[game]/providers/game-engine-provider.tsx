@@ -1,5 +1,5 @@
 import { useEvents } from 'app/[game]/hooks/use-events';
-import React, { createContext, type FCWithChildren, useContext, useEffect, useMemo } from 'react';
+import { createContext, type FCWithChildren, useContext, useEffect } from 'react';
 
 let timeoutId: number | undefined;
 

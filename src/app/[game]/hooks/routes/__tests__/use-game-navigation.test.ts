@@ -13,7 +13,7 @@ describe('useGameNavigation', () => {
     const { resourcesPath } = result.current;
 
     expect(resourcesPath.includes(serverSlug)).toBe(true);
-    expect(resourcesPath.includes(villageSlug)).toBe(true);
+    expect(resourcesPath.includes(villageSlug!)).toBe(true);
     expect(resourcesPath.includes('resources')).toBe(true);
   });
 
@@ -22,7 +22,7 @@ describe('useGameNavigation', () => {
     const { villagePath } = result.current;
 
     expect(villagePath.includes(serverSlug)).toBe(true);
-    expect(villagePath.includes(villageSlug)).toBe(true);
+    expect(villagePath.includes(villageSlug!)).toBe(true);
     expect(villagePath.includes('village')).toBe(true);
   });
 
@@ -31,7 +31,7 @@ describe('useGameNavigation', () => {
     const { mapPath } = result.current;
 
     expect(mapPath.includes(serverSlug)).toBe(true);
-    expect(mapPath.includes(villageSlug)).toBe(true);
+    expect(mapPath.includes(villageSlug!)).toBe(true);
     expect(mapPath.includes('map')).toBe(true);
   });
 });

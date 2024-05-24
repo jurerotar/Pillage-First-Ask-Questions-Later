@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import type { BuildingField as BuildingFieldType, ReservedFieldId, VillageFieldId } from 'interfaces/models/game/village';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -55,14 +55,11 @@ type EmptyBuildingFieldProps = {
 };
 
 const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
-  const { pathname } = useLocation();
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
-
-  const href = `${pathname}/${buildingFieldId}`;
 
   return (
     <Link
-      to={href}
+      to={`${buildingFieldId}`}
       className={clsx(
         styles,
         'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16'
@@ -80,15 +77,13 @@ type OccupiedBuildingFieldProps = {
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t } = useTranslation();
-  const { pathname } = useLocation();
   const { id: buildingFieldId, buildingId } = buildingField;
 
-  const href = `${pathname}/${buildingFieldId}`;
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
 
   return (
     <Link
-      to={href}
+      to={`${buildingFieldId}`}
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,

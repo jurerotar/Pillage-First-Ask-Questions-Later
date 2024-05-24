@@ -63,16 +63,12 @@ export class Database extends Dexie {
   public adventures!: Table<unknown>;
   public troops!: Table<Troop>;
 
-  public amountOfTables: number;
-
   constructor() {
     super('echoes-of-travian');
 
     const schema = Object.fromEntries([
       ...Array.from(TABLES).map(([tableName, indexes]) => [tableName, [...DEFAULT_TABLE_INDEX, ...indexes].join(', ')]),
     ]);
-
-    this.amountOfTables = Object.keys(schema).length;
 
     this.version(1).stores(schema);
   }

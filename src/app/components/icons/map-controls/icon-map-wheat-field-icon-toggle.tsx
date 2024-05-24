@@ -1,4 +1,3 @@
-import React from 'react';
 import { LuWheat } from 'react-icons/lu';
 
 export const IconMapWheatFieldIconToggle = () => {

@@ -2,6 +2,7 @@ import { seededRandomArrayElement } from 'app/utils/common';
 import type { Player, PlayerFaction } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tribe } from 'interfaces/models/game/tribe';
+import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
 
 const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 
@@ -114,25 +115,25 @@ const spartansNames = [
   'Archidamus',
 ];
 
-const getName = (tribe: Tribe, seed: string): string => {
+const getName = (tribe: Tribe, prng: PRNGFunction): string => {
   switch (tribe) {
     case 'romans': {
-      return `${seededRandomArrayElement(seed, romanFirstNames)} ${seededRandomArrayElement(seed, romanSecondNames)}`;
+      return `${seededRandomArrayElement(prng, romanFirstNames)} ${seededRandomArrayElement(prng, romanSecondNames)}`;
     }
     case 'teutons': {
-      return `${seededRandomArrayElement(seed, teutonFirstNames)} ${seededRandomArrayElement(seed, teutonSecondNames)}`;
+      return `${seededRandomArrayElement(prng, teutonFirstNames)} ${seededRandomArrayElement(prng, teutonSecondNames)}`;
     }
     case 'gauls': {
-      return seededRandomArrayElement(seed, gaulNames);
+      return seededRandomArrayElement(prng, gaulNames);
     }
     case 'huns': {
-      return seededRandomArrayElement(seed, hunNames);
+      return seededRandomArrayElement(prng, hunNames);
     }
     case 'egyptians': {
-      return seededRandomArrayElement(seed, egyptiansNames);
+      return seededRandomArrayElement(prng, egyptiansNames);
     }
     case 'spartans': {
-      return seededRandomArrayElement(seed, spartansNames);
+      return seededRandomArrayElement(prng, spartansNames);
     }
     default: {
       return 'Missing name';
@@ -143,18 +144,16 @@ const getName = (tribe: Tribe, seed: string): string => {
 type PlayerFactoryProps = {
   server: Server;
   faction: PlayerFaction;
-  index: number;
+  prng: PRNGFunction;
 };
 
-export const playerFactory = ({ server, faction, index }: PlayerFactoryProps): Player => {
-  const seed = `${server.id}-${index}`;
-  // Spartans are not enabled yet, because we're missing data
-  const tribe = seededRandomArrayElement<Tribe>(seed, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
+export const playerFactory = ({ server, faction, prng }: PlayerFactoryProps): Player => {
+  const tribe = seededRandomArrayElement<Tribe>(prng, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
 
   return {
     id: crypto.randomUUID(),
     serverId: server.id,
-    name: getName(tribe, seed),
+    name: getName(tribe, prng),
     tribe,
     faction,
   };

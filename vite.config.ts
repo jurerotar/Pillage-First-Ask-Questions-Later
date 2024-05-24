@@ -26,6 +26,7 @@ export default defineConfig({
       'react-helmet-async',
       'react-modal',
       'usehooks-ts',
+      'moderndash',
       'clsx',
       'react-icons/gi',
       'react-icons/lu',

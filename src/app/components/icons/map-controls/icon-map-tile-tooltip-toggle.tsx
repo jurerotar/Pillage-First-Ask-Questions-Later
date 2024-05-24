@@ -1,4 +1,3 @@
-import React from 'react';
 import { TbTooltip } from 'react-icons/tb';
 
 export const IconMapTileTooltipToggle = () => {

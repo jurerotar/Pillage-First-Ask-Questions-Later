@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiStoneBlock } from 'react-icons/gi';
 
 export const IconClay = () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { PiWarehouseBold } from 'react-icons/pi';
 
 export const IconGranaryCapacity = () => {

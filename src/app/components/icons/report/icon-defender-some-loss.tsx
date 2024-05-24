@@ -1,4 +1,3 @@
-import React from 'react';
 import { LuShield } from 'react-icons/lu';
 
 export const IconDefenderSomeLoss = () => {

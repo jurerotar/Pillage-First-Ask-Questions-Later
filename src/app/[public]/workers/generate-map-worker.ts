@@ -4,7 +4,7 @@ import { database } from 'database/database';
 import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { chunk } from 'lodash-es';
+import { chunk } from 'moderndash';
 
 export type GenerateMapWorkerPayload = {
   server: Server;

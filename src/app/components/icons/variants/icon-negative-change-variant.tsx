@@ -1,4 +1,3 @@
-import React from 'react';
 import { AiOutlineMinus } from 'react-icons/ai';
 
 export const IconNegativeChangeVariant = () => {

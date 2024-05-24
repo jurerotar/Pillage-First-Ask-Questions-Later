@@ -4,7 +4,7 @@ import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import type { Village } from 'interfaces/models/game/village';
-import { chunk } from 'lodash-es';
+import { chunk } from 'moderndash';
 
 export type GenerateVillageWorkerPayload = {
   server: Server;

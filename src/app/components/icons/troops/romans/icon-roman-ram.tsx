@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiIBeam } from 'react-icons/gi';
 
 export const IconRomanRam = () => {

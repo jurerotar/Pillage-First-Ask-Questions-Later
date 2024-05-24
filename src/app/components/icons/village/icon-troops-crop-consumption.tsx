@@ -1,4 +1,3 @@
-import React from 'react';
 import { GiRallyTheTroops } from 'react-icons/gi';
 
 export const IconTroopsCropConsumption = () => {

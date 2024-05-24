@@ -1,12 +1,14 @@
 import { ServerCard } from 'app/[public]/[index]/components/server-card';
 import { Button } from 'app/components/buttons/button';
-import { Head } from 'app/components/head';
-import { Modal } from 'app/components/modal';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Server } from 'interfaces/models/game/server';
 import type React from 'react';
 import { lazy } from 'react';
+
+const Modal = lazy(async () => ({
+  default: (await import('app/components/modal')).Modal,
+}));
 
 const CreateServerModalContent = lazy(async () => ({
   default: (await import('app/[public]/components/create-server-modal-content')).CreateServerModalContent,
@@ -25,7 +27,6 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      <Head viewName="index" />
       <main className="flex flex-col">
         {/* Landing section */}
         <section className="container relative mx-auto flex min-h-[300px] flex-col gap-4 lg:flex-row">
@@ -46,14 +47,16 @@ export const HomePage: React.FC = () => {
             >
               Reset database
             </Button>
-            <Modal
-              isOpen={isCreateServerModalOpen}
-              closeHandler={closeCreateServerModal}
-              hasTitle
-              title="Create new server"
-            >
-              <CreateServerModalContent />
-            </Modal>
+            {isCreateServerModalOpen && (
+              <Modal
+                isOpen={isCreateServerModalOpen}
+                closeHandler={closeCreateServerModal}
+                hasTitle
+                title="Create new server"
+              >
+                <CreateServerModalContent />
+              </Modal>
+            )}
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">Something beautiful here</div>
         </section>
