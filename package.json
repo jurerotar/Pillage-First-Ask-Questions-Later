@@ -13,7 +13,7 @@
     "format": "npx @biomejs/biome format --write .",
     "type-check": "tsc --noEmit",
     "test": "vitest",
-    "prepare": "husky install",
+    "prepare": "husky init",
     "analyze-bundle": "npx vite-bundle-visualizer"
   },
   "dependencies": {
