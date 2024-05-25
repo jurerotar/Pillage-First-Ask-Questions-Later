@@ -61,7 +61,7 @@ export default defineConfig({
   test: {
     watch: false,
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: './vitest-setup.ts',
   },
 }) satisfies UserConfig;
