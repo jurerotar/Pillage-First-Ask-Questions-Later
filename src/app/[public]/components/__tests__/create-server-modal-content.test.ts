@@ -1,9 +1,19 @@
-import { beforeAll, describe, test } from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
 import 'fake-indexeddb/auto';
 import { database } from 'database/database';
 import { serverMock } from 'mocks/models/game/server-mock';
 import '@vitest/web-worker';
 import { initializeServer } from 'app/[public]/components/create-server-modal-content';
+import { getReputations } from 'app/[game]/hooks/use-reputations';
+import { getPlayers } from 'app/[game]/hooks/use-players';
+import { getMap } from 'app/[game]/hooks/use-map';
+import { getVillages } from 'app/[game]/hooks/use-villages';
+import { getTroops } from 'app/[game]/hooks/use-troops';
+import { getResearchLevels } from 'app/[game]/hooks/use-research-levels';
+import { getQuests } from 'app/[game]/hooks/use-quests';
+import { getAchievements } from 'app/[game]/hooks/use-achievements';
+import { getEffects } from 'app/[game]/hooks/use-effects';
+import { getEvents } from 'app/[game]/hooks/use-events';
 
 const { id: serverId } = serverMock;
 
@@ -13,54 +23,65 @@ beforeAll(async () => {
   await database.villages.get(1);
 });
 
-describe('initializeServer', () => {
-  describe('factions', async () => {
-    const _reputations = await database.reputations.where({ serverId }).toArray();
-    test.todo('Creates factions', () => {});
+describe('Server initialization', () => {
+  describe('Reputations', () => {
+    test('Creates factions', async () => {
+      const reputations = await getReputations(serverId);
+      expect(reputations.length).not.toBe(0);
+    });
   });
 
-  describe('players', async () => {
-    const _players = await database.players.where({ serverId }).toArray();
-    test.todo('Creates players', () => {});
+  describe('Players', () => {
+    test.todo('Creates players', async () => {
+      const _players = await getPlayers(serverId);
+    });
   });
 
-  describe('map', async () => {
-    const _map = await database.maps.where({ serverId }).toArray();
-    test.todo('Creates map', () => {});
+  describe('Map', () => {
+    test.todo('Creates map', async () => {
+      const _tiles = getMap(serverId);
+    });
   });
 
-  describe('villages', async () => {
-    const _villages = await database.villages.where({ serverId }).toArray();
-    test.todo('Creates villages', () => {});
+  describe('Villages', () => {
+    test.todo('Creates villages', async () => {
+      const _villages = await getVillages(serverId);
+    });
   });
 
-  describe('troops', async () => {
-    const _troops = await database.troops.where({ serverId }).toArray();
-    test.todo('Creates troops', () => {});
+  describe('Troops', () => {
+    test.todo('Creates troops', async () => {
+      const _troops = await getTroops(serverId);
+    });
   });
 
-  describe('researchLevels', async () => {
-    const _researchLevels = await database.researchLevels.where({ serverId }).toArray();
-    test.todo('Creates researchLevels', () => {});
+  describe('Research levels', () => {
+    test.todo('Creates research levels', async () => {
+      const _researchLevels = await getResearchLevels(serverId);
+    });
   });
 
-  describe('quests', async () => {
-    const _quests = await database.quests.where({ serverId }).count();
-    test.todo('Creates quests', () => {});
+  describe('Quests', () => {
+    test.todo('Creates quests', async () => {
+      const _quests = await getQuests(serverId);
+    });
   });
 
-  describe('achievements', async () => {
-    const _achievements = await database.achievements.where({ serverId }).count();
-    test.todo('Creates achievements', () => {});
+  describe('Achievements', () => {
+    test.todo('Creates achievements', async () => {
+      const _achievements = await getAchievements(serverId);
+    });
   });
 
-  describe('effects', async () => {
-    const _effects = await database.effects.where({ serverId }).count();
-    test.todo('Creates effects', () => {});
+  describe('Effects', () => {
+    test.todo('Creates effects', async () => {
+      const _effects = await getEffects(serverId);
+    });
   });
 
-  describe('events', async () => {
-    const _events = await database.events.where({ serverId }).count();
-    test.todo('Creates events', () => {});
+  describe('Events', () => {
+    test.todo('Creates events', async () => {
+      const _events = await getEvents(serverId);
+    });
   });
 });

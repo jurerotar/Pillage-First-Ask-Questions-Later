@@ -5,10 +5,7 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Server } from 'interfaces/models/game/server';
 import type React from 'react';
 import { lazy } from 'react';
-
-const Modal = lazy(async () => ({
-  default: (await import('app/components/modal')).Modal,
-}));
+import { Modal } from 'app/components/modal';
 
 const CreateServerModalContent = lazy(async () => ({
   default: (await import('app/[public]/components/create-server-modal-content')).CreateServerModalContent,
@@ -47,16 +44,14 @@ export const HomePage: React.FC = () => {
             >
               Reset database
             </Button>
-            {isCreateServerModalOpen && (
-              <Modal
-                isOpen={isCreateServerModalOpen}
-                closeHandler={closeCreateServerModal}
-                hasTitle
-                title="Create new server"
-              >
-                <CreateServerModalContent />
-              </Modal>
-            )}
+            <Modal
+              isOpen={isCreateServerModalOpen}
+              closeHandler={closeCreateServerModal}
+              hasTitle
+              title="Create new server"
+            >
+              <CreateServerModalContent />
+            </Modal>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center">Something beautiful here</div>
         </section>
