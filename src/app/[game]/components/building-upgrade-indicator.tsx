@@ -1,10 +1,10 @@
 import { BorderIndicator, type BorderIndicatorVariant } from 'app/[game]/components/border-indicator';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { useCurrentResources } from 'app/[game]/hooks/use-current-resources';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { getBuildingDataForLevel } from 'app/[game]/utils/common';
+import { getBuildingDataForLevel } from 'app/[game]/utils/building';
 import type { BuildingField } from 'interfaces/models/game/village';
 import type React from 'react';
+import { useCurrentResources } from 'app/[game]/providers/current-resources-provider';
 
 type BuildingUpgradeIndicatorProps = {
   buildingFieldId: BuildingField['id'];
@@ -16,10 +16,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
-  const { calculatedResourceAmount: currentWood } = useCurrentResources('wood');
-  const { calculatedResourceAmount: currentClay } = useCurrentResources('clay');
-  const { calculatedResourceAmount: currentIron } = useCurrentResources('iron');
-  const { calculatedResourceAmount: currentWheat } = useCurrentResources('wheat');
+  const { wood, clay, iron, wheat } = useCurrentResources();
 
   const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
   const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
@@ -42,10 +39,10 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
     }
 
     if (
-      currentWood < nextLevelResourceCost[0] ||
-      currentClay < nextLevelResourceCost[1] ||
-      currentIron < nextLevelResourceCost[2] ||
-      currentWheat < nextLevelResourceCost[3]
+      wood < nextLevelResourceCost[0] ||
+      clay < nextLevelResourceCost[1] ||
+      iron < nextLevelResourceCost[2] ||
+      wheat < nextLevelResourceCost[3]
     ) {
       return 'yellow';
     }

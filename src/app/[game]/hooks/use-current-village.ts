@@ -1,6 +1,6 @@
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { useVillages } from 'app/[game]/hooks/use-villages';
-import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/common';
+import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
 import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils/common';
 import type { Point } from 'interfaces/models/common';
 import type { Village } from 'interfaces/models/game/village';

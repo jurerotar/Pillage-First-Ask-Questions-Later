@@ -1,6 +1,6 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { calculateCurrentAmount } from 'app/[game]/hooks/use-current-resources';
+import { calculateCurrentAmount } from 'app/[game]/hooks/use-calculated-resource';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';

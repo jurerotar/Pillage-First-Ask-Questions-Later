@@ -11,7 +11,6 @@ import { getPlayers, playersCacheKey } from 'app/[game]/hooks/use-players';
 import { getQuests, questsCacheKey } from 'app/[game]/hooks/use-quests';
 import { getReports, reportsCacheKey } from 'app/[game]/hooks/use-reports';
 import { getReputations, reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
-import { getResearchLevels, researchLevelsCacheKey } from 'app/[game]/hooks/use-research-levels';
 import { getTroops, troopsCacheKey } from 'app/[game]/hooks/use-troops';
 import { getVillages, villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { database } from 'database/database';
@@ -25,14 +24,11 @@ import type { Player } from 'interfaces/models/game/player';
 import type { Quest } from 'interfaces/models/game/quest';
 import type { Report } from 'interfaces/models/game/report';
 import type { Reputation } from 'interfaces/models/game/reputation';
-import type { ResearchLevel } from 'interfaces/models/game/research-level';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
 import type { Troop } from 'interfaces/models/game/troop';
 import type { Village } from 'interfaces/models/game/village';
 import type { LoaderFunction } from 'react-router-dom';
-
-// TODO: These imports should be lazy loaded
 
 class MissingServerError extends Error {
   constructor(serverSlug: Server['slug']) {
@@ -110,10 +106,6 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
     queryClient.prefetchQuery<Report[]>({
       queryKey: [reportsCacheKey, serverId],
       queryFn: () => getReports(serverId),
-    }),
-    queryClient.prefetchQuery<ResearchLevel[]>({
-      queryKey: [researchLevelsCacheKey, serverId],
-      queryFn: () => getResearchLevels(serverId),
     }),
     queryClient.prefetchQuery<Village[]>({
       queryKey: [villagesCacheKey, serverId],

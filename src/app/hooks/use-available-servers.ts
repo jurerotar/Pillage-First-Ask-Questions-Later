@@ -14,7 +14,6 @@ export const deleteServerData = async (serverId: Server['id']) => {
     database.achievements.where({ serverId }).delete(),
     database.events.where({ serverId }).delete(),
     database.effects.where({ serverId }).delete(),
-    database.researchLevels.where({ serverId }).delete(),
     database.players.where({ serverId }).delete(),
     database.reputations.where({ serverId }).delete(),
     database.mapFilters.where({ serverId }).delete(),
@@ -51,7 +50,8 @@ export const useAvailableServers = () => {
       const { id: serverId } = server;
       await deleteServerData(serverId);
     },
-    onSuccess: async () => {
+    onMutate: async ({ server }) => {
+      await database.servers.where({ id: server.id }).delete();
       await queryClient.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });

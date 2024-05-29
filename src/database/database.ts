@@ -10,7 +10,6 @@ import type { Player } from 'interfaces/models/game/player';
 import type { Quest } from 'interfaces/models/game/quest';
 import type { Report } from 'interfaces/models/game/report';
 import type { Reputation } from 'interfaces/models/game/reputation';
-import type { ResearchLevel } from 'interfaces/models/game/research-level';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
 import type { Troop } from 'interfaces/models/game/troop';
@@ -31,7 +30,6 @@ export const TABLES = new Map<TableName, TableIndex[]>([
   ['achievements', ['serverId,[serverId+id]']],
   ['events', ['serverId,[serverId+id]']],
   ['effects', ['serverId,[serverId+villageId+id],[serverId+id]']],
-  ['researchLevels', ['serverId,[serverId+unitId]']],
   ['players', ['serverId,[serverId+id]']],
   ['reputations', ['serverId,[serverId+id]']],
   ['mapMarkers', ['serverId']],
@@ -54,7 +52,6 @@ export class Database extends Dexie {
   public achievements!: Table<Achievement>;
   public events!: Table<GameEvent>;
   public effects!: Table<Effect>;
-  public researchLevels!: Table<ResearchLevel>;
   public players!: Table<Player>;
   public reputations!: Table<Reputation>;
   public mapFilters!: Table<MapFilters>;

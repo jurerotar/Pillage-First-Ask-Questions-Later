@@ -805,11 +805,21 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
         valuesPerLevel: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
       },
       {
-        effectId: 'defenceBonus',
+        effectId: 'infantryDefenceBonus',
+        valuesPerLevel: [
+          1, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
+        ],
+      },
+      {
+        effectId: 'cavalryDefence',
+        valuesPerLevel: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+      },
+      {
+        effectId: 'cavalryDefenceBonus',
         valuesPerLevel: [
           1, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
         ],
@@ -859,11 +869,21 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
         valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
       },
       {
-        effectId: 'defenceBonus',
+        effectId: 'infantryDefenceBonus',
+        valuesPerLevel: [
+          1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
+        ],
+      },
+      {
+        effectId: 'cavalryDefence',
+        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+      },
+      {
+        effectId: 'cavalryDefenceBonus',
         valuesPerLevel: [
           1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
         ],
@@ -1137,11 +1157,21 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
         valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
       },
       {
-        effectId: 'defenceBonus',
+        effectId: 'infantryDefenceBonus',
+        valuesPerLevel: [
+          0, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
+        ],
+      },
+      {
+        effectId: 'cavalryDefence',
+        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+      },
+      {
+        effectId: 'cavalryDefenceBonus',
         valuesPerLevel: [
           0, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
         ],
@@ -1191,11 +1221,21 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
         valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
       },
       {
-        effectId: 'defenceBonus',
+        effectId: 'infantryDefenceBonus',
+        valuesPerLevel: [
+          0, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
+        ],
+      },
+      {
+        effectId: 'cavalryDefence',
+        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+      },
+      {
+        effectId: 'cavalryDefenceBonus',
         valuesPerLevel: [
           0, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
         ],
@@ -1335,11 +1375,21 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
         valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
       },
       {
-        effectId: 'defenceBonus',
+        effectId: 'infantryDefenceBonus',
+        valuesPerLevel: [
+          1, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
+        ],
+      },
+      {
+        effectId: 'cavalryDefence',
+        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+      },
+      {
+        effectId: 'cavalryDefenceBonus',
         valuesPerLevel: [
           1, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
         ],
@@ -1674,7 +1724,11 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
+        valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
+      },
+      {
+        effectId: 'cavalryDefence',
         valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
@@ -1976,7 +2030,11 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
+        valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
+      },
+      {
+        effectId: 'cavalryDefence',
         valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],
@@ -2032,7 +2090,11 @@ export const buildings: Building[] = [
     cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     effects: [
       {
-        effectId: 'defence',
+        effectId: 'infantryDefence',
+        valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
+      },
+      {
+        effectId: 'cavalryDefence',
         valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
       },
     ],

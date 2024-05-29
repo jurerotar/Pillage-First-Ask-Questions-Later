@@ -34,7 +34,7 @@ self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorke
   });
 
   const promises = [];
-  const chunkedVillages = chunk([playerStartingVillage, ...villages], 300);
+  const chunkedVillages = chunk([playerStartingVillage, ...villages], 1000);
 
   for (let i = 0; i < chunkedVillages.length; i += 1) {
     promises.push(database.villages.bulkAdd(chunkedVillages[i]));

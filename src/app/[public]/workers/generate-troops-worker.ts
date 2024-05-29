@@ -287,6 +287,13 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
   ],
 ]);
 
+const villageSizeToTroopsLevel = new Map<OccupiedOccupiableTile['villageSize'], number>([
+  ['xs', 0],
+  ['sm', 5],
+  ['md', 10],
+  ['lg', 20],
+]);
+
 self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorkerPayload>) => {
   const {
     server: { seed, id: serverId },
@@ -307,8 +314,9 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
         serverId,
         unitId,
         amount: seededRandomIntFromInterval(prng, min, max),
-        role: 'own',
+        source: tileId,
         tileId,
+        level: 0,
       };
     });
   });
@@ -330,8 +338,9 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
         serverId,
         unitId,
         amount: seededRandomIntFromInterval(prng, min, max),
-        role: 'own',
+        source: tileId,
         tileId,
+        level: villageSizeToTroopsLevel.get(villageSize)!,
       };
     });
   });

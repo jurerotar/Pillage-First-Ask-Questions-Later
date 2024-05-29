@@ -3,7 +3,7 @@ import { BuildingUpgradeModal } from 'app/[game]/[village]/[...building-field-id
 import { Backlink } from 'app/[game]/components/backlink';
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/building';
 import type React from 'react';
 
 export const BuildingPage: React.FC = () => {

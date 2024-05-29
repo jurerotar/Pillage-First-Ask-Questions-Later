@@ -13,7 +13,8 @@ export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | '
 
 export type EffectId =
   | 'attack'
-  | 'defence'
+  | 'infantryDefence'
+  | 'cavalryDefence'
   | 'warehouseCapacity'
   | 'granaryCapacity'
   | 'unitSpeed'

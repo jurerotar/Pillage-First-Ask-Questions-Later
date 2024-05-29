@@ -24,7 +24,7 @@ self.addEventListener('message', async (event: MessageEvent<GenerateMapWorkerPay
   self.postMessage({ occupiableOasisTiles, occupiedOccupiableTiles });
 
   const promises = [];
-  const chunkedTiles = chunk(tiles, 300);
+  const chunkedTiles = chunk(tiles, 3000);
 
   for (let i = 0; i < chunkedTiles.length; i += 1) {
     promises.push(database.maps.bulkAdd(chunkedTiles[i]));

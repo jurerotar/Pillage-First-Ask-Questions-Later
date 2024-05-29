@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "noEmit": true,

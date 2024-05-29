@@ -3,7 +3,7 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
-import { getBuildingData } from 'app/[game]/utils/common';
+import { getBuildingData } from 'app/[game]/utils/building';
 import { Button } from 'app/components/buttons/button';
 import clsx from 'clsx';
 import { GameEventType } from 'interfaces/models/events/game-event';

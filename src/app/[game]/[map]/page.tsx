@@ -126,6 +126,14 @@ export const MapPage: React.FC = () => {
     mapRef
   );
 
+  useEventListener(
+    'mouseleave',
+    () => {
+      isScrolling.current = false;
+    },
+    mapRef
+  );
+
   const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2 + RULER_SIZE / 2;
   const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2 + RULER_SIZE / 2;
 

@@ -1,4 +1,4 @@
-import { getBuildingData } from 'app/[game]/utils/common';
+import { getBuildingData } from 'app/[game]/utils/building';
 import { merchants } from 'assets/merchants';
 import type { BuildingEffect } from 'interfaces/models/game/building';
 import type {
@@ -96,7 +96,12 @@ export const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): Glob
       source: 'hero',
     },
     {
-      id: 'defenceBonus',
+      id: 'infantryDefenceBonus',
+      value: 1,
+      source: 'hero',
+    },
+    {
+      id: 'cavalryDefenceBonus',
       value: 1,
       source: 'hero',
     },

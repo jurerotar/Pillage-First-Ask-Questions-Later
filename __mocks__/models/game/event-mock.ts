@@ -1,4 +1,4 @@
-import { getBuildingData } from 'app/[game]/utils/common';
+import { getBuildingData } from 'app/[game]/utils/building';
 import { type GameEvent, GameEventType } from 'interfaces/models/events/game-event';
 import { serverMock } from 'mocks/models/game/server-mock';
 import { villageMock } from 'mocks/models/game/village/village-mock';

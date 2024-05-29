@@ -1,5 +1,5 @@
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
-import { useCurrentResources } from 'app/[game]/hooks/use-current-resources';
+import { useCalculatedResource } from 'app/[game]/hooks/use-calculated-resource';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { GameLayoutSkeleton } from 'app/[game]/skeleton';
 import { Icon } from 'app/components/icon';
@@ -21,7 +21,7 @@ type ResourceCounterProps = {
 };
 
 const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
-  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCurrentResources(resource);
+  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCalculatedResource(resource);
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
   const storageIcon = resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity';

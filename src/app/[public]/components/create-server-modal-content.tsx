@@ -12,11 +12,6 @@ import type { GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn } from 'ap
 import CreateQuestsWorker from 'app/[public]/workers/generate-quests-worker?worker&url';
 import type { GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn } from 'app/[public]/workers/generate-reputations-worker';
 import CreateReputationsWorker from 'app/[public]/workers/generate-reputations-worker?worker&url';
-import type {
-  GenerateResearchLevelsWorkerPayload,
-  GenerateResearchLevelsWorkerReturn,
-} from 'app/[public]/workers/generate-research-levels-worker';
-import CreateResearchLevelsWorker from 'app/[public]/workers/generate-research-levels-worker?worker&url';
 import type { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'app/[public]/workers/generate-troops-worker';
 import CreateTroopsWorker from 'app/[public]/workers/generate-troops-worker?worker&url';
 import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/[public]/workers/generate-villages-worker';
@@ -165,9 +160,6 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
       { server, occupiedOccupiableTiles, occupiableOasisTiles, players },
       ''
     ),
-
-    // Research levels
-    workerFactory<GenerateResearchLevelsWorkerPayload, GenerateResearchLevelsWorkerReturn>(CreateResearchLevelsWorker, { server }, ''),
 
     // Hero data
     (async () => {

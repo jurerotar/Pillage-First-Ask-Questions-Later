@@ -10,7 +10,6 @@ import { getPlayers } from 'app/[game]/hooks/use-players';
 import { getMap } from 'app/[game]/hooks/use-map';
 import { getVillages } from 'app/[game]/hooks/use-villages';
 import { getTroops } from 'app/[game]/hooks/use-troops';
-import { getResearchLevels } from 'app/[game]/hooks/use-research-levels';
 import { getQuests } from 'app/[game]/hooks/use-quests';
 import { getAchievements } from 'app/[game]/hooks/use-achievements';
 import { getEffects } from 'app/[game]/hooks/use-effects';
@@ -55,11 +54,6 @@ describe('Server deletion', async () => {
   test('Troops should get deleted on server deletion', async () => {
     const troops = await getTroops(serverId);
     expect(troops.length).toBe(0);
-  });
-
-  test('Research levels should get deleted on server deletion', async () => {
-    const researchLevels = await getResearchLevels(serverId);
-    expect(researchLevels.length).toBe(0);
   });
 
   test('Quests should get deleted on server deletion', async () => {

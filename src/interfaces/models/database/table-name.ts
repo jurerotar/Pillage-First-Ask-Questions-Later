@@ -11,7 +11,6 @@ type ServerSpecificTableName =
   | 'effects'
   | 'players'
   | 'reputations'
-  | 'researchLevels'
   | 'auctions'
   | 'mapMarkers'
   | 'adventures'

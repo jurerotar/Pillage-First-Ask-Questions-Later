@@ -1,6 +1,7 @@
 import { type DehydratedState, hydrate, useQueryClient } from '@tanstack/react-query';
 import { GameEngineProvider } from 'app/[game]/providers/game-engine-provider';
 import { Outlet, useRouteLoaderData } from 'react-router-dom';
+import { CurrentResourceProvider } from 'app/[game]/providers/current-resources-provider';
 
 type RouteLoaderData = {
   dehydratedState: DehydratedState;
@@ -14,7 +15,9 @@ export const GameProviders = () => {
 
   return (
     <GameEngineProvider>
-      <Outlet />
+      <CurrentResourceProvider>
+        <Outlet />
+      </CurrentResourceProvider>
     </GameEngineProvider>
   );
 };
