@@ -13,6 +13,7 @@ export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, qu
           queries: {
             gcTime: Number.POSITIVE_INFINITY,
             networkMode: 'always',
+            staleTime: Number.POSITIVE_INFINITY,
           },
           mutations: {
             networkMode: 'always',

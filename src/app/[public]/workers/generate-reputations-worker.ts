@@ -1,8 +1,8 @@
 import { reputationFactory } from 'app/factories/reputation-factory';
-import { database } from 'database/database';
 import type { PlayerFaction } from 'interfaces/models/game/player';
 import type { Reputation } from 'interfaces/models/game/reputation';
 import type { Server } from 'interfaces/models/game/server';
+import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GenerateReputationsWorkerPayload = {
   server: Server;
@@ -16,13 +16,11 @@ const factions: PlayerFaction[] = ['player', 'npc1', 'npc2', 'npc3', 'npc4', 'np
 
 self.addEventListener('message', async (event: MessageEvent<GenerateReputationsWorkerPayload>) => {
   const { server } = event.data;
-  const reputations = factions.map((faction) =>
-    reputationFactory({
-      server,
-      faction,
-    })
-  );
+  const reputations = factions.map((faction) => reputationFactory({ faction }));
   self.postMessage({ reputations });
-  await database.reputations.bulkAdd(reputations);
+
+  const serverHandle = await getServerHandle(server.slug);
+  await writeFileContents<Reputation[]>(serverHandle, 'reputations', reputations);
+
   self.close();
 });

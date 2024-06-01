@@ -4,18 +4,11 @@ import {
   gaulServerMock,
   hunServerMock,
   romanServerMock,
-  serverMock,
   spartanServerMock,
   teutonServerMock,
 } from 'mocks/models/game/server-mock';
 
 describe('Hero factory', () => {
-  const hero = heroFactory({ server: serverMock });
-
-  test('Has correct server id', () => {
-    expect(hero.serverId).toBe(serverMock.id);
-  });
-
   describe('Static attributes', () => {
     const gaulHero = heroFactory({ server: gaulServerMock });
     const teutonHero = heroFactory({ server: teutonServerMock });

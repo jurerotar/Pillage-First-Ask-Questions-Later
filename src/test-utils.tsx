@@ -9,7 +9,7 @@ import type React from 'react';
 import type { FCWithChildren } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
-export type RenderOptions = {
+type RenderOptions = {
   path?: string;
   queryClient?: QueryClient;
   // Wrap your component with layout(s). If property is missing, default layout will be used.

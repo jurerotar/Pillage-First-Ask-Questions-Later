@@ -15,7 +15,6 @@ import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 type NewBuildingEffectFactoryArgs = {
   villageId: Village['id'];
-  serverId: Server['id'];
   id: Effect['id'];
   value: number;
   buildingFieldId: BuildingField['id'];
@@ -30,17 +29,15 @@ const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): VillageBu
 };
 
 type NewVillageEffectFactoryArgs = {
-  server: Server;
   village: Village;
 };
 
-const newVillageBuildingFieldsEffectsFactory = ({ village, server }: NewVillageEffectFactoryArgs): VillageBuildingEffect[] => {
+const newVillageBuildingFieldsEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): VillageBuildingEffect[] => {
   return village.buildingFields.flatMap(({ buildingId, id, level }: BuildingField) => {
     const building = getBuildingData(buildingId);
     return building.effects.map(({ effectId, valuesPerLevel }: BuildingEffect) =>
       newBuildingEffectFactory({
         villageId: village.id,
-        serverId: server.id,
         id: effectId,
         value: valuesPerLevel[level],
         buildingFieldId: id,
@@ -49,13 +46,12 @@ const newVillageBuildingFieldsEffectsFactory = ({ village, server }: NewVillageE
   });
 };
 
-export const newVillageEffectsFactory = ({ server, village }: NewVillageEffectFactoryArgs): VillageEffect[] => {
+export const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): VillageEffect[] => {
   const villageDefaultStorageEffectsIds: Effect['id'][] = ['warehouseCapacity', 'granaryCapacity'];
   return [
     ...villageDefaultStorageEffectsIds.map(
       (effectId) =>
         ({
-          serverId: server.id,
           id: effectId,
           scope: 'village',
           source: 'server',
@@ -63,7 +59,7 @@ export const newVillageEffectsFactory = ({ server, village }: NewVillageEffectFa
           villageId: village.id,
         }) satisfies VillageEffect
     ),
-    ...newVillageBuildingFieldsEffectsFactory({ server, village }),
+    ...newVillageBuildingFieldsEffectsFactory({ village }),
   ];
 };
 
@@ -76,7 +72,7 @@ export const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): Glob
 
   const tribeMerchant = merchants.find(({ tribe: tribeToFind }) => tribeToFind === tribe)!;
 
-  const merchantEffects: Omit<TribalEffect, 'serverId' | 'scope'>[] = [
+  const merchantEffects: Omit<TribalEffect, 'scope'>[] = [
     {
       id: 'merchantCapacity',
       value: tribeMerchant.merchantCapacity,
@@ -89,7 +85,7 @@ export const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): Glob
     },
   ];
 
-  const heroEffects: Omit<HeroEffect, 'serverId' | 'scope'>[] = [
+  const heroEffects: Omit<HeroEffect, 'scope'>[] = [
     {
       id: 'attackBonus',
       value: 1,
@@ -129,14 +125,12 @@ export const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): Glob
 
   return [...merchantEffects, ...heroEffects].map((partialEffect) => ({
     ...partialEffect,
-    serverId: server.id,
     scope: 'global',
   }));
 };
 
 export const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffect[] => {
   const {
-    id,
     configuration: { speed },
   } = server;
 
@@ -173,7 +167,6 @@ export const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): Serv
       value: effectId === 'buildingDuration' ? buildingDurationValue : value,
       source: 'server',
       scope: 'server',
-      serverId: id,
     };
   });
 };

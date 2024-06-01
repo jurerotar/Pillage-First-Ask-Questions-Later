@@ -1,5 +1,3 @@
-import type { WithServerId } from 'interfaces/models/game/server';
-
 export type MapFilterName =
   | 'shouldShowFactionReputation'
   | 'shouldShowOasisIcons'
@@ -8,4 +6,4 @@ export type MapFilterName =
   | 'shouldShowTileTooltips'
   | 'shouldShowTreasureIcons';
 
-export type MapFilters = WithServerId<Record<MapFilterName, boolean>>;
+export type MapFilters = Record<MapFilterName, boolean>;

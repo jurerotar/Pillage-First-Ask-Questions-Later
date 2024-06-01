@@ -2,7 +2,7 @@ import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useViewport } from 'app/providers/viewport-context';
 import { createContext, type FCWithChildren, useCallback, useContext, useMemo, useState } from 'react';
 
-export type MapProviderValues = {
+type MapProviderValues = {
   magnification: number;
   increaseMagnification: () => void;
   decreaseMagnification: () => void;

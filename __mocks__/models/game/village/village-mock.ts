@@ -1,14 +1,11 @@
 import type { Village } from 'interfaces/models/game/village';
 import { playerMock } from 'mocks/models/game/player-mock';
-import { serverMock } from 'mocks/models/game/server-mock';
 import { newVillageBuildingFieldsMock } from './building-fields-mock';
 import { resourceFields4446Mock } from './resource-fields-mock';
 
-const { id: serverId } = serverMock;
 const { id: playerId } = playerMock;
 
 export const villageMock: Village = {
-  serverId,
   id: '9ab89c67-8903-4d63-b67a-8b8cbe6597de',
   name: 'player-950bbc85d18046cbc1a87cd58ca03e24f2b0f72e',
   slug: 'v-1',

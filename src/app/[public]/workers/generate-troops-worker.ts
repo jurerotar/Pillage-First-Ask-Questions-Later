@@ -1,5 +1,4 @@
 import { seededRandomIntFromInterval } from 'app/utils/common';
-import { database } from 'database/database';
 import type { Player } from 'interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import type { Server } from 'interfaces/models/game/server';
@@ -8,6 +7,7 @@ import type { Tribe } from 'interfaces/models/game/tribe';
 import type { Troop } from 'interfaces/models/game/troop';
 import type { NatureUnitId, UnitId } from 'interfaces/models/game/unit';
 import { prng_alea } from 'esm-seedrandom';
+import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GenerateTroopsWorkerPayload = {
   server: Server;
@@ -296,7 +296,7 @@ const villageSizeToTroopsLevel = new Map<OccupiedOccupiableTile['villageSize'], 
 
 self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorkerPayload>) => {
   const {
-    server: { seed, id: serverId },
+    server: { seed, slug },
     occupiableOasisTiles,
     occupiedOccupiableTiles,
     players,
@@ -311,7 +311,6 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
       const [unitId, amount] = unitIdWithAmount;
       const [min, max] = amount;
       return {
-        serverId,
         unitId,
         amount: seededRandomIntFromInterval(prng, min, max),
         source: tileId,
@@ -335,7 +334,6 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
       const [unitId, min, max] = unitComposition;
 
       return {
-        serverId,
         unitId,
         amount: seededRandomIntFromInterval(prng, min, max),
         source: tileId,
@@ -348,6 +346,9 @@ self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorker
   const troops = [...oasisTroops, ...npcTroops];
 
   self.postMessage({ troops });
-  await database.troops.bulkAdd(troops);
+
+  const serverHandle = await getServerHandle(slug);
+  await writeFileContents<Troop[]>(serverHandle, 'troops', troops);
+
   self.close();
 });

@@ -1,9 +1,9 @@
 import { playerFactory, userPlayerFactory } from 'app/factories/player-factory';
 import { seededRandomArrayElement } from 'app/utils/common';
-import { database } from 'database/database';
 import type { Player, PlayerFaction } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import { prng_alea } from 'esm-seedrandom';
+import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GeneratePlayersWorkerPayload = {
   server: Server;
@@ -24,12 +24,15 @@ self.addEventListener('message', async (event: MessageEvent<GeneratePlayersWorke
   const userPlayer = userPlayerFactory({ server });
   const npcPlayers = [...Array(PLAYER_COUNT)].map(() => {
     const faction = seededRandomArrayElement<PlayerFaction>(prng, factions);
-    return playerFactory({ server, faction, prng });
+    return playerFactory({ faction, prng });
   });
 
   const players = [userPlayer, ...npcPlayers];
 
   self.postMessage({ players });
-  await database.players.bulkAdd(players);
+
+  const serverHandle = await getServerHandle(server.slug);
+  await writeFileContents<Player[]>(serverHandle, 'players', players);
+
   self.close();
 });

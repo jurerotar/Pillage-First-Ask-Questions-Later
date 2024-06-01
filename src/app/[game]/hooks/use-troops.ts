@@ -1,20 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { database } from 'database/database';
-import type { Server } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
 import type { Troop } from 'interfaces/models/game/troop';
+import { getParsedFileContents } from 'app/utils/opfs';
 
 export const troopsCacheKey = 'units';
 
-export const getTroops = (serverId: Server['id']) => database.troops.where({ serverId }).toArray();
-
 export const useTroops = () => {
-  const { serverId } = useCurrentServer();
+  const { serverHandle } = useCurrentServer();
 
-  const { data: troops } = useQuery({
-    queryFn: () => getTroops(serverId),
-    queryKey: [troopsCacheKey, serverId],
+  const { data: troops } = useQuery<Troop[]>({
+    queryFn: () => getParsedFileContents(serverHandle, 'troops'),
+    queryKey: [troopsCacheKey],
     initialData: [],
   });
 

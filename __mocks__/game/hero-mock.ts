@@ -1,10 +1,6 @@
 import type { Hero } from 'interfaces/models/game/hero';
-import { serverMock } from 'mocks/models/game/server-mock';
-
-const { id: serverId } = serverMock;
 
 export const heroMock: Hero = {
-  serverId,
   stats: {
     level: 0,
     experience: 0,

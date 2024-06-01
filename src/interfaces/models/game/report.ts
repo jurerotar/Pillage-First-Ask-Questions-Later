@@ -1,4 +1,3 @@
-import type { WithServerId } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
 
 export type ReportTypes =
@@ -16,11 +15,11 @@ export type ReportTag = 'read' | 'archived' | 'deleted';
 
 export type ReportStatus = 'no-loss' | 'some-loss' | 'full-loss';
 
-export type Report = WithServerId<{
+export type Report = {
   id: number;
   type: ReportTypes;
   tags: ReportTag[];
   tileId: Tile['id'];
   timestamp: Date;
   status?: ReportStatus;
-}>;
+};

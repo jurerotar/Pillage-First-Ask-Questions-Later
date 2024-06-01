@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["dom", "dom.iterable", "esnext", "webworker"],
+    "lib": ["dom", "dom.iterable", "dom.asynciterable", "esnext", "webworker"],
     "types": ["vite/client", "vite-plugin-svgr/client", "vitest/globals"],
     "typeRoots": ["node_modules/@types", "node_modules", "src/interfaces/libs"],
     "baseUrl": "./",
@@ -20,11 +20,11 @@
     "module": "esnext",
     "paths": {
       "app/*": ["src/app/*"],
-      "database/*": ["src/database/*"],
       "interfaces/*": ["src/interfaces/*"],
       "assets/*": ["src/assets/*"],
       "test-utils": ["src/test-utils"],
-      "mocks/*": ["__mocks__/*"]
+      "mocks/*": ["__mocks__/*"],
+      "packages/*": ["packages/*"]
     }
   },
   "exclude": ["node_modules"],

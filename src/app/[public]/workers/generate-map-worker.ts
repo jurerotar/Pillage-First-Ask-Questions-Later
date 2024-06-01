@@ -1,10 +1,9 @@
 import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
 import { mapFactory } from 'app/factories/map-factory';
-import { database } from 'database/database';
 import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
-import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import { chunk } from 'moderndash';
+import type { OccupiableOasisTile, OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
+import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GenerateMapWorkerPayload = {
   server: Server;
@@ -23,13 +22,8 @@ self.addEventListener('message', async (event: MessageEvent<GenerateMapWorkerPay
   const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
   self.postMessage({ occupiableOasisTiles, occupiedOccupiableTiles });
 
-  const promises = [];
-  const chunkedTiles = chunk(tiles, 3000);
+  const serverHandle = await getServerHandle(server.slug);
+  await writeFileContents<Tile[]>(serverHandle, 'map', tiles);
 
-  for (let i = 0; i < chunkedTiles.length; i += 1) {
-    promises.push(database.maps.bulkAdd(chunkedTiles[i]));
-  }
-
-  await Promise.all(promises);
   self.close();
 });

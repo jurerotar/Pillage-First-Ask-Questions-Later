@@ -1,9 +1,7 @@
 import type { PlayerFaction } from 'interfaces/models/game/player';
 import type { Reputation, ReputationLevel } from 'interfaces/models/game/reputation';
-import type { Server } from 'interfaces/models/game/server';
 
 type ReputationFactoryProps = {
-  server: Server;
   faction: PlayerFaction;
 };
 
@@ -20,11 +18,10 @@ const factionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationL
   ['npc8', 'hostile'],
 ]);
 
-export const reputationFactory = ({ server, faction }: ReputationFactoryProps): Reputation => {
+export const reputationFactory = ({ faction }: ReputationFactoryProps): Reputation => {
   const reputationLevel = factionToPredefinedReputationLevelMap.get(faction)!;
 
   return {
-    serverId: server.id,
     faction,
     percentage: 0,
     reputationLevel,

@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   GenerateAchievementsWorkerPayload,
   GenerateAchievementsWorkerReturn,
@@ -18,13 +18,16 @@ import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from '
 import CreateVillagesWorker from 'app/[public]/workers/generate-villages-worker?worker&url';
 import type { GenerateMapWorkerPayload, GenerateMapWorkerReturn } from 'app/[public]/workers/generate-map-worker';
 import CreateMapWorker from 'app/[public]/workers/generate-map-worker?worker&url';
+import type { GenerateHeroWorkerPayload, GenerateHeroWorkerReturn } from 'app/[public]/workers/generate-hero-worker';
+import CreateHeroWorker from 'app/[public]/workers/generate-hero-worker?worker&url';
+import type { GenerateMapFiltersWorkerPayload, GenerateMapFiltersWorkerReturn } from 'app/[public]/workers/generate-map-filters-worker';
+import CreateMapFiltersWorker from 'app/[public]/workers/generate-map-filters-worker?worker&url';
+import type { GenerateServerWorkerPayload, GenerateServerWorkerReturn } from 'app/[public]/workers/generate-server-worker';
+import CreateServerWorker from 'app/[public]/workers/generate-server-worker?worker&url';
 import { Button } from 'app/components/buttons/button';
-import { heroFactory } from 'app/factories/hero-factory';
-import { mapFiltersFactory } from 'app/factories/map-filters-factory';
 import { serverFactory } from 'app/factories/server-factory';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { availableServerCacheKey, useAvailableServers } from 'app/hooks/use-available-servers';
 import { workerFactory } from 'app/utils/workers';
-import { database } from 'database/database';
 import type { Server } from 'interfaces/models/game/server';
 import type React from 'react';
 import { useForm } from 'react-hook-form';
@@ -121,6 +124,7 @@ const CreateServerConfigurationView: React.FC<CreateServerConfigurationViewProps
   );
 };
 
+// All of these factories have to be executed in a worker env due to them using OPFS
 export const initializeServer = async ({ server }: OnSubmitArgs) => {
   // Reputations
   const { reputations } = await workerFactory<GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn>(
@@ -162,10 +166,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     ),
 
     // Hero data
-    (async () => {
-      const hero = heroFactory({ server });
-      await database.heroes.add(hero);
-    })(),
+    workerFactory<GenerateHeroWorkerPayload, GenerateHeroWorkerReturn>(CreateHeroWorker, { server }, ''),
 
     // Quests
     workerFactory<GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn>(
@@ -185,16 +186,15 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     ),
 
     // Map filters
-    (async () => {
-      const mapFilters = mapFiltersFactory({ server });
+    workerFactory<GenerateServerWorkerPayload, GenerateServerWorkerReturn>(CreateServerWorker, { server }, ''),
 
-      await database.mapFilters.add(mapFilters);
-    })(),
+    workerFactory<GenerateMapFiltersWorkerPayload, GenerateMapFiltersWorkerReturn>(CreateMapFiltersWorker, { server }, ''),
   ]);
 };
 
 export const CreateServerModalContent = () => {
-  const { createServer, deleteServer } = useAvailableServers();
+  const queryClient = useQueryClient();
+  const { deleteServer } = useAvailableServers();
 
   const {
     mutate: onSubmit,
@@ -206,8 +206,10 @@ export const CreateServerModalContent = () => {
     mutationFn: async ({ server }) => {
       await initializeServer({ server });
     },
-    onSuccess: async (_, { server }) => {
-      await createServer({ server });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [availableServerCacheKey],
+      });
     },
     onError: async (_, { server }) => {
       await deleteServer({ server });

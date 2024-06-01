@@ -1,19 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { database } from 'database/database';
 import type { Achievement } from 'interfaces/models/game/achievement';
-import type { Server } from 'interfaces/models/game/server';
+import { getParsedFileContents } from 'app/utils/opfs';
 
 export const achievementsCacheKey = 'achievements';
 
-export const getAchievements = (serverId: Server['id']) => database.achievements.where({ serverId }).toArray();
-
 export const useAchievements = () => {
-  const { serverId } = useCurrentServer();
+  const { serverHandle } = useCurrentServer();
 
   const { data: achievements } = useQuery<Achievement[]>({
-    queryFn: () => getAchievements(serverId),
-    queryKey: [achievementsCacheKey, serverId],
+    queryFn: () => getParsedFileContents(serverHandle, 'achievements'),
+    queryKey: [achievementsCacheKey],
     initialData: [],
   });
 

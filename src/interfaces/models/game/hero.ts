@@ -1,7 +1,6 @@
 import type { Resource } from 'interfaces/models/game/resource';
-import type { WithServerId } from 'interfaces/models/game/server';
 
-export type Hero = WithServerId<{
+export type Hero = {
   stats: HeroStats;
   // Attributes determined by tribe
   staticAttributes: HeroStaticAttributes;
@@ -10,7 +9,7 @@ export type Hero = WithServerId<{
   resourceToProduce: Resource | 'shared';
   unitType: 'infantry' | 'cavalry';
   inventory: HeroItem[];
-}>;
+};
 
 export type HeroStats = {
   level: number;

@@ -1,13 +1,12 @@
 import type { Point } from 'interfaces/models/common';
 import type { Player } from 'interfaces/models/game/player';
 import type { Resource } from 'interfaces/models/game/resource';
-import type { WithServerId } from 'interfaces/models/game/server';
 import type { ResourceFieldComposition, Village } from 'interfaces/models/game/village';
 
-export type BaseTile = WithServerId<{
+export type BaseTile = {
   id: string;
   coordinates: Point;
-}>;
+};
 
 export type OasisResourceBonus = {
   resource: Resource;

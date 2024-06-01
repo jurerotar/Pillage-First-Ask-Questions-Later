@@ -14,8 +14,5 @@ export const serverFactory = ({ name, seed, configuration, playerConfiguration }
     createdAt: Date.now(),
     configuration,
     playerConfiguration,
-    statistics: {
-      lastLoggedInTime: null,
-    },
   };
 };

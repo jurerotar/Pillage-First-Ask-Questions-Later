@@ -1,10 +1,9 @@
 import { npcVillageFactory, userVillageFactory } from 'app/factories/village-factory';
-import { database } from 'database/database';
 import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import type { Village } from 'interfaces/models/game/village';
-import { chunk } from 'moderndash';
+import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GenerateVillageWorkerPayload = {
   server: Server;
@@ -33,14 +32,8 @@ self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorke
     return npcVillageFactory({ server, player, tile });
   });
 
-  const promises = [];
-  const chunkedVillages = chunk([playerStartingVillage, ...villages], 1000);
-
-  for (let i = 0; i < chunkedVillages.length; i += 1) {
-    promises.push(database.villages.bulkAdd(chunkedVillages[i]));
-  }
-
-  await Promise.all(promises);
+  const serverHandle = await getServerHandle(server.slug);
+  await writeFileContents<Village[]>(serverHandle, 'villages', [playerStartingVillage, ...villages]);
 
   self.close();
 });
