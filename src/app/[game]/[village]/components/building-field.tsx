@@ -1,6 +1,6 @@
 import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade-indicator';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/building';
 import clsx from 'clsx';
 import type { BuildingField as BuildingFieldType, ReservedFieldId, VillageFieldId } from 'interfaces/models/game/village';
 import type React from 'react';

@@ -1,21 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
-import { database } from 'database/database';
 import type { Server } from 'interfaces/models/game/server';
+import { getParsedFileContents, getServerHandle } from 'app/utils/opfs';
 
 export const currentServerCacheKey = 'current-server';
-
-export const getCurrentServer = (serverSlug: Server['slug']) => database.servers.where({ slug: serverSlug }).first() as Promise<Server>;
+export const serverHandleCacheKey = 'server-handle';
 
 export const useCurrentServer = () => {
   const { serverSlug } = useRouteSegments();
 
-  const { data } = useQuery<Server>({
-    queryKey: [currentServerCacheKey, serverSlug],
-    queryFn: () => getCurrentServer(serverSlug),
+  const { data: dataHandle } = useQuery<FileSystemDirectoryHandle>({
+    queryFn: () => getServerHandle(serverSlug),
+    queryKey: [serverHandleCacheKey],
   });
 
-  // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
+  const serverHandle = dataHandle as FileSystemDirectoryHandle;
+
+  const { data } = useQuery<Server>({
+    queryFn: () => getParsedFileContents<Server>(serverHandle, 'server'),
+    queryKey: [currentServerCacheKey],
+  });
+
   const server = data as Server;
 
   const serverId = server.id;
@@ -26,5 +31,6 @@ export const useCurrentServer = () => {
     serverId,
     mapSize,
     serverSpeed,
+    serverHandle,
   };
 };

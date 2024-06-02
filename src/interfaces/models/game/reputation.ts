@@ -1,5 +1,4 @@
 import type { PlayerFaction } from 'interfaces/models/game/player';
-import type { WithServerId } from 'interfaces/models/game/server';
 
 export type ReputationLevel =
   // Essentially a 'helper' reputation, this makes sure we don't have to have a bunch of hacks throughout the codebase
@@ -17,8 +16,8 @@ export type ReputationLevel =
   // Trade is not possible. Faction will be sending attacks and raids.
   | 'hostile';
 
-export type Reputation = WithServerId<{
+export type Reputation = {
   faction: PlayerFaction;
   percentage: number;
   reputationLevel: ReputationLevel;
-}>;
+};

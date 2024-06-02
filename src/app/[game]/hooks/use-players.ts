@@ -1,20 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { database } from 'database/database';
 import type { Player } from 'interfaces/models/game/player';
-import type { Server } from 'interfaces/models/game/server';
 import { useCallback } from 'react';
+import { getParsedFileContents } from 'app/utils/opfs';
 
 export const playersCacheKey = 'players';
 
-export const getPlayers = (serverId: Server['id']) => database.players.where({ serverId }).toArray();
-
 export const usePlayers = () => {
-  const { serverId } = useCurrentServer();
+  const { serverHandle } = useCurrentServer();
 
   const { data: players } = useQuery<Player[]>({
-    queryFn: () => getPlayers(serverId),
-    queryKey: [playersCacheKey, serverId],
+    queryFn: () => getParsedFileContents(serverHandle, 'players'),
+    queryKey: [playersCacheKey],
     initialData: [],
   });
 

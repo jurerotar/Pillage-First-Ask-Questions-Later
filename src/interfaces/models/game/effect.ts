@@ -1,4 +1,3 @@
-import type { WithServerId } from 'interfaces/models/game/server';
 import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 export type TroopTrainingDurationEffectId =
@@ -13,7 +12,8 @@ export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | '
 
 export type EffectId =
   | 'attack'
-  | 'defence'
+  | 'infantryDefence'
+  | 'cavalryDefence'
   | 'warehouseCapacity'
   | 'granaryCapacity'
   | 'unitSpeed'
@@ -29,13 +29,13 @@ export type EffectId =
 
 type EffectIdBonus = `${EffectId}Bonus`;
 
-export type Effect = WithServerId<{
+export type Effect = {
   id: EffectId | EffectIdBonus;
   // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
   scope: 'global' | 'village' | 'server';
   value: number;
   source: 'hero' | 'oasis' | 'artifact' | 'building' | 'tribe' | 'server';
-}>;
+};
 
 export type ServerEffect = Omit<Effect, 'scope'> & {
   scope: 'server';

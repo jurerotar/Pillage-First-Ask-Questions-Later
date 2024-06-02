@@ -1,20 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { database } from 'database/database';
 import type { MapFilterName, MapFilters } from 'interfaces/models/game/map-filters';
-import type { Server } from 'interfaces/models/game/server';
+import { getParsedFileContents } from 'app/utils/opfs';
+import { useGameEngine } from 'app/[game]/providers/game-engine-provider';
 
 export const mapFiltersCacheKey = 'map-filters';
 
-export const getMapFilters = (serverId: Server['id']) => database.mapFilters.where({ serverId }).first() as Promise<MapFilters>;
-
 export const useMapFilters = () => {
   const queryClient = useQueryClient();
-  const { serverId } = useCurrentServer();
+  const { serverHandle } = useCurrentServer();
+  const { syncWorker } = useGameEngine();
 
   const { data } = useQuery<MapFilters>({
-    queryKey: [mapFiltersCacheKey, serverId],
-    queryFn: () => getMapFilters(serverId),
+    queryKey: [mapFiltersCacheKey],
+    queryFn: () => getParsedFileContents(serverHandle, 'mapFilters'),
   });
 
   // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
@@ -22,17 +21,13 @@ export const useMapFilters = () => {
 
   const { mutate: toggleMapFilter } = useMutation<void, Error, MapFilterName>({
     mutationFn: async (filterName) => {
-      database.mapFilters.where({ serverId }).modify({
-        [filterName]: !mapFilters![filterName],
-      });
-    },
-    onMutate: (filterName) => {
       const updatedMapFilters = {
         ...mapFilters,
         [filterName]: !mapFilters[filterName],
       };
 
-      queryClient.setQueryData<MapFilters>([mapFiltersCacheKey, serverId], updatedMapFilters);
+      queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], updatedMapFilters);
+      syncWorker.postMessage({ type: 'individual-sync', name: 'mapFilters', data: updatedMapFilters });
     },
   });
 

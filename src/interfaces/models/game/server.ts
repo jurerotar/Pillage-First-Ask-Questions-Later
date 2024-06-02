@@ -10,10 +10,6 @@ export type PlayerConfiguration = {
   tribe: Tribe;
 };
 
-export type ServerStatistics = {
-  lastLoggedInTime: number | null;
-};
-
 export type Server = {
   id: string;
   name: string;
@@ -22,9 +18,4 @@ export type Server = {
   seed: string;
   configuration: ServerConfiguration;
   playerConfiguration: PlayerConfiguration;
-  statistics: ServerStatistics;
-};
-
-export type WithServerId<T> = T & {
-  serverId: Server['id'];
 };

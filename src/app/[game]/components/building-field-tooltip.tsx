@@ -1,7 +1,7 @@
 import { Resources } from 'app/[game]/components/resources';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/common';
+import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/building';
 import { Icon } from 'app/components/icon';
 import { formatTime } from 'app/utils/time';
 import type { BuildingField } from 'interfaces/models/game/village';

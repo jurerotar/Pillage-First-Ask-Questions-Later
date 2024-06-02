@@ -8,7 +8,7 @@ const { slug: serverSlug } = serverMock;
 const { slug: villageSlug } = villageMock;
 
 describe('useGameNavigation', () => {
-  test('Resources path includes serverId, villageId & resources pathname', () => {
+  test('Resources path includes serverSlug, villageId & resources pathname', () => {
     const { result } = renderHookWithGameContext(() => useGameNavigation());
     const { resourcesPath } = result.current;
 
@@ -17,7 +17,7 @@ describe('useGameNavigation', () => {
     expect(resourcesPath.includes('resources')).toBe(true);
   });
 
-  test('Village path includes serverId, villageId & village pathname', () => {
+  test('Village path includes serverSlug, villageId & village pathname', () => {
     const { result } = renderHookWithGameContext(() => useGameNavigation());
     const { villagePath } = result.current;
 
@@ -26,7 +26,7 @@ describe('useGameNavigation', () => {
     expect(villagePath.includes('village')).toBe(true);
   });
 
-  test('Map path includes serverId, villageId & map pathname', () => {
+  test('Map path includes serverSlug, villageId & map pathname', () => {
     const { result } = renderHookWithGameContext(() => useGameNavigation());
     const { mapPath } = result.current;
 

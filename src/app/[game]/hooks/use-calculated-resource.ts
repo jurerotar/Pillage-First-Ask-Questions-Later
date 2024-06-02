@@ -44,7 +44,7 @@ export const calculateCurrentAmount = ({
   };
 };
 
-export const useCurrentResources = (resource: Resource) => {
+export const useCalculatedResource = (resource: Resource) => {
   const {
     currentVillage: { resources, lastUpdatedAt },
   } = useCurrentVillage();
@@ -63,55 +63,46 @@ export const useCurrentResources = (resource: Resource) => {
   });
 
   const [calculatedResourceAmount, setCalculatedResourceAmount] = useState<number>(currentAmount);
-  const [hasSetInitialResourceUnit, setHasSetInitialResourceUnit] = useState<boolean>(false);
 
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This component is quite broken, fix when available
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (isFull || hasSetInitialResourceUnit) {
-      if (timeoutId.current !== null) {
-        clearTimeout(timeoutId.current!);
-        timeoutId.current = null;
-      }
-      return;
+    setCalculatedResourceAmount(currentAmount);
+
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+    }
+    if (intervalId.current) {
+      clearInterval(intervalId.current);
     }
 
-    timeoutId.current = setTimeout(
-      () => {
-        setHasSetInitialResourceUnit(true);
-        clearTimeout(timeoutId.current!);
-        setCalculatedResourceAmount((prevState) => Math.min(prevState + 1, storageCapacity));
-      },
-      (secondsForResourceGeneration - (timeSinceLastUpdateInSeconds % secondsForResourceGeneration)) * 1000
-    );
+    const updateResourceAmount = () => {
+      setCalculatedResourceAmount((prevAmount) => {
+        let newAmount = prevAmount + 1;
+        if (newAmount > storageCapacity) newAmount = storageCapacity;
+        if (newAmount < 0) newAmount = 0;
+        return newAmount;
+      });
+    };
+
+    const remainingTimeForNextUnit = secondsForResourceGeneration - (timeSinceLastUpdateInSeconds % secondsForResourceGeneration);
+
+    timeoutId.current = setTimeout(() => {
+      updateResourceAmount();
+      intervalId.current = setInterval(updateResourceAmount, secondsForResourceGeneration * 1000);
+    }, remainingTimeForNextUnit * 1000);
 
     return () => {
-      clearTimeout(timeoutId.current!);
-      timeoutId.current = null;
-    };
-  }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This component is quite broken, fix when available
-  useEffect(() => {
-    if (isFull || !hasSetInitialResourceUnit) {
-      if (intervalId.current !== null) {
-        clearInterval(intervalId.current!);
-        intervalId.current = null;
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
       }
-      return;
-    }
-
-    intervalId.current = setInterval(() => {
-      setCalculatedResourceAmount((prevState) => Math.min(prevState + 1, storageCapacity));
-    }, secondsForResourceGeneration * 1000);
-
-    return () => {
-      clearInterval(intervalId.current!);
-      intervalId.current = null;
+      if (intervalId.current) {
+        clearInterval(intervalId.current);
+      }
     };
-  }, [lastUpdatedAt, hourlyProduction, storageCapacity, hasSetInitialResourceUnit]);
+  }, [lastUpdatedAt, hourlyProduction, storageCapacity, secondsForResourceGeneration]);
 
   return {
     calculatedResourceAmount,

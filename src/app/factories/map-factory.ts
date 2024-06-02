@@ -282,7 +282,6 @@ const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[
 
 const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
   const {
-    id,
     seed,
     configuration: { mapSize: size },
   } = server;
@@ -308,7 +307,6 @@ const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
 
     return {
       id: `${seed}-${xCoordinateCounter}-${yCoordinateCounter}`,
-      serverId: id,
       coordinates,
       graphics: {
         backgroundColor: '#B9D580',
@@ -395,8 +393,9 @@ const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsA
     {} as Record<string, MaybeOccupiedBaseTile>
   );
 
-  for (let i = 0; i < tilesWithOasisShapes.length; i += 1) {
+  tileLoop: for (let i = 0; i < tilesWithOasisShapes.length; i += 1) {
     const currentTile = tilesWithOasisShapes[i];
+
     if (Object.hasOwn(currentTile, 'type')) {
       continue; // Skip already occupied tiles
     }
@@ -416,30 +415,30 @@ const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsA
     const tilesToUpdate: BaseTile[] = [];
     const oasisGroupPositions: number[][] = [];
 
-    outer: for (let k = 0; k < oasisShape.length; k += 1) {
+    for (let k = 0; k < oasisShape.length; k += 1) {
       const amountOfTiles = oasisShape[k];
       for (let j = 0; j < amountOfTiles; j += 1) {
         const tile: MaybeOccupiedBaseTile | undefined = tilesByCoordinates[`${j + tileCoordinates.x},${tileCoordinates.y - k}`];
 
         if (!tile || Object.hasOwn(tile, 'type')) {
-          break outer;
+          continue tileLoop;
         }
 
         oasisGroupPositions.push([k, j]);
         tilesToUpdate.push(tile);
       }
-
-      tilesToUpdate.forEach((tile, index) => {
-        const oasisTile = generateOasisTile({
-          tile,
-          oasisGroup,
-          oasisGroupPosition: oasisGroupPositions[index],
-          preGeneratedResourceType: resourceType,
-          prng,
-        });
-        Object.assign(tile, oasisTile);
-      });
     }
+
+    tilesToUpdate.forEach((tile, index) => {
+      const oasisTile = generateOasisTile({
+        tile,
+        oasisGroup,
+        oasisGroupPosition: oasisGroupPositions[index],
+        preGeneratedResourceType: resourceType,
+        prng,
+      });
+      Object.assign(tile, oasisTile);
+    });
   }
 
   return tilesWithOasisShapes;
@@ -459,6 +458,7 @@ const generateSingleOasisFields = ({ server, tiles }: GenerateSingleOasisFieldsA
     if (Object.hasOwn(tile, 'type')) {
       return tile;
     }
+
     const willBeOccupied = seededRandomIntFromInterval(prng, 1, 20) === 1;
     if (!willBeOccupied) {
       return tile;

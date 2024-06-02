@@ -4,7 +4,7 @@ import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/[game]/util
 import type { Effect, EffectId, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
 import type { Village } from 'interfaces/models/game/village';
 
-export const calculateComputedEffect = (effectId: EffectId, effects: Effect[], currentVillageId: Village['id']) => {
+export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[], currentVillageId: Village['id']) => {
   const serverEffects: ServerEffect[] = effects.filter(isServerEffect);
   const globalEffects: GlobalEffect[] = effects.filter(isGlobalEffect);
   const villageEffects: VillageEffect[] = effects.filter(isVillageEffect);

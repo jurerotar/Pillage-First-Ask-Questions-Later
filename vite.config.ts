@@ -21,9 +21,7 @@ export default defineConfig({
       'react-router-dom',
       'esm-seedrandom',
       'react-tabs',
-      'dexie',
       'react-hook-form',
-      'react-helmet-async',
       'react-modal',
       'usehooks-ts',
       'moderndash',
@@ -48,8 +46,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      packages: path.resolve(__dirname, 'packages'),
       app: path.resolve(__dirname, 'src/app'),
-      database: path.resolve(__dirname, 'src/database'),
       interfaces: path.resolve(__dirname, 'src/interfaces'),
       assets: path.resolve(__dirname, 'src/assets'),
       mocks: path.resolve(__dirname, '__mocks__'),
@@ -62,7 +60,7 @@ export default defineConfig({
   test: {
     watch: false,
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: './vitest-setup.ts',
   },
 }) satisfies UserConfig;

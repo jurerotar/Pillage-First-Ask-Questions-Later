@@ -11,9 +11,6 @@ export const serverMock: Server = {
     name: 'Player name',
     tribe: 'gauls',
   },
-  statistics: {
-    lastLoggedInTime: 1695289564435,
-  },
   id: 'b27f14e1-4b45-443b-a89d-adb0b0179bf3',
   slug: 's-067b',
   createdAt: 1695289564435,
