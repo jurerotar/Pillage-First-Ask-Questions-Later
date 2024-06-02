@@ -13,7 +13,7 @@ export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, qu
           queries: {
             gcTime: Number.POSITIVE_INFINITY,
             networkMode: 'always',
-            staleTime: Number.POSITIVE_INFINITY,
+            // TODO: Investigate whether it makes sense to set staleTime or somehow reduce performance impact of opfs file reading!
           },
           mutations: {
             networkMode: 'always',
