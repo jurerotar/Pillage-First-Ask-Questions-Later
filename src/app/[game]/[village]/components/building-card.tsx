@@ -21,12 +21,13 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   const { t } = useTranslation();
   const { tribe } = useTribe();
   const { playerVillages } = useVillages();
-  const { currentVillage, canDemolishBuildings } = useCurrentVillage();
+  const { currentVillage } = useCurrentVillage();
   const { currentVillageBuildingEvents } = useEvents();
   const createBuildingConstructionEvent = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
   const createBuildingLevelChangeEvent = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
   const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
 
+  const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
   const building = getBuildingData(buildingId);
   const buildingLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
   const doesBuildingExist = !!building;

@@ -18,9 +18,6 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
 
   const { deleteServer } = useAvailableServers();
 
-  const { lastLoggedInTime } = server.statistics;
-  const hasLoggedIn = lastLoggedInTime !== null;
-
   const serverCreatedAt = dayjs(server.createdAt);
 
   const timeSinceCreation = serverCreatedAt.fromNow(true);
@@ -43,12 +40,6 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           <span className="font-medium">Age:</span>
           <span>{timeSinceCreation}</span>
         </span>
-        {hasLoggedIn && (
-          <span className="flex gap-2">
-            <span className="font-medium">Last logged in:</span>
-            <span>{dayjs(lastLoggedInTime).fromNow(true)}</span>
-          </span>
-        )}
         <span className="flex gap-2">
           <span className="font-medium">Player name:</span>
           <span>{server.playerConfiguration.name}</span>

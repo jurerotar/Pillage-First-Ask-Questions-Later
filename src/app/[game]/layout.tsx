@@ -15,6 +15,7 @@ import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
 import { Await, Link, Outlet, useRouteLoaderData } from 'react-router-dom';
+import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -71,7 +72,7 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
   );
 };
 
-export const DesktopNavigation = () => {
+const DesktopNavigation = () => {
   const { villagePath, reportsPath, mapPath, resourcesPath, auctionsPath } = useGameNavigation();
 
   return (
@@ -127,8 +128,9 @@ export const DesktopNavigation = () => {
   );
 };
 
-export const MobileResourcesSection = () => {
-  const { population } = useCurrentVillage();
+const MobileResourcesSection = () => {
+  const { currentVillage } = useCurrentVillage();
+  const population = calculatePopulationFromBuildingFields(currentVillage.buildingFields);
 
   return (
     <div className="flex w-full bg-blue-500 bg-gradient-to-b from-[#101010] to-[#484848]">
@@ -167,7 +169,7 @@ export const MobileResourcesSection = () => {
   );
 };
 
-export const MobileBottomNavigation = () => {
+const MobileBottomNavigation = () => {
   const { villagePath, reportsPath, mapPath, resourcesPath, auctionsPath } = useGameNavigation();
 
   return (
@@ -213,20 +215,6 @@ export const GameLayout = () => {
   const shouldDisplayDesktopNavigation = isWiderThanMd;
   const shouldDisplayMobileResourcesSection = !isWiderThanMd && !isMapPageOpen;
   const shouldDisplayMobileBottomNavigation = !isWiderThanMd;
-
-  // useEffect(() => {
-  //   if (!resolved) {
-  //     return;
-  //   }
-  //
-  //   updateLastLoggedIn({ server });
-  //
-  //   const intervalId = window.setInterval(() => {
-  //     updateLastLoggedIn({ server });
-  //   }, 60000);
-  //
-  //   return () => window.clearInterval(intervalId);
-  // }, [resolved, server, updateLastLoggedIn]);
 
   return (
     <Suspense fallback={<GameLayoutSkeleton />}>

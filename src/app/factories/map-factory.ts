@@ -282,7 +282,6 @@ const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[
 
 const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
   const {
-    id,
     seed,
     configuration: { mapSize: size },
   } = server;
@@ -308,7 +307,6 @@ const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
 
     return {
       id: `${seed}-${xCoordinateCounter}-${yCoordinateCounter}`,
-      serverId: id,
       coordinates,
       graphics: {
         backgroundColor: '#B9D580',

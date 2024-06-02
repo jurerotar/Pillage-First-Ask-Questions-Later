@@ -2,21 +2,18 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/[game]/utils/guards/effect-guards';
-import { database } from 'database/database';
 import type { Effect, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
-import type { Server } from 'interfaces/models/game/server';
+import { getParsedFileContents } from 'app/utils/opfs';
 
 export const effectsCacheKey = 'effects';
 
-export const getEffects = (serverId: Server['id']) => database.effects.where({ serverId }).toArray();
-
 export const useEffects = () => {
-  const { serverId } = useCurrentServer();
+  const { serverHandle } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
 
   const { data: effects } = useQuery<Effect[]>({
-    queryFn: () => getEffects(serverId),
-    queryKey: [effectsCacheKey, serverId],
+    queryFn: () => getParsedFileContents(serverHandle, 'effects'),
+    queryKey: [effectsCacheKey],
     initialData: [],
   });
 

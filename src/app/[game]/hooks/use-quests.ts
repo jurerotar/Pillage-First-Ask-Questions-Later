@@ -1,21 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { database } from 'database/database';
 import type { Quest } from 'interfaces/models/game/quest';
-import type { Server } from 'interfaces/models/game/server';
+import { getParsedFileContents } from 'app/utils/opfs';
 
 export const questsCacheKey = 'quests';
 
-export const getQuests = (serverId: Server['id']) => database.quests.where({ serverId }).toArray();
-
 export const useQuests = () => {
-  const { serverId } = useCurrentServer();
+  const { serverHandle } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
 
   const { data: quests } = useQuery<Quest[]>({
-    queryFn: () => getQuests(serverId),
-    queryKey: [questsCacheKey, serverId],
+    queryFn: () => getParsedFileContents(serverHandle, 'quests'),
+    queryKey: [questsCacheKey],
     initialData: [],
   });
 

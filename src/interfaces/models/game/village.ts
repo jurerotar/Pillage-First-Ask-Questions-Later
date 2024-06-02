@@ -2,7 +2,6 @@ import type { Point } from 'interfaces/models/common';
 import type { Building } from 'interfaces/models/game/building';
 import type { Player } from 'interfaces/models/game/player';
 import type { Resources } from 'interfaces/models/game/resource';
-import type { Server } from 'interfaces/models/game/server';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -36,7 +35,6 @@ export type BuildingField = {
 
 export type Village = {
   id: string;
-  serverId: Server['id'];
   playerId: Player['id'];
   name: string;
   // Only user villages need a slug

@@ -225,13 +225,13 @@ export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' 
 
 export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
 
-export type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
+type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
-export type EffectIconType = 'freeCrop' | 'warehouseCapacity' | 'granaryCapacity';
+type EffectIconType = 'freeCrop' | 'warehouseCapacity' | 'granaryCapacity';
 
-export type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
+type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
-export type RomanTroopIconType =
+type RomanTroopIconType =
   | 'legionnaire'
   | 'praetorian'
   | 'imperian'
@@ -243,7 +243,7 @@ export type RomanTroopIconType =
   | 'senator'
   | 'romanSettler';
 
-export type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | 'wolf' | 'bear' | 'crocodile' | 'tiger' | 'elephant';
+type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | 'wolf' | 'bear' | 'crocodile' | 'tiger' | 'elephant';
 
 type UnitIconType = RomanTroopIconType | NatureTroopIconType;
 

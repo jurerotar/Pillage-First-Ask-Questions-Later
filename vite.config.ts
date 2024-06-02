@@ -21,7 +21,6 @@ export default defineConfig({
       'react-router-dom',
       'esm-seedrandom',
       'react-tabs',
-      'dexie',
       'react-hook-form',
       'react-modal',
       'usehooks-ts',
@@ -47,8 +46,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      packages: path.resolve(__dirname, 'packages'),
       app: path.resolve(__dirname, 'src/app'),
-      database: path.resolve(__dirname, 'src/database'),
       interfaces: path.resolve(__dirname, 'src/interfaces'),
       assets: path.resolve(__dirname, 'src/assets'),
       mocks: path.resolve(__dirname, '__mocks__'),

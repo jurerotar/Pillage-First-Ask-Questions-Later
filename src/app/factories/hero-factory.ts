@@ -7,7 +7,6 @@ type HeroFactoryProps = {
 
 export const heroFactory = ({
   server: {
-    id: serverId,
     playerConfiguration: { tribe },
   },
 }: HeroFactoryProps): Hero => {
@@ -25,7 +24,6 @@ export const heroFactory = ({
   const mountedTroopSpeedBonus = tribe === 'huns' ? 3 : 0;
 
   return {
-    serverId,
     stats: {
       level: 0,
       experience: 0,

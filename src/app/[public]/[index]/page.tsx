@@ -15,11 +15,9 @@ export const HomePage: React.FC = () => {
   const { isOpen: isCreateServerModalOpen, openModal: openCreateServerModal, closeModal: closeCreateServerModal } = useDialog();
   const { availableServers } = useAvailableServers();
 
-  const resetDatabase = () => {
-    const dbOpenDBRequest = indexedDB.deleteDatabase('echoes-of-travian');
-    dbOpenDBRequest.onsuccess = () => {
-      window.location.reload();
-    };
+  const resetOpfs = async () => {
+    await (await navigator.storage.getDirectory()).removeEntry('echoes-of-travian', { recursive: true });
+    window.location.reload();
   };
 
   return (
@@ -39,7 +37,7 @@ export const HomePage: React.FC = () => {
               trying a new build! Clicking on this button will delete &quot;echoes-of-travian&quot; database and refresh the page.
             </p>
             <Button
-              onClick={resetDatabase}
+              onClick={resetOpfs}
               variant="danger"
             >
               Reset database

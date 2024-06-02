@@ -30,22 +30,20 @@ import { reputationsMock } from 'mocks/game/reputations-mock';
 import { villagesMock } from 'mocks/game/villages-mock';
 import { serverMock } from 'mocks/models/game/server-mock';
 
-const { id: serverId, slug } = serverMock;
-
 export const createGameEnvironment = () => {
   const queryClient = new QueryClient();
-  queryClient.setQueryData<Server>([currentServerCacheKey, slug], serverMock);
-  queryClient.setQueryData<Achievement[]>([achievementsCacheKey, serverId], []);
-  queryClient.setQueryData<Report[]>([reportsCacheKey, serverId], []);
-  queryClient.setQueryData<Effect[]>([effectsCacheKey, serverId], []);
-  queryClient.setQueryData<Quest[]>([questsCacheKey, serverId], []);
-  queryClient.setQueryData<Hero>([heroCacheKey, serverId], heroMock);
-  queryClient.setQueryData<Tile[]>([mapCacheKey, serverId], []);
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey, serverId], []);
-  queryClient.setQueryData<Village[]>([villagesCacheKey, serverId], villagesMock);
-  queryClient.setQueryData<Player[]>([playersCacheKey, serverId], playersMock);
-  queryClient.setQueryData<Reputation[]>([reputationsCacheKey, serverId], reputationsMock);
-  queryClient.setQueryData<MapFilters>([mapFiltersCacheKey, serverId], mapFiltersMock);
+  queryClient.setQueryData<Server>([currentServerCacheKey], serverMock);
+  queryClient.setQueryData<Achievement[]>([achievementsCacheKey], []);
+  queryClient.setQueryData<Report[]>([reportsCacheKey], []);
+  queryClient.setQueryData<Effect[]>([effectsCacheKey], []);
+  queryClient.setQueryData<Quest[]>([questsCacheKey], []);
+  queryClient.setQueryData<Hero>([heroCacheKey], heroMock);
+  queryClient.setQueryData<Tile[]>([mapCacheKey], []);
+  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], []);
+  queryClient.setQueryData<Village[]>([villagesCacheKey], villagesMock);
+  queryClient.setQueryData<Player[]>([playersCacheKey], playersMock);
+  queryClient.setQueryData<Reputation[]>([reputationsCacheKey], reputationsMock);
+  queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFiltersMock);
 
   return queryClient;
 };

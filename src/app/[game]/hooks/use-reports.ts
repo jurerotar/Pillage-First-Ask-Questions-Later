@@ -1,16 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import type { MissingIconType, ReportIconType } from 'app/components/icon';
-import { database } from 'database/database';
 import type { Report, ReportTag } from 'interfaces/models/game/report';
-import type { Server } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
+import { getParsedFileContents } from 'app/utils/opfs';
 
-type ReportMark = ReportTag | `un${ReportTag}`;
+type _ReportMark = ReportTag | `un${ReportTag}`;
 
 export const reportsCacheKey = 'reports';
-
-export const getReports = (serverId: Server['id']) => database.reports.where({ serverId }).sortBy('timestamp');
 
 // TODO: Finish this
 export const getReportIconType = ({ type, status }: Report): ReportIconType | MissingIconType => {
@@ -49,18 +46,12 @@ export const getReportIconType = ({ type, status }: Report): ReportIconType | Mi
   return iconType;
 };
 
-// TODO: Implement this
-const markAs = (report: Report, _as: ReportMark): Report => {
-  return report;
-};
-
 export const useReports = () => {
-  const { serverId } = useCurrentServer();
-  const queryClient = useQueryClient();
+  const { serverHandle } = useCurrentServer();
 
   const { data: reports } = useQuery<Report[]>({
-    queryFn: () => getReports(serverId),
-    queryKey: [reportsCacheKey, serverId],
+    queryFn: () => getParsedFileContents(serverHandle, 'reports'),
+    queryKey: [reportsCacheKey],
     initialData: [],
   });
 
@@ -72,33 +63,11 @@ export const useReports = () => {
     return reports.filter(({ tileId }) => tileId === tileIdToSearchBy);
   };
 
-  // const { mutate: createReport } = useMutation<void, Error, any>({
-  //   mutationFn: async ({}) => {},
-  //   onMutate: ({}) => {},
-  // });
-
-  const { mutate: markReport } = useMutation<void, Error, { reportId: Report['id']; as: ReportMark }>({
-    mutationFn: async ({ reportId, as }) => {
-      const report = reports.find(({ id }) => id === reportId)!;
-      const { tags } = markAs(report, as);
-      database.reports.where({ id: reportId }).modify({ tags });
-    },
-    onMutate: ({ reportId, as }) => {
-      const report = reports.find(({ id }) => id === reportId)!;
-      const markedReport = markAs(report, as);
-      const clonedReports = [...reports];
-      clonedReports[clonedReports.findIndex(({ id }) => id === reportId)] = markedReport;
-      queryClient.setQueryData<Report[]>([reportsCacheKey, serverId], clonedReports);
-    },
-  });
-
   return {
     reports,
     archivedReports,
     deletedReports,
     readReports,
-    markReport,
-    // createReport,
     getReportsByTileId,
   };
 };

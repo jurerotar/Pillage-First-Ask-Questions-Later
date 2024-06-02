@@ -2,23 +2,14 @@ import { QueryClient } from '@tanstack/react-query';
 import { currentServerCacheKey } from 'app/[game]/hooks/use-current-server';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import type { Server } from 'interfaces/models/game/server';
-import {
-  egyptianServerMock,
-  gaulServerMock,
-  hunServerMock,
-  romanServerMock,
-  serverMock,
-  teutonServerMock,
-} from 'mocks/models/game/server-mock';
+import { egyptianServerMock, gaulServerMock, hunServerMock, romanServerMock, teutonServerMock } from 'mocks/models/game/server-mock';
 import { renderHookWithGameContext } from 'test-utils';
 import { describe } from 'vitest';
-
-const { slug } = serverMock;
 
 describe('useTribe', () => {
   test('Server with gaul tribe will return gauls', () => {
     const queryClient = new QueryClient();
-    queryClient.setQueryData<Server>([currentServerCacheKey, slug], gaulServerMock);
+    queryClient.setQueryData<Server>([currentServerCacheKey], gaulServerMock);
 
     const { result } = renderHookWithGameContext(() => useTribe(), { queryClient });
     const { tribe } = result.current;
@@ -27,7 +18,7 @@ describe('useTribe', () => {
 
   test('Server with teuton tribe will return teutons', () => {
     const queryClient = new QueryClient();
-    queryClient.setQueryData<Server>([currentServerCacheKey, slug], teutonServerMock);
+    queryClient.setQueryData<Server>([currentServerCacheKey], teutonServerMock);
 
     const { result } = renderHookWithGameContext(() => useTribe(), { queryClient });
     const { tribe } = result.current;
@@ -36,7 +27,7 @@ describe('useTribe', () => {
 
   test('Server with roman tribe will return romans', () => {
     const queryClient = new QueryClient();
-    queryClient.setQueryData<Server>([currentServerCacheKey, slug], romanServerMock);
+    queryClient.setQueryData<Server>([currentServerCacheKey], romanServerMock);
 
     const { result } = renderHookWithGameContext(() => useTribe(), { queryClient });
     const { tribe } = result.current;
@@ -45,7 +36,7 @@ describe('useTribe', () => {
 
   test('Server with hun tribe will return huns', () => {
     const queryClient = new QueryClient();
-    queryClient.setQueryData<Server>([currentServerCacheKey, slug], hunServerMock);
+    queryClient.setQueryData<Server>([currentServerCacheKey], hunServerMock);
 
     const { result } = renderHookWithGameContext(() => useTribe(), { queryClient });
     const { tribe } = result.current;
@@ -54,7 +45,7 @@ describe('useTribe', () => {
 
   test('Server with egyptian tribe will return egyptian', () => {
     const queryClient = new QueryClient();
-    queryClient.setQueryData<Server>([currentServerCacheKey, slug], egyptianServerMock);
+    queryClient.setQueryData<Server>([currentServerCacheKey], egyptianServerMock);
 
     const { result } = renderHookWithGameContext(() => useTribe(), { queryClient });
     const { tribe } = result.current;
