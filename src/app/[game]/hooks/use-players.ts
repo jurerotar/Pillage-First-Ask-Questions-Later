@@ -21,7 +21,7 @@ export const usePlayers = () => {
     (playerIdToSearchFor: Player['id']): Player => {
       return players.find(({ id }) => playerIdToSearchFor === id)!;
     },
-    [players]
+    [players],
   );
 
   return {

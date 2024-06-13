@@ -10,7 +10,7 @@ export const composeComponents = (WrappedComponent: React.ReactNode, Layout: FCW
           <CurrentLayout>{children}</CurrentLayout>
         </AccumulatedLayouts>
       ),
-    InitialComponent
+    InitialComponent,
   );
 
   return <ComposedLayouts>{WrappedComponent}</ComposedLayouts>;

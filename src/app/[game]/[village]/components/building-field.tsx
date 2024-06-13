@@ -62,7 +62,7 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
       to={`${buildingFieldId}`}
       className={clsx(
         styles,
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16'
+        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
       )}
       data-building-field-id={buildingFieldId}
     >
@@ -87,7 +87,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16'
+        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
       )}
       data-building-field-id={buildingFieldId}
     >

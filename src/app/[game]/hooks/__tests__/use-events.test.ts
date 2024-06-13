@@ -17,7 +17,7 @@ describe('useEvents', () => {
         insertEvent(events, {
           id: 'new-event',
           resolvesAt: Date.now() + 1500,
-        } as GameEvent).findIndex(({ id }) => id === 'new-event')
+        } as GameEvent).findIndex(({ id }) => id === 'new-event'),
       ).toBe(2);
     });
 
@@ -26,7 +26,7 @@ describe('useEvents', () => {
         insertEvent(events, {
           id: 'new-event',
           resolvesAt: Date.now() + 1000,
-        } as GameEvent).findIndex(({ id }) => id === 'new-event')
+        } as GameEvent).findIndex(({ id }) => id === 'new-event'),
       ).toBe(2);
     });
 
@@ -35,7 +35,7 @@ describe('useEvents', () => {
         insertEvent(events, {
           id: 'new-event',
           resolvesAt: Date.now() + 4000,
-        } as GameEvent).findIndex(({ id }) => id === 'new-event')
+        } as GameEvent).findIndex(({ id }) => id === 'new-event'),
       ).toBe(4);
     });
 
@@ -44,7 +44,7 @@ describe('useEvents', () => {
         insertEvent(events, {
           id: 'new-event',
           resolvesAt: Date.now(),
-        } as GameEvent).findIndex(({ id }) => id === 'new-event')
+        } as GameEvent).findIndex(({ id }) => id === 'new-event'),
       ).toBe(1);
     });
   });

@@ -20,7 +20,7 @@ export const useReputations = () => {
     (faction: PlayerFaction): Reputation => {
       return reputations.find(({ faction: reputationFaction }) => faction === reputationFaction)!;
     },
-    [reputations]
+    [reputations],
   );
 
   return {
