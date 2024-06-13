@@ -1,4 +1,4 @@
-import { dehydrate, type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { dehydrate, type Query, type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { calculateCurrentAmount } from 'app/[game]/hooks/use-calculated-resource';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
@@ -17,7 +17,8 @@ import type { Effect } from 'interfaces/models/game/effect';
 import type { Village } from 'interfaces/models/game/village';
 import { getParsedFileContents } from 'app/utils/opfs';
 import { useGameEngine } from 'app/[game]/providers/game-engine-provider';
-import type { SyncWorkerType } from 'app/[public]/workers/sync-worker';
+import { queryKeysToIncludeInFullSync } from 'app/[public]/workers/sync-worker';
+import type { OPFSFileName } from 'interfaces/models/common';
 
 export const eventsCacheKey = 'events';
 
@@ -45,8 +46,12 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
 
 const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUILDING_CONSTRUCTION> => {
   return [GameEventType.BUILDING_CONSTRUCTION, GameEventType.BUILDING_DESTRUCTION, GameEventType.BUILDING_LEVEL_CHANGE].includes(
-    event.type
+    event.type,
   );
+};
+
+const shouldDehydrateQuery = (query: Query) => {
+  return queryKeysToIncludeInFullSync.includes(<OPFSFileName>query.queryKey.join(''));
 };
 
 export const useEvents = () => {
@@ -67,13 +72,15 @@ export const useEvents = () => {
       const resolver = gameEventTypeToResolverFunctionMapper(event.type);
       // @ts-expect-error - Each event has all required properties to resolve the event, we check this on event creation
       await resolver(event, queryClient);
-      queryClient.setQueryData<GameEvent[]>([], (prevEvents) => {
-        return prevEvents!.filter(({ id: eventId }) => eventId !== id);
-      });
-    },
-    onSuccess: async () => {
-      syncWorker.postMessage({ type: 'full-sync', dehydratedState: dehydrate(queryClient) });
-      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
+      queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => prevEvents!.filter(({ id: eventId }) => eventId !== id));
+
+      const gameState = JSON.stringify(
+        dehydrate(queryClient, {
+          shouldDehydrateQuery,
+        }),
+      );
+
+      syncWorker.postMessage({ type: 'full-sync', gameState });
     },
   });
 
@@ -92,16 +99,10 @@ export const useEvents = () => {
   };
 };
 
-type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
-  queryClient: QueryClient;
-  syncWorker: SyncWorkerType;
-};
+type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'>;
 
-type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'type' | 'queryClient' | 'villageId' | 'syncWorker'>;
-
-export const createEventFn = async <T extends GameEventType>(args: CreateEventFnArgs<T>): Promise<void> => {
-  const { queryClient, syncWorker, ...rest } = args;
-  const { villageId } = rest;
+export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {
+  const { villageId } = args;
   const event: GameEvent<T> = eventFactory<T>(args);
 
   if (doesEventRequireResourceCheck(event)) {
@@ -150,27 +151,22 @@ export const createEventFn = async <T extends GameEventType>(args: CreateEventFn
 
     queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
       const villageToUpdate = getVillageById(prevVillages!, id);
-      const {
-        resources: { wood, clay, iron, wheat },
-      } = villageToUpdate;
 
       villageToUpdate.resources = {
-        wood: wood - woodCost,
-        clay: clay - clayCost,
-        iron: iron - ironCost,
-        wheat: wheat - wheatCost,
+        wood: currentWood - woodCost,
+        clay: currentClay - clayCost,
+        iron: currentIron - ironCost,
+        wheat: currentWheat - wheatCost,
       };
       villageToUpdate.lastUpdatedAt = newLastUpdatedAt;
       return prevVillages;
     });
   }
 
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (previousEvents) => {
-    return insertEvent(previousEvents!, event);
-  });
-
-  syncWorker.postMessage({ type: 'full-sync', queryClient: dehydrate(queryClient) });
+  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (previousEvents) => insertEvent(previousEvents!, event));
 };
+
+type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'villageId' | 'type'>;
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
@@ -178,15 +174,21 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const { syncWorker } = useGameEngine();
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
-    mutationFn: async (args: CreateEventArgs<T>) => {
+    mutationFn: async (args) => {
       // @ts-expect-error - TODO: Event definition is kinda garbage, but I've no clue how to fix it
-      return createEventFn<T>({
-        syncWorker,
-        queryClient,
+      await createEventFn<T>(queryClient, {
+        ...args,
         type: eventType,
         villageId: currentVillageId,
-        ...args,
       });
+
+      const gameState = JSON.stringify(
+        dehydrate(queryClient, {
+          shouldDehydrateQuery,
+        }),
+      );
+
+      syncWorker.postMessage({ type: 'full-sync', gameState });
     },
   });
 

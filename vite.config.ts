@@ -3,10 +3,11 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, type UserConfig } from 'vite';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
+  plugins: [react(), viteTsconfigPaths(), svgrPlugin(), VitePWA({ registerType: 'autoUpdate' })],
   server: {
     open: true,
   },

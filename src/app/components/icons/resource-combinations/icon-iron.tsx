@@ -1,5 +1,5 @@
-import { GiStoneTablet } from 'react-icons/gi';
+import { GiStonePile } from 'react-icons/gi';
 
 export const IconIron = () => {
-  return <GiStoneTablet className="size-full text-gray-400" />;
+  return <GiStonePile className="size-full text-gray-500" />;
 };

@@ -14,7 +14,7 @@ export type GenerateHeroWorkerReturn = {
 self.addEventListener('message', async (event: MessageEvent<GenerateHeroWorkerPayload>) => {
   const { server } = event.data;
 
-  const hero = heroFactory({ server });
+  const hero = heroFactory(server);
 
   self.postMessage({ hero });
 

@@ -32,7 +32,6 @@
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingComma": "es5",
       "semicolons": "always",
       "arrowParentheses": "always",
       "bracketSpacing": true,
@@ -40,6 +39,5 @@
       "quoteStyle": "single",
       "attributePosition": "multiline"
     }
-  },
-  "overrides": [{ "include": ["*.config.ts"], "linter": { "rules": {} } }]
+  }
 }

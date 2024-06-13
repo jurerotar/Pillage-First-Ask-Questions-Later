@@ -40,24 +40,13 @@ class MissingServerError extends Error {
 
 type GameLoaderParams = Record<'serverSlug' | 'villageSlug', string>;
 
-export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) => {
-  const { serverSlug } = params as GameLoaderParams;
-
+const createHydratedGameQueryClient = async (serverHandle: FileSystemDirectoryHandle): Promise<QueryClient> => {
   const queryClient = new QueryClient();
 
-  const serverHandle = await getServerHandle(serverSlug);
-
-  const currentServer: Server | undefined = await getParsedFileContents(serverHandle, 'server');
-
-  if (!currentServer) {
-    throw new MissingServerError(serverSlug);
-  }
-
-  // Cache hydration
   await Promise.allSettled([
     queryClient.prefetchQuery<Server>({
       queryKey: [currentServerCacheKey],
-      queryFn: () => currentServer,
+      queryFn: () => getParsedFileContents(serverHandle, 'server'),
     }),
     queryClient.prefetchQuery<FileSystemDirectoryHandle>({
       queryKey: [serverHandleCacheKey],
@@ -116,6 +105,22 @@ export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) =
       queryFn: () => getParsedFileContents(serverHandle, 'troops'),
     }),
   ]);
+
+  return queryClient;
+};
+
+export const gameLoader: LoaderFunction<GameLoaderParams> = async ({ params }) => {
+  const { serverSlug } = params as GameLoaderParams;
+
+  const serverHandle = await getServerHandle(serverSlug);
+
+  const currentServer: Server = await getParsedFileContents(serverHandle, 'server');
+
+  if (!currentServer) {
+    throw new MissingServerError(serverSlug);
+  }
+
+  const queryClient = await createHydratedGameQueryClient(serverHandle);
 
   return {
     resolved: true,

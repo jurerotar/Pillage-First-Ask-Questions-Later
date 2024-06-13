@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, test } from 'vitest';
-import { serverMock } from 'mocks/models/game/server-mock';
-import '@vitest/web-worker';
+import { serverMock } from 'mocks/game/server-mock';
 import { initializeServer } from 'app/[public]/components/create-server-modal-content';
 import { isOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import type { OccupiedOasisTile, Tile } from 'interfaces/models/game/tile';
@@ -73,7 +72,7 @@ describe('Server initialization', () => {
           }
           const { bonus } = oasisResourceBonus[0];
           return bonus === '25%';
-        })
+        }),
       ).toBe(true);
     });
 
@@ -88,7 +87,7 @@ describe('Server initialization', () => {
           }
           const { bonus } = oasisResourceBonus[0];
           return bonus === '50%';
-        })
+        }),
       ).toBe(true);
     });
 
@@ -103,7 +102,7 @@ describe('Server initialization', () => {
           }
           const [firstBonus, secondBonus] = oasisResourceBonus;
           return firstBonus.bonus === '25%' && secondBonus.bonus === '25%';
-        })
+        }),
       ).toBe(true);
     });
 
@@ -176,7 +175,7 @@ describe('Server initialization', () => {
       expect(
         tile3.graphics.oasisResource === 'clay' &&
           tile3.oasisResourceBonus[0].bonus === '25%' &&
-          tile3.oasisResourceBonus[1].bonus === '25%'
+          tile3.oasisResourceBonus[1].bonus === '25%',
       ).toBe(true);
     });
   });

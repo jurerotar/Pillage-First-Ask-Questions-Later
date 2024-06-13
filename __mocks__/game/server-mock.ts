@@ -1,20 +1,23 @@
 import type { Server } from 'interfaces/models/game/server';
+import { serverFactory } from 'app/factories/server-factory';
 
-export const serverMock: Server = {
-  seed: '23223ca711',
-  name: 's-067b',
+const MOCK_SERVER_SEED = '23223ca711';
+const MOCK_SERVER_NAME = 'test server';
+
+const mockServerConfig: Pick<Server, 'name' | 'seed' | 'configuration' | 'playerConfiguration'> = {
+  name: MOCK_SERVER_NAME,
+  seed: MOCK_SERVER_SEED,
+  playerConfiguration: {
+    name: 'test player',
+    tribe: 'gauls',
+  },
   configuration: {
     mapSize: 100,
     speed: 1,
   },
-  playerConfiguration: {
-    name: 'Player name',
-    tribe: 'gauls',
-  },
-  id: 'b27f14e1-4b45-443b-a89d-adb0b0179bf3',
-  slug: 's-067b',
-  createdAt: 1695289564435,
 };
+
+export const serverMock: Server = serverFactory(mockServerConfig);
 
 export const gaulServerMock: Server = {
   ...serverMock,

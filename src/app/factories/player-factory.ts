@@ -3,6 +3,7 @@ import type { Player, PlayerFaction } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tribe } from 'interfaces/models/game/tribe';
 import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
+import { prng_alea } from 'esm-seedrandom';
 
 const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 
@@ -146,7 +147,7 @@ type PlayerFactoryProps = {
   prng: PRNGFunction;
 };
 
-export const playerFactory = ({ faction, prng }: PlayerFactoryProps): Player => {
+const playerFactory = ({ faction, prng }: PlayerFactoryProps): Player => {
   const tribe = seededRandomArrayElement<Tribe>(prng, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
 
   return {
@@ -161,7 +162,7 @@ type UserPlayerFactoryProps = {
   server: Server;
 };
 
-export const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player => {
+const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player => {
   const {
     name,
     playerConfiguration: { tribe },
@@ -172,4 +173,16 @@ export const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player =>
     tribe,
     faction: 'player',
   };
+};
+
+export const generatePlayers = (server: Server, factions: PlayerFaction[], playerCount: number): Player[] => {
+  const prng = prng_alea(server.seed);
+
+  const userPlayer = userPlayerFactory({ server });
+  const npcPlayers = [...Array(playerCount)].map(() => {
+    const faction = seededRandomArrayElement<PlayerFaction>(prng, factions);
+    return playerFactory({ faction, prng });
+  });
+
+  return [userPlayer, ...npcPlayers];
 };

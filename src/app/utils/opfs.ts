@@ -24,6 +24,5 @@ export const writeFileContents = async <T>(serverHandle: FileSystemDirectoryHand
   const syncHandle = await file.createSyncAccessHandle();
   syncHandle.truncate(0);
   syncHandle.write(textEncoder.encode(JSON.stringify(data)));
-  syncHandle.flush();
   syncHandle.close();
 };

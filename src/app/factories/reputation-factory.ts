@@ -1,7 +1,7 @@
 import type { PlayerFaction } from 'interfaces/models/game/player';
 import type { Reputation, ReputationLevel } from 'interfaces/models/game/reputation';
 
-type ReputationFactoryProps = {
+type PlayerFactionFactoryProps = {
   faction: PlayerFaction;
 };
 
@@ -18,7 +18,7 @@ const factionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationL
   ['npc8', 'hostile'],
 ]);
 
-export const reputationFactory = ({ faction }: ReputationFactoryProps): Reputation => {
+const reputationFactory = ({ faction }: PlayerFactionFactoryProps): Reputation => {
   const reputationLevel = factionToPredefinedReputationLevelMap.get(faction)!;
 
   return {
@@ -26,4 +26,9 @@ export const reputationFactory = ({ faction }: ReputationFactoryProps): Reputati
     percentage: 0,
     reputationLevel,
   };
+};
+
+export const generateReputations = () => {
+  const factions: PlayerFaction[] = Array.from(factionToPredefinedReputationLevelMap.keys());
+  return factions.map((faction) => reputationFactory({ faction }));
 };

@@ -684,6 +684,7 @@
     "DISTANCE": "Distance",
     "FIELD_one": "{{count}} field",
     "FIELD_other": "{{count}} fields",
-    "PLAYER": "Player"
+    "PLAYER": "Player",
+    "POPULATION": "Population"
   }
 }

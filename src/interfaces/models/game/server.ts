@@ -1,11 +1,11 @@
 import type { Tribe } from 'interfaces/models/game/tribe';
 
-export type ServerConfiguration = {
+type ServerConfiguration = {
   speed: 1 | 3 | 5 | 10;
   mapSize: 100;
 };
 
-export type PlayerConfiguration = {
+type PlayerConfiguration = {
   name: string;
   tribe: Tribe;
 };

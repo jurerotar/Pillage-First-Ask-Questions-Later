@@ -8,9 +8,10 @@ export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({ resourceFieldCom
   return (
     <Icon
       {...rest}
-      className="select-noneh-3 w-3"
+      className="select-none h-3 w-3"
       type="wheat"
       borderVariant="yellow"
+      wrapperClassName="absolute top-0 right-0"
     />
   );
 };

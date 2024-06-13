@@ -41,12 +41,12 @@ const newVillageBuildingFieldsEffectsFactory = ({ village }: NewVillageEffectFac
         id: effectId,
         value: valuesPerLevel[level],
         buildingFieldId: id,
-      })
+      }),
     );
   });
 };
 
-export const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): VillageEffect[] => {
+const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): VillageEffect[] => {
   const villageDefaultStorageEffectsIds: Effect['id'][] = ['warehouseCapacity', 'granaryCapacity'];
   return [
     ...villageDefaultStorageEffectsIds.map(
@@ -57,7 +57,7 @@ export const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArg
           source: 'server',
           value: 800,
           villageId: village.id,
-        }) satisfies VillageEffect
+        }) satisfies VillageEffect,
     ),
     ...newVillageBuildingFieldsEffectsFactory({ village }),
   ];
@@ -67,7 +67,7 @@ type GlobalEffectFactoryProps = {
   server: Server;
 };
 
-export const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): GlobalEffect[] => {
+const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): GlobalEffect[] => {
   const { tribe } = server.playerConfiguration;
 
   const tribeMerchant = merchants.find(({ tribe: tribeToFind }) => tribeToFind === tribe)!;
@@ -129,7 +129,7 @@ export const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): Glob
   }));
 };
 
-export const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffect[] => {
+const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffect[] => {
   const {
     configuration: { speed },
   } = server;
@@ -169,4 +169,12 @@ export const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): Serv
       scope: 'server',
     };
   });
+};
+
+export const generateEffects = (server: Server, village: Village) => {
+  const serverEffects = serverEffectsFactory({ server });
+  const villageEffects = newVillageEffectsFactory({ village });
+  const globalEffects = globalEffectsFactory({ server });
+
+  return [...serverEffects, ...globalEffects, ...villageEffects];
 };

@@ -1,6 +1,6 @@
 import { calculatePopulationFromBuildingFields, calculateResourceProductionFromResourceFields } from 'app/[game]/utils/building';
-import { newVillageBuildingFieldsMock } from 'mocks/models/game/village/building-fields-mock';
-import { resourceFields00018Mock, resourceFields4446Mock, resourceFields11115Mock } from 'mocks/models/game/village/resource-fields-mock';
+import { newVillageBuildingFieldsMock } from 'mocks/game/village/building-fields-mock';
+import { resourceFields00018Mock, resourceFields4446Mock, resourceFields11115Mock } from 'mocks/game/village/resource-fields-mock';
 
 describe('Game util functions', () => {
   test('calculatePopulationFromBuildingFields', () => {

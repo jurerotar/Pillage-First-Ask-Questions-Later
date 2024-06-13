@@ -1,11 +1,11 @@
 import type { ReputationLevel } from 'interfaces/models/game/reputation';
 
-export const reputationColorMap = new Map<ReputationLevel, Record<'border' | 'text', string>>([
-  ['player', { border: 'border-reputation-player', text: 'text-reputation-player' }],
-  ['ecstatic', { border: 'border-reputation-ecstatic', text: 'text-reputation-ecstatic' }],
-  ['respected', { border: 'border-reputation-respected', text: 'text-reputation-respected' }],
-  ['friendly', { border: 'border-reputation-friendly', text: 'text-reputation-friendly' }],
-  ['neutral', { border: 'border-reputation-neutral', text: 'text-reputation-neutral' }],
-  ['unfriendly', { border: 'border-reputation-unfriendly', text: 'text-reputation-unfriendly' }],
-  ['hostile', { border: 'border-reputation-hostile', text: 'text-reputation-hostile' }],
+export const reputationColorMap = new Map<ReputationLevel, string>([
+  ['player', 'after:border-reputation-player'],
+  ['ecstatic', 'after:border-reputation-ecstatic'],
+  ['respected', 'after:border-reputation-respected'],
+  ['friendly', 'after:border-reputation-friendly'],
+  ['neutral', 'after:border-reputation-neutral'],
+  ['unfriendly', 'after:border-reputation-unfriendly'],
+  ['hostile', 'after:border-reputation-hostile'],
 ]);

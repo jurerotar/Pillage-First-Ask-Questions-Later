@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import type { Unit } from 'interfaces/models/game/unit';
 import { camelCase } from 'moderndash';
 import type React from 'react';
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
@@ -75,6 +75,14 @@ const IconTreasureTileArtifact = lazy(async () => ({
 }));
 const IconTreasureTileCurrency = lazy(async () => ({
   default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-currency')).IconTreasureTileCurrency,
+}));
+
+// Map adventure tile icons
+const IconAdventureDifficult = lazy(async () => ({
+  default: (await import('app/components/icons/adventure/icon-adventure-difficult')).IconAdventureDifficult,
+}));
+const IconAdventureNormal = lazy(async () => ({
+  default: (await import('app/components/icons/adventure/icon-adventure-normal')).IconAdventureNormal,
 }));
 
 // Report icons
@@ -219,6 +227,8 @@ type MapControlsIconType =
   | 'mapTileTooltipToggle'
   | 'mapTreasureIconToggle';
 
+type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
+
 type BuildingFieldIcons = 'buildingDuration';
 
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
@@ -257,6 +267,7 @@ type IconType =
   | BuildingFieldIcons
   | VillageIconType
   | UnitIconType
+  | MapAdventureIconType
   | EffectIconType;
 
 const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
@@ -316,6 +327,8 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   crocodile: IconUnitNatureCrocodile,
   tiger: IconUnitNatureTiger,
   elephant: IconUnitNatureElephant,
+  adventureDifficult: IconAdventureDifficult,
+  adventureNormal: IconAdventureNormal,
 };
 
 const IconPlaceholder = () => {
@@ -331,11 +344,12 @@ export type IconProps = IconBaseProps &
     type: IconType;
     variant?: 'positive-change' | 'negative-change' | 'positive-bonus' | 'negative-bonus';
     borderVariant?: BorderIndicatorProps['variant'];
+    wrapperClassName?: string;
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, variant, borderVariant, className, ...rest } = props;
+  const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
 
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
 
@@ -344,7 +358,14 @@ export const Icon: React.FC<IconProps> = (props) => {
   return (
     <ConditionalWrapper
       condition={!!borderVariant}
-      wrapper={(children) => <BorderIndicator variant={borderVariant}>{children}</BorderIndicator>}
+      wrapper={(children) => (
+        <BorderIndicator
+          className={wrapperClassName}
+          variant={borderVariant}
+        >
+          {children}
+        </BorderIndicator>
+      )}
     >
       <Suspense fallback={<IconPlaceholder />}>
         <span
