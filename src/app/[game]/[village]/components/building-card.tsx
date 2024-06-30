@@ -95,48 +95,46 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
         <p>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
       </div>
       <div className="" />
-      {canBuild && (
-        <div className="flex gap-2">
-          {doesBuildingExist && (
-            <>
-              <Button
-                variant="confirm"
-                onClick={upgradeBuilding}
-              >
-                Upgrade
-              </Button>
-              {canDemolishBuildings && (
-                <>
-                  {buildingLevel > 1 && (
-                    <Button
-                      variant="confirm"
-                      onClick={downgradeBuilding}
-                    >
-                      Downgrade by 1 level
-                    </Button>
-                  )}
-                  <Button
-                    variant="confirm"
-                    onClick={demolishBuilding}
-                  >
-                    Demolish completely
-                  </Button>
-                </>
-              )}
-            </>
-          )}
-          {!doesBuildingExist && (
+      <div className="flex gap-2">
+        {doesBuildingExist && (
+          <>
             <Button
               variant="confirm"
-              onClick={constructBuilding}
+              onClick={upgradeBuilding}
             >
-              Construct
+              Upgrade
             </Button>
-          )}
-        </div>
-      )}
+            {canDemolishBuildings && (
+              <>
+                {buildingLevel > 1 && (
+                  <Button
+                    variant="confirm"
+                    onClick={downgradeBuilding}
+                  >
+                    Downgrade by 1 level
+                  </Button>
+                )}
+                <Button
+                  variant="confirm"
+                  onClick={demolishBuilding}
+                >
+                  Demolish completely
+                </Button>
+              </>
+            )}
+          </>
+        )}
+        {!doesBuildingExist && canBuild && (
+          <Button
+            variant="confirm"
+            onClick={constructBuilding}
+          >
+            Construct
+          </Button>
+        )}
+      </div>
       {/* Show building requirements if building can't be built */}
-      {!canBuild && (
+      {!doesBuildingExist && !canBuild && (
         <section>
           Requirements
           <ul className="flex gap-2">

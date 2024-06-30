@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { getParsedFileContents } from 'app/utils/opfs';
 import type { Player } from 'interfaces/models/game/player';
 import { useCallback } from 'react';
-import { getParsedFileContents } from 'app/utils/opfs';
 
 export const playersCacheKey = 'players';
 

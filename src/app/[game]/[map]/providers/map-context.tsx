@@ -1,5 +1,5 @@
 import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { createContext, type FCWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+import { type FCWithChildren, createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 type MapProviderValues = {
   magnification: number;

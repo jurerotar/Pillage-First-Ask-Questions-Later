@@ -14,7 +14,6 @@ export const BuildingPage: React.FC = () => {
 
   return (
     <main className="mt-24">
-      Building construction / upgrade page
       <div className="mx-auto flex max-w-md flex-col gap-4">
         <Backlink />
         {hasBuilding && <BuildingUpgradeModal />}
