@@ -17,7 +17,7 @@
     "analyze-bundle": "npx vite-bundle-visualizer"
   },
   "dependencies": {
-    "@tanstack/react-query": "5.50.1",
+    "@tanstack/react-query": "5.51.1",
     "clsx": "2.1.1",
     "dayjs": "1.11.11",
     "esm-seedrandom": "3.0.5",
@@ -46,12 +46,12 @@
     "@types/react-modal": "3.16.3",
     "@types/react-window": "1.8.8",
     "@vitejs/plugin-react": "4.3.1",
-    "@vitest/coverage-v8": "2.0.1",
-    "@vitest/web-worker": "2.0.1",
+    "@vitest/coverage-v8": "2.0.2",
+    "@vitest/web-worker": "2.0.2",
     "autoprefixer": "10.4.19",
     "happy-dom": "14.12.3",
     "husky": "9.0.11",
-    "knip": "5.25.1",
+    "knip": "5.25.2",
     "lint-staged": "15.2.7",
     "postcss": "8.4.39",
     "resize-observer-polyfill": "1.5.1",
@@ -63,7 +63,7 @@
     "vite-plugin-pwa": "0.20.0",
     "vite-plugin-svgr": "4.2.0",
     "vite-tsconfig-paths": "4.3.2",
-    "vitest": "2.0.1"
+    "vitest": "2.0.2"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
