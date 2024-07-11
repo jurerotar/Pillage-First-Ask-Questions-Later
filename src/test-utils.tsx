@@ -1,50 +1,50 @@
 import { QueryClient } from '@tanstack/react-query';
 import { render, renderHook } from '@testing-library/react';
+import { mapFiltersCacheKey } from 'app/[game]/[map]/hooks/use-map-filters';
+import { mapMarkersCacheKey } from 'app/[game]/[map]/hooks/use-map-markers';
+import { achievementsCacheKey } from 'app/[game]/hooks/use-achievements';
+import { currentServerCacheKey } from 'app/[game]/hooks/use-current-server';
+import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
+import { eventsCacheKey } from 'app/[game]/hooks/use-events';
+import { heroCacheKey } from 'app/[game]/hooks/use-hero';
+import { mapCacheKey } from 'app/[game]/hooks/use-map';
+import { playersCacheKey } from 'app/[game]/hooks/use-players';
+import { questsCacheKey } from 'app/[game]/hooks/use-quests';
+import { reportsCacheKey } from 'app/[game]/hooks/use-reports';
+import { reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
+import { troopsCacheKey } from 'app/[game]/hooks/use-troops';
+import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
+import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
+import { generateEffects } from 'app/factories/effect-factory';
+import { heroFactory } from 'app/factories/hero-factory';
+import { mapFactory } from 'app/factories/map-factory';
+import { mapFiltersFactory } from 'app/factories/map-filters-factory';
+import { generatePlayers } from 'app/factories/player-factory';
+import { generateQuests } from 'app/factories/quest-factory';
+import { generateReputations } from 'app/factories/reputation-factory';
+import { generateTroops } from 'app/factories/troop-factory';
+import { generateVillages } from 'app/factories/village-factory';
 import { StateProvider } from 'app/providers/state-provider';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { composeComponents } from 'app/utils/jsx';
+import type { GameEvent } from 'interfaces/models/events/game-event';
+import type { Achievement } from 'interfaces/models/game/achievement';
+import type { Effect } from 'interfaces/models/game/effect';
+import type { Hero } from 'interfaces/models/game/hero';
+import type { MapFilters } from 'interfaces/models/game/map-filters';
+import type { MapMarker } from 'interfaces/models/game/map-marker';
+import type { Player } from 'interfaces/models/game/player';
+import type { Quest } from 'interfaces/models/game/quest';
+import type { Report } from 'interfaces/models/game/report';
+import type { Reputation } from 'interfaces/models/game/reputation';
+import type { Server } from 'interfaces/models/game/server';
+import type { Tile } from 'interfaces/models/game/tile';
+import type { Troop } from 'interfaces/models/game/troop';
+import type { Village } from 'interfaces/models/game/village';
 import { serverMock } from 'mocks/game/server-mock';
 import type React from 'react';
 import type { FCWithChildren } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { Server } from 'interfaces/models/game/server';
-import { currentServerCacheKey } from 'app/[game]/hooks/use-current-server';
-import type { Achievement } from 'interfaces/models/game/achievement';
-import { achievementsCacheKey } from 'app/[game]/hooks/use-achievements';
-import type { Report } from 'interfaces/models/game/report';
-import { reportsCacheKey } from 'app/[game]/hooks/use-reports';
-import type { Effect } from 'interfaces/models/game/effect';
-import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
-import type { Quest } from 'interfaces/models/game/quest';
-import { questsCacheKey } from 'app/[game]/hooks/use-quests';
-import type { Hero } from 'interfaces/models/game/hero';
-import { heroCacheKey } from 'app/[game]/hooks/use-hero';
-import type { Tile } from 'interfaces/models/game/tile';
-import { mapCacheKey } from 'app/[game]/hooks/use-map';
-import type { GameEvent } from 'interfaces/models/events/game-event';
-import { eventsCacheKey } from 'app/[game]/hooks/use-events';
-import type { Village } from 'interfaces/models/game/village';
-import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
-import type { Player } from 'interfaces/models/game/player';
-import { playersCacheKey } from 'app/[game]/hooks/use-players';
-import type { Reputation } from 'interfaces/models/game/reputation';
-import { reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
-import type { MapFilters } from 'interfaces/models/game/map-filters';
-import { mapFiltersCacheKey } from 'app/[game]/[map]/hooks/use-map-filters';
-import { generateReputations } from 'app/factories/reputation-factory';
-import { generatePlayers } from 'app/factories/player-factory';
-import type { MapMarker } from 'interfaces/models/game/map-marker';
-import { mapMarkersCacheKey } from 'app/[game]/[map]/hooks/use-map-markers';
-import type { Troop } from 'interfaces/models/game/troop';
-import { troopsCacheKey } from 'app/[game]/hooks/use-troops';
-import { mapFiltersFactory } from 'app/factories/map-filters-factory';
-import { generateQuests } from 'app/factories/quest-factory';
-import { mapFactory } from 'app/factories/map-factory';
-import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
-import { heroFactory } from 'app/factories/hero-factory';
-import { generateEffects } from 'app/factories/effect-factory';
-import { generateTroops } from 'app/factories/troop-factory';
-import { generateVillages } from 'app/factories/village-factory';
 
 const createGameEnvironment = (): QueryClient => {
   const queryClient = new QueryClient();
@@ -97,7 +97,7 @@ type RenderOptions = {
 // Game components relly on url pathname params to determine correct data to display, so this testing environments mocks that. You're also provided
 // a default set of game data in form of 'gameEnvironment', which you may override by providing your own query client.
 const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
-  const { wrapper = [], deviceSize, children, queryClient: providedQueryClient } = props;
+  const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
   const queryClient = createGameEnvironment();
 
@@ -112,11 +112,11 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
   return (
     <StateProvider queryClient={queryClient}>
       <ViewportProvider initialSize={deviceSize}>
-        <MemoryRouter initialEntries={[`/game/${serverMock.slug}/v-1/`]}>
+        <MemoryRouter initialEntries={[path ?? `/game/${serverMock.slug}/v-1/`]}>
           <Routes>
             <Route
               id="game"
-              path="/game/:serverSlug/:villageSlug/"
+              path="/game/:serverSlug/:villageSlug/*"
               element={composeComponents(children, Array.isArray(wrapper) ? wrapper : [wrapper])}
             />
           </Routes>
