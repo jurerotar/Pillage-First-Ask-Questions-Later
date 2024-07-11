@@ -33,7 +33,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
       className={clsx('rounded-md p-1', isDisabled && 'bg-gray-200')}
       data-testid={direction === 'increase' ? 'map-controls-magnification-increase-button' : 'map-controls-magnification-decrease-button'}
       aria-label={t(
-        direction === 'increase' ? 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_INCREASE' : 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_DECREASE'
+        direction === 'increase' ? 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_INCREASE' : 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_DECREASE',
       )}
     >
       {direction === 'increase' && <Icon type="mapMagnificationIncrease" />}

@@ -4,9 +4,11 @@ import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'interfaces/models/game/village';
 import type React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 export const VillagePage: React.FC = () => {
+  const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
   const _viewName = isResourcesPageOpen ? 'resources' : 'village';
@@ -44,6 +46,7 @@ export const VillagePage: React.FC = () => {
           <Link
             to={villagePath}
             className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
+            aria-label={t('APP.GAME.VILLAGE.BUILDING_FIELD.VILLAGE_LINK')}
           >
             Village
           </Link>

@@ -13,7 +13,7 @@ import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import type { Tribe } from 'interfaces/models/game/tribe';
 import type { BuildingField, ResourceFieldComposition, ResourceFieldId, Village } from 'interfaces/models/game/village';
 
-export type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
+type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
 const fullWheatLayout: ResourceFieldLayout = Object.fromEntries([...new Array(18)].map((_, i) => [[i + 1], 'wheat']));
 
@@ -224,7 +224,7 @@ const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: Resource
 
 const getVillageResourceFields = (
   resourceFieldComposition: ResourceFieldComposition,
-  villageSize: OccupiedOccupiableTile['villageSize'] | 'player'
+  villageSize: OccupiedOccupiableTile['villageSize'] | 'player',
 ): BuildingField[] => {
   const resourceFieldsLayout = resourceFieldsLayouts[resourceFieldComposition];
   const resourceFieldsLevel = villageSizeToResourceFieldsLevel.get(villageSize)!;
@@ -296,7 +296,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
 
 type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'>;
 
-export const npcVillageFactory = ({ tile, player }: NpcVillageFactoryProps): Village => {
+const npcVillageFactory = ({ tile, player }: NpcVillageFactoryProps): Village => {
   const { coordinates, resourceFieldComposition, villageSize } = tile;
 
   const { id: playerId, name, tribe } = player;
@@ -317,4 +317,25 @@ export const npcVillageFactory = ({ tile, player }: NpcVillageFactoryProps): Vil
     lastUpdatedAt: Date.now(),
     resources: getVillageResources(villageSize),
   };
+};
+
+type GenerateVillagesArgs = {
+  server: Server;
+  occupiedOccupiableTiles: OccupiedOccupiableTile[];
+  players: Player[];
+};
+
+export const generateVillages = ({ server, occupiedOccupiableTiles, players }: GenerateVillagesArgs) => {
+  const userPlayer = players.find(({ faction }) => faction === 'player')!;
+  const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
+  const playerStartingVillage = userVillageFactory({ server, player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
+
+  const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
+
+  const villages: Village[] = npcOccupiedTiles.map((tile) => {
+    const player = players.find(({ id }) => tile.ownedBy === id)!;
+    return npcVillageFactory({ server, player, tile });
+  });
+
+  return [playerStartingVillage, ...villages];
 };

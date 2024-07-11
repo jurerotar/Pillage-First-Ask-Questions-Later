@@ -2,7 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { currentServerCacheKey } from 'app/[game]/hooks/use-current-server';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import type { Server } from 'interfaces/models/game/server';
-import { egyptianServerMock, gaulServerMock, hunServerMock, romanServerMock, teutonServerMock } from 'mocks/models/game/server-mock';
+import { egyptianServerMock, gaulServerMock, hunServerMock, romanServerMock, teutonServerMock } from 'mocks/game/server-mock';
 import { renderHookWithGameContext } from 'test-utils';
 import { describe } from 'vitest';
 

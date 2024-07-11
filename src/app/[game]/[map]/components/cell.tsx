@@ -5,6 +5,7 @@ import { reputationColorMap } from 'app/[game]/utils/color-maps';
 import {
   isOasisTile,
   isOccupiableOasisTile,
+  isOccupiableTile,
   isOccupiedOasisTile,
   isOccupiedOccupiableTile,
   isTreasuryTile,
@@ -14,100 +15,90 @@ import type { MapFilters } from 'interfaces/models/game/map-filters';
 import type { PlayerFaction } from 'interfaces/models/game/player';
 import type { ReputationLevel } from 'interfaces/models/game/reputation';
 import type {
-  OasisTile as OasisTileType,
-  OccupiableTile as OccupiableTileType,
-  OccupiedOasisTile as OccupiedOasisTileType,
+  OccupiableOasisTile,
+  OccupiableTile,
   OccupiedOccupiableTile as OccupiedOccupiableTileType,
   Tile as TileType,
 } from 'interfaces/models/game/tile';
 import type React from 'react';
 import { memo } from 'react';
-import { type GridChildComponentProps, areEqual } from 'react-window';
+import { areEqual, type GridChildComponentProps } from 'react-window';
 import cellStyles from './cell.module.scss';
-
-type TileWithFilters<T extends TileType> = T & {
-  mapFilters: MapFilters;
-};
-
-type OccupiableOasisProps = {
-  tile: OasisTileType | OccupiedOasisTileType;
-};
-
-const OasisTile: React.FC<OccupiableOasisProps> = ({ tile }) => {
-  const { oasisResourceBonus } = tile;
-
-  const isOccupied = isOccupiedOasisTile(tile);
-
-  return (
-    <>
-      <OccupiableOasisIcon
-        oasisResourceBonus={oasisResourceBonus}
-        borderVariant={isOccupied ? 'red' : 'green'}
-        className="size-2 md:size-3"
-      />
-    </>
-  );
-};
-
-type OccupiableTileProps = {
-  tile: TileWithFilters<OccupiableTileType>;
-};
-
-const OccupiableTile: React.FC<OccupiableTileProps> = ({ tile }) => {
-  const wheatFields = ['00018', '11115', '3339'];
-  const isWheatField = wheatFields.includes(tile.resourceFieldComposition);
-
-  if (!isWheatField) {
-    return null;
-  }
-
-  return <WheatFieldIcon resourceFieldComposition={tile.resourceFieldComposition} />;
-};
 
 type OccupiedTileWithFaction = OccupiedOccupiableTileType & {
   faction: PlayerFaction;
   reputationLevel: ReputationLevel;
 };
 
-type OccupiedOccupiableTileProps = {
-  tile: OccupiedTileWithFaction;
-  mapFilters: MapFilters;
+type TroopMovementsProps = {
+  tile: TileType | OccupiedTileWithFaction;
 };
 
-const OccupiedOccupiableTile: React.FC<OccupiedOccupiableTileProps> = ({ tile, mapFilters }) => {
-  const { faction, reputationLevel } = tile;
-  const { shouldShowFactionReputation, shouldShowTreasureIcons } = mapFilters;
-  const isTileWithTreasury = isTreasuryTile(tile);
+const TroopMovements: React.FC<TroopMovementsProps> = ({ tile }) => {
+  const _isOccupiableCell = isOccupiableTile(tile);
+  const _isOccupiableOasisCell = isOccupiableOasisTile(tile);
+  const _isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
+
+  return null;
+};
+
+type CellBaseProps = {
+  tilesWithFactions: (TileType | OccupiedTileWithFaction)[];
+  mapFilters: MapFilters;
+  magnification: number;
+};
+
+type CellIconsProps = Omit<CellBaseProps, 'tilesWithFactions'> & { tile: TileType | OccupiedTileWithFaction };
+
+const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
+  const { shouldShowFactionReputation, shouldShowTreasureIcons, shouldShowOasisIcons, shouldShowWheatFields, shouldShowTroopMovements } =
+    mapFilters;
+
+  const isOccupiableCell = isOccupiableTile(tile);
+  const isOccupiableOasisCell = isOccupiableOasisTile(tile);
+  const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
+
+  const wheatFields = ['00018', '11115', '3339'];
 
   return (
-    <span
+    <div
       className={clsx(
-        'flex size-full items-start justify-end',
-        shouldShowFactionReputation && !!faction && reputationColorMap.get(reputationLevel)!.border,
-        shouldShowFactionReputation && 'rounded-[1px] border-[3px] border-dashed'
+        'size-full relative',
+        shouldShowFactionReputation &&
+          isOccupiedOccupiableCell &&
+          `after:absolute after:top-0 after:left-0 after:size-full after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
+            (tile as OccupiedTileWithFaction).reputationLevel,
+          )!}`,
       )}
     >
-      {shouldShowTreasureIcons && isTileWithTreasury && <TreasureIcon treasureType={tile.treasureType} />}
-    </span>
+      {isOccupiedOccupiableCell && shouldShowTreasureIcons && isTreasuryTile(tile) && <TreasureIcon treasureType={tile.treasureType} />}
+
+      {isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).resourceFieldComposition) && (
+        <WheatFieldIcon resourceFieldComposition={(tile as OccupiableTile).resourceFieldComposition} />
+      )}
+
+      {isOccupiableOasisCell && shouldShowOasisIcons && (
+        <OccupiableOasisIcon
+          oasisResourceBonus={(tile as OccupiableOasisTile).oasisResourceBonus}
+          borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
+        />
+      )}
+
+      {shouldShowTroopMovements && <TroopMovements tile={tile} />}
+    </div>
   );
 };
 
-type CellProps = GridChildComponentProps<{
-  tilesWithFactions: (TileType | OccupiedTileWithFaction)[];
-  mapFilters: MapFilters;
-}>;
+type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { tilesWithFactions, mapFilters } = data;
-  const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
+  const { tilesWithFactions, mapFilters, magnification } = data;
 
   const gridSize = Math.sqrt(data.tilesWithFactions.length);
 
   const tile: TileType | OccupiedTileWithFaction = tilesWithFactions[gridSize * rowIndex + columnIndex];
 
   const isOasisCell = isOasisTile(tile);
-  const isOccupiableOasisCell = isOccupiableOasisTile(tile);
-  const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
 
   return (
     <button
@@ -120,25 +111,16 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
           cellStyles[
             `oasis-${tile.graphics.oasisResource}-group-${tile.graphics.oasisGroup}-position-${tile.graphics.oasisGroupPosition.join('-')}`
           ],
-        'relative flex size-full justify-end rounded-[1px] border border-gray-500'
+        'flex size-full rounded-[1px] border border-gray-500',
       )}
       style={style}
       data-tile-id={tile.id}
     >
-      {isOasisCell && isOccupiableOasisCell && shouldShowOasisIcons && <OasisTile tile={tile as OasisTileType} />}
-      {!isOasisCell && (
-        <>
-          {isOccupiedOccupiableCell && (
-            <OccupiedOccupiableTile
-              tile={tile as TileWithFilters<OccupiedTileWithFaction>}
-              mapFilters={mapFilters}
-            />
-          )}
-          {!isOccupiedOccupiableCell && shouldShowWheatFields && (
-            <OccupiableTile tile={tile as TileWithFilters<OccupiedOccupiableTileType>} />
-          )}
-        </>
-      )}
+      <CellIcons
+        mapFilters={mapFilters}
+        magnification={magnification}
+        tile={tile}
+      />
     </button>
   );
 }, areEqual);

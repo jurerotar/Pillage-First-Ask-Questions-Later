@@ -1,6 +1,6 @@
 import { getBuildingData } from 'app/[game]/utils/building';
 import { type GameEvent, GameEventType } from 'interfaces/models/events/game-event';
-import { villageMock } from 'mocks/models/game/village/village-mock';
+import { villageMock } from 'mocks/game/village/village-mock';
 
 const cranny = getBuildingData('CRANNY');
 

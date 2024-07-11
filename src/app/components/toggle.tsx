@@ -35,7 +35,7 @@ export const Toggle: React.FC<ToggleProps> = (props) => {
         className={clsx(
           isChecked ? 'bg-blue-500' : 'bg-gray-300',
           className,
-          'toggle-label relative block h-6 w-12 cursor-pointer rounded-full ease-out'
+          'toggle-label relative block h-6 w-12 cursor-pointer rounded-full ease-out',
         )}
       >
         {label}

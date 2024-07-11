@@ -16,5 +16,5 @@ root.render(
         <RouterProvider router={router} />
       </StateProvider>
     </ViewportProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

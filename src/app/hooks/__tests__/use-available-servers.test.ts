@@ -1,6 +1,5 @@
 import { beforeAll, expect } from 'vitest';
-import { serverMock } from 'mocks/models/game/server-mock';
-import '@vitest/web-worker';
+import { serverMock } from 'mocks/game/server-mock';
 import { initializeServer } from 'app/[public]/components/create-server-modal-content';
 import { deleteServerData } from 'app/hooks/use-available-servers';
 import { getRootHandle } from 'app/utils/opfs';

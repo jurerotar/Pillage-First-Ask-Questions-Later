@@ -31,6 +31,7 @@ import { workerFactory } from 'app/utils/workers';
 import type { Server } from 'interfaces/models/game/server';
 import type React from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 
@@ -130,7 +131,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const { reputations } = await workerFactory<GenerateReputationsWorkerPayload, GenerateReputationsWorkerReturn>(
     CreateReputationsWorker,
     { server },
-    ''
+    '',
   );
 
   const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
@@ -139,22 +140,24 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const { players } = await workerFactory<GeneratePlayersWorkerPayload, GeneratePlayersWorkerReturn>(
     CreatePlayersWorker,
     { server, factions: npcFactions },
-    ''
+    '',
   );
 
   // Map data
   const { occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
     CreateMapWorker,
     { server, players },
-    ''
+    '',
   );
 
   // Villages
-  const { playerStartingVillage } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
+  const { villages } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
     CreateVillagesWorker,
     { server, occupiedOccupiableTiles, players },
-    ''
+    '',
   );
+
+  const playerStartingVillage = villages[0];
 
   // Non-dependant factories can run in sync
   await Promise.all([
@@ -162,7 +165,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(
       CreateTroopsWorker,
       { server, occupiedOccupiableTiles, occupiableOasisTiles, players },
-      ''
+      '',
     ),
 
     // Hero data
@@ -172,7 +175,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     workerFactory<GenerateQuestsWorkerPayload, GenerateQuestsWorkerReturn>(
       CreateQuestsWorker,
       { server, villageId: playerStartingVillage.id },
-      ''
+      '',
     ),
 
     // Achievements
@@ -182,7 +185,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     workerFactory<GenerateEffectsWorkerPayload, GenerateEffectsWorkerReturn>(
       CreateEffectsWorker,
       { server, village: playerStartingVillage },
-      ''
+      '',
     ),
 
     // Map filters
@@ -194,7 +197,9 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
 
 export const CreateServerModalContent = () => {
   const queryClient = useQueryClient();
-  const { deleteServer } = useAvailableServers();
+  const { deleteServer, availableServers } = useAvailableServers();
+
+  const latestServer = availableServers.at(-1);
 
   const {
     mutate: onSubmit,
@@ -228,7 +233,11 @@ export const CreateServerModalContent = () => {
     <div className="flex flex-col gap-4">
       {!isPending && !isSuccess && !isError && <CreateServerConfigurationView onSubmit={onSubmit} />}
       {isPending && <div className="mx-auto flex w-full flex-col gap-4 md:max-w-[50%]">Loading</div>}
-      {isSuccess && <div>Success</div>}
+      {isSuccess && (
+        <Link to={`/game/${latestServer?.slug}/v-1/resources`}>
+          <Button variant="confirm">Enter server</Button>
+        </Link>
+      )}
     </div>
   );
 };

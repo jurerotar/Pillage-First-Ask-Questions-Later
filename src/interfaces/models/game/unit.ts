@@ -89,7 +89,7 @@ export type NatureUnitId = 'RAT' | 'SPIDER' | 'SERPENT' | 'BAT' | 'WILD_BOAR' | 
 
 export type UnitId = RomanUnitId | GaulUnitId | TeutonUnitId | EgyptianUnitId | HunUnitId | SpartanUnitId | NatarUnitId | NatureUnitId;
 
-export type UnitResearchPrerequisites = {
+type UnitResearchPrerequisites = {
   buildingId: Building['id'];
   level: number;
 };

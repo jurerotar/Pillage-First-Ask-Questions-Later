@@ -8,10 +8,16 @@ export const questFactory = ({ ...quest }: Quest): Quest => {
   };
 };
 
-export const newVillageQuestsFactory = ({ villageId }: { villageId: Village['id'] }): Quest[] => {
+const newVillageQuestsFactory = (villageId: Village['id']): Quest[] => {
   return villageQuests.map((quest) => questFactory({ villageId, ...quest }));
 };
 
-export const globalQuestsFactory = (): Quest[] => {
+const globalQuestsFactory = (): Quest[] => {
   return globalQuests.map((quest) => questFactory({ ...quest }));
+};
+
+export const generateQuests = (villageId: Village['id']) => {
+  const villageQuests = newVillageQuestsFactory(villageId);
+  const globalQuests = globalQuestsFactory();
+  return [...villageQuests, ...globalQuests];
 };

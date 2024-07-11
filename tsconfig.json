@@ -13,6 +13,9 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
+    "strictPropertyInitialization": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "jsx": "react-jsx",
     "moduleResolution": "node",
     "noEmit": true,
@@ -27,6 +30,6 @@
       "packages/*": ["packages/*"]
     }
   },
-  "exclude": ["node_modules"],
-  "include": ["vite-env.d.ts", "src", "**.config.ts", "__mocks__", "vitest-setup.ts"]
+  "exclude": ["node_modules", "dist", "coverage", "public"],
+  "include": ["src", "vite.config.ts", "__mocks__", "vitest-setup.ts"]
 }

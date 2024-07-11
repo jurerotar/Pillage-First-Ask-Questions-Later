@@ -1,7 +1,7 @@
 export const workerFactory = async <TPayload, TReturn = void>(
   worker: string,
   payload: TPayload,
-  errorMessage: string
+  errorMessage: string,
 ): Promise<TReturn> => {
   return new Promise<TReturn>((resolve, reject) => {
     const workerInstance: Worker = new Worker(worker, { type: 'module' });

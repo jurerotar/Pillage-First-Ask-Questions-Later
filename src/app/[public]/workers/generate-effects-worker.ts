@@ -1,4 +1,4 @@
-import { globalEffectsFactory, newVillageEffectsFactory, serverEffectsFactory } from 'app/factories/effect-factory';
+import { generateEffects } from 'app/factories/effect-factory';
 import type { Effect } from 'interfaces/models/game/effect';
 import type { Server } from 'interfaces/models/game/server';
 import type { Village } from 'interfaces/models/game/village';
@@ -15,10 +15,9 @@ export type GenerateEffectsWorkerReturn = {
 
 self.addEventListener('message', async (event: MessageEvent<GenerateEffectsWorkerPayload>) => {
   const { server, village } = event.data;
-  const serverEffects = serverEffectsFactory({ server });
-  const villageEffects = newVillageEffectsFactory({ village });
-  const globalEffects = globalEffectsFactory({ server });
-  const effects = [...serverEffects, ...globalEffects, ...villageEffects];
+
+  const effects = generateEffects(server, village);
+
   self.postMessage({ effects });
 
   const serverHandle = await getServerHandle(server.slug);

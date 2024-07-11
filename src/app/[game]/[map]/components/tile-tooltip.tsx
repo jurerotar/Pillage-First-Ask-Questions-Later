@@ -18,6 +18,7 @@ import type {
 } from 'interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -41,10 +42,11 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
 
-  const { playerId } =
+  const { playerId, buildingFields } =
     tile.type === 'oasis-tile' ? getVillageByOasis(tile as OccupiedOasisTile)! : getVillageByCoordinates(tile.coordinates)!;
   const { faction, tribe, name } = getPlayerByPlayerId(playerId);
   const { reputationLevel } = getReputationByFaction(faction);
+  const population = calculatePopulationFromBuildingFields(buildingFields);
 
   return (
     <>
@@ -63,6 +65,9 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
       )}
       <span>
         {t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}
+      </span>
+      <span>
+        {t('GENERAL.POPULATION')} - {population}
       </span>
     </>
   );

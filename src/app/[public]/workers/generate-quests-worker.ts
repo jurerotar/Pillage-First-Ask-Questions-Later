@@ -1,4 +1,4 @@
-import { globalQuestsFactory, newVillageQuestsFactory } from 'app/factories/quest-factory';
+import { generateQuests } from 'app/factories/quest-factory';
 import type { Quest } from 'interfaces/models/game/quest';
 import type { Server } from 'interfaces/models/game/server';
 import type { Village } from 'interfaces/models/game/village';
@@ -15,9 +15,9 @@ export type GenerateQuestsWorkerReturn = {
 
 self.addEventListener('message', async (event: MessageEvent<GenerateQuestsWorkerPayload>) => {
   const { server, villageId } = event.data;
-  const villageQuests = newVillageQuestsFactory({ villageId });
-  const globalQuests = globalQuestsFactory();
-  const quests = [...villageQuests, ...globalQuests];
+
+  const quests = generateQuests(villageId);
+
   self.postMessage({ quests });
 
   const serverHandle = await getServerHandle(server.slug);

@@ -1,4 +1,4 @@
-import { npcVillageFactory, userVillageFactory } from 'app/factories/village-factory';
+import { generateVillages } from 'app/factories/village-factory';
 import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
@@ -12,28 +12,16 @@ export type GenerateVillageWorkerPayload = {
 };
 
 export type GenerateVillageWorkerReturn = {
-  playerStartingVillage: Village;
+  villages: Village[];
 };
 
 self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorkerPayload>) => {
-  const { server, occupiedOccupiableTiles, players } = event.data;
+  const villages = generateVillages(event.data);
 
-  const userPlayer = players.find(({ faction }) => faction === 'player')!;
-  const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
-  const playerStartingVillage = userVillageFactory({ server, player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
+  self.postMessage({ villages });
 
-  // Send the player starting village asap, because it's needed in other factories
-  self.postMessage({ playerStartingVillage });
-
-  const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
-
-  const villages: Village[] = npcOccupiedTiles.map((tile) => {
-    const player = players.find(({ id }) => tile.ownedBy === id)!;
-    return npcVillageFactory({ server, player, tile });
-  });
-
-  const serverHandle = await getServerHandle(server.slug);
-  await writeFileContents<Village[]>(serverHandle, 'villages', [playerStartingVillage, ...villages]);
+  const serverHandle = await getServerHandle(event.data.server.slug);
+  await writeFileContents<Village[]>(serverHandle, 'villages', villages);
 
   self.close();
 });

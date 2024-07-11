@@ -1,15 +1,9 @@
 import type { Hero } from 'interfaces/models/game/hero';
 import type { Server } from 'interfaces/models/game/server';
 
-type HeroFactoryProps = {
-  server: Server;
-};
+export const heroFactory = (server: Server): Hero => {
+  const { tribe } = server.playerConfiguration;
 
-export const heroFactory = ({
-  server: {
-    playerConfiguration: { tribe },
-  },
-}: HeroFactoryProps): Hero => {
   // Gaul hero is faster when on horse
   const mountedSpeed = tribe === 'gauls' ? 19 : 14;
   // Teuton hero regenerates health at increased rate

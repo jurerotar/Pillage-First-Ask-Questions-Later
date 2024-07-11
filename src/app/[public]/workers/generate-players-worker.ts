@@ -1,8 +1,6 @@
-import { playerFactory, userPlayerFactory } from 'app/factories/player-factory';
-import { seededRandomArrayElement } from 'app/utils/common';
+import { generatePlayers } from 'app/factories/player-factory';
 import type { Player, PlayerFaction } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
-import { prng_alea } from 'esm-seedrandom';
 import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GeneratePlayersWorkerPayload = {
@@ -19,15 +17,7 @@ const PLAYER_COUNT = 50;
 self.addEventListener('message', async (event: MessageEvent<GeneratePlayersWorkerPayload>) => {
   const { server, factions } = event.data;
 
-  const prng = prng_alea(server.seed);
-
-  const userPlayer = userPlayerFactory({ server });
-  const npcPlayers = [...Array(PLAYER_COUNT)].map(() => {
-    const faction = seededRandomArrayElement<PlayerFaction>(prng, factions);
-    return playerFactory({ faction, prng });
-  });
-
-  const players = [userPlayer, ...npcPlayers];
+  const players = generatePlayers(server, factions, PLAYER_COUNT);
 
   self.postMessage({ players });
 

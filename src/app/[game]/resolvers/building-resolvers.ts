@@ -8,7 +8,7 @@ const updateBuildingFieldLevel = (
   villages: Village[],
   villageId: Village['id'],
   buildingFieldId: BuildingField['id'],
-  level: number
+  level: number,
 ): Village[] => {
   return villages.map((village) => {
     if (village.id === villageId) {
@@ -33,7 +33,7 @@ const addBuildingField = (
   villages: Village[],
   villageId: Village['id'],
   buildingFieldId: BuildingField['id'],
-  buildingId: BuildingId
+  buildingId: BuildingId,
 ): Village[] => {
   return villages.map((village) => {
     if (village.id === villageId) {

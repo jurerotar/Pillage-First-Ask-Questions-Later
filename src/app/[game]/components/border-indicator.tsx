@@ -24,7 +24,7 @@ export const BorderIndicator: FCWithChildren<BorderIndicatorProps> = (props) => 
       className={clsx(
         className,
         variantToClassNameMap[variant],
-        'inline-flex items-center justify-center rounded-full bg-gradient-to-t p-1'
+        'inline-flex items-center justify-center rounded-full bg-gradient-to-t p-1',
       )}
       {...rest}
     >

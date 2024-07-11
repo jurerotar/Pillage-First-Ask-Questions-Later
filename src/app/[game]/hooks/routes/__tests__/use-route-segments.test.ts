@@ -1,8 +1,8 @@
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
-import { serverMock } from 'mocks/models/game/server-mock';
-import { villageMock } from 'mocks/models/game/village/village-mock';
 import { renderHookWithGameContext } from 'test-utils';
 import { describe, expect } from 'vitest';
+import { serverMock } from 'mocks/game/server-mock';
+import { villageMock } from 'mocks/game/village/village-mock';
 
 const { slug: mockServerSlug } = serverMock;
 const { slug: mockVillageSlug } = villageMock;

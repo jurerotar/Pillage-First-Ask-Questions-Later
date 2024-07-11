@@ -19,7 +19,7 @@ export const StateProvider: FCWithChildren<StateProviderProps> = ({ children, qu
             networkMode: 'always',
           },
         },
-      })
+      }),
   );
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;

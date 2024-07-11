@@ -11,18 +11,18 @@ export type EventWithRequiredResourceCheck = {
   resourceCost: number[];
 };
 
-export type BuildingConstructionEventArgs = EventWithRequiredResourceCheck & {
+type BuildingConstructionEventArgs = EventWithRequiredResourceCheck & {
   buildingFieldId: BuildingField['id'];
   building: Building;
 };
 
-export type BuildingLevelChangeEventArgs = EventWithRequiredResourceCheck & {
+type BuildingLevelChangeEventArgs = EventWithRequiredResourceCheck & {
   building: Building;
   buildingFieldId: BuildingField['id'];
   level: number;
 };
 
-export type BuildingDestructionEventArgs = {
+type BuildingDestructionEventArgs = {
   buildingFieldId: BuildingField['id'];
   building: Building;
 };

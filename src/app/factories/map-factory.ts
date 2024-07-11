@@ -21,7 +21,7 @@ import type { ResourceFieldComposition } from 'interfaces/models/game/village';
 import { prng_alea } from 'esm-seedrandom';
 import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
 
-export type OasisShapes = Record<Resource, Array<{ group: number; shape: number[] }>>;
+type OasisShapes = Record<Resource, Array<{ group: number; shape: number[] }>>;
 
 const oasisShapes: OasisShapes = {
   wheat: [
@@ -390,7 +390,7 @@ const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsA
       acc[`${tile.coordinates.x},${tile.coordinates.y}`] = tile;
       return acc;
     },
-    {} as Record<string, MaybeOccupiedBaseTile>
+    {} as Record<string, MaybeOccupiedBaseTile>,
   );
 
   tileLoop: for (let i = 0; i < tilesWithOasisShapes.length; i += 1) {
@@ -553,7 +553,7 @@ const assignOasisToNpcVillages = ({ server, tiles }: AssignOasisToNpcVillagesArg
       acc[key].push(oasisTile);
       return acc;
     },
-    {} as Record<string, OccupiableOasisTile[]>
+    {} as Record<string, OccupiableOasisTile[]>,
   );
 
   for (const tile of npcVillagesEligibleForOasis) {

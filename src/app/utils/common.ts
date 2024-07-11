@@ -81,7 +81,7 @@ export const partition = <T>(array: T[], callback: (element: T) => boolean): [T[
       result[callback(element) ? 0 : 1].push(element);
       return result;
     },
-    [[] as T[], [] as T[]]
+    [[] as T[], [] as T[]],
   );
 };
 

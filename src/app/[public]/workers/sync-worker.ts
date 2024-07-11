@@ -1,6 +1,8 @@
-import { type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import type { OPFSFileName } from 'interfaces/models/common';
 import { getServerHandle, writeFileContents } from 'app/utils/opfs';
+import { hydrate, QueryClient } from '@tanstack/react-query';
+
+export const queryKeysToIncludeInFullSync: OPFSFileName[] = ['troops', 'events', 'villages', 'reputations', 'effects'];
 
 type SyncWorkerIndividualSyncPayload = {
   type: 'individual-sync';
@@ -10,7 +12,7 @@ type SyncWorkerIndividualSyncPayload = {
 
 type SyncWorkerFullSyncPayload = {
   type: 'full-sync';
-  dehydratedState: DehydratedState;
+  gameState: string;
 };
 
 type SyncWorkerPayload = SyncWorkerIndividualSyncPayload | SyncWorkerFullSyncPayload;
@@ -28,19 +30,28 @@ self.addEventListener('message', async (event: MessageEvent<SyncWorkerPayload>) 
 
   const serverSlug = `s-${serverId.substring(0, 4)}`;
 
+  const serverHandle = await getServerHandle(serverSlug);
+
   // Used for stuff like map filters change, hero attribute change,...
   if (type === 'individual-sync') {
     const { name, data } = event.data;
-    const serverHandle = await getServerHandle(serverSlug);
     await writeFileContents(serverHandle, name, data);
   }
 
   // Used for app-wide data sync, basically so we don't have to do it individually
   else if (type === 'full-sync') {
-    const { dehydratedState } = event.data;
+    const { gameState } = event.data;
+
     const queryClient = new QueryClient();
+    const dehydratedState = JSON.parse(gameState);
     hydrate(queryClient, dehydratedState);
 
-    const _serverHandle = await getServerHandle(serverSlug);
+    const queries = queryClient.getQueryCache().getAll();
+    for await (const { queryKey } of queries) {
+      const key = queryKey.join('') as OPFSFileName;
+      if (queryKeysToIncludeInFullSync.includes(key)) {
+        await writeFileContents(serverHandle, key, queryClient.getQueryData(queryKey));
+      }
+    }
   }
 });

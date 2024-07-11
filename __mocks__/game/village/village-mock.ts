@@ -1,5 +1,5 @@
 import type { Village } from 'interfaces/models/game/village';
-import { playerMock } from 'mocks/models/game/player-mock';
+import { playerMock } from 'mocks/game/player-mock';
 import { newVillageBuildingFieldsMock } from './building-fields-mock';
 import { resourceFields4446Mock } from './resource-fields-mock';
 

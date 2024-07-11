@@ -31,6 +31,7 @@
           "DESCRIPTION": ""
         },
         "BUILDING_FIELD": {
+          "VILLAGE_LINK": "Village",
           "EMPTY": "Building site",
           "MAX_LEVEL": "Max level",
           "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
@@ -684,6 +685,7 @@
     "DISTANCE": "Distance",
     "FIELD_one": "{{count}} field",
     "FIELD_other": "{{count}} fields",
-    "PLAYER": "Player"
+    "PLAYER": "Player",
+    "POPULATION": "Population"
   }
 }

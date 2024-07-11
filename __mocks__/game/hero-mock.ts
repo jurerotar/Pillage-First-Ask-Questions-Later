@@ -1,27 +1,16 @@
-import type { Hero } from 'interfaces/models/game/hero';
+import { heroFactory } from 'app/factories/hero-factory';
+import {
+  egyptianServerMock,
+  gaulServerMock,
+  hunServerMock,
+  romanServerMock,
+  spartanServerMock,
+  teutonServerMock,
+} from 'mocks/game/server-mock';
 
-export const heroMock: Hero = {
-  stats: {
-    level: 0,
-    experience: 0,
-    health: 100,
-  },
-  staticAttributes: {
-    unmountedSpeed: 7,
-    mountedSpeed: 19,
-    baseAttackPower: 80,
-    baseHealthRegenerationRate: 10,
-    resourceProduction: 18,
-    infantryTroopSpeedBonus: 0,
-    mountedTroopSpeedBonus: 0,
-  },
-  selectableAttributes: {
-    attackPower: 0,
-    attackBonus: 0,
-    defenceBonus: 0,
-    resourceProduction: 4,
-  },
-  resourceToProduce: 'shared',
-  unitType: 'infantry',
-  inventory: [],
-};
+export const gaulHero = heroFactory(gaulServerMock);
+export const teutonHero = heroFactory(teutonServerMock);
+export const romanHero = heroFactory(romanServerMock);
+export const egyptianHero = heroFactory(egyptianServerMock);
+export const hunHero = heroFactory(hunServerMock);
+export const spartanHero = heroFactory(spartanServerMock);

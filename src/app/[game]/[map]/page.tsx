@@ -35,7 +35,7 @@ export const MapPage: React.FC = () => {
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = useViewport();
   const { mapFilters } = useMapFilters();
-  const { gridSize, tileSize } = useMapOptions();
+  const { gridSize, tileSize, magnification } = useMapOptions();
   const {
     currentVillage: { coordinates },
   } = useCurrentVillage();
@@ -79,8 +79,9 @@ export const MapPage: React.FC = () => {
     return {
       tilesWithFactions,
       mapFilters,
+      magnification,
     };
-  }, [tilesWithFactions, mapFilters]);
+  }, [tilesWithFactions, mapFilters, magnification]);
 
   useEventListener(
     'mousedown',
@@ -92,7 +93,7 @@ export const MapPage: React.FC = () => {
 
       isScrolling.current = true;
     },
-    mapRef
+    mapRef,
   );
 
   useEventListener(
@@ -115,7 +116,7 @@ export const MapPage: React.FC = () => {
 
       mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
     },
-    mapRef
+    mapRef,
   );
 
   useEventListener(
@@ -123,7 +124,7 @@ export const MapPage: React.FC = () => {
     () => {
       isScrolling.current = false;
     },
-    mapRef
+    mapRef,
   );
 
   useEventListener(
@@ -131,14 +132,14 @@ export const MapPage: React.FC = () => {
     () => {
       isScrolling.current = false;
     },
-    mapRef
+    mapRef,
   );
 
-  const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2 + RULER_SIZE / 2;
-  const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2 + RULER_SIZE / 2;
+  const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2;
+  const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2;
 
   return (
-    <>
+    <div className="relative">
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{
@@ -164,14 +165,14 @@ export const MapPage: React.FC = () => {
         {null}
       </Modal>
       <FixedSizeGrid
-        className="scrollbar-hidden mb-[20px] ml-[20px] bg-[#B9D580]"
+        className="scrollbar-hidden bg-[#B9D580]"
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height - 20}
-        width={width - 20}
+        height={height}
+        width={width}
         itemData={fixedGridData}
         initialScrollTop={initialScrollTop}
         initialScrollLeft={initialScrollLeft}
@@ -193,7 +194,7 @@ export const MapPage: React.FC = () => {
         {Cell}
       </FixedSizeGrid>
       {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0 bg-slate-800">
+      <div className="absolute left-0 top-0">
         <FixedSizeList
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
@@ -211,9 +212,9 @@ export const MapPage: React.FC = () => {
         </FixedSizeList>
       </div>
       {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0 bg-slate-800">
+      <div className="absolute bottom-0 left-0">
         <FixedSizeList
-          className="scrollbar-hidden ml-[20px]"
+          className="scrollbar-hidden"
           ref={bottomMapRulerRef}
           itemSize={tileSize}
           height={RULER_SIZE}
@@ -229,6 +230,6 @@ export const MapPage: React.FC = () => {
         </FixedSizeList>
       </div>
       <MapControls />
-    </>
+    </div>
   );
 };
