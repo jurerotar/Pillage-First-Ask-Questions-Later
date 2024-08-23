@@ -1,9 +1,9 @@
 import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
 import { mapFactory } from 'app/factories/map-factory';
+import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 import type { Player } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiableOasisTile, OccupiedOccupiableTile, Tile } from 'interfaces/models/game/tile';
-import { getServerHandle, writeFileContents } from 'app/utils/opfs';
 
 export type GenerateMapWorkerPayload = {
   server: Server;

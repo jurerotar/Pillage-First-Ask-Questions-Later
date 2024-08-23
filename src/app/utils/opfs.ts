@@ -1,5 +1,5 @@
-import type { Server } from 'interfaces/models/game/server';
 import type { OPFSFileName } from 'interfaces/models/common';
+import type { Server } from 'interfaces/models/game/server';
 
 export const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
   const root = await navigator.storage.getDirectory();
