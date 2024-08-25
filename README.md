@@ -51,8 +51,8 @@ npm run dev
 
 ## Documentation and references
 
-- [Architecture & app lifecycle](/docs/DIRECTORY_NAMING_CONVENTION.md)
-- [Directory naming convention](/docs/ARCHITECTURE.md)
+- [Architecture & app lifecycle](/docs/ARCHITECTURE.md)
+- [Directory naming convention](/docs/DIRECTORY_NAMING_CONVENTION.md)
 
 ## License
 
