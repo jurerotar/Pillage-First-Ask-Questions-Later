@@ -3,6 +3,7 @@ import { Button } from 'app/components/buttons/button';
 import { Modal } from 'app/components/modal';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useDialog } from 'app/hooks/use-dialog';
+import { isInDevelopmentMode } from 'app/utils/common';
 import type { Server } from 'interfaces/models/game/server';
 import type React from 'react';
 import { lazy } from 'react';
@@ -28,20 +29,23 @@ export const HomePage: React.FC = () => {
           <div className="flex flex-1 flex-col justify-center gap-4 p-4">
             <h1 className="text-3xl font-semibold dark:text-white">Echoes of Travian</h1>
             <h2 className="text-xl dark:text-white">
-              Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It runs purely
-              in the browser, requiring no downloads or installations.
+              About Echoes of Travian is a single-player, real-time, browser-based strategy game, inspired by Travian. It requires no
+              download or account creation. Using browser's native technologies, game data is persisted and progressed between game
+              sessions, just like you would expect from an online game.
             </h2>
             <Button onClick={() => openCreateServerModal()}>Create new server</Button>
-            <p className="">
-              Database schema is likely to change between builds. Make sure to always reset your local database after changing branches or
-              trying a new build! Clicking on this button will delete &quot;echoes-of-travian&quot; database and refresh the page.
-            </p>
-            <Button
-              onClick={resetOpfs}
-              variant="danger"
-            >
-              Reset database
-            </Button>
+
+            {isInDevelopmentMode() && (
+              <>
+                <p className="">In case of errors, or unexpected data persisting in your OPFS, this button resets OPFS.</p>
+                <Button
+                  onClick={resetOpfs}
+                  variant="danger"
+                >
+                  Delete all saved data
+                </Button>
+              </>
+            )}
             <Modal
               isOpen={isCreateServerModalOpen}
               closeHandler={closeCreateServerModal}
@@ -51,7 +55,7 @@ export const HomePage: React.FC = () => {
               <CreateServerModalContent />
             </Modal>
           </div>
-          <div className="flex flex-1 flex-col items-center justify-center">Something beautiful here</div>
+          <div className="flex flex-1 flex-col items-center justify-center" />
         </section>
         {availableServers.length > 0 && (
           <section className="container mx-auto flex flex-col">
