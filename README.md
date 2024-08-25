@@ -7,11 +7,13 @@
   <img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="Contributions">
 </p>
 
-Echoes of Travian is a single-player, real-time, browser-based strategy game, based on and inspired by Travian. It's browser based and requires no downloads or account creation.
-Using browser's native IndexedDb, game data is persisted and progressed between game sessions, just like you would expect from an online game.
+Echoes of Travian is a single-player, real-time, browser-based strategy game, inspired by Travian. It requires no download or account creation.
+Using browser's native technologies, game data is persisted and progressed between game sessions, just like you would expect from an online game.
 
-**Note: Very much still work in progress, not much to see at the moment.**
+https://echoes-of-travian.netlify.app
 
+> [!NOTE]
+> Very much still work in progress, not much to see at the moment.
 
 ## Game design differences between Travian and Echoes of Travian
 
@@ -32,8 +34,9 @@ Using browser's native IndexedDb, game data is persisted and progressed between 
 - [Vite.js](https://vitejs.dev) - Next generation frontend tooling.
 - [React Router](https://reactrouter.com) - React Router enables "client side routing".
 - [TanStack Query](https://tanstack.com/query/latest/) - Powerful asynchronous state management for TS/JS, React, Solid, Vue and Svelte.
+- [Biome](https://biomejs.dev) - Format, lint, and more in a fraction of a second.
 
-## Installation guide
+## Development guide
 
 ```sh
 # clone the project
@@ -48,7 +51,8 @@ npm run dev
 
 ## Documentation and references
 
-- [Directory naming convention](/docs/DIRECTORY_NAMING_CONVENTION.md)
+- [Architecture & app lifecycle](/docs/DIRECTORY_NAMING_CONVENTION.md)
+- [Directory naming convention](/docs/ARCHITECTURE.md)
 
 ## License
 
