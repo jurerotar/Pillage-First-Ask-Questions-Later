@@ -48,10 +48,6 @@ const routes: RouteObject[] = [
     id: 'game',
     path: '/game/:serverSlug/:villageSlug/',
     element: <GameProviders />,
-    loader: async ({ request, params }) => {
-      const { gameLoader } = await import('app/[game]/loader');
-      return gameLoader({ request, params });
-    },
     errorElement: <GameErrorBoundary />,
     children: [
       {

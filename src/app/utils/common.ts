@@ -95,3 +95,7 @@ export const timeExecution = async (callback: () => void | Promise<void>, name =
   performance.mark(`${name} - end`);
   performance.measure(name, `${name} - start`, `${name} - end`);
 };
+
+export const isInDevelopmentMode = () => {
+  return import.meta.env.DEV;
+};
