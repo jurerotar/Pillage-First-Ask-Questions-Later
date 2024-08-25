@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "5.52.1",
+    "@tanstack/react-query-persist-client": "5.52.1",
     "clsx": "2.1.1",
     "dayjs": "1.11.13",
     "esm-seedrandom": "3.0.5",
@@ -63,7 +64,8 @@
     "vite-plugin-pwa": "0.20.1",
     "vite-plugin-svgr": "4.2.0",
     "vite-tsconfig-paths": "5.0.1",
-    "vitest": "2.0.5"
+    "vitest": "2.0.5",
+    "vitest-localstorage-mock": "^0.1.2"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],

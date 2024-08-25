@@ -1,16 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import type { Point } from 'interfaces/models/common';
 import type { Tile } from 'interfaces/models/game/tile';
-import { getParsedFileContents } from 'app/utils/opfs';
 
 export const mapCacheKey = 'map';
 
 export const useMap = () => {
-  const { serverHandle } = useCurrentServer();
-
   const { data: map } = useQuery<Tile[]>({
-    queryFn: () => getParsedFileContents<Tile[]>(serverHandle, 'map'),
     queryKey: [mapCacheKey],
     initialData: [],
   });

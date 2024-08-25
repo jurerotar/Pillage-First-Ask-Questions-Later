@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { type RouteObject, createBrowserRouter } from 'react-router-dom';
 
 const PublicLayout = lazy(async () => ({ default: (await import('app/[public]/layout')).PublicLayout }));
 const HomePage = lazy(async () => ({ default: (await import('app/[public]/[index]/page')).HomePage }));
@@ -31,10 +31,6 @@ const routes: RouteObject[] = [
     id: 'game',
     path: '/game/:serverSlug/:villageSlug/',
     element: <GameProviders />,
-    loader: async ({ request, params }) => {
-      const { gameLoader } = await import('app/[game]/loader');
-      return gameLoader({ request, params });
-    },
     errorElement: <GameErrorBoundary />,
     children: [
       {

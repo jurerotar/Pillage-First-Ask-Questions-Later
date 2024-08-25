@@ -1,7 +1,6 @@
-import { dehydrate, type Query, type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { calculateCurrentAmount } from 'app/[game]/hooks/use-calculated-resource';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
+import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
 import { getVillageById, villagesCacheKey } from 'app/[game]/hooks/use-villages';
@@ -15,10 +14,6 @@ import { eventFactory } from 'app/factories/event-factory';
 import { type GameEvent, GameEventType } from 'interfaces/models/events/game-event';
 import type { Effect } from 'interfaces/models/game/effect';
 import type { Village } from 'interfaces/models/game/village';
-import { getParsedFileContents } from 'app/utils/opfs';
-import { useGameEngine } from 'app/[game]/providers/game-engine-provider';
-import { queryKeysToIncludeInFullSync } from 'app/[public]/workers/sync-worker';
-import type { OPFSFileName } from 'interfaces/models/common';
 
 export const eventsCacheKey = 'events';
 
@@ -50,18 +45,11 @@ const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUI
   );
 };
 
-const shouldDehydrateQuery = (query: Query) => {
-  return queryKeysToIncludeInFullSync.includes(<OPFSFileName>query.queryKey.join(''));
-};
-
 export const useEvents = () => {
   const queryClient = useQueryClient();
-  const { serverHandle } = useCurrentServer();
   const { currentVillageId } = useCurrentVillage();
-  const { syncWorker } = useGameEngine();
 
   const { data: events } = useQuery<GameEvent[]>({
-    queryFn: () => getParsedFileContents(serverHandle, 'events'),
     queryKey: [eventsCacheKey],
     initialData: [],
   });
@@ -73,14 +61,6 @@ export const useEvents = () => {
       // @ts-expect-error - Each event has all required properties to resolve the event, we check this on event creation
       await resolver(event, queryClient);
       queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => prevEvents!.filter(({ id: eventId }) => eventId !== id));
-
-      const gameState = JSON.stringify(
-        dehydrate(queryClient, {
-          shouldDehydrateQuery,
-        }),
-      );
-
-      syncWorker.postMessage({ type: 'full-sync', gameState });
     },
   });
 
@@ -171,7 +151,6 @@ type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'vill
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
   const { currentVillageId } = useCurrentVillage();
-  const { syncWorker } = useGameEngine();
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
     mutationFn: async (args) => {
@@ -181,14 +160,6 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
         type: eventType,
         villageId: currentVillageId,
       });
-
-      const gameState = JSON.stringify(
-        dehydrate(queryClient, {
-          shouldDehydrateQuery,
-        }),
-      );
-
-      syncWorker.postMessage({ type: 'full-sync', gameState });
     },
   });
 

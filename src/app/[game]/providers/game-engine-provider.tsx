@@ -1,34 +1,8 @@
 import { useEvents } from 'app/[game]/hooks/use-events';
-import { createContext, type FCWithChildren, useContext, useEffect, useRef } from 'react';
-import type { SyncWorkerType } from 'app/[public]/workers/sync-worker';
-import SyncWorker from 'app/[public]/workers/sync-worker?worker&url';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-
-type GameEngineProviderReturn = {
-  syncWorker: SyncWorkerType;
-};
-
-const GameEngine = createContext<GameEngineProviderReturn>({} as never);
+import { type FCWithChildren, useEffect, useRef } from 'react';
 
 export const GameEngineProvider: FCWithChildren = ({ children }) => {
-  const { serverId } = useCurrentServer();
   const { events, resolveEvent } = useEvents();
-
-  const syncWorker = useRef<SyncWorkerType | null>(null);
-
-  useEffect(() => {
-    // This is a little hacky, but the idea is to add server-id as a search param, which then allows us to not send it with messages
-    const workerUrl = new URL(SyncWorker, window.location.origin);
-    workerUrl.searchParams.append('server-id', serverId);
-
-    syncWorker.current = new Worker(workerUrl.href, { type: 'module' });
-
-    return () => {
-      if (syncWorker.current) {
-        syncWorker.current.terminate();
-      }
-    };
-  }, [serverId]);
 
   const timeoutId = useRef<NodeJS.Timeout | number | null>(null);
 
@@ -62,7 +36,5 @@ export const GameEngineProvider: FCWithChildren = ({ children }) => {
     };
   }, [events, resolveEvent]);
 
-  return <GameEngine.Provider value={{ syncWorker: syncWorker.current! }}>{children}</GameEngine.Provider>;
+  return children;
 };
-
-export const useGameEngine = () => useContext(GameEngine);

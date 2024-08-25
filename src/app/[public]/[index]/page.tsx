@@ -1,11 +1,11 @@
 import { ServerCard } from 'app/[public]/[index]/components/server-card';
 import { Button } from 'app/components/buttons/button';
+import { Modal } from 'app/components/modal';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Server } from 'interfaces/models/game/server';
 import type React from 'react';
 import { lazy } from 'react';
-import { Modal } from 'app/components/modal';
 
 const CreateServerModalContent = lazy(async () => ({
   default: (await import('app/[public]/components/create-server-modal-content')).CreateServerModalContent,

@@ -99,28 +99,31 @@ type RenderOptions = {
 const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
-  const queryClient = createGameEnvironment();
+  const globalQueryClient = new QueryClient();
+  const gameQueryClient = createGameEnvironment();
 
   // Overwrite data in game env client
   if (providedQueryClient) {
     const queries = providedQueryClient.getQueryCache().getAll();
     for (const { queryKey } of queries) {
-      queryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey));
+      gameQueryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey));
     }
   }
 
   return (
-    <StateProvider queryClient={queryClient}>
+    <StateProvider queryClient={globalQueryClient}>
       <ViewportProvider initialSize={deviceSize}>
-        <MemoryRouter initialEntries={[path ?? `/game/${serverMock.slug}/v-1/`]}>
-          <Routes>
-            <Route
-              id="game"
-              path="/game/:serverSlug/:villageSlug/*"
-              element={composeComponents(children, Array.isArray(wrapper) ? wrapper : [wrapper])}
-            />
-          </Routes>
-        </MemoryRouter>
+        <StateProvider queryClient={gameQueryClient}>
+          <MemoryRouter initialEntries={[path ?? `/game/${serverMock.slug}/v-1/`]}>
+            <Routes>
+              <Route
+                id="game"
+                path="/game/:serverSlug/:villageSlug/*"
+                element={composeComponents(children, Array.isArray(wrapper) ? wrapper : [wrapper])}
+              />
+            </Routes>
+          </MemoryRouter>
+        </StateProvider>
       </ViewportProvider>
     </StateProvider>
   );
