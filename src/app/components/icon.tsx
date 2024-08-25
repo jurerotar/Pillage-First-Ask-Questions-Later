@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import type { Unit } from 'interfaces/models/game/unit';
 import { camelCase } from 'moderndash';
 import type React from 'react';
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
@@ -257,7 +257,7 @@ type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | '
 
 type UnitIconType = RomanTroopIconType | NatureTroopIconType;
 
-type IconType =
+export type IconType =
   | MissingIconType
   | ReportIconType
   | ResourceCombinationIconType
@@ -270,7 +270,7 @@ type IconType =
   | MapAdventureIconType
   | EffectIconType;
 
-const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
+export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   missingIcon: IconMissingIcon,
   wood: IconResourceWood,
   clay: IconResourceClay,
