@@ -3,7 +3,7 @@ import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/building';
 
-export const BuildingUpgradeModal = () => {
+export const BuildingUpgrade = () => {
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;

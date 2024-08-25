@@ -6,6 +6,7 @@ import { useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
 import { StyledTab } from 'app/components/styled-tab';
+import { partition } from 'app/utils/common';
 import { buildings } from 'assets/buildings';
 import clsx from 'clsx';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
@@ -14,7 +15,6 @@ import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
-import { partition } from 'app/utils/common';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -106,7 +106,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   );
 };
 
-export const BuildingConstructionModal: React.FC = () => {
+export const BuildingConstruction: React.FC = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
 
