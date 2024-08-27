@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { usePlayers } from 'app/[game]/hooks/use-players';
+import type { Player } from 'interfaces/models/game/player';
 import type { OccupiedOasisTile } from 'interfaces/models/game/tile';
 import type { Village } from 'interfaces/models/game/village';
 
@@ -36,11 +37,16 @@ export const useVillages = () => {
     return villages.find(({ id }) => villageId === id)!;
   };
 
+  const getPlayerByOasis = (oasis: OccupiedOasisTile): Player['id'] => {
+    return getVillageByOasis(oasis)!.playerId;
+  };
+
   return {
     villages,
     playerVillages,
     npcVillages,
     getVillageByCoordinates,
     getVillageByOasis,
+    getPlayerByOasis,
   };
 };

@@ -99,3 +99,16 @@ export const timeExecution = async (callback: () => void | Promise<void>, name =
 export const isInDevelopmentMode = () => {
   return import.meta.env.DEV;
 };
+
+export const formatPercentage = (number: number): string => {
+  // Extract the fractional part by subtracting the integer part
+  const fractionalPart = number - Math.floor(number);
+
+  // Convert to percentage
+  const percentage = fractionalPart * 100;
+
+  // Round the result to the nearest whole number
+  const roundedPercentage = Math.round(percentage);
+
+  return `${roundedPercentage}%`;
+};

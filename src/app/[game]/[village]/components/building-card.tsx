@@ -3,8 +3,10 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
-import { getBuildingData } from 'app/[game]/utils/building';
+import { getBuildingDataForLevel, specialFieldIds } from 'app/[game]/utils/building';
 import { Button } from 'app/components/buttons/button';
+import { Icon, effectValueToIconVariant } from 'app/components/icon';
+import { formatPercentage } from 'app/utils/common';
 import clsx from 'clsx';
 import { GameEventType } from 'interfaces/models/events/game-event';
 import type { Building } from 'interfaces/models/game/building';
@@ -28,9 +30,13 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
 
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
-  const building = getBuildingData(buildingId);
   const buildingLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
-  const doesBuildingExist = !!building;
+  const { building, isMaxLevel, nextLevelCropConsumption, cumulativeCropConsumption, cumulativeEffects } = getBuildingDataForLevel(
+    buildingId,
+    buildingLevel,
+  );
+
+  const doesBuildingExist = buildingLevel > 0;
 
   const { canBuild, assessedRequirements } = assessBuildingConstructionReadiness({
     buildingId,
@@ -133,8 +139,38 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
           </Button>
         )}
       </div>
+      {/* Effects */}
+      <section className="flex gap-4 justify-center">
+        <div className="flex gap-2">
+          <Icon
+            type="population"
+            className="size-6"
+            variant="positive-change"
+          />
+          {!isMaxLevel && <span>{nextLevelCropConsumption}</span>}
+          <span>({cumulativeCropConsumption})</span>
+        </div>
+
+        <div className="flex gap-2">
+          {cumulativeEffects.map(({ effectId, cumulativeValue, nextLevelValue }) => (
+            <div
+              key={effectId}
+              className="flex gap-2"
+            >
+              <Icon
+                // @ts-ignore - TODO: Add missing icons
+                type={effectId}
+                className="size-6"
+                variant={effectValueToIconVariant(nextLevelValue)}
+              />
+              {!isMaxLevel && <span>{Number.isInteger(nextLevelValue) ? nextLevelValue : formatPercentage(nextLevelValue)}</span>}
+              <span>({Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
+            </div>
+          ))}
+        </div>
+      </section>
       {/* Show building requirements if building can't be built */}
-      {!doesBuildingExist && !canBuild && (
+      {!doesBuildingExist && !canBuild && !specialFieldIds.includes(buildingFieldId) && (
         <section>
           Requirements
           <ul className="flex gap-2">

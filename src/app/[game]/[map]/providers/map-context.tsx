@@ -12,7 +12,7 @@ type MapProviderValues = {
 const MapContext = createContext<MapProviderValues>({} as MapProviderValues);
 
 export const MAX_MAGNIFICATION = 5;
-export const MIN_MAGNIFICATION = 1;
+export const MIN_MAGNIFICATION = 3;
 const TILE_BASE_SIZE = 20;
 
 const MapProvider: FCWithChildren = ({ children }) => {

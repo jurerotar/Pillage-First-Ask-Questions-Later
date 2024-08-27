@@ -1,7 +1,11 @@
 import { partialArraySum } from 'app/utils/common';
 import { buildings } from 'assets/buildings';
 import type { Building } from 'interfaces/models/game/building';
+import type { Effect } from 'interfaces/models/game/effect';
 import type { BuildingField, Village } from 'interfaces/models/game/village';
+
+// Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
+export const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
 
 export const getBuildingData = (buildingId: Building['id']) => {
   const building: Building = buildings.find(({ id }) => id === buildingId)!;
@@ -15,6 +19,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const nextLevelCropConsumption = building.cropConsumption[level + 1] ?? 0;
   const nextLevelResourceCost = building.buildingCost[level + 1] ?? [0, 0, 0, 0];
   const nextLevelBuildingDuration = building.buildingDuration[level + 1] ?? 0;
+  const cumulativeEffects = calculateCumulativeEffects(building, level);
 
   return {
     building,
@@ -23,6 +28,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
     nextLevelCropConsumption,
     nextLevelResourceCost,
     nextLevelBuildingDuration,
+    cumulativeEffects,
   };
 };
 
@@ -69,4 +75,42 @@ export const calculateResourceProductionFromResourceFields = (resourceFields: Bu
     ironProduction,
     wheatProduction,
   };
+};
+
+type CalculatedCumulativeEffect = {
+  effectId: Effect['id'];
+  cumulativeValue: number;
+  nextLevelValue: number;
+};
+
+const calculateCumulativeEffects = (building: Building, level: number): CalculatedCumulativeEffect[] => {
+  const result: CalculatedCumulativeEffect[] = [];
+
+  // Loop through each effect in the building
+  for (const effect of building.effects) {
+    const { effectId, valuesPerLevel } = effect;
+
+    let cumulativeValue = 0;
+
+    // Calculate cumulative value up to the current level
+    for (let i = 0; i <= level; i++) {
+      if (Number.isInteger(valuesPerLevel[i])) {
+        cumulativeValue += valuesPerLevel[i];
+      } else {
+        cumulativeValue = valuesPerLevel[i];
+      }
+    }
+
+    // Determine the next level value
+    const nextLevelValue = level + 1 < valuesPerLevel.length ? valuesPerLevel[level + 1] : 0;
+
+    // Push the result for this effect
+    result.push({
+      effectId,
+      cumulativeValue,
+      nextLevelValue,
+    });
+  }
+
+  return result;
 };

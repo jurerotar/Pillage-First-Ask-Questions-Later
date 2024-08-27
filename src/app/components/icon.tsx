@@ -1,6 +1,7 @@
 import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
+import type { Effect, EffectId } from 'interfaces/models/game/effect';
 import type { Unit } from 'interfaces/models/game/unit';
 import { camelCase } from 'moderndash';
 import type React from 'react';
@@ -120,6 +121,18 @@ const IconGranaryCapacity = lazy(async () => ({
 const IconFreeCrop = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-free-crop')).IconFreeCrop,
 }));
+const IconCavalryDefence = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-cavalry-defence')).IconCavalryDefence,
+}));
+const IconInfantryDefence = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-infantry-defence')).IconInfantryDefence,
+}));
+const IconPopulation = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-population')).IconPopulation,
+}));
+const IconAttack = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-attack')).IconAttack,
+}));
 
 // Village
 const IconPopulationCropConsumption = lazy(async () => ({
@@ -229,15 +242,11 @@ type MapControlsIconType =
 
 type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
 
-type BuildingFieldIcons = 'buildingDuration';
-
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 
 export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
 
 type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
-
-type EffectIconType = 'freeCrop' | 'warehouseCapacity' | 'granaryCapacity';
 
 type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
@@ -257,6 +266,8 @@ type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | '
 
 type UnitIconType = RomanTroopIconType | NatureTroopIconType;
 
+type OtherIconType = 'freeCrop' | 'population';
+
 export type IconType =
   | MissingIconType
   | ReportIconType
@@ -264,14 +275,16 @@ export type IconType =
   | ResourceIconType
   | MapControlsIconType
   | TreasureTileIconType
-  | BuildingFieldIcons
   | VillageIconType
   | UnitIconType
   | MapAdventureIconType
-  | EffectIconType;
+  | OtherIconType
+  | EffectId;
 
+// @ts-ignore - TODO: Add missing icons
 export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   missingIcon: IconMissingIcon,
+  // Resources
   wood: IconResourceWood,
   clay: IconResourceClay,
   iron: IconResourceIron,
@@ -283,6 +296,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   clayClay: IconResourceCombinationClayClay,
   ironIron: IconResourceCombinationIronIron,
   wheatWheat: IconResourceCombinationWheatWheat,
+  // Map controls
   mapMagnificationIncrease: IconMapMagnificationIncrease,
   mapMagnificationDecrease: IconMapMagnificationDecrease,
   mapReputationToggle: IconMapReputationToggle,
@@ -291,22 +305,30 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   mapWheatFieldIconToggle: IconMapWheatFieldIconToggle,
   mapTileTooltipToggle: IconMapTileTooltipToggle,
   mapTreasureIconToggle: IconMapTreasuresToggle,
+  // Map treasures
   treasureTileItem: IconTreasureTileItem,
   treasureTileResources: IconTreasureTileResources,
   treasureTileArtifact: IconTreasureTileArtifact,
   treasureTileCurrency: IconTreasureTileCurrency,
+  // Reports
   attackerNoLoss: IconAttackerNoLoss,
   attackerSomeLoss: IconAttackerSomeLoss,
   attackerFullLoss: IconAttackerFullLoss,
   defenderNoLoss: IconDefenderNoLoss,
   defenderSomeLoss: IconDefenderSomeLoss,
   defenderFullLoss: IconDefenderFullLoss,
+  // Effects
   freeCrop: IconFreeCrop,
   populationCropConsumption: IconPopulationCropConsumption,
   troopsCropConsumption: IconTroopsCropConsumption,
   warehouseCapacity: IconWarehouseCapacity,
   granaryCapacity: IconGranaryCapacity,
   buildingDuration: IconBuildingDuration,
+  infantryDefence: IconInfantryDefence,
+  cavalryDefence: IconCavalryDefence,
+  population: IconPopulation,
+  attack: IconAttack,
+  // Romans
   legionnaire: IconUnitRomanLegionnaire,
   praetorian: IconUnitRomanPraetorian,
   imperian: IconUnitRomanImperian,
@@ -317,6 +339,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   fireCatapult: IconUnitRomanFireCatapult,
   senator: IconUnitRomanSenator,
   romanSettler: IconUnitRomanRomanSettler,
+  // Animals
   rat: IconUnitNatureRat,
   spider: IconUnitNatureSpider,
   serpent: IconUnitNatureSerpent,
@@ -327,6 +350,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   crocodile: IconUnitNatureCrocodile,
   tiger: IconUnitNatureTiger,
   elephant: IconUnitNatureElephant,
+  // Adventures
   adventureDifficult: IconAdventureDifficult,
   adventureNormal: IconAdventureNormal,
 };
@@ -337,6 +361,22 @@ const IconPlaceholder = () => {
 
 export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {
   return camelCase(unitId) as UnitIconType;
+};
+
+export const effectValueToIconVariant = (value: number): IconProps['variant'] => {
+  if (Number.isInteger(value)) {
+    return 'positive-change';
+  }
+
+  if (value >= 1) {
+    return 'positive-bonus';
+  }
+
+  return 'negative-bonus';
+};
+
+export const effectIdToIconNameMapper = (effectId: Effect['id']): IconType => {
+  return effectId.replace('Bonus', '') as IconType;
 };
 
 export type IconProps = IconBaseProps &
@@ -351,7 +391,8 @@ export type IconProps = IconBaseProps &
 export const Icon: React.FC<IconProps> = (props) => {
   const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
 
-  const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
+  // @ts-ignore - TODO: Add missing icons
+  const ComputedIcon = typeToIconMap[effectIdToIconNameMapper(type)] ?? typeToIconMap.missingIcon;
 
   const hasVariantIcon = !!variant;
 

@@ -22,7 +22,7 @@ import type {
 } from 'interfaces/models/game/tile';
 import type React from 'react';
 import { memo } from 'react';
-import { areEqual, type GridChildComponentProps } from 'react-window';
+import { type GridChildComponentProps, areEqual } from 'react-window';
 import cellStyles from './cell.module.scss';
 
 type OccupiedTileWithFaction = OccupiedOccupiableTileType & {
@@ -57,6 +57,7 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
   const isOccupiableCell = isOccupiableTile(tile);
   const isOccupiableOasisCell = isOccupiableOasisTile(tile);
   const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
+  const isOccupiedOasisCell = isOccupiedOasisTile(tile);
 
   const wheatFields = ['00018', '11115', '3339'];
 
@@ -65,7 +66,7 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
       className={clsx(
         'size-full relative',
         shouldShowFactionReputation &&
-          isOccupiedOccupiableCell &&
+          (isOccupiedOccupiableCell || isOccupiedOasisCell) &&
           `after:absolute after:top-0 after:left-0 after:size-full after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
             (tile as OccupiedTileWithFaction).reputationLevel,
           )!}`,
@@ -99,11 +100,14 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
   const tile: TileType | OccupiedTileWithFaction = tilesWithFactions[gridSize * rowIndex + columnIndex];
 
   const isOasisCell = isOasisTile(tile);
+  const isOccupiableTileCell = isOccupiableTile(tile);
 
   return (
     <button
       type="button"
       className={clsx(
+        isOccupiableTileCell && cellStyles['free-tile'],
+        isOccupiableTileCell && cellStyles[`free-tile-${tile.resourceFieldComposition}`],
         isOasisCell && cellStyles.oasis,
         isOasisCell && cellStyles[`oasis-${tile.graphics.oasisResource}`],
         isOasisCell && cellStyles[`oasis-${tile.graphics.oasisResource}-group-${tile.graphics.oasisGroup}`],

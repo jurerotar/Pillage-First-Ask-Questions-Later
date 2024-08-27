@@ -13,8 +13,8 @@ export const BuildingPage: React.FC = () => {
   const hasBuilding = !!buildingField;
 
   return (
-    <main className="mt-24">
-      <div className="mx-auto flex max-w-md flex-col gap-4">
+    <main className="mt-24 mx-auto max-w-2xl">
+      <div className="flex flex-col gap-4">
         <Backlink />
         {hasBuilding && <BuildingUpgrade />}
         {!hasBuilding && <BuildingConstruction />}

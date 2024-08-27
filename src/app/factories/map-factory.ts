@@ -21,94 +21,22 @@ import type {
 } from 'interfaces/models/game/tile';
 import type { ResourceFieldComposition } from 'interfaces/models/game/village';
 
-type OasisShapes = Record<Resource, Array<{ group: number; shape: number[] }>>;
+type Shape = { group: number; shape: number[] };
 
-const oasisShapes: OasisShapes = {
-  wheat: [
-    {
-      group: 1,
-      shape: [2, 2],
-    },
-    {
-      group: 2,
-      shape: [2],
-    },
-    {
-      group: 3,
-      shape: [3, 3, 2],
-    },
-    {
-      group: 4,
-      shape: [1, 3, 3],
-    },
-    {
-      group: 5,
-      shape: [3, 3],
-    },
-  ],
-  iron: [
-    {
-      group: 1,
-      shape: [3, 3],
-    },
-    {
-      group: 2,
-      shape: [1, 2],
-    },
-    {
-      group: 3,
-      shape: [2],
-    },
-    {
-      group: 4,
-      shape: [2, 1, 1],
-    },
-    {
-      group: 5,
-      shape: [2, 3, 3],
-    },
-    {
-      group: 8,
-      shape: [1, 1],
-    },
-  ],
-  wood: [
-    {
-      group: 1,
-      shape: [2],
-    },
-    {
-      group: 2,
-      shape: [2, 2, 3],
-    },
-    {
-      group: 3,
-      shape: [3, 2],
-    },
-    {
-      group: 4,
-      shape: [2, 1],
-    },
-  ],
-  clay: [
-    {
-      group: 1,
-      shape: [2, 1],
-    },
-    {
-      group: 2,
-      shape: [2, 3],
-    },
-    {
-      group: 3,
-      shape: [1, 1],
-    },
-    {
-      group: 4,
-      shape: [2],
-    },
-  ],
-};
+const shapes: Shape[] = [
+  {
+    group: 1,
+    shape: [2],
+  },
+  {
+    group: 2,
+    shape: [2, 2],
+  },
+  {
+    group: 3,
+    shape: [1, 1, 1],
+  },
+];
 
 type Distances = {
   offset: number;
@@ -395,7 +323,7 @@ const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsA
       continue; // Skip already occupied tiles
     }
 
-    const willTileBeOasis: boolean = seededRandomIntFromInterval(prng, 1, 25) === 1;
+    const willTileBeOasis: boolean = seededRandomIntFromInterval(prng, 1, 20) === 1;
 
     if (!willTileBeOasis) {
       continue;
@@ -403,9 +331,7 @@ const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsA
 
     const { coordinates: tileCoordinates } = currentTile;
     const resourceType: Resource = seededRandomArrayElement<Resource>(prng, ['wheat', 'iron', 'clay', 'wood']);
-    const oasisShapesForResource = oasisShapes[resourceType];
-    const selectedOasis = seededRandomArrayElement(prng, oasisShapesForResource);
-    const { group: oasisGroup, shape: oasisShape } = selectedOasis;
+    const { group: oasisGroup, shape: oasisShape } = seededRandomArrayElement(prng, shapes);
 
     const tilesToUpdate: BaseTile[] = [];
     const oasisGroupPositions: number[][] = [];

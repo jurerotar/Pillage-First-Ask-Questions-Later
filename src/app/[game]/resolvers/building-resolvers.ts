@@ -1,4 +1,5 @@
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
+import { specialFieldIds } from 'app/[game]/utils/building';
 import type { Resolver } from 'interfaces/models/common';
 import type { GameEventType } from 'interfaces/models/events/game-event';
 import type { BuildingId } from 'interfaces/models/game/building';
@@ -77,9 +78,6 @@ export const buildingConstructionResolver: Resolver<GameEventType.BUILDING_CONST
 
 export const buildingDestructionResolver: Resolver<GameEventType.BUILDING_DESTRUCTION> = async (args, queryClient) => {
   const { villageId, buildingFieldId } = args;
-
-  // Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
-  const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
 
   if (specialFieldIds.includes(buildingFieldId)) {
     await buildingLevelChangeResolver({ ...args, resourceCost: [0, 0, 0, 0], level: 0 }, queryClient);

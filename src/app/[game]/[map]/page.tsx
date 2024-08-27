@@ -9,6 +9,8 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useMap } from 'app/[game]/hooks/use-map';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
+import { useVillages } from 'app/[game]/hooks/use-villages';
+import { isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import { Modal } from 'app/components/modal';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -41,6 +43,7 @@ export const MapPage: React.FC = () => {
   } = useCurrentVillage();
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
+  const { getPlayerByOasis } = useVillages();
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
@@ -56,10 +59,23 @@ export const MapPage: React.FC = () => {
   // We need to get all tile information in here and pass it down as props
   const tilesWithFactions = useMemo(() => {
     return map.map((tile: TileType) => {
-      const isOccupiedOccupiableTile = tile.type === 'free-tile' && Object.hasOwn(tile, 'ownedBy');
+      const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
+      const isOccupiedOasisCell = isOccupiedOasisTile(tile);
 
-      if (isOccupiedOccupiableTile) {
+      if (isOccupiedOccupiableCell) {
         const { faction } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
+        const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
+
+        return {
+          ...tile,
+          faction,
+          reputationLevel,
+        };
+      }
+
+      if (isOccupiedOasisCell) {
+        const playerId = getPlayerByOasis(tile);
+        const { faction } = getPlayerByPlayerId(playerId);
         const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
 
         return {
@@ -73,7 +89,7 @@ export const MapPage: React.FC = () => {
         ...tile,
       };
     });
-  }, [map, getReputationByFaction, getPlayerByPlayerId]);
+  }, [map, getReputationByFaction, getPlayerByPlayerId, getPlayerByOasis]);
 
   const fixedGridData = useMemo(() => {
     return {
@@ -165,7 +181,7 @@ export const MapPage: React.FC = () => {
         {null}
       </Modal>
       <FixedSizeGrid
-        className="scrollbar-hidden bg-[#B9D580]"
+        className="scrollbar-hidden bg-[#8EBF64]"
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
