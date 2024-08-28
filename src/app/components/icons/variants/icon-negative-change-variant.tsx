@@ -1,5 +1,5 @@
-import { AiOutlineMinus } from 'react-icons/ai';
+import { IoMdArrowRoundDown } from 'react-icons/io';
 
 export const IconNegativeChangeVariant = () => {
-  return <AiOutlineMinus className="size-full text-red-500" />;
+  return <IoMdArrowRoundDown className="size-full text-red-500" />;
 };

@@ -1,5 +1,5 @@
-import { AiOutlinePercentage } from 'react-icons/ai';
+import { FaPercentage } from 'react-icons/fa';
 
 export const IconNegativeBonusVariant = () => {
-  return <AiOutlinePercentage className="size-full text-red-600" />;
+  return <FaPercentage className="size-full text-red-600" />;
 };

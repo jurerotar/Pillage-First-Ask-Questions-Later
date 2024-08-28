@@ -4,6 +4,9 @@ import type { Resolver } from 'interfaces/models/common';
 import type { GameEventType } from 'interfaces/models/events/game-event';
 import type { BuildingId } from 'interfaces/models/game/building';
 import type { BuildingField, Village } from 'interfaces/models/game/village';
+import type { Effect } from 'interfaces/models/game/effect';
+import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
+import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 
 const updateBuildingFieldLevel = (
   villages: Village[],
@@ -40,7 +43,7 @@ const addBuildingField = (
     if (village.id === villageId) {
       return {
         ...village,
-        buildingFields: [...village.buildingFields, { id: buildingFieldId, buildingId, level: 1 }],
+        buildingFields: [...village.buildingFields, { id: buildingFieldId, buildingId, level: 0 }],
       };
     }
     return village;
@@ -60,7 +63,15 @@ const removeBuildingField = (villages: Village[], villageId: Village['id'], buil
 };
 
 export const buildingLevelChangeResolver: Resolver<GameEventType.BUILDING_LEVEL_CHANGE> = async (args, queryClient) => {
-  const { villageId, buildingFieldId, level } = args;
+  const { villageId, buildingFieldId, level, building } = args;
+
+  queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
+    for (const { effectId, valuesPerLevel } of building.effects) {
+      prevData!.find((effect) => effect.scope === 'village' && effect.id === effectId && effect.source === 'building')!.value =
+        valuesPerLevel[level];
+    }
+    return prevData;
+  });
 
   queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
     return updateBuildingFieldLevel(prevData!, villageId, buildingFieldId, level);
@@ -70,6 +81,13 @@ export const buildingLevelChangeResolver: Resolver<GameEventType.BUILDING_LEVEL_
 export const buildingConstructionResolver: Resolver<GameEventType.BUILDING_CONSTRUCTION> = async (args, queryClient) => {
   const { villageId, buildingFieldId, building } = args;
   const { id: buildingId } = building;
+
+  queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
+    const newEffects = building.effects.map(({ effectId, valuesPerLevel }) => {
+      return newBuildingEffectFactory({ villageId, buildingFieldId, id: effectId, value: valuesPerLevel[0] });
+    });
+    return [...prevData!, ...newEffects];
+  });
 
   queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
     return addBuildingField(prevData!, villageId, buildingFieldId, buildingId);

@@ -1,5 +1,5 @@
-import { AiOutlinePlus } from 'react-icons/ai';
+import { IoMdArrowRoundUp } from 'react-icons/io';
 
 export const IconPositiveChangeVariant = () => {
-  return <AiOutlinePlus className="size-full text-green-600" />;
+  return <IoMdArrowRoundUp className="size-full text-green-500" />;
 };

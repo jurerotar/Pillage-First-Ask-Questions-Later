@@ -416,7 +416,12 @@ export const Icon: React.FC<IconProps> = (props) => {
         >
           <ComputedIcon />
           {hasVariantIcon && (
-            <span className="absolute bottom-0 right-0 size-1/2 rounded-full border border-black bg-white">
+            <span
+              className={clsx(
+                variant?.includes('bonus') && 'p-0.5',
+                'absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white',
+              )}
+            >
               {variant === 'positive-change' && <IconPositiveChangeVariant />}
               {variant === 'negative-change' && <IconNegativeChangeVariant />}
               {variant === 'positive-bonus' && <IconPositiveBonusVariant />}
