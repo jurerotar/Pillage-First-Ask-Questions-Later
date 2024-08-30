@@ -1,18 +1,15 @@
 # Echoes of Travian
 
-<p style="display: flex; gap: 5px; flex-wrap: wrap">
-  <img src="https://github.com/jurerotar/echoes-of-travian/actions/workflows/master-ci.yml/badge.svg?link=https%3A%2F%2Fechoes-of-travian.netlify.app" alt="master branch CI">
-  <img src="https://github.com/jurerotar/echoes-of-travian/actions/workflows/develop-ci.yml/badge.svg?link=https%3A%2F%2Fdevelop--echoes-of-travian.netlify.app" alt="develop branch CI">
-  <img src="https://img.shields.io/netlify/d5146a5a-0a15-4619-bf86-a5c7552b406f" alt="Netlify">
-  <img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="Contributions">
-  <img src="https://img.shields.io/badge/GitHub%20discussions-Chat%20now!-blue?link=https%3A%2F%2Fgithub.com%2Fjurerotar%2FEchoes-of-Travian%2Fdiscussions%2Fnew%2Fchoose" alt="GitHub discussions">
-</p>
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jurerotar/echoes-of-travian/master-ci.yml?branch=master&logo=github&label=master%20ci)](https://echoes-of-travian.netlify.app)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jurerotar/echoes-of-travian/master-ci.yml?branch=develop&logo=github&label=develop%20ci)](https://develop--echoes-of-travian.netlify.app)
+![Netlify](https://img.shields.io/netlify/d5146a5a-0a15-4619-bf86-a5c7552b406f?logo=netlify)
+[![GitHub discussions](https://img.shields.io/badge/GitHub%20discussions-Chat%20now!-blue)](https://github.com/jurerotar/Echoes-of-Travian/discussions/new/choose)
+![Static Badge](https://img.shields.io/badge/Contributions-welcome-limegreen)
 
 Echoes of Travian is a single-player, real-time, browser-based strategy game, inspired by Travian. It requires no download or account creation.
 The game leverages browser-native technologies to save your progress and data between sessions, offering an experience akin to an online game.
 
-![Try live](https://img.shields.io/badge/Try%20live%20%20-%20open%20-%20limegreen?link=https%3A%2F%2Fechoes-of-travian.netlify.app)
-
+[![Try live](https://img.shields.io/badge/Try%20live%20%20-%20open%20-%20limegreen)](https://echoes-of-travian.netlify.app)
 
 > [!NOTE]
 > Very much still work in progress, not much to see at the moment.
