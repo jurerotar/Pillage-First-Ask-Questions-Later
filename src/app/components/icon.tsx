@@ -1,7 +1,7 @@
 import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
-import type { Effect, EffectId } from 'interfaces/models/game/effect';
+import type { EffectId } from 'interfaces/models/game/effect';
 import type { Unit } from 'interfaces/models/game/unit';
 import { camelCase } from 'moderndash';
 import type React from 'react';
@@ -15,7 +15,6 @@ const IconResourceIron = lazy(async () => ({ default: (await import('app/compone
 const IconResourceWood = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wood')).IconWood }));
 const IconResourceClay = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-clay')).IconClay }));
 
-// Resource combinations - WIP - We're using single-resource icons for now
 const IconResourceCombinationWoodWheat = lazy(async () => ({
   default: (await import('app/components/icons/resource-combinations/icon-wood')).IconWood,
 }));
@@ -207,14 +206,8 @@ const IconUnitNatureElephant = lazy(async () => ({
 }));
 
 // Variants
-const IconNegativeBonusVariant = lazy(async () => ({
-  default: (await import('app/components/icons/variants/icon-negative-bonus-variant')).IconNegativeBonusVariant,
-}));
 const IconNegativeChangeVariant = lazy(async () => ({
   default: (await import('app/components/icons/variants/icon-negative-change-variant')).IconNegativeChangeVariant,
-}));
-const IconPositiveBonusVariant = lazy(async () => ({
-  default: (await import('app/components/icons/variants/icon-positive-bonus-variant')).IconPositiveBonusVariant,
 }));
 const IconPositiveChangeVariant = lazy(async () => ({
   default: (await import('app/components/icons/variants/icon-positive-change-variant')).IconPositiveChangeVariant,
@@ -363,26 +356,10 @@ export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {
   return camelCase(unitId) as UnitIconType;
 };
 
-export const effectValueToIconVariant = (value: number): IconProps['variant'] => {
-  if (Number.isInteger(value)) {
-    return 'positive-change';
-  }
-
-  if (value >= 1) {
-    return 'positive-bonus';
-  }
-
-  return 'negative-bonus';
-};
-
-export const effectIdToIconNameMapper = (effectId: Effect['id']): IconType => {
-  return effectId.replace('Bonus', '') as IconType;
-};
-
 export type IconProps = IconBaseProps &
   React.HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
-    variant?: 'positive-change' | 'negative-change' | 'positive-bonus' | 'negative-bonus';
+    variant?: 'positive-change' | 'negative-change';
     borderVariant?: BorderIndicatorProps['variant'];
     wrapperClassName?: string;
   };
@@ -392,7 +369,7 @@ export const Icon: React.FC<IconProps> = (props) => {
   const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
 
   // @ts-ignore - TODO: Add missing icons
-  const ComputedIcon = typeToIconMap[effectIdToIconNameMapper(type)] ?? typeToIconMap.missingIcon;
+  const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
 
   const hasVariantIcon = !!variant;
 
@@ -416,16 +393,9 @@ export const Icon: React.FC<IconProps> = (props) => {
         >
           <ComputedIcon />
           {hasVariantIcon && (
-            <span
-              className={clsx(
-                variant?.includes('bonus') && 'p-0.5',
-                'absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white',
-              )}
-            >
+            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
               {variant === 'positive-change' && <IconPositiveChangeVariant />}
               {variant === 'negative-change' && <IconNegativeChangeVariant />}
-              {variant === 'positive-bonus' && <IconPositiveBonusVariant />}
-              {variant === 'negative-bonus' && <IconNegativeBonusVariant />}
             </span>
           )}
         </span>

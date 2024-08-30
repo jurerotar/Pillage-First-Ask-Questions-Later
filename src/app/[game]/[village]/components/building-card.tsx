@@ -1,21 +1,21 @@
 import { type AssessedBuildingRequirement, assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
+import { Resources } from 'app/[game]/components/resources';
+import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/[game]/utils/building';
 import { Button } from 'app/components/buttons/button';
-import { Icon, effectValueToIconVariant } from 'app/components/icon';
+import { Icon } from 'app/components/icon';
 import { formatPercentage } from 'app/utils/common';
+import { formatTime } from 'app/utils/time';
 import clsx from 'clsx';
 import { GameEventType } from 'interfaces/models/events/game-event';
 import type { Building } from 'interfaces/models/game/building';
 import type { BuildingField } from 'interfaces/models/game/village';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { formatTime } from 'app/utils/time';
-import { Resources } from 'app/[game]/components/resources';
 import { useNavigate } from 'react-router-dom';
 
 type BuildingCardProps = {
@@ -118,7 +118,9 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
   return (
     <article className="flex flex-col gap-4 py-2">
       <div className="flex flex-col gap-2">
-        <h2 className="font-semibold">{t(`BUILDINGS.${building.id}.NAME`)}</h2>
+        <h2 className="font-semibold">
+          {t(`BUILDINGS.${building.id}.NAME`)} (Level {buildingLevel})
+        </h2>
         <p>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
       </div>
       <div className="" />
@@ -134,7 +136,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
           <span>({cumulativeCropConsumption})</span>
         </div>
         <div className="flex gap-2">
-          {cumulativeEffects.map(({ effectId, cumulativeValue, nextLevelValue }) => (
+          {cumulativeEffects.map(({ effectId, cumulativeValue, nextLevelValue, areEffectValuesRising }) => (
             <div
               key={effectId}
               className="flex gap-2"
@@ -143,7 +145,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
                 // @ts-ignore - TODO: Add missing icons
                 type={effectId}
                 className="size-6"
-                variant={effectValueToIconVariant(nextLevelValue)}
+                variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
               />
               {!isMaxLevel && <span>{Number.isInteger(nextLevelValue) ? nextLevelValue : formatPercentage(nextLevelValue)}</span>}
               <span>({Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
@@ -167,7 +169,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId, building
               variant="confirm"
               onClick={upgradeBuilding}
             >
-              Upgrade
+              Upgrade to level {buildingLevel + 1}
             </Button>
             {canDemolishBuildings && (
               <>

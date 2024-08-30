@@ -81,6 +81,7 @@ type CalculatedCumulativeEffect = {
   effectId: Effect['id'];
   cumulativeValue: number;
   nextLevelValue: number;
+  areEffectValuesRising: boolean;
 };
 
 const calculateCumulativeEffects = (building: Building, level: number): CalculatedCumulativeEffect[] => {
@@ -101,14 +102,15 @@ const calculateCumulativeEffects = (building: Building, level: number): Calculat
       }
     }
 
-    // Determine the next level value
+    const areEffectValuesRising = valuesPerLevel.at(1)! < valuesPerLevel.at(-1)!;
+
     const nextLevelValue = level + 1 < valuesPerLevel.length ? valuesPerLevel[level + 1] : 0;
 
-    // Push the result for this effect
     result.push({
       effectId,
       cumulativeValue,
       nextLevelValue,
+      areEffectValuesRising,
     });
   }
 
