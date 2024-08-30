@@ -8,6 +8,11 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), viteTsconfigPaths(), svgrPlugin(), VitePWA({ registerType: 'autoUpdate' })],
+  root: 'src',
+  publicDir: '../public',
+  build: {
+    outDir: '../dist',
+  },
   server: {
     open: true,
   },
@@ -19,6 +24,7 @@ export default defineConfig({
       // Third-party deps
       'react',
       'react-dom',
+      'react-dom/client',
       'react-router-dom',
       'esm-seedrandom',
       'react-tabs',

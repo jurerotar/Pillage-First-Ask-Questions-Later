@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "serve": "vite preview",
     "lint:check": "npx @biomejs/biome lint",
     "lint": "npx @biomejs/biome lint --fix",
