@@ -1,11 +1,20 @@
 import { BuildingUpgradeIndicator } from 'app/[game]/components/building-upgrade-indicator';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { getBuildingFieldByBuildingFieldId } from 'app/[game]/utils/building';
 import clsx from 'clsx';
-import type { BuildingField as BuildingFieldType, ReservedFieldId, VillageFieldId } from 'interfaces/models/game/village';
+import type { Building } from 'interfaces/models/game/building';
+import type { Tribe } from 'interfaces/models/game/tribe';
+import type {
+  BuildingField as BuildingFieldType,
+  ReservedFieldId,
+  ResourceFieldComposition,
+  VillageFieldId,
+} from 'interfaces/models/game/village';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import buildingFieldStyles from './building-field.module.scss';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -71,12 +80,39 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
   );
 };
 
+const transformBuildingIdIntoCssClass = (buildingId: Building['id']): string => {
+  return buildingId.toLowerCase().replaceAll('_', '-');
+};
+
+const dynamicCellClasses = (buildingField: BuildingFieldType, tribe: Tribe, resourceFieldComposition: ResourceFieldComposition): string => {
+  const { buildingId, id } = buildingField;
+  const isResourceField = id <= 18;
+
+  if (isResourceField) {
+    return clsx(
+      buildingFieldStyles.building,
+      buildingFieldStyles['building-resource'],
+      buildingFieldStyles[`building-resource-${id}`],
+      buildingFieldStyles[`building-resource-${resourceFieldComposition}`],
+      buildingFieldStyles[`building-resource-${resourceFieldComposition}-${id}`],
+    );
+  }
+
+  return clsx(
+    buildingFieldStyles.building,
+    buildingFieldStyles[`building-${tribe}`],
+    buildingFieldStyles[`building-${tribe}-${transformBuildingIdIntoCssClass(buildingId)}`],
+  );
+};
+
 type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
 };
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t } = useTranslation();
+  const { tribe } = useTribe();
+  const { currentVillage } = useCurrentVillage();
   const { id: buildingFieldId, buildingId } = buildingField;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
@@ -87,7 +123,8 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
+        dynamicCellClasses(buildingField, tribe, currentVillage.resourceFieldComposition),
+        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
     >

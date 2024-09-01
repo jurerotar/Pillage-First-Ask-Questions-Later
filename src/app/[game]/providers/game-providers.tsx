@@ -1,23 +1,16 @@
-import { type DehydratedState, hydrate, useQueryClient } from '@tanstack/react-query';
-import { GameEngineProvider } from 'app/[game]/providers/game-engine-provider';
-import { Outlet, useRouteLoaderData } from 'react-router-dom';
 import { CurrentResourceProvider } from 'app/[game]/providers/current-resources-provider';
-
-type RouteLoaderData = {
-  dehydratedState: DehydratedState;
-};
+import { GameEngineProvider } from 'app/[game]/providers/game-engine-provider';
+import { GameStateProvider } from 'app/[game]/providers/game-state-provider';
+import { Outlet } from 'react-router-dom';
 
 export const GameProviders = () => {
-  const queryClient = useQueryClient();
-  const { dehydratedState } = useRouteLoaderData('game') as RouteLoaderData;
-
-  hydrate(queryClient, dehydratedState);
-
   return (
-    <GameEngineProvider>
-      <CurrentResourceProvider>
-        <Outlet />
-      </CurrentResourceProvider>
-    </GameEngineProvider>
+    <GameStateProvider>
+      <GameEngineProvider>
+        <CurrentResourceProvider>
+          <Outlet />
+        </CurrentResourceProvider>
+      </GameEngineProvider>
+    </GameStateProvider>
   );
 };

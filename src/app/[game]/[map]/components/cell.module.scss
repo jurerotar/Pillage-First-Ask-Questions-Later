@@ -1,163 +1,117 @@
-// Idea is to remove background-color from all oasis classes eventually, but until we have all vectors, they will get removed by group
-.oasis {
-  $oasisBase: '/vectors/map/oasis';
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center center;
+@mixin oasisBackgroundImage($base, $resourceBase, $group, $position) {
+  &-position-#{$position} {
+    // TODO: Remove bg color once all oasis graphics are added
+    background-color: transparent;
+    background-image: url($resourceBase + '/#{$group}/#{$position}.png'), url($base + '/oasis-base.png');
+  }
+}
 
-  &-wood {
-    background-color: #426002;
-    $woodBase: $oasisBase + '/wood';
+@each $themeSelector, $imagesPath in $themeImagesPaths {
+  // Occupied occupiable tiles
+  :global(#{$themeSelector}) .occupied-tile {
+    $base: $imagesPath + '/map/occupied-tiles';
+    @each $tribe in $tribes {
+      $tribeBase: $base + '/#{$tribe}';
+
+      &-#{$tribe} {
+        @each $villageSize in $villageSizes {
+          &-#{$villageSize} {
+            background-image: url($tribeBase + '/#{$villageSize}.png'), url($base + '/occupied-tile-base.png');
+          }
+        }
+      }
+    }
   }
 
-  &-clay {
-    background-color: #C29760;
-    $clayBase: $oasisBase + '/clay';
+
+  // Unoccupied occupiable tiles
+  :global(#{$themeSelector}) .unoccupied-tile {
+    $base: $imagesPath + '/map/unoccupied-tiles';
+
+    @each $resourceComposition in $resourceCompositions {
+      &-#{$resourceComposition} {
+        background-image: url($base + '/#{$resourceComposition}.png'), url($base + '/unoccupied-tile-base.png');
+      }
+    }
   }
 
-  &-iron {
-    background-color: #7B90A1;
-    $ironBase: $oasisBase + '/iron';
-  }
+  // Oasis tiles
+  :global(#{$themeSelector}) .oasis {
+    $base: $imagesPath + '/map/oasis';
 
-  &-wheat {
-    background-color: #FFF600;
-    $wheatBase: $oasisBase + '/wheat';
-    &-group-0 {
-      background-color: transparent;
-      background-size: 90% 90%;
-      &-position-0-0 {
-        background-image: url($wheatBase + '/0/0-0.svg');
-      }
-    }
+    @each $resource in $resources {
+      &-#{$resource} {
+        $resourceBase: $base + "/#{$resource}";
 
-    &-group-1 {
-      background-color: transparent;
-      background-size: 90% 90%;
-      &-position-0-0 {
-        background-position: bottom right;
-        background-image: url($wheatBase + '/1/0-0.svg');
-      }
-      &-position-0-1 {
-        background-position: bottom left;
-        background-image: url($wheatBase + '/1/0-1.svg');
-      }
-      &-position-1-0 {
-        background-position: top right;
-        background-image: url($wheatBase + '/1/1-0.svg');
-      }
-      &-position-1-1 {
-        background-position: top left;
-        background-image: url($wheatBase + '/1/1-1.svg');
-      }
-    }
+        // TODO: Delete this bg stuff once you have graphics ready
+        $bg: #426002;
 
-    &-group-2 {
-      background-color: transparent;
-      background-size: 90% 90%;
-      &-position-0-0 {
-        background-position: center right;
-        background-image: url($wheatBase + '/2/0-0.svg');
-      }
-      &-position-0-1 {
-        background-position: center left;
-        background-image: url($wheatBase + '/2/0-1.svg');
-      }
-    }
+        @if $resource == 'clay' {
+          $bg: #C29760;
+        }
+        @if $resource == 'iron' {
+          $bg: #7B90A1;
+        }
+        @if $resource == 'wheat' {
+          $bg: #FFF600;
+        }
 
-    &-group-3 {
-      background-color: transparent;
-      &-position-0-0 {
-        background-position: bottom right;
-        background-image: url($wheatBase + '/3/0-0.svg');
-      }
-      &-position-0-1 {
-        background-position: bottom center;
-        background-image: url($wheatBase + '/3/0-1.svg');
-      }
-      &-position-0-2 {
-        background-position: top left;
-        background-image: url($wheatBase + '/3/0-2.svg');
-      }
-      &-position-1-0 {
-        background-position: top right;
-        background-image: url($wheatBase + '/3/1-0.svg');
-      }
-      &-position-1-1 {
-        background-position: top center;
-        background-image: url($wheatBase + '/3/1-1.svg');
-      }
-      &-position-1-2 {
-        background-position: top center;
-        background-image: url($wheatBase + '/3/1-2.svg');
-      }
-      &-position-2-0 {
-        background-position: top center;
-        background-image: url($wheatBase + '/3/2-0.svg');
-      }
-      &-position-2-1 {
-        background-position: top center;
-        background-image: url($wheatBase + '/3/2-1.svg');
-      }
-    }
+        background-color: $bg;
 
-    &-group-4 {
-      background-color: transparent;
-      &-position-0-0 {
-        background-position: bottom right;
-        background-image: url($wheatBase + '/4/0-0.svg');
-      }
-      &-position-1-0 {
-        background-position: bottom center;
-        background-image: url($wheatBase + '/4/1-0.svg');
-      }
-      &-position-1-1 {
-        background-position: top left;
-        background-image: url($wheatBase + '/4/1-1.svg');
-      }
-      &-position-1-2 {
-        background-position: top right;
-        background-image: url($wheatBase + '/4/1-2.svg');
-      }
-      &-position-2-0 {
-        background-position: top center;
-        background-image: url($wheatBase + '/4/2-0.svg');
-      }
-      &-position-2-1 {
-        background-position: top center;
-        background-image: url($wheatBase + '/4/2-1.svg');
-      }
-      &-position-2-2 {
-        background-position: top center;
-        background-image: url($wheatBase + '/4/2-2.svg');
-      }
-    }
+        &-group-0 {
+          @if $resource == 'wood' {
+            @include oasisBackgroundImage($base, $resourceBase, '0', '0-0');
+          }
+          @if $resource == 'iron' {
+            @include oasisBackgroundImage($base, $resourceBase, '0', '0-0');
+          }
+        }
 
-    &-group-5 {
-      background-color: transparent;
-      &-position-0-0 {
-        background-position: bottom right;
-        background-image: url($wheatBase + '/5/0-0.svg');
-      }
-      &-position-0-1 {
-        background-position: bottom center;
-        background-image: url($wheatBase + '/5/0-1.svg');
-      }
-      &-position-0-2 {
-        background-position: top left;
-        background-image: url($wheatBase + '/5/0-2.svg');
-      }
-      &-position-1-0 {
-        background-position: top right;
-        background-image: url($wheatBase + '/5/1-0.svg');
-      }
-      &-position-1-1 {
-        background-position: top center;
-        background-image: url($wheatBase + '/5/1-1.svg');
-      }
-      &-position-1-2 {
-        background-position: top left;
-        background-image: url($wheatBase + '/5/1-2.svg');
+        &-group-1 {
+          @if $resource == 'wood' {
+            @include oasisBackgroundImage($base, $resourceBase, '1', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '1', '0-1');
+          }
+          @if $resource == 'wheat' {
+            @include oasisBackgroundImage($base, $resourceBase, '1', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '1', '0-1');
+          }
+
+        }
+
+        &-group-2 {
+          &-position-0-0 {
+            background-image: url($resourceBase + '/2/0-0.png');
+          }
+
+          &-position-0-1 {
+            background-image: url($resourceBase + '/2/0-1.png');
+          }
+
+          &-position-1-0 {
+            background-image: url($resourceBase + '/2/1-0.png');
+          }
+
+          &-position-1-1 {
+            background-image: url($resourceBase + '/2/1-1.png');
+          }
+        }
+
+        &-group-3 {
+          @if $resource == 'wood' {
+            @include oasisBackgroundImage($base, $resourceBase, '3', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '3', '1-0');
+            @include oasisBackgroundImage($base, $resourceBase, '3', '2-0');
+          }
+        }
+
+        &-group-4 {
+          @if $resource == 'wood' {
+            @include oasisBackgroundImage($base, $resourceBase, '4', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '4', '0-1');
+            @include oasisBackgroundImage($base, $resourceBase, '4', '0-2');
+          }
+        }
       }
     }
   }

@@ -1,7 +1,9 @@
+import { useIsRestoring } from '@tanstack/react-query';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
 import { useCalculatedResource } from 'app/[game]/hooks/use-calculated-resource';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { GameLayoutSkeleton } from 'app/[game]/skeleton';
+import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
 import { Icon } from 'app/components/icon';
 import { useViewport } from 'app/providers/viewport-context';
 import { formatNumberWithCommas } from 'app/utils/common';
@@ -14,8 +16,7 @@ import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
-import { Await, Link, Outlet, useRouteLoaderData } from 'react-router-dom';
-import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
+import { Await, Link, Outlet } from 'react-router-dom';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -203,14 +204,10 @@ const MobileBottomNavigation = () => {
   );
 };
 
-type RouteLoaderData = {
-  resolved: boolean;
-};
-
 export const GameLayout = () => {
-  const { resolved } = useRouteLoaderData('game') as RouteLoaderData;
   const { isWiderThanMd } = useViewport();
   const { isMapPageOpen } = useGameNavigation();
+  const isRestoring = useIsRestoring();
 
   const shouldDisplayDesktopNavigation = isWiderThanMd;
   const shouldDisplayMobileResourcesSection = !isWiderThanMd && !isMapPageOpen;
@@ -218,7 +215,7 @@ export const GameLayout = () => {
 
   return (
     <Suspense fallback={<GameLayoutSkeleton />}>
-      <Await resolve={resolved}>
+      <Await resolve={!isRestoring}>
         {shouldDisplayDesktopNavigation && <DesktopNavigation />}
         {shouldDisplayMobileResourcesSection && <MobileResourcesSection />}
         <Outlet />

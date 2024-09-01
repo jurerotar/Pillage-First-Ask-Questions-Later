@@ -35,7 +35,7 @@ export const VillagePage: React.FC = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-[1000px] mt-16 md:mt-24">
+      <main className="relative mx-auto flex aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24">
         {buildingFieldIdsToDisplay.map((buildingFieldId) => (
           <BuildingField
             key={buildingFieldId}

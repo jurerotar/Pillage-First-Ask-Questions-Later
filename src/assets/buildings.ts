@@ -492,7 +492,8 @@ export const buildings: Building[] = [
       {
         effectId: 'warehouseCapacity',
         valuesPerLevel: [
-          400, 900, 1500, 2300, 3200, 4200, 5500, 7000, 8800, 11000, 13600, 16800, 20600, 25100, 30500, 37100, 44900, 54300, 65600, 79200,
+          0, 400, 900, 1500, 2300, 3200, 4200, 5500, 7000, 8800, 11000, 13600, 16800, 20600, 25100, 30500, 37100, 44900, 54300, 65600,
+          79200,
         ],
       },
     ],
@@ -1928,9 +1929,11 @@ export const buildings: Building[] = [
     effects: [
       {
         effectId: 'buildingDuration',
+        // This may look weird, but the mechanic is that if main building is destroyed, everything takes 5x as long to build. What we do is
+        // make the 5x modifier as a server default and reduce it with a main building effect
         valuesPerLevel: [
-          0.2, 0.2, 0.196, 0.192, 0.188, 0.184, 0.18, 0.176, 0.172, 0.166, 0.162, 0.156, 0.15, 0.146, 0.14, 0.134, 0.128, 0.12, 0.114,
-          0.108, 0.1,
+          1, 0.2, 0.196, 0.192, 0.188, 0.184, 0.18, 0.176, 0.172, 0.166, 0.162, 0.156, 0.15, 0.146, 0.14, 0.134, 0.128, 0.12, 0.114, 0.108,
+          0.1,
         ],
       },
     ],

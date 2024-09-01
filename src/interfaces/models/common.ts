@@ -16,21 +16,3 @@ export type Point = {
 export type Device = {
   size: Size;
 };
-
-export type OPFSFileName =
-  | 'server'
-  | 'map'
-  | 'hero'
-  | 'villages'
-  | 'reports'
-  | 'quests'
-  | 'achievements'
-  | 'events'
-  | 'effects'
-  | 'players'
-  | 'reputations'
-  | 'auctions'
-  | 'mapMarkers'
-  | 'adventures'
-  | 'mapFilters'
-  | 'troops';

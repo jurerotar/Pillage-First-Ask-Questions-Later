@@ -1,16 +1,12 @@
-export const workerFactory = async <TPayload, TReturn = void>(
-  worker: string,
-  payload: TPayload,
-  errorMessage: string,
-): Promise<TReturn> => {
-  return new Promise<TReturn>((resolve, reject) => {
+export const workerFactory = async <TPayload, TReturn = void>(worker: string, payload: TPayload): Promise<TReturn> => {
+  return new Promise<TReturn>((resolve) => {
     const workerInstance: Worker = new Worker(worker, { type: 'module' });
     workerInstance.postMessage(payload);
     workerInstance.addEventListener('message', async (event: MessageEvent<TReturn>) => {
       resolve(event.data);
     });
-    workerInstance.addEventListener('error', () => {
-      reject(new Error(errorMessage));
+    workerInstance.addEventListener('error', (error) => {
+      console.error('Worker error:', error);
     });
   });
 };

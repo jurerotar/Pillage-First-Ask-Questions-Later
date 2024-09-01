@@ -13,11 +13,11 @@ describe('MapControls', () => {
     });
 
     const button = screen.getByLabelText('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_REPUTATION_DISPLAY');
-    expect(button).toHaveClass(functionalityEnabledButtonClassName);
-    await userEvent.click(button);
     expect(button).not.toHaveClass(functionalityEnabledButtonClassName);
     await userEvent.click(button);
     expect(button).toHaveClass(functionalityEnabledButtonClassName);
+    await userEvent.click(button);
+    expect(button).not.toHaveClass(functionalityEnabledButtonClassName);
   });
 
   test('Toggle-oasis-icons-display button exists and behaves correctly', async () => {

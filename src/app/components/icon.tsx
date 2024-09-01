@@ -1,10 +1,11 @@
 import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
+import type { EffectId } from 'interfaces/models/game/effect';
 import type { Unit } from 'interfaces/models/game/unit';
 import { camelCase } from 'moderndash';
 import type React from 'react';
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
@@ -14,7 +15,6 @@ const IconResourceIron = lazy(async () => ({ default: (await import('app/compone
 const IconResourceWood = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wood')).IconWood }));
 const IconResourceClay = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-clay')).IconClay }));
 
-// Resource combinations - WIP - We're using single-resource icons for now
 const IconResourceCombinationWoodWheat = lazy(async () => ({
   default: (await import('app/components/icons/resource-combinations/icon-wood')).IconWood,
 }));
@@ -120,6 +120,18 @@ const IconGranaryCapacity = lazy(async () => ({
 const IconFreeCrop = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-free-crop')).IconFreeCrop,
 }));
+const IconCavalryDefence = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-cavalry-defence')).IconCavalryDefence,
+}));
+const IconInfantryDefence = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-infantry-defence')).IconInfantryDefence,
+}));
+const IconPopulation = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-population')).IconPopulation,
+}));
+const IconAttack = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-attack')).IconAttack,
+}));
 
 // Village
 const IconPopulationCropConsumption = lazy(async () => ({
@@ -194,14 +206,8 @@ const IconUnitNatureElephant = lazy(async () => ({
 }));
 
 // Variants
-const IconNegativeBonusVariant = lazy(async () => ({
-  default: (await import('app/components/icons/variants/icon-negative-bonus-variant')).IconNegativeBonusVariant,
-}));
 const IconNegativeChangeVariant = lazy(async () => ({
   default: (await import('app/components/icons/variants/icon-negative-change-variant')).IconNegativeChangeVariant,
-}));
-const IconPositiveBonusVariant = lazy(async () => ({
-  default: (await import('app/components/icons/variants/icon-positive-bonus-variant')).IconPositiveBonusVariant,
 }));
 const IconPositiveChangeVariant = lazy(async () => ({
   default: (await import('app/components/icons/variants/icon-positive-change-variant')).IconPositiveChangeVariant,
@@ -229,15 +235,11 @@ type MapControlsIconType =
 
 type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
 
-type BuildingFieldIcons = 'buildingDuration';
-
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 
 export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
 
 type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
-
-type EffectIconType = 'freeCrop' | 'warehouseCapacity' | 'granaryCapacity';
 
 type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
@@ -257,21 +259,25 @@ type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | '
 
 type UnitIconType = RomanTroopIconType | NatureTroopIconType;
 
-type IconType =
+type OtherIconType = 'freeCrop' | 'population';
+
+export type IconType =
   | MissingIconType
   | ReportIconType
   | ResourceCombinationIconType
   | ResourceIconType
   | MapControlsIconType
   | TreasureTileIconType
-  | BuildingFieldIcons
   | VillageIconType
   | UnitIconType
   | MapAdventureIconType
-  | EffectIconType;
+  | OtherIconType
+  | EffectId;
 
-const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
+// @ts-ignore - TODO: Add missing icons
+export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   missingIcon: IconMissingIcon,
+  // Resources
   wood: IconResourceWood,
   clay: IconResourceClay,
   iron: IconResourceIron,
@@ -283,6 +289,7 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   clayClay: IconResourceCombinationClayClay,
   ironIron: IconResourceCombinationIronIron,
   wheatWheat: IconResourceCombinationWheatWheat,
+  // Map controls
   mapMagnificationIncrease: IconMapMagnificationIncrease,
   mapMagnificationDecrease: IconMapMagnificationDecrease,
   mapReputationToggle: IconMapReputationToggle,
@@ -291,22 +298,30 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   mapWheatFieldIconToggle: IconMapWheatFieldIconToggle,
   mapTileTooltipToggle: IconMapTileTooltipToggle,
   mapTreasureIconToggle: IconMapTreasuresToggle,
+  // Map treasures
   treasureTileItem: IconTreasureTileItem,
   treasureTileResources: IconTreasureTileResources,
   treasureTileArtifact: IconTreasureTileArtifact,
   treasureTileCurrency: IconTreasureTileCurrency,
+  // Reports
   attackerNoLoss: IconAttackerNoLoss,
   attackerSomeLoss: IconAttackerSomeLoss,
   attackerFullLoss: IconAttackerFullLoss,
   defenderNoLoss: IconDefenderNoLoss,
   defenderSomeLoss: IconDefenderSomeLoss,
   defenderFullLoss: IconDefenderFullLoss,
+  // Effects
   freeCrop: IconFreeCrop,
   populationCropConsumption: IconPopulationCropConsumption,
   troopsCropConsumption: IconTroopsCropConsumption,
   warehouseCapacity: IconWarehouseCapacity,
   granaryCapacity: IconGranaryCapacity,
   buildingDuration: IconBuildingDuration,
+  infantryDefence: IconInfantryDefence,
+  cavalryDefence: IconCavalryDefence,
+  population: IconPopulation,
+  attack: IconAttack,
+  // Romans
   legionnaire: IconUnitRomanLegionnaire,
   praetorian: IconUnitRomanPraetorian,
   imperian: IconUnitRomanImperian,
@@ -317,6 +332,7 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   fireCatapult: IconUnitRomanFireCatapult,
   senator: IconUnitRomanSenator,
   romanSettler: IconUnitRomanRomanSettler,
+  // Animals
   rat: IconUnitNatureRat,
   spider: IconUnitNatureSpider,
   serpent: IconUnitNatureSerpent,
@@ -327,6 +343,7 @@ const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Elemen
   crocodile: IconUnitNatureCrocodile,
   tiger: IconUnitNatureTiger,
   elephant: IconUnitNatureElephant,
+  // Adventures
   adventureDifficult: IconAdventureDifficult,
   adventureNormal: IconAdventureNormal,
 };
@@ -342,7 +359,7 @@ export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {
 export type IconProps = IconBaseProps &
   React.HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
-    variant?: 'positive-change' | 'negative-change' | 'positive-bonus' | 'negative-bonus';
+    variant?: 'positive-change' | 'negative-change';
     borderVariant?: BorderIndicatorProps['variant'];
     wrapperClassName?: string;
   };
@@ -351,6 +368,7 @@ export type IconProps = IconBaseProps &
 export const Icon: React.FC<IconProps> = (props) => {
   const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
 
+  // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
 
   const hasVariantIcon = !!variant;
@@ -375,11 +393,9 @@ export const Icon: React.FC<IconProps> = (props) => {
         >
           <ComputedIcon />
           {hasVariantIcon && (
-            <span className="absolute bottom-0 right-0 size-1/2 rounded-full border border-black bg-white">
+            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
               {variant === 'positive-change' && <IconPositiveChangeVariant />}
               {variant === 'negative-change' && <IconNegativeChangeVariant />}
-              {variant === 'positive-bonus' && <IconPositiveBonusVariant />}
-              {variant === 'negative-bonus' && <IconNegativeBonusVariant />}
             </span>
           )}
         </span>

@@ -1,8 +1,11 @@
 import { lazy } from 'react';
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { type RouteObject, createBrowserRouter } from 'react-router-dom';
 
+// Public
 const PublicLayout = lazy(async () => ({ default: (await import('app/[public]/layout')).PublicLayout }));
 const HomePage = lazy(async () => ({ default: (await import('app/[public]/[index]/page')).HomePage }));
+
+// Game
 const VillagePage = lazy(async () => ({ default: (await import('app/[game]/[village]/page')).VillagePage }));
 const BuildingPage = lazy(async () => ({ default: (await import('app/[game]/[village]/[...building-field-id]/page')).BuildingPage }));
 const ReportPage = lazy(async () => ({ default: (await import('app/[game]/[reports]/[...report-id]/page')).ReportPage }));
@@ -13,6 +16,9 @@ const MapProvider = lazy(async () => ({ default: (await import('app/[game]/[map]
 const GameLayout = lazy(async () => ({ default: (await import('app/[game]/layout')).GameLayout }));
 const GameProviders = lazy(async () => ({ default: (await import('app/[game]/providers/game-providers')).GameProviders }));
 const GameErrorBoundary = lazy(async () => ({ default: (await import('app/[game]/error-boundary')).GameErrorBoundary }));
+
+// Design system
+const IconsPage = lazy(async () => ({ default: (await import('app/[design-system]/[icons]/page')).IconsPage }));
 
 const routes: RouteObject[] = [
   // Public paths
@@ -26,15 +32,22 @@ const routes: RouteObject[] = [
       },
     ],
   },
+  // Design-system paths
+  {
+    path: '/design-system',
+    children: [
+      {
+        path: 'icons',
+        element: <IconsPage />,
+        index: true,
+      },
+    ],
+  },
   // Game paths
   {
     id: 'game',
     path: '/game/:serverSlug/:villageSlug/',
     element: <GameProviders />,
-    loader: async ({ request, params }) => {
-      const { gameLoader } = await import('app/[game]/loader');
-      return gameLoader({ request, params });
-    },
     errorElement: <GameErrorBoundary />,
     children: [
       {

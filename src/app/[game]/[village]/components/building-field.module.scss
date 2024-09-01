@@ -1,0 +1,335 @@
+@mixin resourceBuilding($base, $resourceBase, $group, $position) {
+  &-position-#{$position} {
+    // TODO: Remove bg color once all oasis graphics are added
+    background-color: transparent;
+    background-image: url($resourceBase + '/#{$group}/#{$position}.png'), url($base + '/oasis-base.png');
+  }
+}
+
+@each $themeSelector, $imagesPath in $themeImagesPaths {
+  :global(#{$themeSelector}) .building {
+    $base: $imagesPath + '/buildings';
+
+    // Resources
+    &-resource {
+      $resourceBase: $base + '/resources';
+
+      // Defaults (4446).
+      // There's a couple of resource fields that never change, namely: 2, 8, 9, 12, 13, 15
+      // There's a couple of fields that never change, except on 00018: 3, 4, 16
+      // There's a couple fields that never change, except on 00018 & 11115: 6, 7, 11, 14, 17, 18
+      &-1 {
+
+      }
+
+      &-2 {
+
+      }
+
+      &-3 {
+
+      }
+
+      &-4 {
+
+      }
+
+      &-5 {
+
+      }
+
+      &-6 {
+
+      }
+
+      &-7 {
+
+      }
+
+      &-8 {
+
+      }
+
+      &-9 {
+
+      }
+
+      &-10 {
+
+      }
+
+      &-11 {
+
+      }
+
+      &-12 {
+
+      }
+
+      &-13 {
+
+      }
+
+      &-14 {
+
+      }
+
+      &-15 {
+
+      }
+
+      &-16 {
+
+      }
+
+      &-17 {
+
+      }
+
+      &-18 {
+
+      }
+
+      &-5436 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-5346 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-4536 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-3546 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-4356 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-3456 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-4437 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-4347 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-3447 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-3339 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-10 {
+
+        }
+      }
+
+      &-11115 {
+        &-1 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-6 {
+
+        }
+
+        &-7 {
+
+        }
+
+        &-10 {
+
+        }
+
+        &-11 {
+
+        }
+
+        &-14 {
+
+        }
+
+        &-17 {
+
+        }
+
+        &-18 {
+
+        }
+      }
+
+      &-00018 {
+        &-1 {
+
+        }
+
+        &-3 {
+
+        }
+
+        &-4 {
+
+        }
+
+        &-5 {
+
+        }
+
+        &-6 {
+
+        }
+
+        &-7 {
+
+        }
+
+        &-10 {
+
+        }
+
+        &-11 {
+
+        }
+
+        &-14 {
+
+        }
+
+        &-16 {
+
+        }
+
+        &-17 {
+
+        }
+
+        &-18 {
+
+        }
+      }
+    }
+
+    // Village
+    @each $tribe in $tribes {
+      $tribeBase: $base + '/#{$tribe}';
+
+      &-#{$tribe} {
+        @each $building in $buildings {
+          &-#{$building} {
+            background-image: url($tribeBase + '/#{$building}.png');
+          }
+        }
+      }
+    }
+  }
+}

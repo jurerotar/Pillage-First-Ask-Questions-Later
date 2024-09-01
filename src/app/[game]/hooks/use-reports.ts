@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import type { MissingIconType, ReportIconType } from 'app/components/icon';
 import type { Report, ReportTag } from 'interfaces/models/game/report';
 import type { Tile } from 'interfaces/models/game/tile';
-import { getParsedFileContents } from 'app/utils/opfs';
 
 type _ReportMark = ReportTag | `un${ReportTag}`;
 
@@ -47,10 +45,7 @@ export const getReportIconType = ({ type, status }: Report): ReportIconType | Mi
 };
 
 export const useReports = () => {
-  const { serverHandle } = useCurrentServer();
-
   const { data: reports } = useQuery<Report[]>({
-    queryFn: () => getParsedFileContents(serverHandle, 'reports'),
     queryKey: [reportsCacheKey],
     initialData: [],
   });

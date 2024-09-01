@@ -1,13 +1,18 @@
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
-import { defineConfig, type UserConfig } from 'vite';
+import { type UserConfig, defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
-import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), viteTsconfigPaths(), svgrPlugin(), VitePWA({ registerType: 'autoUpdate' })],
+  root: 'src',
+  publicDir: '../public',
+  build: {
+    outDir: '../dist',
+  },
   server: {
     open: true,
   },
@@ -19,6 +24,7 @@ export default defineConfig({
       // Third-party deps
       'react',
       'react-dom',
+      'react-dom/client',
       'react-router-dom',
       'esm-seedrandom',
       'react-tabs',
@@ -57,6 +63,13 @@ export default defineConfig({
   },
   worker: {
     format: 'es',
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "src/styles/variables.scss";`,
+      },
+    },
   },
   test: {
     watch: false,

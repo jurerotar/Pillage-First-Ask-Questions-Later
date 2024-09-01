@@ -20,7 +20,7 @@ type NewBuildingEffectFactoryArgs = {
   buildingFieldId: BuildingField['id'];
 };
 
-const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): VillageBuildingEffect => {
+export const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): VillageBuildingEffect => {
   return {
     scope: 'village',
     source: 'building',

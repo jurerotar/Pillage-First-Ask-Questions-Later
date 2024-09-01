@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import type { ResourceProductionEffectId } from 'interfaces/models/game/effect';
 import type { Resource } from 'interfaces/models/game/resource';
 import type { Village } from 'interfaces/models/game/village';
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 
 const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
   ['wood', 'woodProduction'],
@@ -69,7 +69,9 @@ export const useCalculatedResource = (resource: Resource) => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    setCalculatedResourceAmount(currentAmount);
+    startTransition(() => {
+      setCalculatedResourceAmount(currentAmount);
+    });
 
     if (timeoutId.current) {
       clearTimeout(timeoutId.current);
@@ -79,11 +81,13 @@ export const useCalculatedResource = (resource: Resource) => {
     }
 
     const updateResourceAmount = () => {
-      setCalculatedResourceAmount((prevAmount) => {
-        let newAmount = prevAmount + 1;
-        if (newAmount > storageCapacity) newAmount = storageCapacity;
-        if (newAmount < 0) newAmount = 0;
-        return newAmount;
+      startTransition(() => {
+        setCalculatedResourceAmount((prevAmount) => {
+          let newAmount = prevAmount + 1;
+          if (newAmount > storageCapacity) newAmount = storageCapacity;
+          if (newAmount < 0) newAmount = 0;
+          return newAmount;
+        });
       });
     };
 

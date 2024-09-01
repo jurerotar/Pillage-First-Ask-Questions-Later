@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import '@vitest/web-worker';
 import 'packages/vitest-opfs-mock';
+import 'vitest-localstorage-mock';
 
 Object.defineProperty(globalThis, 'crypto', {
   value: {

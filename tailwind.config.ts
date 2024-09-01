@@ -1,25 +1,13 @@
 import type { Config } from 'tailwindcss';
-import defaultTheme from 'tailwindcss/defaultTheme';
-import plugin from 'tailwindcss/plugin';
 
 export default {
   darkMode: 'class',
-  content: ['./public/index.html', './src/**/*.tsx', './src/app/[game]/utils/color-maps.ts'],
+  content: ['./src/**/*.{tsx,html}', './src/app/[game]/utils/color-maps.ts'],
   theme: {
-    fontFamily: {
-      sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
-    },
-    screens: {
-      xs: '425px',
-      sm: '640px',
-      md: '768px',
-      lg: '1024px',
-      xl: '1280px',
-      '2xl': '1536px',
-    },
     extend: {
-      fontFamily: {
-        'permanent-marker': ['Permanent Marker', 'sans-serif'],
+      screens: {
+        xs: '425px',
+        '2xl': '1536px',
       },
       duration: {
         default: 300,
@@ -31,13 +19,6 @@ export default {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
       colors: {
-        ...defaultTheme.colors,
-        resources: {
-          wood: '#426002',
-          iron: '#7B90A1',
-          clay: '#C29760',
-          wheat: '#FFF600',
-        },
         reputation: {
           player: '#4338ca',
           ecstatic: '#1d4ed8',
@@ -50,12 +31,4 @@ export default {
       },
     },
   },
-  plugins: [
-    plugin(({ addVariant }) => {
-      addVariant('accessible', ':merge(.accessible):hover &');
-      addVariant('reduced-motion', ':merge(.reduced-motion):first-child &');
-      // :merge() is important to merge all variant pseudos on that selector and not the child
-      // this is inspirted by the core .group plugin https://github.com/tailwindlabs/tailwindcss/blob/master/src/corePlugins.js#L107
-    }),
-  ],
 } satisfies Config;

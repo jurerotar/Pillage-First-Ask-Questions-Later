@@ -44,4 +44,5 @@ export type Village = {
   resources: Resources;
   buildingFields: BuildingField[];
   isCapital: boolean;
+  resourceFieldComposition: ResourceFieldComposition;
 };

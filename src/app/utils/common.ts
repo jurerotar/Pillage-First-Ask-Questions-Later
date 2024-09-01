@@ -1,5 +1,5 @@
-import type { Point } from 'interfaces/models/common';
 import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
+import type { Point } from 'interfaces/models/common';
 
 export const randomIntFromInterval = (min: number, max: number): number => {
   // min and max included
@@ -87,4 +87,28 @@ export const partition = <T>(array: T[], callback: (element: T) => boolean): [T[
 
 export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
+};
+
+export const timeExecution = async (callback: () => void | Promise<void>, name = 'Performance mark') => {
+  performance.mark(`${name} - start`);
+  await callback();
+  performance.mark(`${name} - end`);
+  performance.measure(name, `${name} - start`, `${name} - end`);
+};
+
+export const isInDevelopmentMode = () => {
+  return import.meta.env.DEV;
+};
+
+export const formatPercentage = (number: number): string => {
+  // Extract the fractional part by subtracting the integer part
+  const fractionalPart = number - Math.floor(number);
+
+  // Convert to percentage
+  const percentage = fractionalPart * 100;
+
+  // Round the result to the nearest whole number
+  const roundedPercentage = Math.round(percentage);
+
+  return `${roundedPercentage}%`;
 };
