@@ -2,7 +2,13 @@
   &-position-#{$position} {
     // TODO: Remove bg color once all oasis graphics are added
     background-color: transparent;
-    background-image: url($resourceBase + '/#{$group}/#{$position}.png'), url($base + '/oasis-base.png');
+    // Fallback
+    background-image: url($resourceBase + '/#{$group}/#{$position}.jpg');
+
+    background-image: image-set(
+        $resourceBase + '/#{$group}/#{$position}.avif' type('image/avif'),
+        $resourceBase + '/#{$group}/#{$position}.jpg' type('image/jpeg'),
+    );
   }
 }
 
@@ -44,11 +50,7 @@
         $resourceBase: $base + "/#{$resource}";
 
         // TODO: Delete this bg stuff once you have graphics ready
-        $bg: #426002;
-
-        @if $resource == 'clay' {
-          $bg: #C29760;
-        }
+        $bg: #C29760;
         @if $resource == 'iron' {
           $bg: #7B90A1;
         }
@@ -80,20 +82,11 @@
         }
 
         &-group-2 {
-          &-position-0-0 {
-            background-image: url($resourceBase + '/2/0-0.png');
-          }
-
-          &-position-0-1 {
-            background-image: url($resourceBase + '/2/0-1.png');
-          }
-
-          &-position-1-0 {
-            background-image: url($resourceBase + '/2/1-0.png');
-          }
-
-          &-position-1-1 {
-            background-image: url($resourceBase + '/2/1-1.png');
+          @if $resource == 'wood' {
+            @include oasisBackgroundImage($base, $resourceBase, '2', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '2', '0-1');
+            @include oasisBackgroundImage($base, $resourceBase, '2', '1-0');
+            @include oasisBackgroundImage($base, $resourceBase, '2', '1-1');
           }
         }
 
