@@ -14,7 +14,7 @@ import {
   villageWithWorkshopRequirementsMetBuildingFieldsMock,
 } from 'mocks/game/village/building-fields-mock';
 import { villageMock } from 'mocks/game/village/village-mock';
-import { test, describe } from 'vitest';
+import { describe, test } from 'vitest';
 
 const currentVillage: Village = villageMock;
 const playerVillages: Village[] = [villageMock, villageMock];
@@ -71,12 +71,6 @@ describe('building-requirements', () => {
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(true);
       });
-
-      test('Stonemason can only be built in capital', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, currentVillage: capitalVillage, buildingId: 'STONEMASON' };
-        const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
-        expect(fulfilled).toBe(true);
-      });
     });
 
     describe('Non-capital village', () => {
@@ -104,16 +98,6 @@ describe('building-requirements', () => {
 
       test("Brewery can't be built in non-capitals", () => {
         const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, currentVillage: nonCapitalVillage, buildingId: 'BREWERY' };
-        const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
-        expect(fulfilled).toBe(false);
-      });
-
-      test("Stonemason can't be built in non-capitals", () => {
-        const args: AssessBuildingConstructionReadinessArgs = {
-          ...defaultArgs,
-          currentVillage: nonCapitalVillage,
-          buildingId: 'STONEMASON',
-        };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
@@ -302,11 +286,11 @@ describe('building-requirements', () => {
     });
 
     // Testing this to make sure your buildings can be higher level than required
-    test('Can build smithy with academy and main building at lvl 10', () => {
+    test('Can build stable with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock },
-        buildingId: 'SMITHY',
+        buildingId: 'STABLE',
       };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);

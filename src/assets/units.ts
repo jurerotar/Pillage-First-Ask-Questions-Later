@@ -29,10 +29,7 @@ export const romanUnits: Unit[] = [
     carryCapacity: 20,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: [
-      { buildingId: 'ACADEMY', level: 1 },
-      { buildingId: 'SMITHY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 1 }],
   },
   {
     id: 'IMPERIAN',
@@ -46,10 +43,7 @@ export const romanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: [
-      { buildingId: 'ACADEMY', level: 5 },
-      { buildingId: 'SMITHY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
     id: 'EQUITES_LEGATI',
@@ -196,10 +190,7 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 45,
     category: 'infantry',
     tribe: 'gauls',
-    researchPrerequisites: [
-      { buildingId: 'ACADEMY', level: 3 },
-      { buildingId: 'SMITHY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
     id: 'PATHFINDER',
@@ -380,10 +371,7 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: [
-      { buildingId: 'ACADEMY', level: 3 },
-      { buildingId: 'SMITHY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
     id: 'SCOUT',
@@ -530,10 +518,7 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
-      { buildingId: 'SMITHY', level: 1 },
-      { buildingId: 'ACADEMY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 1 }],
   },
   {
     id: 'KHOPESH_WARRIOR',
@@ -547,10 +532,7 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 45,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
-      { buildingId: 'SMITHY', level: 1 },
-      { buildingId: 'ACADEMY', level: 5 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
     id: 'SOPDU_EXPLORER',
@@ -698,10 +680,7 @@ export const hunUnits: Unit[] = [
     carryCapacity: 30,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
-      { buildingId: 'SMITHY', level: 1 },
-      { buildingId: 'ACADEMY', level: 3 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
     id: 'SPOTTER',
@@ -865,10 +844,7 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [
-      { buildingId: 'SMITHY', level: 1 },
-      { buildingId: 'ACADEMY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 1 }],
   },
   {
     id: 'SHIELDSMAN',
@@ -882,10 +858,7 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 40,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [
-      { buildingId: 'SMITHY', level: 1 },
-      { buildingId: 'ACADEMY', level: 5 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
     id: 'TWINSTEEL_THERION',
@@ -899,10 +872,7 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [
-      { buildingId: 'SMITHY', level: 5 },
-      { buildingId: 'ACADEMY', level: 10 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 10 }],
   },
   {
     id: 'ELPIDA_RIDER',
@@ -1176,10 +1146,7 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: [
-      { buildingId: 'ACADEMY', level: 3 },
-      { buildingId: 'SMITHY', level: 1 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
     id: 'GUARDSMAN',
@@ -1193,10 +1160,7 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: [
-      { buildingId: 'ACADEMY', level: 5 },
-      { buildingId: 'SMITHY', level: 5 },
-    ],
+    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
     id: 'BIRDS_OF_PREY',

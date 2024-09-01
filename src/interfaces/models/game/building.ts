@@ -17,7 +17,6 @@ export type BuildingId =
   | 'WAREHOUSE'
   | 'WATERWORKS'
   | 'ACADEMY'
-  | 'SMITHY'
   | 'BARRACKS'
   | 'CITY_WALL'
   | 'EARTH_WALL'
@@ -30,20 +29,16 @@ export type BuildingId =
   | 'RALLY_POINT'
   | 'STABLE'
   | 'STONE_WALL'
-  | 'STONEMASON'
-  | 'TOURNAMENT_SQUARE'
   | 'TRAPPER'
   | 'WORKSHOP'
   | 'BREWERY'
   | 'COMMAND_CENTER'
   | 'CRANNY'
-  | 'EMBASSY'
   | 'HORSE_DRINKING_TROUGH'
   | 'MAIN_BUILDING'
   | 'MARKETPLACE'
   | 'PALACE'
   | 'RESIDENCE'
-  | 'TRADE_OFFICE'
   | 'TREASURY';
 
 export type BuildingEffect = {

@@ -430,10 +430,6 @@
       "NAME": "Academy",
       "DESCRIPTION": "New unit types can be researched in the academy. By increasing its level, you can order the research of better units."
     },
-    "SMITHY": {
-      "NAME": "Smithy",
-      "DESCRIPTION": "The weapons and armor of your warriors are enhanced in the smithy's melting furnaces. By increasing its level, you can order the fabrication of even better weapons and armor."
-    },
     "BARRACKS": {
       "NAME": "Barracks",
       "DESCRIPTION": "Infantry can be trained in the barracks. The higher its level, the faster the troops are trained."
@@ -482,14 +478,6 @@
       "NAME": "Stone wall",
       "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."
     },
-    "STONEMASON": {
-      "NAME": "Stonemason",
-      "DESCRIPTION": "The stonemason's lodge is an expert at cutting stone. The further the building is extended, the higher the stability of the village's buildings.\n\nIt can only be built in the capital."
-    },
-    "TOURNAMENT_SQUARE": {
-      "NAME": "Tournament square",
-      "DESCRIPTION": "Your troops can increase their stamina at the Tournament Square. The further the building is upgraded, the faster your troops are beyond a minimum distance of 20 squares."
-    },
     "TRAPPER": {
       "NAME": "Trapper",
       "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more.\n\nTroops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically.\n\nThe trapper can only be constructed by Gauls."
@@ -514,10 +502,6 @@
       "NAME": "Cranny",
       "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen.\n\nAt level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger.\n\nIf a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
     },
-    "EMBASSY": {
-      "NAME": "Embassy",
-      "DESCRIPTION": "The embassy is a place for diplomats. At level 1 you can join an alliance, and after extending it to level 3 you may even found one yourself.\n\nThe maximum number of members in an alliance is 60."
-    },
     "HORSE_DRINKING_TROUGH": {
       "NAME": "Horse drinking trough",
       "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training.\n\nThe horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20.\n\nThe horse drinking trough can only be built by Romans."
@@ -537,10 +521,6 @@
     "RESIDENCE": {
       "NAME": "Residence",
       "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the residence provides an expansion slot at levels 10 and 20 each."
-    },
-    "TRADE_OFFICE": {
-      "NAME": "Trade office",
-      "DESCRIPTION": "In the trade office, the merchants' carts get improved and equipped with more powerful horses. The higher its level, the more your merchants are able to carry."
     },
     "TREASURY": {
       "NAME": "Treasury",
