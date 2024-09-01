@@ -2,7 +2,7 @@ import type { MapFilters } from 'interfaces/models/game/map-filters';
 
 export const mapFiltersFactory = (): MapFilters => {
   return {
-    shouldShowFactionReputation: true,
+    shouldShowFactionReputation: false,
     shouldShowOasisIcons: true,
     shouldShowTroopMovements: true,
     shouldShowWheatFields: true,

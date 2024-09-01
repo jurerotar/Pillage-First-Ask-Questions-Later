@@ -63,13 +63,14 @@ export const MapPage: React.FC = () => {
       const isOccupiedOasisCell = isOccupiedOasisTile(tile);
 
       if (isOccupiedOccupiableCell) {
-        const { faction } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
+        const { faction, tribe } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
         const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
 
         return {
           ...tile,
           faction,
           reputationLevel,
+          tribe,
         };
       }
 

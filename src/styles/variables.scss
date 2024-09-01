@@ -2,6 +2,50 @@ $themeImagesPaths: (
   '.default-theme': '/images/default-graphic-pack',
 );
 
-$resourceCompositions: '4446','5436','5346','4536','3546','4356','3456','4437','4347','3447','3339','11115','00018';
+$resourceCompositions: '4446', '5436', '5346', '4536', '3546', '4356', '3456', '4437', '4347', '3447', '3339', '11115', '00018';
 
 $resources: 'wood', 'clay', 'iron', 'wheat';
+
+$tribes: 'romans', 'gauls', 'teutons', 'huns', 'egyptians', 'nature', 'natars', 'spartans';
+
+$villageSizes: 'xs', 'sm', 'md', 'lg';
+
+$buildings: "bakery",
+"brickyard",
+"grain-mill",
+"granary",
+"great-granary",
+"great-warehouse",
+"iron-foundry",
+"sawmill",
+"warehouse",
+"waterworks",
+"academy",
+"smithy",
+"barracks",
+"city-wall",
+"earth-wall",
+"great-barracks",
+"great-stable",
+"heros-mansion",
+"hospital",
+"makeshift-wall",
+"palisade",
+"rally-point",
+"stable",
+"stone-wall",
+"stonemason",
+"tournament-square",
+"trapper",
+"workshop",
+"brewery",
+"command-center",
+"cranny",
+"embassy",
+"horse-drinking-trough",
+"main-building",
+"marketplace",
+"palace",
+"residence",
+"trade-office",
+"treasury";

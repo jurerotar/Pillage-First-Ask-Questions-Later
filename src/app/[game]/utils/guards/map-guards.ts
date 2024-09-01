@@ -31,6 +31,10 @@ export const isOccupiedOccupiableTile = (tile: Tile): tile is OccupiedOccupiable
   return isOccupiableTile(tile) && Object.hasOwn(tile, 'ownedBy');
 };
 
+export const isUnoccupiedOccupiableTile = (tile: Tile): tile is OccupiedOccupiableTile => {
+  return isOccupiableTile(tile) && !Object.hasOwn(tile, 'ownedBy');
+};
+
 export const isTreasuryTile = (tile: Tile): tile is OccupiedOccupiableTile => {
   return isOccupiableTile(tile) && (tile as OccupiedOccupiableTile).treasureType !== null;
 };

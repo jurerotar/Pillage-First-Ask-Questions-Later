@@ -179,14 +179,14 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 3 we pick, since the chance of these 3 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === 25 && y === 29)! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === 8 && y === 25)! as OccupiedOasisTile;
-      const tile3 = tiles.find(({ coordinates: { x, y } }) => x === 9 && y === 29)! as OccupiedOasisTile;
+      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === -48 && y === 49)! as OccupiedOasisTile;
+      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === -40 && y === 47)! as OccupiedOasisTile;
+      const tile3 = tiles.find(({ coordinates: { x, y } }) => x === -40 && y === 46)! as OccupiedOasisTile;
 
-      expect(tile1.graphics.oasisResource === 'iron' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(tile2.graphics.oasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '50%').toBe(true);
+      expect(tile1.graphics.oasisResource === 'clay' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile2.graphics.oasisResource === 'wood' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
       expect(
-        tile3.graphics.oasisResource === 'clay' &&
+        tile3.graphics.oasisResource === 'wood' &&
           tile3.oasisResourceBonus[0].bonus === '25%' &&
           tile3.oasisResourceBonus[1].bonus === '25%',
       ).toBe(true);

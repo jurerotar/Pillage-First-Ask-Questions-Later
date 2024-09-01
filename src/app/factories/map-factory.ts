@@ -38,6 +38,13 @@ const shapes: Shape[] = [
   },
 ];
 
+const shapesByResource: Record<Resource, Shape[]> = {
+  wood: [...shapes, { group: 4, shape: [3] }],
+  clay: shapes,
+  iron: shapes,
+  wheat: shapes,
+};
+
 type Distances = {
   offset: number;
   distanceFromCenter: number;
@@ -331,7 +338,7 @@ const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsA
 
     const { coordinates: tileCoordinates } = currentTile;
     const resourceType: Resource = seededRandomArrayElement<Resource>(prng, ['wheat', 'iron', 'clay', 'wood']);
-    const { group: oasisGroup, shape: oasisShape } = seededRandomArrayElement(prng, shapes);
+    const { group: oasisGroup, shape: oasisShape } = seededRandomArrayElement(prng, shapesByResource[resourceType]);
 
     const tilesToUpdate: BaseTile[] = [];
     const oasisGroupPositions: number[][] = [];
