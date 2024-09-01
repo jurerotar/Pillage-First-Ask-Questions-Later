@@ -107,12 +107,12 @@ const dynamicCellClasses = (buildingField: BuildingFieldType, tribe: Tribe, reso
 
 type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
+  resourceFieldComposition: ResourceFieldComposition;
 };
 
-const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
+const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField, resourceFieldComposition }) => {
   const { t } = useTranslation();
   const { tribe } = useTribe();
-  const { currentVillage } = useCurrentVillage();
   const { id: buildingFieldId, buildingId } = buildingField;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
@@ -123,7 +123,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        dynamicCellClasses(buildingField, tribe, currentVillage.resourceFieldComposition),
+        dynamicCellClasses(buildingField, tribe, resourceFieldComposition),
         'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
@@ -135,9 +135,10 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
 type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
+  resourceFieldComposition: ResourceFieldComposition;
 };
 
-export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
+export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId, resourceFieldComposition }) => {
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
@@ -146,5 +147,10 @@ export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId })
     return <EmptyBuildingField buildingFieldId={buildingFieldId} />;
   }
 
-  return <OccupiedBuildingField buildingField={buildingField} />;
+  return (
+    <OccupiedBuildingField
+      resourceFieldComposition={resourceFieldComposition}
+      buildingField={buildingField}
+    />
+  );
 };
