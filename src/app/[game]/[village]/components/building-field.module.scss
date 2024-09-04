@@ -12,22 +12,24 @@
       $bg: #FFF600;
     }
     background-color: $bg;
-    @if($resourceComposition == '') {
-      background-image: url($resourceBase + '/#{$resourceComposition}/#{$buildingFieldId}.png');
+
+    $base: $resourceBase;
+
+    @if $resourceComposition != '' {
+      $base: '/#{$resourceBase}/#{$resourceComposition}';
     }
-    @else {
-      background-image: url($resourceBase + '/#{$buildingFieldId}.png');
-    }
+
+    @include imageSet('#{$base}/#{$buildingFieldId}');
   }
 }
 
 @each $themeSelector, $imagesPath in $themeImagesPaths {
   :global(#{$themeSelector}) .building {
-    $base: $imagesPath + '/buildings';
+    $base: '#{$imagesPath}/buildings';
 
     // Resources
     &-resource {
-      $resourceBase: $base + '/resources';
+      $resourceBase: '#{$base}/resources';
 
       // Defaults (4446).
       // There's a couple of resource fields that never change, namely: 2, 8, 9, 12, 13, 15
