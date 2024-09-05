@@ -7,14 +7,15 @@ import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as BuildingFieldType['id'][];
+const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19) as BuildingFieldType['id'][];
+
 export const VillagePage: React.FC = () => {
   const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
   const _viewName = isResourcesPageOpen ? 'resources' : 'village';
-  const buildingFieldIdsToDisplay = (
-    isResourcesPageOpen ? [...Array(18)].map((_, i) => i + 1) : [...Array(22)].map((_, i) => i + 19)
-  ) as BuildingFieldType['id'][];
+  const buildingFieldIdsToDisplay = isResourcesPageOpen ? resourceViewBuildingFieldIds : villageViewBuildingFieldIds;
 
   return (
     <>

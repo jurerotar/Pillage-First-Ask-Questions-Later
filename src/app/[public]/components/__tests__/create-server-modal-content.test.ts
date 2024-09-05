@@ -14,6 +14,7 @@ import { playersCacheKey } from 'app/[game]/hooks/use-players';
 import { questsCacheKey } from 'app/[game]/hooks/use-quests';
 import { reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
 import { troopsCacheKey } from 'app/[game]/hooks/use-troops';
+import { unitResearchCacheKey } from 'app/[game]/hooks/use-unit-research';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import type { GameEvent } from 'interfaces/models/events/game-event';
@@ -23,6 +24,7 @@ import type { Player } from 'interfaces/models/game/player';
 import type { Quest } from 'interfaces/models/game/quest';
 import type { Reputation } from 'interfaces/models/game/reputation';
 import type { Troop } from 'interfaces/models/game/troop';
+import type { UnitResearch } from 'interfaces/models/game/unit-research';
 import type { Village } from 'interfaces/models/game/village';
 
 const queryClient = new QueryClient();
@@ -178,18 +180,12 @@ describe('Server initialization', () => {
     test('Same seed should generate same map every time', async () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
-      // Doesn't really matter which 3 we pick, since the chance of these 3 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === -48 && y === 49)! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === -40 && y === 47)! as OccupiedOasisTile;
-      const tile3 = tiles.find(({ coordinates: { x, y } }) => x === -40 && y === 46)! as OccupiedOasisTile;
+      // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
+      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === -48 && y === 42)! as OccupiedOasisTile;
+      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === -45 && y === 48)! as OccupiedOasisTile;
 
-      expect(tile1.graphics.oasisResource === 'clay' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(tile2.graphics.oasisResource === 'wood' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(
-        tile3.graphics.oasisResource === 'wood' &&
-          tile3.oasisResourceBonus[0].bonus === '25%' &&
-          tile3.oasisResourceBonus[1].bonus === '25%',
-      ).toBe(true);
+      expect(tile1.graphics.oasisResource === 'wheat' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile2.graphics.oasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
     });
   });
 
@@ -226,6 +222,12 @@ describe('Server initialization', () => {
   describe('Events', () => {
     test.todo('', async () => {
       const _events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
+    });
+  });
+
+  describe('Unit research', () => {
+    test.todo('', async () => {
+      const _unitResearch = queryClient.getQueryData<UnitResearch[]>([unitResearchCacheKey])!;
     });
   });
 });

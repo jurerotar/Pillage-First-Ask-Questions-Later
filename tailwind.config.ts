@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: 'class',
-  content: ['./src/**/*.{tsx,html}', './src/app/[game]/utils/color-maps.ts'],
+  content: ['./src/**/*.{tsx,html}'],
   theme: {
     extend: {
       screens: {
