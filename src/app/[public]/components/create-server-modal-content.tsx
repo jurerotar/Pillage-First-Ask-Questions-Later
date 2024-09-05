@@ -8,6 +8,7 @@ import { mapCacheKey } from 'app/[game]/hooks/use-map';
 import { playersCacheKey } from 'app/[game]/hooks/use-players';
 import { reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
 import { troopsCacheKey } from 'app/[game]/hooks/use-troops';
+import { unitResearchCacheKey } from 'app/[game]/hooks/use-unit-research';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import type { CreateServerWorkerPayload } from 'app/[public]/workers/create-server-worker';
 import CreateServerWorker from 'app/[public]/workers/create-server-worker?worker&url';
@@ -24,6 +25,7 @@ import { mapFiltersFactory } from 'app/factories/map-filters-factory';
 import { generatePlayers } from 'app/factories/player-factory';
 import { generateReputations } from 'app/factories/reputation-factory';
 import { serverFactory } from 'app/factories/server-factory';
+import { unitResearchFactory } from 'app/factories/unit-research-factory';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { workerFactory } from 'app/utils/workers';
 import type { Achievement } from 'interfaces/models/game/achievement';
@@ -35,6 +37,7 @@ import type { Reputation } from 'interfaces/models/game/reputation';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
 import type { Troop } from 'interfaces/models/game/troop';
+import type { UnitResearch } from 'interfaces/models/game/unit-research';
 import type { Village } from 'interfaces/models/game/village';
 import type React from 'react';
 import { useForm } from 'react-hook-form';
@@ -157,7 +160,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const playerStartingVillage = villages[0];
 
   // Non-dependant factories can run in sync
-  const [{ troops }, effects, hero, mapFilters] = await Promise.all([
+  const [{ troops }, effects, hero, mapFilters, unitResearch] = await Promise.all([
     workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
       server,
       occupiedOccupiableTiles,
@@ -167,6 +170,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     generateEffects(server, playerStartingVillage),
     heroFactory(server),
     mapFiltersFactory(),
+    unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
   ]);
 
   const queryClient = new QueryClient();
@@ -181,6 +185,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<Village[]>([villagesCacheKey], villages);
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
   queryClient.setQueryData<Troop[]>([troopsCacheKey], troops);
+  queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
 
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };

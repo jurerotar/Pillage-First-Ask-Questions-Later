@@ -8,7 +8,6 @@ import { useVillages } from 'app/[game]/hooks/use-villages';
 import { StyledTab } from 'app/components/styled-tab';
 import { partition } from 'app/utils/common';
 import { buildings } from 'assets/buildings';
-import clsx from 'clsx';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'interfaces/models/game/building';
 import type { BuildingField } from 'interfaces/models/game/village';
 import type React from 'react';
@@ -21,7 +20,7 @@ type BuildingCategoryPanelProps = {
   buildingFieldId: BuildingField['id'];
 };
 
-const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory, buildingFieldId }) => {
+const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory }) => {
   const { playerVillages } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
@@ -64,38 +63,28 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const hasNoAvailableBuildings = currentlyAvailableBuildings.length + currentlyUnavailableBuildings.length === 0;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4 pt-4">
       {!hasNoAvailableBuildings && (
         <>
           {currentlyAvailableBuildings.length > 0 && (
-            <section className="flex flex-col gap-2">
-              <h2>Available buildings</h2>
-              {currentlyAvailableBuildings.map((building: Building, index) => (
-                <div
-                  className={clsx(index !== currentlyAvailableBuildings.length - 1 && 'border-b', 'border-gray-200')}
+            <section className="flex flex-col gap-2 mb-2">
+              <h2 className="text-xl">Available buildings</h2>
+              {currentlyAvailableBuildings.map((building: Building) => (
+                <BuildingCard
                   key={building.id}
-                >
-                  <BuildingCard
-                    buildingId={building.id}
-                    buildingFieldId={buildingFieldId}
-                  />
-                </div>
+                  buildingId={building.id}
+                />
               ))}
             </section>
           )}
           {currentlyUnavailableBuildings.length > 0 && (
-            <section className="flex flex-col gap-2">
-              <h2>Buildable in the future</h2>
-              {currentlyUnavailableBuildings.map((building: Building, index) => (
-                <div
-                  className={clsx(index !== currentlyUnavailableBuildings.length - 1 && 'border-b', 'border-gray-200')}
+            <section className="flex flex-col gap-2 mb-2">
+              <h2 className="text-xl">Buildable in the future</h2>
+              {currentlyUnavailableBuildings.map((building: Building) => (
+                <BuildingCard
                   key={building.id}
-                >
-                  <BuildingCard
-                    buildingId={building.id}
-                    buildingFieldId={buildingFieldId}
-                  />
-                </div>
+                  buildingId={building.id}
+                />
               ))}
             </section>
           )}

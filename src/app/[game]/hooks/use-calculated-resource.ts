@@ -48,6 +48,7 @@ export const useCalculatedResource = (resource: Resource) => {
   const {
     currentVillage: { resources, lastUpdatedAt },
   } = useCurrentVillage();
+
   const resourceAmount = resources[resource];
   const { total: hourlyProduction } = useComputedEffect(resourceToResourceEffectMap.get(resource)!);
   const { total: storageCapacity } = useComputedEffect(resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity');

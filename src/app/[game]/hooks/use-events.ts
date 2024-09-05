@@ -130,16 +130,21 @@ export const createEventFn = async <T extends GameEventType>(queryClient: QueryC
     const newLastUpdatedAt = Date.now();
 
     queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
-      const villageToUpdate = getVillageById(prevVillages!, id);
-
-      villageToUpdate.resources = {
-        wood: currentWood - woodCost,
-        clay: currentClay - clayCost,
-        iron: currentIron - ironCost,
-        wheat: currentWheat - wheatCost,
-      };
-      villageToUpdate.lastUpdatedAt = newLastUpdatedAt;
-      return prevVillages;
+      return prevVillages!.map((village) => {
+        if (village.id !== id) {
+          return village;
+        }
+        return {
+          ...village,
+          resources: {
+            wood: currentWood - woodCost,
+            clay: currentClay - clayCost,
+            iron: currentIron - ironCost,
+            wheat: currentWheat - wheatCost,
+          },
+          lastUpdatedAt: newLastUpdatedAt,
+        };
+      });
     });
   }
 

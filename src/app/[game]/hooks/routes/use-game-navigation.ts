@@ -19,8 +19,8 @@ export const useGameNavigation = () => {
   const reportsPath = `${basePath}${REPORTS_PAGE_PATH}`;
   const auctionsPath = `${basePath}${AUCTIONS_PAGE_PATH}`;
 
-  const isResourcesPageOpen = pathname.includes(RESOURCES_PAGE_PATH);
   const isVillagePageOpen = pathname.includes(VILLAGE_PAGE_PATH);
+  const isResourcesPageOpen = pathname.includes(RESOURCES_PAGE_PATH) && !isVillagePageOpen;
   const isMapPageOpen = pathname.includes(MAP_PAGE_PATH);
   const isReportsPageOpen = pathname.includes(REPORTS_PAGE_PATH);
   const isAuctionsPageOpen = pathname.includes(AUCTIONS_PAGE_PATH);

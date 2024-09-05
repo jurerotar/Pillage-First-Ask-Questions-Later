@@ -107,4 +107,8 @@ export type Unit = {
   category: 'infantry' | 'cavalry' | 'siege' | 'special';
   tribe: Tribe;
   researchPrerequisites: UnitResearchPrerequisites[];
+  upgradeCostPerLevel: number[][] | null;
+  researchCost: number[] | null;
+  researchDuration: number | null;
+  upgradeDurationPerLevel: number[] | null;
 };
