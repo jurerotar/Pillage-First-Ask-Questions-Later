@@ -14,6 +14,7 @@ export type EventWithRequiredResourceCheck = {
 type BuildingConstructionEventArgs = EventWithRequiredResourceCheck & {
   buildingFieldId: BuildingField['id'];
   building: Building;
+  level: number;
 };
 
 type BuildingLevelChangeEventArgs = EventWithRequiredResourceCheck & {

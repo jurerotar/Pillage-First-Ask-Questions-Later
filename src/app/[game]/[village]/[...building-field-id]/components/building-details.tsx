@@ -7,6 +7,7 @@ import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'interfaces/models/game/building';
 import type React from 'react';
 import { Suspense, lazy, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 
 const RallyPointIncomingTroops = lazy(async () => ({
@@ -144,6 +145,7 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
 ]);
 
 export const BuildingDetails: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
@@ -153,33 +155,33 @@ export const BuildingDetails: React.FC = () => {
 
   const tabs = Array.from(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter((tabName) => tabName !== 'default');
 
-  const [tabName, setTabName] = useState<string>('default');
+  const tabNameToIndex = {
+    default: 0,
+    ...tabs.reduce(
+      (acc, name, idx) => {
+        acc[name] = idx + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+    'upgrade-cost': tabs.length + 1,
+  };
+
+  // @ts-ignore - TODO: Fix when you find time for this
+  const [tabIndex, setTabIndex] = useState<number>(tabNameToIndex[searchParams.get('tab') ?? 'default']);
 
   return (
     <article className="flex flex-col gap-4 py-2">
-      <Tabs>
+      <Tabs
+        selectedIndex={tabIndex}
+        onSelect={(index) => setTabIndex(index)}
+      >
         <TabList className="flex">
-          <StyledTab
-            onSelect={() => setTabName('default')}
-            selected={tabName === 'default'}
-          >
-            Overview
-          </StyledTab>
+          <StyledTab>Overview</StyledTab>
           {tabs.map((name: string) => (
-            <StyledTab
-              onSelect={() => setTabName(name)}
-              selected={tabName === name}
-              key={name}
-            >
-              {name}
-            </StyledTab>
+            <StyledTab key={name}>{name}</StyledTab>
           ))}
-          <StyledTab
-            onSelect={() => setTabName('upgrade-cost')}
-            selected={tabName === 'upgrade-cost'}
-          >
-            Upgrade cost
-          </StyledTab>
+          <StyledTab>Upgrade cost</StyledTab>
         </TabList>
         <TabPanel>
           <BuildingOverview buildingId={buildingId} />

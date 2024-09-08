@@ -1,7 +1,7 @@
 // TODO: Some units have missing values, fill them in
 import type { Unit } from 'interfaces/models/game/unit';
 
-export const romanUnits: Unit[] = [
+const romanUnits: Unit[] = [
   {
     id: 'LEGIONNAIRE',
     baseRecruitmentCost: [120, 100, 150, 30],
@@ -394,7 +394,7 @@ export const romanUnits: Unit[] = [
   },
 ];
 
-export const gaulUnits: Unit[] = [
+const gaulUnits: Unit[] = [
   {
     id: 'PHALANX',
     baseRecruitmentCost: [100, 130, 55, 30],
@@ -790,7 +790,7 @@ export const gaulUnits: Unit[] = [
   },
 ];
 
-export const teutonUnits: Unit[] = [
+const teutonUnits: Unit[] = [
   {
     id: 'MACEMAN',
     baseRecruitmentCost: [95, 75, 40, 40],
@@ -1186,7 +1186,7 @@ export const teutonUnits: Unit[] = [
   },
 ];
 
-export const egyptianUnits: Unit[] = [
+const egyptianUnits: Unit[] = [
   {
     id: 'SLAVE_MILITIA',
     baseRecruitmentCost: [45, 60, 30, 15],
@@ -1580,7 +1580,7 @@ export const egyptianUnits: Unit[] = [
   },
 ];
 
-export const hunUnits: Unit[] = [
+const hunUnits: Unit[] = [
   {
     id: 'MERCENARY',
     baseRecruitmentCost: [130, 80, 40, 40],
@@ -1976,7 +1976,7 @@ export const hunUnits: Unit[] = [
   },
 ];
 
-export const spartanUnits: Unit[] = [
+const spartanUnits: Unit[] = [
   {
     id: 'HOPLITE',
     baseRecruitmentCost: [110, 185, 110, 40],
@@ -2367,7 +2367,7 @@ export const spartanUnits: Unit[] = [
 ];
 
 // TODO: Think of cost and recruitment time for nature & natarian units
-export const natureUnits: Unit[] = [
+const natureUnits: Unit[] = [
   {
     id: 'RAT',
     baseRecruitmentCost: [0, 0, 0, 0],
@@ -2550,7 +2550,7 @@ export const natureUnits: Unit[] = [
   },
 ];
 
-export const natarianUnits: Unit[] = [
+const natarianUnits: Unit[] = [
   {
     id: 'PIKEMAN',
     baseRecruitmentCost: [0, 0, 0, 0],

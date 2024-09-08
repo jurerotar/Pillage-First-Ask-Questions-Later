@@ -142,14 +142,22 @@
       }
     }
 
-    // Village
-    @each $tribe in $tribes {
-      $tribeBase: $base + '/#{$tribe}';
+    &-village {
+      $villageBase: '#{$base}/village';
 
-      &-#{$tribe} {
-        @each $building in $buildings {
-          &-#{$building} {
-            background-image: url($tribeBase + '/#{$building}.png');
+      // TODO: Warehouse and granary need to have 'full' variant
+      @each $building in $buildings {
+        $buildingBase: '#{$villageBase}/#{$building}';
+
+        &-#{$building} {
+          background-image: url('#{$buildingBase}/#{$building}-tier-1.jpg');
+
+          &-tier-2 {
+            background-image: url('#{$buildingBase}/#{$building}-tier-2.jpg');
+          }
+
+          &-tier-3 {
+            background-image: url('#{$buildingBase}/#{$building}-tier-3.jpg');
           }
         }
       }

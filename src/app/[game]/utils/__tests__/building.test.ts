@@ -40,7 +40,7 @@ describe('Building utils', () => {
       expect.soft(isMaxLevel, 'isMaxLevel should be false').toBe(false);
       expect.soft(cumulativeCropConsumption, 'cumulativeCropConsumption should be 2').toBe(2);
       expect.soft(nextLevelCropConsumption, 'nextLevelCropConsumption should be 2').toBe(1);
-      expect.soft(nextLevelResourceCost, 'nextLevelResourceCost shou').toEqual([115, 65, 100, 35]);
+      expect.soft(nextLevelResourceCost, 'nextLevelResourceCost should be correct amount').toEqual([90, 50, 75, 25]);
     });
 
     test('Main building level 20', () => {
@@ -51,7 +51,7 @@ describe('Building utils', () => {
       expect.soft(isMaxLevel, 'isMaxLevel should be true').toBe(true);
       expect.soft(cumulativeCropConsumption, 'cumulativeCropConsumption should be 2').toBe(41);
       expect.soft(nextLevelCropConsumption, 'nextLevelCropConsumption should be 2').toBe(0);
-      expect.soft(nextLevelResourceCost, 'nextLevelResourceCost shou').toEqual([0, 0, 0, 0]);
+      expect.soft(nextLevelResourceCost, 'nextLevelResourceCost should be 0').toEqual([0, 0, 0, 0]);
     });
   });
 });

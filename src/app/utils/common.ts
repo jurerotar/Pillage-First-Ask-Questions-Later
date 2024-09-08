@@ -69,8 +69,6 @@ export const roundTo2DecimalPoints = (number: number): number => {
   return Math.round(number * 100) / 100;
 };
 
-export const invertMap = <T, K>(map: Map<K, T>) => new Map<T, K>(Array.from(map, (_) => _.reverse() as [T, K]));
-
 export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };

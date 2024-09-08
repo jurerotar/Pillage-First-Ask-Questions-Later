@@ -226,8 +226,8 @@ const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
 
   return [...Array((size + 1) ** 2)].map(() => {
     xCoordinateCounter += 1;
-    const x: Point['x'] = xCoordinateCounter;
-    const y: Point['y'] = yCoordinateCounter;
+    const x = xCoordinateCounter;
+    const y = yCoordinateCounter;
 
     // When we reach the end of a row, decrease y and reset x coordinate counters
     if (xCoordinateCounter === size / 2) {

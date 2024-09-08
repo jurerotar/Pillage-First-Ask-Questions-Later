@@ -4,7 +4,6 @@ import type React from 'react';
 type ButtonProps = {
   variant?: 'danger' | 'normal' | 'confirm';
   size?: 'xs' | 'sm' | 'base' | 'lg';
-  disabled?: boolean;
   isLoading?: boolean;
   onClick?: () => void;
   className?: string;
@@ -29,7 +28,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
         variant === 'danger' && 'bg-red-500',
         (isLoading || disabled) && 'bg-gray-500',
         className,
-        'w-fit rounded-md text-xs text-white sm:text-base',
+        'w-fit rounded-md text-xs text-white sm:text-base disabled:bg-gray-300',
       )}
     >
       {children}

@@ -380,6 +380,7 @@ export const Icon: React.FC<IconProps> = (props) => {
         <BorderIndicator
           className={wrapperClassName}
           variant={borderVariant}
+          backgroundVariant="white"
         >
           {children}
         </BorderIndicator>
