@@ -35,17 +35,44 @@
           "EMPTY": "Building site",
           "MAX_LEVEL": "Max level",
           "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
-        },
-        "BUILDING_CONSTRUCTION_MODAL": {
+        }
+      },
+      "BUILDING_FIELD": {
+        "BUILDING_CONSTRUCTION": {
           "TITLE": "Construct new building",
+          "AVAILABLE_BUILDINGS": "Available buildings",
+          "CURRENTLY_NON-AVAILABLE_BUILDINGS": "Buildable in the future",
+          "NO_AVAILABLE_BUILDINGS": "No buildings available",
           "TABS": {
             "INFRASTRUCTURE": "Infrastructure",
             "MILITARY": "Military",
             "RESOURCES": "Resources"
           }
         },
-        "BUILDING_UPGRADE_MODAL": {
-          "TITLE": "{{buildingName}} - level {{level}}"
+        "BUILDING_DETAILS": {
+          "TITLE": "{{buildingName}} - level {{level}}",
+          "TABS": {
+            "DEFAULT": "Overview",
+            "UPGRADE_COST": "Upgrade cost table",
+            "ACADEMY": {
+              "UNIT_IMPROVEMENT": "Unit improvement"
+            },
+            "MARKETPLACE": {
+              "TRADE_ROUTES": "Trade routes"
+            },
+            "PALACE": {
+              "LOYALTY": "Loyalty",
+              "EXPANSION": "Expansion"
+            },
+            "RALLY_POINT": {
+              "SEND_TROOPS": "Send troops",
+              "FARM_LIST": "Farm list",
+              "SIMULATOR": "Simulator"
+            },
+            "TREASURY": {
+              "UNCONQUERED_ARTIFACTS": "Unconquered artifacts"
+            }
+          }
         }
       },
       "RESOURCES": {
@@ -74,299 +101,285 @@
     "SLOGAN": "Browser strategy game"
   },
   "UNITS": {
-    "ROMANS": {
-      "LEGIONNAIRE": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "PRAETORIAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "IMPERIAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "EQUITES_LEGATI": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "EQUITES_IMPERATORIS": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "EQUITES_CAESARIS": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "BATTERING_RAM": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "FIRE_CATAPULT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SENATOR": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SETTLER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "LEGIONNAIRE": {
+      "NAME": "",
+      "DESCRIPTION": ""
     },
-    "TEUTONS": {
-      "MACEMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SPEARMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "AXEMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SCOUT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "PALADIN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "TEUTONIC_KNIGHT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "RAM": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "CATAPULT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "CHIEF": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SETTLER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "PRAETORIAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
     },
-    "GAULS": {
-      "PHALANX": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SWORDSMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "PATHFINDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "THEUTATES_THUNDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "DRUIDRIDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "HAEDUAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "RAM": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "TREBUCHET": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "CHIEFTAIN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SETTLER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "IMPERIAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
     },
-    "HUNS": {
-      "MERCENARY": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "BOWMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SPOTTER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "STEPPE_RIDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "MARKSMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "MARAUDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "RAM": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "CATAPULT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "LOGADES": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SETTLER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "EQUITES_LEGATI": {
+      "NAME": "",
+      "DESCRIPTION": ""
     },
-    "EGYPTIANS": {
-      "SLAVE_MILITIA": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "ASH_WARDEN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "KHOPESH_WARRIOR": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SOPDU_EXPLORER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "ANHUR_GUARD": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "RESHEPH_CHARIOT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "RAM": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "STONE_CATAPULT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "NOMARCH": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SETTLER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "EQUITES_IMPERATORIS": {
+      "NAME": "",
+      "DESCRIPTION": ""
     },
-    "NATARS": {
-      "PIKEMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "THORNED_WARRIOR": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "GUARDSMAN": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "BIRDS_OF_PREY": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "AXERIDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "NATARIAN_KNIGHT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "WARELEPHANT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "BALLISTA": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "NATARIAN_EMPEROR": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SETTLER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "EQUITES_CAESARIS": {
+      "NAME": "",
+      "DESCRIPTION": ""
     },
-    "NATURE": {
-      "RAT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SPIDER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "SERPENT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "BAT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "WILD_BOAR": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "WOLF": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "BEAR": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "CROCODILE": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "TIGER": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      },
-      "ELEPHANT": {
-        "NAME": "",
-        "DESCRIPTION": ""
-      }
+    "BATTERING_RAM": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "FIRE_CATAPULT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SENATOR": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "ROMAN_SETTLER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "MACEMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SPEARMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "AXEMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SCOUT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "PALADIN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "TEUTONIC_KNIGHT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "TEUTONIC_RAM": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "ONAGER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "CHIEF": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "TEUTON_SETTLER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "PHALANX": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SWORDSMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "PATHFINDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "THEUTATES_THUNDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "DRUIDRIDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "HAEDUAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "GAUL_RAM": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "TREBUCHET": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "CHIEFTAIN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "GAUL_SETTLER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "MERCENARY": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "BOWMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SPOTTER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "STEPPE_RIDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "MARKSMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "MARAUDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "HUN_RAM": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "MANGONEL": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "LOGADES": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "HUN_SETTLER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SLAVE_MILITIA": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "ASH_WARDEN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "KHOPESH_WARRIOR": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SOPDU_EXPLORER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "ANHUR_GUARD": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "RESHEPH_CHARIOT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "RAM": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "STONE_CATAPULT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "NOMARCH": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "EGYPTIAN_SETTLER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "PIKEMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "THORNED_WARRIOR": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "GUARDSMAN": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "BIRDS_OF_PREY": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "AXERIDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "NATARIAN_KNIGHT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "WARELEPHANT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "BALLISTA": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "NATARIAN_EMPEROR": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "NATARIAN_SETTLER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "RAT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SPIDER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "SERPENT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "BAT": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "WILD_BOAR": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "WOLF": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "BEAR": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "CROCODILE": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "TIGER": {
+      "NAME": "",
+      "DESCRIPTION": ""
+    },
+    "ELEPHANT": {
+      "NAME": "",
+      "DESCRIPTION": ""
     }
   },
   "BUILDINGS": {
@@ -393,14 +406,6 @@
     "GRANARY": {
       "NAME": "Granary",
       "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
-    },
-    "GREAT_GRANARY": {
-      "NAME": "Great granary",
-      "DESCRIPTION": "The great granary has 3 times the capacity of a normal granary. This building can only be built in wonder of the world villages or with a special Natarian artefact."
-    },
-    "GREAT_WAREHOUSE": {
-      "NAME": "Great warehouse",
-      "DESCRIPTION": "The great warehouse has 3 times the capacity of a normal warehouse. This building can only be built in wonder of the world villages or with a special Natarian artefact."
     },
     "IRON_FOUNDRY": {
       "NAME": "Iron foundry",
@@ -482,10 +487,6 @@
       "NAME": "Trapper",
       "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more.\n\nTroops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically.\n\nThe trapper can only be constructed by Gauls."
     },
-    "WATCHTOWER": {
-      "NAME": "Watchtower",
-      "DESCRIPTION": ""
-    },
     "WORKSHOP": {
       "NAME": "Workshop",
       "DESCRIPTION": "Siege engines, like catapults and rams, can be built in the workshop. The higher its level, the faster these units are produced."
@@ -526,9 +527,9 @@
       "NAME": "Treasury",
       "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time.\n\nYou need a treasury at level 10 for a small artefact, or level 20 for a great one."
     },
-    "WONDER_OF_THE_WORLD": {
-      "NAME": "Wonder of the world",
-      "DESCRIPTION": "The Wonder of the World represents the pride of all architecture. Only the mightiest and richest are able to build such a master work and defend it against envious enemies.\n\nWonders of the World can only be erected in one of the old Natarian villages. However, a construction plan is also necessary. Starting with level 50, an additional plan is needed for its completion. The second plan one has to be owned by another player in the same alliance."
+    "TOURNAMENT_SQUARE": {
+      "NAME": "Tournament square",
+      "DESCRIPTION": "Your troops can increase their stamina at the Tournament Square. The further the building is upgraded, the faster your troops are beyond a minimum distance of 20 squares."
     }
   },
   "EFFECTS": {
