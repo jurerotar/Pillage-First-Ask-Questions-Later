@@ -391,7 +391,6 @@ export const Icon: React.FC<IconProps> = (props) => {
     >
       <Suspense fallback={<IconPlaceholder />}>
         <span
-          role="img"
           className={clsx(hasVariantIcon && 'relative', className)}
           {...rest}
         >

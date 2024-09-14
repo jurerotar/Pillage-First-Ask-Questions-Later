@@ -15,20 +15,17 @@ const BuildingUpgradeList = () => {
 
   return (
     <div className="">
-      {currentVillageBuildingEvents.length > 0 && (
-        <>
-          {currentVillageBuildingEvents.map(({ building, resolvesAt, id, level }) => (
-            <p
-              className="flex gap-4"
-              key={id}
-            >
-              <span>{t(`BUILDINGS.${building.id}.NAME`)}</span>
-              <span>{t('GENERAL.LEVEL', { level }).toLowerCase()}</span>
-              <Countdown endsAt={resolvesAt} />
-            </p>
-          ))}
-        </>
-      )}
+      {currentVillageBuildingEvents.length > 0 &&
+        currentVillageBuildingEvents.map(({ building, resolvesAt, id, level }) => (
+          <p
+            className="flex gap-4"
+            key={id}
+          >
+            <span>{t(`BUILDINGS.${building.id}.NAME`)}</span>
+            <span>{t('GENERAL.LEVEL', { level }).toLowerCase()}</span>
+            <Countdown endsAt={resolvesAt} />
+          </p>
+        ))}
     </div>
   );
 };

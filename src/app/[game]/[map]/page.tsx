@@ -21,7 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
 
-// Height/width of ruler on the left-bottom
+// Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
 export const MapPage: React.FC = () => {

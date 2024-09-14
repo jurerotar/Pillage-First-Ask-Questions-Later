@@ -71,39 +71,28 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
               <span>({cumulativeCropConsumption})</span>
             </>
           )}
-          {isMaxLevel && (
-            <>
-              <span>{cumulativeCropConsumption}</span>
-            </>
-          )}
-          {cumulativeEffects.length > 0 && (
-            <>
-              {cumulativeEffects.map(({ effectId, cumulativeValue, nextLevelValue, areEffectValuesRising }) => (
-                <span
-                  key={effectId}
-                  className="flex gap-2"
-                >
-                  <Icon
-                    // @ts-ignore - TODO: Add missing icons
-                    type={effectId}
-                    className="size-6"
-                    variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
-                  />
-                  {!isMaxLevel && (
-                    <>
-                      <span>{Number.isInteger(nextLevelValue) ? nextLevelValue : formatPercentage(nextLevelValue)}</span>
-                      <span>({Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
-                    </>
-                  )}
-                  {isMaxLevel && (
-                    <>
-                      <span>{Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)}</span>
-                    </>
-                  )}
-                </span>
-              ))}
-            </>
-          )}
+          {isMaxLevel && <span>{cumulativeCropConsumption}</span>}
+          {cumulativeEffects.length > 0 &&
+            cumulativeEffects.map(({ effectId, cumulativeValue, nextLevelValue, areEffectValuesRising }) => (
+              <span
+                key={effectId}
+                className="flex gap-2"
+              >
+                <Icon
+                  // @ts-ignore - TODO: Add missing icons
+                  type={effectId}
+                  className="size-6"
+                  variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
+                />
+                {!isMaxLevel && (
+                  <>
+                    <span>{Number.isInteger(nextLevelValue) ? nextLevelValue : formatPercentage(nextLevelValue)}</span>
+                    <span>({Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
+                  </>
+                )}
+                {isMaxLevel && <span>{Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)}</span>}
+              </span>
+            ))}
         </div>
       </section>
       {!isMaxLevel && (

@@ -18,54 +18,48 @@ export const AcademyUnitResearch = () => {
     <section className="flex flex-col gap-2">
       <h2>Unit research</h2>
       {researchedUnits.length > 0 && (
-        <>
-          <ul className="flex flex-col gap-2">
-            {researchedUnits.map(({ unitId }) => (
-              <li key={unitId}>
-                <UnitCard
-                  unitId={unitId}
-                  showResearch
-                  showAttributes
-                  showUnitCost
-                />
-              </li>
-            ))}
-          </ul>
-        </>
+        <ul className="flex flex-col gap-2">
+          {researchedUnits.map(({ unitId }) => (
+            <li key={unitId}>
+              <UnitCard
+                unitId={unitId}
+                showResearch
+                showAttributes
+                showUnitCost
+              />
+            </li>
+          ))}
+        </ul>
       )}
 
       {researchReadyUnits.length > 0 && (
-        <>
-          <ul className="flex flex-col gap-2">
-            {researchReadyUnits.map(({ unitId }) => (
-              <li key={unitId}>
-                <UnitCard
-                  unitId={unitId}
-                  showRequirements
-                  showResearch
-                  showUnitCost
-                />
-              </li>
-            ))}
-          </ul>
-        </>
+        <ul className="flex flex-col gap-2">
+          {researchReadyUnits.map(({ unitId }) => (
+            <li key={unitId}>
+              <UnitCard
+                unitId={unitId}
+                showRequirements
+                showResearch
+                showUnitCost
+              />
+            </li>
+          ))}
+        </ul>
       )}
 
       {unitsNotReadyForResearch.length > 0 && (
-        <>
-          <ul className="flex flex-col gap-2">
-            {unitsNotReadyForResearch.map(({ unitId }) => (
-              <li key={unitId}>
-                <UnitCard
-                  unitId={unitId}
-                  showRequirements
-                  showResearch
-                  showUnitCost
-                />
-              </li>
-            ))}
-          </ul>
-        </>
+        <ul className="flex flex-col gap-2">
+          {unitsNotReadyForResearch.map(({ unitId }) => (
+            <li key={unitId}>
+              <UnitCard
+                unitId={unitId}
+                showRequirements
+                showResearch
+                showUnitCost
+              />
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );
