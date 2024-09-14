@@ -22,6 +22,7 @@ export type OasisTile = BaseTile & {
     oasisGroup: number;
     // Position in the oasisShape matrix [rowIndex, columnIndex]
     oasisGroupPosition: number[];
+    oasisVariant: number;
   };
   villageId: null;
 };

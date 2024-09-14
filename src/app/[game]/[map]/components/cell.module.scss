@@ -1,6 +1,14 @@
-@mixin oasisBackgroundImage($base, $resourceBase, $group, $position) {
+@mixin oasisBackgroundImage($base, $resourceBase, $group, $position, $hasVariants: false) {
   &-position-#{$position} {
     @include imageSet('#{$resourceBase}/#{$group}/#{$position}');
+    @if($hasVariants) {
+      @for $variant from 1 through 3 {
+        &-variant-#{$variant} {
+          $variantPosition: '#{$position}-#{$variant}';
+          @include imageSet('#{$resourceBase}/#{$group}/#{$variantPosition}');
+        }
+      }
+    }
   }
 }
 
@@ -41,7 +49,7 @@
         $resourceBase: "#{$base}/#{$resource}";
 
         &-group-0 {
-          @include oasisBackgroundImage($base, $resourceBase, '0', '0-0');
+          @include oasisBackgroundImage($base, $resourceBase, '0', '0-0', true);
         }
 
         &-group-1 {

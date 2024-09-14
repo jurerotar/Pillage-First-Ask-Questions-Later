@@ -4,12 +4,10 @@ import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
 import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
 import { useMapFilters } from 'app/[game]/[map]/hooks/use-map-filters';
 import { useMapOptions } from 'app/[game]/[map]/providers/map-context';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
 import { useMap } from 'app/[game]/hooks/use-map';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
-import { useVillages } from 'app/[game]/hooks/use-villages';
-import { isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
+import { isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import { Modal } from 'app/components/modal';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -28,17 +26,12 @@ const RULER_SIZE = 20;
 
 export const MapPage: React.FC = () => {
   const { isOpen, closeModal } = useDialog();
-
-  const {
-    server: { configuration },
-  } = useCurrentServer();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = useViewport();
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = useMapOptions();
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
-  const { getPlayerByOasis } = useVillages();
   const [searchParams] = useSearchParams();
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
@@ -63,7 +56,6 @@ export const MapPage: React.FC = () => {
   const tilesWithFactions = useMemo(() => {
     return map.map((tile: TileType) => {
       const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-      const isOccupiedOasisCell = isOccupiedOasisTile(tile);
 
       if (isOccupiedOccupiableCell) {
         const { faction, tribe } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
@@ -77,23 +69,9 @@ export const MapPage: React.FC = () => {
         };
       }
 
-      if (isOccupiedOasisCell) {
-        const playerId = getPlayerByOasis(tile);
-        const { faction } = getPlayerByPlayerId(playerId);
-        const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
-
-        return {
-          ...tile,
-          faction,
-          reputationLevel,
-        };
-      }
-
-      return {
-        ...tile,
-      };
+      return tile;
     });
-  }, [map, getReputationByFaction, getPlayerByPlayerId, getPlayerByOasis]);
+  }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
   const fixedGridData = useMemo(() => {
     return {
@@ -162,11 +140,11 @@ export const MapPage: React.FC = () => {
     }
 
     const scrollLeft = (centerXTile: number) => {
-      return tileSize * (configuration.mapSize / 2 + centerXTile) - (width - tileSize) / 2;
+      return tileSize * (gridSize / 2 + centerXTile) - (width - tileSize) / 2;
     };
 
     const scrollTop = (centerYTile: number) => {
-      return tileSize * (configuration.mapSize / 2 - centerYTile) - (height - tileSize) / 2;
+      return tileSize * (gridSize / 2 - centerYTile) - (height - tileSize) / 2;
     };
 
     if (previousTileSize.current !== tileSize) {
@@ -248,8 +226,8 @@ export const MapPage: React.FC = () => {
           }
 
           // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - configuration.mapSize / 2);
-          currentCenterTile.current.y = Math.ceil((scrollTop + (height - tileSize) / 2) / tileSize - configuration.mapSize / 2);
+          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
+          currentCenterTile.current.y = Math.ceil((scrollTop + (height - tileSize) / 2) / tileSize - gridSize / 2);
         }}
       >
         {Cell}

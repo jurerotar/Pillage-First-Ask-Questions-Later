@@ -60,6 +60,8 @@ type CellBaseProps = {
   magnification: number;
 };
 
+const wheatFields = ['00018', '11115', '3339'];
+
 type CellIconsProps = Omit<CellBaseProps, 'tilesWithFactions'> & { tile: TileType | OccupiedTileWithFactionAndTribe };
 
 const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
@@ -69,16 +71,13 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
   const isOccupiableCell = isOccupiableTile(tile);
   const isOccupiableOasisCell = isOccupiableOasisTile(tile);
   const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-  const isOccupiedOasisCell = isOccupiedOasisTile(tile);
-
-  const wheatFields = ['00018', '11115', '3339'];
 
   return (
     <div
       className={clsx(
         'size-full relative',
         shouldShowFactionReputation &&
-          (isOccupiedOccupiableCell || isOccupiedOasisCell) &&
+          isOccupiedOccupiableCell &&
           `after:absolute after:top-0 after:left-0 after:size-full after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
             (tile as OccupiedTileWithFactionAndTribe).reputationLevel,
           )!}`,
@@ -124,13 +123,15 @@ const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): s
 
   const cell = tile as OasisTile;
 
+  const { oasisGroupPosition, oasisGroup, oasisResource, oasisVariant } = cell.graphics;
+  const groupPositions = oasisGroupPosition.join('-');
+
   return clsx(
     cellStyles.oasis,
-    cellStyles[`oasis-${cell.graphics.oasisResource}`],
-    cellStyles[`oasis-${cell.graphics.oasisResource}-group-${cell.graphics.oasisGroup}`],
-    cellStyles[
-      `oasis-${cell.graphics.oasisResource}-group-${cell.graphics.oasisGroup}-position-${cell.graphics.oasisGroupPosition.join('-')}`
-    ],
+    cellStyles[`oasis-${oasisResource}`],
+    cellStyles[`oasis-${oasisResource}-group-${oasisGroup}`],
+    cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}`],
+    cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}-variant-${oasisVariant}`],
   );
 };
 

@@ -1,7 +1,7 @@
 import type { Tribe } from 'interfaces/models/game/tribe';
 
 type ServerConfiguration = {
-  speed: 1 | 3 | 5 | 10;
+  speed: 1 | 3;
   mapSize: 100;
 };
 

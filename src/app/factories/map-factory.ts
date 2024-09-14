@@ -177,6 +177,7 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
       oasisResource,
       oasisGroup,
       oasisGroupPosition,
+      oasisVariant: 0,
     },
   };
 };
@@ -216,38 +217,50 @@ const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[
   };
 };
 
-const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
+const generateGrid = ({ server }: { server: Server }): (BaseTile | OasisTile)[] => {
   const {
     configuration: { mapSize: size },
   } = server;
 
-  let xCoordinateCounter: number = -size / 2 - 1;
-  let yCoordinateCounter: number = size / 2;
+  const borderWidth = 4;
+  const totalSize = Math.ceil(size * Math.sqrt(2)) + borderWidth;
+  const halfSize = totalSize / 2;
+  const totalTiles = (totalSize + 1) ** 2;
 
-  return [...Array((size + 1) ** 2)].map(() => {
+  let xCoordinateCounter = -halfSize - 1;
+  let yCoordinateCounter = halfSize;
+
+  const tiles = new Array(totalTiles);
+
+  for (let i = 0; i < totalTiles; i++) {
     xCoordinateCounter += 1;
     const x = xCoordinateCounter;
     const y = yCoordinateCounter;
 
-    // When we reach the end of a row, decrease y and reset x coordinate counters
-    if (xCoordinateCounter === size / 2) {
-      xCoordinateCounter = -size / 2 - 1;
+    if (xCoordinateCounter === halfSize) {
+      xCoordinateCounter = -halfSize - 1;
       yCoordinateCounter -= 1;
     }
 
-    const coordinates: Point = {
-      x,
-      y,
-    };
+    const distance = Math.sqrt(x ** 2 + y ** 2);
 
-    return {
-      id: `${xCoordinateCounter}-${yCoordinateCounter}`,
-      coordinates,
-      graphics: {
-        backgroundColor: '#B9D580',
-      },
+    tiles[i] = {
+      id: `${x}-${y}`,
+      coordinates: { x, y },
+      ...(distance >= halfSize - borderWidth / 2 && {
+        type: 'oasis-tile',
+        oasisResourceBonus: [],
+        graphics: {
+          oasisResource: 'wood',
+          oasisGroup: 0,
+          oasisGroupPosition: [0, 0],
+          oasisVariant: 0,
+        },
+      }),
     };
-  });
+  }
+
+  return tiles;
 };
 
 type GenerateInitialUserVillageArgs = {
