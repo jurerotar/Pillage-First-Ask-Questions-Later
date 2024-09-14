@@ -4,6 +4,7 @@ import { getReportIconType, useReports } from 'app/[game]/hooks/use-reports';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
 import { useTroops } from 'app/[game]/hooks/use-troops';
 import { useVillages } from 'app/[game]/hooks/use-villages';
+import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
 import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
@@ -18,7 +19,6 @@ import type {
 } from 'interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { calculatePopulationFromBuildingFields } from 'app/[game]/utils/building';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -160,7 +160,10 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
           key={resource}
           className="flex gap-1"
         >
-          <Icon type={resource} />
+          <Icon
+            className="size-4"
+            type={resource}
+          />
           <span>
             {t(resourceTranslationMap.get(resource)!)} - {bonus}
           </span>

@@ -72,20 +72,20 @@ const generateVillageSize = (prng: PRNGFunction): OccupiedOccupiableTile['villag
 const weightedResourceFieldComposition: Record<number, ResourceFieldComposition> = {
   1: '00018',
   2: '11115',
-  3: '3339',
-  6: '4437',
-  9: '4347',
-  12: '3447',
-  20: '3456',
-  28: '4356',
-  36: '3546',
-  44: '4536',
-  52: '5346',
-  60: '5436',
+  4: '3339',
+  7: '4437',
+  10: '4347',
+  13: '3447',
+  21: '3456',
+  29: '4356',
+  37: '3546',
+  45: '4536',
+  53: '5346',
+  61: '5436',
 };
 
 const generateOccupiableTileType = (prng: PRNGFunction): ResourceFieldComposition => {
-  const randomInt: number = seededRandomIntFromInterval(prng, 1, 80);
+  const randomInt: number = seededRandomIntFromInterval(prng, 1, 90);
 
   for (const weight in weightedResourceFieldComposition) {
     if (randomInt <= Number(weight)) {
@@ -427,10 +427,10 @@ const populateOccupiableTiles = ({ server, tiles, npcPlayers }: PopulateOccupiab
   const prng = prng_alea(server.seed);
 
   return tiles.map((tile: Tile) => {
-    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy')) {
+    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy') || tile.resourceFieldComposition !== '4446') {
       return tile;
     }
-    const willBeOccupied = seededRandomIntFromInterval(prng, 1, 3) === 1;
+    const willBeOccupied = seededRandomIntFromInterval(prng, 1, 2) === 1;
     const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(prng, 1, 5) === 1 : false;
     const treasureType = willBeATreasureVillage
       ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(prng, [

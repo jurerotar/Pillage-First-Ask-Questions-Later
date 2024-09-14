@@ -23,7 +23,7 @@ const BuildingUpgradeList = () => {
               key={id}
             >
               <span>{t(`BUILDINGS.${building.id}.NAME`)}</span>
-              <span>{t('GENERAL.LEVEL', { level })}</span>
+              <span>{t('GENERAL.LEVEL', { level }).toLowerCase()}</span>
               <Countdown endsAt={resolvesAt} />
             </p>
           ))}

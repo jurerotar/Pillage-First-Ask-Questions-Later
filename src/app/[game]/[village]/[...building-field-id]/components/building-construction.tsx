@@ -21,6 +21,7 @@ type BuildingCategoryPanelProps = {
 };
 
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory }) => {
+  const { t } = useTranslation();
   const { playerVillages } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
@@ -68,7 +69,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
         <>
           {currentlyAvailableBuildings.length > 0 && (
             <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">Available buildings</h2>
+              <h2 className="text-xl">{t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.AVAILABLE_BUILDINGS')}</h2>
               {currentlyAvailableBuildings.map((building: Building) => (
                 <BuildingCard
                   key={building.id}
@@ -79,7 +80,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
           )}
           {currentlyUnavailableBuildings.length > 0 && (
             <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">Buildable in the future</h2>
+              <h2 className="text-xl">{t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.CURRENTLY_NON-AVAILABLE_BUILDINGS')}</h2>
               {currentlyUnavailableBuildings.map((building: Building) => (
                 <BuildingCard
                   key={building.id}
@@ -90,7 +91,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
           )}
         </>
       )}
-      {hasNoAvailableBuildings && <p>No buildings available</p>}
+      {hasNoAvailableBuildings && <p>{t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.NO_AVAILABLE_BUILDINGS')}</p>}
     </div>
   );
 };
@@ -108,19 +109,19 @@ export const BuildingConstruction: React.FC = () => {
           onSelect={() => setBuildingTab('infrastructure')}
           selected={buildingTab === 'infrastructure'}
         >
-          {t('APP.GAME.VILLAGE.BUILDING_CONSTRUCTION_MODAL.TABS.INFRASTRUCTURE')}
+          {t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.TABS.INFRASTRUCTURE')}
         </StyledTab>
         <StyledTab
           onSelect={() => setBuildingTab('military')}
           selected={buildingTab === 'military'}
         >
-          {t('APP.GAME.VILLAGE.BUILDING_CONSTRUCTION_MODAL.TABS.MILITARY')}
+          {t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.TABS.MILITARY')}
         </StyledTab>
         <StyledTab
           onSelect={() => setBuildingTab('resource-booster')}
           selected={buildingTab === 'resource-booster'}
         >
-          {t('APP.GAME.VILLAGE.BUILDING_CONSTRUCTION_MODAL.TABS.RESOURCES')}
+          {t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.TABS.RESOURCES')}
         </StyledTab>
       </TabList>
       <TabPanel>

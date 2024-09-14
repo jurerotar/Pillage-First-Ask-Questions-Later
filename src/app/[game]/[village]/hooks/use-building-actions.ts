@@ -1,5 +1,6 @@
 import { useBuildingVirtualLevel } from 'app/[game]/[village]/hooks/use-building-virtual-level';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
+import { useDeveloperMode } from 'app/[game]/hooks/use-developer-mode';
 import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { getBuildingDataForLevel } from 'app/[game]/utils/building';
@@ -15,6 +16,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const createBuildingLevelChangeEvent = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
   const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
+  const { isDeveloperModeActive } = useDeveloperMode();
 
   const isTryingToBuildAResourceField = buildingFieldId! <= 18;
 
@@ -25,6 +27,10 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   // Idea is that romans effectively have 2 queues, one for resources and one for village buildings
   const calculateResolvesAt = () => {
+    if (isDeveloperModeActive) {
+      return Date.now();
+    }
+
     if (tribe === 'romans') {
       // We attach village events after village effects and resource events after resource events
       const resourceOrVillageBuildingEvents = currentVillageBuildingEvents.filter(({ buildingFieldId }) => {
@@ -43,11 +49,13 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const constructBuilding = () => {
+    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
+
     createBuildingConstructionEvent({
       buildingFieldId: buildingFieldId!,
       building,
       resolvesAt: Date.now(),
-      resourceCost: building.buildingCost[0],
+      resourceCost,
       level: 0,
     });
 
@@ -62,12 +70,14 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const upgradeBuilding = () => {
+    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
+
     createBuildingLevelChangeEvent({
       resolvesAt: calculateResolvesAt(),
       buildingFieldId: buildingFieldId!,
       level: buildingLevel + 1,
       building,
-      resourceCost: building.buildingCost[buildingLevel],
+      resourceCost,
     });
   };
 

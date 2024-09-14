@@ -31,7 +31,7 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
   return (
     <div className="flex w-full items-center gap-2 lg:rounded-md lg:border-2 lg:border-stone-400 lg:bg-stone-100 lg:px-1 lg:pb-1">
       <Icon
-        className="hidden size-8 lg:flex"
+        className="hidden size-5 lg:flex"
         type={resource}
       />
       <div className="flex w-full flex-col">
@@ -74,7 +74,7 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
 };
 
 const DesktopNavigation = () => {
-  const { villagePath, reportsPath, mapPath, resourcesPath, auctionsPath } = useGameNavigation();
+  const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
 
   return (
     <header className="fixed left-0 top-0 z-10 flex h-24 w-full">
@@ -82,7 +82,7 @@ const DesktopNavigation = () => {
       <div className="container mx-auto flex justify-between">
         <div className="flex flex-1" />
         <div className="flex flex-1 bg-[#A59380]">
-          <div className="w-30 flex h-24 border border-red-500">Hero placeholder</div>
+          <div className="w-30 flex h-24 border border-red-500 items-center text-center">Hero placeholder</div>
           <div className="flex w-full flex-col p-2">
             <div className="flex w-full flex-[2] justify-between">
               <div className="flex flex-1 items-center justify-center">
@@ -96,7 +96,7 @@ const DesktopNavigation = () => {
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={mapPath}>
+                <Link to={currentVillageMapPath}>
                   <GrResources className="text-2xl text-white" />
                 </Link>
               </div>
@@ -171,7 +171,7 @@ const MobileResourcesSection = () => {
 };
 
 const MobileBottomNavigation = () => {
-  const { villagePath, reportsPath, mapPath, resourcesPath, auctionsPath } = useGameNavigation();
+  const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
 
   return (
     <header className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848]">
@@ -186,7 +186,7 @@ const MobileBottomNavigation = () => {
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={mapPath}>
+        <Link to={currentVillageMapPath}>
           <GrResources className="text-2xl text-white" />
         </Link>
       </div>

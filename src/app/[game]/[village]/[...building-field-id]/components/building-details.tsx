@@ -7,6 +7,7 @@ import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'interfaces/models/game/building';
 import type React from 'react';
 import { Suspense, lazy, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 
@@ -27,7 +28,7 @@ const RallyPointFarmList = lazy(async () => ({
 }));
 
 const PalaceTrainSettler = lazy(async () => ({
-  default: (await import('./components/palace-train-settler')).PalaceTrainSettler,
+  default: (await import('./components/palace-settler-training')).PalaceSettlerTraining,
 }));
 
 const PalaceLoyalty = lazy(async () => ({
@@ -47,7 +48,7 @@ const TreasuryUnconqueredArtifact = lazy(async () => ({
 }));
 
 const MarketplaceBuy = lazy(async () => ({
-  default: (await import('./components/marketplace-buy')).MarketplaceBuy,
+  default: (await import('./components/marketplace-trade')).MarketplaceTrade,
 }));
 
 const MarketplaceTradeRoutes = lazy(async () => ({
@@ -145,6 +146,7 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
 ]);
 
 export const BuildingDetails: React.FC = () => {
+  const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TABS' });
   const [searchParams] = useSearchParams();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
@@ -176,23 +178,38 @@ export const BuildingDetails: React.FC = () => {
         selectedIndex={tabIndex}
         onSelect={(index) => setTabIndex(index)}
       >
-        <TabList className="flex">
-          <StyledTab>Overview</StyledTab>
+        <TabList className="flex mb-4 overflow-x-scroll scrollbar-hidden">
+          <StyledTab>{t('DEFAULT')}</StyledTab>
           {tabs.map((name: string) => (
-            <StyledTab key={name}>{name}</StyledTab>
+            <StyledTab key={name}>{t(`${buildingId}.${name}`)}</StyledTab>
           ))}
-          <StyledTab>Upgrade cost</StyledTab>
+          <StyledTab>{t('UPGRADE_COST')}</StyledTab>
         </TabList>
         <TabPanel>
-          <BuildingOverview buildingId={buildingId} />
-          <BuildingActions buildingId={buildingId} />
-          <Suspense fallback={<>Loading tab</>}>{MainTabAdditionalContent ? <MainTabAdditionalContent /> : null}</Suspense>
+          <div className="border border-gray-500 p-2">
+            <BuildingOverview
+              buildingId={buildingId}
+              showLevel
+            />
+            <BuildingActions buildingId={buildingId} />
+          </div>
+          <Suspense fallback={<>Loading tab</>}>
+            {!MainTabAdditionalContent ? null : (
+              <div className="mt-4 border border-gray-500 p-2">
+                <MainTabAdditionalContent />
+              </div>
+            )}
+          </Suspense>
         </TabPanel>
         {tabs.map((name: string) => {
           const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
           return (
             <TabPanel key={name}>
-              <Suspense fallback={<>Loading tab</>}>{<Panel />}</Suspense>
+              <Suspense fallback={<>Loading tab</>}>
+                <div className="border border-gray-500 p-2">
+                  <Panel />
+                </div>
+              </Suspense>
             </TabPanel>
           );
         })}

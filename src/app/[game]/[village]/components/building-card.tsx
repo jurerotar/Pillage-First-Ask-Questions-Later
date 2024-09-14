@@ -6,7 +6,7 @@ import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
-import { specialFieldIds } from 'app/[game]/utils/building';
+import { getBuildingData, specialFieldIds } from 'app/[game]/utils/building';
 import clsx from 'clsx';
 import type { Building } from 'interfaces/models/game/building';
 import React from 'react';
@@ -24,6 +24,9 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { buildingFieldId } = useRouteSegments();
   const { currentVillageBuildingEvents } = useEvents();
 
+  const { buildingCost } = getBuildingData(buildingId);
+  const maxLevel = buildingCost.length;
+
   const { canBuild, assessedRequirements } = assessBuildingConstructionReadiness({
     buildingId,
     tribe,
@@ -32,27 +35,48 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
     currentVillage,
   });
 
+  const sameBuildingInstances = currentVillage.buildingFields.filter(({ buildingId: id }) => id === buildingId);
+  const instanceAlreadyExists = sameBuildingInstances.length > 0;
+
+  // We don't show tribal requirements
+  const requirementsToDisplay = assessedRequirements.filter(({ type }) => {
+    if (type === 'amount') {
+      return instanceAlreadyExists;
+    }
+
+    return ['capital', 'building', 'amount'].includes(type);
+  });
+
   return (
-    <article className="flex flex-col gap-4 p-4 border border-gray-500">
-      <BuildingOverview buildingId={buildingId} />
+    <article className="flex flex-col p-2 md:p-4 border border-gray-500">
+      <BuildingOverview
+        buildingId={buildingId}
+        titleCount={sameBuildingInstances.length}
+      />
       <BuildingActions buildingId={buildingId} />
       {/* Show building requirements if building can't be built */}
       {!canBuild && !specialFieldIds.includes(buildingFieldId!) && (
-        <section>
-          Requirements
-          <ul className="flex gap-2">
-            {assessedRequirements.map((assessedRequirement: AssessedBuildingRequirement, index) => (
+        <section className="flex flex-col border-t border-gray-200 pt-2 gap-2">
+          <h3 className="font-medium">Requirements</h3>
+          <ul className="flex gap-x-2 flex-wrap">
+            {requirementsToDisplay.map((assessedRequirement: AssessedBuildingRequirement, index) => (
               <React.Fragment key={assessedRequirement.id}>
-                {['capital', 'building'].includes(assessedRequirement.type) && (
-                  <li>
-                    <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                      {assessedRequirement.type === 'capital' && 'Capital'}
-                      {assessedRequirement.type === 'building' &&
-                        `${t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level ${assessedRequirement.level}`}
-                      {index !== assessedRequirements.length - 1 && ','}
-                    </span>
-                  </li>
-                )}
+                <li className="whitespace-nowrap">
+                  <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
+                    {assessedRequirement.type === 'amount' && instanceAlreadyExists && (
+                      <>
+                        {t(`BUILDINGS.${buildingId}.NAME`)} level {maxLevel}
+                      </>
+                    )}
+                    {assessedRequirement.type === 'capital' && 'Capital'}
+                    {assessedRequirement.type === 'building' && (
+                      <>
+                        {t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level {assessedRequirement.level}
+                      </>
+                    )}
+                    {index !== requirementsToDisplay.length - 1 && ','}
+                  </span>
+                </li>
               </React.Fragment>
             ))}
           </ul>

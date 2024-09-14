@@ -36,20 +36,25 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, upgradingToLevel);
 
-  const title = `${t(`BUILDINGS.${buildingId}.NAME`)} ${t('GENERAL.LEVEL', { level }).toLowerCase()}`;
+  const title = `${t(`BUILDINGS.${buildingId}.NAME`)} - ${t('GENERAL.LEVEL', { level }).toLowerCase()}`;
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
 
   return (
     <div className="flex flex-col gap-1">
       <span className="font-semibold">{title}</span>
-      {isMaxLevel && <span>{t('APP.GAME.VILLAGE.BUILDING_FIELD.MAX_LEVEL')}</span>}
+      {isMaxLevel && <span>{t('GENERAL.BUILDING.MAX_LEVEL', { building: t(`BUILDINGS.${buildingId}.NAME`) })}</span>}
       {!isMaxLevel && (
         <>
-          {isCurrentlyUpgradingThisBuilding && <span className="text-orange-500">Currently upgrading to level {upgradingToLevel}</span>}
+          {isCurrentlyUpgradingThisBuilding && (
+            <span className="text-orange-500">{t('APP.GAME.VILLAGE.BUILDING_FIELD.CURRENTLY_UPGRADING', { level: upgradingToLevel })}</span>
+          )}
           <span className="text-gray-300">{t('APP.GAME.VILLAGE.BUILDING_FIELD.NEXT_LEVEL_COST', { level: upgradingToLevel + 1 })}</span>
           <Resources resources={nextLevelResourceCost} />
           <span className="flex gap-1">
-            <Icon type="buildingDuration" />
+            <Icon
+              type="buildingDuration"
+              className="size-4"
+            />
             {formattedTime}
           </span>
         </>

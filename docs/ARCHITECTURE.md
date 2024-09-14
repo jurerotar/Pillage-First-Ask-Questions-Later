@@ -26,3 +26,4 @@ graph TD
     F --> G[React Query Notifies Subscribers]
     G --> H[Persist State to OPFS]
     H --> F[Wait for New State Changes]
+```

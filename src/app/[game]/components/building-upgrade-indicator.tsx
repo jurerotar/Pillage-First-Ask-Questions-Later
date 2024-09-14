@@ -5,6 +5,7 @@ import {
 } from 'app/[game]/components/border-indicator';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useDeveloperMode } from 'app/[game]/hooks/use-developer-mode';
 import { useEvents } from 'app/[game]/hooks/use-events';
 import { useCurrentResources } from 'app/[game]/providers/current-resources-provider';
 import { calculatePopulationFromBuildingFields, getBuildingDataForLevel } from 'app/[game]/utils/building';
@@ -22,12 +23,17 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
   const { wood, clay, iron, wheat } = useCurrentResources();
   const { canAddAdditionalBuildingToQueue, currentVillageBuildingEvents } = useEvents();
+  const { isDeveloperModeActive } = useDeveloperMode();
 
   const population = calculatePopulationFromBuildingFields(currentVillage.buildingFields);
   const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
   const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
 
   const variant = ((): BorderIndicatorBorderVariant => {
+    if (isDeveloperModeActive) {
+      return 'red';
+    }
+
     if (isMaxLevel) {
       return 'blue';
     }

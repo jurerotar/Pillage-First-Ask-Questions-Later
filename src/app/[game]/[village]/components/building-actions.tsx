@@ -3,6 +3,7 @@ import { useBuildingVirtualLevel } from 'app/[game]/[village]/hooks/use-building
 import { assessBuildingConstructionReadiness } from 'app/[game]/[village]/utils/building-requirements';
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useDeveloperMode } from 'app/[game]/hooks/use-developer-mode';
 import { useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useVillages } from 'app/[game]/hooks/use-villages';
@@ -23,11 +24,12 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { playerVillages } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
+  const { isDeveloperModeActive } = useDeveloperMode();
   const { currentVillageBuildingEvents, canAddAdditionalBuildingToQueue } = useEvents();
   const { wood, clay, iron, wheat } = useCurrentResources();
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
-  const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, buildingLevel);
+  const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, buildingLevel);
 
   const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
@@ -41,6 +43,10 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   });
 
   const hasEnoughResourcesToBuild = (() => {
+    if (isDeveloperModeActive) {
+      return true;
+    }
+
     return (
       wood >= nextLevelResourceCost[0] &&
       clay >= nextLevelResourceCost[1] &&
@@ -69,19 +75,26 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     navigate('..');
   };
 
-  return (
-    <section className="flex flex-col gap-4 py-2 justify-center">
-      {doesBuildingExist && (
-        <>
-          <Button
-            variant="confirm"
-            onClick={onBuildingUpgrade}
-            disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
-          >
-            Upgrade to level {buildingLevel + 1}
-          </Button>
+  if (doesBuildingExist) {
+    if (isMaxLevel && !canDemolishBuildings) {
+      return null;
+    }
+
+    return (
+      <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
+        <h3 className="font-medium">Available actions</h3>
+        <div className="flex gap-4">
+          {!isMaxLevel && (
+            <Button
+              variant="confirm"
+              onClick={onBuildingUpgrade}
+              disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
+            >
+              Upgrade to level {buildingLevel + 1}
+            </Button>
+          )}
           {canDemolishBuildings && (
-            <>
+            <div className="flex gap-4 justify-center">
               {buildingLevel > 1 && (
                 <Button
                   variant="confirm"
@@ -96,11 +109,17 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
               >
                 Demolish completely
               </Button>
-            </>
+            </div>
           )}
-        </>
-      )}
-      {!doesBuildingExist && canBuild && (
+        </div>
+      </section>
+    );
+  }
+
+  if (!doesBuildingExist && canBuild) {
+    return (
+      <section className="flex flex-col gap-4 py-2 border-t border-gray-200">
+        <h3 className="font-medium">Available actions</h3>
         <Button
           variant="confirm"
           onClick={onBuildingConstruction}
@@ -108,7 +127,9 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
         >
           Construct
         </Button>
-      )}
-    </section>
-  );
+      </section>
+    );
+  }
+
+  return null;
 };

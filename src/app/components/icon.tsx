@@ -257,12 +257,15 @@ type RomanTroopIconType =
 
 type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | 'wolf' | 'bear' | 'crocodile' | 'tiger' | 'elephant';
 
+type UnitAttributeType = 'carryCapacity' | 'unitSpeed';
+
 type UnitIconType = RomanTroopIconType | NatureTroopIconType;
 
 type OtherIconType = 'freeCrop' | 'population';
 
 export type IconType =
   | MissingIconType
+  | UnitAttributeType
   | ReportIconType
   | ResourceCombinationIconType
   | ResourceIconType

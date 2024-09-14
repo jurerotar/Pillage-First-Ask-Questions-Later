@@ -33,7 +33,7 @@
         "BUILDING_FIELD": {
           "VILLAGE_LINK": "Village",
           "EMPTY": "Building site",
-          "MAX_LEVEL": "Max level",
+          "CURRENTLY_UPGRADING": "Currently upgrading to level {{level}}",
           "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
         }
       },
@@ -72,6 +72,132 @@
             "TREASURY": {
               "UNCONQUERED_ARTIFACTS": "Unconquered artifacts"
             }
+          },
+          "TAB_PANELS": {
+            "ACADEMY": {
+              "UNIT_RESEARCH": {
+                "TITLE": "",
+                "DESCRIPTION": "",
+                "REQUIREMENTS": {
+                  "TITLE": "Requirements"
+                },
+                "ATTRIBUTES": {
+                  "TITLE": "Attributes"
+                },
+                "UNIT_COST": {
+                  "TITLE": "Unit cost"
+                },
+                "RESEARCH": {
+                  "HAS_RESEARCHED_TITLE": "Research",
+                  "HAS_NOT_RESEARCHED_TITLE": "Research cost",
+                  "UNIT_RESEARCHED": "{{unit}} researched"
+                },
+                "ACTIONS": {
+                  "TITLE": "Available actions",
+                  "BUTTON": "Research {{unit}}"
+                }
+              },
+              "UNIT_IMPROVEMENT": {
+                "TITLE": "Unit improvement",
+                "DESCRIPTION": ""
+              }
+            },
+            "BARRACKS": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "BREWERY": {
+              "CELEBRATIONS": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "GREAT_BARRACKS": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "GREAT_STABLE": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "HEROS_MANSION": {
+              "OASIS": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "HOSPITAL": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "MARKETPLACE": {
+              "TRADE": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "TRADE_ROUTES": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "PALACE": {
+              "SETTLER_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "LOYALTY": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "EXPANSION": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "RALLY_POINT": {
+              "SEND_TROOPS": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "FARM_LIST": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "SIMULATOR": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "STABLE": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "TREASURY": {
+              "VILLAGE_ARTIFACT": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "UNCONQUERED_ARTIFACTS": {
+                "TITLE": "Unconquered artifacts",
+                "DESCRIPTION": ""
+              }
+            },
+            "WORKSHOP": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            }
           }
         }
       },
@@ -101,286 +227,86 @@
     "SLOGAN": "Browser strategy game"
   },
   "UNITS": {
-    "LEGIONNAIRE": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "PRAETORIAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "IMPERIAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "EQUITES_LEGATI": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "EQUITES_IMPERATORIS": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "EQUITES_CAESARIS": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "BATTERING_RAM": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "FIRE_CATAPULT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SENATOR": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "ROMAN_SETTLER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "MACEMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SPEARMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "AXEMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SCOUT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "PALADIN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "TEUTONIC_KNIGHT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "TEUTONIC_RAM": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "ONAGER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "CHIEF": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "TEUTON_SETTLER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "PHALANX": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SWORDSMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "PATHFINDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "THEUTATES_THUNDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "DRUIDRIDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "HAEDUAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "GAUL_RAM": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "TREBUCHET": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "CHIEFTAIN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "GAUL_SETTLER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "MERCENARY": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "BOWMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SPOTTER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "STEPPE_RIDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "MARKSMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "MARAUDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "HUN_RAM": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "MANGONEL": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "LOGADES": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "HUN_SETTLER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SLAVE_MILITIA": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "ASH_WARDEN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "KHOPESH_WARRIOR": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SOPDU_EXPLORER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "ANHUR_GUARD": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "RESHEPH_CHARIOT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "RAM": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "STONE_CATAPULT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "NOMARCH": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "EGYPTIAN_SETTLER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "PIKEMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "THORNED_WARRIOR": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "GUARDSMAN": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "BIRDS_OF_PREY": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "AXERIDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "NATARIAN_KNIGHT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "WARELEPHANT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "BALLISTA": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "NATARIAN_EMPEROR": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "NATARIAN_SETTLER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "RAT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SPIDER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "SERPENT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "BAT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "WILD_BOAR": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "WOLF": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "BEAR": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "CROCODILE": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "TIGER": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    },
-    "ELEPHANT": {
-      "NAME": "",
-      "DESCRIPTION": ""
-    }
+    "LEGIONNAIRE": { "NAME": "Legionnaire", "DESCRIPTION": "" },
+    "PRAETORIAN": { "NAME": "Praetorian", "DESCRIPTION": "" },
+    "IMPERIAN": { "NAME": "Imperian", "DESCRIPTION": "" },
+    "EQUITES_LEGATI": { "NAME": "Equites Legati", "DESCRIPTION": "" },
+    "EQUITES_IMPERATORIS": { "NAME": "Equites Imperatoris", "DESCRIPTION": "" },
+    "EQUITES_CAESARIS": { "NAME": "Equites Caesaris", "DESCRIPTION": "" },
+    "ROMAN_RAM": { "NAME": "Roman Ram", "DESCRIPTION": "" },
+    "FIRE_CATAPULT": { "NAME": "Fire Catapult", "DESCRIPTION": "" },
+    "SENATOR": { "NAME": "Senator", "DESCRIPTION": "" },
+    "ROMAN_SETTLER": { "NAME": "Roman Settler", "DESCRIPTION": "" },
+    "MACEMAN": { "NAME": "Maceman", "DESCRIPTION": "" },
+    "SPEARMAN": { "NAME": "Spearman", "DESCRIPTION": "" },
+    "AXEMAN": { "NAME": "Axeman", "DESCRIPTION": "" },
+    "SCOUT": { "NAME": "Scout", "DESCRIPTION": "" },
+    "PALADIN": { "NAME": "Paladin", "DESCRIPTION": "" },
+    "TEUTONIC_KNIGHT": { "NAME": "Teutonic Knight", "DESCRIPTION": "" },
+    "TEUTONIC_RAM": { "NAME": "Teutonic Ram", "DESCRIPTION": "" },
+    "ONAGER": { "NAME": "Onager", "DESCRIPTION": "" },
+    "CHIEF": { "NAME": "Chief", "DESCRIPTION": "" },
+    "TEUTON_SETTLER": { "NAME": "Teuton Settler", "DESCRIPTION": "" },
+    "PHALANX": { "NAME": "Phalanx", "DESCRIPTION": "" },
+    "SWORDSMAN": { "NAME": "Swordsman", "DESCRIPTION": "" },
+    "PATHFINDER": { "NAME": "Pathfinder", "DESCRIPTION": "" },
+    "THEUTATES_THUNDER": { "NAME": "Theutates Thunder", "DESCRIPTION": "" },
+    "DRUIDRIDER": { "NAME": "Druidrider", "DESCRIPTION": "" },
+    "HAEDUAN": { "NAME": "Haeduan", "DESCRIPTION": "" },
+    "GAUL_RAM": { "NAME": "Gaul Ram", "DESCRIPTION": "" },
+    "TREBUCHET": { "NAME": "Trebuchet", "DESCRIPTION": "" },
+    "CHIEFTAIN": { "NAME": "Chieftain", "DESCRIPTION": "" },
+    "GAUL_SETTLER": { "NAME": "Gaul Settler", "DESCRIPTION": "" },
+    "MERCENARY": { "NAME": "Mercenary", "DESCRIPTION": "" },
+    "BOWMAN": { "NAME": "Bowman", "DESCRIPTION": "" },
+    "SPOTTER": { "NAME": "Spotter", "DESCRIPTION": "" },
+    "STEPPE_RIDER": { "NAME": "Steppe Rider", "DESCRIPTION": "" },
+    "MARKSMAN": { "NAME": "Marksman", "DESCRIPTION": "" },
+    "MARAUDER": { "NAME": "Marauder", "DESCRIPTION": "" },
+    "HUN_RAM": { "NAME": "Hun Ram", "DESCRIPTION": "" },
+    "MANGONEL": { "NAME": "Mangonel", "DESCRIPTION": "" },
+    "LOGADES": { "NAME": "Logades", "DESCRIPTION": "" },
+    "HUN_SETTLER": { "NAME": "Hun Settler", "DESCRIPTION": "" },
+    "SLAVE_MILITIA": { "NAME": "Slave Militia", "DESCRIPTION": "" },
+    "ASH_WARDEN": { "NAME": "Ash Warden", "DESCRIPTION": "" },
+    "KHOPESH_WARRIOR": { "NAME": "Khopesh Warrior", "DESCRIPTION": "" },
+    "SOPDU_EXPLORER": { "NAME": "Sopdu Explorer", "DESCRIPTION": "" },
+    "ANHUR_GUARD": { "NAME": "Anhur Guard", "DESCRIPTION": "" },
+    "RESHEPH_CHARIOT": { "NAME": "Resheph Chariot", "DESCRIPTION": "" },
+    "EGYPTIAN_RAM": { "NAME": "Egyptian Ram", "DESCRIPTION": "" },
+    "STONE_CATAPULT": { "NAME": "Stone Catapult", "DESCRIPTION": "" },
+    "NOMARCH": { "NAME": "Nomarch", "DESCRIPTION": "" },
+    "EGYPTIAN_SETTLER": { "NAME": "Egyptian Settler", "DESCRIPTION": "" },
+    "HOPLITE": { "NAME": "Hoplite", "DESCRIPTION": "" },
+    "SENTINEL": { "NAME": "Sentinel", "DESCRIPTION": "" },
+    "SHIELDSMAN": { "NAME": "Shieldsman", "DESCRIPTION": "" },
+    "TWINSTEEL_THERION": { "NAME": "Twinsteel Therion", "DESCRIPTION": "" },
+    "ELPIDA_RIDER": { "NAME": "Elpida Rider", "DESCRIPTION": "" },
+    "CORINTHIAN_CRUSHER": { "NAME": "Corinthian Crusher", "DESCRIPTION": "" },
+    "SPARTAN_RAM": { "NAME": "Spartan Ram", "DESCRIPTION": "" },
+    "BALLISTA": { "NAME": "Ballista", "DESCRIPTION": "" },
+    "EPHOR": { "NAME": "Ephor", "DESCRIPTION": "" },
+    "SPARTAN_SETTLER": { "NAME": "Spartan Settler", "DESCRIPTION": "" },
+    "PIKEMAN": { "NAME": "Pikeman", "DESCRIPTION": "" },
+    "THORNED_WARRIOR": { "NAME": "Thorned Warrior", "DESCRIPTION": "" },
+    "GUARDSMAN": { "NAME": "Guardsman", "DESCRIPTION": "" },
+    "BIRDS_OF_PREY": { "NAME": "Birds Of Prey", "DESCRIPTION": "" },
+    "AXERIDER": { "NAME": "Axerider", "DESCRIPTION": "" },
+    "NATARIAN_KNIGHT": { "NAME": "Natarian Knight", "DESCRIPTION": "" },
+    "WARELEPHANT": { "NAME": "Warelephant", "DESCRIPTION": "" },
+    "NATARIAN_BALLISTA": { "NAME": "Natarian Ballista", "DESCRIPTION": "" },
+    "NATARIAN_EMPEROR": { "NAME": "Natarian Emperor", "DESCRIPTION": "" },
+    "NATARIAN_SETTLER": { "NAME": "Natarian Settler", "DESCRIPTION": "" },
+    "RAT": { "NAME": "Rat", "DESCRIPTION": "" },
+    "SPIDER": { "NAME": "Spider", "DESCRIPTION": "" },
+    "SERPENT": { "NAME": "Serpent", "DESCRIPTION": "" },
+    "BAT": { "NAME": "Bat", "DESCRIPTION": "" },
+    "WILD_BOAR": { "NAME": "Wild Boar", "DESCRIPTION": "" },
+    "WOLF": { "NAME": "Wolf", "DESCRIPTION": "" },
+    "BEAR": { "NAME": "Bear", "DESCRIPTION": "" },
+    "CROCODILE": { "NAME": "Crocodile", "DESCRIPTION": "" },
+    "TIGER": { "NAME": "Tiger", "DESCRIPTION": "" },
+    "ELEPHANT": { "NAME": "Elephant", "DESCRIPTION": "" }
   },
   "BUILDINGS": {
     "BAKERY": {
@@ -433,7 +359,7 @@
     },
     "ACADEMY": {
       "NAME": "Academy",
-      "DESCRIPTION": "New unit types can be researched in the academy. By increasing its level, you can order the research of better units."
+      "DESCRIPTION": "New unit types can be researched and existing units can be improved in the academy. By increasing its level, you can order the research of better units and upgrade existing ones to a higher degree."
     },
     "BARRACKS": {
       "NAME": "Barracks",
@@ -654,7 +580,7 @@
     "BUILDING": {
       "CONSTRUCT": "Construct building",
       "UPGRADE_TO": "Upgrade to level",
-      "BUILDING_MAX_LEVEL": "is completely extended",
+      "MAX_LEVEL": "{{building}} is fully upgraded",
       "TOTAL_RESOURCE_COST": "Total resource cost"
     },
     "DESCRIPTION": "Description",

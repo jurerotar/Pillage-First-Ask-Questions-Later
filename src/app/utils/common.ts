@@ -110,3 +110,7 @@ export const formatPercentage = (number: number): string => {
 
   return `${roundedPercentage}%`;
 };
+
+export const formatNumber = (number: number): string => {
+  return number.toLocaleString();
+};
