@@ -2,13 +2,15 @@ import clsx from 'clsx';
 import type React from 'react';
 import type { FCWithChildren } from 'react';
 
-export type BorderIndicatorVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow';
+export type BorderIndicatorBorderVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow';
+export type BorderIndicatorBackgroundVariant = 'orange' | 'white';
 
 export type BorderIndicatorProps = {
-  variant?: BorderIndicatorVariant;
+  variant?: BorderIndicatorBorderVariant;
+  backgroundVariant: BorderIndicatorBackgroundVariant;
 } & React.HTMLProps<HTMLDivElement>;
 
-const variantToClassNameMap: Record<BorderIndicatorVariant, string> = {
+const borderVariantToClassNameMap: Record<BorderIndicatorBorderVariant, string> = {
   green: 'from-[#7da100] to-[#c7e94f]',
   blue: 'from-[#0d648e] to-[#b1e4ff]',
   red: 'from-[#D40000] to-[#F58C8C]',
@@ -16,19 +18,31 @@ const variantToClassNameMap: Record<BorderIndicatorVariant, string> = {
   gray: 'from-[#606060] to-[#c8c8c8]',
 };
 
+const backgroundVariantToClassNameMap: Record<BorderIndicatorBackgroundVariant, string> = {
+  orange: 'bg-yellow-400',
+  white: 'bg-white',
+};
+
 export const BorderIndicator: FCWithChildren<BorderIndicatorProps> = (props) => {
-  const { variant = 'gray', className, children, ...rest } = props;
+  const { variant = 'gray', backgroundVariant, className, children, ...rest } = props;
 
   return (
     <span
       className={clsx(
         className,
-        variantToClassNameMap[variant],
+        borderVariantToClassNameMap[variant],
         'inline-flex items-center justify-center rounded-full bg-gradient-to-t p-1',
       )}
       {...rest}
     >
-      <span className="relative inline-flex size-5 items-center justify-center rounded-full bg-white text-xs">{children}</span>
+      <span
+        className={clsx(
+          !backgroundVariant ? 'bg-white' : backgroundVariantToClassNameMap[backgroundVariant],
+          'relative inline-flex size-5 items-center justify-center rounded-full bg-white text-xs',
+        )}
+      >
+        {children}
+      </span>
     </span>
   );
 };

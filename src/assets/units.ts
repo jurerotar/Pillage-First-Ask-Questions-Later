@@ -1,7 +1,7 @@
 // TODO: Some units have missing values, fill them in
 import type { Unit } from 'interfaces/models/game/unit';
 
-export const romanUnits: Unit[] = [
+const romanUnits: Unit[] = [
   {
     id: 'LEGIONNAIRE',
     baseRecruitmentCost: [120, 100, 150, 30],
@@ -14,8 +14,9 @@ export const romanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: [
       [940, 800, 1250, 370],
       [1635, 1395, 2175, 645],
@@ -56,7 +57,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 20,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 1 }],
+    tier: 'tier-2',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 1 }],
     researchCost: [700, 620, 1480, 580],
     upgradeCostPerLevel: [
       [800, 1010, 1320, 650],
@@ -98,7 +100,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'romans',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
+    tier: 'tier-3',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
     researchCost: [1000, 740, 1880, 640],
     upgradeCostPerLevel: [
       [1150, 1220, 1670, 720],
@@ -140,7 +143,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'romans',
-    researchPrerequisites: [
+    tier: 'scout',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
     ],
@@ -185,7 +189,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 100,
     category: 'cavalry',
     tribe: 'romans',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
     ],
@@ -230,7 +235,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 70,
     category: 'cavalry',
     tribe: 'romans',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
     ],
@@ -275,7 +281,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'romans',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
     ],
@@ -320,7 +327,8 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'romans',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
     ],
@@ -365,11 +373,12 @@ export const romanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'romans',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: 24475,
     upgradeDurationPerLevel: null,
@@ -386,15 +395,16 @@ export const romanUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'special',
     tribe: 'romans',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
   },
 ];
 
-export const gaulUnits: Unit[] = [
+const gaulUnits: Unit[] = [
   {
     id: 'PHALANX',
     baseRecruitmentCost: [100, 130, 55, 30],
@@ -407,8 +417,9 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 35,
     category: 'infantry',
     tribe: 'gauls',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: [
       [800, 1010, 585, 370],
       [1395, 1760, 1020, 645],
@@ -449,7 +460,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 45,
     category: 'infantry',
     tribe: 'gauls',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
+    tier: 'tier-2',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
     researchCost: [940, 700, 1680, 520],
     upgradeCostPerLevel: [
       [1080, 1150, 1495, 580],
@@ -491,7 +503,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'scout',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
     ],
@@ -536,7 +549,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 75,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'tier-3',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 3 },
     ],
@@ -581,7 +595,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 35,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
     ],
@@ -626,7 +641,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 65,
     category: 'cavalry',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
     ],
@@ -671,7 +687,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
     ],
@@ -716,7 +733,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
     ],
@@ -761,7 +779,8 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'gauls',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
     ],
@@ -782,15 +801,16 @@ export const gaulUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'special',
     tribe: 'gauls',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
   },
 ];
 
-export const teutonUnits: Unit[] = [
+const teutonUnits: Unit[] = [
   {
     id: 'MACEMAN',
     baseRecruitmentCost: [95, 75, 40, 40],
@@ -803,8 +823,9 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 60,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: [
       [765, 625, 480, 440],
       [1330, 1090, 835, 765],
@@ -845,7 +866,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 40,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'tier-2',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 1 },
       { buildingId: 'BARRACKS', level: 3 },
     ],
@@ -890,7 +912,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
+    tier: 'tier-3',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
     researchCost: [880, 580, 1560, 580],
     upgradeCostPerLevel: [
       [1010, 940, 1390, 650],
@@ -932,7 +955,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'scout',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 1 },
       { buildingId: 'MAIN_BUILDING', level: 5 },
     ],
@@ -977,7 +1001,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 110,
     category: 'cavalry',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
     ],
@@ -1022,7 +1047,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 80,
     category: 'cavalry',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
     ],
@@ -1067,7 +1093,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 1 },
     ],
@@ -1112,7 +1139,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
     ],
@@ -1157,7 +1185,8 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'teutons',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 5 },
     ],
@@ -1178,15 +1207,16 @@ export const teutonUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'special',
     tribe: 'teutons',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
   },
 ];
 
-export const egyptianUnits: Unit[] = [
+const egyptianUnits: Unit[] = [
   {
     id: 'SLAVE_MILITIA',
     baseRecruitmentCost: [45, 60, 30, 15],
@@ -1199,8 +1229,9 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 15,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: [
       [415, 520, 410, 265],
       [725, 905, 715, 460],
@@ -1241,7 +1272,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 1 }],
+    tier: 'tier-2',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 1 }],
     researchCost: [790, 500, 1360, 520],
     upgradeCostPerLevel: [
       [905, 800, 1215, 580],
@@ -1283,7 +1315,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 45,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
+    tier: 'tier-3',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
     researchCost: [1120, 820, 1960, 640],
     upgradeCostPerLevel: [
       [1290, 1360, 1740, 720],
@@ -1325,7 +1358,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
+    tier: 'scout',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 1 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -1370,7 +1404,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 5 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -1415,7 +1450,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 70,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
     ],
@@ -1460,7 +1496,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'WORKSHOP', level: 1 },
       { buildingId: 'ACADEMY', level: 10 },
     ],
@@ -1505,7 +1542,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'WORKSHOP', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
     ],
@@ -1550,7 +1588,8 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
     ],
@@ -1572,15 +1611,16 @@ export const egyptianUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'infantry',
     tribe: 'egyptians',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
   },
 ];
 
-export const hunUnits: Unit[] = [
+const hunUnits: Unit[] = [
   {
     id: 'MERCENARY',
     baseRecruitmentCost: [130, 80, 40, 40],
@@ -1593,8 +1633,9 @@ export const hunUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: [
       [1010, 660, 480, 440],
       [1760, 1150, 835, 765],
@@ -1635,7 +1676,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 30,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
+    tier: 'tier-2',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
     researchCost: [940, 540, 680, 520],
     upgradeCostPerLevel: [
       [1080, 870, 620, 580],
@@ -1677,7 +1719,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'scout',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 1 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -1722,7 +1765,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 75,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'tier-3',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 3 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -1767,7 +1811,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 105,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 5 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -1812,7 +1857,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 80,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
     ],
@@ -1857,7 +1903,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'WORKSHOP', level: 1 },
       { buildingId: 'ACADEMY', level: 10 },
     ],
@@ -1902,7 +1949,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'WORKSHOP', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
     ],
@@ -1947,7 +1995,8 @@ export const hunUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
     ],
@@ -1968,15 +2017,16 @@ export const hunUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'infantry',
     tribe: 'huns',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
   },
 ];
 
-export const spartanUnits: Unit[] = [
+const spartanUnits: Unit[] = [
   {
     id: 'HOPLITE',
     baseRecruitmentCost: [110, 185, 110, 40],
@@ -1989,8 +2039,9 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 60,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: [
       [870, 1395, 970, 405],
       [1515, 2430, 1690, 705],
@@ -2031,7 +2082,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 1 }],
+    tier: 'scout',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 1 }],
     researchCost: [1210, 700, 480, 610],
     upgradeCostPerLevel: [
       [1395, 1150, 445, 685],
@@ -2073,7 +2125,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 40,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
+    tier: 'tier-2',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
     researchCost: [970, 480, 2160, 430],
     upgradeCostPerLevel: [
       [1115, 765, 1915, 475],
@@ -2115,7 +2168,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 50,
     category: 'infantry',
     tribe: 'spartans',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 10 }],
+    tier: 'tier-3',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 10 }],
     researchCost: [880, 900, 3400, 550],
     upgradeCostPerLevel: [
       [1010, 1500, 3000, 615],
@@ -2157,7 +2211,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 110,
     category: 'cavalry',
     tribe: 'spartans',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 1 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -2202,7 +2257,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 80,
     category: 'cavalry',
     tribe: 'spartans',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'STABLE', level: 10 },
       { buildingId: 'ACADEMY', level: 5 },
     ],
@@ -2247,7 +2303,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'spartans',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'WORKSHOP', level: 1 },
       { buildingId: 'ACADEMY', level: 10 },
     ],
@@ -2292,7 +2349,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'spartans',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'WORKSHOP', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
     ],
@@ -2337,7 +2395,8 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'spartans',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
     ],
@@ -2358,8 +2417,9 @@ export const spartanUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'special',
     tribe: 'spartans',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2367,7 +2427,7 @@ export const spartanUnits: Unit[] = [
 ];
 
 // TODO: Think of cost and recruitment time for nature & natarian units
-export const natureUnits: Unit[] = [
+const natureUnits: Unit[] = [
   {
     id: 'RAT',
     baseRecruitmentCost: [0, 0, 0, 0],
@@ -2380,8 +2440,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2398,8 +2459,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-2',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2416,8 +2478,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-2',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2434,8 +2497,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'scout',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2452,8 +2516,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-3',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2470,8 +2535,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-4',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2488,8 +2554,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-4',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2506,8 +2573,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-5',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2524,8 +2592,9 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-5',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2542,15 +2611,16 @@ export const natureUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'nature',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-5',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
   },
 ];
 
-export const natarianUnits: Unit[] = [
+const natarianUnits: Unit[] = [
   {
     id: 'PIKEMAN',
     baseRecruitmentCost: [0, 0, 0, 0],
@@ -2563,8 +2633,9 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'tier-1',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2581,8 +2652,9 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 3 }],
-    researchCost: null,
+    tier: 'tier-2',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2599,8 +2671,9 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'infantry',
     tribe: 'natars',
-    researchPrerequisites: [{ buildingId: 'ACADEMY', level: 5 }],
-    researchCost: null,
+    tier: 'tier-3',
+    researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2617,11 +2690,12 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'natars',
-    researchPrerequisites: [
+    tier: 'scout',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2638,11 +2712,12 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'natars',
-    researchPrerequisites: [
+    tier: 'tier-4',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2659,11 +2734,12 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'cavalry',
     tribe: 'natars',
-    researchPrerequisites: [
+    tier: 'tier-5',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2680,11 +2756,12 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'natars',
-    researchPrerequisites: [
+    tier: 'siege-ram',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2701,11 +2778,12 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'siege',
     tribe: 'natars',
-    researchPrerequisites: [
+    tier: 'siege-catapult',
+    researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2722,11 +2800,12 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 0,
     category: 'special',
     tribe: 'natars',
-    researchPrerequisites: [
+    tier: 'special',
+    researchRequirements: [
       { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
     ],
-    researchCost: null,
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,
@@ -2743,8 +2822,9 @@ export const natarianUnits: Unit[] = [
     carryCapacity: 3000,
     category: 'special',
     tribe: 'natars',
-    researchPrerequisites: [],
-    researchCost: null,
+    tier: 'special',
+    researchRequirements: [],
+    researchCost: [0, 0, 0, 0],
     upgradeCostPerLevel: null,
     researchDuration: null,
     upgradeDurationPerLevel: null,

@@ -1,56 +1,52 @@
 import { Cell } from 'app/[game]/[map]/components/cell';
 import { MapControls } from 'app/[game]/[map]/components/map-controls';
 import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
+import { TileModal } from 'app/[game]/[map]/components/tile-modal';
 import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
 import { useMapFilters } from 'app/[game]/[map]/hooks/use-map-filters';
 import { useMapOptions } from 'app/[game]/[map]/providers/map-context';
-import { useCurrentServer } from 'app/[game]/hooks/use-current-server';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useMap } from 'app/[game]/hooks/use-map';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
-import { useVillages } from 'app/[game]/hooks/use-villages';
-import { isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
-import { Modal } from 'app/components/modal';
+import { isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useViewport } from 'app/providers/viewport-context';
+import type { Point } from 'interfaces/models/common';
 import type { OccupiedOccupiableTile, Tile as TileType } from 'interfaces/models/game/tile';
 import type React from 'react';
+import { useLayoutEffect } from 'react';
 import { useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
 
-// Height/width of ruler on the left-bottom
+// Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
-// TODO: Scroll out/in map zoom event handling
-// TODO: Zooming out should keep current tile centered
-// TODO: Tiles should be smaller on mobile
-
 export const MapPage: React.FC = () => {
-  const { isOpen, closeModal } = useDialog();
-
-  const {
-    server: { configuration },
-  } = useCurrentServer();
+  const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = useViewport();
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = useMapOptions();
-  const {
-    currentVillage: { coordinates },
-  } = useCurrentVillage();
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
-  const { getPlayerByOasis } = useVillages();
+  const [searchParams] = useSearchParams();
+  const startingX = Number.parseInt(searchParams.get('x') ?? '0');
+  const startingY = Number.parseInt(searchParams.get('y') ?? '0');
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
+  const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);
-  const mouseDownPosition = useRef({
+  const currentCenterTile = useRef<Point>({
+    x: startingX,
+    y: startingY,
+  });
+  const mouseDownPosition = useRef<Point>({
     x: 0,
     y: 0,
   });
@@ -60,7 +56,6 @@ export const MapPage: React.FC = () => {
   const tilesWithFactions = useMemo(() => {
     return map.map((tile: TileType) => {
       const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-      const isOccupiedOasisCell = isOccupiedOasisTile(tile);
 
       if (isOccupiedOccupiableCell) {
         const { faction, tribe } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
@@ -74,31 +69,18 @@ export const MapPage: React.FC = () => {
         };
       }
 
-      if (isOccupiedOasisCell) {
-        const playerId = getPlayerByOasis(tile);
-        const { faction } = getPlayerByPlayerId(playerId);
-        const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
-
-        return {
-          ...tile,
-          faction,
-          reputationLevel,
-        };
-      }
-
-      return {
-        ...tile,
-      };
+      return tile;
     });
-  }, [map, getReputationByFaction, getPlayerByPlayerId, getPlayerByOasis]);
+  }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
   const fixedGridData = useMemo(() => {
     return {
       tilesWithFactions,
       mapFilters,
       magnification,
+      onClick: openModal,
     };
-  }, [tilesWithFactions, mapFilters, magnification]);
+  }, [tilesWithFactions, mapFilters, magnification, openModal]);
 
   useEventListener(
     'mousedown',
@@ -152,8 +134,47 @@ export const MapPage: React.FC = () => {
     mapRef,
   );
 
-  const initialScrollTop = tileSize * (configuration.mapSize / 2 + coordinates.y) - (height - tileSize) / 2;
-  const initialScrollLeft = tileSize * (configuration.mapSize / 2 + coordinates.x) - (width - tileSize) / 2;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We actually need tileSize, we just use it in currentCenterTile calculation
+  useLayoutEffect(() => {
+    if (!mapRef.current || !bottomMapRulerRef.current || !leftMapRulerRef.current) {
+      return;
+    }
+
+    const scrollLeft = (centerXTile: number) => {
+      return tileSize * (gridSize / 2 + centerXTile) - (width - tileSize) / 2;
+    };
+
+    const scrollTop = (centerYTile: number) => {
+      return tileSize * (gridSize / 2 - centerYTile) - (height - tileSize) / 2;
+    };
+
+    if (previousTileSize.current !== tileSize) {
+      const offsetX = scrollLeft(currentCenterTile.current.x);
+      const offsetY = scrollTop(currentCenterTile.current.y);
+
+      mapRef.current.scrollTo({
+        top: offsetY,
+        left: offsetX,
+      });
+
+      bottomMapRulerRef.current.scrollTo(offsetX);
+      leftMapRulerRef.current.scrollTo(offsetY);
+
+      previousTileSize.current = tileSize;
+      return;
+    }
+
+    const offsetX = scrollLeft(startingX);
+    const offsetY = scrollTop(startingY);
+
+    mapRef.current.scrollTo({
+      top: offsetY,
+      left: offsetX,
+    });
+
+    bottomMapRulerRef.current.scrollTo(offsetX);
+    leftMapRulerRef.current.scrollTo(offsetY);
+  }, [tileSize]);
 
   return (
     <div className="relative">
@@ -162,7 +183,7 @@ export const MapPage: React.FC = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg}
+        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg || isTileModalOpened}
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 
@@ -175,12 +196,12 @@ export const MapPage: React.FC = () => {
           return <TileTooltip tile={tile} />;
         }}
       />
-      <Modal
-        isOpen={isOpen}
-        closeHandler={closeModal}
-      >
-        {null}
-      </Modal>
+      {isTileModalOpened && (
+        <TileModal
+          tile={modalArgs!}
+          onClose={closeModal}
+        />
+      )}
       <FixedSizeGrid
         className="scrollbar-hidden bg-[#8EBF64]"
         outerRef={mapRef}
@@ -191,8 +212,6 @@ export const MapPage: React.FC = () => {
         height={height}
         width={width}
         itemData={fixedGridData}
-        initialScrollTop={initialScrollTop}
-        initialScrollLeft={initialScrollLeft}
         itemKey={({ columnIndex, data, rowIndex }) => {
           const size = Math.sqrt(data.tilesWithFactions.length);
           const tile: TileType = map[size * rowIndex + columnIndex];
@@ -206,6 +225,10 @@ export const MapPage: React.FC = () => {
           if (leftMapRulerRef.current) {
             leftMapRulerRef.current.scrollTo(scrollTop);
           }
+
+          // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
+          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
+          currentCenterTile.current.y = Math.ceil((scrollTop + (height - tileSize) / 2) / tileSize - gridSize / 2);
         }}
       >
         {Cell}
@@ -219,7 +242,6 @@ export const MapPage: React.FC = () => {
           height={height - RULER_SIZE}
           itemCount={gridSize}
           width={RULER_SIZE}
-          initialScrollOffset={initialScrollTop}
           layout="vertical"
           itemData={{
             layout: 'vertical',
@@ -236,7 +258,6 @@ export const MapPage: React.FC = () => {
           itemSize={tileSize}
           height={RULER_SIZE}
           itemCount={gridSize}
-          initialScrollOffset={initialScrollLeft}
           width={width - RULER_SIZE}
           layout="horizontal"
           itemData={{

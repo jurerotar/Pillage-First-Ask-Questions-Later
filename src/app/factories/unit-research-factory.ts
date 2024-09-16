@@ -9,7 +9,7 @@ type UnitResearchFactoryProps = {
 };
 
 export const unitResearchFactory = ({ initialVillageId, tribe }: UnitResearchFactoryProps): UnitResearch[] => {
-  const unitsByTribe = units.filter((unit) => unit.tribe === tribe);
+  const unitsByTribe = units.filter((unit) => unit.tribe === tribe && !unit.id.includes('SETTLER'));
 
   return unitsByTribe.map((unit) => {
     return {

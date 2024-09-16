@@ -20,7 +20,7 @@ const MapProvider: FCWithChildren = ({ children }) => {
 
   const [magnification, setMagnification] = useState<number>(4);
   const tileSize = TILE_BASE_SIZE * magnification;
-  const gridSize = mapSize + 1;
+  const gridSize = Math.ceil(mapSize * Math.sqrt(2)) + 5;
 
   const increaseMagnification = useCallback(() => {
     if (magnification === MAX_MAGNIFICATION) {

@@ -56,7 +56,10 @@ describe('Server initialization', () => {
   describe('Map', () => {
     test('There should be exactly (size + 1)**2 tiles', async () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-      expect(tiles.length).toBe((serverMock.configuration.mapSize + 1) ** 2);
+      const borderWidth = 4;
+      const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
+      const totalTiles = (totalSize + 1) ** 2;
+      expect(tiles.length).toBe(totalTiles);
     });
 
     test("Each tile should have a type and each tile's type should either be free-tile or oasis-tile", async () => {
@@ -65,7 +68,9 @@ describe('Server initialization', () => {
     });
 
     test("Each tile's coordinates should be between [-size/2, size/2]", async () => {
-      const limit = serverMock.configuration.mapSize / 2;
+      const borderWidth = 4;
+      const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
+      const limit = totalSize / 2;
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       expect(tiles.every(({ coordinates: { x, y } }) => x >= -limit && x <= limit && y >= -limit && y <= limit)).toBe(true);
     });
@@ -181,11 +186,27 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === -48 && y === 42)! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === -45 && y === 48)! as OccupiedOasisTile;
+      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === 2 && y === 3)! as OccupiedOasisTile;
+      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === 6 && y === 2)! as OccupiedOasisTile;
 
       expect(tile1.graphics.oasisResource === 'wheat' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(tile2.graphics.oasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile2.graphics.oasisResource === 'wood' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
+    });
+
+    test('Border tiles should be generated on all sides', async () => {
+      const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
+
+      const borderWidth = 4;
+      const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
+      const limit = totalSize / 2;
+
+      const borderTiles = tiles.filter(({ coordinates: { x, y } }) => {
+        return Math.sqrt(x ** 2 + y ** 2) >= limit - borderWidth / 2;
+      });
+
+      const areAllBorderTilesOasis = borderTiles.every((tile) => tile.type === 'oasis-tile');
+
+      expect(areAllBorderTilesOasis).toBe(true);
     });
   });
 

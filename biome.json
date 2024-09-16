@@ -8,7 +8,7 @@
     "lineEnding": "lf",
     "lineWidth": 140,
     "attributePosition": "multiline",
-    "ignore": ["./build", "./coverage", "./dist", "./out", "./public", "./.husky", "./.github", "./docs"]
+    "ignore": ["dist"]
   },
   "organizeImports": { "enabled": true },
   "linter": {
@@ -26,7 +26,7 @@
         "noNonNullAssertion": "off"
       }
     },
-    "ignore": ["node_modules/"]
+    "ignore": ["dist"]
   },
   "javascript": {
     "formatter": {

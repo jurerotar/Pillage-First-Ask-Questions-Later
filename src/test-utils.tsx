@@ -13,6 +13,8 @@ import { questsCacheKey } from 'app/[game]/hooks/use-quests';
 import { reportsCacheKey } from 'app/[game]/hooks/use-reports';
 import { reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
 import { troopsCacheKey } from 'app/[game]/hooks/use-troops';
+import { unitImprovementCacheKey } from 'app/[game]/hooks/use-unit-improvement';
+import { unitResearchCacheKey } from 'app/[game]/hooks/use-unit-research';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
 import { generateEffects } from 'app/factories/effect-factory';
@@ -23,6 +25,8 @@ import { generatePlayers } from 'app/factories/player-factory';
 import { generateQuests } from 'app/factories/quest-factory';
 import { generateReputations } from 'app/factories/reputation-factory';
 import { generateTroops } from 'app/factories/troop-factory';
+import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
+import { unitResearchFactory } from 'app/factories/unit-research-factory';
 import { generateVillages } from 'app/factories/village-factory';
 import { StateProvider } from 'app/providers/state-provider';
 import { ViewportProvider } from 'app/providers/viewport-context';
@@ -40,6 +44,8 @@ import type { Reputation } from 'interfaces/models/game/reputation';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tile } from 'interfaces/models/game/tile';
 import type { Troop } from 'interfaces/models/game/troop';
+import type { UnitImprovement } from 'interfaces/models/game/unit-improvement';
+import type { UnitResearch } from 'interfaces/models/game/unit-research';
 import type { Village } from 'interfaces/models/game/village';
 import { serverMock } from 'mocks/game/server-mock';
 import type React from 'react';
@@ -79,6 +85,10 @@ const createGameEnvironment = (): QueryClient => {
   queryClient.setQueryData<Troop[]>([troopsCacheKey], () =>
     generateTroops({ server, occupiedOccupiableTiles, occupiableOasisTiles, players }),
   );
+  queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], () =>
+    unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
+  );
+  queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], () => unitImprovementFactory());
 
   return queryClient;
 };

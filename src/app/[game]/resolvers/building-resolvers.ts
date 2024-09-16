@@ -1,12 +1,12 @@
+import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { specialFieldIds } from 'app/[game]/utils/building';
+import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'interfaces/models/common';
 import type { GameEventType } from 'interfaces/models/events/game-event';
 import type { BuildingId } from 'interfaces/models/game/building';
-import type { BuildingField, Village } from 'interfaces/models/game/village';
 import type { Effect } from 'interfaces/models/game/effect';
-import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
-import { newBuildingEffectFactory } from 'app/factories/effect-factory';
+import type { BuildingField, Village } from 'interfaces/models/game/village';
 
 const updateBuildingFieldLevel = (
   villages: Village[],

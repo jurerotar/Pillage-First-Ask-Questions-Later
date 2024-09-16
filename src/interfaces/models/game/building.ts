@@ -10,8 +10,6 @@ export type BuildingId =
   | 'BRICKYARD'
   | 'GRAIN_MILL'
   | 'GRANARY'
-  | 'GREAT_GRANARY'
-  | 'GREAT_WAREHOUSE'
   | 'IRON_FOUNDRY'
   | 'SAWMILL'
   | 'WAREHOUSE'
@@ -39,6 +37,7 @@ export type BuildingId =
   | 'MARKETPLACE'
   | 'PALACE'
   | 'RESIDENCE'
+  | 'TOURNAMENT_SQUARE'
   | 'TREASURY';
 
 export type BuildingEffect = {

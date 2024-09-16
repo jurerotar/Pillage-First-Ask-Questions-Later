@@ -17,6 +17,8 @@ import type { Village } from 'interfaces/models/game/village';
 
 export const eventsCacheKey = 'events';
 
+const MAX_BUILDINGS_IN_QUEUE = 5;
+
 // To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
 export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): GameEvent[] => {
   const events: GameEvent[] = [...previousEvents];
@@ -72,10 +74,13 @@ export const useEvents = () => {
     return event.villageId === currentVillageId;
   }) as GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
 
+  const canAddAdditionalBuildingToQueue = currentVillageBuildingEvents.length <= MAX_BUILDINGS_IN_QUEUE;
+
   return {
     events,
     resolveEvent,
     currentVillageBuildingEvents,
+    canAddAdditionalBuildingToQueue,
   };
 };
 

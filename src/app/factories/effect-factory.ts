@@ -134,10 +134,6 @@ const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffec
     configuration: { speed },
   } = server;
 
-  // Building duration is special, if there's no main building, everything takes 5 times as long, so we set server
-  // building duration to 5x and then make main building effects only 1/5th of normal.
-  const buildingDurationValue = 5 / speed;
-
   const increasedValueEffectIds: ServerEffect['id'][] = [
     'merchantCapacity',
     'merchantSpeed',
@@ -164,7 +160,7 @@ const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffec
     const value = increasedValueEffectIds.includes(effectId) ? speed : 1 / speed;
     return {
       id: effectId,
-      value: effectId === 'buildingDuration' ? buildingDurationValue : value,
+      value,
       source: 'server',
       scope: 'server',
     };

@@ -1,5 +1,5 @@
-import type { PersistedClient } from '@tanstack/query-persist-client-core/src/persist';
 import type { DehydratedState } from '@tanstack/react-query';
+import type { PersistedClient } from '@tanstack/react-query-persist-client';
 import { getRootHandle, writeFileContents } from 'app/utils/opfs';
 import type { Server } from 'interfaces/models/game/server';
 

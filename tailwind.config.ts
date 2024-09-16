@@ -15,9 +15,6 @@ export default {
       backdropBlur: {
         xs: '1px',
       },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-      },
       colors: {
         reputation: {
           player: '#4338ca',

@@ -6,7 +6,7 @@ import { resourceFields4446Mock } from './resource-fields-mock';
 const { id: playerId } = playerMock;
 
 export const villageMock: Village = {
-  id: '9ab89c67-8903-4d63-b67a-8b8cbe6597de',
+  id: '0-0',
   name: 'player-950bbc85d18046cbc1a87cd58ca03e24f2b0f72e',
   slug: 'v-1',
   coordinates: {

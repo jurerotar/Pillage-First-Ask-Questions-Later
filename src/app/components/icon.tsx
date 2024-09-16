@@ -257,12 +257,15 @@ type RomanTroopIconType =
 
 type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | 'wolf' | 'bear' | 'crocodile' | 'tiger' | 'elephant';
 
+type UnitAttributeType = 'carryCapacity' | 'unitSpeed';
+
 type UnitIconType = RomanTroopIconType | NatureTroopIconType;
 
 type OtherIconType = 'freeCrop' | 'population';
 
 export type IconType =
   | MissingIconType
+  | UnitAttributeType
   | ReportIconType
   | ResourceCombinationIconType
   | ResourceIconType
@@ -380,6 +383,7 @@ export const Icon: React.FC<IconProps> = (props) => {
         <BorderIndicator
           className={wrapperClassName}
           variant={borderVariant}
+          backgroundVariant="white"
         >
           {children}
         </BorderIndicator>
@@ -387,7 +391,6 @@ export const Icon: React.FC<IconProps> = (props) => {
     >
       <Suspense fallback={<IconPlaceholder />}>
         <span
-          role="img"
           className={clsx(hasVariantIcon && 'relative', className)}
           {...rest}
         >

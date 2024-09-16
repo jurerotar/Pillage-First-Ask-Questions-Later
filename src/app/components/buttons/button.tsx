@@ -4,14 +4,10 @@ import type React from 'react';
 type ButtonProps = {
   variant?: 'danger' | 'normal' | 'confirm';
   size?: 'xs' | 'sm' | 'base' | 'lg';
-  disabled?: boolean;
   isLoading?: boolean;
-  onClick?: () => void;
-  className?: string;
-  children: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export const Button: React.FC<ButtonProps> = (props) => {
+export const Button: React.FCWithChildren<ButtonProps> = (props) => {
   const { variant = 'normal', size = 'base', disabled = false, isLoading = false, onClick = () => {}, className = '', children } = props;
 
   return (
@@ -29,7 +25,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
         variant === 'danger' && 'bg-red-500',
         (isLoading || disabled) && 'bg-gray-500',
         className,
-        'w-fit rounded-md text-xs text-white sm:text-base',
+        'w-fit rounded-md text-xs text-white sm:text-base disabled:bg-gray-300',
       )}
     >
       {children}

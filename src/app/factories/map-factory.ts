@@ -72,20 +72,20 @@ const generateVillageSize = (prng: PRNGFunction): OccupiedOccupiableTile['villag
 const weightedResourceFieldComposition: Record<number, ResourceFieldComposition> = {
   1: '00018',
   2: '11115',
-  3: '3339',
-  6: '4437',
-  9: '4347',
-  12: '3447',
-  20: '3456',
-  28: '4356',
-  36: '3546',
-  44: '4536',
-  52: '5346',
-  60: '5436',
+  4: '3339',
+  7: '4437',
+  10: '4347',
+  13: '3447',
+  21: '3456',
+  29: '4356',
+  37: '3546',
+  45: '4536',
+  53: '5346',
+  61: '5436',
 };
 
 const generateOccupiableTileType = (prng: PRNGFunction): ResourceFieldComposition => {
-  const randomInt: number = seededRandomIntFromInterval(prng, 1, 80);
+  const randomInt: number = seededRandomIntFromInterval(prng, 1, 90);
 
   for (const weight in weightedResourceFieldComposition) {
     if (randomInt <= Number(weight)) {
@@ -177,6 +177,7 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
       oasisResource,
       oasisGroup,
       oasisGroupPosition,
+      oasisVariant: 0,
     },
   };
 };
@@ -216,38 +217,50 @@ const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[
   };
 };
 
-const generateGrid = ({ server }: { server: Server }): BaseTile[] => {
+const generateGrid = ({ server }: { server: Server }): (BaseTile | OasisTile)[] => {
   const {
     configuration: { mapSize: size },
   } = server;
 
-  let xCoordinateCounter: number = -size / 2 - 1;
-  let yCoordinateCounter: number = size / 2;
+  const borderWidth = 4;
+  const totalSize = Math.ceil(size * Math.sqrt(2)) + borderWidth;
+  const halfSize = totalSize / 2;
+  const totalTiles = (totalSize + 1) ** 2;
 
-  return [...Array((size + 1) ** 2)].map(() => {
+  let xCoordinateCounter = -halfSize - 1;
+  let yCoordinateCounter = halfSize;
+
+  const tiles = new Array(totalTiles);
+
+  for (let i = 0; i < totalTiles; i++) {
     xCoordinateCounter += 1;
-    const x: Point['x'] = xCoordinateCounter;
-    const y: Point['y'] = yCoordinateCounter;
+    const x = xCoordinateCounter;
+    const y = yCoordinateCounter;
 
-    // When we reach the end of a row, decrease y and reset x coordinate counters
-    if (xCoordinateCounter === size / 2) {
-      xCoordinateCounter = -size / 2 - 1;
+    if (xCoordinateCounter === halfSize) {
+      xCoordinateCounter = -halfSize - 1;
       yCoordinateCounter -= 1;
     }
 
-    const coordinates: Point = {
-      x,
-      y,
-    };
+    const distance = Math.sqrt(x ** 2 + y ** 2);
 
-    return {
-      id: `${xCoordinateCounter}-${yCoordinateCounter}`,
-      coordinates,
-      graphics: {
-        backgroundColor: '#B9D580',
-      },
+    tiles[i] = {
+      id: `${x}-${y}`,
+      coordinates: { x, y },
+      ...(distance >= halfSize - borderWidth / 2 && {
+        type: 'oasis-tile',
+        oasisResourceBonus: [],
+        graphics: {
+          oasisResource: 'wood',
+          oasisGroup: 0,
+          oasisGroupPosition: [0, 0],
+          oasisVariant: 0,
+        },
+      }),
     };
-  });
+  }
+
+  return tiles;
 };
 
 type GenerateInitialUserVillageArgs = {
@@ -427,10 +440,10 @@ const populateOccupiableTiles = ({ server, tiles, npcPlayers }: PopulateOccupiab
   const prng = prng_alea(server.seed);
 
   return tiles.map((tile: Tile) => {
-    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy')) {
+    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy') || tile.resourceFieldComposition !== '4446') {
       return tile;
     }
-    const willBeOccupied = seededRandomIntFromInterval(prng, 1, 3) === 1;
+    const willBeOccupied = seededRandomIntFromInterval(prng, 1, 2) === 1;
     const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(prng, 1, 5) === 1 : false;
     const treasureType = willBeATreasureVillage
       ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(prng, [

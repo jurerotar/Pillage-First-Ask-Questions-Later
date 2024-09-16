@@ -7,7 +7,16 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), viteTsconfigPaths(), svgrPlugin(), VitePWA({ registerType: 'autoUpdate' })],
+  plugins: [
+    react(),
+    viteTsconfigPaths(),
+    svgrPlugin({
+      // svgr options: https://react-svgr.com/docs/options/
+      svgrOptions: { exportType: 'default', ref: true, svgo: false, titleProp: true },
+      include: '**/*.svg',
+    }),
+    VitePWA({ registerType: 'autoUpdate' }),
+  ],
   root: 'src',
   publicDir: '../public',
   build: {
@@ -72,9 +81,11 @@ export default defineConfig({
     },
   },
   test: {
+    root: './',
     watch: false,
     globals: true,
     environment: 'happy-dom',
     setupFiles: './vitest-setup.ts',
+    reporters: ['default'],
   },
 }) satisfies UserConfig;

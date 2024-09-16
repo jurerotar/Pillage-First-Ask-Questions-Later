@@ -7,6 +7,8 @@ import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'interfaces/models/game/building';
 import type React from 'react';
 import { Suspense, lazy, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 
 const RallyPointIncomingTroops = lazy(async () => ({
@@ -26,7 +28,7 @@ const RallyPointFarmList = lazy(async () => ({
 }));
 
 const PalaceTrainSettler = lazy(async () => ({
-  default: (await import('./components/palace-train-settler')).PalaceTrainSettler,
+  default: (await import('./components/palace-settler-training')).PalaceSettlerTraining,
 }));
 
 const PalaceLoyalty = lazy(async () => ({
@@ -46,7 +48,7 @@ const TreasuryUnconqueredArtifact = lazy(async () => ({
 }));
 
 const MarketplaceBuy = lazy(async () => ({
-  default: (await import('./components/marketplace-buy')).MarketplaceBuy,
+  default: (await import('./components/marketplace-trade')).MarketplaceTrade,
 }));
 
 const MarketplaceTradeRoutes = lazy(async () => ({
@@ -144,6 +146,8 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
 ]);
 
 export const BuildingDetails: React.FC = () => {
+  const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TABS' });
+  const [searchParams] = useSearchParams();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
@@ -153,44 +157,59 @@ export const BuildingDetails: React.FC = () => {
 
   const tabs = Array.from(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter((tabName) => tabName !== 'default');
 
-  const [tabName, setTabName] = useState<string>('default');
+  const tabNameToIndex = {
+    default: 0,
+    ...tabs.reduce(
+      (acc, name, idx) => {
+        acc[name] = idx + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+    'upgrade-cost': tabs.length + 1,
+  };
+
+  // @ts-ignore - TODO: Fix when you find time for this
+  const [tabIndex, setTabIndex] = useState<number>(tabNameToIndex[searchParams.get('tab') ?? 'default']);
 
   return (
     <article className="flex flex-col gap-4 py-2">
-      <Tabs>
-        <TabList className="flex">
-          <StyledTab
-            onSelect={() => setTabName('default')}
-            selected={tabName === 'default'}
-          >
-            Overview
-          </StyledTab>
+      <Tabs
+        selectedIndex={tabIndex}
+        onSelect={(index) => setTabIndex(index)}
+      >
+        <TabList className="flex mb-4 overflow-x-scroll scrollbar-hidden">
+          <StyledTab>{t('DEFAULT')}</StyledTab>
           {tabs.map((name: string) => (
-            <StyledTab
-              onSelect={() => setTabName(name)}
-              selected={tabName === name}
-              key={name}
-            >
-              {name}
-            </StyledTab>
+            <StyledTab key={name}>{t(`${buildingId}.${name}`)}</StyledTab>
           ))}
-          <StyledTab
-            onSelect={() => setTabName('upgrade-cost')}
-            selected={tabName === 'upgrade-cost'}
-          >
-            Upgrade cost
-          </StyledTab>
+          <StyledTab>{t('UPGRADE_COST')}</StyledTab>
         </TabList>
         <TabPanel>
-          <BuildingOverview buildingId={buildingId} />
-          <BuildingActions buildingId={buildingId} />
-          <Suspense fallback={<>Loading tab</>}>{MainTabAdditionalContent ? <MainTabAdditionalContent /> : null}</Suspense>
+          <div className="border border-gray-500 p-2">
+            <BuildingOverview
+              buildingId={buildingId}
+              showLevel
+            />
+            <BuildingActions buildingId={buildingId} />
+          </div>
+          <Suspense fallback={<>Loading tab</>}>
+            {!MainTabAdditionalContent ? null : (
+              <div className="mt-4 border border-gray-500 p-2">
+                <MainTabAdditionalContent />
+              </div>
+            )}
+          </Suspense>
         </TabPanel>
         {tabs.map((name: string) => {
           const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
           return (
             <TabPanel key={name}>
-              <Suspense fallback={<>Loading tab</>}>{<Panel />}</Suspense>
+              <Suspense fallback={<>Loading tab</>}>
+                <div className="border border-gray-500 p-2">
+                  <Panel />
+                </div>
+              </Suspense>
             </TabPanel>
           );
         })}
