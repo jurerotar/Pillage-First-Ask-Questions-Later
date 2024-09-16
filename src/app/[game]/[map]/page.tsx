@@ -1,6 +1,7 @@
 import { Cell } from 'app/[game]/[map]/components/cell';
 import { MapControls } from 'app/[game]/[map]/components/map-controls';
 import { MapRulerCell } from 'app/[game]/[map]/components/map-ruler-cell';
+import { TileModal } from 'app/[game]/[map]/components/tile-modal';
 import { TileTooltip } from 'app/[game]/[map]/components/tile-tooltip';
 import { useMapFilters } from 'app/[game]/[map]/hooks/use-map-filters';
 import { useMapOptions } from 'app/[game]/[map]/providers/map-context';
@@ -8,7 +9,6 @@ import { useMap } from 'app/[game]/hooks/use-map';
 import { usePlayers } from 'app/[game]/hooks/use-players';
 import { useReputations } from 'app/[game]/hooks/use-reputations';
 import { isOccupiedOccupiableTile } from 'app/[game]/utils/guards/map-guards';
-import { Modal } from 'app/components/modal';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useViewport } from 'app/providers/viewport-context';
@@ -25,7 +25,7 @@ import { useEventListener } from 'usehooks-ts';
 const RULER_SIZE = 20;
 
 export const MapPage: React.FC = () => {
-  const { isOpen, closeModal } = useDialog();
+  const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = useViewport();
   const { mapFilters } = useMapFilters();
@@ -78,8 +78,9 @@ export const MapPage: React.FC = () => {
       tilesWithFactions,
       mapFilters,
       magnification,
+      onClick: openModal,
     };
-  }, [tilesWithFactions, mapFilters, magnification]);
+  }, [tilesWithFactions, mapFilters, magnification, openModal]);
 
   useEventListener(
     'mousedown',
@@ -182,7 +183,7 @@ export const MapPage: React.FC = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg}
+        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg || isTileModalOpened}
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 
@@ -195,12 +196,12 @@ export const MapPage: React.FC = () => {
           return <TileTooltip tile={tile} />;
         }}
       />
-      <Modal
-        isOpen={isOpen}
-        closeHandler={closeModal}
-      >
-        {null}
-      </Modal>
+      {isTileModalOpened && (
+        <TileModal
+          tile={modalArgs!}
+          onClose={closeModal}
+        />
+      )}
       <FixedSizeGrid
         className="scrollbar-hidden bg-[#8EBF64]"
         outerRef={mapRef}

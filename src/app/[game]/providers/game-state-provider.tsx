@@ -3,6 +3,7 @@ import { PersistQueryClientProvider, type PersistedClient, type Persister } from
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { GameLayoutSkeleton } from 'app/[game]/skeleton';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
+import { debounce } from 'moderndash';
 import { type FCWithChildren, startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import GameSyncWorker from '../workers/sync-worker?worker&url';
 
@@ -15,12 +16,12 @@ export const GameStateProvider: FCWithChildren = ({ children }) => {
 
   const persister = useMemo<Persister>(
     () => ({
-      persistClient: async (client: PersistedClient) => {
+      persistClient: debounce(async (client: PersistedClient) => {
         gameSyncWorker.current!.postMessage({
           client,
           serverSlug,
         });
-      },
+      }, 300),
       restoreClient: async () => {
         const rootHandle = await getRootHandle();
         return getParsedFileContents(rootHandle, serverSlug);

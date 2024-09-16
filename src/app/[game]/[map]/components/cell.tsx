@@ -58,11 +58,12 @@ type CellBaseProps = {
   tilesWithFactions: (TileType | OccupiedTileWithFactionAndTribe)[];
   mapFilters: MapFilters;
   magnification: number;
+  onClick: (data: TileType | OccupiedTileWithFactionAndTribe) => void;
 };
 
 const wheatFields = ['00018', '11115', '3339'];
 
-type CellIconsProps = Omit<CellBaseProps, 'tilesWithFactions'> & { tile: TileType | OccupiedTileWithFactionAndTribe };
+type CellIconsProps = Omit<CellBaseProps, 'tilesWithFactions' | 'onClick'> & { tile: TileType | OccupiedTileWithFactionAndTribe };
 
 const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
   const { shouldShowFactionReputation, shouldShowTreasureIcons, shouldShowOasisIcons, shouldShowWheatFields, shouldShowTroopMovements } =
@@ -108,17 +109,13 @@ const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): s
   const isUnoccupiedOccupiableCell = isUnoccupiedOccupiableTile(tile);
 
   if (isUnoccupiedOccupiableCell) {
-    const cell = tile as OccupiableTile;
-    return clsx(cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${cell.resourceFieldComposition}`]);
+    const { resourceFieldComposition } = tile as OccupiableTile;
+    return clsx(cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${resourceFieldComposition}`]);
   }
 
   if (isOccupiedOccupiableCell) {
-    const cell = tile as OccupiedTileWithFactionAndTribe;
-    return clsx(
-      cellStyles['occupied-tile'],
-      cellStyles[`occupied-tile-${cell.tribe}`],
-      cellStyles[`occupied-tile-${cell.tribe}-${cell.villageSize}`],
-    );
+    const { tribe, villageSize } = tile as OccupiedTileWithFactionAndTribe;
+    return clsx(cellStyles['occupied-tile'], cellStyles[`occupied-tile-${tribe}`], cellStyles[`occupied-tile-${tribe}-${villageSize}`]);
   }
 
   const cell = tile as OasisTile;
@@ -136,24 +133,26 @@ const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): s
 };
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { tilesWithFactions, mapFilters, magnification } = data;
+  const { tilesWithFactions, mapFilters, magnification, onClick } = data;
 
   const gridSize = Math.sqrt(data.tilesWithFactions.length);
 
   const tile: TileType | OccupiedTileWithFactionAndTribe = tilesWithFactions[gridSize * rowIndex + columnIndex];
 
   return (
-    <button
-      type="button"
-      className={clsx(dynamicCellClasses(tile), 'flex size-full rounded-[1px] border border-gray-500/50 bg-contain')}
+    <div
+      role="button"
+      className={clsx(dynamicCellClasses(tile), 'flex size-full rounded-[1px] border border-gray-500/50 bg-contain relative')}
       style={style}
       data-tile-id={tile.id}
+      onClick={() => onClick(tile)}
+      onKeyDown={() => onClick(tile)}
     >
       <CellIcons
         mapFilters={mapFilters}
         magnification={magnification}
         tile={tile}
       />
-    </button>
+    </div>
   );
 }, areEqual);

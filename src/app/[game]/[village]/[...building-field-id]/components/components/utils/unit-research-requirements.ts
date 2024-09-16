@@ -6,7 +6,7 @@ export type AssessedResearchRequirement = UnitResearchRequirement & {
   fulfilled: boolean;
 };
 
-export type AssessUnitResearchReadinessReturn = {
+type AssessUnitResearchReadinessReturn = {
   unitId: Unit['id'];
   canResearch: boolean;
   assessedRequirements: AssessedResearchRequirement[];

@@ -5,12 +5,9 @@ type ButtonProps = {
   variant?: 'danger' | 'normal' | 'confirm';
   size?: 'xs' | 'sm' | 'base' | 'lg';
   isLoading?: boolean;
-  onClick?: () => void;
-  className?: string;
-  children: React.ReactNode;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export const Button: React.FC<ButtonProps> = (props) => {
+export const Button: React.FCWithChildren<ButtonProps> = (props) => {
   const { variant = 'normal', size = 'base', disabled = false, isLoading = false, onClick = () => {}, className = '', children } = props;
 
   return (

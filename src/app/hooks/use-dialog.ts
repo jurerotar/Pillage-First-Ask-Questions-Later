@@ -5,12 +5,17 @@ export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
   const modalArgs = useRef<TArgs | null>(null);
 
   const closeModal = useCallback(() => {
-    setIsOpen(false);
+    startTransition(() => {
+      setIsOpen(false);
+    });
     modalArgs.current = null;
   }, []);
 
   const openModal = useCallback((data?: TArgs) => {
-    modalArgs.current = data ?? null;
+    if (data) {
+      modalArgs.current = data;
+    }
+
     startTransition(() => {
       setIsOpen(true);
     });
