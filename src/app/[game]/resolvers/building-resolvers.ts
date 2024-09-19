@@ -1,9 +1,10 @@
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
+import { createEventFn } from 'app/[game]/hooks/use-events';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { specialFieldIds } from 'app/[game]/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'interfaces/models/common';
-import type { GameEventType } from 'interfaces/models/events/game-event';
+import { GameEventType } from 'interfaces/models/events/game-event';
 import type { BuildingId } from 'interfaces/models/game/building';
 import type { Effect } from 'interfaces/models/game/effect';
 import type { BuildingField, Village } from 'interfaces/models/game/village';
@@ -104,5 +105,21 @@ export const buildingDestructionResolver: Resolver<GameEventType.BUILDING_DESTRU
 
   queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
     return removeBuildingField(prevData!, villageId, buildingFieldId);
+  });
+};
+
+export const buildingScheduledConstructionEventResolver: Resolver<GameEventType.BUILDING_SCHEDULED_CONSTRUCTION> = async (
+  args,
+  queryClient,
+) => {
+  const { building, buildingFieldId, level, resourceCost, villageId, startAt, duration } = args;
+  await createEventFn<GameEventType.BUILDING_LEVEL_CHANGE>(queryClient, {
+    type: GameEventType.BUILDING_LEVEL_CHANGE,
+    resolvesAt: startAt + duration,
+    building,
+    buildingFieldId,
+    level,
+    villageId,
+    resourceCost,
   });
 };

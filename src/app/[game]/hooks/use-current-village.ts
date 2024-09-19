@@ -11,6 +11,7 @@ export const useCurrentVillage = () => {
   const currentVillage: Village = playerVillages.find(({ slug }) => slug === villageSlug)!;
 
   const currentVillageId = currentVillage!.id;
+
   // TODO: Move this to specific component once you have it
   // const canRearrangeBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 15;
 

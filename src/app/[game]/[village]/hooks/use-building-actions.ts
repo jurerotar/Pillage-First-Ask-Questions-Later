@@ -1,4 +1,5 @@
 import { useBuildingVirtualLevel } from 'app/[game]/[village]/hooks/use-building-virtual-level';
+import { isScheduledBuildingEvent } from 'app/[game]/hooks/guards/event-guards';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useDeveloperMode } from 'app/[game]/hooks/use-developer-mode';
 import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
@@ -12,57 +13,90 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useEvents();
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
+  const createBuildingScheduledConstructionEvent = useCreateEvent(GameEventType.BUILDING_SCHEDULED_CONSTRUCTION);
   const createBuildingConstructionEvent = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
   const createBuildingLevelChangeEvent = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
   const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
   const { isDeveloperModeActive } = useDeveloperMode();
 
-  const isTryingToBuildAResourceField = buildingFieldId! <= 18;
+  // Idea is that romans effectively have 2 queues, one for resources and one for village buildings, while other tribes only have 1.
+  // To make things simpler bellow, we essentially split the building queue at this point.
+  const buildingEvents =
+    tribe === 'romans'
+      ? currentVillageBuildingEvents.filter((event) => {
+          if (buildingFieldId! <= 18) {
+            return event.buildingFieldId <= 18;
+          }
+
+          return event.buildingFieldId > 18;
+        })
+      : currentVillageBuildingEvents;
+
+  const hasCurrentVillageBuildingEvents = buildingEvents.length > 0;
 
   const { building, nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, buildingLevel);
 
-  const lastBuildingEventCompletionTimestamp =
-    currentVillageBuildingEvents.length > 0 ? currentVillageBuildingEvents.at(-1)!.resolvesAt : Date.now();
-
-  // Idea is that romans effectively have 2 queues, one for resources and one for village buildings
-  const calculateResolvesAt = () => {
+  const calculateTimings = () => {
     if (isDeveloperModeActive) {
-      return Date.now();
+      return {
+        startAt: Date.now(),
+        duration: 0,
+      };
     }
 
-    if (tribe === 'romans') {
-      // We attach village events after village effects and resource events after resource events
-      const resourceOrVillageBuildingEvents = currentVillageBuildingEvents.filter(({ buildingFieldId }) => {
-        return isTryingToBuildAResourceField ? buildingFieldId <= 18 : buildingFieldId >= 19;
-      });
-
-      if (resourceOrVillageBuildingEvents.length > 0) {
-        const { resolvesAt } = resourceOrVillageBuildingEvents.at(-1)!;
-        return resolvesAt + nextLevelBuildingDuration * buildingDurationModifier;
+    const lastBuildingEventCompletionTimestamp = (() => {
+      if (!hasCurrentVillageBuildingEvents) {
+        return Date.now();
       }
 
-      return Date.now() + nextLevelBuildingDuration * buildingDurationModifier;
-    }
+      const lastBuildingEvent = buildingEvents.at(-1)!;
 
-    return lastBuildingEventCompletionTimestamp + nextLevelBuildingDuration * buildingDurationModifier;
+      if (isScheduledBuildingEvent(lastBuildingEvent)) {
+        return lastBuildingEvent.startAt + lastBuildingEvent.duration;
+      }
+
+      return lastBuildingEvent.resolvesAt;
+    })();
+
+    // Idea is that createBuildingScheduledConstructionEvent should resolve whenever a previous building was completed and then start a new one
+    return {
+      startAt: lastBuildingEventCompletionTimestamp,
+      duration: nextLevelBuildingDuration * buildingDurationModifier,
+    };
   };
 
   const constructBuilding = () => {
     const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
+    const { startAt, duration } = calculateTimings();
 
     createBuildingConstructionEvent({
       buildingFieldId: buildingFieldId!,
       building,
       resolvesAt: Date.now(),
       resourceCost,
-      level: 0,
+      level: 1,
     });
+
+    // In case we're already building something, just create a scheduled construction event
+    if (hasCurrentVillageBuildingEvents) {
+      createBuildingScheduledConstructionEvent({
+        buildingFieldId: buildingFieldId!,
+        resolvesAt: startAt,
+        startAt,
+        duration,
+        building,
+        resourceCost,
+        level: 1,
+      });
+
+      return;
+    }
 
     createBuildingLevelChangeEvent({
       buildingFieldId: buildingFieldId!,
       level: 1,
-      resolvesAt: calculateResolvesAt(),
+      resolvesAt: startAt + duration,
       building,
       // Cost can be 0, since it's already accounted for in the construction event
       resourceCost: [0, 0, 0, 0],
@@ -71,9 +105,24 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const upgradeBuilding = () => {
     const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
+    const { startAt, duration } = calculateTimings();
+
+    if (hasCurrentVillageBuildingEvents) {
+      createBuildingScheduledConstructionEvent({
+        resolvesAt: startAt,
+        startAt,
+        duration,
+        buildingFieldId: buildingFieldId!,
+        building,
+        resourceCost,
+        level: buildingLevel + 1,
+      });
+
+      return;
+    }
 
     createBuildingLevelChangeEvent({
-      resolvesAt: calculateResolvesAt(),
+      resolvesAt: startAt + duration,
       buildingFieldId: buildingFieldId!,
       level: buildingLevel + 1,
       building,
@@ -104,6 +153,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     upgradeBuilding,
     downgradeBuilding,
     demolishBuilding,
-    calculateResolvesAt,
+    calculateTimings,
   };
 };

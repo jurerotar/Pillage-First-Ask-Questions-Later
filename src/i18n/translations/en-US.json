@@ -49,6 +49,24 @@
             "RESOURCES": "Resources"
           }
         },
+        "BUILDING_OVERVIEW": {
+          "BENEFITS": {
+            "TITLE": "Benefits at level {{level}}"
+          },
+          "COSTS": {
+            "TITLE": "Cost to upgrade to level {{level}}"
+          },
+          "DURATION": {
+            "TITLE": "Building duration to level {{level}}"
+          }
+        },
+        "BUILDING_ACTIONS": {
+          "TITLE": "Available actions",
+          "CONSTRUCT_BUILDING": "Construct",
+          "UPGRADE_BUILDING": "Upgrade to level {{level}}",
+          "DOWNGRADE_BUILDING": "Downgrade to level {{level}}",
+          "DEMOLISH_BUILDING": "Demolish completely"
+        },
         "BUILDING_DETAILS": {
           "TITLE": "{{buildingName}} - level {{level}}",
           "TABS": {
@@ -319,11 +337,11 @@
     },
     "CLAY_PIT": {
       "NAME": "Clay pit",
-      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay is used in leveling buildings and resource fields, as well as researching and training troops. Clay pit can be extended infinitely in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 22 in the capital, or to level 10 in non-capital villages."
     },
     "CROPLAND": {
       "NAME": "Cropland",
-      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat is used in leveling buildings and resource fields, as well as researching and training troops. Cropland can be extended infinitely in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Cropland can be extended to level 22 in the capital, or to level 10 in non-capital villages."
     },
     "GRAIN_MILL": {
       "NAME": "Grain mill",
@@ -339,7 +357,7 @@
     },
     "IRON_MINE": {
       "NAME": "Iron mine",
-      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron is used in leveling buildings and resource fields, as well as researching and training troops. Iron mine can be extended infinitely in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron mine can be extended to level 22 in the capital, or to level 10 in non-capital villages."
     },
     "SAWMILL": {
       "NAME": "Sawmill",
@@ -355,7 +373,7 @@
     },
     "WOODCUTTER": {
       "NAME": "Woodcutter",
-      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Wood is used in leveling buildings and resource fields, as well as researching and training troops. Woodcutter can be extended infinitely in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Woodcutter can be extended to level 22 in the capital, or to level 10 in non-capital villages."
     },
     "ACADEMY": {
       "NAME": "Academy",

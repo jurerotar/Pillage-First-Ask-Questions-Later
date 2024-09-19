@@ -2,9 +2,13 @@
   &-position-#{$position} {
     @include imageSet('#{$resourceBase}/#{$group}/#{$position}');
     @if($hasVariants) {
-      @for $variant from 1 through 3 {
+      @for $variant from 0 through 3 {
         &-variant-#{$variant} {
           $variantPosition: '#{$position}-#{$variant}';
+
+          @if($variant == 0) {
+            $variantPosition: '#{$position}';
+          }
           @include imageSet('#{$resourceBase}/#{$group}/#{$variantPosition}');
         }
       }

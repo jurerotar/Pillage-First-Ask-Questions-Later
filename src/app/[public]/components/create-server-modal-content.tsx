@@ -145,7 +145,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const reputations = generateReputations();
   const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
 
-  const players = generatePlayers(server, npcFactions, PLAYER_COUNT);
+  const { players } = generatePlayers(server, npcFactions, PLAYER_COUNT);
 
   // Map data
   const { tiles, occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
@@ -155,7 +155,6 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
 
   // Villages
   const { villages } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
-    server,
     occupiedOccupiableTiles,
     players,
   });

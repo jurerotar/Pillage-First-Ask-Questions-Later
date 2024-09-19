@@ -1,8 +1,10 @@
 import { BuildingField } from 'app/[game]/[village]/components/building-field';
 import { BuildingFieldTooltip } from 'app/[game]/components/building-field-tooltip';
 import { Countdown } from 'app/[game]/components/countdown';
+import { isScheduledBuildingEvent } from 'app/[game]/hooks/guards/event-guards';
 import { useGameNavigation } from 'app/[game]/hooks/routes/use-game-navigation';
 import { useEvents } from 'app/[game]/hooks/use-events';
+import { Icon } from 'app/components/icon';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'interfaces/models/game/village';
 import type React from 'react';
@@ -11,21 +13,34 @@ import { Link } from 'react-router-dom';
 
 const BuildingUpgradeList = () => {
   const { t } = useTranslation();
-  const { currentVillageBuildingEvents } = useEvents();
+  const { currentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
+
+  if (currentVillageBuildingEvents.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="">
-      {currentVillageBuildingEvents.length > 0 &&
-        currentVillageBuildingEvents.map(({ building, resolvesAt, id, level }) => (
-          <p
-            className="flex gap-4"
-            key={id}
+    <div className="flex gap-2 flex-col">
+      {currentVillageBuildingEvents.map((event) => (
+        <p
+          className="inline-flex gap-2 items-center"
+          key={event.id}
+        >
+          <button
+            type="button"
+            onClick={() => cancelBuildingEvent(event.id)}
           >
-            <span>{t(`BUILDINGS.${building.id}.NAME`)}</span>
-            <span>{t('GENERAL.LEVEL', { level }).toLowerCase()}</span>
-            <Countdown endsAt={resolvesAt} />
-          </p>
-        ))}
+            <Icon
+              type="cancel"
+              className="size-4"
+            />
+          </button>
+          <span className="font-medium">{t(`BUILDINGS.${event.building.id}.NAME`)}</span>
+          <span className="text-orange-500">{t('GENERAL.LEVEL', { level: event.level }).toLowerCase()}</span>
+          <Countdown endsAt={isScheduledBuildingEvent(event) ? event.startAt + event.duration : event.resolvesAt} />
+          {isScheduledBuildingEvent(event) && <span className="text-gray-400">(Building queue)</span>}
+        </p>
+      ))}
     </div>
   );
 };
@@ -59,7 +74,7 @@ export const VillagePage: React.FC = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24">
+      <main className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0">
         <div className="relative size-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField

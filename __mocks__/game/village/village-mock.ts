@@ -7,7 +7,7 @@ const { id: playerId } = playerMock;
 
 export const villageMock: Village = {
   id: '0-0',
-  name: 'player-950bbc85d18046cbc1a87cd58ca03e24f2b0f72e',
+  name: 'player',
   slug: 'v-1',
   coordinates: {
     x: 0,
@@ -17,7 +17,7 @@ export const villageMock: Village = {
   resourceFieldComposition: '4446',
   playerId,
   isCapital: true,
-  lastUpdatedAt: 1703165323113,
+  lastUpdatedAt: Date.now(),
   resources: {
     wood: 750,
     clay: 750,

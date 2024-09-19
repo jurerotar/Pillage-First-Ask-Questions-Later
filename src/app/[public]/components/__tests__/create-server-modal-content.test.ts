@@ -4,6 +4,7 @@ import type { OccupiedOasisTile, Tile } from 'interfaces/models/game/tile';
 import { serverMock } from 'mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
 import 'packages/vitest-opfs-mock';
+import '@vitest/web-worker';
 import { QueryClient, hydrate } from '@tanstack/react-query';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
 import { achievementsCacheKey } from 'app/[game]/hooks/use-achievements';
@@ -40,21 +41,21 @@ beforeAll(async () => {
 
 describe('Server initialization', () => {
   describe('Factions', () => {
-    test('There should be 9 factions', async () => {
+    test('There should be 9 factions', () => {
       const reputations = queryClient.getQueryData<Reputation[]>([reputationsCacheKey])!;
       expect(reputations.length).toBe(9);
     });
   });
 
   describe('Players', () => {
-    test('There should be 51 players', async () => {
+    test('There should be 51 players', () => {
       const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
       expect(players.length).toBe(51);
     });
   });
 
   describe('Map', () => {
-    test('There should be exactly (size + 1)**2 tiles', async () => {
+    test('There should be exactly (size * sqrt(2) + borderWidth + 1) ** 2 tiles', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const borderWidth = 4;
       const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
@@ -62,12 +63,12 @@ describe('Server initialization', () => {
       expect(tiles.length).toBe(totalTiles);
     });
 
-    test("Each tile should have a type and each tile's type should either be free-tile or oasis-tile", async () => {
+    test("Each tile should have a type and each tile's type should either be free-tile or oasis-tile", () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       expect(tiles.every((tile) => Object.hasOwn(tile, 'type') && ['free-tile', 'oasis-tile'].includes(tile.type))).toBe(true);
     });
 
-    test("Each tile's coordinates should be between [-size/2, size/2]", async () => {
+    test("Each tile's coordinates should be between [-size/2, size/2]", () => {
       const borderWidth = 4;
       const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
       const limit = totalSize / 2;
@@ -75,13 +76,13 @@ describe('Server initialization', () => {
       expect(tiles.every(({ coordinates: { x, y } }) => x >= -limit && x <= limit && y >= -limit && y <= limit)).toBe(true);
     });
 
-    test('Some oasis tile should have no bonus', async () => {
+    test('Some oasis tile should have no bonus', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const oasisTiles = tiles.filter(isOasisTile);
       expect(oasisTiles.some(({ oasisResourceBonus }) => oasisResourceBonus.length === 0)).toBe(true);
     });
 
-    test('Some oasis tile should have only 25% single-resource bonus', async () => {
+    test('Some oasis tile should have only 25% single-resource bonus', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const oasisTiles = tiles.filter(isOasisTile);
 
@@ -96,7 +97,7 @@ describe('Server initialization', () => {
       ).toBe(true);
     });
 
-    test('Some oasis tile should have 50% single-resource bonus', async () => {
+    test('Some oasis tile should have 50% single-resource bonus', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const oasisTiles = tiles.filter(isOasisTile);
 
@@ -111,7 +112,7 @@ describe('Server initialization', () => {
       ).toBe(true);
     });
 
-    test('Some oasis tile should have double 25% single-resource bonus', async () => {
+    test('Some oasis tile should have double 25% single-resource bonus', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const oasisTiles = tiles.filter(isOasisTile);
 
@@ -126,14 +127,14 @@ describe('Server initialization', () => {
       ).toBe(true);
     });
 
-    test('Some oasis should be occupied by npc players', async () => {
+    test('Some oasis should be occupied by npc players', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
 
       expect(occupiedOasisTiles.length > 0).toBe(true);
     });
 
-    test('No oasis should be occupied by villages of size "xs"', async () => {
+    test('No oasis should be occupied by villages of size "xs"', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -146,7 +147,7 @@ describe('Server initialization', () => {
     });
 
     // We're counting how many times occupying tile id appears in list of occupied oasis ids
-    test('No more than 1 oasis per village should be occupied by villages of size "sm"', async () => {
+    test('No more than 1 oasis per village should be occupied by villages of size "sm"', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -158,7 +159,7 @@ describe('Server initialization', () => {
       expect(listOfOccurrences.every((occurrence) => occurrence.length <= 1)).toBe(true);
     });
 
-    test('No more than 2 oasis per village should be occupied by villages of size "md"', async () => {
+    test('No more than 2 oasis per village should be occupied by villages of size "md"', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -170,7 +171,7 @@ describe('Server initialization', () => {
       expect(listOfOccurrences.every((occurrence) => occurrence.length <= 2)).toBe(true);
     });
 
-    test('No more than 3 oasis per village should be occupied by villages of size "lg"', async () => {
+    test('No more than 3 oasis per village should be occupied by villages of size "lg"', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -182,7 +183,7 @@ describe('Server initialization', () => {
       expect(listOfOccurrences.every((occurrence) => occurrence.length <= 3)).toBe(true);
     });
 
-    test('Same seed should generate same map every time', async () => {
+    test('Same seed should generate same map every time', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
@@ -193,7 +194,7 @@ describe('Server initialization', () => {
       expect(tile2.graphics.oasisResource === 'wood' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
     });
 
-    test('Border tiles should be generated on all sides', async () => {
+    test('Border tiles should be generated on all sides', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       const borderWidth = 4;
@@ -211,43 +212,43 @@ describe('Server initialization', () => {
   });
 
   describe('Villages', () => {
-    test.todo('', async () => {
+    test.todo('', () => {
       const _villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
     });
   });
 
   describe('Troops', () => {
-    test('Each troop should have correct server id', async () => {
+    test('Each troop should have correct server id', () => {
       const _troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
     });
   });
 
   describe('Quests', () => {
-    test.todo('', async () => {
+    test.todo('', () => {
       const _quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
     });
   });
 
   describe('Achievements', () => {
-    test.todo('', async () => {
+    test.todo('', () => {
       const _achievements = queryClient.getQueryData<Achievement[]>([achievementsCacheKey])!;
     });
   });
 
   describe('Effects', () => {
-    test.todo('', async () => {
+    test.todo('', () => {
       const _effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     });
   });
 
   describe('Events', () => {
-    test.todo('', async () => {
+    test.todo('', () => {
       const _events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
     });
   });
 
   describe('Unit research', () => {
-    test.todo('', async () => {
+    test.todo('', () => {
       const _unitResearch = queryClient.getQueryData<UnitResearch[]>([unitResearchCacheKey])!;
     });
   });

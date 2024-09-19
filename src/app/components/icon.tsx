@@ -10,11 +10,16 @@ import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
 
+// Common
+const IconCancel = lazy(async () => ({ default: (await import('app/components/icons/common/icon-cancel')).IconCancel }));
+
+// Resources
 const IconResourceWheat = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wheat')).IconWheat }));
 const IconResourceIron = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-iron')).IconIron }));
 const IconResourceWood = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-wood')).IconWood }));
 const IconResourceClay = lazy(async () => ({ default: (await import('app/components/icons/resources/icon-clay')).IconClay }));
 
+// Resource combinations
 const IconResourceCombinationWoodWheat = lazy(async () => ({
   default: (await import('app/components/icons/resource-combinations/icon-wood')).IconWood,
 }));
@@ -235,6 +240,8 @@ type MapControlsIconType =
 
 type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
 
+type CommonIconType = 'cancel';
+
 export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
 
 export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
@@ -265,6 +272,7 @@ type OtherIconType = 'freeCrop' | 'population';
 
 export type IconType =
   | MissingIconType
+  | CommonIconType
   | UnitAttributeType
   | ReportIconType
   | ResourceCombinationIconType
@@ -349,6 +357,9 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   // Adventures
   adventureDifficult: IconAdventureDifficult,
   adventureNormal: IconAdventureNormal,
+
+  // Common
+  cancel: IconCancel,
 };
 
 const IconPlaceholder = () => {
