@@ -1,5 +1,5 @@
-import type { Server } from 'interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
+import type { Server } from 'interfaces/models/game/server';
 
 const MOCK_SERVER_SEED = '23223ca711';
 const MOCK_SERVER_NAME = 'test server';
@@ -18,6 +18,8 @@ const mockServerConfig: Pick<Server, 'name' | 'seed' | 'configuration' | 'player
 };
 
 export const serverMock: Server = serverFactory(mockServerConfig);
+
+export const serverPathMock = `/game/${serverMock.slug}`;
 
 export const gaulServerMock: Server = {
   ...serverMock,

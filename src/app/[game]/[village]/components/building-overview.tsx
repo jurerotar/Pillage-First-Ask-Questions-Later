@@ -1,7 +1,7 @@
+import { useBuildingVirtualLevel } from 'app/[game]/[village]/hooks/use-building-virtual-level';
 import { Resources } from 'app/[game]/components/resources';
 import { useRouteSegments } from 'app/[game]/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { getBuildingDataForLevel } from 'app/[game]/utils/building';
 import { Icon } from 'app/components/icon';
 import { formatPercentage } from 'app/utils/common';
@@ -20,45 +20,78 @@ type BuildingOverviewProps = {
 };
 
 export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, titleCount = 0, showLevel = false }) => {
-  const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
+  const { t: generalT } = useTranslation();
+  const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_OVERVIEW' });
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
+  const { actualLevel, buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const buildingLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
   const {
-    isMaxLevel,
     building,
+    isMaxLevel: isActualMaxLevel,
     nextLevelCropConsumption,
     cumulativeCropConsumption,
     cumulativeEffects,
-    nextLevelBuildingDuration,
-    nextLevelResourceCost,
-  } = getBuildingDataForLevel(buildingId, buildingLevel);
+  } = getBuildingDataForLevel(buildingId, actualLevel);
+
+  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(buildingId, buildingLevel);
 
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
 
   return (
     <div className="flex flex-col">
-      <section className="pb-2">
+      <section
+        data-testid="building-overview-title-section"
+        className="pb-2"
+      >
         <div className="inline-flex gap-2 items-center font-semibold">
           <h2 className="text-xl">
-            {titleCount > 0 && `${titleCount + 1}.`} {t(`BUILDINGS.${building.id}.NAME`)}
+            {titleCount > 0 && <span data-testid="building-overview-building-count">{titleCount + 1}.</span>}
+            <span data-testid="building-overview-building-title">{generalT(`BUILDINGS.${building.id}.NAME`)}</span>
           </h2>
-          {showLevel && <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: buildingLevel })}</span>}
+          {showLevel && (
+            <span
+              data-testid="building-overview-building-level"
+              className="text-sm text-orange-500"
+            >
+              {generalT('GENERAL.LEVEL', { level: actualLevel })}
+            </span>
+          )}
         </div>
-        <div className="flex border border-red justify-center items-center ml-1 mb-1 float-right size-20 min-w-20 md:min-w-28 md:size-28">
+        <div
+          data-testid="building-overview-building-image"
+          className="flex border border-red justify-center items-center ml-1 mb-1 float-right size-20 min-w-20 md:min-w-28 md:size-28"
+        >
           image
         </div>
-        <p className="text-gray-500 text-sm">{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
-        {isMaxLevel && (
-          <span className="inline-flex text-green-600 mt-2">
-            {t('GENERAL.BUILDING.MAX_LEVEL', { building: t(`BUILDINGS.${building.id}.NAME`) })}
+        <p
+          data-testid="building-overview-building-description"
+          className="text-gray-500 text-sm"
+        >
+          {generalT(`BUILDINGS.${building.id}.DESCRIPTION`)}
+        </p>
+        {actualLevel !== buildingLevel && (
+          <span
+            data-testid="building-overview-currently-upgrading-span"
+            className="inline-flex text-orange-500 mt-2"
+          >
+            {generalT('APP.GAME.VILLAGE.BUILDING_FIELD.CURRENTLY_UPGRADING', { level: buildingLevel })}
+          </span>
+        )}
+        {isActualMaxLevel && (
+          <span
+            data-testid="building-overview-max-level"
+            className="inline-flex text-green-600 mt-2"
+          >
+            {t('GENERAL.BUILDING.MAX_LEVEL', { building: generalT(`BUILDINGS.${building.id}.NAME`) })}
           </span>
         )}
       </section>
-      <section className={clsx(isMaxLevel ? 'pt-2' : 'py-2', 'flex flex-col gap-2 justify-center border-t border-gray-200')}>
-        <h3 className="font-medium">Benefits</h3>
+      <section
+        data-testid="building-overview-benefits-section"
+        className={clsx(isMaxLevel ? 'pt-2' : 'py-2', 'flex flex-col gap-2 justify-center border-t border-gray-200')}
+      >
+        <h3 className="font-medium">{t('BENEFITS.TITLE', { level: actualLevel })}</h3>
         <div className="flex flex-wrap gap-2">
           <Icon
             type="population"
@@ -97,12 +130,15 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
       </section>
       {!isMaxLevel && (
         <>
-          <section className="flex flex-col flex-wrap gap-2 py-2 justify-center">
-            <h3 className="font-medium">Costs</h3>
+          <section
+            data-testid="building-overview-costs-section"
+            className="flex flex-col flex-wrap gap-2 py-2 justify-center border-t border-gray-200"
+          >
+            <h3 className="font-medium">{t('COSTS.TITLE', { level: buildingLevel + 1 })}</h3>
             <Resources resources={nextLevelResourceCost} />
           </section>
           <section className="flex flex-col flex-wrap gap-2 py-2 border-t border-gray-200 justify-center">
-            <h3 className="font-medium">Building duration</h3>
+            <h3 className="font-medium">{t('DURATION.TITLE', { level: buildingLevel + 1 })}</h3>
             <span className="flex gap-1">
               <Icon type="buildingDuration" />
               {formattedTime}

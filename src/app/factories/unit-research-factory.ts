@@ -14,7 +14,7 @@ export const unitResearchFactory = ({ initialVillageId, tribe }: UnitResearchFac
   return unitsByTribe.map((unit) => {
     return {
       unitId: unit.id,
-      researchedIn: [...(unit.researchCost === null ? [initialVillageId] : [])],
+      researchedIn: [...(unit.researchCost.every((cost) => cost === 0) ? [initialVillageId] : [])],
     };
   });
 };

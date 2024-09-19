@@ -8,7 +8,6 @@ import {
 import type { BuildingId } from 'interfaces/models/game/building';
 import type { Player } from 'interfaces/models/game/player';
 import type { Resource, Resources } from 'interfaces/models/game/resource';
-import type { Server } from 'interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 import type { Tribe } from 'interfaces/models/game/tribe';
 import type { BuildingField, ResourceFieldComposition, ResourceFieldId, Village } from 'interfaces/models/game/village';
@@ -219,7 +218,6 @@ const getNewVillageBuildingFields = (tribe: Tribe, _villageSize: OccupiedOccupia
 };
 
 type VillageFactoryProps = {
-  server: Server;
   tile: OccupiedOccupiableTile;
   player: Player;
   slug: Village['slug'];
@@ -278,21 +276,20 @@ const npcVillageFactory = ({ tile, player }: NpcVillageFactoryProps): Village =>
 };
 
 type GenerateVillagesArgs = {
-  server: Server;
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
   players: Player[];
 };
 
-export const generateVillages = ({ server, occupiedOccupiableTiles, players }: GenerateVillagesArgs) => {
+export const generateVillages = ({ occupiedOccupiableTiles, players }: GenerateVillagesArgs) => {
   const userPlayer = players.find(({ faction }) => faction === 'player')!;
   const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
-  const playerStartingVillage = userVillageFactory({ server, player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
+  const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
   const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
 
   const villages: Village[] = npcOccupiedTiles.map((tile) => {
     const player = players.find(({ id }) => tile.ownedBy === id)!;
-    return npcVillageFactory({ server, player, tile });
+    return npcVillageFactory({ player, tile });
   });
 
   return [playerStartingVillage, ...villages];

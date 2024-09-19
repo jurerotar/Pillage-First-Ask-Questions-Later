@@ -8,7 +8,16 @@ type ButtonProps = {
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export const Button: React.FCWithChildren<ButtonProps> = (props) => {
-  const { variant = 'normal', size = 'base', disabled = false, isLoading = false, onClick = () => {}, className = '', children } = props;
+  const {
+    variant = 'normal',
+    size = 'base',
+    disabled = false,
+    isLoading = false,
+    onClick = () => {},
+    className = '',
+    children,
+    ...rest
+  } = props;
 
   return (
     <button
@@ -27,6 +36,7 @@ export const Button: React.FCWithChildren<ButtonProps> = (props) => {
         className,
         'w-fit rounded-md text-xs text-white sm:text-base disabled:bg-gray-300',
       )}
+      {...rest}
     >
       {children}
     </button>

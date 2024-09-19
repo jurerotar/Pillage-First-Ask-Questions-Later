@@ -1,12 +1,12 @@
 import { screen } from '@testing-library/react';
 import { VillagePage } from 'app/[game]/[village]/page';
-import { serverMock } from 'mocks/game/server-mock';
+import { serverPathMock } from 'mocks/game/server-mock';
 import { renderWithGameContext } from 'test-utils';
 import { describe, expect } from 'vitest';
 
 describe('Resource page', () => {
   const options = {
-    path: `/game/${serverMock.slug}/v-1/resources`,
+    path: `${serverPathMock}/v-1/resources`,
   };
 
   test('Village link should be rendered', () => {
@@ -33,7 +33,7 @@ describe('Resource page', () => {
 
 describe('Village page', () => {
   const options = {
-    path: `/game/${serverMock.slug}/v-1/village`,
+    path: `${serverPathMock}/v-1/village`,
   };
 
   test('22 building fields should be rendered', () => {

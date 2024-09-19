@@ -1,94 +1,48 @@
-import { QueryClient } from '@tanstack/react-query';
+import { type DehydratedState, QueryClient, dehydrate, hydrate } from '@tanstack/react-query';
 import { render, renderHook } from '@testing-library/react';
-import { mapFiltersCacheKey } from 'app/[game]/[map]/hooks/use-map-filters';
-import { mapMarkersCacheKey } from 'app/[game]/[map]/hooks/use-map-markers';
-import { achievementsCacheKey } from 'app/[game]/hooks/use-achievements';
 import { currentServerCacheKey } from 'app/[game]/hooks/use-current-server';
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
-import { eventsCacheKey } from 'app/[game]/hooks/use-events';
-import { heroCacheKey } from 'app/[game]/hooks/use-hero';
-import { mapCacheKey } from 'app/[game]/hooks/use-map';
 import { playersCacheKey } from 'app/[game]/hooks/use-players';
-import { questsCacheKey } from 'app/[game]/hooks/use-quests';
-import { reportsCacheKey } from 'app/[game]/hooks/use-reports';
-import { reputationsCacheKey } from 'app/[game]/hooks/use-reputations';
-import { troopsCacheKey } from 'app/[game]/hooks/use-troops';
-import { unitImprovementCacheKey } from 'app/[game]/hooks/use-unit-improvement';
-import { unitResearchCacheKey } from 'app/[game]/hooks/use-unit-research';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
-import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/[game]/utils/guards/map-guards';
+import { CurrentResourceProvider } from 'app/[game]/providers/current-resources-provider';
 import { generateEffects } from 'app/factories/effect-factory';
-import { heroFactory } from 'app/factories/hero-factory';
-import { mapFactory } from 'app/factories/map-factory';
-import { mapFiltersFactory } from 'app/factories/map-filters-factory';
-import { generatePlayers } from 'app/factories/player-factory';
-import { generateQuests } from 'app/factories/quest-factory';
-import { generateReputations } from 'app/factories/reputation-factory';
-import { generateTroops } from 'app/factories/troop-factory';
-import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
-import { unitResearchFactory } from 'app/factories/unit-research-factory';
-import { generateVillages } from 'app/factories/village-factory';
 import { StateProvider } from 'app/providers/state-provider';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { composeComponents } from 'app/utils/jsx';
-import type { GameEvent } from 'interfaces/models/events/game-event';
-import type { Achievement } from 'interfaces/models/game/achievement';
 import type { Effect } from 'interfaces/models/game/effect';
-import type { Hero } from 'interfaces/models/game/hero';
-import type { MapFilters } from 'interfaces/models/game/map-filters';
-import type { MapMarker } from 'interfaces/models/game/map-marker';
 import type { Player } from 'interfaces/models/game/player';
-import type { Quest } from 'interfaces/models/game/quest';
-import type { Report } from 'interfaces/models/game/report';
-import type { Reputation } from 'interfaces/models/game/reputation';
 import type { Server } from 'interfaces/models/game/server';
-import type { Tile } from 'interfaces/models/game/tile';
-import type { Troop } from 'interfaces/models/game/troop';
-import type { UnitImprovement } from 'interfaces/models/game/unit-improvement';
-import type { UnitResearch } from 'interfaces/models/game/unit-research';
 import type { Village } from 'interfaces/models/game/village';
-import { serverMock } from 'mocks/game/server-mock';
+import { playerMock } from 'mocks/game/player-mock';
+import { serverMock, serverPathMock } from 'mocks/game/server-mock';
+import { villageMock } from 'mocks/game/village/village-mock';
 import type React from 'react';
 import type { FCWithChildren } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
+let dehydratedState: DehydratedState | null = null;
+
+// To make the environment as fast as possible to set up, it's been gutted quite a lot. In case your tests are failing due to some missing data,
+// make sure to add it yourself in custom query client!
 const createGameEnvironment = (): QueryClient => {
+  if (dehydratedState !== null) {
+    const queryClient = new QueryClient();
+    hydrate(queryClient, dehydratedState);
+
+    return queryClient;
+  }
+
   const queryClient = new QueryClient();
   const server = serverMock;
 
-  const reputations = generateReputations();
-  const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
-
-  const players = generatePlayers(server, npcFactions, 50);
-
-  const tiles = mapFactory({ server, players });
-
-  const occupiableOasisTiles = tiles.filter(isUnoccupiedOasisTile);
-  const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
-
-  const villages = generateVillages({ server, occupiedOccupiableTiles, players });
-  const playerStartingVillage = villages[0];
+  const playerVillageMock = villageMock;
 
   queryClient.setQueryData<Server>([currentServerCacheKey], () => server);
-  queryClient.setQueryData<Player[]>([playersCacheKey], () => players);
-  queryClient.setQueryData<Reputation[]>([reputationsCacheKey], () => reputations);
-  queryClient.setQueryData<Achievement[]>([achievementsCacheKey], () => []);
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerStartingVillage));
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], () => []);
-  queryClient.setQueryData<Hero>([heroCacheKey], () => heroFactory(server));
-  queryClient.setQueryData<Tile[]>([mapCacheKey], () => tiles);
-  queryClient.setQueryData<Quest[]>([questsCacheKey], () => generateQuests(playerStartingVillage.id));
-  queryClient.setQueryData<Report[]>([reportsCacheKey], () => []);
-  queryClient.setQueryData<Village[]>([villagesCacheKey], () => villages);
-  queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], () => mapFiltersFactory());
-  queryClient.setQueryData<MapMarker[]>([mapMarkersCacheKey], () => []);
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], () =>
-    generateTroops({ server, occupiedOccupiableTiles, occupiableOasisTiles, players }),
-  );
-  queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], () =>
-    unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
-  );
-  queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], () => unitImprovementFactory());
+  queryClient.setQueryData<Player[]>([playersCacheKey], () => [playerMock]);
+  queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock));
+  queryClient.setQueryData<Village[]>([villagesCacheKey], () => [playerVillageMock]);
+
+  dehydratedState = dehydrate(queryClient);
 
   return queryClient;
 };
@@ -104,8 +58,8 @@ type RenderOptions = {
   };
 };
 
-// Game components relly on url pathname params to determine correct data to display, so this testing environments mocks that. You're also provided
-// a default set of game data in form of 'gameEnvironment', which you may override by providing your own query client.
+// Game components relly on url pathname params to determine correct data to display, so this testing environments mocks that.
+// You're also provided a very limited subset set of game data in form of 'gameEnvironment', which you may override by providing your own query client.
 const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
@@ -120,17 +74,50 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
     }
   }
 
+  const element = composeComponents(
+    <CurrentResourceProvider>{children}</CurrentResourceProvider>,
+    Array.isArray(wrapper) ? wrapper : [wrapper],
+  );
+
   return (
     <StateProvider queryClient={globalQueryClient}>
       <ViewportProvider initialSize={deviceSize}>
         <StateProvider queryClient={gameQueryClient}>
-          <MemoryRouter initialEntries={[path ?? `/game/${serverMock.slug}/v-1/`]}>
+          <MemoryRouter initialEntries={[path ?? `${serverPathMock}/v-1`]}>
             <Routes>
               <Route
                 id="game"
-                path="/game/:serverSlug/:villageSlug/*"
-                element={composeComponents(children, Array.isArray(wrapper) ? wrapper : [wrapper])}
-              />
+                path="/game/:serverSlug/:villageSlug"
+                element={element}
+              >
+                <Route
+                  path="resources"
+                  element={element}
+                >
+                  <Route
+                    path=":buildingFieldId"
+                    element={element}
+                  />
+                </Route>
+                <Route
+                  path="village"
+                  element={element}
+                >
+                  <Route
+                    path=":buildingFieldId"
+                    element={element}
+                  />
+                </Route>
+                <Route
+                  path="reports"
+                  element={element}
+                >
+                  <Route
+                    path=":reportId"
+                    element={element}
+                  />
+                </Route>
+              </Route>
             </Routes>
           </MemoryRouter>
         </StateProvider>

@@ -173,12 +173,12 @@ export const BuildingDetails: React.FC = () => {
   const [tabIndex, setTabIndex] = useState<number>(tabNameToIndex[searchParams.get('tab') ?? 'default']);
 
   return (
-    <article className="flex flex-col gap-4 py-2">
+    <article className="flex flex-col gap-2">
       <Tabs
         selectedIndex={tabIndex}
         onSelect={(index) => setTabIndex(index)}
       >
-        <TabList className="flex mb-4 overflow-x-scroll scrollbar-hidden">
+        <TabList className="flex mb-2 overflow-x-scroll scrollbar-hidden">
           <StyledTab>{t('DEFAULT')}</StyledTab>
           {tabs.map((name: string) => (
             <StyledTab key={name}>{t(`${buildingId}.${name}`)}</StyledTab>
@@ -195,7 +195,7 @@ export const BuildingDetails: React.FC = () => {
           </div>
           <Suspense fallback={<>Loading tab</>}>
             {!MainTabAdditionalContent ? null : (
-              <div className="mt-4 border border-gray-500 p-2">
+              <div className="mt-2 border border-gray-500 p-2">
                 <MainTabAdditionalContent />
               </div>
             )}

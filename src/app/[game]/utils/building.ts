@@ -17,6 +17,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const isMaxLevel = building.cropConsumption.length === level;
   const cumulativeCropConsumption = partialArraySum(building.cropConsumption, level);
   const nextLevelCropConsumption = building.cropConsumption[level] ?? 0;
+  const currentLevelResourceCost = building.buildingCost[level - 1] ?? [0, 0, 0, 0];
   const nextLevelResourceCost = building.buildingCost[level] ?? [0, 0, 0, 0];
   const nextLevelBuildingDuration = building.buildingDuration[level] ?? 0;
   const cumulativeEffects = calculateCumulativeEffects(building, level);
@@ -26,6 +27,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
     isMaxLevel,
     cumulativeCropConsumption,
     nextLevelCropConsumption,
+    currentLevelResourceCost,
     nextLevelResourceCost,
     nextLevelBuildingDuration,
     cumulativeEffects,

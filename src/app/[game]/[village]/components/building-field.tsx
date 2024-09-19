@@ -149,7 +149,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       className={clsx(
         styles,
         dynamicCellClasses({ buildingField, resourceFieldComposition, level }),
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
+        'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
     >

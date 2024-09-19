@@ -11,7 +11,7 @@ import {
   mainBuildingUpgradeLevel1EventMock,
   mainBuildingUpgradeLevel2EventMock,
 } from 'mocks/game/event-mock';
-import { romanServerMock } from 'mocks/game/server-mock';
+import { romanServerMock, serverPathMock } from 'mocks/game/server-mock';
 import { renderHookWithGameContext } from 'test-utils';
 import { type Mock, describe, vi } from 'vitest';
 
@@ -26,23 +26,24 @@ afterAll(() => {
   (Date.now as Mock).mockRestore();
 });
 
-// The only important thing here is the "calculateResolvesAt" function, so we only test that
-describe('calculateResolvesAt', () => {
+describe('calculateTimings', () => {
   test('With no building events happening, new building event should resolve in time it takes to construct said building', () => {
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5));
-    const { calculateResolvesAt } = result.current;
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
-    expect(calculateResolvesAt()).toBe(clayPit.buildingDuration[0]);
+    expect(startAt + duration).toBe(clayPit.buildingDuration[0]);
   });
 
   test('With a building event happening, new building event should resolve in time it takes to construct said building + the building before', () => {
     const queryClient = new QueryClient();
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [clayPitUpgradeLevel1EventMock]);
 
-    const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
-    const { calculateResolvesAt } = result.current;
+    const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient, path: `${serverPathMock}/v-1/` });
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
-    expect(calculateResolvesAt()).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
+    expect(startAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
   });
 
   test('With multiple building events happening, new building event should resolve in time it takes to construct said building + all of the events before it', () => {
@@ -50,11 +51,12 @@ describe('calculateResolvesAt', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [clayPitUpgradeLevel1EventMock, clayPitUpgradeLevel2EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
-    const { calculateResolvesAt } = result.current;
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
     // Normally this would be the sum of all 3 events, but we attach the next event to the end of the previous one, so we only need to look
     // at last one in this case
-    expect(calculateResolvesAt()).toBe(clayPit.buildingDuration[1] + clayPit.buildingDuration[2]);
+    expect(startAt + duration).toBe(clayPit.buildingDuration[1] + clayPit.buildingDuration[2]);
   });
 
   test('As roman, a village building should not delay a resource building', () => {
@@ -63,9 +65,10 @@ describe('calculateResolvesAt', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [mainBuildingUpgradeLevel1EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
-    const { calculateResolvesAt } = result.current;
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
-    expect(calculateResolvesAt()).toBe(clayPit.buildingDuration[0]);
+    expect(startAt + duration).toBe(clayPit.buildingDuration[0]);
   });
 
   test('As roman, a resource building should not delay a village building', () => {
@@ -74,9 +77,10 @@ describe('calculateResolvesAt', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [clayPitUpgradeLevel1EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('MAIN_BUILDING', 38), { queryClient });
-    const { calculateResolvesAt } = result.current;
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
-    expect(calculateResolvesAt()).toBe(mainBuilding.buildingDuration[1]);
+    expect(startAt + duration).toBe(mainBuilding.buildingDuration[1]);
   });
 
   test('As roman, second resource building event should only be delayed by previous resource building events', () => {
@@ -85,9 +89,10 @@ describe('calculateResolvesAt', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [mainBuildingUpgradeLevel1EventMock, clayPitUpgradeLevel1EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
-    const { calculateResolvesAt } = result.current;
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
-    expect(calculateResolvesAt()).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
+    expect(startAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
   });
 
   test('As roman, second village building event should only be delayed by previous village building events', () => {
@@ -96,8 +101,9 @@ describe('calculateResolvesAt', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [mainBuildingUpgradeLevel2EventMock, clayPitUpgradeLevel1EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('MAIN_BUILDING', 38), { queryClient });
-    const { calculateResolvesAt } = result.current;
+    const { calculateTimings } = result.current;
+    const { startAt, duration } = calculateTimings();
 
-    expect(calculateResolvesAt()).toBe(mainBuilding.buildingDuration[1] + mainBuilding.buildingDuration[2]);
+    expect(startAt + duration).toBe(mainBuilding.buildingDuration[1] + mainBuilding.buildingDuration[2]);
   });
 });

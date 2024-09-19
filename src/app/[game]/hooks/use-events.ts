@@ -1,14 +1,18 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isBuildingEvent, isScheduledBuildingEvent } from 'app/[game]/hooks/guards/event-guards';
 import { calculateCurrentAmount } from 'app/[game]/hooks/use-calculated-resource';
 import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
+import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { getVillageById, villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
+  buildingScheduledConstructionEventResolver,
 } from 'app/[game]/resolvers/building-resolvers';
+import { getBuildingDataForLevel } from 'app/[game]/utils/building';
 import { doesEventRequireResourceCheck } from 'app/[game]/utils/guards/event-guards';
 import { eventFactory } from 'app/factories/event-factory';
 import { type GameEvent, GameEventType } from 'interfaces/models/events/game-event';
@@ -38,17 +42,107 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
     case GameEventType.BUILDING_DESTRUCTION: {
       return buildingDestructionResolver;
     }
+    case GameEventType.BUILDING_SCHEDULED_CONSTRUCTION: {
+      return buildingScheduledConstructionEventResolver;
+    }
   }
 };
 
-const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUILDING_CONSTRUCTION> => {
-  return [GameEventType.BUILDING_CONSTRUCTION, GameEventType.BUILDING_DESTRUCTION, GameEventType.BUILDING_LEVEL_CHANGE].includes(
-    event.type,
+const getCurrentVillageResources = (queryClient: QueryClient, villageId: Village['id']) => {
+  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
+  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+  const { lastUpdatedAt, resources, id } = getVillageById(villages, villageId);
+  const { total: warehouseCapacity } = calculateComputedEffect('warehouseCapacity', effects, id);
+  const { total: granaryCapacity } = calculateComputedEffect('granaryCapacity', effects, id);
+  const { total: woodProduction } = calculateComputedEffect('woodProduction', effects, id);
+  const { total: clayProduction } = calculateComputedEffect('clayProduction', effects, id);
+  const { total: ironProduction } = calculateComputedEffect('ironProduction', effects, id);
+  const { total: wheatProduction } = calculateComputedEffect('wheatProduction', effects, id);
+
+  const { currentAmount: currentWood } = calculateCurrentAmount({
+    lastUpdatedAt,
+    resourceAmount: resources.wood,
+    hourlyProduction: woodProduction,
+    storageCapacity: warehouseCapacity,
+  });
+  const { currentAmount: currentClay } = calculateCurrentAmount({
+    lastUpdatedAt,
+    resourceAmount: resources.clay,
+    hourlyProduction: clayProduction,
+    storageCapacity: warehouseCapacity,
+  });
+  const { currentAmount: currentIron } = calculateCurrentAmount({
+    lastUpdatedAt,
+    resourceAmount: resources.iron,
+    hourlyProduction: ironProduction,
+    storageCapacity: warehouseCapacity,
+  });
+  const { currentAmount: currentWheat } = calculateCurrentAmount({
+    lastUpdatedAt,
+    resourceAmount: resources.wheat,
+    hourlyProduction: wheatProduction,
+    storageCapacity: granaryCapacity,
+  });
+
+  return {
+    currentWood,
+    currentIron,
+    currentClay,
+    currentWheat,
+    warehouseCapacity,
+    granaryCapacity,
+  };
+};
+
+const updateVillageResources = (
+  queryClient: QueryClient,
+  villageId: Village['id'],
+  [wood, clay, iron, wheat]: number[],
+  mode: 'add' | 'subtract',
+) => {
+  const { currentWood, currentClay, currentIron, currentWheat, warehouseCapacity, granaryCapacity } = getCurrentVillageResources(
+    queryClient,
+    villageId,
   );
+
+  const newLastUpdatedAt = Date.now();
+
+  queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
+    return prevVillages!.map((village) => {
+      if (village.id !== villageId) {
+        return village;
+      }
+
+      if (mode === 'add') {
+        return {
+          ...village,
+          resources: {
+            wood: Math.min(currentWood + wood, warehouseCapacity),
+            clay: Math.min(currentClay + clay, warehouseCapacity),
+            iron: Math.min(currentIron + iron, warehouseCapacity),
+            wheat: Math.min(currentWheat + wheat, granaryCapacity),
+          },
+          lastUpdatedAt: newLastUpdatedAt,
+        };
+      }
+
+      return {
+        ...village,
+        resources: {
+          wood: Math.max(currentWood - wood, 0),
+          clay: Math.max(currentClay - clay, 0),
+          iron: Math.max(currentIron - iron, 0),
+          wheat: Math.max(currentWheat - wheat, 0),
+        },
+        lastUpdatedAt: newLastUpdatedAt,
+      };
+    });
+  });
 };
 
 export const useEvents = () => {
   const queryClient = useQueryClient();
+  const { tribe } = useTribe();
   const { currentVillageId } = useCurrentVillage();
 
   const { data: events } = useQuery<GameEvent[]>({
@@ -66,94 +160,115 @@ export const useEvents = () => {
     },
   });
 
+  const { mutate: cancelBuildingEvent } = useMutation<void, Error, GameEvent['id']>({
+    mutationFn: async (id) => {
+      queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
+        const eventToRemove = prevEvents!.find((event) => event.id === id)! as GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>;
+        const { buildingFieldId, building, level, villageId } = eventToRemove;
+
+        const filteredEvents = prevEvents!.filter(({ id: eventId }) => eventId !== id);
+
+        const buildingEvents = filteredEvents.filter(isBuildingEvent);
+
+        // Romans effectively have 2 queues, so we only limit ourselves to the relevant one
+        const eligibleEvents =
+          tribe === 'romans'
+            ? buildingEvents.filter((event) => {
+                if (buildingFieldId! <= 18) {
+                  return event.buildingFieldId <= 18;
+                }
+
+                return event.buildingFieldId > 18;
+              })
+            : buildingEvents;
+
+        // Event can either be scheduled or already in action
+        if (isScheduledBuildingEvent(eventToRemove)) {
+          const { startAt, duration } = eventToRemove;
+
+          for (const event of eligibleEvents) {
+            if (event.resolvesAt >= startAt + duration) {
+              event.resolvesAt -= duration;
+
+              if (isScheduledBuildingEvent(event)) {
+                event.startAt -= duration;
+              }
+            }
+          }
+
+          return filteredEvents;
+        }
+
+        // Events already in motion
+        for (const event of eligibleEvents) {
+          if (event.resolvesAt >= eventToRemove.resolvesAt) {
+            const difference = eventToRemove.resolvesAt - Date.now();
+            event.resolvesAt -= difference;
+            if (isScheduledBuildingEvent(event)) {
+              event.startAt -= difference;
+            }
+          }
+        }
+
+        const { currentLevelResourceCost } = getBuildingDataForLevel(building.id, level);
+        // Only return 80% of the resources
+        const resourceChargeback = currentLevelResourceCost.map((cost) => Math.trunc(cost * 0.8));
+
+        updateVillageResources(queryClient, villageId, resourceChargeback, 'add');
+
+        return filteredEvents;
+      });
+    },
+  });
+
   const currentVillageBuildingEvents = events.filter((event) => {
     if (!isBuildingEvent(event)) {
       return false;
     }
 
     return event.villageId === currentVillageId;
-  }) as GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
+  }) as (
+    | GameEvent<GameEventType.BUILDING_CONSTRUCTION>
+    | GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>
+    | GameEvent<GameEventType.BUILDING_SCHEDULED_CONSTRUCTION>
+  )[];
 
   const canAddAdditionalBuildingToQueue = currentVillageBuildingEvents.length <= MAX_BUILDINGS_IN_QUEUE;
 
   return {
     events,
     resolveEvent,
+    cancelBuildingEvent,
     currentVillageBuildingEvents,
     canAddAdditionalBuildingToQueue,
   };
 };
 
-type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'>;
+type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
+  onSuccess?: (queryClient: QueryClient, args: CreateEventFnArgs<T>) => void;
+  onFailure?: (queryClient: QueryClient, args: CreateEventFnArgs<T>) => void;
+};
 
 export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {
-  const { villageId } = args;
+  const { villageId, onSuccess, onFailure } = args;
   const event: GameEvent<T> = eventFactory<T>(args);
 
   if (doesEventRequireResourceCheck(event)) {
     const { resourceCost } = event;
-    const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-    const { lastUpdatedAt, resources, id } = getVillageById(villages, villageId);
-    const { total: warehouseCapacity } = calculateComputedEffect('warehouseCapacity', effects, id);
-    const { total: granaryCapacity } = calculateComputedEffect('granaryCapacity', effects, id);
-    const { total: woodProduction } = calculateComputedEffect('woodProduction', effects, id);
-    const { total: clayProduction } = calculateComputedEffect('clayProduction', effects, id);
-    const { total: ironProduction } = calculateComputedEffect('ironProduction', effects, id);
-    const { total: wheatProduction } = calculateComputedEffect('wheatProduction', effects, id);
 
-    const { currentAmount: currentWood } = calculateCurrentAmount({
-      lastUpdatedAt,
-      resourceAmount: resources.wood,
-      hourlyProduction: woodProduction,
-      storageCapacity: warehouseCapacity,
-    });
-    const { currentAmount: currentClay } = calculateCurrentAmount({
-      lastUpdatedAt,
-      resourceAmount: resources.clay,
-      hourlyProduction: clayProduction,
-      storageCapacity: warehouseCapacity,
-    });
-    const { currentAmount: currentIron } = calculateCurrentAmount({
-      lastUpdatedAt,
-      resourceAmount: resources.iron,
-      hourlyProduction: ironProduction,
-      storageCapacity: warehouseCapacity,
-    });
-    const { currentAmount: currentWheat } = calculateCurrentAmount({
-      lastUpdatedAt,
-      resourceAmount: resources.wheat,
-      hourlyProduction: wheatProduction,
-      storageCapacity: granaryCapacity,
-    });
+    const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, villageId);
 
     const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
     if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
+      onFailure?.(queryClient, args);
       return;
     }
 
-    const newLastUpdatedAt = Date.now();
-
-    queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
-      return prevVillages!.map((village) => {
-        if (village.id !== id) {
-          return village;
-        }
-        return {
-          ...village,
-          resources: {
-            wood: currentWood - woodCost,
-            clay: currentClay - clayCost,
-            iron: currentIron - ironCost,
-            wheat: currentWheat - wheatCost,
-          },
-          lastUpdatedAt: newLastUpdatedAt,
-        };
-      });
-    });
+    updateVillageResources(queryClient, villageId, resourceCost, 'subtract');
   }
 
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (previousEvents) => insertEvent(previousEvents!, event));
+  onSuccess?.(queryClient, args);
 };
 
 type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'villageId' | 'type'>;

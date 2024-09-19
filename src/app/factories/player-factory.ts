@@ -1,9 +1,9 @@
 import { seededRandomArrayElement } from 'app/utils/common';
+import { prng_alea } from 'esm-seedrandom';
+import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
 import type { Player, PlayerFaction } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
 import type { Tribe } from 'interfaces/models/game/tribe';
-import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
-import { prng_alea } from 'esm-seedrandom';
 
 const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 
@@ -175,7 +175,7 @@ const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player => {
   };
 };
 
-export const generatePlayers = (server: Server, factions: PlayerFaction[], playerCount: number): Player[] => {
+export const generatePlayers = (server: Server, factions: PlayerFaction[], playerCount: number) => {
   const prng = prng_alea(server.seed);
 
   const userPlayer = userPlayerFactory({ server });
@@ -184,5 +184,9 @@ export const generatePlayers = (server: Server, factions: PlayerFaction[], playe
     return playerFactory({ faction, prng });
   });
 
-  return [userPlayer, ...npcPlayers];
+  return {
+    userPlayer,
+    npcPlayers,
+    players: [userPlayer, ...npcPlayers],
+  };
 };
