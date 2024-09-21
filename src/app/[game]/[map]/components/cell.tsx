@@ -141,13 +141,16 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
 
   return (
     <div
-      role="button"
       className={clsx(dynamicCellClasses(tile), 'flex size-full rounded-[1px] border border-gray-500/50 bg-contain relative')}
       style={style}
       data-tile-id={tile.id}
-      onClick={() => onClick(tile)}
-      onKeyDown={() => onClick(tile)}
     >
+      <button
+        onClick={() => onClick(tile)}
+        type="button"
+        className="size-full absolute inset-0 z-[5]"
+      />
+
       <CellIcons
         mapFilters={mapFilters}
         magnification={magnification}

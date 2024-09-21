@@ -38,15 +38,23 @@ export const TileModal: React.FC<TileModalProps> = ({ tile, onClose }) => {
     }
   });
 
+  useEventListener('mouseleave', onClose, modalRef);
+
+  useOnClickOutside(modalRef, onClose);
+
   useEventListener(
-    'mouseleave',
-    () => {
-      onClose();
+    'touchstart',
+    (event) => {
+      if (!modalRef.current || event.target) {
+        return;
+      }
+
+      if (!modalRef.current.contains(event.target)) {
+        onClose();
+      }
     },
     modalRef,
   );
-
-  useOnClickOutside(modalRef, onClose);
 
   return createPortal(
     <div

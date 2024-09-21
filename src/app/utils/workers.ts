@@ -5,8 +5,5 @@ export const workerFactory = async <TPayload, TReturn = void>(worker: string, pa
     workerInstance.addEventListener('message', async (event: MessageEvent<TReturn>) => {
       resolve(event.data);
     });
-    workerInstance.addEventListener('error', (error) => {
-      console.error('Worker error:', error);
-    });
   });
 };
