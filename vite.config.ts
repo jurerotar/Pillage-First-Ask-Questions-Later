@@ -76,7 +76,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "src/styles/variables.scss"; @import "src/styles/mixins.scss";`,
+        api: 'modern-compiled',
+        additionalData: '@use "./src/styles/_globals.scss" as *;',
       },
     },
   },
