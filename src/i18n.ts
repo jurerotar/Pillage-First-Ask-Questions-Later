@@ -1,8 +1,8 @@
 import { isInDevelopmentMode } from 'app/utils/common';
 import i18n from 'i18next';
 import type { AvailableLocales } from 'interfaces/models/preferences/locale';
+import enUsLocalization from 'locales/en-US.json';
 import { initReactI18next } from 'react-i18next';
-import enUsLocalization from './translations/en-US.json';
 
 const availableLocales: AvailableLocales[] = ['en-US'];
 
