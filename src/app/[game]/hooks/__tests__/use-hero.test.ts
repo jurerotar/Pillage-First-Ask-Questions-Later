@@ -1,9 +1,9 @@
-import { egyptianHero, gaulHero, hunHero, romanHero, spartanHero, teutonHero } from 'mocks/game/hero-mock';
 import { QueryClient } from '@tanstack/react-query';
-import { renderHookWithGameContext } from 'test-utils';
-import { describe, expect } from 'vitest';
 import { heroCacheKey, useHero } from 'app/[game]/hooks/use-hero';
 import type { Hero } from 'interfaces/models/game/hero';
+import { egyptianHero, gaulHero, hunHero, romanHero, teutonHero } from 'mocks/game/hero-mock';
+import { renderHookWithGameContext } from 'test-utils';
+import { describe, expect, test } from 'vitest';
 
 // Expected attributes for each hero
 const gaulExpectedAttributes = {
@@ -11,9 +11,6 @@ const gaulExpectedAttributes = {
   mountedSpeed: 19,
   baseAttackPower: 80,
   baseHealthRegenerationRate: 10,
-  resourceProduction: 18,
-  infantryTroopSpeedBonus: 0,
-  mountedTroopSpeedBonus: 0,
 };
 
 const teutonExpectedAttributes = {
@@ -21,9 +18,6 @@ const teutonExpectedAttributes = {
   mountedSpeed: 14,
   baseAttackPower: 80,
   baseHealthRegenerationRate: 20,
-  resourceProduction: 18,
-  infantryTroopSpeedBonus: 0,
-  mountedTroopSpeedBonus: 0,
 };
 
 const romanExpectedAttributes = {
@@ -31,9 +25,6 @@ const romanExpectedAttributes = {
   mountedSpeed: 14,
   baseAttackPower: 100,
   baseHealthRegenerationRate: 10,
-  resourceProduction: 18,
-  infantryTroopSpeedBonus: 0,
-  mountedTroopSpeedBonus: 0,
 };
 
 const egyptianExpectedAttributes = {
@@ -41,9 +32,6 @@ const egyptianExpectedAttributes = {
   mountedSpeed: 14,
   baseAttackPower: 80,
   baseHealthRegenerationRate: 10,
-  resourceProduction: 36,
-  infantryTroopSpeedBonus: 0,
-  mountedTroopSpeedBonus: 0,
 };
 
 const hunExpectedAttributes = {
@@ -51,19 +39,6 @@ const hunExpectedAttributes = {
   mountedSpeed: 14,
   baseAttackPower: 80,
   baseHealthRegenerationRate: 10,
-  resourceProduction: 18,
-  infantryTroopSpeedBonus: 0,
-  mountedTroopSpeedBonus: 3,
-};
-
-const spartanExpectedAttributes = {
-  unmountedSpeed: 7,
-  mountedSpeed: 14,
-  baseAttackPower: 80,
-  baseHealthRegenerationRate: 10,
-  resourceProduction: 18,
-  infantryTroopSpeedBonus: 5,
-  mountedTroopSpeedBonus: 0,
 };
 
 const testHeroAttributes = (heroData: Hero, tribe: string, expectedAttributes: Record<string, number>) => {
@@ -88,18 +63,6 @@ const testHeroAttributes = (heroData: Hero, tribe: string, expectedAttributes: R
     test('Base health regeneration rate', () => {
       expect(hero.staticAttributes.baseHealthRegenerationRate).toBe(expectedAttributes.baseHealthRegenerationRate);
     });
-
-    test('Resource production', () => {
-      expect(hero.staticAttributes.resourceProduction).toBe(expectedAttributes.resourceProduction);
-    });
-
-    test('Infantry troop speed bonus', () => {
-      expect(hero.staticAttributes.infantryTroopSpeedBonus).toBe(expectedAttributes.infantryTroopSpeedBonus);
-    });
-
-    test('Mounted troop speed bonus', () => {
-      expect(hero.staticAttributes.mountedTroopSpeedBonus).toBe(expectedAttributes.mountedTroopSpeedBonus);
-    });
   });
 };
 
@@ -109,5 +72,4 @@ describe('useHero', () => {
   testHeroAttributes(romanHero, 'Roman', romanExpectedAttributes);
   testHeroAttributes(egyptianHero, 'Egyptian', egyptianExpectedAttributes);
   testHeroAttributes(hunHero, 'Hun', hunExpectedAttributes);
-  testHeroAttributes(spartanHero, 'Spartan', spartanExpectedAttributes);
 });

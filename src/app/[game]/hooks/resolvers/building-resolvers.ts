@@ -1,5 +1,5 @@
+import { createEventFn } from 'app/[game]/hooks/use-create-event';
 import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
-import { createEventFn } from 'app/[game]/hooks/use-events';
 import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
 import { specialFieldIds } from 'app/[game]/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
@@ -51,7 +51,7 @@ const addBuildingField = (
   });
 };
 
-const removeBuildingField = (villages: Village[], villageId: Village['id'], buildingFieldId: BuildingField['id']): Village[] => {
+export const removeBuildingField = (villages: Village[], villageId: Village['id'], buildingFieldId: BuildingField['id']): Village[] => {
   return villages.map((village) => {
     if (village.id === villageId) {
       return {
@@ -112,10 +112,11 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEventType.
   args,
   queryClient,
 ) => {
-  const { building, buildingFieldId, level, resourceCost, villageId, startAt, duration } = args;
+  const { building, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
   await createEventFn<GameEventType.BUILDING_LEVEL_CHANGE>(queryClient, {
     type: GameEventType.BUILDING_LEVEL_CHANGE,
-    resolvesAt: startAt + duration,
+    startsAt,
+    duration,
     building,
     buildingFieldId,
     level,

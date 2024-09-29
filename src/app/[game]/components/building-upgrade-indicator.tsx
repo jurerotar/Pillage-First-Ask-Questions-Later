@@ -17,7 +17,9 @@ type BuildingUpgradeIndicatorProps = {
 };
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId }) => {
-  const { currentVillage } = useCurrentVillage();
+  const {
+    currentVillage: { buildingFields, buildingFieldsPresets },
+  } = useCurrentVillage();
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
@@ -25,8 +27,8 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const { canAddAdditionalBuildingToQueue, currentVillageBuildingEvents } = useEvents();
   const { isDeveloperModeActive } = useDeveloperMode();
 
-  const population = calculatePopulationFromBuildingFields(currentVillage.buildingFields);
-  const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
+  const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
+  const { buildingId, level } = buildingFields.find(({ id }) => buildingFieldId === id)!;
   const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
 
   const variant = ((): BorderIndicatorBorderVariant => {

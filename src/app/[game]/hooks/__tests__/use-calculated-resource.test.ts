@@ -1,14 +1,24 @@
 import { type CalculateCurrentAmountArgs, calculateCurrentAmount } from 'app/[game]/hooks/use-calculated-resource';
+import { villageMock } from 'mocks/game/village/village-mock';
 import { describe, expect, test } from 'vitest';
 
 describe('useCurrentResources', () => {
   describe('calculateCurrentAmount', () => {
     test('With production of 60/h, 60 resource units should be added in an hour', () => {
+      const village = {
+        ...villageMock,
+        lastUpdatedAt: Date.now() - 3600 * 1000,
+        resources: {
+          ...villageMock.resources,
+          wood: 700,
+        },
+      };
+
       const calculateCurrentAmountArgs: CalculateCurrentAmountArgs = {
+        village,
+        resource: 'wood',
         storageCapacity: 800,
         hourlyProduction: 60,
-        resourceAmount: 700,
-        lastUpdatedAt: Date.now() - 3600 * 1000,
       };
 
       const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
@@ -17,11 +27,20 @@ describe('useCurrentResources', () => {
     });
 
     test('With production of 0/h, 0 resource units should be added in an hour', () => {
+      const village = {
+        ...villageMock,
+        lastUpdatedAt: Date.now() - 3600 * 1000,
+        resources: {
+          ...villageMock.resources,
+          wood: 700,
+        },
+      };
+
       const calculateCurrentAmountArgs: CalculateCurrentAmountArgs = {
+        village,
+        resource: 'wood',
         storageCapacity: 800,
         hourlyProduction: 0,
-        resourceAmount: 700,
-        lastUpdatedAt: Date.now() - 3600 * 1000,
       };
 
       const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
@@ -30,11 +49,20 @@ describe('useCurrentResources', () => {
     });
 
     test('With a negative production of -60/h, 60 resource units should be lost in an hour', () => {
+      const village = {
+        ...villageMock,
+        lastUpdatedAt: Date.now() - 3600 * 1000,
+        resources: {
+          ...villageMock.resources,
+          wood: 700,
+        },
+      };
+
       const calculateCurrentAmountArgs: CalculateCurrentAmountArgs = {
+        village,
+        resource: 'wood',
         storageCapacity: 800,
         hourlyProduction: -60,
-        resourceAmount: 700,
-        lastUpdatedAt: Date.now() - 3600 * 1000,
       };
 
       const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
@@ -43,11 +71,20 @@ describe('useCurrentResources', () => {
     });
 
     test('New resources should not exceed storage capacity', () => {
+      const village = {
+        ...villageMock,
+        lastUpdatedAt: Date.now() - 3600 * 1000,
+        resources: {
+          ...villageMock.resources,
+          wood: 700,
+        },
+      };
+
       const calculateCurrentAmountArgs: CalculateCurrentAmountArgs = {
+        village,
+        resource: 'wood',
         storageCapacity: 800,
         hourlyProduction: 200,
-        resourceAmount: 700,
-        lastUpdatedAt: Date.now() - 3600 * 1000,
       };
 
       const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
@@ -56,11 +93,20 @@ describe('useCurrentResources', () => {
     });
 
     test('Resources should not go into negatives with negative production', () => {
+      const village = {
+        ...villageMock,
+        lastUpdatedAt: Date.now() - 3600 * 1000,
+        resources: {
+          ...villageMock.resources,
+          wood: 100,
+        },
+      };
+
       const calculateCurrentAmountArgs: CalculateCurrentAmountArgs = {
+        village,
+        resource: 'wood',
         storageCapacity: 800,
         hourlyProduction: -200,
-        resourceAmount: 100,
-        lastUpdatedAt: Date.now() - 3600 * 1000,
       };
 
       const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);

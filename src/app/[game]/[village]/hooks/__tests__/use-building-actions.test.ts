@@ -5,21 +5,41 @@ import { eventsCacheKey } from 'app/[game]/hooks/use-events';
 import { getBuildingData } from 'app/[game]/utils/building';
 import type { GameEvent } from 'interfaces/models/events/game-event';
 import type { Server } from 'interfaces/models/game/server';
-import {
-  clayPitUpgradeLevel1EventMock,
-  clayPitUpgradeLevel2EventMock,
-  mainBuildingUpgradeLevel1EventMock,
-  mainBuildingUpgradeLevel2EventMock,
-} from 'mocks/game/event-mock';
+import { createBuildingConstructionEventMock } from 'mocks/game/event-mock';
 import { romanServerMock, serverPathMock } from 'mocks/game/server-mock';
 import { renderHookWithGameContext } from 'test-utils';
-import { type Mock, describe, vi } from 'vitest';
+import { type Mock, afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
+
+let clayPitUpgradeLevel1EventMock: GameEvent;
+let clayPitUpgradeLevel2EventMock: GameEvent;
+let mainBuildingUpgradeLevel1EventMock: GameEvent;
+let mainBuildingUpgradeLevel2EventMock: GameEvent;
 
 const clayPit = getBuildingData('CLAY_PIT');
 const mainBuilding = getBuildingData('MAIN_BUILDING');
 
 beforeAll(() => {
   vi.spyOn(Date, 'now').mockReturnValue(0);
+  clayPitUpgradeLevel1EventMock = createBuildingConstructionEventMock({
+    buildingId: 'CLAY_PIT',
+    buildingFieldId: 5,
+    level: 0,
+  });
+  clayPitUpgradeLevel2EventMock = createBuildingConstructionEventMock({
+    buildingId: 'CLAY_PIT',
+    buildingFieldId: 5,
+    level: 1,
+  });
+  mainBuildingUpgradeLevel1EventMock = createBuildingConstructionEventMock({
+    buildingId: 'MAIN_BUILDING',
+    buildingFieldId: 38,
+    level: 1,
+  });
+  mainBuildingUpgradeLevel2EventMock = createBuildingConstructionEventMock({
+    buildingId: 'MAIN_BUILDING',
+    buildingFieldId: 38,
+    level: 2,
+  });
 });
 
 afterAll(() => {
@@ -30,9 +50,9 @@ describe('calculateTimings', () => {
   test('With no building events happening, new building event should resolve in time it takes to construct said building', () => {
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5));
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
-    expect(startAt + duration).toBe(clayPit.buildingDuration[0]);
+    expect(startsAt + duration).toBe(clayPit.buildingDuration[0]);
   });
 
   test('With a building event happening, new building event should resolve in time it takes to construct said building + the building before', () => {
@@ -41,9 +61,9 @@ describe('calculateTimings', () => {
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient, path: `${serverPathMock}/v-1/` });
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
-    expect(startAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
+    expect(startsAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
   });
 
   test('With multiple building events happening, new building event should resolve in time it takes to construct said building + all of the events before it', () => {
@@ -52,11 +72,11 @@ describe('calculateTimings', () => {
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
     // Normally this would be the sum of all 3 events, but we attach the next event to the end of the previous one, so we only need to look
     // at last one in this case
-    expect(startAt + duration).toBe(clayPit.buildingDuration[1] + clayPit.buildingDuration[2]);
+    expect(startsAt + duration).toBe(clayPit.buildingDuration[1] + clayPit.buildingDuration[2]);
   });
 
   test('As roman, a village building should not delay a resource building', () => {
@@ -66,9 +86,9 @@ describe('calculateTimings', () => {
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
-    expect(startAt + duration).toBe(clayPit.buildingDuration[0]);
+    expect(startsAt + duration).toBe(clayPit.buildingDuration[0]);
   });
 
   test('As roman, a resource building should not delay a village building', () => {
@@ -78,9 +98,9 @@ describe('calculateTimings', () => {
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('MAIN_BUILDING', 38), { queryClient });
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
-    expect(startAt + duration).toBe(mainBuilding.buildingDuration[1]);
+    expect(startsAt + duration).toBe(mainBuilding.buildingDuration[1]);
   });
 
   test('As roman, second resource building event should only be delayed by previous resource building events', () => {
@@ -90,9 +110,9 @@ describe('calculateTimings', () => {
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('CLAY_PIT', 5), { queryClient });
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
-    expect(startAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
+    expect(startsAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
   });
 
   test('As roman, second village building event should only be delayed by previous village building events', () => {
@@ -102,8 +122,8 @@ describe('calculateTimings', () => {
 
     const { result } = renderHookWithGameContext(() => useBuildingActions('MAIN_BUILDING', 38), { queryClient });
     const { calculateTimings } = result.current;
-    const { startAt, duration } = calculateTimings();
+    const { startsAt } = calculateTimings();
 
-    expect(startAt + duration).toBe(mainBuilding.buildingDuration[1] + mainBuilding.buildingDuration[2]);
+    expect(startsAt).toBe(mainBuilding.buildingDuration[2]);
   });
 });

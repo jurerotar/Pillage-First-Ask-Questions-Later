@@ -24,7 +24,7 @@ export const GameStateProvider: FCWithChildren = ({ children }) => {
       }, 300),
       restoreClient: async () => {
         const rootHandle = await getRootHandle();
-        return getParsedFileContents(rootHandle, serverSlug);
+        return getParsedFileContents<PersistedClient>(rootHandle, serverSlug);
       },
       removeClient: () => {},
     }),
@@ -64,6 +64,7 @@ export const GameStateProvider: FCWithChildren = ({ children }) => {
     <PersistQueryClientProvider
       persistOptions={{
         persister,
+        maxAge: Number.MAX_VALUE,
       }}
       client={queryClient}
       onSuccess={() => {

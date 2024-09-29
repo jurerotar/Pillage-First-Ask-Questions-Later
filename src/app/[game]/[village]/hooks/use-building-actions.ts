@@ -1,8 +1,9 @@
 import { useBuildingVirtualLevel } from 'app/[game]/[village]/hooks/use-building-virtual-level';
 import { isScheduledBuildingEvent } from 'app/[game]/hooks/guards/event-guards';
 import { useComputedEffect } from 'app/[game]/hooks/use-computed-effect';
+import { useCreateEvent } from 'app/[game]/hooks/use-create-event';
 import { useDeveloperMode } from 'app/[game]/hooks/use-developer-mode';
-import { useCreateEvent, useEvents } from 'app/[game]/hooks/use-events';
+import { useEvents } from 'app/[game]/hooks/use-events';
 import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { getBuildingDataForLevel } from 'app/[game]/utils/building';
 import { GameEventType } from 'interfaces/models/events/game-event';
@@ -13,10 +14,10 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useEvents();
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
-  const createBuildingScheduledConstructionEvent = useCreateEvent(GameEventType.BUILDING_SCHEDULED_CONSTRUCTION);
-  const createBuildingConstructionEvent = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
-  const createBuildingLevelChangeEvent = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
-  const createBuildingDestructionEvent = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
+  const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent(GameEventType.BUILDING_SCHEDULED_CONSTRUCTION);
+  const { createEvent: createBuildingConstructionEvent } = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
+  const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
+  const { createEvent: createBuildingDestructionEvent } = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
   const { isDeveloperModeActive } = useDeveloperMode();
 
@@ -40,7 +41,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const calculateTimings = () => {
     if (isDeveloperModeActive) {
       return {
-        startAt: Date.now(),
+        startsAt: Date.now(),
         duration: 0,
       };
     }
@@ -51,30 +52,32 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       }
 
       const lastBuildingEvent = buildingEvents.at(-1)!;
+      const { startsAt, duration } = lastBuildingEvent;
 
       if (isScheduledBuildingEvent(lastBuildingEvent)) {
-        return lastBuildingEvent.startAt + lastBuildingEvent.duration;
+        return startsAt + duration;
       }
 
-      return lastBuildingEvent.resolvesAt;
+      return startsAt + duration - (Date.now() - startsAt);
     })();
 
     // Idea is that createBuildingScheduledConstructionEvent should resolve whenever a previous building was completed and then start a new one
     return {
-      startAt: lastBuildingEventCompletionTimestamp,
+      startsAt: lastBuildingEventCompletionTimestamp,
       duration: nextLevelBuildingDuration * buildingDurationModifier,
     };
   };
 
   const constructBuilding = () => {
     const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
     createBuildingConstructionEvent({
       buildingFieldId: buildingFieldId!,
       building,
-      resolvesAt: Date.now(),
-      resourceCost,
+      startsAt: Date.now(),
+      duration: 0,
+      resourceCost: hasCurrentVillageBuildingEvents ? [0, 0, 0, 0] : resourceCost,
       level: 1,
     });
 
@@ -82,8 +85,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     if (hasCurrentVillageBuildingEvents) {
       createBuildingScheduledConstructionEvent({
         buildingFieldId: buildingFieldId!,
-        resolvesAt: startAt,
-        startAt,
+        startsAt,
         duration,
         building,
         resourceCost,
@@ -96,7 +98,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     createBuildingLevelChangeEvent({
       buildingFieldId: buildingFieldId!,
       level: 1,
-      resolvesAt: startAt + duration,
+      startsAt,
+      duration,
       building,
       // Cost can be 0, since it's already accounted for in the construction event
       resourceCost: [0, 0, 0, 0],
@@ -105,12 +108,11 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const upgradeBuilding = () => {
     const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
-    const { startAt, duration } = calculateTimings();
+    const { startsAt, duration } = calculateTimings();
 
     if (hasCurrentVillageBuildingEvents) {
       createBuildingScheduledConstructionEvent({
-        resolvesAt: startAt,
-        startAt,
+        startsAt,
         duration,
         buildingFieldId: buildingFieldId!,
         building,
@@ -122,7 +124,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     }
 
     createBuildingLevelChangeEvent({
-      resolvesAt: startAt + duration,
+      startsAt,
+      duration,
       buildingFieldId: buildingFieldId!,
       level: buildingLevel + 1,
       building,
@@ -132,7 +135,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const downgradeBuilding = () => {
     createBuildingLevelChangeEvent({
-      resolvesAt: Date.now(),
+      startsAt: Date.now(),
+      duration: 0,
       buildingFieldId: buildingFieldId!,
       level: buildingLevel - 1,
       building,
@@ -142,7 +146,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const demolishBuilding = () => {
     createBuildingDestructionEvent({
-      resolvesAt: Date.now(),
+      startsAt: Date.now(),
+      duration: 0,
       buildingFieldId: buildingFieldId!,
       building,
     });

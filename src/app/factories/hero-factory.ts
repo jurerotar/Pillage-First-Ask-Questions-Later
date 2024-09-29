@@ -10,12 +10,6 @@ export const heroFactory = (server: Server): Hero => {
   const baseHealthRegenerationRate = tribe === 'teutons' ? 20 : 10;
   // Roman hero is stronger
   const baseAttackPower = tribe === 'romans' ? 100 : 80;
-  // Egyptian hero produces double resources
-  const resourceProduction = tribe === 'egyptians' ? 36 : 18;
-  // Spartan hero adds speed bonus to infantry-only attacks
-  const infantryTroopSpeedBonus = tribe === 'spartans' ? 5 : 0;
-  // Hun hero adds speed bonus to cavalry-only attacks
-  const mountedTroopSpeedBonus = tribe === 'huns' ? 3 : 0;
 
   return {
     stats: {
@@ -28,9 +22,6 @@ export const heroFactory = (server: Server): Hero => {
       mountedSpeed,
       baseAttackPower,
       baseHealthRegenerationRate,
-      resourceProduction,
-      infantryTroopSpeedBonus,
-      mountedTroopSpeedBonus,
     },
     selectableAttributes: {
       attackPower: 0,

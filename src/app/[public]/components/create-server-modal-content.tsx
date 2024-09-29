@@ -28,6 +28,7 @@ import { generateReputations } from 'app/factories/reputation-factory';
 import { serverFactory } from 'app/factories/server-factory';
 import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
 import { unitResearchFactory } from 'app/factories/unit-research-factory';
+import { userVillageFactory } from 'app/factories/village-factory';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { workerFactory } from 'app/utils/workers';
 import type { Achievement } from 'interfaces/models/game/achievement';
@@ -145,7 +146,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const reputations = generateReputations();
   const npcFactions = reputations.filter(({ faction }) => faction !== 'player').map(({ faction }) => faction);
 
-  const { players } = generatePlayers(server, npcFactions, PLAYER_COUNT);
+  const { players, userPlayer } = generatePlayers(server, npcFactions, PLAYER_COUNT);
 
   // Map data
   const { tiles, occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
@@ -153,16 +154,16 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     { server, players },
   );
 
-  // Villages
-  const { villages } = await workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
-    occupiedOccupiableTiles,
-    players,
-  });
+  const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
 
-  const playerStartingVillage = villages[0];
+  const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
   // Non-dependant factories can run in sync
-  const [{ troops }, effects, hero, mapFilters, unitResearch, unitImprovement] = await Promise.all([
+  const [{ villages }, { troops }, effects, hero, mapFilters, unitResearch, unitImprovement] = await Promise.all([
+    workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
+      occupiedOccupiableTiles,
+      players,
+    }),
     workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
       server,
       occupiedOccupiableTiles,
@@ -185,7 +186,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
   queryClient.setQueryData<Hero>([heroCacheKey], hero);
   queryClient.setQueryData<Tile[]>([mapCacheKey], tiles);
-  queryClient.setQueryData<Village[]>([villagesCacheKey], villages);
+  queryClient.setQueryData<Village[]>([villagesCacheKey], [playerStartingVillage, ...villages]);
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
   queryClient.setQueryData<Troop[]>([troopsCacheKey], troops);
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);

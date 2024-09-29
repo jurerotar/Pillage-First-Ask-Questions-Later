@@ -2,9 +2,21 @@ import { QueryClient } from '@tanstack/react-query';
 import { useBuildingVirtualLevel } from 'app/[game]/[village]/hooks/use-building-virtual-level';
 import { eventsCacheKey } from 'app/[game]/hooks/use-events';
 import type { GameEvent } from 'interfaces/models/events/game-event';
-import { clayPitUpgradeLevel1EventMock, clayPitUpgradeLevel2EventMock } from 'mocks/game/event-mock';
+import { createBuildingConstructionEventMock } from 'mocks/game/event-mock';
 import { renderHookWithGameContext } from 'test-utils';
-import { describe, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+
+const clayPitUpgradeLevel1EventMock = createBuildingConstructionEventMock({
+  buildingId: 'CLAY_PIT',
+  buildingFieldId: 5,
+  level: 1,
+});
+
+const clayPitUpgradeLevel2EventMock = createBuildingConstructionEventMock({
+  buildingId: 'CLAY_PIT',
+  buildingFieldId: 5,
+  level: 2,
+});
 
 describe('useBuildingVirtualLevel', () => {
   test("Virtual building level should be 0 when building level is 0 and it's not being upgraded", () => {

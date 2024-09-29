@@ -1,7 +1,7 @@
 import type { Building } from 'interfaces/models/game/building';
 import type { Tribe } from 'interfaces/models/game/tribe';
 
-type RomanUnitId =
+export type RomanUnitId =
   | 'LEGIONNAIRE'
   | 'PRAETORIAN'
   | 'IMPERIAN'
@@ -13,7 +13,7 @@ type RomanUnitId =
   | 'SENATOR'
   | 'ROMAN_SETTLER';
 
-type GaulUnitId =
+export type GaulUnitId =
   | 'PHALANX'
   | 'SWORDSMAN'
   | 'PATHFINDER'
@@ -25,7 +25,7 @@ type GaulUnitId =
   | 'CHIEFTAIN'
   | 'GAUL_SETTLER';
 
-type TeutonUnitId =
+export type TeutonUnitId =
   | 'MACEMAN'
   | 'SPEARMAN'
   | 'AXEMAN'
@@ -37,7 +37,7 @@ type TeutonUnitId =
   | 'CHIEF'
   | 'TEUTONIC_SETTLER';
 
-type HunUnitId =
+export type HunUnitId =
   | 'MERCENARY'
   | 'BOWMAN'
   | 'SPOTTER'
@@ -49,7 +49,7 @@ type HunUnitId =
   | 'LOGADES'
   | 'HUN_SETTLER';
 
-type EgyptianUnitId =
+export type EgyptianUnitId =
   | 'SLAVE_MILITIA'
   | 'ASH_WARDEN'
   | 'KHOPESH_WARRIOR'
@@ -61,7 +61,7 @@ type EgyptianUnitId =
   | 'NOMARCH'
   | 'EGYPTIAN_SETTLER';
 
-type SpartanUnitId =
+export type SpartanUnitId =
   | 'HOPLITE'
   | 'SENTINEL'
   | 'SHIELDSMAN'
@@ -73,7 +73,7 @@ type SpartanUnitId =
   | 'EPHOR'
   | 'SPARTAN_SETTLER';
 
-type NatarUnitId =
+export type NatarUnitId =
   | 'PIKEMAN'
   | 'THORNED_WARRIOR'
   | 'GUARDSMAN'

@@ -14,9 +14,11 @@ export const villageMock: Village = {
     y: 0,
   },
   buildingFields: [...resourceFields4446Mock, ...newVillageBuildingFieldsMock],
+  buildingFieldsPresets: [],
   resourceFieldComposition: '4446',
   playerId,
   isCapital: true,
+  wheatUpkeep: 3,
   lastUpdatedAt: Date.now(),
   resources: {
     wood: 750,

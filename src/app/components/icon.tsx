@@ -1,8 +1,18 @@
 import { BorderIndicator, type BorderIndicatorProps } from 'app/[game]/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
+import type { PickLiteral, UpperCaseToCamelCase } from 'app/utils/typescript';
 import clsx from 'clsx';
 import type { EffectId } from 'interfaces/models/game/effect';
-import type { Unit } from 'interfaces/models/game/unit';
+import type {
+  EgyptianUnitId,
+  GaulUnitId,
+  HunUnitId,
+  NatarUnitId,
+  NatureUnitId,
+  RomanUnitId,
+  TeutonUnitId,
+  Unit,
+} from 'interfaces/models/game/unit';
 import { camelCase } from 'moderndash';
 import type React from 'react';
 import { Suspense, lazy } from 'react';
@@ -178,6 +188,61 @@ const IconUnitRomanRomanSettler = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-roman-settler')).IconRomanSettler,
 }));
 
+// Gaul troops
+const IconUnitGaulPathfinder = lazy(async () => ({
+  default: (await import('app/components/icons/troops/gauls/icon-pathfinder')).IconPathfinder,
+}));
+const IconUnitGaulTheutatesThunder = lazy(async () => ({
+  default: (await import('app/components/icons/troops/gauls/icon-theutates-thunder')).IconTheutatesThunder,
+}));
+const IconUnitGaulDruidrider = lazy(async () => ({
+  default: (await import('app/components/icons/troops/gauls/icon-druidrider')).IconDruidrider,
+}));
+const IconUnitGaulHaeduan = lazy(async () => ({
+  default: (await import('app/components/icons/troops/gauls/icon-haeduan')).IconHaeduan,
+}));
+
+// Teuton troops
+const IconUnitTeutonPaladin = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-paladin')).IconPaladin,
+}));
+const IconUnitTeutonTeutonicKnight = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-teutonic-knight')).IconTeutonicKnight,
+}));
+
+// Egyptian troops
+const IconUnitEgyptiansSopduExplorer = lazy(async () => ({
+  default: (await import('app/components/icons/troops/egyptians/icon-sopdu-explorer')).IconSopduExplorer,
+}));
+const IconUnitEgyptiansAnhurGuard = lazy(async () => ({
+  default: (await import('app/components/icons/troops/egyptians/icon-anhur-guard')).IconAnhurGuard,
+}));
+const IconUnitEgyptiansReshephChariot = lazy(async () => ({
+  default: (await import('app/components/icons/troops/egyptians/icon-resheph-chariot')).IconReshephChariot,
+}));
+
+// Hun troops
+const IconUnitHunSpotter = lazy(async () => ({
+  default: (await import('app/components/icons/troops/huns/icon-spotter')).IconSpotter,
+}));
+const IconUnitHunSteppeRider = lazy(async () => ({
+  default: (await import('app/components/icons/troops/huns/icon-steppe-rider')).IconSteppeRider,
+}));
+const IconUnitHunMarksman = lazy(async () => ({
+  default: (await import('app/components/icons/troops/huns/icon-marksman')).IconMarksman,
+}));
+const IconUnitHunMarauder = lazy(async () => ({
+  default: (await import('app/components/icons/troops/huns/icon-marauder')).IconMarauder,
+}));
+
+// Natar troops
+const IconUnitNatarAxerider = lazy(async () => ({
+  default: (await import('app/components/icons/troops/natars/icon-axerider')).IconAxerider,
+}));
+const IconUnitNatarNatarianKnight = lazy(async () => ({
+  default: (await import('app/components/icons/troops/natars/icon-natarian-knight')).IconNatarianKnight,
+}));
+
 // Nature troops
 const IconUnitNatureRat = lazy(async () => ({
   default: (await import('app/components/icons/troops/nature/icon-rat')).IconRat,
@@ -250,23 +315,30 @@ type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
 type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
-type RomanTroopIconType =
-  | 'legionnaire'
-  | 'praetorian'
-  | 'imperian'
-  | 'equitesLegati'
-  | 'equitesImperatoris'
-  | 'equitesCaesaris'
-  | 'romanRam'
-  | 'fireCatapult'
-  | 'senator'
-  | 'romanSettler';
+type RomanTroopIconType = UpperCaseToCamelCase<RomanUnitId>;
 
-type NatureTroopIconType = 'rat' | 'spider' | 'serpent' | 'bat' | 'wildBoar' | 'wolf' | 'bear' | 'crocodile' | 'tiger' | 'elephant';
+type GaulTroopIconType = UpperCaseToCamelCase<PickLiteral<GaulUnitId, 'PATHFINDER' | 'THEUTATES_THUNDER' | 'DRUIDRIDER' | 'HAEDUAN'>>;
+
+type TeutonTroopIconType = UpperCaseToCamelCase<PickLiteral<TeutonUnitId, 'PALADIN' | 'TEUTONIC_KNIGHT'>>;
+
+type HunTroopIconType = UpperCaseToCamelCase<PickLiteral<HunUnitId, 'SPOTTER' | 'STEPPE_RIDER' | 'MARKSMAN' | 'MARAUDER'>>;
+
+type EgyptianTroopIconType = UpperCaseToCamelCase<PickLiteral<EgyptianUnitId, 'SOPDU_EXPLORER' | 'ANHUR_GUARD' | 'RESHEPH_CHARIOT'>>;
+
+type NatarTroopIconType = UpperCaseToCamelCase<PickLiteral<NatarUnitId, 'AXERIDER' | 'NATARIAN_KNIGHT'>>;
+
+type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
 
 type UnitAttributeType = 'carryCapacity' | 'unitSpeed';
 
-type UnitIconType = RomanTroopIconType | NatureTroopIconType;
+type UnitIconType =
+  | RomanTroopIconType
+  | GaulTroopIconType
+  | TeutonTroopIconType
+  | HunTroopIconType
+  | EgyptianTroopIconType
+  | NatarTroopIconType
+  | NatureTroopIconType;
 
 type OtherIconType = 'freeCrop' | 'population';
 
@@ -288,6 +360,7 @@ export type IconType =
 // @ts-ignore - TODO: Add missing icons
 export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   missingIcon: IconMissingIcon,
+
   // Resources
   wood: IconResourceWood,
   clay: IconResourceClay,
@@ -300,6 +373,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   clayClay: IconResourceCombinationClayClay,
   ironIron: IconResourceCombinationIronIron,
   wheatWheat: IconResourceCombinationWheatWheat,
+
   // Map controls
   mapMagnificationIncrease: IconMapMagnificationIncrease,
   mapMagnificationDecrease: IconMapMagnificationDecrease,
@@ -309,11 +383,13 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   mapWheatFieldIconToggle: IconMapWheatFieldIconToggle,
   mapTileTooltipToggle: IconMapTileTooltipToggle,
   mapTreasureIconToggle: IconMapTreasuresToggle,
+
   // Map treasures
   treasureTileItem: IconTreasureTileItem,
   treasureTileResources: IconTreasureTileResources,
   treasureTileArtifact: IconTreasureTileArtifact,
   treasureTileCurrency: IconTreasureTileCurrency,
+
   // Reports
   attackerNoLoss: IconAttackerNoLoss,
   attackerSomeLoss: IconAttackerSomeLoss,
@@ -321,6 +397,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   defenderNoLoss: IconDefenderNoLoss,
   defenderSomeLoss: IconDefenderSomeLoss,
   defenderFullLoss: IconDefenderFullLoss,
+
   // Effects
   freeCrop: IconFreeCrop,
   populationCropConsumption: IconPopulationCropConsumption,
@@ -332,7 +409,8 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   cavalryDefence: IconCavalryDefence,
   population: IconPopulation,
   attack: IconAttack,
-  // Romans
+
+  // Roman troops
   legionnaire: IconUnitRomanLegionnaire,
   praetorian: IconUnitRomanPraetorian,
   imperian: IconUnitRomanImperian,
@@ -343,7 +421,33 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   fireCatapult: IconUnitRomanFireCatapult,
   senator: IconUnitRomanSenator,
   romanSettler: IconUnitRomanRomanSettler,
-  // Animals
+
+  // Gaul troops
+  pathfinder: IconUnitGaulPathfinder,
+  theutatesThunder: IconUnitGaulTheutatesThunder,
+  druidrider: IconUnitGaulDruidrider,
+  haeduan: IconUnitGaulHaeduan,
+
+  // Teuton troops
+  paladin: IconUnitTeutonPaladin,
+  teutonicKnight: IconUnitTeutonTeutonicKnight,
+
+  // Egyptian troops
+  sopduExplorer: IconUnitEgyptiansSopduExplorer,
+  anhurGuard: IconUnitEgyptiansAnhurGuard,
+  reshephChariot: IconUnitEgyptiansReshephChariot,
+
+  // Hun troops
+  spotter: IconUnitHunSpotter,
+  steppeRider: IconUnitHunSteppeRider,
+  marksman: IconUnitHunMarksman,
+  marauder: IconUnitHunMarauder,
+
+  // Natar troops
+  axerider: IconUnitNatarAxerider,
+  natarianKnight: IconUnitNatarNatarianKnight,
+
+  // Nature
   rat: IconUnitNatureRat,
   spider: IconUnitNatureSpider,
   serpent: IconUnitNatureSerpent,
@@ -354,6 +458,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   crocodile: IconUnitNatureCrocodile,
   tiger: IconUnitNatureTiger,
   elephant: IconUnitNatureElephant,
+
   // Adventures
   adventureDifficult: IconAdventureDifficult,
   adventureNormal: IconAdventureNormal,

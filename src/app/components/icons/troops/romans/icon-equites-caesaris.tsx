@@ -1,5 +1,6 @@
-import { GiHorseHead } from 'react-icons/gi';
+import IconSharedHorse from '../../_shared/icon-horse-shared.svg?react';
+import styles from './romans.module.scss';
 
 export const IconEquitesCaesaris = () => {
-  return <GiHorseHead className="size-full" />;
+  return <IconSharedHorse className={styles['equites-caesaris']} />;
 };

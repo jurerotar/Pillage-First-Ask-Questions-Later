@@ -5,6 +5,7 @@ import { useTribe } from 'app/[game]/hooks/use-tribe';
 import { useUnitImprovement } from 'app/[game]/hooks/use-unit-improvement';
 import { useCurrentResources } from 'app/[game]/providers/current-resources-provider';
 import { Button } from 'app/components/buttons/button';
+import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
 import { units } from 'assets/units';
 import type { Unit } from 'interfaces/models/game/unit';
 import type React from 'react';
@@ -53,8 +54,11 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
           <h2 className="text-xl">{t(`UNITS.${unitId}.NAME`, unitId)}</h2>
           <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: upgradeLevel })}</span>
         </div>
-        <div className="flex border border-red justify-center items-center ml-1 mb-1 float-right size-20 min-w-20 md:min-w-28 md:size-28">
-          image
+        <div className="flex justify-center items-center mr-1 mb-1 float-right size-10 md:size-16">
+          <Icon
+            className="size-full"
+            type={unitIdToUnitIconMapper(unitId)}
+          />
         </div>
         <div className="text-gray-500 text-sm">
           <span>The following mercenary units will also receive an upgrade:</span>

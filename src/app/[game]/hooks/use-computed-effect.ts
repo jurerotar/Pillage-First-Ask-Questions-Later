@@ -1,11 +1,10 @@
 import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
 import { useEffects } from 'app/[game]/hooks/use-effects';
-import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/[game]/utils/guards/effect-guards';
-import type { Effect, EffectId, GlobalEffect, ServerEffect, VillageEffect } from 'interfaces/models/game/effect';
+import { isGlobalEffect, isVillageEffect } from 'app/[game]/utils/guards/effect-guards';
+import type { Effect, EffectId, GlobalEffect, VillageEffect } from 'interfaces/models/game/effect';
 import type { Village } from 'interfaces/models/game/village';
 
 export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[], currentVillageId: Village['id']) => {
-  const serverEffects: ServerEffect[] = effects.filter(isServerEffect);
   const globalEffects: GlobalEffect[] = effects.filter(isGlobalEffect);
   const villageEffects: VillageEffect[] = effects.filter(isVillageEffect);
   const currentVillageEffects: VillageEffect[] = villageEffects.filter(({ villageId }) => villageId === currentVillageId);
@@ -31,7 +30,7 @@ export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[
   }, 1);
 
   // There's always only 1 server effect for particular effect id, but if it's missing, value is 1
-  const serverEffectValue = serverEffects.find(({ id }) => id === effectId)?.value ?? 1;
+  const serverEffectValue = effects.find(({ id, scope }) => scope === 'server' && id === effectId)?.value ?? 1;
 
   const total = cumulativeBaseEffectValue * serverEffectValue * cumulativeBonusEffectValue;
 

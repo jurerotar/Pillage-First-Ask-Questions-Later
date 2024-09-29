@@ -1,4 +1,4 @@
-import type { Tribe } from 'interfaces/models/game/tribe';
+import type { PlayableTribe } from 'interfaces/models/game/tribe';
 
 type ServerConfiguration = {
   speed: 1 | 3;
@@ -7,7 +7,7 @@ type ServerConfiguration = {
 
 type PlayerConfiguration = {
   name: string;
-  tribe: Tribe;
+  tribe: PlayableTribe;
 };
 
 export type Server = {

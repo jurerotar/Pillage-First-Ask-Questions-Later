@@ -1,8 +1,24 @@
 import { partialArraySum } from 'app/utils/common';
 import { buildings } from 'assets/buildings';
+import { presetIdToPresetMap } from 'assets/npc-village-presets';
 import type { Building } from 'interfaces/models/game/building';
 import type { Effect } from 'interfaces/models/game/effect';
 import type { BuildingField, Village } from 'interfaces/models/game/village';
+
+const mergeBuildingFields = (buildingFieldsFromPreset: BuildingField[], buildingFields: BuildingField[]): BuildingField[] => {
+  // Create a map from the second array using the 'id' as the key
+  const map = new Map(buildingFields.map((field) => [field.id, field]));
+
+  // Iterate over the first array and add its fields to the map only if not already present
+  for (const field of buildingFieldsFromPreset) {
+    if (!map.has(field.id)) {
+      map.set(field.id, field);
+    }
+  }
+
+  // Return the combined result as an array
+  return Array.from(map.values());
+};
 
 // Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
 export const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
@@ -12,6 +28,10 @@ export const getBuildingData = (buildingId: Building['id']) => {
   return building;
 };
 
+export const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFieldsPresets']): BuildingField[] => {
+  return buildingFieldsPresets.flatMap((presetId) => presetIdToPresetMap.get(presetId)!);
+};
+
 export const getBuildingDataForLevel = (buildingId: Building['id'], level: number) => {
   const building = getBuildingData(buildingId);
   const isMaxLevel = building.cropConsumption.length === level;
@@ -19,6 +39,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const nextLevelCropConsumption = building.cropConsumption[level] ?? 0;
   const currentLevelResourceCost = building.buildingCost[level - 1] ?? [0, 0, 0, 0];
   const nextLevelResourceCost = building.buildingCost[level] ?? [0, 0, 0, 0];
+  const currentLevelBuildingDuration = building.buildingDuration[level - 1] ?? 0;
   const nextLevelBuildingDuration = building.buildingDuration[level] ?? 0;
   const cumulativeEffects = calculateCumulativeEffects(building, level);
 
@@ -29,6 +50,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
     nextLevelCropConsumption,
     currentLevelResourceCost,
     nextLevelResourceCost,
+    currentLevelBuildingDuration,
     nextLevelBuildingDuration,
     cumulativeEffects,
   };
@@ -38,10 +60,16 @@ export const getBuildingFieldByBuildingFieldId = (currentVillage: Village, build
   return currentVillage.buildingFields.find(({ id: fieldId }) => buildingFieldId === fieldId) ?? null;
 };
 
-export const calculatePopulationFromBuildingFields = (buildingFields: BuildingField[]): number => {
+export const calculatePopulationFromBuildingFields = (
+  buildingFields: BuildingField[],
+  buildingFieldsPresets: Village['buildingFieldsPresets'],
+): number => {
+  const presetsFields = getBuildingFieldPresetData(buildingFieldsPresets);
+  const mergedBuildingFields = mergeBuildingFields(presetsFields, buildingFields);
+
   let sum = 0;
 
-  for (const { buildingId, level } of buildingFields) {
+  for (const { buildingId, level } of mergedBuildingFields) {
     if (buildingId === null) {
       continue;
     }

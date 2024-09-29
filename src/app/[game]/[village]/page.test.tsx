@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { VillagePage } from 'app/[game]/[village]/page';
 import { serverPathMock } from 'mocks/game/server-mock';
 import { renderWithGameContext } from 'test-utils';
-import { describe, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 describe('Resource page', () => {
   const options = {

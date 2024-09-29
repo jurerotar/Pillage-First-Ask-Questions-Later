@@ -8,13 +8,19 @@ import type { GameEvent, GameEventType } from 'interfaces/models/events/game-eve
 import type { BuildingRequirement } from 'interfaces/models/game/building';
 import type { Tribe } from 'interfaces/models/game/tribe';
 import type { Village } from 'interfaces/models/game/village';
-import { buildingConstructionEventMock } from 'mocks/game/event-mock';
+import { createBuildingConstructionEventMock } from 'mocks/game/event-mock';
 import {
   villageWithBarracksRequirementsMetBuildingFieldsMock,
   villageWithWorkshopRequirementsMetBuildingFieldsMock,
 } from 'mocks/game/village/building-fields-mock';
 import { villageMock } from 'mocks/game/village/village-mock';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
+
+const buildingConstructionEventMock = createBuildingConstructionEventMock({
+  buildingId: 'CRANNY',
+  buildingFieldId: 38,
+  level: 2,
+});
 
 const currentVillage: Village = villageMock;
 const playerVillages: Village[] = [villageMock, villageMock];

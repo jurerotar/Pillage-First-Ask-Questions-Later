@@ -42,11 +42,11 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
 
-  const { playerId, buildingFields } =
+  const { playerId, buildingFields, buildingFieldsPresets } =
     tile.type === 'oasis-tile' ? getVillageByOasis(tile as OccupiedOasisTile)! : getVillageByCoordinates(tile.coordinates)!;
   const { faction, tribe, name } = getPlayerByPlayerId(playerId);
   const { reputationLevel } = getReputationByFaction(faction);
-  const population = calculatePopulationFromBuildingFields(buildingFields);
+  const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
 
   return (
     <>

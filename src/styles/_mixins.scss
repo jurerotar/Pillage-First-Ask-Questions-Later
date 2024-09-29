@@ -7,3 +7,29 @@
       '#{$imagePath}.jpg' type('image/jpeg'),
   );
 }
+
+@mixin horseIconColorSet($base, $eye, $neck-front, $muzzle, $mane-front, $mane-back) {
+  & :global(#base) {
+    fill: $base;
+  }
+
+  & :global(#eye_1_) {
+    fill: $eye;
+  }
+
+  & :global(#neck-front_1_) {
+    fill: $neck-front;
+  }
+
+  & :global(#muzzle_1_) {
+    fill: $muzzle;
+  }
+
+  & :global(#mane-front_1_) {
+    fill: $mane-front;
+  }
+
+  & :global(#mane-back_1_) {
+    fill: $mane-back;
+  }
+}

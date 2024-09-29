@@ -12,8 +12,7 @@ export default defineConfig({
     viteTsconfigPaths(),
     svgrPlugin({
       // svgr options: https://react-svgr.com/docs/options/
-      svgrOptions: { exportType: 'default', ref: true, svgo: false, titleProp: true },
-      include: '**/*.svg',
+      svgrOptions: { exportType: 'default', svgo: false, expandProps: 'end' },
     }),
     VitePWA({ registerType: 'autoUpdate' }),
   ],

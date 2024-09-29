@@ -37,7 +37,7 @@ const BuildingUpgradeList = () => {
           </button>
           <span className="font-medium">{t(`BUILDINGS.${event.building.id}.NAME`)}</span>
           <span className="text-orange-500">{t('GENERAL.LEVEL', { level: event.level }).toLowerCase()}</span>
-          <Countdown endsAt={isScheduledBuildingEvent(event) ? event.startAt + event.duration : event.resolvesAt} />
+          <Countdown endsAt={event.startsAt + event.duration} />
           {isScheduledBuildingEvent(event) && <span className="text-gray-400">(Building queue)</span>}
         </p>
       ))}

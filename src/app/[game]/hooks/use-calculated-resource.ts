@@ -14,18 +14,16 @@ const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId
 ]);
 
 export type CalculateCurrentAmountArgs = {
-  lastUpdatedAt: Village['lastUpdatedAt'];
-  resourceAmount: number;
+  village: Village;
+  resource: Resource;
   hourlyProduction: number;
   storageCapacity: number;
 };
 
-export const calculateCurrentAmount = ({
-  lastUpdatedAt,
-  resourceAmount,
-  hourlyProduction,
-  storageCapacity,
-}: CalculateCurrentAmountArgs) => {
+export const calculateCurrentAmount = ({ village, resource, hourlyProduction, storageCapacity }: CalculateCurrentAmountArgs) => {
+  const { resources, lastUpdatedAt } = village;
+  const resourceAmount = resources[resource];
+
   if (hourlyProduction === 0) {
     Math.min(resourceAmount, storageCapacity);
   }
@@ -45,11 +43,8 @@ export const calculateCurrentAmount = ({
 };
 
 export const useCalculatedResource = (resource: Resource) => {
-  const {
-    currentVillage: { resources, lastUpdatedAt },
-  } = useCurrentVillage();
+  const { currentVillage } = useCurrentVillage();
 
-  const resourceAmount = resources[resource];
   const { total: hourlyProduction } = useComputedEffect(resourceToResourceEffectMap.get(resource)!);
   const { total: storageCapacity } = useComputedEffect(resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity');
 
@@ -57,8 +52,8 @@ export const useCalculatedResource = (resource: Resource) => {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
 
   const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration, currentAmount } = calculateCurrentAmount({
-    lastUpdatedAt,
-    resourceAmount,
+    village: currentVillage,
+    resource,
     storageCapacity,
     hourlyProduction,
   });
@@ -107,7 +102,7 @@ export const useCalculatedResource = (resource: Resource) => {
         clearInterval(intervalId.current);
       }
     };
-  }, [lastUpdatedAt, hourlyProduction, storageCapacity, secondsForResourceGeneration]);
+  }, [currentVillage.lastUpdatedAt, hourlyProduction, storageCapacity, secondsForResourceGeneration]);
 
   return {
     calculatedResourceAmount,

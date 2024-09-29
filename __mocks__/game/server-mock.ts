@@ -57,18 +57,10 @@ export const hunServerMock: Server = {
   },
 };
 
-export const spartanServerMock: Server = {
-  ...serverMock,
-  playerConfiguration: {
-    ...serverMock.playerConfiguration,
-    tribe: 'spartans',
-  },
-};
-
-export const natarServerMock: Server = {
-  ...serverMock,
-  playerConfiguration: {
-    ...serverMock.playerConfiguration,
-    tribe: 'natars',
-  },
-};
+// export const spartanServerMock: Server = {
+//   ...serverMock,
+//   playerConfiguration: {
+//     ...serverMock.playerConfiguration,
+//     tribe: 'spartans',
+//   },
+// };

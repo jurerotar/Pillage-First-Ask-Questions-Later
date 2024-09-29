@@ -9,7 +9,7 @@ import { useUnitImprovement } from 'app/[game]/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/[game]/hooks/use-unit-research';
 import { useCurrentResources } from 'app/[game]/providers/current-resources-provider';
 import { Button } from 'app/components/buttons/button';
-import { Icon, type IconType } from 'app/components/icon';
+import { Icon, type IconType, unitIdToUnitIconMapper } from 'app/components/icon';
 import { units } from 'assets/units';
 import clsx from 'clsx';
 import type { Unit } from 'interfaces/models/game/unit';
@@ -107,8 +107,11 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
           <h2 className="text-xl">{generalT(`UNITS.${unitId}.NAME`)}</h2>
           {shouldShowUnitLevel && <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>}
         </div>
-        <div className="flex border border-red justify-center items-center ml-1 mb-1 float-right size-20 min-w-20 md:min-w-28 md:size-28">
-          image
+        <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-16">
+          <Icon
+            className="size-full"
+            type={unitIdToUnitIconMapper(unitId)}
+          />
         </div>
         <p className="text-sm text-gray-500">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aspernatur corporis, dolorum ex fuga impedit libero quo repellat

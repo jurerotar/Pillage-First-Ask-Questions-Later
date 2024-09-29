@@ -2,6 +2,7 @@ import type { Point } from 'interfaces/models/common';
 import type { Building } from 'interfaces/models/game/building';
 import type { Player } from 'interfaces/models/game/player';
 import type { Resources } from 'interfaces/models/game/resource';
+import type { OccupiedOccupiableTile } from 'interfaces/models/game/tile';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -17,6 +18,11 @@ export type ResourceFieldComposition =
   | '3339'
   | '11115'
   | '00018';
+
+type VillagePresetVillagePrefix = 'village';
+type VillagePresetResourcesPrefix = 'resources';
+
+export type VillagePresetId = `${VillagePresetVillagePrefix | VillagePresetResourcesPrefix}-${OccupiedOccupiableTile['villageSize']}`;
 
 // Resource fields only, these are predetermined on village creation and can not be changed
 export type ResourceFieldId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
@@ -42,7 +48,12 @@ export type Village = {
   lastUpdatedAt: number;
   coordinates: Point;
   resources: Resources;
+  wheatUpkeep: number;
+  // This property is only hydrated in user villages or on npc villages that differ from a preset!
   buildingFields: BuildingField[];
+  // In order to reduce amount of data we need to write, we point to a special preset array that represents "buildingFields" of npc villages,
+  // in which case buildingFields only contain the building fields unique to that villages
+  buildingFieldsPresets: VillagePresetId[];
   isCapital: boolean;
   resourceFieldComposition: ResourceFieldComposition;
 };

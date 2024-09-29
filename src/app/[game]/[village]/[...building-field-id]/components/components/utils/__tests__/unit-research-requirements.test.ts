@@ -1,7 +1,7 @@
 import { assessUnitResearchReadiness } from 'app/[game]/[village]/[...building-field-id]/components/components/utils/unit-research-requirements';
 import type { Village } from 'interfaces/models/game/village';
 import { villageMock } from 'mocks/game/village/village-mock';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 // TODO: Add more tests here
 describe('unit-research-requirements', () => {

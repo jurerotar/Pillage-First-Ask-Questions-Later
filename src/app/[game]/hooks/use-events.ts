@@ -1,22 +1,20 @@
-import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { isBuildingEvent, isScheduledBuildingEvent } from 'app/[game]/hooks/guards/event-guards';
-import { calculateCurrentAmount } from 'app/[game]/hooks/use-calculated-resource';
-import { calculateComputedEffect } from 'app/[game]/hooks/use-computed-effect';
-import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
-import { effectsCacheKey } from 'app/[game]/hooks/use-effects';
-import { useTribe } from 'app/[game]/hooks/use-tribe';
-import { getVillageById, villagesCacheKey } from 'app/[game]/hooks/use-villages';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { doesEventRequireResourceUpdate, isBuildingEvent, isScheduledBuildingEvent } from 'app/[game]/hooks/guards/event-guards';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
-} from 'app/[game]/resolvers/building-resolvers';
-import { getBuildingDataForLevel } from 'app/[game]/utils/building';
-import { doesEventRequireResourceCheck } from 'app/[game]/utils/guards/event-guards';
-import { eventFactory } from 'app/factories/event-factory';
+  removeBuildingField,
+} from 'app/[game]/hooks/resolvers/building-resolvers';
+import { troopTrainingEventResolver } from 'app/[game]/hooks/resolvers/troop-resolvers';
+import { useCurrentVillage } from 'app/[game]/hooks/use-current-village';
+import { useTribe } from 'app/[game]/hooks/use-tribe';
+import { villagesCacheKey } from 'app/[game]/hooks/use-villages';
+import { updateVillageResources } from 'app/[game]/hooks/utils/events';
+import { getBuildingDataForLevel, specialFieldIds } from 'app/[game]/utils/building';
+import { partition } from 'app/utils/common';
 import { type GameEvent, GameEventType } from 'interfaces/models/events/game-event';
-import type { Effect } from 'interfaces/models/game/effect';
 import type { Village } from 'interfaces/models/game/village';
 
 export const eventsCacheKey = 'events';
@@ -24,11 +22,42 @@ export const eventsCacheKey = 'events';
 const MAX_BUILDINGS_IN_QUEUE = 5;
 
 // To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
-export const insertEvent = (previousEvents: GameEvent[], event: GameEvent): GameEvent[] => {
-  const events: GameEvent[] = [...previousEvents];
-  const lastIndex = events.findLastIndex(({ resolvesAt }) => event.resolvesAt >= resolvesAt);
-  events.splice(lastIndex === -1 ? events.length : lastIndex + 1, 0, event);
-  return events;
+export const insertEvent = (events: GameEvent[], event: GameEvent): GameEvent[] => {
+  const lastIndex = events.findLastIndex(({ startsAt }) => event.startsAt >= startsAt);
+  return events.toSpliced(lastIndex === -1 ? events.length : lastIndex + 1, 0, event);
+};
+
+// Make sure newEvents are already sorted. We avoid sorting to optimize performance.
+export const insertBulkEvent = (events: GameEvent[], newEvents: GameEvent[]): GameEvent[] => {
+  const result = new Array(events.length + newEvents.length); // Pre-allocate the result array
+
+  // Pointer to keep track of the current index in the 'events' array
+  let i = 0;
+  // Pointer to keep track of the current index in the 'newEvents' array
+  let j = 0;
+  // Pointer to keep track of the current index in the 'result' array
+  let k = 0;
+
+  // Merge the arrays as before
+  while (i < events.length && j < newEvents.length) {
+    if (events[i].startsAt <= newEvents[j].startsAt) {
+      result[k++] = events[i++];
+    } else {
+      result[k++] = newEvents[j++];
+    }
+  }
+
+  // Copy remaining events from 'events' array
+  while (i < events.length) {
+    result[k++] = events[i++];
+  }
+
+  // Copy remaining events from 'newEvents' array
+  while (j < newEvents.length) {
+    result[k++] = newEvents[j++];
+  }
+
+  return result;
 };
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
@@ -45,99 +74,10 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
     case GameEventType.BUILDING_SCHEDULED_CONSTRUCTION: {
       return buildingScheduledConstructionEventResolver;
     }
+    case GameEventType.TROOP_TRAINING: {
+      return troopTrainingEventResolver;
+    }
   }
-};
-
-const getCurrentVillageResources = (queryClient: QueryClient, villageId: Village['id']) => {
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-  const { lastUpdatedAt, resources, id } = getVillageById(villages, villageId);
-  const { total: warehouseCapacity } = calculateComputedEffect('warehouseCapacity', effects, id);
-  const { total: granaryCapacity } = calculateComputedEffect('granaryCapacity', effects, id);
-  const { total: woodProduction } = calculateComputedEffect('woodProduction', effects, id);
-  const { total: clayProduction } = calculateComputedEffect('clayProduction', effects, id);
-  const { total: ironProduction } = calculateComputedEffect('ironProduction', effects, id);
-  const { total: wheatProduction } = calculateComputedEffect('wheatProduction', effects, id);
-
-  const { currentAmount: currentWood } = calculateCurrentAmount({
-    lastUpdatedAt,
-    resourceAmount: resources.wood,
-    hourlyProduction: woodProduction,
-    storageCapacity: warehouseCapacity,
-  });
-  const { currentAmount: currentClay } = calculateCurrentAmount({
-    lastUpdatedAt,
-    resourceAmount: resources.clay,
-    hourlyProduction: clayProduction,
-    storageCapacity: warehouseCapacity,
-  });
-  const { currentAmount: currentIron } = calculateCurrentAmount({
-    lastUpdatedAt,
-    resourceAmount: resources.iron,
-    hourlyProduction: ironProduction,
-    storageCapacity: warehouseCapacity,
-  });
-  const { currentAmount: currentWheat } = calculateCurrentAmount({
-    lastUpdatedAt,
-    resourceAmount: resources.wheat,
-    hourlyProduction: wheatProduction,
-    storageCapacity: granaryCapacity,
-  });
-
-  return {
-    currentWood,
-    currentIron,
-    currentClay,
-    currentWheat,
-    warehouseCapacity,
-    granaryCapacity,
-  };
-};
-
-const updateVillageResources = (
-  queryClient: QueryClient,
-  villageId: Village['id'],
-  [wood, clay, iron, wheat]: number[],
-  mode: 'add' | 'subtract',
-) => {
-  const { currentWood, currentClay, currentIron, currentWheat, warehouseCapacity, granaryCapacity } = getCurrentVillageResources(
-    queryClient,
-    villageId,
-  );
-
-  const newLastUpdatedAt = Date.now();
-
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
-    return prevVillages!.map((village) => {
-      if (village.id !== villageId) {
-        return village;
-      }
-
-      if (mode === 'add') {
-        return {
-          ...village,
-          resources: {
-            wood: Math.min(currentWood + wood, warehouseCapacity),
-            clay: Math.min(currentClay + clay, warehouseCapacity),
-            iron: Math.min(currentIron + iron, warehouseCapacity),
-            wheat: Math.min(currentWheat + wheat, granaryCapacity),
-          },
-          lastUpdatedAt: newLastUpdatedAt,
-        };
-      }
-
-      return {
-        ...village,
-        resources: {
-          wood: Math.max(currentWood - wood, 0),
-          clay: Math.max(currentClay - clay, 0),
-          iron: Math.max(currentIron - iron, 0),
-          wheat: Math.max(currentWheat - wheat, 0),
-        },
-        lastUpdatedAt: newLastUpdatedAt,
-      };
-    });
-  });
 };
 
 export const useEvents = () => {
@@ -157,18 +97,40 @@ export const useEvents = () => {
       // @ts-expect-error - Each event has all required properties to resolve the event, we check this on event creation
       await resolver(event, queryClient);
       queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => prevEvents!.filter(({ id: eventId }) => eventId !== id));
+
+      if (doesEventRequireResourceUpdate(event)) {
+      }
     },
   });
 
   const { mutate: cancelBuildingEvent } = useMutation<void, Error, GameEvent['id']>({
     mutationFn: async (id) => {
       queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-        const eventToRemove = prevEvents!.find((event) => event.id === id)! as GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>;
-        const { buildingFieldId, building, level, villageId } = eventToRemove;
+        const cancelledEvent = prevEvents!.find(({ id: eventId }) => eventId === id) as GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>;
 
-        const filteredEvents = prevEvents!.filter(({ id: eventId }) => eventId !== id);
+        // If there's other building upgrades of same building, we need to cancel them as well
+        const [eventsToRemove, eventsToKeep] = partition(prevEvents!, (event) => {
+          if (!isBuildingEvent(event)) {
+            return false;
+          }
 
-        const buildingEvents = filteredEvents.filter(isBuildingEvent);
+          return (
+            cancelledEvent.villageId === event.villageId &&
+            cancelledEvent.buildingFieldId === event.buildingFieldId &&
+            cancelledEvent.startsAt <= event.startsAt
+          );
+        });
+
+        const totalTimeToSubtract = eventsToRemove.reduce((accumulator, event) => {
+          return accumulator + event.duration;
+        }, 0);
+
+        // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
+        const eventToRemove = eventsToRemove.at(-1) as GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>;
+
+        const { buildingFieldId, building, level, villageId, startsAt, duration } = eventToRemove;
+
+        const buildingEvents = eventsToKeep.filter(isBuildingEvent);
 
         // Romans effectively have 2 queues, so we only limit ourselves to the relevant one
         const eligibleEvents =
@@ -182,31 +144,29 @@ export const useEvents = () => {
               })
             : buildingEvents;
 
+        // If we're building a new building, construction takes place immediately, in that case we need to remove the building
+        if (!specialFieldIds.includes(cancelledEvent.buildingFieldId) && cancelledEvent.level === 1) {
+          queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
+            return removeBuildingField(prevData!, villageId, buildingFieldId);
+          });
+        }
+
         // Event can either be scheduled or already in action
         if (isScheduledBuildingEvent(eventToRemove)) {
-          const { startAt, duration } = eventToRemove;
-
           for (const event of eligibleEvents) {
-            if (event.resolvesAt >= startAt + duration) {
-              event.resolvesAt -= duration;
-
-              if (isScheduledBuildingEvent(event)) {
-                event.startAt -= duration;
-              }
+            if (event.startsAt + event.duration >= startsAt + duration) {
+              event.duration -= totalTimeToSubtract;
             }
           }
 
-          return filteredEvents;
+          return eventsToKeep;
         }
 
-        // Events already in motion
+        // Event already in motion
         for (const event of eligibleEvents) {
-          if (event.resolvesAt >= eventToRemove.resolvesAt) {
-            const difference = eventToRemove.resolvesAt - Date.now();
-            event.resolvesAt -= difference;
-            if (isScheduledBuildingEvent(event)) {
-              event.startAt -= difference;
-            }
+          if (event.startsAt + event.duration >= startsAt + duration) {
+            const difference = startsAt + totalTimeToSubtract - Date.now();
+            event.startsAt -= difference;
           }
         }
 
@@ -216,7 +176,7 @@ export const useEvents = () => {
 
         updateVillageResources(queryClient, villageId, resourceChargeback, 'add');
 
-        return filteredEvents;
+        return eventsToKeep;
       });
     },
   });
@@ -227,13 +187,9 @@ export const useEvents = () => {
     }
 
     return event.villageId === currentVillageId;
-  }) as (
-    | GameEvent<GameEventType.BUILDING_CONSTRUCTION>
-    | GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>
-    | GameEvent<GameEventType.BUILDING_SCHEDULED_CONSTRUCTION>
-  )[];
+  }) as GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
 
-  const canAddAdditionalBuildingToQueue = currentVillageBuildingEvents.length <= MAX_BUILDINGS_IN_QUEUE;
+  const canAddAdditionalBuildingToQueue = currentVillageBuildingEvents.length < MAX_BUILDINGS_IN_QUEUE;
 
   return {
     events,
@@ -242,51 +198,4 @@ export const useEvents = () => {
     currentVillageBuildingEvents,
     canAddAdditionalBuildingToQueue,
   };
-};
-
-type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
-  onSuccess?: (queryClient: QueryClient, args: CreateEventFnArgs<T>) => void;
-  onFailure?: (queryClient: QueryClient, args: CreateEventFnArgs<T>) => void;
-};
-
-export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {
-  const { villageId, onSuccess, onFailure } = args;
-  const event: GameEvent<T> = eventFactory<T>(args);
-
-  if (doesEventRequireResourceCheck(event)) {
-    const { resourceCost } = event;
-
-    const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, villageId);
-
-    const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
-    if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
-      onFailure?.(queryClient, args);
-      return;
-    }
-
-    updateVillageResources(queryClient, villageId, resourceCost, 'subtract');
-  }
-
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (previousEvents) => insertEvent(previousEvents!, event));
-  onSuccess?.(queryClient, args);
-};
-
-type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'villageId' | 'type'>;
-
-export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
-  const queryClient = useQueryClient();
-  const { currentVillageId } = useCurrentVillage();
-
-  const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
-    mutationFn: async (args) => {
-      // @ts-expect-error - TODO: Event definition is kinda garbage, but I've no clue how to fix it
-      await createEventFn<T>(queryClient, {
-        ...args,
-        type: eventType,
-        villageId: currentVillageId,
-      });
-    },
-  });
-
-  return createEvent;
 };

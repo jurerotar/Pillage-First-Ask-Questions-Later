@@ -60,7 +60,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         </div>
         <div
           data-testid="building-overview-building-image"
-          className="flex border border-red justify-center items-center ml-1 mb-1 float-right size-20 min-w-20 md:min-w-28 md:size-28"
+          className="flex border border-red justify-center items-center mr-2 mb-2 float-left size-10 md:size-16"
         >
           image
         </div>

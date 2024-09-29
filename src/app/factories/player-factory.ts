@@ -3,7 +3,7 @@ import { prng_alea } from 'esm-seedrandom';
 import type { PRNGFunction } from 'interfaces/libs/esm-seedrandom';
 import type { Player, PlayerFaction } from 'interfaces/models/game/player';
 import type { Server } from 'interfaces/models/game/server';
-import type { Tribe } from 'interfaces/models/game/tribe';
+import type { PlayableTribe } from 'interfaces/models/game/tribe';
 
 const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 
@@ -93,30 +93,30 @@ const egyptiansNames = [
   'Tuthmosis',
 ];
 
-const spartansNames = [
-  'Spartaclus',
-  'Cleombrotus',
-  'Agesilaus',
-  'Eudamidas',
-  'Agis',
-  'Leonidas',
-  'Lysander',
-  'Astacos',
-  'Lichas',
-  'Thucydides',
-  'Damaratus',
-  'Hipparchus',
-  'Eudamidas',
-  'Clearchus',
-  'Pleistoanax',
-  'Xenares',
-  'Eucleidas',
-  'Areus',
-  'Cleomenes',
-  'Archidamus',
-];
+// const spartansNames = [
+//   'Spartaclus',
+//   'Cleombrotus',
+//   'Agesilaus',
+//   'Eudamidas',
+//   'Agis',
+//   'Leonidas',
+//   'Lysander',
+//   'Astacos',
+//   'Lichas',
+//   'Thucydides',
+//   'Damaratus',
+//   'Hipparchus',
+//   'Eudamidas',
+//   'Clearchus',
+//   'Pleistoanax',
+//   'Xenares',
+//   'Eucleidas',
+//   'Areus',
+//   'Cleomenes',
+//   'Archidamus',
+// ];
 
-const getName = (tribe: Tribe, prng: PRNGFunction): string => {
+const getName = (tribe: PlayableTribe, prng: PRNGFunction): string => {
   switch (tribe) {
     case 'romans': {
       return `${seededRandomArrayElement(prng, romanFirstNames)} ${seededRandomArrayElement(prng, romanSecondNames)}`;
@@ -133,9 +133,9 @@ const getName = (tribe: Tribe, prng: PRNGFunction): string => {
     case 'egyptians': {
       return seededRandomArrayElement(prng, egyptiansNames);
     }
-    case 'spartans': {
-      return seededRandomArrayElement(prng, spartansNames);
-    }
+    // case 'spartans': {
+    //   return seededRandomArrayElement(prng, spartansNames);
+    // }
     default: {
       return 'Missing name';
     }
@@ -148,7 +148,7 @@ type PlayerFactoryProps = {
 };
 
 const playerFactory = ({ faction, prng }: PlayerFactoryProps): Player => {
-  const tribe = seededRandomArrayElement<Tribe>(prng, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
+  const tribe = seededRandomArrayElement<PlayableTribe>(prng, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
 
   return {
     id: crypto.randomUUID(),

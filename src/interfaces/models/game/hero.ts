@@ -22,9 +22,6 @@ export type HeroStaticAttributes = {
   mountedSpeed: number;
   baseAttackPower: number;
   baseHealthRegenerationRate: number;
-  resourceProduction: number;
-  infantryTroopSpeedBonus: number;
-  mountedTroopSpeedBonus: number;
 };
 
 export type HeroSelectableAttributes = {

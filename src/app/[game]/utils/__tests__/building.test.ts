@@ -5,11 +5,12 @@ import {
 } from 'app/[game]/utils/building';
 import { newVillageBuildingFieldsMock } from 'mocks/game/village/building-fields-mock';
 import { resourceFields00018Mock, resourceFields4446Mock, resourceFields11115Mock } from 'mocks/game/village/resource-fields-mock';
+import { describe, expect, test } from 'vitest';
 
 describe('Building utils', () => {
   describe('calculatePopulationFromBuildingFields', () => {
     test('New village should have a population of 3', () => {
-      expect(calculatePopulationFromBuildingFields(newVillageBuildingFieldsMock)).toBe(3);
+      expect(calculatePopulationFromBuildingFields(newVillageBuildingFieldsMock, [])).toBe(3);
     });
   });
 

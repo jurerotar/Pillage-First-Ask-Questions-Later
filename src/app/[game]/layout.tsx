@@ -130,8 +130,10 @@ const DesktopNavigation = () => {
 };
 
 const MobileResourcesSection = () => {
-  const { currentVillage } = useCurrentVillage();
-  const population = calculatePopulationFromBuildingFields(currentVillage.buildingFields);
+  const {
+    currentVillage: { buildingFields, buildingFieldsPresets },
+  } = useCurrentVillage();
+  const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
 
   return (
     <div className="flex w-full bg-blue-500 bg-gradient-to-b from-[#101010] to-[#484848]">
