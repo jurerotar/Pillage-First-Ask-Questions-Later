@@ -19,6 +19,7 @@ const GameErrorBoundary = lazy(async () => ({ default: (await import('app/[game]
 
 // Design system
 const IconsPage = lazy(async () => ({ default: (await import('app/[design-system]/[icons]/page')).IconsPage }));
+const ColorPickerPage = lazy(async () => ({ default: (await import('app/[design-system]/[icons]/[color-picker]/page')).ColorPickerPage }));
 
 const routes: RouteObject[] = [
   // Public paths
@@ -38,8 +39,16 @@ const routes: RouteObject[] = [
     children: [
       {
         path: 'icons',
-        element: <IconsPage />,
-        index: true,
+        children: [
+          {
+            element: <IconsPage />,
+            index: true,
+          },
+          {
+            path: 'color-picker',
+            element: <ColorPickerPage />,
+          },
+        ],
       },
     ],
   },
