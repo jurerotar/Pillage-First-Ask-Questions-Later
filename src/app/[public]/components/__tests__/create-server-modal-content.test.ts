@@ -3,7 +3,7 @@ import { initializeServer } from 'app/[public]/components/create-server-modal-co
 import type { OccupiedOasisTile, Tile } from 'interfaces/models/game/tile';
 import { serverMock } from 'mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
-import 'packages/vitest-opfs-mock';
+import 'opfs-mock';
 import '@vitest/web-worker';
 import { QueryClient, hydrate } from '@tanstack/react-query';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
