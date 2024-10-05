@@ -316,7 +316,7 @@ const romanUnits: Unit[] = [
     ],
   },
   {
-    id: 'FIRE_CATAPULT',
+    id: 'ROMAN_CATAPULT',
     baseRecruitmentCost: [950, 1350, 600, 90],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -722,7 +722,7 @@ const gaulUnits: Unit[] = [
     ],
   },
   {
-    id: 'TREBUCHET',
+    id: 'GAUL_CATAPULT',
     baseRecruitmentCost: [960, 1450, 630, 90],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -1128,7 +1128,7 @@ const teutonUnits: Unit[] = [
     ],
   },
   {
-    id: 'ONAGER',
+    id: 'TEUTONIC_CATAPULT',
     baseRecruitmentCost: [900, 1200, 600, 60],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -1531,7 +1531,7 @@ const egyptianUnits: Unit[] = [
     ],
   },
   {
-    id: 'STONE_CATAPULT',
+    id: 'EGYPTIAN_CATAPULT',
     baseRecruitmentCost: [980, 1510, 660, 100],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -1938,7 +1938,7 @@ const hunUnits: Unit[] = [
     ],
   },
   {
-    id: 'MANGONEL',
+    id: 'HUN_CATAPULT',
     baseRecruitmentCost: [950, 1280, 620, 60],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -2338,7 +2338,7 @@ const spartanUnits: Unit[] = [
     ],
   },
   {
-    id: 'BALLISTA',
+    id: 'SPARTAN_CATAPULT',
     baseRecruitmentCost: [550, 1240, 825, 125],
     baseRecruitmentTime: 0,
     cropConsumption: 6,
@@ -2745,7 +2745,7 @@ const natarianUnits: Unit[] = [
     upgradeDurationPerLevel: null,
   },
   {
-    id: 'WARELEPHANT',
+    id: 'NATARIAN_RAM',
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 4,
@@ -2767,7 +2767,7 @@ const natarianUnits: Unit[] = [
     upgradeDurationPerLevel: null,
   },
   {
-    id: 'NATARIAN_BALLISTA',
+    id: 'NATARIAN_CATAPULT',
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 5,

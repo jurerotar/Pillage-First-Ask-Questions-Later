@@ -9,7 +9,7 @@ export type RomanUnitId =
   | 'EQUITES_IMPERATORIS'
   | 'EQUITES_CAESARIS'
   | 'ROMAN_RAM'
-  | 'FIRE_CATAPULT'
+  | 'ROMAN_CATAPULT'
   | 'SENATOR'
   | 'ROMAN_SETTLER';
 
@@ -21,7 +21,7 @@ export type GaulUnitId =
   | 'DRUIDRIDER'
   | 'HAEDUAN'
   | 'GAUL_RAM'
-  | 'TREBUCHET'
+  | 'GAUL_CATAPULT'
   | 'CHIEFTAIN'
   | 'GAUL_SETTLER';
 
@@ -33,7 +33,7 @@ export type TeutonUnitId =
   | 'PALADIN'
   | 'TEUTONIC_KNIGHT'
   | 'TEUTONIC_RAM'
-  | 'ONAGER'
+  | 'TEUTONIC_CATAPULT'
   | 'CHIEF'
   | 'TEUTONIC_SETTLER';
 
@@ -45,7 +45,7 @@ export type HunUnitId =
   | 'MARKSMAN'
   | 'MARAUDER'
   | 'HUN_RAM'
-  | 'MANGONEL'
+  | 'HUN_CATAPULT'
   | 'LOGADES'
   | 'HUN_SETTLER';
 
@@ -57,7 +57,7 @@ export type EgyptianUnitId =
   | 'ANHUR_GUARD'
   | 'RESHEPH_CHARIOT'
   | 'EGYPTIAN_RAM'
-  | 'STONE_CATAPULT'
+  | 'EGYPTIAN_CATAPULT'
   | 'NOMARCH'
   | 'EGYPTIAN_SETTLER';
 
@@ -69,7 +69,7 @@ export type SpartanUnitId =
   | 'ELPIDA_RIDER'
   | 'CORINTHIAN_CRUSHER'
   | 'SPARTAN_RAM'
-  | 'BALLISTA'
+  | 'SPARTAN_CATAPULT'
   | 'EPHOR'
   | 'SPARTAN_SETTLER';
 
@@ -80,8 +80,8 @@ export type NatarUnitId =
   | 'BIRDS_OF_PREY'
   | 'AXERIDER'
   | 'NATARIAN_KNIGHT'
-  | 'WARELEPHANT'
-  | 'NATARIAN_BALLISTA'
+  | 'NATARIAN_RAM'
+  | 'NATARIAN_CATAPULT'
   | 'NATARIAN_EMPEROR'
   | 'NATARIAN_SETTLER';
 

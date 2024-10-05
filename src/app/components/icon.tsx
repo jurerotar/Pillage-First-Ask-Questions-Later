@@ -157,57 +157,63 @@ const IconTroopsCropConsumption = lazy(async () => ({
 }));
 
 // Roman troops
-const IconUnitRomanLegionnaire = lazy(async () => ({
+const IconUnitRomansLegionnaire = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-legionnaire')).IconLegionnaire,
 }));
-const IconUnitRomanPraetorian = lazy(async () => ({
+const IconUnitRomansPraetorian = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-praetorian')).IconPraetorian,
 }));
-const IconUnitRomanImperian = lazy(async () => ({
+const IconUnitRomansImperian = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-imperian')).IconImperian,
 }));
-const IconUnitRomanEquitesLegati = lazy(async () => ({
+const IconUnitRomansEquitesLegati = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-equites-legati')).IconEquitesLegati,
 }));
-const IconUnitRomanEquitesImperatoris = lazy(async () => ({
+const IconUnitRomansEquitesImperatoris = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-equites-imperatoris')).IconEquitesImperatoris,
 }));
-const IconUnitRomanEquitesCaesaris = lazy(async () => ({
+const IconUnitRomansEquitesCaesaris = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-equites-caesaris')).IconEquitesCaesaris,
 }));
-const IconUnitRomanRomanRam = lazy(async () => ({
+const IconUnitRomansRomanRam = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-roman-ram')).IconRomanRam,
 }));
-const IconUnitRomanFireCatapult = lazy(async () => ({
-  default: (await import('app/components/icons/troops/romans/icon-fire-catapult')).IconFireCatapult,
+const IconUnitRomansRomanCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/romans/icon-roman-catapult')).IconRomanCatapult,
 }));
-const IconUnitRomanSenator = lazy(async () => ({
+const IconUnitRomansSenator = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-senator')).IconSenator,
 }));
-const IconUnitRomanRomanSettler = lazy(async () => ({
+const IconUnitRomansRomanSettler = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-roman-settler')).IconRomanSettler,
 }));
 
 // Gaul troops
-const IconUnitGaulPathfinder = lazy(async () => ({
+const IconUnitGaulsPathfinder = lazy(async () => ({
   default: (await import('app/components/icons/troops/gauls/icon-pathfinder')).IconPathfinder,
 }));
-const IconUnitGaulTheutatesThunder = lazy(async () => ({
+const IconUnitGaulsTheutatesThunder = lazy(async () => ({
   default: (await import('app/components/icons/troops/gauls/icon-theutates-thunder')).IconTheutatesThunder,
 }));
-const IconUnitGaulDruidrider = lazy(async () => ({
+const IconUnitGaulsDruidrider = lazy(async () => ({
   default: (await import('app/components/icons/troops/gauls/icon-druidrider')).IconDruidrider,
 }));
-const IconUnitGaulHaeduan = lazy(async () => ({
+const IconUnitGaulsHaeduan = lazy(async () => ({
   default: (await import('app/components/icons/troops/gauls/icon-haeduan')).IconHaeduan,
+}));
+const IconUnitGaulGaulCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/gauls/icon-gaul-catapult')).IconGaulCatapult,
 }));
 
 // Teuton troops
-const IconUnitTeutonPaladin = lazy(async () => ({
+const IconUnitTeutonsPaladin = lazy(async () => ({
   default: (await import('app/components/icons/troops/teutons/icon-paladin')).IconPaladin,
 }));
-const IconUnitTeutonTeutonicKnight = lazy(async () => ({
+const IconUnitTeutonsTeutonicKnight = lazy(async () => ({
   default: (await import('app/components/icons/troops/teutons/icon-teutonic-knight')).IconTeutonicKnight,
+}));
+const IconUnitTeutonsTeutonicCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-teutonic-catapult')).IconTeutonicCatapult,
 }));
 
 // Egyptian troops
@@ -219,6 +225,9 @@ const IconUnitEgyptiansAnhurGuard = lazy(async () => ({
 }));
 const IconUnitEgyptiansReshephChariot = lazy(async () => ({
   default: (await import('app/components/icons/troops/egyptians/icon-resheph-chariot')).IconReshephChariot,
+}));
+const IconUnitEgyptiansEgyptianCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/egyptians/icon-egyptian-catapult')).IconEgyptianCatapult,
 }));
 
 // Hun troops
@@ -234,6 +243,9 @@ const IconUnitHunMarksman = lazy(async () => ({
 const IconUnitHunMarauder = lazy(async () => ({
   default: (await import('app/components/icons/troops/huns/icon-marauder')).IconMarauder,
 }));
+const IconUnitHunHunCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/huns/icon-hun-catapult')).IconHunCatapult,
+}));
 
 // Natar troops
 const IconUnitNatarAxerider = lazy(async () => ({
@@ -241,6 +253,9 @@ const IconUnitNatarAxerider = lazy(async () => ({
 }));
 const IconUnitNatarNatarianKnight = lazy(async () => ({
   default: (await import('app/components/icons/troops/natars/icon-natarian-knight')).IconNatarianKnight,
+}));
+const IconUnitNatarNatarianCatapult = lazy(async () => ({
+  default: (await import('app/components/icons/troops/natars/icon-natarian-catapult')).IconNatarianCatapult,
 }));
 
 // Nature troops
@@ -317,15 +332,19 @@ type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
 type RomanTroopIconType = UpperCaseToCamelCase<RomanUnitId>;
 
-type GaulTroopIconType = UpperCaseToCamelCase<PickLiteral<GaulUnitId, 'PATHFINDER' | 'THEUTATES_THUNDER' | 'DRUIDRIDER' | 'HAEDUAN'>>;
+type GaulTroopIconType = UpperCaseToCamelCase<
+  PickLiteral<GaulUnitId, 'PATHFINDER' | 'THEUTATES_THUNDER' | 'DRUIDRIDER' | 'HAEDUAN' | 'GAUL_CATAPULT'>
+>;
 
-type TeutonTroopIconType = UpperCaseToCamelCase<PickLiteral<TeutonUnitId, 'PALADIN' | 'TEUTONIC_KNIGHT'>>;
+type TeutonTroopIconType = UpperCaseToCamelCase<PickLiteral<TeutonUnitId, 'PALADIN' | 'TEUTONIC_KNIGHT' | 'TEUTONIC_CATAPULT'>>;
 
-type HunTroopIconType = UpperCaseToCamelCase<PickLiteral<HunUnitId, 'SPOTTER' | 'STEPPE_RIDER' | 'MARKSMAN' | 'MARAUDER'>>;
+type HunTroopIconType = UpperCaseToCamelCase<PickLiteral<HunUnitId, 'SPOTTER' | 'STEPPE_RIDER' | 'MARKSMAN' | 'MARAUDER' | 'HUN_CATAPULT'>>;
 
-type EgyptianTroopIconType = UpperCaseToCamelCase<PickLiteral<EgyptianUnitId, 'SOPDU_EXPLORER' | 'ANHUR_GUARD' | 'RESHEPH_CHARIOT'>>;
+type EgyptianTroopIconType = UpperCaseToCamelCase<
+  PickLiteral<EgyptianUnitId, 'SOPDU_EXPLORER' | 'ANHUR_GUARD' | 'RESHEPH_CHARIOT' | 'EGYPTIAN_CATAPULT'>
+>;
 
-type NatarTroopIconType = UpperCaseToCamelCase<PickLiteral<NatarUnitId, 'AXERIDER' | 'NATARIAN_KNIGHT'>>;
+type NatarTroopIconType = UpperCaseToCamelCase<PickLiteral<NatarUnitId, 'AXERIDER' | 'NATARIAN_KNIGHT' | 'NATARIAN_CATAPULT'>>;
 
 type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
 
@@ -411,41 +430,46 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX
   attack: IconAttack,
 
   // Roman troops
-  legionnaire: IconUnitRomanLegionnaire,
-  praetorian: IconUnitRomanPraetorian,
-  imperian: IconUnitRomanImperian,
-  equitesLegati: IconUnitRomanEquitesLegati,
-  equitesImperatoris: IconUnitRomanEquitesImperatoris,
-  equitesCaesaris: IconUnitRomanEquitesCaesaris,
-  romanRam: IconUnitRomanRomanRam,
-  fireCatapult: IconUnitRomanFireCatapult,
-  senator: IconUnitRomanSenator,
-  romanSettler: IconUnitRomanRomanSettler,
+  legionnaire: IconUnitRomansLegionnaire,
+  praetorian: IconUnitRomansPraetorian,
+  imperian: IconUnitRomansImperian,
+  equitesLegati: IconUnitRomansEquitesLegati,
+  equitesImperatoris: IconUnitRomansEquitesImperatoris,
+  equitesCaesaris: IconUnitRomansEquitesCaesaris,
+  romanRam: IconUnitRomansRomanRam,
+  romanCatapult: IconUnitRomansRomanCatapult,
+  senator: IconUnitRomansSenator,
+  romanSettler: IconUnitRomansRomanSettler,
 
   // Gaul troops
-  pathfinder: IconUnitGaulPathfinder,
-  theutatesThunder: IconUnitGaulTheutatesThunder,
-  druidrider: IconUnitGaulDruidrider,
-  haeduan: IconUnitGaulHaeduan,
+  pathfinder: IconUnitGaulsPathfinder,
+  theutatesThunder: IconUnitGaulsTheutatesThunder,
+  druidrider: IconUnitGaulsDruidrider,
+  haeduan: IconUnitGaulsHaeduan,
+  gaulCatapult: IconUnitGaulGaulCatapult,
 
   // Teuton troops
-  paladin: IconUnitTeutonPaladin,
-  teutonicKnight: IconUnitTeutonTeutonicKnight,
+  paladin: IconUnitTeutonsPaladin,
+  teutonicKnight: IconUnitTeutonsTeutonicKnight,
+  teutonicCatapult: IconUnitTeutonsTeutonicCatapult,
 
   // Egyptian troops
   sopduExplorer: IconUnitEgyptiansSopduExplorer,
   anhurGuard: IconUnitEgyptiansAnhurGuard,
   reshephChariot: IconUnitEgyptiansReshephChariot,
+  egyptianCatapult: IconUnitEgyptiansEgyptianCatapult,
 
   // Hun troops
   spotter: IconUnitHunSpotter,
   steppeRider: IconUnitHunSteppeRider,
   marksman: IconUnitHunMarksman,
   marauder: IconUnitHunMarauder,
+  hunCatapult: IconUnitHunHunCatapult,
 
   // Natar troops
   axerider: IconUnitNatarAxerider,
   natarianKnight: IconUnitNatarNatarianKnight,
+  natarianCatapult: IconUnitNatarNatarianCatapult,
 
   // Nature
   rat: IconUnitNatureRat,

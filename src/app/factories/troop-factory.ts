@@ -1,12 +1,12 @@
-import type { Troop } from 'interfaces/models/game/troop';
-import type { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import { seededRandomIntFromInterval } from 'app/utils/common';
+import { prng_alea } from 'esm-seedrandom';
+import type { Player } from 'interfaces/models/game/player';
+import type { Resource, ResourceCombination } from 'interfaces/models/game/resource';
 import type { Server } from 'interfaces/models/game/server';
 import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'interfaces/models/game/tile';
-import type { Player } from 'interfaces/models/game/player';
-import { prng_alea } from 'esm-seedrandom';
-import type { NatureUnitId, UnitId } from 'interfaces/models/game/unit';
 import type { Tribe } from 'interfaces/models/game/tribe';
+import type { Troop } from 'interfaces/models/game/troop';
+import type { NatureUnitId, UnitId } from 'interfaces/models/game/unit';
 
 type GenerateTroopsArgs = {
   server: Server;
@@ -123,7 +123,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
           ['DRUIDRIDER', 5, 40],
           ['HAEDUAN', 5, 40],
           ['GAUL_RAM', 20, 100],
-          ['TREBUCHET', 20, 50],
+          ['GAUL_CATAPULT', 20, 50],
         ],
       ],
     ]),
@@ -161,7 +161,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
           ['PRAETORIAN', 5, 25],
           ['EQUITES_LEGATI', 5, 10],
           ['ROMAN_RAM', 20, 100],
-          ['FIRE_CATAPULT', 20, 50],
+          ['ROMAN_CATAPULT', 20, 50],
         ],
       ],
     ]),
@@ -199,7 +199,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
           ['SPEARMAN', 5, 30],
           ['SCOUT', 5, 10],
           ['TEUTONIC_RAM', 20, 100],
-          ['ONAGER', 20, 50],
+          ['TEUTONIC_CATAPULT', 20, 50],
         ],
       ],
     ]),
@@ -237,7 +237,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
           ['BOWMAN', 5, 25],
           ['SPOTTER', 5, 10],
           ['HUN_RAM', 20, 100],
-          ['MANGONEL', 20, 50],
+          ['HUN_CATAPULT', 20, 50],
         ],
       ],
     ]),
@@ -275,7 +275,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<OccupiedOccupiableTi
           ['ASH_WARDEN', 5, 20],
           ['SOPDU_EXPLORER', 5, 10],
           ['EGYPTIAN_RAM', 20, 100],
-          ['STONE_CATAPULT', 20, 50],
+          ['EGYPTIAN_CATAPULT', 20, 50],
         ],
       ],
     ]),

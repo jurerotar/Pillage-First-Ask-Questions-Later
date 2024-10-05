@@ -1,4 +1,4 @@
-import IconSharedHorse from '../../_shared/icon-horse-shared.svg?react';
+import IconSharedHorse from 'graphics/icon-horse-shared.svg?react';
 import styles from './teutons.module.scss';
 
 export const IconPaladin = () => {

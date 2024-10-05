@@ -26,7 +26,8 @@
       "interfaces/*": ["src/interfaces/*"],
       "assets/*": ["src/assets/*"],
       "test-utils": ["src/test-utils"],
-      "mocks/*": ["__mocks__/*"]
+      "mocks/*": ["__mocks__/*"],
+      "graphics/*": ["graphics/*"]
     }
   },
   "exclude": ["node_modules", "dist", "coverage", "public"],

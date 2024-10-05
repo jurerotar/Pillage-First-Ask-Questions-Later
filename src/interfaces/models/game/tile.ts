@@ -16,6 +16,7 @@ export type OasisResourceBonus = {
 export type OasisTile = BaseTile & {
   type: 'oasis-tile';
   oasisResourceBonus: OasisResourceBonus[];
+  // TODO: Just these properties take up ~ 700KB of size, should probably rename in the future
   graphics: {
     oasisResource: Resource;
     // Different oasis groups have different graphics

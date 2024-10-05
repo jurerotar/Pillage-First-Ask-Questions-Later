@@ -61,6 +61,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      graphics: path.resolve(__dirname, 'graphics'),
       locales: path.resolve(__dirname, 'locales'),
       app: path.resolve(__dirname, 'src/app'),
       interfaces: path.resolve(__dirname, 'src/interfaces'),

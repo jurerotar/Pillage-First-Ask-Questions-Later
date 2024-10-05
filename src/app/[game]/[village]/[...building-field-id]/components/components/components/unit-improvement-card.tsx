@@ -23,12 +23,11 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
   const { wood, clay, iron, wheat } = useCurrentResources();
   const { currentVillage } = useCurrentVillage();
 
-  const { tier } = units.find(({ id }) => id === unitId)!;
+  const { tier, upgradeCostPerLevel } = units.find(({ id }) => id === unitId)!;
   const sameTierMercenaryUnits = units.filter((unit) => tier === unit.tier && tribe !== unit.tribe);
 
   const { level: upgradeLevel } = unitImprovements.find(({ tier: researchTier }) => researchTier === tier)!;
 
-  const { upgradeCostPerLevel } = units.find(({ id }) => id === unitId)!;
   const isMaxLevel = upgradeLevel === 20;
 
   // @ts-expect-error - this error will automatically be resolved when all units have upgradeCostPerLevel filled
@@ -54,7 +53,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
           <h2 className="text-xl">{t(`UNITS.${unitId}.NAME`, unitId)}</h2>
           <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: upgradeLevel })}</span>
         </div>
-        <div className="flex justify-center items-center mr-1 mb-1 float-right size-10 md:size-16">
+        <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
           <Icon
             className="size-full"
             type={unitIdToUnitIconMapper(unitId)}
@@ -65,8 +64,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
           <ul className="flex flex-wrap gap-1">
             {sameTierMercenaryUnits.map(({ id }, index) => (
               <li key={id}>
-                {id}
-                {/* {t(`UNITS.${id}.NAME`, id)} */}
+                {t(`UNITS.${id}.NAME`, id)}
                 {index !== sameTierMercenaryUnits.length - 1 && ','}
               </li>
             ))}

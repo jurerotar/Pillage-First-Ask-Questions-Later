@@ -107,7 +107,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
           <h2 className="text-xl">{generalT(`UNITS.${unitId}.NAME`)}</h2>
           {shouldShowUnitLevel && <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>}
         </div>
-        <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-16">
+        <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
           <Icon
             className="size-full"
             type={unitIdToUnitIconMapper(unitId)}
