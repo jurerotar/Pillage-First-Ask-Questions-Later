@@ -14,7 +14,10 @@ The game leverages browser-native technologies to save your progress and data be
 Echoes of Travian requires [Node.js](https://nodejs.org/en/download/package-manager) version 20 or higher.
 
 ```bash
+# Install dependencies
 npm install
+
+# Starts a development server with hot-reloading
 npm run dev
 ```
 
