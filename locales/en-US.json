@@ -1,0 +1,616 @@
+{
+  "APP": {
+    "GAME": {
+      "MAP": {
+        "META": {
+          "TITLE": "Map",
+          "DESCRIPTION": ""
+        },
+        "OASIS_TILE": {
+          "OCCUPIED_OASIS": "Occupied oasis",
+          "UNOCCUPIED_OASIS": "Unoccupied oasis",
+          "WILDERNESS": "Wilderness"
+        },
+        "OCCUPIABLE_TILE": {
+          "UNOCCUPIED_TILE": "Abandoned valley"
+        },
+        "MAP_CONTROLS": {
+          "MAGNIFICATION_INCREASE": "Zoom in",
+          "MAGNIFICATION_DECREASE": "Zoom out",
+          "TOGGLE_REPUTATION_DISPLAY": "Toggle faction reputation display",
+          "TOGGLE_OASIS_ICON_DISPLAY": "Toggle oasis resource icons display",
+          "TOGGLE_TREASURES_DISPLAY": "Toggle treasure villages icons display",
+          "TOGGLE_TROOP_MOVEMENTS_DISPLAY": "Toggle troop movements display",
+          "TOGGLE_WHEAT_FIELDS_ICON_DISPLAY": "Toggle wheat field icons display",
+          "TOGGLE_TILE_TOOLTIP_DISPLAY": "Toggle tooltip popups"
+        }
+      },
+      "VILLAGE": {
+        "META": {
+          "TITLE": "Village",
+          "DESCRIPTION": ""
+        },
+        "BUILDING_FIELD": {
+          "VILLAGE_LINK": "Village",
+          "EMPTY": "Building site",
+          "CURRENTLY_UPGRADING": "Currently upgrading to level {{level}}",
+          "NEXT_LEVEL_COST": "Cost for upgrading building to level {{level}}:"
+        }
+      },
+      "BUILDING_FIELD": {
+        "BUILDING_CONSTRUCTION": {
+          "TITLE": "Construct new building",
+          "AVAILABLE_BUILDINGS": "Available buildings",
+          "CURRENTLY_NON-AVAILABLE_BUILDINGS": "Buildable in the future",
+          "NO_AVAILABLE_BUILDINGS": "No buildings available",
+          "TABS": {
+            "INFRASTRUCTURE": "Infrastructure",
+            "MILITARY": "Military",
+            "RESOURCES": "Resources"
+          }
+        },
+        "BUILDING_OVERVIEW": {
+          "BENEFITS": {
+            "TITLE": "Benefits at level {{level}}"
+          },
+          "COSTS": {
+            "TITLE": "Cost to upgrade to level {{level}}"
+          },
+          "DURATION": {
+            "TITLE": "Building duration to level {{level}}"
+          }
+        },
+        "BUILDING_ACTIONS": {
+          "TITLE": "Available actions",
+          "CONSTRUCT_BUILDING": "Construct",
+          "UPGRADE_BUILDING": "Upgrade to level {{level}}",
+          "DOWNGRADE_BUILDING": "Downgrade to level {{level}}",
+          "DEMOLISH_BUILDING": "Demolish completely"
+        },
+        "BUILDING_DETAILS": {
+          "TITLE": "{{buildingName}} - level {{level}}",
+          "TABS": {
+            "DEFAULT": "Overview",
+            "UPGRADE_COST": "Upgrade cost table",
+            "ACADEMY": {
+              "UNIT_IMPROVEMENT": "Unit improvement"
+            },
+            "MARKETPLACE": {
+              "TRADE_ROUTES": "Trade routes"
+            },
+            "PALACE": {
+              "LOYALTY": "Loyalty",
+              "EXPANSION": "Expansion"
+            },
+            "RALLY_POINT": {
+              "SEND_TROOPS": "Send troops",
+              "FARM_LIST": "Farm list",
+              "SIMULATOR": "Simulator"
+            },
+            "TREASURY": {
+              "UNCONQUERED_ARTIFACTS": "Unconquered artifacts"
+            }
+          },
+          "TAB_PANELS": {
+            "ACADEMY": {
+              "UNIT_RESEARCH": {
+                "TITLE": "",
+                "DESCRIPTION": "",
+                "REQUIREMENTS": {
+                  "TITLE": "Requirements"
+                },
+                "ATTRIBUTES": {
+                  "TITLE": "Attributes"
+                },
+                "UNIT_COST": {
+                  "TITLE": "Unit cost"
+                },
+                "RESEARCH": {
+                  "HAS_RESEARCHED_TITLE": "Research",
+                  "HAS_NOT_RESEARCHED_TITLE": "Research cost",
+                  "UNIT_RESEARCHED": "{{unit}} researched"
+                },
+                "ACTIONS": {
+                  "TITLE": "Available actions",
+                  "BUTTON": "Research {{unit}}"
+                }
+              },
+              "UNIT_IMPROVEMENT": {
+                "TITLE": "Unit improvement",
+                "DESCRIPTION": ""
+              }
+            },
+            "BARRACKS": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "BREWERY": {
+              "CELEBRATIONS": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "GREAT_BARRACKS": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "GREAT_STABLE": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "HEROS_MANSION": {
+              "OASIS": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "HOSPITAL": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "MARKETPLACE": {
+              "TRADE": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "TRADE_ROUTES": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "PALACE": {
+              "SETTLER_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "LOYALTY": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "EXPANSION": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "RALLY_POINT": {
+              "SEND_TROOPS": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "FARM_LIST": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "SIMULATOR": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "STABLE": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            },
+            "TREASURY": {
+              "VILLAGE_ARTIFACT": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              },
+              "UNCONQUERED_ARTIFACTS": {
+                "TITLE": "Unconquered artifacts",
+                "DESCRIPTION": ""
+              }
+            },
+            "WORKSHOP": {
+              "TROOP_TRAINING": {
+                "TITLE": "",
+                "DESCRIPTION": ""
+              }
+            }
+          }
+        }
+      },
+      "RESOURCES": {
+        "META": {
+          "TITLE": "Resources",
+          "DESCRIPTION": ""
+        }
+      },
+      "REPORTS": {
+        "META": {
+          "TITLE": "Reports",
+          "DESCRIPTION": ""
+        }
+      }
+    },
+    "PUBLIC": {
+      "INDEX": {
+        "META": {
+          "TITLE": "Homepage",
+          "DESCRIPTION": ""
+        }
+      }
+    }
+  },
+  "META": {
+    "SLOGAN": "Browser strategy game"
+  },
+  "UNITS": {
+    "LEGIONNAIRE": { "NAME": "Legionnaire", "DESCRIPTION": "" },
+    "PRAETORIAN": { "NAME": "Praetorian", "DESCRIPTION": "" },
+    "IMPERIAN": { "NAME": "Imperian", "DESCRIPTION": "" },
+    "EQUITES_LEGATI": { "NAME": "Equites Legati", "DESCRIPTION": "" },
+    "EQUITES_IMPERATORIS": { "NAME": "Equites Imperatoris", "DESCRIPTION": "" },
+    "EQUITES_CAESARIS": { "NAME": "Equites Caesaris", "DESCRIPTION": "" },
+    "ROMAN_RAM": { "NAME": "Roman ram", "DESCRIPTION": "" },
+    "ROMAN_CATAPULT": { "NAME": "Roman catapult", "DESCRIPTION": "" },
+    "SENATOR": { "NAME": "Senator", "DESCRIPTION": "" },
+    "ROMAN_SETTLER": { "NAME": "Roman Settler", "DESCRIPTION": "" },
+    "MACEMAN": { "NAME": "Maceman", "DESCRIPTION": "" },
+    "SPEARMAN": { "NAME": "Spearman", "DESCRIPTION": "" },
+    "AXEMAN": { "NAME": "Axeman", "DESCRIPTION": "" },
+    "SCOUT": { "NAME": "Scout", "DESCRIPTION": "" },
+    "PALADIN": { "NAME": "Paladin", "DESCRIPTION": "" },
+    "TEUTONIC_KNIGHT": { "NAME": "Teutonic Knight", "DESCRIPTION": "" },
+    "TEUTONIC_RAM": { "NAME": "Teutonic ram", "DESCRIPTION": "" },
+    "TEUTONIC_CATAPULT": { "NAME": "Teutonic catapult", "DESCRIPTION": "" },
+    "CHIEF": { "NAME": "Chief", "DESCRIPTION": "" },
+    "TEUTONIC_SETTLER": { "NAME": "Teutonic Settler", "DESCRIPTION": "" },
+    "PHALANX": { "NAME": "Phalanx", "DESCRIPTION": "" },
+    "SWORDSMAN": { "NAME": "Swordsman", "DESCRIPTION": "" },
+    "PATHFINDER": { "NAME": "Pathfinder", "DESCRIPTION": "" },
+    "THEUTATES_THUNDER": { "NAME": "Theutates Thunder", "DESCRIPTION": "" },
+    "DRUIDRIDER": { "NAME": "Druidrider", "DESCRIPTION": "" },
+    "HAEDUAN": { "NAME": "Haeduan", "DESCRIPTION": "" },
+    "GAUL_RAM": { "NAME": "Gaul ram", "DESCRIPTION": "" },
+    "GAUL_CATAPULT": { "NAME": "Gaul catapult", "DESCRIPTION": "" },
+    "CHIEFTAIN": { "NAME": "Chieftain", "DESCRIPTION": "" },
+    "GAUL_SETTLER": { "NAME": "Gaul Settler", "DESCRIPTION": "" },
+    "MERCENARY": { "NAME": "Mercenary", "DESCRIPTION": "" },
+    "BOWMAN": { "NAME": "Bowman", "DESCRIPTION": "" },
+    "SPOTTER": { "NAME": "Spotter", "DESCRIPTION": "" },
+    "STEPPE_RIDER": { "NAME": "Steppe Rider", "DESCRIPTION": "" },
+    "MARKSMAN": { "NAME": "Marksman", "DESCRIPTION": "" },
+    "MARAUDER": { "NAME": "Marauder", "DESCRIPTION": "" },
+    "HUN_RAM": { "NAME": "Hun ram", "DESCRIPTION": "" },
+    "HUN_CATAPULT": { "NAME": "Hun catapult", "DESCRIPTION": "" },
+    "LOGADES": { "NAME": "Logades", "DESCRIPTION": "" },
+    "HUN_SETTLER": { "NAME": "Hun Settler", "DESCRIPTION": "" },
+    "SLAVE_MILITIA": { "NAME": "Slave Militia", "DESCRIPTION": "" },
+    "ASH_WARDEN": { "NAME": "Ash Warden", "DESCRIPTION": "" },
+    "KHOPESH_WARRIOR": { "NAME": "Khopesh Warrior", "DESCRIPTION": "" },
+    "SOPDU_EXPLORER": { "NAME": "Sopdu Explorer", "DESCRIPTION": "" },
+    "ANHUR_GUARD": { "NAME": "Anhur Guard", "DESCRIPTION": "" },
+    "RESHEPH_CHARIOT": { "NAME": "Resheph Chariot", "DESCRIPTION": "" },
+    "EGYPTIAN_RAM": { "NAME": "Egyptian ram", "DESCRIPTION": "" },
+    "EGYPTIAN_CATAPULT": { "NAME": "Egyptian catapult", "DESCRIPTION": "" },
+    "NOMARCH": { "NAME": "Nomarch", "DESCRIPTION": "" },
+    "EGYPTIAN_SETTLER": { "NAME": "Egyptian Settler", "DESCRIPTION": "" },
+    "HOPLITE": { "NAME": "Hoplite", "DESCRIPTION": "" },
+    "SENTINEL": { "NAME": "Sentinel", "DESCRIPTION": "" },
+    "SHIELDSMAN": { "NAME": "Shieldsman", "DESCRIPTION": "" },
+    "TWINSTEEL_THERION": { "NAME": "Twinsteel Therion", "DESCRIPTION": "" },
+    "ELPIDA_RIDER": { "NAME": "Elpida Rider", "DESCRIPTION": "" },
+    "CORINTHIAN_CRUSHER": { "NAME": "Corinthian Crusher", "DESCRIPTION": "" },
+    "SPARTAN_RAM": { "NAME": "Spartan ram", "DESCRIPTION": "" },
+    "SPARTAN_CATAPULT": { "NAME": "Spartan catapult", "DESCRIPTION": "" },
+    "EPHOR": { "NAME": "Ephor", "DESCRIPTION": "" },
+    "SPARTAN_SETTLER": { "NAME": "Spartan Settler", "DESCRIPTION": "" },
+    "PIKEMAN": { "NAME": "Pikeman", "DESCRIPTION": "" },
+    "THORNED_WARRIOR": { "NAME": "Thorned Warrior", "DESCRIPTION": "" },
+    "GUARDSMAN": { "NAME": "Guardsman", "DESCRIPTION": "" },
+    "BIRDS_OF_PREY": { "NAME": "Birds Of Prey", "DESCRIPTION": "" },
+    "AXERIDER": { "NAME": "Axerider", "DESCRIPTION": "" },
+    "NATARIAN_KNIGHT": { "NAME": "Natarian Knight", "DESCRIPTION": "" },
+    "NATARIAN_RAM": { "NAME": "Natarian ram", "DESCRIPTION": "" },
+    "NATARIAN_CATAPULT": { "NAME": "Natarian catapult", "DESCRIPTION": "" },
+    "NATARIAN_EMPEROR": { "NAME": "Natarian Emperor", "DESCRIPTION": "" },
+    "NATARIAN_SETTLER": { "NAME": "Natarian Settler", "DESCRIPTION": "" },
+    "RAT": { "NAME": "Rat", "DESCRIPTION": "" },
+    "SPIDER": { "NAME": "Spider", "DESCRIPTION": "" },
+    "SERPENT": { "NAME": "Serpent", "DESCRIPTION": "" },
+    "BAT": { "NAME": "Bat", "DESCRIPTION": "" },
+    "WILD_BOAR": { "NAME": "Wild Boar", "DESCRIPTION": "" },
+    "WOLF": { "NAME": "Wolf", "DESCRIPTION": "" },
+    "BEAR": { "NAME": "Bear", "DESCRIPTION": "" },
+    "CROCODILE": { "NAME": "Crocodile", "DESCRIPTION": "" },
+    "TIGER": { "NAME": "Tiger", "DESCRIPTION": "" },
+    "ELEPHANT": { "NAME": "Elephant", "DESCRIPTION": "" }
+  },
+  "BUILDINGS": {
+    "BAKERY": {
+      "NAME": "Bakery",
+      "DESCRIPTION": "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
+    },
+    "BRICKYARD": {
+      "NAME": "Brickyard",
+      "DESCRIPTION": "The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent."
+    },
+    "CLAY_PIT": {
+      "NAME": "Clay pit",
+      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+    },
+    "CROPLAND": {
+      "NAME": "Cropland",
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Cropland can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+    },
+    "GRAIN_MILL": {
+      "NAME": "Grain mill",
+      "DESCRIPTION": "The grain mill grinds grain into flour. Based on its level, your grain mill can increase your crop production by up to 25 percent."
+    },
+    "GRANARY": {
+      "NAME": "Granary",
+      "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
+    },
+    "IRON_FOUNDRY": {
+      "NAME": "Iron foundry",
+      "DESCRIPTION": "The iron foundry melts iron. Based on its level, your iron foundry can increase your iron production by up to 25 percent."
+    },
+    "IRON_MINE": {
+      "NAME": "Iron mine",
+      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron mine can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+    },
+    "SAWMILL": {
+      "NAME": "Sawmill",
+      "DESCRIPTION": "Lumber cut by your woodcutters is processed here. Based on its level, your sawmill can increase your lumber production by up to 25 percent."
+    },
+    "WAREHOUSE": {
+      "NAME": "Warehouse",
+      "DESCRIPTION": "Wood, clay and iron are stored in your warehouse. By increasing its level you increase your warehouse's capacity. After upgrading one warehouse to level 20, additional warehouses can be built."
+    },
+    "WATERWORKS": {
+      "NAME": "Waterworks",
+      "DESCRIPTION": "The Waterworks allows you to regulate the water flow to your oases. This not only helps to grow trees and crops, but it is also useful for quarries and mines as it supplies workers with water and resource transportation.\n\nThis building increases the bonus of all annexed oases. Its maximum effect at level 20 doubles the effect of oases.\n\nThe Waterworks can only be built by Egyptians."
+    },
+    "WOODCUTTER": {
+      "NAME": "Woodcutter",
+      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Woodcutter can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+    },
+    "ACADEMY": {
+      "NAME": "Academy",
+      "DESCRIPTION": "New unit types can be researched and existing units can be improved in the academy. By increasing its level, you can order the research of better units and upgrade existing ones to a higher degree."
+    },
+    "BARRACKS": {
+      "NAME": "Barracks",
+      "DESCRIPTION": "Infantry can be trained in the barracks. The higher its level, the faster the troops are trained."
+    },
+    "CITY_WALL": {
+      "NAME": "City wall",
+      "DESCRIPTION": "By building a city wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe city wall can only be built by Romans.\n\nThe city wall offers the biggest defence bonus, but it is easier to destroy than the Gaulish palisade or the Teutonic earth wall."
+    },
+    "EARTH_WALL": {
+      "NAME": "Earth wall",
+      "DESCRIPTION": "By building an earth wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe earth wall can only be built by Teutons.\n\nThe earth wall offers the lowest defence bonus but it is almost impossible to destroy it."
+    },
+    "GREAT_BARRACKS": {
+      "NAME": "Great barracks",
+      "DESCRIPTION": "The great barracks allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
+    },
+    "GREAT_STABLE": {
+      "NAME": "Great stable",
+      "DESCRIPTION": "The great stable allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
+    },
+    "HEROS_MANSION": {
+      "NAME": "Hero's mansion",
+      "DESCRIPTION": "The hero's mansion is the home of your glorious hero.\n\nAt building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource (or even two resources, from some oases)."
+    },
+    "HOSPITAL": {
+      "NAME": "Hospital",
+      "DESCRIPTION": "The hospital allows you to treat wounded troops after combat. These can be healed and made ready for war again. Together with regular training in barracks and stable your army can recover faster than ever."
+    },
+    "MAKESHIFT_WALL": {
+      "NAME": "Makeshift wall",
+      "DESCRIPTION": "By building a Makeshift Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Makeshift Wall can only be built by Huns, its defense bonus is lower than the Teutonic Earth Wall and its durability is comparable with the Roman City Wall."
+    },
+    "PALISADE": {
+      "NAME": "Palisade",
+      "DESCRIPTION": "By building a palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic earth wall and the Roman city wall."
+    },
+    "RALLY_POINT": {
+      "NAME": "Rally point",
+      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages.\n\nThe rally point can only be built on the green grassland below and to the right of your main building.\n\nIf there are less attacking units than the level of the rally point, you can see the type of unit attacking."
+    },
+    "STABLE": {
+      "NAME": "Stable",
+      "DESCRIPTION": "Cavalry can be trained in the stable. The higher its level, the faster the troops are trained.\n"
+    },
+    "STONE_WALL": {
+      "NAME": "Stone wall",
+      "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."
+    },
+    "TRAPPER": {
+      "NAME": "Trapper",
+      "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more.\n\nTroops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically.\n\nThe trapper can only be constructed by Gauls."
+    },
+    "WORKSHOP": {
+      "NAME": "Workshop",
+      "DESCRIPTION": "Siege engines, like catapults and rams, can be built in the workshop. The higher its level, the faster these units are produced."
+    },
+    "BREWERY": {
+      "NAME": "Brewery",
+      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations.\n\nThese drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits.\n\nIt can only be built by Teutons and only in their capital. It affects the whole empire."
+    },
+    "COMMAND_CENTER": {
+      "NAME": "Command center",
+      "DESCRIPTION": "The Command Center protects the village against enemy conquests. You can build one Command Center per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the command center provides an expansion slot at levels 10, 15 and 20 each.\n\nThe Command Center can only be built by the Huns."
+    },
+    "CRANNY": {
+      "NAME": "Cranny",
+      "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen.\n\nAt level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger.\n\nIf a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
+    },
+    "HORSE_DRINKING_TROUGH": {
+      "NAME": "Horse drinking trough",
+      "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training.\n\nThe horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20.\n\nThe horse drinking trough can only be built by Romans."
+    },
+    "MAIN_BUILDING": {
+      "NAME": "Main building",
+      "DESCRIPTION": "The village's master builders live in the main building. The higher its level the faster your master builders complete the construction of new buildings.\n"
+    },
+    "MARKETPLACE": {
+      "NAME": "Marketplace",
+      "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time.\n"
+    },
+    "PALACE": {
+      "NAME": "Palace",
+      "DESCRIPTION": "The palace building is unique. You can only build one in your whole realm and you can proclaim that village as your capital. It also protects the village against enemy conquests. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the palace provides an expansion slot at levels 10, 15 and 20 each."
+    },
+    "RESIDENCE": {
+      "NAME": "Residence",
+      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the residence provides an expansion slot at levels 10 and 20 each."
+    },
+    "TREASURY": {
+      "NAME": "Treasury",
+      "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time.\n\nYou need a treasury at level 10 for a small artefact, or level 20 for a great one."
+    },
+    "TOURNAMENT_SQUARE": {
+      "NAME": "Tournament square",
+      "DESCRIPTION": "Your troops can increase their stamina at the Tournament Square. The further the building is upgraded, the faster your troops are beyond a minimum distance of 20 squares."
+    }
+  },
+  "EFFECTS": {
+    "BARRACKS_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "GREAT_BARRACKS_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "STABLE_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "GREAT_STABLE_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WORKSHOP_TRAINING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "UNLOCKED_UNIT_RESEARCH_LEVELS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "VILLAGE_DEFENCE_VALUE": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "VILLAGE_DEFENCE_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "BUILDING_DURATION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WOOD_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CLAY_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "IRON_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WHEAT_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WOOD_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CLAY_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "IRON_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "WHEAT_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CROP_CONSUMPTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CULTURE_POINTS_PRODUCTION": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    },
+    "CULTURE_POINTS_PRODUCTION_BONUS": {
+      "TITLE": "",
+      "DESCRIPTION": ""
+    }
+  },
+  "HERO_ITEMS": {},
+  "TRIBES": {
+    "ROMANS": "Romans",
+    "GAULS": "Gauls",
+    "TEUTONS": "Teutons",
+    "HUNS": "Huns",
+    "EGYPTIANS": "Egyptians",
+    "SPARTANS": "Spartans",
+    "NATURE": "Nature",
+    "NATARS": "Natars"
+  },
+  "RESOURCES": {
+    "WOOD": "Wood",
+    "CLAY": "Clay",
+    "IRON": "Iron",
+    "WHEAT": "Wheat"
+  },
+  "REPUTATION_LEVELS": {
+    "ECSTATIC": "Ecstatic",
+    "RESPECTED": "Respected",
+    "FRIENDLY": "Friendly",
+    "NEUTRAL": "Neutral",
+    "UNFRIENDLY": "Unfriendly",
+    "HOSTILE": "Hostile"
+  },
+  "FACTIONS": {
+    "NPC1": "npc1",
+    "NPC2": "npc2",
+    "NPC3": "npc3",
+    "NPC4": "npc4",
+    "NPC5": "npc5",
+    "NPC6": "npc6",
+    "NPC7": "npc7",
+    "NPC8": "npc8",
+    "PLAYER": "Player"
+  },
+  "GENERAL": {
+    "BUILDING": {
+      "CONSTRUCT": "Construct building",
+      "UPGRADE_TO": "Upgrade to level",
+      "MAX_LEVEL": "{{building}} is fully upgraded",
+      "TOTAL_RESOURCE_COST": "Total resource cost"
+    },
+    "DESCRIPTION": "Description",
+    "BUILDING_UPGRADE_TABLE": "Building upgrade table",
+    "LEVEL": "Level {{level}}",
+    "FACTION": "Faction",
+    "TRIBE": "Tribe",
+    "REPUTATION_LEVEL": "Reputation",
+    "DISTANCE": "Distance",
+    "FIELD_one": "{{count}} field",
+    "FIELD_other": "{{count}} fields",
+    "PLAYER": "Player",
+    "POPULATION": "Population"
+  }
+}

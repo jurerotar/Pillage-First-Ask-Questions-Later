@@ -12,16 +12,10 @@ export default defineConfig({
     viteTsconfigPaths(),
     svgrPlugin({
       // svgr options: https://react-svgr.com/docs/options/
-      svgrOptions: { exportType: 'default', ref: true, svgo: false, titleProp: true },
-      include: '**/*.svg',
+      svgrOptions: { exportType: 'default', svgo: false, expandProps: 'end' },
     }),
     VitePWA({ registerType: 'autoUpdate' }),
   ],
-  root: 'src',
-  publicDir: '../public',
-  build: {
-    outDir: '../dist',
-  },
   server: {
     open: true,
   },
@@ -35,7 +29,7 @@ export default defineConfig({
       'react-dom',
       'react-dom/client',
       'react-router-dom',
-      'esm-seedrandom',
+      'ts-seedrandom',
       'react-tabs',
       'react-hook-form',
       'react-modal',
@@ -62,12 +56,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      packages: path.resolve(__dirname, 'packages'),
-      app: path.resolve(__dirname, 'src/app'),
-      interfaces: path.resolve(__dirname, 'src/interfaces'),
-      assets: path.resolve(__dirname, 'src/assets'),
-      mocks: path.resolve(__dirname, '__mocks__'),
-      'test-utils': path.resolve(__dirname, 'src/test-utils'),
+      app: path.resolve(__dirname, 'app'),
+      graphics: path.resolve(__dirname, 'graphics'),
     },
   },
   worker: {
@@ -76,7 +66,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "src/styles/variables.scss"; @import "src/styles/mixins.scss";`,
+        api: 'modern-compiled',
+        additionalData: '@use "./app/styles/_globals.scss" as *;',
       },
     },
   },
