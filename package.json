@@ -69,38 +69,19 @@
     "vitest": "2.1.2"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "lint-staged": {
-    "*.{js,ts,tsx,json}": [
-      "npm run lint",
-      "npm run format"
-    ]
+    "*.{js,ts,tsx,json}": ["npm run lint", "npm run format"]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": [
-      "app/index.tsx"
-    ],
-    "project": [
-      "app/**/*.{ts,tsx}"
-    ],
+    "entry": ["app/index.tsx"],
+    "project": ["app/**/*.{ts,tsx}"],
     "paths": {
-      "app/*": [
-        "app/*"
-      ],
-      "graphics/*": [
-        "graphics/*"
-      ]
+      "app/*": ["app/*"],
+      "graphics/*": ["graphics/*"]
     }
   }
 }
