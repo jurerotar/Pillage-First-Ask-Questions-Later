@@ -29,7 +29,7 @@ export default defineConfig({
       'react-dom',
       'react-dom/client',
       'react-router-dom',
-      'esm-seedrandom',
+      'ts-seedrandom',
       'react-tabs',
       'react-hook-form',
       'react-modal',
