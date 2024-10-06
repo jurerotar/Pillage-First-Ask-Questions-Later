@@ -22,7 +22,6 @@
     "@tanstack/react-query-persist-client": "5.59.0",
     "clsx": "2.1.1",
     "dayjs": "1.11.13",
-    "esm-seedrandom": "3.0.5",
     "i18next": "23.15.1",
     "moderndash": "3.12.0",
     "react": "18.3.1",
@@ -35,6 +34,7 @@
     "react-tabs": "6.0.2",
     "react-tooltip": "5.28.0",
     "react-window": "1.8.10",
+    "ts-seedrandom": "0.1.0",
     "usehooks-ts": "3.1.0"
   },
   "devDependencies": {

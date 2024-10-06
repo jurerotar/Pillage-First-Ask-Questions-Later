@@ -1,5 +1,5 @@
-import type { PRNGFunction } from 'app/interfaces/libs/esm-seedrandom';
 import type { Point } from 'app/interfaces/models/common';
+import type { PRNGFunction } from 'ts-seedrandom';
 
 export const randomIntFromInterval = (min: number, max: number): number => {
   // min and max included

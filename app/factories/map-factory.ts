@@ -1,5 +1,4 @@
 import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
-import type { PRNGFunction } from 'app/interfaces/libs/esm-seedrandom';
 import type { Point } from 'app/interfaces/models/common';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';
@@ -19,8 +18,7 @@ import type {
 } from 'app/interfaces/models/game/tile';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomArrayElements, seededRandomIntFromInterval, seededShuffleArray } from 'app/utils/common';
-// @ts-ignore
-import { prng_alea } from 'esm-seedrandom';
+import { type PRNGFunction, prngAlea } from 'ts-seedrandom';
 
 type Shape = { group: number; shape: number[] };
 
@@ -299,7 +297,7 @@ const generatePredefinedVillages = ({ server, tiles, npcPlayers }: GeneratePrede
   const tilesToUpdate = [...tiles];
   const { artifactVillagesCoordinates } = getPredefinedVillagesCoordinates(server);
 
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   // Since there's 4 npc players and 8 predefined villages, we just duplicate the npc players array, so each faction gets 2 villages
   const players = seededShuffleArray<Player>(prng, [...npcPlayers, ...npcPlayers]);
@@ -332,7 +330,7 @@ type GenerateShapedOasisFieldsArgs = {
 const generateShapedOasisFields = ({ server, tiles }: GenerateShapedOasisFieldsArgs): MaybeOccupiedBaseTile[] => {
   const tilesWithOasisShapes: MaybeOccupiedBaseTile[] = [...tiles];
 
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   const tilesByCoordinates = new Map<string, MaybeOccupiedBaseTile>(
     tiles.map((tile) => [`${tile.coordinates.x},${tile.coordinates.y}`, tile]),
@@ -393,7 +391,7 @@ type GenerateSingleOasisFieldsArgs = {
 };
 
 const generateSingleOasisFields = ({ server, tiles }: GenerateSingleOasisFieldsArgs): MaybeOccupiedBaseTile[] => {
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   // To make world feel more alive and give player more options, we sprinkle a bunch of 1x1 oasis on empty fields as well
   return tiles.map((tile: MaybeOccupiedBaseTile) => {
@@ -417,7 +415,7 @@ type GenerateOccupiableTileTypesArgs = {
 };
 
 const generateOccupiableTileTypes = ({ server, tiles }: GenerateOccupiableTileTypesArgs): MaybeOccupiedOrOasisOccupiableTile[] => {
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   return tiles.map((tile: MaybeOccupiedOrOasisBaseTile) => {
     if (Object.hasOwn(tile, 'type')) {
@@ -438,7 +436,7 @@ type PopulateOccupiableTilesArgs = {
 };
 
 const populateOccupiableTiles = ({ server, tiles, npcPlayers }: PopulateOccupiableTilesArgs): Tile[] => {
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   return tiles.map((tile: Tile) => {
     if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy') || tile.resourceFieldComposition !== '4446') {
@@ -474,7 +472,7 @@ type AssignOasisToNpcVillagesArgs = {
 
 // Some NPC villages have occupied oasis tiles
 const assignOasisToNpcVillages = ({ server, tiles }: AssignOasisToNpcVillagesArgs): Tile[] => {
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   const villageSizeToMaxOasisAmountMap = new Map<OccupiedOccupiableTile['villageSize'], number>([
     ['sm', 1],

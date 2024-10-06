@@ -6,8 +6,7 @@ import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { NatureUnitId, UnitId } from 'app/interfaces/models/game/unit';
 import { seededRandomIntFromInterval } from 'app/utils/common';
-// @ts-ignore
-import { prng_alea } from 'esm-seedrandom';
+import { prngAlea } from 'ts-seedrandom';
 
 type GenerateTroopsArgs = {
   server: Server;
@@ -291,7 +290,7 @@ const villageSizeToTroopsLevel = new Map<OccupiedOccupiableTile['villageSize'], 
 ]);
 
 export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiableTiles, players }: GenerateTroopsArgs) => {
-  const prng = prng_alea(server.seed);
+  const prng = prngAlea(server.seed);
 
   const oasisTroops: Troop[] = occupiableOasisTiles.flatMap(({ id: tileId, oasisResourceBonus }) => {
     const resourceCombination = oasisResourceBonus.map(({ resource }) => resource).join('-') as Resource | ResourceCombination;
