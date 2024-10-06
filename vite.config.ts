@@ -16,11 +16,6 @@ export default defineConfig({
     }),
     VitePWA({ registerType: 'autoUpdate' }),
   ],
-  root: 'src',
-  publicDir: '../public',
-  build: {
-    outDir: '../dist',
-  },
   server: {
     open: true,
   },
@@ -61,13 +56,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      app: path.resolve(__dirname, 'app'),
       graphics: path.resolve(__dirname, 'graphics'),
-      locales: path.resolve(__dirname, 'locales'),
-      app: path.resolve(__dirname, 'src/app'),
-      interfaces: path.resolve(__dirname, 'src/interfaces'),
-      assets: path.resolve(__dirname, 'src/assets'),
-      mocks: path.resolve(__dirname, '__mocks__'),
-      'test-utils': path.resolve(__dirname, 'src/test-utils'),
     },
   },
   worker: {
@@ -77,7 +67,7 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         api: 'modern-compiled',
-        additionalData: '@use "./src/styles/_globals.scss" as *;',
+        additionalData: '@use "./app/styles/_globals.scss" as *;',
       },
     },
   },

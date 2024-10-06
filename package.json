@@ -45,10 +45,9 @@
     "@types/node": "22.7.4",
     "@types/react": "18.3.11",
     "@types/react-dom": "18.3.0",
-    "@types/react-modal": "3.16.3",
+    "@types/react-modal": "^3.16.3",
     "@types/react-window": "1.8.8",
     "@vitejs/plugin-react": "4.3.2",
-    "@vitest/coverage-v8": "2.1.2",
     "@vitest/web-worker": "2.1.2",
     "autoprefixer": "10.4.20",
     "happy-dom": "15.7.4",
@@ -67,14 +66,41 @@
     "vite-plugin-pwa": "0.20.5",
     "vite-plugin-svgr": "4.2.0",
     "vite-tsconfig-paths": "5.0.1",
-    "vitest": "2.1.2",
-    "vitest-localstorage-mock": "0.1.2"
+    "vitest": "2.1.2"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "lint-staged": {
-    "*.{js,ts,tsx,json}": ["npm run lint", "npm run format"]
+    "*.{js,ts,tsx,json}": [
+      "npm run lint",
+      "npm run format"
+    ]
+  },
+  "knip": {
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "entry": [
+      "app/index.tsx"
+    ],
+    "project": [
+      "app/**/*.{ts,tsx}"
+    ],
+    "paths": {
+      "app/*": [
+        "app/*"
+      ],
+      "graphics/*": [
+        "graphics/*"
+      ]
+    }
   }
 }
