@@ -19,6 +19,9 @@ export default defineConfig({
   server: {
     open: true,
   },
+  build: {
+    target: 'esnext',
+  },
   optimizeDeps: {
     include: [
       // Game data
@@ -66,7 +69,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern-compiled',
+        api: 'modern',
         additionalData: '@use "./app/styles/_globals.scss" as *;',
       },
     },

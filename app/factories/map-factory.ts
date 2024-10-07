@@ -256,7 +256,7 @@ const generateGrid = ({ server }: { server: Server }): (BaseTile | OasisTile)[] 
           oasisVariant: 0,
         },
       }),
-    };
+    } satisfies OasisTile | BaseTile;
   }
 
   return tiles;
