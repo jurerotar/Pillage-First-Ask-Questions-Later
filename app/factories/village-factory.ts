@@ -1,20 +1,28 @@
 import { createVillageResourceFields } from 'app/factories/presets/resource-building-fields-presets';
 import { playerVillageBuildingFieldsPreset } from 'app/factories/presets/village-building-fields-presets';
+import { getVillageSize } from 'app/factories/utils/common';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
+import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import type { BuildingField, Village, VillagePresetId } from 'app/interfaces/models/game/village';
+import type { BuildingField, Village, VillagePresetId, VillageSize } from 'app/interfaces/models/game/village';
 
-const villageSizeToResourceAmountMap = new Map<OccupiedOccupiableTile['villageSize'], number>([
+// TODO: Update these
+const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
+  ['xxs', 6_300],
   ['xs', 6_300],
   ['sm', 31_300],
   ['md', 80_000],
   ['lg', 160_000],
+  ['xl', 160_000],
+  ['2xl', 160_000],
+  ['3xl', 160_000],
+  ['4xl', 160_000],
 ]);
 
-const createVillageResources = (villageSize: OccupiedOccupiableTile['villageSize']): Resources => {
+const createVillageResources = (villageSize: VillageSize): Resources => {
   const amount = villageSizeToResourceAmountMap.get(villageSize)!;
 
   return {
@@ -25,12 +33,18 @@ const createVillageResources = (villageSize: OccupiedOccupiableTile['villageSize
   };
 };
 
-const villageSizeToWallLevelMap = new Map<OccupiedOccupiableTile['villageSize'] | 'player', number>([
+// TODO: Update these
+const villageSizeToWallLevelMap = new Map<VillageSize | 'player', number>([
   ['player', 0],
+  ['xxs', 5],
   ['xs', 5],
   ['sm', 10],
   ['md', 15],
   ['lg', 20],
+  ['xl', 20],
+  ['2xl', 20],
+  ['3xl', 20],
+  ['4xl', 20],
 ]);
 
 const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
@@ -41,7 +55,7 @@ const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
   ['egyptians', 'STONE_WALL'],
 ]);
 
-const createWallBuildingField = (tribe: PlayableTribe, villageSize: OccupiedOccupiableTile['villageSize'] | 'player'): BuildingField => {
+const createWallBuildingField = (tribe: PlayableTribe, villageSize: VillageSize | 'player'): BuildingField => {
   return {
     buildingId: tribeToWallBuildingIdMap.get(tribe)!,
     id: 40,
@@ -87,12 +101,16 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
   };
 };
 
-type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'>;
+type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'> & {
+  server: Server;
+};
 
-const npcVillageFactory = ({ tile, player }: NpcVillageFactoryProps): Village => {
-  const { coordinates, resourceFieldComposition, villageSize, id } = tile;
+const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Village => {
+  const { coordinates, resourceFieldComposition, id } = tile;
 
   const { id: playerId, name, tribe } = player;
+
+  const villageSize = getVillageSize(server.configuration.mapSize, tile.coordinates);
 
   const buildingFields = [createWallBuildingField(tribe, villageSize)];
 
@@ -117,16 +135,17 @@ const npcVillageFactory = ({ tile, player }: NpcVillageFactoryProps): Village =>
 };
 
 type GenerateVillagesArgs = {
+  server: Server;
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
   players: Player[];
 };
 
-export const generateVillages = ({ occupiedOccupiableTiles, players }: GenerateVillagesArgs) => {
+export const generateVillages = ({ occupiedOccupiableTiles, players, server }: GenerateVillagesArgs) => {
   const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
 
   const villages: Village[] = npcOccupiedTiles.map((tile) => {
     const player = players.find(({ id }) => tile.ownedBy === id)!;
-    return npcVillageFactory({ player, tile });
+    return npcVillageFactory({ player, tile, server });
   });
 
   return villages;

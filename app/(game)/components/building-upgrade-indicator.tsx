@@ -10,7 +10,9 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
 import { calculatePopulationFromBuildingFields, getBuildingDataForLevel } from 'app/(game)/utils/building';
+import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
+import { useViewport } from 'app/providers/viewport-context';
 import clsx from 'clsx';
 import type React from 'react';
 import { useState } from 'react';
@@ -30,11 +32,22 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const { wood, clay, iron, wheat } = useCurrentResources();
   const { canAddAdditionalBuildingToQueue, currentVillageBuildingEvents } = useEvents();
   const { isDeveloperModeActive } = useDeveloperMode();
+  const { isWiderThanMd } = useViewport();
 
   const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
   const { buildingId, level } = buildingFields.find(({ id }) => buildingFieldId === id)!;
   const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
+
+  const onUpgradeButtonClick = (event: React.MouseEvent | React.TouchEvent) => {
+    upgradeBuilding();
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
+  const longPressEvent = useLongPress((event) => {
+    onUpgradeButtonClick(event);
+  });
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] = useState<boolean>(false);
 
@@ -89,19 +102,16 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
     return 'white';
   })();
 
-  const onUpgradeButtonClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    upgradeBuilding();
-    event.stopPropagation();
-    event.preventDefault();
-  };
-
   // TODO: Transitions needs to added here, the icon currently just pops in
 
   return (
     <button
       className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300')}
       type="button"
-      onClick={onUpgradeButtonClick}
+      {...(isWiderThanMd && {
+        onClick: onUpgradeButtonClick,
+      })}
+      {...(!isWiderThanMd && { ...longPressEvent })}
       disabled={!canUpgrade}
     >
       <BorderIndicator

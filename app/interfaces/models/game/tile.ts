@@ -44,7 +44,6 @@ export type OccupiableTile = BaseTile & {
 export type OccupiedOccupiableTile = OccupiableTile & {
   ownedBy: Player['id'];
   treasureType: 'artifact' | 'hero-item' | 'currency' | 'resources' | null;
-  villageSize: 'xs' | 'sm' | 'md' | 'lg';
 };
 
 export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccupiableTile;

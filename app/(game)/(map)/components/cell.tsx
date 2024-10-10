@@ -20,6 +20,7 @@ import type {
   Tile as TileType,
 } from 'app/interfaces/models/game/tile';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import type { VillageSize } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
@@ -40,6 +41,7 @@ type OccupiedTileWithFactionAndTribe = OccupiedOccupiableTileType & {
   faction: PlayerFaction;
   reputationLevel: ReputationLevel;
   tribe: Tribe;
+  population: number;
 };
 
 type TroopMovementsProps = {
@@ -102,6 +104,22 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
   );
 };
 
+const populationToVillageSizeMap = new Map<number, VillageSize>([
+  [500, 'xl'],
+  [250, 'md'],
+  [100, 'sm'],
+]);
+
+const getVillageSize = (population: number): VillageSize => {
+  for (const [key, size] of populationToVillageSizeMap) {
+    if (population >= key) {
+      return size;
+    }
+  }
+
+  return 'xs';
+};
+
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): string => {
@@ -114,7 +132,10 @@ const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): s
   }
 
   if (isOccupiedOccupiableCell) {
-    const { tribe, villageSize } = tile as OccupiedTileWithFactionAndTribe;
+    const { tribe, population } = tile as OccupiedTileWithFactionAndTribe;
+
+    const villageSize = getVillageSize(population);
+
     return clsx(cellStyles['occupied-tile'], cellStyles[`occupied-tile-${tribe}`], cellStyles[`occupied-tile-${tribe}-${villageSize}`]);
   }
 
