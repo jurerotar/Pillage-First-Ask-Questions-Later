@@ -1,4 +1,5 @@
 import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
+import { getVillageSize } from 'app/factories/utils/common';
 import type { Point } from 'app/interfaces/models/common';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';
@@ -16,7 +17,7 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition, VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomArrayElements, seededRandomIntFromInterval, seededShuffleArray } from 'app/utils/common';
 import { type PRNGFunction, prngAlea } from 'ts-seedrandom';
 
@@ -48,24 +49,6 @@ const shapesByResource: Record<Resource, Shape[]> = {
 type Distances = {
   offset: number;
   distanceFromCenter: number;
-};
-
-const weightedVillageSize: Record<number, OccupiedOccupiableTile['villageSize']> = {
-  5: 'lg',
-  20: 'md',
-  50: 'sm',
-};
-
-const generateVillageSize = (prng: PRNGFunction): OccupiedOccupiableTile['villageSize'] => {
-  const randomInt: number = seededRandomIntFromInterval(prng, 1, 100);
-
-  for (const weight in weightedVillageSize) {
-    if (randomInt <= Number(weight)) {
-      return weightedVillageSize[weight];
-    }
-  }
-
-  return 'xs';
 };
 
 const weightedResourceFieldComposition: Record<number, ResourceFieldComposition> = {
@@ -256,7 +239,7 @@ const generateGrid = ({ server }: { server: Server }): (BaseTile | OasisTile)[] 
           oasisVariant: 0,
         },
       }),
-    };
+    } satisfies OasisTile | BaseTile;
   }
 
   return tiles;
@@ -281,7 +264,6 @@ const generateInitialUserVillage = ({ tiles, player }: GenerateInitialUserVillag
     resourceFieldComposition: '4446',
     ownedBy: player.id,
     treasureType: null,
-    villageSize: 'xs',
   } satisfies OccupiedOccupiableTile;
 
   return tilesToUpdate;
@@ -315,7 +297,6 @@ const generatePredefinedVillages = ({ server, tiles, npcPlayers }: GeneratePrede
       resourceFieldComposition: '4446',
       ownedBy: playerId,
       treasureType: 'artifact',
-      villageSize: 'lg',
     } satisfies OccupiedOccupiableTile;
   });
 
@@ -452,14 +433,11 @@ const populateOccupiableTiles = ({ server, tiles, npcPlayers }: PopulateOccupiab
         ])
       : null;
 
-    const villageSize = generateVillageSize(prng);
-
     return {
       ...tile,
       ...(willBeOccupied && {
         ownedBy: seededRandomArrayElement<Player>(prng, npcPlayers).id,
         treasureType,
-        villageSize,
       }),
     };
   });
@@ -474,16 +452,24 @@ type AssignOasisToNpcVillagesArgs = {
 const assignOasisToNpcVillages = ({ server, tiles }: AssignOasisToNpcVillagesArgs): Tile[] => {
   const prng = prngAlea(server.seed);
 
-  const villageSizeToMaxOasisAmountMap = new Map<OccupiedOccupiableTile['villageSize'], number>([
-    ['sm', 1],
-    ['md', 2],
-    ['lg', 3],
+  const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
+    ['xxs', 0],
+    ['xs', 0],
+    ['sm', 0],
+    ['md', 1],
+    ['lg', 1],
+    ['xl', 2],
+    ['2xl', 2],
+    ['3xl', 3],
+    ['4xl', 3],
   ]);
 
   const oasisTiles = tiles.filter(isOccupiableOasisTile);
 
   const npcVillagesEligibleForOasis = tiles.filter((tile: Tile) => {
-    return !(!isOccupiedOccupiableTile(tile) || tile.ownedBy === 'player' || tile.villageSize === 'xs');
+    const villageSize = getVillageSize(server.configuration.mapSize, tile.coordinates);
+    const maxAmountOfOccupiableOasis = villageSizeToMaxOasisAmountMap.get(villageSize)!;
+    return !(!isOccupiedOccupiableTile(tile) || tile.ownedBy === 'player' || maxAmountOfOccupiableOasis === 0);
   }) as OccupiedOccupiableTile[];
 
   const oasisTilesByCoordinates = new Map<string, OccupiableOasisTile>(
@@ -491,7 +477,8 @@ const assignOasisToNpcVillages = ({ server, tiles }: AssignOasisToNpcVillagesArg
   );
 
   for (const tile of npcVillagesEligibleForOasis) {
-    const { villageSize, coordinates: villageCoordinates } = tile;
+    const { coordinates: villageCoordinates } = tile;
+    const villageSize = getVillageSize(server.configuration.mapSize, tile.coordinates);
 
     const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
     const eligibleOasisTiles: OccupiableOasisTile[] = [];

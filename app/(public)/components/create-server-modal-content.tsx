@@ -161,6 +161,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   // Non-dependant factories can run in sync
   const [{ villages }, { troops }, effects, hero, mapFilters, unitResearch, unitImprovement] = await Promise.all([
     workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
+      server,
       occupiedOccupiableTiles,
       players,
     }),

@@ -19,13 +19,13 @@ type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
 };
 
 export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {
-  const { villageId, onSuccess, onFailure } = args;
+  const { villageId, onSuccess, onFailure, startsAt } = args;
   const event: GameEvent<T> = eventFactory<T>(args);
 
   if (doesEventRequireResourceCheck(event)) {
     const { resourceCost } = event;
 
-    const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, villageId);
+    const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, villageId, startsAt);
 
     const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
     if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {

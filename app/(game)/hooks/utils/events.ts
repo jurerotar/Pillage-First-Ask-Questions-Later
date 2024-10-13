@@ -6,7 +6,7 @@ import { getVillageById, villagesCacheKey } from 'app/(game)/hooks/use-villages'
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
 
-export const getCurrentVillageResources = (queryClient: QueryClient, villageId: Village['id']) => {
+export const getCurrentVillageResources = (queryClient: QueryClient, villageId: Village['id'], timestamp: number = Date.now()) => {
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
   const village = getVillageById(villages, villageId);
@@ -23,24 +23,28 @@ export const getCurrentVillageResources = (queryClient: QueryClient, villageId: 
     resource: 'wood',
     hourlyProduction: woodProduction,
     storageCapacity: warehouseCapacity,
+    timestamp,
   });
   const { currentAmount: currentClay } = calculateCurrentAmount({
     village,
     resource: 'clay',
     hourlyProduction: clayProduction,
     storageCapacity: warehouseCapacity,
+    timestamp,
   });
   const { currentAmount: currentIron } = calculateCurrentAmount({
     village,
     resource: 'iron',
     hourlyProduction: ironProduction,
     storageCapacity: warehouseCapacity,
+    timestamp,
   });
   const { currentAmount: currentWheat } = calculateCurrentAmount({
     village,
     resource: 'wheat',
     hourlyProduction: wheatProduction,
     storageCapacity: granaryCapacity,
+    timestamp,
   });
 
   return {
