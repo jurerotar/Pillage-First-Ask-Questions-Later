@@ -18,9 +18,16 @@ export type CalculateCurrentAmountArgs = {
   resource: Resource;
   hourlyProduction: number;
   storageCapacity: number;
+  timestamp?: number;
 };
 
-export const calculateCurrentAmount = ({ village, resource, hourlyProduction, storageCapacity }: CalculateCurrentAmountArgs) => {
+export const calculateCurrentAmount = ({
+  village,
+  resource,
+  hourlyProduction,
+  storageCapacity,
+  timestamp = Date.now(),
+}: CalculateCurrentAmountArgs) => {
   const { resources, lastUpdatedAt } = village;
   const resourceAmount = resources[resource];
 
@@ -30,7 +37,7 @@ export const calculateCurrentAmount = ({ village, resource, hourlyProduction, st
 
   const hasNegativeProduction = hourlyProduction < 0;
   const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
-  const timeSinceLastUpdateInSeconds = dayjs().diff(dayjs(lastUpdatedAt), 'second');
+  const timeSinceLastUpdateInSeconds = dayjs(timestamp).diff(dayjs(lastUpdatedAt), 'second');
   const producedResources = Math.floor(timeSinceLastUpdateInSeconds / secondsForResourceGeneration);
   const calculatedCurrentAmount = resourceAmount + producedResources * (hasNegativeProduction ? -1 : 1);
   const currentAmount = hasNegativeProduction ? Math.max(calculatedCurrentAmount, 0) : Math.min(calculatedCurrentAmount, storageCapacity);
