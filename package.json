@@ -1,8 +1,9 @@
 {
-  "name": "echoes-of-travian",
+  "name": "pillage-first-ask-questions-later",
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "author": "Jure Rotar <hello@jurerotar.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build --emptyOutDir",

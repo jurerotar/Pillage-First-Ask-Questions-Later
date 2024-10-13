@@ -1,17 +1,17 @@
-# Echoes of Travian
+# Pillage First! <span style="font-size:20px">(Ask Questions Later)</span>
 
-Echoes of Travian is a single-player, real-time, browser-based strategy game, inspired by Travian.
+Pillage First! is a single-player, real-time, browser-based strategy game inspired by Travian.
 
-It requires no download or account creation.
+Manage resources to construct buildings, train units, and wage war against your enemies.
 
-The game leverages browser-native technologies to save your progress and data between sessions, offering an experience akin to an online game.
+Remember: pillage first, ask questions later! ⚔️🔥
 
 > [!NOTE]
 > Very much still work in progress.
 
 ## Setup
 
-Echoes of Travian requires [Node.js](https://nodejs.org/en/download/package-manager) version 20 or higher.
+Pillage First! requires [Node.js](https://nodejs.org/en/download/package-manager) version 20 or higher.
 
 ```bash
 # Install dependencies
@@ -35,7 +35,7 @@ The codebase is split into following directories:
 
 # Contributing
 
-All contributions are welcome at Echoes of Travian, whether they be tech, game design, localization or art related. Here are some guidelines to get you started:
+All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related. Here are some guidelines to get you started:
 
 - The style guide is enforced through tests and linting.
 - We suggest adding tests to Pull Requests. Tests are typically colocated next to the code they're covering.
@@ -61,6 +61,6 @@ The following packages have already been published as a result of work on this p
 
 # More information
 
-Check out these links to learn more about Echoes of Travian:
+Check out these links to learn more about Pillage First!:
 
 - [Join us on Discord](https://discord.gg/KZsWW3Z8)
