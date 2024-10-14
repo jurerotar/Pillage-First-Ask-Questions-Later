@@ -45,7 +45,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { workerFactory } from 'app/utils/workers';
 import type React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 const PLAYER_COUNT = 50;
 

@@ -8,7 +8,7 @@ import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { Suspense, lazy, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 
 const RallyPointIncomingTroops = lazy(async () => ({

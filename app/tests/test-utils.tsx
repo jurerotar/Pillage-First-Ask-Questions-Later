@@ -18,7 +18,7 @@ import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx.js';
 import type React from 'react';
 import type { FCWithChildren } from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 
 let dehydratedState: DehydratedState | null = null;
 

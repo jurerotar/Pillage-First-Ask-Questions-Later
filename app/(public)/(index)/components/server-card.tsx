@@ -5,7 +5,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import type React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 dayjs.extend(relativeTime);
 

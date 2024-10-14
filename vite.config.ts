@@ -4,11 +4,15 @@ import { type UserConfig, defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
+import { reactRouter } from "@react-router/dev/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    reactRouter({
+      buildDirectory: 'dist'
+    }),
     viteTsconfigPaths(),
     svgrPlugin({
       // svgr options: https://react-svgr.com/docs/options/
@@ -31,7 +35,7 @@ export default defineConfig({
       'react',
       'react-dom',
       'react-dom/client',
-      'react-router-dom',
+      'react-router',
       'ts-seedrandom',
       'react-tabs',
       'react-hook-form',
