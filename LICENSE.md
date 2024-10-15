@@ -1,17 +1,29 @@
-CC BY-NC 4.0 DEED - Attribution-NonCommercial 4.0 International
+# Source Code License
 
-https://creativecommons.org/licenses/by-nc/4.0/
-https://creativecommons.org/licenses/by-nc/4.0/legalcode.en
+The MIT License (MIT)
 
-**You are free to:**
+Copyright (c) Jure Rotar
 
-- **Share** — copy and redistribute the material in any medium or format.
-- **Adapt** — remix, transform, and build upon the material.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-**You are prohibited from:**
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-- **NonCommercial** — You may not use the material for commercial purposes.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-**You are required to:**
+---
 
-- **Provide attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+# Branding, Art, and Other Assets
+
+The MIT License applies to the source code and associated documentation of this software only. Other elements of the project, such as branding, game content, art and sound assets, including remotely loaded data, are subject to separate licensing terms.

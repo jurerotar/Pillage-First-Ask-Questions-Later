@@ -1,5 +1,5 @@
-import IconCatapultShared from 'graphics/icon-catapult-shared.svg?react';
+import { PillageFirstCatapult } from '@pillage-first/graphics';
 
 export const IconNatarianCatapult = () => {
-  return <IconCatapultShared />;
+  return <PillageFirstCatapult />;
 };

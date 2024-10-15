@@ -1,6 +1,6 @@
-import IconSharedHorse from 'graphics/icon-horse-shared.svg?react';
+import { PillageFirstHorse } from '@pillage-first/graphics';
 import styles from './romans.module.scss';
 
 export const IconEquitesLegati = () => {
-  return <IconSharedHorse className={styles['equites-legati']} />;
+  return <PillageFirstHorse className={styles['equites-legati']} />;
 };

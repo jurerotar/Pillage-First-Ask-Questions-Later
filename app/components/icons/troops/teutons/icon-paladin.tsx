@@ -1,6 +1,6 @@
-import IconSharedHorse from 'graphics/icon-horse-shared.svg?react';
+import { PillageFirstHorse } from '@pillage-first/graphics';
 import styles from './teutons.module.scss';
 
 export const IconPaladin = () => {
-  return <IconSharedHorse className={styles.paladin} />;
+  return <PillageFirstHorse className={styles.paladin} />;
 };
