@@ -2,6 +2,10 @@
   "name": "pillage-first-ask-questions-later",
   "version": "0.0.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jurerotar/Pillage-First-Ask-Questions-Later.git"
+  },
   "type": "module",
   "author": "Jure Rotar <hello@jurerotar.com",
   "scripts": {
@@ -15,13 +19,16 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "prepare": "husky",
-    "analyze-bundle": "npx vite-bundle-visualizer"
+    "analyze-bundle": "npx vite-bundle-visualizer",
+    "postinstall": "cpy 'node_modules/@pillage-first/graphics/graphic-packs/**/*.{jpg,png,avif}' ./public/graphic-packs --parents"
   },
   "dependencies": {
+    "@pillage-first/graphics": "^0.0.0",
     "@tanstack/react-query": "5.59.13",
     "@tanstack/react-query-devtools": "5.59.13",
     "@tanstack/react-query-persist-client": "5.59.13",
     "clsx": "2.1.1",
+    "cpy-cli": "^5.0.0",
     "dayjs": "1.11.13",
     "i18next": "23.15.2",
     "moderndash": "3.12.0",
@@ -65,24 +72,38 @@
     "vite": "5.4.8",
     "vite-bundle-visualizer": "1.2.1",
     "vite-plugin-pwa": "0.20.5",
-    "vite-plugin-svgr": "4.2.0",
-    "vite-tsconfig-paths": "5.0.1",
     "vitest": "2.1.2"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "lint-staged": {
-    "*.{js,ts,tsx,json}": ["npm run lint", "npm run format"]
+    "*.{js,ts,tsx,json}": [
+      "npm run lint",
+      "npm run format"
+    ]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": ["app/index.tsx"],
-    "project": ["app/**/*.{ts,tsx}"],
+    "entry": [
+      "app/index.tsx"
+    ],
+    "project": [
+      "app/**/*.{ts,tsx}"
+    ],
     "paths": {
-      "app/*": ["app/*"],
-      "graphics/*": ["graphics/*"]
+      "app/*": [
+        "app/*"
+      ]
     }
   }
 }
