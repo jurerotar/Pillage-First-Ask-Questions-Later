@@ -31,7 +31,6 @@
       "bracketSpacing": true,
       "bracketSameLine": false,
       "quoteStyle": "single",
-      "attributePosition": "multiline",
       "trailingCommas": "all"
     }
   }

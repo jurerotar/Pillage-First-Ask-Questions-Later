@@ -17,7 +17,7 @@ export const GameStateProvider: FCWithChildren = ({ children }) => {
   const persister = useMemo<Persister>(
     () => ({
       persistClient: debounce(async (client: PersistedClient) => {
-        if(!gameSyncWorker) {
+        if (!gameSyncWorker) {
           return;
         }
 
