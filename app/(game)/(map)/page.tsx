@@ -214,7 +214,7 @@ const MapPage: React.FC = () => {
       />
       {isTileModalOpened && (
         <TileModal
-          tile={modalArgs!}
+          tile={modalArgs.current!}
           onClose={closeModal}
         />
       )}
