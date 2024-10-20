@@ -13,7 +13,6 @@ import { unitsMap } from 'app/assets/units';
 import { Button } from 'app/components/buttons/button';
 import { Icon, type IconType, unitIdToUnitIconMapper } from 'app/components/icon';
 import { GameEventType } from 'app/interfaces/models/events/game-event';
-import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import React from 'react';
@@ -43,7 +42,7 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   );
 };
 
-const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId' | 'referer'>> = ({ unitId, referer: _referer }) => {
+const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
   });
@@ -55,7 +54,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId' | 'referer'>> = ({ 
 
   // Great barracks and great stable require 3x the normal unit cost
   // @ts-ignore
-  const unitCostModifier = (['GREAT_BARRACKS', 'GREAT_STABLE'] satisfies Building['id'][]).includes(_referer) ? 3 : 1;
+  const unitCostModifier = 1;
 
   const __recruitUnits = (amount: number) => {
     createBulkBarracksTrainingEvent({
@@ -90,7 +89,6 @@ type UnitCardProps = {
   showUnitCost?: boolean;
   showRecruitment?: boolean;
   showUnitRecruitmentForm?: boolean;
-  referer: Extract<Building['id'], 'BARRACKS' | 'STABLE' | 'GREAT_BARRACKS' | 'GREAT_STABLE'>;
 };
 
 export const UnitCard: React.FC<UnitCardProps> = (props) => {
@@ -102,7 +100,6 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     showAttributes = false,
     showUnitCost = false,
     showUnitRecruitmentForm = false,
-    referer,
   } = props;
 
   const { t: generalT } = useTranslation();
@@ -219,12 +216,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
         </section>
       )}
 
-      {showUnitRecruitmentForm && hasResearchedUnit && (
-        <UnitRecruitment
-          unitId={unitId}
-          referer={referer}
-        />
-      )}
+      {showUnitRecruitmentForm && hasResearchedUnit && <UnitRecruitment unitId={unitId} />}
 
       {showResearch && canResearch && !hasResearchedUnit && (
         <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
