@@ -9,7 +9,6 @@ import { useMap } from 'app/(game)/hooks/use-map';
 import { usePlayers } from 'app/(game)/hooks/use-players';
 import { useReputations } from 'app/(game)/hooks/use-reputations';
 import { useVillages } from 'app/(game)/hooks/use-villages';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
 import { isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -18,8 +17,7 @@ import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/mo
 import type { Village } from 'app/interfaces/models/game/village';
 import { useViewport } from 'app/providers/viewport-context';
 import type React from 'react';
-import { useLayoutEffect } from 'react';
-import { useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
@@ -59,44 +57,40 @@ const MapPage: React.FC = () => {
   // Fun fact, using any kind of hooks in rendered tiles absolutely hammers performance.
   // We need to get all tile information in here and pass it down as props
   const tilesWithFactions = useMemo(() => {
-    const villageCoordinatesToVillagesMap = new Map<string, Village>(
-      villages.map((village) => {
-        return [`${village.coordinates.x}-${village.coordinates.y}`, village];
-      }),
-    );
-
     return map.map((tile: TileType) => {
       const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
 
       if (isOccupiedOccupiableCell) {
         const { faction, tribe } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
         const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
-        const { x, y } = tile.coordinates;
-        const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}-${y}`)!;
-
-        const population = calculatePopulationFromBuildingFields(buildingFields!, buildingFieldsPresets);
 
         return {
           ...tile,
           faction,
           reputationLevel,
           tribe,
-          population,
         };
       }
 
       return tile;
     });
-  }, [map, getReputationByFaction, getPlayerByPlayerId, villages]);
+  }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
   const fixedGridData = useMemo(() => {
+    const villageCoordinatesToVillagesMap = new Map<string, Village>(
+      villages.map((village) => {
+        return [`${village.coordinates.x}-${village.coordinates.y}`, village];
+      }),
+    );
+
     return {
       tilesWithFactions,
       mapFilters,
       magnification,
       onClick: openModal,
+      villageCoordinatesToVillagesMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, openModal]);
+  }, [tilesWithFactions, mapFilters, magnification, openModal, villages]);
 
   useEventListener(
     'mousedown',
@@ -193,7 +187,7 @@ const MapPage: React.FC = () => {
   }, [tileSize]);
 
   return (
-    <div className="relative">
+    <main className="[view-transition-name:map-page] relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{
@@ -225,7 +219,7 @@ const MapPage: React.FC = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height}
+        height={height - 1}
         width={width}
         itemData={fixedGridData}
         itemKey={({ columnIndex, data, rowIndex }) => {
@@ -255,7 +249,7 @@ const MapPage: React.FC = () => {
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
           itemSize={tileSize}
-          height={height - RULER_SIZE}
+          height={height}
           itemCount={gridSize}
           width={RULER_SIZE}
           layout="vertical"
@@ -284,7 +278,7 @@ const MapPage: React.FC = () => {
         </FixedSizeList>
       </div>
       <MapControls />
-    </div>
+    </main>
   );
 };
 

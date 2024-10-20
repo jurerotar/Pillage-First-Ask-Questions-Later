@@ -14,7 +14,7 @@ import { useViewport } from 'app/providers/viewport-context';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
@@ -81,7 +81,7 @@ const DesktopNavigation = () => {
   const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
 
   return (
-    <header className="fixed left-0 top-0 z-10 flex h-24 w-full">
+    <header className="fixed left-0 top-0 z-10 flex h-24 w-full [view-transition-name:desktop-navigation]">
       <div className="absolute z-[-1] h-10 w-full bg-gradient-to-r from-[#F4F4F4] via-[#8E8E8E] to-[#F4F4F4]" />
       <div className="container mx-auto flex justify-between">
         <div className="flex flex-1" />
@@ -90,27 +90,42 @@ const DesktopNavigation = () => {
           <div className="flex w-full flex-col p-2">
             <div className="flex w-full flex-[2] justify-between">
               <div className="flex flex-1 items-center justify-center">
-                <Link to={resourcesPath}>
+                <Link
+                  viewTransition
+                  to={resourcesPath}
+                >
                   <GiWheat className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={villagePath}>
+                <Link
+                  viewTransition
+                  to={villagePath}
+                >
                   <MdOutlineHolidayVillage className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={currentVillageMapPath}>
+                <Link
+                  viewTransition
+                  to={currentVillageMapPath}
+                >
                   <GrResources className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={reportsPath}>
+                <Link
+                  viewTransition
+                  to={reportsPath}
+                >
                   <LuScrollText className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={auctionsPath}>
+                <Link
+                  viewTransition
+                  to={auctionsPath}
+                >
                   <RiAuctionLine className="text-2xl text-white" />
                 </Link>
               </div>
@@ -140,7 +155,7 @@ const MobileResourcesSection = () => {
   const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
 
   return (
-    <div className="flex w-full bg-blue-500 bg-gradient-to-b from-[#101010] to-[#484848]">
+    <div className="flex w-full bg-blue-500 bg-gradient-to-b from-[#101010] to-[#484848] [view-transition-name:mobile-resources]">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <div
           key={resource}
@@ -180,29 +195,44 @@ const MobileBottomNavigation = () => {
   const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
 
   return (
-    <header className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848]">
+    <header className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848] [view-transition-name:mobile-navigation">
       <div className="flex flex-1 items-center justify-center">
-        <Link to={resourcesPath}>
+        <Link
+          viewTransition
+          to={resourcesPath}
+        >
           <GiWheat className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={villagePath}>
+        <Link
+          viewTransition
+          to={villagePath}
+        >
           <MdOutlineHolidayVillage className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={currentVillageMapPath}>
+        <Link
+          viewTransition
+          to={currentVillageMapPath}
+        >
           <GrResources className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={reportsPath}>
+        <Link
+          viewTransition
+          to={reportsPath}
+        >
           <LuScrollText className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={auctionsPath}>
+        <Link
+          viewTransition
+          to={auctionsPath}
+        >
           <RiAuctionLine className="text-2xl text-white" />
         </Link>
       </div>
@@ -232,6 +262,28 @@ const GameLayout = () => {
 };
 
 export default () => {
+  useEffect(() => {
+    // Preload main pages for snappy view-transitions
+    const preloadPages = () => {
+      Promise.all([
+        import('app/(game)/(village)/page'),
+        import('app/(game)/(map)/page'),
+        import('app/(game)/(village)/(...building-field-id)/page'),
+      ]);
+    };
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        preloadPages();
+      });
+    } else {
+      // Fallback for browsers that don't support requestIdleCallback
+      setTimeout(() => {
+        preloadPages();
+      }, 1000); // Delay as a fallback
+    }
+  }, []);
+
   return (
     <GameStateProvider>
       <GameEngineProvider>
