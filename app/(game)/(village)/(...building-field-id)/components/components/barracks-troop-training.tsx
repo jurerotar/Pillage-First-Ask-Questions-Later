@@ -1,8 +1,7 @@
-import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
-import { Button } from 'app/components/buttons/button';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
-import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { UnitCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-card';
+import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
+import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
+import { GameEventType } from 'app/interfaces/models/events/game-event';
 
 export const BarracksTroopTraining = () => {
   const { researchedUnits } = useUnitResearch();
@@ -20,7 +19,6 @@ export const BarracksTroopTraining = () => {
           showImprovementLevel
           showAttributes
           showUnitCost
-          referer="BARRACKS"
         />
       ))}
     </article>

@@ -79,7 +79,7 @@
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "lint-staged": {
-    "*.{js,ts,tsx,json}": ["npm run lint:check", "npm run format:check", "npm run lint", "npm run format"]
+    "*.{js,ts,tsx,json}": ["npm run type-check", "npm run lint:check", "npm run format:check", "npm run lint", "npm run format"]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
