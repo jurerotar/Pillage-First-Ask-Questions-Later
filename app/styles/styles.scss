@@ -34,8 +34,12 @@
   }
 }
 
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .scrollbar::-webkit-scrollbar {
@@ -86,10 +90,10 @@
   background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23a0aec0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>');
   transition: transform 0.15s cubic-bezier(0, 0, 0.2, 1);
   transform: translateX(0);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
+
 .toggle-checkbox:checked + .toggle-label:before {
   transform: translateX(1.5rem);
   background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23a0aec0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>');
@@ -104,4 +108,48 @@
       }
     }
   }
+}
+
+/* Zoom-in effect for page 1 -> page 2 */
+#page1::view-transition-old {
+  transform: scale(1);
+}
+
+#page2::view-transition-new {
+  transform: scale(0.5);
+  opacity: 1;
+}
+
+/* Zoom-out effect for page 2 -> page 1 */
+#page2::view-transition-old {
+  transform: scale(1);
+}
+
+#page1::view-transition-new {
+  transform: scale(1.5);
+  opacity: 1;
+}
+
+/* Fast zoom-out effect for page 1 or 2 -> page 3 */
+#page1::view-transition-old,
+#page2::view-transition-old {
+  transform: scale(1);
+}
+
+#page3::view-transition-new {
+  transform: scale(1.5);
+  opacity: 1;
+  transition: transform 0.3s ease-out;
+}
+
+/* Fast zoom-in effect for page 3 -> page 1 or 2 */
+#page3::view-transition-old {
+  transform: scale(1);
+}
+
+#page1::view-transition-new,
+#page2::view-transition-new {
+  transform: scale(0.5);
+  opacity: 1;
+  transition: transform 0.3s ease-in;
 }

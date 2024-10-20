@@ -226,7 +226,7 @@ export const CreateServerModalContent = () => {
       {!isPending && !isSuccess && !isError && <CreateServerConfigurationView onSubmit={onSubmit} />}
       {isPending && <div className="mx-auto flex w-full flex-col gap-4 md:max-w-[50%]">Loading</div>}
       {isSuccess && (
-        <Link to={`/game/${latestServer?.slug}/v-1/resources`}>
+        <Link viewTransition to={`/game/${latestServer?.slug}/v-1/resources`}>
           <Button variant="confirm">Enter server</Button>
         </Link>
       )}

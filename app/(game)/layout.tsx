@@ -90,27 +90,27 @@ const DesktopNavigation = () => {
           <div className="flex w-full flex-col p-2">
             <div className="flex w-full flex-[2] justify-between">
               <div className="flex flex-1 items-center justify-center">
-                <Link to={resourcesPath}>
+                <Link viewTransition to={resourcesPath}>
                   <GiWheat className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={villagePath}>
+                <Link viewTransition to={villagePath}>
                   <MdOutlineHolidayVillage className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={currentVillageMapPath}>
+                <Link viewTransition to={currentVillageMapPath}>
                   <GrResources className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={reportsPath}>
+                <Link viewTransition to={reportsPath}>
                   <LuScrollText className="text-2xl text-white" />
                 </Link>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <Link to={auctionsPath}>
+                <Link viewTransition to={auctionsPath}>
                   <RiAuctionLine className="text-2xl text-white" />
                 </Link>
               </div>
@@ -182,27 +182,27 @@ const MobileBottomNavigation = () => {
   return (
     <header className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848]">
       <div className="flex flex-1 items-center justify-center">
-        <Link to={resourcesPath}>
+        <Link viewTransition to={resourcesPath}>
           <GiWheat className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={villagePath}>
+        <Link viewTransition to={villagePath}>
           <MdOutlineHolidayVillage className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={currentVillageMapPath}>
+        <Link viewTransition to={currentVillageMapPath}>
           <GrResources className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={reportsPath}>
+        <Link viewTransition to={reportsPath}>
           <LuScrollText className="text-2xl text-white" />
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <Link to={auctionsPath}>
+        <Link viewTransition to={auctionsPath}>
           <RiAuctionLine className="text-2xl text-white" />
         </Link>
       </div>

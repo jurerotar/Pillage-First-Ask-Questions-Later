@@ -193,7 +193,7 @@ const MapPage: React.FC = () => {
   }, [tileSize]);
 
   return (
-    <div className="relative">
+    <main id="page3" className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{
@@ -225,7 +225,7 @@ const MapPage: React.FC = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height}
+        height={height - 1}
         width={width}
         itemData={fixedGridData}
         itemKey={({ columnIndex, data, rowIndex }) => {
@@ -255,7 +255,7 @@ const MapPage: React.FC = () => {
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
           itemSize={tileSize}
-          height={height - RULER_SIZE}
+          height={height}
           itemCount={gridSize}
           width={RULER_SIZE}
           layout="vertical"
@@ -284,7 +284,7 @@ const MapPage: React.FC = () => {
         </FixedSizeList>
       </div>
       <MapControls />
-    </div>
+    </main>
   );
 };
 

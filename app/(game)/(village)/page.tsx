@@ -53,6 +53,7 @@ const VillagePage: React.FC = () => {
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
   const _viewName = isResourcesPageOpen ? 'resources' : 'village';
+  const id = isResourcesPageOpen ? 'page1' : 'page2';
   const buildingFieldIdsToDisplay = isResourcesPageOpen ? resourceViewBuildingFieldIds : villageViewBuildingFieldIds;
 
   return (
@@ -74,7 +75,7 @@ const VillagePage: React.FC = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0">
+      <main id={id} className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0">
         <div className="relative size-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField
@@ -84,6 +85,7 @@ const VillagePage: React.FC = () => {
           ))}
           {isResourcesPageOpen && (
             <Link
+              viewTransition
               to={villagePath}
               className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
               aria-label={t('APP.GAME.VILLAGE.BUILDING_FIELD.VILLAGE_LINK')}

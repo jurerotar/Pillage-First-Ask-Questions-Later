@@ -15,8 +15,11 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Building } from 'app/interfaces/models/game/building';
+import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
+import { GameEventType } from 'app/interfaces/models/events/game-event';
 
-const UnitResearch: React.FC<UnitCardProps> = ({ unitId }) => {
+const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
   });
@@ -40,6 +43,44 @@ const UnitResearch: React.FC<UnitCardProps> = ({ unitId }) => {
   );
 };
 
+const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId' | 'referer'>> = ({ unitId, referer: _referer }) => {
+  const { t } = useTranslation('translation', {
+    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
+  });
+  const { t: generalT } = useTranslation();
+  const { isUnitResearched } = useUnitResearch();
+  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent(GameEventType.TROOP_TRAINING);
+
+  const _hasResearchedUnit = isUnitResearched(unitId);
+
+  // Great barracks and great stable require 3x the normal unit cost
+  // @ts-ignore
+  const unitCostModifier = (['GREAT_BARRACKS', 'GREAT_STABLE'] satisfies Building['id'][]).includes(_referer) ? 3 : 1;
+
+  const __recruitUnits = (amount: number) => {
+    createBulkBarracksTrainingEvent({
+      buildingId: 'BARRACKS',
+      amount,
+      unitId: 'PHALANX',
+      startsAt: Date.now() + 10000,
+      duration: 1000,
+      resourceCost: [0, 0, 0, 0].map((cost) => cost * unitCostModifier),
+    });
+  };
+
+  return (
+    <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
+      <h2 className="font-medium">{t('ACTIONS.TITLE')}</h2>
+      <Button
+        onClick={() => __recruitUnits(0)}
+        variant="confirm"
+      >
+        {t('ACTIONS.BUTTON', { unit: generalT(`UNITS.${unitId}.NAME`) })}
+      </Button>
+    </section>
+  );
+};
+
 type UnitCardProps = {
   unitId: Unit['id'];
   showRequirements?: boolean;
@@ -48,6 +89,8 @@ type UnitCardProps = {
   showAttributes?: boolean;
   showUnitCost?: boolean;
   showRecruitment?: boolean;
+  showUnitRecruitmentForm?: boolean;
+  referer: Extract<Building['id'], 'BARRACKS' | 'STABLE' | 'GREAT_BARRACKS' | 'GREAT_STABLE'>;
 };
 
 export const UnitCard: React.FC<UnitCardProps> = (props) => {
@@ -58,6 +101,8 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     showImprovementLevel = false,
     showAttributes = false,
     showUnitCost = false,
+    showUnitRecruitmentForm = false,
+    referer,
   } = props;
 
   const { t: generalT } = useTranslation();
@@ -105,7 +150,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
           <h2 className="text-xl">{generalT(`UNITS.${unitId}.NAME`)}</h2>
-          {shouldShowUnitLevel && <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>}
+          {shouldShowUnitLevel && <span className="text-sm text-orange-500">{generalT('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>}
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
           <Icon
@@ -170,6 +215,10 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
             ))}
           </ul>
         </section>
+      )}
+
+      {showUnitRecruitmentForm && hasResearchedUnit && (
+        <UnitRecruitment unitId={unitId} referer={referer} />
       )}
 
       {showResearch && canResearch && !hasResearchedUnit && (
