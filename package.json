@@ -61,7 +61,6 @@
     "happy-dom": "15.7.4",
     "husky": "9.1.6",
     "knip": "5.33.3",
-    "lint-staged": "15.2.10",
     "opfs-mock": "1.0.0",
     "postcss": "8.4.47",
     "resize-observer-polyfill": "1.5.1",
@@ -77,9 +76,6 @@
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx,json}": ["npm run type-check", "npm run lint:check", "npm run format:check", "npm run lint", "npm run format"]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
