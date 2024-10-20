@@ -1939,3 +1939,6 @@ export const buildings: Building[] = [
     ],
   },
 ];
+
+// Use this for faster lookups
+export const buildingMap = new Map<Building['id'], Building>(buildings.map((building) => [building.id, building]));

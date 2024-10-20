@@ -1,4 +1,4 @@
-import { buildings } from 'app/assets/buildings';
+import { buildingMap } from 'app/assets/buildings';
 import { presetIdToPresetMap } from 'app/assets/npc-village-presets';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Effect } from 'app/interfaces/models/game/effect';
@@ -24,8 +24,7 @@ const mergeBuildingFields = (buildingFieldsFromPreset: BuildingField[], building
 export const specialFieldIds: BuildingField['id'][] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40];
 
 export const getBuildingData = (buildingId: Building['id']) => {
-  const building: Building = buildings.find(({ id }) => id === buildingId)!;
-  return building;
+  return buildingMap.get(buildingId)!;
 };
 
 export const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFieldsPresets']): BuildingField[] => {
@@ -74,7 +73,7 @@ export const calculatePopulationFromBuildingFields = (
       continue;
     }
 
-    const fullBuildingData: Building = buildings.find(({ id }) => id === buildingId)!;
+    const fullBuildingData: Building = getBuildingData(buildingId)!;
     sum += partialArraySum(fullBuildingData.cropConsumption, level);
   }
 
@@ -83,7 +82,7 @@ export const calculatePopulationFromBuildingFields = (
 
 export const getResourceProductionByResourceField = (resourceField: BuildingField): number => {
   const { buildingId, level } = resourceField;
-  const fullBuildingData: Building = buildings.find(({ id }) => id === buildingId)!;
+  const fullBuildingData: Building = getBuildingData(buildingId)!;
   // There's only 1 effect on production buildings, this should be fine
   const resourceProduction = fullBuildingData.effects[0]!.valuesPerLevel;
   return resourceProduction[level];

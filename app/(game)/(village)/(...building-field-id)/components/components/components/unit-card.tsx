@@ -3,21 +3,21 @@ import {
   assessUnitResearchReadiness,
 } from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { Resources } from 'app/(game)/components/resources';
+import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
-import { units } from 'app/assets/units';
+import { unitsMap } from 'app/assets/units';
 import { Button } from 'app/components/buttons/button';
 import { Icon, type IconType, unitIdToUnitIconMapper } from 'app/components/icon';
+import { GameEventType } from 'app/interfaces/models/events/game-event';
+import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Building } from 'app/interfaces/models/game/building';
-import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
@@ -25,7 +25,7 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   });
   const { t: generalT } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
-  const { researchCost } = units.find(({ id }) => id === unitId)!;
+  const { researchCost } = unitsMap.get(unitId)!;
 
   const hasResearchedUnit = isUnitResearched(unitId);
 
@@ -116,7 +116,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
   const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, travelSpeed, carryCapacity, cropConsumption, researchCost } =
-    units.find(({ id }) => id === unitId)!;
+    unitsMap.get(unitId)!;
 
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
@@ -150,7 +150,9 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
           <h2 className="text-xl">{generalT(`UNITS.${unitId}.NAME`)}</h2>
-          {shouldShowUnitLevel && <span className="text-sm text-orange-500">{generalT('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>}
+          {shouldShowUnitLevel && (
+            <span className="text-sm text-orange-500">{generalT('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>
+          )}
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
           <Icon
@@ -218,7 +220,10 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       )}
 
       {showUnitRecruitmentForm && hasResearchedUnit && (
-        <UnitRecruitment unitId={unitId} referer={referer} />
+        <UnitRecruitment
+          unitId={unitId}
+          referer={referer}
+        />
       )}
 
       {showResearch && canResearch && !hasResearchedUnit && (

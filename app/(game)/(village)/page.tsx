@@ -7,6 +7,7 @@ import { useEvents } from 'app/(game)/hooks/use-events';
 import { Icon } from 'app/components/icon';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
+import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -53,7 +54,6 @@ const VillagePage: React.FC = () => {
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
   const _viewName = isResourcesPageOpen ? 'resources' : 'village';
-  const id = isResourcesPageOpen ? 'page1' : 'page2';
   const buildingFieldIdsToDisplay = isResourcesPageOpen ? resourceViewBuildingFieldIds : villageViewBuildingFieldIds;
 
   return (
@@ -75,7 +75,12 @@ const VillagePage: React.FC = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main id={id} className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0">
+      <main
+        className={clsx(
+          isResourcesPageOpen ? "[view-transition-name:resources-page']" : '[view-transition-name:village-page]',
+          'mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0',
+        )}
+      >
         <div className="relative size-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField
