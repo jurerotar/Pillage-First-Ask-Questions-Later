@@ -1,6 +1,7 @@
 import { OccupiableOasisIcon } from 'app/(game)/(map)/components/occupiable-oasis-icon';
 import { TreasureIcon } from 'app/(game)/(map)/components/treasure-icon';
 import { WheatFieldIcon } from 'app/(game)/(map)/components/wheat-field-icon';
+import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
 import {
   isOccupiableOasisTile,
   isOccupiableTile,
@@ -20,7 +21,7 @@ import type {
   Tile as TileType,
 } from 'app/interfaces/models/game/tile';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import type { VillageSize } from 'app/interfaces/models/game/village';
+import type { Village, VillageSize } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
@@ -37,15 +38,16 @@ export const reputationColorMap = new Map<ReputationLevel, string>([
   ['hostile', 'after:border-reputation-hostile'],
 ]);
 
+type TileWithVillageData = TileType | OccupiedTileWithFactionAndTribe;
+
 type OccupiedTileWithFactionAndTribe = OccupiedOccupiableTileType & {
   faction: PlayerFaction;
   reputationLevel: ReputationLevel;
   tribe: Tribe;
-  population: number;
 };
 
 type TroopMovementsProps = {
-  tile: TileType | OccupiedTileWithFactionAndTribe;
+  tile: TileWithVillageData;
 };
 
 const TroopMovements: React.FC<TroopMovementsProps> = ({ tile }) => {
@@ -57,15 +59,16 @@ const TroopMovements: React.FC<TroopMovementsProps> = ({ tile }) => {
 };
 
 type CellBaseProps = {
-  tilesWithFactions: (TileType | OccupiedTileWithFactionAndTribe)[];
+  tilesWithFactions: TileWithVillageData[];
   mapFilters: MapFilters;
   magnification: number;
-  onClick: (data: TileType | OccupiedTileWithFactionAndTribe) => void;
+  onClick: (data: TileWithVillageData) => void;
+  villageCoordinatesToVillagesMap: Map<string, Village>;
 };
 
 const wheatFields = ['00018', '11115', '3339'];
 
-type CellIconsProps = Omit<CellBaseProps, 'tilesWithFactions' | 'onClick'> & { tile: TileType | OccupiedTileWithFactionAndTribe };
+type CellIconsProps = Pick<CellBaseProps, 'mapFilters'> & { tile: TileWithVillageData };
 
 const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
   const { shouldShowFactionReputation, shouldShowTreasureIcons, shouldShowOasisIcons, shouldShowWheatFields, shouldShowTroopMovements } =
@@ -122,7 +125,10 @@ const getVillageSize = (population: number): VillageSize => {
 
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
-const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): string => {
+const dynamicCellClasses = (
+  tile: TileWithVillageData,
+  villageCoordinatesToVillagesMap: CellBaseProps['villageCoordinatesToVillagesMap'],
+): string => {
   const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
   const isUnoccupiedOccupiableCell = isUnoccupiedOccupiableTile(tile);
 
@@ -132,7 +138,11 @@ const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): s
   }
 
   if (isOccupiedOccupiableCell) {
-    const { tribe, population } = tile as OccupiedTileWithFactionAndTribe;
+    const { tribe } = tile as OccupiedTileWithFactionAndTribe;
+    const { x, y } = tile.coordinates;
+    const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}-${y}`)!;
+
+    const population = calculatePopulationFromBuildingFields(buildingFields!, buildingFieldsPresets);
 
     const villageSize = getVillageSize(population);
 
@@ -154,15 +164,18 @@ const dynamicCellClasses = (tile: TileType | OccupiedTileWithFactionAndTribe): s
 };
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { tilesWithFactions, mapFilters, magnification, onClick } = data;
+  const { tilesWithFactions, mapFilters, onClick, villageCoordinatesToVillagesMap } = data;
 
   const gridSize = Math.sqrt(data.tilesWithFactions.length);
 
-  const tile: TileType | OccupiedTileWithFactionAndTribe = tilesWithFactions[gridSize * rowIndex + columnIndex];
+  const tile: TileWithVillageData = tilesWithFactions[gridSize * rowIndex + columnIndex];
 
   return (
     <div
-      className={clsx(dynamicCellClasses(tile), 'flex size-full rounded-[1px] border border-gray-500/50 bg-contain relative')}
+      className={clsx(
+        dynamicCellClasses(tile, villageCoordinatesToVillagesMap),
+        'flex size-full rounded-[1px] border border-gray-500/50 bg-contain relative',
+      )}
       style={style}
       data-tile-id={tile.id}
     >
@@ -174,7 +187,6 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
 
       <CellIcons
         mapFilters={mapFilters}
-        magnification={magnification}
         tile={tile}
       />
     </div>

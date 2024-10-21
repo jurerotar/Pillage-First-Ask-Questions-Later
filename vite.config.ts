@@ -2,8 +2,6 @@ import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { type UserConfig, defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import svgrPlugin from 'vite-plugin-svgr';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
 import { reactRouter } from "@react-router/dev/vite";
 
 // https://vitejs.dev/config/
@@ -12,11 +10,6 @@ export default defineConfig({
     react(),
     reactRouter({
       buildDirectory: 'dist'
-    }),
-    viteTsconfigPaths(),
-    svgrPlugin({
-      // svgr options: https://react-svgr.com/docs/options/
-      svgrOptions: { exportType: 'default', svgo: false, expandProps: 'end' },
     }),
     VitePWA({ registerType: 'autoUpdate' }),
   ],
@@ -64,7 +57,6 @@ export default defineConfig({
   resolve: {
     alias: {
       app: path.resolve(__dirname, 'app'),
-      graphics: path.resolve(__dirname, 'graphics'),
     },
   },
   worker: {

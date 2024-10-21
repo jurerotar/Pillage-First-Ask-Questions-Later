@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 export const Backlink = () => {
   return (
     <Link
+      viewTransition
       to=".."
       className="flex items-center gap-1"
     >

@@ -1,15 +1,19 @@
 {
-  "short_name": "Pillage First!",
   "name": "Pillage First! (Ask Questions Later)",
-  "icons": [
-    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
-    { "src": "/icon-mask.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
-    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
-  ],
-  "start_url": ".",
+  "short_name": "Pillage First!",
+  "description": "Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
+  "background_color": "#111111",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/logo-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/logo-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
+    { "src": "/logo-512.png", "type": "image/png", "sizes": "512x512" }
+  ],
   "scope": "/",
-  "description": "Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔️🔥"
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "strategy", "browser-game"]
 }
