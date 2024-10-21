@@ -12,7 +12,7 @@ type ModalProps = ReactModalProps & {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { isOpen = false, closeHandler, hasTitle, title, children, ...rest } = props;
 
-  if(typeof window === 'undefined') {
+  if (typeof window === 'undefined') {
     return null;
   }
 

@@ -1,4 +1,4 @@
-import {index, layout, prefix, route, type RouteConfigEntry} from '@react-router/dev/routes';
+import { type RouteConfigEntry, index, layout, prefix, route } from '@react-router/dev/routes';
 
 export const routes: RouteConfigEntry[] = [
   layout('(public)/layout.tsx', [index('(public)/(index)/page.tsx')]),
