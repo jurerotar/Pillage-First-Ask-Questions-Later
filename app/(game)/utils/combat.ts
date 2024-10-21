@@ -15,8 +15,7 @@ const getCombatantTileId = (units: Troop[]): Tile['id'] => {
   return source;
 };
 
-const _getNpcVillageBonuses = (_village: Village) => {
-};
+const _getNpcVillageBonuses = (_village: Village) => {};
 
 export type ResolveBattleArgs = {
   attackMode: 'attack' | 'raid';
@@ -29,14 +28,14 @@ export type ResolveBattleArgs = {
 };
 
 export const resolveBattle = ({
-                                attackMode: _attackMode,
-                                attackerEffects,
-                                attackerUnits,
-                                attackerHero: _attackerHero,
-                                defenderEffects,
-                                defenderUnits,
-                                defenderVillage,
-                              }: ResolveBattleArgs) => {
+  attackMode: _attackMode,
+  attackerEffects,
+  attackerUnits,
+  attackerHero: _attackerHero,
+  defenderEffects,
+  defenderUnits,
+  defenderVillage,
+}: ResolveBattleArgs) => {
   const attackerVillageId = getCombatantTileId(attackerUnits);
   const defenderVillageId = defenderVillage.id;
 

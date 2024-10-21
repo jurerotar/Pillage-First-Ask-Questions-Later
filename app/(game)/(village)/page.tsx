@@ -77,7 +77,7 @@ const VillagePage: React.FC = () => {
       />
       <main
         className={clsx(
-          isResourcesPageOpen ? '[view-transition-name:resources-page\']' : '[view-transition-name:village-page]',
+          isResourcesPageOpen ? "[view-transition-name:resources-page']" : '[view-transition-name:village-page]',
           'mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0',
         )}
       >
