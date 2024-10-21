@@ -25,7 +25,7 @@ import type { Village, VillageSize } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
-import { type GridChildComponentProps, areEqual } from 'react-window';
+import { areEqual, type GridChildComponentProps } from 'react-window';
 import cellStyles from './cell.module.scss';
 
 export const reputationColorMap = new Map<ReputationLevel, string>([
@@ -83,10 +83,10 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
       className={clsx(
         'size-full relative',
         shouldShowFactionReputation &&
-          isOccupiedOccupiableCell &&
-          `after:absolute after:top-0 after:left-0 after:size-full after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
-            (tile as OccupiedTileWithFactionAndTribe).reputationLevel,
-          )!}`,
+        isOccupiedOccupiableCell &&
+        `after:absolute after:top-0 after:left-0 after:size-full after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
+          (tile as OccupiedTileWithFactionAndTribe).reputationLevel,
+        )!}`,
       )}
     >
       {isOccupiedOccupiableCell && shouldShowTreasureIcons && isTreasuryTile(tile) && <TreasureIcon treasureType={tile.treasureType} />}

@@ -118,13 +118,13 @@ const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: 
 
   const buildingLevelVariant = buildingLevelMap
     ? (() => {
-        for (const [levelThreshold, graphicClass] of buildingLevelMap) {
-          if (level >= levelThreshold) {
-            return graphicClass;
-          }
+      for (const [levelThreshold, graphicClass] of buildingLevelMap) {
+        if (level >= levelThreshold) {
+          return graphicClass;
         }
-        return null;
-      })()
+      }
+      return null;
+    })()
     : null;
 
   return clsx(buildingFieldStyles.building, buildingFieldStyles[`building-village-${buildingIdToCssClass}`], buildingLevelVariant);

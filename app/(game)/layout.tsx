@@ -195,7 +195,8 @@ const MobileBottomNavigation = () => {
   const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
 
   return (
-    <header className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848] [view-transition-name:mobile-navigation">
+    <header
+      className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848] [view-transition-name:mobile-navigation">
       <div className="flex flex-1 items-center justify-center">
         <Link
           viewTransition

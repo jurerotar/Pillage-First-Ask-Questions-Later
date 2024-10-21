@@ -1,4 +1,4 @@
-import { QueryClient, dehydrate, useMutation } from '@tanstack/react-query';
+import { dehydrate, QueryClient, useMutation } from '@tanstack/react-query';
 import { mapFiltersCacheKey } from 'app/(game)/(map)/hooks/use-map-filters';
 import { achievementsCacheKey } from 'app/(game)/hooks/use-achievements';
 import { currentServerCacheKey } from 'app/(game)/hooks/use-current-server';
