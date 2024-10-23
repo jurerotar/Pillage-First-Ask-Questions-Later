@@ -40,7 +40,7 @@ All contributions are welcome at Pillage First!, whether they be tech, game desi
 - Check the following documentation links:
   - [Architecture & app lifecycle](/docs/ARCHITECTURE.md)
   - [Directory naming convention](/docs/DIRECTORY_NAMING_CONVENTION.md)
-- [Join Discord and ask for help](https://discord.gg/KZsWW3Z8) if you run into issues.
+- [Join Discord and ask for help](https://discord.gg/Ep7NKVXUZA) if you run into issues.
 
 All contributions are greatly appreciated.
 
@@ -48,4 +48,4 @@ All contributions are greatly appreciated.
 
 Check out these links to learn more about Pillage First!:
 
-- [Join us on Discord](https://discord.gg/KZsWW3Z8)
+- [Join us on Discord](https://discord.gg/Ep7NKVXUZA)
