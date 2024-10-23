@@ -32,9 +32,12 @@ export const useUnitResearch = () => {
   const isUnitResearched = (unitId: Unit['id']) =>
     unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.researchedIn.includes(currentVillageId));
 
+  const researchedUnits = unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
+
   return {
     unitResearch,
     researchUnit,
     isUnitResearched,
+    researchedUnits,
   };
 };

@@ -5,29 +5,21 @@ import type { Effect, EffectId, GlobalEffect, VillageEffect } from 'app/interfac
 import type { Village } from 'app/interfaces/models/game/village';
 
 export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[], currentVillageId: Village['id']) => {
+  const bonusEffectId = `${effectId}Bonus`;
+
+  const bonusEffectIdFilterFunction = ({ id }: Effect) => id === bonusEffectId;
+  const effectIdFilterFunction = ({ id }: Effect) => id === effectId;
+
   const globalEffects: GlobalEffect[] = effects.filter(isGlobalEffect);
   const villageEffects: VillageEffect[] = effects.filter(isVillageEffect);
   const currentVillageEffects: VillageEffect[] = villageEffects.filter(({ villageId }) => villageId === currentVillageId);
 
-  const baseEffects = [...currentVillageEffects.filter(({ id }) => id === effectId), ...globalEffects.filter(({ id }) => id === effectId)];
-  const bonusEffects = [
-    ...currentVillageEffects.filter(({ id }) => id === `${effectId}Bonus`),
-    ...globalEffects.filter(({ id }) => id === `${effectId}Bonus`),
-  ];
+  const baseEffects = [...currentVillageEffects.filter(effectIdFilterFunction), ...globalEffects.filter(effectIdFilterFunction)];
+  const bonusEffects = [...currentVillageEffects.filter(bonusEffectIdFilterFunction), ...globalEffects.filter(bonusEffectIdFilterFunction)];
 
   const cumulativeBaseEffectValue = baseEffects.reduce((acc: number, effect: Effect) => acc + effect.value, 0);
 
-  const cumulativeBonusEffectValue = bonusEffects.reduce((acc: number, effect: Effect) => {
-    if (effect.value > 1) {
-      return acc + (effect.value - 1);
-    }
-
-    if (effect.value < 1) {
-      return acc - (1 - effect.value);
-    }
-
-    return acc;
-  }, 1);
+  const cumulativeBonusEffectValue = bonusEffects.reduce((acc: number, effect: Effect) => acc + (effect.value - 1), 1);
 
   // There's always only 1 server effect for particular effect id, but if it's missing, value is 1
   const serverEffectValue = effects.find(({ id, scope }) => scope === 'server' && id === effectId)?.value ?? 1;

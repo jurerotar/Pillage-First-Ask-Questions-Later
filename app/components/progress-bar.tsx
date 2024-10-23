@@ -1,5 +1,5 @@
-import type React from 'react';
 import { clamp } from 'app/utils/common';
+import type React from 'react';
 
 type ProgressBarProps = {
   value: number;

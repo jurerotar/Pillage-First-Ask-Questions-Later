@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useEffect, useMemo, type FCWithChildren } from 'react';
+import { createContext, type FCWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 
 type WindowSize = {
   height: number;

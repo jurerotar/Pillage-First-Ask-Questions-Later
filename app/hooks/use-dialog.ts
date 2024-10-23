@@ -30,6 +30,6 @@ export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
     closeModal,
     openModal,
     toggleModal,
-    modalArgs: modalArgs.current,
+    modalArgs,
   };
 };
