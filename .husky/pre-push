@@ -1,1 +1,2 @@
-biome ci
+biome format
+biome lint
