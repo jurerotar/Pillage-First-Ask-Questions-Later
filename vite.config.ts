@@ -11,7 +11,7 @@ export default defineConfig({
     reactRouter({
       buildDirectory: 'dist',
     }),
-    VitePWA({ registerType: 'autoUpdate' }),
+    VitePWA({ registerType: 'autoUpdate', manifest: false }),
   ],
   server: {
     open: true,

@@ -1,3 +1,2 @@
-npm run type-check;
-npm run lint:check;
-npm run format:check;
+biome format
+biome lint
