@@ -6,6 +6,9 @@
     "useIgnoreFile": true,
     "defaultBranch": "develop"
   },
+  "organizeImports": {
+    "enabled": false
+  },
   "formatter": {
     "useEditorconfig": true,
     "formatWithErrors": true,
