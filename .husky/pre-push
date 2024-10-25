@@ -1,2 +1,1 @@
-biome format
-biome lint
+biome check
