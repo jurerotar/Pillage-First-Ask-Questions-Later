@@ -31,7 +31,7 @@ jobs:
         run: npm run format:check
 
       - name: Unused exports and dependencies check
-        run: npm run format:check
+        run: npm run knip:ci
 
       - name: Run tests
         run: npm test
