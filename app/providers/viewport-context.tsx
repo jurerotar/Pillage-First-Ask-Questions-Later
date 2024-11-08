@@ -1,4 +1,5 @@
-import { createContext, type FCWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 type WindowSize = {
   height: number;
@@ -29,7 +30,7 @@ type ViewportProviderProps = {
   initialSize?: WindowSize;
 };
 
-const ViewportProvider: FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
+const ViewportProvider: React.FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
   const [windowSize, setWindowSize] = useState<WindowSize>(initialSize);
 
   // TODO: Add debounce, maybe through lodash, don't wanna maintain own version

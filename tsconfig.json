@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["dom", "dom.iterable", "dom.asynciterable", "esnext", "webworker"],
+    "lib": ["dom", "esnext", "webworker"],
     "types": ["vite/client", "vitest"],
     "typeRoots": ["node_modules/@types", "node_modules"],
     "baseUrl": "./",
@@ -26,5 +26,5 @@
     }
   },
   "exclude": ["node_modules", "dist", "coverage", "public"],
-  "include": ["app", "vitest-setup.ts"]
+  "include": ["app", "vitest-setup.ts", "vite.config.ts"]
 }

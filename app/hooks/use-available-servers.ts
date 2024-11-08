@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle } from 'app/utils/opfs';
-
-export const availableServerCacheKey = 'available-servers';
+import { availableServerCacheKey } from 'app/query-keys';
 
 export const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();

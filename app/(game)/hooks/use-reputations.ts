@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import { useCallback } from 'react';
-
-export const reputationsCacheKey = 'reputations';
+import { reputationsCacheKey } from 'app/query-keys';
 
 export const useReputations = () => {
   const { data: reputations } = useQuery<Reputation[]>({

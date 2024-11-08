@@ -1,1 +1,2 @@
 biome check --write --staged
+git add .

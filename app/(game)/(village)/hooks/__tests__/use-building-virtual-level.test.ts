@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
 import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building-virtual-level';
-import { eventsCacheKey } from 'app/(game)/hooks/use-events';
 import type { GameEvent } from 'app/interfaces/models/events/game-event';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
+import { eventsCacheKey } from 'app/query-keys';
 
 const clayPitUpgradeLevel1EventMock = createBuildingConstructionEventMock({
   buildingId: 'CLAY_PIT',

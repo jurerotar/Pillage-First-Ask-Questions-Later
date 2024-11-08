@@ -5,19 +5,21 @@ import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
 import 'opfs-mock';
 import '@vitest/web-worker';
-import { QueryClient, hydrate } from '@tanstack/react-query';
+import { hydrate, QueryClient } from '@tanstack/react-query';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
-import { achievementsCacheKey } from 'app/(game)/hooks/use-achievements';
-import { currentServerCacheKey } from 'app/(game)/hooks/use-current-server';
-import { effectsCacheKey } from 'app/(game)/hooks/use-effects';
-import { eventsCacheKey } from 'app/(game)/hooks/use-events';
-import { mapCacheKey } from 'app/(game)/hooks/use-map';
-import { playersCacheKey } from 'app/(game)/hooks/use-players';
-import { questsCacheKey } from 'app/(game)/hooks/use-quests';
-import { reputationsCacheKey } from 'app/(game)/hooks/use-reputations';
-import { troopsCacheKey } from 'app/(game)/hooks/use-troops';
-import { unitResearchCacheKey } from 'app/(game)/hooks/use-unit-research';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages';
+import {
+  achievementsCacheKey,
+  currentServerCacheKey,
+  effectsCacheKey,
+  eventsCacheKey,
+  mapCacheKey,
+  playersCacheKey,
+  questsCacheKey,
+  reputationsCacheKey,
+  troopsCacheKey,
+  unitResearchCacheKey,
+  villagesCacheKey,
+} from 'app/query-keys';
 import { getVillageSize } from 'app/factories/utils/common';
 import type { GameEvent } from 'app/interfaces/models/events/game-event';
 import type { Achievement } from 'app/interfaces/models/game/achievement';

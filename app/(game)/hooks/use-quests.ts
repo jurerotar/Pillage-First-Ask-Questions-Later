@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import type { Quest } from 'app/interfaces/models/game/quest';
-
-export const questsCacheKey = 'quests';
+import { questsCacheKey } from 'app/query-keys';
 
 export const useQuests = () => {
   const { currentVillageId } = useCurrentVillage();

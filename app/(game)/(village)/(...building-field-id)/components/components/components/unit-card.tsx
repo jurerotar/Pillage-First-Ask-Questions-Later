@@ -15,7 +15,8 @@ import { Icon, type IconType, unitIdToUnitIconMapper } from 'app/components/icon
 import { GameEventType } from 'app/interfaces/models/events/game-event';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
-import React from 'react';
+import type React from 'react';
+import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
@@ -202,7 +203,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
           <h2 className="font-medium">{t('REQUIREMENTS.TITLE')}</h2>
           <ul className="flex gap-2 flex-wrap">
             {assessedRequirements.map((assessedRequirement: AssessedResearchRequirement, index) => (
-              <React.Fragment key={assessedRequirement.buildingId}>
+              <Fragment key={assessedRequirement.buildingId}>
                 <li className="whitespace-nowrap">
                   <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
                     {generalT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
@@ -210,7 +211,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
                   </span>
                   {index !== assessedRequirements.length - 1 && ','}
                 </li>
-              </React.Fragment>
+              </Fragment>
             ))}
           </ul>
         </section>

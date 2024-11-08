@@ -1,6 +1,6 @@
 import { BuildingActions } from 'app/(game)/(village)/components/building-actions';
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
-import { type AssessedBuildingRequirement, assessBuildingConstructionReadiness } from 'app/(game)/(village)/utils/building-requirements';
+import { assessBuildingConstructionReadiness, type AssessedBuildingRequirement } from 'app/(game)/(village)/utils/building-requirements';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useEvents } from 'app/(game)/hooks/use-events';
@@ -9,7 +9,8 @@ import { useVillages } from 'app/(game)/hooks/use-villages';
 import { getBuildingData, specialFieldIds } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import clsx from 'clsx';
-import React from 'react';
+import type React from 'react';
+import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type BuildingCardProps = {
@@ -60,7 +61,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
           <h3 className="font-medium">Requirements</h3>
           <ul className="flex gap-x-2 flex-wrap">
             {requirementsToDisplay.map((assessedRequirement: AssessedBuildingRequirement, index) => (
-              <React.Fragment key={assessedRequirement.id}>
+              <Fragment key={assessedRequirement.id}>
                 <li className="whitespace-nowrap">
                   <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
                     {assessedRequirement.type === 'amount' && instanceAlreadyExists && (
@@ -77,7 +78,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
                     {index !== requirementsToDisplay.length - 1 && ','}
                   </span>
                 </li>
-              </React.Fragment>
+              </Fragment>
             ))}
           </ul>
         </section>

@@ -1,16 +1,4 @@
 import { dehydrate, QueryClient, useMutation } from '@tanstack/react-query';
-import { mapFiltersCacheKey } from 'app/(game)/(map)/hooks/use-map-filters';
-import { achievementsCacheKey } from 'app/(game)/hooks/use-achievements';
-import { currentServerCacheKey } from 'app/(game)/hooks/use-current-server';
-import { effectsCacheKey } from 'app/(game)/hooks/use-effects';
-import { heroCacheKey } from 'app/(game)/hooks/use-hero';
-import { mapCacheKey } from 'app/(game)/hooks/use-map';
-import { playersCacheKey } from 'app/(game)/hooks/use-players';
-import { reputationsCacheKey } from 'app/(game)/hooks/use-reputations';
-import { troopsCacheKey } from 'app/(game)/hooks/use-troops';
-import { unitImprovementCacheKey } from 'app/(game)/hooks/use-unit-improvement';
-import { unitResearchCacheKey } from 'app/(game)/hooks/use-unit-research';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages';
 import type { CreateServerWorkerPayload } from 'app/(public)/workers/create-server-worker';
 import CreateServerWorker from 'app/(public)/workers/create-server-worker?worker&url';
 import type { GenerateMapWorkerPayload, GenerateMapWorkerReturn } from 'app/(public)/workers/generate-map-worker';
@@ -46,6 +34,20 @@ import { workerFactory } from 'app/utils/workers';
 import type React from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import {
+  achievementsCacheKey,
+  currentServerCacheKey,
+  effectsCacheKey,
+  heroCacheKey,
+  mapCacheKey,
+  mapFiltersCacheKey,
+  playersCacheKey,
+  reputationsCacheKey,
+  troopsCacheKey,
+  unitImprovementCacheKey,
+  unitResearchCacheKey,
+  villagesCacheKey,
+} from 'app/query-keys';
 
 const PLAYER_COUNT = 50;
 
