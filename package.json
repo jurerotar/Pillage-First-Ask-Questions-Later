@@ -16,6 +16,7 @@
     "lint": "npx @biomejs/biome lint --fix",
     "format:check": "npx @biomejs/biome format",
     "format": "npx @biomejs/biome format --write",
+    "knip": "npx knip --max-issues 29",
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "prepare": "husky",

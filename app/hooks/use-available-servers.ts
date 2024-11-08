@@ -3,7 +3,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/query-keys';
 
-export const deleteServerData = async (server: Server) => {
+const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();
   await rootHandle.removeEntry(`${server.slug}.json`);
   const servers: Server[] = JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]');
