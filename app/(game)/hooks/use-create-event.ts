@@ -1,44 +1,16 @@
-import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
-import { doesEventRequireResourceCheck } from 'app/(game)/hooks/guards/event-guards';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { eventsCacheKey, insertBulkEvent, insertEvent } from 'app/(game)/hooks/use-events';
-import { getCurrentVillageResources, updateVillageResources } from 'app/(game)/hooks/utils/events';
+import {
+  type CreateBulkEventArgs,
+  type CreateEventArgs,
+  createEventFn,
+  getCurrentVillageResources,
+  insertBulkEvent,
+  updateVillageResources,
+} from 'app/(game)/hooks/utils/events';
 import { eventFactory } from 'app/factories/event-factory';
-import type { EventWithRequiredResourceCheck, GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
-
-type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'villageId' | 'type'>;
-
-type CreateBulkEventArgs<T extends GameEventType> = CreateEventArgs<T> &
-  EventWithRequiredResourceCheck & {
-    amount: number;
-  };
-
-type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
-  onSuccess?: (queryClient: QueryClient, args: CreateEventFnArgs<T> | CreateBulkEventArgs<T>) => void;
-  onFailure?: (queryClient: QueryClient, args: CreateEventFnArgs<T> | CreateBulkEventArgs<T>) => void;
-};
-
-export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {
-  const { villageId, onSuccess, onFailure, startsAt } = args;
-  const event: GameEvent<T> = eventFactory<T>(args);
-
-  if (doesEventRequireResourceCheck(event)) {
-    const { resourceCost } = event;
-
-    const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, villageId, startsAt);
-
-    const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
-    if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
-      onFailure?.(queryClient, args);
-      return;
-    }
-
-    updateVillageResources(queryClient, villageId, resourceCost, 'subtract');
-  }
-
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (previousEvents) => insertEvent(previousEvents!, event));
-  onSuccess?.(queryClient, args);
-};
+import type { GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import { eventsCacheKey } from 'app/query-keys';
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();

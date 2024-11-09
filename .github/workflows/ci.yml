@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+
+
+jobs:
+  build:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: npm
+
+      - name: Install modules
+        run: npm install
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint check
+        run: npm run lint:check
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Unused exports and dependencies check
+        run: npm run knip:ci
+
+      - name: Run tests
+        run: npm test

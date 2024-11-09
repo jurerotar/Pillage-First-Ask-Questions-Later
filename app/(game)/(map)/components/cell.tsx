@@ -25,10 +25,10 @@ import type { Village, VillageSize } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
-import { type GridChildComponentProps, areEqual } from 'react-window';
+import { areEqual, type GridChildComponentProps } from 'react-window';
 import cellStyles from './cell.module.scss';
 
-export const reputationColorMap = new Map<ReputationLevel, string>([
+const reputationColorMap = new Map<ReputationLevel, string>([
   ['player', 'after:border-reputation-player'],
   ['ecstatic', 'after:border-reputation-ecstatic'],
   ['respected', 'after:border-reputation-respected'],

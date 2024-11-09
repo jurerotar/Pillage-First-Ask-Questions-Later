@@ -1,6 +1,6 @@
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 
-export type TroopTrainingDurationEffectId =
+type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
   | 'greatBarracksTrainingDuration'
   | 'stableTrainingDuration'
@@ -63,8 +63,4 @@ export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
   source: 'building';
   buildingFieldId: BuildingField['id'];
-};
-
-export type VillageOasisEffect = Omit<VillageEffect, 'source'> & {
-  source: 'oasis';
 };
