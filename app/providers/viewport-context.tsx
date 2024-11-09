@@ -15,7 +15,7 @@ type ViewportContextValues = {
   isWiderThan2Xl: boolean;
 } & WindowSize;
 
-export const breakpoints = {
+const breakpoints = {
   xs: 425,
   sm: 640,
   md: 768,

@@ -27,7 +27,7 @@ export const getBuildingData = (buildingId: Building['id']) => {
   return buildingMap.get(buildingId)!;
 };
 
-export const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFieldsPresets']): BuildingField[] => {
+const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFieldsPresets']): BuildingField[] => {
   return buildingFieldsPresets.flatMap((presetId) => presetIdToPresetMap.get(presetId)!);
 };
 
@@ -80,7 +80,7 @@ export const calculatePopulationFromBuildingFields = (
   return sum;
 };
 
-export const getResourceProductionByResourceField = (resourceField: BuildingField): number => {
+const getResourceProductionByResourceField = (resourceField: BuildingField): number => {
   const { buildingId, level } = resourceField;
   const fullBuildingData: Building = getBuildingData(buildingId)!;
   // There's only 1 effect on production buildings, this should be fine
