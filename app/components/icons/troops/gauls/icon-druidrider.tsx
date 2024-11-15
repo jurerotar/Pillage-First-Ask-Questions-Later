@@ -1,6 +1,6 @@
-import IconSharedHorse from 'graphics/icon-horse-shared.svg?react';
+import { PillageFirstHorse } from '@pillage-first/graphics';
 import styles from './gauls.module.scss';
 
 export const IconDruidrider = () => {
-  return <IconSharedHorse className={styles.druidrider} />;
+  return <PillageFirstHorse className={styles.druidrider} />;
 };

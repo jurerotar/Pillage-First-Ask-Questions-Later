@@ -3,8 +3,11 @@ import { assessUnitResearchReadiness } from 'app/(game)/(village)/(...building-f
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { partition } from 'app/utils/common';
+import { Text } from 'app/components/text';
+import { useTranslation } from 'react-i18next';
 
 export const AcademyUnitResearch = () => {
+  const { t } = useTranslation();
   const { currentVillage, currentVillageId } = useCurrentVillage();
   const { unitResearch } = useUnitResearch();
 
@@ -16,7 +19,7 @@ export const AcademyUnitResearch = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <h2>Unit research</h2>
+      <Text as="h2">{t('APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.TITLE')}</Text>
       {researchedUnits.length > 0 && (
         <ul className="flex flex-col gap-2">
           {researchedUnits.map(({ unitId }) => (

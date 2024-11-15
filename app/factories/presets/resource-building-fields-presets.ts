@@ -1,7 +1,6 @@
 import type { BuildingId } from 'app/interfaces/models/game/building';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
-import type { BuildingField, ResourceFieldComposition, ResourceFieldId } from 'app/interfaces/models/game/village';
+import type { BuildingField, ResourceFieldComposition, ResourceFieldId, VillageSize } from 'app/interfaces/models/game/village';
 
 type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 
@@ -141,12 +140,18 @@ const resourceFieldsLayouts: Record<ResourceFieldComposition, ResourceFieldLayou
   },
 };
 
-const villageSizeToResourceFieldsLevelMap = new Map<OccupiedOccupiableTile['villageSize'] | 'player', number>([
+// TODO: Update these
+const villageSizeToResourceFieldsLevelMap = new Map<VillageSize | 'player', number>([
   ['player', 0],
+  ['xxs', 3],
   ['xs', 3],
   ['sm', 5],
   ['md', 8],
   ['lg', 10],
+  ['xl', 10],
+  ['2xl', 10],
+  ['3xl', 10],
+  ['4xl', 10],
 ]);
 
 const resourceTypeToResourceBuildingIdMap = new Map<Resource, BuildingId>([
@@ -170,14 +175,19 @@ const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: Resource
 
 export const createVillageResourceFields = (
   resourceFieldComposition: ResourceFieldComposition,
-  villageSize: OccupiedOccupiableTile['villageSize'] | 'player',
+  villageSize: VillageSize | 'player',
 ): BuildingField[] => {
   const resourceFieldsLayout = resourceFieldsLayouts[resourceFieldComposition];
   const resourceFieldsLevel = villageSizeToResourceFieldsLevelMap.get(villageSize)!;
   return convertResourceFieldLayoutToResourceField(resourceFieldsLayout, resourceFieldsLevel);
 };
 
+export const xxsVillageResourceFieldsPreset = createVillageResourceFields('4446', 'xs');
 export const xsVillageResourceFieldsPreset = createVillageResourceFields('4446', 'xs');
 export const smVillageResourceFieldsPreset = createVillageResourceFields('4446', 'sm');
 export const mdVillageResourceFieldsPreset = createVillageResourceFields('4446', 'md');
 export const lgVillageResourceFieldsPreset = createVillageResourceFields('4446', 'lg');
+export const xlVillageResourceFieldsPreset = createVillageResourceFields('4446', 'xl');
+export const xxlVillageResourceFieldsPreset = createVillageResourceFields('4446', '2xl');
+export const xxxlVillageResourceFieldsPreset = createVillageResourceFields('4446', '3xl');
+export const xxxxlVillageResourceFieldsPreset = createVillageResourceFields('4446', '4xl');

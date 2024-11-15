@@ -1,5 +1,6 @@
 import { useCurrentServer } from 'app/(game)/hooks/use-current-server';
-import { type FCWithChildren, createContext, useCallback, useContext, useMemo, useState } from 'react';
+import type React from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 type MapProviderValues = {
   magnification: number;
@@ -15,7 +16,7 @@ export const MAX_MAGNIFICATION = 5;
 export const MIN_MAGNIFICATION = 3;
 const TILE_BASE_SIZE = 20;
 
-const MapProvider: FCWithChildren = ({ children }) => {
+const MapProvider: React.FCWithChildren = ({ children }) => {
   const { mapSize } = useCurrentServer();
 
   const [magnification, setMagnification] = useState<number>(4);

@@ -62,8 +62,12 @@
   }
 }
 
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .scrollbar::-webkit-scrollbar {

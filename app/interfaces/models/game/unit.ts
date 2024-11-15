@@ -61,7 +61,7 @@ export type EgyptianUnitId =
   | 'NOMARCH'
   | 'EGYPTIAN_SETTLER';
 
-export type SpartanUnitId =
+type SpartanUnitId =
   | 'HOPLITE'
   | 'SENTINEL'
   | 'SHIELDSMAN'

@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["dom", "dom.iterable", "dom.asynciterable", "esnext", "webworker"],
-    "types": ["vite/client", "vite-plugin-svgr/client", "vitest"],
+    "lib": ["dom", "esnext", "webworker"],
+    "types": ["vite/client", "vitest"],
     "typeRoots": ["node_modules/@types", "node_modules"],
     "baseUrl": "./",
     "allowJs": true,
@@ -22,10 +22,9 @@
     "strict": true,
     "module": "esnext",
     "paths": {
-      "app/*": ["app/*"],
-      "graphics/*": ["graphics/*"]
+      "app/*": ["app/*"]
     }
   },
   "exclude": ["node_modules", "dist", "coverage", "public"],
-  "include": ["app", "vitest-setup.ts"]
+  "include": ["app", "vitest-setup.ts", "vite.config.ts"]
 }

@@ -1,6 +1,6 @@
-import IconSharedHorse from 'graphics/icon-horse-shared.svg?react';
+import { PillageFirstHorse } from '@pillage-first/graphics';
 import styles from './egyptians.module.scss';
 
 export const IconAnhurGuard = () => {
-  return <IconSharedHorse className={styles['anhur-guard']} />;
+  return <PillageFirstHorse className={styles['anhur-guard']} />;
 };

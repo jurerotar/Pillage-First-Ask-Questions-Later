@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { isGlobalEffect, isServerEffect, isVillageEffect } from 'app/(game)/utils/guards/effect-guards';
 import type { Effect, GlobalEffect, ServerEffect, VillageEffect } from 'app/interfaces/models/game/effect';
-
-export const effectsCacheKey = 'effects';
+import { effectsCacheKey } from 'app/query-keys';
 
 export const useEffects = () => {
   const { currentVillageId } = useCurrentVillage();

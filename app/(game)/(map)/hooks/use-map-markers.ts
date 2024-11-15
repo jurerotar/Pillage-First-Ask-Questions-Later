@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { mapMarkerFactory } from 'app/factories/map-marker-factory';
 import type { MapMarker } from 'app/interfaces/models/game/map-marker';
 import type { Tile } from 'app/interfaces/models/game/tile';
-
-export const mapMarkersCacheKey = 'map-markers';
+import { mapMarkersCacheKey } from 'app/query-keys';
 
 export const useMapMarkers = () => {
   const queryClient = useQueryClient();

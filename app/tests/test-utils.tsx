@@ -1,9 +1,5 @@
-import { type DehydratedState, QueryClient, dehydrate, hydrate } from '@tanstack/react-query';
+import { dehydrate, type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { render, renderHook } from '@testing-library/react';
-import { currentServerCacheKey } from 'app/(game)/hooks/use-current-server.js';
-import { effectsCacheKey } from 'app/(game)/hooks/use-effects.js';
-import { playersCacheKey } from 'app/(game)/hooks/use-players.js';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages.js';
 import { CurrentResourceProvider } from 'app/(game)/providers/current-resources-provider.js';
 import { generateEffects } from 'app/factories/effect-factory.js';
 import type { Effect } from 'app/interfaces/models/game/effect.js';
@@ -17,8 +13,8 @@ import { serverMock, serverPathMock } from 'app/tests/mocks/game/server-mock.js'
 import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx.js';
 import type React from 'react';
-import type { FCWithChildren } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { currentServerCacheKey, effectsCacheKey, playersCacheKey, villagesCacheKey } from 'app/query-keys';
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -51,7 +47,7 @@ type RenderOptions = {
   path?: string;
   queryClient?: QueryClient;
   // Wrap your component with layout(s). If property is missing, default layout will be used.
-  wrapper?: FCWithChildren[] | FCWithChildren;
+  wrapper?: React.FCWithChildren[] | React.FCWithChildren;
   deviceSize?: {
     height: Window['innerHeight'];
     width: Window['innerWidth'];
@@ -60,7 +56,7 @@ type RenderOptions = {
 
 // Game components relly on url pathname params to determine correct data to display, so this testing environments mocks that.
 // You're also provided a very limited subset set of game data in form of 'gameEnvironment', which you may override by providing your own query client.
-const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
+const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
   const globalQueryClient = new QueryClient();
@@ -83,7 +79,13 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
     <StateProvider queryClient={globalQueryClient}>
       <ViewportProvider initialSize={deviceSize}>
         <StateProvider queryClient={gameQueryClient}>
-          <MemoryRouter initialEntries={[path ?? `${serverPathMock}/v-1`]}>
+          <MemoryRouter
+            initialEntries={[path ?? `${serverPathMock}/v-1`]}
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
             <Routes>
               <Route
                 id="game"
@@ -126,7 +128,7 @@ const GameTestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
   );
 };
 
-const TestingEnvironment: FCWithChildren<RenderOptions> = (props) => {
+const TestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient } = props;
 
   const queryClient = providedQueryClient ?? new QueryClient();

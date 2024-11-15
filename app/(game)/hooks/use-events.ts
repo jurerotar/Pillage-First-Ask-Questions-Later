@@ -10,55 +10,14 @@ import {
 import { troopTrainingEventResolver } from 'app/(game)/hooks/resolvers/troop-resolvers';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages';
 import { updateVillageResources } from 'app/(game)/hooks/utils/events';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
 import { type GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
-
-export const eventsCacheKey = 'events';
+import { eventsCacheKey, villagesCacheKey } from 'app/query-keys';
 
 const MAX_BUILDINGS_IN_QUEUE = 5;
-
-// To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
-export const insertEvent = (events: GameEvent[], event: GameEvent): GameEvent[] => {
-  const lastIndex = events.findLastIndex(({ startsAt }) => event.startsAt >= startsAt);
-  return events.toSpliced(lastIndex === -1 ? events.length : lastIndex + 1, 0, event);
-};
-
-// Make sure newEvents are already sorted. We avoid sorting to optimize performance.
-export const insertBulkEvent = (events: GameEvent[], newEvents: GameEvent[]): GameEvent[] => {
-  const result = new Array(events.length + newEvents.length); // Pre-allocate the result array
-
-  // Pointer to keep track of the current index in the 'events' array
-  let i = 0;
-  // Pointer to keep track of the current index in the 'newEvents' array
-  let j = 0;
-  // Pointer to keep track of the current index in the 'result' array
-  let k = 0;
-
-  // Merge the arrays as before
-  while (i < events.length && j < newEvents.length) {
-    if (events[i].startsAt <= newEvents[j].startsAt) {
-      result[k++] = events[i++];
-    } else {
-      result[k++] = newEvents[j++];
-    }
-  }
-
-  // Copy remaining events from 'events' array
-  while (i < events.length) {
-    result[k++] = events[i++];
-  }
-
-  // Copy remaining events from 'newEvents' array
-  while (j < newEvents.length) {
-    result[k++] = newEvents[j++];
-  }
-
-  return result;
-};
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   switch (gameEventType) {

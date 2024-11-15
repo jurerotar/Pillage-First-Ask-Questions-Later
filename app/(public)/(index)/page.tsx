@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
   const { availableServers } = useAvailableServers();
 
   const resetOpfs = async () => {
-    await (await navigator.storage.getDirectory()).removeEntry('echoes-of-travian', { recursive: true });
+    await (await navigator.storage.getDirectory()).removeEntry('pillage-first-ask-questions-later', { recursive: true });
     window.location.reload();
   };
 
@@ -27,11 +27,11 @@ const HomePage: React.FC = () => {
         {/* Landing section */}
         <section className="container relative mx-auto flex min-h-[300px] flex-col gap-4 lg:flex-row">
           <div className="flex flex-1 flex-col justify-center gap-4 p-4">
-            <h1 className="text-3xl font-semibold dark:text-white">Echoes of Travian</h1>
+            <h1 className="text-3xl font-semibold dark:text-white">Pillage First! (Ask Questions Later)</h1>
             <h2 className="text-xl dark:text-white">
-              About Echoes of Travian is a single-player, real-time, browser-based strategy game, inspired by Travian. It requires no
-              download or account creation. Using browser's native technologies, game data is persisted and progressed between game
-              sessions, just like you would expect from an online game.
+              Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage
+              resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions
+              later! ⚔🔥
             </h2>
             <Button onClick={() => openCreateServerModal()}>Create new server</Button>
 

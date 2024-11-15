@@ -2,12 +2,11 @@ import { Icon } from 'app/components/icon';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
 import type React from 'react';
-import type { FCWithChildren } from 'react';
 import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEventListener, useOnClickOutside } from 'usehooks-ts';
 
-const TileModalButton: FCWithChildren<React.HTMLAttributes<HTMLButtonElement>> = ({ children, className, ...rest }) => {
+const TileModalButton: React.FCWithChildren<React.HTMLAttributes<HTMLButtonElement>> = ({ children, className, ...rest }) => {
   return (
     <button
       {...rest}

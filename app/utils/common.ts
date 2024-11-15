@@ -94,6 +94,26 @@ export const timeExecution = async (callback: () => void | Promise<void>, name =
   performance.measure(name, `${name} - start`, `${name} - end`);
 };
 
+export const averageExecutionTime = (count = 100) => {
+  let executionCount = 0;
+  let totalTime = 0;
+
+  return (callback: () => void) => {
+    const startTime = performance.now();
+    callback();
+    const endTime = performance.now();
+
+    const runTime = endTime - startTime;
+    executionCount += 1;
+    totalTime += runTime;
+
+    if (executionCount === count) {
+      // biome-ignore lint/suspicious/noConsole:
+      console.log(`${totalTime / executionCount}ms`);
+    }
+  };
+};
+
 export const isInDevelopmentMode = () => {
   return import.meta.env.DEV;
 };

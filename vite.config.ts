@@ -2,24 +2,16 @@ import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { type UserConfig, defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import svgrPlugin from 'vite-plugin-svgr';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    viteTsconfigPaths(),
-    svgrPlugin({
-      // svgr options: https://react-svgr.com/docs/options/
-      svgrOptions: { exportType: 'default', svgo: false, expandProps: 'end' },
-    }),
-    VitePWA({ registerType: 'autoUpdate' }),
-  ],
+  plugins: [react(), tailwindcss(), VitePWA({ registerType: 'autoUpdate', manifest: false })],
   server: {
     open: true,
+  },
+  build: {
+    target: 'esnext',
   },
   optimizeDeps: {
     include: [
@@ -31,7 +23,7 @@ export default defineConfig({
       'react-dom',
       'react-dom/client',
       'react-router-dom',
-      'esm-seedrandom',
+      'ts-seedrandom',
       'react-tabs',
       'react-hook-form',
       'react-modal',
@@ -59,7 +51,6 @@ export default defineConfig({
   resolve: {
     alias: {
       app: path.resolve(__dirname, 'app'),
-      graphics: path.resolve(__dirname, 'graphics'),
     },
   },
   worker: {
@@ -68,7 +59,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern-compiled',
+        api: 'modern',
         additionalData: '@use "./app/styles/_globals.scss" as *;',
       },
     },

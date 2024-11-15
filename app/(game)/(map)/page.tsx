@@ -8,15 +8,16 @@ import { MapProvider, useMapOptions } from 'app/(game)/(map)/providers/map-conte
 import { useMap } from 'app/(game)/hooks/use-map';
 import { usePlayers } from 'app/(game)/hooks/use-players';
 import { useReputations } from 'app/(game)/hooks/use-reputations';
+import { useVillages } from 'app/(game)/hooks/use-villages';
 import { isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { Village } from 'app/interfaces/models/game/village';
 import { useViewport } from 'app/providers/viewport-context';
 import type React from 'react';
-import { useLayoutEffect } from 'react';
-import { useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
@@ -33,6 +34,8 @@ const MapPage: React.FC = () => {
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
   const [searchParams] = useSearchParams();
+  const { villages } = useVillages();
+
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
 
@@ -74,13 +77,20 @@ const MapPage: React.FC = () => {
   }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
   const fixedGridData = useMemo(() => {
+    const villageCoordinatesToVillagesMap = new Map<string, Village>(
+      villages.map((village) => {
+        return [`${village.coordinates.x}-${village.coordinates.y}`, village];
+      }),
+    );
+
     return {
       tilesWithFactions,
       mapFilters,
       magnification,
       onClick: openModal,
+      villageCoordinatesToVillagesMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, openModal]);
+  }, [tilesWithFactions, mapFilters, magnification, openModal, villages]);
 
   useEventListener(
     'mousedown',
@@ -177,7 +187,7 @@ const MapPage: React.FC = () => {
   }, [tileSize]);
 
   return (
-    <div className="relative">
+    <main className="[view-transition-name:map-page] relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{
@@ -198,7 +208,7 @@ const MapPage: React.FC = () => {
       />
       {isTileModalOpened && (
         <TileModal
-          tile={modalArgs!}
+          tile={modalArgs.current!}
           onClose={closeModal}
         />
       )}
@@ -209,7 +219,7 @@ const MapPage: React.FC = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height}
+        height={height - 1}
         width={width}
         itemData={fixedGridData}
         itemKey={({ columnIndex, data, rowIndex }) => {
@@ -239,7 +249,7 @@ const MapPage: React.FC = () => {
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
           itemSize={tileSize}
-          height={height - RULER_SIZE}
+          height={height}
           itemCount={gridSize}
           width={RULER_SIZE}
           layout="vertical"
@@ -268,7 +278,7 @@ const MapPage: React.FC = () => {
         </FixedSizeList>
       </div>
       <MapControls />
-    </div>
+    </main>
   );
 };
 

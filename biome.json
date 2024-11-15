@@ -1,5 +1,14 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "develop"
+  },
+  "organizeImports": {
+    "enabled": false
+  },
   "formatter": {
     "useEditorconfig": true,
     "formatWithErrors": true,
@@ -31,7 +40,6 @@
       "bracketSpacing": true,
       "bracketSameLine": false,
       "quoteStyle": "single",
-      "attributePosition": "multiline",
       "trailingCommas": "all"
     }
   }

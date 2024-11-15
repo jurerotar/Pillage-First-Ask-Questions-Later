@@ -1,5 +1,5 @@
 import { calculateComputedEffect } from 'app/(game)/hooks/use-computed-effect';
-import { units } from 'app/assets/units';
+import { unitsMap } from 'app/assets/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
@@ -48,21 +48,21 @@ export const resolveBattle = ({
 
   const totalAttackerInfantryAttackPower = attackerUnits
     .filter(({ unitId }) => {
-      const { category } = units.find(({ id }) => id === unitId)!;
+      const { category } = unitsMap.get(unitId)!;
       return category === 'infantry';
     })
     .reduce((totalAttack, { unitId, level, amount }) => {
-      const { attack, cropConsumption } = units.find(({ id }) => id === unitId)!;
+      const { attack, cropConsumption } = unitsMap.get(unitId)!;
       return totalAttack + getImprovedUnitPower(attack, cropConsumption, level) * amount;
     }, 0);
 
   const totalAttackerCavalryAttackPower = attackerUnits
     .filter(({ unitId }) => {
-      const { category } = units.find(({ id }) => id === unitId)!;
+      const { category } = unitsMap.get(unitId)!;
       return category === 'cavalry';
     })
     .reduce((totalAttack, { unitId, level, amount }) => {
-      const { attack, cropConsumption } = units.find(({ id }) => id === unitId)!;
+      const { attack, cropConsumption } = unitsMap.get(unitId)!;
       return totalAttack + getImprovedUnitPower(attack, cropConsumption, level) * amount;
     }, 0);
 
@@ -72,21 +72,21 @@ export const resolveBattle = ({
 
   const totalDefenderInfantryDefencePower = defenderUnits
     .filter(({ unitId }) => {
-      const { category } = units.find(({ id }) => id === unitId)!;
+      const { category } = unitsMap.get(unitId)!;
       return category === 'infantry';
     })
     .reduce((totalAttack, { unitId, level, amount }) => {
-      const { infantryDefence, cropConsumption } = units.find(({ id }) => id === unitId)!;
+      const { infantryDefence, cropConsumption } = unitsMap.get(unitId)!;
       return totalAttack + getImprovedUnitPower(infantryDefence, cropConsumption, level) * amount;
     }, 0);
 
   const totalDefenderCavalryDefencePower = defenderUnits
     .filter(({ unitId }) => {
-      const { category } = units.find(({ id }) => id === unitId)!;
+      const { category } = unitsMap.get(unitId)!;
       return category === 'cavalry';
     })
     .reduce((totalAttack, { unitId, level, amount }) => {
-      const { cavalryDefence, cropConsumption } = units.find(({ id }) => id === unitId)!;
+      const { cavalryDefence, cropConsumption } = unitsMap.get(unitId)!;
       return totalAttack + getImprovedUnitPower(cavalryDefence, cropConsumption, level) * amount;
     }, 0);
 

@@ -2,7 +2,6 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
-import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -22,7 +21,7 @@ export type ResourceFieldComposition =
 type VillagePresetVillagePrefix = 'village';
 type VillagePresetResourcesPrefix = 'resources';
 
-export type VillagePresetId = `${VillagePresetVillagePrefix | VillagePresetResourcesPrefix}-${OccupiedOccupiableTile['villageSize']}`;
+export type VillagePresetId = `${VillagePresetVillagePrefix | VillagePresetResourcesPrefix}-${VillageSize}`;
 
 // Resource fields only, these are predetermined on village creation and can not be changed
 export type ResourceFieldId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
@@ -38,6 +37,9 @@ export type BuildingField = {
   buildingId: Building['id'];
   level: number;
 };
+
+// Used mostly for map & village factory. More values should be introduced, so players get a nice transition between
+export type VillageSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
 export type Village = {
   id: string;

@@ -1,3 +1,4 @@
+import { useBuildingActions } from 'app/(game)/(village)/hooks/use-building-actions';
 import {
   BorderIndicator,
   type BorderIndicatorBackgroundVariant,
@@ -9,8 +10,13 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
 import { calculatePopulationFromBuildingFields, getBuildingDataForLevel } from 'app/(game)/utils/building';
+import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
+import { useViewport } from 'app/providers/viewport-context';
+import clsx from 'clsx';
 import type React from 'react';
+import { useState } from 'react';
+import { FaChevronUp } from 'react-icons/fa';
 
 type BuildingUpgradeIndicatorProps = {
   buildingFieldId: BuildingField['id'];
@@ -26,10 +32,24 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const { wood, clay, iron, wheat } = useCurrentResources();
   const { canAddAdditionalBuildingToQueue, currentVillageBuildingEvents } = useEvents();
   const { isDeveloperModeActive } = useDeveloperMode();
+  const { isWiderThanMd } = useViewport();
 
   const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
   const { buildingId, level } = buildingFields.find(({ id }) => buildingFieldId === id)!;
   const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
+  const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
+
+  const onUpgradeButtonClick = (event: React.MouseEvent | React.TouchEvent) => {
+    upgradeBuilding();
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
+  const longPressEvent = useLongPress((event) => {
+    onUpgradeButtonClick(event);
+  });
+
+  const [shouldShowUpgradeButton, setShouldShowUpgradeButton] = useState<boolean>(false);
 
   const variant = ((): BorderIndicatorBorderVariant => {
     if (isDeveloperModeActive) {
@@ -68,6 +88,8 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
     return 'green';
   })();
 
+  const canUpgrade: boolean = variant === 'green' || variant === 'red';
+
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
     const hasSameBuildingConstructionEvents = currentVillageBuildingEvents.some(({ buildingFieldId: eventBuildingFieldId, building }) => {
       return building.id === buildingId && eventBuildingFieldId === buildingFieldId;
@@ -80,12 +102,27 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
     return 'white';
   })();
 
+  // TODO: Transitions needs to added here, the icon currently just pops in
+
   return (
-    <BorderIndicator
-      backgroundVariant={backgroundVariant}
-      variant={variant}
+    <button
+      className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300')}
+      type="button"
+      {...(isWiderThanMd && {
+        onClick: onUpgradeButtonClick,
+      })}
+      {...(!isWiderThanMd && { ...longPressEvent })}
+      disabled={!canUpgrade}
     >
-      {level}
-    </BorderIndicator>
+      <BorderIndicator
+        backgroundVariant={backgroundVariant}
+        variant={variant}
+        onMouseEnter={() => setShouldShowUpgradeButton(true)}
+        onMouseLeave={() => setShouldShowUpgradeButton(false)}
+      >
+        {shouldShowUpgradeButton && canUpgrade && <FaChevronUp className="size-3/4 rounded-full text-gray-400" />}
+        {!(shouldShowUpgradeButton && canUpgrade) && level}
+      </BorderIndicator>
+    </button>
   );
 };

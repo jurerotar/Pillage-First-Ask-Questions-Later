@@ -1,4 +1,4 @@
-import { units } from 'app/assets/units';
+import { unitsMap } from 'app/assets/units';
 import type { Unit, UnitResearchRequirement } from 'app/interfaces/models/game/unit';
 import type { Village } from 'app/interfaces/models/game/village';
 
@@ -18,7 +18,7 @@ const assessBuildingLevelRequirement = (requirement: UnitResearchRequirement, vi
 };
 
 export const assessUnitResearchReadiness = (unitId: Unit['id'], village: Village): AssessUnitResearchReadinessReturn => {
-  const { researchRequirements } = units.find(({ id }) => id === unitId)!;
+  const { researchRequirements } = unitsMap.get(unitId)!;
 
   const assessedRequirements: AssessedResearchRequirement[] = researchRequirements.map((requirement) => {
     const fulfilled = assessBuildingLevelRequirement(requirement, village);

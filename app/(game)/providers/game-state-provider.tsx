@@ -1,23 +1,28 @@
 import { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider, type PersistedClient, type Persister } from '@tanstack/react-query-persist-client';
+import { type PersistedClient, type Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { GameLayoutSkeleton } from 'app/(game)/skeleton';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { debounce } from 'moderndash';
-import { type FCWithChildren, startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import GameSyncWorker from '../workers/sync-worker?worker&url';
 
-export const GameStateProvider: FCWithChildren = ({ children }) => {
-  const { serverSlug } = useRouteSegments();
+let gameSyncWorker: Worker | null = null;
 
-  const gameSyncWorker = useRef<Worker | null>(null);
+export const GameStateProvider: React.FCWithChildren = ({ children }) => {
+  const { serverSlug } = useRouteSegments();
 
   const [isRestoring, setIsRestoring] = useState<boolean>(true);
 
   const persister = useMemo<Persister>(
     () => ({
       persistClient: debounce(async (client: PersistedClient) => {
-        gameSyncWorker.current!.postMessage({
+        if (!gameSyncWorker) {
+          return;
+        }
+
+        gameSyncWorker.postMessage({
           client,
           serverSlug,
         });
@@ -47,15 +52,14 @@ export const GameStateProvider: FCWithChildren = ({ children }) => {
   );
 
   useEffect(() => {
-    if (!gameSyncWorker.current) {
-      gameSyncWorker.current = new Worker(GameSyncWorker, { type: 'module' });
+    if (!gameSyncWorker) {
+      gameSyncWorker = new Worker(GameSyncWorker, { type: 'module' });
     }
 
-    // Cleanup on unmount
     return () => {
-      if (gameSyncWorker.current) {
-        gameSyncWorker.current.terminate();
-        gameSyncWorker.current = null;
+      if (gameSyncWorker) {
+        gameSyncWorker.terminate();
+        gameSyncWorker = null;
       }
     };
   }, []);

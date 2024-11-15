@@ -1,20 +1,20 @@
-import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
-import { Button } from 'app/components/buttons/button';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
+import { UnitCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-card';
+import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 
 export const BarracksTroopTraining = () => {
-  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent(GameEventType.TROOP_TRAINING);
+  const { researchedUnits } = useUnitResearch();
 
-  const onClick = () => {
-    createBulkBarracksTrainingEvent({
-      buildingId: 'BARRACKS',
-      amount: 100,
-      unitId: 'PHALANX',
-      startsAt: Date.now() + 10000,
-      duration: 1000,
-      resourceCost: [0, 0, 0, 0],
-    });
-  };
-
-  return <Button onClick={onClick}>Train 100 phalanxes</Button>;
+  return (
+    <article>
+      {researchedUnits.map(({ unitId }) => (
+        <UnitCard
+          key={unitId}
+          unitId={unitId}
+          showImprovementLevel
+          showAttributes
+          showUnitCost
+        />
+      ))}
+    </article>
+  );
 };

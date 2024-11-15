@@ -1,14 +1,13 @@
 import { QueryClient } from '@tanstack/react-query';
 import { useBuildingActions } from 'app/(game)/(village)/hooks/use-building-actions';
-import { currentServerCacheKey } from 'app/(game)/hooks/use-current-server';
-import { eventsCacheKey } from 'app/(game)/hooks/use-events';
 import { getBuildingData } from 'app/(game)/utils/building';
 import type { GameEvent } from 'app/interfaces/models/events/game-event';
 import type { Server } from 'app/interfaces/models/game/server';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import { romanServerMock, serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
-import { type Mock, afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, type Mock, test, vi } from 'vitest';
+import { currentServerCacheKey, eventsCacheKey } from 'app/query-keys';
 
 let clayPitUpgradeLevel1EventMock: GameEvent;
 let clayPitUpgradeLevel2EventMock: GameEvent;

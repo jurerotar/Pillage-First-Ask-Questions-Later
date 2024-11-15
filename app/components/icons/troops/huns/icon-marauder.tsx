@@ -1,6 +1,6 @@
-import IconSharedHorse from 'graphics/icon-horse-shared.svg?react';
+import { PillageFirstHorse } from '@pillage-first/graphics';
 import styles from './huns.module.scss';
 
 export const IconMarauder = () => {
-  return <IconSharedHorse className={styles.marauder} />;
+  return <PillageFirstHorse className={styles.marauder} />;
 };

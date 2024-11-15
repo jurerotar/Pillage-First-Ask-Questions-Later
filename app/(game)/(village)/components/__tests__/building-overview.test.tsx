@@ -1,12 +1,12 @@
 import { QueryClient } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages';
 import type { Village } from 'app/interfaces/models/game/village';
 import { serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { renderWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
+import { villagesCacheKey } from 'app/query-keys';
 
 describe('BuildingOverview', () => {
   describe('Main building level 1', () => {

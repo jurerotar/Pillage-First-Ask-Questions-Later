@@ -1,6 +1,6 @@
 export const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
   const root = await navigator.storage.getDirectory();
-  return root.getDirectoryHandle('echoes-of-travian', { create: true });
+  return root.getDirectoryHandle('pillage-first-ask-questions-later', { create: true });
 };
 
 export const getParsedFileContents = async <T>(serverHandle: FileSystemDirectoryHandle, name: string): Promise<T> => {
