@@ -12,8 +12,8 @@ export const useCurrentVillage = () => {
 
   const currentVillageId = currentVillage!.id;
 
-  // TODO: Move this to specific component once you have it
-  // const canRearrangeBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 15;
+  const mainBuildingLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0;
+  const canRearrangeBuildings = mainBuildingLevel >= 15;
 
   const distanceFromCurrentVillage = (tileCoordinates: Point): number => {
     return roundTo2DecimalPoints(calculateDistanceBetweenPoints(currentVillage.coordinates, tileCoordinates));
@@ -23,6 +23,7 @@ export const useCurrentVillage = () => {
     currentVillage: currentVillage!,
     currentVillageId,
     distanceFromCurrentVillage,
-    // canRearrangeBuildings,
+    mainBuildingLevel,
+    canRearrangeBuildings,
   };
 };
