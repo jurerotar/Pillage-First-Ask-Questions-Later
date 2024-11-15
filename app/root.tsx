@@ -1,9 +1,9 @@
-import { StateProvider } from 'app/providers/state-provider';
-import { ViewportProvider } from 'app/providers/viewport-context';
-import React from 'react';
 import { Links, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import './styles/styles.scss';
 import './i18n';
+import { StrictMode } from 'react';
+import { ViewportProvider } from 'app/providers/viewport-context';
+import { StateProvider } from 'app/providers/state-provider';
 
 export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions Later)' }];
 
@@ -14,75 +14,54 @@ const Root = () => {
       className="default-theme"
     >
       <head>
-        <meta charSet="utf-8" />
+        <link
+          rel="icon"
+          href="/logo.svg"
+          type="image/svg+xml"
+        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1"
         />
-        <link
-          rel="icon"
-          href="/favicon.ico"
-          sizes="32x32"
+        <meta
+          name="theme-color"
+          content="#111111"
         />
-        <link
-          rel="icon"
-          href="/icon.svg"
-          type="image/svg+xml"
+        <meta
+          name="description"
+          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔🔥"
         />
         <link
           rel="apple-touch-icon"
-          href="/icon-192.png"
+          href="/logo-192.png"
         />
         <link
           rel="manifest"
           href="/manifest.webmanifest"
         />
         <meta
-          media="(prefers-color-scheme: light)"
-          name="theme-color"
-          content="#FFFFFF"
-        />
-        <meta
-          media="(prefers-color-scheme: dark)"
-          name="theme-color"
-          content="#000000"
-        />
-        <meta
-          name="description"
-          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔🔥"
-        />
-        <meta
           name="twitter:card"
           content="summary"
         />
-        {/* TODO: Add site & creator */}
-        <meta
-          name="twitter:site"
-          content="/"
-        />
-        <meta
-          name="twitter:creator"
-          content="/"
-        />
-        <meta
-          name="og:description"
-          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔🔥"
-        />
-        <meta
-          name="og:title"
-          content="Pillage First! (Ask Questions Later)"
-        />
         <meta
           property="og:url"
-          content="https://pillagefirst.com"
+          content=""
         />
         <meta
           property="og:type"
           content="website"
         />
         <meta
+          name="twitter:image"
+          content="/images/"
+        />
+        <meta
           property="og:image"
-          content="https://pillagefirst.com/images/"
+          content="/images/"
+        />
+        <meta
+          property="og:image:secure_url"
+          content="/images/"
         />
         <meta
           property="og:image:type"
@@ -98,19 +77,19 @@ const Root = () => {
         />
         <meta
           property="og:image:alt"
-          content="Pillage First! (Ask Questions Later) ⚔🔥"
+          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔🔥"
         />
         <Meta />
         <Links />
       </head>
       <body>
-        <React.StrictMode>
+        <StrictMode>
           <ViewportProvider>
             <StateProvider>
               <Outlet />
             </StateProvider>
           </ViewportProvider>
-        </React.StrictMode>
+        </StrictMode>
         <ScrollRestoration />
         <Scripts />
       </body>
