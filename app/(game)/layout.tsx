@@ -14,7 +14,7 @@ import { useViewport } from 'app/providers/viewport-context';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
@@ -262,6 +262,28 @@ const GameLayout = () => {
 };
 
 export default () => {
+  useEffect(() => {
+    // Preload main pages for snappy view-transitions
+    const preloadPages = () => {
+      Promise.all([
+        import('app/(game)/(village)/page'),
+        import('app/(game)/(map)/page'),
+        import('app/(game)/(village)/(...building-field-id)/page'),
+      ]);
+    };
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        preloadPages();
+      });
+    } else {
+      // Fallback for browsers that don't support requestIdleCallback
+      setTimeout(() => {
+        preloadPages();
+      }, 1000); // Delay as a fallback
+    }
+  }, []);
+
   return (
     <GameStateProvider>
       <GameEngineProvider>
