@@ -9,9 +9,9 @@
   "type": "module",
   "author": "Jure Rotar <hello@jurerotar.com",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build --emptyOutDir",
-    "serve": "vite preview",
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "start": "react-router-serve ./build/server/index.js",
     "lint:check": "npx @biomejs/biome lint",
     "lint": "npx @biomejs/biome lint --fix",
     "format:check": "npx @biomejs/biome format",

@@ -13,8 +13,7 @@ export default defineConfig({
       ? [viteReact()]
       : [
           reactRouter({
-            buildDirectory: 'dist',
-            prerender: true,
+            prerender: ['/'],
           }),
           VitePWA({ registerType: 'autoUpdate', manifest: false }),
         ]),
