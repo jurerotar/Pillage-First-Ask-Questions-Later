@@ -7,7 +7,7 @@ import { StateProvider } from 'app/providers/state-provider';
 
 export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions Later)' }];
 
-const Root = () => {
+export const Layout = () => {
   return (
     <html
       lang="en-US"
@@ -29,7 +29,7 @@ const Root = () => {
         />
         <meta
           name="description"
-          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔🔥"
+          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
         />
         <link
           rel="apple-touch-icon"
@@ -77,7 +77,7 @@ const Root = () => {
         />
         <meta
           property="og:image:alt"
-          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later! ⚔🔥"
+          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
         />
         <Meta />
         <Links />
@@ -95,6 +95,10 @@ const Root = () => {
       </body>
     </html>
   );
+};
+
+const Root = () => {
+  return <Outlet />;
 };
 
 export default Root;

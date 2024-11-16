@@ -1,4 +1,4 @@
-import { type RouteConfigEntry, index, layout, prefix, route } from '@react-router/dev/routes';
+import { index, layout, prefix, route, type RouteConfigEntry } from '@react-router/dev/routes';
 
 export const routes: RouteConfigEntry[] = [
   layout('(public)/layout.tsx', [index('(public)/(index)/page.tsx')]),
@@ -33,7 +33,7 @@ export const routes: RouteConfigEntry[] = [
       ),
       route('reports', '(game)/(reports)/page.tsx', [route(':reportId', '(game)/(reports)/(...report-id)/page.tsx')]),
       route('auctions', '(game)/(auctions)/page.tsx'),
-      route('map', '(game)/(village)/page.tsx'),
+      route('map', '(game)/(map)/page.tsx'),
     ]),
   ]),
 ];

@@ -13,7 +13,7 @@ import { serverMock, serverPathMock } from 'app/tests/mocks/game/server-mock.js'
 import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx.js';
 import type React from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { currentServerCacheKey, effectsCacheKey, playersCacheKey, villagesCacheKey } from 'app/query-keys';
 
 let dehydratedState: DehydratedState | null = null;
@@ -79,13 +79,7 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
     <StateProvider queryClient={globalQueryClient}>
       <ViewportProvider initialSize={deviceSize}>
         <StateProvider queryClient={gameQueryClient}>
-          <MemoryRouter
-            initialEntries={[path ?? `${serverPathMock}/v-1`]}
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
+          <MemoryRouter initialEntries={[path ?? `${serverPathMock}/v-1`]}>
             <Routes>
               <Route
                 id="game"
