@@ -1,15 +1,16 @@
 import { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider, type PersistedClient, type Persister } from '@tanstack/react-query-persist-client';
+import { type PersistedClient, type Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { GameLayoutSkeleton } from 'app/(game)/skeleton';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { debounce } from 'moderndash';
-import { type FCWithChildren, startTransition, useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import GameSyncWorker from '../workers/sync-worker?worker&url';
 
 let gameSyncWorker: Worker | null = null;
 
-export const GameStateProvider: FCWithChildren = ({ children }) => {
+export const GameStateProvider: React.FCWithChildren = ({ children }) => {
   const { serverSlug } = useRouteSegments();
 
   const [isRestoring, setIsRestoring] = useState<boolean>(true);

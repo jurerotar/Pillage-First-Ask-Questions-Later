@@ -2,7 +2,7 @@ import { Button } from 'app/components/buttons/button';
 import { Icon } from 'app/components/icon';
 import type React from 'react';
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import styles from './horse.module.scss';
 
 const HorseColorPicker = () => {

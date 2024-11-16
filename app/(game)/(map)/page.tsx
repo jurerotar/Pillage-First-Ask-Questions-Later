@@ -18,7 +18,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { useViewport } from 'app/providers/viewport-context';
 import type React from 'react';
 import { useLayoutEffect, useMemo, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
 

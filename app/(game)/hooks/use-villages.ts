@@ -3,8 +3,7 @@ import { usePlayers } from 'app/(game)/hooks/use-players';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
-
-export const villagesCacheKey = 'villages';
+import { villagesCacheKey } from 'app/query-keys';
 
 export const getVillageById = (villages: Village[], villageId: Village['id']): Village => {
   return villages.find(({ id }) => id === villageId)!;

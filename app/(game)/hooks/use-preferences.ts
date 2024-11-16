@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-
-export const preferencesCacheKey = 'preferences';
+import { preferencesCacheKey } from 'app/query-keys';
 
 export const usePreferences = () => {
   const { data: preferences } = useQuery({

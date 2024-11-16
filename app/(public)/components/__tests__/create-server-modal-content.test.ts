@@ -5,19 +5,21 @@ import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
 import 'opfs-mock';
 import '@vitest/web-worker';
-import { QueryClient, hydrate } from '@tanstack/react-query';
+import { hydrate, QueryClient } from '@tanstack/react-query';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
-import { achievementsCacheKey } from 'app/(game)/hooks/use-achievements';
-import { currentServerCacheKey } from 'app/(game)/hooks/use-current-server';
-import { effectsCacheKey } from 'app/(game)/hooks/use-effects';
-import { eventsCacheKey } from 'app/(game)/hooks/use-events';
-import { mapCacheKey } from 'app/(game)/hooks/use-map';
-import { playersCacheKey } from 'app/(game)/hooks/use-players';
-import { questsCacheKey } from 'app/(game)/hooks/use-quests';
-import { reputationsCacheKey } from 'app/(game)/hooks/use-reputations';
-import { troopsCacheKey } from 'app/(game)/hooks/use-troops';
-import { unitResearchCacheKey } from 'app/(game)/hooks/use-unit-research';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages';
+import {
+  achievementsCacheKey,
+  currentServerCacheKey,
+  effectsCacheKey,
+  eventsCacheKey,
+  mapCacheKey,
+  playersCacheKey,
+  questsCacheKey,
+  reputationsCacheKey,
+  troopsCacheKey,
+  unitResearchCacheKey,
+  villagesCacheKey,
+} from 'app/query-keys';
 import { getVillageSize } from 'app/factories/utils/common';
 import type { GameEvent } from 'app/interfaces/models/events/game-event';
 import type { Achievement } from 'app/interfaces/models/game/achievement';
@@ -202,11 +204,11 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === 2 && y === 3)! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === 6 && y === 2)! as OccupiedOasisTile;
+      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === 1 && y === 2)! as OccupiedOasisTile;
+      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === 3 && y === 2)! as OccupiedOasisTile;
 
-      expect(tile1.graphics.oasisResource === 'wheat' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(tile2.graphics.oasisResource === 'wood' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile1.graphics.oasisResource === 'iron' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile2.graphics.oasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
     });
 
     test('Border tiles should be generated on all sides', () => {

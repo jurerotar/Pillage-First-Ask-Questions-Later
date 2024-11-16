@@ -71,7 +71,7 @@
           "TITLE": "{{buildingName}} - level {{level}}",
           "TABS": {
             "DEFAULT": "Overview",
-            "UPGRADE_COST": "Upgrade cost table",
+            "UPGRADE_STATS": "Building stats",
             "ACADEMY": {
               "UNIT_IMPROVEMENT": "Unit improvement"
             },
@@ -92,10 +92,16 @@
             }
           },
           "TAB_PANELS": {
+            "BUILDING_STATS": {
+              "TITLE": "Building stats",
+              "LEVEL": "Level",
+              "UPGRADE_COST": "Upgrade cost",
+              "UPGRADE_DURATION": "Upgrade duration",
+              "MAIN_BUILDING_LEVEL": "Main building L{{level}}"
+            },
             "ACADEMY": {
               "UNIT_RESEARCH": {
-                "TITLE": "",
-                "DESCRIPTION": "",
+                "TITLE": "Unit research",
                 "REQUIREMENTS": {
                   "TITLE": "Requirements"
                 },
@@ -116,94 +122,85 @@
                 }
               },
               "UNIT_IMPROVEMENT": {
-                "TITLE": "Unit improvement",
-                "DESCRIPTION": ""
+                "TITLE": "Unit improvement"
               }
             },
             "BARRACKS": {
               "TROOP_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "BREWERY": {
               "CELEBRATIONS": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "GREAT_BARRACKS": {
               "TROOP_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "GREAT_STABLE": {
               "TROOP_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "HEROS_MANSION": {
               "OASIS": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "OCCUPIED_OASIS_TITLE": "Occupied oasis",
+                "OASIS_WITHIN_REACH_TITLE": "Oasis within reach",
+                "TABLE": {
+                  "OWNER": "Owner",
+                  "COORDINATES": "Coordinates",
+                  "RESOURCES": "Resources",
+                  "ACTIONS": "Actions"
+                },
+                "NEXT_OASIS": "Next oasis will be occupiable at level {{heroMansionLevel}}"
               }
             },
             "HOSPITAL": {
               "TROOP_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "MARKETPLACE": {
               "TRADE": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               },
               "TRADE_ROUTES": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "PALACE": {
               "SETTLER_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               },
               "LOYALTY": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               },
               "EXPANSION": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "RALLY_POINT": {
               "SEND_TROOPS": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               },
               "FARM_LIST": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               },
               "SIMULATOR": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "STABLE": {
               "TROOP_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             },
             "TREASURY": {
               "VILLAGE_ARTIFACT": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               },
               "UNCONQUERED_ARTIFACTS": {
                 "TITLE": "Unconquered artifacts",
@@ -212,8 +209,7 @@
             },
             "WORKSHOP": {
               "TROOP_TRAINING": {
-                "TITLE": "",
-                "DESCRIPTION": ""
+                "TITLE": ""
               }
             }
           }

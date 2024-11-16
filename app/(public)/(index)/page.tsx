@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
             <h2 className="text-xl dark:text-white">
               Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage
               resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions
-              later! ⚔🔥
+              later!
             </h2>
             <Button onClick={() => openCreateServerModal()}>Create new server</Button>
 

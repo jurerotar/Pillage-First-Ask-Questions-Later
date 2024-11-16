@@ -1,5 +1,5 @@
 import { IoIosArrowBack } from 'react-icons/io';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 export const Backlink = () => {
   return (

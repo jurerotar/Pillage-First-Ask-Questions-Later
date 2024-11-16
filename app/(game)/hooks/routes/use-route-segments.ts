@@ -1,5 +1,5 @@
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 export const useRouteSegments = () => {
   const { serverSlug, villageSlug, buildingFieldId, reportId } = useParams();

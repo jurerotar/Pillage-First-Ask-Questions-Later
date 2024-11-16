@@ -2,14 +2,20 @@ import { BuildingActions } from 'app/(game)/(village)/components/building-action
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
+import { getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
-import { Suspense, lazy, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
+import { Text } from 'app/components/text';
+import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
+import { Icon } from 'app/components/icon';
+import { formatNumber } from 'app/utils/common';
+import { formatTime } from 'app/utils/time';
 
 const RallyPointIncomingTroops = lazy(async () => ({
   default: (await import('./components/rally-point-incoming-troops')).RallyPointIncomingTroops,
@@ -145,6 +151,108 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
   ['HOSPITAL', new Map([['default', HospitalTroopTraining]])],
 ]);
 
+const BuildingStats: React.FC = () => {
+  const { t: buildingStatsT } = useTranslation('translation', {
+    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.BUILDING_STATS',
+  });
+
+  const { currentVillage, mainBuildingLevel } = useCurrentVillage();
+  const { buildingFieldId } = useRouteSegments();
+  const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
+  const { buildingId, level } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
+  const building = getBuildingData(buildingId);
+
+  return (
+    <article className="flex flex-col gap-4">
+      <section className="flex flex-col gap-2">
+        <Text as="h2">{buildingStatsT('UPGRADE_COST')}</Text>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>{buildingStatsT('LEVEL')}</TableHeaderCell>
+              <TableHeaderCell>
+                <Icon
+                  className="inline-flex size-6"
+                  type="wood"
+                />
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Icon
+                  className="inline-flex size-6"
+                  type="clay"
+                />
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Icon
+                  className="inline-flex size-6"
+                  type="iron"
+                />
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Icon
+                  className="inline-flex size-6"
+                  type="wheat"
+                />
+              </TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {building.buildingCost.map((cost, index) => (
+              <TableRow
+                // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                key={index}
+                {...(index + 1 === level && {
+                  className: 'bg-gray-100',
+                })}
+              >
+                <TableHeaderCell>{index + 1}</TableHeaderCell>
+                <TableCell>{formatNumber(cost[0])}</TableCell>
+                <TableCell>{formatNumber(cost[1])}</TableCell>
+                <TableCell>{formatNumber(cost[2])}</TableCell>
+                <TableCell>{formatNumber(cost[3])}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
+      <section className="flex flex-col gap-2">
+        <Text as="h2">{buildingStatsT('UPGRADE_DURATION')}</Text>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell rowSpan={2}>{buildingStatsT('LEVEL')}</TableHeaderCell>
+              <TableHeaderCell colSpan={3}>{buildingStatsT('UPGRADE_DURATION')}</TableHeaderCell>
+            </TableRow>
+            <TableRow>
+              <TableHeaderCell className="whitespace-nowrap">{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 1 })}</TableHeaderCell>
+              <TableHeaderCell className="whitespace-nowrap">
+                {buildingStatsT('MAIN_BUILDING_LEVEL', { level: mainBuildingLevel })}
+              </TableHeaderCell>
+              <TableHeaderCell className="whitespace-nowrap">{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 20 })}</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {building.buildingDuration.map((duration, index) => (
+              <TableRow
+                // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                key={index}
+                {...(index + 1 === level && {
+                  className: 'bg-gray-100',
+                })}
+              >
+                <TableHeaderCell>{index + 1}</TableHeaderCell>
+                <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
+                <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
+                <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
+    </article>
+  );
+};
+
 export const BuildingDetails: React.FC = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TABS' });
   const [searchParams] = useSearchParams();
@@ -183,7 +291,7 @@ export const BuildingDetails: React.FC = () => {
           {tabs.map((name: string) => (
             <StyledTab key={name}>{t(`${buildingId}.${name}`)}</StyledTab>
           ))}
-          <StyledTab>{t('UPGRADE_COST')}</StyledTab>
+          <StyledTab>{t('UPGRADE_STATS')}</StyledTab>
         </TabList>
         <TabPanel>
           <div className="border border-gray-500 p-2">
@@ -213,7 +321,9 @@ export const BuildingDetails: React.FC = () => {
             </TabPanel>
           );
         })}
-        <TabPanel>Resource cost</TabPanel>
+        <TabPanel>
+          <BuildingStats />
+        </TabPanel>
       </Tabs>
     </article>
   );

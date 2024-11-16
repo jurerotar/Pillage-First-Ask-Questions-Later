@@ -1,9 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
-import { heroCacheKey, useHero } from 'app/(game)/hooks/use-hero';
+import { useHero } from 'app/(game)/hooks/use-hero';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import { egyptianHero, gaulHero, hunHero, romanHero, teutonHero } from 'app/tests/mocks/game/hero-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
+import { heroCacheKey } from 'app/query-keys';
 
 // Expected attributes for each hero
 const gaulExpectedAttributes = {

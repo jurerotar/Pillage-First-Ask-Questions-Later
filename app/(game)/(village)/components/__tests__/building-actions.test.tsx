@@ -1,13 +1,13 @@
 import { QueryClient } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import { BuildingActions } from 'app/(game)/(village)/components/building-actions';
-import { villagesCacheKey } from 'app/(game)/hooks/use-villages';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import { serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { renderWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
+import { villagesCacheKey } from 'app/query-keys';
 
 const level1MainBuildingBuildingField: BuildingField = {
   buildingId: 'MAIN_BUILDING',

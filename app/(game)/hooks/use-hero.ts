@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Hero } from 'app/interfaces/models/game/hero';
-
-export const heroCacheKey = 'hero';
+import { heroCacheKey } from 'app/query-keys';
 
 export const useHero = () => {
   const { data } = useQuery<Hero>({
