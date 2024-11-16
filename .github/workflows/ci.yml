@@ -30,8 +30,9 @@ jobs:
       - name: Format check
         run: npm run format:check
 
-      - name: Unused exports and dependencies check
-        run: npm run knip:ci
+      # Reintegrate this once support for RR7 is added
+      #      - name: Unused exports and dependencies check
+      #        run: npm run knip:ci
 
       - name: Run tests
         run: npm test
