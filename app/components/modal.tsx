@@ -12,6 +12,10 @@ type ModalProps = ReactModalProps & {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { isOpen = false, closeHandler, hasTitle, title, children, ...rest } = props;
 
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   return (
     <ReactModal
       {...rest}
@@ -20,7 +24,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
       className="m-4 w-full max-w-[600px] rounded-md bg-white p-4 md:m-0 md:min-w-[600px]"
       shouldCloseOnOverlayClick
       onRequestClose={closeHandler}
-      appElement={document.getElementById('root') as HTMLElement}
+      appElement={document.querySelector('body') as HTMLBodyElement}
     >
       <div className="relative size-full">
         {/* Modal header */}
