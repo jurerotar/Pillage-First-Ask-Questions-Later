@@ -11,7 +11,7 @@ import type {
 import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import buildingFieldStyles from './building-field.module.scss';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([

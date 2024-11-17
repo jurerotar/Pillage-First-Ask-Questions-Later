@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
 import { useOasis } from 'app/(game)/hooks/use-oasis';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';

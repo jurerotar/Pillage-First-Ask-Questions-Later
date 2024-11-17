@@ -13,7 +13,7 @@ import { serverMock, serverPathMock } from 'app/tests/mocks/game/server-mock.js'
 import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx.js';
 import type React from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { currentServerCacheKey, effectsCacheKey, playersCacheKey, villagesCacheKey } from 'app/query-keys';
 
 let dehydratedState: DehydratedState | null = null;

@@ -1,5 +1,5 @@
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 const RESOURCES_PAGE_PATH = '/resources';
 const VILLAGE_PAGE_PATH = '/village';

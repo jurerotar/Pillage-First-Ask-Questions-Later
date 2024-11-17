@@ -1,23 +1,11 @@
 import path from 'node:path';
-import { reactRouter } from '@react-router/dev/vite';
 import { defineConfig, type UserConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import viteReact from '@vitejs/plugin-react';
 
-const isInTestMode = process.env.VITEST === 'true';
-
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    ...(isInTestMode
-      ? [viteReact()]
-      : [
-          reactRouter({
-            prerender: ['/'],
-          }),
-          VitePWA({ registerType: 'autoUpdate', manifest: false }),
-        ]),
-  ],
+  plugins: [viteReact(), VitePWA({ registerType: 'autoUpdate', manifest: false })],
   server: {
     open: true,
   },

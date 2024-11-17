@@ -20,7 +20,7 @@ import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
-import { Await, Link, Outlet } from 'react-router';
+import { Await, Link, Outlet } from 'react-router-dom';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
 
 type ResourceCounterProps = {

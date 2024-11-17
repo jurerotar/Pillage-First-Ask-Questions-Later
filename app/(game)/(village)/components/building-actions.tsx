@@ -13,7 +13,7 @@ import { Button } from 'app/components/buttons/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
