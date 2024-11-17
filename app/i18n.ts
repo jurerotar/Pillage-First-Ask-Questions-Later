@@ -1,4 +1,4 @@
-import type { AvailableLocales } from 'app/interfaces/models/preferences/locale';
+import type { AvailableLocales } from 'app/interfaces/models/locale';
 import { isInDevelopmentMode } from 'app/utils/common';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';

@@ -9,10 +9,7 @@ export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions
 
 export const Layout = () => {
   return (
-    <html
-      lang="en-US"
-      className="default-theme"
-    >
+    <html lang="en-US">
       <head>
         <link
           rel="icon"

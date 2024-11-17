@@ -6,7 +6,7 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { getBuildingDataForLevel } from 'app/(game)/utils/building';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
+import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 

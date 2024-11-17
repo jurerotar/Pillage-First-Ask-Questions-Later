@@ -1,4 +1,4 @@
-import type { GameEvent } from 'app/interfaces/models/events/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useEffect, useRef } from 'react';
 
 const useEventResolver = (events: GameEvent[], resolveEvent: (eventId: GameEvent['id']) => void) => {

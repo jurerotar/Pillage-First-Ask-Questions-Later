@@ -12,7 +12,7 @@ import { useCurrentResources } from 'app/(game)/providers/current-resources-prov
 import { unitsMap } from 'app/assets/units';
 import { Button } from 'app/components/buttons/button';
 import { Icon, type IconType, unitIdToUnitIconMapper } from 'app/components/icon';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
+import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';

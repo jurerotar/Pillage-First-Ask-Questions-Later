@@ -12,7 +12,7 @@ import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { updateVillageResources } from 'app/(game)/hooks/utils/events';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
-import { type GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import { type GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import { eventsCacheKey, villagesCacheKey } from 'app/query-keys';

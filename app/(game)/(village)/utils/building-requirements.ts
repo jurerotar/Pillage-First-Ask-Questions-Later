@@ -1,5 +1,5 @@
 import { getBuildingData } from 'app/(game)/utils/building';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,
   Building,

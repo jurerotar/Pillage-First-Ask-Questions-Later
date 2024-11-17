@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import useEventResolver from 'app/(game)/providers/hooks/use-event-resolvers';
-import type { GameEvent } from 'app/interfaces/models/events/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { describe, expect, test, vi } from 'vitest';
 
 vi.useFakeTimers();

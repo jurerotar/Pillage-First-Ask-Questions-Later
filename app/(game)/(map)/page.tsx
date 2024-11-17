@@ -187,7 +187,7 @@ const MapPage: React.FC = () => {
   }, [tileSize]);
 
   return (
-    <main className="[view-transition-name:map-page] relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
+    <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{

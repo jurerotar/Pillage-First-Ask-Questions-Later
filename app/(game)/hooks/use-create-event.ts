@@ -9,7 +9,7 @@ import {
   updateVillageResources,
 } from 'app/(game)/hooks/utils/events';
 import { eventFactory } from 'app/factories/event-factory';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventsCacheKey } from 'app/query-keys';
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {

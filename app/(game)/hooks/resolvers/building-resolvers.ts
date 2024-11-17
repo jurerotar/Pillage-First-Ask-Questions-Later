@@ -2,7 +2,7 @@ import { createEventFn } from 'app/(game)/hooks/utils/events';
 import { specialFieldIds } from 'app/(game)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/models/common';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
+import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { BuildingId } from 'app/interfaces/models/game/building';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
