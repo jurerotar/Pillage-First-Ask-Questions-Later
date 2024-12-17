@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { createBrowserRouter, type RouteObject } from 'react-router';
 
 // Public
 const PublicLayout = lazy(() => import('app/(public)/layout'));

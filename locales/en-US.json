@@ -101,25 +101,7 @@
             },
             "ACADEMY": {
               "UNIT_RESEARCH": {
-                "TITLE": "Unit research",
-                "REQUIREMENTS": {
-                  "TITLE": "Requirements"
-                },
-                "ATTRIBUTES": {
-                  "TITLE": "Attributes"
-                },
-                "UNIT_COST": {
-                  "TITLE": "Unit cost"
-                },
-                "RESEARCH": {
-                  "HAS_RESEARCHED_TITLE": "Research",
-                  "HAS_NOT_RESEARCHED_TITLE": "Research cost",
-                  "UNIT_RESEARCHED": "{{unit}} researched"
-                },
-                "ACTIONS": {
-                  "TITLE": "Available actions",
-                  "BUTTON": "Research {{unit}}"
-                }
+                "TITLE": "Unit research"
               },
               "UNIT_IMPROVEMENT": {
                 "TITLE": "Unit improvement"
@@ -127,7 +109,7 @@
             },
             "BARRACKS": {
               "TROOP_TRAINING": {
-                "TITLE": ""
+                "TITLE": "Train infantry units"
               }
             },
             "BREWERY": {
@@ -137,12 +119,12 @@
             },
             "GREAT_BARRACKS": {
               "TROOP_TRAINING": {
-                "TITLE": ""
+                "TITLE": "Train infantry units"
               }
             },
             "GREAT_STABLE": {
               "TROOP_TRAINING": {
-                "TITLE": ""
+                "TITLE": "Train cavalry units"
               }
             },
             "HEROS_MANSION": {
@@ -195,7 +177,7 @@
             },
             "STABLE": {
               "TROOP_TRAINING": {
-                "TITLE": ""
+                "TITLE": "Train cavalry units"
               }
             },
             "TREASURY": {
@@ -209,9 +191,33 @@
             },
             "WORKSHOP": {
               "TROOP_TRAINING": {
-                "TITLE": ""
+                "TITLE": "Train siege units"
               }
             }
+          }
+        },
+        "UNIT_CARD": {
+          "REQUIREMENTS": {
+            "TITLE": "Requirements"
+          },
+          "ATTRIBUTES": {
+            "TITLE": "Attributes"
+          },
+          "COST": {
+            "TITLE": "Unit cost"
+          },
+          "RECRUITMENT": {
+            "TITLE": "Recruitment",
+            "ACTION": "Recruit {{amount}} {{unit}}"
+          },
+          "RESEARCH": {
+            "HAS_RESEARCHED_TITLE": "Research",
+            "HAS_NOT_RESEARCHED_TITLE": "Research cost",
+            "UNIT_RESEARCHED": "{{unit}} researched",
+            "ACTIONS": "Research {{unit}}"
+          },
+          "ACTIONS": {
+            "TITLE": "Available actions"
           }
         }
       },

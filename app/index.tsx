@@ -2,7 +2,7 @@ import { StateProvider } from 'app/providers/state-provider';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { StrictMode, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 import { router } from './router';
 import './styles/styles.scss';
 import './i18n';

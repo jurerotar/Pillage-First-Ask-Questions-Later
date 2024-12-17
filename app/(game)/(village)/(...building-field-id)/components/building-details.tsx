@@ -2,13 +2,13 @@ import { BuildingActions } from 'app/(game)/(village)/components/building-action
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
+import { calculateBuildingCostForLevel, getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
@@ -197,21 +197,25 @@ const BuildingStats: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {building.buildingCost.map((cost, index) => (
-              <TableRow
-                // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                key={index}
-                {...(index + 1 === level && {
-                  className: 'bg-gray-100',
-                })}
-              >
-                <TableHeaderCell>{index + 1}</TableHeaderCell>
-                <TableCell>{formatNumber(cost[0])}</TableCell>
-                <TableCell>{formatNumber(cost[1])}</TableCell>
-                <TableCell>{formatNumber(cost[2])}</TableCell>
-                <TableCell>{formatNumber(cost[3])}</TableCell>
-              </TableRow>
-            ))}
+            {[...Array(building.maxLevel)].map((_, index) => {
+              const cost = calculateBuildingCostForLevel(building.id, index + 1);
+
+              return (
+                <TableRow
+                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                  key={index}
+                  {...(index + 1 === level && {
+                    className: 'bg-gray-100',
+                  })}
+                >
+                  <TableHeaderCell>{index + 1}</TableHeaderCell>
+                  <TableCell>{formatNumber(cost[0])}</TableCell>
+                  <TableCell>{formatNumber(cost[1])}</TableCell>
+                  <TableCell>{formatNumber(cost[2])}</TableCell>
+                  <TableCell>{formatNumber(cost[3])}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </section>

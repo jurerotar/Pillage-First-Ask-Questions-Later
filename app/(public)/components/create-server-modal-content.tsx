@@ -48,7 +48,7 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/query-keys';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 

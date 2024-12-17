@@ -5,7 +5,7 @@ import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
-import { getBuildingDataForLevel } from 'app/(game)/utils/building';
+import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/utils/building';
 import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
@@ -69,7 +69,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const constructBuilding = () => {
-    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
+    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, 0);
     const { startsAt, duration } = calculateTimings();
 
     createBuildingConstructionEvent({
@@ -107,7 +107,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const upgradeBuilding = () => {
-    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : building.buildingCost[0];
+    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, 0);
     const { startsAt, duration } = calculateTimings();
 
     if (hasCurrentVillageBuildingEvents) {

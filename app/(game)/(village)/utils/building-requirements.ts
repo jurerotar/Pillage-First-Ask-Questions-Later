@@ -58,7 +58,7 @@ const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuilding
   if (requirement.amount > 1) {
     return sameBuildingFields.length === 0 && !buildingExistsInQueue
       ? true
-      : sameBuildingFields.some(({ level }) => level === building.buildingCost.length);
+      : sameBuildingFields.some(({ level }) => level === building.maxLevel);
   }
 
   // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
