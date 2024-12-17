@@ -1,10 +1,10 @@
 import {
+  assessBuildingConstructionReadiness,
   type AssessBuildingConstructionReadinessArgs,
   type AssessBuildingConstructionReadinessReturn,
   type AssessedBuildingRequirement,
-  assessBuildingConstructionReadiness,
 } from 'app/(game)/(village)/utils/building-requirements';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import type { BuildingRequirement } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { Village } from 'app/interfaces/models/game/village';

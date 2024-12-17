@@ -76,7 +76,6 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
 
   return (
     <Link
-      viewTransition
       to={`${buildingFieldId}`}
       className={clsx(
         styles,
@@ -145,7 +144,6 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
   return (
     <Link
-      viewTransition
       to={`${buildingFieldId}`}
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(

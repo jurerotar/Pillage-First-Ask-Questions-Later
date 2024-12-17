@@ -23,8 +23,8 @@
   }
 }
 
-@each $themeSelector, $imagesPath in $themeImagesPaths {
-  :global(#{$themeSelector}) .building {
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(#{$skinVariantSelector}) .building {
     $base: '#{$imagesPath}/buildings';
 
     // Resources

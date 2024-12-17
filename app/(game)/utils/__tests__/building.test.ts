@@ -6,8 +6,8 @@ import {
 import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
 import {
   resourceFields00018Mock,
-  resourceFields4446Mock,
   resourceFields11115Mock,
+  resourceFields4446Mock,
 } from 'app/tests/mocks/game/village/resource-fields-mock';
 import { describe, expect, test } from 'vitest';
 
@@ -45,7 +45,7 @@ describe('Building utils', () => {
       expect.soft(isMaxLevel, 'isMaxLevel should be false').toBe(false);
       expect.soft(cumulativeCropConsumption, 'cumulativeCropConsumption should be 2').toBe(2);
       expect.soft(nextLevelCropConsumption, 'nextLevelCropConsumption should be 2').toBe(1);
-      expect.soft(nextLevelResourceCost, 'nextLevelResourceCost should be correct amount').toEqual([90, 50, 75, 25]);
+      expect.soft(nextLevelResourceCost, 'nextLevelResourceCost should be correct amount').toEqual([115, 70, 100, 35]);
     });
 
     test('Main building level 20', () => {

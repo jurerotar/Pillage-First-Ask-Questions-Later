@@ -3,6 +3,7 @@ import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { unitResearchCacheKey } from 'app/query-keys';
+import { getUnitData } from 'app/(game)/utils/units';
 
 export const useUnitResearch = () => {
   const queryClient = useQueryClient();
@@ -33,10 +34,34 @@ export const useUnitResearch = () => {
 
   const researchedUnits = unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
 
+  const researchedInfantryUnits = researchedUnits.filter(({ unitId }) => {
+    const unit = getUnitData(unitId);
+    return unit.category === 'infantry';
+  });
+
+  const researchedCavalryUnits = researchedUnits.filter(({ unitId }) => {
+    const unit = getUnitData(unitId);
+    return unit.category === 'cavalry';
+  });
+
+  const researchedSiegeUnits = researchedUnits.filter(({ unitId }) => {
+    const unit = getUnitData(unitId);
+    return unit.category === 'siege';
+  });
+
+  const researchedSpecialUnits = researchedUnits.filter(({ unitId }) => {
+    const unit = getUnitData(unitId);
+    return unit.category === 'special';
+  });
+
   return {
     unitResearch,
     researchUnit,
     isUnitResearched,
     researchedUnits,
+    researchedInfantryUnits,
+    researchedCavalryUnits,
+    researchedSiegeUnits,
+    researchedSpecialUnits,
   };
 };

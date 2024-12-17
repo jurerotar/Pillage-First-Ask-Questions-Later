@@ -84,7 +84,7 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
         'size-full relative',
         shouldShowFactionReputation &&
           isOccupiedOccupiableCell &&
-          `after:absolute after:top-0 after:left-0 after:size-full after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
+          `after:absolute after:top-0 after:left-0 after:size-full after:z-10 after:rounded-[1px] after:border-[3px] after:border-dashed ${reputationColorMap.get(
             (tile as OccupiedTileWithFactionAndTribe).reputationLevel,
           )!}`,
       )}
@@ -146,7 +146,12 @@ const dynamicCellClasses = (
 
     const villageSize = getVillageSize(population);
 
-    return clsx(cellStyles['occupied-tile'], cellStyles[`occupied-tile-${tribe}`], cellStyles[`occupied-tile-${tribe}-${villageSize}`]);
+    return clsx(
+      cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-${tribe}`],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
+      cellStyles[`occupied-tile-${villageSize}`],
+    );
   }
 
   const cell = tile as OasisTile;
@@ -174,7 +179,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
     <div
       className={clsx(
         dynamicCellClasses(tile, villageCoordinatesToVillagesMap),
-        'flex size-full rounded-[1px] border border-gray-500/50 bg-contain relative',
+        'flex size-full rounded-[1px] border border-gray-500/50 night:border-gray-700 bg-contain relative',
       )}
       style={style}
       data-tile-id={tile.id}
@@ -182,7 +187,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       <button
         onClick={() => onClick(tile)}
         type="button"
-        className="size-full absolute inset-0 z-[5]"
+        className="flex size-full absolute inset-0 z-[5]"
       />
 
       <CellIcons

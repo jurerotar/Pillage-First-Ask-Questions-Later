@@ -4,7 +4,7 @@ import { calculateComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { getVillageById } from 'app/(game)/hooks/use-villages';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { EventWithRequiredResourceCheck, GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import type { EventWithRequiredResourceCheck, GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventFactory } from 'app/factories/event-factory';
 import { doesEventRequireResourceCheck } from 'app/(game)/hooks/guards/event-guards';
 import { effectsCacheKey, eventsCacheKey, villagesCacheKey } from 'app/query-keys';

@@ -1,4 +1,4 @@
-import { type EventWithRequiredResourceCheck, type GameEvent, GameEventType } from 'app/interfaces/models/events/game-event';
+import { type EventWithRequiredResourceCheck, type GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 
 export const isBuildingEvent = (event: GameEvent): event is GameEvent<GameEventType.BUILDING_CONSTRUCTION> => {
   return [GameEventType.BUILDING_CONSTRUCTION, GameEventType.BUILDING_SCHEDULED_CONSTRUCTION, GameEventType.BUILDING_LEVEL_CHANGE].includes(

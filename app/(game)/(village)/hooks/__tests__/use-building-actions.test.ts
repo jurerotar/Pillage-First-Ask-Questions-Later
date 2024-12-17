@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { useBuildingActions } from 'app/(game)/(village)/hooks/use-building-actions';
 import { getBuildingData } from 'app/(game)/utils/building';
-import type { GameEvent } from 'app/interfaces/models/events/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Server } from 'app/interfaces/models/game/server';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import { romanServerMock, serverPathMock } from 'app/tests/mocks/game/server-mock';

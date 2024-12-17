@@ -41,6 +41,7 @@ import {
   mapCacheKey,
   mapFiltersCacheKey,
   playersCacheKey,
+  preferencesCacheKey,
   reputationsCacheKey,
   troopsCacheKey,
   unitImprovementCacheKey,
@@ -48,6 +49,8 @@ import {
   villagesCacheKey,
 } from 'app/query-keys';
 import { Link } from 'react-router';
+import { preferencesFactory } from 'app/factories/preferences-factory';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 const PLAYER_COUNT = 50;
 
@@ -161,7 +164,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
   // Non-dependant factories can run in sync
-  const [{ villages }, { troops }, effects, hero, mapFilters, unitResearch, unitImprovement] = await Promise.all([
+  const [{ villages }, { troops }, effects, hero, mapFilters, unitResearch, unitImprovement, preferences] = await Promise.all([
     workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
       server,
       occupiedOccupiableTiles,
@@ -178,6 +181,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     mapFiltersFactory(),
     unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
     unitImprovementFactory(),
+    preferencesFactory(),
   ]);
 
   const queryClient = new QueryClient();
@@ -194,6 +198,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<Troop[]>([troopsCacheKey], troops);
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
   queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
+  queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);
 
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };
@@ -228,10 +233,7 @@ export const CreateServerModalContent = () => {
       {!isPending && !isSuccess && !isError && <CreateServerConfigurationView onSubmit={onSubmit} />}
       {isPending && <div className="mx-auto flex w-full flex-col gap-4 md:max-w-[50%]">Loading</div>}
       {isSuccess && (
-        <Link
-          viewTransition
-          to={`/game/${latestServer?.slug}/v-1/resources`}
-        >
+        <Link to={`/game/${latestServer?.slug}/v-1/resources`}>
           <Button variant="confirm">Enter server</Button>
         </Link>
       )}

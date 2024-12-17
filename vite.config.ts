@@ -1,23 +1,12 @@
-import path from 'node:path';
-import { reactRouter } from '@react-router/dev/vite';
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
+import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 import viteReact from '@vitejs/plugin-react';
-
-const isInTestMode = process.env.VITEST === 'true';
+import { resolve } from 'node:path';
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
-    ...(isInTestMode
-      ? [viteReact()]
-      : [
-          reactRouter({
-            prerender: ['/'],
-          }),
-          VitePWA({ registerType: 'autoUpdate', manifest: false }),
-        ]),
-  ],
+const viteConfig = defineViteConfig({
+  plugins: [viteReact(), VitePWA({ registerType: 'autoUpdate', manifest: false })],
   server: {
     open: true,
   },
@@ -59,9 +48,10 @@ export default defineConfig({
       'dayjs/plugin/duration',
     ],
   },
+  // TODO: Consider using node sub-paths for this in the future
   resolve: {
     alias: {
-      app: path.resolve(__dirname, 'app'),
+      app: resolve(__dirname, 'app'),
     },
   },
   worker: {
@@ -75,6 +65,10 @@ export default defineConfig({
       },
     },
   },
+});
+
+// https://vitest.dev/config/
+const vitestConfig = defineVitestConfig({
   test: {
     root: './',
     watch: false,
@@ -83,4 +77,6 @@ export default defineConfig({
     setupFiles: './vitest-setup.ts',
     reporters: ['default'],
   },
-}) satisfies UserConfig;
+});
+
+export default mergeConfig(viteConfig, vitestConfig);

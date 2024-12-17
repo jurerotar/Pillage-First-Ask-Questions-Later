@@ -21,7 +21,7 @@ import {
   villagesCacheKey,
 } from 'app/query-keys';
 import { getVillageSize } from 'app/factories/utils/common';
-import type { GameEvent } from 'app/interfaces/models/events/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Achievement } from 'app/interfaces/models/game/achievement';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Player } from 'app/interfaces/models/game/player';

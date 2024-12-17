@@ -9,15 +9,18 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
-import { unitsMap } from 'app/assets/units';
 import { Button } from 'app/components/buttons/button';
 import { Icon, type IconType, unitIdToUnitIconMapper } from 'app/components/icon';
-import { GameEventType } from 'app/interfaces/models/events/game-event';
+import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
+import { calculateMaxUnits, getUnitData } from 'app/(game)/utils/units';
+import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
+import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
+import { useForm } from 'react-hook-form';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
@@ -25,7 +28,7 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   });
   const { t: generalT } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
-  const { researchCost } = unitsMap.get(unitId)!;
+  const { researchCost } = getUnitData(unitId)!;
 
   const hasResearchedUnit = isUnitResearched(unitId);
 
@@ -43,19 +46,30 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   );
 };
 
+type UnitRecruitmentFormProps = {
+  amount: number;
+};
+
 const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
   });
   const { t: generalT } = useTranslation();
-  const { isUnitResearched } = useUnitResearch();
   const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent(GameEventType.TROOP_TRAINING);
+  const currentResources = useCurrentResources();
+  const { buildingFieldId } = useRouteSegments();
+  const { currentVillage } = useCurrentVillage();
+  const { handleSubmit: _handleSubmit } = useForm<UnitRecruitmentFormProps>();
 
-  const _hasResearchedUnit = isUnitResearched(unitId);
+  const { baseRecruitmentCost } = getUnitData(unitId);
 
-  // Great barracks and great stable require 3x the normal unit cost
-  // @ts-ignore
-  const unitCostModifier = 1;
+  const _maxUnits = calculateMaxUnits(currentResources, baseRecruitmentCost);
+
+  const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!);
+
+  const isUnitRecruitmentOpenInGreatBuilding = buildingField?.buildingId?.includes('GREAT') ?? false;
+
+  const unitCostModifier = isUnitRecruitmentOpenInGreatBuilding ? 3 : 1;
 
   const __recruitUnits = (amount: number) => {
     createBulkBarracksTrainingEvent({
@@ -114,7 +128,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
   const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, travelSpeed, carryCapacity, cropConsumption, researchCost } =
-    unitsMap.get(unitId)!;
+    getUnitData(unitId)!;
 
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 

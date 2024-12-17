@@ -1,40 +1,49 @@
 @mixin oasisBackgroundImage($base, $resourceBase, $group, $position, $hasVariants: false) {
   &-position-#{$position} {
-    @include imageSet('#{$resourceBase}/#{$group}/#{$position}');
-    @if($hasVariants) {
+    @if ($hasVariants) {
       @for $variant from 0 through 3 {
         &-variant-#{$variant} {
           $variantPosition: '#{$position}-#{$variant}';
 
-          @if($variant == 0) {
+          @if ($variant == 0) {
             $variantPosition: '#{$position}';
           }
           @include imageSet('#{$resourceBase}/#{$group}/#{$variantPosition}');
         }
       }
+    } @else {
+      @include imageSet('#{$resourceBase}/#{$group}/#{$position}');
     }
   }
 }
 
-@each $themeSelector, $imagesPath in $themeImagesPaths {
+:global(#{$timeOfDayNightSelector}) {
+  & .oasis, .unoccupied-tile {
+    & > button {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
   // Occupied occupiable tiles
-  //:global(#{$themeSelector}) .occupied-tile {
-  //  $base: '/#{$imagesPath}/map/occupied-tiles';
-  //  @each $tribe in $tribes {
-  //    $tribeBase: '/#{$base}/#{$tribe}';
-  //
-  //    &-#{$tribe} {
-  //      @each $villageSize in $villageSizes {
-  //        &-#{$villageSize} {
-  //          background-image: url('#{$tribeBase}/#{$villageSize}.png');
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
+  :global(#{$skinVariantSelector}) .occupied-tile {
+    //  $base: '/#{$imagesPath}/map/occupied-tiles';
+    //  @each $tribe in $tribes {
+    //    $tribeBase: '/#{$base}/#{$tribe}';
+    //
+    //    &-#{$tribe} {
+    //      @each $villageSize in $villageSizes {
+    //        &-#{$villageSize} {
+    //          background-image: url('#{$tribeBase}/#{$villageSize}.png');
+    //        }
+    //      }
+    //    }
+    //  }
+  }
 
   // Unoccupied occupiable tiles
-  :global(#{$themeSelector}) .unoccupied-tile {
+  :global(#{$skinVariantSelector}) .unoccupied-tile {
     $base: '#{$imagesPath}/map/unoccupied-tiles';
 
     @each $resourceComposition in $resourceCompositions {
@@ -45,7 +54,7 @@
   }
 
   // Oasis tiles
-  :global(#{$themeSelector}) .oasis {
+  :global(#{$skinVariantSelector}) .oasis {
     $base: '#{$imagesPath}/map/oasis';
 
     @each $resource in $resources {

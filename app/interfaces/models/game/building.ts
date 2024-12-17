@@ -86,6 +86,8 @@ export type Building = {
   cropConsumption: number[];
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
-  buildingCost: number[][];
+  baseBuildingCost: number[];
   category: BuildingCategory;
+  buildingCostCoefficient: number;
+  maxLevel: number;
 };

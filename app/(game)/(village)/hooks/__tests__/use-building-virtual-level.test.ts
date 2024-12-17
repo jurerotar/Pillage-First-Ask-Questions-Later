@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building-virtual-level';
-import type { GameEvent } from 'app/interfaces/models/events/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';

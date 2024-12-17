@@ -25,8 +25,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { buildingFieldId } = useRouteSegments();
   const { currentVillageBuildingEvents } = useEvents();
 
-  const { buildingCost } = getBuildingData(buildingId);
-  const maxLevel = buildingCost.length;
+  const { maxLevel } = getBuildingData(buildingId);
 
   const { canBuild, assessedRequirements } = assessBuildingConstructionReadiness({
     buildingId,

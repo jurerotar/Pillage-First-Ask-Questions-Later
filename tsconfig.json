@@ -5,7 +5,7 @@
     "types": ["vite/client", "vitest"],
     "typeRoots": ["node_modules/@types", "node_modules"],
     "baseUrl": "./",
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,

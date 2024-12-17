@@ -4,12 +4,13 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
-import { units, unitsMap } from 'app/assets/units';
+import { units } from 'app/assets/units';
 import { Button } from 'app/components/buttons/button';
 import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import { getUnitData } from 'app/(game)/utils/units';
 
 type UnitImprovementCardProps = {
   unitId: Unit['id'];
@@ -23,7 +24,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
   const { wood, clay, iron, wheat } = useCurrentResources();
   const { currentVillage } = useCurrentVillage();
 
-  const { tier, upgradeCostPerLevel } = unitsMap.get(unitId)!;
+  const { tier, upgradeCostPerLevel } = getUnitData(unitId)!;
   const sameTierMercenaryUnits = units.filter((unit) => tier === unit.tier && tribe !== unit.tribe);
 
   const { level: upgradeLevel } = unitImprovements.find(({ tier: researchTier }) => researchTier === tier)!;
