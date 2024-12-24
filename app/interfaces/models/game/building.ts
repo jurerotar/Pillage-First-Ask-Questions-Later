@@ -82,7 +82,9 @@ export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster
 
 export type Building = {
   id: BuildingId;
-  buildingDuration: number[];
+  buildingDurationBase: number;
+  buildingDurationModifier: number;
+  buildingDurationReduction: number;
   cropConsumption: number[];
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];

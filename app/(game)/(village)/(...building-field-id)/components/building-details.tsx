@@ -2,7 +2,12 @@ import { BuildingActions } from 'app/(game)/(village)/components/building-action
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { calculateBuildingCostForLevel, getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
+import {
+  calculateBuildingCostForLevel,
+  calculateBuildingDurationForLevel,
+  getBuildingData,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/(game)/utils/building';
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
@@ -236,20 +241,24 @@ const BuildingStats: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {building.buildingDuration.map((duration, index) => (
-              <TableRow
-                // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                key={index}
-                {...(index + 1 === level && {
-                  className: 'bg-gray-100',
-                })}
-              >
-                <TableHeaderCell>{index + 1}</TableHeaderCell>
-                <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
-                <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
-                <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
-              </TableRow>
-            ))}
+            {[...Array(building.maxLevel)].map((_, index) => {
+              const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
+
+              return (
+                <TableRow
+                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                  key={index}
+                  {...(index + 1 === level && {
+                    className: 'bg-gray-100',
+                  })}
+                >
+                  <TableHeaderCell>{index + 1}</TableHeaderCell>
+                  <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
+                  <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
+                  <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </section>

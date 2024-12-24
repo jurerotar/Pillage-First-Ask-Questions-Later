@@ -38,8 +38,8 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const nextLevelCropConsumption = building.cropConsumption[level] ?? 0;
   const currentLevelResourceCost = calculateBuildingCostForLevel(buildingId, level);
   const nextLevelResourceCost = isMaxLevel ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, level + 1);
-  const currentLevelBuildingDuration = building.buildingDuration[level - 1] ?? 0;
-  const nextLevelBuildingDuration = building.buildingDuration[level] ?? 0;
+  const currentLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level);
+  const nextLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level + 1);
   const cumulativeEffects = calculateCumulativeEffects(building, level);
 
   return {
@@ -150,6 +150,12 @@ export const calculateBuildingCostForLevel = (buildingId: Building['id'], level:
   const { buildingCostCoefficient, baseBuildingCost } = getBuildingData(buildingId);
 
   return baseBuildingCost.map((resource) => Math.ceil((resource * buildingCostCoefficient ** level) / 5) * 5);
+};
+
+export const calculateBuildingDurationForLevel = (buildingId: Building['id'], level: number): number => {
+  const { buildingDurationBase, buildingDurationModifier, buildingDurationReduction } = getBuildingData(buildingId);
+
+  return Math.ceil((buildingDurationModifier * buildingDurationBase ** level - buildingDurationReduction) / 5) * 5;
 };
 
 // function RoundMul(v, n) {
