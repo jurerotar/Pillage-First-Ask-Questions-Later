@@ -2,12 +2,12 @@
   "name": "pillage-first-ask-questions-later",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
+  "author": "Jure Rotar <hello@jurerotar.com>",
   "repository": {
     "type": "git",
     "url": "git://github.com/jurerotar/Pillage-First-Ask-Questions-Later.git"
   },
-  "type": "module",
-  "author": "Jure Rotar <hello@jurerotar.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build --emptyOutDir",
@@ -24,34 +24,34 @@
     "analyze-bundle": "npx vite-bundle-visualizer",
     "postinstall": "cpy 'node_modules/@pillage-first/graphics/dist/graphic-packs/**/*.{jpg,png,avif}' ./public/graphic-packs --parents"
   },
-  "imports": {
-    "app/*": "./app/*"
-  },
   "dependencies": {
     "@pillage-first/graphics": "0.0.1",
-    "@tanstack/react-query": "5.62.8",
-    "@tanstack/react-query-devtools": "5.62.8",
-    "@tanstack/react-query-persist-client": "5.62.8",
+    "@tanstack/react-query": "5.62.10",
+    "@tanstack/react-query-devtools": "5.62.10",
+    "@tanstack/react-query-persist-client": "5.62.10",
     "clsx": "2.1.1",
     "cpy-cli": "5.0.0",
     "dayjs": "1.11.13",
-    "i18next": "24.1.2",
+    "i18next": "24.2.0",
     "moderndash": "4.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-hook-form": "7.54.1",
+    "react-hook-form": "7.54.2",
     "react-i18next": "15.2.0",
     "react-icons": "5.4.0",
+    "react-icons-tailwindcss": "file:../react-icons-tailwindcss",
     "react-modal": "3.16.3",
-    "react-router": "7.0.2",
-    "react-tabs": "6.0.2",
+    "react-router": "7.1.1",
+    "react-tabs": "6.1.0",
     "react-tooltip": "5.28.0",
-    "react-window": "1.8.10",
+    "react-window": "1.8.11",
     "ts-seedrandom": "1.0.0",
     "usehooks-ts": "3.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@commitlint/cli": "19.6.1",
+    "@commitlint/config-conventional": "19.6.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.1.0",
     "@testing-library/user-event": "14.5.2",
@@ -65,7 +65,7 @@
     "autoprefixer": "10.4.20",
     "happy-dom": "15.11.7",
     "husky": "9.1.7",
-    "knip": "5.41.0",
+    "knip": "5.41.1",
     "opfs-mock": "1.0.0",
     "postcss": "8.4.49",
     "resize-observer-polyfill": "1.5.1",
@@ -74,7 +74,7 @@
     "skott": "0.35.4",
     "tailwindcss": "3.4.17",
     "typescript": "5.7.2",
-    "vite": "6.0.3",
+    "vite": "6.0.5",
     "vite-bundle-visualizer": "1.2.1",
     "vite-plugin-pwa": "0.21.1",
     "vitest": "2.1.8"
@@ -90,5 +90,8 @@
     "paths": {
       "app/*": ["app/*"]
     }
+  },
+  "commitlint": {
+    "extends": ["@commitlint/config-conventional"]
   }
 }

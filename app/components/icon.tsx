@@ -15,7 +15,7 @@ import type { PickLiteral, UpperCaseToCamelCase } from 'app/utils/typescript';
 import clsx from 'clsx';
 import { camelCase } from 'moderndash';
 import type React from 'react';
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
 
 const IconMissingIcon = lazy(async () => ({ default: (await import('app/components/icons/icon-missing-icon')).IconMissingIcon }));
@@ -376,6 +376,32 @@ export type IconType =
   | OtherIconType
   | EffectId;
 
+// Not all icons are present in here, only the needed ones. This object needs to be as narrow as possible, because classes in here
+// are present in final css bundle!
+// TODO: Deprecate this solution once custom icons have been added
+const typeToIconCssClass: Partial<Record<IconType, string>> = {
+  missingIcon: 'icon-[gr-document-missing]',
+
+  // Resources
+  wood: 'icon-[tb-wood] text-[#A1662F]',
+  clay: 'icon-[gi-stone-block] text-[#cc7357]',
+  iron: 'icon-[gi-stone-pile] text-gray-500',
+  wheat: 'icon-[lu-wheat] text-yellow-500',
+  woodWheat: 'icon-[tb-wood] text-[#A1662F]',
+  clayWheat: 'icon-[gi-stone-block] text-[#cc7357]',
+  ironWheat: 'icon-[gi-stone-pile] text-gray-500',
+  woodWood: 'icon-[tb-wood] text-[#A1662F]',
+  clayClay: 'icon-[gi-stone-block] text-[#cc7357]',
+  ironIron: 'icon-[gi-stone-pile] text-gray-500',
+  wheatWheat: 'icon-[lu-wheat] text-yellow-500',
+
+  // Map treasures
+  treasureTileItem: 'icon-[lu-sword]',
+  treasureTileResources: 'icon-[gr-resources]',
+  treasureTileArtifact: 'icon-[si-artifacthub]',
+  treasureTileCurrency: 'icon-[lia-coins-solid]',
+};
+
 // @ts-ignore - TODO: Add missing icons
 export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
   missingIcon: IconMissingIcon,
@@ -505,11 +531,12 @@ export type IconProps = IconBaseProps &
     variant?: 'positive-change' | 'negative-change';
     borderVariant?: BorderIndicatorProps['variant'];
     wrapperClassName?: string;
+    asCss?: boolean;
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
+  const { type, variant, borderVariant, className, wrapperClassName, asCss = false, ...rest } = props;
 
   // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
@@ -529,20 +556,23 @@ export const Icon: React.FC<IconProps> = (props) => {
         </BorderIndicator>
       )}
     >
-      <Suspense fallback={<IconPlaceholder />}>
-        <span
-          className={clsx(hasVariantIcon && 'relative', className)}
-          {...rest}
-        >
-          <ComputedIcon />
-          {hasVariantIcon && (
-            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
-              {variant === 'positive-change' && <IconPositiveChangeVariant />}
-              {variant === 'negative-change' && <IconNegativeChangeVariant />}
-            </span>
-          )}
-        </span>
-      </Suspense>
+      {asCss && <span className={typeToIconCssClass[type] ?? typeToIconCssClass.missingIcon} />}
+      {!asCss && (
+        <Suspense fallback={<IconPlaceholder />}>
+          <span
+            className={clsx(hasVariantIcon && 'relative', className)}
+            {...rest}
+          >
+            <ComputedIcon />
+            {hasVariantIcon && (
+              <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
+                {variant === 'positive-change' && <IconPositiveChangeVariant />}
+                {variant === 'negative-change' && <IconNegativeChangeVariant />}
+              </span>
+            )}
+          </span>
+        </Suspense>
+      )}
     </ConditionalWrapper>
   );
 };
