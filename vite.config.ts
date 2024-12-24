@@ -23,6 +23,7 @@ const viteConfig = defineViteConfig({
       'react-dom',
       'react-dom/client',
       'react-router',
+      'react-icons-tailwindcss',
       'ts-seedrandom',
       'react-tabs',
       'react-hook-form',
