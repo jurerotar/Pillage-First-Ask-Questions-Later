@@ -4,7 +4,7 @@ import { StrictMode, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 import { router } from './router';
-import './styles/styles.scss';
+import './styles/app.css';
 import './i18n';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);

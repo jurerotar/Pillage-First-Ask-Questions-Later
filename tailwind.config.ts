@@ -11,12 +11,6 @@ export default {
         xs: '425px',
         '2xl': '1536px',
       },
-      duration: {
-        default: 300,
-      },
-      backdropBlur: {
-        xs: '1px',
-      },
       colors: {
         reputation: {
           player: '#4338ca',

@@ -12,6 +12,10 @@ const viteConfig = defineViteConfig({
   },
   build: {
     target: 'esnext',
+    rollupOptions: {
+      // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
+      external: [/^\/graphic-packs/],
+    },
   },
   optimizeDeps: {
     include: [
