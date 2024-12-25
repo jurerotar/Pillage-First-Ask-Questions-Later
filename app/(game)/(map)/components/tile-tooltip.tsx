@@ -6,7 +6,8 @@ import { useTroops } from 'app/(game)/hooks/use-troops';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
 import { isOasisTile, isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
-import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type {
   OasisResourceBonus,
   OasisTile,

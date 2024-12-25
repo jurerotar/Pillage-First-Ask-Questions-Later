@@ -1,6 +1,7 @@
-import { Icon, type IconProps, type TreasureTileIconType } from 'app/components/icon';
+import { Icon, type IconProps } from 'app/components/icon';
 import type { OccupiedOccupiableTile, OccupiedOccupiableTile as OccupiedOccupiableTileType } from 'app/interfaces/models/game/tile';
 import type React from 'react';
+import type { TreasureTileIconType } from 'app/components/icons/icon-maps';
 
 type TreasureIconProps = Pick<OccupiedOccupiableTile, 'treasureType'> & Omit<IconProps, 'type'>;
 

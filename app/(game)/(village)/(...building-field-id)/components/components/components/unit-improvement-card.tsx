@@ -6,11 +6,12 @@ import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
 import { units } from 'app/assets/units';
 import { Button } from 'app/components/buttons/button';
-import { Icon, unitIdToUnitIconMapper } from 'app/components/icon';
+import { Icon } from 'app/components/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { getUnitData } from 'app/(game)/utils/units';
+import { unitIdToUnitIconMapper } from 'app/utils/icon';
 
 type UnitImprovementCardProps = {
   unitId: Unit['id'];

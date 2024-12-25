@@ -1,10 +1,10 @@
 import type { Config } from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
-import { reactIconsTailwindcssPlugin } from 'react-icons-tailwindcss';
+import reactIconsTailwindcssPlugin from 'react-icons-tailwindcss';
 
 export default {
   darkMode: 'class',
-  content: ['./app/**/*.tsx'],
+  content: ['./app/**/*.{ts,tsx}'],
   theme: {
     extend: {
       screens: {
@@ -31,19 +31,7 @@ export default {
     },
   },
   plugins: [
-    reactIconsTailwindcssPlugin({
-      include: [
-        'LiaCoinsSolid',
-        'SiArtifacthub',
-        'GrResources',
-        'TbWood',
-        'LuSword',
-        'LuWheat',
-        'GiStonePile',
-        'GiStoneBlock',
-        'GrDocumentMissing',
-      ],
-    }),
+    reactIconsTailwindcssPlugin,
     plugin(({ addVariant }) => {
       addVariant('night', ':is(:where(.time-of-day-night) &)');
     }),
