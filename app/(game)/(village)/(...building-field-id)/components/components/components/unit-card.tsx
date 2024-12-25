@@ -8,7 +8,7 @@ import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
-import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
+import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 import { Button } from 'app/components/buttons/button';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icon-maps';
@@ -17,7 +17,7 @@ import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';
-import { Fragment } from 'react';
+import { Fragment, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateMaxUnits, getUnitData } from 'app/(game)/utils/units';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
@@ -58,7 +58,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
   });
   const { t: generalT } = useTranslation();
   const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent(GameEventType.TROOP_TRAINING);
-  const currentResources = useCurrentResources();
+  const currentResources = use(CurrentResourceContext);
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();
   const { handleSubmit: _handleSubmit } = useForm<UnitRecruitmentFormProps>();
@@ -126,7 +126,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { currentVillage } = useCurrentVillage();
   const { unitImprovements } = useUnitImprovement();
   const { isDeveloperModeActive } = useDeveloperMode();
-  const { wood, clay, iron, wheat } = useCurrentResources();
+  const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
   const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, travelSpeed, carryCapacity, cropConsumption, researchCost } =

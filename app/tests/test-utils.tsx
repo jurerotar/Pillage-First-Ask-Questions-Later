@@ -11,7 +11,7 @@ import { ViewportProvider } from 'app/providers/viewport-context.js';
 import { playerMock } from 'app/tests/mocks/game/player-mock.js';
 import { serverMock, serverPathMock } from 'app/tests/mocks/game/server-mock.js';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
-import { composeComponents } from 'app/utils/jsx.js';
+import { composeComponents } from 'app/utils/jsx';
 import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { currentServerCacheKey, effectsCacheKey, playersCacheKey, villagesCacheKey } from 'app/query-keys';

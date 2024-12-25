@@ -106,13 +106,13 @@ const HospitalTroopTraining = lazy(async () => ({
   default: (await import('./components/hospital-troop-training')).HospitalTroopTraining,
 }));
 
-const palaceTabs = new Map<string, React.LazyExoticComponent<() => JSX.Element>>([
+const palaceTabs = new Map<string, React.LazyExoticComponent<() => React.JSX.Element>>([
   ['default', PalaceTrainSettler],
   ['LOYALTY', PalaceLoyalty],
   ['EXPANSION', PalaceExpansion],
 ]);
 
-const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => JSX.Element>>>([
+const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => React.JSX.Element>>>([
   [
     'RALLY_POINT',
     new Map([

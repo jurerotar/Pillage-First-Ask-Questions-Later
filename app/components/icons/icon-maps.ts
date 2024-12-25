@@ -363,7 +363,7 @@ export type IconType =
   | EffectId;
 
 // @ts-ignore - TODO: Add missing icons
-export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => JSX.Element>> = {
+export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => React.JSX.Element>> = {
   missingIcon: IconMissingIcon,
 
   // Resources

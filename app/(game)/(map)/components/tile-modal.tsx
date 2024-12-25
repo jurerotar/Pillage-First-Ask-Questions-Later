@@ -37,9 +37,18 @@ export const TileModal: React.FC<TileModalProps> = ({ tile, onClose }) => {
     }
   });
 
-  useEventListener('mouseleave', onClose, modalRef);
+  useEventListener(
+    'mouseleave',
+    onClose,
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
+    modalRef,
+  );
 
-  useOnClickOutside(modalRef, onClose);
+  useOnClickOutside(
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
+    modalRef,
+    onClose,
+  );
 
   useEventListener(
     'touchstart',
@@ -52,6 +61,7 @@ export const TileModal: React.FC<TileModalProps> = ({ tile, onClose }) => {
         onClose();
       }
     },
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
     modalRef,
   );
 

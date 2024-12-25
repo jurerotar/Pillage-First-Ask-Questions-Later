@@ -7,13 +7,14 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useVillages } from 'app/(game)/hooks/use-villages';
-import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
 import { Button } from 'app/components/buttons/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -28,7 +29,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { buildingFieldId } = useRouteSegments();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { currentVillageBuildingEvents, canAddAdditionalBuildingToQueue } = useEvents();
-  const { wood, clay, iron, wheat } = useCurrentResources();
+  const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
   const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, buildingLevel);

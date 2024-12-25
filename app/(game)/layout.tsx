@@ -10,11 +10,10 @@ import { GameLayoutSkeleton } from 'app/(game)/skeleton';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import { useViewport } from 'app/providers/viewport-context';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
@@ -22,6 +21,7 @@ import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
 import { Await, Link, Outlet } from 'react-router';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
+import { ViewportContext } from 'app/providers/viewport-context';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -218,7 +218,7 @@ const GameSkinWrapper: React.FCWithChildren = ({ children }) => {
 };
 
 const GameLayout = () => {
-  const { isWiderThanMd } = useViewport();
+  const { isWiderThanMd } = use(ViewportContext);
   const { isMapPageOpen } = useGameNavigation();
   const isRestoring = useIsRestoring();
 

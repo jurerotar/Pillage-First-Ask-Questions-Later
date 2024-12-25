@@ -80,7 +80,7 @@ const HorseColorPicker = () => {
 
 type Param = 'pathfinder';
 
-type ParamToComponentMap = Record<Param, () => JSX.Element>;
+type ParamToComponentMap = Record<Param, () => React.JSX.Element>;
 
 const paramToComponentMap: ParamToComponentMap = {
   pathfinder: HorseColorPicker,
