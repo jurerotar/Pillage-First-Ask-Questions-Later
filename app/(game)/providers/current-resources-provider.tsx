@@ -18,5 +18,5 @@ export const CurrentResourceProvider: React.FCWithChildren = ({ children }) => {
     wheat,
   };
 
-  return <CurrentResourceContext.Provider value={value}>{children}</CurrentResourceContext.Provider>;
+  return <CurrentResourceContext value={value}>{children}</CurrentResourceContext>;
 };

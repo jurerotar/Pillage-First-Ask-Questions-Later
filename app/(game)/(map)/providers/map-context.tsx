@@ -50,5 +50,5 @@ export const MapProvider: React.FCWithChildren = ({ children }) => {
     [magnification, increaseMagnification, decreaseMagnification, tileSize, gridSize],
   );
 
-  return <MapContext.Provider value={value}>{children}</MapContext.Provider>;
+  return <MapContext value={value}>{children}</MapContext>;
 };

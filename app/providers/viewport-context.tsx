@@ -68,5 +68,5 @@ export const ViewportProvider: React.FCWithChildren<ViewportProviderProps> = ({ 
     };
   }, [windowSize]);
 
-  return <ViewportContext.Provider value={value}>{children}</ViewportContext.Provider>;
+  return <ViewportContext value={value}>{children}</ViewportContext>;
 };
