@@ -14,7 +14,9 @@ import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx';
 import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
-import { currentServerCacheKey, effectsCacheKey, playersCacheKey, villagesCacheKey } from 'app/query-keys';
+import { currentServerCacheKey, effectsCacheKey, playersCacheKey, preferencesCacheKey, villagesCacheKey } from 'app/query-keys';
+import { preferencesFactory } from 'app/factories/preferences-factory';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -37,6 +39,7 @@ const createGameEnvironment = (): QueryClient => {
   queryClient.setQueryData<Player[]>([playersCacheKey], () => [playerMock]);
   queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock));
   queryClient.setQueryData<Village[]>([villagesCacheKey], () => [playerVillageMock]);
+  queryClient.setQueryData<Preferences>([preferencesCacheKey], () => preferencesFactory());
 
   dehydratedState = dehydrate(queryClient);
 
