@@ -14,9 +14,9 @@ import type { BuildingField } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
 import { use, useState } from 'react';
-import { FaChevronUp } from 'react-icons/fa';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 import { ViewportContext } from 'app/providers/viewport-context';
+import { MdUpgrade } from 'react-icons/md';
 
 type BuildingUpgradeIndicatorProps = {
   buildingFieldId: BuildingField['id'];
@@ -106,7 +106,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
 
   return (
     <button
-      className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300')}
+      className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300 relative')}
       type="button"
       {...(isWiderThanMd && {
         onClick: onUpgradeButtonClick,
@@ -120,7 +120,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
         onMouseEnter={() => setShouldShowUpgradeButton(true)}
         onMouseLeave={() => setShouldShowUpgradeButton(false)}
       >
-        {shouldShowUpgradeButton && canUpgrade && <FaChevronUp className="size-3/4 rounded-full text-gray-400" />}
+        {shouldShowUpgradeButton && canUpgrade && <MdUpgrade className="size-3/4 rounded-full text-gray-400" />}
         {!(shouldShowUpgradeButton && canUpgrade) && level}
       </BorderIndicator>
     </button>

@@ -4,7 +4,7 @@ import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effe
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { Village } from 'app/interfaces/models/game/village';
 import dayjs from 'dayjs';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 
 const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
   ['wood', 'woodProduction'],
@@ -70,6 +70,18 @@ export const useCalculatedResource = (resource: Resource) => {
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
 
+  const resourceDepletionOrFullAt = useMemo<number | null>(() => {
+    if (hourlyProduction > 0 && !isFull) {
+      const secondsToFull = (storageCapacity - currentAmount) / (hourlyProduction / 3600);
+      return new Date(Date.now() + secondsToFull * 1000).getTime();
+    }
+    if (hourlyProduction < 0 && currentAmount > 0) {
+      const secondsToEmpty = currentAmount / Math.abs(hourlyProduction / 3600);
+      return new Date(Date.now() + secondsToEmpty * 1000).getTime();
+    }
+    return null; // Neither fills nor depletes
+  }, [hourlyProduction, currentAmount, storageCapacity, isFull]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     startTransition(() => {
@@ -87,8 +99,12 @@ export const useCalculatedResource = (resource: Resource) => {
       startTransition(() => {
         setCalculatedResourceAmount((prevAmount) => {
           let newAmount = prevAmount + 1;
-          if (newAmount > storageCapacity) newAmount = storageCapacity;
-          if (newAmount < 0) newAmount = 0;
+          if (newAmount > storageCapacity) {
+            newAmount = storageCapacity;
+          }
+          if (newAmount < 0) {
+            newAmount = 0;
+          }
           return newAmount;
         });
       });
@@ -117,5 +133,6 @@ export const useCalculatedResource = (resource: Resource) => {
     storageCapacity,
     isFull,
     hasNegativeProduction,
+    resourceDepletionOrFullAt,
   };
 };

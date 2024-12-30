@@ -37,6 +37,10 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
 
+  const navigateBack = () => {
+    navigate('..', { relative: 'path' });
+  };
+
   const { canBuild } = assessBuildingConstructionReadiness({
     buildingId,
     tribe,
@@ -60,22 +64,22 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
 
   const onBuildingConstruction = () => {
     constructBuilding();
-    navigate('..');
+    navigateBack();
   };
 
   const onBuildingUpgrade = () => {
     upgradeBuilding();
-    navigate('..');
+    navigateBack();
   };
 
   const onBuildingDowngrade = () => {
     downgradeBuilding();
-    navigate('..');
+    navigateBack();
   };
 
   const onBuildingDemolish = () => {
     demolishBuilding();
-    navigate('..');
+    navigateBack();
   };
 
   if (doesBuildingExist) {

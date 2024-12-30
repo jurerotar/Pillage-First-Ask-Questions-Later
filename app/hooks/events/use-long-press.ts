@@ -1,5 +1,5 @@
-import { useRef } from 'react';
 import type React from 'react';
+import { useRef } from 'react';
 
 type UseLongPressEvent = {
   onMouseDown: (e: React.MouseEvent | React.TouchEvent) => void;
@@ -14,7 +14,10 @@ const useLongPress = (callback: (e: React.MouseEvent | React.TouchEvent) => void
   const isCallbackExecuted = useRef(false);
 
   const start = (e: React.MouseEvent | React.TouchEvent) => {
-    if (isCallbackExecuted.current) return; // Prevent further execution if the callback has already run
+    // Prevent further execution if the callback has already run
+    if (isCallbackExecuted.current) {
+      return;
+    }
 
     startRef.current = Date.now();
     timeoutRef.current = setTimeout(() => {

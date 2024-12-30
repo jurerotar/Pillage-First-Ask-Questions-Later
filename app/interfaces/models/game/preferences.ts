@@ -10,4 +10,5 @@ export type Preferences = {
   skinVariant: SkinVariant;
   isAccessibilityModeEnabled: boolean;
   isReducedMotionModeEnabled: boolean;
+  shouldShowBuildingNames: boolean;
 };

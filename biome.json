@@ -26,7 +26,8 @@
         "noUnusedImports": "error"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useBlockStatements": "error"
       }
     },
     "ignore": ["dist"]
