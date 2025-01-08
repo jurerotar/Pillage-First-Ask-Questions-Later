@@ -49,7 +49,7 @@ const vitestConfig = defineVitestConfig({
     watch: false,
     globals: true,
     environment: 'happy-dom',
-    setupFiles: './vitest-setup.ts',
+    setupFiles: './app/tests/vitest-setup.ts',
     reporters: ['default'],
   },
 });

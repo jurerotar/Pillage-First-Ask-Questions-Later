@@ -26,5 +26,5 @@
     }
   },
   "exclude": ["node_modules", "build", "coverage", "public"],
-  "include": ["app", "vitest-setup.ts", "vite.config.ts"]
+  "include": ["app", "vite.config.ts", "react-router.config.ts"]
 }

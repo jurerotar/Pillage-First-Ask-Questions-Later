@@ -2,7 +2,7 @@ import { index, layout, prefix, route, type RouteConfigEntry } from '@react-rout
 
 export default [
   // Public routes
-  layout('(public)/layout.tsx', [index('(public)/(index)/page.tsx')]),
+  layout('(public)/layout.tsx', [index('(public)/(index)/page.tsx'), route('create-new-server', '(public)/(create-new-server)/page.tsx')]),
   // Design system routes
   ...prefix('design-system', [
     ...prefix('icons', [

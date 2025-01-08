@@ -1,5 +1,5 @@
 import { isOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
-import { initializeServer } from 'app/(public)/components/create-server-modal-content';
+import { initializeServer } from 'app/(public)/(create-new-server)/page';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
