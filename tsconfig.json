@@ -25,6 +25,6 @@
       "app/*": ["app/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "coverage", "public"],
+  "exclude": ["node_modules", "build", "coverage", "public"],
   "include": ["app", "vitest-setup.ts", "vite.config.ts"]
 }
