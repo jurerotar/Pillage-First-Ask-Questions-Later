@@ -9,9 +9,12 @@ const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
 const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
 
+const appNamePostfix = clsx(!isDeployingToMaster && ' - dev');
+const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
+
 const manifest: Partial<ManifestOptions> = {
-  name: `Pillage First! (Ask Questions Later)${clsx(!isDeployingToMaster && ' - dev')}`,
-  short_name: `Pillage First!${clsx(!isDeployingToMaster && ' - dev')}`,
+  name: `Pillage First! (Ask Questions Later)${appNamePostfix}`,
+  short_name: `Pillage First!${appNamePostfix}`,
   description:
     'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
   start_url: '/',
@@ -20,9 +23,9 @@ const manifest: Partial<ManifestOptions> = {
   theme_color: '#ffffff',
   orientation: 'portrait',
   icons: [
-    { src: `/logo${clsx(isDeployingToMaster && '-dev')}-192.png`, type: 'image/png', sizes: '192x192' },
-    { src: `/logo${clsx(isDeployingToMaster && '-dev')}-512.png`, type: 'image/png', sizes: '512x512', purpose: 'maskable' },
-    { src: `/logo${clsx(isDeployingToMaster && '-dev')}-512.png`, type: 'image/png', sizes: '512x512' },
+    { src: `/logo${appIconPostfix}-192.png`, type: 'image/png', sizes: '192x192' },
+    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512', purpose: 'maskable' },
+    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512' },
   ],
   scope: '/',
   lang: 'en',
