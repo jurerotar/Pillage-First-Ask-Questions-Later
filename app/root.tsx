@@ -4,6 +4,10 @@ import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import './styles/app.css';
 import './i18n';
+import clsx from 'clsx';
+
+const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
+const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
 
 export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions Later)' }];
 
@@ -16,9 +20,15 @@ export const Layout = () => {
       <head>
         <link
           rel="icon"
-          href="/logo.svg"
+          href={`/logo${appIconPostfix}.svg`}
           type="image/svg+xml"
         />
+        {import.meta.env.MODE === 'production' && (
+          <link
+            rel="manifest"
+            href="/manifest.webmanifest"
+          />
+        )}
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1"
@@ -33,11 +43,7 @@ export const Layout = () => {
         />
         <link
           rel="apple-touch-icon"
-          href="/logo-192.png"
-        />
-        <link
-          rel="manifest"
-          href="/manifest.webmanifest"
+          href={`/logo${appIconPostfix}-192.png`}
         />
         <meta
           name="twitter:card"

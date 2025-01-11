@@ -15,3 +15,9 @@ image = "ubuntu-24.04"
 
 [build.environment]
 NODE_VERSION = "22.13.0"
+
+[context.master.environment]
+BRANCH_ENV = "master"
+
+[context.branch-deploy.environment]
+BRANCH_ENV = "develop"
