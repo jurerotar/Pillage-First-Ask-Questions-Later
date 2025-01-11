@@ -78,6 +78,18 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
   const isOccupiableOasisCell = isOccupiableOasisTile(tile);
   const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
 
+  // Determine if any content will render
+  const hasContent =
+    (isOccupiedOccupiableCell && shouldShowTreasureIcons && isTreasuryTile(tile)) || // Treasure icon
+    (isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).resourceFieldComposition)) || // Wheat field icon
+    (isOccupiableOasisCell && shouldShowOasisIcons) || // Oasis icon
+    // shouldShowTroopMovements || // Troop movements
+    (shouldShowFactionReputation && isOccupiedOccupiableCell); // Faction reputation CSS class
+
+  if (!hasContent) {
+    return null;
+  }
+
   return (
     <div
       className={clsx(

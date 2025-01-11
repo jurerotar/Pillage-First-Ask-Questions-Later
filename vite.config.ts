@@ -1,15 +1,44 @@
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
-import { VitePWA } from 'vite-plugin-pwa';
-import viteReact from '@vitejs/plugin-react';
+import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
+import clsx from 'clsx';
 
 const isInTestMode = process.env.VITEST === 'true';
+// We're setting special icons on non-master environments to differentiate PWAs
+const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
+
+const manifest: Partial<ManifestOptions> = {
+  name: `Pillage First! (Ask Questions Later)${clsx(!isDeployingToMaster && ' - dev')}`,
+  short_name: `Pillage First!${clsx(!isDeployingToMaster && ' - dev')}`,
+  description:
+    'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
+  start_url: '/',
+  display: 'standalone',
+  background_color: '#111111',
+  theme_color: '#ffffff',
+  orientation: 'portrait',
+  icons: [
+    { src: `/logo${clsx(isDeployingToMaster && '-dev')}-192.png`, type: 'image/png', sizes: '192x192' },
+    { src: `/logo${clsx(isDeployingToMaster && '-dev')}-512.png`, type: 'image/png', sizes: '512x512', purpose: 'maskable' },
+    { src: `/logo${clsx(isDeployingToMaster && '-dev')}-512.png`, type: 'image/png', sizes: '512x512' },
+  ],
+  scope: '/',
+  lang: 'en',
+  dir: 'ltr',
+  categories: ['games', 'strategy', 'browser-game'],
+};
 
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
-  plugins: [...(isInTestMode ? [viteReact()] : [reactRouter(), VitePWA({ registerType: 'autoUpdate', manifest: false })])],
+  plugins: [
+    !isInTestMode && reactRouter(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest,
+    }),
+  ],
   server: {
     open: true,
   },
@@ -23,7 +52,6 @@ const viteConfig = defineViteConfig({
   optimizeDeps: {
     entries: ['app/**/*.{ts,tsx}'],
   },
-  // TODO: Consider using node sub-paths for this in the future
   resolve: {
     alias: {
       app: resolve(__dirname, 'app'),
@@ -39,6 +67,9 @@ const viteConfig = defineViteConfig({
         additionalData: '@use "./app/styles/_globals.scss" as *;',
       },
     },
+  },
+  define: {
+    'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
   },
 });
 
