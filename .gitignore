@@ -29,4 +29,5 @@ yarn-error.log*
 /public/graphic-packs
 
 .react-router
+stats.html
 
