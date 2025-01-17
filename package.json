@@ -6,7 +6,10 @@
   "author": "Jure Rotar <hello@jurerotar.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jurerotar/Pillage-First-Ask-Questions-Later.git"
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jurerotar/react-icons-tailwindcss/issues"
   },
   "scripts": {
     "dev": "react-router dev",
@@ -21,17 +24,17 @@
     "test": "vitest",
     "prepare": "husky",
     "analyze-graph": "npx skott ./app/index.tsx --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies",
-    "postinstall": "cpy 'node_modules/@pillage-first/graphics/dist/graphic-packs/**/*.{jpg,png,avif}' ./public/graphic-packs --parents"
+    "postinstall": "node --experimental-strip-types scripts/postinstall.ts"
   },
   "dependencies": {
     "@pillage-first/graphics": "0.0.1",
     "@react-router/node": "7.1.2",
     "@react-router/serve": "7.1.2",
+    "@tailwindcss/vite": "4.0.0-beta.9",
     "@tanstack/react-query": "5.64.1",
     "@tanstack/react-query-devtools": "5.64.1",
     "@tanstack/react-query-persist-client": "5.64.1",
     "clsx": "2.1.1",
-    "cpy-cli": "5.0.0",
     "dayjs": "1.11.13",
     "i18next": "24.2.1",
     "isbot": "5.1.21",
@@ -41,7 +44,7 @@
     "react-hook-form": "7.54.2",
     "react-i18next": "15.4.0",
     "react-icons": "5.4.0",
-    "react-icons-tailwindcss": "1.1.0",
+    "react-icons-tailwindcss": "1.2.0",
     "react-router": "7.1.2",
     "react-tabs": "6.1.0",
     "react-tooltip": "5.28.0",
@@ -61,22 +64,22 @@
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
     "@types/react-window": "1.8.8",
-    "@vitest/web-worker": "3.0.0",
+    "@vitest/web-worker": "3.0.2",
     "autoprefixer": "10.4.20",
     "happy-dom": "16.6.0",
     "husky": "9.1.7",
-    "knip": "5.42.1",
+    "knip": "5.42.2",
     "opfs-mock": "1.0.2",
     "postcss": "8.5.1",
     "resize-observer-polyfill": "1.5.1",
     "rollup-plugin-visualizer": "5.14.0",
     "sass-embedded": "1.83.4",
     "skott": "0.35.4",
-    "tailwindcss": "3.4.17",
+    "tailwindcss": "4.0.0-beta.9",
     "typescript": "5.7.3",
     "vite": "6.0.7",
     "vite-plugin-pwa": "0.21.1",
-    "vitest": "3.0.0"
+    "vitest": "3.0.2"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
@@ -96,6 +99,9 @@
   "overrides": {
     "usehooks-ts": {
       "react": "^19"
+    },
+    "react-icons-tailwindcss": {
+      "tailwindcss": "^4.0.0-beta"
     }
   }
 }
