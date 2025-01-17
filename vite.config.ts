@@ -4,6 +4,7 @@ import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
+import tailwindcss from '@tailwindcss/vite';
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -37,10 +38,8 @@ const manifest: Partial<ManifestOptions> = {
 const viteConfig = defineViteConfig({
   plugins: [
     !isInTestMode && reactRouter(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      manifest,
-    }),
+    !isInTestMode && tailwindcss(),
+    !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
   ],
   server: {
     open: true,
