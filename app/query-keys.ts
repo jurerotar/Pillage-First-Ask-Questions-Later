@@ -17,3 +17,4 @@ export const villagesCacheKey = 'villages';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
+export const worldItemsCacheKey = 'world-items';

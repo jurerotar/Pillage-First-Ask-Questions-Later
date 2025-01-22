@@ -50,12 +50,8 @@ const PalaceExpansion = lazy(async () => ({
   default: (await import('./components/palace-expansion')).PalaceExpansion,
 }));
 
-const TreasuryVillageArtifact = lazy(async () => ({
-  default: (await import('./components/treasury-village-artifact')).TreasuryVillageArtifact,
-}));
-
-const TreasuryUnconqueredArtifact = lazy(async () => ({
-  default: (await import('./components/treasury-unconquered-artifacts')).TreasuryUnconqueredArtifact,
+const TreasuryArtifacts = lazy(async () => ({
+  default: (await import('./components/treasury-artifacts')).TreasuryArtifacts,
 }));
 
 const MarketplaceBuy = lazy(async () => ({
@@ -122,13 +118,7 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
       ['FARM_LIST', RallyPointFarmList],
     ]),
   ],
-  [
-    'TREASURY',
-    new Map([
-      ['default', TreasuryVillageArtifact],
-      ['TREASURY', TreasuryUnconqueredArtifact],
-    ]),
-  ],
+  ['TREASURY', new Map([['default', TreasuryArtifacts]])],
   [
     'MARKETPLACE',
     new Map([

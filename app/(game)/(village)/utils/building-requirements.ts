@@ -2,6 +2,7 @@ import { getBuildingData } from 'app/(game)/utils/building';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,
+  ArtifactBuildingRequirement,
   Building,
   BuildingLevelBuildingRequirement,
   BuildingRequirement,
@@ -26,6 +27,7 @@ export type AssessBuildingConstructionReadinessArgs = {
   currentVillage: Village;
   currentVillageBuildingEvents: GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
   buildingId: Building['id'];
+  hasGreatBuildingsArtifact: boolean;
 };
 
 type AssessFunctionArgs<T extends BuildingRequirement> = AssessBuildingConstructionReadinessArgs & {
@@ -38,7 +40,14 @@ const assessBuildingLevelRequirement = (args: AssessFunctionArgs<BuildingLevelBu
     requirement,
     currentVillage: { buildingFields },
   } = args;
-  return (buildingFields.find(({ buildingId: id }) => requirement.buildingId === id)?.level ?? 0) >= requirement.level;
+
+  for (const { buildingId, level } of buildingFields) {
+    if (buildingId === requirement.buildingId && level >= requirement.level) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuildingRequirement>): boolean => {
@@ -49,6 +58,7 @@ const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuilding
     currentVillageBuildingEvents,
     buildingId,
   } = args;
+
   const sameBuildingFields: BuildingField[] = buildingFields.filter(({ buildingId: id }) => id === buildingId);
   const buildingExistsInQueue = !!currentVillageBuildingEvents.find(
     ({ building: { id: buildingIdUnderConstruction } }) => buildingIdUnderConstruction === buildingId,
@@ -78,6 +88,11 @@ const assessTribeRequirement = (args: AssessFunctionArgs<TribeBuildingRequiremen
   return requirement.tribe === tribe;
 };
 
+const assessArtifactRequirement = (args: AssessFunctionArgs<ArtifactBuildingRequirement>): boolean => {
+  const { hasGreatBuildingsArtifact } = args;
+  return hasGreatBuildingsArtifact;
+};
+
 export const assessBuildingConstructionReadiness = (
   args: AssessBuildingConstructionReadinessArgs,
 ): AssessBuildingConstructionReadinessReturn => {
@@ -104,6 +119,10 @@ export const assessBuildingConstructionReadiness = (
       }
       case 'amount': {
         fulfilled = assessBuildingAmountRequirement({ ...args, requirement, building });
+        break;
+      }
+      case 'artifact': {
+        fulfilled = assessArtifactRequirement({ ...args, requirement, building });
         break;
       }
       default:

@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import type React from 'react';
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -24,6 +25,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { currentVillageBuildingEvents } = useEvents();
+  const { hasGreatBuildingsArtifact } = useArtifacts();
 
   const { maxLevel } = getBuildingData(buildingId);
 
@@ -33,6 +35,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
     currentVillageBuildingEvents,
     playerVillages,
     currentVillage,
+    hasGreatBuildingsArtifact,
   });
 
   const sameBuildingInstances = currentVillage.buildingFields.filter(({ buildingId: id }) => id === buildingId);

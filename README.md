@@ -59,12 +59,10 @@ it and tackle issues you rarely get to encounter "in the wild". This project let
 
 ### Can this project be converted to multiplayer?
 
-The broader vision for this project (assuming everything aligns **really**, **really** perfectly) is to eventually support both
-single-player and multiplayer modes from the same app. The frontend is being built with this in mind, so the project could later accommodate
-a full backend to enable multiplayer while still supporting single-player.
-
-There are of course differences between single-player and multiplayer from a game design perspective, but those differences are small enough
-to not really warrant building a completely separate application, in my opinion.
+The current vision for this project is to become a browser-only, standalone app, allowing full single-player gameplay.
+Because of this, it does not currently accommodate any backend integration. This does not mean the answer is no though.
+One of the hopes for this project is that it would eventually be forked, reorganized and connected to a backend.
+This would allow most of the UI to be reused between this app and the fork, reducing the amount of effort needed on the fork.
 
 If you're passionate about backend development and interested in helping to get the multiplayer up and running, let's get in touch!
 
@@ -78,6 +76,7 @@ Yes, there's a couple. The list isn't definitive and will definitely change as t
 * Embassy & Stonemason buildings have been removed
 * New building are planned to be added (Mercenary camp, Terrain shaper,...)
 * New playable tribes
+* New artifacts, all of them available from the start of the server
 
 All of these changes are discussed in detail in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if you'd like to
 learn more or give your opinion!

@@ -72,7 +72,13 @@ export type CapitalBuildingRequirement = {
   canBuildOnlyOutsideOfCapital: boolean;
 };
 
+export type ArtifactBuildingRequirement = {
+  id: number;
+  type: 'artifact';
+};
+
 export type BuildingRequirement =
+  | ArtifactBuildingRequirement
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement
   | CapitalBuildingRequirement

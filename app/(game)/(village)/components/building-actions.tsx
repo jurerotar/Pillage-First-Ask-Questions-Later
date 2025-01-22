@@ -15,6 +15,7 @@ import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
+import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -29,6 +30,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { buildingFieldId } = useRouteSegments();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { currentVillageBuildingEvents, canAddAdditionalBuildingToQueue } = useEvents();
+  const { hasGreatBuildingsArtifact } = useArtifacts();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
@@ -47,6 +49,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     currentVillageBuildingEvents,
     playerVillages,
     currentVillage,
+    hasGreatBuildingsArtifact,
   });
 
   const hasEnoughResourcesToBuild = (() => {

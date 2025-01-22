@@ -9,6 +9,8 @@ import type { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'ap
 import GenerateTroopsWorker from 'app/(public)/workers/generate-troops-worker?worker&url';
 import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/(public)/workers/generate-villages-worker';
 import GenerateVillagesWorker from 'app/(public)/workers/generate-villages-worker?worker&url';
+import type { GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn } from 'app/(public)/workers/generate-world-items-worker';
+import GenerateWorldItemsWorker from 'app/(public)/workers/generate-world-items-worker?worker&url';
 import type { Achievement } from 'app/interfaces/models/game/achievement';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
@@ -36,6 +38,7 @@ import {
   unitImprovementCacheKey,
   unitResearchCacheKey,
   villagesCacheKey,
+  worldItemsCacheKey,
 } from 'app/query-keys';
 import { generateEffects } from 'app/factories/effect-factory';
 import { heroFactory } from 'app/factories/hero-factory';
@@ -53,6 +56,7 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useNavigate } from 'react-router';
 import { Label } from 'app/components/label';
 import { Input } from 'app/components/input';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 const PLAYER_COUNT = 50;
 
@@ -84,25 +88,30 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
   // Non-dependant factories can run in sync
-  const [{ villages }, { troops }, effects, hero, mapFilters, unitResearch, unitImprovement, preferences] = await Promise.all([
-    workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
-      server,
-      occupiedOccupiableTiles,
-      players,
-    }),
-    workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
-      server,
-      occupiedOccupiableTiles,
-      occupiableOasisTiles,
-      players,
-    }),
-    generateEffects(server, playerStartingVillage),
-    heroFactory(server),
-    mapFiltersFactory(),
-    unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
-    unitImprovementFactory(),
-    preferencesFactory(),
-  ]);
+  const [{ villages }, { troops }, { worldItems }, effects, hero, mapFilters, unitResearch, unitImprovement, preferences] =
+    await Promise.all([
+      workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
+        server,
+        occupiedOccupiableTiles,
+        players,
+      }),
+      workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
+        server,
+        occupiedOccupiableTiles,
+        occupiableOasisTiles,
+        players,
+      }),
+      workerFactory<GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn>(GenerateWorldItemsWorker, {
+        server,
+        occupiedOccupiableTiles,
+      }),
+      generateEffects(server, playerStartingVillage),
+      heroFactory(server),
+      mapFiltersFactory(),
+      unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
+      unitImprovementFactory(),
+      preferencesFactory(),
+    ]);
 
   const queryClient = new QueryClient();
 
@@ -119,6 +128,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
   queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);
+  queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
 
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };

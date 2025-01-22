@@ -92,6 +92,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     wheatUpkeep: 3,
     lastUpdatedAt: Date.now(),
     resourceFieldComposition,
+    artifactId: null,
     resources: {
       wood: 750,
       clay: 750,
@@ -131,6 +132,7 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
     resourceFieldComposition,
+    artifactId: null,
   };
 };
 

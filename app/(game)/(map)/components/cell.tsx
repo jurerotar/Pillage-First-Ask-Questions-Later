@@ -1,5 +1,4 @@
 import { OccupiableOasisIcon } from 'app/(game)/(map)/components/occupiable-oasis-icon';
-import { TreasureIcon } from 'app/(game)/(map)/components/treasure-icon';
 import { WheatFieldIcon } from 'app/(game)/(map)/components/wheat-field-icon';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
 import {
@@ -7,7 +6,6 @@ import {
   isOccupiableTile,
   isOccupiedOasisTile,
   isOccupiedOccupiableTile,
-  isTreasuryTile,
   isUnoccupiedOccupiableTile,
 } from 'app/(game)/utils/guards/map-guards';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
@@ -27,6 +25,8 @@ import type React from 'react';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import cellStyles from './cell.module.scss';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
+import { TreasureIcon } from 'app/(game)/(map)/components/treasure-icon';
 
 const reputationColorMap = new Map<ReputationLevel, string>([
   ['player', 'after:border-reputation-player'],
@@ -64,23 +64,25 @@ type CellBaseProps = {
   magnification: number;
   onClick: (data: TileWithVillageData) => void;
   villageCoordinatesToVillagesMap: Map<string, Village>;
+  villageCoordinatesToWorldItemsMap: Map<string, WorldItem>;
 };
 
 const wheatFields = ['00018', '11115', '3339'];
 
-type CellIconsProps = Pick<CellBaseProps, 'mapFilters'> & { tile: TileWithVillageData };
+type CellIconsProps = Omit<CellBaseProps, 'tilesWithFactions'> & { tile: TileWithVillageData };
 
-const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
+const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters, villageCoordinatesToWorldItemsMap }) => {
   const { shouldShowFactionReputation, shouldShowTreasureIcons, shouldShowOasisIcons, shouldShowWheatFields, shouldShowTroopMovements } =
     mapFilters;
 
   const isOccupiableCell = isOccupiableTile(tile);
   const isOccupiableOasisCell = isOccupiableOasisTile(tile);
   const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
+  const isWorldItemCell = villageCoordinatesToWorldItemsMap.has(tile.id);
 
   // Determine if any content will render
   const hasContent =
-    (isOccupiedOccupiableCell && shouldShowTreasureIcons && isTreasuryTile(tile)) || // Treasure icon
+    (isOccupiedOccupiableCell && shouldShowTreasureIcons && isWorldItemCell) || // Treasure icon
     (isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).resourceFieldComposition)) || // Wheat field icon
     (isOccupiableOasisCell && shouldShowOasisIcons) || // Oasis icon
     // shouldShowTroopMovements || // Troop movements
@@ -101,7 +103,9 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters }) => {
           )!}`,
       )}
     >
-      {isOccupiedOccupiableCell && shouldShowTreasureIcons && isTreasuryTile(tile) && <TreasureIcon treasureType={tile.treasureType} />}
+      {isOccupiedOccupiableCell && shouldShowTreasureIcons && isWorldItemCell && (
+        <TreasureIcon item={villageCoordinatesToWorldItemsMap.get(tile.id)!} />
+      )}
 
       {isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).resourceFieldComposition) && (
         <WheatFieldIcon resourceFieldComposition={(tile as OccupiableTile).resourceFieldComposition} />
@@ -181,7 +185,8 @@ const dynamicCellClasses = (
 };
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { tilesWithFactions, mapFilters, onClick, villageCoordinatesToVillagesMap } = data;
+  const { tilesWithFactions, ...cellIconsProps } = data;
+  const { onClick, villageCoordinatesToVillagesMap } = cellIconsProps;
 
   const gridSize = Math.sqrt(data.tilesWithFactions.length);
 
@@ -203,8 +208,8 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       />
 
       <CellIcons
-        mapFilters={mapFilters}
         tile={tile}
+        {...cellIconsProps}
       />
     </div>
   );

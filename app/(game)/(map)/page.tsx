@@ -21,6 +21,8 @@ import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
 import { ViewportContext } from 'app/providers/viewport-context';
+import { useWorldItems } from 'app/(game)/hooks/use-world-items';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -35,6 +37,7 @@ const MapPage: React.FC = () => {
   const { getReputationByFaction } = useReputations();
   const [searchParams] = useSearchParams();
   const { villages } = useVillages();
+  const { worldItems } = useWorldItems();
 
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
@@ -76,21 +79,28 @@ const MapPage: React.FC = () => {
     });
   }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
-  const fixedGridData = useMemo(() => {
-    const villageCoordinatesToVillagesMap = new Map<string, Village>(
+  const villageCoordinatesToVillagesMap = useMemo<Map<string, Village>>(() => {
+    return new Map<string, Village>(
       villages.map((village) => {
         return [`${village.coordinates.x}-${village.coordinates.y}`, village];
       }),
     );
+  }, [villages]);
 
+  const villageCoordinatesToWorldItemsMap = useMemo<Map<string, WorldItem>>(() => {
+    return new Map<string, WorldItem>(worldItems.map((worldItem) => [worldItem.tileId, worldItem]));
+  }, [worldItems]);
+
+  const fixedGridData = useMemo(() => {
     return {
       tilesWithFactions,
       mapFilters,
       magnification,
       onClick: openModal,
       villageCoordinatesToVillagesMap,
+      villageCoordinatesToWorldItemsMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, openModal, villages]);
+  }, [tilesWithFactions, mapFilters, magnification, openModal, villageCoordinatesToVillagesMap, villageCoordinatesToWorldItemsMap]);
 
   useEventListener(
     'mousedown',

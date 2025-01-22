@@ -1,6 +1,5 @@
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { usePlayers } from 'app/(game)/hooks/use-players';
-import { getReportIconType, useReports } from 'app/(game)/hooks/use-reports';
 import { useReputations } from 'app/(game)/hooks/use-reputations';
 import { useTroops } from 'app/(game)/hooks/use-troops';
 import { useVillages } from 'app/(game)/hooks/use-villages';
@@ -20,6 +19,10 @@ import type {
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useWorldItems } from 'app/(game)/hooks/use-world-items';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
+import { formatNumber } from 'app/utils/common';
+import { isArtifactWorldItem, isResourceWorldItem } from 'app/(game)/utils/guards/world-item-guard';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -74,28 +77,29 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   );
 };
 
-const TileTooltipReports: React.FC<TileTooltipProps> = ({ tile }) => {
-  const { getReportsByTileId } = useReports();
+type TileTooltipWorldItemProps = {
+  item: WorldItem;
+};
 
-  const last3reports = getReportsByTileId(tile.id).filter((_, index) => index < 3);
+const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({ item }) => {
+  const { t } = useTranslation();
 
-  if (last3reports.length === 0) {
-    return null;
+  if (isArtifactWorldItem(item)) {
+    return <span>{t(`ARTIFACTS.${item.artifactId}.TITLE`)}</span>;
   }
 
-  // TODO: Style this
+  if (isResourceWorldItem(item)) {
+    return ['wood', 'clay', 'iron', 'wheat'].map((resource) => (
+      <span key={resource}>
+        {formatNumber(item.amount)}x {t(`RESOURCES.${resource.toUpperCase()}`)}
+      </span>
+    ));
+  }
+
   return (
-    <>
-      {last3reports.map((report) => (
-        <span
-          key={report.id}
-          className="flex gap-1"
-        >
-          <Icon type={getReportIconType(report)} />
-          report
-        </span>
-      ))}
-    </>
+    <span>
+      {formatNumber(item.amount)}x {t(`ITEMS.${item.id}`)}
+    </span>
   );
 };
 
@@ -172,7 +176,6 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
       ))}
       {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
       {!isOccupied && <TileTooltipAnimals tile={tile} />}
-      <TileTooltipReports tile={tile} />
     </>
   );
 };
@@ -202,6 +205,9 @@ type OccupiedOccupiableTileTooltipProps = {
 
 const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps> = ({ tile }) => {
   const { getVillageByCoordinates } = useVillages();
+  const { worldItems } = useWorldItems();
+
+  const worldItem = worldItems.find((item) => tile.id === item.tileId);
 
   const village = getVillageByCoordinates(tile.coordinates)!;
   const title = village.name;
@@ -211,7 +217,11 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
       <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
       <TileTooltipPlayerInfo tile={tile} />
-      <TileTooltipReports tile={tile} />
+      {!!worldItem && (
+        <div className="flex flex-col gap-1 border-t border-t-gray-400 py-1">
+          <TileTooltipWorldItem item={worldItem} />
+        </div>
+      )}
     </>
   );
 };

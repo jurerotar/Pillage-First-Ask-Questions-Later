@@ -85,6 +85,9 @@ const IconTreasureTileArtifact = lazy(async () => ({
 const IconTreasureTileCurrency = lazy(async () => ({
   default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-currency')).IconTreasureTileCurrency,
 }));
+const IconTreasureTileMiscellaneous = lazy(async () => ({
+  default: (await import('app/components/icons/treasure-tile/icon-treasure-tile-miscellaneous')).IconTreasureTileMiscellaneous,
+}));
 
 // Map adventure tile icons
 const IconAdventureDifficult = lazy(async () => ({
@@ -308,7 +311,12 @@ type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
 
 type CommonIconType = 'cancel';
 
-export type TreasureTileIconType = 'treasureTileItem' | 'treasureTileResources' | 'treasureTileArtifact' | 'treasureTileCurrency';
+export type TreasureTileIconType =
+  | 'treasureTileItem'
+  | 'treasureTileResources'
+  | 'treasureTileArtifact'
+  | 'treasureTileCurrency'
+  | 'treasureTileMiscellaneous';
 
 export type ResourceCombinationIconType = 'woodWheat' | 'clayWheat' | 'ironWheat' | 'woodWood' | 'clayClay' | 'ironIron' | 'wheatWheat';
 
@@ -394,6 +402,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   treasureTileResources: IconTreasureTileResources,
   treasureTileArtifact: IconTreasureTileArtifact,
   treasureTileCurrency: IconTreasureTileCurrency,
+  treasureTileMiscellaneous: IconTreasureTileMiscellaneous,
 
   // Reports
   attackerNoLoss: IconAttackerNoLoss,
@@ -498,7 +507,8 @@ export const typeToIconCssClass: Partial<Record<IconType, string>> = {
 
   // Map treasures
   treasureTileItem: 'icon icon-[lu-sword]',
-  treasureTileResources: 'icon icon-[gr-resources]',
+  treasureTileResources: 'icon icon-[gi-stone-pile]',
   treasureTileArtifact: 'icon icon-[si-artifacthub]',
   treasureTileCurrency: 'icon icon-[lia-coins-solid]',
+  treasureTileMiscellaneous: 'icon icon-[sl-chemistry]',
 };
