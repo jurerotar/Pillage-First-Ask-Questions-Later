@@ -1,4 +1,5 @@
-import { Icon, type IconProps, type ResourceCombinationIconType } from 'app/components/icon';
+import { Icon, type IconProps } from 'app/components/icon';
+import type { ResourceCombinationIconType } from 'app/components/icons/icon-maps';
 import type { OasisResourceBonus, OasisTile } from 'app/interfaces/models/game/tile';
 import { capitalize } from 'moderndash';
 import type React from 'react';
@@ -29,6 +30,7 @@ export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (props) =
       className="select-none size-3"
       wrapperClassName="absolute top-0 right-0 z-10"
       type={iconType}
+      asCss
     />
   );
 };

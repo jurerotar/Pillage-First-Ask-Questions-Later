@@ -1,9 +1,9 @@
 import { useCalculatedResource } from 'app/(game)/hooks/use-calculated-resource';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import type React from 'react';
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 
-const CurrentResourceContext = createContext<Resources>({} as never);
+export const CurrentResourceContext = createContext<Resources>({} as never);
 
 export const CurrentResourceProvider: React.FCWithChildren = ({ children }) => {
   const { calculatedResourceAmount: wood } = useCalculatedResource('wood');
@@ -18,7 +18,5 @@ export const CurrentResourceProvider: React.FCWithChildren = ({ children }) => {
     wheat,
   };
 
-  return <CurrentResourceContext.Provider value={value}>{children}</CurrentResourceContext.Provider>;
+  return <CurrentResourceContext value={value}>{children}</CurrentResourceContext>;
 };
-
-export const useCurrentResources = () => useContext(CurrentResourceContext);

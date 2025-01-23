@@ -1,6 +1,5 @@
 import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
 import { getVillageSize } from 'app/factories/utils/common';
-import type { Point } from 'app/interfaces/models/common';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
@@ -18,7 +17,7 @@ import type {
   Tile,
 } from 'app/interfaces/models/game/tile';
 import type { ResourceFieldComposition, VillageSize } from 'app/interfaces/models/game/village';
-import { seededRandomArrayElement, seededRandomIntFromInterval, seededShuffleArray } from 'app/utils/common';
+import { seededRandomArrayElement, seededRandomIntFromInterval } from 'app/utils/common';
 import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
 
 type Shape = { group: number; shape: number[] };
@@ -44,11 +43,6 @@ const shapesByResource: Record<Resource, Shape[]> = {
   // Iron doesn't have shape 3
   iron: [...shapes.filter(({ group }) => group !== 3), { group: 4, shape: [3] }],
   wheat: shapes,
-};
-
-type Distances = {
-  offset: number;
-  distanceFromCenter: number;
 };
 
 const weightedResourceFieldComposition: Record<number, ResourceFieldComposition> = {
@@ -162,41 +156,6 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
   };
 };
 
-const getPredefinedVillagesDistances = (server: Server): Distances => {
-  const {
-    configuration: { mapSize },
-  } = server;
-  // Artifact villages are positioned 80% distance from center at the points of a rotated octagon. You can picture a stop sign.
-  const distanceFromCenter = Math.round(0.8 * (mapSize / 2));
-  const octagonSideLengthFormula = (incircleRadius: number) => (2 * incircleRadius) / (1 + Math.sqrt(2));
-  // Offset is exactly 1/2 of octagon side length
-  const offset = Math.round(octagonSideLengthFormula(distanceFromCenter) / 2);
-
-  return {
-    offset,
-    distanceFromCenter,
-  };
-};
-
-const getPredefinedVillagesCoordinates = (server: Server): Record<string, Point[]> => {
-  const { offset, distanceFromCenter } = getPredefinedVillagesDistances(server);
-
-  const artifactVillagesCoordinates = [
-    { x: -offset, y: distanceFromCenter },
-    { x: offset, y: distanceFromCenter },
-    { x: -offset, y: -distanceFromCenter },
-    { x: offset, y: -distanceFromCenter },
-    { x: distanceFromCenter, y: offset },
-    { x: distanceFromCenter, y: -offset },
-    { x: -distanceFromCenter, y: offset },
-    { x: -distanceFromCenter, y: -offset },
-  ];
-
-  return {
-    artifactVillagesCoordinates,
-  };
-};
-
 const generateGrid = ({ server }: { server: Server }): (BaseTile | OasisTile)[] => {
   const {
     configuration: { mapSize: size },
@@ -261,42 +220,7 @@ const generateInitialUserVillage = ({ tiles, player }: GenerateInitialUserVillag
     type: 'free-tile',
     resourceFieldComposition: '4446',
     ownedBy: player.id,
-    treasureType: null,
   } satisfies OccupiedOccupiableTile;
-
-  return tilesToUpdate;
-};
-
-type GeneratePredefinedVillagesArgs = {
-  server: Server;
-  tiles: MaybeOccupiedBaseTile[];
-  npcPlayers: Player[];
-};
-
-const generatePredefinedVillages = ({ server, tiles, npcPlayers }: GeneratePredefinedVillagesArgs): MaybeOccupiedBaseTile[] => {
-  const tilesToUpdate = [...tiles];
-  const { artifactVillagesCoordinates } = getPredefinedVillagesCoordinates(server);
-
-  const prng = prngAlea(server.seed);
-
-  // Since there's 4 npc players and 8 predefined villages, we just duplicate the npc players array, so each faction gets 2 villages
-  const players = seededShuffleArray<Player>(prng, [...npcPlayers, ...npcPlayers]);
-
-  [...artifactVillagesCoordinates].forEach(({ x, y }: Point, index: number) => {
-    const playerId = players[index].id;
-    const tileFindFunction = ({ coordinates }: BaseTile) => coordinates.x === x && coordinates.y === y;
-
-    const tileToUpdateIndex = tiles.findIndex(tileFindFunction);
-    const tileToUpdate = tiles[tileToUpdateIndex];
-
-    tilesToUpdate[tileToUpdateIndex] = {
-      ...tileToUpdate,
-      type: 'free-tile',
-      resourceFieldComposition: '4446',
-      ownedBy: playerId,
-      treasureType: 'artifact',
-    } satisfies OccupiedOccupiableTile;
-  });
 
   return tilesToUpdate;
 };
@@ -422,20 +346,11 @@ const populateOccupiableTiles = ({ server, tiles, npcPlayers }: PopulateOccupiab
       return tile;
     }
     const willBeOccupied = seededRandomIntFromInterval(prng, 1, 2) === 1;
-    const willBeATreasureVillage = willBeOccupied ? seededRandomIntFromInterval(prng, 1, 5) === 1 : false;
-    const treasureType = willBeATreasureVillage
-      ? seededRandomArrayElement<Exclude<OccupiedOccupiableTile['treasureType'], 'null' | 'artifact'>>(prng, [
-          'hero-item',
-          'currency',
-          'resources',
-        ])
-      : null;
 
     return {
       ...tile,
       ...(willBeOccupied && {
         ownedBy: seededRandomArrayElement<Player>(prng, npcPlayers).id,
-        treasureType,
       }),
     };
   });
@@ -527,8 +442,7 @@ export const mapFactory = ({ server, players }: MapFactoryProps): Tile[] => {
 
   const emptyTiles = generateGrid({ server });
   const tilesWithInitialUserVillage = generateInitialUserVillage({ tiles: emptyTiles, player });
-  const tilesWithPredefinedVillages = generatePredefinedVillages({ server, tiles: tilesWithInitialUserVillage, npcPlayers });
-  const tilesWithShapedOasisFields = generateShapedOasisFields({ server, tiles: tilesWithPredefinedVillages });
+  const tilesWithShapedOasisFields = generateShapedOasisFields({ server, tiles: tilesWithInitialUserVillage });
   const tilesWithSingleOasisFields = generateSingleOasisFields({ server, tiles: tilesWithShapedOasisFields });
   const tilesWithOccupiableTileTypes = generateOccupiableTileTypes({ server, tiles: tilesWithSingleOasisFields });
   const tilesWithPopulatedOccupiableTiles = populateOccupiableTiles({ server, tiles: tilesWithOccupiableTileTypes, npcPlayers });

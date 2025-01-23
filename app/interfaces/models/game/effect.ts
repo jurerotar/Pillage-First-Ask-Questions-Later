@@ -1,6 +1,6 @@
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 
-type TroopTrainingDurationEffectId =
+export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
   | 'greatBarracksTrainingDuration'
   | 'stableTrainingDuration'
@@ -18,6 +18,7 @@ export type EffectId =
   | 'granaryCapacity'
   | 'unitSpeed'
   | 'unitWheatConsumptionReduction'
+  | 'unitCarryCapacity'
   | 'buildingDurability'
   | 'buildingDuration'
   | 'merchantSpeed'

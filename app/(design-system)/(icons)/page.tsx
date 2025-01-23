@@ -1,4 +1,6 @@
-import { Icon, type IconType, typeToIconMap } from 'app/components/icon';
+import { Icon } from 'app/components/icon';
+import { type IconType, typeToIconMap } from 'app/components/icons/icon-maps';
+
 import { chunk } from 'moderndash';
 import type React from 'react';
 

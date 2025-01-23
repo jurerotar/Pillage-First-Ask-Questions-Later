@@ -1,54 +1,59 @@
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
-import { VitePWA } from 'vite-plugin-pwa';
-import viteReact from '@vitejs/plugin-react';
+import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
+import { reactRouter } from '@react-router/dev/vite';
+import clsx from 'clsx';
+import tailwindcss from '@tailwindcss/vite';
+
+const isInTestMode = process.env.VITEST === 'true';
+// We're setting special icons on non-master environments to differentiate PWAs
+const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
+
+const appNamePostfix = clsx(!isDeployingToMaster && ' - dev');
+const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
+
+const manifest: Partial<ManifestOptions> = {
+  name: `Pillage First! (Ask Questions Later)${appNamePostfix}`,
+  short_name: `Pillage First!${appNamePostfix}`,
+  description:
+    'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
+  start_url: '/',
+  display: 'standalone',
+  background_color: '#111111',
+  theme_color: '#ffffff',
+  orientation: 'portrait',
+  icons: [
+    { src: `/logo${appIconPostfix}-192.png`, type: 'image/png', sizes: '192x192' },
+    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512', purpose: 'maskable' },
+    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512' },
+  ],
+  scope: '/',
+  lang: 'en',
+  dir: 'ltr',
+  categories: ['games', 'strategy', 'browser-game'],
+};
 
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
-  plugins: [viteReact(), VitePWA({ registerType: 'autoUpdate', manifest: false })],
+  plugins: [
+    !isInTestMode && reactRouter(),
+    !isInTestMode && tailwindcss(),
+    !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
+  ],
   server: {
     open: true,
   },
   build: {
     target: 'esnext',
+    rollupOptions: {
+      // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
+      external: [/^\/graphic-packs/],
+    },
   },
   optimizeDeps: {
-    include: [
-      // Game data
-      // 'assets/buildings',
-      // 'assets/units',
-      // Third-party deps
-      'react',
-      'react-dom',
-      'react-dom/client',
-      'react-router',
-      'ts-seedrandom',
-      'react-tabs',
-      'react-hook-form',
-      'react-modal',
-      'usehooks-ts',
-      'moderndash',
-      'clsx',
-      'react-icons/gi',
-      'react-icons/lu',
-      'react-icons/lia',
-      'react-icons/gr',
-      'react-icons/ti',
-      'react-icons/tb',
-      'react-icons/si',
-      'react-icons/cg',
-      'i18next',
-      'react-i18next',
-      'react-window',
-      'react-tooltip',
-      '@tanstack/react-query',
-      'dayjs',
-      'dayjs/plugin/relativeTime',
-      'dayjs/plugin/duration',
-    ],
+    entries: ['app/**/*.{ts,tsx}'],
   },
-  // TODO: Consider using node sub-paths for this in the future
   resolve: {
     alias: {
       app: resolve(__dirname, 'app'),
@@ -65,6 +70,9 @@ const viteConfig = defineViteConfig({
       },
     },
   },
+  define: {
+    'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
+  },
 });
 
 // https://vitest.dev/config/
@@ -74,7 +82,7 @@ const vitestConfig = defineVitestConfig({
     watch: false,
     globals: true,
     environment: 'happy-dom',
-    setupFiles: './vitest-setup.ts',
+    setupFiles: './app/tests/vitest-setup.ts',
     reporters: ['default'],
   },
 });

@@ -72,7 +72,13 @@ export type CapitalBuildingRequirement = {
   canBuildOnlyOutsideOfCapital: boolean;
 };
 
+export type ArtifactBuildingRequirement = {
+  id: number;
+  type: 'artifact';
+};
+
 export type BuildingRequirement =
+  | ArtifactBuildingRequirement
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement
   | CapitalBuildingRequirement
@@ -82,7 +88,9 @@ export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster
 
 export type Building = {
   id: BuildingId;
-  buildingDuration: number[];
+  buildingDurationBase: number;
+  buildingDurationModifier: number;
+  buildingDurationReduction: number;
   cropConsumption: number[];
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];

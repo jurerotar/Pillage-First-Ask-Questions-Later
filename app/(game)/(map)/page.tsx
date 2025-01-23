@@ -4,7 +4,7 @@ import { MapRulerCell } from 'app/(game)/(map)/components/map-ruler-cell';
 import { TileModal } from 'app/(game)/(map)/components/tile-modal';
 import { TileTooltip } from 'app/(game)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(map)/hooks/use-map-filters';
-import { MapProvider, useMapOptions } from 'app/(game)/(map)/providers/map-context';
+import { MapContext, MapProvider } from 'app/(game)/(map)/providers/map-context';
 import { useMap } from 'app/(game)/hooks/use-map';
 import { usePlayers } from 'app/(game)/hooks/use-players';
 import { useReputations } from 'app/(game)/hooks/use-reputations';
@@ -15,12 +15,14 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
-import { useViewport } from 'app/providers/viewport-context';
 import type React from 'react';
-import { useLayoutEffect, useMemo, useRef } from 'react';
+import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
+import { ViewportContext } from 'app/providers/viewport-context';
+import { useWorldItems } from 'app/(game)/hooks/use-world-items';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -28,13 +30,16 @@ const RULER_SIZE = 20;
 const MapPage: React.FC = () => {
   const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
-  const { height, width, isWiderThanLg } = useViewport();
+  const { height, width, isWiderThanLg } = use(ViewportContext);
   const { mapFilters } = useMapFilters();
-  const { gridSize, tileSize, magnification } = useMapOptions();
+  const { gridSize, tileSize, magnification } = use(MapContext);
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
   const [searchParams] = useSearchParams();
   const { villages } = useVillages();
+  const { worldItems } = useWorldItems();
+
+  const [rerenderCount, setRerenderCount] = useState<number>(0);
 
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
@@ -76,21 +81,28 @@ const MapPage: React.FC = () => {
     });
   }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
-  const fixedGridData = useMemo(() => {
-    const villageCoordinatesToVillagesMap = new Map<string, Village>(
+  const villageCoordinatesToVillagesMap = useMemo<Map<string, Village>>(() => {
+    return new Map<string, Village>(
       villages.map((village) => {
         return [`${village.coordinates.x}-${village.coordinates.y}`, village];
       }),
     );
+  }, [villages]);
 
+  const villageCoordinatesToWorldItemsMap = useMemo<Map<string, WorldItem>>(() => {
+    return new Map<string, WorldItem>(worldItems.map((worldItem) => [worldItem.tileId, worldItem]));
+  }, [worldItems]);
+
+  const fixedGridData = useMemo(() => {
     return {
       tilesWithFactions,
       mapFilters,
       magnification,
       onClick: openModal,
       villageCoordinatesToVillagesMap,
+      villageCoordinatesToWorldItemsMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, openModal, villages]);
+  }, [tilesWithFactions, mapFilters, magnification, openModal, villageCoordinatesToVillagesMap, villageCoordinatesToWorldItemsMap]);
 
   useEventListener(
     'mousedown',
@@ -102,6 +114,7 @@ const MapPage: React.FC = () => {
 
       isScrolling.current = true;
     },
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
     mapRef,
   );
 
@@ -125,6 +138,7 @@ const MapPage: React.FC = () => {
 
       mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
     },
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
     mapRef,
   );
 
@@ -133,6 +147,7 @@ const MapPage: React.FC = () => {
     () => {
       isScrolling.current = false;
     },
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
     mapRef,
   );
 
@@ -141,6 +156,7 @@ const MapPage: React.FC = () => {
     () => {
       isScrolling.current = false;
     },
+    // @ts-expect-error - remove once usehooks-ts is R19 compliant
     mapRef,
   );
 
@@ -186,9 +202,18 @@ const MapPage: React.FC = () => {
     leftMapRulerRef.current.scrollTo(offsetY);
   }, [tileSize]);
 
+  // We need this due to this bug: https://github.com/ReactTooltip/react-tooltip/issues/1189
+  useEffect(() => {
+    if (rerenderCount >= 3) {
+      return;
+    }
+    setRerenderCount((prevState) => prevState + 1);
+  }, [rerenderCount]);
+
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Tooltip
+        key={rerenderCount}
         anchorSelect="[data-tile-id]"
         closeEvents={{
           mouseleave: true,

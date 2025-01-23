@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import type React from 'react';
 
-export type BorderIndicatorBorderVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow';
+export type BorderIndicatorBorderVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow' | 'purple' | 'orange';
 export type BorderIndicatorBackgroundVariant = 'orange' | 'white';
 
 export type BorderIndicatorProps = {
@@ -15,6 +15,8 @@ const borderVariantToClassNameMap: Record<BorderIndicatorBorderVariant, string> 
   red: 'from-[#D40000] to-[#F58C8C]',
   yellow: 'from-[#988b42] to-[#fdf15f]',
   gray: 'from-[#606060] to-[#c8c8c8]',
+  purple: 'from-[#6a0dad] to-[#dcb4ff]',
+  orange: 'from-[#e67e22] to-[#ffd7a1]',
 };
 
 const backgroundVariantToClassNameMap: Record<BorderIndicatorBackgroundVariant, string> = {

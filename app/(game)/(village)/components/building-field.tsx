@@ -13,6 +13,7 @@ import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
+import { usePreferences } from 'app/(game)/hooks/use-preferences';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -138,6 +139,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const {
     currentVillage: { resourceFieldComposition },
   } = useCurrentVillage();
+  const { shouldShowBuildingNames } = usePreferences();
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
@@ -154,6 +156,11 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       data-building-field-id={buildingFieldId}
     >
       <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
+      {shouldShowBuildingNames && (
+        <span className="text-xxs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+          {t(`BUILDINGS.${buildingId}.NAME`)}
+        </span>
+      )}
     </Link>
   );
 };

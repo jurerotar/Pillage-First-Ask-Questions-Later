@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["dom", "esnext", "webworker"],
+    "lib": ["DOM", "ESNext", "WebWorker"],
     "types": ["vite/client", "vitest"],
-    "typeRoots": ["node_modules/@types", "node_modules"],
     "baseUrl": "./",
     "allowJs": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "importsNotUsedAsValues": "remove",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -17,14 +17,14 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "jsx": "react-jsx",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
     "noEmit": true,
     "strict": true,
-    "module": "esnext",
+    "module": "ESNext",
     "paths": {
       "app/*": ["app/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "coverage", "public"],
-  "include": ["app", "vitest-setup.ts", "vite.config.ts"]
+  "exclude": ["node_modules", "build", "coverage", "public"],
+  "include": ["app", "vite.config.ts", "react-router.config.ts"]
 }

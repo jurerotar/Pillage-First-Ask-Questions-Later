@@ -8,15 +8,15 @@ import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
-import { useCurrentResources } from 'app/(game)/providers/current-resources-provider';
 import { calculatePopulationFromBuildingFields, getBuildingDataForLevel } from 'app/(game)/utils/building';
 import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useViewport } from 'app/providers/viewport-context';
 import clsx from 'clsx';
 import type React from 'react';
-import { useState } from 'react';
-import { FaChevronUp } from 'react-icons/fa';
+import { use, useState } from 'react';
+import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
+import { ViewportContext } from 'app/providers/viewport-context';
+import { MdUpgrade } from 'react-icons/md';
 
 type BuildingUpgradeIndicatorProps = {
   buildingFieldId: BuildingField['id'];
@@ -29,10 +29,10 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
-  const { wood, clay, iron, wheat } = useCurrentResources();
+  const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { canAddAdditionalBuildingToQueue, currentVillageBuildingEvents } = useEvents();
   const { isDeveloperModeActive } = useDeveloperMode();
-  const { isWiderThanMd } = useViewport();
+  const { isWiderThanMd } = use(ViewportContext);
 
   const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
   const { buildingId, level } = buildingFields.find(({ id }) => buildingFieldId === id)!;
@@ -106,7 +106,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
 
   return (
     <button
-      className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300')}
+      className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300 relative')}
       type="button"
       {...(isWiderThanMd && {
         onClick: onUpgradeButtonClick,
@@ -120,7 +120,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
         onMouseEnter={() => setShouldShowUpgradeButton(true)}
         onMouseLeave={() => setShouldShowUpgradeButton(false)}
       >
-        {shouldShowUpgradeButton && canUpgrade && <FaChevronUp className="size-3/4 rounded-full text-gray-400" />}
+        {shouldShowUpgradeButton && canUpgrade && <MdUpgrade className="size-3/4 rounded-full text-gray-400" />}
         {!(shouldShowUpgradeButton && canUpgrade) && level}
       </BorderIndicator>
     </button>

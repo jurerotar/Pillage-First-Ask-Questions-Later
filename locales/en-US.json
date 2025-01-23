@@ -86,9 +86,6 @@
               "SEND_TROOPS": "Send troops",
               "FARM_LIST": "Farm list",
               "SIMULATOR": "Simulator"
-            },
-            "TREASURY": {
-              "UNCONQUERED_ARTIFACTS": "Unconquered artifacts"
             }
           },
           "TAB_PANELS": {
@@ -181,11 +178,8 @@
               }
             },
             "TREASURY": {
-              "VILLAGE_ARTIFACT": {
-                "TITLE": ""
-              },
-              "UNCONQUERED_ARTIFACTS": {
-                "TITLE": "Unconquered artifacts",
+              "ARTIFACTS": {
+                "TITLE": "Artifacts",
                 "DESCRIPTION": ""
               }
             },
@@ -560,7 +554,47 @@
       "DESCRIPTION": ""
     }
   },
-  "HERO_ITEMS": {},
+  "ITEMS": {
+    "SILVER": "Silver",
+    "HEALING_POTION": "Healing potion",
+    "BOOK_OF_WISDOM": "Book of Wisdom",
+    "ANIMAL_CAGE": "Animal cage",
+    "REVIVAL_POTION": "Revival potion"
+  },
+  "ARTIFACTS": {
+    "MILITARY_TROOP_TRAVEL_SPEED": {
+      "TITLE": "Troop travel speed artifact",
+      "DESCRIPTION": ""
+    },
+    "MILITARY_TROOP_CARRYING_CAPACITY": {
+      "TITLE": "Troop  artifact",
+      "DESCRIPTION": ""
+    },
+    "MILITARY_TROOP_TRAINING_REDUCTION": {
+      "TITLE": "Troop  artifact",
+      "DESCRIPTION": ""
+    },
+    "MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
+      "TITLE": "Troop  artifact",
+      "DESCRIPTION": ""
+    },
+    "CIVIL_BUILD_TIME_REDUCTION": {
+      "TITLE": "Village build time artifact",
+      "DESCRIPTION": ""
+    },
+    "CIVIL_OASIS_PRODUCTION_BONUS": {
+      "TITLE": "Village oasis production artifact",
+      "DESCRIPTION": ""
+    },
+    "CIVIL_RESOURCE_PRODUCTION_BONUS": {
+      "TITLE": "Village resource production artifact",
+      "DESCRIPTION": ""
+    },
+    "CIVIL_ENABLE_GREAT_BUILDINGS": {
+      "TITLE": "Village great buildings artifact",
+      "DESCRIPTION": ""
+    }
+  },
   "TRIBES": {
     "ROMANS": "Romans",
     "GAULS": "Gauls",

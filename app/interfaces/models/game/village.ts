@@ -2,6 +2,7 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
+import type { Artifact } from 'app/interfaces/models/game/artifact';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -38,7 +39,7 @@ export type BuildingField = {
   level: number;
 };
 
-// Used mostly for map & village factory. More values should be introduced, so players get a nice transition between
+// Used mostly for map & village factory
 export type VillageSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
 export type Village = {
@@ -58,4 +59,5 @@ export type Village = {
   buildingFieldsPresets: VillagePresetId[];
   isCapital: boolean;
   resourceFieldComposition: ResourceFieldComposition;
+  artifactId: Artifact['id'] | null;
 };

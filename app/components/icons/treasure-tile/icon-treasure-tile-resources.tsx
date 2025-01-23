@@ -1,5 +1,5 @@
-import { GrResources } from 'react-icons/gr';
+import { GiStonePile } from 'react-icons/gi';
 
 export const IconTreasureTileResources = () => {
-  return <GrResources className="size-full" />;
+  return <GiStonePile className="size-full" />;
 };

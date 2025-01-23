@@ -7,5 +7,6 @@ export const preferencesFactory = (): Preferences => {
     skinVariant: 'default',
     isAccessibilityModeEnabled: false,
     isReducedMotionModeEnabled: false,
+    shouldShowBuildingNames: true,
   };
 };

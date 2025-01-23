@@ -8,8 +8,12 @@ export const usePreferences = () => {
   });
 
   const preferences = data!;
+  const isDayTheme = preferences.timeOfDay === 'day';
+  const isNightTheme = preferences.timeOfDay === 'night';
 
   return {
     ...preferences,
+    isDayTheme,
+    isNightTheme,
   };
 };

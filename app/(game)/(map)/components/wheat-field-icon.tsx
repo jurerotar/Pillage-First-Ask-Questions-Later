@@ -12,6 +12,7 @@ export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({ resourceFieldCom
       type="wheat"
       borderVariant="yellow"
       wrapperClassName="absolute top-0 right-0 z-10"
+      asCss
     />
   );
 };

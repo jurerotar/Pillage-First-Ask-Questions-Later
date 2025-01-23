@@ -2,19 +2,16 @@ import { useIsRestoring } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import { useCalculatedResource } from 'app/(game)/hooks/use-calculated-resource';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { CurrentResourceProvider } from 'app/(game)/providers/current-resources-provider';
 import { GameEngineProvider } from 'app/(game)/providers/game-engine-provider';
 import { GameStateProvider } from 'app/(game)/providers/game-state-provider';
 import { GameLayoutSkeleton } from 'app/(game)/skeleton';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import { useViewport } from 'app/providers/viewport-context';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
@@ -22,16 +19,19 @@ import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
 import { Await, Link, Outlet } from 'react-router';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
+import { ViewportContext } from 'app/providers/viewport-context';
+import { Countdown } from 'app/(game)/components/countdown';
 
 type ResourceCounterProps = {
   resource: Resource;
 };
 
 const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
-  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCalculatedResource(resource);
+  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction, resourceDepletionOrFullAt } =
+    useCalculatedResource(resource);
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
-  const storageIcon = resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity';
+  const productionSign = hasNegativeProduction ? '-' : '+';
 
   return (
     <div className="flex w-full items-center gap-2 lg:rounded-md lg:border-2 lg:border-stone-400 lg:bg-stone-100 lg:px-1 lg:pb-1">
@@ -54,24 +54,26 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
             </span>
           </div>
         </div>
-        <div className="relative mt-px flex h-2 w-full rounded-sm border border-black/60 bg-white lg:h-3">
+        <div className="relative mt-px flex h-3 w-full bg-white lg:h-3 shadow-inner">
           <div
-            className={clsx(isFull || hasNegativeProduction ? 'bg-red-600' : 'bg-green-500', 'flex h-full rounded-sm')}
+            className={clsx(isFull || hasNegativeProduction ? 'bg-red-600' : 'bg-green-500', 'flex h-full')}
             style={{
               width: `${storagePercentage}%`,
             }}
           />
+          {resourceDepletionOrFullAt !== null && (
+            <Countdown
+              endsAt={resourceDepletionOrFullAt}
+              className="text-xxs font-medium absolute-centering text-center absolute"
+            />
+          )}
         </div>
         <div className="flex w-full items-center justify-between lg:hidden">
-          <span className="text-xxs font-medium text-white">/h</span>
-          <span className="text-xxs font-medium text-white">{hourlyProduction}</span>
-        </div>
-        <div className="flex w-full items-center justify-between lg:hidden">
-          <Icon
-            className="size-4"
-            type={storageIcon}
-          />
-          <span className="text-xxs font-medium text-white">{formatNumberWithCommas(storageCapacity)}</span>
+          <span />
+          <span className="text-xxs font-medium text-white">
+            {productionSign}
+            {hourlyProduction}/h
+          </span>
         </div>
       </div>
     </div>
@@ -135,13 +137,8 @@ const DesktopNavigation = () => {
 };
 
 const MobileResourcesSection = () => {
-  const {
-    currentVillage: { buildingFields, buildingFieldsPresets },
-  } = useCurrentVillage();
-  const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
-
   return (
-    <div className="flex w-full bg-blue-500 bg-gradient-to-b from-[#101010] to-[#484848]">
+    <div className="flex w-full bg-gradient-to-b from-[#101010] to-[#484848] p-1">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <div
           key={resource}
@@ -150,29 +147,6 @@ const MobileResourcesSection = () => {
           <ResourceCounter resource={resource} />
         </div>
       ))}
-      <div className="flex flex-1 flex-col gap-1 border-r border-gray-600 px-1">
-        <div className="flex w-full items-center justify-between">
-          <Icon
-            className="size-4"
-            type="freeCrop"
-          />
-          <span className="text-xxs font-medium text-white">{formatNumberWithCommas(1334)}</span>
-        </div>
-        <div className="flex w-full items-center justify-between">
-          <Icon
-            className="size-4"
-            type="populationCropConsumption"
-          />
-          <span className="text-xxs font-medium text-white">{formatNumberWithCommas(population)}</span>
-        </div>
-        <div className="flex w-full items-center justify-between">
-          <Icon
-            className="size-4"
-            type="troopsCropConsumption"
-          />
-          <span className="text-xxs font-medium text-white">{formatNumberWithCommas(1724)}</span>
-        </div>
-      </div>
     </div>
   );
 };
@@ -218,7 +192,7 @@ const GameSkinWrapper: React.FCWithChildren = ({ children }) => {
 };
 
 const GameLayout = () => {
-  const { isWiderThanMd } = useViewport();
+  const { isWiderThanMd } = use(ViewportContext);
   const { isMapPageOpen } = useGameNavigation();
   const isRestoring = useIsRestoring();
 

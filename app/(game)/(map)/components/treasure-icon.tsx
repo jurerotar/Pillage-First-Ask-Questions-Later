@@ -1,26 +1,78 @@
-import { Icon, type IconProps, type TreasureTileIconType } from 'app/components/icon';
-import type { OccupiedOccupiableTile, OccupiedOccupiableTile as OccupiedOccupiableTileType } from 'app/interfaces/models/game/tile';
+import { Icon, type IconProps } from 'app/components/icon';
 import type React from 'react';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
+import {
+  isArtifactWorldItem,
+  isCurrencyWorldItem,
+  isHeroItemWorldItem,
+  isResourceWorldItem,
+} from 'app/(game)/utils/guards/world-item-guard';
 
-type TreasureIconProps = Pick<OccupiedOccupiableTile, 'treasureType'> & Omit<IconProps, 'type'>;
+const treasureIconClassName = 'size-3 select-none';
+const treasureIconWrapperClassName = 'absolute top-0 right-0 z-20 mt-1 mr-1';
 
-const treasureTypeToIconMap = new Map<Exclude<OccupiedOccupiableTileType['treasureType'], null>, TreasureTileIconType>([
-  ['resources', 'treasureTileResources'],
-  ['currency', 'treasureTileCurrency'],
-  ['artifact', 'treasureTileArtifact'],
-  ['hero-item', 'treasureTileItem'],
-]);
+type TreasureIconProps = Omit<IconProps, 'type'> & {
+  item: WorldItem;
+};
 
-export const TreasureIcon: React.FC<TreasureIconProps> = ({ treasureType, ...rest }) => {
-  const iconType = treasureTypeToIconMap.get(treasureType!)!;
+export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
+  if (isArtifactWorldItem(item)) {
+    return (
+      <Icon
+        borderVariant="orange"
+        className={treasureIconClassName}
+        wrapperClassName={treasureIconWrapperClassName}
+        type="treasureTileArtifact"
+        asCss
+      />
+    );
+  }
 
+  if (isHeroItemWorldItem(item)) {
+    // TODO: Add item rarity color once items are created
+    return (
+      <Icon
+        borderVariant="blue"
+        className={treasureIconClassName}
+        wrapperClassName={treasureIconWrapperClassName}
+        type="treasureTileItem"
+        asCss
+      />
+    );
+  }
+
+  if (isCurrencyWorldItem(item)) {
+    return (
+      <Icon
+        borderVariant="blue"
+        className={treasureIconClassName}
+        wrapperClassName={treasureIconWrapperClassName}
+        type="treasureTileCurrency"
+        asCss
+      />
+    );
+  }
+
+  if (isResourceWorldItem(item)) {
+    return (
+      <Icon
+        borderVariant="blue"
+        className={treasureIconClassName}
+        wrapperClassName={treasureIconWrapperClassName}
+        type="treasureTileResources"
+        asCss
+      />
+    );
+  }
+
+  // Miscellaneous consumable items
   return (
     <Icon
-      {...rest}
       borderVariant="blue"
-      className="size-3 select-none"
-      wrapperClassName="absolute top-0 right-0 z-10"
-      type={iconType}
+      className={treasureIconClassName}
+      wrapperClassName={treasureIconWrapperClassName}
+      type="treasureTileMiscellaneous"
+      asCss
     />
   );
 };

@@ -57,6 +57,7 @@ describe('building-requirements', () => {
           ...defaultArgs,
           currentVillage: capitalVillage,
           buildingId: 'GREAT_BARRACKS',
+          hasGreatBuildingsArtifact: true,
         };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
@@ -67,13 +68,19 @@ describe('building-requirements', () => {
           ...defaultArgs,
           currentVillage: capitalVillage,
           buildingId: 'GREAT_STABLE',
+          hasGreatBuildingsArtifact: true,
         };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
 
       test('Brewery can only be built in capital', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, currentVillage: capitalVillage, buildingId: 'BREWERY' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          currentVillage: capitalVillage,
+          buildingId: 'BREWERY',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(true);
       });
@@ -87,6 +94,7 @@ describe('building-requirements', () => {
           ...defaultArgs,
           currentVillage: nonCapitalVillage,
           buildingId: 'GREAT_BARRACKS',
+          hasGreatBuildingsArtifact: true,
         };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(true);
@@ -97,13 +105,19 @@ describe('building-requirements', () => {
           ...defaultArgs,
           currentVillage: nonCapitalVillage,
           buildingId: 'GREAT_STABLE',
+          hasGreatBuildingsArtifact: true,
         };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(true);
       });
 
       test("Brewery can't be built in non-capitals", () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, currentVillage: nonCapitalVillage, buildingId: 'BREWERY' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          currentVillage: nonCapitalVillage,
+          buildingId: 'BREWERY',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('capital', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
@@ -113,31 +127,56 @@ describe('building-requirements', () => {
   describe('Tribe requirement', () => {
     describe('Non-playable tribe can not build any of the playable tribe specific buildings', () => {
       test('Natars can not build trapper', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'natars', buildingId: 'TRAPPER' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          tribe: 'natars',
+          buildingId: 'TRAPPER',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness({ ...args }));
         expect(fulfilled).toBe(false);
       });
 
       test('Natars can not build brewery', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'natars', buildingId: 'BREWERY' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          tribe: 'natars',
+          buildingId: 'BREWERY',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
 
       test('Natars can not build horse drinking trough', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'natars', buildingId: 'HORSE_DRINKING_TROUGH' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          tribe: 'natars',
+          buildingId: 'HORSE_DRINKING_TROUGH',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
 
       test('Natars can not build command center', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'natars', buildingId: 'COMMAND_CENTER' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          tribe: 'natars',
+          buildingId: 'COMMAND_CENTER',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
 
       test('Natars can not build waterworks', () => {
-        const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'natars', buildingId: 'WATERWORKS' };
+        const args: AssessBuildingConstructionReadinessArgs = {
+          ...defaultArgs,
+          tribe: 'natars',
+          buildingId: 'WATERWORKS',
+          hasGreatBuildingsArtifact: true,
+        };
         const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
         expect(fulfilled).toBe(false);
       });
@@ -149,31 +188,56 @@ describe('building-requirements', () => {
     });
 
     test('Gauls may build trapper', () => {
-      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'gauls', buildingId: 'TRAPPER' };
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        tribe: 'gauls',
+        buildingId: 'TRAPPER',
+        hasGreatBuildingsArtifact: true,
+      };
       const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness({ ...args }));
       expect(fulfilled).toBe(true);
     });
 
     test('Teutons may build brewery', () => {
-      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'teutons', buildingId: 'BREWERY' };
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        tribe: 'teutons',
+        buildingId: 'BREWERY',
+        hasGreatBuildingsArtifact: true,
+      };
       const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
     });
 
     test('Romans may build horse drinking trough', () => {
-      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'romans', buildingId: 'HORSE_DRINKING_TROUGH' };
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        tribe: 'romans',
+        buildingId: 'HORSE_DRINKING_TROUGH',
+        hasGreatBuildingsArtifact: true,
+      };
       const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
     });
 
     test('Huns may build command center', () => {
-      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'huns', buildingId: 'COMMAND_CENTER' };
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        tribe: 'huns',
+        buildingId: 'COMMAND_CENTER',
+        hasGreatBuildingsArtifact: true,
+      };
       const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
     });
 
     test('Egyptians may build waterworks', () => {
-      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, tribe: 'egyptians', buildingId: 'WATERWORKS' };
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        tribe: 'egyptians',
+        buildingId: 'WATERWORKS',
+        hasGreatBuildingsArtifact: true,
+      };
       const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
     });
@@ -190,6 +254,7 @@ describe('building-requirements', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'GRANARY',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -199,6 +264,7 @@ describe('building-requirements', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'MAIN_BUILDING',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(false);
@@ -209,6 +275,7 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: [{ buildingId: 'MAIN_BUILDING', id: 1, level: 20 }] },
         buildingId: 'MAIN_BUILDING',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(false);
@@ -219,6 +286,7 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: [{ buildingId: 'CRANNY', id: 1, level: 10 }] },
         buildingId: 'CRANNY',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -235,6 +303,7 @@ describe('building-requirements', () => {
           ],
         },
         buildingId: 'CRANNY',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -245,6 +314,7 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillageBuildingEvents: [buildingConstructionEventMock],
         buildingId: 'CRANNY',
+        hasGreatBuildingsArtifact: true,
       };
 
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
@@ -257,6 +327,7 @@ describe('building-requirements', () => {
         currentVillage: { ...currentVillage, buildingFields: [{ buildingId: 'CRANNY', id: 2, level: 10 }] },
         currentVillageBuildingEvents: [buildingConstructionEventMock],
         buildingId: 'CRANNY',
+        hasGreatBuildingsArtifact: true,
       };
 
       const { fulfilled } = getAssessedRequirementByType('amount', assessBuildingConstructionReadiness(args));
@@ -266,7 +337,7 @@ describe('building-requirements', () => {
 
   describe('Building level requirement', () => {
     test('Can not build barracks immediately as a new village', () => {
-      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, buildingId: 'BARRACKS' };
+      const args: AssessBuildingConstructionReadinessArgs = { ...defaultArgs, buildingId: 'BARRACKS', hasGreatBuildingsArtifact: true };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(false);
     });
@@ -276,6 +347,7 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: villageWithBarracksRequirementsMetBuildingFieldsMock },
         buildingId: 'BARRACKS',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -286,6 +358,7 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock },
         buildingId: 'WORKSHOP',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -297,6 +370,7 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock },
         buildingId: 'STABLE',
+        hasGreatBuildingsArtifact: true,
       };
       const { fulfilled } = getAssessedRequirementByType('building', assessBuildingConstructionReadiness(args));
       expect(fulfilled).toBe(true);
@@ -307,11 +381,40 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillage: { ...currentVillage, buildingFields: [{ buildingId: 'CLAY_PIT', id: 1, level: 10 }] },
         buildingId: 'BRICKYARD',
+        hasGreatBuildingsArtifact: true,
       };
       const canBuild = getAssessedRequirementsByType('building', assessBuildingConstructionReadiness(args)).every(
         ({ fulfilled }) => fulfilled,
       );
       expect(canBuild).toBe(false);
+    });
+  });
+
+  describe('Artifact building requirement', () => {
+    test("Great stable can't be built without artifact", () => {
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        currentVillage: {
+          ...currentVillage,
+        },
+        buildingId: 'GREAT_STABLE',
+        hasGreatBuildingsArtifact: false,
+      };
+      const { fulfilled } = getAssessedRequirementByType('artifact', assessBuildingConstructionReadiness(args));
+      expect(fulfilled).toBe(false);
+    });
+
+    test('Great stable can be built with artifact', () => {
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        currentVillage: {
+          ...currentVillage,
+        },
+        buildingId: 'GREAT_STABLE',
+        hasGreatBuildingsArtifact: true,
+      };
+      const { fulfilled } = getAssessedRequirementByType('artifact', assessBuildingConstructionReadiness(args));
+      expect(fulfilled).toBe(true);
     });
   });
 });

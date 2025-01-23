@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { useBuildingActions } from 'app/(game)/(village)/hooks/use-building-actions';
-import { getBuildingData } from 'app/(game)/utils/building';
+import { calculateBuildingDurationForLevel } from 'app/(game)/utils/building';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Server } from 'app/interfaces/models/game/server';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
@@ -13,9 +13,6 @@ let clayPitUpgradeLevel1EventMock: GameEvent;
 let clayPitUpgradeLevel2EventMock: GameEvent;
 let mainBuildingUpgradeLevel1EventMock: GameEvent;
 let mainBuildingUpgradeLevel2EventMock: GameEvent;
-
-const clayPit = getBuildingData('CLAY_PIT');
-const mainBuilding = getBuildingData('MAIN_BUILDING');
 
 beforeAll(() => {
   vi.spyOn(Date, 'now').mockReturnValue(0);
@@ -51,7 +48,7 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt, duration } = calculateTimings();
 
-    expect(startsAt + duration).toBe(clayPit.buildingDuration[0]);
+    expect(startsAt + duration).toBe(calculateBuildingDurationForLevel('CLAY_PIT', 1));
   });
 
   test('With a building event happening, new building event should resolve in time it takes to construct said building + the building before', () => {
@@ -62,7 +59,7 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt, duration } = calculateTimings();
 
-    expect(startsAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
+    expect(startsAt + duration).toBe(calculateBuildingDurationForLevel('CLAY_PIT', 1) + calculateBuildingDurationForLevel('CLAY_PIT', 2));
   });
 
   test('With multiple building events happening, new building event should resolve in time it takes to construct said building + all of the events before it', () => {
@@ -75,7 +72,7 @@ describe('calculateTimings', () => {
 
     // Normally this would be the sum of all 3 events, but we attach the next event to the end of the previous one, so we only need to look
     // at last one in this case
-    expect(startsAt + duration).toBe(clayPit.buildingDuration[1] + clayPit.buildingDuration[2]);
+    expect(startsAt + duration).toBe(calculateBuildingDurationForLevel('CLAY_PIT', 2) + calculateBuildingDurationForLevel('CLAY_PIT', 3));
   });
 
   test('As roman, a village building should not delay a resource building', () => {
@@ -87,7 +84,7 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt, duration } = calculateTimings();
 
-    expect(startsAt + duration).toBe(clayPit.buildingDuration[0]);
+    expect(startsAt + duration).toBe(calculateBuildingDurationForLevel('CLAY_PIT', 1));
   });
 
   test('As roman, a resource building should not delay a village building', () => {
@@ -99,7 +96,7 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt, duration } = calculateTimings();
 
-    expect(startsAt + duration).toBe(mainBuilding.buildingDuration[1]);
+    expect(startsAt + duration).toBe(calculateBuildingDurationForLevel('MAIN_BUILDING', 2));
   });
 
   test('As roman, second resource building event should only be delayed by previous resource building events', () => {
@@ -111,7 +108,7 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt, duration } = calculateTimings();
 
-    expect(startsAt + duration).toBe(clayPit.buildingDuration[0] + clayPit.buildingDuration[1]);
+    expect(startsAt + duration).toBe(calculateBuildingDurationForLevel('CLAY_PIT', 1) + calculateBuildingDurationForLevel('CLAY_PIT', 2));
   });
 
   test('As roman, second village building event should only be delayed by previous village building events', () => {
@@ -123,6 +120,6 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt } = calculateTimings();
 
-    expect(startsAt).toBe(mainBuilding.buildingDuration[2]);
+    expect(startsAt).toBe(calculateBuildingDurationForLevel('MAIN_BUILDING', 3));
   });
 });

@@ -1,5 +1,5 @@
 import type React from 'react';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 
 type WindowSize = {
   height: number;
@@ -24,13 +24,13 @@ const breakpoints = {
   '2xl': 1536,
 };
 
-const ViewportContext = createContext<ViewportContextValues>({} as never);
+export const ViewportContext = createContext<ViewportContextValues>({} as never);
 
 type ViewportProviderProps = {
   initialSize?: WindowSize;
 };
 
-const ViewportProvider: React.FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
+export const ViewportProvider: React.FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
   const [windowSize, setWindowSize] = useState<WindowSize>(initialSize);
 
   // TODO: Add debounce, maybe through lodash, don't wanna maintain own version
@@ -68,9 +68,5 @@ const ViewportProvider: React.FCWithChildren<ViewportProviderProps> = ({ initial
     };
   }, [windowSize]);
 
-  return <ViewportContext.Provider value={value}>{children}</ViewportContext.Provider>;
+  return <ViewportContext value={value}>{children}</ViewportContext>;
 };
-
-const useViewport = () => useContext(ViewportContext);
-
-export { ViewportProvider, useViewport };

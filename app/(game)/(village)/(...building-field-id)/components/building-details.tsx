@@ -2,7 +2,12 @@ import { BuildingActions } from 'app/(game)/(village)/components/building-action
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { calculateBuildingCostForLevel, getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
+import {
+  calculateBuildingCostForLevel,
+  calculateBuildingDurationForLevel,
+  getBuildingData,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/(game)/utils/building';
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
@@ -45,12 +50,8 @@ const PalaceExpansion = lazy(async () => ({
   default: (await import('./components/palace-expansion')).PalaceExpansion,
 }));
 
-const TreasuryVillageArtifact = lazy(async () => ({
-  default: (await import('./components/treasury-village-artifact')).TreasuryVillageArtifact,
-}));
-
-const TreasuryUnconqueredArtifact = lazy(async () => ({
-  default: (await import('./components/treasury-unconquered-artifacts')).TreasuryUnconqueredArtifact,
+const TreasuryArtifacts = lazy(async () => ({
+  default: (await import('./components/treasury-artifacts')).TreasuryArtifacts,
 }));
 
 const MarketplaceBuy = lazy(async () => ({
@@ -101,13 +102,13 @@ const HospitalTroopTraining = lazy(async () => ({
   default: (await import('./components/hospital-troop-training')).HospitalTroopTraining,
 }));
 
-const palaceTabs = new Map<string, React.LazyExoticComponent<() => JSX.Element>>([
+const palaceTabs = new Map<string, React.LazyExoticComponent<() => React.JSX.Element>>([
   ['default', PalaceTrainSettler],
   ['LOYALTY', PalaceLoyalty],
   ['EXPANSION', PalaceExpansion],
 ]);
 
-const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => JSX.Element>>>([
+const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => React.JSX.Element>>>([
   [
     'RALLY_POINT',
     new Map([
@@ -117,13 +118,7 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
       ['FARM_LIST', RallyPointFarmList],
     ]),
   ],
-  [
-    'TREASURY',
-    new Map([
-      ['default', TreasuryVillageArtifact],
-      ['TREASURY', TreasuryUnconqueredArtifact],
-    ]),
-  ],
+  ['TREASURY', new Map([['default', TreasuryArtifacts]])],
   [
     'MARKETPLACE',
     new Map([
@@ -236,20 +231,24 @@ const BuildingStats: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {building.buildingDuration.map((duration, index) => (
-              <TableRow
-                // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                key={index}
-                {...(index + 1 === level && {
-                  className: 'bg-gray-100',
-                })}
-              >
-                <TableHeaderCell>{index + 1}</TableHeaderCell>
-                <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
-                <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
-                <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
-              </TableRow>
-            ))}
+            {[...Array(building.maxLevel)].map((_, index) => {
+              const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
+
+              return (
+                <TableRow
+                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                  key={index}
+                  {...(index + 1 === level && {
+                    className: 'bg-gray-100',
+                  })}
+                >
+                  <TableHeaderCell>{index + 1}</TableHeaderCell>
+                  <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
+                  <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
+                  <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </section>

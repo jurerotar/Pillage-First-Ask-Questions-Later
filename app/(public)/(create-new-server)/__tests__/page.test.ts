@@ -1,5 +1,5 @@
 import { isOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
-import { initializeServer } from 'app/(public)/components/create-server-modal-content';
+import { initializeServer } from 'app/(public)/(create-new-server)/page';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
@@ -204,8 +204,8 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === 1 && y === 2)! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === 3 && y === 2)! as OccupiedOasisTile;
+      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === -2 && y === 0)! as OccupiedOasisTile;
+      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === -1 && y === 0)! as OccupiedOasisTile;
 
       expect(tile1.graphics.oasisResource === 'iron' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
       expect(tile2.graphics.oasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);

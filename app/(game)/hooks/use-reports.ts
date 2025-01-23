@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import type { MissingIconType, ReportIconType } from 'app/components/icon';
 import type { Report, ReportTag } from 'app/interfaces/models/game/report';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import { reportsCacheKey } from 'app/query-keys';
+import type { MissingIconType, ReportIconType } from 'app/components/icons/icon-maps';
 
 type _ReportMark = ReportTag | `un${ReportTag}`;
 

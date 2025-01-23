@@ -1,0 +1,15 @@
+blank_issues_enabled: false
+contact_links:
+  - name: General Question
+    url: https://github.com/your-repo/issues/new?template=question.md
+    about: Ask general questions or request more information about the project.
+  - name: Bug Report
+    url: https://github.com/your-repo/issues/new?template=bug-report.md
+    about: Report a bug or unexpected behavior in the project.
+  - name: Feature Request
+    url: https://github.com/your-repo/issues/new?template=feature-request.md
+    about: Suggest a new feature or improvement for the project.
+  - name: Technical Improvement
+    url: https://github.com/your-repo/issues/new?template=technical-improvement.md
+    about: Suggest a technical enhancement to improve code quality, performance, or maintainability.
+

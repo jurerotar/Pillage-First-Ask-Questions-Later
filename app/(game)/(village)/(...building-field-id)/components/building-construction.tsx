@@ -1,5 +1,5 @@
 import { BuildingCard } from 'app/(game)/(village)/components/building-card';
-import { type AssessedBuildingRequirement, assessBuildingConstructionReadiness } from 'app/(game)/(village)/utils/building-requirements';
+import { assessBuildingConstructionReadiness, type AssessedBuildingRequirement } from 'app/(game)/(village)/utils/building-requirements';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useEvents } from 'app/(game)/hooks/use-events';
@@ -14,6 +14,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
+import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -26,6 +27,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useEvents();
+  const { hasGreatBuildingsArtifact } = useArtifacts();
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
@@ -36,6 +38,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
+      hasGreatBuildingsArtifact,
     });
     return canBuild;
   });
@@ -47,6 +50,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
+      hasGreatBuildingsArtifact,
     });
 
     const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;

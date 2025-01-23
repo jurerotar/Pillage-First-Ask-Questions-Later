@@ -1,0 +1,24 @@
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[[headers]]
+for = "/assets/*, /*.{svg,png,jpg,jpeg,woff,woff2,ttf,eot,otf}"
+[headers.values]
+Cache-Control = "max-age=31536000, public"
+
+[build]
+command = "npm run build"
+publish = "build/client"
+image = "ubuntu-24.04"
+
+[build.environment]
+NODE_VERSION = "22.13.0"
+NPM_FLAGS = "--experimental-strip-types"
+
+[context.master.environment]
+BRANCH_ENV = "master"
+
+[context.branch-deploy.environment]
+BRANCH_ENV = "develop"

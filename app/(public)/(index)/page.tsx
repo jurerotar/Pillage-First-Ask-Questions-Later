@@ -1,19 +1,12 @@
 import { ServerCard } from 'app/(public)/(index)/components/server-card';
 import { Button } from 'app/components/buttons/button';
-import { Modal } from 'app/components/modal';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
-import { useDialog } from 'app/hooks/use-dialog';
 import type { Server } from 'app/interfaces/models/game/server';
 import { isInDevelopmentMode } from 'app/utils/common';
 import type React from 'react';
-import { lazy } from 'react';
-
-const CreateServerModalContent = lazy(async () => ({
-  default: (await import('app/(public)/components/create-server-modal-content')).CreateServerModalContent,
-}));
+import { Link } from 'react-router';
 
 const HomePage: React.FC = () => {
-  const { isOpen: isCreateServerModalOpen, openModal: openCreateServerModal, closeModal: closeCreateServerModal } = useDialog();
   const { availableServers } = useAvailableServers();
 
   const resetOpfs = async () => {
@@ -24,7 +17,6 @@ const HomePage: React.FC = () => {
   return (
     <>
       <main className="flex flex-col">
-        {/* Landing section */}
         <section className="container relative mx-auto flex min-h-[300px] flex-col gap-4 lg:flex-row">
           <div className="flex flex-1 flex-col justify-center gap-4 p-4">
             <h1 className="text-3xl font-semibold dark:text-white">Pillage First! (Ask Questions Later)</h1>
@@ -33,7 +25,9 @@ const HomePage: React.FC = () => {
               resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions
               later!
             </h2>
-            <Button onClick={() => openCreateServerModal()}>Create new server</Button>
+            <Link to="/create-new-server">
+              <Button>Create new server</Button>
+            </Link>
 
             {isInDevelopmentMode() && (
               <>
@@ -46,14 +40,6 @@ const HomePage: React.FC = () => {
                 </Button>
               </>
             )}
-            <Modal
-              isOpen={isCreateServerModalOpen}
-              closeHandler={closeCreateServerModal}
-              hasTitle
-              title="Create new server"
-            >
-              <CreateServerModalContent />
-            </Modal>
           </div>
           <div className="flex flex-1 flex-col items-center justify-center" />
         </section>

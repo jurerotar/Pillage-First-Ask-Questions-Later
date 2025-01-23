@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 
 type CountdownProps = {
   endsAt: number;
+  showCompletionDate?: boolean;
 } & React.HTMLAttributes<HTMLElement>;
 
-export const Countdown: React.FC<CountdownProps> = ({ endsAt, ...rest }) => {
+export const Countdown: React.FC<CountdownProps> = ({ endsAt, showCompletionDate = false, ...rest }) => {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
 
   const [formattedTime, setFormattedTime] = useState<string>(formatCountdown(endsAt));
@@ -26,7 +27,8 @@ export const Countdown: React.FC<CountdownProps> = ({ endsAt, ...rest }) => {
 
   return (
     <span {...rest}>
-      {formattedTime} (done at: {formatFutureTimestamp(endsAt)})
+      {formattedTime}
+      {showCompletionDate && <span>(done at: {formatFutureTimestamp(endsAt)})</span>}
     </span>
   );
 };

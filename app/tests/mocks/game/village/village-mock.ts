@@ -26,4 +26,5 @@ export const villageMock: Village = {
     iron: 750,
     wheat: 750,
   },
+  artifactId: null,
 };

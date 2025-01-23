@@ -38,8 +38,8 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const nextLevelCropConsumption = building.cropConsumption[level] ?? 0;
   const currentLevelResourceCost = calculateBuildingCostForLevel(buildingId, level);
   const nextLevelResourceCost = isMaxLevel ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, level + 1);
-  const currentLevelBuildingDuration = building.buildingDuration[level - 1] ?? 0;
-  const nextLevelBuildingDuration = building.buildingDuration[level] ?? 0;
+  const currentLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level);
+  const nextLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level + 1);
   const cumulativeEffects = calculateCumulativeEffects(building, level);
 
   return {
@@ -152,38 +152,8 @@ export const calculateBuildingCostForLevel = (buildingId: Building['id'], level:
   return baseBuildingCost.map((resource) => Math.ceil((resource * buildingCostCoefficient ** level) / 5) * 5);
 };
 
-// function RoundMul(v, n) {
-//   return Math.round(v / n) * n;
-// }
-// function TimeT3(a, k, b) {
-//   this.a = a;
-//   if (arguments.length < 3) {
-//     this.k = 1.16;
-//     if (arguments.length === 1) { k = 1; }
-//     this.b = 1875 * k;
-//   } else {
-//     this.k = k;
-//     this.b = b;
-//   }
-// }
-// TimeT3.prototype.valueOf = function (lvl) {
-//   return this.a * Math.pow(this.k, lvl-1) - this.b;
-// };
-// function TimeT5 () {}
-// TimeT5.prototype.valueOf = function (lvl) { return this.b * this.mul[lvl-1] + this.e; };
-// // resource fields
-// function TimeT5a(b) { this.b = b; this.e = 0; }
-// TimeT5a.prototype = new TimeT5();
-// TimeT5a.prototype.mul = [1, 4.5, 15, 60, 120, 240, 360, 720, 1080, 1620, 2160, 2700, 3240, 3960, 4500, 5400, 7200, 9000, 10800, 14400];
-// // most buildings
-// function TimeT5b(b, e) { this.b = b; this.e = e || 0; }
-// TimeT5b.prototype = new TimeT5();
-// TimeT5b.prototype.mul = [3, 22.5, 48, 90, 210, 480, 720, 990, 1200, 1380, 1680, 1980, 2340, 2640, 3060, 3420, 3960, 4680, 5400, 6120];
-// // factories
-// function TimeT5c(e) { this.b = 60; this.e = e * 60 || 0; }
-// TimeT5c.prototype = new TimeT5();
-// TimeT5c.prototype.mul = [8, 25, 55, 140, 240];
-// // wonder of the world
-// function TimeT5w() { this.b = 300; this.e = 0; }
-// TimeT5w.prototype = new TimeT5();
-// TimeT5w.prototype.mul = [12,16,20,24,28,32,36,40,44,46,46,47,48,48,49,50,51,51,52,53,54,55,57,58,59,60,62,63,64,66,67,69,70,72,74,75,77,79,81,83,85,87,89,91,93,96,98,100,103,105,107,110,113,115,118,121,123,126,129,132,135,138,141,144,147,150,154,157,160,164,167,171,174,178,181,185,189,193,196,200,204,208,212,216,220,225,229,233,237,242,246,251,255,260,264,269,274,278,288,576];
+export const calculateBuildingDurationForLevel = (buildingId: Building['id'], level: number): number => {
+  const { buildingDurationBase, buildingDurationModifier, buildingDurationReduction } = getBuildingData(buildingId);
+
+  return Math.ceil((buildingDurationModifier * buildingDurationBase ** level - buildingDurationReduction) / 5) * 5 * 1000;
+};

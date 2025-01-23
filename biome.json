@@ -13,7 +13,7 @@
     "useEditorconfig": true,
     "formatWithErrors": true,
     "attributePosition": "multiline",
-    "ignore": ["dist"]
+    "ignore": ["build"]
   },
   "linter": {
     "rules": {
@@ -26,10 +26,11 @@
         "noUnusedImports": "error"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useBlockStatements": "error"
       }
     },
-    "ignore": ["dist"]
+    "ignore": ["build"]
   },
   "javascript": {
     "formatter": {

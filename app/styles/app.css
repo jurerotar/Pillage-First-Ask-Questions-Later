@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@plugin 'react-icons-tailwindcss';
+
+@variant dark (&:where(.dark, .dark *));
+@variant day (&:where(.time-of-day-day, .day *));
+@variant night (&:where(.time-of-day-night, .night *));
+
+@theme {
+  --breakpoint-xs: 425px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1920px;
+
+  --color-reputation-player: #4338ca;
+  --color-reputation-ecstatic: #1d4ed8;
+  --color-reputation-respected: #0891b2;
+  --color-reputation-friendly: #22c55e;
+  --color-reputation-neutral: #facc15;
+  --color-reputation-unfriendly: #f97316;
+  --color-reputation-hostile: #e11d48;
+}
+
+@layer utilities {
+  .text-xxs {
+    font-size: 0.65rem;
+    line-height: 1rem;
+  }
+
+  .absolute-centering {
+    @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  .scrollbar-hidden {
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+}
