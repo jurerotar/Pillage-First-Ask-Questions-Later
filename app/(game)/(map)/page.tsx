@@ -16,7 +16,7 @@ import type { Point } from 'app/interfaces/models/common';
 import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import type React from 'react';
-import { use, useLayoutEffect, useMemo, useRef } from 'react';
+import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
@@ -38,6 +38,8 @@ const MapPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { villages } = useVillages();
   const { worldItems } = useWorldItems();
+
+  const [rerenderCount, setRerenderCount] = useState<number>(0);
 
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
@@ -200,9 +202,18 @@ const MapPage: React.FC = () => {
     leftMapRulerRef.current.scrollTo(offsetY);
   }, [tileSize]);
 
+  // We need this due to this bug: https://github.com/ReactTooltip/react-tooltip/issues/1189
+  useEffect(() => {
+    if (rerenderCount >= 3) {
+      return;
+    }
+    setRerenderCount((prevState) => prevState + 1);
+  }, [rerenderCount]);
+
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Tooltip
+        key={rerenderCount}
         anchorSelect="[data-tile-id]"
         closeEvents={{
           mouseleave: true,
