@@ -22,7 +22,6 @@
     "noEmit": true,
     "strict": true,
     "module": "ESNext",
-    "erasableSyntaxOnly": true,
     "paths": {
       "app/*": ["app/*"]
     }
