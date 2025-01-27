@@ -11,7 +11,7 @@ Remember: pillage first, ask questions later! ⚔️🔥
 
 ## Setup
 
-Pillage First! requires [Node.js](https://nodejs.org/en/download/package-manager) version 20 or higher.
+Pillage First! requires [Node.js version 22.13.0 (LTS)](https://nodejs.org/en/download) or later.
 
 ```bash
 # Install dependencies
