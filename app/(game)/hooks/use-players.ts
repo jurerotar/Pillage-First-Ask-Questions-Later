@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Player } from 'app/interfaces/models/game/player';
 import { useCallback } from 'react';
-import { playersCacheKey } from 'app/query-keys';
+import { playersCacheKey } from 'app/(game)/constants/query-keys';
 
 export const usePlayers = () => {
   const { data: players } = useQuery<Player[]>({

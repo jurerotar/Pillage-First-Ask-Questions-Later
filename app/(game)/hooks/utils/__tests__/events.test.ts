@@ -9,7 +9,7 @@ const events = [
   { id: 2, startsAt: now + 1000 },
   { id: 3, startsAt: now + 2000 },
   { id: 4, startsAt: now + 3000 },
-] as GameEvent[];
+] as unknown as GameEvent[];
 
 describe('insertEvent', () => {
   const findFn: (event: GameEvent) => boolean = ({ id }) => id === 'new-event';

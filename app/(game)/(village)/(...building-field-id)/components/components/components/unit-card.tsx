@@ -13,7 +13,6 @@ import { Button } from 'app/components/buttons/button';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icon-maps';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';
@@ -57,7 +56,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
   });
   const { t: generalT } = useTranslation();
-  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent(GameEventType.TROOP_TRAINING);
+  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentResourceContext);
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();

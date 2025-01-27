@@ -39,7 +39,7 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
   worldItemsCacheKey,
-} from 'app/query-keys';
+} from 'app/(game)/constants/query-keys';
 import { generateEffects } from 'app/factories/effect-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';

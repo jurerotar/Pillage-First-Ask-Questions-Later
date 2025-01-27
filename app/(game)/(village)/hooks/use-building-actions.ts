@@ -6,7 +6,6 @@ import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/utils/building';
-import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 
@@ -14,10 +13,10 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useEvents();
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
-  const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent(GameEventType.BUILDING_SCHEDULED_CONSTRUCTION);
-  const { createEvent: createBuildingConstructionEvent } = useCreateEvent(GameEventType.BUILDING_CONSTRUCTION);
-  const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent(GameEventType.BUILDING_LEVEL_CHANGE);
-  const { createEvent: createBuildingDestructionEvent } = useCreateEvent(GameEventType.BUILDING_DESTRUCTION);
+  const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
+  const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
+  const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent('buildingLevelChange');
+  const { createEvent: createBuildingDestructionEvent } = useCreateEvent('buildingDestruction');
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
   const { isDeveloperModeActive } = useDeveloperMode();
 

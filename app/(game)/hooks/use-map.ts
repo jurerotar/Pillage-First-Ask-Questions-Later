@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { mapCacheKey } from 'app/query-keys';
+import { mapCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useMap = () => {
   const { data: map } = useQuery<Tile[]>({

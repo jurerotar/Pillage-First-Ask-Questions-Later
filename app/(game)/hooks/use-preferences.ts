@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { preferencesCacheKey } from 'app/query-keys';
+import { preferencesCacheKey } from 'app/(game)/constants/query-keys';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 export const usePreferences = () => {

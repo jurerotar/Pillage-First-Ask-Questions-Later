@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { MapFilterName, MapFilters } from 'app/interfaces/models/game/map-filters';
-import { mapFiltersCacheKey } from 'app/query-keys';
+import { mapFiltersCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useMapFilters = () => {
   const queryClient = useQueryClient();

@@ -1,5 +1,5 @@
 import { getBuildingData } from 'app/(game)/utils/building';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,
   ArtifactBuildingRequirement,
@@ -25,7 +25,7 @@ export type AssessBuildingConstructionReadinessArgs = {
   tribe: Tribe;
   playerVillages: Village[];
   currentVillage: Village;
-  currentVillageBuildingEvents: GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
+  currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[];
   buildingId: Building['id'];
   hasGreatBuildingsArtifact: boolean;
 };

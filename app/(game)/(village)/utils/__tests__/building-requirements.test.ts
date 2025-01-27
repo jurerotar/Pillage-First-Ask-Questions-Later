@@ -4,7 +4,7 @@ import {
   type AssessBuildingConstructionReadinessReturn,
   type AssessedBuildingRequirement,
 } from 'app/(game)/(village)/utils/building-requirements';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { BuildingRequirement } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { Village } from 'app/interfaces/models/game/village';
@@ -25,7 +25,7 @@ const buildingConstructionEventMock = createBuildingConstructionEventMock({
 const currentVillage: Village = villageMock;
 const playerVillages: Village[] = [villageMock, villageMock];
 const tribe: Tribe = 'gauls';
-const currentVillageBuildingEvents: GameEvent<GameEventType.BUILDING_CONSTRUCTION>[] = [];
+const currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[] = [];
 
 const defaultArgs = {
   currentVillage,

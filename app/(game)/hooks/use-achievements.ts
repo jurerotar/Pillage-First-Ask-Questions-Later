@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Achievement } from 'app/interfaces/models/game/achievement';
-import { achievementsCacheKey } from 'app/query-keys';
+import { achievementsCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useAchievements = () => {
   const { data: achievements } = useQuery<Achievement[]>({

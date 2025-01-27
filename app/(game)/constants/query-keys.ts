@@ -1,4 +1,3 @@
-export const availableServerCacheKey = 'available-servers';
 export const achievementsCacheKey = 'achievements';
 export const currentServerCacheKey = 'current-server';
 export const developerModeCacheKey = 'developer-mode';

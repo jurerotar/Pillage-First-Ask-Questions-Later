@@ -19,7 +19,7 @@ import {
   troopsCacheKey,
   unitResearchCacheKey,
   villagesCacheKey,
-} from 'app/query-keys';
+} from 'app/(game)/constants/query-keys';
 import { getVillageSize } from 'app/factories/utils/common';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Achievement } from 'app/interfaces/models/game/achievement';

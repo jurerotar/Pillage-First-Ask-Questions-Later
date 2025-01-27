@@ -14,7 +14,13 @@ import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx';
 import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
-import { currentServerCacheKey, effectsCacheKey, playersCacheKey, preferencesCacheKey, villagesCacheKey } from 'app/query-keys';
+import {
+  currentServerCacheKey,
+  effectsCacheKey,
+  playersCacheKey,
+  preferencesCacheKey,
+  villagesCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 

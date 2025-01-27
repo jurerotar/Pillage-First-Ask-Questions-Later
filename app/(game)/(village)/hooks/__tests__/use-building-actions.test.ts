@@ -7,7 +7,7 @@ import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-
 import { romanServerMock, serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
 import { afterAll, beforeAll, describe, expect, type Mock, test, vi } from 'vitest';
-import { currentServerCacheKey, eventsCacheKey } from 'app/query-keys';
+import { currentServerCacheKey, eventsCacheKey } from 'app/(game)/constants/query-keys';
 
 let clayPitUpgradeLevel1EventMock: GameEvent;
 let clayPitUpgradeLevel2EventMock: GameEvent;
