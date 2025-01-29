@@ -1,4 +1,3 @@
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useLocation } from 'react-router';
 
 const RESOURCES_PAGE_PATH = '/resources';
@@ -9,9 +8,6 @@ const AUCTIONS_PAGE_PATH = '/auctions';
 
 export const useGameNavigation = () => {
   const { pathname } = useLocation();
-  const {
-    currentVillage: { coordinates },
-  } = useCurrentVillage();
 
   const [, game, server, village] = pathname.split('/');
 
@@ -22,7 +18,6 @@ export const useGameNavigation = () => {
   const mapPath = `${basePath}${MAP_PAGE_PATH}`;
   const reportsPath = `${basePath}${REPORTS_PAGE_PATH}`;
   const auctionsPath = `${basePath}${AUCTIONS_PAGE_PATH}`;
-  const currentVillageMapPath = `${mapPath}?x=${coordinates.x}&y=${coordinates.y}`;
 
   const isVillagePageOpen = pathname.includes(VILLAGE_PAGE_PATH);
   const isResourcesPageOpen = pathname.includes(RESOURCES_PAGE_PATH) && !isVillagePageOpen;
@@ -36,7 +31,6 @@ export const useGameNavigation = () => {
     mapPath,
     reportsPath,
     auctionsPath,
-    currentVillageMapPath,
     isResourcesPageOpen,
     isVillagePageOpen,
     isMapPageOpen,

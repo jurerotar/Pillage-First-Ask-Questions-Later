@@ -1,26 +1,24 @@
-import { useIsRestoring } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import { useCalculatedResource } from 'app/(game)/hooks/use-calculated-resource';
 import { CurrentResourceProvider } from 'app/(game)/providers/current-resources-provider';
 import { GameEngineProvider } from 'app/(game)/providers/game-engine-provider';
 import { GameStateProvider } from 'app/(game)/providers/game-state-provider';
-import { GameLayoutSkeleton } from 'app/(game)/skeleton';
 import { Icon } from 'app/components/icon';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { Suspense, use } from 'react';
+import { use } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { GrResources } from 'react-icons/gr';
 import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage } from 'react-icons/md';
 import { RiAuctionLine } from 'react-icons/ri';
-import { Await, Link, Outlet } from 'react-router';
+import { Link, Outlet } from 'react-router';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
 import { ViewportContext } from 'app/providers/viewport-context';
 import { Countdown } from 'app/(game)/components/countdown';
+import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -81,7 +79,12 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
 };
 
 const DesktopNavigation = () => {
-  const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
+  const { villagePath, reportsPath, resourcesPath, auctionsPath, mapPath } = useGameNavigation();
+  const {
+    currentVillage: { coordinates },
+  } = useCurrentVillage();
+
+  const currentVillageMapPath = `${mapPath}?x=${coordinates.x}&y=${coordinates.y}`;
 
   return (
     <header className="fixed left-0 top-0 z-10 flex h-24 w-full">
@@ -152,7 +155,12 @@ const MobileResourcesSection = () => {
 };
 
 const MobileBottomNavigation = () => {
-  const { villagePath, reportsPath, resourcesPath, auctionsPath, currentVillageMapPath } = useGameNavigation();
+  const { villagePath, reportsPath, resourcesPath, auctionsPath, mapPath } = useGameNavigation();
+  const {
+    currentVillage: { coordinates },
+  } = useCurrentVillage();
+
+  const currentVillageMapPath = `${mapPath}?x=${coordinates.x}&y=${coordinates.y}`;
 
   return (
     <header className="fixed bottom-0 left-0 flex h-12 w-full justify-between gap-2 bg-gradient-to-t from-[#101010] to-[#484848]">
@@ -185,44 +193,37 @@ const MobileBottomNavigation = () => {
   );
 };
 
-const GameSkinWrapper: React.FCWithChildren = ({ children }) => {
-  const { timeOfDay, skinVariant } = usePreferences();
-
-  return <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>{children}</div>;
+export const Fallback = () => {
+  return <div>Loader...</div>;
 };
 
 const GameLayout = () => {
   const { isWiderThanMd } = use(ViewportContext);
   const { isMapPageOpen } = useGameNavigation();
-  const isRestoring = useIsRestoring();
+  const { timeOfDay, skinVariant } = usePreferences();
 
   const shouldDisplayDesktopNavigation = isWiderThanMd;
   const shouldDisplayMobileResourcesSection = !isWiderThanMd && !isMapPageOpen;
   const shouldDisplayMobileBottomNavigation = !isWiderThanMd;
 
   return (
-    <Suspense fallback={<GameLayoutSkeleton />}>
-      <Await resolve={!isRestoring}>
-        <GameSkinWrapper>
+    <GameEngineProvider>
+      <CurrentResourceProvider>
+        <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
           {shouldDisplayDesktopNavigation && <DesktopNavigation />}
           {shouldDisplayMobileResourcesSection && <MobileResourcesSection />}
           <Outlet />
           {shouldDisplayMobileBottomNavigation && <MobileBottomNavigation />}
-        </GameSkinWrapper>
-      </Await>
-    </Suspense>
+        </div>
+      </CurrentResourceProvider>
+    </GameEngineProvider>
   );
 };
 
 export default () => {
   return (
     <GameStateProvider>
-      <GameEngineProvider>
-        <CurrentResourceProvider>
-          <GameLayout />
-        </CurrentResourceProvider>
-      </GameEngineProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <GameLayout />
     </GameStateProvider>
   );
 };

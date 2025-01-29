@@ -23,7 +23,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "prepare": "husky",
-    "analyze-graph": "npx skott ./app/index.tsx --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies",
+    "analyze-graph": "npx skott --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies",
     "postinstall": "node --experimental-strip-types scripts/postinstall.ts"
   },
   "dependencies": {
@@ -81,13 +81,16 @@
     "vite-plugin-pwa": "0.21.1",
     "vitest": "3.0.4"
   },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": ["app/index.tsx"],
+    "entry": ["app/**/*.page.tsx"],
     "project": ["app/**/*.{ts,tsx}"],
     "paths": {
       "app/*": ["app/*"]
