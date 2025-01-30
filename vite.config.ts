@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -40,6 +41,21 @@ const viteConfig = defineViteConfig({
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
     !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
+    // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
+    // replacing the dependency. Remove once/if this gets resolved.
+    // https://github.com/juliencrn/usehooks-ts/discussions/669#discussioncomment-11922434
+    {
+      name: 'replace-lodash-debounce',
+      enforce: 'pre',
+      transform: (code, id) => {
+        if (!id.includes('usehooks-ts')) {
+          return;
+        }
+
+        return code.replace(`import debounce from 'lodash.debounce';`, `import { debounce } from 'moderndash';`);
+      },
+    },
+    visualizer({ open: false }),
   ],
   server: {
     open: true,
