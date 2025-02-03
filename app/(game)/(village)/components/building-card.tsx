@@ -25,7 +25,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { currentVillageBuildingEvents } = useEvents();
-  const { hasGreatBuildingsArtifact } = useArtifacts();
+  const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const { maxLevel } = getBuildingData(buildingId);
 
@@ -35,7 +35,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
     currentVillageBuildingEvents,
     playerVillages,
     currentVillage,
-    hasGreatBuildingsArtifact,
+    isGreatBuildingsArtifactActive,
   });
 
   const sameBuildingInstances = currentVillage.buildingFields.filter(({ buildingId: id }) => id === buildingId);

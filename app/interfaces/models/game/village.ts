@@ -2,7 +2,7 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
-import type { Artifact } from 'app/interfaces/models/game/artifact';
+import type { ArtifactId } from 'app/interfaces/models/game/hero';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -59,5 +59,5 @@ export type Village = {
   buildingFieldsPresets: VillagePresetId[];
   isCapital: boolean;
   resourceFieldComposition: ResourceFieldComposition;
-  artifactId: Artifact['id'] | null;
+  artifactId: ArtifactId | null;
 };

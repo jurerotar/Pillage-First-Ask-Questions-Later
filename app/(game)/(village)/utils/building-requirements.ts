@@ -27,7 +27,7 @@ export type AssessBuildingConstructionReadinessArgs = {
   currentVillage: Village;
   currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[];
   buildingId: Building['id'];
-  hasGreatBuildingsArtifact: boolean;
+  isGreatBuildingsArtifactActive: boolean;
 };
 
 type AssessFunctionArgs<T extends BuildingRequirement> = AssessBuildingConstructionReadinessArgs & {
@@ -89,8 +89,8 @@ const assessTribeRequirement = (args: AssessFunctionArgs<TribeBuildingRequiremen
 };
 
 const assessArtifactRequirement = (args: AssessFunctionArgs<ArtifactBuildingRequirement>): boolean => {
-  const { hasGreatBuildingsArtifact } = args;
-  return hasGreatBuildingsArtifact;
+  const { isGreatBuildingsArtifactActive } = args;
+  return isGreatBuildingsArtifactActive;
 };
 
 export const assessBuildingConstructionReadiness = (

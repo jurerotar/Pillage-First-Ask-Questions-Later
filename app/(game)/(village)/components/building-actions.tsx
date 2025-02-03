@@ -30,7 +30,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { buildingFieldId } = useRouteSegments();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { currentVillageBuildingEvents, canAddAdditionalBuildingToQueue } = useEvents();
-  const { hasGreatBuildingsArtifact } = useArtifacts();
+  const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
@@ -49,7 +49,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     currentVillageBuildingEvents,
     playerVillages,
     currentVillage,
-    hasGreatBuildingsArtifact,
+    isGreatBuildingsArtifactActive,
   });
 
   const hasEnoughResourcesToBuild = (() => {

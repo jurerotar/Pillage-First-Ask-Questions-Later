@@ -22,7 +22,6 @@ import { useTranslation } from 'react-i18next';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
-import { isArtifactWorldItem, isResourceWorldItem } from 'app/(game)/utils/guards/world-item-guard';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -84,11 +83,7 @@ type TileTooltipWorldItemProps = {
 const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({ item }) => {
   const { t } = useTranslation();
 
-  if (isArtifactWorldItem(item)) {
-    return <span>{t(`ARTIFACTS.${item.artifactId}.TITLE`)}</span>;
-  }
-
-  if (isResourceWorldItem(item)) {
+  if (item.type === 'resource') {
     return ['wood', 'clay', 'iron', 'wheat'].map((resource) => (
       <span key={resource}>
         {formatNumber(item.amount)}x {t(`RESOURCES.${resource.toUpperCase()}`)}
@@ -98,7 +93,7 @@ const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({ item }) => 
 
   return (
     <span>
-      {formatNumber(item.amount)}x {t(`ITEMS.${item.id}`)}
+      {formatNumber(item.amount)}x {t(`ITEMS.${item.id}.TITLE`)}
     </span>
   );
 };

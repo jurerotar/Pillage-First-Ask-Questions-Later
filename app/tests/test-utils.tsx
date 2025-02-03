@@ -17,12 +17,15 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import {
   currentServerCacheKey,
   effectsCacheKey,
+  heroCacheKey,
   playersCacheKey,
   preferencesCacheKey,
   villagesCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import { heroFactory } from 'app/factories/hero-factory';
+import type { Hero } from 'app/interfaces/models/game/hero';
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -46,6 +49,7 @@ const createGameEnvironment = (): QueryClient => {
   queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock));
   queryClient.setQueryData<Village[]>([villagesCacheKey], () => [playerVillageMock]);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], () => preferencesFactory());
+  queryClient.setQueryData<Hero>([heroCacheKey], () => heroFactory(server));
 
   dehydratedState = dehydrate(queryClient);
 

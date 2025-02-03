@@ -27,7 +27,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useEvents();
-  const { hasGreatBuildingsArtifact } = useArtifacts();
+  const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
@@ -38,7 +38,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
-      hasGreatBuildingsArtifact,
+      isGreatBuildingsArtifactActive,
     });
     return canBuild;
   });
@@ -50,7 +50,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
-      hasGreatBuildingsArtifact,
+      isGreatBuildingsArtifactActive,
     });
 
     const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;

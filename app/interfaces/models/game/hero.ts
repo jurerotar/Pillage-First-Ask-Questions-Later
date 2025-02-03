@@ -1,4 +1,5 @@
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
+import type { Effect } from 'app/interfaces/models/game/effect';
 
 export type Hero = {
   stats: HeroStats;
@@ -31,11 +32,11 @@ type HeroSelectableAttributes = {
   defenceBonus: number;
 };
 
-type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
+export type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
-type HeroItemCategory = 'consumable' | 'currency' | 'resource' | 'wearable';
+type HeroItemCategory = 'consumable' | 'currency' | 'resource' | 'wearable' | 'artifact';
 
-type HeroItemSlot = 'head' | 'torso' | 'legs' | 'gloves' | 'right-hand' | 'left-hand' | 'horse' | 'consumable';
+type HeroItemSlot = 'head' | 'torso' | 'legs' | 'gloves' | 'right-hand' | 'left-hand' | 'horse' | 'consumable' | 'non-equipable';
 
 type _UppercaseHeroItemRarity = Uppercase<HeroItemRarity>;
 
@@ -71,6 +72,15 @@ type HeroHorseItemId = '';
 
 type HeroConsumableItemId = 'SILVER' | 'HEALING_POTION' | 'BOOK_OF_WISDOM' | 'ANIMAL_CAGE' | 'REVIVAL_POTION' | Uppercase<keyof Resources>;
 
+type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
+
+type MilitaryArtifactId =
+  `${ArtifactRarity}_ARTIFACT_MILITARY_${'TROOP_TRAVEL_SPEED' | 'TROOP_CARRYING_CAPACITY' | 'TROOP_TRAINING_REDUCTION' | 'TROOP_WHEAT_CONSUMPTION_REDUCTION'}`;
+type CivilArtifactId =
+  `${ArtifactRarity}_ARTIFACT_CIVIL_${'BUILD_TIME_REDUCTION' | 'OASIS_PRODUCTION_BONUS' | 'RESOURCE_PRODUCTION_BONUS' | 'ENABLE_GREAT_BUILDINGS'}`;
+
+export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
+
 type HeroItemId =
   | HeroHeadItemId
   | HeroTorsoItemId
@@ -78,7 +88,8 @@ type HeroItemId =
   | HeroLeftHandItemId
   | HeroRightHandItemId
   | HeroHorseItemId
-  | HeroConsumableItemId;
+  | HeroConsumableItemId
+  | ArtifactId;
 
 export type HeroItem = {
   id: HeroItemId;
@@ -87,6 +98,7 @@ export type HeroItem = {
   category: HeroItemCategory;
   // Base price of null indicates item can't be bought or sold
   basePrice: number | null;
+  effects?: Effect[];
 };
 
 export type InventoryItem = HeroItem & {
