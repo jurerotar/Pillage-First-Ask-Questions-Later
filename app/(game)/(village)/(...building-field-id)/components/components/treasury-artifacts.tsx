@@ -96,7 +96,7 @@ export const TreasuryArtifacts = () => {
                 <>
                   <TableCell>{t(`ITEMS.${currentVillageArtifactId}.TITLE`)}</TableCell>
                   <TableCell>{t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell>/</TableCell>
                 </>
               )}
               {!hasCurrentVillageArtifact && (
