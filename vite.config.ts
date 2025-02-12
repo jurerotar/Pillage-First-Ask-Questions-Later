@@ -40,6 +40,18 @@ const viteConfig = defineViteConfig({
   plugins: [
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
+    !isInTestMode &&
+      VitePWA({
+        registerType: 'autoUpdate',
+        manifest,
+        workbox: {
+          clientsClaim: true,
+          skipWaiting: true,
+          cleanupOutdatedCaches: true,
+          navigateFallback: null,
+          globPatterns: ['**/*.{js,css}'],
+        },
+      }),
     !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
     // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
     // replacing the dependency. Remove once/if this gets resolved.
