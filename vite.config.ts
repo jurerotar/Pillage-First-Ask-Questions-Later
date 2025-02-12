@@ -39,7 +39,18 @@ const viteConfig = defineViteConfig({
   plugins: [
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
-    !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
+    !isInTestMode &&
+      VitePWA({
+        registerType: 'autoUpdate',
+        manifest,
+        workbox: {
+          clientsClaim: true,
+          skipWaiting: true,
+          cleanupOutdatedCaches: true,
+          navigateFallback: null,
+          globPatterns: ['**/*.{js,css}'],
+        },
+      }),
   ],
   server: {
     open: true,
