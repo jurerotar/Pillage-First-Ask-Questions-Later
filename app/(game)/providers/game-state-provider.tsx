@@ -52,6 +52,7 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
           gcTime: Number.POSITIVE_INFINITY,
           networkMode: 'always',
           staleTime: Number.POSITIVE_INFINITY,
+          queryFn: () => {},
         },
         mutations: {
           networkMode: 'always',

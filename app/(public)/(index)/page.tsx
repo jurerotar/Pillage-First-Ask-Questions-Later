@@ -3,10 +3,9 @@ import { Button } from 'app/components/buttons/button';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { isInDevelopmentMode } from 'app/utils/common';
-import type React from 'react';
 import { Link } from 'react-router';
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const { availableServers } = useAvailableServers();
 
   const resetOpfs = async () => {

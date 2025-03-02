@@ -15,7 +15,6 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
-import type React from 'react';
 import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
@@ -27,7 +26,7 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
-const MapPage: React.FC = () => {
+const MapPage = () => {
   const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);

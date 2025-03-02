@@ -11,9 +11,8 @@ import {
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
@@ -21,6 +20,7 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
 import { formatTime } from 'app/utils/time';
+import { useTabParam } from 'app/(game)/hooks/routes/use-tab-param';
 
 const RallyPointIncomingTroops = lazy(async () => ({
   default: (await import('./components/rally-point-incoming-troops')).RallyPointIncomingTroops,
@@ -146,7 +146,7 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
   ['HOSPITAL', new Map([['default', HospitalTroopTraining]])],
 ]);
 
-const BuildingStats: React.FC = () => {
+const BuildingStats = () => {
   const { t: buildingStatsT } = useTranslation('translation', {
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.BUILDING_STATS',
   });
@@ -256,9 +256,8 @@ const BuildingStats: React.FC = () => {
   );
 };
 
-export const BuildingDetails: React.FC = () => {
+export const BuildingDetails = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TABS' });
-  const [searchParams] = useSearchParams();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
@@ -266,32 +265,28 @@ export const BuildingDetails: React.FC = () => {
   const hasAdditionalContent = buildingDetailsTabMap.has(buildingId);
   const MainTabAdditionalContent = hasAdditionalContent ? buildingDetailsTabMap.get(buildingId)!.get('default')! : null;
 
-  const tabs = Array.from(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter((tabName) => tabName !== 'default');
+  const tabs = Array.from([
+    'default',
+    ...(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter((tabName) => tabName !== 'default'),
+    'upgrade-cost',
+  ]);
 
-  const tabNameToIndex = {
-    default: 0,
-    ...tabs.reduce(
-      (acc, name, idx) => {
-        acc[name] = idx + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    ),
-    'upgrade-cost': tabs.length + 1,
-  };
+  const buildingSpecificTabs = tabs.filter((tab: string) => !['default', 'upgrade-cost'].includes(tab));
 
-  // @ts-ignore - TODO: Fix when you find time for this
-  const [tabIndex, setTabIndex] = useState<number>(tabNameToIndex[searchParams.get('tab') ?? 'default']);
+  const { tabIndex, navigateToTab } = useTabParam(tabs);
 
   return (
     <article className="flex flex-col gap-2">
       <Tabs
         selectedIndex={tabIndex}
-        onSelect={(index) => setTabIndex(index)}
+        onSelect={(index) => {
+          const tab = tabs[index];
+          navigateToTab(tab);
+        }}
       >
         <TabList className="flex mb-2 overflow-x-scroll scrollbar-hidden">
           <StyledTab>{t('DEFAULT')}</StyledTab>
-          {tabs.map((name: string) => (
+          {buildingSpecificTabs.map((name: string) => (
             <StyledTab key={name}>{t(`${buildingId}.${name}`)}</StyledTab>
           ))}
           <StyledTab>{t('UPGRADE_STATS')}</StyledTab>
@@ -312,7 +307,7 @@ export const BuildingDetails: React.FC = () => {
             )}
           </Suspense>
         </TabPanel>
-        {tabs.map((name: string) => {
+        {buildingSpecificTabs.map((name: string) => {
           const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
           return (
             <TabPanel key={name}>

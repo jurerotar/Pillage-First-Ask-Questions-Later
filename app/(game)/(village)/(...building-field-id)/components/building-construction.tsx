@@ -100,7 +100,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   );
 };
 
-export const BuildingConstruction: React.FC = () => {
+export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
 

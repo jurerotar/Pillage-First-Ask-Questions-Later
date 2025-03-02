@@ -24,9 +24,14 @@
 }
 
 @layer utilities {
-  .text-xxs {
+  .text-2xs {
     font-size: 0.65rem;
     line-height: 1rem;
+  }
+
+  .text-3xs {
+    font-size: 0.45rem;
+    line-height: 0.75rem;
   }
 
   .absolute-centering {

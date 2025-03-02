@@ -17,6 +17,7 @@
     "strictPropertyInitialization": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "erasableSyntaxOnly": true,
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",
     "noEmit": true,

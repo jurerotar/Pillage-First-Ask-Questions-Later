@@ -8,12 +8,12 @@ import type React from 'react';
 import { useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
-import { Link } from 'react-router';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { useMap } from 'app/(game)/hooks/use-map';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import type { Village } from 'app/interfaces/models/game/village';
+import { LinkWithState } from 'app/components/link-with-state';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
@@ -31,9 +31,9 @@ const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) =
       <TableCell>{t(`ITEMS.${item.id}.TITLE`)}</TableCell>
       <TableCell>{t(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
       <TableCell>
-        <Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
+        <LinkWithState to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
           {coordinates.x}, {coordinates.y}
-        </Link>
+        </LinkWithState>
       </TableCell>
     </TableRow>
   );

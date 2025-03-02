@@ -8,7 +8,6 @@ import '@vitest/web-worker';
 import { hydrate, QueryClient } from '@tanstack/react-query';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
 import {
-  achievementsCacheKey,
   currentServerCacheKey,
   effectsCacheKey,
   eventsCacheKey,
@@ -22,7 +21,6 @@ import {
 } from 'app/(game)/constants/query-keys';
 import { getVillageSize } from 'app/factories/utils/common';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Achievement } from 'app/interfaces/models/game/achievement';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Quest } from 'app/interfaces/models/game/quest';
@@ -243,12 +241,6 @@ describe('Server initialization', () => {
   describe('Quests', () => {
     test.todo('', () => {
       const _quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
-    });
-  });
-
-  describe('Achievements', () => {
-    test.todo('', () => {
-      const _achievements = queryClient.getQueryData<Achievement[]>([achievementsCacheKey])!;
     });
   });
 

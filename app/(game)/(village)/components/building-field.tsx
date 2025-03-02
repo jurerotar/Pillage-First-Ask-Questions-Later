@@ -157,7 +157,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
     >
       <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
       {shouldShowBuildingNames && (
-        <span className="text-xxs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+        <span className="text-3xs md:text-2xs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
           {t(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}

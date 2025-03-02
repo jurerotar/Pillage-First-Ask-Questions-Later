@@ -43,7 +43,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
   );
 };
 
-export const MapControls: React.FC = () => {
+export const MapControls = () => {
   const { t } = useTranslation();
   const {
     shouldShowFactionReputation,
@@ -58,7 +58,7 @@ export const MapControls: React.FC = () => {
   return (
     <>
       <Tooltip id="map-controls-tooltip" />
-      <div className="pointer-events-none fixed bottom-8 right-4 flex flex-col items-end gap-2">
+      <div className="pointer-events-none fixed bottom-26 md:bottom-8 right-2 md:right-4 flex flex-col items-end gap-2">
         <div className="pointer-events-auto flex w-fit flex-col gap-2 rounded-md bg-white p-2">
           <MagnificationButton direction="increase" />
           <Divider orientation="horizontal" />

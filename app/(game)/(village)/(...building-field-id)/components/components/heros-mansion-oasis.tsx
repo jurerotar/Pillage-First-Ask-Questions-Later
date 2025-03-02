@@ -1,6 +1,5 @@
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
 import { useOasis } from 'app/(game)/hooks/use-oasis';
-import { Link } from 'react-router';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
@@ -8,6 +7,7 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
+import { LinkWithState } from 'app/components/link-with-state';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -31,9 +31,9 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
     return (
       <TableRow>
         <TableCell>
-          <Link to={`${mapPath}?x=${x}&y=${y}`}>
+          <LinkWithState to={`${mapPath}?x=${x}&y=${y}`}>
             {x}, {y}
-          </Link>
+          </LinkWithState>
         </TableCell>
         <TableCell className="whitespace-nowrap">
           {oasisResourceBonus.map(({ resource, bonus }, index) => (
@@ -122,9 +122,9 @@ export const HerosMansionOasis = () => {
                 <TableRow key={tile.id}>
                   <TableCell>/</TableCell>
                   <TableCell>
-                    <Link to={`${mapPath}?x=${tile.coordinates.x}&y=${tile.coordinates.y}`}>
+                    <LinkWithState to={`${mapPath}?x=${tile.coordinates.x}&y=${tile.coordinates.y}`}>
                       {tile.coordinates.x}, {tile.coordinates.y}
-                    </Link>
+                    </LinkWithState>
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     {tile.oasisResourceBonus.map(({ resource, bonus }, index) => (
