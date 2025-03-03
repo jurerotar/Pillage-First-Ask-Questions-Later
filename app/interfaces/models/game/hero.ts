@@ -1,5 +1,6 @@
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { MessageDescriptor } from '@lingui/core';
 
 export type Hero = {
   stats: HeroStats;
@@ -93,6 +94,8 @@ type HeroItemId =
 
 export type HeroItem = {
   id: HeroItemId;
+  name: MessageDescriptor;
+  description: MessageDescriptor;
   slot: HeroItemSlot;
   rarity: HeroItemRarity;
   category: HeroItemCategory;

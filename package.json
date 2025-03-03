@@ -27,6 +27,8 @@
     "postinstall": "node --experimental-strip-types scripts/postinstall.ts"
   },
   "dependencies": {
+    "@lingui/core": "5.2.0",
+    "@lingui/react": "5.2.0",
     "@pillage-first/graphics": "0.0.1",
     "@react-router/node": "7.2.0",
     "@react-router/serve": "7.2.0",
@@ -36,13 +38,11 @@
     "@tanstack/react-query-persist-client": "5.66.11",
     "clsx": "2.1.1",
     "dayjs": "1.11.13",
-    "i18next": "24.2.2",
     "isbot": "5.1.23",
     "moderndash": "4.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hook-form": "7.54.2",
-    "react-i18next": "15.4.1",
     "react-icons": "5.5.0",
     "react-icons-tailwindcss": "1.2.0",
     "react-router": "7.2.0",
@@ -56,6 +56,8 @@
     "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "19.7.1",
     "@commitlint/config-conventional": "19.7.1",
+    "@lingui/swc-plugin": "5.4.0",
+    "@lingui/vite-plugin": "5.2.0",
     "@react-router/dev": "7.2.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.2.0",
@@ -64,6 +66,7 @@
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
     "@types/react-window": "1.8.8",
+    "@vitejs/plugin-react-swc": "^3.8.0",
     "@vitest/web-worker": "3.0.7",
     "autoprefixer": "10.4.20",
     "happy-dom": "17.1.8",
@@ -84,18 +87,34 @@
     "node": ">=22.13.0"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": ["app/**/*.page.tsx"],
-    "project": ["app/**/*.{ts,tsx}"],
+    "entry": [
+      "app/**/*.page.tsx"
+    ],
+    "project": [
+      "app/**/*.{ts,tsx}"
+    ],
     "paths": {
-      "app/*": ["app/*"]
+      "app/*": [
+        "app/*"
+      ]
     }
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }

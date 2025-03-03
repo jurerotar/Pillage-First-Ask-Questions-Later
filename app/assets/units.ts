@@ -1,9 +1,12 @@
 // TODO: Some units have missing values, fill them in
 import type { Unit } from 'app/interfaces/models/game/unit';
+import { msg } from '@lingui/core/macro';
 
 const romanUnits: Unit[] = [
   {
     id: 'LEGIONNAIRE',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [120, 100, 150, 30],
     baseRecruitmentTime: 1600,
     cropConsumption: 1,
@@ -47,6 +50,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'PRAETORIAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [100, 130, 160, 70],
     baseRecruitmentTime: 1760,
     cropConsumption: 1,
@@ -90,6 +95,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'IMPERIAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [150, 160, 210, 80],
     baseRecruitmentTime: 1920,
     cropConsumption: 1,
@@ -133,6 +140,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'EQUITES_LEGATI',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [140, 160, 20, 40],
     baseRecruitmentTime: 1360,
     cropConsumption: 2,
@@ -179,6 +188,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'EQUITES_IMPERATORIS',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [550, 440, 320, 100],
     baseRecruitmentTime: 2640,
     cropConsumption: 3,
@@ -225,6 +236,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'EQUITES_CAESARIS',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [550, 640, 800, 180],
     baseRecruitmentTime: 3520,
     cropConsumption: 4,
@@ -271,6 +284,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'ROMAN_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [900, 360, 500, 70],
     baseRecruitmentTime: 4600,
     cropConsumption: 3,
@@ -317,6 +332,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'ROMAN_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [950, 1350, 600, 90],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -363,6 +380,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'SENATOR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [30750, 27200, 45000, 37500],
     baseRecruitmentTime: 90700,
     cropConsumption: 5,
@@ -385,6 +404,8 @@ const romanUnits: Unit[] = [
   },
   {
     id: 'ROMAN_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [4600, 4200, 5800, 4400],
     baseRecruitmentTime: 26900,
     cropConsumption: 1,
@@ -407,6 +428,8 @@ const romanUnits: Unit[] = [
 const gaulUnits: Unit[] = [
   {
     id: 'PHALANX',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [100, 130, 55, 30],
     baseRecruitmentTime: 1040,
     cropConsumption: 1,
@@ -450,6 +473,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'SWORDSMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [140, 150, 185, 60],
     baseRecruitmentTime: 1440,
     cropConsumption: 1,
@@ -493,6 +518,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'PATHFINDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [170, 150, 20, 40],
     baseRecruitmentTime: 1360,
     cropConsumption: 2,
@@ -539,6 +566,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'THEUTATES_THUNDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [350, 450, 230, 60],
     baseRecruitmentTime: 2480,
     cropConsumption: 2,
@@ -585,6 +614,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'DRUIDRIDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [360, 330, 280, 120],
     baseRecruitmentTime: 2560,
     cropConsumption: 2,
@@ -631,6 +662,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'HAEDUAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [500, 620, 675, 170],
     baseRecruitmentTime: 3120,
     cropConsumption: 3,
@@ -677,6 +710,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'GAUL_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [950, 555, 330, 75],
     baseRecruitmentTime: 5000,
     cropConsumption: 3,
@@ -723,6 +758,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'GAUL_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [960, 1450, 630, 90],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -769,6 +806,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'CHIEFTAIN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [30750, 45400, 31000, 37500],
     baseRecruitmentTime: 90700,
     cropConsumption: 4,
@@ -791,6 +830,8 @@ const gaulUnits: Unit[] = [
   },
   {
     id: 'GAUL_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [4400, 5600, 4200, 3900],
     baseRecruitmentTime: 22700,
     cropConsumption: 1,
@@ -813,6 +854,8 @@ const gaulUnits: Unit[] = [
 const teutonUnits: Unit[] = [
   {
     id: 'MACEMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [95, 75, 40, 40],
     baseRecruitmentTime: 720,
     cropConsumption: 1,
@@ -856,6 +899,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'SPEARMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [145, 70, 85, 40],
     baseRecruitmentTime: 1120,
     cropConsumption: 1,
@@ -902,6 +947,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'AXEMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [130, 120, 170, 70],
     baseRecruitmentTime: 1200,
     cropConsumption: 1,
@@ -945,6 +992,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'SCOUT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [160, 100, 50, 50],
     baseRecruitmentTime: 1120,
     cropConsumption: 1,
@@ -991,6 +1040,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'PALADIN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [370, 270, 290, 75],
     baseRecruitmentTime: 2400,
     cropConsumption: 2,
@@ -1037,6 +1088,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'TEUTONIC_KNIGHT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [450, 515, 480, 80],
     baseRecruitmentTime: 2960,
     cropConsumption: 3,
@@ -1083,6 +1136,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'TEUTONIC_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [1000, 300, 350, 70],
     baseRecruitmentTime: 4200,
     cropConsumption: 3,
@@ -1129,6 +1184,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'TEUTONIC_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [900, 1200, 600, 60],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -1175,6 +1232,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'CHIEF',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [35500, 26600, 25000, 27200],
     baseRecruitmentTime: 70500,
     cropConsumption: 4,
@@ -1197,6 +1256,8 @@ const teutonUnits: Unit[] = [
   },
   {
     id: 'TEUTONIC_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [5800, 4400, 4600, 5200],
     baseRecruitmentTime: 31000,
     cropConsumption: 1,
@@ -1219,6 +1280,8 @@ const teutonUnits: Unit[] = [
 const egyptianUnits: Unit[] = [
   {
     id: 'SLAVE_MILITIA',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [45, 60, 30, 15],
     baseRecruitmentTime: 530,
     cropConsumption: 1,
@@ -1262,6 +1325,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'ASH_WARDEN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [115, 100, 145, 60],
     baseRecruitmentTime: 1320,
     cropConsumption: 1,
@@ -1305,6 +1370,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'KHOPESH_WARRIOR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [170, 180, 220, 80],
     baseRecruitmentTime: 1440,
     cropConsumption: 1,
@@ -1348,6 +1415,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'SOPDU_EXPLORER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [170, 150, 20, 40],
     baseRecruitmentTime: 1360,
     cropConsumption: 2,
@@ -1394,6 +1463,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'ANHUR_GUARD',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [360, 330, 280, 120],
     baseRecruitmentTime: 2560,
     cropConsumption: 2,
@@ -1440,6 +1511,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'RESHEPH_CHARIOT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [450, 560, 610, 180],
     baseRecruitmentTime: 3240,
     cropConsumption: 3,
@@ -1486,6 +1559,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'EGYPTIAN_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [995, 575, 340, 80],
     baseRecruitmentTime: 4800,
     cropConsumption: 3,
@@ -1532,6 +1607,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'EGYPTIAN_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [980, 1510, 660, 100],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -1578,6 +1655,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'NOMARCH',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [34000, 50000, 34000, 42000],
     baseRecruitmentTime: 90700,
     cropConsumption: 4,
@@ -1600,6 +1679,8 @@ const egyptianUnits: Unit[] = [
   },
   {
     id: 'EGYPTIAN_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [5040, 6510, 4830, 4620],
     baseRecruitmentTime: 24800,
     cropConsumption: 1,
@@ -1623,6 +1704,8 @@ const egyptianUnits: Unit[] = [
 const hunUnits: Unit[] = [
   {
     id: 'MERCENARY',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [130, 80, 40, 40],
     baseRecruitmentTime: 810,
     cropConsumption: 1,
@@ -1666,6 +1749,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'BOWMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [140, 110, 60, 60],
     baseRecruitmentTime: 1120,
     cropConsumption: 1,
@@ -1709,6 +1794,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'SPOTTER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [170, 150, 20, 40],
     baseRecruitmentTime: 1360,
     cropConsumption: 2,
@@ -1755,6 +1842,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'STEPPE_RIDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [290, 370, 190, 45],
     baseRecruitmentTime: 2400,
     cropConsumption: 2,
@@ -1801,6 +1890,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'MARKSMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [320, 350, 330, 50],
     baseRecruitmentTime: 2480,
     cropConsumption: 2,
@@ -1847,6 +1938,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'MARAUDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [450, 560, 610, 140],
     baseRecruitmentTime: 2990,
     cropConsumption: 3,
@@ -1893,6 +1986,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'HUN_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [1060, 330, 360, 70],
     baseRecruitmentTime: 4400,
     cropConsumption: 3,
@@ -1939,6 +2034,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'HUN_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [950, 1280, 620, 60],
     baseRecruitmentTime: 9000,
     cropConsumption: 6,
@@ -1985,6 +2082,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'LOGADES',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [37200, 27600, 25200, 27600],
     baseRecruitmentTime: 90700,
     cropConsumption: 4,
@@ -2007,6 +2106,8 @@ const hunUnits: Unit[] = [
   },
   {
     id: 'HUN_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [6100, 4600, 4800, 5400],
     baseRecruitmentTime: 28950,
     cropConsumption: 1,
@@ -2029,6 +2130,8 @@ const hunUnits: Unit[] = [
 const spartanUnits: Unit[] = [
   {
     id: 'HOPLITE',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [110, 185, 110, 40],
     baseRecruitmentTime: 1700,
     cropConsumption: 1,
@@ -2072,6 +2175,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'SENTINEL',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [185, 150, 35, 75],
     baseRecruitmentTime: 1232,
     cropConsumption: 1,
@@ -2115,6 +2220,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'SHIELDSMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [145, 95, 245, 45],
     baseRecruitmentTime: 1936,
     cropConsumption: 1,
@@ -2158,6 +2265,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'TWINSTEEL_THERION',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [130, 200, 400, 65],
     baseRecruitmentTime: 2112,
     cropConsumption: 1,
@@ -2201,6 +2310,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'ELPIDA_RIDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [555, 445, 330, 110],
     baseRecruitmentTime: 2816,
     cropConsumption: 2,
@@ -2247,6 +2358,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'CORINTHIAN_CRUSHER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [660, 495, 995, 165],
     baseRecruitmentTime: 3432,
     cropConsumption: 3,
@@ -2293,6 +2406,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'SPARTAN_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [525, 260, 790, 130],
     baseRecruitmentTime: 4620,
     cropConsumption: 3,
@@ -2339,6 +2454,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'SPARTAN_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [550, 1240, 825, 125],
     baseRecruitmentTime: 0,
     cropConsumption: 6,
@@ -2385,6 +2502,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'EPHOR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [33450, 30665, 36240, 13935],
     baseRecruitmentTime: 77550,
     cropConsumption: 1,
@@ -2407,6 +2526,8 @@ const spartanUnits: Unit[] = [
   },
   {
     id: 'SPARTAN_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [5115, 5580, 6045, 3255],
     baseRecruitmentTime: 34100,
     cropConsumption: 1,
@@ -2430,6 +2551,8 @@ const spartanUnits: Unit[] = [
 const natureUnits: Unit[] = [
   {
     id: 'RAT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2449,6 +2572,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'SPIDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2468,6 +2593,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'SERPENT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2487,6 +2614,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'BAT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2506,6 +2635,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'WILD_BOAR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 2,
@@ -2525,6 +2656,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'WOLF',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 2,
@@ -2544,6 +2677,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'BEAR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 3,
@@ -2563,6 +2698,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'CROCODILE',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 3,
@@ -2582,6 +2719,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'TIGER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 3,
@@ -2601,6 +2740,8 @@ const natureUnits: Unit[] = [
   },
   {
     id: 'ELEPHANT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 5,
@@ -2623,6 +2764,8 @@ const natureUnits: Unit[] = [
 const natarianUnits: Unit[] = [
   {
     id: 'PIKEMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2642,6 +2785,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'THORNED_WARRIOR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2661,6 +2806,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'GUARDSMAN',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2680,6 +2827,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'BIRDS_OF_PREY',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2702,6 +2851,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'AXERIDER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 2,
@@ -2724,6 +2875,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'NATARIAN_KNIGHT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 3,
@@ -2746,6 +2899,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'NATARIAN_RAM',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 4,
@@ -2768,6 +2923,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'NATARIAN_CATAPULT',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 5,
@@ -2790,6 +2947,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'NATARIAN_EMPEROR',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,
@@ -2812,6 +2971,8 @@ const natarianUnits: Unit[] = [
   },
   {
     id: 'NATARIAN_SETTLER',
+    name: msg``,
+    description: msg``,
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentTime: 0,
     cropConsumption: 1,

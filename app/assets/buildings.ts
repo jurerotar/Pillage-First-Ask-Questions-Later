@@ -1,5 +1,6 @@
 import type { Building, BuildingEffect } from 'app/interfaces/models/game/building';
 import type { ResourceProductionEffectId, TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
+import { msg } from '@lingui/core/macro'
 
 const createTeutonAndHunWallStaticDefence = (): number[] => {
   return [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
@@ -103,6 +104,8 @@ const createHorseDrinkingTroughEffects = (): BuildingEffect[] => {
 export const buildings: Building[] = [
   {
     id: 'BAKERY',
+    name: msg`Bakery`,
+    description: msg`The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total.`,
     category: 'resource-booster',
     cropConsumption: [4, 2, 2, 2, 2],
     effects: [createResourceBoosterEffect('wheatProductionBonus')],
@@ -140,6 +143,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'BRICKYARD',
+    name: msg`Brickyard`,
+    description: msg`The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent.`,
     category: 'resource-booster',
     cropConsumption: [3, 2, 2, 2, 2],
     effects: [createResourceBoosterEffect('clayProductionBonus')],
@@ -171,6 +176,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'CLAY_PIT',
+    name: msg`Clay pit`,
+    description: msg`Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 22 in the capital, or to level 10 in non-capital villages.`,
     category: 'resource-production',
     cropConsumption: [...createCropConsumptionOfType('D')],
     buildingRequirements: [],
@@ -184,6 +191,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'CROPLAND',
+    name: msg`Cropland`,
+    description: msg`Wheat is produced here. By increasing its level you increase the production of wheat. Cropland can be extended to level 22 in the capital, or to level 10 in non-capital villages.`,
     category: 'resource-production',
     cropConsumption: [...createCropConsumptionOfType('F')],
     buildingRequirements: [],
@@ -197,6 +206,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'GRAIN_MILL',
+    name: msg`Grain mill`,
+    description: msg`The grain mill grinds grain into flour. Based on its level, your grain mill can increase your crop production by up to 25 percent.`,
     category: 'resource-booster',
     cropConsumption: [3, 2, 2, 2, 2],
     effects: [createResourceBoosterEffect('wheatProductionBonus')],
@@ -222,6 +233,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'GRANARY',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [createStorageCapacityEffect('granaryCapacity')],
@@ -247,6 +260,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'IRON_FOUNDRY',
+    name: msg``,
+    description: msg``,
     category: 'resource-booster',
     cropConsumption: [6, 3, 3, 3, 3],
     effects: [createResourceBoosterEffect('ironProductionBonus')],
@@ -278,6 +293,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'IRON_MINE',
+    name: msg``,
+    description: msg``,
     category: 'resource-production',
     cropConsumption: [...createCropConsumptionOfType('C')],
     buildingRequirements: [],
@@ -291,6 +308,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'SAWMILL',
+    name: msg``,
+    description: msg``,
     category: 'resource-booster',
     cropConsumption: [4, 2, 2, 2, 2],
     effects: [createResourceBoosterEffect('woodProductionBonus')],
@@ -322,6 +341,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'WAREHOUSE',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [createStorageCapacityEffect('warehouseCapacity')],
@@ -347,6 +368,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'WATERWORKS',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [
@@ -382,6 +405,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'WOODCUTTER',
+    name: msg``,
+    description: msg``,
     category: 'resource-production',
     cropConsumption: [...createCropConsumptionOfType('D')],
     buildingRequirements: [],
@@ -395,6 +420,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'ACADEMY',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [],
@@ -426,6 +453,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'BARRACKS',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [createTroopDurationEffect('barracksTrainingDuration')],
@@ -457,6 +486,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'CITY_WALL',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
@@ -502,6 +533,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'EARTH_WALL',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
@@ -547,6 +580,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'GREAT_BARRACKS',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [createTroopDurationEffect('greatBarracksTrainingDuration')],
@@ -582,6 +617,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'GREAT_STABLE',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('E')],
     effects: [createTroopDurationEffect('greatStableTrainingDuration')],
@@ -617,6 +654,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'HEROS_MANSION',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('D')],
     effects: [],
@@ -648,6 +687,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'HOSPITAL',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('C')],
     effects: [createTroopDurationEffect('hospitalTrainingDuration')],
@@ -679,6 +720,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'MAKESHIFT_WALL',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
@@ -724,6 +767,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'PALISADE',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
@@ -769,6 +814,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'RALLY_POINT',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [],
@@ -788,6 +835,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'STABLE',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('E')],
     effects: [createTroopDurationEffect('stableTrainingDuration')],
@@ -813,6 +862,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'STONE_WALL',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
@@ -858,6 +909,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'TRAPPER',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [
@@ -893,6 +946,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'WORKSHOP',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('C')],
     effects: [createTroopDurationEffect('workshopTrainingDuration')],
@@ -924,6 +979,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'BREWERY',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [6, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5],
     effects: [
@@ -973,6 +1030,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'COMMAND_CENTER',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [...createGovernmentBuildingDefenceEffects()],
@@ -1003,6 +1062,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'CRANNY',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
     effects: [
@@ -1027,6 +1088,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'HORSE_DRINKING_TROUGH',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('E')],
     effects: [...createHorseDrinkingTroughEffects()],
@@ -1063,6 +1126,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'MAIN_BUILDING',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('D')],
     effects: [
@@ -1089,6 +1154,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'MARKETPLACE',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [],
@@ -1126,6 +1193,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'PALACE',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [...createGovernmentBuildingDefenceEffects()],
@@ -1152,6 +1221,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'RESIDENCE',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [...createGovernmentBuildingDefenceEffects()],
@@ -1183,6 +1254,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'TREASURY',
+    name: msg``,
+    description: msg``,
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [],
@@ -1208,6 +1281,8 @@ export const buildings: Building[] = [
   },
   {
     id: 'TOURNAMENT_SQUARE',
+    name: msg``,
+    description: msg``,
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [

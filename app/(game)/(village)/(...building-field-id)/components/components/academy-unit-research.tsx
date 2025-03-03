@@ -1,13 +1,13 @@
 import { UnitCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-card';
-import { assessUnitResearchReadiness } from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+import {
+  assessUnitResearchReadiness
+} from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { partition } from 'app/utils/common';
 import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
 
 export const AcademyUnitResearch = () => {
-  const { t } = useTranslation();
   const { currentVillage, currentVillageId } = useCurrentVillage();
   const { unitResearch } = useUnitResearch();
 

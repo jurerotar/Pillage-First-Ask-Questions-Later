@@ -1,10 +1,8 @@
 import { UnitCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
 
 export const BarracksTroopTraining = () => {
-  const { t } = useTranslation();
   const { researchedInfantryUnits } = useUnitResearch();
 
   return (

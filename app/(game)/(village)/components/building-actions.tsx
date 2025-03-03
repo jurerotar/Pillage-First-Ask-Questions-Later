@@ -12,7 +12,7 @@ import { Button } from 'app/components/buttons/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { use } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans } from '@lingui/react/macro';
 import { useNavigate } from 'react-router';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
@@ -22,7 +22,6 @@ type BuildingCardProps = {
 };
 
 export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => {
-  const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_ACTIONS' });
   const navigate = useNavigate();
   const { tribe } = useTribe();
   const { playerVillages } = useVillages();
@@ -95,7 +94,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
         data-testid="building-actions-section"
         className="flex flex-col gap-2 pt-2 border-t border-gray-200"
       >
-        <h3 className="font-medium">{t('TITLE')}</h3>
+        <h3 className="font-medium"><Trans>Available actions</Trans></h3>
         <div className="flex gap-4">
           {!isMaxLevel && (
             <Button
@@ -104,7 +103,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
               onClick={onBuildingUpgrade}
               disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
             >
-              {t('UPGRADE_BUILDING', { level: buildingLevel + 1 })}
+              <Trans>Upgrade to level {buildingLevel + 1}</Trans>
             </Button>
           )}
           {canDemolishBuildings && (
@@ -115,7 +114,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
                   variant="confirm"
                   onClick={onBuildingDowngrade}
                 >
-                  {t('DOWNGRADE_BUILDING', { level: buildingLevel - 1 })}
+                  <Trans>Downgrade to level {buildingLevel - 1}</Trans>
                 </Button>
               )}
               <Button
@@ -123,7 +122,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
                 variant="confirm"
                 onClick={onBuildingDemolish}
               >
-                {t('DEMOLISH_BUILDING')}
+                <Trans>Demolish completely</Trans>
               </Button>
             </div>
           )}
@@ -138,14 +137,14 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
         data-testid="building-actions-section"
         className="flex flex-col gap-2 pt-2 border-t border-gray-200"
       >
-        <h3 className="font-medium">{t('TITLE')}</h3>
+        <h3 className="font-medium"><Trans>Available actions</Trans></h3>
         <Button
           data-testid="building-actions-construct-building-button"
           variant="confirm"
           onClick={onBuildingConstruction}
           disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
         >
-          {t('CONSTRUCT_BUILDING')}
+          <Trans>Construct</Trans>
         </Button>
       </section>
     );

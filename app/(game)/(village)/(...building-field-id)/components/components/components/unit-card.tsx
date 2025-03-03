@@ -17,26 +17,22 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';
 import { Fragment, use } from 'react';
-import { useTranslation } from 'react-i18next';
 import { calculateMaxUnits, getUnitData } from 'app/(game)/utils/units';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
+import { Trans } from '@lingui/react/macro';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
-  });
-  const { t: generalT } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
-  const { researchCost } = getUnitData(unitId)!;
+  const { researchCost, name } = getUnitData(unitId)!;
 
   const hasResearchedUnit = isUnitResearched(unitId);
 
   return (
     <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-      <h2 className="font-medium">{t(hasResearchedUnit ? 'HAS_RESEARCHED_TITLE' : 'HAS_NOT_RESEARCHED_TITLE')}</h2>
-      {hasResearchedUnit && <span className="text-green-600">{t('UNIT_RESEARCHED', { unit: generalT(`UNITS.${unitId}.NAME`) })}</span>}
+      <h2 className="font-medium"><Trans>{hasResearchedUnit ? 'Researched' : 'Research cost'}</Trans></h2>
+      {hasResearchedUnit && <span className="text-green-600"><Trans>{name.message} researched</Trans></span>}
       {!hasResearchedUnit && (
         <Resources
           className="flex-wrap"
@@ -52,17 +48,13 @@ type UnitRecruitmentFormProps = {
 };
 
 const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
-  });
-  const { t: generalT } = useTranslation();
   const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentResourceContext);
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();
   const { handleSubmit: _handleSubmit } = useForm<UnitRecruitmentFormProps>();
 
-  const { baseRecruitmentCost } = getUnitData(unitId);
+  const { baseRecruitmentCost, name } = getUnitData(unitId);
 
   const _maxUnits = calculateMaxUnits(currentResources, baseRecruitmentCost);
 
@@ -85,12 +77,12 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
 
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
-      <h2 className="font-medium">{t('ACTIONS.TITLE')}</h2>
+      <h2 className="font-medium"><Trans>Available actions</Trans></h2>
       <Button
         onClick={() => __recruitUnits(0)}
         variant="confirm"
       >
-        {t('ACTIONS.BUTTON', { unit: generalT(`UNITS.${unitId}.NAME`) })}
+        <Trans>Recruit {name.message}</Trans>
       </Button>
     </section>
   );
@@ -118,18 +110,25 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     showUnitRecruitmentForm = false,
   } = props;
 
-  const { t: generalT } = useTranslation();
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH',
-  });
   const { currentVillage } = useCurrentVillage();
   const { unitImprovements } = useUnitImprovement();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
-  const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, travelSpeed, carryCapacity, cropConsumption, researchCost } =
-    getUnitData(unitId)!;
+  const {
+    tier,
+    baseRecruitmentCost,
+    attack,
+    infantryDefence,
+    cavalryDefence,
+    travelSpeed,
+    carryCapacity,
+    cropConsumption,
+    researchCost,
+    description,
+    name
+  } = getUnitData(unitId)!;
 
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
@@ -162,9 +161,9 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     <article className="flex flex-col p-2 border border-gray-500">
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{generalT(`UNITS.${unitId}.NAME`)}</h2>
+          <h2 className="text-xl"><Trans>{name.message}</Trans></h2>
           {shouldShowUnitLevel && (
-            <span className="text-sm text-orange-500">{generalT('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>
+            <span className="text-sm text-orange-500"><Trans>Level {unitImprovement!.level}</Trans></span>
           )}
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
@@ -174,15 +173,13 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
           />
         </div>
         <p className="text-sm text-gray-500">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aspernatur corporis, dolorum ex fuga impedit libero quo repellat
-          totam voluptas.
-          {/* {generalT(`UNITS.${unitId}.DESCRIPTION`)} */}
+          <Trans>{description.message}</Trans>
         </p>
       </section>
 
       {showUnitCost && (
         <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('UNIT_COST.TITLE')}</h2>
+          <h2 className="font-medium"><Trans>Unit cost</Trans></h2>
           <Resources
             className="flex-wrap"
             resources={baseRecruitmentCost}
@@ -192,7 +189,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showAttributes && (
         <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('ATTRIBUTES.TITLE')}</h2>
+          <h2 className="font-medium"><Trans>Attributes</Trans></h2>
           <div className="flex gap-2 flex-wrap">
             {Object.keys(attributes).map((attribute) => (
               <span
@@ -215,14 +212,14 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showRequirements && !canResearch && (
         <section className="py-2 flex flex-col gap-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('REQUIREMENTS.TITLE')}</h2>
+          <h2 className="font-medium"><Trans>Requirements</Trans></h2>
           <ul className="flex gap-2 flex-wrap">
             {assessedRequirements.map((assessedRequirement: AssessedResearchRequirement, index) => (
               <Fragment key={assessedRequirement.buildingId}>
                 <li className="whitespace-nowrap">
                   <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                    {generalT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
-                    {generalT('GENERAL.LEVEL', { level: assessedRequirement.level }).toLowerCase()}
+                    {/*{generalT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}*/}
+                    <Trans>level {assessedRequirement.level}</Trans>
                   </span>
                   {index !== assessedRequirements.length - 1 && ','}
                 </li>
@@ -236,13 +233,13 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showResearch && canResearch && !hasResearchedUnit && (
         <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('ACTIONS.TITLE')}</h2>
+          <h2 className="font-medium"><Trans>Available actions</Trans></h2>
           <Button
             onClick={() => researchUnit(unitId)}
             variant="confirm"
             disabled={!canResearchUnit}
           >
-            {t('ACTIONS.BUTTON', { unit: generalT(`UNITS.${unitId}.NAME`) })}
+            <Trans>Research {name.message}</Trans>
           </Button>
         </section>
       )}

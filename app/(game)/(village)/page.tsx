@@ -7,11 +7,11 @@ import { useEvents } from 'app/(game)/hooks/use-events';
 import { Icon } from 'app/components/icon';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
-import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { Trans } from '@lingui/react/macro';
+import { msg } from '@lingui/core/macro';
 
 const BuildingUpgradeList = () => {
-  const { t } = useTranslation();
   const { currentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
 
   if (currentVillageBuildingEvents.length === 0) {
@@ -34,10 +34,10 @@ const BuildingUpgradeList = () => {
               className="size-4"
             />
           </button>
-          <span className="font-medium">{t(`BUILDINGS.${event.building.id}.NAME`)}</span>
-          <span className="text-orange-500">{t('GENERAL.LEVEL', { level: event.level }).toLowerCase()}</span>
+          <span className="font-medium"><Trans>{event.building.name.message}</Trans></span>
+          <span className="text-orange-500"><Trans>level {event.level}</Trans></span>
           <Countdown endsAt={event.startsAt + event.duration} />
-          {isScheduledBuildingEvent(event) && <span className="text-gray-400">(Building queue)</span>}
+          {isScheduledBuildingEvent(event) && <span className="text-gray-400"><Trans>(Building queue)</Trans></span>}
         </p>
       ))}
     </div>
@@ -48,7 +48,6 @@ const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as Buil
 const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19) as BuildingFieldType['id'][];
 
 const VillagePage = () => {
-  const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
   const _viewName = isResourcesPageOpen ? 'resources' : 'village';
@@ -85,7 +84,7 @@ const VillagePage = () => {
             <Link
               to={villagePath}
               className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
-              aria-label={t('APP.GAME.VILLAGE.BUILDING_FIELD.VILLAGE_LINK')}
+              aria-label={msg`Village`.message}
             >
               Village
             </Link>

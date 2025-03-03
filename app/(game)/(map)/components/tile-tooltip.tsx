@@ -18,7 +18,6 @@ import type {
 } from 'app/interfaces/models/game/tile';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import type React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
@@ -28,7 +27,6 @@ type TileTooltipProps = {
 };
 
 const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
-  const { t } = useTranslation();
   const { distanceFromCurrentVillage } = useCurrentVillage();
   const distance = distanceFromCurrentVillage(tile.coordinates);
 
@@ -40,7 +38,6 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
 };
 
 const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
-  const { t } = useTranslation();
   const { getVillageByOasis, getVillageByCoordinates } = useVillages();
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();

@@ -1,5 +1,6 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import type { MessageDescriptor } from '@lingui/core';
 
 export type RomanUnitId =
   | 'LEGIONNAIRE'
@@ -98,6 +99,8 @@ export type UnitTier = 'tier-1' | 'tier-2' | 'tier-3' | 'scout' | 'tier-4' | 'ti
 
 export type Unit = {
   id: UnitId;
+  name: MessageDescriptor;
+  description: MessageDescriptor;
   baseRecruitmentCost: [number, number, number, number];
   baseRecruitmentTime: number;
   cropConsumption: number;

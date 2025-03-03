@@ -5,7 +5,6 @@ import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
 import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { LinkWithState } from 'app/components/link-with-state';
 

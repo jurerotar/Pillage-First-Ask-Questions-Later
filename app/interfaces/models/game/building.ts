@@ -1,5 +1,6 @@
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import type { MessageDescriptor } from '@lingui/core';
 
 export type BuildingId =
   | 'CLAY_PIT'
@@ -88,6 +89,8 @@ export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster
 
 export type Building = {
   id: BuildingId;
+  name: MessageDescriptor;
+  description: MessageDescriptor;
   buildingDurationBase: number;
   buildingDurationModifier: number;
   buildingDurationReduction: number;

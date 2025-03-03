@@ -27,5 +27,10 @@
       "app/*": ["app/*"]
     }
   },
-  "include": ["app", "vite.config.ts", "react-router.config.ts"]
+  "include": [
+    "app",
+    "vite.config.ts",
+    "react-router.config.ts",
+    "lingui.config.ts"
+  ]
 }

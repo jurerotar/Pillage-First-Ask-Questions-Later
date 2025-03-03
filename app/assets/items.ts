@@ -1,8 +1,11 @@
 import type { HeroItem } from 'app/interfaces/models/game/hero';
+import { msg } from '@lingui/core/macro';
 
 const artifacts: HeroItem[] = [
   {
     id: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
+    name: msg`Weathered artifact of speed`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -18,6 +21,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY',
+    name: msg`Weathered artifact of carrying`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -33,6 +38,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION',
+    name: msg`Weathered artifact of training`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -78,6 +85,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION',
+    name: msg`Weathered artifact of hunger`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -93,6 +102,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'UNCOMMON_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION',
+    name: msg`Weathered artifact of building`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -108,6 +119,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'UNCOMMON_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
+    name: msg`Weathered artifact of oasis`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -124,6 +137,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'UNCOMMON_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS',
+    name: msg`Weathered artifact of resources`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'uncommon',
     category: 'artifact',
@@ -158,6 +173,8 @@ const artifacts: HeroItem[] = [
   // Rare
   {
     id: 'RARE_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
+    name: msg`Honed artifact of speed`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -173,6 +190,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'RARE_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY',
+    name: msg`Honed artifact of carrying`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -188,6 +207,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'RARE_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION',
+    name: msg`Honed artifact of training`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -233,6 +254,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'RARE_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION',
+    name: msg`Honed artifact of hunger`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -248,6 +271,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'RARE_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION',
+    name: msg`Honed artifact of building`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -263,6 +288,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'RARE_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
+    name: msg`Honed artifact of oasis`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -279,6 +306,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'RARE_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS',
+    name: msg`Honed artifact of resources`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'rare',
     category: 'artifact',
@@ -313,6 +342,8 @@ const artifacts: HeroItem[] = [
   // Epic
   {
     id: 'EPIC_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
+    name: msg`Natarian artifact of speed`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -328,6 +359,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY',
+    name: msg`Natarian artifact of carrying`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -343,6 +376,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION',
+    name: msg`Natarian artifact of training`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -388,6 +423,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION',
+    name: msg`Natarian artifact of hunger`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -403,6 +440,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION',
+    name: msg`Natarian artifact of building`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -418,6 +457,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
+    name: msg`Natarian artifact of oasis`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -434,6 +475,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS',
+    name: msg`Natarian artifact of resources`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -467,6 +510,8 @@ const artifacts: HeroItem[] = [
   },
   {
     id: 'EPIC_ARTIFACT_CIVIL_ENABLE_GREAT_BUILDINGS',
+    name: msg`Natarian artifact of storage`,
+    description: msg``,
     slot: 'non-equipable',
     rarity: 'epic',
     category: 'artifact',
@@ -479,6 +524,8 @@ export const items: HeroItem[] = [
   ...artifacts,
   {
     id: 'HEALING_POTION',
+    name: msg`Healing potion`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'consumable',
@@ -486,6 +533,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'BOOK_OF_WISDOM',
+    name: msg`Book of Wisdom`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'consumable',
@@ -493,6 +542,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'ANIMAL_CAGE',
+    name: msg`Animal cage`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'consumable',
@@ -500,6 +551,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'REVIVAL_POTION',
+    name: msg`Revival potion`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'consumable',
@@ -507,6 +560,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'SILVER',
+    name: msg`Silver`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'currency',
@@ -514,6 +569,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'WOOD',
+    name: msg`Wood`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'resource',
@@ -521,6 +578,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'CLAY',
+    name: msg`Clay`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'resource',
@@ -528,6 +587,8 @@ export const items: HeroItem[] = [
   },
   {
     id: 'IRON',
+    name: msg`Iron`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'resource',
@@ -535,9 +596,14 @@ export const items: HeroItem[] = [
   },
   {
     id: 'WHEAT',
+    name: msg`Wheat`,
+    description: msg``,
     slot: 'consumable',
     rarity: 'common',
     category: 'resource',
     basePrice: null,
   },
 ];
+
+// Use this for faster lookups
+export const itemsMap = new Map<HeroItem['id'], HeroItem>(items.map((item) => [item.id, item]));

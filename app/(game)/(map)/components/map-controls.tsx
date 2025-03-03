@@ -5,7 +5,6 @@ import { Tooltip } from 'app/components/tooltip';
 import clsx from 'clsx';
 import type React from 'react';
 import { use } from 'react';
-import { useTranslation } from 'react-i18next';
 
 type DividerProps = {
   orientation?: 'vertical' | 'horizontal';
@@ -20,7 +19,6 @@ type MagnificationButtonProps = {
 };
 
 const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) => {
-  const { t } = useTranslation();
   const { magnification, increaseMagnification, decreaseMagnification } = use(MapContext);
 
   const onClick = direction === 'increase' ? increaseMagnification : decreaseMagnification;
@@ -44,7 +42,6 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
 };
 
 export const MapControls = () => {
-  const { t } = useTranslation();
   const {
     shouldShowFactionReputation,
     shouldShowOasisIcons,

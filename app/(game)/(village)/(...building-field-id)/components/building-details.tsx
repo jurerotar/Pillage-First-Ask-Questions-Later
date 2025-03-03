@@ -12,7 +12,7 @@ import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans } from '@lingui/react/macro';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
@@ -147,10 +147,6 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
 ]);
 
 const BuildingStats = () => {
-  const { t: buildingStatsT } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.BUILDING_STATS',
-  });
-
   const { currentVillage, mainBuildingLevel } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
@@ -160,11 +156,11 @@ const BuildingStats = () => {
   return (
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
-        <Text as="h2">{buildingStatsT('UPGRADE_COST')}</Text>
+        <Text as="h2"><Trans>Upgrade cost</Trans></Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{buildingStatsT('LEVEL')}</TableHeaderCell>
+              <TableHeaderCell><Trans>Level</Trans></TableHeaderCell>
               <TableHeaderCell>
                 <Icon
                   className="inline-flex size-6"
@@ -215,19 +211,17 @@ const BuildingStats = () => {
         </Table>
       </section>
       <section className="flex flex-col gap-2">
-        <Text as="h2">{buildingStatsT('UPGRADE_DURATION')}</Text>
+        <Text as="h2"><Trans>Upgrade duration</Trans></Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell rowSpan={2}>{buildingStatsT('LEVEL')}</TableHeaderCell>
-              <TableHeaderCell colSpan={3}>{buildingStatsT('UPGRADE_DURATION')}</TableHeaderCell>
+              <TableHeaderCell rowSpan={2}><Trans>Level</Trans></TableHeaderCell>
+              <TableHeaderCell colSpan={3}><Trans>Upgrade duration</Trans></TableHeaderCell>
             </TableRow>
             <TableRow>
-              <TableHeaderCell className="whitespace-nowrap">{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 1 })}</TableHeaderCell>
-              <TableHeaderCell className="whitespace-nowrap">
-                {buildingStatsT('MAIN_BUILDING_LEVEL', { level: mainBuildingLevel })}
-              </TableHeaderCell>
-              <TableHeaderCell className="whitespace-nowrap">{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 20 })}</TableHeaderCell>
+              <TableHeaderCell className="whitespace-nowrap"><Trans>Main building L1</Trans></TableHeaderCell>
+              <TableHeaderCell className="whitespace-nowrap"><Trans>Main building L{mainBuildingLevel}</Trans></TableHeaderCell>
+              <TableHeaderCell className="whitespace-nowrap"><Trans>Main building L20</Trans></TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -257,7 +251,6 @@ const BuildingStats = () => {
 };
 
 export const BuildingDetails = () => {
-  const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TABS' });
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
@@ -285,11 +278,11 @@ export const BuildingDetails = () => {
         }}
       >
         <TabList className="flex mb-2 overflow-x-scroll scrollbar-hidden">
-          <StyledTab>{t('DEFAULT')}</StyledTab>
+          <StyledTab><Trans>Overview</Trans></StyledTab>
           {buildingSpecificTabs.map((name: string) => (
-            <StyledTab key={name}>{t(`${buildingId}.${name}`)}</StyledTab>
+            <StyledTab key={name}>{`${buildingId}.${name}`}</StyledTab>
           ))}
-          <StyledTab>{t('UPGRADE_STATS')}</StyledTab>
+          <StyledTab><Trans>Building stats</Trans></StyledTab>
         </TabList>
         <TabPanel>
           <div className="border border-gray-500 p-2">

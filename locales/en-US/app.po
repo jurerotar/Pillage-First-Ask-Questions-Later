@@ -1,0 +1,526 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-03-03 20:37+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en-US\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: app/assets/units.ts:8
+#: app/assets/units.ts:9
+#: app/assets/units.ts:53
+#: app/assets/units.ts:54
+#: app/assets/units.ts:98
+#: app/assets/units.ts:99
+#: app/assets/units.ts:143
+#: app/assets/units.ts:144
+#: app/assets/units.ts:191
+#: app/assets/units.ts:192
+#: app/assets/units.ts:239
+#: app/assets/units.ts:240
+#: app/assets/units.ts:287
+#: app/assets/units.ts:288
+#: app/assets/units.ts:335
+#: app/assets/units.ts:336
+#: app/assets/units.ts:383
+#: app/assets/units.ts:384
+#: app/assets/units.ts:407
+#: app/assets/units.ts:408
+#: app/assets/units.ts:431
+#: app/assets/units.ts:432
+#: app/assets/units.ts:476
+#: app/assets/units.ts:477
+#: app/assets/units.ts:521
+#: app/assets/units.ts:522
+#: app/assets/units.ts:569
+#: app/assets/units.ts:570
+#: app/assets/units.ts:617
+#: app/assets/units.ts:618
+#: app/assets/units.ts:665
+#: app/assets/units.ts:666
+#: app/assets/units.ts:713
+#: app/assets/units.ts:714
+#: app/assets/units.ts:761
+#: app/assets/units.ts:762
+#: app/assets/units.ts:809
+#: app/assets/units.ts:810
+#: app/assets/units.ts:833
+#: app/assets/units.ts:834
+#: app/assets/units.ts:857
+#: app/assets/units.ts:858
+#: app/assets/units.ts:902
+#: app/assets/units.ts:903
+#: app/assets/units.ts:950
+#: app/assets/units.ts:951
+#: app/assets/units.ts:995
+#: app/assets/units.ts:996
+#: app/assets/units.ts:1043
+#: app/assets/units.ts:1044
+#: app/assets/units.ts:1091
+#: app/assets/units.ts:1092
+#: app/assets/units.ts:1139
+#: app/assets/units.ts:1140
+#: app/assets/units.ts:1187
+#: app/assets/units.ts:1188
+#: app/assets/units.ts:1235
+#: app/assets/units.ts:1236
+#: app/assets/units.ts:1259
+#: app/assets/units.ts:1260
+#: app/assets/units.ts:1283
+#: app/assets/units.ts:1284
+#: app/assets/units.ts:1328
+#: app/assets/units.ts:1329
+#: app/assets/units.ts:1373
+#: app/assets/units.ts:1374
+#: app/assets/units.ts:1418
+#: app/assets/units.ts:1419
+#: app/assets/units.ts:1466
+#: app/assets/units.ts:1467
+#: app/assets/units.ts:1514
+#: app/assets/units.ts:1515
+#: app/assets/units.ts:1562
+#: app/assets/units.ts:1563
+#: app/assets/units.ts:1610
+#: app/assets/units.ts:1611
+#: app/assets/units.ts:1658
+#: app/assets/units.ts:1659
+#: app/assets/units.ts:1682
+#: app/assets/units.ts:1683
+#: app/assets/units.ts:1707
+#: app/assets/units.ts:1708
+#: app/assets/units.ts:1752
+#: app/assets/units.ts:1753
+#: app/assets/units.ts:1797
+#: app/assets/units.ts:1798
+#: app/assets/units.ts:1845
+#: app/assets/units.ts:1846
+#: app/assets/units.ts:1893
+#: app/assets/units.ts:1894
+#: app/assets/units.ts:1941
+#: app/assets/units.ts:1942
+#: app/assets/units.ts:1989
+#: app/assets/units.ts:1990
+#: app/assets/units.ts:2037
+#: app/assets/units.ts:2038
+#: app/assets/units.ts:2085
+#: app/assets/units.ts:2086
+#: app/assets/units.ts:2109
+#: app/assets/units.ts:2110
+#: app/assets/units.ts:2133
+#: app/assets/units.ts:2134
+#: app/assets/units.ts:2178
+#: app/assets/units.ts:2179
+#: app/assets/units.ts:2223
+#: app/assets/units.ts:2224
+#: app/assets/units.ts:2268
+#: app/assets/units.ts:2269
+#: app/assets/units.ts:2313
+#: app/assets/units.ts:2314
+#: app/assets/units.ts:2361
+#: app/assets/units.ts:2362
+#: app/assets/units.ts:2409
+#: app/assets/units.ts:2410
+#: app/assets/units.ts:2457
+#: app/assets/units.ts:2458
+#: app/assets/units.ts:2505
+#: app/assets/units.ts:2506
+#: app/assets/units.ts:2529
+#: app/assets/units.ts:2530
+#: app/assets/units.ts:2554
+#: app/assets/units.ts:2555
+#: app/assets/units.ts:2575
+#: app/assets/units.ts:2576
+#: app/assets/units.ts:2596
+#: app/assets/units.ts:2597
+#: app/assets/units.ts:2617
+#: app/assets/units.ts:2618
+#: app/assets/units.ts:2638
+#: app/assets/units.ts:2639
+#: app/assets/units.ts:2659
+#: app/assets/units.ts:2660
+#: app/assets/units.ts:2680
+#: app/assets/units.ts:2681
+#: app/assets/units.ts:2701
+#: app/assets/units.ts:2702
+#: app/assets/units.ts:2722
+#: app/assets/units.ts:2723
+#: app/assets/units.ts:2743
+#: app/assets/units.ts:2744
+#: app/assets/units.ts:2767
+#: app/assets/units.ts:2768
+#: app/assets/units.ts:2788
+#: app/assets/units.ts:2789
+#: app/assets/units.ts:2809
+#: app/assets/units.ts:2810
+#: app/assets/units.ts:2830
+#: app/assets/units.ts:2831
+#: app/assets/units.ts:2854
+#: app/assets/units.ts:2855
+#: app/assets/units.ts:2878
+#: app/assets/units.ts:2879
+#: app/assets/units.ts:2902
+#: app/assets/units.ts:2903
+#: app/assets/units.ts:2926
+#: app/assets/units.ts:2927
+#: app/assets/units.ts:2950
+#: app/assets/units.ts:2951
+#: app/assets/units.ts:2974
+#: app/assets/units.ts:2975
+#: app/assets/items.ts:8
+#: app/assets/items.ts:25
+#: app/assets/items.ts:42
+#: app/assets/items.ts:89
+#: app/assets/items.ts:106
+#: app/assets/items.ts:123
+#: app/assets/items.ts:141
+#: app/assets/items.ts:177
+#: app/assets/items.ts:194
+#: app/assets/items.ts:211
+#: app/assets/items.ts:258
+#: app/assets/items.ts:275
+#: app/assets/items.ts:292
+#: app/assets/items.ts:310
+#: app/assets/items.ts:346
+#: app/assets/items.ts:363
+#: app/assets/items.ts:380
+#: app/assets/items.ts:427
+#: app/assets/items.ts:444
+#: app/assets/items.ts:461
+#: app/assets/items.ts:479
+#: app/assets/items.ts:514
+#: app/assets/items.ts:528
+#: app/assets/items.ts:537
+#: app/assets/items.ts:546
+#: app/assets/items.ts:555
+#: app/assets/items.ts:564
+#: app/assets/items.ts:573
+#: app/assets/items.ts:582
+#: app/assets/items.ts:591
+#: app/assets/items.ts:600
+#: app/assets/buildings.ts:236
+#: app/assets/buildings.ts:237
+#: app/assets/buildings.ts:263
+#: app/assets/buildings.ts:264
+#: app/assets/buildings.ts:296
+#: app/assets/buildings.ts:297
+#: app/assets/buildings.ts:311
+#: app/assets/buildings.ts:312
+#: app/assets/buildings.ts:344
+#: app/assets/buildings.ts:345
+#: app/assets/buildings.ts:371
+#: app/assets/buildings.ts:372
+#: app/assets/buildings.ts:408
+#: app/assets/buildings.ts:409
+#: app/assets/buildings.ts:423
+#: app/assets/buildings.ts:424
+#: app/assets/buildings.ts:456
+#: app/assets/buildings.ts:457
+#: app/assets/buildings.ts:489
+#: app/assets/buildings.ts:490
+#: app/assets/buildings.ts:536
+#: app/assets/buildings.ts:537
+#: app/assets/buildings.ts:583
+#: app/assets/buildings.ts:584
+#: app/assets/buildings.ts:620
+#: app/assets/buildings.ts:621
+#: app/assets/buildings.ts:657
+#: app/assets/buildings.ts:658
+#: app/assets/buildings.ts:690
+#: app/assets/buildings.ts:691
+#: app/assets/buildings.ts:723
+#: app/assets/buildings.ts:724
+#: app/assets/buildings.ts:770
+#: app/assets/buildings.ts:771
+#: app/assets/buildings.ts:817
+#: app/assets/buildings.ts:818
+#: app/assets/buildings.ts:838
+#: app/assets/buildings.ts:839
+#: app/assets/buildings.ts:865
+#: app/assets/buildings.ts:866
+#: app/assets/buildings.ts:912
+#: app/assets/buildings.ts:913
+#: app/assets/buildings.ts:949
+#: app/assets/buildings.ts:950
+#: app/assets/buildings.ts:982
+#: app/assets/buildings.ts:983
+#: app/assets/buildings.ts:1033
+#: app/assets/buildings.ts:1034
+#: app/assets/buildings.ts:1065
+#: app/assets/buildings.ts:1066
+#: app/assets/buildings.ts:1091
+#: app/assets/buildings.ts:1092
+#: app/assets/buildings.ts:1129
+#: app/assets/buildings.ts:1130
+#: app/assets/buildings.ts:1157
+#: app/assets/buildings.ts:1158
+#: app/assets/buildings.ts:1196
+#: app/assets/buildings.ts:1197
+#: app/assets/buildings.ts:1224
+#: app/assets/buildings.ts:1225
+#: app/assets/buildings.ts:1257
+#: app/assets/buildings.ts:1258
+#: app/assets/buildings.ts:1284
+#: app/assets/buildings.ts:1285
+msgid "/+Z5u4"
+msgstr "/+Z5u4"
+
+#: app/(game)/(village)/page.tsx:40
+msgid "(Building queue)"
+msgstr "(Building queue)"
+
+#. placeholder {0}: event.building.name.message
+#. placeholder {0}: hasResearchedUnit ? 'Researched' : 'Research cost'
+#. placeholder {0}: name.message
+#: app/(game)/(village)/page.tsx:37
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:34
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:164
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:176
+msgid "{0}"
+msgstr "{0}"
+
+#. placeholder {0}: building.name.message
+#: app/(game)/components/building-field-tooltip.tsx:42
+msgid "{0} - level {level}"
+msgstr "{0} - level {level}"
+
+#. placeholder {0}: building.name.message
+#: app/(game)/components/building-field-tooltip.tsx:43
+msgid "{0} is fully upgraded"
+msgstr "{0} is fully upgraded"
+
+#. placeholder {0}: name.message
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:35
+msgid "{0} researched"
+msgstr "{0} researched"
+
+#: app/assets/items.ts:545
+msgid "Animal cage"
+msgstr "Animal cage"
+
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:192
+msgid "Attributes"
+msgstr "Attributes"
+
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:80
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:236
+msgid "Available actions"
+msgstr "Available actions"
+
+#: app/assets/buildings.ts:107
+msgid "Bakery"
+msgstr "Bakery"
+
+#: app/assets/items.ts:536
+msgid "Book of Wisdom"
+msgstr "Book of Wisdom"
+
+#: app/assets/buildings.ts:146
+msgid "Brickyard"
+msgstr "Brickyard"
+
+#: app/(game)/components/building-field-tooltip.tsx:23
+msgid "Building site"
+msgstr "Building site"
+
+#: app/(game)/(village)/(...building-field-id)/components/components/treasury-artifacts.tsx:30
+msgid "Burek"
+msgstr "Burek"
+
+#: app/assets/items.ts:581
+msgid "Clay"
+msgstr "Clay"
+
+#: app/assets/buildings.ts:180
+msgid "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+msgstr "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+
+#: app/assets/buildings.ts:179
+msgid "Clay pit"
+msgstr "Clay pit"
+
+#. placeholder {0}: upgradingToLevel + 1
+#: app/(game)/components/building-field-tooltip.tsx:49
+msgid "Cost for upgrading building to level {0}:"
+msgstr "Cost for upgrading building to level {0}:"
+
+#: app/assets/buildings.ts:194
+msgid "Cropland"
+msgstr "Cropland"
+
+#: app/(game)/components/building-field-tooltip.tsx:47
+msgid "Currently upgrading to level {upgradingToLevel}"
+msgstr "Currently upgrading to level {upgradingToLevel}"
+
+#: app/assets/buildings.ts:209
+msgid "Grain mill"
+msgstr "Grain mill"
+
+#: app/assets/items.ts:527
+msgid "Healing potion"
+msgstr "Healing potion"
+
+#: app/assets/items.ts:274
+msgid "Honed artifact of building"
+msgstr "Honed artifact of building"
+
+#: app/assets/items.ts:193
+msgid "Honed artifact of carrying"
+msgstr "Honed artifact of carrying"
+
+#: app/assets/items.ts:257
+msgid "Honed artifact of hunger"
+msgstr "Honed artifact of hunger"
+
+#: app/assets/items.ts:291
+msgid "Honed artifact of oasis"
+msgstr "Honed artifact of oasis"
+
+#: app/assets/items.ts:309
+msgid "Honed artifact of resources"
+msgstr "Honed artifact of resources"
+
+#: app/assets/items.ts:176
+msgid "Honed artifact of speed"
+msgstr "Honed artifact of speed"
+
+#: app/assets/items.ts:210
+msgid "Honed artifact of training"
+msgstr "Honed artifact of training"
+
+#: app/assets/items.ts:590
+msgid "Iron"
+msgstr "Iron"
+
+#. placeholder {0}: event.level
+#. placeholder {0}: assessedRequirement.level
+#: app/(game)/(village)/page.tsx:38
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:222
+msgid "level {0}"
+msgstr "level {0}"
+
+#. placeholder {0}: unitImprovement!.level
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:166
+msgid "Level {0}"
+msgstr "Level {0}"
+
+#: app/assets/items.ts:443
+msgid "Natarian artifact of building"
+msgstr "Natarian artifact of building"
+
+#: app/assets/items.ts:362
+msgid "Natarian artifact of carrying"
+msgstr "Natarian artifact of carrying"
+
+#: app/assets/items.ts:426
+msgid "Natarian artifact of hunger"
+msgstr "Natarian artifact of hunger"
+
+#: app/assets/items.ts:460
+msgid "Natarian artifact of oasis"
+msgstr "Natarian artifact of oasis"
+
+#: app/assets/items.ts:478
+msgid "Natarian artifact of resources"
+msgstr "Natarian artifact of resources"
+
+#: app/assets/items.ts:345
+msgid "Natarian artifact of speed"
+msgstr "Natarian artifact of speed"
+
+#: app/assets/items.ts:513
+msgid "Natarian artifact of storage"
+msgstr "Natarian artifact of storage"
+
+#: app/assets/items.ts:379
+msgid "Natarian artifact of training"
+msgstr "Natarian artifact of training"
+
+#. placeholder {0}: name.message
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:85
+msgid "Recruit {0}"
+msgstr "Recruit {0}"
+
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:215
+msgid "Requirements"
+msgstr "Requirements"
+
+#. placeholder {0}: name.message
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:242
+msgid "Research {0}"
+msgstr "Research {0}"
+
+#: app/assets/items.ts:554
+msgid "Revival potion"
+msgstr "Revival potion"
+
+#: app/assets/items.ts:563
+msgid "Silver"
+msgstr "Silver"
+
+#: app/assets/buildings.ts:108
+msgid "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
+msgstr "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
+
+#: app/assets/buildings.ts:147
+msgid "The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent."
+msgstr "The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent."
+
+#: app/assets/buildings.ts:210
+msgid "The grain mill grinds grain into flour. Based on its level, your grain mill can increase your crop production by up to 25 percent."
+msgstr "The grain mill grinds grain into flour. Based on its level, your grain mill can increase your crop production by up to 25 percent."
+
+#: app/(game)/(village)/(...building-field-id)/components/components/components/unit-card.tsx:182
+msgid "Unit cost"
+msgstr "Unit cost"
+
+#: app/(game)/(village)/page.tsx:87
+msgid "Village"
+msgstr "Village"
+
+#: app/assets/items.ts:105
+msgid "Weathered artifact of building"
+msgstr "Weathered artifact of building"
+
+#: app/assets/items.ts:24
+msgid "Weathered artifact of carrying"
+msgstr "Weathered artifact of carrying"
+
+#: app/assets/items.ts:88
+msgid "Weathered artifact of hunger"
+msgstr "Weathered artifact of hunger"
+
+#: app/assets/items.ts:122
+msgid "Weathered artifact of oasis"
+msgstr "Weathered artifact of oasis"
+
+#: app/assets/items.ts:140
+msgid "Weathered artifact of resources"
+msgstr "Weathered artifact of resources"
+
+#: app/assets/items.ts:7
+msgid "Weathered artifact of speed"
+msgstr "Weathered artifact of speed"
+
+#: app/assets/items.ts:41
+msgid "Weathered artifact of training"
+msgstr "Weathered artifact of training"
+
+#: app/assets/items.ts:599
+msgid "Wheat"
+msgstr "Wheat"
+
+#: app/assets/buildings.ts:195
+msgid "Wheat is produced here. By increasing its level you increase the production of wheat. Cropland can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+msgstr "Wheat is produced here. By increasing its level you increase the production of wheat. Cropland can be extended to level 22 in the capital, or to level 10 in non-capital villages."
+
+#: app/assets/items.ts:572
+msgid "Wood"
+msgstr "Wood"

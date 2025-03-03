@@ -10,7 +10,6 @@ import type {
 } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
@@ -135,7 +134,6 @@ type OccupiedBuildingFieldProps = {
 };
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
-  const { t } = useTranslation();
   const {
     currentVillage: { resourceFieldComposition },
   } = useCurrentVillage();

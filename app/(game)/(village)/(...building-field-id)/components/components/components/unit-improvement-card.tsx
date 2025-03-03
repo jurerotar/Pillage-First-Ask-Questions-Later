@@ -9,7 +9,6 @@ import { Icon } from 'app/components/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type React from 'react';
 import { use } from 'react';
-import { useTranslation } from 'react-i18next';
 import { getUnitData } from 'app/(game)/utils/units';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
@@ -19,7 +18,6 @@ type UnitImprovementCardProps = {
 };
 
 export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId }) => {
-  const { t } = useTranslation();
   const { tribe } = useTribe();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { unitImprovements, upgradeUnitTier } = useUnitImprovement();

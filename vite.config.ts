@@ -5,6 +5,8 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
+import { lingui } from '@lingui/vite-plugin';
+import vitePluginReactSwc from '@vitejs/plugin-react-swc';
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -37,6 +39,10 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
+    vitePluginReactSwc({
+      plugins: [['@lingui/swc-plugin', {}]],
+    }),
+    lingui(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
     !isInTestMode &&

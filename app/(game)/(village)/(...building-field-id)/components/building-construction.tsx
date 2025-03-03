@@ -12,7 +12,6 @@ import type { BuildingField } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import type React from 'react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
 
@@ -22,7 +21,6 @@ type BuildingCategoryPanelProps = {
 };
 
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory }) => {
-  const { t } = useTranslation();
   const { playerVillages } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
@@ -101,7 +99,6 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
 };
 
 export const BuildingConstruction = () => {
-  const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
 
   const [buildingTab, setBuildingTab] = useState<BuildingCategory>('infrastructure');
