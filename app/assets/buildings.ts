@@ -1,10 +1,44 @@
 import type { Building, BuildingEffect } from 'app/interfaces/models/game/building';
 import type { ResourceProductionEffectId, TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 
+const createTeutonAndHunWallStaticDefence = (): number[] => {
+  return [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
+};
+
+const createGaulAndEgyptianWallStaticDefence = (): number[] => {
+  return [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160];
+};
+
+// Different building have different crop consumption. There doesn't seem to be a pattern to it (this should probably be changed), so for now,
+// they'll just be grouped together based on type.
+const createCropConsumptionOfType = (type: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = 'A'): number[] => {
+  if (type === 'F') {
+    return [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2];
+  }
+
+  if (type === 'E') {
+    return [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+  }
+
+  if (type === 'D') {
+    return [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3];
+  }
+
+  if (type === 'C') {
+    return [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
+  }
+
+  if (type === 'B') {
+    return [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4];
+  }
+
+  return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+};
+
 const createResourceProductionEffect = (effectId: ResourceProductionEffectId): BuildingEffect => {
   return {
     effectId,
-    valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
+    valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240],
   };
 };
 
@@ -138,12 +172,12 @@ export const buildings: Building[] = [
   {
     id: 'CLAY_PIT',
     category: 'resource-production',
-    cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3],
+    cropConsumption: [...createCropConsumptionOfType('D')],
     buildingRequirements: [],
     effects: [createResourceProductionEffect('clayProduction')],
     baseBuildingCost: [80, 40, 80, 50],
     buildingCostCoefficient: 1.67,
-    maxLevel: 22,
+    maxLevel: 20,
     buildingDurationBase: 1.6,
     buildingDurationModifier: 553,
     buildingDurationReduction: 333,
@@ -151,12 +185,12 @@ export const buildings: Building[] = [
   {
     id: 'CROPLAND',
     category: 'resource-production',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('F')],
     buildingRequirements: [],
     effects: [createResourceProductionEffect('wheatProduction')],
     baseBuildingCost: [70, 90, 70, 20],
     buildingCostCoefficient: 1.67,
-    maxLevel: 22,
+    maxLevel: 20,
     buildingDurationBase: 1.6,
     buildingDurationModifier: 483,
     buildingDurationReduction: 333,
@@ -189,7 +223,7 @@ export const buildings: Building[] = [
   {
     id: 'GRANARY',
     category: 'infrastructure',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [createStorageCapacityEffect('granaryCapacity')],
     buildingRequirements: [
       {
@@ -245,12 +279,12 @@ export const buildings: Building[] = [
   {
     id: 'IRON_MINE',
     category: 'resource-production',
-    cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('C')],
     buildingRequirements: [],
     effects: [createResourceProductionEffect('ironProduction')],
     baseBuildingCost: [100, 80, 30, 60],
     buildingCostCoefficient: 1.67,
-    maxLevel: 22,
+    maxLevel: 20,
     buildingDurationBase: 1.6,
     buildingDurationModifier: 783,
     buildingDurationReduction: 333,
@@ -289,7 +323,7 @@ export const buildings: Building[] = [
   {
     id: 'WAREHOUSE',
     category: 'infrastructure',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [createStorageCapacityEffect('warehouseCapacity')],
     buildingRequirements: [
       {
@@ -314,7 +348,7 @@ export const buildings: Building[] = [
   {
     id: 'WATERWORKS',
     category: 'infrastructure',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [
       createResourceBoosterEffect('woodProductionBonus', 21),
       createResourceBoosterEffect('clayProductionBonus', 21),
@@ -349,12 +383,12 @@ export const buildings: Building[] = [
   {
     id: 'WOODCUTTER',
     category: 'resource-production',
-    cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3],
+    cropConsumption: [...createCropConsumptionOfType('D')],
     buildingRequirements: [],
     effects: [createResourceProductionEffect('woodProduction')],
     baseBuildingCost: [40, 100, 50, 60],
     buildingCostCoefficient: 1.67,
-    maxLevel: 22,
+    maxLevel: 20,
     buildingDurationBase: 1.6,
     buildingDurationModifier: 593,
     buildingDurationReduction: 333,
@@ -362,7 +396,7 @@ export const buildings: Building[] = [
   {
     id: 'ACADEMY',
     category: 'military',
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [],
     buildingRequirements: [
       {
@@ -393,7 +427,7 @@ export const buildings: Building[] = [
   {
     id: 'BARRACKS',
     category: 'military',
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [createTroopDurationEffect('barracksTrainingDuration')],
     buildingRequirements: [
       {
@@ -424,7 +458,7 @@ export const buildings: Building[] = [
   {
     id: 'CITY_WALL',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
       {
         effectId: 'infantryDefence',
@@ -469,11 +503,11 @@ export const buildings: Building[] = [
   {
     id: 'EARTH_WALL',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
       {
         effectId: 'infantryDefence',
-        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
       },
       {
         effectId: 'infantryDefenceBonus',
@@ -483,7 +517,7 @@ export const buildings: Building[] = [
       },
       {
         effectId: 'cavalryDefence',
-        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
       },
       {
         effectId: 'cavalryDefenceBonus',
@@ -514,7 +548,7 @@ export const buildings: Building[] = [
   {
     id: 'GREAT_BARRACKS',
     category: 'military',
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [createTroopDurationEffect('greatBarracksTrainingDuration')],
     buildingRequirements: [
       {
@@ -549,7 +583,7 @@ export const buildings: Building[] = [
   {
     id: 'GREAT_STABLE',
     category: 'military',
-    cropConsumption: [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('E')],
     effects: [createTroopDurationEffect('greatStableTrainingDuration')],
     buildingRequirements: [
       {
@@ -584,7 +618,7 @@ export const buildings: Building[] = [
   {
     id: 'HEROS_MANSION',
     category: 'military',
-    cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
+    cropConsumption: [...createCropConsumptionOfType('D')],
     effects: [],
     buildingRequirements: [
       {
@@ -615,7 +649,7 @@ export const buildings: Building[] = [
   {
     id: 'HOSPITAL',
     category: 'military',
-    cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    cropConsumption: [...createCropConsumptionOfType('C')],
     effects: [createTroopDurationEffect('hospitalTrainingDuration')],
     buildingRequirements: [
       {
@@ -646,11 +680,11 @@ export const buildings: Building[] = [
   {
     id: 'MAKESHIFT_WALL',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
       {
         effectId: 'infantryDefence',
-        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
       },
       {
         effectId: 'infantryDefenceBonus',
@@ -660,7 +694,7 @@ export const buildings: Building[] = [
       },
       {
         effectId: 'cavalryDefence',
-        valuesPerLevel: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120],
+        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
       },
       {
         effectId: 'cavalryDefenceBonus',
@@ -691,11 +725,11 @@ export const buildings: Building[] = [
   {
     id: 'PALISADE',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
       {
         effectId: 'infantryDefence',
-        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
       },
       {
         effectId: 'infantryDefenceBonus',
@@ -705,7 +739,7 @@ export const buildings: Building[] = [
       },
       {
         effectId: 'cavalryDefence',
-        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
       },
       {
         effectId: 'cavalryDefenceBonus',
@@ -736,7 +770,7 @@ export const buildings: Building[] = [
   {
     id: 'RALLY_POINT',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [],
     buildingRequirements: [
       {
@@ -755,7 +789,7 @@ export const buildings: Building[] = [
   {
     id: 'STABLE',
     category: 'military',
-    cropConsumption: [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('E')],
     effects: [createTroopDurationEffect('stableTrainingDuration')],
     buildingRequirements: [
       {
@@ -780,11 +814,11 @@ export const buildings: Building[] = [
   {
     id: 'STONE_WALL',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
       {
         effectId: 'infantryDefence',
-        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
       },
       {
         effectId: 'infantryDefenceBonus',
@@ -794,7 +828,7 @@ export const buildings: Building[] = [
       },
       {
         effectId: 'cavalryDefence',
-        valuesPerLevel: [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160],
+        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
       },
       {
         effectId: 'cavalryDefenceBonus',
@@ -825,7 +859,7 @@ export const buildings: Building[] = [
   {
     id: 'TRAPPER',
     category: 'military',
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [
       {
         effectId: 'trapperCapacity',
@@ -860,7 +894,7 @@ export const buildings: Building[] = [
   {
     id: 'WORKSHOP',
     category: 'military',
-    cropConsumption: [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    cropConsumption: [...createCropConsumptionOfType('C')],
     effects: [createTroopDurationEffect('workshopTrainingDuration')],
     buildingRequirements: [
       {
@@ -940,7 +974,7 @@ export const buildings: Building[] = [
   {
     id: 'COMMAND_CENTER',
     category: 'infrastructure',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
@@ -994,7 +1028,7 @@ export const buildings: Building[] = [
   {
     id: 'HORSE_DRINKING_TROUGH',
     category: 'infrastructure',
-    cropConsumption: [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('E')],
     effects: [...createHorseDrinkingTroughEffects()],
     buildingRequirements: [
       {
@@ -1030,7 +1064,7 @@ export const buildings: Building[] = [
   {
     id: 'MAIN_BUILDING',
     category: 'infrastructure',
-    cropConsumption: [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3],
+    cropConsumption: [...createCropConsumptionOfType('D')],
     effects: [
       {
         effectId: 'buildingDuration',
@@ -1056,7 +1090,7 @@ export const buildings: Building[] = [
   {
     id: 'MARKETPLACE',
     category: 'infrastructure',
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [],
     buildingRequirements: [
       {
@@ -1093,7 +1127,7 @@ export const buildings: Building[] = [
   {
     id: 'PALACE',
     category: 'infrastructure',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
@@ -1119,7 +1153,7 @@ export const buildings: Building[] = [
   {
     id: 'RESIDENCE',
     category: 'infrastructure',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
@@ -1150,7 +1184,7 @@ export const buildings: Building[] = [
   {
     id: 'TREASURY',
     category: 'infrastructure',
-    cropConsumption: [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4],
+    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [],
     buildingRequirements: [
       {
@@ -1175,7 +1209,7 @@ export const buildings: Building[] = [
   {
     id: 'TOURNAMENT_SQUARE',
     category: 'military',
-    cropConsumption: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [
       {
         effectId: 'unitSpeedBonus',
