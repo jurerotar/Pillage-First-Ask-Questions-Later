@@ -1,11 +1,10 @@
 import { UnitCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-card';
-import {
-  assessUnitResearchReadiness
-} from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+import { assessUnitResearchReadiness } from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { partition } from 'app/utils/common';
 import { Text } from 'app/components/text';
+import { Trans } from '@lingui/react/macro';
 
 export const AcademyUnitResearch = () => {
   const { currentVillage, currentVillageId } = useCurrentVillage();
@@ -19,7 +18,9 @@ export const AcademyUnitResearch = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <Text as="h2">{t('APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.TITLE')}</Text>
+      <Text as="h2">
+        <Trans>Unit research</Trans>
+      </Text>
       {researchedUnits.length > 0 && (
         <ul className="flex flex-col gap-2">
           {researchedUnits.map(({ unitId }) => (

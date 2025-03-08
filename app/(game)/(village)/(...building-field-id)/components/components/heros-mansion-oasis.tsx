@@ -7,6 +7,7 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { Text } from 'app/components/text';
 import { LinkWithState } from 'app/components/link-with-state';
+import { Trans } from '@lingui/react/macro';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -14,9 +15,6 @@ type OccupiedOasisRowProps = {
 };
 
 const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, heroMansionLevel }) => {
-  const { t: herosMansionT } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.HEROS_MANSION.OASIS',
-  });
   const { mapPath } = useGameNavigation();
 
   const hasOccupiedOasis = !!occupiedOasis;
@@ -60,16 +58,15 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
         className="text-left"
         colSpan={3}
       >
-        <Text>{herosMansionT('NEXT_OASIS', { heroMansionLevel })}</Text>
+        <Text>
+          <Trans>Next oasis will be occupiable at level {heroMansionLevel}.</Trans>
+        </Text>
       </TableCell>
     </TableRow>
   );
 };
 
 export const HerosMansionOasis = () => {
-  const { t: herosMansionT } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.HEROS_MANSION.OASIS',
-  });
   const { mapPath } = useGameNavigation();
   const { oasisOccupiedByCurrentVillage, oasisTilesInRange } = useOasis();
 
@@ -78,13 +75,21 @@ export const HerosMansionOasis = () => {
   return (
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
-        <Text as="h2">{herosMansionT('OCCUPIED_OASIS_TITLE')}</Text>
+        <Text as="h2">
+          <Trans>Occupied oasis</Trans>
+        </Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{herosMansionT('TABLE.COORDINATES')}</TableHeaderCell>
-              <TableHeaderCell>{herosMansionT('TABLE.RESOURCES')}</TableHeaderCell>
-              <TableHeaderCell>{herosMansionT('TABLE.ACTIONS')}</TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Coordinates</Trans>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Resources</Trans>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Actions</Trans>
+              </TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -105,15 +110,25 @@ export const HerosMansionOasis = () => {
       </section>
 
       <section className="flex flex-col gap-2">
-        <Text as="h2">{herosMansionT('OASIS_WITHIN_REACH_TITLE')}</Text>
+        <Text as="h2">
+          <Trans>Oasis within reach</Trans>
+        </Text>
         <div className="overflow-x-scroll">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHeaderCell>{herosMansionT('TABLE.OWNER')}</TableHeaderCell>
-                <TableHeaderCell>{herosMansionT('TABLE.COORDINATES')}</TableHeaderCell>
-                <TableHeaderCell>{herosMansionT('TABLE.RESOURCES')}</TableHeaderCell>
-                <TableHeaderCell>{herosMansionT('TABLE.ACTIONS')}</TableHeaderCell>
+                <TableHeaderCell>
+                  <Trans>Owner</Trans>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Trans>Coordinates</Trans>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Trans>Resources</Trans>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Trans>Actions</Trans>
+                </TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>

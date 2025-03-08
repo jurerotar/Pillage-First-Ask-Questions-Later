@@ -14,6 +14,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
+import { Trans } from '@lingui/react/macro';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -71,7 +72,9 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
         <>
           {currentlyAvailableBuildings.length > 0 && (
             <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">{t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.AVAILABLE_BUILDINGS')}</h2>
+              <h2 className="text-xl">
+                <Trans>Available buildings</Trans>
+              </h2>
               {currentlyAvailableBuildings.map((building: Building) => (
                 <BuildingCard
                   key={building.id}
@@ -82,7 +85,9 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
           )}
           {currentlyUnavailableBuildings.length > 0 && (
             <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">{t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.CURRENTLY_NON-AVAILABLE_BUILDINGS')}</h2>
+              <h2 className="text-xl">
+                <Trans>Buildable in the future</Trans>
+              </h2>
               {currentlyUnavailableBuildings.map((building: Building) => (
                 <BuildingCard
                   key={building.id}
@@ -93,7 +98,11 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
           )}
         </>
       )}
-      {hasNoAvailableBuildings && <p>{t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.NO_AVAILABLE_BUILDINGS')}</p>}
+      {hasNoAvailableBuildings && (
+        <p>
+          <Trans>No buildings available</Trans>
+        </p>
+      )}
     </div>
   );
 };
@@ -110,19 +119,19 @@ export const BuildingConstruction = () => {
           onSelect={() => setBuildingTab('infrastructure')}
           selected={buildingTab === 'infrastructure'}
         >
-          {t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.TABS.INFRASTRUCTURE')}
+          <Trans>Infrastructure</Trans>
         </StyledTab>
         <StyledTab
           onSelect={() => setBuildingTab('military')}
           selected={buildingTab === 'military'}
         >
-          {t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.TABS.MILITARY')}
+          <Trans>Military</Trans>
         </StyledTab>
         <StyledTab
           onSelect={() => setBuildingTab('resource-booster')}
           selected={buildingTab === 'resource-booster'}
         >
-          {t('APP.GAME.BUILDING_FIELD.BUILDING_CONSTRUCTION.TABS.RESOURCES')}
+          <Trans>Resources</Trans>
         </StyledTab>
       </TabList>
       <TabPanel>

@@ -1,6 +1,6 @@
 import { BuildingUpgradeIndicator } from 'app/(game)/components/building-upgrade-indicator';
 import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
+import { getBuildingData, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type {
   BuildingField as BuildingFieldType,
@@ -13,6 +13,7 @@ import type React from 'react';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
+import { useLingui } from '@lingui/react/macro';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -134,18 +135,20 @@ type OccupiedBuildingFieldProps = {
 };
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
+  const { t } = useLingui();
   const {
     currentVillage: { resourceFieldComposition },
   } = useCurrentVillage();
   const { shouldShowBuildingNames } = usePreferences();
   const { id: buildingFieldId, buildingId, level } = buildingField;
+  const { name } = getBuildingData(buildingId);
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
 
   return (
     <Link
       to={`${buildingFieldId}`}
-      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
+      aria-label={t`${name.message}`}
       className={clsx(
         styles,
         dynamicCellClasses({ buildingField, resourceFieldComposition, level }),
@@ -156,7 +159,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
       {shouldShowBuildingNames && (
         <span className="text-3xs md:text-2xs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
-          {t(`BUILDINGS.${buildingId}.NAME`)}
+          {t`${name.message}`}
         </span>
       )}
     </Link>

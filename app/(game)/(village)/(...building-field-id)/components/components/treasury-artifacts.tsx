@@ -14,6 +14,7 @@ import { useVillages } from 'app/(game)/hooks/use-villages';
 import type { Village } from 'app/interfaces/models/game/village';
 import { LinkWithState } from 'app/components/link-with-state';
 import { Trans } from '@lingui/react/macro';
+import { itemsMap } from 'app/assets/items';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
@@ -24,11 +25,16 @@ const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) =
   const { getTileByTileId } = useMap();
 
   const { coordinates } = getTileByTileId(item.tileId);
+  const { name } = itemsMap.get(item.id)!;
 
   return (
     <TableRow>
-      <TableCell><Trans>Burek</Trans></TableCell>
-      <TableCell>{t(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
+      <TableCell>
+        <Trans>Burek</Trans>
+      </TableCell>
+      <TableCell>
+        <Trans>{name.message}</Trans>
+      </TableCell>
       <TableCell>
         <LinkWithState to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
           {coordinates.x}, {coordinates.y}
@@ -44,6 +50,8 @@ export const TreasuryArtifacts = () => {
   const { worldItems } = useWorldItems();
   const { distanceFromCurrentVillage } = useCurrentVillage();
   const { villages } = useVillages();
+
+  const currentVillageArtifact = hasCurrentVillageArtifact ? itemsMap.get(currentVillageArtifactId!) : null;
 
   const availableArtifacts = hero.inventory.filter(({ category }) => category === 'artifact');
   const hasAvailableArtifacts = availableArtifacts.length > 0;
@@ -76,21 +84,33 @@ export const TreasuryArtifacts = () => {
   return (
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
-        <Text as="h2">{treasuryT('VILLAGE_ARTIFACT.TITLE')}</Text>
+        <Text as="h2">
+          <Trans>Artifact in this village</Trans>
+        </Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{treasuryT('VILLAGE_ARTIFACT.TABLE.ARTIFACT_NAME')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('VILLAGE_ARTIFACT.TABLE.ARTIFACT_DESCRIPTION')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('VILLAGE_ARTIFACT.TABLE.ACTIONS')}</TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Name</Trans>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Description</Trans>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Actions</Trans>
+              </TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
               {hasCurrentVillageArtifact && (
                 <>
-                  <TableCell>{t(`ITEMS.${currentVillageArtifactId}.TITLE`)}</TableCell>
-                  <TableCell>{t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}</TableCell>
+                  <TableCell>
+                    <Trans>{currentVillageArtifact?.name.message}</Trans>
+                  </TableCell>
+                  <TableCell>
+                    <Trans>{currentVillageArtifact?.description.message}</Trans>
+                  </TableCell>
                   <TableCell>/</TableCell>
                 </>
               )}
@@ -100,11 +120,8 @@ export const TreasuryArtifacts = () => {
                     className="text-left"
                     colSpan={hasAvailableArtifacts ? 2 : 3}
                   >
-                    {treasuryT(
-                      hasAvailableArtifacts
-                        ? 'VILLAGE_ARTIFACT.TABLE.NO_ARTIFACT_ASSIGN_AVAILABLE'
-                        : 'VILLAGE_ARTIFACT.TABLE.NO_ARTIFACT_ASSIGN_UNAVAILABLE',
-                    )}
+                    hasAvailableArtifacts ? <Trans>This village does not host an artifact. Select an artifact to assign.</Trans> :{' '}
+                    <Trans>This village does not host an artifact. Capture one first from the list bellow.</Trans>
                   </TableCell>
                   {hasAvailableArtifacts && <TableCell className="text-left">TODO</TableCell>}
                 </>
@@ -115,13 +132,21 @@ export const TreasuryArtifacts = () => {
       </section>
 
       <section className="flex flex-col gap-2">
-        <Text as="h2">{treasuryT('UNOCCUPIED_ARTIFACTS.TITLE')}</Text>
+        <Text as="h2">
+          <Trans>Unoccupied artifacts</Trans>
+        </Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{treasuryT('UNOCCUPIED_ARTIFACTS.TABLE.ARTIFACT_NAME')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('UNOCCUPIED_ARTIFACTS.TABLE.ARTIFACT_DESCRIPTION')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('UNOCCUPIED_ARTIFACTS.TABLE.ARTIFACT_COORDINATES')}</TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Name</Trans>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Description</Trans>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Trans>Coordinates</Trans>
+              </TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -131,7 +156,7 @@ export const TreasuryArtifacts = () => {
                   className="text-left"
                   colSpan={3}
                 >
-                  {t('UNOCCUPIED_ARTIFACTS.TABLE.NO_ARTIFACTS_AVAILABLE')}
+                  <Trans>There are no more artifacts to conquer.</Trans>
                 </TableCell>
               </TableRow>
             )}

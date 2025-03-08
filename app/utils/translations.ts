@@ -2,42 +2,44 @@ import type { PlayerFaction } from 'app/interfaces/models/game/player';
 import type { ReputationLevel } from 'app/interfaces/models/game/reputation';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import { msg } from '@lingui/core/macro';
+import type { MessageDescriptor } from '@lingui/core';
 
-export const resourceTranslationMap = new Map<Resource, string>([
-  ['wood', 'RESOURCES.WOOD'],
-  ['clay', 'RESOURCES.CLAY'],
-  ['iron', 'RESOURCES.IRON'],
-  ['wheat', 'RESOURCES.WHEAT'],
+export const resourceTranslationMap = new Map<Resource, MessageDescriptor>([
+  ['wood', msg`Wood`],
+  ['clay', msg`Clay`],
+  ['iron', msg`Iron`],
+  ['wheat', msg`Wheat`],
 ]);
 
-export const factionTranslationMap = new Map<PlayerFaction, string>([
-  ['npc1', 'FACTIONS.NPC1'],
-  ['npc2', 'FACTIONS.NPC2'],
-  ['npc3', 'FACTIONS.NPC3'],
-  ['npc4', 'FACTIONS.NPC4'],
-  ['npc5', 'FACTIONS.NPC5'],
-  ['npc6', 'FACTIONS.NPC6'],
-  ['npc7', 'FACTIONS.NPC7'],
-  ['npc8', 'FACTIONS.NPC8'],
-  ['player', 'FACTIONS.PLAYER'],
+export const factionTranslationMap = new Map<PlayerFaction, MessageDescriptor>([
+  ['npc1', msg`NPC 1`],
+  ['npc2', msg`NPC 2`],
+  ['npc3', msg`NPC 3`],
+  ['npc4', msg`NPC 4`],
+  ['npc5', msg`NPC 5`],
+  ['npc6', msg`NPC 6`],
+  ['npc7', msg`NPC 7`],
+  ['npc8', msg`NPC 8`],
+  ['player', msg`Player`],
 ]);
 
-export const tribeTranslationMap = new Map<Tribe, string>([
-  ['romans', 'TRIBES.ROMANS'],
-  ['gauls', 'TRIBES.GAULS'],
-  ['teutons', 'TRIBES.TEUTONS'],
-  ['egyptians', 'TRIBES.EGYPTIANS'],
-  ['huns', 'TRIBES.HUNS'],
-  ['spartans', 'TRIBES.SPARTANS'],
-  ['nature', 'TRIBES.NATURE'],
-  ['natars', 'TRIBES.NATARS'],
+export const tribeTranslationMap = new Map<Tribe, MessageDescriptor>([
+  ['romans', msg`Romans`],
+  ['gauls', msg`Gauls`],
+  ['teutons', msg`Teutons`],
+  ['egyptians', msg`Egyptians`],
+  ['huns', msg`Huns`],
+  ['spartans', msg`Spartans`],
+  ['nature', msg`Nature`],
+  ['natars', msg`Natars`],
 ]);
 
-export const reputationLevelTranslationMap = new Map<ReputationLevel, string>([
-  ['ecstatic', 'REPUTATION_LEVELS.ECSTATIC'],
-  ['respected', 'REPUTATION_LEVELS.RESPECTED'],
-  ['friendly', 'REPUTATION_LEVELS.FRIENDLY'],
-  ['neutral', 'REPUTATION_LEVELS.NEUTRAL'],
-  ['unfriendly', 'REPUTATION_LEVELS.UNFRIENDLY'],
-  ['hostile', 'REPUTATION_LEVELS.HOSTILE'],
+export const reputationLevelTranslationMap = new Map<ReputationLevel, MessageDescriptor>([
+  ['ecstatic', msg`Ecstatic`],
+  ['respected', msg`Respected`],
+  ['friendly', msg`Friendly`],
+  ['neutral', msg`Neutral`],
+  ['unfriendly', msg`Unfriendly`],
+  ['hostile', msg`Hostile`],
 ]);
