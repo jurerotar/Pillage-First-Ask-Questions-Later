@@ -7,7 +7,6 @@ import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Fallback } from 'app/(game)/layout';
 import GameSyncWorker from '../workers/sync-worker?worker&url';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const PersisterAwaiter: React.FCWithChildren = ({ children }) => {
   const isRestoring = useIsRestoring();
@@ -83,7 +82,6 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
       }}
     >
       <PersisterAwaiter>{children}</PersisterAwaiter>
-      <ReactQueryDevtools initialIsOpen={false} />
     </PersistQueryClientProvider>
   );
 };

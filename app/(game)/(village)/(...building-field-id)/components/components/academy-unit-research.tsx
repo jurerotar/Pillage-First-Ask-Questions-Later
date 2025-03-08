@@ -1,17 +1,18 @@
 import { UnitCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { assessUnitResearchReadiness } from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
 import { partition } from 'app/utils/common';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import { use } from 'react';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
-  const { currentVillage, currentVillageId } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
   const { unitResearch } = useUnitResearch();
 
-  const [researchedUnits, unresearchedUnits] = partition(unitResearch, ({ researchedIn }) => researchedIn.includes(currentVillageId));
+  const [researchedUnits, unresearchedUnits] = partition(unitResearch, ({ researchedIn }) => researchedIn.includes(currentVillage.id));
 
   const assessedUnits = unresearchedUnits.map(({ unitId }) => assessUnitResearchReadiness(unitId, currentVillage));
 

@@ -26,6 +26,7 @@ import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { heroFactory } from 'app/factories/hero-factory';
 import type { Hero } from 'app/interfaces/models/game/hero';
+import { CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -72,7 +73,13 @@ type RenderOptions = {
 const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
-  const globalQueryClient = new QueryClient();
+  const globalQueryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        queryFn: () => {},
+      },
+    },
+  });
   const gameQueryClient = createGameEnvironment();
 
   // Overwrite data in game env client
@@ -84,7 +91,9 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   }
 
   const element = composeComponents(
-    <CurrentResourceProvider>{children}</CurrentResourceProvider>,
+    <CurrentVillageProvider>
+      <CurrentResourceProvider>{children}</CurrentResourceProvider>
+    </CurrentVillageProvider>,
     Array.isArray(wrapper) ? wrapper : [wrapper],
   );
 

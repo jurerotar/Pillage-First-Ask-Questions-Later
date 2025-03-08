@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { questsCacheKey } from 'app/(game)/constants/query-keys';
+import { use } from 'react';
 
 export const useQuests = () => {
-  const { currentVillageId } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const { data: quests } = useQuery<Quest[]>({
     queryKey: [questsCacheKey],
@@ -12,7 +13,7 @@ export const useQuests = () => {
   });
 
   const globalQuests = quests.filter(({ scope }) => scope === 'global');
-  const currentVillageQuests = quests.filter(({ villageId }) => villageId === currentVillageId);
+  const currentVillageQuests = quests.filter(({ villageId }) => villageId === currentVillage.id);
 
   return {
     quests,

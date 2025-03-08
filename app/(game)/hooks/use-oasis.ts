@@ -1,18 +1,19 @@
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useMap } from 'app/(game)/hooks/use-map';
 import { isOccupiableOasisTile, isOccupiedOasisTile } from 'app/(game)/utils/guards/map-guards';
 import type { OccupiableOasisTile, OccupiedOasisTile } from 'app/interfaces/models/game/tile';
+import { use } from 'react';
 
 export const useOasis = () => {
   const { map } = useMap();
-  const { currentVillageId, currentVillage } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const oasisOccupiedByCurrentVillage: OccupiedOasisTile[] = map.filter((tile) => {
     if (!isOccupiedOasisTile(tile)) {
       return false;
     }
 
-    return tile.villageId === currentVillageId;
+    return tile.villageId === currentVillage.id;
   }) as OccupiedOasisTile[];
 
   const oasisTilesInRange: OccupiableOasisTile[] = map.filter((tile) => {

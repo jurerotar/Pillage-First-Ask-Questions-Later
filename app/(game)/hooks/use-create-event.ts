@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import {
   type CreateBulkEventArgs,
   type CreateEventArgs,
@@ -12,10 +12,11 @@ import { eventFactory } from 'app/factories/event-factory';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { doesEventRequireResourceUpdate } from 'app/(game)/hooks/guards/event-guards';
+import { use } from 'react';
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
-  const { currentVillageId } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
     mutationFn: async (args) => {
@@ -24,7 +25,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
       await createEventFn<T>(queryClient, {
         ...args,
         type: eventType,
-        villageId: currentVillageId,
+        villageId: currentVillage.id,
       });
     },
   });
@@ -35,7 +36,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
 
       if (doesEventRequireResourceUpdate(args, eventType)) {
         const { resourceCost } = args;
-        const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, currentVillageId);
+        const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, currentVillage.id);
 
         const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
         if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
@@ -43,14 +44,14 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
           return;
         }
 
-        updateVillageResources(queryClient, currentVillageId, resourceCost, 'subtract');
+        updateVillageResources(queryClient, currentVillage.id, resourceCost, 'subtract');
       }
 
       const events = [...Array(amount)].map((_, index) => {
         return eventFactory({
           ...args,
           type: eventType,
-          villageId: currentVillageId,
+          villageId: currentVillage.id,
           startsAt: startsAt + index * duration,
           duration,
         });

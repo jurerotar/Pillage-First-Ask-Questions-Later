@@ -1,8 +1,9 @@
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useEffects } from 'app/(game)/hooks/use-effects';
 import { isGlobalEffect, isVillageEffect } from 'app/(game)/utils/guards/effect-guards';
 import type { Effect, EffectId, GlobalEffect, VillageEffect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
+import { use } from 'react';
 
 export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[], currentVillageId: Village['id']) => {
   const bonusEffectId = `${effectId}Bonus`;
@@ -37,7 +38,7 @@ export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[
 // The idea behind this hook is to give you a computed effect value based on currentVillage effects & global effects
 export const useComputedEffect = (effectId: EffectId) => {
   const { effects } = useEffects();
-  const { currentVillageId } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
-  return calculateComputedEffect(effectId, effects, currentVillageId);
+  return calculateComputedEffect(effectId, effects, currentVillage.id);
 };

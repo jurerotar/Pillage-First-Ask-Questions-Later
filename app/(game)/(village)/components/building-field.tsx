@@ -1,5 +1,5 @@
 import { BuildingUpgradeIndicator } from 'app/(game)/components/building-upgrade-indicator';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type {
@@ -10,6 +10,8 @@ import type {
 } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
+import { use } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
@@ -136,13 +138,13 @@ type OccupiedBuildingFieldProps = {
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t } = useTranslation();
-  const {
-    currentVillage: { resourceFieldComposition },
-  } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
   const { shouldShowBuildingNames } = usePreferences();
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
+
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   return (
     <Link
@@ -150,12 +152,17 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        dynamicCellClasses({ buildingField, resourceFieldComposition, level }),
+        dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.resourceFieldComposition, level }),
         'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <BuildingUpgradeIndicator buildingFieldId={buildingFieldId} />
+      <BuildingUpgradeIndicator
+        isHovered={isHovered}
+        buildingFieldId={buildingFieldId}
+      />
       {shouldShowBuildingNames && (
         <span className="text-3xs md:text-2xs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
           {t(`BUILDINGS.${buildingId}.NAME`)}
@@ -170,7 +177,7 @@ type BuildingFieldProps = {
 };
 
 export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
-  const { currentVillage } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
 

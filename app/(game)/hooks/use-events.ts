@@ -8,7 +8,7 @@ import {
   removeBuildingField,
 } from 'app/(game)/hooks/resolvers/building-resolvers';
 import { troopTrainingEventResolver } from 'app/(game)/hooks/resolvers/troop-resolvers';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { updateVillageResources } from 'app/(game)/hooks/utils/events';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
@@ -16,6 +16,7 @@ import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-e
 import type { Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import { eventsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
+import { use } from 'react';
 
 const MAX_BUILDINGS_IN_QUEUE = 5;
 
@@ -42,7 +43,7 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
 export const useEvents = () => {
   const queryClient = useQueryClient();
   const { tribe } = useTribe();
-  const { currentVillageId } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const { data: events } = useQuery<GameEvent[]>({
     queryKey: [eventsCacheKey],
@@ -145,7 +146,7 @@ export const useEvents = () => {
       return false;
     }
 
-    return event.villageId === currentVillageId;
+    return event.villageId === currentVillage.id;
   }) as GameEvent<'buildingConstruction'>[];
 
   const canAddAdditionalBuildingToQueue = currentVillageBuildingEvents.length < MAX_BUILDINGS_IN_QUEUE;

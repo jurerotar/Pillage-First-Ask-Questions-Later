@@ -8,278 +8,385 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { use, useRef } from 'react';
+import { use } from 'react';
+import { Fragment } from 'react';
+import { useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
-import { RiAuctionLine } from 'react-icons/ri';
-import { Countdown } from 'app/(game)/components/countdown';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
-import { IoExitOutline } from 'react-icons/io5';
-import { FaBookBookmark, FaUser } from 'react-icons/fa6';
+import { IoShareSocial } from 'react-icons/io5';
+import { FaBookBookmark, FaDiscord, FaUser, FaGithub } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/hooks/dom/use-center-horizontally';
 import { LinkWithState } from 'app/components/link-with-state';
 import { Outlet } from 'react-router';
+import { CiCircleList } from 'react-icons/ci';
+import { RxExit } from 'react-icons/rx';
+import { RiAuctionLine } from 'react-icons/ri';
+import { Divider } from 'app/components/divider';
+import { CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 
 type ResourceCounterProps = {
   resource: Resource;
 };
 
 const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
-  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction, resourceDepletionOrFullAt } =
-    useCalculatedResource(resource);
+  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCalculatedResource(resource);
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
   const productionSign = hasNegativeProduction ? '-' : '+';
 
   return (
-    <div className="flex w-full items-center gap-2 lg:rounded-md lg:border-2 lg:border-stone-400 lg:bg-stone-100 lg:px-1 lg:pb-1">
-      <Icon
-        className="hidden size-5 lg:flex"
-        type={resource}
-      />
+    <div className="flex w-full items-center gap-2 lg:px-1 lg:pb-1">
       <div className="flex w-full flex-col">
-        <div className="flex w-full items-center justify-between lg:justify-end">
-          <Icon
-            className="size-4 lg:hidden"
-            type={resource}
-          />
-          <div className="flex">
-            <span className="text-2xs font-medium text-white lg:text-sm lg:text-black">
-              {formatNumberWithCommas(calculatedResourceAmount)}
-            </span>
-            <span className="text-2xs hidden font-normal text-white lg:flex lg:text-sm lg:text-black">
-              /{formatNumberWithCommas(storageCapacity)}
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center gap-1">
+            <Icon
+              className="size-4 lg:size-6"
+              type={resource}
+            />
+            <span className="inline-flex text-2xs md:text-xs">
+              {productionSign === '-' && productionSign}
+              {hourlyProduction}/h
             </span>
           </div>
+
+          <span>
+            <span className="text-xs lg:text-md font-medium leading-none">{formatNumberWithCommas(calculatedResourceAmount)}</span>
+            <span className="hidden lg:inline-flex text-sm text-gray-400 font-normal leading-none">
+              /{formatNumberWithCommas(storageCapacity)}
+            </span>
+          </span>
         </div>
-        <div className="relative mt-px flex h-3 w-full bg-white lg:h-3 shadow-inner">
+        <div className="relative flex h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
           <div
-            className={clsx(isFull || hasNegativeProduction ? 'bg-red-600' : 'bg-green-500', 'flex h-full')}
+            className={clsx(
+              isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
+              'flex h-full border',
+            )}
             style={{
               width: `${storagePercentage}%`,
             }}
           />
-          {resourceDepletionOrFullAt !== null && (
-            <Countdown
-              endsAt={resourceDepletionOrFullAt}
-              className="text-2xs font-medium absolute-centering text-center absolute"
-            />
-          )}
-        </div>
-        <div className="flex w-full items-center justify-between lg:hidden">
-          <span />
-          <span className="text-2xs font-medium text-white">
-            {productionSign}
-            {hourlyProduction}/h
-          </span>
         </div>
       </div>
     </div>
   );
 };
 
-const DesktopNavigation = () => {
-  const { villagePath, reportsPath, resourcesPath, auctionsPath, mapPath } = useGameNavigation();
-  const {
-    currentVillage: { coordinates },
-  } = useCurrentVillage();
+type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  isActive: boolean;
+};
 
-  const currentVillageMapPath = `${mapPath}?x=${coordinates.x}&y=${coordinates.y}`;
+const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ children, ...rest }) => {
+  const { isActive, ...htmlProps } = rest;
 
   return (
-    <header className="fixed left-0 top-0 z-10 flex h-24 w-full">
-      <div className="absolute z-[-1] h-10 w-full bg-gradient-to-r from-[#F4F4F4] via-[#8E8E8E] to-[#F4F4F4]" />
-      <div className="container mx-auto flex justify-between">
-        <div className="flex flex-1" />
-        <div className="flex flex-1 bg-[#A59380]">
-          <div className="w-30 flex h-24 border border-red-500 items-center text-center">Hero placeholder</div>
-          <div className="flex w-full flex-col p-2">
-            <div className="flex w-full flex-[2] justify-between">
-              <div className="flex flex-1 items-center justify-center">
-                <LinkWithState to={resourcesPath}>
-                  <GiWheat className="text-2xl text-white" />
-                </LinkWithState>
-              </div>
-              <div className="flex flex-1 items-center justify-center">
-                <LinkWithState to={villagePath}>
-                  <MdOutlineHolidayVillage className="text-2xl text-white" />
-                </LinkWithState>
-              </div>
-              <div className="flex flex-1 items-center justify-center">
-                <LinkWithState to={currentVillageMapPath}>
-                  <TbMap2 className="text-2xl text-white" />
-                </LinkWithState>
-              </div>
-              <div className="flex flex-1 items-center justify-center">
-                <LinkWithState to={reportsPath}>
-                  <LuScrollText className="text-2xl text-white" />
-                </LinkWithState>
-              </div>
-              <div className="flex flex-1 items-center justify-center">
-                <LinkWithState to={auctionsPath}>
-                  <RiAuctionLine className="text-2xl text-white" />
-                </LinkWithState>
-              </div>
-            </div>
-            <div className="flex flex-1 gap-1">
-              {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource) => (
-                <div
-                  key={resource}
-                  className="flex flex-1"
-                >
-                  <ResourceCounter resource={resource} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-1" />
-      </div>
-    </header>
+    <button
+      type="button"
+      className={clsx(
+        isActive ? 'from-[#7da100] to-[#c7e94f]' : 'from-[#b8b2a9] to-[#f1f0ee]',
+        'bg-gradient-to-t size-10 lg:size-18 rounded-full flex items-center justify-center shadow',
+      )}
+      {...htmlProps}
+    >
+      <span className="size-8 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
+    </button>
   );
 };
 
-const MobileResourcesSection = () => {
+const NavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ children, ...rest }) => {
   return (
-    <div className="flex w-full bg-gradient-to-b from-[#101010] to-[#484848] p-1">
+    <button
+      type="button"
+      className="px-2.5 py-1.5 lg:py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] border border-gray-300/80 lg:border-0 rounded-xs lg:rounded-none flex items-center justify-center shadow-md lg:shadow-none"
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+};
+
+const DesktopNavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ children, ...rest }) => {
+  return (
+    <button
+      type="button"
+      className={'from-[#a3a3a3] to-[#c8c8c8] bg-gradient-to-t size-12 rounded-full flex items-center justify-center shadow'}
+      {...rest}
+    >
+      <span className="size-10 bg-white rounded-full flex items-center justify-center">{children}</span>
+    </button>
+  );
+};
+
+const ResourceCounters = () => {
+  return (
+    <div className="flex w-full pb-1 lg:pt-1 mx-auto gap-1">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
-        <div
-          key={resource}
-          className={clsx(index !== 3 && 'border-r border-gray-600', 'flex flex-1  px-1')}
-        >
+        <Fragment key={resource}>
           <ResourceCounter resource={resource} />
-        </div>
+          {index !== 3 && <Divider orientation="vertical" />}
+        </Fragment>
       ))}
     </div>
   );
 };
 
-type MobileNavigationMainItem = React.ButtonHTMLAttributes<HTMLButtonElement> & {};
+const TopNavigation = () => {
+  const gameNavigation = useGameNavigation();
+  const { currentVillage } = use(CurrentVillageContext);
 
-const MobileNavigationMainItem: React.FCWithChildren<MobileNavigationMainItem> = ({ children, ...rest }) => {
+  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${currentVillage.coordinates.x}&y=${currentVillage.coordinates.y}`;
+
   return (
-    <button
-      type="button"
-      className="size-12 bg-white border-4 border-gray-400 rounded-full flex items-center justify-center shadow"
-      {...rest}
-    >
-      {children}
-    </button>
-  );
-};
-
-type MobileNavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {};
-
-const MobileNavigationSideItem: React.FCWithChildren<MobileNavigationSideItemProps> = ({ children, ...rest }) => {
-  return (
-    <button
-      type="button"
-      className="px-2.5 py-1.5 bg-white border border-gray-400 rounded-xs flex items-center justify-center shadow-md"
-      {...rest}
-    >
-      {children}
-    </button>
+    <header className="flex flex-col w-full relative">
+      <div className="flex flex-col">
+        <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
+          <nav className="hidden lg:flex justify-end container mx-auto">
+            <ul className="flex gap-1">
+              <li>
+                <LinkWithState
+                  target="_blank"
+                  to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                >
+                  <NavigationSideItem>
+                    <span className="inline-flex gap-1 items-center">
+                      <span className="text-sm hidden xl:inline-flex">GitHub</span> <FaGithub className="text-xl" />
+                    </span>
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState
+                  target="_blank"
+                  to="https://discord.com/invite/Ep7NKVXUZA"
+                >
+                  <NavigationSideItem>
+                    <span className="inline-flex gap-1 items-center">
+                      <span className="text-sm hidden xl:inline-flex">Discord</span> <FaDiscord className="text-xl" />
+                    </span>
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.preferencesPath}>
+                  <NavigationSideItem>
+                    <MdSettings className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to="/">
+                  <NavigationSideItem>
+                    <RxExit className="text-xl text-red-500" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-10 container mx-auto">
+          <ul className="hidden lg:flex gap-1 xl:gap-2 justify-center items-center">
+            <li>
+              <LinkWithState to={gameNavigation.statisticsPath}>
+                <DesktopNavigationSideItem>
+                  <GoGraph className="text-xl" />
+                </DesktopNavigationSideItem>
+              </LinkWithState>
+            </li>
+            <li>
+              <LinkWithState to={gameNavigation.questsPath}>
+                <DesktopNavigationSideItem>
+                  <FaBookBookmark className="text-xl" />
+                </DesktopNavigationSideItem>
+              </LinkWithState>
+            </li>
+            <li>
+              <LinkWithState to={gameNavigation.overviewPath}>
+                <DesktopNavigationSideItem>
+                  <CiCircleList className="text-xl" />
+                </DesktopNavigationSideItem>
+              </LinkWithState>
+            </li>
+            <li>
+              <ul className="flex gap-1 xl:gap-2 xl:mx-4">
+                <li>
+                  <LinkWithState to={gameNavigation.resourcesPath}>
+                    <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
+                      <GiWheat className="text-3xl" />
+                    </NavigationMainItem>
+                  </LinkWithState>
+                </li>
+                <li>
+                  <LinkWithState to={gameNavigation.villagePath}>
+                    <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
+                      <MdOutlineHolidayVillage className="text-3xl" />
+                    </NavigationMainItem>
+                  </LinkWithState>
+                </li>
+                <li>
+                  <LinkWithState to={currentVillageMapPath}>
+                    <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
+                      <TbMap2 className="text-3xl" />
+                    </NavigationMainItem>
+                  </LinkWithState>
+                </li>
+                <li>
+                  <LinkWithState to={gameNavigation.heroPath}>
+                    <NavigationMainItem isActive={gameNavigation.isHeroPageOpen}>
+                      <FaUser className="text-3xl" />
+                    </NavigationMainItem>
+                  </LinkWithState>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <LinkWithState to={gameNavigation.reportsPath}>
+                <DesktopNavigationSideItem>
+                  <LuScrollText className="text-xl" />
+                </DesktopNavigationSideItem>
+              </LinkWithState>
+            </li>
+            <li>
+              <LinkWithState to={gameNavigation.adventuresPath}>
+                <DesktopNavigationSideItem>
+                  <PiPathBold className="text-xl" />
+                </DesktopNavigationSideItem>
+              </LinkWithState>
+            </li>
+            <li>
+              <LinkWithState to={gameNavigation.auctionsPath}>
+                <DesktopNavigationSideItem>
+                  <RiAuctionLine className="text-xl" />
+                </DesktopNavigationSideItem>
+              </LinkWithState>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-1">
+        <ResourceCounters />
+      </div>
+    </header>
   );
 };
 
 const MobileBottomNavigation = () => {
-  const {
-    villagePath,
-    reportsPath,
-    resourcesPath,
-    auctionsPath,
-    mapPath,
-    adventuresPath,
-    heroPath,
-    statisticsPath,
-    questsPath,
-    preferencesPath,
-  } = useGameNavigation();
-  const {
-    currentVillage: { coordinates },
-  } = useCurrentVillage();
+  const gameNavigation = useGameNavigation();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const container = useRef<HTMLDivElement>(null);
 
-  const currentVillageMapPath = `${mapPath}?x=${coordinates.x}&y=${coordinates.y}`;
+  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${currentVillage.coordinates.x}&y=${currentVillage.coordinates.y}`;
 
   useCenterHorizontally(container);
 
   // This is literally the hackiest html I've ever written. Basically, fixed header, overflow-x & translate-y do not work together at all.
   // There's always either non-working scroll or elements being cut. The way it works now is that technically, nothing is overflowing with translate,
-  // we just have a transparent container and some very hacky gradient to make it look like it works
+  // we just have a transparent container and some very hacky gradient to make it look like it works.
+  // There's also massive Tailwind brainrot on display here, God help us
   return (
-    <header className="fixed bottom-0 left-0 pb-10 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(255,255,255,1)_88%,_rgba(0,0,0,0)_88.1%,_rgba(0,0,0,0)_100%)]">
-      <div
+    <header className="lg:hidden fixed bottom-0 left-0 pb-6 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_80%,_rgba(255,255,255,1)_80.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+      <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
-        <div className="flex w-fit gap-2 justify-between items-center px-2 pt-3">
-          <LinkWithState to={statisticsPath}>
-            <MobileNavigationSideItem>
-              <GoGraph className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <LinkWithState to={auctionsPath}>
-            <MobileNavigationSideItem>
-              <RiAuctionLine className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <LinkWithState to={adventuresPath}>
-            <MobileNavigationSideItem>
-              <PiPathBold className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <LinkWithState to={heroPath}>
-            <MobileNavigationSideItem>
-              <FaUser className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <div className="flex gap-2 -translate-y-2">
-            <LinkWithState to={resourcesPath}>
-              <MobileNavigationMainItem>
-                <GiWheat className="text-2xl" />
-              </MobileNavigationMainItem>
+        <ul className="flex w-fit gap-1 justify-between items-center px-2 pt-4 mx-auto">
+          <li>
+            <LinkWithState to={gameNavigation.statisticsPath}>
+              <NavigationSideItem>
+                <GoGraph className="text-md" />
+              </NavigationSideItem>
             </LinkWithState>
-            <LinkWithState to={villagePath}>
-              <MobileNavigationMainItem>
-                <MdOutlineHolidayVillage className="text-2xl" />
-              </MobileNavigationMainItem>
+          </li>
+          <li>
+            <LinkWithState to={gameNavigation.adventuresPath}>
+              <NavigationSideItem>
+                <PiPathBold className="text-md" />
+              </NavigationSideItem>
             </LinkWithState>
-            <LinkWithState to={currentVillageMapPath}>
-              <MobileNavigationMainItem>
-                <TbMap2 className="text-2xl" />
-              </MobileNavigationMainItem>
+          </li>
+          <li>
+            <LinkWithState to={gameNavigation.overviewPath}>
+              <NavigationSideItem>
+                <CiCircleList className="text-md" />
+              </NavigationSideItem>
             </LinkWithState>
-          </div>
-          <LinkWithState to={reportsPath}>
-            <MobileNavigationSideItem>
-              <LuScrollText className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <LinkWithState to={questsPath}>
-            <MobileNavigationSideItem>
-              <FaBookBookmark className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <LinkWithState to={preferencesPath}>
-            <MobileNavigationSideItem>
-              <MdSettings className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-          <LinkWithState to="/">
-            <MobileNavigationSideItem>
-              <IoExitOutline className="text-xl" />
-            </MobileNavigationSideItem>
-          </LinkWithState>
-        </div>
-      </div>
+          </li>
+          <li>
+            <LinkWithState to={gameNavigation.questsPath}>
+              <NavigationSideItem>
+                <FaBookBookmark className="text-md" />
+              </NavigationSideItem>
+            </LinkWithState>
+          </li>
+          <li>
+            <ul className="flex gap-1 -translate-y-2 mx-1">
+              <li>
+                <LinkWithState to={gameNavigation.resourcesPath}>
+                  <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
+                    <GiWheat className="text-lg" />
+                  </NavigationMainItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.villagePath}>
+                  <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
+                    <MdOutlineHolidayVillage className="text-lg" />
+                  </NavigationMainItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={currentVillageMapPath}>
+                  <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
+                    <TbMap2 className="text-lg" />
+                  </NavigationMainItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.heroPath}>
+                  <NavigationMainItem isActive={gameNavigation.isHeroPageOpen}>
+                    <FaUser className="text-lg" />
+                  </NavigationMainItem>
+                </LinkWithState>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <LinkWithState to={gameNavigation.reportsPath}>
+              <NavigationSideItem>
+                <LuScrollText className="text-md" />
+              </NavigationSideItem>
+            </LinkWithState>
+          </li>
+
+          <li>
+            <LinkWithState to={gameNavigation.preferencesPath}>
+              <NavigationSideItem>
+                <MdSettings className="text-md" />
+              </NavigationSideItem>
+            </LinkWithState>
+          </li>
+          <li>
+            <LinkWithState to={gameNavigation.communityPath}>
+              <NavigationSideItem>
+                <IoShareSocial className="text-md" />
+              </NavigationSideItem>
+            </LinkWithState>
+          </li>
+          <li>
+            <LinkWithState to="/">
+              <NavigationSideItem>
+                <RxExit className="text-md text-red-500" />
+              </NavigationSideItem>
+            </LinkWithState>
+          </li>
+        </ul>
+      </nav>
     </header>
   );
 };
@@ -289,25 +396,20 @@ export const Fallback = () => {
 };
 
 const GameLayout = () => {
-  const { isWiderThanMd } = use(ViewportContext);
-  const { isMapPageOpen } = useGameNavigation();
   const { timeOfDay, skinVariant } = usePreferences();
 
-  const shouldDisplayDesktopNavigation = isWiderThanMd;
-  const shouldDisplayMobileResourcesSection = !isWiderThanMd && !isMapPageOpen;
-  const shouldDisplayMobileBottomNavigation = !isWiderThanMd;
-
   return (
-    <GameEngineProvider>
-      <CurrentResourceProvider>
-        <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
-          {shouldDisplayDesktopNavigation && <DesktopNavigation />}
-          {shouldDisplayMobileResourcesSection && <MobileResourcesSection />}
-          <Outlet />
-          {shouldDisplayMobileBottomNavigation && <MobileBottomNavigation />}
-        </div>
-      </CurrentResourceProvider>
-    </GameEngineProvider>
+    <CurrentVillageProvider>
+      <GameEngineProvider>
+        <CurrentResourceProvider>
+          <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
+            <TopNavigation />
+            <Outlet />
+            <MobileBottomNavigation />
+          </div>
+        </CurrentResourceProvider>
+      </GameEngineProvider>
+    </CurrentVillageProvider>
   );
 };
 

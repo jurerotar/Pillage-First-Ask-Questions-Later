@@ -1,7 +1,7 @@
 import { BuildingActions } from 'app/(game)/(village)/components/building-actions';
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
@@ -11,6 +11,7 @@ import {
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { use } from 'react';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
@@ -151,11 +152,13 @@ const BuildingStats = () => {
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.BUILDING_STATS',
   });
 
-  const { currentVillage, mainBuildingLevel } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
   const { buildingId, level } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
   const building = getBuildingData(buildingId);
+
+  const mainBuildingLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0;
 
   return (
     <article className="flex flex-col gap-4">
@@ -258,7 +261,7 @@ const BuildingStats = () => {
 
 export const BuildingDetails = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TABS' });
-  const { currentVillage } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
 

@@ -47,6 +47,8 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
+  const mapHeight = isWiderThanLg ? height - 72 : height - 105;
+
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
@@ -166,11 +168,11 @@ const MapPage = () => {
     }
 
     const scrollLeft = (centerXTile: number) => {
-      return tileSize * (gridSize / 2 + centerXTile) - (width - tileSize) / 2;
+      return tileSize * centerXTile + (tileSize * gridSize) / 2 - width / 2;
     };
 
     const scrollTop = (centerYTile: number) => {
-      return tileSize * (gridSize / 2 - centerYTile) - (height - tileSize) / 2;
+      return (tileSize * gridSize) / 2 - tileSize * centerYTile - mapHeight / 2;
     };
 
     if (previousTileSize.current !== tileSize) {
@@ -243,7 +245,7 @@ const MapPage = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height - 1}
+        height={mapHeight - 1}
         width={width}
         itemData={fixedGridData}
         itemKey={({ columnIndex, data, rowIndex }) => {
@@ -262,7 +264,7 @@ const MapPage = () => {
 
           // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
           currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
-          currentCenterTile.current.y = Math.ceil((scrollTop + (height - tileSize) / 2) / tileSize - gridSize / 2);
+          currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
         }}
       >
         {Cell}
@@ -273,7 +275,7 @@ const MapPage = () => {
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
           itemSize={tileSize}
-          height={height}
+          height={mapHeight}
           itemCount={gridSize}
           width={RULER_SIZE}
           layout="vertical"
