@@ -87,11 +87,11 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
       type="button"
       className={clsx(
         isActive ? 'from-[#7da100] to-[#c7e94f]' : 'from-[#b8b2a9] to-[#f1f0ee]',
-        'bg-gradient-to-t size-10 lg:size-18 rounded-full flex items-center justify-center shadow',
+        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center shadow',
       )}
       {...htmlProps}
     >
-      <span className="size-8 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
+      <span className="size-11 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
     </button>
   );
 };
@@ -100,7 +100,7 @@ const NavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLBu
   return (
     <button
       type="button"
-      className="px-2.5 py-1.5 lg:py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] border border-gray-300/80 lg:border-0 rounded-xs lg:rounded-none flex items-center justify-center shadow-md lg:shadow-none"
+      className="px-3 py-2 lg:py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] border border-gray-300/80 lg:border-0 rounded-xs lg:rounded-none flex items-center justify-center shadow-md lg:shadow-none"
       {...rest}
     >
       {children}
@@ -289,67 +289,67 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brainrot on display here, God help us
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-6 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_80%,_rgba(255,255,255,1)_80.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-10 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_86%,_rgba(255,255,255,0)_86.1%,_rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
-        <ul className="flex w-fit gap-1 justify-between items-center px-2 pt-4 mx-auto">
+        <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-4 mx-auto">
           <li>
             <LinkWithState to={gameNavigation.statisticsPath}>
               <NavigationSideItem>
-                <GoGraph className="text-md" />
+                <GoGraph className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
           <li>
             <LinkWithState to={gameNavigation.adventuresPath}>
               <NavigationSideItem>
-                <PiPathBold className="text-md" />
+                <PiPathBold className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
           <li>
             <LinkWithState to={gameNavigation.overviewPath}>
               <NavigationSideItem>
-                <CiCircleList className="text-md" />
+                <CiCircleList className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
           <li>
             <LinkWithState to={gameNavigation.questsPath}>
               <NavigationSideItem>
-                <FaBookBookmark className="text-md" />
+                <FaBookBookmark className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
           <li>
-            <ul className="flex gap-1 -translate-y-2 mx-1">
+            <ul className="flex gap-2 -translate-y-2 mx-1">
               <li>
                 <LinkWithState to={gameNavigation.resourcesPath}>
                   <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
-                    <GiWheat className="text-lg" />
+                    <GiWheat className="text-2xl" />
                   </NavigationMainItem>
                 </LinkWithState>
               </li>
               <li>
                 <LinkWithState to={gameNavigation.villagePath}>
                   <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
-                    <MdOutlineHolidayVillage className="text-lg" />
+                    <MdOutlineHolidayVillage className="text-2xl" />
                   </NavigationMainItem>
                 </LinkWithState>
               </li>
               <li>
                 <LinkWithState to={currentVillageMapPath}>
                   <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
-                    <TbMap2 className="text-lg" />
+                    <TbMap2 className="text-2xl" />
                   </NavigationMainItem>
                 </LinkWithState>
               </li>
               <li>
                 <LinkWithState to={gameNavigation.heroPath}>
                   <NavigationMainItem isActive={gameNavigation.isHeroPageOpen}>
-                    <FaUser className="text-lg" />
+                    <FaUser className="text-2xl" />
                   </NavigationMainItem>
                 </LinkWithState>
               </li>
@@ -358,7 +358,7 @@ const MobileBottomNavigation = () => {
           <li>
             <LinkWithState to={gameNavigation.reportsPath}>
               <NavigationSideItem>
-                <LuScrollText className="text-md" />
+                <LuScrollText className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
@@ -366,21 +366,21 @@ const MobileBottomNavigation = () => {
           <li>
             <LinkWithState to={gameNavigation.preferencesPath}>
               <NavigationSideItem>
-                <MdSettings className="text-md" />
+                <MdSettings className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
           <li>
             <LinkWithState to={gameNavigation.communityPath}>
               <NavigationSideItem>
-                <IoShareSocial className="text-md" />
+                <IoShareSocial className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
           <li>
             <LinkWithState to="/">
               <NavigationSideItem>
-                <RxExit className="text-md text-red-500" />
+                <RxExit className="text-2xl text-red-500" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
