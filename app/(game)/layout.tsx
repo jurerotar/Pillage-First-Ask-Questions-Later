@@ -8,16 +8,14 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { use } from 'react';
-import { Fragment } from 'react';
-import { useRef } from 'react';
+import { Fragment, use, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { CurrentVillageContext, CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
 import { IoShareSocial } from 'react-icons/io5';
-import { FaBookBookmark, FaDiscord, FaUser, FaGithub } from 'react-icons/fa6';
+import { FaBookBookmark, FaDiscord, FaGithub, FaUser } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
@@ -28,7 +26,6 @@ import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
 import { Divider } from 'app/components/divider';
-import { CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -140,7 +137,8 @@ const TopNavigation = () => {
   const gameNavigation = useGameNavigation();
   const { currentVillage } = use(CurrentVillageContext);
 
-  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${currentVillage.coordinates.x}&y=${currentVillage.coordinates.y}`;
+  const [x, y] = currentVillage.id.split('|');
+  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${x}&y=${y}`;
 
   return (
     <header className="flex flex-col w-full relative">
@@ -281,7 +279,8 @@ const MobileBottomNavigation = () => {
 
   const container = useRef<HTMLDivElement>(null);
 
-  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${currentVillage.coordinates.x}&y=${currentVillage.coordinates.y}`;
+  const [x, y] = currentVillage.id.split('|');
+  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${x}&y=${y}`;
 
   useCenterHorizontally(container);
 

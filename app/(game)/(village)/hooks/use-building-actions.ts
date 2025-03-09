@@ -8,10 +8,13 @@ import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
+import { use } from 'react';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 
 export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { tribe } = useTribe();
-  const { currentVillageBuildingEvents } = useEvents();
+  const { currentVillage } = use(CurrentVillageContext);
+  const { getCurrentVillageBuildingEvents } = useEvents();
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
@@ -19,6 +22,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { createEvent: createBuildingDestructionEvent } = useCreateEvent('buildingDestruction');
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
   const { isDeveloperModeActive } = useDeveloperMode();
+
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   // Idea is that romans effectively have 2 queues, one for resources and one for village buildings, while other tribes only have 1.
   // To make things simpler bellow, we essentially split the building queue at this point.

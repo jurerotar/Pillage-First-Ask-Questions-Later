@@ -29,13 +29,14 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
   const { isDeveloperModeActive } = useDeveloperMode();
-  const { currentVillageBuildingEvents, canAddAdditionalBuildingToQueue } = useEvents();
+  const { getCurrentVillageBuildingEvents, getCanAddAdditionalBuildingToQueue } = useEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
   const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, buildingLevel);
   const playerVillages = getPlayerVillages();
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
@@ -103,7 +104,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
               data-testid="building-actions-upgrade-building-button"
               variant="confirm"
               onClick={onBuildingUpgrade}
-              disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
+              disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage) && hasEnoughResourcesToBuild)}
             >
               {t('UPGRADE_BUILDING', { level: buildingLevel + 1 })}
             </Button>
@@ -144,7 +145,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
           data-testid="building-actions-construct-building-button"
           variant="confirm"
           onClick={onBuildingConstruction}
-          disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
+          disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage) && hasEnoughResourcesToBuild)}
         >
           {t('CONSTRUCT_BUILDING')}
         </Button>

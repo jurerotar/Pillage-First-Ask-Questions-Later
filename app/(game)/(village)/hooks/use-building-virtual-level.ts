@@ -6,9 +6,10 @@ import { use } from 'react';
 
 export const useBuildingVirtualLevel = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { currentVillage } = use(CurrentVillageContext);
-  const { currentVillageBuildingEvents } = useEvents();
+  const { getCurrentVillageBuildingEvents } = useEvents();
 
   const actualLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const buildingLevel = (() => {
     const sameBuildingConstructionEvents = currentVillageBuildingEvents.filter(({ buildingFieldId: eventBuildingFieldId, building }) => {

@@ -10,7 +10,6 @@ import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type {
   OasisResourceBonus,
   OasisTile,
-  OccupiableOasisTile,
   OccupiableTile,
   OccupiedOasisTile,
   OccupiedOccupiableTile,
@@ -23,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -31,23 +31,24 @@ type TileTooltipProps = {
 const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { distanceFromCurrentVillage } = use(CurrentVillageContext);
-  const distance = distanceFromCurrentVillage(tile.coordinates);
+  const distance = distanceFromCurrentVillage(tile.id);
+  const { x, y } = parseCoordinatesFromTileId(tile.id);
 
   return (
     <span className="text-xs text-gray-300">
-      ({tile.coordinates.x}|{tile.coordinates.y}) - {t('GENERAL.FIELD', { count: distance })}
+      ({x}|{y}) - {t('GENERAL.FIELD', { count: distance })}
     </span>
   );
 };
 
 const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
-  const { getVillageByOasis, getVillageByCoordinates } = useVillages();
+  const { getVillageByOasis, getVillageById } = useVillages();
   const { getPlayerByPlayerId } = usePlayers();
   const { getReputationByFaction } = useReputations();
 
   const { playerId, buildingFields, buildingFieldsPresets } =
-    tile.type === 'oasis-tile' ? getVillageByOasis(tile as OccupiedOasisTile)! : getVillageByCoordinates(tile.coordinates)!;
+    tile.type === 'oasis-tile' ? getVillageByOasis(tile as OccupiedOasisTile)! : getVillageById(tile.id)!;
   const { faction, tribe, name } = getPlayerByPlayerId(playerId);
   const { reputationLevel } = getReputationByFaction(faction);
   const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
@@ -100,7 +101,7 @@ const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({ item }) => 
 };
 
 type TileTooltipAnimalsProps = {
-  tile: OccupiableOasisTile;
+  tile: OasisTile;
 };
 
 const TileTooltipAnimals: React.FC<TileTooltipAnimalsProps> = ({ tile }) => {
@@ -200,12 +201,12 @@ type OccupiedOccupiableTileTooltipProps = {
 };
 
 const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps> = ({ tile }) => {
-  const { getVillageByCoordinates } = useVillages();
+  const { getVillageById } = useVillages();
   const { worldItems } = useWorldItems();
 
   const worldItem = worldItems.find((item) => tile.id === item.tileId);
 
-  const village = getVillageByCoordinates(tile.coordinates)!;
+  const village = getVillageById(tile.id)!;
   const title = village.name;
 
   return (

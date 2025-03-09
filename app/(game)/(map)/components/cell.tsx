@@ -13,7 +13,6 @@ import type { PlayerFaction } from 'app/interfaces/models/game/player';
 import type { ReputationLevel } from 'app/interfaces/models/game/reputation';
 import type {
   OasisTile,
-  OccupiableOasisTile,
   OccupiableTile,
   OccupiedOccupiableTile as OccupiedOccupiableTileType,
   Tile as TileType,
@@ -27,6 +26,7 @@ import { areEqual, type GridChildComponentProps } from 'react-window';
 import cellStyles from './cell.module.scss';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { TreasureIcon } from 'app/(game)/(map)/components/treasure-icon';
+import { parseCoordinatesFromTileId, parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
 
 const reputationColorMap = new Map<ReputationLevel, string>([
   ['player', 'after:border-reputation-player'],
@@ -63,7 +63,7 @@ type CellBaseProps = {
   mapFilters: MapFilters;
   magnification: number;
   onClick: (data: TileWithVillageData) => void;
-  villageCoordinatesToVillagesMap: Map<string, Village>;
+  villageCoordinatesToVillagesMap: Map<TileType['id'], Village>;
   villageCoordinatesToWorldItemsMap: Map<string, WorldItem>;
 };
 
@@ -113,7 +113,7 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters, villageCoordina
 
       {isOccupiableOasisCell && shouldShowOasisIcons && (
         <OccupiableOasisIcon
-          oasisResourceBonus={(tile as OccupiableOasisTile).oasisResourceBonus}
+          oasisResourceBonus={tile.oasisResourceBonus}
           borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
         />
       )}
@@ -155,8 +155,8 @@ const dynamicCellClasses = (
 
   if (isOccupiedOccupiableCell) {
     const { tribe } = tile as OccupiedTileWithFactionAndTribe;
-    const { x, y } = tile.coordinates;
-    const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}-${y}`)!;
+    const { x, y } = parseCoordinatesFromTileId(tile.id);
+    const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}|${y}`)!;
 
     const population = calculatePopulationFromBuildingFields(buildingFields!, buildingFieldsPresets);
 
@@ -172,8 +172,7 @@ const dynamicCellClasses = (
 
   const cell = tile as OasisTile;
 
-  const { oasisGroupPosition, oasisGroup, oasisResource, oasisVariant } = cell.graphics;
-  const groupPositions = oasisGroupPosition.join('-');
+  const { oasisResource, oasisGroup, groupPositions, oasisVariant } = parseOasisTileGraphicsProperty(cell.graphics);
 
   return clsx(
     cellStyles.oasis,

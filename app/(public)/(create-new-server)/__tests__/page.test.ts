@@ -30,6 +30,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
+import { parseCoordinatesFromTileId, parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
 
 const queryClient = new QueryClient();
 
@@ -76,7 +77,12 @@ describe('Server initialization', () => {
       const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
       const limit = totalSize / 2;
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-      expect(tiles.every(({ coordinates: { x, y } }) => x >= -limit && x <= limit && y >= -limit && y <= limit)).toBe(true);
+      expect(
+        tiles.every(({ id }) => {
+          const { x, y } = parseCoordinatesFromTileId(id);
+          return x >= -limit && x <= limit && y >= -limit && y <= limit;
+        }),
+      ).toBe(true);
     });
 
     test('Some oasis tile should have no bonus', () => {
@@ -144,7 +150,7 @@ describe('Server initialization', () => {
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
 
       const extraSmallVillageTileIds = occupiedOccupiableTiles
-        .filter(({ coordinates }) => getVillageSize(server.configuration.mapSize, coordinates) === 'sm')
+        .filter(({ id }) => getVillageSize(server.configuration.mapSize, id) === 'sm')
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
 
@@ -160,7 +166,7 @@ describe('Server initialization', () => {
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
 
       const smallVillageTileIds = occupiedOccupiableTiles
-        .filter(({ coordinates }) => getVillageSize(server.configuration.mapSize, coordinates) === 'sm')
+        .filter(({ id }) => getVillageSize(server.configuration.mapSize, id) === 'sm')
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
 
@@ -175,7 +181,7 @@ describe('Server initialization', () => {
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
 
       const mediumVillageTileIds = occupiedOccupiableTiles
-        .filter(({ coordinates }) => getVillageSize(server.configuration.mapSize, coordinates) === 'md')
+        .filter(({ id }) => getVillageSize(server.configuration.mapSize, id) === 'md')
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
 
@@ -190,7 +196,7 @@ describe('Server initialization', () => {
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
 
       const largeVillageTileIds = occupiedOccupiableTiles
-        .filter(({ coordinates }) => getVillageSize(server.configuration.mapSize, coordinates) === 'md')
+        .filter(({ id }) => getVillageSize(server.configuration.mapSize, id) === 'md')
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(({ villageId }) => villageId);
 
@@ -202,11 +208,20 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ coordinates: { x, y } }) => x === -2 && y === 0)! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ coordinates: { x, y } }) => x === -1 && y === 0)! as OccupiedOasisTile;
+      const tile1 = tiles.find(({ id }) => {
+        const { x, y } = parseCoordinatesFromTileId(id);
+        return x === -2 && y === 0;
+      })! as OccupiedOasisTile;
+      const tile2 = tiles.find(({ id }) => {
+        const { x, y } = parseCoordinatesFromTileId(id);
+        return x === -1 && y === 0;
+      })! as OccupiedOasisTile;
 
-      expect(tile1.graphics.oasisResource === 'iron' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(tile2.graphics.oasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      const { oasisResource: tile1OasisResource } = parseOasisTileGraphicsProperty(tile1.graphics);
+      const { oasisResource: tile2OasisResource } = parseOasisTileGraphicsProperty(tile2.graphics);
+
+      expect(tile1OasisResource === 'iron' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile2OasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
     });
 
     test('Border tiles should be generated on all sides', () => {
@@ -216,7 +231,8 @@ describe('Server initialization', () => {
       const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
       const limit = totalSize / 2;
 
-      const borderTiles = tiles.filter(({ coordinates: { x, y } }) => {
+      const borderTiles = tiles.filter(({ id }) => {
+        const { x, y } = parseCoordinatesFromTileId(id);
         return Math.sqrt(x ** 2 + y ** 2) >= limit - borderWidth / 2;
       });
 

@@ -9,10 +9,15 @@ import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { use } from 'react';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 
 const BuildingUpgradeList = () => {
   const { t } = useTranslation();
-  const { currentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
+  const { currentVillage } = use(CurrentVillageContext);
+  const { getCurrentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
+
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   if (currentVillageBuildingEvents.length === 0) {
     return null;

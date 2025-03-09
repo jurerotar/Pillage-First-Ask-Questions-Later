@@ -49,19 +49,12 @@ export const useReports = () => {
     initialData: [],
   });
 
-  const readReports = reports.filter(({ tags }) => tags.includes('read'));
-  const deletedReports = reports.filter(({ tags }) => tags.includes('deleted'));
-  const archivedReports = reports.filter(({ tags }) => tags.includes('archived'));
-
   const getReportsByTileId = (tileIdToSearchBy: Tile['id']): Report[] => {
     return reports.filter(({ tileId }) => tileId === tileIdToSearchBy);
   };
 
   return {
     reports,
-    archivedReports,
-    deletedReports,
-    readReports,
     getReportsByTileId,
   };
 };

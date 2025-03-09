@@ -1,15 +1,15 @@
 import type React from 'react';
-import { useCallback } from 'react';
-import { createContext } from 'react';
+import { createContext, useCallback } from 'react';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { Point } from 'app/interfaces/models/common';
 import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils/common';
+import type { Tile } from 'app/interfaces/models/game/tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type CurrentVillageContextReturn = {
   currentVillage: Village;
-  distanceFromCurrentVillage: (tileCoordinates: Point) => number;
+  distanceFromCurrentVillage: (tileId: Tile['id']) => number;
 };
 
 export const CurrentVillageContext = createContext<CurrentVillageContextReturn>({} as never);
@@ -22,8 +22,10 @@ export const CurrentVillageProvider: React.FCWithChildren = ({ children }) => {
   const currentVillage = playerVillages.find(({ slug }) => slug === villageSlug);
 
   const distanceFromCurrentVillage = useCallback(
-    (tileCoordinates: Point): number => {
-      return roundTo2DecimalPoints(calculateDistanceBetweenPoints(currentVillage!.coordinates, tileCoordinates));
+    (tileId: Tile['id']): number => {
+      const villageCoordinates = parseCoordinatesFromTileId(currentVillage!.id);
+      const tileCoordinates = parseCoordinatesFromTileId(tileId);
+      return roundTo2DecimalPoints(calculateDistanceBetweenPoints(villageCoordinates, tileCoordinates));
     },
     [currentVillage],
   );

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Player } from 'app/interfaces/models/game/player';
-import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
+import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import { villagesCacheKey } from 'app/(game)/constants/query-keys';
 import { usePlayers } from 'app/(game)/hooks/use-players';
@@ -25,8 +25,8 @@ export const useVillages = () => {
     initialData: [],
   });
 
-  const getVillageByCoordinates = (coordinates: Village['coordinates']): Village | null => {
-    return villages.find(({ coordinates: { x, y } }) => coordinates.x === x && coordinates.y === y) ?? null;
+  const getVillageById = (tileId: Tile['id']): Village | null => {
+    return villages.find(({ id }) => id === tileId) ?? null;
   };
 
   const getVillageByOasis = ({ villageId }: OccupiedOasisTile): Village => {
@@ -44,7 +44,7 @@ export const useVillages = () => {
 
   return {
     villages,
-    getVillageByCoordinates,
+    getVillageById,
     getVillageByOasis,
     getPlayerByOasis,
     getPlayerVillages,

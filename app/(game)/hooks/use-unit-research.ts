@@ -30,39 +30,25 @@ export const useUnitResearch = () => {
     });
   };
 
-  const isUnitResearched = (unitId: Unit['id']) =>
-    unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.researchedIn.includes(currentVillage.id));
+  const isUnitResearched = (unitId: Unit['id']) => {
+    return unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.researchedIn.includes(currentVillage.id));
+  };
 
-  const researchedUnits = unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
+  const getResearchedUnits = () => unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
 
-  const researchedInfantryUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'infantry';
-  });
+  const getResearchedUnitsByCategory = (category: Unit['category']) => {
+    const researchedUnits = getResearchedUnits();
 
-  const researchedCavalryUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'cavalry';
-  });
-
-  const researchedSiegeUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'siege';
-  });
-
-  const researchedSpecialUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'special';
-  });
+    return researchedUnits.filter(({ unitId }) => {
+      const unit = getUnitData(unitId);
+      return unit.category === category;
+    });
+  };
 
   return {
     unitResearch,
     researchUnit,
     isUnitResearched,
-    researchedUnits,
-    researchedInfantryUnits,
-    researchedCavalryUnits,
-    researchedSiegeUnits,
-    researchedSpecialUnits,
+    getResearchedUnitsByCategory,
   };
 };

@@ -82,16 +82,20 @@ const MapPage = () => {
     });
   }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
-  const villageCoordinatesToVillagesMap = useMemo<Map<string, Village>>(() => {
-    return new Map<string, Village>(
+  const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
+    return new Map<Village['id'], Village>(
       villages.map((village) => {
-        return [`${village.coordinates.x}-${village.coordinates.y}`, village];
+        return [village.id, village];
       }),
     );
   }, [villages]);
 
-  const villageCoordinatesToWorldItemsMap = useMemo<Map<string, WorldItem>>(() => {
-    return new Map<string, WorldItem>(worldItems.map((worldItem) => [worldItem.tileId, worldItem]));
+  const villageCoordinatesToWorldItemsMap = useMemo<Map<Village['id'], WorldItem>>(() => {
+    return new Map<Village['id'], WorldItem>(
+      worldItems.map((worldItem) => {
+        return [worldItem.tileId, worldItem];
+      }),
+    );
   }, [worldItems]);
 
   const fixedGridData = useMemo(() => {
@@ -227,7 +231,7 @@ const MapPage = () => {
             return null;
           }
 
-          const tile = getTileByTileId(tileId);
+          const tile = getTileByTileId(tileId as TileType['id']);
 
           return <TileTooltip tile={tile} />;
         }}

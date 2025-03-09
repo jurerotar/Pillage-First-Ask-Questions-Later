@@ -23,10 +23,9 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
   const hasOccupiedOasis = !!occupiedOasis;
 
   if (hasOccupiedOasis) {
-    const {
-      coordinates: { x, y },
-      oasisResourceBonus,
-    } = occupiedOasis;
+    const { oasisResourceBonus } = occupiedOasis;
+
+    const [x, y] = occupiedOasis.id.split('|');
 
     return (
       <TableRow>
@@ -118,31 +117,34 @@ export const HerosMansionOasis = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {oasisTilesInRange.map((tile) => (
-                <TableRow key={tile.id}>
-                  <TableCell>/</TableCell>
-                  <TableCell>
-                    <LinkWithState to={`${mapPath}?x=${tile.coordinates.x}&y=${tile.coordinates.y}`}>
-                      {tile.coordinates.x}, {tile.coordinates.y}
-                    </LinkWithState>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    {tile.oasisResourceBonus.map(({ resource, bonus }, index) => (
-                      <span
-                        className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
-                        key={resource}
-                      >
-                        <Icon
-                          type={resource}
-                          className="flex size-5"
-                        />
-                        {bonus}
-                      </span>
-                    ))}
-                  </TableCell>
-                  <TableCell>/</TableCell>
-                </TableRow>
-              ))}
+              {oasisTilesInRange.map((tile) => {
+                const [x, y] = tile.id.split('|');
+                return (
+                  <TableRow key={tile.id}>
+                    <TableCell>/</TableCell>
+                    <TableCell>
+                      <LinkWithState to={`${mapPath}?x=${x}&y=${y}`}>
+                        {x}, {y}
+                      </LinkWithState>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {tile.oasisResourceBonus.map(({ resource, bonus }, index) => (
+                        <span
+                          className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
+                          key={resource}
+                        >
+                          <Icon
+                            type={resource}
+                            className="flex size-5"
+                          />
+                          {bonus}
+                        </span>
+                      ))}
+                    </TableCell>
+                    <TableCell>/</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

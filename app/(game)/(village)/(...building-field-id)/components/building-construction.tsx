@@ -11,8 +11,7 @@ import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildi
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import type React from 'react';
-import { use } from 'react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
@@ -27,9 +26,10 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { getPlayerVillages } = useVillages();
   const { currentVillage } = use(CurrentVillageContext);
   const { tribe } = useTribe();
-  const { currentVillageBuildingEvents } = useEvents();
+  const { getCurrentVillageBuildingEvents } = useEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
   const playerVillages = getPlayerVillages();
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 

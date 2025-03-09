@@ -19,13 +19,15 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
   const { currentVillage } = use(CurrentVillageContext);
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
-  const { currentVillageBuildingEvents } = useEvents();
+  const { getCurrentVillageBuildingEvents } = useEvents();
 
   if (!buildingField) {
     return t('APP.GAME.VILLAGE.BUILDING_FIELD.EMPTY');
   }
 
   const { buildingId, level } = buildingField;
+
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const sameBuildingConstructionEvents = currentVillageBuildingEvents.filter(({ buildingFieldId: eventBuildingFieldId, building }) => {
     return building.id === buildingId && eventBuildingFieldId === buildingFieldId;

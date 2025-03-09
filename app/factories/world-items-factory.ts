@@ -26,14 +26,14 @@ type TileWithSize = OccupiedOccupiableTile & {
 };
 
 export const worldItemsFactory = ({ server, prng, occupiedOccupiableTiles }: WorldItemsFactoryArgs): WorldItem[] => {
-  const eligibleTiles = occupiedOccupiableTiles.filter(({ coordinates }) => {
-    return !(coordinates.x === 0 && coordinates.y === 0);
+  const eligibleTiles = occupiedOccupiableTiles.filter(({ id }) => {
+    return id !== '0|0';
   });
 
   const tilesWithSize: TileWithSize[] = eligibleTiles.map((tile) => {
     return {
       ...tile,
-      size: getVillageSize(server.configuration.mapSize, tile.coordinates),
+      size: getVillageSize(server.configuration.mapSize, tile.id),
     };
   });
 

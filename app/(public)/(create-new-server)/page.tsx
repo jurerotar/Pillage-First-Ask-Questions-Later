@@ -80,7 +80,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     { server, players },
   );
 
-  const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
+  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === '0|0')!;
 
   const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 

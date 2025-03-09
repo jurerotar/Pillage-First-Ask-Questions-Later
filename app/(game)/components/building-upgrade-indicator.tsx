@@ -13,8 +13,7 @@ import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
-import { useState } from 'react';
-import { use } from 'react';
+import { use, useState } from 'react';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 import { ViewportContext } from 'app/providers/viewport-context';
 import { MdUpgrade } from 'react-icons/md';
@@ -94,18 +93,16 @@ type BuildingUpgradeIndicatorProps = {
 };
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered }) => {
-  const {
-    currentVillage: { buildingFields, buildingFieldsPresets },
-  } = use(CurrentVillageContext);
+  const { currentVillage } = use(CurrentVillageContext);
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
-  const { canAddAdditionalBuildingToQueue, currentVillageBuildingEvents } = useEvents();
+  const { getCurrentVillageBuildingEvents, getCanAddAdditionalBuildingToQueue } = useEvents();
   const { isDeveloperModeActive } = useDeveloperMode();
 
-  const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
-  const { buildingId, level } = buildingFields.find(({ id }) => buildingFieldId === id)!;
+  const population = calculatePopulationFromBuildingFields(currentVillage.buildingFields, currentVillage.buildingFieldsPresets);
+  const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
   const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
 
   const variant = ((): BorderIndicatorBorderVariant => {
@@ -138,7 +135,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
       return 'yellow';
     }
 
-    if (!canAddAdditionalBuildingToQueue) {
+    if (!getCanAddAdditionalBuildingToQueue(currentVillage)) {
       return 'yellow';
     }
 
@@ -148,6 +145,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const canUpgrade: boolean = variant === 'green' || variant === 'red';
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
+    const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
     const hasSameBuildingConstructionEvents = currentVillageBuildingEvents.some(({ buildingFieldId: eventBuildingFieldId, building }) => {
       return building.id === buildingId && eventBuildingFieldId === buildingFieldId;
     });

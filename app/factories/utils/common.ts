@@ -1,5 +1,6 @@
-import type { Point } from 'app/interfaces/models/common';
 import type { VillageSize } from 'app/interfaces/models/game/village';
+import type { Tile } from 'app/interfaces/models/game/tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 // These are essentially percentage values so it works regardless of server size
 const tileDistanceToVillageSizeMap = new Map<number, VillageSize>([
@@ -14,8 +15,9 @@ const tileDistanceToVillageSizeMap = new Map<number, VillageSize>([
   [7, 'xxs'],
 ]);
 
-export const getVillageSize = (mapSize: number, coordinates: Point): VillageSize => {
-  const relativeDistance = Math.floor((Math.sqrt(coordinates.x ** 2 + coordinates.y ** 2) / mapSize) * 100);
+export const getVillageSize = (mapSize: number, tileId: Tile['id']): VillageSize => {
+  const { x, y } = parseCoordinatesFromTileId(tileId);
+  const relativeDistance = Math.floor((Math.sqrt(x ** 2 + y ** 2) / mapSize) * 100);
 
   for (const [key, size] of tileDistanceToVillageSizeMap) {
     if (relativeDistance >= key) {

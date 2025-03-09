@@ -1,12 +1,12 @@
 import { generateTroops } from 'app/factories/troop-factory';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
-import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
+import type { OasisTile, OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Troop } from 'app/interfaces/models/game/troop';
 
 export type GenerateTroopsWorkerPayload = {
   server: Server;
-  occupiableOasisTiles: OccupiableOasisTile[];
+  occupiableOasisTiles: OasisTile[];
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
   players: Player[];
 };

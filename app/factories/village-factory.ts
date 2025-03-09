@@ -70,7 +70,7 @@ type VillageFactoryProps = {
 };
 
 export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
-  const { coordinates, resourceFieldComposition } = tile;
+  const { id, resourceFieldComposition } = tile;
 
   const { id: playerId, name, tribe } = player;
 
@@ -81,10 +81,9 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
   ];
 
   return {
-    id: tile.id,
+    id,
     name: `${name}'s village`,
     slug,
-    coordinates,
     buildingFields,
     buildingFieldsPresets: [],
     playerId,
@@ -107,11 +106,11 @@ type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'> & {
 };
 
 const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Village => {
-  const { coordinates, resourceFieldComposition, id } = tile;
+  const { resourceFieldComposition, id } = tile;
 
   const { id: playerId, name, tribe } = player;
 
-  const villageSize = getVillageSize(server.configuration.mapSize, tile.coordinates);
+  const villageSize = getVillageSize(server.configuration.mapSize, tile.id);
 
   const buildingFields = [createWallBuildingField(tribe, villageSize)];
 
@@ -122,7 +121,6 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
     id,
     name: `${name}'s village`,
     slug: null,
-    coordinates,
     buildingFields,
     buildingFieldsPresets: [resourcesBuildingFieldPresetId, villageBuildingFieldPresetId],
     playerId,

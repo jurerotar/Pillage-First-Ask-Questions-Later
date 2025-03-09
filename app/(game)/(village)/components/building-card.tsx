@@ -10,8 +10,7 @@ import { getBuildingData, specialFieldIds } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import clsx from 'clsx';
 import type React from 'react';
-import { use } from 'react';
-import { Fragment } from 'react';
+import { Fragment, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
 
@@ -25,11 +24,12 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { getPlayerVillages } = useVillages();
   const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
-  const { currentVillageBuildingEvents } = useEvents();
+  const { getCurrentVillageBuildingEvents } = useEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const playerVillages = getPlayerVillages();
   const { maxLevel } = getBuildingData(buildingId);
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const { canBuild, assessedRequirements } = assessBuildingConstructionReadiness({
     buildingId,

@@ -5,16 +5,13 @@ import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import type React from 'react';
-import { use } from 'react';
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { useMap } from 'app/(game)/hooks/use-map';
 import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
-import { useVillages } from 'app/(game)/hooks/use-villages';
-import type { Village } from 'app/interfaces/models/game/village';
 import { LinkWithState } from 'app/components/link-with-state';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
@@ -23,9 +20,8 @@ type UnoccupiedArtifactRowProps = {
 const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) => {
   const { t } = useTranslation();
   const { mapPath } = useGameNavigation();
-  const { getTileByTileId } = useMap();
 
-  const { coordinates } = getTileByTileId(item.tileId);
+  const coordinates = parseCoordinatesFromTileId(item.tileId);
 
   return (
     <TableRow>
@@ -49,7 +45,6 @@ export const TreasuryArtifacts = () => {
   const { currentVillageArtifactId, hasCurrentVillageArtifact, assignedArtifacts } = useArtifacts();
   const { worldItems } = useWorldItems();
   const { distanceFromCurrentVillage } = use(CurrentVillageContext);
-  const { villages } = useVillages();
 
   const availableArtifacts = hero.inventory.filter(({ category }) => category === 'artifact');
   const hasAvailableArtifacts = availableArtifacts.length > 0;
@@ -59,21 +54,11 @@ export const TreasuryArtifacts = () => {
     return type === 'artifact' && !assignedArtifacts.includes(id) && !availableArtifacts.includes(id);
   });
 
-  const villageCoordinatesToVillagesMap = useMemo<Map<string, Village>>(() => {
-    return new Map<string, Village>(
-      villages.map((village) => {
-        return [`${village.coordinates.x}-${village.coordinates.y}`, village];
-      }),
-    );
-  }, [villages]);
-
   const sortedByDistanceArtifactWorldItems = useMemo<WorldItem[]>(() => {
     return unclaimedArtifactWorldItems.toSorted((prev, next) => {
-      const { coordinates: prevCoordinates } = villageCoordinatesToVillagesMap.get(prev.tileId)!;
-      const { coordinates: nextCoordinates } = villageCoordinatesToVillagesMap.get(next.tileId)!;
-      return distanceFromCurrentVillage(prevCoordinates) - distanceFromCurrentVillage(nextCoordinates);
+      return distanceFromCurrentVillage(prev.tileId) - distanceFromCurrentVillage(next.tileId);
     });
-  }, [villageCoordinatesToVillagesMap, unclaimedArtifactWorldItems, distanceFromCurrentVillage]);
+  }, [unclaimedArtifactWorldItems, distanceFromCurrentVillage]);
 
   const _assignArtifactToCurrentVillage = (_artifactId: ArtifactId) => {};
 

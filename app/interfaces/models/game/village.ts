@@ -1,8 +1,8 @@
-import type { Point } from 'app/interfaces/models/common';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import type { ArtifactId } from 'app/interfaces/models/game/hero';
+import type { Tile } from 'app/interfaces/models/game/tile';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -43,13 +43,12 @@ export type BuildingField = {
 export type VillageSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
 export type Village = {
-  id: string;
+  id: Tile['id'];
   playerId: Player['id'];
   name: string;
   // Only user villages need a slug
   slug: string | null;
   lastUpdatedAt: number;
-  coordinates: Point;
   resources: Resources;
   wheatUpkeep: number;
   // This property is only hydrated in user villages or on npc villages that differ from a preset!
