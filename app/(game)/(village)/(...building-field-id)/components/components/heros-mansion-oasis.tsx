@@ -1,6 +1,5 @@
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
 import { useOasis } from 'app/(game)/hooks/use-oasis';
-import { Link } from 'react-router';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
@@ -8,6 +7,7 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
+import { LinkWithState } from 'app/components/link-with-state';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -23,17 +23,16 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
   const hasOccupiedOasis = !!occupiedOasis;
 
   if (hasOccupiedOasis) {
-    const {
-      coordinates: { x, y },
-      oasisResourceBonus,
-    } = occupiedOasis;
+    const { oasisResourceBonus } = occupiedOasis;
+
+    const [x, y] = occupiedOasis.id.split('|');
 
     return (
       <TableRow>
         <TableCell>
-          <Link to={`${mapPath}?x=${x}&y=${y}`}>
+          <LinkWithState to={`${mapPath}?x=${x}&y=${y}`}>
             {x}, {y}
-          </Link>
+          </LinkWithState>
         </TableCell>
         <TableCell className="whitespace-nowrap">
           {oasisResourceBonus.map(({ resource, bonus }, index) => (
@@ -118,31 +117,34 @@ export const HerosMansionOasis = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {oasisTilesInRange.map((tile) => (
-                <TableRow key={tile.id}>
-                  <TableCell>/</TableCell>
-                  <TableCell>
-                    <Link to={`${mapPath}?x=${tile.coordinates.x}&y=${tile.coordinates.y}`}>
-                      {tile.coordinates.x}, {tile.coordinates.y}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    {tile.oasisResourceBonus.map(({ resource, bonus }, index) => (
-                      <span
-                        className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
-                        key={resource}
-                      >
-                        <Icon
-                          type={resource}
-                          className="flex size-5"
-                        />
-                        {bonus}
-                      </span>
-                    ))}
-                  </TableCell>
-                  <TableCell>/</TableCell>
-                </TableRow>
-              ))}
+              {oasisTilesInRange.map((tile) => {
+                const [x, y] = tile.id.split('|');
+                return (
+                  <TableRow key={tile.id}>
+                    <TableCell>/</TableCell>
+                    <TableCell>
+                      <LinkWithState to={`${mapPath}?x=${x}&y=${y}`}>
+                        {x}, {y}
+                      </LinkWithState>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {tile.oasisResourceBonus.map(({ resource, bonus }, index) => (
+                        <span
+                          className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
+                          key={resource}
+                        >
+                          <Icon
+                            type={resource}
+                            className="flex size-5"
+                          />
+                          {bonus}
+                        </span>
+                      ))}
+                    </TableCell>
+                    <TableCell>/</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

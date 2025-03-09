@@ -7,13 +7,17 @@ import { useEvents } from 'app/(game)/hooks/use-events';
 import { Icon } from 'app/components/icon';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
-import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { use } from 'react';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 
 const BuildingUpgradeList = () => {
   const { t } = useTranslation();
-  const { currentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
+  const { currentVillage } = use(CurrentVillageContext);
+  const { getCurrentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
+
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   if (currentVillageBuildingEvents.length === 0) {
     return null;
@@ -48,7 +52,7 @@ const BuildingUpgradeList = () => {
 const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as BuildingFieldType['id'][];
 const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19) as BuildingFieldType['id'][];
 
-const VillagePage: React.FC = () => {
+const VillagePage = () => {
   const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
@@ -74,7 +78,7 @@ const VillagePage: React.FC = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-16 md:mt-24 mb-14 lg:mb-0">
+      <main className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-4 lg:mt-12 mb-16.5 lg:mb-0">
         <div className="relative size-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField

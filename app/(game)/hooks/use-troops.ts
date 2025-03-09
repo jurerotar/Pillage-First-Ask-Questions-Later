@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { troopsCacheKey } from 'app/query-keys';
+import { troopsCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useTroops = () => {
   const { data: troops } = useQuery<Troop[]>({

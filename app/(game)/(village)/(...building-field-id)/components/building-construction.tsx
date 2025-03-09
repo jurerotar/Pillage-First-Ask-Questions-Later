@@ -1,7 +1,7 @@
 import { BuildingCard } from 'app/(game)/(village)/components/building-card';
 import { assessBuildingConstructionReadiness, type AssessedBuildingRequirement } from 'app/(game)/(village)/utils/building-requirements';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useVillages } from 'app/(game)/hooks/use-villages';
@@ -11,7 +11,7 @@ import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildi
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import type React from 'react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
@@ -23,12 +23,14 @@ type BuildingCategoryPanelProps = {
 
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory }) => {
   const { t } = useTranslation();
-  const { playerVillages } = useVillages();
-  const { currentVillage } = useCurrentVillage();
+  const { getPlayerVillages } = useVillages();
+  const { currentVillage } = use(CurrentVillageContext);
   const { tribe } = useTribe();
-  const { currentVillageBuildingEvents } = useEvents();
-  const { hasGreatBuildingsArtifact } = useArtifacts();
+  const { getCurrentVillageBuildingEvents } = useEvents();
+  const { isGreatBuildingsArtifactActive } = useArtifacts();
 
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
+  const playerVillages = getPlayerVillages();
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
   const [currentlyAvailableBuildings, unavailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
@@ -38,7 +40,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
-      hasGreatBuildingsArtifact,
+      isGreatBuildingsArtifactActive,
     });
     return canBuild;
   });
@@ -50,7 +52,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
-      hasGreatBuildingsArtifact,
+      isGreatBuildingsArtifactActive,
     });
 
     const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
@@ -100,7 +102,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   );
 };
 
-export const BuildingConstruction: React.FC = () => {
+export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
 

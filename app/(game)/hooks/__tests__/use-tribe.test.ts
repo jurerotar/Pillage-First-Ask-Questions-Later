@@ -4,7 +4,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { egyptianServerMock, gaulServerMock, hunServerMock, romanServerMock, teutonServerMock } from 'app/tests/mocks/game/server-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
-import { currentServerCacheKey } from 'app/query-keys';
+import { currentServerCacheKey } from 'app/(game)/constants/query-keys';
 
 describe('useTribe', () => {
   test('Server with gaul tribe will return gauls', () => {

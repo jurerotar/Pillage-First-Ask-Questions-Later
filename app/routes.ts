@@ -13,25 +13,20 @@ export default [
   // Game routes
   ...prefix('game/:serverSlug/:villageSlug', [
     layout('(game)/layout.tsx', [
-      ...prefix('resources', [
-        index('(game)/(village)/page.tsx', {
-          id: 'resources-page',
-        }),
-        route(':buildingFieldId', '(game)/(village)/(...building-field-id)/page.tsx', {
-          id: 'resource-building-field-id-page',
-        }),
-      ]),
-      ...prefix('village', [
-        index('(game)/(village)/page.tsx', {
-          id: 'village-page',
-        }),
-        route(':buildingFieldId', '(game)/(village)/(...building-field-id)/page.tsx', {
-          id: 'village-building-field-id-page',
-        }),
-      ]),
-      ...prefix('reports', [index('(game)/(reports)/page.tsx'), route(':reportId', '(game)/(reports)/(...report-id)/page.tsx')]),
-      route('auctions', '(game)/(auctions)/page.tsx'),
+      route('resources', '(game)/(village)/page.tsx', { id: 'resources-page' }),
+      route('village', '(game)/(village)/page.tsx', { id: 'village-page' }),
       route('map', '(game)/(map)/page.tsx'),
+      layout('(game)/fixed-width-layout.tsx', [
+        route('resources/:buildingFieldId', '(game)/(village)/(...building-field-id)/page.tsx', { id: 'resource-building-field-id-page' }),
+        route('village/:buildingFieldId', '(game)/(village)/(...building-field-id)/page.tsx', { id: 'village-building-field-id-page' }),
+        route('hero', '(game)/(hero)/page.tsx'),
+        route('preferences', '(game)/(preferences)/page.tsx'),
+        route('statistics', '(game)/(statistics)/page.tsx'),
+        route('overview', '(game)/(overview)/page.tsx'),
+        route('community', '(game)/(community)/page.tsx'),
+        ...prefix('reports', [index('(game)/(reports)/page.tsx'), route(':reportId', '(game)/(reports)/(...report-id)/page.tsx')]),
+        ...prefix('quests', [index('(game)/(quests)/page.tsx'), route(':questId', '(game)/(quests)/(...quest-id)/page.tsx')]),
+      ]),
     ]),
   ]),
 ] satisfies RouteConfigEntry[];

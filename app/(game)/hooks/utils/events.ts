@@ -4,10 +4,10 @@ import { calculateComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { getVillageById } from 'app/(game)/hooks/use-villages';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { EventWithRequiredResourceCheck, GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventFactory } from 'app/factories/event-factory';
 import { doesEventRequireResourceCheck } from 'app/(game)/hooks/guards/event-guards';
-import { effectsCacheKey, eventsCacheKey, villagesCacheKey } from 'app/query-keys';
+import { effectsCacheKey, eventsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
 
 // To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
 export const insertEvent = (events: GameEvent[], event: GameEvent): GameEvent[] => {
@@ -145,16 +145,21 @@ export const updateVillageResources = (
   });
 };
 
-export type CreateEventArgs<T extends GameEventType> = Omit<CreateEventFnArgs<T>, 'villageId' | 'type'>;
-
-export type CreateBulkEventArgs<T extends GameEventType> = CreateEventArgs<T> &
-  EventWithRequiredResourceCheck & {
-    amount: number;
-  };
-
-type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & {
+type CreateEventFnHooks<T extends GameEventType> = {
   onSuccess?: (queryClient: QueryClient, args: CreateEventFnArgs<T> | CreateBulkEventArgs<T>) => void;
   onFailure?: (queryClient: QueryClient, args: CreateEventFnArgs<T> | CreateBulkEventArgs<T>) => void;
+};
+
+type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & CreateEventFnHooks<T>;
+
+export type CreateEventArgs<T extends GameEventType> = Omit<Omit<GameEvent<T>, 'id'>, 'type' | 'villageId'> &
+  CreateEventFnHooks<T> & {
+    type?: GameEventType;
+    villageId?: Village['id'];
+  };
+
+export type CreateBulkEventArgs<T extends GameEventType> = CreateEventArgs<T> & {
+  amount: number;
 };
 
 export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {

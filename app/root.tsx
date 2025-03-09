@@ -1,5 +1,4 @@
 import { Links, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import { StrictMode } from 'react';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import './styles/app.css';
@@ -11,7 +10,7 @@ const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
 
 export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions Later)' }];
 
-export const Layout = () => {
+const Root = () => {
   return (
     <html
       lang="en-US"
@@ -89,22 +88,16 @@ export const Layout = () => {
         <Links />
       </head>
       <body>
-        <StrictMode>
-          <ViewportProvider>
-            <StateProvider>
-              <Outlet />
-            </StateProvider>
-          </ViewportProvider>
-        </StrictMode>
+        <ViewportProvider>
+          <StateProvider>
+            <Outlet />
+          </StateProvider>
+        </ViewportProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   );
-};
-
-const Root = () => {
-  return <Outlet />;
 };
 
 export default Root;

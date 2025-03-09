@@ -1,13 +1,14 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
-import { unitResearchCacheKey } from 'app/query-keys';
+import { unitResearchCacheKey } from 'app/(game)/constants/query-keys';
 import { getUnitData } from 'app/(game)/utils/units';
+import { use } from 'react';
 
 export const useUnitResearch = () => {
   const queryClient = useQueryClient();
-  const { currentVillageId } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const { data: unitResearch } = useQuery<UnitResearch[]>({
     queryKey: [unitResearchCacheKey],
@@ -23,45 +24,31 @@ export const useUnitResearch = () => {
 
         return {
           ...research,
-          researchedIn: [...research.researchedIn, currentVillageId],
+          researchedIn: [...research.researchedIn, currentVillage.id],
         };
       });
     });
   };
 
-  const isUnitResearched = (unitId: Unit['id']) =>
-    unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.researchedIn.includes(currentVillageId));
+  const isUnitResearched = (unitId: Unit['id']) => {
+    return unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.researchedIn.includes(currentVillage.id));
+  };
 
-  const researchedUnits = unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
+  const getResearchedUnits = () => unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
 
-  const researchedInfantryUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'infantry';
-  });
+  const getResearchedUnitsByCategory = (category: Unit['category']) => {
+    const researchedUnits = getResearchedUnits();
 
-  const researchedCavalryUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'cavalry';
-  });
-
-  const researchedSiegeUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'siege';
-  });
-
-  const researchedSpecialUnits = researchedUnits.filter(({ unitId }) => {
-    const unit = getUnitData(unitId);
-    return unit.category === 'special';
-  });
+    return researchedUnits.filter(({ unitId }) => {
+      const unit = getUnitData(unitId);
+      return unit.category === category;
+    });
+  };
 
   return {
     unitResearch,
     researchUnit,
     isUnitResearched,
-    researchedUnits,
-    researchedInfantryUnits,
-    researchedCavalryUnits,
-    researchedSiegeUnits,
-    researchedSpecialUnits,
+    getResearchedUnitsByCategory,
   };
 };

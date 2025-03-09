@@ -7,7 +7,7 @@ import { serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { renderWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
-import { villagesCacheKey } from 'app/query-keys';
+import { villagesCacheKey } from 'app/(game)/constants/query-keys';
 
 const level1MainBuildingBuildingField: BuildingField = {
   buildingId: 'MAIN_BUILDING',

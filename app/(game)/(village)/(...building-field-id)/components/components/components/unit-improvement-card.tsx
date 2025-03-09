@@ -1,5 +1,5 @@
 import { Resources } from 'app/(game)/components/resources';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
@@ -24,7 +24,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
   const { isDeveloperModeActive } = useDeveloperMode();
   const { unitImprovements, upgradeUnitTier } = useUnitImprovement();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
-  const { currentVillage } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
 
   const { tier, upgradeCostPerLevel } = getUnitData(unitId)!;
   const sameTierMercenaryUnits = units.filter((unit) => tier === unit.tier && tribe !== unit.tribe);

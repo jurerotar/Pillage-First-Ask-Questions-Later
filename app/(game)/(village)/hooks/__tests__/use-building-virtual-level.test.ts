@@ -4,7 +4,7 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import { renderHookWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
-import { eventsCacheKey } from 'app/query-keys';
+import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 
 const clayPitUpgradeLevel1EventMock = createBuildingConstructionEventMock({
   buildingId: 'CLAY_PIT',

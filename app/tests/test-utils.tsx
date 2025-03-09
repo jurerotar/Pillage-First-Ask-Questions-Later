@@ -14,9 +14,19 @@ import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
 import { composeComponents } from 'app/utils/jsx';
 import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
-import { currentServerCacheKey, effectsCacheKey, playersCacheKey, preferencesCacheKey, villagesCacheKey } from 'app/query-keys';
+import {
+  currentServerCacheKey,
+  effectsCacheKey,
+  heroCacheKey,
+  playersCacheKey,
+  preferencesCacheKey,
+  villagesCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import { heroFactory } from 'app/factories/hero-factory';
+import type { Hero } from 'app/interfaces/models/game/hero';
+import { CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -40,6 +50,7 @@ const createGameEnvironment = (): QueryClient => {
   queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock));
   queryClient.setQueryData<Village[]>([villagesCacheKey], () => [playerVillageMock]);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], () => preferencesFactory());
+  queryClient.setQueryData<Hero>([heroCacheKey], () => heroFactory(server));
 
   dehydratedState = dehydrate(queryClient);
 
@@ -62,7 +73,13 @@ type RenderOptions = {
 const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
-  const globalQueryClient = new QueryClient();
+  const globalQueryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        queryFn: () => {},
+      },
+    },
+  });
   const gameQueryClient = createGameEnvironment();
 
   // Overwrite data in game env client
@@ -74,7 +91,9 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   }
 
   const element = composeComponents(
-    <CurrentResourceProvider>{children}</CurrentResourceProvider>,
+    <CurrentVillageProvider>
+      <CurrentResourceProvider>{children}</CurrentResourceProvider>
+    </CurrentVillageProvider>,
     Array.isArray(wrapper) ? wrapper : [wrapper],
   );
 

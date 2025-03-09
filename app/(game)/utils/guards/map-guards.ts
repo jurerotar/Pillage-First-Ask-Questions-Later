@@ -1,11 +1,4 @@
-import type {
-  OasisTile,
-  OccupiableOasisTile,
-  OccupiableTile,
-  OccupiedOasisTile,
-  OccupiedOccupiableTile,
-  Tile,
-} from 'app/interfaces/models/game/tile';
+import type { OasisTile, OccupiableTile, OccupiedOasisTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 
 export const isOasisTile = (tile: Tile): tile is OasisTile => {
   return tile.type === 'oasis-tile';
@@ -15,7 +8,7 @@ export const isOccupiableOasisTile = (tile: Tile): tile is OasisTile => {
   return isOasisTile(tile) && tile.oasisResourceBonus.length > 0;
 };
 
-export const isUnoccupiedOasisTile = (tile: Tile): tile is OccupiableOasisTile => {
+export const isUnoccupiedOasisTile = (tile: Tile): tile is OasisTile => {
   return isOccupiableOasisTile(tile) && tile.villageId === null;
 };
 

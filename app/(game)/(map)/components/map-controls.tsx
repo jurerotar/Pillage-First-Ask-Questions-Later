@@ -6,14 +6,7 @@ import clsx from 'clsx';
 import type React from 'react';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-
-type DividerProps = {
-  orientation?: 'vertical' | 'horizontal';
-};
-
-const Divider: React.FC<DividerProps> = ({ orientation = 'vertical' }) => {
-  return <span className={clsx(orientation === 'vertical' ? 'flex w-1' : 'h-1 w-full', 'rounded-md bg-gray-300')} />;
-};
+import { Divider } from 'app/components/divider';
 
 type MagnificationButtonProps = {
   direction: 'increase' | 'decrease';
@@ -43,7 +36,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
   );
 };
 
-export const MapControls: React.FC = () => {
+export const MapControls = () => {
   const { t } = useTranslation();
   const {
     shouldShowFactionReputation,
@@ -58,13 +51,13 @@ export const MapControls: React.FC = () => {
   return (
     <>
       <Tooltip id="map-controls-tooltip" />
-      <div className="pointer-events-none fixed bottom-8 right-4 flex flex-col items-end gap-2">
-        <div className="pointer-events-auto flex w-fit flex-col gap-2 rounded-md bg-white p-2">
+      <div className="pointer-events-none fixed bottom-21 lg:bottom-8 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
+        <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-2">
           <MagnificationButton direction="increase" />
           <Divider orientation="horizontal" />
           <MagnificationButton direction="decrease" />
         </div>
-        <div className="pointer-events-auto flex gap-2 rounded-md bg-white p-2">
+        <div className="pointer-events-auto flex gap-1 sm:gap-2 rounded-md bg-white p-2">
           <span
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_REPUTATION_DISPLAY')}

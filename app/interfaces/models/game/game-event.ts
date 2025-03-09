@@ -2,46 +2,54 @@ import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 
-export enum GameEventType {
-  BUILDING_SCHEDULED_CONSTRUCTION = 'buildingScheduledConstruction',
-  BUILDING_CONSTRUCTION = 'buildingConstruction',
-  BUILDING_LEVEL_CHANGE = 'buildingLevelChange',
-  BUILDING_DESTRUCTION = 'buildingDestruction',
-  TROOP_TRAINING = 'troopTraining',
-}
-
-export type EventWithRequiredResourceCheck = {
+type WithResourceCheck<T> = T & {
   resourceCost: number[];
 };
 
-type BaseBuildingEventArgs = EventWithRequiredResourceCheck & {
-  buildingFieldId: BuildingField['id'];
-  building: Building;
-  level: number;
-};
-
-type BuildingDestructionEventArgs = Omit<BaseBuildingEventArgs, 'level' | 'resourceCost'>;
-
-type BaseUnitTrainingEventArgs = EventWithRequiredResourceCheck & {
-  amount: number;
-  unitId: Unit['id'];
-  buildingId: Building['id'];
-};
-
-type GameEventTypeToEventArgsMap<T extends GameEventType> = {
-  [GameEventType.BUILDING_SCHEDULED_CONSTRUCTION]: BaseBuildingEventArgs;
-  [GameEventType.BUILDING_CONSTRUCTION]: BaseBuildingEventArgs;
-  [GameEventType.BUILDING_LEVEL_CHANGE]: BaseBuildingEventArgs;
-  [GameEventType.BUILDING_DESTRUCTION]: BuildingDestructionEventArgs;
-  [GameEventType.TROOP_TRAINING]: BaseUnitTrainingEventArgs;
-}[T];
-
-// biome-ignore lint/suspicious/noConfusingVoidType: This type is super hacky. Need to figure out a solution.
-export type GameEvent<T extends GameEventType | void = void> = {
+type BaseGameEvent = {
   id: string;
   villageId: Village['id'];
   type: GameEventType;
   startsAt: number;
   duration: number;
-  // @ts-expect-error - We need a generic GameEvent as well as more defined one
-} & (T extends void ? object : GameEventTypeToEventArgsMap<T>);
+};
+
+type BaseBuildingEvent = WithResourceCheck<
+  BaseGameEvent & {
+    buildingFieldId: BuildingField['id'];
+    building: Building;
+    level: number;
+  }
+>;
+
+type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level' | 'resourceCost'>;
+
+type BaseUnitTrainingEvent = WithResourceCheck<
+  BaseGameEvent & {
+    amount: number;
+    unitId: Unit['id'];
+    buildingId: Building['id'];
+  }
+>;
+
+export type GameEventType =
+  | 'buildingScheduledConstruction'
+  | 'buildingConstruction'
+  | 'buildingLevelChange'
+  | 'buildingDestruction'
+  | 'troopTraining';
+
+type GameEventTypeToEventArgsMap<T extends GameEventType> = {
+  buildingScheduledConstruction: BaseBuildingEvent;
+  buildingConstruction: BaseBuildingEvent;
+  buildingLevelChange: BaseBuildingEvent;
+  buildingDestruction: BuildingDestructionEvent;
+  troopTraining: BaseUnitTrainingEvent;
+}[T];
+
+export type GameEvent<T extends GameEventType | undefined = undefined> = T extends undefined
+  ? BaseGameEvent
+  : // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
+    BaseGameEvent & GameEventTypeToEventArgsMap<T>;
+
+export type WithResourceCheckEvent = WithResourceCheck<BaseGameEvent>;

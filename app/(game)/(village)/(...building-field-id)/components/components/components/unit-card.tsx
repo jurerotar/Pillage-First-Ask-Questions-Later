@@ -4,7 +4,7 @@ import {
 } from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { Resources } from 'app/(game)/components/resources';
 import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
@@ -13,7 +13,6 @@ import { Button } from 'app/components/buttons/button';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icon-maps';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import { GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';
@@ -57,10 +56,10 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
   });
   const { t: generalT } = useTranslation();
-  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent(GameEventType.TROOP_TRAINING);
+  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentResourceContext);
   const { buildingFieldId } = useRouteSegments();
-  const { currentVillage } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
   const { handleSubmit: _handleSubmit } = useForm<UnitRecruitmentFormProps>();
 
   const { baseRecruitmentCost } = getUnitData(unitId);
@@ -123,7 +122,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { t } = useTranslation('translation', {
     keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH',
   });
-  const { currentVillage } = useCurrentVillage();
+  const { currentVillage } = use(CurrentVillageContext);
   const { unitImprovements } = useUnitImprovement();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);

@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next';
 
 export const BarracksTroopTraining = () => {
   const { t } = useTranslation();
-  const { researchedInfantryUnits } = useUnitResearch();
+  const { getResearchedUnitsByCategory } = useUnitResearch();
+
+  const researchedInfantryUnits = getResearchedUnitsByCategory('infantry');
 
   return (
     <article className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Text as="h2">{t('APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.BARRACKS.TROOP_TRAINING.TITLE')}</Text>
-
         {researchedInfantryUnits.map(({ unitId }) => (
           <UnitCard
             key={unitId}

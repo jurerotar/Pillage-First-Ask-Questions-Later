@@ -1,12 +1,6 @@
 import { Icon, type IconProps } from 'app/components/icon';
 import type React from 'react';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import {
-  isArtifactWorldItem,
-  isCurrencyWorldItem,
-  isHeroItemWorldItem,
-  isResourceWorldItem,
-} from 'app/(game)/utils/guards/world-item-guard';
 
 const treasureIconClassName = 'size-3 select-none';
 const treasureIconWrapperClassName = 'absolute top-0 right-0 z-20 mt-1 mr-1';
@@ -16,7 +10,7 @@ type TreasureIconProps = Omit<IconProps, 'type'> & {
 };
 
 export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
-  if (isArtifactWorldItem(item)) {
+  if (item.type === 'artifact') {
     return (
       <Icon
         borderVariant="orange"
@@ -28,7 +22,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     );
   }
 
-  if (isHeroItemWorldItem(item)) {
+  if (item.type === 'wearable') {
     // TODO: Add item rarity color once items are created
     return (
       <Icon
@@ -41,7 +35,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     );
   }
 
-  if (isCurrencyWorldItem(item)) {
+  if (item.type === 'currency') {
     return (
       <Icon
         borderVariant="blue"
@@ -53,7 +47,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     );
   }
 
-  if (isResourceWorldItem(item)) {
+  if (item.type === 'resource') {
     return (
       <Icon
         borderVariant="blue"

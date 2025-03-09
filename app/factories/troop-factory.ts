@@ -1,7 +1,7 @@
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
-import type { OccupiableOasisTile, OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
+import type { OasisTile, OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { NatureUnitId, UnitId } from 'app/interfaces/models/game/unit';
@@ -11,7 +11,7 @@ import { prngAlea } from 'ts-seedrandom';
 
 type GenerateTroopsArgs = {
   server: Server;
-  occupiableOasisTiles: OccupiableOasisTile[];
+  occupiableOasisTiles: OasisTile[];
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
   players: Player[];
 };
@@ -317,7 +317,7 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
     });
   });
 
-  const npcTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy, coordinates: _coordinates }) => {
+  const npcTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy }) => {
     const { tribe, faction } = players.find(({ id }) => id === ownedBy)!;
     // TODO: Uncomment this once above TODOs are fixed
     //const villageSize = getVillageSize(server.configuration.mapSize, coordinates);

@@ -15,7 +15,6 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
-import type React from 'react';
 import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
@@ -27,7 +26,7 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
-const MapPage: React.FC = () => {
+const MapPage = () => {
   const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
@@ -47,6 +46,8 @@ const MapPage: React.FC = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
+
+  const mapHeight = isWiderThanLg ? height - 72 : height - 105;
 
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);
@@ -81,16 +82,20 @@ const MapPage: React.FC = () => {
     });
   }, [map, getReputationByFaction, getPlayerByPlayerId]);
 
-  const villageCoordinatesToVillagesMap = useMemo<Map<string, Village>>(() => {
-    return new Map<string, Village>(
+  const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
+    return new Map<Village['id'], Village>(
       villages.map((village) => {
-        return [`${village.coordinates.x}-${village.coordinates.y}`, village];
+        return [village.id, village];
       }),
     );
   }, [villages]);
 
-  const villageCoordinatesToWorldItemsMap = useMemo<Map<string, WorldItem>>(() => {
-    return new Map<string, WorldItem>(worldItems.map((worldItem) => [worldItem.tileId, worldItem]));
+  const villageCoordinatesToWorldItemsMap = useMemo<Map<Village['id'], WorldItem>>(() => {
+    return new Map<Village['id'], WorldItem>(
+      worldItems.map((worldItem) => {
+        return [worldItem.tileId, worldItem];
+      }),
+    );
   }, [worldItems]);
 
   const fixedGridData = useMemo(() => {
@@ -167,11 +172,11 @@ const MapPage: React.FC = () => {
     }
 
     const scrollLeft = (centerXTile: number) => {
-      return tileSize * (gridSize / 2 + centerXTile) - (width - tileSize) / 2;
+      return tileSize * centerXTile + (tileSize * gridSize) / 2 - width / 2;
     };
 
     const scrollTop = (centerYTile: number) => {
-      return tileSize * (gridSize / 2 - centerYTile) - (height - tileSize) / 2;
+      return (tileSize * gridSize) / 2 - tileSize * centerYTile - mapHeight / 2;
     };
 
     if (previousTileSize.current !== tileSize) {
@@ -226,7 +231,7 @@ const MapPage: React.FC = () => {
             return null;
           }
 
-          const tile = getTileByTileId(tileId);
+          const tile = getTileByTileId(tileId as TileType['id']);
 
           return <TileTooltip tile={tile} />;
         }}
@@ -244,7 +249,7 @@ const MapPage: React.FC = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={height - 1}
+        height={mapHeight - 1}
         width={width}
         itemData={fixedGridData}
         itemKey={({ columnIndex, data, rowIndex }) => {
@@ -263,7 +268,7 @@ const MapPage: React.FC = () => {
 
           // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
           currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
-          currentCenterTile.current.y = Math.ceil((scrollTop + (height - tileSize) / 2) / tileSize - gridSize / 2);
+          currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
         }}
       >
         {Cell}
@@ -274,7 +279,7 @@ const MapPage: React.FC = () => {
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
           itemSize={tileSize}
-          height={height}
+          height={mapHeight}
           itemCount={gridSize}
           width={RULER_SIZE}
           layout="vertical"

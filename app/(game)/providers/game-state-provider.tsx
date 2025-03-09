@@ -1,19 +1,27 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, useIsRestoring } from '@tanstack/react-query';
 import { type PersistedClient, type Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
-import { GameLayoutSkeleton } from 'app/(game)/skeleton';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { debounce } from 'moderndash';
 import type React from 'react';
-import { startTransition, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Fallback } from 'app/(game)/layout';
 import GameSyncWorker from '../workers/sync-worker?worker&url';
+
+const PersisterAwaiter: React.FCWithChildren = ({ children }) => {
+  const isRestoring = useIsRestoring();
+
+  if (isRestoring) {
+    return <Fallback />;
+  }
+
+  return children;
+};
 
 let gameSyncWorker: Worker | null = null;
 
 export const GameStateProvider: React.FCWithChildren = ({ children }) => {
   const { serverSlug } = useRouteSegments();
-
-  const [isRestoring, setIsRestoring] = useState<boolean>(true);
 
   const persister = useMemo<Persister>(
     () => ({
@@ -43,6 +51,7 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
           gcTime: Number.POSITIVE_INFINITY,
           networkMode: 'always',
           staleTime: Number.POSITIVE_INFINITY,
+          queryFn: () => {},
         },
         mutations: {
           networkMode: 'always',
@@ -66,19 +75,13 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
 
   return (
     <PersistQueryClientProvider
+      client={queryClient}
       persistOptions={{
         persister,
         maxAge: Number.MAX_VALUE,
       }}
-      client={queryClient}
-      onSuccess={() => {
-        startTransition(() => {
-          setIsRestoring(false);
-        });
-      }}
     >
-      {isRestoring && <GameLayoutSkeleton />}
-      {!isRestoring && children}
+      <PersisterAwaiter>{children}</PersisterAwaiter>
     </PersistQueryClientProvider>
   );
 };

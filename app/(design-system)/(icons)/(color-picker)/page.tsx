@@ -86,7 +86,7 @@ const paramToComponentMap: ParamToComponentMap = {
   pathfinder: HorseColorPicker,
 };
 
-const ColorPickerPage: React.FC = () => {
+const ColorPickerPage = () => {
   const [searchParams] = useSearchParams();
 
   const name = searchParams.get('name')!;

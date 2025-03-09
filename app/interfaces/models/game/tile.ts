@@ -1,11 +1,10 @@
-import type { Point } from 'app/interfaces/models/common';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition, Village } from 'app/interfaces/models/game/village';
 
 export type BaseTile = {
-  id: string;
-  coordinates: Point;
+  // id is constructed from tile coordinate numbers, allowing us to now include a separate coordinates object
+  id: `${number}|${number}`;
 };
 
 export type OasisResourceBonus = {
@@ -13,22 +12,14 @@ export type OasisResourceBonus = {
   bonus: '25%' | '50%';
 };
 
+type OasisGroup = number;
+type OasisGroupPosition = `${number}|${number}`;
+type OasisVariant = number;
+
 export type OasisTile = BaseTile & {
   type: 'oasis-tile';
   oasisResourceBonus: OasisResourceBonus[];
-  // TODO: Just these properties take up ~ 700KB of size, should probably rename in the future
-  graphics: {
-    oasisResource: Resource;
-    // Different oasis groups have different graphics
-    oasisGroup: number;
-    // Position in the oasisShape matrix [rowIndex, columnIndex]
-    oasisGroupPosition: number[];
-    oasisVariant: number;
-  };
-  villageId: null;
-};
-
-export type OccupiableOasisTile = OasisTile & {
+  graphics: `${Resource}-${OasisGroup}-${OasisGroupPosition}-${OasisVariant}`;
   villageId: null;
 };
 

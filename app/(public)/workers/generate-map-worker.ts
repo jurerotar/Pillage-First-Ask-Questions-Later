@@ -2,7 +2,7 @@ import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/(game)/util
 import { mapFactory } from 'app/factories/map-factory';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
-import type { OccupiableOasisTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
+import type { OasisTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 
 export type GenerateMapWorkerPayload = {
   server: Server;
@@ -11,7 +11,7 @@ export type GenerateMapWorkerPayload = {
 
 export type GenerateMapWorkerReturn = {
   tiles: Tile[];
-  occupiableOasisTiles: OccupiableOasisTile[];
+  occupiableOasisTiles: OasisTile[];
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
 };
 

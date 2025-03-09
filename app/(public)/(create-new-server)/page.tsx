@@ -1,4 +1,3 @@
-import type React from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from 'app/components/buttons/button';
 import type { CreateServerWorkerPayload } from 'app/(public)/workers/create-server-worker';
@@ -11,7 +10,6 @@ import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from '
 import GenerateVillagesWorker from 'app/(public)/workers/generate-villages-worker?worker&url';
 import type { GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn } from 'app/(public)/workers/generate-world-items-worker';
 import GenerateWorldItemsWorker from 'app/(public)/workers/generate-world-items-worker?worker&url';
-import type { Achievement } from 'app/interfaces/models/game/achievement';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
@@ -25,7 +23,6 @@ import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
-  achievementsCacheKey,
   currentServerCacheKey,
   effectsCacheKey,
   heroCacheKey,
@@ -39,7 +36,7 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
   worldItemsCacheKey,
-} from 'app/query-keys';
+} from 'app/(game)/constants/query-keys';
 import { generateEffects } from 'app/factories/effect-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';
@@ -83,7 +80,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     { server, players },
   );
 
-  const playerStartingTile = occupiedOccupiableTiles.find(({ coordinates: { x, y } }) => x === 0 && y === 0)!;
+  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === '0|0')!;
 
   const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
@@ -118,7 +115,6 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<Server>([currentServerCacheKey], server);
   queryClient.setQueryData<Player[]>([playersCacheKey], players);
   queryClient.setQueryData<Reputation[]>([reputationsCacheKey], reputations);
-  queryClient.setQueryData<Achievement[]>([achievementsCacheKey], []);
   queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
   queryClient.setQueryData<Hero>([heroCacheKey], hero);
   queryClient.setQueryData<Tile[]>([mapCacheKey], tiles);
@@ -133,7 +129,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };
 
-const CreateNewServerPage: React.FC = () => {
+const CreateNewServerPage = () => {
   const navigate = useNavigate();
   const { addServer, deleteServer } = useAvailableServers();
 

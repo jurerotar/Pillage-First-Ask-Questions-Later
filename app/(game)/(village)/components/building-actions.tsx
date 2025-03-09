@@ -2,7 +2,7 @@ import { useBuildingActions } from 'app/(game)/(village)/hooks/use-building-acti
 import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building-virtual-level';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village)/utils/building-requirements';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
+import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
@@ -25,16 +25,18 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_ACTIONS' });
   const navigate = useNavigate();
   const { tribe } = useTribe();
-  const { playerVillages } = useVillages();
-  const { currentVillage } = useCurrentVillage();
+  const { getPlayerVillages } = useVillages();
+  const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
   const { isDeveloperModeActive } = useDeveloperMode();
-  const { currentVillageBuildingEvents, canAddAdditionalBuildingToQueue } = useEvents();
-  const { hasGreatBuildingsArtifact } = useArtifacts();
+  const { getCurrentVillageBuildingEvents, getCanAddAdditionalBuildingToQueue } = useEvents();
+  const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
   const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, buildingLevel);
+  const playerVillages = getPlayerVillages();
+  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
@@ -49,7 +51,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     currentVillageBuildingEvents,
     playerVillages,
     currentVillage,
-    hasGreatBuildingsArtifact,
+    isGreatBuildingsArtifactActive,
   });
 
   const hasEnoughResourcesToBuild = (() => {
@@ -102,7 +104,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
               data-testid="building-actions-upgrade-building-button"
               variant="confirm"
               onClick={onBuildingUpgrade}
-              disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
+              disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage) && hasEnoughResourcesToBuild)}
             >
               {t('UPGRADE_BUILDING', { level: buildingLevel + 1 })}
             </Button>
@@ -143,7 +145,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
           data-testid="building-actions-construct-building-button"
           variant="confirm"
           onClick={onBuildingConstruction}
-          disabled={!(canAddAdditionalBuildingToQueue && hasEnoughResourcesToBuild)}
+          disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage) && hasEnoughResourcesToBuild)}
         >
           {t('CONSTRUCT_BUILDING')}
         </Button>

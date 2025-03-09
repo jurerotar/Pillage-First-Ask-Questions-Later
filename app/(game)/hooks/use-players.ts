@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Player } from 'app/interfaces/models/game/player';
 import { useCallback } from 'react';
-import { playersCacheKey } from 'app/query-keys';
+import { playersCacheKey } from 'app/(game)/constants/query-keys';
 
 export const usePlayers = () => {
   const { data: players } = useQuery<Player[]>({
     queryKey: [playersCacheKey],
     initialData: [],
   });
-
-  const playerId = players.find((player) => player.faction === 'player')!.id;
 
   const getPlayerByPlayerId = useCallback(
     (playerIdToSearchFor: Player['id']): Player => {
@@ -18,9 +16,13 @@ export const usePlayers = () => {
     [players],
   );
 
+  const getCurrentPlayer = (): Player => {
+    return players.find((player) => player.faction === 'player')!;
+  };
+
   return {
     players,
     getPlayerByPlayerId,
-    playerId,
+    getCurrentPlayer,
   };
 };

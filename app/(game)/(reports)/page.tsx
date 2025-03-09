@@ -1,6 +1,5 @@
-import type React from 'react';
-
-const ReportsPage: React.FC = () => {
-  return <></>;
+const ReportsPage = () => {
+  return <>Reports page</>;
 };
+
 export default ReportsPage;

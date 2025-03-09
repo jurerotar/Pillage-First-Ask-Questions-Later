@@ -8,32 +8,31 @@ import {
   removeBuildingField,
 } from 'app/(game)/hooks/resolvers/building-resolvers';
 import { troopTrainingEventResolver } from 'app/(game)/hooks/resolvers/troop-resolvers';
-import { useCurrentVillage } from 'app/(game)/hooks/use-current-village';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { updateVillageResources } from 'app/(game)/hooks/utils/events';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
-import { type GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
-import { eventsCacheKey, villagesCacheKey } from 'app/query-keys';
+import { eventsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
 
 const MAX_BUILDINGS_IN_QUEUE = 5;
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   switch (gameEventType) {
-    case GameEventType.BUILDING_LEVEL_CHANGE: {
+    case 'buildingLevelChange': {
       return buildingLevelChangeResolver;
     }
-    case GameEventType.BUILDING_CONSTRUCTION: {
+    case 'buildingConstruction': {
       return buildingConstructionResolver;
     }
-    case GameEventType.BUILDING_DESTRUCTION: {
+    case 'buildingDestruction': {
       return buildingDestructionResolver;
     }
-    case GameEventType.BUILDING_SCHEDULED_CONSTRUCTION: {
+    case 'buildingScheduledConstruction': {
       return buildingScheduledConstructionEventResolver;
     }
-    case GameEventType.TROOP_TRAINING: {
+    case 'troopTraining': {
       return troopTrainingEventResolver;
     }
   }
@@ -42,7 +41,6 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
 export const useEvents = () => {
   const queryClient = useQueryClient();
   const { tribe } = useTribe();
-  const { currentVillageId } = useCurrentVillage();
 
   const { data: events } = useQuery<GameEvent[]>({
     queryKey: [eventsCacheKey],
@@ -53,11 +51,11 @@ export const useEvents = () => {
     mutationFn: async (id) => {
       const event = events!.find(({ id: eventIdToFind }) => eventIdToFind === id)!;
       const resolver = gameEventTypeToResolverFunctionMapper(event.type);
-      // @ts-expect-error - Each event has all required properties to resolve the event, we check this on event creation
+      // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
       await resolver(event, queryClient);
       queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => prevEvents!.filter(({ id: eventId }) => eventId !== id));
 
-      if (doesEventRequireResourceUpdate(event)) {
+      if (doesEventRequireResourceUpdate(event, event.type)) {
       }
     },
   });
@@ -65,7 +63,7 @@ export const useEvents = () => {
   const { mutate: cancelBuildingEvent } = useMutation<void, Error, GameEvent['id']>({
     mutationFn: async (id) => {
       queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-        const cancelledEvent = prevEvents!.find(({ id: eventId }) => eventId === id) as GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>;
+        const cancelledEvent = prevEvents!.find(({ id: eventId }) => eventId === id) as GameEvent<'buildingConstruction'>;
 
         // If there's other building upgrades of same building, we need to cancel them as well
         const [eventsToRemove, eventsToKeep] = partition(prevEvents!, (event) => {
@@ -85,7 +83,7 @@ export const useEvents = () => {
         }, 0);
 
         // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
-        const eventToRemove = eventsToRemove.at(-1) as GameEvent<GameEventType.BUILDING_LEVEL_CHANGE>;
+        const eventToRemove = eventsToRemove.at(-1) as GameEvent<'buildingConstruction'>;
 
         const { buildingFieldId, building, level, villageId, startsAt, duration } = eventToRemove;
 
@@ -140,21 +138,19 @@ export const useEvents = () => {
     },
   });
 
-  const currentVillageBuildingEvents = events.filter((event) => {
-    if (!isBuildingEvent(event)) {
-      return false;
-    }
+  const getCurrentVillageBuildingEvents = (currentVillage: Village): GameEvent<'buildingConstruction'>[] => {
+    return events.filter((event) => isBuildingEvent(event) && event.villageId === currentVillage.id) as GameEvent<'buildingConstruction'>[];
+  };
 
-    return event.villageId === currentVillageId;
-  }) as GameEvent<GameEventType.BUILDING_CONSTRUCTION>[];
-
-  const canAddAdditionalBuildingToQueue = currentVillageBuildingEvents.length < MAX_BUILDINGS_IN_QUEUE;
+  const getCanAddAdditionalBuildingToQueue = (currentVillage: Village) => {
+    return getCurrentVillageBuildingEvents(currentVillage).length < MAX_BUILDINGS_IN_QUEUE;
+  };
 
   return {
     events,
     resolveEvent,
     cancelBuildingEvent,
-    currentVillageBuildingEvents,
-    canAddAdditionalBuildingToQueue,
+    getCurrentVillageBuildingEvents,
+    getCanAddAdditionalBuildingToQueue,
   };
 };

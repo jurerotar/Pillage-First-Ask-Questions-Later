@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { developerModeCacheKey } from 'app/query-keys';
+import { developerModeCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useDeveloperMode = () => {
   const queryClient = useQueryClient();

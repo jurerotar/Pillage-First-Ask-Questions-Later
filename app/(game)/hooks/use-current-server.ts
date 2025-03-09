@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
-import { currentServerCacheKey } from 'app/query-keys';
+import { currentServerCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useCurrentServer = () => {
   const { data } = useQuery<Server>({

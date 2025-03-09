@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Report, ReportTag } from 'app/interfaces/models/game/report';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { reportsCacheKey } from 'app/query-keys';
+import { reportsCacheKey } from 'app/(game)/constants/query-keys';
 import type { MissingIconType, ReportIconType } from 'app/components/icons/icon-maps';
 
 type _ReportMark = ReportTag | `un${ReportTag}`;
@@ -49,19 +49,12 @@ export const useReports = () => {
     initialData: [],
   });
 
-  const readReports = reports.filter(({ tags }) => tags.includes('read'));
-  const deletedReports = reports.filter(({ tags }) => tags.includes('deleted'));
-  const archivedReports = reports.filter(({ tags }) => tags.includes('archived'));
-
   const getReportsByTileId = (tileIdToSearchBy: Tile['id']): Report[] => {
     return reports.filter(({ tileId }) => tileId === tileIdToSearchBy);
   };
 
   return {
     reports,
-    archivedReports,
-    deletedReports,
-    readReports,
     getReportsByTileId,
   };
 };

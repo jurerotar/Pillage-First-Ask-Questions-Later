@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
-import { unitImprovementCacheKey } from 'app/query-keys';
+import { unitImprovementCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useUnitImprovement = () => {
   const queryClient = useQueryClient();
