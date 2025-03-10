@@ -9,9 +9,46 @@ Remember: pillage first, ask questions later! ⚔️🔥
 > [!NOTE]
 > Very much still work in progress.
 
-## Setup
+<div>
+  <style>
+    .screenshot-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .screenshot-container img {
+      width: 80%;
+      max-width: 300px;
+    }
+    .screenshot-container img:nth-child(3) {
+      display: none;
+    }
+    @media (min-width: 769px) {
+      .screenshot-container {
+        flex-direction: row;
+        justify-content: center;
+      }
+      .screenshot-container img {
+        width: 30%;
+        max-width: 200px;
+      }
+      .screenshot-container img:nth-child(3) {
+        display: block;
+      }
+    }
+  </style>
 
-Pillage First! requires [Node.js version 22.13.0 (LTS)](https://nodejs.org/en/download) or later.
+  <div class="screenshot-container">
+    <img src="/.github/assets/mobile-map-view.jpg" alt="Mobile-screen map view">
+    <img src="/.github/assets/mobile-building-view.jpg" alt="Mobile-screen building view">
+    <img src="/.github/assets/mobile-building-list-view.jpg" alt="Mobile-screen building list view">
+  </div>
+</div>
+
+## Development setup
+
+Pillage First! requires [Node.js version 22.14.0 (LTS)](https://nodejs.org/en/download) or later.
 
 ```bash
 # Install dependencies
@@ -23,14 +60,6 @@ npm run dev
 
 App will automatically open in your default browser at `localhost:5173`.
 
-## Documentation
-
-The codebase is split into following directories:
-
-- `app` → Source code
-- `docs` → Documentation
-- `locales` → Localizations
-
 # Contributing
 
 All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related. Here are some guidelines to get you started:
@@ -40,7 +69,7 @@ All contributions are welcome at Pillage First!, whether they be tech, game desi
 - Check the following documentation links:
   - [Architecture & app lifecycle](/docs/ARCHITECTURE.md)
   - [Directory naming convention](/docs/DIRECTORY_NAMING_CONVENTION.md)
-- [Join Discord and ask for help](https://discord.gg/Ep7NKVXUZA) if you run into issues.
+- [Join Discord and ask for help](https://discord.gg/Ep7NKVXUZA) if you have questions or run into issues.
 
 All contributions are greatly appreciated.
 
