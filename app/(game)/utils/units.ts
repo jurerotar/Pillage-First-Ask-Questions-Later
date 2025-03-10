@@ -1,5 +1,5 @@
 import type { Unit } from 'app/interfaces/models/game/unit';
-import { unitsMap } from 'app/assets/units';
+import { unitsMap } from 'app/(game)/assets/units';
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 
 export const getUnitData = (unitId: Unit['id']): Unit => {

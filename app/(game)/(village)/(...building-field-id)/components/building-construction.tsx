@@ -5,7 +5,7 @@ import { CurrentVillageContext } from 'app/(game)/providers/current-village-prov
 import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useVillages } from 'app/(game)/hooks/use-villages';
-import { buildings } from 'app/assets/buildings';
+import { buildings } from 'app/(game)/assets/buildings';
 import { StyledTab } from 'app/components/styled-tab';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
