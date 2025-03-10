@@ -10,6 +10,7 @@ import { formatTime } from 'app/utils/time';
 import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Text } from 'app/components/text';
 
 type BuildingOverviewProps = {
   buildingId: Building['id'];
@@ -45,10 +46,10 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         className="pb-2"
       >
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">
+          <Text as="h2">
             {titleCount > 0 && <span data-testid="building-overview-building-count">{titleCount + 1}.</span>}
             <span data-testid="building-overview-building-title">{generalT(`BUILDINGS.${building.id}.NAME`)}</span>
-          </h2>
+          </Text>
           {showLevel && (
             <span
               data-testid="building-overview-building-level"

@@ -14,6 +14,7 @@ export const StyledTab: ReactTabsFunctionComponent<StyledTabProps> = ({ variant 
 
   return (
     <Tab
+      selectedClassName="underline"
       className={clsx(variantStyles)}
       {...rest}
     >

@@ -11,8 +11,7 @@ import {
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
-import { use } from 'react';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
@@ -164,96 +163,98 @@ const BuildingStats = () => {
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
         <Text as="h2">{buildingStatsT('UPGRADE_COST')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>{buildingStatsT('LEVEL')}</TableHeaderCell>
-              <TableHeaderCell>
-                <Icon
-                  className="inline-flex size-6"
-                  type="wood"
-                />
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Icon
-                  className="inline-flex size-6"
-                  type="clay"
-                />
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Icon
-                  className="inline-flex size-6"
-                  type="iron"
-                />
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Icon
-                  className="inline-flex size-6"
-                  type="wheat"
-                />
-              </TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[...Array(building.maxLevel)].map((_, index) => {
-              const cost = calculateBuildingCostForLevel(building.id, index + 1);
+        <div className="overflow-x-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHeaderCell>{buildingStatsT('LEVEL')}</TableHeaderCell>
+                <TableHeaderCell>
+                  <Icon
+                    className="inline-flex size-6"
+                    type="wood"
+                  />
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Icon
+                    className="inline-flex size-6"
+                    type="clay"
+                  />
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Icon
+                    className="inline-flex size-6"
+                    type="iron"
+                  />
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Icon
+                    className="inline-flex size-6"
+                    type="wheat"
+                  />
+                </TableHeaderCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...Array(building.maxLevel)].map((_, index) => {
+                const cost = calculateBuildingCostForLevel(building.id, index + 1);
 
-              return (
-                <TableRow
-                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                  key={index}
-                  {...(index + 1 === level && {
-                    className: 'bg-gray-100',
-                  })}
-                >
-                  <TableHeaderCell>{index + 1}</TableHeaderCell>
-                  <TableCell>{formatNumber(cost[0])}</TableCell>
-                  <TableCell>{formatNumber(cost[1])}</TableCell>
-                  <TableCell>{formatNumber(cost[2])}</TableCell>
-                  <TableCell>{formatNumber(cost[3])}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                return (
+                  <TableRow
+                    // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                    key={index}
+                    {...(index + 1 === level && {
+                      className: 'bg-gray-100',
+                    })}
+                  >
+                    <TableHeaderCell>{index + 1}</TableHeaderCell>
+                    <TableCell>{formatNumber(cost[0])}</TableCell>
+                    <TableCell>{formatNumber(cost[1])}</TableCell>
+                    <TableCell>{formatNumber(cost[2])}</TableCell>
+                    <TableCell>{formatNumber(cost[3])}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </section>
       <section className="flex flex-col gap-2">
         <Text as="h2">{buildingStatsT('UPGRADE_DURATION')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell rowSpan={2}>{buildingStatsT('LEVEL')}</TableHeaderCell>
-              <TableHeaderCell colSpan={3}>{buildingStatsT('UPGRADE_DURATION')}</TableHeaderCell>
-            </TableRow>
-            <TableRow>
-              <TableHeaderCell className="whitespace-nowrap">{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 1 })}</TableHeaderCell>
-              <TableHeaderCell className="whitespace-nowrap">
-                {buildingStatsT('MAIN_BUILDING_LEVEL', { level: mainBuildingLevel })}
-              </TableHeaderCell>
-              <TableHeaderCell className="whitespace-nowrap">{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 20 })}</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[...Array(building.maxLevel)].map((_, index) => {
-              const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
+        <div className="overflow-x-scroll">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHeaderCell rowSpan={2}>{buildingStatsT('LEVEL')}</TableHeaderCell>
+                <TableHeaderCell colSpan={3}>{buildingStatsT('UPGRADE_DURATION')}</TableHeaderCell>
+              </TableRow>
+              <TableRow>
+                <TableHeaderCell>{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 1 })}</TableHeaderCell>
+                <TableHeaderCell>{buildingStatsT('MAIN_BUILDING_LEVEL', { level: mainBuildingLevel })}</TableHeaderCell>
+                <TableHeaderCell>{buildingStatsT('MAIN_BUILDING_LEVEL', { level: 20 })}</TableHeaderCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...Array(building.maxLevel)].map((_, index) => {
+                const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
 
-              return (
-                <TableRow
-                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                  key={index}
-                  {...(index + 1 === level && {
-                    className: 'bg-gray-100',
-                  })}
-                >
-                  <TableHeaderCell>{index + 1}</TableHeaderCell>
-                  <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
-                  <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
-                  <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                return (
+                  <TableRow
+                    // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                    key={index}
+                    {...(index + 1 === level && {
+                      className: 'bg-gray-100',
+                    })}
+                  >
+                    <TableHeaderCell>{index + 1}</TableHeaderCell>
+                    <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
+                    <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
+                    <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </section>
     </article>
   );

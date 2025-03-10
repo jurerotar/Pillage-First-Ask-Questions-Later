@@ -5,7 +5,7 @@ type TableProps = React.TableHTMLAttributes<HTMLTableElement>;
 
 export const Table: React.FC<TableProps> = ({ className, ...props }) => (
   <table
-    className={clsx('border border-border table-fixed md:w-full', className)}
+    className={clsx('border border-border table-fixed min-w-full w-max', className)}
     {...props}
   />
 );
