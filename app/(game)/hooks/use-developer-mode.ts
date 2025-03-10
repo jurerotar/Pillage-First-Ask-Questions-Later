@@ -13,8 +13,6 @@ export const useDeveloperMode = () => {
     queryClient.setQueryData<boolean>([developerModeCacheKey], !isDeveloperModeActive);
   };
 
-  window.toogleDevMode = toggleDeveloperMode;
-
   return {
     isDeveloperModeActive,
     toggleDeveloperMode,
