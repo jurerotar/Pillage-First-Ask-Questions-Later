@@ -11,16 +11,10 @@ Remember: pillage first, ask questions later! ⚔️🔥
 
 <p align="center">
   <picture>
-    <source media="(max-width: 768px)" srcset="/.github/assets/mobile-map-view.jpg">
     <img src="/.github/assets/mobile-map-view.jpg" width="40%">
   </picture>
   <picture>
-    <source media="(max-width: 768px)" srcset="/.github/assets/mobile-building-view.jpg">
     <img src="/.github/assets/mobile-building-view.jpg" width="40%">
-  </picture>
-  <picture>
-    <source media="(max-width: 768px)" srcset="" width="0%">
-    <img src="/.github/assets/mobile-building-list-view.jpg" width="30%">
   </picture>
 </p>
 
