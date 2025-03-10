@@ -10,12 +10,8 @@ Remember: pillage first, ask questions later! ⚔️🔥
 > Very much still work in progress.
 
 <p align="center">
-  <picture>
-    <img src="/.github/assets/mobile-map-view.jpg" width="40%">
-  </picture>
-  <picture>
-    <img src="/.github/assets/mobile-building-view.jpg" width="40%">
-  </picture>
+  <img src="/.github/assets/mobile-map-view.jpg" width="40%">
+  <img src="/.github/assets/mobile-building-view.jpg" width="40%">
 </p>
 
 ## Development setup
