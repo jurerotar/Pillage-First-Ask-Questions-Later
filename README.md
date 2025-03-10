@@ -9,42 +9,20 @@ Remember: pillage first, ask questions later! ⚔️🔥
 > [!NOTE]
 > Very much still work in progress.
 
-<div>
-  <style>
-    .screenshot-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .screenshot-container img {
-      width: 80%;
-      max-width: 300px;
-    }
-    .screenshot-container img:nth-child(3) {
-      display: none;
-    }
-    @media (min-width: 769px) {
-      .screenshot-container {
-        flex-direction: row;
-        justify-content: center;
-      }
-      .screenshot-container img {
-        width: 30%;
-        max-width: 200px;
-      }
-      .screenshot-container img:nth-child(3) {
-        display: block;
-      }
-    }
-  </style>
-
-  <div class="screenshot-container">
-    <img src="/.github/assets/mobile-map-view.jpg" alt="Mobile-screen map view">
-    <img src="/.github/assets/mobile-building-view.jpg" alt="Mobile-screen building view">
-    <img src="/.github/assets/mobile-building-list-view.jpg" alt="Mobile-screen building list view">
-  </div>
-</div>
+<p align="center">
+  <picture>
+    <source media="(max-width: 768px)" srcset="/.github/assets/mobile-map-view.jpg">
+    <img src="/.github/assets/mobile-map-view.jpg" width="40%">
+  </picture>
+  <picture>
+    <source media="(max-width: 768px)" srcset="/.github/assets/mobile-building-view.jpg">
+    <img src="/.github/assets/mobile-building-view.jpg" width="40%">
+  </picture>
+  <picture>
+    <source media="(max-width: 768px)" srcset="" width="0%">
+    <img src="/.github/assets/mobile-building-list-view.jpg" width="30%">
+  </picture>
+</p>
 
 ## Development setup
 

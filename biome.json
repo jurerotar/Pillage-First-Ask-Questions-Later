@@ -6,6 +6,9 @@
     "useIgnoreFile": true,
     "defaultBranch": "develop"
   },
+  "files": {
+    "ignoreUnknown": true
+  },
   "organizeImports": {
     "enabled": false
   },
