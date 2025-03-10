@@ -1,2 +1,2 @@
-biome check --write --staged
+biome check --write --staged --no-errors-on-unmatched
 git add .

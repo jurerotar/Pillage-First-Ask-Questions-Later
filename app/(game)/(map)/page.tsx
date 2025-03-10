@@ -47,7 +47,7 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  const mapHeight = isWiderThanLg ? height - 72 : height - 105;
+  const mapHeight = isWiderThanLg ? height - 72 : height - 130;
 
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);

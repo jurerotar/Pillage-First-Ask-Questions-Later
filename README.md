@@ -9,9 +9,17 @@ Remember: pillage first, ask questions later! ⚔️🔥
 > [!NOTE]
 > Very much still work in progress.
 
-## Setup
+<p align="center">
+  <img src="/.github/assets/mobile-map-view.jpg" width="30%">
+  &nbsp;
+  <img src="/.github/assets/mobile-building-view.jpg" width="30%">
+  &nbsp;
+  <img src="/.github/assets/mobile-building-list-view.jpg" width="30%">
+</p>
 
-Pillage First! requires [Node.js version 22.13.0 (LTS)](https://nodejs.org/en/download) or later.
+## Development setup
+
+Pillage First! requires [Node.js version 22.14.0 (LTS)](https://nodejs.org/en/download) or later.
 
 ```bash
 # Install dependencies
@@ -23,14 +31,6 @@ npm run dev
 
 App will automatically open in your default browser at `localhost:5173`.
 
-## Documentation
-
-The codebase is split into following directories:
-
-- `app` → Source code
-- `docs` → Documentation
-- `locales` → Localizations
-
 # Contributing
 
 All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related. Here are some guidelines to get you started:
@@ -40,7 +40,7 @@ All contributions are welcome at Pillage First!, whether they be tech, game desi
 - Check the following documentation links:
   - [Architecture & app lifecycle](/docs/ARCHITECTURE.md)
   - [Directory naming convention](/docs/DIRECTORY_NAMING_CONVENTION.md)
-- [Join Discord and ask for help](https://discord.gg/Ep7NKVXUZA) if you run into issues.
+- [Join Discord and ask for help](https://discord.gg/Ep7NKVXUZA) if you have questions or run into issues.
 
 All contributions are greatly appreciated.
 
