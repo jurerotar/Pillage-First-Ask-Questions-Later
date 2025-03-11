@@ -1,6 +1,6 @@
 import { UnitImprovementCard } from 'app/(game)/(village)/(...building-field-id)/components/components/components/unit-improvement-card';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
-import { units } from 'app/assets/units';
+import { units } from 'app/(game)/assets/units';
 
 export const AcademyUnitImprovement = () => {
   const { tribe } = useTribe();

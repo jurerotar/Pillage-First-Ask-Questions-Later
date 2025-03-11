@@ -5,7 +5,7 @@ import { getVillageSize } from 'app/factories/utils/common';
 import { partition, seededRandomArrayElement, seededRandomArrayElements } from 'app/utils/common';
 import type { PRNGFunction } from 'ts-seedrandom';
 import type { Server } from 'app/interfaces/models/game/server';
-import { items } from 'app/assets/items';
+import { items } from 'app/(game)/assets/items';
 
 const [miscellaneousHeroItems, wearableAndArtifactItems] = partition(items, ({ category }) =>
   ['consumable', 'resource', 'currency'].includes(category),

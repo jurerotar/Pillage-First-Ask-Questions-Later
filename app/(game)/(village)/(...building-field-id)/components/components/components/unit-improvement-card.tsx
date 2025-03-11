@@ -3,7 +3,7 @@ import { CurrentVillageContext } from 'app/(game)/providers/current-village-prov
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
-import { units } from 'app/assets/units';
+import { units } from 'app/(game)/assets/units';
 import { Button } from 'app/components/buttons/button';
 import { Icon } from 'app/components/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';

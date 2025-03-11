@@ -1,5 +1,5 @@
 import { getBuildingData } from 'app/(game)/utils/building';
-import { merchants } from 'app/assets/merchants';
+import { merchants } from 'app/(game)/assets/merchants';
 import type { BuildingEffect } from 'app/interfaces/models/game/building';
 import type {
   Effect,
