@@ -25,7 +25,7 @@ import { useForm } from 'react-hook-form';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
+    keyPrefix: 'APP.GAME.BUILDING_FIELD.UNIT_CARD.RESEARCH',
   });
   const { t: generalT } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
@@ -53,7 +53,7 @@ type UnitRecruitmentFormProps = {
 
 const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.RESEARCH',
+    keyPrefix: 'APP.GAME.BUILDING_FIELD.UNIT_CARD.RECRUITMENT',
   });
   const { t: generalT } = useTranslation();
   const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
@@ -117,10 +117,9 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     showUnitCost = false,
     showUnitRecruitmentForm = false,
   } = props;
-
   const { t: generalT } = useTranslation();
   const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH',
+    keyPrefix: 'APP.GAME.BUILDING_FIELD.UNIT_CARD',
   });
   const { currentVillage } = use(CurrentVillageContext);
   const { unitImprovements } = useUnitImprovement();
@@ -182,7 +181,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showUnitCost && (
         <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('UNIT_COST.TITLE')}</h2>
+          <h2 className="font-medium">{t('COST.TITLE')}</h2>
           <Resources
             className="flex-wrap"
             resources={baseRecruitmentCost}
