@@ -104,7 +104,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
               data-testid="building-actions-upgrade-building-button"
               variant="confirm"
               onClick={onBuildingUpgrade}
-              disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage) && hasEnoughResourcesToBuild)}
+              disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId!) && hasEnoughResourcesToBuild)}
             >
               {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
             </Button>
@@ -145,7 +145,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
           data-testid="building-actions-construct-building-button"
           variant="confirm"
           onClick={onBuildingConstruction}
-          disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage) && hasEnoughResourcesToBuild)}
+          disabled={!(getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId!) && hasEnoughResourcesToBuild)}
         >
           {t('Construct')}
         </Button>
