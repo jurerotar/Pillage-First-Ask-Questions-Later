@@ -17,3 +17,7 @@ vi.mock('react-i18next', () => ({
     t: (str: string): string => str,
   }),
 }));
+
+vi.mock('i18next', () => ({
+  t: (str: string): string => str,
+}));

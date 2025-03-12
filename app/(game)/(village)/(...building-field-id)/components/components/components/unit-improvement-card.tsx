@@ -20,6 +20,7 @@ type UnitImprovementCardProps = {
 
 export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId }) => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { tribe } = useTribe();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { unitImprovements, upgradeUnitTier } = useUnitImprovement();
@@ -53,8 +54,8 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
     <article className="flex flex-col p-2 border border-gray-500">
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{t(`UNITS.${unitId}.NAME`, unitId)}</h2>
-          <span className="text-sm text-orange-500">{t('GENERAL.LEVEL', { level: upgradeLevel })}</span>
+          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, unitId)}</h2>
+          <span className="text-sm text-orange-500">{t('Level {{level}}', { level: upgradeLevel })}</span>
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
           <Icon
@@ -63,11 +64,11 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
           />
         </div>
         <div className="text-gray-500 text-sm">
-          <span>The following mercenary units will also receive an upgrade:</span>
+          <span>{t('The following mercenary units will also receive an upgrade')}:</span>
           <ul className="flex flex-wrap gap-1">
             {sameTierMercenaryUnits.map(({ id }, index) => (
               <li key={id}>
-                {t(`UNITS.${id}.NAME`, id)}
+                {assetsT(`UNITS.${id}.NAME`, id)}
                 {index !== sameTierMercenaryUnits.length - 1 && ','}
               </li>
             ))}
@@ -76,23 +77,23 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
       </section>
 
       <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-        {isMaxLevel && <span className="text-orange-500">Max level reached</span>}
+        {isMaxLevel && <span className="text-orange-500">{t('Max level reached')}</span>}
         {!isMaxLevel && (
           <>
-            <h2 className="font-medium">Upgrade cost for level {upgradeLevel + 1}</h2>
+            <h2 className="font-medium">{t('Upgrade cost for level {{level}}', { level: upgradeLevel + 1 })}</h2>
             <Resources resources={upgradeCost} />
           </>
         )}
       </section>
       {!isMaxLevel && (
         <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-          <h2 className="font-medium">Available actions</h2>
+          <h2 className="font-medium">{t('Available actions')}</h2>
           <Button
             variant="confirm"
             disabled={!canUpgrade}
             onClick={() => upgradeUnitTier(tier)}
           >
-            Upgrade to {upgradeLevel + 1}
+            {t('Upgrade to {{level}}', { level: upgradeLevel + 1 })}
           </Button>
         </section>
       )}

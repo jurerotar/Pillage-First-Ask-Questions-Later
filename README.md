@@ -6,6 +6,8 @@ Manage resources to construct buildings, train units, and wage war against your 
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
+![Discord](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235865F2)
+
 > [!NOTE]
 > Very much still work in progress.
 

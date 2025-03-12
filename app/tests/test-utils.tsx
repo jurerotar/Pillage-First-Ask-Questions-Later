@@ -73,13 +73,6 @@ type RenderOptions = {
 const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   const { wrapper = [], deviceSize, children, queryClient: providedQueryClient, path } = props;
 
-  const globalQueryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        queryFn: () => {},
-      },
-    },
-  });
   const gameQueryClient = createGameEnvironment();
 
   // Overwrite data in game env client
@@ -98,49 +91,56 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   );
 
   return (
-    <StateProvider queryClient={globalQueryClient}>
-      <ViewportProvider initialSize={deviceSize}>
-        <StateProvider queryClient={gameQueryClient}>
-          <MemoryRouter initialEntries={[path ?? `${serverPathMock}/v-1`]}>
-            <Routes>
+    <ViewportProvider initialSize={deviceSize}>
+      <StateProvider queryClient={gameQueryClient}>
+        <MemoryRouter initialEntries={[path ?? `${serverPathMock}/v-1`]}>
+          <Routes>
+            <Route
+              id="game"
+              path="/game/:serverSlug/:villageSlug"
+              element={element}
+            >
               <Route
-                id="game"
-                path="/game/:serverSlug/:villageSlug"
+                path="resources"
                 element={element}
               >
                 <Route
-                  path="resources"
+                  path=":buildingFieldId"
                   element={element}
-                >
-                  <Route
-                    path=":buildingFieldId"
-                    element={element}
-                  />
-                </Route>
-                <Route
-                  path="village"
-                  element={element}
-                >
-                  <Route
-                    path=":buildingFieldId"
-                    element={element}
-                  />
-                </Route>
-                <Route
-                  path="reports"
-                  element={element}
-                >
-                  <Route
-                    path=":reportId"
-                    element={element}
-                  />
-                </Route>
+                />
               </Route>
-            </Routes>
-          </MemoryRouter>
-        </StateProvider>
-      </ViewportProvider>
-    </StateProvider>
+              <Route
+                path="village"
+                element={element}
+              >
+                <Route
+                  path=":buildingFieldId"
+                  element={element}
+                />
+              </Route>
+              <Route
+                path="reports"
+                element={element}
+              >
+                <Route
+                  path=":reportId"
+                  element={element}
+                />
+              </Route>
+              <Route
+                path="quests"
+                element={element}
+              >
+                <Route
+                  path=":questId"
+                  element={element}
+                />
+              </Route>
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </StateProvider>
+    </ViewportProvider>
   );
 };
 

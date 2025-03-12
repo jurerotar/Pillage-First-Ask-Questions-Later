@@ -10,8 +10,7 @@ import type {
 } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
-import { use } from 'react';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
@@ -137,7 +136,7 @@ type OccupiedBuildingFieldProps = {
 };
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
-  const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { currentVillage } = use(CurrentVillageContext);
   const { shouldShowBuildingNames } = usePreferences();
   const { id: buildingFieldId, buildingId, level } = buildingField;
@@ -149,7 +148,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   return (
     <Link
       to={`${buildingFieldId}`}
-      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
+      aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
         dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.resourceFieldComposition, level }),
@@ -165,7 +164,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       />
       {shouldShowBuildingNames && (
         <span className="text-3xs md:text-2xs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
-          {t(`BUILDINGS.${buildingId}.NAME`)}
+          {assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}
     </Link>

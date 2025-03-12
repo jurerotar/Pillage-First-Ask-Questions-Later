@@ -7,7 +7,6 @@ export const useHero = () => {
     queryKey: [heroCacheKey],
   });
 
-  // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
   const hero = data as Hero;
 
   return {

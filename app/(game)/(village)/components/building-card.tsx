@@ -20,6 +20,7 @@ type BuildingCardProps = {
 
 export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { tribe } = useTribe();
   const { getPlayerVillages } = useVillages();
   const { currentVillage } = use(CurrentVillageContext);
@@ -62,23 +63,21 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
       {/* Show building requirements if building can't be built */}
       {!canBuild && !specialFieldIds.includes(buildingFieldId!) && (
         <section className="flex flex-col border-t border-gray-200 pt-2 gap-2">
-          <h3 className="font-medium">Requirements</h3>
+          <h3 className="font-medium">{t('Requirements')}</h3>
           <ul className="flex gap-x-2 flex-wrap">
             {requirementsToDisplay.map((assessedRequirement: AssessedBuildingRequirement, index) => (
               <Fragment key={assessedRequirement.id}>
                 <li className="whitespace-nowrap">
                   <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                    {assessedRequirement.type === 'amount' && instanceAlreadyExists && (
-                      <>
-                        {t(`BUILDINGS.${buildingId}.NAME`)} level {maxLevel}
-                      </>
-                    )}
-                    {assessedRequirement.type === 'capital' && 'Capital'}
-                    {assessedRequirement.type === 'building' && (
-                      <>
-                        {t(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} level {assessedRequirement.level}
-                      </>
-                    )}
+                    {assessedRequirement.type === 'amount' &&
+                      instanceAlreadyExists &&
+                      t('{{building}} level {{level}}', { building: assetsT(`BUILDINGS.${buildingId}.NAME`), level: maxLevel })}
+                    {assessedRequirement.type === 'capital' && t('Capital')}
+                    {assessedRequirement.type === 'building' &&
+                      t('{{building}} level {{level}}', {
+                        building: assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`),
+                        level: assessedRequirement.level,
+                      })}
                     {index !== requirementsToDisplay.length - 1 && ','}
                   </span>
                 </li>

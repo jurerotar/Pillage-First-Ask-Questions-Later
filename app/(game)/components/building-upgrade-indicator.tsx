@@ -135,14 +135,21 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
       return 'yellow';
     }
 
-    if (!getCanAddAdditionalBuildingToQueue(currentVillage)) {
+    if (!getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId)) {
       return 'yellow';
     }
 
     return 'green';
   })();
 
-  const canUpgrade: boolean = variant === 'green' || variant === 'red';
+  const canUpgrade: boolean = (() => {
+    // You can upgrade, ignoring any restriction except max level
+    if (isDeveloperModeActive) {
+      return !isMaxLevel;
+    }
+
+    return variant === 'green' || variant === 'red';
+  })();
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
     const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);

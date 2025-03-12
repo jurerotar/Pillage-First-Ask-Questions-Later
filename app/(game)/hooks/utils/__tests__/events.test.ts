@@ -5,10 +5,10 @@ import { describe, expect, test } from 'vitest';
 const now = Date.now();
 
 const events = [
-  { id: 1, startsAt: now },
-  { id: 2, startsAt: now + 1000 },
-  { id: 3, startsAt: now + 2000 },
-  { id: 4, startsAt: now + 3000 },
+  { id: 1, startsAt: now, duration: 3000 }, // Resolves at now + 3000
+  { id: 2, startsAt: now + 1000, duration: 2000 }, // Resolves at now + 3000
+  { id: 3, startsAt: now + 2000, duration: 1000 }, // Resolves at now + 3000
+  { id: 4, startsAt: now + 3000, duration: 4000 }, // Resolves at now + 7000
 ] as unknown as GameEvent[];
 
 describe('insertEvent', () => {
@@ -19,8 +19,9 @@ describe('insertEvent', () => {
       insertEvent(events, {
         id: 'new-event',
         startsAt: now + 1500,
+        duration: 1000,
       } as GameEvent).findIndex(findFn),
-    ).toBe(2);
+    ).toBe(0);
   });
 
   test('should insert new event after the event with the same startsAt value', () => {
@@ -28,8 +29,9 @@ describe('insertEvent', () => {
       insertEvent(events, {
         id: 'new-event',
         startsAt: now,
+        duration: 1000,
       } as GameEvent).findIndex(findFn),
-    ).toBe(1);
+    ).toBe(0);
   });
 
   test('should insert new event at the end if startsAt is greater than all existing events', () => {
@@ -37,17 +39,54 @@ describe('insertEvent', () => {
       insertEvent(events, {
         id: 'new-event',
         startsAt: now + 4000,
+        duration: 2000,
       } as GameEvent).findIndex(findFn),
-    ).toBe(4);
+    ).toBe(3);
   });
 
   test('should insert new event before the first event if startsAt is less than the first event', () => {
     expect(
       insertEvent(events, {
         id: 'new-event',
-        startsAt: now,
+        startsAt: now - 500,
+        duration: 1000,
       } as GameEvent).findIndex(findFn),
-    ).toBe(1);
+    ).toBe(0);
+  });
+
+  test('should insert event earlier in the queue if it resolves before an event that starts earlier', () => {
+    expect(
+      insertEvent(events, {
+        id: 'new-event',
+        startsAt: now + 2500,
+        duration: 500,
+      } as GameEvent).findIndex(findFn),
+    ).toBe(3);
+  });
+
+  test('should insert event before another event with the same startsAt but longer duration', () => {
+    expect(
+      insertEvent(events, {
+        id: 'new-event',
+        startsAt: now + 3000,
+        duration: 1000,
+      } as GameEvent).findIndex(findFn),
+    ).toBe(3);
+  });
+
+  test('should insert event in correct order even if multiple events have the same startsAt', () => {
+    const newEvents = [
+      { id: 1, startsAt: now, duration: 4000 },
+      { id: 2, startsAt: now, duration: 2000 },
+    ] as unknown as GameEvent[];
+
+    expect(
+      insertEvent(newEvents, {
+        id: 'new-event',
+        startsAt: now,
+        duration: 1000,
+      } as GameEvent).findIndex(findFn),
+    ).toBe(0);
   });
 });
 

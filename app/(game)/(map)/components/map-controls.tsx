@@ -7,6 +7,7 @@ import type React from 'react';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Divider } from 'app/components/divider';
+import { ViewportContext } from 'app/providers/viewport-context';
 
 type MagnificationButtonProps = {
   direction: 'increase' | 'decrease';
@@ -26,9 +27,7 @@ const MagnificationButton: React.FC<MagnificationButtonProps> = ({ direction }) 
       disabled={isDisabled}
       className={clsx('rounded-md p-1', isDisabled && 'bg-gray-200')}
       data-testid={direction === 'increase' ? 'map-controls-magnification-increase-button' : 'map-controls-magnification-decrease-button'}
-      aria-label={t(
-        direction === 'increase' ? 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_INCREASE' : 'APP.GAME.MAP.MAP_CONTROLS.MAGNIFICATION_DECREASE',
-      )}
+      aria-label={direction === 'increase' ? t('Zoom in') : t('Zoom out')}
     >
       {direction === 'increase' && <Icon type="mapMagnificationIncrease" />}
       {direction === 'decrease' && <Icon type="mapMagnificationDecrease" />}
@@ -47,10 +46,14 @@ export const MapControls = () => {
     shouldShowTreasureIcons,
     toggleMapFilter,
   } = useMapFilters();
+  const { isWiderThanLg } = use(ViewportContext);
 
   return (
     <>
-      <Tooltip id="map-controls-tooltip" />
+      <Tooltip
+        hidden={!isWiderThanLg}
+        id="map-controls-tooltip"
+      />
       <div className="pointer-events-none fixed bottom-28 lg:bottom-8 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
         <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-2">
           <MagnificationButton direction="increase" />
@@ -60,14 +63,14 @@ export const MapControls = () => {
         <div className="pointer-events-auto flex gap-1 sm:gap-2 rounded-md bg-white p-2">
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_REPUTATION_DISPLAY')}
+            data-tooltip-content={t('Toggle faction reputation display')}
           >
             <button
               data-testid="map-controls-toggle-faction-reputation-button"
               className={clsx(shouldShowFactionReputation && 'bg-green-200', 'rounded-md p-1')}
               onClick={() => toggleMapFilter('shouldShowFactionReputation')}
               type="button"
-              aria-label={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_REPUTATION_DISPLAY')}
+              aria-label={t('Toggle faction reputation display')}
             >
               <Icon type="mapReputationToggle" />
             </button>
@@ -75,14 +78,14 @@ export const MapControls = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_OASIS_ICON_DISPLAY')}
+            data-tooltip-content={t('Toggle oasis resource icons display')}
           >
             <button
               data-testid="map-controls-toggle-oasis-button"
               className={clsx(shouldShowOasisIcons && 'bg-green-200', 'rounded-md p-1')}
               onClick={() => toggleMapFilter('shouldShowOasisIcons')}
               type="button"
-              aria-label={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_OASIS_ICON_DISPLAY')}
+              aria-label={t('Toggle oasis resource icons display')}
             >
               <Icon type="mapOasisIconsToggle" />
             </button>
@@ -90,14 +93,14 @@ export const MapControls = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TREASURES_DISPLAY')}
+            data-tooltip-content={t('Toggle treasure villages icons display')}
           >
             <button
               data-testid="map-controls-toggle-treasures-button"
               className={clsx(shouldShowTreasureIcons && 'bg-green-200', 'rounded-md p-1')}
               onClick={() => toggleMapFilter('shouldShowTreasureIcons')}
               type="button"
-              aria-label={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TREASURES_DISPLAY')}
+              aria-label={t('Toggle treasure villages icons display')}
             >
               <Icon type="mapTreasureIconToggle" />
             </button>
@@ -105,14 +108,14 @@ export const MapControls = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TROOP_MOVEMENTS_DISPLAY')}
+            data-tooltip-content={t('Toggle troop movements display')}
           >
             <button
               data-testid="map-controls-toggle-troop-movements-button"
               className={clsx(shouldShowTroopMovements && 'bg-green-200', 'rounded-md p-1')}
               onClick={() => toggleMapFilter('shouldShowTroopMovements')}
               type="button"
-              aria-label={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TROOP_MOVEMENTS_DISPLAY')}
+              aria-label={t('Toggle troop movements display')}
             >
               <Icon type="mapTroopMovementsToggle" />
             </button>
@@ -120,14 +123,14 @@ export const MapControls = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_WHEAT_FIELDS_ICON_DISPLAY')}
+            data-tooltip-content={t('Toggle wheat field icons display')}
           >
             <button
               data-testid="map-controls-toggle-wheat-fields-button"
               className={clsx(shouldShowWheatFields && 'bg-green-200', 'rounded-md p-1')}
               onClick={() => toggleMapFilter('shouldShowWheatFields')}
               type="button"
-              aria-label={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_WHEAT_FIELDS_ICON_DISPLAY')}
+              aria-label={t('Toggle wheat field icons display')}
             >
               <Icon type="mapWheatFieldIconToggle" />
             </button>
@@ -135,14 +138,14 @@ export const MapControls = () => {
           <Divider />
           <span
             data-tooltip-id="map-controls-tooltip"
-            data-tooltip-content={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TILE_TOOLTIP_DISPLAY')}
+            data-tooltip-content={t('Toggle tooltip popups')}
           >
             <button
               data-testid="map-controls-toggle-tile-tooltips-button"
               className={clsx(shouldShowTileTooltips && 'bg-green-200', 'rounded-md p-1')}
               onClick={() => toggleMapFilter('shouldShowTileTooltips')}
               type="button"
-              aria-label={t('APP.GAME.MAP.MAP_CONTROLS.TOGGLE_TILE_TOOLTIP_DISPLAY')}
+              aria-label={t('Toggle tooltip popups')}
             >
               <Icon type="mapTileTooltipToggle" />
             </button>

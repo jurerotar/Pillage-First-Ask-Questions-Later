@@ -38,7 +38,7 @@ const createCropConsumptionOfType = (type: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = '
 const createResourceProductionEffect = (effectId: ResourceProductionEffectId): BuildingEffect => {
   return {
     effectId,
-    valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240],
+    valuesPerLevel: [3, 7, 13, 21, 31, 46, 70, 98, 140, 203, 280, 392, 525, 693, 889, 1120, 1400, 1820, 2240, 2800, 3430],
   };
 };
 

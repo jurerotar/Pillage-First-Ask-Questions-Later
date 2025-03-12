@@ -20,7 +20,7 @@ export const AcademyUnitResearch = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <Text as="h2">{t('APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.ACADEMY.UNIT_RESEARCH.TITLE')}</Text>
+      <Text as="h2">{t('Unit research')}</Text>
       {researchedUnits.length > 0 && (
         <ul className="flex flex-col gap-2">
           {researchedUnits.map(({ unitId }) => (

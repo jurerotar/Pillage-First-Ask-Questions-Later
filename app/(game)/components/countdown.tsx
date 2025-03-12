@@ -1,6 +1,7 @@
-import { formatCountdown, formatFutureTimestamp } from 'app/utils/time';
+import { formatFutureTimestamp, formatTime } from 'app/utils/time';
 import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { use } from 'react';
+import { CountdownContext } from 'app/(game)/providers/countdown-provider';
 
 type CountdownProps = {
   endsAt: number;
@@ -8,22 +9,10 @@ type CountdownProps = {
 } & React.HTMLAttributes<HTMLElement>;
 
 export const Countdown: React.FC<CountdownProps> = ({ endsAt, showCompletionDate = false, ...rest }) => {
-  const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const { currentTime } = use(CountdownContext);
 
-  const [formattedTime, setFormattedTime] = useState<string>(formatCountdown(endsAt));
-
-  useEffect(() => {
-    if (intervalId.current !== null) {
-      clearInterval(intervalId.current);
-    }
-    intervalId.current = setInterval(() => {
-      setFormattedTime(formatCountdown(endsAt));
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalId.current!);
-    };
-  }, [endsAt]);
+  const remainingTime = Math.max(0, endsAt - currentTime);
+  const formattedTime = formatTime(remainingTime);
 
   return (
     <span {...rest}>

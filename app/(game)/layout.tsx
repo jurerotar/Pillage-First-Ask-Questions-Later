@@ -26,6 +26,7 @@ import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
 import { Divider } from 'app/components/divider';
+import { CountdownProvider } from 'app/(game)/providers/countdown-provider';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -401,11 +402,13 @@ const GameLayout = () => {
     <CurrentVillageProvider>
       <GameEngineProvider>
         <CurrentResourceProvider>
-          <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
-            <TopNavigation />
-            <Outlet />
-            <MobileBottomNavigation />
-          </div>
+          <CountdownProvider>
+            <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
+              <TopNavigation />
+              <Outlet />
+              <MobileBottomNavigation />
+            </div>
+          </CountdownProvider>
         </CurrentResourceProvider>
       </GameEngineProvider>
     </CurrentVillageProvider>

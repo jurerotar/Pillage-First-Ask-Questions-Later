@@ -18,15 +18,15 @@ type UnoccupiedArtifactRowProps = {
 };
 
 const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) => {
-  const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { mapPath } = useGameNavigation();
 
   const coordinates = parseCoordinatesFromTileId(item.tileId);
 
   return (
     <TableRow>
-      <TableCell>{t(`ITEMS.${item.id}.TITLE`)}</TableCell>
-      <TableCell>{t(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
+      <TableCell>{assetsT(`ITEMS.${item.id}.TITLE`)}</TableCell>
+      <TableCell>{assetsT(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
       <TableCell>
         <LinkWithState to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
           {coordinates.x}, {coordinates.y}
@@ -37,10 +37,8 @@ const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) =
 };
 
 export const TreasuryArtifacts = () => {
+  const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
-  const { t: treasuryT } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.TREASURY',
-  });
   const { hero } = useHero();
   const { currentVillageArtifactId, hasCurrentVillageArtifact, assignedArtifacts } = useArtifacts();
   const { worldItems } = useWorldItems();
@@ -67,21 +65,21 @@ export const TreasuryArtifacts = () => {
   return (
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
-        <Text as="h2">{treasuryT('VILLAGE_ARTIFACT.TITLE')}</Text>
+        <Text as="h2">{t('Artifact in this village')}</Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{treasuryT('VILLAGE_ARTIFACT.TABLE.ARTIFACT_NAME')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('VILLAGE_ARTIFACT.TABLE.ARTIFACT_DESCRIPTION')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('VILLAGE_ARTIFACT.TABLE.ACTIONS')}</TableHeaderCell>
+              <TableHeaderCell>{t('Name')}</TableHeaderCell>
+              <TableHeaderCell>{t('Description')}</TableHeaderCell>
+              <TableHeaderCell>{t('Actions')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
               {hasCurrentVillageArtifact && (
                 <>
-                  <TableCell>{t(`ITEMS.${currentVillageArtifactId}.TITLE`)}</TableCell>
-                  <TableCell>{t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}</TableCell>
+                  <TableCell>{assetsT(`ITEMS.${currentVillageArtifactId}.TITLE`)}</TableCell>
+                  <TableCell>{assetsT(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}</TableCell>
                   <TableCell>/</TableCell>
                 </>
               )}
@@ -91,11 +89,9 @@ export const TreasuryArtifacts = () => {
                     className="text-left"
                     colSpan={hasAvailableArtifacts ? 2 : 3}
                   >
-                    {treasuryT(
-                      hasAvailableArtifacts
-                        ? 'VILLAGE_ARTIFACT.TABLE.NO_ARTIFACT_ASSIGN_AVAILABLE'
-                        : 'VILLAGE_ARTIFACT.TABLE.NO_ARTIFACT_ASSIGN_UNAVAILABLE',
-                    )}
+                    {hasAvailableArtifacts
+                      ? t('This village does not host an artifact. Select an artifact to assign.')
+                      : t('This village does not host an artifact. Capture one first from the list bellow.')}
                   </TableCell>
                   {hasAvailableArtifacts && <TableCell className="text-left">TODO</TableCell>}
                 </>
@@ -106,13 +102,13 @@ export const TreasuryArtifacts = () => {
       </section>
 
       <section className="flex flex-col gap-2">
-        <Text as="h2">{treasuryT('UNOCCUPIED_ARTIFACTS.TITLE')}</Text>
+        <Text as="h2">{t('Unoccupied artifacts')}</Text>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{treasuryT('UNOCCUPIED_ARTIFACTS.TABLE.ARTIFACT_NAME')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('UNOCCUPIED_ARTIFACTS.TABLE.ARTIFACT_DESCRIPTION')}</TableHeaderCell>
-              <TableHeaderCell>{treasuryT('UNOCCUPIED_ARTIFACTS.TABLE.ARTIFACT_COORDINATES')}</TableHeaderCell>
+              <TableHeaderCell>{t('Name')}</TableHeaderCell>
+              <TableHeaderCell>{t('Description')}</TableHeaderCell>
+              <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -122,7 +118,7 @@ export const TreasuryArtifacts = () => {
                   className="text-left"
                   colSpan={3}
                 >
-                  {t('UNOCCUPIED_ARTIFACTS.TABLE.NO_ARTIFACTS_AVAILABLE')}
+                  {t('There are no more artifacts to conquer.')}
                 </TableCell>
               </TableRow>
             )}
