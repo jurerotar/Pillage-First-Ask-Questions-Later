@@ -26,7 +26,7 @@ const BuildingUpgradeList = () => {
 
   return (
     <div className="flex gap-2 flex-col">
-      {currentVillageBuildingEvents.map((event) => (
+      {currentVillageBuildingEvents.map((event, index) => (
         <p
           className="inline-flex gap-2 items-center"
           key={event.id}
@@ -42,7 +42,13 @@ const BuildingUpgradeList = () => {
           </button>
           <span className="font-medium">{assetsT(`BUILDINGS.${event.building.id}.NAME`)}</span>
           <span className="text-orange-500">{t('level {{level}}', { level: event.level })}</span>
-          <Countdown endsAt={event.startsAt + event.duration} />
+          <Countdown
+            endsAt={
+              event.startsAt +
+              event.duration +
+              +(isScheduledBuildingEvent(event) ? currentVillageBuildingEvents.at(index - 1)!.duration : 0)
+            }
+          />
           {isScheduledBuildingEvent(event) && <span className="text-gray-400">(Building queue)</span>}
         </p>
       ))}

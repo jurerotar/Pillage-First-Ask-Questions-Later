@@ -11,8 +11,16 @@ import { effectsCacheKey, eventsCacheKey, villagesCacheKey } from 'app/(game)/co
 
 // To prevent constant resorting, events must be added to correct indexes, determined by their timestamp.
 export const insertEvent = (events: GameEvent[], event: GameEvent): GameEvent[] => {
-  const lastIndex = events.findLastIndex(({ startsAt }) => event.startsAt >= startsAt);
-  return events.toSpliced(lastIndex === -1 ? events.length : lastIndex + 1, 0, event);
+  const eventResolvesAt = event.startsAt + event.duration;
+
+  // Find the correct insertion index
+  const insertIndex = events.findIndex(({ startsAt, duration }) => {
+    const existingResolvesAt = startsAt + duration;
+    return eventResolvesAt < existingResolvesAt; // Insert before the first event that resolves later
+  });
+
+  // If no suitable position is found, append at the end
+  return events.toSpliced(insertIndex === -1 ? events.length : insertIndex, 0, event);
 };
 
 // Make sure newEvents are already sorted. We avoid sorting to optimize performance.

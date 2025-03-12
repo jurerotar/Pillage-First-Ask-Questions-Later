@@ -12,11 +12,12 @@ import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { updateVillageResources } from 'app/(game)/hooks/utils/events';
 import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import { eventsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
 
-const MAX_BUILDINGS_IN_QUEUE = 5;
+// TODO: Raise this to 5 once you figure out how to solve the scheduledBuildingEvent bug
+const MAX_BUILDINGS_IN_QUEUE = 1;
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   switch (gameEventType) {
@@ -142,8 +143,30 @@ export const useEvents = () => {
     return events.filter((event) => isBuildingEvent(event) && event.villageId === currentVillage.id) as GameEvent<'buildingConstruction'>[];
   };
 
-  const getCanAddAdditionalBuildingToQueue = (currentVillage: Village) => {
-    return getCurrentVillageBuildingEvents(currentVillage).length < MAX_BUILDINGS_IN_QUEUE;
+  // Returns building event queue for specific village. Makes sure you get the correct queue in case of roman tribe, since they have 2
+  const getVillageBuildingEventsQueue = (currentVillage: Village, buildingFiendId: BuildingField['id']) => {
+    const currentVillageBuildingEffects = getCurrentVillageBuildingEvents(currentVillage);
+
+    if (tribe !== 'romans') {
+      return currentVillageBuildingEffects;
+    }
+
+    const [resourceQueue, villageQueue] = partition<GameEvent<'buildingLevelChange'>>(
+      currentVillageBuildingEffects,
+      (event) => event.buildingFieldId <= 18,
+    );
+
+    if (buildingFiendId <= 18) {
+      return resourceQueue;
+    }
+
+    return villageQueue;
+  };
+
+  const getCanAddAdditionalBuildingToQueue = (currentVillage: Village, buildingFieldId: BuildingField['id']) => {
+    const villageBuildingQueue = getVillageBuildingEventsQueue(currentVillage, buildingFieldId);
+
+    return villageBuildingQueue.length < MAX_BUILDINGS_IN_QUEUE;
   };
 
   return {
@@ -152,5 +175,6 @@ export const useEvents = () => {
     cancelBuildingEvent,
     getCurrentVillageBuildingEvents,
     getCanAddAdditionalBuildingToQueue,
+    getVillageBuildingEventsQueue,
   };
 };

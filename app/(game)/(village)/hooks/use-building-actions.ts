@@ -1,20 +1,18 @@
 import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building-virtual-level';
-import { isScheduledBuildingEvent } from 'app/(game)/hooks/guards/event-guards';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useEvents } from 'app/(game)/hooks/use-events';
-import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { use } from 'react';
 import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { isScheduledBuildingEvent } from 'app/(game)/hooks/guards/event-guards';
 
 export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
-  const { tribe } = useTribe();
   const { currentVillage } = use(CurrentVillageContext);
-  const { getCurrentVillageBuildingEvents } = useEvents();
+  const { getVillageBuildingEventsQueue } = useEvents();
   const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
@@ -23,20 +21,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
   const { isDeveloperModeActive } = useDeveloperMode();
 
-  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
-
-  // Idea is that romans effectively have 2 queues, one for resources and one for village buildings, while other tribes only have 1.
-  // To make things simpler bellow, we essentially split the building queue at this point.
-  const buildingEvents =
-    tribe === 'romans'
-      ? currentVillageBuildingEvents.filter((event) => {
-          if (buildingFieldId! <= 18) {
-            return event.buildingFieldId <= 18;
-          }
-
-          return event.buildingFieldId > 18;
-        })
-      : currentVillageBuildingEvents;
+  const buildingEvents = getVillageBuildingEventsQueue(currentVillage, buildingFieldId);
 
   const hasCurrentVillageBuildingEvents = buildingEvents.length > 0;
 

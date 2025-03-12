@@ -135,7 +135,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
       return 'yellow';
     }
 
-    if (!getCanAddAdditionalBuildingToQueue(currentVillage)) {
+    if (!getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId)) {
       return 'yellow';
     }
 

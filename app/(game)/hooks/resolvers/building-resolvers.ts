@@ -7,6 +7,7 @@ import type { Effect } from 'app/interfaces/models/game/effect';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import { effectsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { isBuildingEffect } from 'app/(game)/hooks/guards/effect-guards';
 
 const updateBuildingFieldLevel = (
   villages: Village[],
@@ -66,9 +67,12 @@ export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChang
   const { villageId, buildingFieldId, level, building } = args;
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
+    const buildingEffects = prevData!.filter(isBuildingEffect);
+
+    // Loop through all effects gained by the new level, find corresponding village effects and update them to the new values
     for (const { effectId, valuesPerLevel } of building.effects) {
-      prevData!.find((effect) => effect.scope === 'village' && effect.id === effectId && effect.source === 'building')!.value =
-        valuesPerLevel[level];
+      const villageEffect = buildingEffects.find((effect) => effect.id === effectId && effect?.buildingFieldId === buildingFieldId)!;
+      villageEffect.value = valuesPerLevel[level];
     }
     return prevData;
   });
@@ -112,6 +116,7 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
 ) => {
   const { building, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
+
   await createEventFn<'buildingLevelChange'>(queryClient, {
     type: 'buildingLevelChange',
     startsAt,
