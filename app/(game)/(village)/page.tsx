@@ -14,6 +14,7 @@ import { CurrentVillageContext } from 'app/(game)/providers/current-village-prov
 
 const BuildingUpgradeList = () => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { currentVillage } = use(CurrentVillageContext);
   const { getCurrentVillageBuildingEvents, cancelBuildingEvent } = useEvents();
 
@@ -39,8 +40,8 @@ const BuildingUpgradeList = () => {
               className="size-4"
             />
           </button>
-          <span className="font-medium">{t(`BUILDINGS.${event.building.id}.NAME`)}</span>
-          <span className="text-orange-500">{t('GENERAL.LEVEL', { level: event.level }).toLowerCase()}</span>
+          <span className="font-medium">{assetsT(`BUILDINGS.${event.building.id}.NAME`)}</span>
+          <span className="text-orange-500">{t('level {{level}}', { level: event.level })}</span>
           <Countdown endsAt={event.startsAt + event.duration} />
           {isScheduledBuildingEvent(event) && <span className="text-gray-400">(Building queue)</span>}
         </p>
@@ -90,7 +91,7 @@ const VillagePage = () => {
             <Link
               to={villagePath}
               className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
-              aria-label={t('APP.GAME.VILLAGE.BUILDING_FIELD.VILLAGE_LINK')}
+              aria-label={t('Village')}
             >
               Village
             </Link>

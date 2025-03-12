@@ -21,8 +21,8 @@ type BuildingOverviewProps = {
 };
 
 export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, titleCount = 0, showLevel = false }) => {
-  const { t: generalT } = useTranslation();
-  const { t } = useTranslation('translation', { keyPrefix: 'APP.GAME.BUILDING_FIELD.BUILDING_OVERVIEW' });
+  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { actualLevel, buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
@@ -48,14 +48,14 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         <div className="inline-flex gap-2 items-center font-semibold">
           <Text as="h2">
             {titleCount > 0 && <span data-testid="building-overview-building-count">{titleCount + 1}.</span>}
-            <span data-testid="building-overview-building-title">{generalT(`BUILDINGS.${building.id}.NAME`)}</span>
+            <span data-testid="building-overview-building-title">{assetsT(`BUILDINGS.${building.id}.NAME`)}</span>
           </Text>
           {showLevel && (
             <span
               data-testid="building-overview-building-level"
               className="text-sm text-orange-500"
             >
-              {generalT('GENERAL.LEVEL', { level: actualLevel })}
+              {t('Level {{level}}', { level: actualLevel })}
             </span>
           )}
         </div>
@@ -69,14 +69,14 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
           data-testid="building-overview-building-description"
           className="text-gray-500 text-sm"
         >
-          {generalT(`BUILDINGS.${building.id}.DESCRIPTION`)}
+          {assetsT(`BUILDINGS.${building.id}.DESCRIPTION`)}
         </p>
         {actualLevel !== buildingLevel && (
           <span
             data-testid="building-overview-currently-upgrading-span"
             className="inline-flex text-orange-500 mt-2"
           >
-            {generalT('APP.GAME.VILLAGE.BUILDING_FIELD.CURRENTLY_UPGRADING', { level: buildingLevel })}
+            {assetsT('Currently upgrading to level {{level}}', { level: buildingLevel })}
           </span>
         )}
         {isActualMaxLevel && (
@@ -84,7 +84,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             data-testid="building-overview-max-level"
             className="inline-flex text-green-600 mt-2"
           >
-            {t('GENERAL.BUILDING.MAX_LEVEL', { building: generalT(`BUILDINGS.${building.id}.NAME`) })}
+            {t('{{building}} is fully upgraded', { building: assetsT(`BUILDINGS.${building.id}.NAME`) })}
           </span>
         )}
       </section>
@@ -92,7 +92,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         data-testid="building-overview-benefits-section"
         className={clsx(isMaxLevel ? 'pt-2' : 'py-2', 'flex flex-col gap-2 justify-center border-t border-gray-200')}
       >
-        <h3 className="font-medium">{t('BENEFITS.TITLE', { level: actualLevel })}</h3>
+        <h3 className="font-medium">{t('Benefits at level {{level}}', { level: actualLevel })}</h3>
         <div className="flex flex-wrap gap-2">
           <Icon
             type="population"
@@ -135,11 +135,11 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             data-testid="building-overview-costs-section"
             className="flex flex-col flex-wrap gap-2 py-2 justify-center border-t border-gray-200"
           >
-            <h3 className="font-medium">{t('COSTS.TITLE', { level: buildingLevel + 1 })}</h3>
+            <h3 className="font-medium">{t('Cost to upgrade to level {{level}}', { level: buildingLevel + 1 })}</h3>
             <Resources resources={nextLevelResourceCost} />
           </section>
           <section className="flex flex-col flex-wrap gap-2 py-2 border-t border-gray-200 justify-center">
-            <h3 className="font-medium">{t('DURATION.TITLE', { level: buildingLevel + 1 })}</h3>
+            <h3 className="font-medium">{t('Building duration to level {{level}}', { level: buildingLevel + 1 })}</h3>
             <span className="flex gap-1">
               <Icon type="buildingDuration" />
               {formattedTime}

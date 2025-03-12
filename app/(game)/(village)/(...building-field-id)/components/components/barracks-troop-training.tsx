@@ -12,7 +12,7 @@ export const BarracksTroopTraining = () => {
   return (
     <article className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Text as="h2">{t('APP.GAME.BUILDING_FIELD.BUILDING_DETAILS.TAB_PANELS.BARRACKS.TROOP_TRAINING.TITLE')}</Text>
+        <Text as="h2">{t('Train infantry units')}</Text>
         {researchedInfantryUnits.map(({ unitId }) => (
           <UnitCard
             key={unitId}

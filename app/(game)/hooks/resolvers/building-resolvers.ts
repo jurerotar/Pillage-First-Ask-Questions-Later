@@ -112,8 +112,8 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
 ) => {
   const { building, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
-  await createEventFn<'buildingScheduledConstruction'>(queryClient, {
-    type: 'buildingScheduledConstruction',
+  await createEventFn<'buildingLevelChange'>(queryClient, {
+    type: 'buildingLevelChange',
     startsAt,
     duration,
     building,

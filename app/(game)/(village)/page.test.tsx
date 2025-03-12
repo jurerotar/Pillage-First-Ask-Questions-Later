@@ -12,7 +12,7 @@ describe('Resource page', () => {
   test('Village link should be rendered', () => {
     renderWithGameContext(<VillagePage />, options);
 
-    expect(screen.getByLabelText('APP.GAME.VILLAGE.BUILDING_FIELD.VILLAGE_LINK')).toBeInTheDocument();
+    expect(screen.getByLabelText('Village')).toBeInTheDocument();
   });
 
   test('19 links should be rendered', () => {

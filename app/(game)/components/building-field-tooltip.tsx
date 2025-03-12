@@ -16,13 +16,14 @@ type BuildingFieldTooltipProps = {
 
 export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buildingFieldId }) => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { currentVillage } = use(CurrentVillageContext);
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { getCurrentVillageBuildingEvents } = useEvents();
 
   if (!buildingField) {
-    return t('APP.GAME.VILLAGE.BUILDING_FIELD.EMPTY');
+    return t('Building site');
   }
 
   const { buildingId, level } = buildingField;
@@ -39,19 +40,19 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, upgradingToLevel);
 
-  const title = `${t(`BUILDINGS.${buildingId}.NAME`)} - ${t('GENERAL.LEVEL', { level }).toLowerCase()}`;
+  const title = `${assetsT(`BUILDINGS.${buildingId}.NAME`)} - ${t('level {{level}}', { level })}`;
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
 
   return (
     <div className="flex flex-col gap-1">
       <span className="font-semibold">{title}</span>
-      {isMaxLevel && <span>{t('GENERAL.BUILDING.MAX_LEVEL', { building: t(`BUILDINGS.${buildingId}.NAME`) })}</span>}
+      {isMaxLevel && <span>{t('{{building}} is fully upgraded', { building: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</span>}
       {!isMaxLevel && (
         <>
           {isCurrentlyUpgradingThisBuilding && (
-            <span className="text-orange-500">{t('APP.GAME.VILLAGE.BUILDING_FIELD.CURRENTLY_UPGRADING', { level: upgradingToLevel })}</span>
+            <span className="text-orange-500">{t('Currently upgrading to level {{level}}', { level: upgradingToLevel })}</span>
           )}
-          <span className="text-gray-300">{t('APP.GAME.VILLAGE.BUILDING_FIELD.NEXT_LEVEL_COST', { level: upgradingToLevel + 1 })}</span>
+          <span className="text-gray-300">{t('Cost for upgrading building to level {{level}}', { level: upgradingToLevel + 1 })}:</span>
           <Resources resources={nextLevelResourceCost} />
           <span className="flex gap-1">
             <Icon

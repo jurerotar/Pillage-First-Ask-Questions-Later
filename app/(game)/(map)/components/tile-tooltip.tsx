@@ -36,7 +36,7 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
 
   return (
     <span className="text-xs text-gray-300">
-      ({x}|{y}) - {t('GENERAL.FIELD', { count: distance })}
+      ({x}|{y}) - {t('Fields', { count: distance })}
     </span>
   );
 };
@@ -56,23 +56,23 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   return (
     <>
       <span>
-        {t('GENERAL.PLAYER')} - {name}
+        {t('Player')} - {name}
       </span>
       {faction !== 'player' && (
         <>
           <span>
-            {t('GENERAL.FACTION')} - {t(factionTranslationMap.get(faction)!)}
+            {t('Faction')} - {factionTranslationMap.get(faction)!}
           </span>
           <span>
-            {t('GENERAL.REPUTATION_LEVEL')} - {t(reputationLevelTranslationMap.get(reputationLevel)!)}
+            {t('Reputation')} - {reputationLevelTranslationMap.get(reputationLevel)!}
           </span>
         </>
       )}
       <span>
-        {t('GENERAL.TRIBE')} - {t(tribeTranslationMap.get(tribe)!)}
+        {t('Tribe')} - {tribeTranslationMap.get(tribe)!}
       </span>
       <span>
-        {t('GENERAL.POPULATION')} - {population}
+        {t('Population')} - {population}
       </span>
     </>
   );
@@ -84,18 +84,19 @@ type TileTooltipWorldItemProps = {
 
 const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({ item }) => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
 
   if (item.type === 'resource') {
-    return ['wood', 'clay', 'iron', 'wheat'].map((resource) => (
-      <span key={resource}>
-        {formatNumber(item.amount)}x {t(`RESOURCES.${resource.toUpperCase()}`)}
+    return (
+      <span>
+        {formatNumber(item.amount)}x {t('resources')}
       </span>
-    ));
+    );
   }
 
   return (
     <span>
-      {formatNumber(item.amount)}x {t(`ITEMS.${item.id}.TITLE`)}
+      {formatNumber(item.amount)}x {assetsT(`ITEMS.${item.id}.TITLE`)}
     </span>
   );
 };
@@ -138,16 +139,16 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
   const isOccupied = isOccupiedOasisTile(tile);
   const title = (() => {
     if (!isOccupiable) {
-      return 'APP.GAME.MAP.OASIS_TILE.WILDERNESS';
+      return t('Wilderness');
     }
-    return isOccupied ? 'APP.GAME.MAP.OASIS_TILE.OCCUPIED_OASIS' : 'APP.GAME.MAP.OASIS_TILE.UNOCCUPIED_OASIS';
+    return isOccupied ? t('Occupied oasis') : t('Unoccupied oasis');
   })();
 
   // Wilderness
   if (!isOccupiable) {
     return (
       <>
-        <span className="font-semibold">{t(title)}</span>
+        <span className="font-semibold">{title}</span>
         <TileTooltipLocation tile={tile} />
       </>
     );
@@ -155,7 +156,7 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
 
   return (
     <>
-      <span className="font-semibold">{t(title)}</span>
+      <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
       {tile.oasisResourceBonus.map(({ resource, bonus }: OasisResourceBonus) => (
         <span
@@ -167,7 +168,7 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
             type={resource}
           />
           <span>
-            {t(resourceTranslationMap.get(resource)!)} - {bonus}
+            {resourceTranslationMap.get(resource)!} - {bonus}
           </span>
         </span>
       ))}
@@ -186,7 +187,7 @@ const OccupiableTileTooltip: React.FC<OccupiableTileTooltipProps> = ({ tile }) =
 
   const [wood, clay, iron, ...wheat] = tile.resourceFieldComposition.split('');
   const readableResourceComposition = `${wood}-${clay}-${iron}-${wheat.join('')}`;
-  const title = `${t('APP.GAME.MAP.OCCUPIABLE_TILE.UNOCCUPIED_TILE')} ${readableResourceComposition}`;
+  const title = `${t('Abandoned valley')} ${readableResourceComposition}`;
 
   return (
     <>

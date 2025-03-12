@@ -56,7 +56,7 @@ describe('BuildingOverview', () => {
 
       const level = await screen.findByTestId('building-overview-building-level');
       expect(level, 'Level is missing').toBeInTheDocument();
-      expect(level, 'Level has incorrect text').toHaveTextContent('GENERAL.LEVEL');
+      expect(level, 'Level has incorrect text').toHaveTextContent('Level {{level}}');
     });
 
     test('Benefits section should always be rendered', async () => {

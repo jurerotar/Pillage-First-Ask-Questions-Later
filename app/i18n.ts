@@ -1,7 +1,8 @@
 import type { AvailableLocales } from 'app/interfaces/models/locale';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import enUsLocalization from '../locales/en-US.json';
+import enUsAppLocalization from '../locales/en-US/app.json';
+import enUsAssetsLocalization from '../locales/en-US/assets.json';
 
 const supportedLngs: AvailableLocales[] = ['en-US'];
 
@@ -13,7 +14,10 @@ i18n.use(initReactI18next).init({
   supportedLngs,
   resources: {
     'en-US': {
-      translation: enUsLocalization,
+      translation: {
+        ...enUsAppLocalization,
+        ...enUsAssetsLocalization,
+      },
     },
   },
 });

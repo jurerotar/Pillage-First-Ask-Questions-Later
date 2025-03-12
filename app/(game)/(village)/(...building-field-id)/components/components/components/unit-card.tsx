@@ -24,10 +24,8 @@ import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.UNIT_CARD.RESEARCH',
-  });
-  const { t: generalT } = useTranslation();
+  const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
   const { researchCost } = getUnitData(unitId)!;
 
@@ -35,8 +33,8 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
 
   return (
     <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-      <h2 className="font-medium">{t(hasResearchedUnit ? 'HAS_RESEARCHED_TITLE' : 'HAS_NOT_RESEARCHED_TITLE')}</h2>
-      {hasResearchedUnit && <span className="text-green-600">{t('UNIT_RESEARCHED', { unit: generalT(`UNITS.${unitId}.NAME`) })}</span>}
+      <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Resarch cost')}</h2>
+      {hasResearchedUnit && <span className="text-green-600">{t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`) })}</span>}
       {!hasResearchedUnit && (
         <Resources
           className="flex-wrap"
@@ -52,10 +50,8 @@ type UnitRecruitmentFormProps = {
 };
 
 const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.UNIT_CARD.RECRUITMENT',
-  });
-  const { t: generalT } = useTranslation();
+  const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentResourceContext);
   const { buildingFieldId } = useRouteSegments();
@@ -85,12 +81,12 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
 
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
-      <h2 className="font-medium">{t('ACTIONS.TITLE')}</h2>
+      <h2 className="font-medium">{t('Available actions')}</h2>
       <Button
         onClick={() => __recruitUnits(0)}
         variant="confirm"
       >
-        {t('ACTIONS.BUTTON', { unit: generalT(`UNITS.${unitId}.NAME`) })}
+        {t('Train {{count}} {{unit}} units', { unit: assetsT(`UNITS.${unitId}.NAME`), count: 1 })}
       </Button>
     </section>
   );
@@ -117,10 +113,8 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     showUnitCost = false,
     showUnitRecruitmentForm = false,
   } = props;
-  const { t: generalT } = useTranslation();
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'APP.GAME.BUILDING_FIELD.UNIT_CARD',
-  });
+  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = use(CurrentVillageContext);
   const { unitImprovements } = useUnitImprovement();
   const { isDeveloperModeActive } = useDeveloperMode();
@@ -161,9 +155,9 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     <article className="flex flex-col p-2 border border-gray-500">
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{generalT(`UNITS.${unitId}.NAME`)}</h2>
+          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`)}</h2>
           {shouldShowUnitLevel && (
-            <span className="text-sm text-orange-500">{generalT('GENERAL.LEVEL', { level: unitImprovement!.level })}</span>
+            <span className="text-sm text-orange-500">{t('Level {{level}}', { level: unitImprovement!.level })}</span>
           )}
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
@@ -181,7 +175,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showUnitCost && (
         <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('COST.TITLE')}</h2>
+          <h2 className="font-medium">{t('Unit cost')}</h2>
           <Resources
             className="flex-wrap"
             resources={baseRecruitmentCost}
@@ -191,7 +185,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showAttributes && (
         <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('ATTRIBUTES.TITLE')}</h2>
+          <h2 className="font-medium">{t('Attributes')}</h2>
           <div className="flex gap-2 flex-wrap">
             {Object.keys(attributes).map((attribute) => (
               <span
@@ -214,14 +208,14 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showRequirements && !canResearch && (
         <section className="py-2 flex flex-col gap-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('REQUIREMENTS.TITLE')}</h2>
+          <h2 className="font-medium">{t('Requirements')}</h2>
           <ul className="flex gap-2 flex-wrap">
             {assessedRequirements.map((assessedRequirement: AssessedResearchRequirement, index) => (
               <Fragment key={assessedRequirement.buildingId}>
                 <li className="whitespace-nowrap">
                   <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                    {generalT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
-                    {generalT('GENERAL.LEVEL', { level: assessedRequirement.level }).toLowerCase()}
+                    {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
+                    {t('level {{level}}', { level: assessedRequirement.level })}
                   </span>
                   {index !== assessedRequirements.length - 1 && ','}
                 </li>
@@ -235,13 +229,13 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showResearch && canResearch && !hasResearchedUnit && (
         <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('ACTIONS.TITLE')}</h2>
+          <h2 className="font-medium">{t('Available actions')}</h2>
           <Button
             onClick={() => researchUnit(unitId)}
             variant="confirm"
             disabled={!canResearchUnit}
           >
-            {t('ACTIONS.BUTTON', { unit: generalT(`UNITS.${unitId}.NAME`) })}
+            {t('Research {{unit}}', { unit: assetsT(`UNITS.${unitId}.NAME`) })}
           </Button>
         </section>
       )}

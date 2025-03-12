@@ -29,6 +29,9 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      - name: Localization check
+        run: npm run localize:ci
+
       # Reintegrate this once support for RR7 is added
       #      - name: Unused exports and dependencies check
       #        run: npm run knip:ci
