@@ -1,4 +1,4 @@
-import type { EffectId } from 'app/interfaces/models/game/effect';
+import type { Effect } from 'app/interfaces/models/game/effect';
 import type {
   EgyptianUnitId,
   GaulUnitId,
@@ -143,6 +143,21 @@ const IconPopulation = lazy(async () => ({
 }));
 const IconAttack = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-attack')).IconAttack,
+}));
+const IconTroopBuildingDuration = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-troop-building-duration')).IconTroopBuildingDuration,
+}));
+const IconUnitSpeed = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-unit-speed')).IconUnitSpeed,
+}));
+const IconTrapperCapacity = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-trapper-capacity')).IconTrapperCapacity,
+}));
+const IconMerchantCapacity = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-merchant-capacity')).IconMerchantCapacity,
+}));
+const IconCrannyCapacity = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-cranny-capacity')).IconCrannyCapacity,
 }));
 
 // Village
@@ -368,7 +383,7 @@ export type IconType =
   | UnitIconType
   | MapAdventureIconType
   | OtherIconType
-  | EffectId;
+  | Effect['id'];
 
 // @ts-ignore - TODO: Add missing icons
 export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => React.JSX.Element>> = {
@@ -423,6 +438,24 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   cavalryDefence: IconCavalryDefence,
   population: IconPopulation,
   attack: IconAttack,
+  barracksTrainingDuration: IconTroopBuildingDuration,
+  greatBarracksTrainingDuration: IconTroopBuildingDuration,
+  stableTrainingDuration: IconTroopBuildingDuration,
+  greatStableTrainingDuration: IconTroopBuildingDuration,
+  workshopTrainingDuration: IconTroopBuildingDuration,
+  hospitalTrainingDuration: IconTroopBuildingDuration,
+  unitSpeed: IconUnitSpeed,
+  trapperCapacity: IconTrapperCapacity,
+  merchantCapacity: IconMerchantCapacity,
+  woodProduction: IconResourceWood,
+  clayProduction: IconResourceClay,
+  ironProduction: IconResourceIron,
+  wheatProduction: IconResourceWheat,
+  woodProductionBonus: IconResourceWood,
+  clayProductionBonus: IconResourceClay,
+  ironProductionBonus: IconResourceIron,
+  wheatProductionBonus: IconResourceWheat,
+  crannyCapacity: IconCrannyCapacity,
 
   // Roman troops
   legionnaire: IconUnitRomansLegionnaire,

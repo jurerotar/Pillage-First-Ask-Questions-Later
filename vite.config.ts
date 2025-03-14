@@ -48,7 +48,7 @@ const viteConfig = defineViteConfig({
           skipWaiting: true,
           cleanupOutdatedCaches: true,
           navigateFallback: null,
-          globPatterns: ['**/*.{js,css}'],
+          globPatterns: ['**/*.{js,css,html}'],
         },
       }),
     !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),

@@ -2,12 +2,11 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building
 import { Resources } from 'app/(game)/components/resources';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
-import { getBuildingDataForLevel } from 'app/(game)/utils/building';
+import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Building } from 'app/interfaces/models/game/building';
-import { formatPercentage } from 'app/utils/common';
+import { formatValue } from 'app/utils/common';
 import { formatTime } from 'app/utils/time';
-import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
@@ -26,6 +25,8 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { actualLevel, buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
+
+  const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
 
   const {
     building,
@@ -88,26 +89,20 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
           </span>
         )}
       </section>
-      <section
-        data-testid="building-overview-benefits-section"
-        className={clsx(isMaxLevel ? 'pt-2' : 'py-2', 'flex flex-col gap-2 justify-center border-t border-gray-200')}
-      >
-        <h3 className="font-medium">{t('Benefits at level {{level}}', { level: actualLevel })}</h3>
-        <div className="flex flex-wrap gap-2">
-          <Icon
-            type="population"
-            className="size-6"
-            variant="positive-change"
-          />
-          {!isMaxLevel && (
-            <>
-              <span>{nextLevelCropConsumption}</span>
-              <span>({cumulativeCropConsumption})</span>
-            </>
-          )}
-          {isMaxLevel && <span>{cumulativeCropConsumption}</span>}
-          {cumulativeEffects.length > 0 &&
-            cumulativeEffects.map(({ effectId, cumulativeValue, nextLevelValue, areEffectValuesRising }) => (
+      {isMaxLevel && (
+        <section
+          data-testid="building-overview-max-level-benefits-section"
+          className="pt-2 flex flex-col gap-2 justify-center border-t border-gray-200"
+        >
+          <Text as="h3">{t('Benefits')}</Text>
+          <div className="flex flex-wrap gap-2">
+            <Icon
+              type="population"
+              className="size-6"
+              variant="positive-change"
+            />
+            <span>{cumulativeCropConsumption}</span>
+            {cumulativeEffects.map(({ effectId, currentLevelValue, areEffectValuesRising }) => (
               <span
                 key={effectId}
                 className="flex gap-2"
@@ -118,28 +113,63 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
                   className="size-6"
                   variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
                 />
-                {!isMaxLevel && (
-                  <>
-                    <span>{Number.isInteger(nextLevelValue) ? nextLevelValue : formatPercentage(nextLevelValue)}</span>
-                    <span>({Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
-                  </>
-                )}
-                {isMaxLevel && <span>{Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)}</span>}
+                <span>{formatValue(currentLevelValue)}</span>
               </span>
             ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
+      {!isMaxLevel && (
+        <section
+          data-testid="building-overview-benefits-section"
+          className={'flex flex-col gap-2 py-2 justify-center border-t border-gray-200'}
+        >
+          <Text as="h3">{t('Benefits at level {{level}}', { level: doesBuildingExist ? actualLevel + 1 : 1 })}</Text>
+          <div className="flex flex-wrap gap-2">
+            <Icon
+              type="population"
+              className="size-6"
+              variant="positive-change"
+            />
+            <span>
+              <span>{cumulativeCropConsumption} &rarr;</span>
+              {cumulativeCropConsumption + nextLevelCropConsumption}
+            </span>
+
+            {cumulativeEffects.map(({ effectId, currentLevelValue, nextLevelValue, areEffectValuesRising }) => (
+              <span
+                key={effectId}
+                className="flex gap-2"
+              >
+                <Icon
+                  // @ts-ignore - TODO: Add missing icons
+                  type={effectId}
+                  className="size-6"
+                  variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
+                />
+                <span>
+                  {doesBuildingExist && <span>{formatValue(currentLevelValue)} &rarr;</span>}
+                  {formatValue(nextLevelValue)}
+                </span>
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
       {!isMaxLevel && (
         <>
           <section
             data-testid="building-overview-costs-section"
             className="flex flex-col flex-wrap gap-2 py-2 justify-center border-t border-gray-200"
           >
-            <h3 className="font-medium">{t('Cost to upgrade to level {{level}}', { level: buildingLevel + 1 })}</h3>
+            <Text as="h3">
+              {doesBuildingExist ? t('Cost to upgrade to level {{level}}', { level: buildingLevel + 1 }) : t('Building construction cost')}
+            </Text>
             <Resources resources={nextLevelResourceCost} />
           </section>
           <section className="flex flex-col flex-wrap gap-2 py-2 border-t border-gray-200 justify-center">
-            <h3 className="font-medium">{t('Building duration to level {{level}}', { level: buildingLevel + 1 })}</h3>
+            <Text as="h3">{t('Construction duration for level {{level}}', { level: buildingLevel + 1 })}</Text>
             <span className="flex gap-1">
               <Icon type="buildingDuration" />
               {formattedTime}

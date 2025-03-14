@@ -45,10 +45,9 @@ const createResourceProductionEffect = (effectId: ResourceProductionEffectId): B
 const createResourceBoosterEffect = (effectId: `${ResourceProductionEffectId}Bonus`, limit = 6): BuildingEffect => {
   return {
     effectId,
-    valuesPerLevel: [1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2].slice(
-      0,
-      limit - 1,
-    ),
+    valuesPerLevel: [
+      1.001, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2,
+    ].slice(0, limit),
   };
 };
 
@@ -56,8 +55,8 @@ const createTroopDurationEffect = (effectId: TroopTrainingDurationEffectId): Bui
   return {
     effectId,
     valuesPerLevel: [
-      1, 1, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041, 0.1852,
-      0.1667, 0.1493, 0.1351,
+      1.001, 1.001, 0.9091, 0.8333, 0.7143, 0.6667, 0.5882, 0.5263, 0.4762, 0.4348, 0.3846, 0.3448, 0.3125, 0.2857, 0.2564, 0.2273, 0.2041,
+      0.1852, 0.1667, 0.1493, 0.1351,
     ],
   };
 };
@@ -86,7 +85,7 @@ const createGovernmentBuildingDefenceEffects = (): BuildingEffect[] => {
 
 const createHorseDrinkingTroughEffects = (): BuildingEffect[] => {
   const valuesPerLevel = [
-    1, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89, 0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
+    1.001, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89, 0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
   ];
   return [
     {
@@ -1069,7 +1068,7 @@ export const buildings: Building[] = [
       {
         effectId: 'buildingDuration',
         valuesPerLevel: [
-          1, 1, 0.98, 0.96, 0.94, 0.91, 0.89, 0.87, 0.85, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5,
+          1.0, 1.0, 0.98, 0.96, 0.94, 0.91, 0.89, 0.87, 0.85, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5,
         ],
       },
     ],
@@ -1091,7 +1090,12 @@ export const buildings: Building[] = [
     id: 'MARKETPLACE',
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [],
+    effects: [
+      {
+        effectId: 'merchantCapacity',
+        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      },
+    ],
     buildingRequirements: [
       {
         id: 1,
@@ -1212,8 +1216,8 @@ export const buildings: Building[] = [
     cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [
       {
-        effectId: 'unitSpeedBonus',
-        valuesPerLevel: [1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.2, 4.4, 4.6, 4.8, 5],
+        effectId: 'unitSpeed',
+        valuesPerLevel: [1.001, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.2, 4.4, 4.6, 4.8, 5],
       },
     ],
     buildingRequirements: [

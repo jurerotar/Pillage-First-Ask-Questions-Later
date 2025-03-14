@@ -31,12 +31,12 @@
     "@pillage-first/graphics": "0.0.1",
     "@react-router/node": "7.3.0",
     "@react-router/serve": "7.3.0",
-    "@tailwindcss/vite": "4.0.13",
-    "@tanstack/react-query": "5.67.3",
-    "@tanstack/react-query-persist-client": "5.67.3",
+    "@tailwindcss/vite": "4.0.14",
+    "@tanstack/react-query": "5.68.0",
+    "@tanstack/react-query-persist-client": "5.68.0",
     "clsx": "2.1.1",
     "dayjs": "1.11.13",
-    "i18next": "24.2.2",
+    "i18next": "24.2.3",
     "isbot": "5.1.23",
     "moderndash": "4.0.0",
     "react": "19.0.0",
@@ -68,13 +68,13 @@
     "happy-dom": "17.4.4",
     "husky": "9.1.7",
     "i18next-parser": "9.3.0",
-    "knip": "5.45.0",
+    "knip": "5.46.0",
     "opfs-mock": "2.1.0",
     "resize-observer-polyfill": "1.5.1",
     "rollup-plugin-visualizer": "5.14.0",
     "sass-embedded": "1.85.1",
     "skott": "0.35.4",
-    "tailwindcss": "4.0.13",
+    "tailwindcss": "4.0.14",
     "typescript": "5.8.2",
     "vite": "6.2.1",
     "vite-plugin-pwa": "0.21.1",
@@ -96,6 +96,10 @@
     }
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": ["@commitlint/config-conventional"],
+    "rules": {
+      "header-max-length": [0],
+      "body-max-line-length": [0]
+    }
   }
 }

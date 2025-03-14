@@ -33,7 +33,7 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
 
   return (
     <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-      <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Resarch cost')}</h2>
+      <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Research cost')}</h2>
       {hasResearchedUnit && <span className="text-green-600">{t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`) })}</span>}
       {!hasResearchedUnit && (
         <Resources
@@ -166,11 +166,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
             type={unitIdToUnitIconMapper(unitId)}
           />
         </div>
-        <p className="text-sm text-gray-500">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aspernatur corporis, dolorum ex fuga impedit libero quo repellat
-          totam voluptas.
-          {/* {generalT(`UNITS.${unitId}.DESCRIPTION`)} */}
-        </p>
+        <p className="text-sm text-gray-500">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</p>
       </section>
 
       {showUnitCost && (

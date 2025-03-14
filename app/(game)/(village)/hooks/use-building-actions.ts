@@ -96,7 +96,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const upgradeBuilding = () => {
-    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, 0);
+    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, buildingLevel + 1);
     const { startsAt, duration } = calculateTimings();
 
     if (hasCurrentVillageBuildingEvents) {

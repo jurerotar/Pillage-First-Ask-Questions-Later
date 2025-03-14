@@ -54,6 +54,7 @@ import { useNavigate } from 'react-router';
 import { Label } from 'app/components/label';
 import { Input } from 'app/components/input';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
+import { useTranslation } from 'react-i18next';
 
 const PLAYER_COUNT = 50;
 
@@ -130,6 +131,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
 };
 
 const CreateNewServerPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { addServer, deleteServer } = useAvailableServers();
 
@@ -190,10 +192,10 @@ const CreateNewServerPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Server Configuration</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('Server Configuration')}</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="server-configuration-seed">Server Seed</Label>
+                    <Label htmlFor="server-configuration-seed">{t('Server Seed')}</Label>
                     <Input
                       disabled={isPending}
                       id="server-configuration-seed"
@@ -201,7 +203,7 @@ const CreateNewServerPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="server-configuration-name">Server Name</Label>
+                    <Label htmlFor="server-configuration-name">{t('Server Name')}</Label>
                     <Input
                       disabled={isPending}
                       id="server-configuration-name"
@@ -214,10 +216,10 @@ const CreateNewServerPage = () => {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Game Configuration</h3>
+                <h3 className="text-lg font-semibold mb-4">{t('Game Configuration')}</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="server-configuration-world-size">World Size</Label>
+                    <Label htmlFor="server-configuration-world-size">{t('World Size')}</Label>
                     <Input
                       disabled={isPending}
                       id="server-configuration-world-size"
@@ -226,7 +228,7 @@ const CreateNewServerPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="server-configuration-tribe">Tribe</Label>
+                    <Label htmlFor="server-configuration-tribe">{t('Tribe')}</Label>
                     <Input
                       disabled={isPending}
                       id="server-configuration-tribe"
@@ -234,7 +236,7 @@ const CreateNewServerPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="server-configuration-speed">Game Speed</Label>
+                    <Label htmlFor="server-configuration-speed">{t('Game Speed')}</Label>
                     <Input
                       disabled={isPending}
                       id="server-configuration-speed"
@@ -257,7 +259,7 @@ const CreateNewServerPage = () => {
               variant="confirm"
               disabled={isPending}
             >
-              Create Server
+              {t('Create Server')}
             </Button>
           </div>
         </form>
