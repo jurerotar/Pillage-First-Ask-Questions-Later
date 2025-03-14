@@ -15,7 +15,7 @@ import { MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { CurrentVillageContext, CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
 import { IoShareSocial } from 'react-icons/io5';
-import { FaBookBookmark, FaDiscord, FaGithub, FaUser } from 'react-icons/fa6';
+import { FaBookBookmark, FaDiscord, FaGithub, FaStar, FaUser } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
@@ -27,6 +27,9 @@ import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
 import { Divider } from 'app/components/divider';
 import { CountdownProvider } from 'app/(game)/providers/countdown-provider';
+import { useHero } from 'app/(game)/hooks/use-hero';
+import layoutStyles from './layout.module.css';
+import { FaHome } from 'react-icons/fa';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -76,6 +79,53 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
   );
 };
 
+const HeroNavigationItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = (props) => {
+  const { hero } = useHero();
+
+  const healthAngle = (hero.stats.health / 100) * 180;
+  const experienceAngle = 180 - (hero.stats.experience / 100) * 180;
+
+  // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
+  const isLevelUpAvailable = hero.stats.level * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
+
+  return (
+    <button
+      type="button"
+      className={clsx(
+        layoutStyles['hero-stats'],
+        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none relative',
+      )}
+      {...props}
+      style={
+        {
+          '--health-angle': `${healthAngle}deg`,
+          '--experience-angle': `${experienceAngle}deg`,
+        } as React.CSSProperties
+      }
+    >
+      <span className={clsx(layoutStyles.divider, layoutStyles.top)} />
+      <span className={clsx(layoutStyles.divider, layoutStyles.bottom)} />
+      <span
+        className="size-9.5 lg:size-14 bg-white rounded-full flex items-center justify-center"
+        style={{
+          boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.4)',
+        }}
+      >
+        <FaUser className="text-2xl" />
+      </span>
+
+      {isLevelUpAvailable && (
+        <span className="absolute size-5 lg:size-6 bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-lg inline-flex justify-center items-center">
+          <FaStar className="text-yellow-300 text-xs" />
+        </span>
+      )}
+      <span className="absolute size-5 lg:size-6 bg-white bottom-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+        <FaHome className="text-xs" />
+      </span>
+    </button>
+  );
+};
+
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
 };
@@ -88,7 +138,7 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
       type="button"
       className={clsx(
         isActive ? 'from-[#7da100] to-[#c7e94f]' : 'from-[#b8b2a9] to-[#f1f0ee]',
-        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center shadow',
+        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
       )}
       {...htmlProps}
     >
@@ -101,7 +151,7 @@ const NavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLBu
   return (
     <button
       type="button"
-      className="px-3 py-2 lg:py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] border border-gray-300/80 lg:border-0 rounded-xs lg:rounded-none flex items-center justify-center shadow-md lg:shadow-none"
+      className="px-3 py-2 lg:py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] border border-gray-300 lg:border-0 rounded-xs lg:rounded-none flex items-center justify-center shadow-md lg:shadow-none"
       {...rest}
     >
       {children}
@@ -123,7 +173,7 @@ const DesktopNavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes
 
 const ResourceCounters = () => {
   return (
-    <div className="flex w-full pb-1 lg:pt-1 mx-auto gap-1">
+    <div className="flex w-full py-1 mx-auto gap-1">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <Fragment key={resource}>
           <ResourceCounter resource={resource} />
@@ -143,7 +193,7 @@ const TopNavigation = () => {
 
   return (
     <header className="flex flex-col w-full relative">
-      <div className="flex flex-col">
+      <div className="flex flex-col hidden lg:flex">
         <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
           <nav className="hidden lg:flex justify-end container mx-auto">
             <ul className="flex gap-1">
@@ -188,7 +238,7 @@ const TopNavigation = () => {
             </ul>
           </nav>
         </div>
-        <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-10 container mx-auto">
+        <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-11 pt-1 container mx-auto">
           <ul className="hidden lg:flex gap-1 xl:gap-2 justify-center items-center">
             <li>
               <LinkWithState to={gameNavigation.statisticsPath}>
@@ -236,9 +286,7 @@ const TopNavigation = () => {
                 </li>
                 <li>
                   <LinkWithState to={gameNavigation.heroPath}>
-                    <NavigationMainItem isActive={gameNavigation.isHeroPageOpen}>
-                      <FaUser className="text-3xl" />
-                    </NavigationMainItem>
+                    <HeroNavigationItem />
                   </LinkWithState>
                 </li>
               </ul>
@@ -290,12 +338,12 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brainrot on display here, God help us
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-10 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_86%,_rgba(255,255,255,0)_86.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_86%,_rgba(255,255,255,0)_86.1%,_rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
-        <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-4 mx-auto">
+        <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-4 pb-2 mx-auto">
           <li>
             <LinkWithState to={gameNavigation.statisticsPath}>
               <NavigationSideItem>
@@ -325,7 +373,7 @@ const MobileBottomNavigation = () => {
             </LinkWithState>
           </li>
           <li>
-            <ul className="flex gap-2 -translate-y-2 mx-1">
+            <ul className="flex gap-2 -translate-y-2 mx-2">
               <li>
                 <LinkWithState to={gameNavigation.resourcesPath}>
                   <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
@@ -349,9 +397,7 @@ const MobileBottomNavigation = () => {
               </li>
               <li>
                 <LinkWithState to={gameNavigation.heroPath}>
-                  <NavigationMainItem isActive={gameNavigation.isHeroPageOpen}>
-                    <FaUser className="text-2xl" />
-                  </NavigationMainItem>
+                  <HeroNavigationItem />
                 </LinkWithState>
               </li>
             </ul>

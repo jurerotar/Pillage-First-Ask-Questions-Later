@@ -166,11 +166,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
             type={unitIdToUnitIconMapper(unitId)}
           />
         </div>
-        <p className="text-sm text-gray-500">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aspernatur corporis, dolorum ex fuga impedit libero quo repellat
-          totam voluptas.
-          {/* {generalT(`UNITS.${unitId}.DESCRIPTION`)} */}
-        </p>
+        <p className="text-sm text-gray-500">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</p>
       </section>
 
       {showUnitCost && (

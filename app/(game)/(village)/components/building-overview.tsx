@@ -2,7 +2,7 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building
 import { Resources } from 'app/(game)/components/resources';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
-import { getBuildingDataForLevel } from 'app/(game)/utils/building';
+import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Building } from 'app/interfaces/models/game/building';
 import { formatPercentage } from 'app/utils/common';
@@ -26,6 +26,8 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { actualLevel, buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
+
+  const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
 
   const {
     building,
@@ -92,7 +94,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         data-testid="building-overview-benefits-section"
         className={clsx(isMaxLevel ? 'pt-2' : 'py-2', 'flex flex-col gap-2 justify-center border-t border-gray-200')}
       >
-        <h3 className="font-medium">{t('Benefits at level {{level}}', { level: actualLevel })}</h3>
+        <h3 className="font-medium">{t('Benefits at level {{level}}', { level: doesBuildingExist ? actualLevel + 1 : 1 })}</h3>
         <div className="flex flex-wrap gap-2">
           <Icon
             type="population"
@@ -102,7 +104,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
           {!isMaxLevel && (
             <>
               <span>{nextLevelCropConsumption}</span>
-              <span>({cumulativeCropConsumption})</span>
+              <span>(&Sigma; {cumulativeCropConsumption})</span>
             </>
           )}
           {isMaxLevel && <span>{cumulativeCropConsumption}</span>}
@@ -121,7 +123,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
                 {!isMaxLevel && (
                   <>
                     <span>{Number.isInteger(nextLevelValue) ? nextLevelValue : formatPercentage(nextLevelValue)}</span>
-                    <span>({Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
+                    <span>(&Sigma; {Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)})</span>
                   </>
                 )}
                 {isMaxLevel && <span>{Number.isInteger(cumulativeValue) ? cumulativeValue : formatPercentage(cumulativeValue)}</span>}
@@ -135,7 +137,9 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             data-testid="building-overview-costs-section"
             className="flex flex-col flex-wrap gap-2 py-2 justify-center border-t border-gray-200"
           >
-            <h3 className="font-medium">{t('Cost to upgrade to level {{level}}', { level: buildingLevel + 1 })}</h3>
+            <h3 className="font-medium">
+              {doesBuildingExist ? t('Cost to upgrade to level {{level}}', { level: buildingLevel + 1 }) : t('Building construction cost')}
+            </h3>
             <Resources resources={nextLevelResourceCost} />
           </section>
           <section className="flex flex-col flex-wrap gap-2 py-2 border-t border-gray-200 justify-center">

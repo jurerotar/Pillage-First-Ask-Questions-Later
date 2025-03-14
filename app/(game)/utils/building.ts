@@ -149,7 +149,7 @@ const calculateCumulativeEffects = (building: Building, level: number): Calculat
 export const calculateBuildingCostForLevel = (buildingId: Building['id'], level: number): number[] => {
   const { buildingCostCoefficient, baseBuildingCost } = getBuildingData(buildingId);
 
-  return baseBuildingCost.map((resource) => Math.ceil((resource * buildingCostCoefficient ** level) / 5) * 5);
+  return baseBuildingCost.map((resource) => Math.ceil((resource * buildingCostCoefficient ** (level - 1)) / 5) * 5);
 };
 
 export const calculateBuildingDurationForLevel = (buildingId: Building['id'], level: number): number => {
