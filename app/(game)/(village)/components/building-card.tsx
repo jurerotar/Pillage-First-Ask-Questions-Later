@@ -13,6 +13,7 @@ import type React from 'react';
 import { Fragment, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
+import { Text } from 'app/components/text';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -63,7 +64,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
       {/* Show building requirements if building can't be built */}
       {!canBuild && !specialFieldIds.includes(buildingFieldId!) && (
         <section className="flex flex-col border-t border-gray-200 pt-2 gap-2">
-          <h3 className="font-medium">{t('Requirements')}</h3>
+          <Text as="h3">{t('Requirements')}</Text>
           <ul className="flex gap-x-2 flex-wrap">
             {requirementsToDisplay.map((assessedRequirement: AssessedBuildingRequirement, index) => (
               <Fragment key={assessedRequirement.id}>

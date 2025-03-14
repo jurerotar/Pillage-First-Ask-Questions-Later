@@ -33,7 +33,7 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
 
   return (
     <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-      <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Resarch cost')}</h2>
+      <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Research cost')}</h2>
       {hasResearchedUnit && <span className="text-green-600">{t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`) })}</span>}
       {!hasResearchedUnit && (
         <Resources

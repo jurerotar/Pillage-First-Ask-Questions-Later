@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
+import { Text } from 'app/components/text';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -97,7 +98,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
         data-testid="building-actions-section"
         className="flex flex-col gap-2 pt-2 border-t border-gray-200"
       >
-        <h3 className="font-medium">{t('Available actions')}</h3>
+        <Text as="h3">{t('Available actions')}</Text>
         <div className="flex gap-4">
           {!isMaxLevel && (
             <Button
@@ -140,7 +141,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
         data-testid="building-actions-section"
         className="flex flex-col gap-2 pt-2 border-t border-gray-200"
       >
-        <h3 className="font-medium">{t('Available actions')}</h3>
+        <Text as="h3">{t('Available actions')}</Text>
         <Button
           data-testid="building-actions-construct-building-button"
           variant="confirm"

@@ -106,7 +106,7 @@ export const HerosMansionOasis = () => {
 
       <section className="flex flex-col gap-2">
         <Text as="h2">{herosMansionT('OASIS_WITHIN_REACH_TITLE')}</Text>
-        <div className="overflow-x-scroll">
+        <div className="overflow-x-scroll scrollbar-hidden">
           <Table>
             <TableHeader>
               <TableRow>

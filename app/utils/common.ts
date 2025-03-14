@@ -119,6 +119,11 @@ export const isInDevelopmentMode = () => {
 };
 
 export const formatPercentage = (number: number): string => {
+  // We can't differentiate between ints and floats in JS, so every 1.0 numbers is written as 1.001. We check for this number
+  // here and just return 100% if
+  if (number.toString() === '1.001') {
+    return '100%';
+  }
   // Extract the fractional part by subtracting the integer part
   const fractionalPart = number - Math.floor(number);
 
@@ -133,4 +138,9 @@ export const formatPercentage = (number: number): string => {
 
 export const formatNumber = (number: number): string => {
   return number.toLocaleString();
+};
+
+// Formats number as either an integer or as a percentage
+export const formatValue = (value: number) => {
+  return Number.isInteger(value) && !value.toString().includes('.') ? value : formatPercentage(value);
 };

@@ -4,8 +4,10 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { isInDevelopmentMode } from 'app/utils/common';
 import { Link } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const { availableServers } = useAvailableServers();
 
   const resetOpfs = async () => {
@@ -25,7 +27,7 @@ const HomePage = () => {
               later!
             </h2>
             <Link to="/create-new-server">
-              <Button>Create new server</Button>
+              <Button>{t('Create new server')}</Button>
             </Link>
 
             {isInDevelopmentMode() && (

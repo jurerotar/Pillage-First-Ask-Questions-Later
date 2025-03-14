@@ -3,6 +3,7 @@ import type { Location } from 'react-router';
 import { Link, useLocation } from 'react-router';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import type { LocationState } from 'app/interfaces/location-state';
+import { useTranslation } from 'react-i18next';
 
 const removeLastPathSegment = (path: string) => {
   if (!path || path === '/') {
@@ -16,8 +17,10 @@ const removeLastPathSegment = (path: string) => {
 };
 
 export const Backlink = () => {
+  const { t } = useTranslation();
   const { resourcesPath } = useGameNavigation();
   const { pathname, state }: Location<LocationState> = useLocation();
+
   const previousLocationPathname = state?.previousLocationPathname;
   const proposedParentPath = removeLastPathSegment(pathname);
 
@@ -38,7 +41,7 @@ export const Backlink = () => {
       className="flex items-center gap-1"
     >
       <IoIosArrowBack className="mt-[2px]" />
-      <span className="">Back</span>
+      <span className="">{t('Back')}</span>
     </Link>
   );
 };

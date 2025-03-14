@@ -6,7 +6,7 @@ type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label' | 'p' | 'sp
 const elementStyles: Record<TextElement, string> = {
   h1: 'text-3xl',
   h2: 'text-xl font-medium',
-  h3: '',
+  h3: 'font-medium',
   h4: '',
   h5: '',
   h6: '',

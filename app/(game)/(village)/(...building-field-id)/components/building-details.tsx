@@ -161,7 +161,7 @@ const BuildingStats = () => {
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Upgrade cost')}</Text>
-        <div className="overflow-x-scroll">
+        <div className="overflow-x-scroll scrollbar-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -218,7 +218,7 @@ const BuildingStats = () => {
       </section>
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Upgrade duration')}</Text>
-        <div className="overflow-x-scroll">
+        <div className="overflow-x-scroll scrollbar-hidden">
           <Table>
             <TableHeader>
               <TableRow>

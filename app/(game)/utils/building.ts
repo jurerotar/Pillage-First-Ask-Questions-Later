@@ -40,7 +40,7 @@ export const getBuildingDataForLevel = (buildingId: Building['id'], level: numbe
   const nextLevelResourceCost = isMaxLevel ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, level + 1);
   const currentLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level);
   const nextLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level + 1);
-  const cumulativeEffects = calculateCumulativeEffects(building, level);
+  const cumulativeEffects = calculateBuildingEffectValues(building, level);
 
   return {
     building,
@@ -108,28 +108,18 @@ export const calculateResourceProductionFromResourceFields = (resourceFields: Bu
 
 type CalculatedCumulativeEffect = {
   effectId: Effect['id'];
-  cumulativeValue: number;
+  currentLevelValue: number;
   nextLevelValue: number;
   areEffectValuesRising: boolean;
 };
 
-const calculateCumulativeEffects = (building: Building, level: number): CalculatedCumulativeEffect[] => {
+export const calculateBuildingEffectValues = (building: Building, level: number): CalculatedCumulativeEffect[] => {
   const result: CalculatedCumulativeEffect[] = [];
 
-  // Loop through each effect in the building
   for (const effect of building.effects) {
     const { effectId, valuesPerLevel } = effect;
 
-    let cumulativeValue = 0;
-
-    // Calculate cumulative value up to the current level
-    for (let i = 0; i <= level; i++) {
-      if (Number.isInteger(valuesPerLevel[i])) {
-        cumulativeValue += valuesPerLevel[i];
-      } else {
-        cumulativeValue = valuesPerLevel[i];
-      }
-    }
+    const currentLevelValue = valuesPerLevel[level];
 
     const areEffectValuesRising = valuesPerLevel.at(1)! < valuesPerLevel.at(-1)!;
 
@@ -137,7 +127,7 @@ const calculateCumulativeEffects = (building: Building, level: number): Calculat
 
     result.push({
       effectId,
-      cumulativeValue,
+      currentLevelValue,
       nextLevelValue,
       areEffectValuesRising,
     });
@@ -152,8 +142,14 @@ export const calculateBuildingCostForLevel = (buildingId: Building['id'], level:
   return baseBuildingCost.map((resource) => Math.ceil((resource * buildingCostCoefficient ** (level - 1)) / 5) * 5);
 };
 
+export const calculateBuildingCancellationRefundForLevel = (buildingId: Building['id'], level: number): number[] => {
+  const buildingCost = calculateBuildingCostForLevel(buildingId, level);
+
+  return buildingCost.map((cost) => Math.trunc(cost * 0.8));
+};
+
 export const calculateBuildingDurationForLevel = (buildingId: Building['id'], level: number): number => {
   const { buildingDurationBase, buildingDurationModifier, buildingDurationReduction } = getBuildingData(buildingId);
 
-  return Math.ceil((buildingDurationModifier * buildingDurationBase ** level - buildingDurationReduction) / 5) * 5 * 1000;
+  return Math.ceil((buildingDurationModifier * buildingDurationBase ** (level - 1) - buildingDurationReduction) / 5) * 5 * 1000;
 };

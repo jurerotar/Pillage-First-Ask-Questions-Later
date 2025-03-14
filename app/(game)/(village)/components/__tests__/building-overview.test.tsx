@@ -89,10 +89,10 @@ describe('BuildingOverview', () => {
       expect(maxLevelText).toBeInTheDocument();
     });
 
-    test('Benefits section should always be rendered', async () => {
+    test('Benefits section should render the max-level block', async () => {
       renderWithGameContext(<BuildingOverview buildingId="MAIN_BUILDING" />, { queryClient, path: `${serverPathMock}/v-1/village/38` });
 
-      const benefitsSection = await screen.findByTestId('building-overview-benefits-section');
+      const benefitsSection = await screen.findByTestId('building-overview-max-level-benefits-section');
       expect(benefitsSection).toBeInTheDocument();
     });
 

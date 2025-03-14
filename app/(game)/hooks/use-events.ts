@@ -10,7 +10,7 @@ import {
 import { troopTrainingEventResolver } from 'app/(game)/hooks/resolvers/troop-resolvers';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { updateVillageResources } from 'app/(game)/hooks/utils/events';
-import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
+import { calculateBuildingCancellationRefundForLevel, specialFieldIds } from 'app/(game)/utils/building';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
@@ -128,11 +128,9 @@ export const useEvents = () => {
           }
         }
 
-        const { currentLevelResourceCost } = getBuildingDataForLevel(building.id, level);
-        // Only return 80% of the resources
-        const resourceChargeback = currentLevelResourceCost.map((cost) => Math.trunc(cost * 0.8));
+        const resourceRefund = calculateBuildingCancellationRefundForLevel(building.id, level);
 
-        updateVillageResources(queryClient, villageId, resourceChargeback, 'add');
+        updateVillageResources(queryClient, villageId, resourceRefund, 'add');
 
         return eventsToKeep;
       });
