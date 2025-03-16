@@ -171,11 +171,11 @@ export type CreateBulkEventArgs<T extends GameEventType> = CreateEventArgs<T> & 
 };
 
 export const createEventFn = async <T extends GameEventType>(queryClient: QueryClient, args: CreateEventFnArgs<T>): Promise<void> => {
-  const { villageId, onSuccess, onFailure, startsAt } = args;
+  const { onSuccess, onFailure, startsAt } = args;
   const event: GameEvent<T> = eventFactory<T>(args);
 
   if (doesEventRequireResourceCheck(event)) {
-    const { resourceCost } = event;
+    const { resourceCost, villageId } = event;
 
     const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, villageId, startsAt);
 

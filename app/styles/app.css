@@ -46,3 +46,10 @@
     display: none; /* Chrome, Safari, Edge */
   }
 }
+
+a,
+button {
+  &:hover {
+    cursor: pointer;
+  }
+}

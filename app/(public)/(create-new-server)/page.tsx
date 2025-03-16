@@ -23,8 +23,10 @@ import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
+  adventurePointsCacheKey,
   currentServerCacheKey,
   effectsCacheKey,
+  eventsCacheKey,
   heroCacheKey,
   mapCacheKey,
   mapFiltersCacheKey,
@@ -55,6 +57,10 @@ import { Label } from 'app/components/label';
 import { Input } from 'app/components/input';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { useTranslation } from 'react-i18next';
+import { adventurePointsFactory } from 'app/factories/adventure-points-factory';
+import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
+import { generateEvents } from 'app/factories/event-factory';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const PLAYER_COUNT = 50;
 
@@ -86,30 +92,43 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   const playerStartingVillage = userVillageFactory({ player: userPlayer, tile: playerStartingTile, slug: 'v-1' });
 
   // Non-dependant factories can run in sync
-  const [{ villages }, { troops }, { worldItems }, effects, hero, mapFilters, unitResearch, unitImprovement, preferences] =
-    await Promise.all([
-      workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
-        server,
-        occupiedOccupiableTiles,
-        players,
-      }),
-      workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
-        server,
-        occupiedOccupiableTiles,
-        occupiableOasisTiles,
-        players,
-      }),
-      workerFactory<GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn>(GenerateWorldItemsWorker, {
-        server,
-        occupiedOccupiableTiles,
-      }),
-      generateEffects(server, playerStartingVillage),
-      heroFactory(server),
-      mapFiltersFactory(),
-      unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
-      unitImprovementFactory(),
-      preferencesFactory(),
-    ]);
+  const [
+    { villages },
+    { troops },
+    { worldItems },
+    effects,
+    hero,
+    mapFilters,
+    unitResearch,
+    unitImprovement,
+    preferences,
+    adventurePoints,
+    events,
+  ] = await Promise.all([
+    workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
+      server,
+      occupiedOccupiableTiles,
+      players,
+    }),
+    workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
+      server,
+      occupiedOccupiableTiles,
+      occupiableOasisTiles,
+      players,
+    }),
+    workerFactory<GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn>(GenerateWorldItemsWorker, {
+      server,
+      occupiedOccupiableTiles,
+    }),
+    generateEffects(server, playerStartingVillage),
+    heroFactory(server),
+    mapFiltersFactory(),
+    unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
+    unitImprovementFactory(),
+    preferencesFactory(),
+    adventurePointsFactory(),
+    generateEvents(server),
+  ]);
 
   const queryClient = new QueryClient();
 
@@ -126,6 +145,8 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
+  queryClient.setQueryData<AdventurePoints>([adventurePointsCacheKey], adventurePoints);
+  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);
 
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };

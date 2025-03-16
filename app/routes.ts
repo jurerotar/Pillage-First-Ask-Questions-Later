@@ -23,7 +23,6 @@ export default [
         route('preferences', '(game)/(preferences)/page.tsx'),
         route('statistics', '(game)/(statistics)/page.tsx'),
         route('overview', '(game)/(overview)/page.tsx'),
-        route('community', '(game)/(community)/page.tsx'),
         ...prefix('reports', [index('(game)/(reports)/page.tsx'), route(':reportId', '(game)/(reports)/(...report-id)/page.tsx')]),
         ...prefix('quests', [index('(game)/(quests)/page.tsx'), route(':questId', '(game)/(quests)/(...quest-id)/page.tsx')]),
       ]),

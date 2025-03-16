@@ -85,8 +85,8 @@ const VillagePage = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main className="mx-auto flex-col aspect-[16/9] min-w-[320px] max-w-5xl mt-4 lg:mt-12 mb-16.5 lg:mb-0">
-        <div className="relative size-full">
+      <main className="flex items-center justify-center mx-auto lg:mt-12 lg:mb-0 max-h-[calc(100vh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
+        <div className="relative aspect-[16/10] scrollbar-hidden min-w-[450px] max-w-5xl w-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField
               key={buildingFieldId}

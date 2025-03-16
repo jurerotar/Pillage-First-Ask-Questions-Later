@@ -1,6 +1,6 @@
 import { createVillageResourceFields } from 'app/factories/presets/resource-building-fields-presets';
 import { playerVillageBuildingFieldsPreset } from 'app/factories/presets/village-building-fields-presets';
-import { getVillageSize } from 'app/factories/utils/common';
+import { getVillageSize } from 'app/factories/utils/village';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';

@@ -19,7 +19,7 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/constants/query-keys';
-import { getVillageSize } from 'app/factories/utils/common';
+import { getVillageSize } from 'app/factories/utils/village';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Player } from 'app/interfaces/models/game/player';

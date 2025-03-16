@@ -32,7 +32,7 @@ export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (prop
       className={clsx(
         className,
         borderVariantToClassNameMap[variant],
-        'inline-flex items-center justify-center rounded-full bg-gradient-to-t p-1',
+        'inline-flex items-center justify-center rounded-full bg-gradient-to-t p-1 scale-75 md:scale-100',
       )}
       {...rest}
     >

@@ -47,7 +47,7 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  const mapHeight = isWiderThanLg ? height - 76 : height - 130;
+  const mapHeight = isWiderThanLg ? height - 76 : height - 234;
 
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);
@@ -223,7 +223,7 @@ const MapPage = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg || isTileModalOpened}
+        hidden={!mapFilters.shouldShowTileTooltips || isTileModalOpened}
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 

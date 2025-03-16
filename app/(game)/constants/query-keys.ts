@@ -16,3 +16,4 @@ export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
 export const worldItemsCacheKey = 'world-items';
+export const adventurePointsCacheKey = 'adventure-points';

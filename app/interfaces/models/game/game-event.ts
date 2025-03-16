@@ -6,30 +6,35 @@ type WithResourceCheck<T> = T & {
   resourceCost: number[];
 };
 
+type WithVillageId<T> = T & {
+  villageId: Village['id'];
+};
+
 type BaseGameEvent = {
   id: string;
-  villageId: Village['id'];
   type: GameEventType;
   startsAt: number;
   duration: number;
 };
 
 type BaseBuildingEvent = WithResourceCheck<
-  BaseGameEvent & {
-    buildingFieldId: BuildingField['id'];
-    building: Building;
-    level: number;
-  }
+  BaseGameEvent &
+    WithVillageId<{
+      buildingFieldId: BuildingField['id'];
+      building: Building;
+      level: number;
+    }>
 >;
 
 type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level' | 'resourceCost'>;
 
 type BaseUnitTrainingEvent = WithResourceCheck<
-  BaseGameEvent & {
-    amount: number;
-    unitId: Unit['id'];
-    buildingId: Building['id'];
-  }
+  BaseGameEvent &
+    WithVillageId<{
+      amount: number;
+      unitId: Unit['id'];
+      buildingId: Building['id'];
+    }>
 >;
 
 export type GameEventType =
@@ -37,7 +42,8 @@ export type GameEventType =
   | 'buildingConstruction'
   | 'buildingLevelChange'
   | 'buildingDestruction'
-  | 'troopTraining';
+  | 'troopTraining'
+  | 'adventurePointIncrease';
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingScheduledConstruction: BaseBuildingEvent;
@@ -45,6 +51,7 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingLevelChange: BaseBuildingEvent;
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
+  adventurePointIncrease: BaseGameEvent;
 }[T];
 
 export type GameEvent<T extends GameEventType | undefined = undefined> = T extends undefined
@@ -53,3 +60,4 @@ export type GameEvent<T extends GameEventType | undefined = undefined> = T exten
     BaseGameEvent & GameEventTypeToEventArgsMap<T>;
 
 export type WithResourceCheckEvent = WithResourceCheck<BaseGameEvent>;
+export type WithVillageIdEvent = WithVillageId<BaseGameEvent>;

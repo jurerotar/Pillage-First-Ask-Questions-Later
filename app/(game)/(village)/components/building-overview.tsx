@@ -62,7 +62,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         </div>
         <div
           data-testid="building-overview-building-image"
-          className="flex border border-red justify-center items-center mr-2 mb-2 float-left size-10 md:size-14"
+          className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"
         >
           image
         </div>
@@ -132,7 +132,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
               variant="positive-change"
             />
             <span>
-              <span>{cumulativeCropConsumption} &rarr;</span>
+              {doesBuildingExist && <span>{cumulativeCropConsumption} &rarr;</span>}
               {cumulativeCropConsumption + nextLevelCropConsumption}
             </span>
 

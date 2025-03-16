@@ -28,7 +28,7 @@ type StaticButtonProps = {
 
 const StaticButton: React.FC<StaticButtonProps> = ({ level, backgroundVariant, variant, canUpgrade }) => (
   <button
-    className={clsx(canUpgrade && 'hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300 relative')}
+    className={clsx(canUpgrade && 'lg:hover:scale-125', 'rounded-full cursor-pointer transition-transform duration-300 relative')}
     type="button"
     disabled={!canUpgrade}
   >

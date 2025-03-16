@@ -167,7 +167,7 @@ const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffec
   });
 };
 
-export const generateEffects = (server: Server, village: Village) => {
+export const generateEffects = (server: Server, village: Village): Effect[] => {
   const serverEffects = serverEffectsFactory({ server });
   const villageEffects = newVillageEffectsFactory({ village });
   const globalEffects = globalEffectsFactory({ server });
