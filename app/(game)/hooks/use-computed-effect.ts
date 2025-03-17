@@ -5,6 +5,14 @@ import type { Effect, EffectId, GlobalEffect, VillageEffect } from 'app/interfac
 import type { Village } from 'app/interfaces/models/game/village';
 import { use } from 'react';
 
+const normalize1001Value = (value: number) => {
+  if (value === 1.001) {
+    return 1;
+  }
+
+  return value;
+};
+
 export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[], currentVillageId: Village['id']) => {
   const bonusEffectId = `${effectId}Bonus`;
 
@@ -18,12 +26,12 @@ export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[
   const baseEffects = [...currentVillageEffects.filter(effectIdFilterFunction), ...globalEffects.filter(effectIdFilterFunction)];
   const bonusEffects = [...currentVillageEffects.filter(bonusEffectIdFilterFunction), ...globalEffects.filter(bonusEffectIdFilterFunction)];
 
-  const cumulativeBaseEffectValue = baseEffects.reduce((acc: number, effect: Effect) => acc + effect.value, 0);
+  const cumulativeBaseEffectValue = baseEffects.reduce((acc: number, effect: Effect) => acc + normalize1001Value(effect.value), 0);
 
-  const cumulativeBonusEffectValue = bonusEffects.reduce((acc: number, effect: Effect) => acc + (effect.value - 1), 1);
+  const cumulativeBonusEffectValue = bonusEffects.reduce((acc: number, effect: Effect) => acc + (normalize1001Value(effect.value) - 1), 1);
 
   // There's always only 1 server effect for particular effect id, but if it's missing, value is 1
-  const serverEffectValue = effects.find(({ id, scope }) => scope === 'server' && id === effectId)?.value ?? 1;
+  const serverEffectValue = normalize1001Value(effects.find(({ id, scope }) => scope === 'server' && id === effectId)?.value ?? 1);
 
   const total = cumulativeBaseEffectValue * serverEffectValue * cumulativeBonusEffectValue;
 
