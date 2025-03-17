@@ -114,7 +114,7 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
       return 'blue';
     }
 
-    if (wheatBuildingLimit - population < nextLevelCropConsumption) {
+    if (nextLevelCropConsumption > 0 && wheatBuildingLimit - population < nextLevelCropConsumption) {
       return 'gray';
     }
 
