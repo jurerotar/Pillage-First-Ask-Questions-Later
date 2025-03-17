@@ -6,6 +6,8 @@
 @variant day (&:where(.time-of-day-day, .day *));
 @variant night (&:where(.time-of-day-night, .night *));
 
+@variant standalone (&:where(:display-mode(standalone)));
+
 @theme {
   --breakpoint-xs: 425px;
   --breakpoint-sm: 640px;

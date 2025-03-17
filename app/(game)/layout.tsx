@@ -325,7 +325,7 @@ const TopNavigation = () => {
         </nav>
       </div>
       {/* Empty div to bring down the header on mobile devices */}
-      <div className="flex lg:hidden h-12 w-full bg-blue-200" />
+      <div className="hidden standalone:flex h-12 w-full bg-blue-200" />
       <div className="flex lg:hidden h-14 w-full bg-blue-400" />
       <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2">
         <ResourceCounters />
