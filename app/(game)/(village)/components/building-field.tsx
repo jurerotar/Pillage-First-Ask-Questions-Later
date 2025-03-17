@@ -29,7 +29,7 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [10, 'top-[39%] left-[69%]'],
   [11, 'top-[39%] left-[86%]'],
   [12, 'top-[68%] left-[19%]'],
-  [13, 'top-[59%] left-[32%]'],
+  [13, 'top-[67%] left-[29%]'],
   [14, 'top-[71%] left-[48%]'],
   [15, 'top-[59%] left-[76%]'],
   [16, 'top-[77%] left-[36%]'],

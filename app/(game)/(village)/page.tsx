@@ -63,7 +63,6 @@ const VillagePage = () => {
   const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
-  const _viewName = isResourcesPageOpen ? 'resources' : 'village';
   const buildingFieldIdsToDisplay = isResourcesPageOpen ? resourceViewBuildingFieldIds : villageViewBuildingFieldIds;
 
   return (
@@ -85,8 +84,8 @@ const VillagePage = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main className="flex items-center justify-center mx-auto lg:mt-12 lg:mb-0 max-h-[calc(100vh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
-        <div className="relative aspect-[16/10] scrollbar-hidden min-w-[450px] max-w-5xl w-full">
+      <main className="flex flex-col items-center justify-center mx-auto lg:mt-12 lg:mb-0 max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
+        <div className="relative aspect-[16/10] scrollbar-hidden min-w-[460px] max-w-5xl w-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField
               key={buildingFieldId}
@@ -96,7 +95,7 @@ const VillagePage = () => {
           {isResourcesPageOpen && (
             <Link
               to={villagePath}
-              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
+              className="absolute text-xs lg:size-24 lg:text-sm left-1/2 top-1/2 size-14 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
               aria-label={t('Village')}
             >
               Village
