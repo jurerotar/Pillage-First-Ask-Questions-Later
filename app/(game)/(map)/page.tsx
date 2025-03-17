@@ -22,11 +22,13 @@ import { useEventListener } from 'usehooks-ts';
 import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
+import { useIsPwa } from 'app/hooks/use-is-pwa';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
 const MapPage = () => {
+  const isPwa = useIsPwa();
   const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
@@ -47,7 +49,16 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  const mapHeight = isWiderThanLg ? height - 76 : height - 234;
+  /**
+   * List of individual contributions
+   * Desktop:
+   *  - Header is 76px tall
+   * Mobile:
+   *  - Top navigation is 96px tall
+   *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
+   *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
+   */
+  const mapHeight = isWiderThanLg ? height - 76 : height - 186 + (isPwa ? 48 : 0);
 
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);

@@ -45,7 +45,7 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
     <div className="flex w-full items-center gap-2 lg:px-1 lg:pb-1">
       <div className="flex w-full flex-col">
         <div className="flex w-full items-center justify-between">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center">
             <Icon
               className="size-4 lg:size-6"
               type={resource}
@@ -56,9 +56,9 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
             </span>
           </div>
 
-          <span>
+          <span className="inline-flex items-center">
             <span className="text-xs lg:text-md font-medium leading-none">{formatNumberWithCommas(calculatedResourceAmount)}</span>
-            <span className="hidden lg:inline-flex text-sm text-gray-400 font-normal leading-none">
+            <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">
               /{formatNumberWithCommas(storageCapacity)}
             </span>
           </span>
@@ -327,7 +327,7 @@ const TopNavigation = () => {
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-blue-200" />
       <div className="flex lg:hidden h-14 w-full bg-blue-400" />
-      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2">
+      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>

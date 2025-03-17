@@ -215,7 +215,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
             </ul>
           )}
           <div className="flex gap-2">
-            {((isSpecialBuilding && buildingLevel > 0) || (!isSpecialBuilding && buildingLevel > 1)) && (
+            {buildingLevel > 1 && (
               <Button
                 data-testid="building-actions-downgrade-building-button"
                 variant="confirm"
