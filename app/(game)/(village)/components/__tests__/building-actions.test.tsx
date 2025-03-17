@@ -7,7 +7,9 @@ import { serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { renderWithGameContext } from 'app/tests/test-utils.js';
 import { describe, expect, test } from 'vitest';
-import { villagesCacheKey } from 'app/(game)/constants/query-keys';
+import { effectsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
+import type { Effect } from 'app/interfaces/models/game/effect';
+import { wheatProduction100EffectMock } from 'app/tests/mocks/game/effect-mock';
 
 const level1MainBuildingBuildingField: BuildingField = {
   buildingId: 'MAIN_BUILDING',
@@ -51,32 +53,6 @@ describe('BuildingActions', () => {
       buildingFields,
     };
     queryClient.setQueryData<Village[]>([villagesCacheKey], [villageMockWithLevel1MainBuilding]);
-
-    test('Upgrade button should be rendered and enabled', () => {
-      renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
-      const upgradeButton = screen.getByTestId('building-actions-upgrade-building-button');
-
-      expect(upgradeButton).toBeInTheDocument();
-      expect(upgradeButton).not.toBeDisabled();
-    });
-
-    test('Max level cranny should not have upgrade button rendered', () => {
-      const queryClient = new QueryClient();
-
-      const buildingFields: BuildingField[] = [level1MainBuildingBuildingField, level10CrannyBuildingField];
-
-      const villageMockWithLevel1MainBuilding: Village = {
-        ...villageMock,
-        buildingFields,
-      };
-
-      queryClient.setQueryData<Village[]>([villagesCacheKey], [villageMockWithLevel1MainBuilding]);
-
-      renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
-      const upgradeButton = screen.queryByTestId('building-actions-upgrade-building-button');
-
-      expect(upgradeButton).not.toBeInTheDocument();
-    });
 
     test('Upgrade button should be rendered and enabled', () => {
       renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
@@ -190,5 +166,42 @@ describe('BuildingActions', () => {
 
     expect(upgradeButton).toBeInTheDocument();
     expect(upgradeButton).toBeDisabled();
+  });
+
+  test('Upgrade button should be rendered and enabled only if we have enough wheat production', () => {
+    const queryClient = new QueryClient();
+
+    const buildingFields: BuildingField[] = [level1MainBuildingBuildingField, level1CrannyBuildingField];
+
+    const villageMockWithLevel1MainBuilding: Village = {
+      ...villageMock,
+      buildingFields,
+    };
+    queryClient.setQueryData<Village[]>([villagesCacheKey], [villageMockWithLevel1MainBuilding]);
+    queryClient.setQueryData<Effect[]>([effectsCacheKey], [wheatProduction100EffectMock]);
+
+    renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
+    const upgradeButton = screen.getByTestId('building-actions-upgrade-building-button');
+
+    expect(upgradeButton).toBeInTheDocument();
+    expect(upgradeButton).not.toBeDisabled();
+  });
+
+  test('Max level cranny should not have upgrade button rendered', () => {
+    const queryClient = new QueryClient();
+
+    const buildingFields: BuildingField[] = [level1MainBuildingBuildingField, level10CrannyBuildingField];
+
+    const villageMockWithLevel1MainBuilding: Village = {
+      ...villageMock,
+      buildingFields,
+    };
+
+    queryClient.setQueryData<Village[]>([villagesCacheKey], [villageMockWithLevel1MainBuilding]);
+
+    renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
+    const upgradeButton = screen.queryByTestId('building-actions-upgrade-building-button');
+
+    expect(upgradeButton).not.toBeInTheDocument();
   });
 });

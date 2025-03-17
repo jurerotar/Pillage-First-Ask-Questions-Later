@@ -74,7 +74,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     );
   })();
 
-  const hasEnoughWheatToBuild = !(nextLevelCropConsumption > 0) && wheatBuildingLimit - population < nextLevelCropConsumption;
+  const hasEnoughWheatToBuild = !(nextLevelCropConsumption > 0) || wheatBuildingLimit - population < nextLevelCropConsumption;
 
   const onBuildingConstruction = () => {
     constructBuilding();

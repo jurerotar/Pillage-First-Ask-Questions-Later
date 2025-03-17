@@ -79,6 +79,13 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   if (providedQueryClient) {
     const queries = providedQueryClient.getQueryCache().getAll();
     for (const { queryKey } of queries) {
+      if (queryKey.includes(effectsCacheKey)) {
+        gameQueryClient.setQueryData(queryKey, [
+          ...gameQueryClient.getQueryData<Effect[]>(queryKey)!,
+          ...providedQueryClient.getQueryData<Effect[]>(queryKey)!,
+        ]);
+        continue;
+      }
       gameQueryClient.setQueryData(queryKey, providedQueryClient.getQueryData(queryKey));
     }
   }
