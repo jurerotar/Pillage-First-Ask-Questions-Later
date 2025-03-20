@@ -22,13 +22,12 @@ import { useEventListener } from 'usehooks-ts';
 import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { useIsPwa } from 'app/hooks/use-is-pwa';
+import { isStandaloneDisplayMode } from 'app/utils/device';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
 const MapPage = () => {
-  const isPwa = useIsPwa();
   const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
@@ -48,6 +47,8 @@ const MapPage = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
+
+  const isPwa = isStandaloneDisplayMode();
 
   /**
    * List of individual contributions
