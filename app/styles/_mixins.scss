@@ -1,7 +1,5 @@
 @mixin imageSet($imagePath) {
-  // Fallback
-  background-image: url('#{$imagePath}.jpg');
-
+  background-repeat: no-repeat;
   background-image: image-set(
       '#{$imagePath}.avif' type('image/avif'),
       '#{$imagePath}.jpg' type('image/jpeg'),

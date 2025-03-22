@@ -1,6 +1,7 @@
 import { useCurrentServer } from 'app/(game)/hooks/use-current-server';
 import type React from 'react';
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, use, useCallback, useMemo, useState } from 'react';
+import { ViewportContext } from 'app/providers/viewport-context';
 
 type MapProviderValues = {
   magnification: number;
@@ -14,13 +15,15 @@ export const MapContext = createContext<MapProviderValues>({} as MapProviderValu
 
 export const MAX_MAGNIFICATION = 5;
 export const MIN_MAGNIFICATION = 3;
-const TILE_BASE_SIZE = 20;
 
 export const MapProvider: React.FCWithChildren = ({ children }) => {
   const { mapSize } = useCurrentServer();
+  const { isWiderThanLg } = use(ViewportContext);
+
+  const tileBaseSize = isWiderThanLg ? 20 : 15;
 
   const [magnification, setMagnification] = useState<number>(4);
-  const tileSize = TILE_BASE_SIZE * magnification;
+  const tileSize = tileBaseSize * magnification;
   const gridSize = Math.ceil(mapSize * Math.sqrt(2)) + 5;
 
   const increaseMagnification = useCallback(() => {

@@ -70,12 +70,12 @@ type VillageFactoryProps = {
 };
 
 export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
-  const { id, resourceFieldComposition } = tile;
+  const { id, RFC } = tile;
 
   const { id: playerId, name, tribe } = player;
 
   const buildingFields = [
-    ...createVillageResourceFields(resourceFieldComposition, 'player'),
+    ...createVillageResourceFields(RFC, 'player'),
     ...playerVillageBuildingFieldsPreset,
     createWallBuildingField(tribe, 'player'),
   ];
@@ -90,7 +90,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     isCapital: false,
     wheatUpkeep: 3,
     lastUpdatedAt: Date.now(),
-    resourceFieldComposition,
+    RFC,
     artifactId: null,
     resources: {
       wood: 750,
@@ -106,7 +106,7 @@ type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'> & {
 };
 
 const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Village => {
-  const { resourceFieldComposition, id } = tile;
+  const { RFC, id } = tile;
 
   const { id: playerId, name, tribe } = player;
 
@@ -129,7 +129,7 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
     isCapital: false,
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
-    resourceFieldComposition,
+    RFC,
     artifactId: null,
   };
 };

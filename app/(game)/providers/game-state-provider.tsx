@@ -37,7 +37,8 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
       }, 300),
       restoreClient: async () => {
         const rootHandle = await getRootHandle();
-        return getParsedFileContents<PersistedClient>(rootHandle, serverSlug);
+        const serverState = await getParsedFileContents<PersistedClient>(rootHandle, serverSlug);
+        return serverState;
       },
       removeClient: () => {},
     }),

@@ -151,7 +151,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.resourceFieldComposition, level }),
+        dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.RFC, level }),
         'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
       )}
       data-building-field-id={buildingFieldId}

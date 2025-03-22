@@ -23,9 +23,9 @@ describe('useBuildingVirtualLevel', () => {
     const {
       result: { current },
     } = renderHookWithGameContext(() => useBuildingVirtualLevel('CLAY_PIT', 5));
-    const { buildingLevel } = current;
+    const { virtualLevel } = current;
 
-    expect(buildingLevel).toBe(0);
+    expect(virtualLevel).toBe(0);
   });
 
   test("Virtual building level should be 1 when it's building level is 0, but it's being upgraded to level 1", () => {
@@ -34,9 +34,9 @@ describe('useBuildingVirtualLevel', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [clayPitUpgradeLevel1EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingVirtualLevel('CLAY_PIT', 5), { queryClient });
-    const { buildingLevel } = result.current;
+    const { virtualLevel } = result.current;
 
-    expect(buildingLevel).toBe(1);
+    expect(virtualLevel).toBe(1);
   });
 
   test("Virtual building level should be 2 when it's building level is 0, but it's being upgraded to level 2", () => {
@@ -45,9 +45,9 @@ describe('useBuildingVirtualLevel', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [clayPitUpgradeLevel1EventMock, clayPitUpgradeLevel2EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingVirtualLevel('CLAY_PIT', 5), { queryClient });
-    const { buildingLevel } = result.current;
+    const { virtualLevel } = result.current;
 
-    expect(buildingLevel).toBe(2);
+    expect(virtualLevel).toBe(2);
   });
 
   test("Virtual building level should be 0 when it's building level is 0, regardless if another building is being upgraded", () => {
@@ -56,8 +56,8 @@ describe('useBuildingVirtualLevel', () => {
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], [clayPitUpgradeLevel1EventMock, clayPitUpgradeLevel2EventMock]);
 
     const { result } = renderHookWithGameContext(() => useBuildingVirtualLevel('CLAY_PIT', 6), { queryClient });
-    const { buildingLevel } = result.current;
+    const { virtualLevel } = result.current;
 
-    expect(buildingLevel).toBe(0);
+    expect(virtualLevel).toBe(0);
   });
 });

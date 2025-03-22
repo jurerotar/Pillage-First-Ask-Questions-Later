@@ -301,8 +301,8 @@ const villageSizeToTroopsLevel = new Map<VillageSize, number>([
 export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiableTiles, players }: GenerateTroopsArgs) => {
   const prng = prngAlea(server.seed);
 
-  const oasisTroops: Troop[] = occupiableOasisTiles.flatMap(({ id: tileId, oasisResourceBonus }) => {
-    const resourceCombination = oasisResourceBonus.map(({ resource }) => resource).join('-') as Resource | ResourceCombination;
+  const oasisTroops: Troop[] = occupiableOasisTiles.flatMap(({ id: tileId, ORB }) => {
+    const resourceCombination = ORB.map(({ resource }) => resource).join('-') as Resource | ResourceCombination;
     const troopIdsWithAmount = oasisTroopCombinations.get(resourceCombination)!;
     return troopIdsWithAmount.map((unitIdWithAmount) => {
       const [unitId, amount] = unitIdWithAmount;

@@ -11,20 +11,74 @@ import type { Resources } from 'app/interfaces/models/game/resource';
 import { useTranslation } from 'react-i18next';
 import type { Building } from 'app/interfaces/models/game/building';
 
-const getHasEnoughFreeCrop = (nextLevelCropConsumption: number, wheatBuildingLimit: number, currentVillagePopulation: number): boolean => {
-  return nextLevelCropConsumption > 0 || wheatBuildingLimit - currentVillagePopulation < nextLevelCropConsumption;
+export const getHasEnoughFreeCrop = (
+  nextLevelCropConsumption: number,
+  wheatBuildingLimit: number,
+  currentVillagePopulation: number,
+): boolean => {
+  if (nextLevelCropConsumption === 0) {
+    return true;
+  }
+  return wheatBuildingLimit - currentVillagePopulation >= nextLevelCropConsumption;
 };
 
-const getHasEnoughWarehouseCapacity = (calculatedWarehouseCapacity: number, nextLevelResourceCost: number[]): boolean => {
+export const getHasEnoughWarehouseCapacity = (calculatedWarehouseCapacity: number, nextLevelResourceCost: number[]): boolean => {
   return nextLevelResourceCost.filter((_, i) => i < 3).every((buildingCost) => buildingCost <= calculatedWarehouseCapacity);
 };
 
-const getHasEnoughGranaryCapacity = (calculatedGranaryCapacity: number, nextLevelWheatCost: number) => {
+export const getHasEnoughGranaryCapacity = (calculatedGranaryCapacity: number, nextLevelWheatCost: number) => {
   return calculatedGranaryCapacity >= nextLevelWheatCost;
 };
 
-const getHasEnoughResources = (nextLevelResourceCost: number[], currentResources: Resources) => {
+export const getHasEnoughResources = (nextLevelResourceCost: number[], currentResources: Resources) => {
   return Object.values(currentResources).every((value, index) => value >= nextLevelResourceCost[index]);
+};
+
+export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
+  const { t } = useTranslation();
+  const { currentVillage, currentVillagePopulation } = use(CurrentVillageContext);
+  const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
+  const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
+  const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
+  const resources = use(CurrentResourceContext);
+  const { getCanAddAdditionalBuildingToQueue } = useEvents();
+  const { isDeveloperModeActive } = useDeveloperMode();
+
+  const { nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, 1);
+
+  const getBuildingConstructionErrorBag = (): string[] => {
+    const errorBag: string[] = [];
+
+    if (isDeveloperModeActive) {
+      return [];
+    }
+
+    if (!getHasEnoughFreeCrop(nextLevelCropConsumption, wheatBuildingLimit, currentVillagePopulation)) {
+      errorBag.push(t('Upgrade wheat fields first'));
+    }
+
+    if (!getHasEnoughWarehouseCapacity(warehouseCapacity, nextLevelResourceCost)) {
+      errorBag.push(t('Upgrade warehouse first'));
+    }
+
+    if (!getHasEnoughGranaryCapacity(granaryCapacity, nextLevelResourceCost[3])) {
+      errorBag.push(t('Upgrade granary first'));
+    }
+
+    if (!getHasEnoughResources(nextLevelResourceCost, resources)) {
+      errorBag.push(t('Not enough resources available'));
+    }
+
+    if (!getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId)) {
+      errorBag.push(t('Building queue is full'));
+    }
+
+    return errorBag;
+  };
+
+  return {
+    getBuildingConstructionErrorBag,
+  };
 };
 
 export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) => {

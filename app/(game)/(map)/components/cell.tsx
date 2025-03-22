@@ -83,7 +83,7 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters, villageCoordina
   // Determine if any content will render
   const hasContent =
     (isOccupiedOccupiableCell && shouldShowTreasureIcons && isWorldItemCell) || // Treasure icon
-    (isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).resourceFieldComposition)) || // Wheat field icon
+    (isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).RFC)) || // Wheat field icon
     (isOccupiableOasisCell && shouldShowOasisIcons) || // Oasis icon
     // shouldShowTroopMovements || // Troop movements
     (shouldShowFactionReputation && isOccupiedOccupiableCell); // Faction reputation CSS class
@@ -107,13 +107,11 @@ const CellIcons: React.FC<CellIconsProps> = ({ tile, mapFilters, villageCoordina
         <TreasureIcon item={villageCoordinatesToWorldItemsMap.get(tile.id)!} />
       )}
 
-      {isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).resourceFieldComposition) && (
-        <WheatFieldIcon resourceFieldComposition={(tile as OccupiableTile).resourceFieldComposition} />
-      )}
+      {isOccupiableCell && shouldShowWheatFields && wheatFields.includes((tile as OccupiableTile).RFC) && <WheatFieldIcon />}
 
       {isOccupiableOasisCell && shouldShowOasisIcons && (
         <OccupiableOasisIcon
-          oasisResourceBonus={tile.oasisResourceBonus}
+          oasisResourceBonus={tile.ORB}
           borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
         />
       )}
@@ -149,8 +147,8 @@ const dynamicCellClasses = (
   const isUnoccupiedOccupiableCell = isUnoccupiedOccupiableTile(tile);
 
   if (isUnoccupiedOccupiableCell) {
-    const { resourceFieldComposition } = tile as OccupiableTile;
-    return clsx(cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${resourceFieldComposition}`]);
+    const { RFC } = tile as OccupiableTile;
+    return clsx(cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${RFC}`]);
   }
 
   if (isOccupiedOccupiableCell) {
@@ -195,7 +193,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
     <div
       className={clsx(
         dynamicCellClasses(tile, villageCoordinatesToVillagesMap),
-        'flex size-full rounded-[1px] border border-gray-500/50 night:border-gray-700 bg-contain relative',
+        'flex size-full rounded-[1px] border border-gray-500/50 night:border-gray-700 bg-contain',
       )}
       style={style}
       data-tile-id={tile.id}

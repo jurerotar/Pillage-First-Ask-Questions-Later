@@ -4,7 +4,9 @@ import type { OasisResourceBonus, OasisTile } from 'app/interfaces/models/game/t
 import { capitalize } from 'moderndash';
 import type React from 'react';
 
-type OccupiableOasisIconProps = Pick<OasisTile, 'oasisResourceBonus'> & Omit<IconProps, 'type'>;
+type OccupiableOasisIconProps = Omit<IconProps, 'type'> & {
+  oasisResourceBonus: OasisTile['ORB'];
+};
 
 // Honestly, would be better to just type out every combination and skip the hardcoded assertions
 const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconProps['type'] => {

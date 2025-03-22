@@ -41,39 +41,39 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
   const productionSign = hasNegativeProduction ? '-' : '+';
 
-  return (
-    <div className="flex w-full items-center gap-2 lg:px-1 lg:pb-1">
-      <div className="flex w-full flex-col">
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center">
-            <Icon
-              className="size-4 lg:size-6"
-              type={resource}
-            />
-            <span className="inline-flex text-2xs md:text-xs">
-              {productionSign === '-' && productionSign}
-              {hourlyProduction}/h
-            </span>
-          </div>
+  const formattedCurrentAmount = formatNumberWithCommas(calculatedResourceAmount);
+  const formattedStorageCapacity = formatNumberWithCommas(storageCapacity);
+  const formattedHourlyProduction = formatNumberWithCommas(hourlyProduction);
 
-          <span className="inline-flex items-center">
-            <span className="text-xs lg:text-md font-medium leading-none">{formatNumberWithCommas(calculatedResourceAmount)}</span>
-            <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">
-              /{formatNumberWithCommas(storageCapacity)}
-            </span>
-          </span>
-        </div>
-        <div className="relative flex h-2 lg:h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
-          <div
-            className={clsx(
-              isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
-              'flex h-full border',
-            )}
-            style={{
-              width: `${storagePercentage}%`,
-            }}
-          />
-        </div>
+  return (
+    <div className="flex w-full flex-col gap-1">
+      <div className="flex w-full items-center justify-between">
+        <Icon
+          className="size-4 lg:size-6"
+          type={resource}
+        />
+        <span className="inline-flex items-center">
+          <span className="text-xs lg:text-md font-medium leading-none">{formattedCurrentAmount}</span>
+          <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">/{formattedStorageCapacity}</span>
+        </span>
+      </div>
+      <div className="relative flex h-2 lg:h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
+        <div
+          className={clsx(
+            isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
+            'flex h-full border lg:border-2',
+          )}
+          style={{
+            width: `${storagePercentage}%`,
+          }}
+        />
+      </div>
+      <div className="flex justify-between lg:justify-end items-center">
+        <span className="inline-flex lg:hidden text-2xs md:text-xs">{formattedStorageCapacity}</span>
+        <span className="inline-flex text-2xs md:text-xs">
+          {productionSign}
+          {formattedHourlyProduction}/h
+        </span>
       </div>
     </div>
   );
@@ -325,8 +325,10 @@ const TopNavigation = () => {
         </nav>
       </div>
       {/* Empty div to bring down the header on mobile devices */}
-      <div className="hidden standalone:flex h-12 w-full bg-blue-200" />
-      <div className="flex lg:hidden h-14 w-full bg-blue-400" />
+      <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
+      <div className="flex justify-center items-center text-center px-2 lg:hidden h-14 w-full text-sm bg-blue-400">
+        Top navigation section, not sure what to put here yet. Post ideas in Discord :)
+      </div>
       <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
