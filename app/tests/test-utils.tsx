@@ -34,13 +34,25 @@ let dehydratedState: DehydratedState | null = null;
 // make sure to add it yourself in custom query client!
 const createGameEnvironment = (): QueryClient => {
   if (dehydratedState !== null) {
-    const queryClient = new QueryClient();
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          queryFn: () => {},
+        },
+      },
+    });
     hydrate(queryClient, dehydratedState);
 
     return queryClient;
   }
 
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        queryFn: () => {},
+      },
+    },
+  });
   const server = serverMock;
 
   const playerVillageMock = villageMock;

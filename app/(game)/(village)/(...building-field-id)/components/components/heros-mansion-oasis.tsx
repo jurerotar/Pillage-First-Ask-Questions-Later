@@ -23,8 +23,6 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
   const hasOccupiedOasis = !!occupiedOasis;
 
   if (hasOccupiedOasis) {
-    const { oasisResourceBonus } = occupiedOasis;
-
     const [x, y] = occupiedOasis.id.split('|');
 
     return (
@@ -35,7 +33,7 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
           </LinkWithState>
         </TableCell>
         <TableCell className="whitespace-nowrap">
-          {oasisResourceBonus.map(({ resource, bonus }, index) => (
+          {occupiedOasis.ORB.map(({ resource, bonus }, index) => (
             <span
               className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
               key={resource}
@@ -128,7 +126,7 @@ export const HerosMansionOasis = () => {
                       </LinkWithState>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      {tile.oasisResourceBonus.map(({ resource, bonus }, index) => (
+                      {tile.ORB.map(({ resource, bonus }, index) => (
                         <span
                           className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
                           key={resource}

@@ -13,7 +13,7 @@ import { isScheduledBuildingEvent } from 'app/(game)/hooks/guards/event-guards';
 export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { currentVillage } = use(CurrentVillageContext);
   const { getVillageBuildingEventsQueue } = useEvents();
-  const { buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
+  const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
   const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent('buildingLevelChange');
@@ -25,7 +25,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const hasCurrentVillageBuildingEvents = buildingEvents.length > 0;
 
-  const { building, nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, buildingLevel);
+  const { building, nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const calculateTimings = () => {
     if (isDeveloperModeActive) {
@@ -96,7 +96,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const upgradeBuilding = () => {
-    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, buildingLevel + 1);
+    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, virtualLevel + 1);
     const { startsAt, duration } = calculateTimings();
 
     if (hasCurrentVillageBuildingEvents) {
@@ -106,7 +106,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingFieldId: buildingFieldId!,
         building,
         resourceCost,
-        level: buildingLevel + 1,
+        level: virtualLevel + 1,
       });
 
       return;
@@ -116,7 +116,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       startsAt,
       duration,
       buildingFieldId: buildingFieldId!,
-      level: buildingLevel + 1,
+      level: virtualLevel + 1,
       building,
       resourceCost,
     });
@@ -127,7 +127,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       startsAt: Date.now(),
       duration: 0,
       buildingFieldId: buildingFieldId!,
-      level: buildingLevel - 1,
+      level: virtualLevel - 1,
       building,
       resourceCost: [0, 0, 0, 0],
     });

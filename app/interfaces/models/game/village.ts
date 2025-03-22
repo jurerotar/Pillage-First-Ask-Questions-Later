@@ -57,6 +57,6 @@ export type Village = {
   // in which case buildingFields only contain the building fields unique to that villages
   buildingFieldsPresets: VillagePresetId[];
   isCapital: boolean;
-  resourceFieldComposition: ResourceFieldComposition;
+  RFC: ResourceFieldComposition;
   artifactId: ArtifactId | null;
 };

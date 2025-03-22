@@ -158,7 +158,7 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
     <>
       <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
-      {tile.oasisResourceBonus.map(({ resource, bonus }: OasisResourceBonus) => (
+      {tile.ORB.map(({ resource, bonus }: OasisResourceBonus) => (
         <span
           key={resource}
           className="flex gap-1"
@@ -185,7 +185,7 @@ type OccupiableTileTooltipProps = {
 const OccupiableTileTooltip: React.FC<OccupiableTileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
 
-  const [wood, clay, iron, ...wheat] = tile.resourceFieldComposition.split('');
+  const [wood, clay, iron, ...wheat] = tile.RFC.split('');
   const readableResourceComposition = `${wood}-${clay}-${iron}-${wheat.join('')}`;
   const title = `${t('Abandoned valley')} ${readableResourceComposition}`;
 

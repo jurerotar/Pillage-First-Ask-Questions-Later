@@ -16,7 +16,7 @@
     "useEditorconfig": true,
     "formatWithErrors": true,
     "attributePosition": "multiline",
-    "ignore": ["build"]
+    "ignore": ["build", "app/**/*.json"]
   },
   "linter": {
     "rules": {
@@ -33,7 +33,7 @@
         "useBlockStatements": "error"
       }
     },
-    "ignore": ["build"]
+    "ignore": ["build", "app/**/*.json"]
   },
   "javascript": {
     "formatter": {

@@ -7,7 +7,6 @@ import type React from 'react';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Divider } from 'app/components/divider';
-import { ViewportContext } from 'app/providers/viewport-context';
 
 type MagnificationButtonProps = {
   direction: 'increase' | 'decrease';
@@ -46,14 +45,10 @@ export const MapControls = () => {
     shouldShowTreasureIcons,
     toggleMapFilter,
   } = useMapFilters();
-  const { isWiderThanLg } = use(ViewportContext);
 
   return (
     <>
-      <Tooltip
-        hidden={!isWiderThanLg}
-        id="map-controls-tooltip"
-      />
+      <Tooltip id="map-controls-tooltip" />
       <div className="pointer-events-none fixed bottom-28 lg:bottom-8 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
         <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-2">
           <MagnificationButton direction="increase" />

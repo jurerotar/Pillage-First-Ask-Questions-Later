@@ -11,7 +11,7 @@ export const villageMock: Village = {
   slug: 'v-1',
   buildingFields: [...resourceFields4446Mock, ...newVillageBuildingFieldsMock],
   buildingFieldsPresets: [],
-  resourceFieldComposition: '4446',
+  RFC: '4446',
   playerId,
   isCapital: true,
   wheatUpkeep: 3,

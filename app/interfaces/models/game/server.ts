@@ -1,8 +1,8 @@
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 
 type ServerConfiguration = {
-  speed: 1 | 3;
-  mapSize: 100;
+  speed: 1 | 2 | 3 | 5 | 10;
+  mapSize: 100 | 200;
 };
 
 type PlayerConfiguration = {

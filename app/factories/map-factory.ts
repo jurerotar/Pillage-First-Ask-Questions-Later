@@ -1,5 +1,5 @@
 import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
-import { getVillageSize } from 'app/factories/utils/common';
+import { getVillageSize } from 'app/factories/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
@@ -148,7 +148,7 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
   return {
     ...tile,
     type: 'oasis-tile',
-    oasisResourceBonus,
+    ORB: oasisResourceBonus,
     villageId: null,
     graphics: `${oasisResource}-${oasisGroup}-${row}|${column}-${oasisVariant}`,
   };
@@ -186,7 +186,7 @@ const generateGrid = ({ server }: { server: Server }): (BaseTile | OasisTile)[] 
       tiles[i] = {
         id: `${x}|${y}`,
         type: 'oasis-tile',
-        oasisResourceBonus: [],
+        ORB: [],
         graphics: `wood-${0}-${0}|${0}-${0}`,
         villageId: null,
       } satisfies OasisTile;
@@ -217,7 +217,7 @@ const generateInitialUserVillage = ({ tiles, player }: GenerateInitialUserVillag
   tilesToUpdate[indexToUpdate] = {
     ...initialUserTile,
     type: 'free-tile',
-    resourceFieldComposition: '4446',
+    RFC: '4446',
     ownedBy: player.id,
   } satisfies OccupiedOccupiableTile;
 
@@ -324,7 +324,7 @@ const generateOccupiableTileTypes = ({ server, tiles }: GenerateOccupiableTileTy
     return {
       ...tile,
       type: 'free-tile',
-      resourceFieldComposition: generateOccupiableTileType(prng),
+      RFC: generateOccupiableTileType(prng),
     } satisfies OccupiableTile;
   });
 };
@@ -339,7 +339,7 @@ const populateOccupiableTiles = ({ server, tiles, npcPlayers }: PopulateOccupiab
   const prng = prngAlea(server.seed);
 
   return tiles.map((tile: Tile) => {
-    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy') || tile.resourceFieldComposition !== '4446') {
+    if (tile.type !== 'free-tile' || Object.hasOwn(tile, 'ownedBy') || tile.RFC !== '4446') {
       return tile;
     }
     const willBeOccupied = seededRandomIntFromInterval(prng, 1, 2) === 1;

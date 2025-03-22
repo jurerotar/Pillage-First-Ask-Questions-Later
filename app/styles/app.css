@@ -6,6 +6,9 @@
 @variant day (&:where(.time-of-day-day, .day *));
 @variant night (&:where(.time-of-day-night, .night *));
 
+@variant standalone (@media (display-mode: standalone));
+@variant browser (@media (display-mode: browser));
+
 @theme {
   --breakpoint-xs: 425px;
   --breakpoint-sm: 640px;
@@ -44,5 +47,12 @@
 
   .scrollbar-hidden::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */
+  }
+}
+
+a,
+button {
+  &:hover {
+    cursor: pointer;
   }
 }

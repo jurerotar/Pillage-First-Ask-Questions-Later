@@ -22,6 +22,7 @@ import { useEventListener } from 'usehooks-ts';
 import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
+import { isStandaloneDisplayMode } from 'app/utils/device';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -47,7 +48,20 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  const mapHeight = isWiderThanLg ? height - 76 : height - 130;
+  const isPwa = isStandaloneDisplayMode();
+
+  /**
+   * List of individual contributions
+   * Desktop:
+   *  - Header is 76px tall
+   * Mobile:
+   *  - Top navigation is 120px tall
+   *   - Navigation section is 63px tall
+   *   - Resource section is 57px tall
+   *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
+   *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
+   */
+  const mapHeight = isWiderThanLg ? height - 76 : height - 210 + (isPwa ? 48 : 0);
 
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);
@@ -223,7 +237,7 @@ const MapPage = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!mapFilters.shouldShowTileTooltips || !isWiderThanLg || isTileModalOpened}
+        hidden={!mapFilters.shouldShowTileTooltips || isTileModalOpened}
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 

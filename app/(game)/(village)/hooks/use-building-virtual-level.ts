@@ -8,10 +8,13 @@ export const useBuildingVirtualLevel = (buildingId: Building['id'], buildingFiel
   const { currentVillage } = use(CurrentVillageContext);
   const { getCurrentVillageBuildingEvents } = useEvents();
 
-  const actualLevel = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)?.level ?? 0;
+  const building = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId);
+  const doesBuildingExist = !!building;
+
+  const actualLevel = building?.level ?? 0;
   const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
-  const buildingLevel = (() => {
+  const virtualLevel = (() => {
     const sameBuildingConstructionEvents = currentVillageBuildingEvents.filter(({ buildingFieldId: eventBuildingFieldId, building }) => {
       return building.id === buildingId && eventBuildingFieldId === buildingFieldId;
     });
@@ -24,7 +27,8 @@ export const useBuildingVirtualLevel = (buildingId: Building['id'], buildingFiel
   })();
 
   return {
+    doesBuildingExist,
     actualLevel,
-    buildingLevel,
+    virtualLevel,
   };
 };

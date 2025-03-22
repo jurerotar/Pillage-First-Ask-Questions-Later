@@ -1,4 +1,4 @@
-import type { GameEvent, GameEventType, WithResourceCheckEvent } from 'app/interfaces/models/game/game-event';
+import type { GameEvent, GameEventType, WithResourceCheckEvent, WithVillageIdEvent } from 'app/interfaces/models/game/game-event';
 
 export const isBuildingEvent = (event: GameEvent): event is GameEvent<'buildingConstruction'> => {
   const buildingEventTypes: GameEventType[] = ['buildingScheduledConstruction', 'buildingLevelChange'];
@@ -12,7 +12,7 @@ export const isScheduledBuildingEvent = (event: GameEvent): event is GameEvent<'
 // Make sure to not include bulk events (barracks, stable, hospital training), because we check the price separately
 const eventTypesThatRequireResourceCheck: GameEventType[] = ['buildingLevelChange', 'buildingConstruction'];
 
-export const doesEventRequireResourceCheck = (event: GameEvent): event is GameEvent & WithResourceCheckEvent => {
+export const doesEventRequireResourceCheck = (event: GameEvent): event is GameEvent & WithResourceCheckEvent & WithVillageIdEvent => {
   return eventTypesThatRequireResourceCheck.includes(event.type);
 };
 

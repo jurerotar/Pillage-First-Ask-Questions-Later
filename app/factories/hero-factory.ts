@@ -13,7 +13,7 @@ export const heroFactory = (server: Server): Hero => {
 
   return {
     stats: {
-      level: 0,
+      level: 1,
       experience: 0,
       health: 100,
     },
@@ -27,7 +27,7 @@ export const heroFactory = (server: Server): Hero => {
       attackPower: 0,
       attackBonus: 0,
       defenceBonus: 0,
-      resourceProduction: 4,
+      resourceProduction: 0,
     },
     resourceToProduce: 'shared',
     unitType: 'infantry',

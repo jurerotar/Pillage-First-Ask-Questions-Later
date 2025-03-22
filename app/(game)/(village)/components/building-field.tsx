@@ -29,7 +29,7 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [10, 'top-[39%] left-[69%]'],
   [11, 'top-[39%] left-[86%]'],
   [12, 'top-[68%] left-[19%]'],
-  [13, 'top-[59%] left-[32%]'],
+  [13, 'top-[67%] left-[29%]'],
   [14, 'top-[71%] left-[48%]'],
   [15, 'top-[59%] left-[76%]'],
   [16, 'top-[77%] left-[36%]'],
@@ -151,7 +151,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.resourceFieldComposition, level }),
+        dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.RFC, level }),
         'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
@@ -163,7 +163,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
         buildingFieldId={buildingFieldId}
       />
       {shouldShowBuildingNames && (
-        <span className="text-3xs md:text-2xs px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+        <span className="text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
           {assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}

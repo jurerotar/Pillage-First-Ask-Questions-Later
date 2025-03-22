@@ -5,7 +5,7 @@ export const isOasisTile = (tile: Tile): tile is OasisTile => {
 };
 
 export const isOccupiableOasisTile = (tile: Tile): tile is OasisTile => {
-  return isOasisTile(tile) && tile.oasisResourceBonus.length > 0;
+  return isOasisTile(tile) && tile.ORB.length > 0;
 };
 
 export const isUnoccupiedOasisTile = (tile: Tile): tile is OasisTile => {

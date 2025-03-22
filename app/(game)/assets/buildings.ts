@@ -70,6 +70,13 @@ const createStorageCapacityEffect = (effectId: 'warehouseCapacity' | 'granaryCap
   };
 };
 
+const createLinearEffectValues = (effectId: 'merchantCapacity' | 'revealedIncomingTroopsAmount'): BuildingEffect => {
+  return {
+    effectId,
+    valuesPerLevel: [...new Array(21).keys()],
+  };
+};
+
 const createGovernmentBuildingDefenceEffects = (): BuildingEffect[] => {
   return [
     {
@@ -770,7 +777,7 @@ export const buildings: Building[] = [
     id: 'RALLY_POINT',
     category: 'military',
     cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [],
+    effects: [createLinearEffectValues('revealedIncomingTroopsAmount')],
     buildingRequirements: [
       {
         id: 1,
@@ -1068,7 +1075,7 @@ export const buildings: Building[] = [
       {
         effectId: 'buildingDuration',
         valuesPerLevel: [
-          1.0, 1.0, 0.98, 0.96, 0.94, 0.91, 0.89, 0.87, 0.85, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5,
+          1.001, 1.001, 0.98, 0.96, 0.94, 0.91, 0.89, 0.87, 0.85, 0.83, 0.81, 0.78, 0.75, 0.73, 0.7, 0.67, 0.64, 0.6, 0.57, 0.54, 0.5,
         ],
       },
     ],
@@ -1090,12 +1097,7 @@ export const buildings: Building[] = [
     id: 'MARKETPLACE',
     category: 'infrastructure',
     cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [
-      {
-        effectId: 'merchantCapacity',
-        valuesPerLevel: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      },
-    ],
+    effects: [createLinearEffectValues('merchantCapacity')],
     buildingRequirements: [
       {
         id: 1,

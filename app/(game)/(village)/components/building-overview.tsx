@@ -2,7 +2,7 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building
 import { Resources } from 'app/(game)/components/resources';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
-import { getBuildingDataForLevel, specialFieldIds } from 'app/(game)/utils/building';
+import { getBuildingDataForLevel } from 'app/(game)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Building } from 'app/interfaces/models/game/building';
 import { formatValue } from 'app/utils/common';
@@ -24,9 +24,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
-  const { actualLevel, buildingLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
-
-  const doesBuildingExist = buildingLevel > 0 || specialFieldIds.includes(buildingFieldId!);
+  const { actualLevel, virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const {
     building,
@@ -36,7 +34,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
     cumulativeEffects,
   } = getBuildingDataForLevel(buildingId, actualLevel);
 
-  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(buildingId, buildingLevel);
+  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
 
@@ -62,7 +60,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         </div>
         <div
           data-testid="building-overview-building-image"
-          className="flex border border-red justify-center items-center mr-2 mb-2 float-left size-10 md:size-14"
+          className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"
         >
           image
         </div>
@@ -72,12 +70,12 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         >
           {assetsT(`BUILDINGS.${building.id}.DESCRIPTION`)}
         </p>
-        {actualLevel !== buildingLevel && (
+        {actualLevel !== virtualLevel && (
           <span
             data-testid="building-overview-currently-upgrading-span"
             className="inline-flex text-orange-500 mt-2"
           >
-            {assetsT('Currently upgrading to level {{level}}', { level: buildingLevel })}
+            {assetsT('Currently upgrading to level {{level}}', { level: virtualLevel })}
           </span>
         )}
         {isActualMaxLevel && (
@@ -132,7 +130,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
               variant="positive-change"
             />
             <span>
-              <span>{cumulativeCropConsumption} &rarr;</span>
+              {doesBuildingExist && <span>{cumulativeCropConsumption} &rarr;</span>}
               {cumulativeCropConsumption + nextLevelCropConsumption}
             </span>
 
@@ -164,12 +162,12 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             className="flex flex-col flex-wrap gap-2 py-2 justify-center border-t border-gray-200"
           >
             <Text as="h3">
-              {doesBuildingExist ? t('Cost to upgrade to level {{level}}', { level: buildingLevel + 1 }) : t('Building construction cost')}
+              {doesBuildingExist ? t('Cost to upgrade to level {{level}}', { level: virtualLevel + 1 }) : t('Building construction cost')}
             </Text>
             <Resources resources={nextLevelResourceCost} />
           </section>
           <section className="flex flex-col flex-wrap gap-2 py-2 border-t border-gray-200 justify-center">
-            <Text as="h3">{t('Construction duration for level {{level}}', { level: buildingLevel + 1 })}</Text>
+            <Text as="h3">{t('Construction duration for level {{level}}', { level: virtualLevel + 1 })}</Text>
             <span className="flex gap-1">
               <Icon type="buildingDuration" />
               {formattedTime}

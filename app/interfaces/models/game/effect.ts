@@ -25,6 +25,7 @@ export type EffectId =
   | 'merchantCapacity'
   | 'crannyCapacity'
   | 'trapperCapacity'
+  | 'revealedIncomingTroopsAmount'
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 

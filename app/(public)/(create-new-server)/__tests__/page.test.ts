@@ -19,7 +19,7 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/constants/query-keys';
-import { getVillageSize } from 'app/factories/utils/common';
+import { getVillageSize } from 'app/factories/utils/village';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Player } from 'app/interfaces/models/game/player';
@@ -88,7 +88,7 @@ describe('Server initialization', () => {
     test('Some oasis tile should have no bonus', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const oasisTiles = tiles.filter(isOasisTile);
-      expect(oasisTiles.some(({ oasisResourceBonus }) => oasisResourceBonus.length === 0)).toBe(true);
+      expect(oasisTiles.some(({ ORB }) => ORB.length === 0)).toBe(true);
     });
 
     test('Some oasis tile should have only 25% single-resource bonus', () => {
@@ -96,11 +96,11 @@ describe('Server initialization', () => {
       const oasisTiles = tiles.filter(isOasisTile);
 
       expect(
-        oasisTiles.some(({ oasisResourceBonus }) => {
-          if (oasisResourceBonus.length !== 1) {
+        oasisTiles.some(({ ORB }) => {
+          if (ORB.length !== 1) {
             return false;
           }
-          const { bonus } = oasisResourceBonus[0];
+          const { bonus } = ORB[0];
           return bonus === '25%';
         }),
       ).toBe(true);
@@ -111,11 +111,11 @@ describe('Server initialization', () => {
       const oasisTiles = tiles.filter(isOasisTile);
 
       expect(
-        oasisTiles.some(({ oasisResourceBonus }) => {
-          if (oasisResourceBonus.length !== 1) {
+        oasisTiles.some(({ ORB }) => {
+          if (ORB.length !== 1) {
             return false;
           }
-          const { bonus } = oasisResourceBonus[0];
+          const { bonus } = ORB[0];
           return bonus === '50%';
         }),
       ).toBe(true);
@@ -126,11 +126,11 @@ describe('Server initialization', () => {
       const oasisTiles = tiles.filter(isOasisTile);
 
       expect(
-        oasisTiles.some(({ oasisResourceBonus }) => {
-          if (oasisResourceBonus.length !== 2) {
+        oasisTiles.some(({ ORB }) => {
+          if (ORB.length !== 2) {
             return false;
           }
-          const [firstBonus, secondBonus] = oasisResourceBonus;
+          const [firstBonus, secondBonus] = ORB;
           return firstBonus.bonus === '25%' && secondBonus.bonus === '25%';
         }),
       ).toBe(true);
@@ -220,8 +220,8 @@ describe('Server initialization', () => {
       const { oasisResource: tile1OasisResource } = parseOasisTileGraphicsProperty(tile1.graphics);
       const { oasisResource: tile2OasisResource } = parseOasisTileGraphicsProperty(tile2.graphics);
 
-      expect(tile1OasisResource === 'iron' && tile1.oasisResourceBonus[0].bonus === '25%').toBe(true);
-      expect(tile2OasisResource === 'iron' && tile2.oasisResourceBonus[0].bonus === '25%').toBe(true);
+      expect(tile1OasisResource === 'iron' && tile1.ORB[0].bonus === '25%').toBe(true);
+      expect(tile2OasisResource === 'iron' && tile2.ORB[0].bonus === '25%').toBe(true);
     });
 
     test('Border tiles should be generated on all sides', () => {

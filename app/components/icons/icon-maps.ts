@@ -159,6 +159,9 @@ const IconMerchantCapacity = lazy(async () => ({
 const IconCrannyCapacity = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-cranny-capacity')).IconCrannyCapacity,
 }));
+const IconRevealedIncomingTroopsAmount = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-revealed-incoming-troops-amount')).IconRevealedIncomingTroopsAmount,
+}));
 
 // Village
 const IconPopulationCropConsumption = lazy(async () => ({
@@ -456,6 +459,7 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   ironProductionBonus: IconResourceIron,
   wheatProductionBonus: IconResourceWheat,
   crannyCapacity: IconCrannyCapacity,
+  revealedIncomingTroopsAmount: IconRevealedIncomingTroopsAmount,
 
   // Roman troops
   legionnaire: IconUnitRomansLegionnaire,

@@ -14,7 +14,6 @@ import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { CurrentVillageContext, CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
-import { IoShareSocial } from 'react-icons/io5';
 import { FaBookBookmark, FaDiscord, FaGithub, FaStar, FaUser } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
@@ -30,6 +29,7 @@ import { CountdownProvider } from 'app/(game)/providers/countdown-provider';
 import { useHero } from 'app/(game)/hooks/use-hero';
 import layoutStyles from './layout.module.css';
 import { FaHome } from 'react-icons/fa';
+import { useAdventurePoints } from 'app/(game)/hooks/use-adventure-points';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -41,59 +41,85 @@ const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
   const productionSign = hasNegativeProduction ? '-' : '+';
 
-  return (
-    <div className="flex w-full items-center gap-2 lg:px-1 lg:pb-1">
-      <div className="flex w-full flex-col">
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center gap-1">
-            <Icon
-              className="size-4 lg:size-6"
-              type={resource}
-            />
-            <span className="inline-flex text-2xs md:text-xs">
-              {productionSign === '-' && productionSign}
-              {hourlyProduction}/h
-            </span>
-          </div>
+  const formattedCurrentAmount = formatNumberWithCommas(calculatedResourceAmount);
+  const formattedStorageCapacity = formatNumberWithCommas(storageCapacity);
+  const formattedHourlyProduction = formatNumberWithCommas(hourlyProduction);
 
-          <span>
-            <span className="text-xs lg:text-md font-medium leading-none">{formatNumberWithCommas(calculatedResourceAmount)}</span>
-            <span className="hidden lg:inline-flex text-sm text-gray-400 font-normal leading-none">
-              /{formatNumberWithCommas(storageCapacity)}
-            </span>
-          </span>
-        </div>
-        <div className="relative flex h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
-          <div
-            className={clsx(
-              isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
-              'flex h-full border',
-            )}
-            style={{
-              width: `${storagePercentage}%`,
-            }}
-          />
-        </div>
+  return (
+    <div className="flex w-full flex-col gap-1">
+      <div className="flex w-full items-center justify-between">
+        <Icon
+          className="size-4 lg:size-6"
+          type={resource}
+        />
+        <span className="inline-flex items-center">
+          <span className="text-xs lg:text-md font-medium leading-none">{formattedCurrentAmount}</span>
+          <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">/{formattedStorageCapacity}</span>
+        </span>
+      </div>
+      <div className="relative flex h-2 lg:h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
+        <div
+          className={clsx(
+            isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
+            'flex h-full border lg:border-2',
+          )}
+          style={{
+            width: `${storagePercentage}%`,
+          }}
+        />
+      </div>
+      <div className="flex justify-between lg:justify-end items-center">
+        <span className="inline-flex lg:hidden text-2xs md:text-xs">{formattedStorageCapacity}</span>
+        <span className="inline-flex text-2xs md:text-xs">
+          {productionSign}
+          {formattedHourlyProduction}/h
+        </span>
       </div>
     </div>
+  );
+};
+
+type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  counter?: number;
+};
+
+const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ children, counter = 0, ...rest }) => {
+  return (
+    <button
+      type="button"
+      className="
+        flex items-center justify-center shadow-md rounded-xs px-3 py-2 border border-gray-300 relative
+        bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
+        lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
+      "
+      {...rest}
+    >
+      <span className="lg:size-10 lg:bg-white lg:rounded-full flex items-center justify-center">{children}</span>
+      {counter > 0 && (
+        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+          {counter}
+        </span>
+      )}
+    </button>
   );
 };
 
 const HeroNavigationItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = (props) => {
   const { hero } = useHero();
 
-  const healthAngle = (hero.stats.health / 100) * 180;
-  const experienceAngle = 180 - (hero.stats.experience / 100) * 180;
+  const { level, experience, health } = hero.stats;
+  const healthAngle = (health / 100) * 180;
+  const experienceAngle = 180 - (experience / (level + 1)) * 50 * 180;
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable = hero.stats.level * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
+  const isLevelUpAvailable = level * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
 
   return (
     <button
       type="button"
       className={clsx(
         layoutStyles['hero-stats'],
-        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none relative',
+        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center relative shadow-[inset_0_0_0_1px_rgba(0,0,0,0.4)] lg:shadow-[inset_0_0_0_2px_rgba(0,0,0,0.4)]',
       )}
       {...props}
       style={
@@ -105,12 +131,7 @@ const HeroNavigationItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLBu
     >
       <span className={clsx(layoutStyles.divider, layoutStyles.top)} />
       <span className={clsx(layoutStyles.divider, layoutStyles.bottom)} />
-      <span
-        className="size-9.5 lg:size-14 bg-white rounded-full flex items-center justify-center"
-        style={{
-          boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.4)',
-        }}
-      >
+      <span className="size-9.5 lg:size-14 bg-white rounded-full flex items-center justify-center shadow-[0_0_0_1px_rgba(0,0,0,0.4)] lg:shadow-[0_0_0_2px_rgba(0,0,0,0.4)]">
         <FaUser className="text-2xl" />
       </span>
 
@@ -119,9 +140,20 @@ const HeroNavigationItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLBu
           <FaStar className="text-yellow-300 text-xs" />
         </span>
       )}
-      <span className="absolute size-5 lg:size-6 bg-white bottom-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+      <span className="absolute size-5 lg:size-6 bg-white bottom-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md lg:shadow-none inline-flex justify-center items-center">
         <FaHome className="text-xs" />
       </span>
+    </button>
+  );
+};
+
+const DesktopTopRowItem: React.FCWithChildren = ({ children }) => {
+  return (
+    <button
+      type="button"
+      className="px-3 py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
+    >
+      {children}
     </button>
   );
 };
@@ -147,33 +179,9 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
   );
 };
 
-const NavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ children, ...rest }) => {
-  return (
-    <button
-      type="button"
-      className="px-3 py-2 lg:py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] border border-gray-300 lg:border-0 rounded-xs lg:rounded-none flex items-center justify-center shadow-md lg:shadow-none"
-      {...rest}
-    >
-      {children}
-    </button>
-  );
-};
-
-const DesktopNavigationSideItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ children, ...rest }) => {
-  return (
-    <button
-      type="button"
-      className={'from-[#a3a3a3] to-[#c8c8c8] bg-gradient-to-t size-12 rounded-full flex items-center justify-center shadow'}
-      {...rest}
-    >
-      <span className="size-10 bg-white rounded-full flex items-center justify-center">{children}</span>
-    </button>
-  );
-};
-
 const ResourceCounters = () => {
   return (
-    <div className="flex w-full py-1 mx-auto gap-1">
+    <div className="flex w-full py-1 mx-auto gap-0.5">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <Fragment key={resource}>
           <ResourceCounter resource={resource} />
@@ -185,6 +193,7 @@ const ResourceCounters = () => {
 };
 
 const TopNavigation = () => {
+  const { adventurePoints } = useAdventurePoints();
   const gameNavigation = useGameNavigation();
   const { currentVillage } = use(CurrentVillageContext);
 
@@ -202,11 +211,11 @@ const TopNavigation = () => {
                   target="_blank"
                   to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                 >
-                  <NavigationSideItem>
+                  <DesktopTopRowItem>
                     <span className="inline-flex gap-1 items-center">
                       <span className="text-sm hidden xl:inline-flex">GitHub</span> <FaGithub className="text-xl" />
                     </span>
-                  </NavigationSideItem>
+                  </DesktopTopRowItem>
                 </LinkWithState>
               </li>
               <li>
@@ -214,51 +223,51 @@ const TopNavigation = () => {
                   target="_blank"
                   to="https://discord.com/invite/Ep7NKVXUZA"
                 >
-                  <NavigationSideItem>
+                  <DesktopTopRowItem>
                     <span className="inline-flex gap-1 items-center">
                       <span className="text-sm hidden xl:inline-flex">Discord</span> <FaDiscord className="text-xl" />
                     </span>
-                  </NavigationSideItem>
+                  </DesktopTopRowItem>
                 </LinkWithState>
               </li>
               <li>
                 <LinkWithState to={gameNavigation.preferencesPath}>
-                  <NavigationSideItem>
+                  <DesktopTopRowItem>
                     <MdSettings className="text-xl" />
-                  </NavigationSideItem>
+                  </DesktopTopRowItem>
                 </LinkWithState>
               </li>
               <li>
                 <LinkWithState to="/">
-                  <NavigationSideItem>
+                  <DesktopTopRowItem>
                     <RxExit className="text-xl text-red-500" />
-                  </NavigationSideItem>
+                  </DesktopTopRowItem>
                 </LinkWithState>
               </li>
             </ul>
           </nav>
         </div>
         <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-11 pt-1 container mx-auto">
-          <ul className="hidden lg:flex gap-1 xl:gap-2 justify-center items-center">
+          <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
             <li>
               <LinkWithState to={gameNavigation.statisticsPath}>
-                <DesktopNavigationSideItem>
+                <NavigationSideItem>
                   <GoGraph className="text-xl" />
-                </DesktopNavigationSideItem>
+                </NavigationSideItem>
               </LinkWithState>
             </li>
             <li>
               <LinkWithState to={gameNavigation.questsPath}>
-                <DesktopNavigationSideItem>
+                <NavigationSideItem>
                   <FaBookBookmark className="text-xl" />
-                </DesktopNavigationSideItem>
+                </NavigationSideItem>
               </LinkWithState>
             </li>
             <li>
               <LinkWithState to={gameNavigation.overviewPath}>
-                <DesktopNavigationSideItem>
+                <NavigationSideItem>
                   <CiCircleList className="text-xl" />
-                </DesktopNavigationSideItem>
+                </NavigationSideItem>
               </LinkWithState>
             </li>
             <li>
@@ -293,29 +302,34 @@ const TopNavigation = () => {
             </li>
             <li>
               <LinkWithState to={gameNavigation.reportsPath}>
-                <DesktopNavigationSideItem>
+                <NavigationSideItem>
                   <LuScrollText className="text-xl" />
-                </DesktopNavigationSideItem>
+                </NavigationSideItem>
               </LinkWithState>
             </li>
             <li>
               <LinkWithState to={gameNavigation.adventuresPath}>
-                <DesktopNavigationSideItem>
+                <NavigationSideItem counter={adventurePoints.amount}>
                   <PiPathBold className="text-xl" />
-                </DesktopNavigationSideItem>
+                </NavigationSideItem>
               </LinkWithState>
             </li>
             <li>
               <LinkWithState to={gameNavigation.auctionsPath}>
-                <DesktopNavigationSideItem>
+                <NavigationSideItem>
                   <RiAuctionLine className="text-xl" />
-                </DesktopNavigationSideItem>
+                </NavigationSideItem>
               </LinkWithState>
             </li>
           </ul>
         </nav>
       </div>
-      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-1">
+      {/* Empty div to bring down the header on mobile devices */}
+      <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
+      <div className="flex justify-center items-center text-center px-2 lg:hidden h-14 w-full text-sm bg-blue-400">
+        Top navigation section, not sure what to put here yet. Post ideas in Discord :)
+      </div>
+      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>
@@ -355,13 +369,6 @@ const MobileBottomNavigation = () => {
             <LinkWithState to={gameNavigation.adventuresPath}>
               <NavigationSideItem>
                 <PiPathBold className="text-2xl" />
-              </NavigationSideItem>
-            </LinkWithState>
-          </li>
-          <li>
-            <LinkWithState to={gameNavigation.overviewPath}>
-              <NavigationSideItem>
-                <CiCircleList className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>
@@ -414,13 +421,6 @@ const MobileBottomNavigation = () => {
             <LinkWithState to={gameNavigation.preferencesPath}>
               <NavigationSideItem>
                 <MdSettings className="text-2xl" />
-              </NavigationSideItem>
-            </LinkWithState>
-          </li>
-          <li>
-            <LinkWithState to={gameNavigation.communityPath}>
-              <NavigationSideItem>
-                <IoShareSocial className="text-2xl" />
               </NavigationSideItem>
             </LinkWithState>
           </li>

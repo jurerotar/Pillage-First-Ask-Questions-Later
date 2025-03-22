@@ -15,6 +15,7 @@ import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-e
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import { eventsCacheKey, villagesCacheKey } from 'app/(game)/constants/query-keys';
+import { adventurePointIncreaseResolver } from 'app/(game)/hooks/resolvers/adventure-resolvers';
 
 // TODO: Raise this to 5 once you figure out how to solve the scheduledBuildingEvent bug
 const MAX_BUILDINGS_IN_QUEUE = 1;
@@ -35,6 +36,12 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
     }
     case 'troopTraining': {
       return troopTrainingEventResolver;
+    }
+    case 'adventurePointIncrease': {
+      return adventurePointIncreaseResolver;
+    }
+    default: {
+      return console.error('No resolver function set for event type', gameEventType);
     }
   }
 };
