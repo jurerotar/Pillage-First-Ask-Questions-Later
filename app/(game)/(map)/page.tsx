@@ -61,7 +61,7 @@ const MapPage = () => {
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
    *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
    */
-  const mapHeight = isWiderThanLg ? height - 76 : height - 210 + (isPwa ? 48 : 0);
+  const mapHeight = isWiderThanLg ? height - 76 : height - 210 - (isPwa ? 48 : 0);
 
   const previousTileSize = useRef<number>(tileSize);
   const isScrolling = useRef<boolean>(false);
