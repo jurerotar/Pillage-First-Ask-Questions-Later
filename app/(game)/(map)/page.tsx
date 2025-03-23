@@ -125,7 +125,10 @@ const MapPage = () => {
 
   useEventListener(
     'mousedown',
-    ({ clientX, clientY }) => {
+    (event) => {
+      event.preventDefault();
+      const { clientX, clientY } = event;
+
       mouseDownPosition.current = {
         x: clientX,
         y: clientY,
@@ -167,16 +170,7 @@ const MapPage = () => {
       isScrolling.current = false;
     },
     // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    mapRef,
-  );
-
-  useEventListener(
-    'mouseleave',
-    () => {
-      isScrolling.current = false;
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    mapRef,
+    window,
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We actually need tileSize, we just use it in currentCenterTile calculation
@@ -288,7 +282,7 @@ const MapPage = () => {
         {Cell}
       </FixedSizeGrid>
       {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0">
+      <div className="absolute left-0 top-0 select-none pointer-events-none">
         <FixedSizeList
           className="scrollbar-hidden"
           ref={leftMapRulerRef}
@@ -305,7 +299,7 @@ const MapPage = () => {
         </FixedSizeList>
       </div>
       {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0">
+      <div className="absolute bottom-0 left-0 select-none pointer-events-none">
         <FixedSizeList
           className="scrollbar-hidden"
           ref={bottomMapRulerRef}

@@ -130,10 +130,11 @@ export const MapControls = () => {
               <Icon type="mapWheatFieldIconToggle" />
             </button>
           </span>
-          <Divider />
+          <Divider className="hidden lg:inline-flex" />
           <span
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content={t('Toggle tooltip popups')}
+            className="hidden lg:inline-flex"
           >
             <button
               data-testid="map-controls-toggle-tile-tooltips-button"
