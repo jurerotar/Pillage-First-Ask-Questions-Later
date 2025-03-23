@@ -9,6 +9,8 @@ export const usePlayers = () => {
     initialData: [],
   });
 
+  const currentPlayer = players.at(0)!;
+
   const getPlayerByPlayerId = useCallback(
     (playerIdToSearchFor: Player['id']): Player => {
       return players.find(({ id }) => playerIdToSearchFor === id)!;
@@ -16,13 +18,9 @@ export const usePlayers = () => {
     [players],
   );
 
-  const getCurrentPlayer = (): Player => {
-    return players.find((player) => player.faction === 'player')!;
-  };
-
   return {
     players,
+    currentPlayer,
     getPlayerByPlayerId,
-    getCurrentPlayer,
   };
 };

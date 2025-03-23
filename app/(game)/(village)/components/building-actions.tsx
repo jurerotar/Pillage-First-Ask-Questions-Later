@@ -3,7 +3,6 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village)/utils/building-requirements';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
-import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import { getBuildingDataForLevel } from 'app/(game)/utils/building';
@@ -20,6 +19,7 @@ import {
   useBuildingDowngradeStatus,
   useBuildingUpgradeStatus,
 } from 'app/(game)/hooks/use-building-level-change-status';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/hooks/current-village/use-current-village-building-events';
 
 type ErrorBagProps = {
   errorBag: string[];
@@ -153,17 +153,15 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { tribe } = useTribe();
-  const { getPlayerVillages } = useVillages();
+  const { playerVillages } = useVillages();
   const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
-  const { getCurrentVillageBuildingEvents } = useEvents();
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
-  const playerVillages = getPlayerVillages();
-  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
 

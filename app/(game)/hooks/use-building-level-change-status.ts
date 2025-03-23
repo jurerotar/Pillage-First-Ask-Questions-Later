@@ -3,13 +3,14 @@ import { use } from 'react';
 import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
-import { useEvents } from 'app/(game)/hooks/use-events';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { getBuildingDataForLevel } from 'app/(game)/utils/building';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/components/border-indicator';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import { useTranslation } from 'react-i18next';
 import type { Building } from 'app/interfaces/models/game/building';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/hooks/current-village/use-current-village-building-events';
+import { useCurrentVillageBuildingEventQueue } from 'app/(game)/hooks/current-village/use-current-village-building-event-queue';
 
 export const getHasEnoughFreeCrop = (
   nextLevelCropConsumption: number,
@@ -36,12 +37,12 @@ export const getHasEnoughResources = (nextLevelResourceCost: number[], currentRe
 
 export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
-  const { currentVillage, currentVillagePopulation } = use(CurrentVillageContext);
+  const { currentVillagePopulation } = use(CurrentVillageContext);
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
   const resources = use(CurrentResourceContext);
-  const { getCanAddAdditionalBuildingToQueue } = useEvents();
+  const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
   const { isDeveloperModeActive } = useDeveloperMode();
 
   const { nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, 1);
@@ -69,7 +70,7 @@ export const useBuildingConstructionStatus = (buildingId: Building['id'], buildi
       errorBag.push(t('Not enough resources available'));
     }
 
-    if (!getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId)) {
+    if (!canAddAdditionalBuildingToQueue) {
       errorBag.push(t('Building queue is full'));
     }
 
@@ -88,7 +89,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
   const resources = use(CurrentResourceContext);
-  const { getCanAddAdditionalBuildingToQueue } = useEvents();
+  const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
   const { isDeveloperModeActive } = useDeveloperMode();
 
   const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
@@ -119,7 +120,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
       return 'yellow';
     }
 
-    if (!getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId)) {
+    if (!canAddAdditionalBuildingToQueue) {
       return 'yellow';
     }
 
@@ -153,7 +154,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
       errorBag.push(t('Not enough resources available'));
     }
 
-    if (!getCanAddAdditionalBuildingToQueue(currentVillage, buildingFieldId)) {
+    if (!canAddAdditionalBuildingToQueue) {
       errorBag.push(t('Building queue is full'));
     }
 
@@ -168,10 +169,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
 
 export const useBuildingDowngradeStatus = (buildingId: Building['id']) => {
   const { t } = useTranslation();
-  const { currentVillage } = use(CurrentVillageContext);
-  const { getCurrentVillageBuildingEvents } = useEvents();
-
-  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
   const getBuildingDowngradeErrorBag = (): string[] => {
     const errorBag: string[] = [];

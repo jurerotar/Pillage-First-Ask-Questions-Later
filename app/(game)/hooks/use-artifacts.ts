@@ -4,11 +4,9 @@ import { useHero } from 'app/(game)/hooks/use-hero';
 import { use } from 'react';
 
 export const useArtifacts = () => {
-  const { getPlayerVillages } = useVillages();
+  const { playerVillages } = useVillages();
   const { currentVillage } = use(CurrentVillageContext);
   const { hero } = useHero();
-
-  const playerVillages = getPlayerVillages();
 
   const assignedArtifacts = playerVillages.map(({ artifactId }) => artifactId).filter(Boolean);
   const isGreatBuildingsArtifactActive = assignedArtifacts.includes('EPIC_ARTIFACT_CIVIL_ENABLE_GREAT_BUILDINGS');

@@ -4,26 +4,33 @@ import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import { villagesCacheKey } from 'app/(game)/constants/query-keys';
 import { usePlayers } from 'app/(game)/hooks/use-players';
+import { useMemo } from 'react';
 
 export const getVillageById = (villages: Village[], villageId: Village['id']): Village => {
   return villages.find(({ id }) => id === villageId)!;
 };
 
-// const getVillageByCoordinates = (villages: Village[], coordinates: Village['coordinates']): Village | null => {
-//   return villages.find(({ coordinates: { x, y } }) => coordinates.x === x && coordinates.y === y) ?? null;
-// };
-//
-// const getVillageByOasis = (villages: Village[], { villageId }: OccupiedOasisTile): Village => {
-//   return villages.find(({ id }) => villageId === id)!;
-// };
-
 export const useVillages = () => {
-  const { getCurrentPlayer } = usePlayers();
+  const { currentPlayer } = usePlayers();
 
   const { data: villages } = useQuery<Village[]>({
     queryKey: [villagesCacheKey],
     initialData: [],
   });
+
+  // Player villages are always in the beginning of the villages array, so we can break as soon as we encounter a non-player village
+  const playerVillages = useMemo<Village[]>(() => {
+    const result: Village[] = [];
+
+    for (const village of villages) {
+      if (village.playerId !== currentPlayer.id) {
+        break;
+      }
+      result.push(village);
+    }
+
+    return result;
+  }, [villages, currentPlayer.id]);
 
   const getVillageById = (tileId: Tile['id']): Village | null => {
     return villages.find(({ id }) => id === tileId) ?? null;
@@ -37,16 +44,11 @@ export const useVillages = () => {
     return getVillageByOasis(oasis)!.playerId;
   };
 
-  const getPlayerVillages = (): Village[] => {
-    const currentPlayer = getCurrentPlayer();
-    return villages.filter((village: Village) => village.playerId === currentPlayer.id);
-  };
-
   return {
     villages,
+    playerVillages,
     getVillageById,
     getVillageByOasis,
     getPlayerByOasis,
-    getPlayerVillages,
   };
 };

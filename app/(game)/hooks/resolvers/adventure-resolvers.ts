@@ -6,7 +6,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { adventurePointsCacheKey, currentServerCacheKey } from 'app/(game)/constants/query-keys';
 import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
 
-export const adventurePointIncreaseResolver: Resolver<GameEvent<'adventurePointIncrease'>> = async (args, queryClient) => {
+export const adventurePointIncreaseResolver: Resolver<GameEvent<'adventurePointIncrease'>> = async (queryClient, args) => {
   const { startsAt, duration } = args;
 
   queryClient.setQueryData<AdventurePoints>([adventurePointsCacheKey], (prevState) => {

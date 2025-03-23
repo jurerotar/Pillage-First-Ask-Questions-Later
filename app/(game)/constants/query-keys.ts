@@ -17,3 +17,7 @@ export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
 export const worldItemsCacheKey = 'world-items';
 export const adventurePointsCacheKey = 'adventure-points';
+
+// Add the following key to a query to mark it as non-persistent. These queries are not persisted to OPFS and are meant for performance
+// optimizations reasons only. Use them to cache commonly accessed values to prevent recalculations.
+export const nonPersistedCacheKey = 'non-persisted';

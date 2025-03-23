@@ -2,17 +2,14 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village)/hooks/use-building
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
-import { useEvents } from 'app/(game)/hooks/use-events';
 import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { use } from 'react';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
 import { isScheduledBuildingEvent } from 'app/(game)/hooks/guards/event-guards';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/hooks/current-village/use-current-village-building-events';
 
 export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
-  const { currentVillage } = use(CurrentVillageContext);
-  const { getVillageBuildingEventsQueue } = useEvents();
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
@@ -21,9 +18,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
   const { isDeveloperModeActive } = useDeveloperMode();
 
-  const buildingEvents = getVillageBuildingEventsQueue(currentVillage, buildingFieldId);
-
-  const hasCurrentVillageBuildingEvents = buildingEvents.length > 0;
+  const hasCurrentVillageBuildingEvents = currentVillageBuildingEvents.length > 0;
 
   const { building, nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
 
@@ -40,7 +35,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         return Date.now();
       }
 
-      const lastBuildingEvent = buildingEvents.at(-1)!;
+      const lastBuildingEvent = currentVillageBuildingEvents.at(-1)!;
       const { startsAt, duration } = lastBuildingEvent;
 
       if (isScheduledBuildingEvent(lastBuildingEvent)) {

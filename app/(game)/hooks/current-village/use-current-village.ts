@@ -1,22 +1,12 @@
-import type React from 'react';
-import { createContext, useCallback } from 'react';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
-import type { Village } from 'app/interfaces/models/game/village';
-import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils/common';
+import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
+import { useCallback } from 'react';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/utils/building';
+import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils/common';
 
-type CurrentVillageContextReturn = {
-  currentVillage: Village;
-  distanceFromCurrentVillage: (tileId: Tile['id']) => number;
-  currentVillagePopulation: number;
-};
-
-export const CurrentVillageContext = createContext<CurrentVillageContextReturn>({} as never);
-
-export const CurrentVillageProvider: React.FCWithChildren = ({ children }) => {
+export const _useCurrentVillage = () => {
   const { playerVillages } = useVillages();
   const { villageSlug } = useRouteSegments();
 
@@ -35,11 +25,9 @@ export const CurrentVillageProvider: React.FCWithChildren = ({ children }) => {
     [currentVillage],
   );
 
-  const value = {
+  return {
     currentVillage,
     distanceFromCurrentVillage,
     currentVillagePopulation,
   };
-
-  return <CurrentVillageContext value={value}>{children}</CurrentVillageContext>;
 };

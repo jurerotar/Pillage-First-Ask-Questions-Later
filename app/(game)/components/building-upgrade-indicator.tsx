@@ -5,7 +5,6 @@ import {
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/components/border-indicator';
 import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
-import { useEvents } from 'app/(game)/hooks/use-events';
 import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
@@ -15,6 +14,7 @@ import { ViewportContext } from 'app/providers/viewport-context';
 import { MdUpgrade } from 'react-icons/md';
 import type { Building } from 'app/interfaces/models/game/building';
 import { useBuildingUpgradeStatus } from 'app/(game)/hooks/use-building-level-change-status';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/hooks/current-village/use-current-village-building-events';
 
 type StaticButtonProps = {
   level: number;
@@ -89,7 +89,7 @@ type BuildingUpgradeIndicatorProps = {
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered }) => {
   const { currentVillage } = use(CurrentVillageContext);
-  const { getCurrentVillageBuildingEvents } = useEvents();
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { getBuildingUpgradeIndicatorVariant, getBuildingUpgradeErrorBag } = useBuildingUpgradeStatus(buildingFieldId);
 
   const variant = getBuildingUpgradeIndicatorVariant();
@@ -99,7 +99,6 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const canUpgrade: boolean = buildingUpgradeErrorBag.length === 0;
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
-    const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
     const hasSameBuildingConstructionEvents = currentVillageBuildingEvents.some(({ buildingFieldId: eventBuildingFieldId, building }) => {
       return building.id === buildingId && eventBuildingFieldId === buildingFieldId;
     });

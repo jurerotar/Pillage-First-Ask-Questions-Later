@@ -4,6 +4,8 @@ import { isGlobalEffect, isVillageEffect } from 'app/(game)/utils/guards/effect-
 import type { Effect, EffectId, GlobalEffect, VillageEffect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
 import { use } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { nonPersistedCacheKey } from 'app/(game)/constants/query-keys';
 
 const normalize1001Value = (value: number) => {
   if (value === 1.001) {
@@ -48,5 +50,18 @@ export const useComputedEffect = (effectId: EffectId) => {
   const { effects } = useEffects();
   const { currentVillage } = use(CurrentVillageContext);
 
-  return calculateComputedEffect(effectId, effects, currentVillage.id);
+  const fetcher = () => calculateComputedEffect(effectId, effects, currentVillage.id);
+
+  const { data: computedEffect } = useQuery({
+    queryKey: [nonPersistedCacheKey, effectId, currentVillage.id, effects],
+    queryFn: fetcher,
+    initialData: fetcher,
+    initialDataUpdatedAt: Date.now(),
+    queryKeyHashFn: () => {
+      const effectHash = effects.map((effect) => `${effect.id}:${effect.value}`).join('|');
+      return `${nonPersistedCacheKey}-${effectId}-${currentVillage.id}-${effectHash}`;
+    },
+  });
+
+  return computedEffect;
 };

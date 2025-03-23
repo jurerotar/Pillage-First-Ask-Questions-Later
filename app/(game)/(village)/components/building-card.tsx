@@ -3,7 +3,6 @@ import { BuildingOverview } from 'app/(game)/(village)/components/building-overv
 import { assessBuildingConstructionReadiness, type AssessedBuildingRequirement } from 'app/(game)/(village)/utils/building-requirements';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
-import { useEvents } from 'app/(game)/hooks/use-events';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import { getBuildingData, specialFieldIds } from 'app/(game)/utils/building';
@@ -14,6 +13,7 @@ import { Fragment, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/hooks/current-village/use-current-village-building-events';
 
 type BuildingCardProps = {
   buildingId: Building['id'];
@@ -23,15 +23,13 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { tribe } = useTribe();
-  const { getPlayerVillages } = useVillages();
+  const { playerVillages } = useVillages();
   const { currentVillage } = use(CurrentVillageContext);
   const { buildingFieldId } = useRouteSegments();
-  const { getCurrentVillageBuildingEvents } = useEvents();
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
-  const playerVillages = getPlayerVillages();
   const { maxLevel } = getBuildingData(buildingId);
-  const currentVillageBuildingEvents = getCurrentVillageBuildingEvents(currentVillage);
 
   const { canBuild, assessedRequirements } = assessBuildingConstructionReadiness({
     buildingId,

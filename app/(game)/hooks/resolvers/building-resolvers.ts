@@ -63,7 +63,7 @@ export const removeBuildingField = (villages: Village[], villageId: Village['id'
   });
 };
 
-export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChange'>> = async (args, queryClient) => {
+export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChange'>> = async (queryClient, args) => {
   const { villageId, buildingFieldId, level, building } = args;
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
@@ -82,7 +82,7 @@ export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChang
   });
 };
 
-export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruction'>> = async (args, queryClient) => {
+export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruction'>> = async (queryClient, args) => {
   const { villageId, buildingFieldId, building } = args;
   const { id: buildingId } = building;
 
@@ -98,11 +98,11 @@ export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruct
   });
 };
 
-export const buildingDestructionResolver: Resolver<GameEvent<'buildingDestruction'>> = async (args, queryClient) => {
+export const buildingDestructionResolver: Resolver<GameEvent<'buildingDestruction'>> = async (queryClient, args) => {
   const { villageId, buildingFieldId } = args;
 
   if (specialFieldIds.includes(buildingFieldId)) {
-    await buildingLevelChangeResolver({ ...args, resourceCost: [0, 0, 0, 0], level: 0 }, queryClient);
+    await buildingLevelChangeResolver(queryClient, { ...args, resourceCost: [0, 0, 0, 0], level: 0 });
     return;
   }
 
@@ -112,8 +112,8 @@ export const buildingDestructionResolver: Resolver<GameEvent<'buildingDestructio
 };
 
 export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'buildingScheduledConstruction'>> = async (
-  args,
   queryClient,
+  args,
 ) => {
   const { building, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
 

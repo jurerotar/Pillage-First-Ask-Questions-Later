@@ -1,4 +1,4 @@
-import { QueryClient, useIsRestoring } from '@tanstack/react-query';
+import { type Query, QueryClient, useIsRestoring } from '@tanstack/react-query';
 import { type PersistedClient, type Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
@@ -7,6 +7,8 @@ import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Fallback } from 'app/(game)/layout';
 import GameSyncWorker from '../workers/sync-worker?worker&url';
+import { nonPersistedCacheKey } from 'app/(game)/constants/query-keys';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const PersisterAwaiter: React.FCWithChildren = ({ children }) => {
   const isRestoring = useIsRestoring();
@@ -80,9 +82,18 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
       persistOptions={{
         persister,
         maxAge: Number.MAX_VALUE,
+        dehydrateOptions: {
+          shouldDehydrateQuery: ({ queryHash }: Query) => {
+            return !queryHash.includes(nonPersistedCacheKey);
+          },
+        },
       }}
     >
       <PersisterAwaiter>{children}</PersisterAwaiter>
+      <ReactQueryDevtools
+        client={queryClient}
+        initialIsOpen={false}
+      />
     </PersistQueryClientProvider>
   );
 };
