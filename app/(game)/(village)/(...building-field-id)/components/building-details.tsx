@@ -1,7 +1,7 @@
 import { BuildingActions } from 'app/(game)/(village)/components/building-actions';
 import { BuildingOverview } from 'app/(game)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
@@ -11,7 +11,7 @@ import {
 import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
-import { lazy, Suspense, use } from 'react';
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
@@ -149,7 +149,7 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
 
 const BuildingStats = () => {
   const { t } = useTranslation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
   const { buildingId, level } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
@@ -260,7 +260,7 @@ const BuildingStats = () => {
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
 

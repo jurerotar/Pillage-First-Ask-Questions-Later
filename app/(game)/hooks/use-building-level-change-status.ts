@@ -1,6 +1,6 @@
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { use } from 'react';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
 import { CurrentResourceContext } from 'app/(game)/providers/current-resources-provider';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
@@ -37,7 +37,7 @@ export const getHasEnoughResources = (nextLevelResourceCost: number[], currentRe
 
 export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
-  const { currentVillagePopulation } = use(CurrentVillageContext);
+  const { currentVillagePopulation } = useCurrentVillage();
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
@@ -84,7 +84,7 @@ export const useBuildingConstructionStatus = (buildingId: Building['id'], buildi
 
 export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
-  const { currentVillage, currentVillagePopulation } = use(CurrentVillageContext);
+  const { currentVillage, currentVillagePopulation } = useCurrentVillage();
   const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');

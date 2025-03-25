@@ -32,13 +32,13 @@ export const useCurrentVillageBuildingEventQueue = (buildingFieldId: BuildingFie
   };
 
   const { data: currentVillageBuildingEventsQueue } = useQuery<GameEvent<'buildingConstruction'>[]>({
-    queryKey: [nonPersistedCacheKey, currentVillageBuildingEvents, buildingFieldId],
+    queryKey: [nonPersistedCacheKey, 'current-village-building-events-queue', currentVillageBuildingEvents, buildingFieldId],
     queryFn: getCurrentVillageBuildingEventsQueue,
     initialData: getCurrentVillageBuildingEventsQueue,
     initialDataUpdatedAt: Date.now(),
     queryKeyHashFn: () => {
       const eventHash = currentVillageBuildingEvents.map((event) => event.id).join('|');
-      return `${nonPersistedCacheKey}-${eventHash}`;
+      return `current-village-building-events-queue-${nonPersistedCacheKey}-${eventHash}`;
     },
   });
 

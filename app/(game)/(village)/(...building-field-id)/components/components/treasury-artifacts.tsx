@@ -5,11 +5,11 @@ import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import type React from 'react';
-import { use, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
 import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { LinkWithState } from 'app/components/link-with-state';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
@@ -42,7 +42,7 @@ export const TreasuryArtifacts = () => {
   const { hero } = useHero();
   const { currentVillageArtifactId, hasCurrentVillageArtifact, assignedArtifacts } = useArtifacts();
   const { worldItems } = useWorldItems();
-  const { distanceFromCurrentVillage } = use(CurrentVillageContext);
+  const { distanceFromCurrentVillage } = useCurrentVillage();
 
   const availableArtifacts = hero.inventory.filter(({ category }) => category === 'artifact');
   const hasAvailableArtifacts = availableArtifacts.length > 0;

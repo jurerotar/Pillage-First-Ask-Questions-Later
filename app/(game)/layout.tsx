@@ -2,17 +2,16 @@ import { useGameNavigation } from 'app/(game)/hooks/routes/use-game-navigation';
 import { useCalculatedResource } from 'app/(game)/hooks/use-calculated-resource';
 import { CurrentResourceProvider } from 'app/(game)/providers/current-resources-provider';
 import { GameEngineProvider } from 'app/(game)/providers/game-engine-provider';
-import { GameStateProvider } from 'app/(game)/providers/game-state-provider';
 import { Icon } from 'app/components/icon';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
-import { Fragment, use, useRef } from 'react';
+import { Fragment, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
-import { CurrentVillageContext, CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/hooks/use-preferences';
 import { FaBookBookmark, FaDiscord, FaGithub, FaStar, FaUser } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
@@ -195,7 +194,7 @@ const ResourceCounters = () => {
 const TopNavigation = () => {
   const { adventurePoints } = useAdventurePoints();
   const gameNavigation = useGameNavigation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
 
   const [x, y] = currentVillage.id.split('|');
   const currentVillageMapPath = `${gameNavigation.mapPath}?x=${x}&y=${y}`;
@@ -338,7 +337,7 @@ const TopNavigation = () => {
 
 const MobileBottomNavigation = () => {
   const gameNavigation = useGameNavigation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
 
   const container = useRef<HTMLDivElement>(null);
 
@@ -445,26 +444,18 @@ const GameLayout = () => {
   const { timeOfDay, skinVariant } = usePreferences();
 
   return (
-    <CurrentVillageProvider>
-      <GameEngineProvider>
-        <CurrentResourceProvider>
-          <CountdownProvider>
-            <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
-              <TopNavigation />
-              <Outlet />
-              <MobileBottomNavigation />
-            </div>
-          </CountdownProvider>
-        </CurrentResourceProvider>
-      </GameEngineProvider>
-    </CurrentVillageProvider>
+    <GameEngineProvider>
+      <CurrentResourceProvider>
+        <CountdownProvider>
+          <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
+            <TopNavigation />
+            <Outlet />
+            <MobileBottomNavigation />
+          </div>
+        </CountdownProvider>
+      </CurrentResourceProvider>
+    </GameEngineProvider>
   );
 };
 
-export default () => {
-  return (
-    <GameStateProvider>
-      <GameLayout />
-    </GameStateProvider>
-  );
-};
+export default GameLayout;

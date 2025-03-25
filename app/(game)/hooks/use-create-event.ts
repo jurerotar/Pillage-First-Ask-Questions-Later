@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import {
   type CreateBulkEventArgs,
   type CreateEventArgs,
@@ -12,11 +12,10 @@ import { eventFactory } from 'app/factories/event-factory';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { doesEventRequireResourceUpdate } from 'app/(game)/hooks/guards/event-guards';
-import { use } from 'react';
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
 
   const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
     mutationFn: async (args) => {

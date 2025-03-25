@@ -4,7 +4,7 @@ import {
 } from 'app/(game)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { Resources } from 'app/(game)/components/resources';
 import { useCreateEvent } from 'app/(game)/hooks/use-create-event';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { useDeveloperMode } from 'app/(game)/hooks/use-developer-mode';
 import { useUnitImprovement } from 'app/(game)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/hooks/use-unit-research';
@@ -55,7 +55,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
   const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentResourceContext);
   const { buildingFieldId } = useRouteSegments();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { handleSubmit: _handleSubmit } = useForm<UnitRecruitmentFormProps>();
 
   const { baseRecruitmentCost } = getUnitData(unitId);
@@ -115,7 +115,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   } = props;
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { unitImprovements } = useUnitImprovement();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);

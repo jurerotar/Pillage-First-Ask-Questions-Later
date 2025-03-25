@@ -1,4 +1,4 @@
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { usePlayers } from 'app/(game)/hooks/use-players';
 import { useReputations } from 'app/(game)/hooks/use-reputations';
 import { useTroops } from 'app/(game)/hooks/use-troops';
@@ -17,7 +17,6 @@ import type {
 } from 'app/interfaces/models/game/tile';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import type React from 'react';
-import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorldItems } from 'app/(game)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
@@ -30,7 +29,7 @@ type TileTooltipProps = {
 
 const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
-  const { distanceFromCurrentVillage } = use(CurrentVillageContext);
+  const { distanceFromCurrentVillage } = useCurrentVillage();
   const distance = distanceFromCurrentVillage(tile.id);
   const { x, y } = parseCoordinatesFromTileId(tile.id);
 

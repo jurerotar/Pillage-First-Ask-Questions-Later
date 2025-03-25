@@ -26,7 +26,6 @@ import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { heroFactory } from 'app/factories/hero-factory';
 import type { Hero } from 'app/interfaces/models/game/hero';
-import { CurrentVillageProvider } from 'app/(game)/providers/current-village-provider';
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -103,9 +102,7 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   }
 
   const element = composeComponents(
-    <CurrentVillageProvider>
-      <CurrentResourceProvider>{children}</CurrentResourceProvider>
-    </CurrentVillageProvider>,
+    <CurrentResourceProvider>{children}</CurrentResourceProvider>,
     Array.isArray(wrapper) ? wrapper : [wrapper],
   );
 

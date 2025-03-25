@@ -1,5 +1,5 @@
 import { BuildingUpgradeIndicator } from 'app/(game)/components/building-upgrade-indicator';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type {
@@ -10,7 +10,7 @@ import type {
 } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
@@ -137,7 +137,7 @@ type OccupiedBuildingFieldProps = {
 
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t: assetsT } = useTranslation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { shouldShowBuildingNames } = usePreferences();
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -176,7 +176,7 @@ type BuildingFieldProps = {
 };
 
 export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
 

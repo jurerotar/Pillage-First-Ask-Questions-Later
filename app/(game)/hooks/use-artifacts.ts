@@ -1,11 +1,10 @@
 import { useVillages } from 'app/(game)/hooks/use-villages';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { useHero } from 'app/(game)/hooks/use-hero';
-import { use } from 'react';
 
 export const useArtifacts = () => {
   const { playerVillages } = useVillages();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { hero } = useHero();
 
   const assignedArtifacts = playerVillages.map(({ artifactId }) => artifactId).filter(Boolean);

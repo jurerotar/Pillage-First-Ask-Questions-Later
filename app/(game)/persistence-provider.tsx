@@ -4,11 +4,15 @@ import { useRouteSegments } from 'app/(game)/hooks/routes/use-route-segments';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { debounce } from 'moderndash';
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { Fallback } from 'app/(game)/layout';
-import GameSyncWorker from '../workers/sync-worker?worker&url';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import GameSyncWorker from './workers/sync-worker?worker&url';
 import { nonPersistedCacheKey } from 'app/(game)/constants/query-keys';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Outlet, useRouteError } from 'react-router';
+
+const Fallback = () => {
+  return <div>Loader...</div>;
+};
 
 const PersisterAwaiter: React.FCWithChildren = ({ children }) => {
   const isRestoring = useIsRestoring();
@@ -20,19 +24,25 @@ const PersisterAwaiter: React.FCWithChildren = ({ children }) => {
   return children;
 };
 
-let gameSyncWorker: Worker | null = null;
+export const ErrorBoundary = () => {
+  const _error = useRouteError();
 
-export const GameStateProvider: React.FCWithChildren = ({ children }) => {
+  return <p>Persistence provider error</p>;
+};
+
+const PersistenceProvider = () => {
   const { serverSlug } = useRouteSegments();
+
+  const gameSyncWorkerRef = useRef<Worker | null>(null);
 
   const persister = useMemo<Persister>(
     () => ({
       persistClient: debounce(async (client: PersistedClient) => {
-        if (!gameSyncWorker) {
+        if (!gameSyncWorkerRef.current) {
           return;
         }
 
-        gameSyncWorker.postMessage({
+        gameSyncWorkerRef.current.postMessage({
           client,
           serverSlug,
         });
@@ -64,14 +74,14 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
   );
 
   useEffect(() => {
-    if (!gameSyncWorker) {
-      gameSyncWorker = new Worker(GameSyncWorker, { type: 'module' });
+    if (!gameSyncWorkerRef.current) {
+      gameSyncWorkerRef.current = new Worker(GameSyncWorker, { type: 'module' });
     }
 
     return () => {
-      if (gameSyncWorker) {
-        gameSyncWorker.terminate();
-        gameSyncWorker = null;
+      if (gameSyncWorkerRef.current) {
+        gameSyncWorkerRef.current.terminate();
+        gameSyncWorkerRef.current = null;
       }
     };
   }, []);
@@ -89,7 +99,9 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
         },
       }}
     >
-      <PersisterAwaiter>{children}</PersisterAwaiter>
+      <PersisterAwaiter>
+        <Outlet />
+      </PersisterAwaiter>
       <ReactQueryDevtools
         client={queryClient}
         initialIsOpen={false}
@@ -97,3 +109,5 @@ export const GameStateProvider: React.FCWithChildren = ({ children }) => {
     </PersistQueryClientProvider>
   );
 };
+
+export default PersistenceProvider;

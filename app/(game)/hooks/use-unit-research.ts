@@ -1,14 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { unitResearchCacheKey } from 'app/(game)/constants/query-keys';
 import { getUnitData } from 'app/(game)/utils/units';
-import { use } from 'react';
 
 export const useUnitResearch = () => {
   const queryClient = useQueryClient();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
 
   const { data: unitResearch } = useQuery<UnitResearch[]>({
     queryKey: [unitResearchCacheKey],

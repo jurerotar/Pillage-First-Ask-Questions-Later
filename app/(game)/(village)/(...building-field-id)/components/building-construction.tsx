@@ -1,6 +1,6 @@
 import { BuildingCard } from 'app/(game)/(village)/components/building-card';
 import { assessBuildingConstructionReadiness, type AssessedBuildingRequirement } from 'app/(game)/(village)/utils/building-requirements';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/hooks/use-tribe';
 import { useVillages } from 'app/(game)/hooks/use-villages';
 import { buildings } from 'app/(game)/assets/buildings';
@@ -8,7 +8,7 @@ import { StyledTab } from 'app/components/styled-tab';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'app/interfaces/models/game/building';
 import { partition } from 'app/utils/common';
 import type React from 'react';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { useArtifacts } from 'app/(game)/hooks/use-artifacts';
@@ -21,7 +21,7 @@ type BuildingCategoryPanelProps = {
 const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory }) => {
   const { t } = useTranslation();
   const { playerVillages } = useVillages();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();

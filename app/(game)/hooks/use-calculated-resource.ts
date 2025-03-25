@@ -3,8 +3,8 @@ import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effe
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { Village } from 'app/interfaces/models/game/village';
 import dayjs from 'dayjs';
-import { startTransition, use, useEffect, useMemo, useRef, useState } from 'react';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 
 const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
   ['wood', 'woodProduction'],
@@ -50,7 +50,7 @@ export const calculateCurrentAmount = ({
 };
 
 export const useCalculatedResource = (resource: Resource) => {
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
 
   const { total: hourlyProduction } = useComputedEffect(resourceToResourceEffectMap.get(resource)!);
   const { total: storageCapacity } = useComputedEffect(resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity');

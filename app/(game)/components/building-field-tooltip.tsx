@@ -1,12 +1,11 @@
 import { Resources } from 'app/(game)/components/resources';
 import { useComputedEffect } from 'app/(game)/hooks/use-computed-effect';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import { getBuildingDataForLevel, getBuildingFieldByBuildingFieldId } from 'app/(game)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { formatTime } from 'app/utils/time';
 import type React from 'react';
-import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/hooks/current-village/use-current-village-building-events';
 
@@ -17,7 +16,7 @@ type BuildingFieldTooltipProps = {
 export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buildingFieldId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();

@@ -62,7 +62,7 @@
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.2.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "22.13.11",
+    "@types/node": "22.13.13",
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "@types/react-window": "1.8.8",
@@ -78,7 +78,7 @@
     "skott": "0.35.4",
     "tailwindcss": "4.0.15",
     "typescript": "5.8.2",
-    "vite": "6.2.2",
+    "vite": "6.2.3",
     "vite-plugin-pwa": "0.21.2",
     "vitest": "3.0.9"
   },

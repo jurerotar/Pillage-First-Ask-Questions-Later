@@ -4,7 +4,7 @@ import {
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/components/border-indicator';
-import { CurrentVillageContext } from 'app/(game)/providers/current-village-provider';
+import { useCurrentVillage } from 'app/(game)/hooks/current-village/use-current-village';
 import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
@@ -88,7 +88,7 @@ type BuildingUpgradeIndicatorProps = {
 };
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered }) => {
-  const { currentVillage } = use(CurrentVillageContext);
+  const { currentVillage } = useCurrentVillage();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { getBuildingUpgradeIndicatorVariant, getBuildingUpgradeErrorBag } = useBuildingUpgradeStatus(buildingFieldId);
 
