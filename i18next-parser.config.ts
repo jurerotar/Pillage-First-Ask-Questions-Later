@@ -74,7 +74,7 @@ export default {
   // relative to the location of the configuration file
   input: ['app/**/*.{ts,tsx}'],
 
-  // Whether or not to sort the catalog. Can also be a compare function
+  // Whether to sort the catalog. Can also be a compare function
   // (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters)
   sort: false,
 

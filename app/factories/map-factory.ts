@@ -1,4 +1,4 @@
-import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
+import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { getVillageSize } from 'app/factories/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';

@@ -1,4 +1,4 @@
-import { BorderIndicator, type BorderIndicatorProps } from 'app/(game)/components/border-indicator';
+import { BorderIndicator, type BorderIndicatorProps } from 'app/(game)/(village-slug)/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
 import type React from 'react';
@@ -14,8 +14,10 @@ const IconPositiveChangeVariant = lazy(async () => ({
   default: (await import('app/components/icons/variants/icon-positive-change-variant')).IconPositiveChangeVariant,
 }));
 
-const IconPlaceholder = () => {
-  return <span className="" />;
+type IconPlaceholderProps = React.HTMLAttributes<HTMLSpanElement>;
+
+const IconPlaceholder: React.FC<IconPlaceholderProps> = ({ className }) => {
+  return <span className={className} />;
 };
 
 export type IconProps = IconBaseProps &
@@ -51,7 +53,7 @@ export const Icon: React.FC<IconProps> = (props) => {
     >
       {asCss && <span className={typeToIconCssClass[type] ?? typeToIconCssClass.missingIcon} />}
       {!asCss && (
-        <Suspense fallback={<IconPlaceholder />}>
+        <Suspense fallback={<IconPlaceholder className={className} />}>
           <span
             className={clsx(hasVariantIcon && 'relative', className)}
             {...rest}

@@ -1,6 +1,6 @@
-import { dehydrate, type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
+import { dehydrate, type DehydratedState, hydrate, QueryClient, type QueryClientConfig } from '@tanstack/react-query';
 import { render, renderHook } from '@testing-library/react';
-import { CurrentResourceProvider } from 'app/(game)/providers/current-resources-provider.js';
+import { CurrentResourceProvider } from 'app/(game)/(village-slug)/providers/current-resources-provider.js';
 import { generateEffects } from 'app/factories/effect-factory.js';
 import type { Effect } from 'app/interfaces/models/game/effect.js';
 import type { Player } from 'app/interfaces/models/game/player.js';
@@ -15,17 +15,25 @@ import { composeComponents } from 'app/utils/jsx';
 import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import {
-  currentServerCacheKey,
   effectsCacheKey,
   heroCacheKey,
   playersCacheKey,
+  playerVillagesCacheKey,
   preferencesCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/constants/query-keys';
+  serverCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { preferencesFactory } from 'app/factories/preferences-factory';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { heroFactory } from 'app/factories/hero-factory';
 import type { Hero } from 'app/interfaces/models/game/hero';
+
+const queryClientConfig: QueryClientConfig = {
+  defaultOptions: {
+    queries: {
+      queryFn: () => {},
+    },
+  },
+};
 
 let dehydratedState: DehydratedState | null = null;
 
@@ -33,33 +41,21 @@ let dehydratedState: DehydratedState | null = null;
 // make sure to add it yourself in custom query client!
 const createGameEnvironment = (): QueryClient => {
   if (dehydratedState !== null) {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          queryFn: () => {},
-        },
-      },
-    });
+    const queryClient = new QueryClient(queryClientConfig);
     hydrate(queryClient, dehydratedState);
 
     return queryClient;
   }
 
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        queryFn: () => {},
-      },
-    },
-  });
+  const queryClient = new QueryClient(queryClientConfig);
   const server = serverMock;
 
   const playerVillageMock = villageMock;
 
-  queryClient.setQueryData<Server>([currentServerCacheKey], () => server);
+  queryClient.setQueryData<Server>([serverCacheKey], () => server);
   queryClient.setQueryData<Player[]>([playersCacheKey], () => [playerMock]);
   queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock));
-  queryClient.setQueryData<Village[]>([villagesCacheKey], () => [playerVillageMock]);
+  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], () => [playerVillageMock]);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], () => preferencesFactory());
   queryClient.setQueryData<Hero>([heroCacheKey], () => heroFactory(server));
 

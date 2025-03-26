@@ -2,7 +2,8 @@ import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { seededRandomArrayElement } from 'app/utils/common';
-import { type PRNGFunction, prngAlea } from 'ts-seedrandom';
+import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
+import { npcFactions } from 'app/factories/reputation-factory';
 
 const romanFirstNames = ['Acacius', 'Fulgentius', 'Faustus', 'Kaius', 'Anastius', 'Anthea', 'Iantha', 'Ligea', 'Athena', 'Circe'];
 
@@ -157,11 +158,7 @@ const playerFactory = ({ faction, prng }: PlayerFactoryProps): Player => {
   };
 };
 
-type UserPlayerFactoryProps = {
-  server: Server;
-};
-
-const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player => {
+export const userPlayerFactory = (server: Server): Player => {
   const {
     name,
     playerConfiguration: { tribe },
@@ -174,18 +171,13 @@ const userPlayerFactory = ({ server }: UserPlayerFactoryProps): Player => {
   };
 };
 
-export const generatePlayers = (server: Server, factions: PlayerFaction[], playerCount: number) => {
+const PLAYER_COUNT = 50;
+
+export const generateNpcPlayers = (server: Server) => {
   const prng = prngAlea(server.seed);
 
-  const userPlayer = userPlayerFactory({ server });
-  const npcPlayers = [...Array(playerCount)].map(() => {
-    const faction = seededRandomArrayElement<PlayerFaction>(prng, factions);
+  return [...Array(PLAYER_COUNT)].map(() => {
+    const faction = seededRandomArrayElement<PlayerFaction>(prng, npcFactions);
     return playerFactory({ faction, prng });
   });
-
-  return {
-    userPlayer,
-    npcPlayers,
-    players: [userPlayer, ...npcPlayers],
-  };
 };

@@ -141,12 +141,14 @@ type GenerateVillagesArgs = {
 };
 
 export const generateVillages = ({ occupiedOccupiableTiles, players, server }: GenerateVillagesArgs) => {
-  const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
+  const playerMap = new Map(players.map((p) => [p.id, p]));
 
-  const villages: Village[] = npcOccupiedTiles.map((tile) => {
-    const player = players.find(({ id }) => tile.ownedBy === id)!;
-    return npcVillageFactory({ player, tile, server });
-  });
+  const villages: Village[] = occupiedOccupiableTiles
+    .filter(({ ownedBy }) => ownedBy !== 'player')
+    .map((tile) => {
+      const player = playerMap.get(tile.ownedBy)!;
+      return npcVillageFactory({ player, tile, server });
+    });
 
   return villages;
 };
