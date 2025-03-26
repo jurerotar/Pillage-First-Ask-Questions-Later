@@ -1,4 +1,4 @@
-import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/(game)/utils/guards/map-guards';
+import { isOccupiedOccupiableTile, isUnoccupiedOasisTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { mapFactory } from 'app/factories/map-factory';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';

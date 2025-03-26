@@ -26,28 +26,26 @@
   --color-reputation-hostile: #e11d48;
 }
 
-@layer utilities {
-  .text-2xs {
-    font-size: 0.65rem;
-    line-height: 1rem;
-  }
+@utility text-2xs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}
 
-  .text-3xs {
-    font-size: 0.45rem;
-    line-height: 0.75rem;
-  }
+@utility text-3xs {
+  font-size: 0.45rem;
+  line-height: 0.75rem;
+}
 
-  .absolute-centering {
-    @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
-  }
+@utility absolute-centering {
+  @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
 
-  .scrollbar-hidden {
-    scrollbar-width: none; /* Firefox */
-  }
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+}
 
-  .scrollbar-hidden::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
-  }
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
 a,

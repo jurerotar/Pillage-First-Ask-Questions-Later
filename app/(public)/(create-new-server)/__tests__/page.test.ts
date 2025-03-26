@@ -1,4 +1,4 @@
-import { isOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/utils/guards/map-guards';
+import { isOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { initializeServer } from 'app/(public)/(create-new-server)/page';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
@@ -8,23 +8,19 @@ import '@vitest/web-worker';
 import { hydrate, QueryClient } from '@tanstack/react-query';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
 import {
-  currentServerCacheKey,
   effectsCacheKey,
   eventsCacheKey,
   mapCacheKey,
-  playersCacheKey,
   questsCacheKey,
-  reputationsCacheKey,
+  serverCacheKey,
   troopsCacheKey,
   unitResearchCacheKey,
   villagesCacheKey,
-} from 'app/(game)/constants/query-keys';
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { getVillageSize } from 'app/factories/utils/village';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Player } from 'app/interfaces/models/game/player';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
@@ -44,20 +40,6 @@ beforeAll(async () => {
 // TODO: Write these tests
 
 describe('Server initialization', () => {
-  describe('Factions', () => {
-    test('There should be 9 factions', () => {
-      const reputations = queryClient.getQueryData<Reputation[]>([reputationsCacheKey])!;
-      expect(reputations.length).toBe(9);
-    });
-  });
-
-  describe('Players', () => {
-    test('There should be 51 players', () => {
-      const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-      expect(players.length).toBe(51);
-    });
-  });
-
   describe('Map', () => {
     test('There should be exactly (size * sqrt(2) + borderWidth + 1) ** 2 tiles', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
@@ -144,7 +126,7 @@ describe('Server initialization', () => {
     });
 
     test('No oasis should be occupied by villages of size "xs"', () => {
-      const server = queryClient.getQueryData<Server>([currentServerCacheKey])!;
+      const server = queryClient.getQueryData<Server>([serverCacheKey])!;
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -160,7 +142,7 @@ describe('Server initialization', () => {
 
     // We're counting how many times occupying tile id appears in list of occupied oasis ids
     test('No oasis should be occupied by villages of size "sm"', () => {
-      const server = queryClient.getQueryData<Server>([currentServerCacheKey])!;
+      const server = queryClient.getQueryData<Server>([serverCacheKey])!;
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -175,7 +157,7 @@ describe('Server initialization', () => {
     });
 
     test('No more than 2 oasis per village should be occupied by villages of size "md"', () => {
-      const server = queryClient.getQueryData<Server>([currentServerCacheKey])!;
+      const server = queryClient.getQueryData<Server>([serverCacheKey])!;
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
@@ -190,7 +172,7 @@ describe('Server initialization', () => {
     });
 
     test('No more than 3 oasis per village should be occupied by villages of size "lg"', () => {
-      const server = queryClient.getQueryData<Server>([currentServerCacheKey])!;
+      const server = queryClient.getQueryData<Server>([serverCacheKey])!;
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const occupiedOasisTiles = tiles.filter(isOccupiedOasisTile);
       const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);

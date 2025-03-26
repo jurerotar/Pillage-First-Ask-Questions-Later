@@ -1,4 +1,4 @@
-import { getBuildingDataForLevel } from 'app/(game)/utils/building';
+import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
