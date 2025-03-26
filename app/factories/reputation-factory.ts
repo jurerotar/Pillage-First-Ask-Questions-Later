@@ -1,8 +1,8 @@
 import type { PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Reputation, ReputationLevel } from 'app/interfaces/models/game/reputation';
 
-// Players start at different levels of reputation with each faction
-const factionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationLevel>([
+const npcFactionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationLevel>([
+  ['player', 'player'],
   ['npc1', 'friendly'],
   ['npc2', 'friendly'],
   ['npc3', 'neutral'],
@@ -13,10 +13,16 @@ const factionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationL
   ['npc8', 'hostile'],
 ]);
 
-export const npcFactions = Array.from(factionToPredefinedReputationLevelMap.keys());
+export const npcFactions = Array.from(npcFactionToPredefinedReputationLevelMap.keys());
+
+// Players start at different levels of reputation with each faction
+const allFactionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationLevel>([
+  ['player', 'player'],
+  ...npcFactionToPredefinedReputationLevelMap,
+]);
 
 const reputationFactory = (faction: PlayerFaction): Reputation => {
-  const reputationLevel = factionToPredefinedReputationLevelMap.get(faction)!;
+  const reputationLevel = allFactionToPredefinedReputationLevelMap.get(faction)!;
 
   return {
     faction,
@@ -26,6 +32,6 @@ const reputationFactory = (faction: PlayerFaction): Reputation => {
 };
 
 export const generateReputations = () => {
-  const factions: PlayerFaction[] = Array.from(factionToPredefinedReputationLevelMap.keys());
+  const factions: PlayerFaction[] = Array.from(allFactionToPredefinedReputationLevelMap.keys());
   return factions.map((faction) => reputationFactory(faction));
 };

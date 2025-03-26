@@ -161,7 +161,7 @@ const MapPage = () => {
       mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
     },
     // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    mapRef,
+    window,
   );
 
   useEventListener(
