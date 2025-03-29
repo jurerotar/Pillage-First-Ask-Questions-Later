@@ -19,12 +19,12 @@ beforeAll(() => {
   clayPitUpgradeLevel1EventMock = createBuildingConstructionEventMock({
     buildingId: 'CLAY_PIT',
     buildingFieldId: 5,
-    level: 0,
+    level: 1,
   });
   clayPitUpgradeLevel2EventMock = createBuildingConstructionEventMock({
     buildingId: 'CLAY_PIT',
     buildingFieldId: 5,
-    level: 1,
+    level: 2,
   });
   mainBuildingUpgradeLevel1EventMock = createBuildingConstructionEventMock({
     buildingId: 'MAIN_BUILDING',
@@ -120,6 +120,6 @@ describe('calculateTimings', () => {
     const { calculateTimings } = result.current;
     const { startsAt } = calculateTimings();
 
-    expect(startsAt).toBe(calculateBuildingDurationForLevel('MAIN_BUILDING', 3));
+    expect(startsAt).toBe(calculateBuildingDurationForLevel('MAIN_BUILDING', 2));
   });
 });

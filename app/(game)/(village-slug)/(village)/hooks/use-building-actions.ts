@@ -20,7 +20,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const hasCurrentVillageBuildingEvents = currentVillageBuildingEventsQueue.length > 0;
 
-  const { building, nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
+  const { nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const calculateTimings = () => {
     if (isDeveloperModeActive) {
@@ -58,7 +58,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
     createBuildingConstructionEvent({
       buildingFieldId: buildingFieldId!,
-      building,
+      buildingId,
       startsAt: Date.now(),
       duration: 0,
       resourceCost: hasCurrentVillageBuildingEvents ? [0, 0, 0, 0] : resourceCost,
@@ -71,7 +71,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingFieldId: buildingFieldId!,
         startsAt,
         duration,
-        building,
+        buildingId,
         resourceCost,
         level: 1,
       });
@@ -84,7 +84,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       level: 1,
       startsAt,
       duration,
-      building,
+      buildingId,
       // Cost can be 0, since it's already accounted for in the construction event
       resourceCost: [0, 0, 0, 0],
     });
@@ -99,7 +99,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         startsAt,
         duration,
         buildingFieldId: buildingFieldId!,
-        building,
+        buildingId,
         resourceCost,
         level: virtualLevel + 1,
       });
@@ -112,7 +112,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration,
       buildingFieldId: buildingFieldId!,
       level: virtualLevel + 1,
-      building,
+      buildingId,
       resourceCost,
     });
   };
@@ -123,7 +123,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration: 0,
       buildingFieldId: buildingFieldId!,
       level: virtualLevel - 1,
-      building,
+      buildingId,
       resourceCost: [0, 0, 0, 0],
     });
   };
@@ -133,7 +133,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       startsAt: Date.now(),
       duration: 0,
       buildingFieldId: buildingFieldId!,
-      building,
+      buildingId,
     });
   };
 

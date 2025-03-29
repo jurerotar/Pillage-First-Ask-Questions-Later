@@ -10,7 +10,7 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import type React from 'react';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { calculateUnitUpgradeCostForLevel, getUnitData } from 'app/(game)/(village-slug)/utils/units';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import { CurrentResourceContext } from 'app/(game)/(village-slug)/providers/current-resources-provider';
 
@@ -27,15 +27,14 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { tier, upgradeCostPerLevel } = getUnitData(unitId)!;
+  const { tier } = getUnitData(unitId)!;
   const sameTierMercenaryUnits = units.filter((unit) => tier === unit.tier && tribe !== unit.tribe);
 
   const { level: upgradeLevel } = unitImprovements.find(({ tier: researchTier }) => researchTier === tier)!;
 
   const isMaxLevel = upgradeLevel === 20;
 
-  // @ts-expect-error - this error will automatically be resolved when all units have upgradeCostPerLevel filled
-  const upgradeCost = isMaxLevel ? [0, 0, 0, 0] : upgradeCostPerLevel[upgradeLevel];
+  const upgradeCost = calculateUnitUpgradeCostForLevel(unitId, upgradeLevel);
 
   const hasEnoughResourcesToUpgrade = (() => {
     if (isDeveloperModeActive) {

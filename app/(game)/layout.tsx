@@ -39,6 +39,7 @@ const Layout = () => {
     new QueryClient({
       defaultOptions: {
         queries: {
+          // Non-persisted queries must have a gcTime set individually
           gcTime: Number.POSITIVE_INFINITY,
           networkMode: 'always',
           staleTime: ({ queryKey }) => {

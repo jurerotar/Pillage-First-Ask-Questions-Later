@@ -84,7 +84,7 @@ const artifacts: HeroItem[] = [
     basePrice: null,
     effects: [
       {
-        id: 'unitWheatConsumptionReduction',
+        id: 'unitWheatConsumption',
         value: 0.9,
         scope: 'village',
         source: 'artifact',
@@ -130,25 +130,25 @@ const artifacts: HeroItem[] = [
     basePrice: null,
     effects: [
       {
-        id: 'woodProductionBonus',
+        id: 'woodProduction',
         value: 1.1,
         scope: 'village',
         source: 'artifact',
       },
       {
-        id: 'clayProductionBonus',
+        id: 'clayProduction',
         value: 1.1,
         scope: 'village',
         source: 'artifact',
       },
       {
-        id: 'ironProductionBonus',
+        id: 'ironProduction',
         value: 1.1,
         scope: 'village',
         source: 'artifact',
       },
       {
-        id: 'wheatProductionBonus',
+        id: 'wheatProduction',
         value: 1.1,
         scope: 'village',
         source: 'artifact',
@@ -239,7 +239,7 @@ const artifacts: HeroItem[] = [
     basePrice: null,
     effects: [
       {
-        id: 'unitWheatConsumptionReduction',
+        id: 'unitWheatConsumption',
         value: 0.5,
         scope: 'village',
         source: 'artifact',
@@ -285,25 +285,25 @@ const artifacts: HeroItem[] = [
     basePrice: null,
     effects: [
       {
-        id: 'woodProductionBonus',
+        id: 'woodProduction',
         value: 1.5,
         scope: 'village',
         source: 'artifact',
       },
       {
-        id: 'clayProductionBonus',
+        id: 'clayProduction',
         value: 1.5,
         scope: 'village',
         source: 'artifact',
       },
       {
-        id: 'ironProductionBonus',
+        id: 'ironProduction',
         value: 1.5,
         scope: 'village',
         source: 'artifact',
       },
       {
-        id: 'wheatProductionBonus',
+        id: 'wheatProduction',
         value: 1.5,
         scope: 'village',
         source: 'artifact',
@@ -394,7 +394,7 @@ const artifacts: HeroItem[] = [
     basePrice: null,
     effects: [
       {
-        id: 'unitWheatConsumptionReduction',
+        id: 'unitWheatConsumption',
         value: 0.5,
         scope: 'global',
         source: 'artifact',
@@ -440,25 +440,25 @@ const artifacts: HeroItem[] = [
     basePrice: null,
     effects: [
       {
-        id: 'woodProductionBonus',
+        id: 'woodProduction',
         value: 1.5,
         scope: 'global',
         source: 'artifact',
       },
       {
-        id: 'clayProductionBonus',
+        id: 'clayProduction',
         value: 1.5,
         scope: 'global',
         source: 'artifact',
       },
       {
-        id: 'ironProductionBonus',
+        id: 'ironProduction',
         value: 1.5,
         scope: 'global',
         source: 'artifact',
       },
       {
-        id: 'wheatProductionBonus',
+        id: 'wheatProduction',
         value: 1.5,
         scope: 'global',
         source: 'artifact',

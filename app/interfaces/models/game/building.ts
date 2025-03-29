@@ -91,7 +91,6 @@ export type Building = {
   buildingDurationBase: number;
   buildingDurationModifier: number;
   buildingDurationReduction: number;
-  cropConsumption: number[];
   effects: BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
   baseBuildingCost: number[];

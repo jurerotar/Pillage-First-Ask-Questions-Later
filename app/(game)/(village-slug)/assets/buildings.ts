@@ -1,38 +1,61 @@
+/**
+ * A couple of important things to keep in mind
+ * building.effects:
+ * - valuesPerLevel array length must always be building.maxLevel + 1. It needs to account for levels [0, ..., maxLevel]
+ * - Each building must have a 'wheatProduction' effect at index 0. This is used for population count. First value must be 0 (lvl 0 building doesn't cost any wheat)
+ */
+
 import type { Building, BuildingEffect } from 'app/interfaces/models/game/building';
 import type { ResourceProductionEffectId, TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 
-const createTeutonAndHunWallStaticDefence = (): number[] => {
-  return [0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
-};
-
-const createGaulAndEgyptianWallStaticDefence = (): number[] => {
-  return [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160];
+const createInfantryAndCavalryDefenceEffects = (valuesPerLevel: number[]): BuildingEffect[] => {
+  return [
+    {
+      effectId: 'infantryDefence',
+      valuesPerLevel,
+    },
+    {
+      effectId: 'cavalryDefence',
+      valuesPerLevel,
+    },
+  ];
 };
 
 // Different building have different crop consumption. There doesn't seem to be a pattern to it (this should probably be changed), so for now,
 // they'll just be grouped together based on type.
-const createCropConsumptionOfType = (type: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = 'A'): number[] => {
-  if (type === 'F') {
-    return [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2];
+const createNegativeWheatProductionEffect = (type: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = 'A'): BuildingEffect => {
+  let valuesPerLevel: number[];
+
+  switch (type) {
+    case 'F': {
+      valuesPerLevel = [0, 0, 0, 0, 0, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -12, -14, -16, -18, -20];
+      break;
+    }
+    case 'E': {
+      valuesPerLevel = [0, -5, -8, -11, -14, -17, -20, -23, -26, -29, -32, -36, -40, -44, -48, -52, -56, -60, -64, -68, -72];
+      break;
+    }
+    case 'D': {
+      valuesPerLevel = [0, -2, -3, -4, -5, -6, -8, -10, -12, -14, -16, -18, -20, -22, -24, -26, -29, -32, -35, -38, -41];
+      break;
+    }
+    case 'C': {
+      valuesPerLevel = [0, -3, -5, -7, -9, -11, -13, -15, -17, -19, -21, -24, -27, -30, -33, -36, -39, -42, -45, -48, -51];
+      break;
+    }
+    case 'B': {
+      valuesPerLevel = [0, -4, -6, -8, -10, -12, -15, -18, -21, -24, -27, -30, -33, -36, -39, -42, -46, -50, -54, -58, -62];
+      break;
+    }
+    default: // 'A'
+      valuesPerLevel = [0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -12, -14, -16, -18, -20, -22, -24, -26, -28, -30];
+      break;
   }
 
-  if (type === 'E') {
-    return [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
-  }
-
-  if (type === 'D') {
-    return [2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3];
-  }
-
-  if (type === 'C') {
-    return [3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
-  }
-
-  if (type === 'B') {
-    return [4, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4];
-  }
-
-  return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+  return {
+    effectId: 'wheatProduction',
+    valuesPerLevel,
+  };
 };
 
 const createResourceProductionEffect = (effectId: ResourceProductionEffectId): BuildingEffect => {
@@ -42,13 +65,23 @@ const createResourceProductionEffect = (effectId: ResourceProductionEffectId): B
   };
 };
 
-const createResourceBoosterEffect = (effectId: `${ResourceProductionEffectId}Bonus`, limit = 6): BuildingEffect => {
+const createResourceBoosterEffect = (effectId: ResourceProductionEffectId, limit = 6): BuildingEffect => {
   return {
     effectId,
     valuesPerLevel: [
-      1.001, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2,
+      1.001, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2.001,
     ].slice(0, limit),
   };
+};
+
+const createResourceBoosterBuildingEffect = (effectId: ResourceProductionEffectId): BuildingEffect[] => {
+  return [
+    {
+      effectId: 'wheatProduction',
+      valuesPerLevel: [0, -4, -6, -8, -10, -12],
+    },
+    createResourceBoosterEffect(effectId),
+  ];
 };
 
 const createTroopDurationEffect = (effectId: TroopTrainingDurationEffectId): BuildingEffect => {
@@ -78,21 +111,14 @@ const createLinearEffectValues = (effectId: 'merchantCapacity' | 'revealedIncomi
 };
 
 const createGovernmentBuildingDefenceEffects = (): BuildingEffect[] => {
-  return [
-    {
-      effectId: 'infantryDefence',
-      valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
-    },
-    {
-      effectId: 'cavalryDefence',
-      valuesPerLevel: [0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800],
-    },
-  ];
+  return createInfantryAndCavalryDefenceEffects([
+    0, 2, 8, 18, 32, 50, 72, 98, 128, 162, 200, 242, 288, 338, 392, 450, 512, 578, 648, 722, 800,
+  ]);
 };
 
 const createHorseDrinkingTroughEffects = (): BuildingEffect[] => {
   const valuesPerLevel = [
-    1.001, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89, 0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8, 0.78, 0.77, 0.75,
+    1.001, 1.001, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.9, 0.89, 0.88, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.8,
   ];
   return [
     {
@@ -110,8 +136,7 @@ export const buildings: Building[] = [
   {
     id: 'BAKERY',
     category: 'resource-booster',
-    cropConsumption: [4, 2, 2, 2, 2],
-    effects: [createResourceBoosterEffect('wheatProductionBonus')],
+    effects: [...createResourceBoosterBuildingEffect('wheatProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -147,8 +172,7 @@ export const buildings: Building[] = [
   {
     id: 'BRICKYARD',
     category: 'resource-booster',
-    cropConsumption: [3, 2, 2, 2, 2],
-    effects: [createResourceBoosterEffect('clayProductionBonus')],
+    effects: [...createResourceBoosterBuildingEffect('clayProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -178,9 +202,8 @@ export const buildings: Building[] = [
   {
     id: 'CLAY_PIT',
     category: 'resource-production',
-    cropConsumption: [...createCropConsumptionOfType('D')],
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('clayProduction')],
+    effects: [createNegativeWheatProductionEffect('D'), createResourceProductionEffect('clayProduction')],
     baseBuildingCost: [80, 40, 80, 50],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -191,9 +214,8 @@ export const buildings: Building[] = [
   {
     id: 'CROPLAND',
     category: 'resource-production',
-    cropConsumption: [...createCropConsumptionOfType('F')],
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('wheatProduction')],
+    effects: [createNegativeWheatProductionEffect('F'), createResourceProductionEffect('wheatProduction')],
     baseBuildingCost: [70, 90, 70, 20],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -204,8 +226,7 @@ export const buildings: Building[] = [
   {
     id: 'GRAIN_MILL',
     category: 'resource-booster',
-    cropConsumption: [3, 2, 2, 2, 2],
-    effects: [createResourceBoosterEffect('wheatProductionBonus')],
+    effects: [...createResourceBoosterBuildingEffect('wheatProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -229,8 +250,7 @@ export const buildings: Building[] = [
   {
     id: 'GRANARY',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [createStorageCapacityEffect('granaryCapacity')],
+    effects: [createNegativeWheatProductionEffect('A'), createStorageCapacityEffect('granaryCapacity')],
     buildingRequirements: [
       {
         id: 1,
@@ -254,8 +274,7 @@ export const buildings: Building[] = [
   {
     id: 'IRON_FOUNDRY',
     category: 'resource-booster',
-    cropConsumption: [6, 3, 3, 3, 3],
-    effects: [createResourceBoosterEffect('ironProductionBonus')],
+    effects: [...createResourceBoosterBuildingEffect('ironProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -285,9 +304,8 @@ export const buildings: Building[] = [
   {
     id: 'IRON_MINE',
     category: 'resource-production',
-    cropConsumption: [...createCropConsumptionOfType('C')],
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('ironProduction')],
+    effects: [createNegativeWheatProductionEffect('C'), createResourceProductionEffect('ironProduction')],
     baseBuildingCost: [100, 80, 30, 60],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -298,8 +316,7 @@ export const buildings: Building[] = [
   {
     id: 'SAWMILL',
     category: 'resource-booster',
-    cropConsumption: [4, 2, 2, 2, 2],
-    effects: [createResourceBoosterEffect('woodProductionBonus')],
+    effects: [...createResourceBoosterBuildingEffect('woodProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -329,8 +346,7 @@ export const buildings: Building[] = [
   {
     id: 'WAREHOUSE',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [createStorageCapacityEffect('warehouseCapacity')],
+    effects: [createNegativeWheatProductionEffect('A'), createStorageCapacityEffect('warehouseCapacity')],
     buildingRequirements: [
       {
         id: 1,
@@ -354,12 +370,12 @@ export const buildings: Building[] = [
   {
     id: 'WATERWORKS',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [
-      createResourceBoosterEffect('woodProductionBonus', 21),
-      createResourceBoosterEffect('clayProductionBonus', 21),
-      createResourceBoosterEffect('ironProductionBonus', 21),
-      createResourceBoosterEffect('wheatProductionBonus', 21),
+      createNegativeWheatProductionEffect('A'),
+      createResourceBoosterEffect('woodProduction', 21),
+      createResourceBoosterEffect('clayProduction', 21),
+      createResourceBoosterEffect('ironProduction', 21),
+      createResourceBoosterEffect('wheatProduction', 21),
     ],
     buildingRequirements: [
       {
@@ -389,9 +405,8 @@ export const buildings: Building[] = [
   {
     id: 'WOODCUTTER',
     category: 'resource-production',
-    cropConsumption: [...createCropConsumptionOfType('D')],
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('woodProduction')],
+    effects: [createNegativeWheatProductionEffect('D'), createResourceProductionEffect('woodProduction')],
     baseBuildingCost: [40, 100, 50, 60],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -402,8 +417,7 @@ export const buildings: Building[] = [
   {
     id: 'ACADEMY',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [],
+    effects: [createNegativeWheatProductionEffect('B')],
     buildingRequirements: [
       {
         id: 1,
@@ -433,8 +447,7 @@ export const buildings: Building[] = [
   {
     id: 'BARRACKS',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [createTroopDurationEffect('barracksTrainingDuration')],
+    effects: [createNegativeWheatProductionEffect('B'), createTroopDurationEffect('barracksTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -464,28 +477,14 @@ export const buildings: Building[] = [
   {
     id: 'CITY_WALL',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
-      {
-        effectId: 'infantryDefence',
-        valuesPerLevel: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
-      },
-      {
-        effectId: 'infantryDefenceBonus',
-        valuesPerLevel: [
-          1, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
-        ],
-      },
-      {
-        effectId: 'cavalryDefence',
-        valuesPerLevel: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
-      },
-      {
-        effectId: 'cavalryDefenceBonus',
-        valuesPerLevel: [
-          1, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
-        ],
-      },
+      createNegativeWheatProductionEffect('F'),
+      ...createInfantryAndCavalryDefenceEffects([
+        1.001, 1.03, 1.06, 1.09, 1.13, 1.16, 1.19, 1.23, 1.27, 1.31, 1.34, 1.38, 1.43, 1.47, 1.51, 1.56, 1.6, 1.65, 1.7, 1.75, 1.81,
+      ]),
+      ...createInfantryAndCavalryDefenceEffects([
+        0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+      ]),
     ],
     buildingRequirements: [
       {
@@ -509,28 +508,12 @@ export const buildings: Building[] = [
   {
     id: 'EARTH_WALL',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
-      {
-        effectId: 'infantryDefence',
-        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
-      },
-      {
-        effectId: 'infantryDefenceBonus',
-        valuesPerLevel: [
-          1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
-        ],
-      },
-      {
-        effectId: 'cavalryDefence',
-        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
-      },
-      {
-        effectId: 'cavalryDefenceBonus',
-        valuesPerLevel: [
-          1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
-        ],
-      },
+      createNegativeWheatProductionEffect('F'),
+      ...createInfantryAndCavalryDefenceEffects([
+        1.001, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24, 1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
+      ]),
+      ...createInfantryAndCavalryDefenceEffects([0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120]),
     ],
     buildingRequirements: [
       {
@@ -554,8 +537,7 @@ export const buildings: Building[] = [
   {
     id: 'GREAT_BARRACKS',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [createTroopDurationEffect('greatBarracksTrainingDuration')],
+    effects: [createNegativeWheatProductionEffect('B'), createTroopDurationEffect('greatBarracksTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -589,8 +571,7 @@ export const buildings: Building[] = [
   {
     id: 'GREAT_STABLE',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('E')],
-    effects: [createTroopDurationEffect('greatStableTrainingDuration')],
+    effects: [createNegativeWheatProductionEffect('E'), createTroopDurationEffect('greatStableTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -624,8 +605,7 @@ export const buildings: Building[] = [
   {
     id: 'HEROS_MANSION',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('D')],
-    effects: [],
+    effects: [createNegativeWheatProductionEffect('D')],
     buildingRequirements: [
       {
         id: 1,
@@ -655,8 +635,7 @@ export const buildings: Building[] = [
   {
     id: 'HOSPITAL',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('C')],
-    effects: [createTroopDurationEffect('hospitalTrainingDuration')],
+    effects: [createNegativeWheatProductionEffect('C'), createTroopDurationEffect('hospitalTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -686,28 +665,12 @@ export const buildings: Building[] = [
   {
     id: 'MAKESHIFT_WALL',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
-      {
-        effectId: 'infantryDefence',
-        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
-      },
-      {
-        effectId: 'infantryDefenceBonus',
-        valuesPerLevel: [
-          0, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
-        ],
-      },
-      {
-        effectId: 'cavalryDefence',
-        valuesPerLevel: [...createTeutonAndHunWallStaticDefence()],
-      },
-      {
-        effectId: 'cavalryDefenceBonus',
-        valuesPerLevel: [
-          0, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
-        ],
-      },
+      createNegativeWheatProductionEffect('F'),
+      ...createInfantryAndCavalryDefenceEffects([
+        1.001, 1.02, 1.03, 1.05, 1.06, 1.08, 1.09, 1.11, 1.13, 1.14, 1.16, 1.18, 1.2, 1.21, 1.23, 1.25, 1.27, 1.29, 1.31, 1.33, 1.35,
+      ]),
+      ...createInfantryAndCavalryDefenceEffects([0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120]),
     ],
     buildingRequirements: [
       {
@@ -731,28 +694,12 @@ export const buildings: Building[] = [
   {
     id: 'PALISADE',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
-      {
-        effectId: 'infantryDefence',
-        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
-      },
-      {
-        effectId: 'infantryDefenceBonus',
-        valuesPerLevel: [
-          0, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
-        ],
-      },
-      {
-        effectId: 'cavalryDefence',
-        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
-      },
-      {
-        effectId: 'cavalryDefenceBonus',
-        valuesPerLevel: [
-          0, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
-        ],
-      },
+      createNegativeWheatProductionEffect('F'),
+      ...createInfantryAndCavalryDefenceEffects([
+        1.001, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
+      ]),
+      ...createInfantryAndCavalryDefenceEffects([0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160]),
     ],
     buildingRequirements: [
       {
@@ -776,8 +723,7 @@ export const buildings: Building[] = [
   {
     id: 'RALLY_POINT',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [createLinearEffectValues('revealedIncomingTroopsAmount')],
+    effects: [createNegativeWheatProductionEffect('A'), createLinearEffectValues('revealedIncomingTroopsAmount')],
     buildingRequirements: [
       {
         id: 1,
@@ -795,8 +741,7 @@ export const buildings: Building[] = [
   {
     id: 'STABLE',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('E')],
-    effects: [createTroopDurationEffect('stableTrainingDuration')],
+    effects: [createNegativeWheatProductionEffect('E'), createTroopDurationEffect('stableTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -820,28 +765,12 @@ export const buildings: Building[] = [
   {
     id: 'STONE_WALL',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('F')],
     effects: [
-      {
-        effectId: 'infantryDefence',
-        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
-      },
-      {
-        effectId: 'infantryDefenceBonus',
-        valuesPerLevel: [
-          1, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
-        ],
-      },
-      {
-        effectId: 'cavalryDefence',
-        valuesPerLevel: [...createGaulAndEgyptianWallStaticDefence()],
-      },
-      {
-        effectId: 'cavalryDefenceBonus',
-        valuesPerLevel: [
-          1, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
-        ],
-      },
+      createNegativeWheatProductionEffect('F'),
+      ...createInfantryAndCavalryDefenceEffects([
+        1.001, 1.03, 1.05, 1.08, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25, 1.28, 1.31, 1.35, 1.38, 1.41, 1.45, 1.49, 1.52, 1.56, 1.6, 1.64,
+      ]),
+      ...createInfantryAndCavalryDefenceEffects([0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160]),
     ],
     buildingRequirements: [
       {
@@ -865,8 +794,8 @@ export const buildings: Building[] = [
   {
     id: 'TRAPPER',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('B')],
     effects: [
+      createNegativeWheatProductionEffect('B'),
       {
         effectId: 'trapperCapacity',
         valuesPerLevel: [0, 10, 22, 35, 49, 64, 80, 97, 115, 134, 154, 175, 196, 218, 241, 265, 290, 316, 343, 371, 400],
@@ -900,8 +829,7 @@ export const buildings: Building[] = [
   {
     id: 'WORKSHOP',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('C')],
-    effects: [createTroopDurationEffect('workshopTrainingDuration')],
+    effects: [createNegativeWheatProductionEffect('C'), createTroopDurationEffect('workshopTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -931,12 +859,15 @@ export const buildings: Building[] = [
   {
     id: 'BREWERY',
     category: 'infrastructure',
-    cropConsumption: [6, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5],
     effects: [
       {
-        effectId: 'attackBonus',
+        effectId: 'wheatProduction',
+        valuesPerLevel: [0, -6, -3, -3, -3, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -5, -5, -5, -5, -5],
+      },
+      {
+        effectId: 'attack',
         valuesPerLevel: [
-          1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2,
+          1.001, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2,
         ],
       },
     ],
@@ -980,8 +911,7 @@ export const buildings: Building[] = [
   {
     id: 'COMMAND_CENTER',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [...createGovernmentBuildingDefenceEffects()],
+    effects: [createNegativeWheatProductionEffect('A'), ...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1010,8 +940,11 @@ export const buildings: Building[] = [
   {
     id: 'CRANNY',
     category: 'infrastructure',
-    cropConsumption: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
     effects: [
+      {
+        effectId: 'wheatProduction',
+        valuesPerLevel: [0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1],
+      },
       {
         effectId: 'crannyCapacity',
         valuesPerLevel: [0, 100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
@@ -1034,8 +967,7 @@ export const buildings: Building[] = [
   {
     id: 'HORSE_DRINKING_TROUGH',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('E')],
-    effects: [...createHorseDrinkingTroughEffects()],
+    effects: [createNegativeWheatProductionEffect('E'), ...createHorseDrinkingTroughEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1070,8 +1002,8 @@ export const buildings: Building[] = [
   {
     id: 'MAIN_BUILDING',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('D')],
     effects: [
+      createNegativeWheatProductionEffect('D'),
       {
         effectId: 'buildingDuration',
         valuesPerLevel: [
@@ -1096,8 +1028,7 @@ export const buildings: Building[] = [
   {
     id: 'MARKETPLACE',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [createLinearEffectValues('merchantCapacity')],
+    effects: [createNegativeWheatProductionEffect('B'), createLinearEffectValues('merchantCapacity')],
     buildingRequirements: [
       {
         id: 1,
@@ -1133,8 +1064,7 @@ export const buildings: Building[] = [
   {
     id: 'PALACE',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [...createGovernmentBuildingDefenceEffects()],
+    effects: [createNegativeWheatProductionEffect('A'), ...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1159,8 +1089,7 @@ export const buildings: Building[] = [
   {
     id: 'RESIDENCE',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('A')],
-    effects: [...createGovernmentBuildingDefenceEffects()],
+    effects: [createNegativeWheatProductionEffect('A'), ...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1190,8 +1119,7 @@ export const buildings: Building[] = [
   {
     id: 'TREASURY',
     category: 'infrastructure',
-    cropConsumption: [...createCropConsumptionOfType('B')],
-    effects: [],
+    effects: [createNegativeWheatProductionEffect('B')],
     buildingRequirements: [
       {
         id: 1,
@@ -1215,11 +1143,11 @@ export const buildings: Building[] = [
   {
     id: 'TOURNAMENT_SQUARE',
     category: 'military',
-    cropConsumption: [...createCropConsumptionOfType('A')],
     effects: [
+      createNegativeWheatProductionEffect('A'),
       {
         effectId: 'unitSpeed',
-        valuesPerLevel: [1.001, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4, 4.2, 4.4, 4.6, 4.8, 5],
+        valuesPerLevel: [1.001, 1.2, 1.4, 1.6, 1.8, 2.001, 2.2, 2.4, 2.6, 2.8, 3.001, 3.2, 3.4, 3.6, 3.8, 4.001, 4.2, 4.4, 4.6, 4.8, 5.001],
       },
     ],
     buildingRequirements: [

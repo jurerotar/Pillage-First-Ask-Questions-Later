@@ -88,7 +88,6 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     buildingFieldsPresets: [],
     playerId,
     isCapital: false,
-    wheatUpkeep: 3,
     lastUpdatedAt: Date.now(),
     RFC,
     artifactId: null,
@@ -124,8 +123,6 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
     buildingFields,
     buildingFieldsPresets: [resourcesBuildingFieldPresetId, villageBuildingFieldPresetId],
     playerId,
-    // TODO: We're keeping this at 0 for now, so npc villages would have a bunch of extra wheat, should be fixed
-    wheatUpkeep: 0,
     isCapital: false,
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),

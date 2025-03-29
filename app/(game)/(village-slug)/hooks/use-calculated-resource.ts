@@ -32,7 +32,11 @@ export const calculateCurrentAmount = ({
   const resourceAmount = resources[resource];
 
   if (hourlyProduction === 0) {
-    Math.min(resourceAmount, storageCapacity);
+    return {
+      timeSinceLastUpdateInSeconds: 0,
+      secondsForResourceGeneration: Number.POSITIVE_INFINITY,
+      currentAmount: Math.min(resourceAmount, storageCapacity),
+    };
   }
 
   const hasNegativeProduction = hourlyProduction < 0;
@@ -52,6 +56,7 @@ export const calculateCurrentAmount = ({
 export const useCalculatedResource = (resource: Resource) => {
   const { currentVillage } = useCurrentVillage();
 
+  // @ts-expect-error: TODO: Overload issue, fix when you can
   const { total: hourlyProduction } = useComputedEffect(resourceToResourceEffectMap.get(resource)!);
   const { total: storageCapacity } = useComputedEffect(resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity');
 
@@ -93,6 +98,10 @@ export const useCalculatedResource = (resource: Resource) => {
     }
     if (intervalId.current) {
       clearInterval(intervalId.current);
+    }
+
+    if (hourlyProduction === 0) {
+      return;
     }
 
     const updateResourceAmount = () => {

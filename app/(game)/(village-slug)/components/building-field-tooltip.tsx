@@ -27,9 +27,11 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
 
   const { buildingId, level } = buildingField;
 
-  const sameBuildingConstructionEvents = currentVillageBuildingEvents.filter(({ buildingFieldId: eventBuildingFieldId, building }) => {
-    return building.id === buildingId && eventBuildingFieldId === buildingFieldId;
-  });
+  const sameBuildingConstructionEvents = currentVillageBuildingEvents.filter(
+    ({ buildingFieldId: eventBuildingFieldId, buildingId: buildingUnderConstructionId }) => {
+      return buildingUnderConstructionId === buildingId && eventBuildingFieldId === buildingFieldId;
+    },
+  );
 
   const isCurrentlyUpgradingThisBuilding = sameBuildingConstructionEvents.length > 0;
 

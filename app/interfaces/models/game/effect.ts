@@ -17,9 +17,8 @@ export type EffectId =
   | 'warehouseCapacity'
   | 'granaryCapacity'
   | 'unitSpeed'
-  | 'unitWheatConsumptionReduction'
+  | 'unitWheatConsumption'
   | 'unitCarryCapacity'
-  | 'buildingDurability'
   | 'buildingDuration'
   | 'merchantSpeed'
   | 'merchantCapacity'
@@ -29,14 +28,14 @@ export type EffectId =
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 
-type EffectIdBonus = `${EffectId}Bonus`;
-
 export type Effect = {
-  id: EffectId | EffectIdBonus;
+  id: EffectId;
   // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
   scope: 'global' | 'village' | 'server';
+  // Important rule! If value is integer, it's going to be counted as baseEffectValue. If value is float, it's going to be counter as
+  // a bonus value. Rule goes base * bonus!
   value: number;
-  source: 'hero' | 'oasis' | 'artifact' | 'building' | 'tribe' | 'server';
+  source: 'hero' | 'oasis' | 'artifact' | 'building' | 'tribe' | 'server' | 'troops';
 };
 
 export type ServerEffect = Omit<Effect, 'scope'> & {
@@ -58,7 +57,7 @@ export type HeroEffect = Omit<GlobalEffect, 'source'> & {
 
 export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
   scope: 'village';
-  source: 'building' | 'oasis' | 'server';
+  source: 'building' | 'oasis' | 'server' | 'troops';
   villageId: Village['id'];
 };
 

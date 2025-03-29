@@ -14,7 +14,6 @@ export const villageMock: Village = {
   RFC: '4446',
   playerId,
   isCapital: true,
-  wheatUpkeep: 3,
   lastUpdatedAt: Date.now(),
   resources: {
     wood: 750,

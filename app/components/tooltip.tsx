@@ -9,9 +9,12 @@ export const Tooltip: React.FC<ReactTooltipProps> = (props) => {
 
   const { isWiderThanLg } = use(ViewportContext);
 
+  if (!isWiderThanLg) {
+    return null;
+  }
+
   return (
     <ReactTooltip
-      hidden={!isWiderThanLg}
       className={clsx('!z-20 !rounded-lg !px-2 !py-1 !text-xs', className)}
       {...rest}
     />

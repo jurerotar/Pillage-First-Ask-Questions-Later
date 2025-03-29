@@ -150,6 +150,12 @@ const IconTroopBuildingDuration = lazy(async () => ({
 const IconUnitSpeed = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-unit-speed')).IconUnitSpeed,
 }));
+const IconUnitCarryCapacity = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-unit-carry-capacity')).IconUnitCarryCapacity,
+}));
+const IconUnitWheatConsumption = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-unit-wheat-consumption')).IconUnitWheatConsumption,
+}));
 const IconTrapperCapacity = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-trapper-capacity')).IconTrapperCapacity,
 }));
@@ -448,16 +454,14 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   workshopTrainingDuration: IconTroopBuildingDuration,
   hospitalTrainingDuration: IconTroopBuildingDuration,
   unitSpeed: IconUnitSpeed,
+  unitCarryCapacity: IconUnitCarryCapacity,
+  unitWheatConsumption: IconUnitWheatConsumption,
   trapperCapacity: IconTrapperCapacity,
   merchantCapacity: IconMerchantCapacity,
   woodProduction: IconResourceWood,
   clayProduction: IconResourceClay,
   ironProduction: IconResourceIron,
   wheatProduction: IconResourceWheat,
-  woodProductionBonus: IconResourceWood,
-  clayProductionBonus: IconResourceClay,
-  ironProductionBonus: IconResourceIron,
-  wheatProductionBonus: IconResourceWheat,
   crannyCapacity: IconCrannyCapacity,
   revealedIncomingTroopsAmount: IconRevealedIncomingTroopsAmount,
 

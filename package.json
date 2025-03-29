@@ -9,7 +9,7 @@
     "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later.git"
   },
   "bugs": {
-    "url": "https://github.com/jurerotar/react-icons-tailwindcss/issues"
+    "url": "https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues"
   },
   "scripts": {
     "dev": "react-router dev",
@@ -25,29 +25,29 @@
     "type-check": "react-router typegen && tsc",
     "test": "vitest",
     "prepare": "husky",
-    "analyze-graph": "npx skott --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies",
+    "analyze-graph": "npx skott --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies --ignorePattern='{app/**/icon-*.tsx,app/**/*.test.ts,app/**/*.test.tsx}'",
     "postinstall": "node --experimental-strip-types scripts/postinstall.ts"
   },
   "dependencies": {
     "@pillage-first/graphics": "0.0.1",
-    "@react-router/node": "7.4.0",
-    "@react-router/serve": "7.4.0",
-    "@tailwindcss/vite": "4.0.16",
-    "@tanstack/react-query": "5.69.0",
-    "@tanstack/react-query-devtools": "5.69.0",
-    "@tanstack/react-query-persist-client": "5.69.0",
+    "@react-router/node": "7.4.1",
+    "@react-router/serve": "7.4.1",
+    "@tailwindcss/vite": "4.0.17",
+    "@tanstack/react-query": "5.70.0",
+    "@tanstack/react-query-devtools": "5.70.0",
+    "@tanstack/react-query-persist-client": "5.70.0",
     "clsx": "2.1.1",
     "dayjs": "1.11.13",
     "i18next": "24.2.3",
     "isbot": "5.1.25",
     "moderndash": "4.0.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-hook-form": "7.54.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-hook-form": "7.55.0",
     "react-i18next": "15.4.1",
     "react-icons": "5.5.0",
     "react-icons-tailwindcss": "1.2.0",
-    "react-router": "7.4.0",
+    "react-router": "7.4.1",
     "react-tabs": "6.1.0",
     "react-tooltip": "5.28.0",
     "react-window": "1.8.11",
@@ -58,11 +58,11 @@
     "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "19.8.0",
     "@commitlint/config-conventional": "19.8.0",
-    "@react-router/dev": "7.4.0",
+    "@react-router/dev": "7.4.1",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.2.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "22.13.13",
+    "@types/node": "22.13.14",
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "@types/react-window": "1.8.8",
@@ -70,13 +70,13 @@
     "happy-dom": "17.4.4",
     "husky": "9.1.7",
     "i18next-parser": "9.3.0",
-    "knip": "5.46.2",
+    "knip": "5.46.3",
     "opfs-mock": "2.1.1",
     "resize-observer-polyfill": "1.5.1",
     "rollup-plugin-visualizer": "5.14.0",
     "sass-embedded": "1.86.0",
     "skott": "0.35.4",
-    "tailwindcss": "4.0.16",
+    "tailwindcss": "4.0.17",
     "typescript": "5.8.2",
     "vite": "6.2.3",
     "vite-plugin-pwa": "0.21.2",
@@ -91,8 +91,8 @@
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": ["app/root.tsx", "app/**/*page.tsx", "app/**/*layout.tsx"],
-    "project": ["app/**/*.{ts,tsx}"],
+    "entry": ["app/root.tsx!", "app/**/*page.tsx!", "app/**/*layout.tsx!"],
+    "project": ["app/**/*.{ts,tsx}!"],
     "paths": {
       "app/*": ["app/*"]
     }
@@ -102,6 +102,11 @@
     "rules": {
       "header-max-length": [0],
       "body-max-line-length": [0]
+    }
+  },
+  "overrides": {
+    "tailwindcss-content-visibility": {
+      "tailwindcss": ">= 4"
     }
   }
 }

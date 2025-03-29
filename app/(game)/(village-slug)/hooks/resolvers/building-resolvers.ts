@@ -1,5 +1,5 @@
 import { createEventFn } from 'app/(game)/(village-slug)/hooks/utils/events';
-import { specialFieldIds } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingData, specialFieldIds } from 'app/(game)/(village-slug)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/models/common';
 import type { Effect } from 'app/interfaces/models/game/effect';
@@ -31,8 +31,7 @@ const updateBuildingFieldLevel = (villages: Village[], args: GameEvent<'building
 };
 
 const addBuildingField = (villages: Village[], args: GameEvent<'buildingConstruction'>): Village[] => {
-  const { villageId, buildingFieldId, building } = args;
-  const { id: buildingId } = building;
+  const { villageId, buildingFieldId, buildingId } = args;
 
   return villages.map((village) => {
     if (village.id === villageId) {
@@ -60,13 +59,15 @@ export const removeBuildingField = (villages: Village[], args: GameEvent<'buildi
 };
 
 export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChange'>> = async (queryClient, args) => {
-  const { buildingFieldId, level, building } = args;
+  const { buildingFieldId, level, buildingId } = args;
+
+  const { effects } = getBuildingData(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
     const buildingEffects = prevData!.filter(isBuildingEffect);
 
     // Loop through all effects gained by the new level, find corresponding village effects and update them to the new values
-    for (const { effectId, valuesPerLevel } of building.effects) {
+    for (const { effectId, valuesPerLevel } of effects) {
       const villageEffect = buildingEffects.find((effect) => effect.id === effectId && effect?.buildingFieldId === buildingFieldId)!;
       villageEffect.value = valuesPerLevel[level];
     }
@@ -79,10 +80,12 @@ export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChang
 };
 
 export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruction'>> = async (queryClient, args) => {
-  const { villageId, buildingFieldId, building } = args;
+  const { villageId, buildingFieldId, buildingId } = args;
+
+  const { effects } = getBuildingData(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
-    const newEffects = building.effects.map(({ effectId, valuesPerLevel }) => {
+    const newEffects = effects.map(({ effectId, valuesPerLevel }) => {
       return newBuildingEffectFactory({ villageId, buildingFieldId, id: effectId, value: valuesPerLevel[0] });
     });
     return [...prevData!, ...newEffects];
@@ -117,13 +120,13 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
   args,
 ) => {
-  const { building, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
+  const { buildingId, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
 
   await createEventFn<'buildingLevelChange'>(queryClient, {
     type: 'buildingLevelChange',
     startsAt,
     duration,
-    building,
+    buildingId,
     buildingFieldId,
     level,
     villageId,

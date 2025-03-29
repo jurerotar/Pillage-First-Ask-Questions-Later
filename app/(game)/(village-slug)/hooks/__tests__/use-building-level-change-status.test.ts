@@ -7,7 +7,7 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 
 describe('getHasEnoughFreeCrop', () => {
-  test('returns true if nextLevelCropConsumption is 0', () => {
+  test('returns true if nextLevelWheatConsumption is 0', () => {
     expect(getHasEnoughFreeCrop(0, 100, 50)).toBe(true);
   });
 

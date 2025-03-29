@@ -50,7 +50,6 @@ export type Village = {
   slug: string | null;
   lastUpdatedAt: number;
   resources: Resources;
-  wheatUpkeep: number;
   // This property is only hydrated in user villages or on npc villages that differ from a preset!
   buildingFields: BuildingField[];
   // In order to reduce amount of data we need to write, we point to a special preset array that represents "buildingFields" of npc villages,

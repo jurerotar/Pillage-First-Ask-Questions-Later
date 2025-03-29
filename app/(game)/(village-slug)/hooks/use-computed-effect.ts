@@ -1,55 +1,163 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import { isGlobalEffect, isVillageEffect } from 'app/(game)/(village-slug)/utils/guards/effect-guards';
-import type { Effect, EffectId, GlobalEffect, VillageEffect } from 'app/interfaces/models/game/effect';
+import type { Effect, EffectId, VillageEffect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
 import { useQuery } from '@tanstack/react-query';
 import { nonPersistedCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
-const normalize1001Value = (value: number) => {
-  if (value === 1.001) {
-    return 1;
+const normalizeForcedFloatValue = (value: number) => {
+  if (`${value}`.endsWith('.001')) {
+    return Math.trunc(value);
   }
 
   return value;
 };
 
-export const calculateComputedEffect = (effectId: Effect['id'], effects: Effect[], currentVillageId: Village['id']) => {
-  const bonusEffectId = `${effectId}Bonus`;
+type ComputedEffectReturn = {
+  effectBaseValue: number;
+  effectBonusValue: number;
+  serverEffectValue: number;
+  total: number;
+};
 
-  const bonusEffectIdFilterFunction = ({ id }: Effect) => id === bonusEffectId;
-  const effectIdFilterFunction = ({ id }: Effect) => id === effectId;
+type WheatProductionEffectReturn = ComputedEffectReturn & {
+  buildingWheatConsumption: number;
+  troopWheatConsumption: number;
+  troopWheatConsumptionReductionBonus: number;
+};
 
-  const globalEffects: GlobalEffect[] = effects.filter(isGlobalEffect);
-  const villageEffects: VillageEffect[] = effects.filter(isVillageEffect);
-  const currentVillageEffects: VillageEffect[] = villageEffects.filter(({ villageId }) => villageId === currentVillageId);
+const calculateWheatProductionEffect = (
+  effectId: 'wheatProduction',
+  effects: Effect[],
+  currentVillageId: Village['id'],
+): WheatProductionEffectReturn => {
+  const serverEffect = effects.find((effect) => effect.scope === 'server' && effect.id === effectId);
+  const serverEffectValue = normalizeForcedFloatValue(serverEffect?.value ?? 1);
 
-  const baseEffects = [...currentVillageEffects.filter(effectIdFilterFunction), ...globalEffects.filter(effectIdFilterFunction)];
-  const bonusEffects = [...currentVillageEffects.filter(bonusEffectIdFilterFunction), ...globalEffects.filter(bonusEffectIdFilterFunction)];
+  let baseWheatProduction = 0;
+  let wheatProductionBonus = 1;
 
-  const cumulativeBaseEffectValue = baseEffects.reduce((acc: number, effect: Effect) => acc + normalize1001Value(effect.value), 0);
+  let buildingWheatConsumption = 0;
+  let troopWheatConsumption = 0;
 
-  const cumulativeBonusEffectValue = bonusEffects.reduce((acc: number, effect: Effect) => acc + (normalize1001Value(effect.value) - 1), 1);
+  let troopWheatConsumptionReductionBonus = 1;
 
-  // There's always only 1 server effect for particular effect id, but if it's missing, value is 1
-  const serverEffectValue = normalize1001Value(effects.find(({ id, scope }) => scope === 'server' && id === effectId)?.value ?? 1);
+  for (const effect of effects) {
+    // Skip all server effects because we already have a value and skip all non-wheatProduction effects because we're only checking for this one
+    const { source, value, scope, id } = effect;
+    if (id !== 'wheatProduction' || effect.scope === 'server') {
+      continue;
+    }
 
-  const total = cumulativeBaseEffectValue * serverEffectValue * cumulativeBonusEffectValue;
+    const shouldEffectApplyToCurrentVillage = scope === 'global' || (effect as VillageEffect).villageId === currentVillageId;
+
+    if (!shouldEffectApplyToCurrentVillage) {
+      continue;
+    }
+
+    // Only troops contribute to troopWheatConsumption
+    if (source === 'troops') {
+      troopWheatConsumption += value;
+      continue;
+    }
+
+    if (Number.isInteger(value)) {
+      const isPositive = value > 0;
+
+      if (isPositive) {
+        baseWheatProduction += value;
+        continue;
+      }
+
+      buildingWheatConsumption += value;
+      continue;
+    }
+
+    const isGreaterThanOne = value > 1;
+    if (isGreaterThanOne) {
+      wheatProductionBonus *= normalizeForcedFloatValue(value);
+      continue;
+    }
+
+    troopWheatConsumptionReductionBonus *= normalizeForcedFloatValue(value);
+  }
+
+  const total =
+    baseWheatProduction * wheatProductionBonus + buildingWheatConsumption - troopWheatConsumption * troopWheatConsumptionReductionBonus;
 
   return {
-    cumulativeBaseEffectValue,
     serverEffectValue,
-    cumulativeBonusEffectValue,
+    effectBaseValue: baseWheatProduction,
+    effectBonusValue: wheatProductionBonus,
+    buildingWheatConsumption,
+    troopWheatConsumption,
+    troopWheatConsumptionReductionBonus,
     total,
   };
 };
 
+export const calculateComputedEffect = (
+  effectId: Effect['id'],
+  effects: Effect[],
+  currentVillageId: Village['id'],
+): ComputedEffectReturn => {
+  if (effectId === 'wheatProduction') {
+    return calculateWheatProductionEffect('wheatProduction', effects, currentVillageId);
+  }
+
+  // There is at most 1 server effect for specific effect type, so we find it here and can skip iterations with server scope effects later
+  const serverEffect = effects.find((effect) => effect.scope === 'server' && effect.id === effectId);
+  const serverEffectValue = normalizeForcedFloatValue(serverEffect?.value ?? 1);
+
+  let effectBaseValue = 0;
+  let effectBonusValue = 1;
+
+  for (const effect of effects) {
+    const { value, scope } = effect;
+
+    if (scope === 'server' || effectId !== effect.id) {
+      continue;
+    }
+
+    const shouldEffectApplyToCurrentVillage = scope === 'global' || (effect as VillageEffect).villageId === currentVillageId;
+
+    if (!shouldEffectApplyToCurrentVillage) {
+      continue;
+    }
+
+    if (Number.isInteger(value)) {
+      effectBaseValue += value;
+      continue;
+    }
+
+    effectBonusValue *= normalizeForcedFloatValue(value);
+  }
+
+  const total = (effectBaseValue === 0 ? 1 : effectBaseValue) * effectBonusValue * serverEffectValue;
+
+  return {
+    serverEffectValue,
+    effectBaseValue,
+    effectBonusValue,
+    total,
+  };
+};
+
+export function useComputedEffect(effectId: Exclude<EffectId, 'wheatProduction'>): ComputedEffectReturn;
+export function useComputedEffect(effectId: 'wheatProduction'): WheatProductionEffectReturn;
+
 // The idea behind this hook is to give you a computed effect value based on currentVillage effects & global effects
-export const useComputedEffect = (effectId: EffectId) => {
+export function useComputedEffect(effectId: EffectId): ComputedEffectReturn | WheatProductionEffectReturn {
   const { effects } = useEffects();
   const { currentVillage } = useCurrentVillage();
 
-  const fetcher = () => calculateComputedEffect(effectId, effects, currentVillage.id);
+  const fetcher = () => {
+    // This is stupid, but we need to have it like this for the overload to work correctly
+    if (effectId === 'wheatProduction') {
+      return calculateComputedEffect(effectId, effects, currentVillage.id);
+    }
+    return calculateComputedEffect(effectId, effects, currentVillage.id);
+  };
 
   const { data: computedEffect } = useQuery({
     queryKey: [nonPersistedCacheKey, effectId, currentVillage.id, effects],
@@ -64,4 +172,4 @@ export const useComputedEffect = (effectId: EffectId) => {
   });
 
   return computedEffect;
-};
+}

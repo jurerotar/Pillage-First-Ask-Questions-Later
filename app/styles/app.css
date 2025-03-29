@@ -40,6 +40,14 @@
   @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
 }
 
+@utility content-visibility-auto {
+  content-visibility: auto;
+}
+
+@utility contain-intrinsic-size-auto {
+  contain-intrinsic-size: auto none;
+}
+
 .scrollbar-hidden {
   scrollbar-width: none; /* Firefox */
 }

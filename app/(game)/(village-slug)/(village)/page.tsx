@@ -37,7 +37,7 @@ const BuildingUpgradeList = () => {
               className="size-4"
             />
           </button>
-          <span className="font-medium">{assetsT(`BUILDINGS.${event.building.id}.NAME`)}</span>
+          <span className="font-medium">{assetsT(`BUILDINGS.${event.buildingId}.NAME`)}</span>
           <span className="text-orange-500">{t('level {{level}}', { level: event.level })}</span>
           <Countdown
             endsAt={

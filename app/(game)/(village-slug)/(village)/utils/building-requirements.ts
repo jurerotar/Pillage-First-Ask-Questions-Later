@@ -61,7 +61,7 @@ const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuilding
 
   const sameBuildingFields: BuildingField[] = buildingFields.filter(({ buildingId: id }) => id === buildingId);
   const buildingExistsInQueue = !!currentVillageBuildingEvents.find(
-    ({ building: { id: buildingIdUnderConstruction } }) => buildingIdUnderConstruction === buildingId,
+    ({ buildingId: buildingUnderConstructionId }) => buildingUnderConstructionId === buildingId,
   );
 
   // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist or isn't being constructed

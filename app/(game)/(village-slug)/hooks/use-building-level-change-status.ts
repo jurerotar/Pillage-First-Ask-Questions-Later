@@ -13,14 +13,14 @@ import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 
 export const getHasEnoughFreeCrop = (
-  nextLevelCropConsumption: number,
+  nextLevelWheatConsumption: number,
   wheatBuildingLimit: number,
   currentVillagePopulation: number,
 ): boolean => {
-  if (nextLevelCropConsumption === 0) {
+  if (nextLevelWheatConsumption === 0) {
     return true;
   }
-  return wheatBuildingLimit - currentVillagePopulation >= nextLevelCropConsumption;
+  return wheatBuildingLimit - currentVillagePopulation >= nextLevelWheatConsumption;
 };
 
 export const getHasEnoughWarehouseCapacity = (calculatedWarehouseCapacity: number, nextLevelResourceCost: number[]): boolean => {
@@ -38,14 +38,14 @@ export const getHasEnoughResources = (nextLevelResourceCost: number[], currentRe
 export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
   const { getCurrentVillagePopulation } = useCurrentVillage();
-  const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
+  const { effectBaseValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
   const resources = use(CurrentResourceContext);
   const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
   const { isDeveloperModeActive } = useDeveloperMode();
 
-  const { nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, 1);
+  const { nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, 1);
 
   const getBuildingConstructionErrorBag = (): string[] => {
     const errorBag: string[] = [];
@@ -56,7 +56,7 @@ export const useBuildingConstructionStatus = (buildingId: Building['id'], buildi
 
     const currentVillagePopulation = getCurrentVillagePopulation();
 
-    if (!getHasEnoughFreeCrop(nextLevelCropConsumption, wheatBuildingLimit, currentVillagePopulation)) {
+    if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, wheatBuildingLimit, currentVillagePopulation)) {
       errorBag.push(t('Upgrade wheat fields first'));
     }
 
@@ -87,7 +87,7 @@ export const useBuildingConstructionStatus = (buildingId: Building['id'], buildi
 export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
   const { currentVillage, getCurrentVillagePopulation } = useCurrentVillage();
-  const { cumulativeBaseEffectValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
+  const { effectBaseValue: wheatBuildingLimit } = useComputedEffect('wheatProduction');
   const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
   const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
   const resources = use(CurrentResourceContext);
@@ -95,7 +95,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
   const { isDeveloperModeActive } = useDeveloperMode();
 
   const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
-  const { isMaxLevel, nextLevelResourceCost, nextLevelCropConsumption } = getBuildingDataForLevel(buildingId, level);
+  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, level);
   const currentVillagePopulation = getCurrentVillagePopulation();
 
   const getBuildingUpgradeIndicatorVariant = (): BorderIndicatorBorderVariant => {
@@ -107,7 +107,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
       return 'red';
     }
 
-    if (!getHasEnoughFreeCrop(nextLevelCropConsumption, wheatBuildingLimit, currentVillagePopulation)) {
+    if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, wheatBuildingLimit, currentVillagePopulation)) {
       return 'gray';
     }
 
@@ -141,7 +141,7 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
       return [];
     }
 
-    if (!getHasEnoughFreeCrop(nextLevelCropConsumption, wheatBuildingLimit, currentVillagePopulation)) {
+    if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, wheatBuildingLimit, currentVillagePopulation)) {
       errorBag.push(t('Upgrade wheat fields first'));
     }
 
@@ -177,7 +177,7 @@ export const useBuildingDowngradeStatus = (buildingId: Building['id']) => {
   const getBuildingDowngradeErrorBag = (): string[] => {
     const errorBag: string[] = [];
 
-    if (currentVillageBuildingEvents.some(({ building }) => building.id === buildingId)) {
+    if (currentVillageBuildingEvents.some(({ buildingId: eventBuildingId }) => eventBuildingId === buildingId)) {
       errorBag.push(t("Building can't be downgraded or demolished while it's being upgraded"));
     }
 

@@ -102,9 +102,11 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
   const canUpgrade: boolean = buildingUpgradeErrorBag.length === 0;
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
-    const hasSameBuildingConstructionEvents = currentVillageBuildingEvents.some(({ buildingFieldId: eventBuildingFieldId, building }) => {
-      return building.id === buildingId && eventBuildingFieldId === buildingFieldId;
-    });
+    const hasSameBuildingConstructionEvents = currentVillageBuildingEvents.some(
+      ({ buildingFieldId: eventBuildingFieldId, buildingId: eventBuildingId }) => {
+        return eventBuildingId === buildingId && eventBuildingFieldId === buildingFieldId;
+      },
+    );
 
     if (hasSameBuildingConstructionEvents) {
       return 'orange';

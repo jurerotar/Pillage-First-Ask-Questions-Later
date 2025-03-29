@@ -1,10 +1,7 @@
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
 import { CurrentResourceProvider } from 'app/(game)/(village-slug)/providers/current-resources-provider';
 import { GameEngineProvider } from 'app/(game)/(village-slug)/providers/game-engine-provider';
-import { Icon } from 'app/components/icon';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import { formatNumberWithCommas } from 'app/utils/common';
 import clsx from 'clsx';
 import type React from 'react';
 import { Fragment, useRef } from 'react';
@@ -29,54 +26,7 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import layoutStyles from './layout.module.css';
 import { FaHome } from 'react-icons/fa';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
-
-type ResourceCounterProps = {
-  resource: Resource;
-};
-
-const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
-  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCalculatedResource(resource);
-
-  const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
-  const productionSign = hasNegativeProduction ? '-' : '+';
-
-  const formattedCurrentAmount = formatNumberWithCommas(calculatedResourceAmount);
-  const formattedStorageCapacity = formatNumberWithCommas(storageCapacity);
-  const formattedHourlyProduction = formatNumberWithCommas(hourlyProduction);
-
-  return (
-    <div className="flex w-full flex-col gap-1">
-      <div className="flex w-full items-center justify-between">
-        <Icon
-          className="size-4 lg:size-6"
-          type={resource}
-        />
-        <span className="inline-flex items-center">
-          <span className="text-xs lg:text-md font-medium leading-none">{formattedCurrentAmount}</span>
-          <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">/{formattedStorageCapacity}</span>
-        </span>
-      </div>
-      <div className="relative flex h-2 lg:h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
-        <div
-          className={clsx(
-            isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
-            'flex h-full border lg:border-2',
-          )}
-          style={{
-            width: `${storagePercentage}%`,
-          }}
-        />
-      </div>
-      <div className="flex justify-between lg:justify-end items-center">
-        <span className="inline-flex lg:hidden text-2xs md:text-xs">{formattedStorageCapacity}</span>
-        <span className="inline-flex text-2xs md:text-xs">
-          {productionSign}
-          {formattedHourlyProduction}/h
-        </span>
-      </div>
-    </div>
-  );
-};
+import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;

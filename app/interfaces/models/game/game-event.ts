@@ -21,7 +21,7 @@ type BaseBuildingEvent = WithResourceCheck<
   BaseGameEvent &
     WithVillageId<{
       buildingFieldId: BuildingField['id'];
-      building: Building;
+      buildingId: Building['id'];
       level: number;
     }>
 >;

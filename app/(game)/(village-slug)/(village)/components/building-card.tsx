@@ -56,7 +56,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   });
 
   return (
-    <article className="flex flex-col p-2 md:p-4 border border-gray-500">
+    <article className="flex flex-col p-2 md:p-4 border border-gray-500 content-visibility-auto contain-intrinsic-size-[auto_none]">
       <BuildingOverview
         buildingId={buildingId}
         titleCount={sameBuildingInstances.length}

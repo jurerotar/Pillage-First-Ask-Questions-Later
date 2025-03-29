@@ -1,7 +1,6 @@
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
-import { TileModal } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { MapContext, MapProvider } from 'app/(game)/(village-slug)/(map)/providers/map-context';
@@ -28,7 +27,7 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 const RULER_SIZE = 20;
 
 const MapPage = () => {
-  const { isOpen: isTileModalOpened, closeModal, openModal, modalArgs } = useDialog<TileType>();
+  const { isOpen: isTileModalOpened } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
   const { mapFilters } = useMapFilters();
@@ -117,11 +116,11 @@ const MapPage = () => {
       tilesWithFactions,
       mapFilters,
       magnification,
-      onClick: openModal,
+      onClick: () => {},
       villageCoordinatesToVillagesMap,
       villageCoordinatesToWorldItemsMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, openModal, villageCoordinatesToVillagesMap, villageCoordinatesToWorldItemsMap]);
+  }, [tilesWithFactions, mapFilters, magnification, villageCoordinatesToVillagesMap, villageCoordinatesToWorldItemsMap]);
 
   useEventListener(
     'mousedown',
@@ -244,12 +243,6 @@ const MapPage = () => {
           return <TileTooltip tile={tile} />;
         }}
       />
-      {isTileModalOpened && (
-        <TileModal
-          tile={modalArgs.current!}
-          onClose={closeModal}
-        />
-      )}
       <FixedSizeGrid
         className="scrollbar-hidden bg-[#8EBF64]"
         outerRef={mapRef}

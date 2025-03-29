@@ -11,14 +11,13 @@ import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-resear
 import { CurrentResourceContext } from 'app/(game)/(village-slug)/providers/current-resources-provider';
 import { Button } from 'app/components/buttons/button';
 import { Icon } from 'app/components/icon';
-import type { IconType } from 'app/components/icons/icon-maps';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import clsx from 'clsx';
 import type React from 'react';
 import { Fragment, use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { calculateMaxUnits, getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { calculateMaxUnits, calculateUnitResearchCost, getUnitData } from 'app/(game)/(village-slug)/utils/units';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
@@ -27,7 +26,7 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
-  const { researchCost } = getUnitData(unitId)!;
+  const researchCost = calculateUnitResearchCost(unitId);
 
   const hasResearchedUnit = isUnitResearched(unitId);
 
@@ -103,6 +102,11 @@ type UnitCardProps = {
   showUnitRecruitmentForm?: boolean;
 };
 
+type UnitAttributes = Record<
+  'attack' | 'infantryDefence' | 'cavalryDefence' | 'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption',
+  number
+>;
+
 export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const {
     unitId,
@@ -121,9 +125,9 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
-  const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, travelSpeed, carryCapacity, cropConsumption, researchCost } =
+  const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, unitSpeed, unitCarryCapacity, unitWheatConsumption } =
     getUnitData(unitId)!;
-
+  const researchCost = calculateUnitResearchCost(unitId);
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const unitImprovement = unitImprovements.find((unitImprovement) => unitImprovement.tier === tier);
@@ -142,13 +146,13 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
   const canResearchUnit = hasEnoughResourcesToResearch && canResearch;
 
-  const attributes = {
+  const attributes: UnitAttributes = {
     attack,
     infantryDefence,
     cavalryDefence,
-    travelSpeed,
-    carryCapacity,
-    cropConsumption,
+    unitSpeed,
+    unitCarryCapacity,
+    unitWheatConsumption,
   };
 
   return (
@@ -183,16 +187,15 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
         <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
           <h2 className="font-medium">{t('Attributes')}</h2>
           <div className="flex gap-2 flex-wrap">
-            {Object.keys(attributes).map((attribute) => (
+            {(Object.keys(attributes) as (keyof UnitAttributes)[]).map((attribute) => (
               <span
                 key={attribute}
                 className="inline-flex whitespace-nowrap gap-2 items-center"
               >
                 <Icon
                   className="size-5"
-                  type={attribute as IconType}
+                  type={attribute}
                 />
-                {/* @ts-ignore - TODO: This needs typing, I can't be bothered at the moment */}
                 {attributes[attribute]}
               </span>
             ))}

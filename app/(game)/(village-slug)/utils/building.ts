@@ -3,7 +3,6 @@ import { presetIdToPresetMap } from 'app/(game)/(village-slug)/assets/npc-villag
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
-import { partialArraySum } from 'app/utils/common';
 
 const mergeBuildingFields = (buildingFieldsFromPreset: BuildingField[], buildingFields: BuildingField[]): BuildingField[] => {
   // Create a map from the second array using the 'id' as the key
@@ -33,25 +32,19 @@ const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFiel
 
 export const getBuildingDataForLevel = (buildingId: Building['id'], level: number) => {
   const building = getBuildingData(buildingId);
-  const isMaxLevel = building.cropConsumption.length === level;
-  const cumulativeCropConsumption = partialArraySum(building.cropConsumption, level);
-  const nextLevelCropConsumption = building.cropConsumption[level] ?? 0;
-  const currentLevelResourceCost = calculateBuildingCostForLevel(buildingId, level);
-  const nextLevelResourceCost = isMaxLevel ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, level + 1);
-  const currentLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level);
+  const wheatConsumptionPerLevel = building.effects[0]!.valuesPerLevel;
+
+  const isMaxLevel = building.maxLevel === level;
+  const nextLevelWheatConsumption = Math.abs(wheatConsumptionPerLevel[level + 1]);
+  const nextLevelResourceCost = calculateBuildingCostForLevel(buildingId, level + 1);
   const nextLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level + 1);
-  const cumulativeEffects = calculateBuildingEffectValues(building, level);
 
   return {
     building,
     isMaxLevel,
-    cumulativeCropConsumption,
-    nextLevelCropConsumption,
-    currentLevelResourceCost,
+    nextLevelWheatConsumption,
     nextLevelResourceCost,
-    currentLevelBuildingDuration,
     nextLevelBuildingDuration,
-    cumulativeEffects,
   };
 };
 
@@ -74,36 +67,11 @@ export const calculatePopulationFromBuildingFields = (
     }
 
     const fullBuildingData: Building = getBuildingData(buildingId)!;
-    sum += partialArraySum(fullBuildingData.cropConsumption, level);
+    const wheatConsumptionPerLevel = fullBuildingData.effects[0]!.valuesPerLevel;
+    sum += wheatConsumptionPerLevel[level];
   }
 
-  return sum;
-};
-
-const getResourceProductionByResourceField = (resourceField: BuildingField): number => {
-  const { buildingId, level } = resourceField;
-  const fullBuildingData: Building = getBuildingData(buildingId)!;
-  // There's only 1 effect on production buildings, this should be fine
-  const resourceProduction = fullBuildingData.effects[0]!.valuesPerLevel;
-  return resourceProduction[level];
-};
-
-export const calculateResourceProductionFromResourceFields = (resourceFields: BuildingField[]) => {
-  const [woodProduction, clayProduction, ironProduction, wheatProduction] = [
-    resourceFields.filter(({ buildingId }) => buildingId === 'WOODCUTTER'),
-    resourceFields.filter(({ buildingId }) => buildingId === 'CLAY_PIT'),
-    resourceFields.filter(({ buildingId }) => buildingId === 'IRON_MINE'),
-    resourceFields.filter(({ buildingId }) => buildingId === 'CROPLAND'),
-  ].map((resourceFieldsByResourceType: BuildingField[]) => {
-    return resourceFieldsByResourceType.reduce((acc, current) => acc + getResourceProductionByResourceField(current), 0);
-  });
-
-  return {
-    woodProduction,
-    clayProduction,
-    ironProduction,
-    wheatProduction,
-  };
+  return Math.abs(sum);
 };
 
 type CalculatedCumulativeEffect = {

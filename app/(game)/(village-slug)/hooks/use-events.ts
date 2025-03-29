@@ -94,7 +94,7 @@ export const useEvents = () => {
         // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
         const eventToRemove = eventsToRemove.at(-1) as GameEvent<'buildingConstruction'>;
 
-        const { buildingFieldId, building, level, villageId, startsAt, duration } = eventToRemove;
+        const { buildingFieldId, buildingId, level, villageId, startsAt, duration } = eventToRemove;
 
         const buildingEvents = eventsToKeep.filter(isBuildingEvent);
 
@@ -136,7 +136,7 @@ export const useEvents = () => {
           }
         }
 
-        const resourceRefund = calculateBuildingCancellationRefundForLevel(building.id, level);
+        const resourceRefund = calculateBuildingCancellationRefundForLevel(buildingId, level);
 
         updateVillageResources(queryClient, villageId, resourceRefund, 'add');
 

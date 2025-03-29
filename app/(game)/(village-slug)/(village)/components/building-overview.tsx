@@ -2,7 +2,7 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { calculateBuildingEffectValues, getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Building } from 'app/interfaces/models/game/building';
 import { formatValue } from 'app/utils/common';
@@ -26,15 +26,9 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { actualLevel, virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const {
-    building,
-    isMaxLevel: isActualMaxLevel,
-    nextLevelCropConsumption,
-    cumulativeCropConsumption,
-    cumulativeEffects,
-  } = getBuildingDataForLevel(buildingId, actualLevel);
-
+  const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(buildingId, actualLevel);
   const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(buildingId, virtualLevel);
+  const cumulativeEffects = calculateBuildingEffectValues(building, actualLevel);
 
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
 
@@ -90,28 +84,21 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
       {isMaxLevel && (
         <section
           data-testid="building-overview-max-level-benefits-section"
-          className="pt-2 flex flex-col gap-2 justify-center border-t border-gray-200"
+          className="pt-2 flex flex-col gap-2 py-2 justify-center border-t border-gray-200"
         >
           <Text as="h3">{t('Benefits')}</Text>
           <div className="flex flex-wrap gap-2">
-            <Icon
-              type="population"
-              className="size-6"
-              variant="positive-change"
-            />
-            <span>{cumulativeCropConsumption}</span>
-            {cumulativeEffects.map(({ effectId, currentLevelValue, areEffectValuesRising }) => (
+            {cumulativeEffects.map(({ effectId, currentLevelValue, areEffectValuesRising }, index) => (
               <span
-                key={effectId}
+                key={index === 0 ? 'population' : effectId}
                 className="flex gap-2"
               >
                 <Icon
-                  // @ts-ignore - TODO: Add missing icons
-                  type={effectId}
+                  type={index === 0 ? 'population' : effectId}
                   className="size-6"
-                  variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
+                  variant={areEffectValuesRising || index === 0 ? 'positive-change' : 'negative-change'}
                 />
-                <span>{formatValue(currentLevelValue)}</span>
+                <span>{formatValue(Math.abs(currentLevelValue))}</span>
               </span>
             ))}
           </div>
@@ -124,37 +111,25 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         >
           <Text as="h3">{t('Benefits at level {{level}}', { level: doesBuildingExist ? actualLevel + 1 : 1 })}</Text>
           <div className="flex flex-wrap gap-2">
-            <Icon
-              type="population"
-              className="size-6"
-              variant="positive-change"
-            />
-            <span>
-              {doesBuildingExist && <span>{cumulativeCropConsumption} &rarr;</span>}
-              {cumulativeCropConsumption + nextLevelCropConsumption}
-            </span>
-
-            {cumulativeEffects.map(({ effectId, currentLevelValue, nextLevelValue, areEffectValuesRising }) => (
+            {cumulativeEffects.map(({ effectId, currentLevelValue, nextLevelValue, areEffectValuesRising }, index) => (
               <span
-                key={effectId}
+                key={index === 0 ? 'population' : effectId}
                 className="flex gap-2"
               >
                 <Icon
-                  // @ts-ignore - TODO: Add missing icons
-                  type={effectId}
+                  type={index === 0 ? 'population' : effectId}
                   className="size-6"
-                  variant={areEffectValuesRising ? 'positive-change' : 'negative-change'}
+                  variant={areEffectValuesRising || index === 0 ? 'positive-change' : 'negative-change'}
                 />
                 <span>
-                  {doesBuildingExist && <span>{formatValue(currentLevelValue)} &rarr;</span>}
-                  {formatValue(nextLevelValue)}
+                  {doesBuildingExist && <span>{formatValue(Math.abs(currentLevelValue))} &rarr;</span>}
+                  {formatValue(Math.abs(nextLevelValue))}
                 </span>
               </span>
             ))}
           </div>
         </section>
       )}
-
       {!isMaxLevel && (
         <>
           <section
