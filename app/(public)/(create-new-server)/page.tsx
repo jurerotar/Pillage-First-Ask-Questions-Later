@@ -82,7 +82,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   // Map data
   const { tiles, occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
     GenerateMapWorker,
-    { server, players },
+    { server, npcPlayers },
   );
 
   const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === '0|0')!;
@@ -107,7 +107,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
       server,
       occupiedOccupiableTiles,
-      players,
+      npcPlayers,
     }),
     workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
       server,

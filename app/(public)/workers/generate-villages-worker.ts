@@ -7,7 +7,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 export type GenerateVillageWorkerPayload = {
   server: Server;
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
-  players: Player[];
+  npcPlayers: Player[];
 };
 
 export type GenerateVillageWorkerReturn = {

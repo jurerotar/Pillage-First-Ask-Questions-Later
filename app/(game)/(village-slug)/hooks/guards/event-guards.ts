@@ -17,11 +17,16 @@ export const doesEventRequireResourceCheck = (event: GameEvent): event is GameEv
 };
 
 // Make sure to not include events like incoming raids, since that already updates the target village by itself
-const eventTypesThatRequireResourceUpdate: GameEventType[] = ['buildingLevelChange', 'buildingConstruction', 'troopTraining'];
+const eventTypesThatRequireResourceUpdate: GameEventType[] = [
+  'buildingLevelChange',
+  'buildingConstruction',
+  'buildingDestruction',
+  'troopTraining',
+];
 
 export const doesEventRequireResourceUpdate = (
   _event: Partial<GameEvent>,
   type: GameEventType,
-): _event is GameEvent & WithResourceCheckEvent => {
+): _event is GameEvent & WithVillageIdEvent & WithResourceCheckEvent => {
   return eventTypesThatRequireResourceUpdate.includes(type);
 };

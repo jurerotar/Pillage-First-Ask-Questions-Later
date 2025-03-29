@@ -72,7 +72,7 @@ type VillageFactoryProps = {
 export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
   const { id, RFC } = tile;
 
-  const { id: playerId, name, tribe } = player;
+  const { name, tribe } = player;
 
   const buildingFields = [
     ...createVillageResourceFields(RFC, 'player'),
@@ -86,7 +86,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     slug,
     buildingFields,
     buildingFieldsPresets: [],
-    playerId,
+    playerId: 'player',
     isCapital: false,
     lastUpdatedAt: Date.now(),
     RFC,
@@ -134,11 +134,11 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
 type GenerateVillagesArgs = {
   server: Server;
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
-  players: Player[];
+  npcPlayers: Player[];
 };
 
-export const generateVillages = ({ occupiedOccupiableTiles, players, server }: GenerateVillagesArgs) => {
-  const playerMap = new Map(players.map((p) => [p.id, p]));
+export const generateVillages = ({ occupiedOccupiableTiles, npcPlayers, server }: GenerateVillagesArgs) => {
+  const playerMap = new Map(npcPlayers.map((p) => [p.id, p]));
 
   const villages: Village[] = occupiedOccupiableTiles
     .filter(({ ownedBy }) => ownedBy !== 'player')

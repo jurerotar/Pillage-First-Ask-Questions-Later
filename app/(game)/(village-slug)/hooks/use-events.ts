@@ -60,12 +60,15 @@ export const useEvents = () => {
     mutationFn: async (id) => {
       const event = events!.find(({ id: eventIdToFind }) => eventIdToFind === id)!;
       const resolver = gameEventTypeToResolverFunctionMapper(event.type);
+      // If event updates any village property (new building, returning troops,...) we need to calculate the amount of resources before
+      // said update happens
+      if (doesEventRequireResourceUpdate(event, event.type)) {
+        // If we pass [0, 0, 0, 0], it's just updated to current amount
+        updateVillageResources(queryClient, event.villageId, [0, 0, 0, 0], 'add');
+      }
       // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
       await resolver(queryClient, event);
       queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => prevEvents!.filter(({ id: eventId }) => eventId !== id));
-
-      if (doesEventRequireResourceUpdate(event, event.type)) {
-      }
     },
   });
 

@@ -2,7 +2,6 @@ import type { PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Reputation, ReputationLevel } from 'app/interfaces/models/game/reputation';
 
 const npcFactionToPredefinedReputationLevelMap = new Map<PlayerFaction, ReputationLevel>([
-  ['player', 'player'],
   ['npc1', 'friendly'],
   ['npc2', 'friendly'],
   ['npc3', 'neutral'],

@@ -44,4 +44,3 @@ export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccu
 
 export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;
-export type MaybeOccupiedOrOasisOccupiableTile = OccupiableTile | OccupiedOccupiableTile | OasisTile;

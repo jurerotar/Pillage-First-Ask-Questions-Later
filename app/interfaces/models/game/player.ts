@@ -4,7 +4,7 @@ import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 export type PlayerFaction = 'player' | 'npc1' | 'npc2' | 'npc3' | 'npc4' | 'npc5' | 'npc6' | 'npc7' | 'npc8';
 
 export type Player = {
-  id: string;
+  id: 'player' | string;
   name: string;
   tribe: PlayableTribe;
   faction: PlayerFaction;
