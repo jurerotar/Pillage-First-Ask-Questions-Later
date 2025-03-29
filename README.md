@@ -1,8 +1,10 @@
 # Pillage First! (Ask Questions Later)
 
-Pillage First! is a single-player, real-time, browser-based strategy game inspired by Travian.
+Pillage First! (Ask Questions Later) is a single-player, open-source Travian clone – a real-time browser strategy game where you build
+villages, manage resources, and conquer your enemies. Inspired by classic MMORTS titles like Travian, it captures the essence of early
+web-based strategy games in a solo, offline-friendly format.
 
-Manage resources to construct buildings, train units, and wage war against your enemies.
+You can see the current stable version at: [pillagefirst.netlify.app](https://pillagefirst.netlify.app)
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
@@ -18,6 +20,43 @@ Remember: pillage first, ask questions later! ⚔️🔥
   &nbsp;
   <img src="/.github/assets/mobile-building-list-view.jpg" width="30%">
 </p>
+
+# Motivation
+
+I've always been a huge fan of Travian and similar browser-based strategy games. The slow, methodical village-building, resource management,
+and real-time progression made those games special.
+
+Pillage First! is my attempt to recreate that experience as a single-player Travian clone, with the same core mechanics — but modernized,
+offline-friendly, and open source. No timers tied to servers, no competition — just the classic gameplay loop, reimagined for solo play.
+
+### Why single player?
+
+There are several reasons, but I’ll focus on the main ones.
+
+The first is scope. Even in its current state, the app spans tens of thousands of lines of code — and it’s still far from complete. Adding a
+full backend would effectively double the workload, making the project nearly impossible to finish as a solo developer working in their
+spare time.
+
+The second reason is personal. Building a complex frontend-only app at this scale is a unique challenge, and I wanted to see how far I could
+push it. This project gives me the opportunity to explore problems you don’t usually encounter in typical frontend work — and that's part of
+the appeal.
+
+### Can this project be converted to multiplayer?
+
+The current goal is to keep this as a standalone, browser-only app focused entirely on single-player gameplay. That means there’s no backend
+integration at the moment.
+
+That said, the idea of converting it to multiplayer isn’t off the table. One of the hopes is that someone might eventually fork the project,
+restructure it, and connect it to a backend. Most of the UI and core logic could be reused, making the transition easier than starting from
+scratch.
+
+If you’re passionate about backend development and want to help bring multiplayer to life — feel free to reach out!
+
+### Are there game design differences between Travian and Pillage First!?
+
+Yes, there's a couple. Game design is still being discussed in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if
+you'd like to
+learn more or give your opinion!
 
 ## Development setup
 
@@ -35,56 +74,7 @@ App will automatically open in your default browser at `localhost:5173`.
 
 # Contributing
 
-All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related. Here are some guidelines to get you started:
-
-- The style guide is enforced through tests and linting.
-- We suggest adding tests to Pull Requests. Tests are typically colocated next to the code they're covering.
-- Check the following documentation links:
-  - [Architecture & app lifecycle](/docs/ARCHITECTURE.md)
-  - [Directory naming convention](/docs/DIRECTORY_NAMING_CONVENTION.md)
-- [Join Discord and ask for help](https://discord.gg/Ep7NKVXUZA) if you have questions or run into issues.
+All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related.
+I advise [joining our Discord server](https://discord.gg/Ep7NKVXUZA) and we'll discuss how you can contribute best!
 
 All contributions are greatly appreciated.
-
-# Q&A
-
-### Why single player?
-
-There's multiple reasons, I want to expand on the 2 main ones.
-
-First one is the scope of the project. In current state, the app is already tens of thousands of lines of code large, and it's nowhere near
-completion. Adding a fully fledged backend to it would easily double the scope, making the project virtually undeliverable for a solo
-developer doing this in my free time.
-
-The second reason is personal: a frontend-only app of this scale and complexity is a unique challenge. I wanted to see how far I could push
-it and tackle issues you rarely get to encounter "in the wild". This project lets me take on that challenge.
-
-### Can this project be converted to multiplayer?
-
-The current vision for this project is to become a browser-only, standalone app, allowing full single-player gameplay.
-Because of this, it does not currently accommodate any backend integration. This does not mean the answer is no though.
-One of the hopes for this project is that it would eventually be forked, reorganized and connected to a backend.
-This would allow most of the UI to be reused between this app and the fork, reducing the amount of effort needed on the fork.
-
-If you're passionate about backend development and interested in helping to get the multiplayer up and running, let's get in touch!
-
-### Are there game design differences between Travian and Pillage First!?
-
-Yes, there's a couple. The list isn't definitive and will definitely change as the app develops further, but here are the main ones:
-
-* Culture points & town hall have been removed
-* Unit upgrades are shared between villages
-* Smithy has been removed (unit upgrade has been moved to Academy)
-* Embassy & Stonemason buildings have been removed
-* New building are planned to be added (Mercenary camp, Terrain shaper,...)
-* New playable tribes
-* New artifacts, all of them available from the start of the server
-
-All of these changes are discussed in detail in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if you'd like to
-learn more or give your opinion!
-
-# More information
-
-Check out these links to learn more about Pillage First!:
-
-- [Join us on Discord](https://discord.gg/Ep7NKVXUZA)
