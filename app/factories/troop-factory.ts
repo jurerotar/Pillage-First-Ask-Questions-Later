@@ -8,6 +8,7 @@ import type { NatureUnitId, UnitId } from 'app/interfaces/models/game/unit';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { prngAlea } from 'ts-seedrandom';
+import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
 
 type GenerateTroopsArgs = {
   server: Server;
@@ -290,10 +291,10 @@ const villageSizeToTroopsLevel = new Map<VillageSize, number>([
   ['xxs', 0],
   ['xs', 0],
   ['sm', 5],
-  ['md', 10],
-  ['lg', 20],
-  ['xl', 20],
-  ['2xl', 20],
+  ['md', 5],
+  ['lg', 10],
+  ['xl', 15],
+  ['2xl', 15],
   ['3xl', 20],
   ['4xl', 20],
 ]);
@@ -324,6 +325,18 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
     // TODO: Uncomment this once above TODOs are fixed
     //const villageSize = getVillageSize(server.configuration.mapSize, coordinates);
     const villageSize = 'xs';
+
+    // Player always starts with 3 tier-1 units
+    if (ownedBy === 'player') {
+      const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
+      return {
+        unitId: tier1UnitIt.id,
+        amount: 3,
+        source: tileId,
+        tileId,
+        level: 0,
+      };
+    }
 
     const unitCompositionByTribe = npcUnitCompositionByTribeAndSize.get(tribe)!;
     const unitCompositionBySize = unitCompositionByTribe.get(villageSize)!;

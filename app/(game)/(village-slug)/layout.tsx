@@ -151,7 +151,7 @@ const TopNavigation = () => {
 
   return (
     <header className="flex flex-col w-full relative">
-      <div className="flex-col hidden lg:flex">
+      <div className="flex-col hidden lg:flex shadow-sm">
         <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
           <nav className="hidden lg:flex justify-end container mx-auto">
             <ul className="flex gap-1">
@@ -242,11 +242,6 @@ const TopNavigation = () => {
                     </NavigationMainItem>
                   </LinkWithState>
                 </li>
-                <li>
-                  <LinkWithState to={gameNavigation.heroPath}>
-                    <HeroNavigationItem />
-                  </LinkWithState>
-                </li>
               </ul>
             </li>
             <li>
@@ -301,12 +296,13 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brainrot on display here, God help us
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_86%,_rgba(255,255,255,0)_86.1%,_rgba(255,255,255,0)_100%)]">
+    <header
+      className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
-        <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-4 pb-2 mx-auto">
+        <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
             <LinkWithState to={gameNavigation.statisticsPath}>
               <NavigationSideItem>
@@ -329,7 +325,7 @@ const MobileBottomNavigation = () => {
             </LinkWithState>
           </li>
           <li>
-            <ul className="flex gap-2 -translate-y-2 mx-2">
+            <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
                 <LinkWithState to={gameNavigation.resourcesPath}>
                   <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
@@ -349,11 +345,6 @@ const MobileBottomNavigation = () => {
                   <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
                     <TbMap2 className="text-2xl" />
                   </NavigationMainItem>
-                </LinkWithState>
-              </li>
-              <li>
-                <LinkWithState to={gameNavigation.heroPath}>
-                  <HeroNavigationItem />
                 </LinkWithState>
               </li>
             </ul>

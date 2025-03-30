@@ -1174,3 +1174,32 @@ export const buildings: Building[] = [
 
 // Use this for faster lookups
 export const buildingMap = new Map<Building['id'], Building>(buildings.map((building) => [building.id, building]));
+
+/**
+ * {
+ *     "name": "Trade Office",
+ *     "cost": [
+ *         1400,
+ *         1330,
+ *         1200,
+ *         400
+ *     ],
+ *     "k": 1.28,
+ *     "cu": 3,
+ *     "cp": 3,
+ *     "time": {
+ *         "a": 4875,
+ *         "k": 1.16,
+ *         "b": 1875
+ *     },
+ *     "maxLvl": 20,
+ *     "extra": 3,
+ *     "type": 3,
+ *     "desc": "Increase merchants' capacity by 20%/level.<br/>For Romans bonus is 40%.",
+ *     "breq": {
+ *         "17": 20,
+ *         "20": 10
+ *     },
+ *     "gid": 28
+ * }
+ */

@@ -1,6 +1,7 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type { Troop } from 'app/interfaces/models/game/troop';
 
 type WithResourceCheck<T> = T & {
   resourceCost: number[];
@@ -18,24 +19,28 @@ type BaseGameEvent = {
 };
 
 type BaseBuildingEvent = WithResourceCheck<
-  BaseGameEvent &
-    WithVillageId<{
-      buildingFieldId: BuildingField['id'];
-      buildingId: Building['id'];
-      level: number;
-    }>
+  WithVillageId<{
+    buildingFieldId: BuildingField['id'];
+    buildingId: Building['id'];
+    level: number;
+  }>
 >;
 
 type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level' | 'resourceCost'>;
 
 type BaseUnitTrainingEvent = WithResourceCheck<
-  BaseGameEvent &
-    WithVillageId<{
-      amount: number;
-      unitId: Unit['id'];
-      buildingId: Building['id'];
-    }>
+  WithVillageId<{
+    amount: number;
+    unitId: Unit['id'];
+    buildingId: Building['id'];
+  }>
 >;
+
+type TroopMovementEvent = WithVillageId<{
+  troops: Troop[];
+  targetVillageId: Village['id'];
+  movementType: 'attack' | 'raid' | 'reinforcement' | 'relocation' | 'return';
+}>;
 
 export type GameEventType =
   | 'buildingScheduledConstruction'
@@ -43,6 +48,7 @@ export type GameEventType =
   | 'buildingLevelChange'
   | 'buildingDestruction'
   | 'troopTraining'
+  | 'troopMovement'
   | 'adventurePointIncrease';
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {
@@ -51,6 +57,7 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingLevelChange: BaseBuildingEvent;
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
+  troopMovement: TroopMovementEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];
 

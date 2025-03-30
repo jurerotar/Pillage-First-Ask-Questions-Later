@@ -1,25 +1,33 @@
-import type { Tile } from 'app/interfaces/models/game/tile';
-
-export type ReportTypes =
-  | 'attack'
-  | 'defence'
-  | 'scout-attack'
-  | 'scout-defence'
-  | 'adventure'
-  | 'trade'
-  | 'quest'
-  | 'reinforcements-sent'
-  | 'reinforcements-received';
-
 export type ReportTag = 'read' | 'archived' | 'deleted';
 
 export type ReportStatus = 'no-loss' | 'some-loss' | 'full-loss';
 
-export type Report = {
+type BaseReport = {
   id: number;
-  type: ReportTypes;
   tags: ReportTag[];
-  tileId: Tile['id'];
   timestamp: Date;
-  status?: ReportStatus;
 };
+
+export type BattleReport = BaseReport & {
+  type: 'attack' | 'defence';
+  status: ReportStatus;
+};
+
+export type ScoutReport = BaseReport & {
+  type: 'scout-attack' | 'scout-defence';
+  status: ReportStatus;
+};
+
+export type AdventureReport = BaseReport & {
+  type: 'adventure';
+};
+
+export type TradeReport = BaseReport & {
+  type: 'trade';
+};
+
+export type TroopMovementReport = BaseReport & {
+  type: 'troop-movement';
+};
+
+export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport;

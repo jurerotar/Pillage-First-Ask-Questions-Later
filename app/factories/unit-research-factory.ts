@@ -1,7 +1,7 @@
-import { units } from 'app/(game)/(village-slug)/assets/units';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
+import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 
 type UnitResearchFactoryProps = {
   initialVillageId: Village['id'];
@@ -9,9 +9,10 @@ type UnitResearchFactoryProps = {
 };
 
 export const unitResearchFactory = ({ initialVillageId, tribe }: UnitResearchFactoryProps): UnitResearch[] => {
-  const unitsByTribe = units.filter((unit) => unit.tribe === tribe && !unit.id.includes('SETTLER'));
+  const unitsByTribe = getUnitsByTribe(tribe);
+  const researchableUnits = unitsByTribe.filter((unit) => !unit.id.includes('SETTLER'));
 
-  return unitsByTribe.map((unit) => {
+  return researchableUnits.map((unit) => {
     return {
       unitId: unit.id,
       researchedIn: [...(unit.tier === 'tier-1' ? [initialVillageId] : [])],
