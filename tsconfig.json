@@ -4,6 +4,7 @@
     "target": "ESNext",
     "lib": ["DOM", "ESNext", "WebWorker"],
     "types": ["vite/client", "vitest"],
+    "rootDirs": [".", "./.react-router/types"],
     "baseUrl": "./",
     "allowJs": false,
     "skipLibCheck": true,
@@ -27,5 +28,5 @@
       "app/*": ["app/*"]
     }
   },
-  "include": ["app", "vite.config.ts", "react-router.config.ts"]
+  "include": ["app/**/*", "*.config.ts", ".react-router/types/**/*"]
 }

@@ -2,13 +2,10 @@ import { Button } from 'app/components/buttons/button';
 import { CloseButton } from 'app/components/buttons/close-button';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import type React from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-
-dayjs.extend(relativeTime);
+import { formatDistanceToNow } from 'date-fns';
 
 type ServerCardProps = {
   server: Server;
@@ -20,9 +17,9 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const { t } = useTranslation();
   const { deleteServer } = useAvailableServers();
 
-  const serverCreatedAt = dayjs(server.createdAt);
-
-  const timeSinceCreation = serverCreatedAt.fromNow(true);
+  const timeSinceCreation = formatDistanceToNow(new Date(server.createdAt), {
+    addSuffix: false,
+  });
 
   return (
     <div

@@ -11,21 +11,34 @@ export default [
     ]),
   ]),
   // Game routes
-  ...prefix('game/:serverSlug/:villageSlug', [
+  ...prefix('game/:serverSlug', [
     layout('(game)/layout.tsx', [
-      route('resources', '(game)/(village)/page.tsx', { id: 'resources-page' }),
-      route('village', '(game)/(village)/page.tsx', { id: 'village-page' }),
-      route('map', '(game)/(map)/page.tsx'),
-      layout('(game)/fixed-width-layout.tsx', [
-        route('resources/:buildingFieldId', '(game)/(village)/(...building-field-id)/page.tsx', { id: 'resource-building-field-id-page' }),
-        route('village/:buildingFieldId', '(game)/(village)/(...building-field-id)/page.tsx', { id: 'village-building-field-id-page' }),
-        route('hero', '(game)/(hero)/page.tsx'),
-        route('preferences', '(game)/(preferences)/page.tsx'),
-        route('statistics', '(game)/(statistics)/page.tsx'),
-        route('overview', '(game)/(overview)/page.tsx'),
-        route('community', '(game)/(community)/page.tsx'),
-        ...prefix('reports', [index('(game)/(reports)/page.tsx'), route(':reportId', '(game)/(reports)/(...report-id)/page.tsx')]),
-        ...prefix('quests', [index('(game)/(quests)/page.tsx'), route(':questId', '(game)/(quests)/(...quest-id)/page.tsx')]),
+      ...prefix('/:villageSlug', [
+        layout('(game)/(village-slug)/layout.tsx', [
+          route('resources', '(game)/(village-slug)/(village)/page.tsx', { id: 'resources-page' }),
+          route('village', '(game)/(village-slug)/(village)/page.tsx', { id: 'village-page' }),
+          route('map', '(game)/(village-slug)/(map)/page.tsx'),
+          layout('(game)/(village-slug)/fixed-width-layout.tsx', [
+            route('resources/:buildingFieldId', '(game)/(village-slug)/(village)/(...building-field-id)/page.tsx', {
+              id: 'resource-building-field-id-page',
+            }),
+            route('village/:buildingFieldId', '(game)/(village-slug)/(village)/(...building-field-id)/page.tsx', {
+              id: 'village-building-field-id-page',
+            }),
+            route('hero', '(game)/(village-slug)/(hero)/page.tsx'),
+            route('preferences', '(game)/(village-slug)/(preferences)/page.tsx'),
+            route('statistics', '(game)/(village-slug)/(statistics)/page.tsx'),
+            route('overview', '(game)/(village-slug)/(overview)/page.tsx'),
+            ...prefix('reports', [
+              index('(game)/(village-slug)/(reports)/page.tsx'),
+              route(':reportId', '(game)/(village-slug)/(reports)/(...report-id)/page.tsx'),
+            ]),
+            ...prefix('quests', [
+              index('(game)/(village-slug)/(quests)/page.tsx'),
+              route(':questId', '(game)/(village-slug)/(quests)/(...quest-id)/page.tsx'),
+            ]),
+          ]),
+        ]),
       ]),
     ]),
   ]),

@@ -1,4 +1,4 @@
-import { units } from 'app/(game)/assets/units';
+import { units } from 'app/(game)/(village-slug)/assets/units';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
@@ -14,7 +14,7 @@ export const unitResearchFactory = ({ initialVillageId, tribe }: UnitResearchFac
   return unitsByTribe.map((unit) => {
     return {
       unitId: unit.id,
-      researchedIn: [...(unit.researchCost.every((cost) => cost === 0) ? [initialVillageId] : [])],
+      researchedIn: [...(unit.tier === 'tier-1' ? [initialVillageId] : [])],
     };
   });
 };

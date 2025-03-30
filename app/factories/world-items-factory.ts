@@ -1,11 +1,11 @@
 import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { VillageSize } from 'app/interfaces/models/game/village';
-import { getVillageSize } from 'app/factories/utils/common';
+import { getVillageSize } from 'app/factories/utils/village';
 import { partition, seededRandomArrayElement, seededRandomArrayElements } from 'app/utils/common';
 import type { PRNGFunction } from 'ts-seedrandom';
 import type { Server } from 'app/interfaces/models/game/server';
-import { items } from 'app/(game)/assets/items';
+import { items } from 'app/(game)/(village-slug)/assets/items';
 
 const [miscellaneousHeroItems, wearableAndArtifactItems] = partition(items, ({ category }) =>
   ['consumable', 'resource', 'currency'].includes(category),

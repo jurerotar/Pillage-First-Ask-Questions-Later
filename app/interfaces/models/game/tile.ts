@@ -18,7 +18,9 @@ type OasisVariant = number;
 
 export type OasisTile = BaseTile & {
   type: 'oasis-tile';
-  oasisResourceBonus: OasisResourceBonus[];
+  // In order to reduce the final game state object size, all long property names are shortened.
+  // Stands for OasisResourceBonus
+  ORB: OasisResourceBonus[];
   graphics: `${Resource}-${OasisGroup}-${OasisGroupPosition}-${OasisVariant}`;
   villageId: null;
 };
@@ -29,7 +31,9 @@ export type OccupiedOasisTile = Omit<OasisTile, 'villageId'> & {
 
 export type OccupiableTile = BaseTile & {
   type: 'free-tile';
-  resourceFieldComposition: ResourceFieldComposition;
+  // In order to reduce the final game state object size, all long property names are shortened.
+  // Stands for ResourceFieldComposition
+  RFC: ResourceFieldComposition;
 };
 
 export type OccupiedOccupiableTile = OccupiableTile & {
@@ -40,4 +44,3 @@ export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccu
 
 export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;
-export type MaybeOccupiedOrOasisOccupiableTile = OccupiableTile | OccupiedOccupiableTile | OasisTile;

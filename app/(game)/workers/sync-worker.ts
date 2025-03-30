@@ -9,6 +9,7 @@ type SyncWorkerPayload = {
 
 let isFileLocked = false;
 let queuedMessage: SyncWorkerPayload | null = null;
+let rootHandle: FileSystemDirectoryHandle | null = null;
 
 const saveState = async () => {
   if (isFileLocked || !queuedMessage) {
@@ -18,7 +19,11 @@ const saveState = async () => {
   const { client, serverSlug } = queuedMessage;
   queuedMessage = null;
   isFileLocked = true;
-  const rootHandle = await getRootHandle();
+
+  if (!rootHandle) {
+    rootHandle = await getRootHandle();
+  }
+
   await writeFileContents(rootHandle, serverSlug, client);
   isFileLocked = false;
 

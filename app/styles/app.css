@@ -6,6 +6,9 @@
 @variant day (&:where(.time-of-day-day, .day *));
 @variant night (&:where(.time-of-day-night, .night *));
 
+@variant standalone (@media (display-mode: standalone));
+@variant browser (@media (display-mode: browser));
+
 @theme {
   --breakpoint-xs: 425px;
   --breakpoint-sm: 640px;
@@ -23,26 +26,39 @@
   --color-reputation-hostile: #e11d48;
 }
 
-@layer utilities {
-  .text-2xs {
-    font-size: 0.65rem;
-    line-height: 1rem;
-  }
+@utility text-2xs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}
 
-  .text-3xs {
-    font-size: 0.45rem;
-    line-height: 0.75rem;
-  }
+@utility text-3xs {
+  font-size: 0.45rem;
+  line-height: 0.75rem;
+}
 
-  .absolute-centering {
-    @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
-  }
+@utility absolute-centering {
+  @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
 
-  .scrollbar-hidden {
-    scrollbar-width: none; /* Firefox */
-  }
+@utility content-visibility-auto {
+  content-visibility: auto;
+}
 
-  .scrollbar-hidden::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
+@utility contain-intrinsic-size-auto {
+  contain-intrinsic-size: auto none;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+a,
+button {
+  &:hover {
+    cursor: pointer;
   }
 }

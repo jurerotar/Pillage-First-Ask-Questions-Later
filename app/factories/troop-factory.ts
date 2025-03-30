@@ -301,8 +301,10 @@ const villageSizeToTroopsLevel = new Map<VillageSize, number>([
 export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiableTiles, players }: GenerateTroopsArgs) => {
   const prng = prngAlea(server.seed);
 
-  const oasisTroops: Troop[] = occupiableOasisTiles.flatMap(({ id: tileId, oasisResourceBonus }) => {
-    const resourceCombination = oasisResourceBonus.map(({ resource }) => resource).join('-') as Resource | ResourceCombination;
+  const playerMap = new Map(players.map((p) => [p.id, p]));
+
+  const oasisTroops: Troop[] = occupiableOasisTiles.flatMap(({ id: tileId, ORB }) => {
+    const resourceCombination = ORB.map(({ resource }) => resource).join('-') as Resource | ResourceCombination;
     const troopIdsWithAmount = oasisTroopCombinations.get(resourceCombination)!;
     return troopIdsWithAmount.map((unitIdWithAmount) => {
       const [unitId, amount] = unitIdWithAmount;
@@ -318,14 +320,10 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
   });
 
   const npcTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy }) => {
-    const { tribe, faction } = players.find(({ id }) => id === ownedBy)!;
+    const { tribe } = playerMap.get(ownedBy)!;
     // TODO: Uncomment this once above TODOs are fixed
     //const villageSize = getVillageSize(server.configuration.mapSize, coordinates);
     const villageSize = 'xs';
-
-    if (faction === 'player') {
-      return [];
-    }
 
     const unitCompositionByTribe = npcUnitCompositionByTribeAndSize.get(tribe)!;
     const unitCompositionBySize = unitCompositionByTribe.get(villageSize)!;

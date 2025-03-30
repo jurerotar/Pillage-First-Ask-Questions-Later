@@ -1,5 +1,5 @@
-import { getBuildingData } from 'app/(game)/utils/building';
-import { merchants } from 'app/(game)/assets/merchants';
+import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
+import { merchants } from 'app/(game)/(village-slug)/assets/merchants';
 import type { BuildingEffect } from 'app/interfaces/models/game/building';
 import type {
   Effect,
@@ -22,9 +22,9 @@ type NewBuildingEffectFactoryArgs = {
 
 export const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): VillageBuildingEffect => {
   return {
+    ...args,
     scope: 'village',
     source: 'building',
-    ...args,
   };
 };
 
@@ -37,8 +37,8 @@ const newVillageBuildingFieldsEffectsFactory = ({ village }: NewVillageEffectFac
     const building = getBuildingData(buildingId);
     return building.effects.map(({ effectId, valuesPerLevel }: BuildingEffect) =>
       newBuildingEffectFactory({
-        villageId: village.id,
         id: effectId,
+        villageId: village.id,
         value: valuesPerLevel[level],
         buildingFieldId: id,
       }),
@@ -60,6 +60,13 @@ const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): Vil
         }) satisfies VillageEffect,
     ),
     ...newVillageBuildingFieldsEffectsFactory({ village }),
+    {
+      id: 'wheatProduction',
+      scope: 'village',
+      source: 'troops',
+      value: 0,
+      villageId: village.id,
+    },
   ];
 };
 
@@ -87,38 +94,38 @@ const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): GlobalEffec
 
   const heroEffects: Omit<HeroEffect, 'scope'>[] = [
     {
-      id: 'attackBonus',
-      value: 1,
+      id: 'attack',
+      value: 1.001,
       source: 'hero',
     },
     {
-      id: 'infantryDefenceBonus',
-      value: 1,
+      id: 'infantryDefence',
+      value: 1.001,
       source: 'hero',
     },
     {
-      id: 'cavalryDefenceBonus',
-      value: 1,
+      id: 'cavalryDefence',
+      value: 1.001,
       source: 'hero',
     },
     {
-      id: 'woodProductionBonus',
-      value: 1,
+      id: 'woodProduction',
+      value: 1.001,
       source: 'hero',
     },
     {
-      id: 'clayProductionBonus',
-      value: 1,
+      id: 'clayProduction',
+      value: 1.001,
       source: 'hero',
     },
     {
-      id: 'ironProductionBonus',
-      value: 1,
+      id: 'ironProduction',
+      value: 1.001,
       source: 'hero',
     },
     {
-      id: 'wheatProductionBonus',
-      value: 1,
+      id: 'wheatProduction',
+      value: 1.001,
       source: 'hero',
     },
   ];
@@ -167,7 +174,7 @@ const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffec
   });
 };
 
-export const generateEffects = (server: Server, village: Village) => {
+export const generateEffects = (server: Server, village: Village): Effect[] => {
   const serverEffects = serverEffectsFactory({ server });
   const villageEffects = newVillageEffectsFactory({ village });
   const globalEffects = globalEffectsFactory({ server });

@@ -1,4 +1,4 @@
-import { globalQuests, villageQuests } from 'app/(game)/assets/quests';
+import { globalQuests, villageQuests } from 'app/(game)/(village-slug)/assets/quests';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import type { Village } from 'app/interfaces/models/game/village';
 

@@ -99,25 +99,15 @@ export type UnitTier = 'tier-1' | 'tier-2' | 'tier-3' | 'scout' | 'tier-4' | 'ti
 export type Unit = {
   id: UnitId;
   baseRecruitmentCost: [number, number, number, number];
-  baseRecruitmentTime: number;
-  cropConsumption: number;
+  baseRecruitmentDuration: number;
   attack: number;
   infantryDefence: number;
   cavalryDefence: number;
-  travelSpeed: number;
-  carryCapacity: number;
+  unitSpeed: number;
+  unitCarryCapacity: number;
+  unitWheatConsumption: number;
   category: 'infantry' | 'cavalry' | 'siege' | 'special';
   tribe: Tribe;
   tier: UnitTier;
   researchRequirements: UnitResearchRequirement[];
-  upgradeCostPerLevel: number[][] | null;
-  researchCost: number[];
-  /**
-   * @deprecated - research is instantly completed, delete when you can
-   */
-  researchDuration: number | null;
-  /**
-   * @deprecated - upgrade is instantly completed, delete when you can
-   */
-  upgradeDurationPerLevel: number[] | null;
 };

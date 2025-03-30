@@ -1,6 +1,6 @@
 import { createVillageResourceFields } from 'app/factories/presets/resource-building-fields-presets';
 import { playerVillageBuildingFieldsPreset } from 'app/factories/presets/village-building-fields-presets';
-import { getVillageSize } from 'app/factories/utils/common';
+import { getVillageSize } from 'app/factories/utils/village';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
@@ -70,12 +70,12 @@ type VillageFactoryProps = {
 };
 
 export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
-  const { id, resourceFieldComposition } = tile;
+  const { id, RFC } = tile;
 
-  const { id: playerId, name, tribe } = player;
+  const { name, tribe } = player;
 
   const buildingFields = [
-    ...createVillageResourceFields(resourceFieldComposition, 'player'),
+    ...createVillageResourceFields(RFC, 'player'),
     ...playerVillageBuildingFieldsPreset,
     createWallBuildingField(tribe, 'player'),
   ];
@@ -86,11 +86,10 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     slug,
     buildingFields,
     buildingFieldsPresets: [],
-    playerId,
+    playerId: 'player',
     isCapital: false,
-    wheatUpkeep: 3,
     lastUpdatedAt: Date.now(),
-    resourceFieldComposition,
+    RFC,
     artifactId: null,
     resources: {
       wood: 750,
@@ -106,7 +105,7 @@ type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'> & {
 };
 
 const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Village => {
-  const { resourceFieldComposition, id } = tile;
+  const { RFC, id } = tile;
 
   const { id: playerId, name, tribe } = player;
 
@@ -124,12 +123,10 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
     buildingFields,
     buildingFieldsPresets: [resourcesBuildingFieldPresetId, villageBuildingFieldPresetId],
     playerId,
-    // TODO: We're keeping this at 0 for now, so npc villages would have a bunch of extra wheat, should be fixed
-    wheatUpkeep: 0,
     isCapital: false,
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
-    resourceFieldComposition,
+    RFC,
     artifactId: null,
   };
 };
@@ -137,16 +134,18 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
 type GenerateVillagesArgs = {
   server: Server;
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
-  players: Player[];
+  npcPlayers: Player[];
 };
 
-export const generateVillages = ({ occupiedOccupiableTiles, players, server }: GenerateVillagesArgs) => {
-  const npcOccupiedTiles = occupiedOccupiableTiles.filter(({ ownedBy }) => ownedBy !== 'player');
+export const generateVillages = ({ occupiedOccupiableTiles, npcPlayers, server }: GenerateVillagesArgs) => {
+  const playerMap = new Map(npcPlayers.map((p) => [p.id, p]));
 
-  const villages: Village[] = npcOccupiedTiles.map((tile) => {
-    const player = players.find(({ id }) => tile.ownedBy === id)!;
-    return npcVillageFactory({ player, tile, server });
-  });
+  const villages: Village[] = occupiedOccupiableTiles
+    .filter(({ ownedBy }) => ownedBy !== 'player')
+    .map((tile) => {
+      const player = playerMap.get(tile.ownedBy)!;
+      return npcVillageFactory({ player, tile, server });
+    });
 
   return villages;
 };
