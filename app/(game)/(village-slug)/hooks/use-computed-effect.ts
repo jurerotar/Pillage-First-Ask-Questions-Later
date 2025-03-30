@@ -166,7 +166,7 @@ export function useComputedEffect(effectId: EffectId): ComputedEffectReturn | Wh
     initialDataUpdatedAt: Date.now(),
     gcTime: 10_000,
     queryKeyHashFn: () => {
-      const effectHash = effects.map((effect) => `${effect.id}:${effect.value}`).join('|');
+      const effectHash = effects.map((effect) => effect.value).join('|');
       return `${nonPersistedCacheKey}-effect-id-[${effectId}]-village-id-[${currentVillage.id}]-${effectHash}`;
     },
   });

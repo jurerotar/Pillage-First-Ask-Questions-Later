@@ -1,40 +1,45 @@
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(relativeTime);
-dayjs.extend(duration);
+import { format, formatDistanceToNow, isSameDay } from 'date-fns';
 
 export const formatTime = (milliseconds: number): string => {
-  return dayjs.duration(milliseconds).format('HH:mm:ss');
+  const hours = Math.floor(milliseconds / 1000 / 60 / 60)
+    .toString()
+    .padStart(2, '0');
+  const minutes = Math.floor((milliseconds / 1000 / 60) % 60)
+    .toString()
+    .padStart(2, '0');
+  const seconds = Math.floor((milliseconds / 1000) % 60)
+    .toString()
+    .padStart(2, '0');
+
+  return `${hours}:${minutes}:${seconds}`;
 };
 
 export const formatToRelativeTime = (timestamp: number): string => {
-  return dayjs().from(timestamp);
+  return formatDistanceToNow(timestamp, { addSuffix: true });
 };
 
-export const formatFutureTimestamp = (futureTimestamp: number) => {
-  const now = dayjs();
-  const futureTime = dayjs(futureTimestamp);
+export const formatFutureTimestamp = (futureTimestamp: number): string => {
+  const now = new Date();
+  const futureTime = new Date(futureTimestamp);
 
-  const isToday = futureTime.isSame(now, 'day');
+  const isToday = isSameDay(now, futureTime);
 
-  if (isToday) {
-    return futureTime.format('H:mm');
-  }
-  return futureTime.format('M.D, H:mm');
+  return isToday ? format(futureTime, 'H:mm') : format(futureTime, 'M.d, H:mm');
 };
 
-export const formatCountdown = (futureTimestamp: number) => {
-  const now = dayjs();
-  const futureTime = dayjs(futureTimestamp);
+export const formatCountdown = (futureTimestamp: number): string => {
+  const now = new Date();
+  const diffMs = Math.max(futureTimestamp - now.getTime(), 0);
 
-  // Calculate the difference between the future timestamp and now
-  const length = dayjs.duration(futureTime.diff(now));
-
-  const hours = String(Math.floor(length.asHours())).padStart(2, '0');
-  const minutes = String(length.minutes()).padStart(2, '0');
-  const seconds = String(length.seconds()).padStart(2, '0');
+  const hours = Math.floor(diffMs / 1000 / 60 / 60)
+    .toString()
+    .padStart(2, '0');
+  const minutes = Math.floor((diffMs / 1000 / 60) % 60)
+    .toString()
+    .padStart(2, '0');
+  const seconds = Math.floor((diffMs / 1000) % 60)
+    .toString()
+    .padStart(2, '0');
 
   return `${hours}:${minutes}:${seconds}`;
 };
