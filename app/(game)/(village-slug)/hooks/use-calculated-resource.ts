@@ -2,9 +2,9 @@ import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-
 import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { Village } from 'app/interfaces/models/game/village';
-import dayjs from 'dayjs';
 import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { differenceInSeconds } from 'date-fns';
 
 const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
   ['wood', 'woodProduction'],
@@ -41,7 +41,7 @@ export const calculateCurrentAmount = ({
 
   const hasNegativeProduction = hourlyProduction < 0;
   const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
-  const timeSinceLastUpdateInSeconds = dayjs(timestamp).diff(dayjs(lastUpdatedAt), 'second');
+  const timeSinceLastUpdateInSeconds = differenceInSeconds(new Date(timestamp), new Date(lastUpdatedAt));
   const producedResources = Math.floor(timeSinceLastUpdateInSeconds / secondsForResourceGeneration);
   const calculatedCurrentAmount = resourceAmount + producedResources * (hasNegativeProduction ? -1 : 1);
   const currentAmount = hasNegativeProduction ? Math.max(calculatedCurrentAmount, 0) : Math.min(calculatedCurrentAmount, storageCapacity);
