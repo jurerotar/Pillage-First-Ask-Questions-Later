@@ -1,4 +1,5 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Report } from 'app/interfaces/models/game/report';
 import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
 import { reportsCacheKey, troopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -17,17 +18,28 @@ const reinforcement: Resolver<GameEvent<'troopMovement'>> = async (queryClient, 
   const reinforcementReport = generateTroopMovementReport({
     originatingVillageId,
     targetVillageId,
-    movementType: 'reinforcements',
+    movementType: 'reinforcement',
     troops,
   });
 
   setReport(queryClient, reinforcementReport);
-
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], (troops) => {
-  });
 };
 
 const relocation: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId: originatingVillageId, targetVillageId, troops } = args;
+
+  const relocationReport = generateTroopMovementReport({
+    originatingVillageId,
+    targetVillageId,
+    movementType: 'relocation',
+    troops,
+  });
+
+  setReport(queryClient, relocationReport);
+};
+
+const returnReinforcements: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId: originatingVillageId, targetVillageId, troops } = args;
 };
 
 const raid: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
@@ -54,6 +66,10 @@ export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async
     }
     case 'relocation': {
       await relocation(queryClient, args);
+      break;
+    }
+    case 'return': {
+      await returnReinforcements(queryClient, args);
       break;
     }
   }

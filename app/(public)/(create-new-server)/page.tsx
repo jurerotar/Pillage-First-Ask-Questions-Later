@@ -30,6 +30,7 @@ import {
   mapCacheKey,
   mapFiltersCacheKey,
   playersCacheKey,
+  playerTroopsCacheKey,
   playerVillagesCacheKey,
   preferencesCacheKey,
   reputationsCacheKey,
@@ -92,7 +93,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   // Non-dependant factories can run in sync
   const [
     { villages },
-    { troops },
+    { playerTroops, npcTroops },
     { worldItems },
     effects,
     hero,
@@ -141,7 +142,8 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [playerStartingVillage]);
   queryClient.setQueryData<Village[]>([villagesCacheKey], villages);
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], troops);
+  queryClient.setQueryData<Troop[]>([troopsCacheKey], npcTroops);
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], playerTroops);
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
   queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);

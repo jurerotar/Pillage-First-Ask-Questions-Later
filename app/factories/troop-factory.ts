@@ -315,27 +315,19 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
         amount: seededRandomIntFromInterval(prng, min, max),
         source: tileId,
         tileId,
-        level: 0,
-      };
+      } satisfies Troop;
     });
   });
 
-  const npcTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy }) => {
+  const npcPlayersTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy }) => {
     const { tribe } = playerMap.get(ownedBy)!;
     // TODO: Uncomment this once above TODOs are fixed
     //const villageSize = getVillageSize(server.configuration.mapSize, coordinates);
     const villageSize = 'xs';
 
-    // Player always starts with 3 tier-1 units
+    // Player starting units are handled separately
     if (ownedBy === 'player') {
-      const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
-      return {
-        unitId: tier1UnitIt.id,
-        amount: 3,
-        source: tileId,
-        tileId,
-        level: 0,
-      };
+      return [];
     }
 
     const unitCompositionByTribe = npcUnitCompositionByTribeAndSize.get(tribe)!;
@@ -354,5 +346,22 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
     });
   });
 
-  return [...oasisTroops, ...npcTroops];
+  const npcTroops = [...oasisTroops, ...npcPlayersTroops];
+
+  const { tribe } = playerMap.get('player')!;
+  const { id: tileId } = occupiedOccupiableTiles.find(({ ownedBy }) => ownedBy === 'player')!;
+  const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
+
+  // Player always starts with 3 tier-1 units
+  const playerTroops: Troop[] = [{
+    unitId: tier1UnitIt.id,
+    amount: 3,
+    source: tileId,
+    tileId,
+  }];
+
+  return {
+    playerTroops,
+    npcTroops,
+  };
 };

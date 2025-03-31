@@ -12,11 +12,12 @@ export type GenerateTroopsWorkerPayload = {
 };
 
 export type GenerateTroopsWorkerReturn = {
-  troops: Troop[];
+  playerTroops: Troop[],
+  npcTroops: Troop[];
 };
 
 self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorkerPayload>) => {
-  const troops = generateTroops(event.data);
-  self.postMessage({ troops });
+  const { playerTroops, npcTroops } = generateTroops(event.data);
+  self.postMessage({ playerTroops, npcTroops });
   self.close();
 });

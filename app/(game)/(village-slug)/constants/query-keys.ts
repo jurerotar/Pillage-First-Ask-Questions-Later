@@ -12,12 +12,14 @@ export const troopsCacheKey = 'units';
 export const unitImprovementCacheKey = 'unit-improvement';
 export const unitResearchCacheKey = 'unit-research';
 export const villagesCacheKey = 'villages';
-export const playerVillagesCacheKey = 'player-villages';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
 export const worldItemsCacheKey = 'world-items';
 export const adventurePointsCacheKey = 'adventure-points';
+
+export const playerVillagesCacheKey = 'player-villages';
+export const playerTroopsCacheKey = 'player-units';
 
 // Add the following key to a query to mark it as non-persistent. These queries are not persisted to OPFS and are meant for performance
 // optimizations reasons only. Use them to cache commonly accessed values to prevent recalculations.
