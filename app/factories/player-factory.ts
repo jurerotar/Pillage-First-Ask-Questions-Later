@@ -160,8 +160,7 @@ const playerFactory = ({ faction, prng }: PlayerFactoryProps): Player => {
 
 export const userPlayerFactory = (server: Server): Player => {
   const {
-    name,
-    playerConfiguration: { tribe },
+    playerConfiguration: { name, tribe },
   } = server;
   return {
     id: 'player',

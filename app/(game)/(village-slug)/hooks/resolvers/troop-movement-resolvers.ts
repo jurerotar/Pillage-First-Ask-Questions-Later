@@ -2,13 +2,34 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Report } from 'app/interfaces/models/game/report';
 import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
-import { reportsCacheKey, troopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { QueryClient } from '@tanstack/react-query';
-import type { Troop } from 'app/interfaces/models/game/troop';
 
 const setReport = (queryClient: QueryClient, report: Report): void => {
-  queryClient.setQueryData<Report[]>([reportsCacheKey], (reports) => {
-    return [report, ...reports!];
+  queryClient.setQueryData<Report[]>([reportsCacheKey], (existingReports = []) => {
+    // Insert new report at the top
+    const updatedReports = [report, ...existingReports];
+
+    // Count non-archived reports
+    let nonArchivedCount = 0;
+
+    // Filter reports while keeping original order and respecting max limit
+    const filteredReports = [];
+    for (const r of updatedReports) {
+      const isArchived = r.tags.includes('archived');
+      if (!isArchived) {
+        if (nonArchivedCount < 1000) {
+          filteredReports.push(r);
+          nonArchivedCount++;
+        }
+        continue;
+      }
+
+      // Always keep archived reports
+      filteredReports.push(r);
+    }
+
+    return filteredReports;
   });
 };
 

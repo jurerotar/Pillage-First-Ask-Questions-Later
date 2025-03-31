@@ -119,7 +119,7 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
   return {
     id,
     name: `${name}'s village`,
-    slug: null,
+    slug: '',
     buildingFields,
     buildingFieldsPresets: [resourcesBuildingFieldPresetId, villageBuildingFieldPresetId],
     playerId,

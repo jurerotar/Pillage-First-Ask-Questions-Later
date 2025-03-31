@@ -168,7 +168,7 @@ const CreateNewServerPage = () => {
         speed: 1,
       },
       playerConfiguration: {
-        name: 'Player name',
+        name: 'Player',
         tribe: 'gauls',
       },
     },
@@ -234,14 +234,6 @@ const CreateNewServerPage = () => {
                       {...register('name')}
                     />
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">{t('Game Configuration')}</h3>
-                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="server-configuration-world-size">{t('World Size')}</Label>
                     <Input
@@ -249,14 +241,6 @@ const CreateNewServerPage = () => {
                       id="server-configuration-world-size"
                       type="number"
                       {...register('configuration.mapSize')}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="server-configuration-tribe">{t('Tribe')}</Label>
-                    <Input
-                      disabled={isPending}
-                      id="server-configuration-tribe"
-                      {...register('playerConfiguration.tribe')}
                     />
                   </div>
                   <div className="space-y-2">
@@ -268,6 +252,31 @@ const CreateNewServerPage = () => {
                       min="1"
                       max="10"
                       {...register('configuration.speed')}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">{t('Game Configuration')}</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="player-name">{t('Player name')}</Label>
+                    <Input
+                      disabled={isPending}
+                      id="player-name"
+                      defaultValue="Player"
+                      {...register('playerConfiguration.name')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="server-configuration-tribe">{t('Tribe')}</Label>
+                    <Input
+                      disabled={isPending}
+                      id="server-configuration-tribe"
+                      {...register('playerConfiguration.tribe')}
                     />
                   </div>
                 </div>

@@ -2,6 +2,7 @@ import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Tile } from 'app/interfaces/models/game/tile';
 
 type WithResourceCheck<T> = T & {
   resourceCost: number[];
@@ -42,6 +43,10 @@ type TroopMovementEvent = WithVillageId<{
   movementType: 'attack' | 'raid' | 'reinforcement' | 'relocation' | 'return';
 }>;
 
+type FindNewVillageEvent = WithVillageId<{
+  targetTileId: Tile['id'];
+}>;
+
 export type GameEventType =
   | 'buildingScheduledConstruction'
   | 'buildingConstruction'
@@ -49,6 +54,7 @@ export type GameEventType =
   | 'buildingDestruction'
   | 'troopTraining'
   | 'troopMovement'
+  | 'findNewVillage'
   | 'adventurePointIncrease';
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {
@@ -58,6 +64,7 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
   troopMovement: TroopMovementEvent;
+  findNewVillage: FindNewVillageEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];
 

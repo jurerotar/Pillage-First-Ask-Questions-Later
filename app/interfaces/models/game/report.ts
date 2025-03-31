@@ -1,4 +1,4 @@
-export type ReportTag = 'read' | 'archived' | 'deleted';
+export type ReportTag = 'read' | 'archived';
 
 export type ReportStatus = 'no-loss' | 'some-loss' | 'full-loss';
 

@@ -16,7 +16,7 @@ import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { LinkWithState } from 'app/components/link-with-state';
-import { Outlet } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -27,6 +27,8 @@ import layoutStyles from './layout.module.css';
 import { FaHome } from 'react-icons/fa';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
+import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
+import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -141,6 +143,32 @@ const ResourceCounters = () => {
   );
 };
 
+const VillageSelect = () => {
+  const { villageSlug } = useRouteSegments();
+  const navigate = useNavigate();
+  const { baseGamePath } = useGameNavigation();
+  const { playerVillages } = usePlayerVillages();
+  const { currentVillage } = useCurrentVillage();
+
+  return (
+    <select
+      className="truncate overflow-hidden whitespace-nowrap max-w-xs py-2"
+      defaultValue={currentVillage.slug}
+      onChange={(event) => navigate(`${baseGamePath}/${event.target.value}/resources`)}
+    >
+      {playerVillages.map(({ id, slug, name }) => (
+        <option
+          disabled={slug === villageSlug}
+          key={id}
+          value={slug}
+        >
+          {name} ({id})
+        </option>
+      ))}
+    </select>
+  )
+}
+
 const TopNavigation = () => {
   const { adventurePoints } = useAdventurePoints();
   const gameNavigation = useGameNavigation();
@@ -196,82 +224,100 @@ const TopNavigation = () => {
             </ul>
           </nav>
         </div>
-        <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-11 pt-1 container mx-auto">
-          <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
-            <li>
-              <LinkWithState to={gameNavigation.statisticsPath}>
-                <NavigationSideItem>
-                  <GoGraph className="text-xl" />
-                </NavigationSideItem>
-              </LinkWithState>
-            </li>
-            <li>
-              <LinkWithState to={gameNavigation.questsPath}>
-                <NavigationSideItem>
-                  <FaBookBookmark className="text-xl" />
-                </NavigationSideItem>
-              </LinkWithState>
-            </li>
-            <li>
-              <LinkWithState to={gameNavigation.overviewPath}>
-                <NavigationSideItem>
-                  <CiCircleList className="text-xl" />
-                </NavigationSideItem>
-              </LinkWithState>
-            </li>
-            <li>
-              <ul className="flex gap-1 xl:gap-2 xl:mx-4">
-                <li>
-                  <LinkWithState to={gameNavigation.resourcesPath}>
-                    <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
-                      <GiWheat className="text-3xl" />
-                    </NavigationMainItem>
-                  </LinkWithState>
-                </li>
-                <li>
-                  <LinkWithState to={gameNavigation.villagePath}>
-                    <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
-                      <MdOutlineHolidayVillage className="text-3xl" />
-                    </NavigationMainItem>
-                  </LinkWithState>
-                </li>
-                <li>
-                  <LinkWithState to={currentVillageMapPath}>
-                    <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
-                      <TbMap2 className="text-3xl" />
-                    </NavigationMainItem>
-                  </LinkWithState>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <LinkWithState to={gameNavigation.reportsPath}>
-                <NavigationSideItem>
-                  <LuScrollText className="text-xl" />
-                </NavigationSideItem>
-              </LinkWithState>
-            </li>
-            <li>
-              <LinkWithState to={gameNavigation.adventuresPath}>
-                <NavigationSideItem counter={adventurePoints.amount}>
-                  <PiPathBold className="text-xl" />
-                </NavigationSideItem>
-              </LinkWithState>
-            </li>
-            <li>
-              <LinkWithState to={gameNavigation.auctionsPath}>
-                <NavigationSideItem>
-                  <RiAuctionLine className="text-xl" />
-                </NavigationSideItem>
-              </LinkWithState>
-            </li>
-          </ul>
-        </nav>
+        <div className="flex justify-between container mx-auto">
+          <div className="flex items-center border border-blue-500">
+            <VillageSelect />
+          </div>
+          <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-11 pt-1 container mx-auto">
+            <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
+              <li>
+                <LinkWithState to={gameNavigation.statisticsPath}>
+                  <NavigationSideItem>
+                    <GoGraph className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.questsPath}>
+                  <NavigationSideItem>
+                    <FaBookBookmark className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.overviewPath}>
+                  <NavigationSideItem>
+                    <CiCircleList className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <ul className="flex gap-1 xl:gap-2 xl:mx-4">
+                  <li>
+                    <LinkWithState to={gameNavigation.resourcesPath}>
+                      <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
+                        <GiWheat className="text-3xl" />
+                      </NavigationMainItem>
+                    </LinkWithState>
+                  </li>
+                  <li>
+                    <LinkWithState to={gameNavigation.villagePath}>
+                      <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
+                        <MdOutlineHolidayVillage className="text-3xl" />
+                      </NavigationMainItem>
+                    </LinkWithState>
+                  </li>
+                  <li>
+                    <LinkWithState to={currentVillageMapPath}>
+                      <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
+                        <TbMap2 className="text-3xl" />
+                      </NavigationMainItem>
+                    </LinkWithState>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.reportsPath}>
+                  <NavigationSideItem>
+                    <LuScrollText className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.adventuresPath}>
+                  <NavigationSideItem counter={adventurePoints.amount}>
+                    <PiPathBold className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+              <li>
+                <LinkWithState to={gameNavigation.auctionsPath}>
+                  <NavigationSideItem>
+                    <RiAuctionLine className="text-xl" />
+                  </NavigationSideItem>
+                </LinkWithState>
+              </li>
+            </ul>
+          </nav>
+          <div className="border border-blue-500 p-1"></div>
+        </div>
+
       </div>
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div className="flex justify-center items-center text-center px-2 lg:hidden h-14 w-full text-sm bg-blue-400">
-        Top navigation section, not sure what to put here yet. Post ideas in Discord :)
+      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full">
+        <div className="p-2 rounded-r-full border border-black">
+          <div className="size-4 ml-4 border border-black rounded-full"></div>
+        </div>
+        <VillageSelect />
+        <div
+          className="p-2 rounded-l-full"
+          style={{
+            boxShadow: '-12px 0px 20px rgba(0, 0, 0, 0.3), 0px 4px 8px rgba(0, 0, 0, 0.1), 0px -4px 8px rgba(0, 0, 0, 0.1);'
+          }}
+        >
+          <div className="size-9 mr-1 border border-black rounded-full"></div>
+        </div>
       </div>
       <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
@@ -375,10 +421,6 @@ const MobileBottomNavigation = () => {
       </nav>
     </header>
   );
-};
-
-export const Fallback = () => {
-  return <div>Loader...</div>;
 };
 
 export const ErrorBoundary = () => {

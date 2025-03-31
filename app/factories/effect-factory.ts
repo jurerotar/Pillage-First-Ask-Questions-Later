@@ -28,11 +28,7 @@ export const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): Vi
   };
 };
 
-type NewVillageEffectFactoryArgs = {
-  village: Village;
-};
-
-const newVillageBuildingFieldsEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): VillageBuildingEffect[] => {
+const newVillageBuildingFieldsEffectsFactory = (village: Village): VillageBuildingEffect[] => {
   return village.buildingFields.flatMap(({ buildingId, id, level }: BuildingField) => {
     const building = getBuildingData(buildingId);
     return building.effects.map(({ effectId, valuesPerLevel }: BuildingEffect) =>
@@ -46,20 +42,19 @@ const newVillageBuildingFieldsEffectsFactory = ({ village }: NewVillageEffectFac
   });
 };
 
-const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): VillageEffect[] => {
+export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
   const villageDefaultStorageEffectsIds: Effect['id'][] = ['warehouseCapacity', 'granaryCapacity'];
   return [
-    ...villageDefaultStorageEffectsIds.map(
-      (effectId) =>
-        ({
-          id: effectId,
-          scope: 'village',
-          source: 'server',
-          value: 800,
-          villageId: village.id,
-        }) satisfies VillageEffect,
-    ),
-    ...newVillageBuildingFieldsEffectsFactory({ village }),
+    ...newVillageBuildingFieldsEffectsFactory(village),
+    ...villageDefaultStorageEffectsIds.map((effectId) => {
+      return {
+        id: effectId,
+        scope: 'village',
+        source: 'server',
+        value: 800,
+        villageId: village.id,
+      } satisfies VillageEffect;
+    }),
     {
       id: 'wheatProduction',
       scope: 'village',
@@ -70,11 +65,7 @@ const newVillageEffectsFactory = ({ village }: NewVillageEffectFactoryArgs): Vil
   ];
 };
 
-type GlobalEffectFactoryProps = {
-  server: Server;
-};
-
-const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): GlobalEffect[] => {
+const globalEffectsFactory = (server: Server): GlobalEffect[] => {
   const { tribe } = server.playerConfiguration;
 
   const tribeMerchant = merchants.find(({ tribe: tribeToFind }) => tribeToFind === tribe)!;
@@ -136,7 +127,7 @@ const globalEffectsFactory = ({ server }: GlobalEffectFactoryProps): GlobalEffec
   }));
 };
 
-const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffect[] => {
+const serverEffectsFactory = (server: Server): ServerEffect[] => {
   const {
     configuration: { speed },
   } = server;
@@ -175,9 +166,9 @@ const serverEffectsFactory = ({ server }: GlobalEffectFactoryProps): ServerEffec
 };
 
 export const generateEffects = (server: Server, village: Village): Effect[] => {
-  const serverEffects = serverEffectsFactory({ server });
-  const villageEffects = newVillageEffectsFactory({ village });
-  const globalEffects = globalEffectsFactory({ server });
+  const serverEffects = serverEffectsFactory(server);
+  const globalEffects = globalEffectsFactory(server);
+  const villageEffects = newVillageEffectsFactory(village);
 
   return [...serverEffects, ...globalEffects, ...villageEffects];
 };
