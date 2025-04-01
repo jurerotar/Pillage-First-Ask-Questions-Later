@@ -10,8 +10,6 @@ import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/g
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
-import { findNewVillageResolver } from 'app/(game)/(village-slug)/hooks/resolvers/village-resolvers';
-import { useQueryClient } from '@tanstack/react-query';
 
 const BuildingUpgradeList = () => {
   const { t } = useTranslation();
@@ -59,7 +57,6 @@ const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as Buil
 const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19) as BuildingFieldType['id'][];
 
 const VillagePage = () => {
-  const queryClient = useQueryClient();
   const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
@@ -67,7 +64,6 @@ const VillagePage = () => {
 
   return (
     <>
-      <button type="button" onClick={() => findNewVillageResolver(queryClient, { targetTileId: '0|-2' })}>Create new village</button>
       <Tooltip
         anchorSelect="[data-building-field-id]"
         closeEvents={{

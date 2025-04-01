@@ -5,12 +5,12 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
 import { Fragment, useRef } from 'react';
-import { GiHealthNormal, GiWheat } from 'react-icons/gi';
+import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { FaBookBookmark, FaDiscord, FaGithub, FaStar, FaUser } from 'react-icons/fa6';
+import { FaBookBookmark, FaDiscord, FaGithub } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
@@ -23,7 +23,6 @@ import { RiAuctionLine } from 'react-icons/ri';
 import { Divider } from 'app/components/divider';
 import { CountdownProvider } from 'app/(game)/(village-slug)/providers/countdown-provider';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import layoutStyles from './layout.module.css';
 import { FaHome } from 'react-icons/fa';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
@@ -60,7 +59,7 @@ const DiscordLink = () => {
   return (
     <Link
       to="https://discord.com/invite/Ep7NKVXUZA"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-white"
     >
       <span className="flex items-center justify-center">
         <FaDiscord className="text-2xl text-[#7289da]" />
@@ -132,7 +131,7 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
 
 const ResourceCounters = () => {
   return (
-    <div className="flex w-full py-1 mx-auto gap-0.5">
+    <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <Fragment key={resource}>
           <ResourceCounter resource={resource} />
@@ -225,10 +224,10 @@ const TopNavigation = () => {
           </nav>
         </div>
         <div className="flex justify-between container mx-auto">
-          <div className="flex items-center border border-blue-500">
+          <div className="flex flex-1 items-center">
             <VillageSelect />
           </div>
-          <nav className="flex flex-col w-fit lg:-translate-y-8 max-h-11 pt-1 container mx-auto">
+          <nav className="flex flex-3 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
             <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
               <li>
                 <LinkWithState to={gameNavigation.statisticsPath}>
@@ -299,12 +298,13 @@ const TopNavigation = () => {
               </li>
             </ul>
           </nav>
-          <div className="border border-blue-500 p-1"></div>
+          <div className="flex flex-1" />
         </div>
       </div>
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-2">
+      <div
+        className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-2 bg-gradient-to-r from-gray-100 via-white to-gray-100">
         <DiscordLink />
         <VillageSelect />
         <HeroNavigationItem />
