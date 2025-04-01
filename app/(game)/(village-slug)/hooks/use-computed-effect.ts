@@ -22,6 +22,7 @@ type ComputedEffectReturn = {
 
 type WheatProductionEffectReturn = ComputedEffectReturn & {
   buildingWheatConsumption: number;
+  buildingWheatLimit: number;
   troopWheatConsumption: number;
   troopWheatConsumptionReductionBonus: number;
 };
@@ -82,13 +83,15 @@ const calculateWheatProductionEffect = (
     troopWheatConsumptionReductionBonus *= normalizeForcedFloatValue(value);
   }
 
-  const total =
-    baseWheatProduction * wheatProductionBonus + buildingWheatConsumption - troopWheatConsumption * troopWheatConsumptionReductionBonus;
+  const buildingWheatLimit = baseWheatProduction * wheatProductionBonus + buildingWheatConsumption;
+
+  const total = buildingWheatLimit - troopWheatConsumption * troopWheatConsumptionReductionBonus;
 
   return {
     serverEffectValue,
     effectBaseValue: baseWheatProduction,
     effectBonusValue: wheatProductionBonus,
+    buildingWheatLimit,
     buildingWheatConsumption,
     troopWheatConsumption,
     troopWheatConsumptionReductionBonus,

@@ -133,18 +133,18 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
 };
 
 const ResourceCounters = () => {
-  const { buildingWheatConsumption, effectBaseValue } = useComputedEffect('wheatProduction');
+  const { buildingWheatConsumption, buildingWheatLimit } = useComputedEffect('wheatProduction');
 
   return (
-    <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5">
+    <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5 lg:gap-2">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <Fragment key={resource}>
           <ResourceCounter resource={resource} />
-          {index !== 3 && <span className="w-[1px] h-full bg-gray-300" />}
+          {index !== 3 && <span className="w-[2px] h-full bg-gray-300" />}
         </Fragment>
       ))}
       <span className="flex gap-0.5 lg:hidden h-full min-w-10">
-        <span className="w-[1px] h-full bg-gray-300" />
+        <span className="w-[2px] h-full bg-gray-300" />
         <span className="flex flex-col justify-between gap-0.5 w-full">
           <span className="inline-flex justify-between items-center gap-0.5">
             <Icon className="size-4" type="population" />
@@ -152,11 +152,11 @@ const ResourceCounters = () => {
               {formatNumber(Math.abs(buildingWheatConsumption))}
             </span>
           </span>
-          <span className="h-[1px] w-full bg-gray-300" />
+          <span className="h-[2px] w-full bg-gray-300" />
           <span className="flex justify-between items-center gap-0.5">
             <Icon className="size-4" type="wheatProduction" />
             <span className="text-2xs font-medium">
-              {formatNumber(effectBaseValue)}
+              {formatNumber(buildingWheatLimit)}
             </span>
           </span>
         </span>

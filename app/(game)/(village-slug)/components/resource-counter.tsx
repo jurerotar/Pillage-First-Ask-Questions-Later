@@ -30,11 +30,12 @@ export const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) =>
           <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">/{formattedStorageCapacity}</span>
         </span>
       </div>
-      <div className="relative flex h-2 lg:h-2.5 w-full bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
+      <div
+        className="relative flex h-2 lg:h-2.5 w-full rounded-xs bg-[linear-gradient(#7b746e,#dad8d5,#ebebeb)] shadow-inner border border-[#b8b2a9]">
         <div
           className={clsx(
             isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
-            'flex h-full border lg:border-2',
+            'flex h-full border lg:border-2 rounded-xs',
           )}
           style={{
             width: `${storagePercentage}%`,
