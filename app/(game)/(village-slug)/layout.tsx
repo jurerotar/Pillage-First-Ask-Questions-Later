@@ -20,7 +20,6 @@ import { Link, Outlet, useNavigate } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
-import { Divider } from 'app/components/divider';
 import { CountdownProvider } from 'app/(game)/(village-slug)/providers/countdown-provider';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { FaHome } from 'react-icons/fa';
@@ -29,6 +28,10 @@ import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-c
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { HiStar } from 'react-icons/hi';
+import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { Icon } from 'app/components/icon';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { formatNumber } from 'app/utils/common';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -72,10 +75,10 @@ const HeroNavigationItem = () => {
   const { hero } = useHero();
   const { heroPath } = useGameNavigation();
 
-  const { level } = hero.stats;
+  const { level } = calculateHeroLevel(hero.stats.experience);
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable = level * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
+  const isLevelUpAvailable = (level + 1) * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
 
   return (
     <Link
@@ -120,24 +123,44 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
       type="button"
       className={clsx(
         isActive ? 'from-[#7da100] to-[#c7e94f]' : 'from-[#b8b2a9] to-[#f1f0ee]',
-        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+        'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
       )}
       {...htmlProps}
     >
-      <span className="size-11 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
+      <span className="size-12 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
     </button>
   );
 };
 
 const ResourceCounters = () => {
+  const { buildingWheatConsumption, effectBaseValue } = useComputedEffect('wheatProduction');
+
   return (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
         <Fragment key={resource}>
           <ResourceCounter resource={resource} />
-          {index !== 3 && <Divider orientation="vertical" />}
+          {index !== 3 && <span className="w-[1px] h-full bg-gray-300" />}
         </Fragment>
       ))}
+      <span className="flex gap-0.5 lg:hidden h-full min-w-10">
+        <span className="w-[1px] h-full bg-gray-300" />
+        <span className="flex flex-col justify-between gap-0.5 w-full">
+          <span className="inline-flex justify-between items-center gap-0.5">
+            <Icon className="size-4" type="population" />
+            <span className="text-2xs font-medium">
+              {formatNumber(Math.abs(buildingWheatConsumption))}
+            </span>
+          </span>
+          <span className="h-[1px] w-full bg-gray-300" />
+          <span className="flex justify-between items-center gap-0.5">
+            <Icon className="size-4" type="wheatProduction" />
+            <span className="text-2xs font-medium">
+              {formatNumber(effectBaseValue)}
+            </span>
+          </span>
+        </span>
+      </span>
     </div>
   );
 };
@@ -151,7 +174,7 @@ const VillageSelect = () => {
 
   return (
     <select
-      className="border-2 border-gray-200 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
+      className="border-2 border-gray-300 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
       defaultValue={currentVillage.slug}
       onChange={(event) => navigate(`${baseGamePath}/${event.target.value}/resources`)}
     >
@@ -227,7 +250,7 @@ const TopNavigation = () => {
           <div className="flex flex-1 items-center">
             <VillageSelect />
           </div>
-          <nav className="flex flex-3 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
+          <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
             <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
               <li>
                 <LinkWithState to={gameNavigation.statisticsPath}>
@@ -304,12 +327,13 @@ const TopNavigation = () => {
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
       <div
-        className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-2 bg-gradient-to-r from-gray-100 via-white to-gray-100">
+        className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
         <DiscordLink />
         <VillageSelect />
         <HeroNavigationItem />
       </div>
-      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
+      <div
+        className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>

@@ -13,7 +13,6 @@ export type Hero = {
 };
 
 type HeroStats = {
-  level: number;
   experience: number;
   health: number;
 };

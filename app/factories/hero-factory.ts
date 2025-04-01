@@ -13,7 +13,6 @@ export const heroFactory = (server: Server): Hero => {
 
   return {
     stats: {
-      level: 1,
       experience: 0,
       health: 100,
     },
