@@ -5,9 +5,9 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
 import { Fragment, useRef } from 'react';
-import { GiWheat } from 'react-icons/gi';
+import { GiHealthNormal, GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
-import { MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { FaBookBookmark, FaDiscord, FaGithub, FaStar, FaUser } from 'react-icons/fa6';
@@ -16,7 +16,7 @@ import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { LinkWithState } from 'app/components/link-with-state';
-import { Outlet, useNavigate } from 'react-router';
+import { Link, Outlet, useNavigate } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -29,6 +29,7 @@ import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventur
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
+import { HiStar } from 'react-icons/hi';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -55,46 +56,45 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ chi
   );
 };
 
-const HeroNavigationItem: React.FCWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> = (props) => {
-  const { hero } = useHero();
+const DiscordLink = () => {
+  return (
+    <Link
+      to="https://discord.com/invite/Ep7NKVXUZA"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative"
+    >
+      <span className="flex items-center justify-center">
+        <FaDiscord className="text-2xl text-[#7289da]" />
+      </span>
+    </Link>
+  );
+};
 
-  const { level, experience, health } = hero.stats;
-  const healthAngle = (health / 100) * 180;
-  const experienceAngle = 180 - (experience / (level + 1)) * 50 * 180;
+const HeroNavigationItem = () => {
+  const { hero } = useHero();
+  const { heroPath } = useGameNavigation();
+
+  const { level } = hero.stats;
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
   const isLevelUpAvailable = level * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
 
   return (
-    <button
-      type="button"
-      className={clsx(
-        layoutStyles['hero-stats'],
-        'bg-gradient-to-t size-13 lg:size-18 rounded-full flex items-center justify-center relative shadow-[inset_0_0_0_1px_rgba(0,0,0,0.4)] lg:shadow-[inset_0_0_0_2px_rgba(0,0,0,0.4)]',
-      )}
-      {...props}
-      style={
-        {
-          '--health-angle': `${healthAngle}deg`,
-          '--experience-angle': `${experienceAngle}deg`,
-        } as React.CSSProperties
-      }
+    <Link
+      to={heroPath}
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
     >
-      <span className={clsx(layoutStyles.divider, layoutStyles.top)} />
-      <span className={clsx(layoutStyles.divider, layoutStyles.bottom)} />
-      <span className="size-9.5 lg:size-14 bg-white rounded-full flex items-center justify-center shadow-[0_0_0_1px_rgba(0,0,0,0.4)] lg:shadow-[0_0_0_2px_rgba(0,0,0,0.4)]">
-        <FaUser className="text-2xl" />
+      <span className="lg:size-10 flex items-center justify-center">
+        <MdFace className="text-2xl" />
       </span>
-
       {isLevelUpAvailable && (
-        <span className="absolute size-5 lg:size-6 bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-lg inline-flex justify-center items-center">
-          <FaStar className="text-yellow-300 text-xs" />
+        <span className="absolute text-center size-4 bg-white top-0 -right-1.5 rounded-full border border-gray-300 shadow-md">
+          <HiStar className="text-yellow-300 text-sm" />
         </span>
       )}
-      <span className="absolute size-5 lg:size-6 bg-white bottom-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md lg:shadow-none inline-flex justify-center items-center">
-        <FaHome className="text-xs" />
+      <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
+        <FaHome className="text-gray-500 text-xs" />
       </span>
-    </button>
+    </Link>
   );
 };
 
@@ -152,7 +152,7 @@ const VillageSelect = () => {
 
   return (
     <select
-      className="truncate overflow-hidden whitespace-nowrap max-w-xs py-2"
+      className="border-2 border-gray-200 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
       defaultValue={currentVillage.slug}
       onChange={(event) => navigate(`${baseGamePath}/${event.target.value}/resources`)}
     >
@@ -301,25 +301,15 @@ const TopNavigation = () => {
           </nav>
           <div className="border border-blue-500 p-1"></div>
         </div>
-
       </div>
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full">
-        <div className="p-2 rounded-r-full border border-black">
-          <div className="size-4 ml-4 border border-black rounded-full"></div>
-        </div>
+      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-2">
+        <DiscordLink />
         <VillageSelect />
-        <div
-          className="p-2 rounded-l-full"
-          style={{
-            boxShadow: '-12px 0px 20px rgba(0, 0, 0, 0.3), 0px 4px 8px rgba(0, 0, 0, 0.1), 0px -4px 8px rgba(0, 0, 0, 0.1);'
-          }}
-        >
-          <div className="size-9 mr-1 border border-black rounded-full"></div>
-        </div>
+        <HeroNavigationItem />
       </div>
-      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
+      <div className="relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>

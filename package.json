@@ -33,9 +33,9 @@
     "@react-router/node": "7.4.1",
     "@react-router/serve": "7.4.1",
     "@tailwindcss/vite": "4.0.17",
-    "@tanstack/react-query": "5.70.0",
-    "@tanstack/react-query-devtools": "5.70.0",
-    "@tanstack/react-query-persist-client": "5.70.0",
+    "@tanstack/react-query": "5.71.1",
+    "@tanstack/react-query-devtools": "5.71.1",
+    "@tanstack/react-query-persist-client": "5.71.1",
     "clsx": "2.1.1",
     "date-fns": "4.1.0",
     "i18next": "24.2.3",
@@ -62,46 +62,68 @@
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.2.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "22.13.14",
+    "@types/node": "22.13.16",
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "@types/react-window": "1.8.8",
-    "@vitest/web-worker": "3.0.9",
+    "@vitest/web-worker": "3.1.1",
     "happy-dom": "17.4.4",
     "husky": "9.1.7",
     "i18next-parser": "9.3.0",
-    "knip": "5.46.3",
+    "knip": "5.46.4",
     "opfs-mock": "2.1.1",
     "resize-observer-polyfill": "1.5.1",
     "rollup-plugin-visualizer": "5.14.0",
-    "sass-embedded": "1.86.0",
+    "sass-embedded": "1.86.1",
     "skott": "0.35.4",
     "tailwindcss": "4.0.17",
     "typescript": "5.8.2",
-    "vite": "6.2.3",
+    "vite": "6.2.4",
     "vite-plugin-pwa": "1.0.0",
-    "vitest": "3.0.9"
+    "vitest": "3.1.1"
   },
   "engines": {
     "node": ">=22.13.0"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": ["app/root.tsx!", "app/**/*page.tsx!", "app/**/*layout.tsx!"],
-    "project": ["app/**/*.{ts,tsx}!"],
+    "entry": [
+      "app/root.tsx!",
+      "app/**/*page.tsx!",
+      "app/**/*layout.tsx!"
+    ],
+    "project": [
+      "app/**/*.{ts,tsx}!"
+    ],
     "paths": {
-      "app/*": ["app/*"]
+      "app/*": [
+        "app/*"
+      ]
     }
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"],
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
     "rules": {
-      "header-max-length": [0],
-      "body-max-line-length": [0]
+      "header-max-length": [
+        0
+      ],
+      "body-max-line-length": [
+        0
+      ]
     }
   },
   "overrides": {
