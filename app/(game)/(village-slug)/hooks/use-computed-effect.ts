@@ -4,14 +4,7 @@ import type { Effect, EffectId, VillageEffect } from 'app/interfaces/models/game
 import type { Village } from 'app/interfaces/models/game/village';
 import { useQuery } from '@tanstack/react-query';
 import { nonPersistedCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-
-const normalizeForcedFloatValue = (value: number) => {
-  if (`${value}`.endsWith('.001')) {
-    return Math.trunc(value);
-  }
-
-  return value;
-};
+import { normalizeForcedFloatValue } from 'app/utils/common';
 
 type ComputedEffectReturn = {
   effectBaseValue: number;
@@ -83,9 +76,9 @@ const calculateWheatProductionEffect = (
     troopWheatConsumptionReductionBonus *= normalizeForcedFloatValue(value);
   }
 
-  const buildingWheatLimit = baseWheatProduction * wheatProductionBonus + buildingWheatConsumption;
+  const buildingWheatLimit = Math.trunc(baseWheatProduction * wheatProductionBonus) + buildingWheatConsumption;
 
-  const total = buildingWheatLimit - troopWheatConsumption * troopWheatConsumptionReductionBonus;
+  const total = buildingWheatLimit - Math.trunc(troopWheatConsumption * troopWheatConsumptionReductionBonus);
 
   return {
     serverEffectValue,

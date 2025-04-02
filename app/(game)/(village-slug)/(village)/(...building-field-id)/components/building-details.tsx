@@ -278,7 +278,7 @@ export const BuildingDetails = () => {
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
   return (
-    <article className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <Tabs
         selectedIndex={tabIndex}
         onSelect={(index) => {
@@ -325,6 +325,6 @@ export const BuildingDetails = () => {
           <BuildingStats />
         </TabPanel>
       </Tabs>
-    </article>
+    </div>
   );
 };

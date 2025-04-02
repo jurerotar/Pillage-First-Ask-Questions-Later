@@ -1,6 +1,6 @@
 import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
 import { merchants } from 'app/(game)/(village-slug)/assets/merchants';
-import type { BuildingEffect } from 'app/interfaces/models/game/building';
+import type { Building, BuildingEffect } from 'app/interfaces/models/game/building';
 import type {
   Effect,
   GlobalEffect,
@@ -18,6 +18,7 @@ type NewBuildingEffectFactoryArgs = {
   id: Effect['id'];
   value: number;
   buildingFieldId: BuildingField['id'];
+  buildingId: Building['id'];
 };
 
 export const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): VillageBuildingEffect => {
@@ -37,6 +38,7 @@ const newVillageBuildingFieldsEffectsFactory = (village: Village): VillageBuildi
         villageId: village.id,
         value: valuesPerLevel[level],
         buildingFieldId: id,
+        buildingId,
       }),
     );
   });

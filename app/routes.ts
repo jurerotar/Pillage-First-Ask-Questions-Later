@@ -25,6 +25,7 @@ export default [
             route('village/:buildingFieldId', '(game)/(village-slug)/(village)/(...building-field-id)/page.tsx', {
               id: 'village-building-field-id-page',
             }),
+            route('production-overview', '(game)/(village-slug)/(production-overview)/page.tsx'),
             route('hero', '(game)/(village-slug)/(hero)/page.tsx'),
             route('preferences', '(game)/(village-slug)/(preferences)/page.tsx'),
             route('statistics', '(game)/(village-slug)/(statistics)/page.tsx'),

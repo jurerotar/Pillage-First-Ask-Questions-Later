@@ -144,3 +144,11 @@ export const formatNumber = (number: number): string => {
 export const formatValue = (value: number) => {
   return Number.isInteger(value) && !value.toString().includes('.') ? value : formatPercentage(value);
 };
+
+export const normalizeForcedFloatValue = (value: number) => {
+  if (`${value}`.endsWith('.001')) {
+    return Math.trunc(value);
+  }
+
+  return value;
+};
