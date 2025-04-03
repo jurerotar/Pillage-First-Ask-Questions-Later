@@ -42,7 +42,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
   const hasBonusValues = summedBonusProductionValues > 0;
 
   return (
-    <article className="flex flex-col gap-4 border border-gray-500 p-2">
+    <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Production bonuses')}</Text>
         <Table>

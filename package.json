@@ -32,10 +32,10 @@
     "@pillage-first/graphics": "0.0.1",
     "@react-router/node": "7.4.1",
     "@react-router/serve": "7.4.1",
-    "@tailwindcss/vite": "4.0.17",
-    "@tanstack/react-query": "5.71.1",
-    "@tanstack/react-query-devtools": "5.71.1",
-    "@tanstack/react-query-persist-client": "5.71.1",
+    "@tailwindcss/vite": "4.1.1",
+    "@tanstack/react-query": "5.71.5",
+    "@tanstack/react-query-devtools": "5.71.5",
+    "@tanstack/react-query-persist-client": "5.71.5",
     "clsx": "2.1.1",
     "date-fns": "4.1.0",
     "i18next": "24.2.3",
@@ -60,30 +60,30 @@
     "@commitlint/config-conventional": "19.8.0",
     "@react-router/dev": "7.4.1",
     "@testing-library/jest-dom": "6.6.3",
-    "@testing-library/react": "16.2.0",
+    "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "22.13.16",
-    "@types/react": "19.0.12",
-    "@types/react-dom": "19.0.4",
+    "@types/node": "22.14.0",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
     "@types/react-window": "1.8.8",
     "@vitest/web-worker": "3.1.1",
     "happy-dom": "17.4.4",
     "husky": "9.1.7",
     "i18next-parser": "9.3.0",
-    "knip": "5.46.4",
+    "knip": "5.46.5",
     "opfs-mock": "2.1.1",
     "resize-observer-polyfill": "1.5.1",
     "rollup-plugin-visualizer": "5.14.0",
-    "sass-embedded": "1.86.1",
+    "sass-embedded": "1.86.2",
     "skott": "0.35.4",
-    "tailwindcss": "4.0.17",
+    "tailwindcss": "4.1.1",
     "typescript": "5.8.2",
-    "vite": "6.2.4",
+    "vite": "6.2.5",
     "vite-plugin-pwa": "1.0.0",
     "vitest": "3.1.1"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=22.14.0"
   },
   "browserslist": {
     "production": [
@@ -124,11 +124,6 @@
       "body-max-line-length": [
         0
       ]
-    }
-  },
-  "overrides": {
-    "tailwindcss-content-visibility": {
-      "tailwindcss": ">= 4"
     }
   }
 }

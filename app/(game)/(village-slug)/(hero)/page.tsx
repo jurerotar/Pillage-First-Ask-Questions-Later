@@ -2,6 +2,7 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { StyledTab } from 'app/components/styled-tab';
 import { useTranslation } from 'react-i18next';
+import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
 
 const HeroPage = () => {
   const { t } = useTranslation();
@@ -23,9 +24,11 @@ const HeroPage = () => {
         <StyledTab>{t('Auctions')}</StyledTab>
       </TabList>
       <TabPanel>
-        <div className="border border-gray-500 p-2">{t('Overview')}</div>
+        {t('Overview')}
       </TabPanel>
-      <TabPanel>{t('Adventures')}</TabPanel>
+      <TabPanel>
+        <Adventures />
+      </TabPanel>
       <TabPanel>{t('Auctions')}</TabPanel>
     </Tabs>
   );

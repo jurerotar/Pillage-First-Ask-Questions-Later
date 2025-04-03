@@ -23,7 +23,7 @@ const StatisticsPage = () => {
         <StyledTab>{t('Week by week')}</StyledTab>
       </TabList>
       <TabPanel>
-        <div className="border border-gray-500 p-2">{t('Default')}</div>
+        {t('Default')}
       </TabPanel>
       <TabPanel>{t('Villages')}</TabPanel>
       <TabPanel>{t('Week by week')}</TabPanel>
