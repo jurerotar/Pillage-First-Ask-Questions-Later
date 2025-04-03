@@ -1,3 +1,5 @@
+@reference 'tailwindcss';
+
 @mixin oasisBackgroundImage($base, $resourceBase, $group, $position, $hasVariants: false) {
   &-position-#{$position} {
     @if ($hasVariants) {
@@ -15,6 +17,12 @@
       @include imageSet('#{$resourceBase}/#{$group}/#{$position}');
     }
   }
+}
+
+.cell-static-styles {
+  border-radius: 1px;
+  border: 1px solid rgba(107, 114, 128, 0.5); /* border-gray-500/50 */
+  background-size: contain;
 }
 
 :global(#{$timeOfDayNightSelector}) {

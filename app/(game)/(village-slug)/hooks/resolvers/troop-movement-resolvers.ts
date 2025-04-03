@@ -4,34 +4,8 @@ import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
 import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { QueryClient } from '@tanstack/react-query';
-
-const setReport = (queryClient: QueryClient, report: Report): void => {
-  queryClient.setQueryData<Report[]>([reportsCacheKey], (existingReports = []) => {
-    // Insert new report at the top
-    const updatedReports = [report, ...existingReports];
-
-    // Count non-archived reports
-    let nonArchivedCount = 0;
-
-    // Filter reports while keeping original order and respecting max limit
-    const filteredReports = [];
-    for (const r of updatedReports) {
-      const isArchived = r.tags.includes('archived');
-      if (!isArchived) {
-        if (nonArchivedCount < 1000) {
-          filteredReports.push(r);
-          nonArchivedCount++;
-        }
-        continue;
-      }
-
-      // Always keep archived reports
-      filteredReports.push(r);
-    }
-
-    return filteredReports;
-  });
-};
+import type { Troop } from 'app/interfaces/models/game/troop';
+import { setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
 
 const reinforcement: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId: originatingVillageId, targetVillageId, troops } = args;

@@ -1,6 +1,6 @@
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { AdventureReport, BattleReport, ScoutReport, TradeReport, TroopMovementReport } from 'app/interfaces/models/game/report';
+import type { TroopMovementReport } from 'app/interfaces/models/game/report';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import type { PickLiteral } from 'app/utils/typescript';
 import type { TroopMovement, TroopMovementType } from 'app/interfaces/models/game/troop-movement';
@@ -9,7 +9,7 @@ type GenerateTroopMovementReportArgs = Omit<TroopMovement, 'movementType'> & {
   movementType: PickLiteral<TroopMovementType, 'reinforcement' | 'relocation'>;
 };
 
-export const generateTroopMovementReport = (args: GenerateTroopMovementReportArgs): TroopMovementReport => {
+export const generateTroopMovementReport = (_args: GenerateTroopMovementReportArgs): TroopMovementReport => {
 };
 
 type GenerateBattleReportArgs = {
@@ -23,14 +23,14 @@ type GenerateBattleReportArgs = {
   stolenResources: Resources;
 };
 
-export const generateScoutingReport = (args: GenerateBattleReportArgs): ScoutReport => {
+export const generateScoutingReport = (_args: GenerateBattleReportArgs) => {
 };
 
-export const generateBattleReport = (args: GenerateBattleReportArgs): BattleReport => {
+export const generateBattleReport = (_args: GenerateBattleReportArgs) => {
 };
 
-export const generateTradeReport = (): TradeReport => {
+export const generateTradeReport = () => {
 };
 
-export const generateAdventureReport = (): AdventureReport => {
+export const generateAdventureReport = () => {
 };

@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -139,7 +141,14 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { shouldShowBuildingNames } = usePreferences();
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { id: buildingFieldId, buildingId, level } = buildingField;
+
+  const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
+    ({ buildingFieldId: buildingEventBuildingFieldId }) => buildingEventBuildingFieldId === buildingFieldId
+  );
+
+  const hasEvent = !!currentBuildingFieldBuildingEvent;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
 
@@ -163,8 +172,12 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
         buildingFieldId={buildingFieldId}
       />
       {shouldShowBuildingNames && (
-        <span className="text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
-          {assetsT(`BUILDINGS.${buildingId}.NAME`)}
+        <span
+          className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+          {hasEvent && (
+            <Countdown endsAt={currentBuildingFieldBuildingEvent.startsAt + currentBuildingFieldBuildingEvent.duration} />
+          )}
+          {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}
     </Link>

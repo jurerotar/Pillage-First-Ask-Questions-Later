@@ -1,6 +1,6 @@
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import type React from 'react';
-import { createContext, use, useCallback, useMemo, useState } from 'react';
+import { createContext, use, useState } from 'react';
 import { ViewportContext } from 'app/providers/viewport-context';
 
 type MapProviderValues = {
@@ -26,32 +26,29 @@ export const MapProvider: React.FCWithChildren = ({ children }) => {
   const tileSize = tileBaseSize * magnification;
   const gridSize = Math.ceil(mapSize * Math.sqrt(2)) + 5;
 
-  const increaseMagnification = useCallback(() => {
+  const increaseMagnification = () => {
     if (magnification === MAX_MAGNIFICATION) {
       return;
     }
 
     setMagnification((prevState) => prevState + 1);
-  }, [magnification]);
+  };
 
-  const decreaseMagnification = useCallback(() => {
+  const decreaseMagnification = () => {
     if (magnification === MIN_MAGNIFICATION) {
       return;
     }
 
     setMagnification((prevState) => prevState - 1);
-  }, [magnification]);
+  };
 
-  const value = useMemo<MapProviderValues>(
-    () => ({
-      magnification,
-      increaseMagnification,
-      decreaseMagnification,
-      tileSize,
-      gridSize,
-    }),
-    [magnification, increaseMagnification, decreaseMagnification, tileSize, gridSize],
-  );
+  const value = {
+    magnification,
+    increaseMagnification,
+    decreaseMagnification,
+    tileSize,
+    gridSize,
+  }
 
   return <MapContext value={value}>{children}</MapContext>;
 };

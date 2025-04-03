@@ -69,6 +69,10 @@ export const roundTo2DecimalPoints = (number: number): number => {
   return Math.round(number * 100) / 100;
 };
 
+export const roundTo5 = (n: number) => {
+  return Math.round(n / 5) * 5;
+};
+
 export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };

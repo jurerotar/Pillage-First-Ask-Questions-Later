@@ -1,4 +1,4 @@
-import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
+import { Cell, type TileWithClasses } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
@@ -8,12 +8,12 @@ import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
-import { isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { isOccupiedOccupiableTile, isUnoccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
-import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { OasisTile, Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { Village, VillageSize } from 'app/interfaces/models/game/village';
 import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
@@ -22,19 +22,39 @@ import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
+import { parseCoordinatesFromTileId, parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
+import clsx from 'clsx';
+import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
+import cellStyles from 'app/(game)/(village-slug)/(map)/components/cell.module.scss';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
+const populationToVillageSizeMap = new Map<number, VillageSize>([
+  [500, 'xl'],
+  [250, 'md'],
+  [100, 'sm'],
+]);
+
+const getVillageSize = (population: number): VillageSize => {
+  for (const [key, size] of populationToVillageSizeMap) {
+    if (population >= key) {
+      return size;
+    }
+  }
+
+  return 'xs';
+};
+
 const MapPage = () => {
+  const [searchParams] = useSearchParams();
   const { isOpen: isTileModalOpened } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
   const { mapFilters } = useMapFilters();
-  const { gridSize, tileSize, magnification } = use(MapContext);
-  const { getPlayerByPlayerId } = usePlayers();
-  const { getReputationByFaction } = useReputations();
-  const [searchParams] = useSearchParams();
+  const { gridSize, tileSize } = use(MapContext);
+  const { playersMap } = usePlayers();
+  const { reputationsMap } = useReputations();
   const { villages } = useVillages();
   const { worldItems } = useWorldItems();
 
@@ -73,28 +93,6 @@ const MapPage = () => {
     y: 0,
   });
 
-  // Fun fact, using any kind of hooks in rendered tiles absolutely hammers performance.
-  // We need to get all tile information in here and pass it down as props
-  const tilesWithFactions = useMemo(() => {
-    return map.map((tile: TileType) => {
-      const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-
-      if (isOccupiedOccupiableCell) {
-        const { faction, tribe } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
-        const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
-
-        return {
-          ...tile,
-          faction,
-          reputationLevel,
-          tribe,
-        };
-      }
-
-      return tile;
-    });
-  }, [map, getReputationByFaction, getPlayerByPlayerId]);
-
   const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
     return new Map<Village['id'], Village>(
       villages.map((village) => {
@@ -111,16 +109,68 @@ const MapPage = () => {
     );
   }, [worldItems]);
 
+  // Fun fact, using any kind of hooks in rendered tiles absolutely hammers performance.
+  // We need to get all tile information in here and pass it down as props
+  const tilesWithClasses = useMemo<TileWithClasses[]>(() => {
+    return map.map((tile: TileType) => {
+      if (isUnoccupiedOccupiableTile(tile)) {
+        const { RFC } = tile;
+
+        return {
+          ...tile,
+          tileClasses: clsx(cellStyles['cell-static-styles'], cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${RFC}`]),
+        };
+      }
+
+      if (isOccupiedOccupiableTile(tile)) {
+        const { faction, tribe } = playersMap.get(tile.ownedBy)!;
+        const { reputationLevel } = reputationsMap.get(faction)!;
+        const { x, y } = parseCoordinatesFromTileId(tile.id);
+        const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}|${y}`)!;
+
+        const population = calculatePopulationFromBuildingFields(buildingFields!, buildingFieldsPresets);
+
+        const villageSize = getVillageSize(population);
+
+        return {
+          ...tile,
+          tileClasses: clsx(
+            reputationLevel,
+            cellStyles['cell-static-styles'],
+            cellStyles['occupied-tile'],
+            cellStyles[`occupied-tile-${tribe}`],
+            cellStyles[`occupied-tile-${tribe}-${villageSize}`],
+            cellStyles[`occupied-tile-${villageSize}`],
+          ),
+        }
+      }
+
+      const { oasisResource, oasisGroup, groupPositions, oasisVariant } = parseOasisTileGraphicsProperty((tile as OasisTile).graphics);
+
+      return {
+        ...tile,
+        tileClasses: clsx(
+          cellStyles['cell-static-styles'],
+          cellStyles.oasis,
+          cellStyles[`oasis-${oasisResource}`],
+          cellStyles[`oasis-${oasisResource}-group-${oasisGroup}`],
+          cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}`],
+          cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}-variant-${oasisVariant}`],
+        ),
+      };
+    });
+  }, [map]);
+
   const fixedGridData = useMemo(() => {
     return {
-      tilesWithFactions,
+      tilesWithClasses,
+      gridSize,
       mapFilters,
-      magnification,
-      onClick: () => {},
-      villageCoordinatesToVillagesMap,
+      onClick: () => {
+      },
       villageCoordinatesToWorldItemsMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, villageCoordinatesToVillagesMap, villageCoordinatesToWorldItemsMap]);
+  }, [tilesWithClasses, mapFilters, villageCoordinatesToWorldItemsMap]);
 
   useEventListener(
     'mousedown',
@@ -253,9 +303,8 @@ const MapPage = () => {
         height={mapHeight - 1}
         width={width}
         itemData={fixedGridData}
-        itemKey={({ columnIndex, data, rowIndex }) => {
-          const size = Math.sqrt(data.tilesWithFactions.length);
-          const tile: TileType = map[size * rowIndex + columnIndex];
+        itemKey={({ columnIndex, rowIndex }) => {
+          const tile: TileType = map[gridSize * rowIndex + columnIndex];
           return tile.id;
         }}
         onScroll={({ scrollTop, scrollLeft }) => {

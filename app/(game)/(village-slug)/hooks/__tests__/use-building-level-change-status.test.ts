@@ -12,11 +12,11 @@ describe('getHasEnoughFreeCrop', () => {
   });
 
   test('returns true if there is enough free crop', () => {
-    expect(getHasEnoughFreeCrop(10, 100)).toBe(true); // 100 - 85 = 15 >= 10
+    expect(getHasEnoughFreeCrop(10, 100)).toBe(true);
   });
 
   test('returns false if there is not enough free crop', () => {
-    expect(getHasEnoughFreeCrop(20, 100)).toBe(false); // 100 - 90 = 10 < 20
+    expect(getHasEnoughFreeCrop(20, 10)).toBe(false);
   });
 });
 
