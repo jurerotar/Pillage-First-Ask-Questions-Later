@@ -101,7 +101,16 @@ const MapPage = () => {
       villageCoordinatesToWorldItemsMap,
       villageCoordinatesToVillagesMap,
     };
-  }, [map, mapFilters, villageCoordinatesToWorldItemsMap, playersMap, reputationsMap, villageCoordinatesToVillagesMap, gridSize, openModal]);
+  }, [
+    map,
+    mapFilters,
+    villageCoordinatesToWorldItemsMap,
+    playersMap,
+    reputationsMap,
+    villageCoordinatesToVillagesMap,
+    gridSize,
+    openModal,
+  ]);
 
   useEventListener(
     'mousedown',
@@ -197,11 +206,15 @@ const MapPage = () => {
 
   // We need this due to this bug: https://github.com/ReactTooltip/react-tooltip/issues/1189
   useEffect(() => {
+    // This can be disabled on mobile, because mobile does not render tooltips
+    if (!isWiderThanLg) {
+      return;
+    }
     if (rerenderCount >= 3) {
       return;
     }
     setRerenderCount((prevState) => prevState + 1);
-  }, [rerenderCount]);
+  }, [rerenderCount, isWiderThanLg]);
 
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
