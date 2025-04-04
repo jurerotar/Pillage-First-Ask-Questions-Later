@@ -1,4 +1,4 @@
-import { Cell, type TileWithClasses } from 'app/(game)/(village-slug)/(map)/components/cell';
+import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
@@ -8,12 +8,11 @@ import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
-import { isOccupiedOccupiableTile, isUnoccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
-import type { OasisTile, Tile as TileType } from 'app/interfaces/models/game/tile';
-import type { Village, VillageSize } from 'app/interfaces/models/game/village';
+import type { Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { Village } from 'app/interfaces/models/game/village';
 import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
@@ -22,33 +21,13 @@ import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
-import { parseCoordinatesFromTileId, parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
-import clsx from 'clsx';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
-import cellStyles from 'app/(game)/(village-slug)/(map)/components/cell.module.scss';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
-const populationToVillageSizeMap = new Map<number, VillageSize>([
-  [500, 'xl'],
-  [250, 'md'],
-  [100, 'sm'],
-]);
-
-const getVillageSize = (population: number): VillageSize => {
-  for (const [key, size] of populationToVillageSizeMap) {
-    if (population >= key) {
-      return size;
-    }
-  }
-
-  return 'xs';
-};
-
 const MapPage = () => {
   const [searchParams] = useSearchParams();
-  const { isOpen: isTileModalOpened } = useDialog<TileType>();
+  const { isOpen: isTileModalOpened, openModal } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
   const { mapFilters } = useMapFilters();
@@ -109,68 +88,20 @@ const MapPage = () => {
     );
   }, [worldItems]);
 
-  // Fun fact, using any kind of hooks in rendered tiles absolutely hammers performance.
-  // We need to get all tile information in here and pass it down as props
-  const tilesWithClasses = useMemo<TileWithClasses[]>(() => {
-    return map.map((tile: TileType) => {
-      if (isUnoccupiedOccupiableTile(tile)) {
-        const { RFC } = tile;
-
-        return {
-          ...tile,
-          tileClasses: clsx(cellStyles['cell-static-styles'], cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${RFC}`]),
-        };
-      }
-
-      if (isOccupiedOccupiableTile(tile)) {
-        const { faction, tribe } = playersMap.get(tile.ownedBy)!;
-        const { reputationLevel } = reputationsMap.get(faction)!;
-        const { x, y } = parseCoordinatesFromTileId(tile.id);
-        const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}|${y}`)!;
-
-        const population = calculatePopulationFromBuildingFields(buildingFields!, buildingFieldsPresets);
-
-        const villageSize = getVillageSize(population);
-
-        return {
-          ...tile,
-          tileClasses: clsx(
-            reputationLevel,
-            cellStyles['cell-static-styles'],
-            cellStyles['occupied-tile'],
-            cellStyles[`occupied-tile-${tribe}`],
-            cellStyles[`occupied-tile-${tribe}-${villageSize}`],
-            cellStyles[`occupied-tile-${villageSize}`],
-          ),
-        }
-      }
-
-      const { oasisResource, oasisGroup, groupPositions, oasisVariant } = parseOasisTileGraphicsProperty((tile as OasisTile).graphics);
-
-      return {
-        ...tile,
-        tileClasses: clsx(
-          cellStyles['cell-static-styles'],
-          cellStyles.oasis,
-          cellStyles[`oasis-${oasisResource}`],
-          cellStyles[`oasis-${oasisResource}-group-${oasisGroup}`],
-          cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}`],
-          cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}-variant-${oasisVariant}`],
-        ),
-      };
-    });
-  }, [map]);
-
   const fixedGridData = useMemo(() => {
     return {
-      tilesWithClasses,
+      map,
+      playersMap,
+      reputationsMap,
       gridSize,
       mapFilters,
-      onClick: () => {
+      onClick: (tile: TileType) => {
+        openModal(tile);
       },
       villageCoordinatesToWorldItemsMap,
+      villageCoordinatesToVillagesMap,
     };
-  }, [tilesWithClasses, mapFilters, villageCoordinatesToWorldItemsMap]);
+  }, [map, mapFilters, villageCoordinatesToWorldItemsMap, playersMap, reputationsMap, villageCoordinatesToVillagesMap, gridSize, openModal]);
 
   useEventListener(
     'mousedown',
@@ -294,7 +225,7 @@ const MapPage = () => {
         }}
       />
       <FixedSizeGrid
-        className="scrollbar-hidden bg-[#8EBF64]"
+        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
@@ -326,7 +257,7 @@ const MapPage = () => {
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 select-none pointer-events-none">
         <FixedSizeList
-          className="scrollbar-hidden"
+          className="scrollbar-hidden will-change-scroll"
           ref={leftMapRulerRef}
           itemSize={tileSize}
           height={mapHeight}
@@ -343,7 +274,7 @@ const MapPage = () => {
       {/* X-axis ruler */}
       <div className="absolute bottom-0 left-0 select-none pointer-events-none">
         <FixedSizeList
-          className="scrollbar-hidden"
+          className="scrollbar-hidden will-change-scroll"
           ref={bottomMapRulerRef}
           itemSize={tileSize}
           height={RULER_SIZE}

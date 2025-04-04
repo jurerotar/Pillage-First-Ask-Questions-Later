@@ -3,7 +3,7 @@ import type React from 'react';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 const treasureIconClassName = 'size-3 select-none';
-const treasureIconWrapperClassName = 'absolute top-0 right-0 z-20';
+const treasureIconWrapperClassName = 'absolute top-1 right-1 z-20';
 
 type TreasureIconProps = Omit<IconProps, 'type'> & {
   item: WorldItem;

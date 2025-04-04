@@ -1,10 +1,6 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Report } from 'app/interfaces/models/game/report';
 import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
-import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { QueryClient } from '@tanstack/react-query';
-import type { Troop } from 'app/interfaces/models/game/troop';
 import { setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
 
 const reinforcement: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
@@ -37,10 +33,10 @@ const returnReinforcements: Resolver<GameEvent<'troopMovement'>> = async (queryC
   const { villageId: originatingVillageId, targetVillageId, troops } = args;
 };
 
-const raid: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+const raid: Resolver<GameEvent<'troopMovement'>> = async (_queryClient, _args) => {
 };
 
-const attack: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+const attack: Resolver<GameEvent<'troopMovement'>> = async (_queryClient, _args) => {
 };
 
 export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
