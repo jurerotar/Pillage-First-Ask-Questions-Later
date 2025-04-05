@@ -1,11 +1,15 @@
+import type { Village } from 'app/interfaces/models/game/village';
+import type { Troop } from 'app/interfaces/models/game/troop';
+
 export type ReportTag = 'read' | 'archived';
 
 export type ReportStatus = 'no-loss' | 'some-loss' | 'full-loss';
 
 type BaseReport = {
-  id: number;
+  id: string;
   tags: ReportTag[];
-  timestamp: Date;
+  timestamp: number;
+  villageId: Village['id'];
 };
 
 export type BattleReport = BaseReport & {
@@ -27,7 +31,9 @@ export type TradeReport = BaseReport & {
 };
 
 export type TroopMovementReport = BaseReport & {
-  type: 'troop-movement';
+  type: 'relocation' | 'reinforcements' | 'return';
+  troops: Troop[];
+  targetVillageId: Village['id'];
 };
 
 export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport;

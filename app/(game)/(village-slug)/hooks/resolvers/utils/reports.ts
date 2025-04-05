@@ -2,14 +2,16 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { TroopMovementReport } from 'app/interfaces/models/game/report';
 import type { Resources } from 'app/interfaces/models/game/resource';
-import type { PickLiteral } from 'app/utils/typescript';
-import type { TroopMovement, TroopMovementType } from 'app/interfaces/models/game/troop-movement';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { reportFactory } from 'app/factories/report-factory';
 
-type GenerateTroopMovementReportArgs = Omit<TroopMovement, 'movementType'> & {
-  movementType: PickLiteral<TroopMovementType, 'reinforcement' | 'relocation'>;
-};
+type EventOmitter<T extends GameEvent> = Omit<T, 'id' | 'startsAt' | 'duration' | 'type'>;
 
-export const generateTroopMovementReport = (_args: GenerateTroopMovementReportArgs): TroopMovementReport => {
+type GenerateTroopMovementReportArgs = EventOmitter<GameEvent<'troopMovement'>>;
+
+export const generateTroopMovementReport = (args: GenerateTroopMovementReportArgs): TroopMovementReport => {
+  const { movementType, villageId, troops, targetVillageId } = args;
+  return reportFactory({ villageId, troops, targetVillageId, type: movementType });
 };
 
 type GenerateBattleReportArgs = {
@@ -23,14 +25,10 @@ type GenerateBattleReportArgs = {
   stolenResources: Resources;
 };
 
-export const generateScoutingReport = (_args: GenerateBattleReportArgs) => {
-};
+export const generateScoutingReport = (_args: GenerateBattleReportArgs) => {};
 
-export const generateBattleReport = (_args: GenerateBattleReportArgs) => {
-};
+export const generateBattleReport = (_args: GenerateBattleReportArgs) => {};
 
-export const generateTradeReport = () => {
-};
+export const generateTradeReport = () => {};
 
-export const generateAdventureReport = () => {
-};
+export const generateAdventureReport = () => {};

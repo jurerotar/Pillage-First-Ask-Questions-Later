@@ -37,11 +37,18 @@ type BaseUnitTrainingEvent = WithResourceCheck<
   }>
 >;
 
-type TroopMovementEvent = WithVillageId<{
+type BaseTroopMovementEvent = WithVillageId<{
   troops: Troop[];
   targetVillageId: Village['id'];
-  movementType: 'attack' | 'raid' | 'reinforcement' | 'relocation' | 'return';
 }>;
+
+type TroopMovementEvent = BaseTroopMovementEvent & {
+  movementType: 'reinforcements' | 'relocation' | 'return';
+};
+
+type OffensiveTroopMovementEvent = BaseTroopMovementEvent & {
+  movementType: 'attack' | 'raid';
+};
 
 type FindNewVillageEvent = WithVillageId<{
   targetTileId: Tile['id'];
@@ -54,6 +61,7 @@ export type GameEventType =
   | 'buildingDestruction'
   | 'troopTraining'
   | 'troopMovement'
+  | 'offensiveTroopMovement'
   | 'findNewVillage'
   | 'adventurePointIncrease';
 
@@ -64,6 +72,7 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
   troopMovement: TroopMovementEvent;
+  offensiveTroopMovement: OffensiveTroopMovementEvent;
   findNewVillage: FindNewVillageEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];

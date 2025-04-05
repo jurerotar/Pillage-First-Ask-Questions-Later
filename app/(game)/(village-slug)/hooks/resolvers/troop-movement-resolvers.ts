@@ -1,67 +1,25 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
-import { setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
+import { addTroops, setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
+import { troopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { Troop } from 'app/interfaces/models/game/troop';
 
-const reinforcement: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId: originatingVillageId, targetVillageId, troops } = args;
+export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, targetVillageId, troops: incomingTroops, movementType } = args;
 
-  const reinforcementReport = generateTroopMovementReport({
-    originatingVillageId,
-    targetVillageId,
-    movementType: 'reinforcement',
-    troops,
+  queryClient.setQueryData<Troop[]>([troopsCacheKey], (troops) => {
+    return addTroops(troops!, incomingTroops);
   });
 
-  setReport(queryClient, reinforcementReport);
-};
-
-const relocation: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId: originatingVillageId, targetVillageId, troops } = args;
-
   const relocationReport = generateTroopMovementReport({
-    originatingVillageId,
+    villageId,
     targetVillageId,
-    movementType: 'relocation',
-    troops,
+    movementType,
+    troops: incomingTroops,
   });
 
   setReport(queryClient, relocationReport);
 };
 
-const returnReinforcements: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId: originatingVillageId, targetVillageId, troops } = args;
-};
-
-const raid: Resolver<GameEvent<'troopMovement'>> = async (_queryClient, _args) => {
-};
-
-const attack: Resolver<GameEvent<'troopMovement'>> = async (_queryClient, _args) => {
-};
-
-export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { movementType } = args;
-
-  switch (movementType) {
-    case 'attack': {
-      await attack(queryClient, args);
-      break;
-    }
-    case 'raid': {
-      await raid(queryClient, args);
-      break;
-    }
-    case 'reinforcement': {
-      await reinforcement(queryClient, args);
-      break;
-    }
-    case 'relocation': {
-      await relocation(queryClient, args);
-      break;
-    }
-    case 'return': {
-      await returnReinforcements(queryClient, args);
-      break;
-    }
-  }
-};
+export const offensiveTroopMovementResolver: Resolver<GameEvent<'offensiveTroopMovement'>> = async (_queryClient, _args) => {};
