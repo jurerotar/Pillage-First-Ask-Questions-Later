@@ -1,7 +1,7 @@
 import { format, formatDistanceToNow, isSameDay } from 'date-fns';
 
 export const formatTime = (milliseconds: number): string => {
-  let time: string = '';
+  let time = '';
 
   const hours = Math.floor(milliseconds / 1000 / 60 / 60)
     .toString()
@@ -13,7 +13,7 @@ export const formatTime = (milliseconds: number): string => {
     .toString()
     .padStart(2, '0');
 
-  if (hours != '00') {
+  if (hours !== '00') {
     time += `${hours}:`;
   }
 
