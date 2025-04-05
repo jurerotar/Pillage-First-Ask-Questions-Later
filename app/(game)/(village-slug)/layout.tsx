@@ -147,17 +147,19 @@ const ResourceCounters = () => {
         <span className="w-[2px] h-full bg-gray-300" />
         <span className="flex flex-col justify-between gap-0.5 w-full">
           <span className="inline-flex justify-between items-center gap-0.5">
-            <Icon className="size-4" type="population" />
-            <span className="text-2xs font-medium">
-              {formatNumber(Math.abs(buildingWheatConsumption))}
-            </span>
+            <Icon
+              className="size-4"
+              type="population"
+            />
+            <span className="text-2xs font-medium">{formatNumber(Math.abs(buildingWheatConsumption))}</span>
           </span>
           <span className="h-[2px] w-full bg-gray-300" />
           <span className="flex justify-between items-center gap-0.5">
-            <Icon className="size-4" type="wheatProduction" />
-            <span className="text-2xs font-medium">
-              {formatNumber(buildingWheatLimit)}
-            </span>
+            <Icon
+              className="size-4"
+              type="wheatProduction"
+            />
+            <span className="text-2xs font-medium">{formatNumber(buildingWheatLimit)}</span>
           </span>
         </span>
       </span>
@@ -188,8 +190,8 @@ const VillageSelect = () => {
         </option>
       ))}
     </select>
-  )
-}
+  );
+};
 
 const TopNavigation = () => {
   const { adventurePoints } = useAdventurePoints();
@@ -326,14 +328,12 @@ const TopNavigation = () => {
       </div>
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div
-        className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
         <DiscordLink />
         <VillageSelect />
         <HeroNavigationItem />
       </div>
-      <div
-        className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
+      <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>
@@ -356,8 +356,7 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brainrot on display here, God help us
   return (
-    <header
-      className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"

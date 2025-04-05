@@ -23,9 +23,7 @@ const HeroPage = () => {
         <StyledTab>{t('Adventures')}</StyledTab>
         <StyledTab>{t('Auctions')}</StyledTab>
       </TabList>
-      <TabPanel>
-        {t('Overview')}
-      </TabPanel>
+      <TabPanel>{t('Overview')}</TabPanel>
       <TabPanel>
         <Adventures />
       </TabPanel>

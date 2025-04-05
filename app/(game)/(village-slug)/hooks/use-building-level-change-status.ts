@@ -10,9 +10,7 @@ import type { Resources } from 'app/interfaces/models/game/resource';
 import { useTranslation } from 'react-i18next';
 import type { Building } from 'app/interfaces/models/game/building';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
-import {
-  useCurrentVillageBuildingEventQueue
-} from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
+import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 
 export const getHasEnoughFreeCrop = (nextLevelWheatConsumption: number, buildingWheatLimit: number): boolean => {
   if (nextLevelWheatConsumption === 0) {

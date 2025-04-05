@@ -9,8 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { normalizeForcedFloatValue } from 'app/utils/common';
 
 const formatBonus = (number: number) => {
-  return Math.trunc((normalizeForcedFloatValue(number)) * 100);
-}
+  return Math.trunc(normalizeForcedFloatValue(number) * 100);
+};
 
 type ResourceBoosterBenefitsProps = {
   effectId: Effect['id'];
@@ -24,7 +24,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
 
   const { value: serverValue } = effects.find(({ scope, id }) => scope === 'server' && id === effectId)!;
 
-  const effectsAffectingCurrentVillage = effects.filter((effect) => effect.id === effectId && (effect.scope === 'global' || (isVillageEffect(effect) && effect.villageId === currentVillage.id)));
+  const effectsAffectingCurrentVillage = effects.filter(
+    (effect) =>
+      effect.id === effectId && (effect.scope === 'global' || (isVillageEffect(effect) && effect.villageId === currentVillage.id)),
+  );
   const buildingEffects = effectsAffectingCurrentVillage.filter(isBuildingEffect);
   const artifactBonuses = effectsAffectingCurrentVillage.filter(isArtifactEffect);
   const heroEffects = effectsAffectingCurrentVillage.filter(isHeroEffect);
@@ -36,7 +39,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
 
   const hasHeroProductionBonus = normalizeForcedFloatValue(heroResourceProductionEffect.value) > 1;
 
-  const summedBonusProductionValues = [...bonusProductionEffects, ...artifactBonuses, heroResourceProductionEffect].reduce((accumulator, effect) => accumulator + normalizeForcedFloatValue(effect.value) - 1, 0);
+  const summedBonusProductionValues = [...bonusProductionEffects, ...artifactBonuses, heroResourceProductionEffect].reduce(
+    (accumulator, effect) => accumulator + normalizeForcedFloatValue(effect.value) - 1,
+    0,
+  );
   const summedBaseProductionValues = baseProductionEffects.reduce((accumulator, effect) => accumulator + effect.value * serverValue, 0);
 
   const hasBonusValues = summedBonusProductionValues > 0;
@@ -55,21 +61,15 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
           <TableBody>
             {!hasBonusValues && (
               <TableRow>
-                <TableCell colSpan={2}>
-                  {t('No production bonuses')}
-                </TableCell>
+                <TableCell colSpan={2}>{t('No production bonuses')}</TableCell>
               </TableRow>
             )}
             {hasBonusValues && (
               <>
                 {hasHeroProductionBonus && (
                   <TableRow>
-                    <TableCell>
-                      {t('Hero production bonus')}
-                    </TableCell>
-                    <TableCell>
-                      {formatBonus(heroResourceProductionEffect.value - 1)}%
-                    </TableCell>
+                    <TableCell>{t('Hero production bonus')}</TableCell>
+                    <TableCell>{formatBonus(heroResourceProductionEffect.value - 1)}%</TableCell>
                   </TableRow>
                 )}
                 {artifactBonuses.map(({ value, artifactId }) => (
@@ -77,30 +77,20 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
                     <TableCell>
                       {t('Artifact')} - {assetsT(`ITEMS.${artifactId}.TITLE`)}
                     </TableCell>
-                    <TableCell>
-                      {value - 1}%
-                    </TableCell>
+                    <TableCell>{value - 1}%</TableCell>
                   </TableRow>
                 ))}
                 {bonusProductionEffects.map(({ value, buildingFieldId, buildingId }) => (
                   <TableRow key={buildingFieldId}>
-                    <TableCell>
-                      {assetsT(`BUILDINGS.${buildingId}.NAME`)}
-                    </TableCell>
-                    <TableCell>
-                      {formatBonus(value - 1)}%
-                    </TableCell>
+                    <TableCell>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</TableCell>
+                    <TableCell>{formatBonus(value - 1)}%</TableCell>
                   </TableRow>
                 ))}
               </>
             )}
             <TableRow className="font-medium">
-              <TableCell>
-                {t('Total')}
-              </TableCell>
-              <TableCell>
-                {formatBonus(summedBonusProductionValues)}%
-              </TableCell>
+              <TableCell>{t('Total')}</TableCell>
+              <TableCell>{formatBonus(summedBonusProductionValues)}%</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -119,24 +109,14 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
           <TableBody>
             {baseProductionEffects.map(({ value, buildingFieldId, buildingId }) => (
               <TableRow key={buildingFieldId}>
-                <TableCell>
-                  {assetsT(`BUILDINGS.${buildingId}.NAME`)}
-                </TableCell>
-                <TableCell>
-                  {value}
-                </TableCell>
-                <TableCell>
-                  {Math.trunc(value * summedBonusProductionValues)}
-                </TableCell>
+                <TableCell>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</TableCell>
+                <TableCell>{value}</TableCell>
+                <TableCell>{Math.trunc(value * summedBonusProductionValues)}</TableCell>
               </TableRow>
             ))}
             <TableRow className="font-medium">
-              <TableCell>
-                {t('Total')}
-              </TableCell>
-              <TableCell>
-                {summedBaseProductionValues}
-              </TableCell>
+              <TableCell>{t('Total')}</TableCell>
+              <TableCell>{summedBaseProductionValues}</TableCell>
               <TableCell>
                 {baseProductionEffects.reduce((acc, effect) => acc + Math.trunc(effect.value * summedBonusProductionValues), 0)}
               </TableCell>
@@ -146,4 +126,4 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
       </section>
     </article>
   );
-}
+};

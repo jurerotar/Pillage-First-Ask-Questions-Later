@@ -34,6 +34,6 @@ export const heroFactory = (server: Server): Hero => {
     adventures: {
       short: 0,
       long: 0,
-    }
+    },
   };
 };

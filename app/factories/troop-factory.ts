@@ -353,12 +353,14 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
   const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
 
   // Player always starts with 3 tier-1 units
-  const playerTroops: Troop[] = [{
-    unitId: tier1UnitIt.id,
-    amount: 3,
-    source: tileId,
-    tileId,
-  }];
+  const playerTroops: Troop[] = [
+    {
+      unitId: tier1UnitIt.id,
+      amount: 3,
+      source: tileId,
+      tileId,
+    },
+  ];
 
   return {
     playerTroops,

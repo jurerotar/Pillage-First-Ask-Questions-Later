@@ -4,7 +4,9 @@ import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 
 export const Adventures = () => {
-  const { server: { seed } } = useServer();
+  const {
+    server: { seed },
+  } = useServer();
   const { hero } = useHero();
 
   const { short: shortAdventureCount, long: longAdventureCount } = hero.adventures;
@@ -18,7 +20,5 @@ export const Adventures = () => {
   // Long adventure is between 55 & 65 min long
   const _longAdventureDuration = seededRandomIntFromInterval(longAdventurePrng, 55 * 60, 65 * 60) * 1000;
 
-  return (
-    <p>Adventures</p>
-  );
+  return <p>Adventures</p>;
 };

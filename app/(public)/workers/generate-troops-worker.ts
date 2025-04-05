@@ -12,7 +12,7 @@ export type GenerateTroopsWorkerPayload = {
 };
 
 export type GenerateTroopsWorkerReturn = {
-  playerTroops: Troop[],
+  playerTroops: Troop[];
   npcTroops: Troop[];
 };
 

@@ -69,7 +69,9 @@ export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChang
     // Loop through all effects gained by the new level, find corresponding village effects and update them to the new values
     for (const { effectId, valuesPerLevel } of effects) {
       // We need the effect.value === valuesPerLevel[level - 1] check, because otherwise a wheatProduction effect from cropland can override a negative wheatProduction effect from population increasing
-      const villageEffect = buildingEffects.find((effect) => effect.id === effectId && effect?.buildingFieldId === buildingFieldId && effect.value === valuesPerLevel[level - 1])!;
+      const villageEffect = buildingEffects.find(
+        (effect) => effect.id === effectId && effect?.buildingFieldId === buildingFieldId && effect.value === valuesPerLevel[level - 1],
+      )!;
       villageEffect.value = valuesPerLevel[level];
     }
 

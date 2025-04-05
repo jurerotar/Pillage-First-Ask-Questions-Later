@@ -15,4 +15,3 @@ export const isArtifactEffect = (effect: Effect): effect is ArtifactEffect => {
 export const isHeroEffect = (effect: Effect): effect is HeroEffect => {
   return effect.source === 'hero';
 };
-

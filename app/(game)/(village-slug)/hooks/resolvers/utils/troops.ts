@@ -5,9 +5,7 @@ import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys'
 
 export const addTroops = (existing: Troop[], incoming: Troop[]): Troop[] => {
   for (const inc of incoming) {
-    const match = existing.find(
-      (troop) => troop.unitId === inc.unitId && troop.tileId === inc.tileId && troop.source === inc.source
-    );
+    const match = existing.find((troop) => troop.unitId === inc.unitId && troop.tileId === inc.tileId && troop.source === inc.source);
 
     if (match) {
       match.amount += inc.amount;

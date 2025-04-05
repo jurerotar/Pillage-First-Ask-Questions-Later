@@ -17,7 +17,7 @@ export type Hero = {
 type HeroAdventures = {
   short: number;
   long: number;
-}
+};
 
 type HeroStats = {
   experience: number;

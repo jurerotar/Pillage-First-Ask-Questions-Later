@@ -48,7 +48,7 @@ export const MapProvider: React.FCWithChildren = ({ children }) => {
     decreaseMagnification,
     tileSize,
     gridSize,
-  }
+  };
 
   return <MapContext value={value}>{children}</MapContext>;
 };
