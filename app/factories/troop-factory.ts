@@ -8,6 +8,7 @@ import type { NatureUnitId, UnitId } from 'app/interfaces/models/game/unit';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { prngAlea } from 'ts-seedrandom';
+import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
 
 type GenerateTroopsArgs = {
   server: Server;
@@ -290,10 +291,10 @@ const villageSizeToTroopsLevel = new Map<VillageSize, number>([
   ['xxs', 0],
   ['xs', 0],
   ['sm', 5],
-  ['md', 10],
-  ['lg', 20],
-  ['xl', 20],
-  ['2xl', 20],
+  ['md', 5],
+  ['lg', 10],
+  ['xl', 15],
+  ['2xl', 15],
   ['3xl', 20],
   ['4xl', 20],
 ]);
@@ -314,16 +315,20 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
         amount: seededRandomIntFromInterval(prng, min, max),
         source: tileId,
         tileId,
-        level: 0,
-      };
+      } satisfies Troop;
     });
   });
 
-  const npcTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy }) => {
+  const npcPlayersTroops: Troop[] = occupiedOccupiableTiles.flatMap(({ id: tileId, ownedBy }) => {
     const { tribe } = playerMap.get(ownedBy)!;
     // TODO: Uncomment this once above TODOs are fixed
     //const villageSize = getVillageSize(server.configuration.mapSize, coordinates);
     const villageSize = 'xs';
+
+    // Player starting units are handled separately
+    if (ownedBy === 'player') {
+      return [];
+    }
 
     const unitCompositionByTribe = npcUnitCompositionByTribeAndSize.get(tribe)!;
     const unitCompositionBySize = unitCompositionByTribe.get(villageSize)!;
@@ -341,5 +346,24 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
     });
   });
 
-  return [...oasisTroops, ...npcTroops];
+  const npcTroops = [...oasisTroops, ...npcPlayersTroops];
+
+  const { tribe } = playerMap.get('player')!;
+  const { id: tileId } = occupiedOccupiableTiles.find(({ ownedBy }) => ownedBy === 'player')!;
+  const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
+
+  // Player always starts with 3 tier-1 units
+  const playerTroops: Troop[] = [
+    {
+      unitId: tier1UnitIt.id,
+      amount: 3,
+      source: tileId,
+      tileId,
+    },
+  ];
+
+  return {
+    playerTroops,
+    npcTroops,
+  };
 };

@@ -278,7 +278,7 @@ export const BuildingDetails = () => {
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
   return (
-    <article className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <Tabs
         selectedIndex={tabIndex}
         onSelect={(index) => {
@@ -294,16 +294,14 @@ export const BuildingDetails = () => {
           <StyledTab>{t('Upgrade details')}</StyledTab>
         </TabList>
         <TabPanel>
-          <div className="border border-gray-500 p-2">
-            <BuildingOverview
-              buildingId={buildingId}
-              showLevel
-            />
-            <BuildingActions buildingId={buildingId} />
-          </div>
+          <BuildingOverview
+            buildingId={buildingId}
+            showLevel
+          />
+          <BuildingActions buildingId={buildingId} />
           <Suspense fallback={<>Loading tab</>}>
             {!MainTabAdditionalContent ? null : (
-              <div className="mt-2 border border-gray-500 p-2">
+              <div className="mt-2">
                 <MainTabAdditionalContent />
               </div>
             )}
@@ -314,9 +312,7 @@ export const BuildingDetails = () => {
           return (
             <TabPanel key={name}>
               <Suspense fallback={<>Loading tab</>}>
-                <div className="border border-gray-500 p-2">
-                  <Panel />
-                </div>
+                <Panel />
               </Suspense>
             </TabPanel>
           );
@@ -325,6 +321,6 @@ export const BuildingDetails = () => {
           <BuildingStats />
         </TabPanel>
       </Tabs>
-    </article>
+    </div>
   );
 };

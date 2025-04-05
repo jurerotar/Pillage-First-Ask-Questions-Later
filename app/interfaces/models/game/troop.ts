@@ -6,5 +6,4 @@ export type Troop = {
   amount: number;
   tileId: Tile['id'];
   source: Tile['id'];
-  level: number;
 };

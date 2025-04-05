@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -35,28 +37,28 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [16, 'top-[77%] left-[36%]'],
   [17, 'top-[86%] left-[50%]'],
   [18, 'top-[76%] left-[62%]'],
-  [19, 'top-[33%] left-[26%]'],
-  [20, 'top-[24%] left-[36%]'],
-  [21, 'top-[18%] left-[47%]'],
-  [22, 'top-[19%] left-[57%]'],
-  [23, 'top-[22%] left-[68%]'],
-  [24, 'top-[35%] left-[76%]'],
-  [25, 'top-[47%] left-[79%]'],
-  [26, 'top-[61%] left-[80%]'],
-  [27, 'top-[73%] left-[76%]'],
-  [28, 'top-[84%] left-[66%]'],
-  [29, 'top-[75%] left-[57%]'],
-  [30, 'top-[90%] left-[51%]'],
-  [31, 'top-[86%] left-[35%]'],
-  [32, 'top-[73%] left-[22%]'],
-  [33, 'top-[59%] left-[17%]'],
-  [34, 'top-[44%] left-[19%]'],
-  [35, 'top-[62%] left-[48%]'],
-  [36, 'top-[53%] left-[36%]'],
-  [37, 'top-[42%] left-[42%]'],
-  [38, 'top-[37%] left-[53%]'],
-  [39, 'top-[51%] left-[64%]'],
-  [40, 'top-[83%] left-[81%]'],
+  [19, 'top-[33%] left-[26%] border border-red-400'],
+  [20, 'top-[24%] left-[36%] border border-red-400'],
+  [21, 'top-[18%] left-[47%] border border-red-400'],
+  [22, 'top-[19%] left-[57%] border border-red-400'],
+  [23, 'top-[22%] left-[68%] border border-red-400'],
+  [24, 'top-[35%] left-[76%] border border-red-400'],
+  [25, 'top-[47%] left-[79%] border border-red-400'],
+  [26, 'top-[61%] left-[80%] border border-red-400'],
+  [27, 'top-[73%] left-[76%] border border-red-400'],
+  [28, 'top-[84%] left-[66%] border border-red-400'],
+  [29, 'top-[75%] left-[57%] border border-red-400'],
+  [30, 'top-[90%] left-[51%] border border-red-400'],
+  [31, 'top-[86%] left-[35%] border border-red-400'],
+  [32, 'top-[73%] left-[22%] border border-red-400'],
+  [33, 'top-[59%] left-[17%] border border-red-400'],
+  [34, 'top-[44%] left-[19%] border border-red-400'],
+  [35, 'top-[62%] left-[48%] border border-red-400'],
+  [36, 'top-[53%] left-[36%] border border-red-400'],
+  [37, 'top-[42%] left-[42%] border border-red-400'],
+  [38, 'top-[37%] left-[53%] border border-red-400'],
+  [39, 'top-[51%] left-[64%] border border-red-400'],
+  [40, 'top-[83%] left-[81%] border border-red-400'],
 ]);
 
 const buildingToBuildingLevelToGraphicVariantMap = new Map<Building['id'], Map<number, string[]>>([
@@ -139,7 +141,14 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { shouldShowBuildingNames } = usePreferences();
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { id: buildingFieldId, buildingId, level } = buildingField;
+
+  const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
+    ({ buildingFieldId: buildingEventBuildingFieldId }) => buildingEventBuildingFieldId === buildingFieldId,
+  );
+
+  const hasEvent = !!currentBuildingFieldBuildingEvent;
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
 
@@ -152,7 +161,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       className={clsx(
         styles,
         dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.RFC, level }),
-        'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center md:size-16 rounded-full border border-red-400 bg-contain',
+        'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
       onMouseEnter={() => setIsHovered(true)}
@@ -163,8 +172,9 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
         buildingFieldId={buildingFieldId}
       />
       {shouldShowBuildingNames && (
-        <span className="text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
-          {assetsT(`BUILDINGS.${buildingId}.NAME`)}
+        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+          {hasEvent && <Countdown endsAt={currentBuildingFieldBuildingEvent.startsAt + currentBuildingFieldBuildingEvent.duration} />}
+          {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}
     </Link>

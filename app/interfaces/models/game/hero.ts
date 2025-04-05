@@ -10,10 +10,16 @@ export type Hero = {
   resourceToProduce: Resource | 'shared';
   unitType: 'infantry' | 'cavalry';
   inventory: HeroItem[];
+  adventures: HeroAdventures;
+};
+
+// Amount of done adventures of either type
+type HeroAdventures = {
+  short: number;
+  long: number;
 };
 
 type HeroStats = {
-  level: number;
   experience: number;
   health: number;
 };

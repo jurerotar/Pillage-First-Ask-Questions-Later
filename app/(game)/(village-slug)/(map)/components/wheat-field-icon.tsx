@@ -7,7 +7,7 @@ export const WheatFieldIcon: React.FC = () => {
       className="select-none size-3"
       type="wheat"
       borderVariant="yellow"
-      wrapperClassName="absolute top-0 right-0 z-10"
+      wrapperClassName="absolute top-1 right-1 z-10"
       asCss
     />
   );

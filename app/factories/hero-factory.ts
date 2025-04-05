@@ -13,7 +13,6 @@ export const heroFactory = (server: Server): Hero => {
 
   return {
     stats: {
-      level: 1,
       experience: 0,
       health: 100,
     },
@@ -32,5 +31,9 @@ export const heroFactory = (server: Server): Hero => {
     resourceToProduce: 'shared',
     unitType: 'infantry',
     inventory: [],
+    adventures: {
+      short: 0,
+      long: 0,
+    },
   };
 };

@@ -69,6 +69,10 @@ export const roundTo2DecimalPoints = (number: number): number => {
   return Math.round(number * 100) / 100;
 };
 
+export const roundTo5 = (n: number) => {
+  return Math.round(n / 5) * 5;
+};
+
 export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
@@ -143,4 +147,12 @@ export const formatNumber = (number: number): string => {
 // Formats number as either an integer or as a percentage
 export const formatValue = (value: number) => {
   return Number.isInteger(value) && !value.toString().includes('.') ? value : formatPercentage(value);
+};
+
+export const normalizeForcedFloatValue = (value: number) => {
+  if (`${value}`.endsWith('.001')) {
+    return Math.trunc(value);
+  }
+
+  return value;
 };

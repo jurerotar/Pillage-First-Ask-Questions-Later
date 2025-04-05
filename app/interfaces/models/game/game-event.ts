@@ -1,6 +1,8 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Tile } from 'app/interfaces/models/game/tile';
 
 type WithResourceCheck<T> = T & {
   resourceCost: number[];
@@ -18,24 +20,39 @@ type BaseGameEvent = {
 };
 
 type BaseBuildingEvent = WithResourceCheck<
-  BaseGameEvent &
-    WithVillageId<{
-      buildingFieldId: BuildingField['id'];
-      buildingId: Building['id'];
-      level: number;
-    }>
+  WithVillageId<{
+    buildingFieldId: BuildingField['id'];
+    buildingId: Building['id'];
+    level: number;
+  }>
 >;
 
 type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level' | 'resourceCost'>;
 
 type BaseUnitTrainingEvent = WithResourceCheck<
-  BaseGameEvent &
-    WithVillageId<{
-      amount: number;
-      unitId: Unit['id'];
-      buildingId: Building['id'];
-    }>
+  WithVillageId<{
+    amount: number;
+    unitId: Unit['id'];
+    buildingId: Building['id'];
+  }>
 >;
+
+type BaseTroopMovementEvent = WithVillageId<{
+  troops: Troop[];
+  targetVillageId: Village['id'];
+}>;
+
+type TroopMovementEvent = BaseTroopMovementEvent & {
+  movementType: 'reinforcements' | 'relocation' | 'return';
+};
+
+type OffensiveTroopMovementEvent = BaseTroopMovementEvent & {
+  movementType: 'attack' | 'raid';
+};
+
+type FindNewVillageEvent = WithVillageId<{
+  targetTileId: Tile['id'];
+}>;
 
 export type GameEventType =
   | 'buildingScheduledConstruction'
@@ -43,6 +60,9 @@ export type GameEventType =
   | 'buildingLevelChange'
   | 'buildingDestruction'
   | 'troopTraining'
+  | 'troopMovement'
+  | 'offensiveTroopMovement'
+  | 'findNewVillage'
   | 'adventurePointIncrease';
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {
@@ -51,6 +71,9 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingLevelChange: BaseBuildingEvent;
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
+  troopMovement: TroopMovementEvent;
+  offensiveTroopMovement: OffensiveTroopMovementEvent;
+  findNewVillage: FindNewVillageEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];
 

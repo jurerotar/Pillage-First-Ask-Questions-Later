@@ -21,7 +21,7 @@ export const useCurrentVillageBuildingEvents = () => {
     gcTime: 10_000,
     queryKeyHashFn: () => {
       const eventHash = events.map((event) => event.id).join('|');
-      return `${nonPersistedCacheKey}-current-village-building-events-${eventHash}`;
+      return `${nonPersistedCacheKey}-village-id-[${currentVillage.id}]-current-village-building-events-${eventHash}`;
     },
   });
 

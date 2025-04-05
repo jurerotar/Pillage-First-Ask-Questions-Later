@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Player } from 'app/interfaces/models/game/player';
-import { useCallback } from 'react';
-import { playersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { nonPersistedCacheKey, playersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 export const usePlayers = () => {
   const { data: players } = useQuery<Player[]>({
@@ -11,16 +10,23 @@ export const usePlayers = () => {
 
   const currentPlayer = players.at(0)!;
 
-  const getPlayerByPlayerId = useCallback(
-    (playerIdToSearchFor: Player['id']): Player => {
-      return players.find(({ id }) => playerIdToSearchFor === id)!;
+  const getPlayersMap = () => new Map(players.map((player) => [player.id, player]));
+
+  const { data: playersMap } = useQuery<Map<Player['id'], Player>>({
+    queryKey: [nonPersistedCacheKey, players],
+    queryFn: getPlayersMap,
+    initialData: getPlayersMap,
+    initialDataUpdatedAt: Date.now(),
+    gcTime: 10_000,
+    queryKeyHashFn: () => {
+      const playersHash = players.map((player) => player.id).join('|');
+      return `${nonPersistedCacheKey}-players-hash-[${playersHash}]`;
     },
-    [players],
-  );
+  });
 
   return {
     players,
     currentPlayer,
-    getPlayerByPlayerId,
+    playersMap,
   };
 };

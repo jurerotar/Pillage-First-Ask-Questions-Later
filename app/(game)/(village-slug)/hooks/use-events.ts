@@ -20,6 +20,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { partition } from 'app/utils/common';
 import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { adventurePointIncreaseResolver } from 'app/(game)/(village-slug)/hooks/resolvers/adventure-resolvers';
+import { troopMovementResolver } from 'app/(game)/(village-slug)/hooks/resolvers/troop-movement-resolvers';
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   switch (gameEventType) {
@@ -40,6 +41,9 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
     }
     case 'adventurePointIncrease': {
       return adventurePointIncreaseResolver;
+    }
+    case 'troopMovement': {
+      return troopMovementResolver;
     }
     default: {
       return console.error('No resolver function set for event type', gameEventType);

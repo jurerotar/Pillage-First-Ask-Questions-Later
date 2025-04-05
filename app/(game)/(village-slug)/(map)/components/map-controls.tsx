@@ -49,13 +49,13 @@ export const MapControls = () => {
   return (
     <>
       <Tooltip id="map-controls-tooltip" />
-      <div className="pointer-events-none fixed bottom-28 lg:bottom-8 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
-        <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-2">
+      <div className="pointer-events-none fixed top-30 lg:top-[unset] lg:bottom-8 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
+        <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2 order-2 lg:order-1">
           <MagnificationButton direction="increase" />
           <Divider orientation="horizontal" />
           <MagnificationButton direction="decrease" />
         </div>
-        <div className="pointer-events-auto flex gap-1 sm:gap-2 rounded-md bg-white p-2">
+        <div className="pointer-events-auto flex gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2 order-1 lg:order-2">
           <span
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content={t('Toggle faction reputation display')}
