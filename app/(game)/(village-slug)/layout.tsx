@@ -6,14 +6,14 @@ import clsx from 'clsx';
 import type React from 'react';
 import { Fragment, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
-import { LuScrollText } from 'react-icons/lu';
+import { LuBuilding, LuConstruction, LuScrollText } from 'react-icons/lu';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { FaBookBookmark, FaDiscord, FaGithub } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
-import { TbMap2 } from 'react-icons/tb';
+import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { LinkWithState } from 'app/components/link-with-state';
 import { Link, Outlet, useNavigate } from 'react-router';
@@ -32,6 +32,11 @@ import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { formatNumber } from 'app/utils/common';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import {
+  useCurrentVillageBuildingEventQueue
+} from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -74,6 +79,9 @@ const DiscordLink = () => {
 const HeroNavigationItem = () => {
   const { hero } = useHero();
   const { heroPath } = useGameNavigation();
+  const { playerTroops } = usePlayerTroops();
+
+  const isHeroHome = playerTroops.find(({ unitId }) => unitId === 'HERO')!;
 
   const { level } = calculateHeroLevel(hero.stats.experience);
 
@@ -94,7 +102,12 @@ const HeroNavigationItem = () => {
         </span>
       )}
       <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
-        <FaHome className="text-gray-500 text-xs" />
+        {isHeroHome && (
+          <FaHome className="text-gray-500 text-xs" />
+        )}
+        {!isHeroHome && (
+          <TbShoe className="text-gray-500 text-xs" />
+        )}
       </span>
     </Link>
   );
@@ -436,6 +449,50 @@ const MobileBottomNavigation = () => {
   );
 };
 
+const BuildingQueue = () => {
+  const { tribe } = useTribe();
+  // We need 2 of them because romans have 2 separate ones
+  const { currentVillageBuildingEventsQueue: resourcesEventQueue } = useCurrentVillageBuildingEventQueue(1);
+  const { currentVillageBuildingEventsQueue: villageEventQueue } = useCurrentVillageBuildingEventQueue(19);
+
+  console.log(resourcesEventQueue, villageEventQueue);
+
+  return (
+    <ul className="fixed left-0 bottom-30 flex gap-2">
+      <li className="">
+        {villageEventQueue.length > 0 && (
+          <LuBuilding />
+        )}
+        {villageEventQueue.length === 0 && (
+          <LuConstruction />
+        )}
+      </li>
+      {tribe === 'romans' && (
+        <li className="">
+          {resourcesEventQueue.length > 0 && (
+            <LuBuilding />
+          )}
+          {resourcesEventQueue.length === 0 && (
+            <LuConstruction />
+          )}
+        </li>
+      )}
+    </ul>
+  );
+};
+
+const Troops = () => {
+  const { playerTroops } = usePlayerTroops();
+
+  return (
+    <ul className="fixed right-4 top-40 flex flex-col gap-2">
+      {playerTroops.map((troop) => (
+        <li key={troop.unitId}>{troop.amount} {troop.unitId}</li>
+      )) }
+    </ul>
+  );
+};
+
 export const ErrorBoundary = () => {
   return <p>Layout error</p>;
 };
@@ -449,7 +506,9 @@ const GameLayout = () => {
         <CountdownProvider>
           <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
             <TopNavigation />
+            <Troops />
             <Outlet />
+            <BuildingQueue />
             <MobileBottomNavigation />
           </div>
         </CountdownProvider>

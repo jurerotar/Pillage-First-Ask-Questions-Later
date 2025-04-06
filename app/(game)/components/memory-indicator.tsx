@@ -12,7 +12,7 @@ const formatBytes = (bytes: number, decimals = 2): string => {
 };
 
 export const MemoryIndicator = () => {
-  const [usedHeap, setUsedHeap] = useState<number | null>(null);
+  const [usedHeap, setUsedHeap] = useState<number>(0);
 
   useEffect(() => {
     // @ts-expect-error: Dev-only
@@ -29,12 +29,14 @@ export const MemoryIndicator = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (usedHeap === null) {
-    return <div className="text-xs text-muted">Memory: not supported</div>;
+  // @ts-expect-error: Dev-only
+  if (!window.performance.memory) {
+    return null;
   }
 
   return (
-    <div className="fixed bottom-2 lg:bottom-auto right-2 lg:right-auto lg:top-1 lg:left-1 w-fit h-auto pointer-events-none text-2xs lg:text-xs font-mono bg-black/80 text-white px-2 py-1 rounded shadow">
+    <div
+      className="fixed bottom-2 lg:bottom-auto left-2 lg:top-1 lg:left-1 w-fit h-auto pointer-events-none text-2xs lg:text-xs font-mono z-100 bg-black/80 text-white px-2 py-1 rounded shadow">
       Memory: {formatBytes(usedHeap)}
     </div>
   );
