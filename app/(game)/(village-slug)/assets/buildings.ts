@@ -1146,7 +1146,7 @@ export const buildings: Building[] = [
     effects: [
       createNegativeWheatProductionEffect('A'),
       {
-        effectId: 'unitSpeed',
+        effectId: 'unitSpeedAfter20Fields',
         valuesPerLevel: [1.001, 1.2, 1.4, 1.6, 1.8, 2.001, 2.2, 2.4, 2.6, 2.8, 3.001, 3.2, 3.4, 3.6, 3.8, 4.001, 4.2, 4.4, 4.6, 4.8, 5.001],
       },
     ],

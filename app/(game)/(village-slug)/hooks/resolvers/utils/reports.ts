@@ -1,6 +1,6 @@
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { TroopMovementReport } from 'app/interfaces/models/game/report';
+import type { OasisOccupationReport, TroopMovementReport } from 'app/interfaces/models/game/report';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { reportFactory } from 'app/factories/report-factory';
@@ -10,8 +10,15 @@ type EventOmitter<T extends GameEvent> = Omit<T, 'id' | 'startsAt' | 'duration' 
 type GenerateTroopMovementReportArgs = EventOmitter<GameEvent<'troopMovement'>>;
 
 export const generateTroopMovementReport = (args: GenerateTroopMovementReportArgs): TroopMovementReport => {
-  const { movementType, villageId, troops, targetVillageId } = args;
-  return reportFactory({ villageId, troops, targetVillageId, type: movementType });
+  const { movementType, villageId, troops, targetId } = args;
+  return reportFactory({ villageId, troops, targetId, type: movementType });
+};
+
+type GenerateOasisOccupationTroopMovementReportArgs = EventOmitter<GameEvent<'oasisOccupation'>>;
+
+export const generateOasisOccupationTroopMovementReport = (args: GenerateOasisOccupationTroopMovementReportArgs): OasisOccupationReport => {
+  const { movementType, villageId, troops, targetId } = args;
+  return reportFactory({ villageId, troops, targetId, type: movementType });
 };
 
 type GenerateBattleReportArgs = {

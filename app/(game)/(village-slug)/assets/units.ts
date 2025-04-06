@@ -1357,6 +1357,24 @@ export const natarianUnits: Unit[] = [
   },
 ];
 
+export const specialUnits: Unit[] = [
+  {
+    id: 'HERO',
+    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentDuration: 0,
+    unitWheatConsumption: 0,
+    attack: 100,
+    infantryDefence: 100,
+    cavalryDefence: 100,
+    unitSpeed: 7,
+    unitCarryCapacity: 0,
+    category: 'hero',
+    tribe: 'all',
+    tier: 'hero',
+    researchRequirements: [],
+  },
+];
+
 export const units: Unit[] = [
   ...romanUnits,
   ...gaulUnits,
@@ -1366,6 +1384,7 @@ export const units: Unit[] = [
   ...spartanUnits,
   ...natureUnits,
   ...natarianUnits,
+  ...specialUnits,
 ];
 
 // Use this for faster lookups

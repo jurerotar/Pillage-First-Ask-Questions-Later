@@ -33,7 +33,13 @@ export type TradeReport = BaseReport & {
 export type TroopMovementReport = BaseReport & {
   type: 'relocation' | 'reinforcements' | 'return';
   troops: Troop[];
-  targetVillageId: Village['id'];
+  targetId: Village['id'];
 };
 
-export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport;
+export type OasisOccupationReport = BaseReport & {
+  type: 'oasis-occupation';
+  troops: Troop[];
+  targetId: Village['id'];
+};
+
+export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport | OasisOccupationReport;

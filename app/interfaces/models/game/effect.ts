@@ -19,6 +19,7 @@ export type EffectId =
   | 'warehouseCapacity'
   | 'granaryCapacity'
   | 'unitSpeed'
+  | 'unitSpeedAfter20Fields'
   | 'unitWheatConsumption'
   | 'unitCarryCapacity'
   | 'buildingDuration'

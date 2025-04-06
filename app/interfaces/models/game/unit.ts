@@ -87,14 +87,23 @@ export type NatarUnitId =
 
 export type NatureUnitId = 'RAT' | 'SPIDER' | 'SERPENT' | 'BAT' | 'WILD_BOAR' | 'WOLF' | 'BEAR' | 'CROCODILE' | 'TIGER' | 'ELEPHANT';
 
-export type UnitId = RomanUnitId | GaulUnitId | TeutonUnitId | EgyptianUnitId | HunUnitId | SpartanUnitId | NatarUnitId | NatureUnitId;
+export type UnitId =
+  | 'HERO'
+  | RomanUnitId
+  | GaulUnitId
+  | TeutonUnitId
+  | EgyptianUnitId
+  | HunUnitId
+  | SpartanUnitId
+  | NatarUnitId
+  | NatureUnitId;
 
 export type UnitResearchRequirement = {
   buildingId: Building['id'];
   level: number;
 };
 
-export type UnitTier = 'tier-1' | 'tier-2' | 'tier-3' | 'scout' | 'tier-4' | 'tier-5' | 'siege-ram' | 'siege-catapult' | 'special';
+export type UnitTier = 'tier-1' | 'tier-2' | 'tier-3' | 'scout' | 'tier-4' | 'tier-5' | 'siege-ram' | 'siege-catapult' | 'special' | 'hero';
 
 export type Unit = {
   id: UnitId;
@@ -106,8 +115,8 @@ export type Unit = {
   unitSpeed: number;
   unitCarryCapacity: number;
   unitWheatConsumption: number;
-  category: 'infantry' | 'cavalry' | 'siege' | 'special';
-  tribe: Tribe;
+  category: 'infantry' | 'cavalry' | 'siege' | 'special' | 'hero';
+  tribe: Tribe | 'all';
   tier: UnitTier;
   researchRequirements: UnitResearchRequirement[];
 };
