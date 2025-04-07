@@ -69,6 +69,11 @@ const viteConfig = defineViteConfig({
   server: {
     open: true,
   },
+  esbuild: {
+    ...(!isDeployingToMaster && {
+      minifyIdentifiers: false,
+    }),
+  },
   build: {
     target: 'esnext',
     rollupOptions: {
@@ -82,6 +87,10 @@ const viteConfig = defineViteConfig({
   resolve: {
     alias: {
       app: resolve(__dirname, 'app'),
+      ...(!isDeployingToMaster && {
+        'react-dom/client': 'react-dom/profiling',
+        'scheduler/tracing': 'scheduler/tracing-profiling',
+      }),
     },
   },
   worker: {
