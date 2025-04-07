@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
 import { useOasis } from 'app/(game)/(village-slug)/hooks/use-oasis';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Icon } from 'app/components/icon';

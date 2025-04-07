@@ -4,7 +4,7 @@ import type React from 'react';
 import { isArtifactEffect, isBuildingEffect, isHeroEffect, isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Text } from 'app/components/text';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
 import { useTranslation } from 'react-i18next';
 import { normalizeForcedFloatValue } from 'app/utils/common';
 

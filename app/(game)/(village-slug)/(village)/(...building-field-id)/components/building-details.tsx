@@ -17,7 +17,7 @@ import { t } from 'i18next';
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/tables/table';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
 import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
 import { formatTime } from 'app/utils/time';

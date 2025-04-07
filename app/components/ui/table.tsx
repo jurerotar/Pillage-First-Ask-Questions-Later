@@ -25,7 +25,7 @@ type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export const TableBody: React.FC<TableBodyProps> = ({ className, ...props }) => (
   <tbody
-    className={clsx(className)}
+    className={className}
     {...props}
   />
 );
