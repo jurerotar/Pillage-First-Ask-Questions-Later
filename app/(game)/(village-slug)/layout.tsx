@@ -33,9 +33,7 @@ import { Icon } from 'app/components/icon';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { formatNumber } from 'app/utils/common';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
-import {
-  useCurrentVillageBuildingEventQueue
-} from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
+import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -102,12 +100,8 @@ const HeroNavigationItem = () => {
         </span>
       )}
       <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
-        {isHeroHome && (
-          <FaHome className="text-gray-500 text-xs" />
-        )}
-        {!isHeroHome && (
-          <TbShoe className="text-gray-500 text-xs" />
-        )}
+        {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
+        {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
     </Link>
   );
@@ -455,26 +449,16 @@ const BuildingQueue = () => {
   const { currentVillageBuildingEventsQueue: resourcesEventQueue } = useCurrentVillageBuildingEventQueue(1);
   const { currentVillageBuildingEventsQueue: villageEventQueue } = useCurrentVillageBuildingEventQueue(19);
 
-  console.log(resourcesEventQueue, villageEventQueue);
-
   return (
     <ul className="fixed left-0 bottom-30 flex gap-2">
       <li className="">
-        {villageEventQueue.length > 0 && (
-          <LuBuilding />
-        )}
-        {villageEventQueue.length === 0 && (
-          <LuConstruction />
-        )}
+        {villageEventQueue.length > 0 && <LuBuilding />}
+        {villageEventQueue.length === 0 && <LuConstruction />}
       </li>
       {tribe === 'romans' && (
         <li className="">
-          {resourcesEventQueue.length > 0 && (
-            <LuBuilding />
-          )}
-          {resourcesEventQueue.length === 0 && (
-            <LuConstruction />
-          )}
+          {resourcesEventQueue.length > 0 && <LuBuilding />}
+          {resourcesEventQueue.length === 0 && <LuConstruction />}
         </li>
       )}
     </ul>
@@ -487,8 +471,10 @@ const Troops = () => {
   return (
     <ul className="fixed right-4 top-40 flex flex-col gap-2">
       {playerTroops.map((troop) => (
-        <li key={troop.unitId}>{troop.amount} {troop.unitId}</li>
-      )) }
+        <li key={troop.unitId}>
+          {troop.amount} {troop.unitId}
+        </li>
+      ))}
     </ul>
   );
 };
