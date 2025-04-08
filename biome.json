@@ -45,5 +45,10 @@
       "quoteStyle": "single",
       "trailingCommas": "all"
     }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true
+    }
   }
 }

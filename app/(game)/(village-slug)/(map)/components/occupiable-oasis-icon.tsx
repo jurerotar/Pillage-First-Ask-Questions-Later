@@ -29,8 +29,7 @@ export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (props) =
   return (
     <Icon
       {...rest}
-      className="select-none size-3"
-      wrapperClassName="absolute top-1 right-1 z-10"
+      wrapperClassName="cell-icon"
       type={iconType}
       asCss
     />

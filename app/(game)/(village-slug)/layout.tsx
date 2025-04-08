@@ -203,7 +203,7 @@ const TopNavigation = () => {
 
   return (
     <header className="flex flex-col w-full relative">
-      <div className="flex-col hidden lg:flex shadow-sm">
+      <div className="flex-col hidden lg:flex shadow-sm bg-white">
         <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
           <nav className="hidden lg:flex justify-end container mx-auto">
             <ul className="flex gap-1">

@@ -21,6 +21,8 @@ import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
+import pageStyles from './page.module.css';
+import { clsx } from 'clsx';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -31,7 +33,7 @@ const MapPage = () => {
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
   const { mapFilters } = useMapFilters();
-  const { gridSize, tileSize } = use(MapContext);
+  const { gridSize, tileSize, magnification } = use(MapContext);
   const { playersMap } = usePlayers();
   const { reputationsMap } = useReputations();
   const { villages } = useVillages();
@@ -238,7 +240,7 @@ const MapPage = () => {
         }}
       />
       <FixedSizeGrid
-        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
+        className={clsx('scrollbar-hidden bg-[#8EBF64] will-change-scroll', pageStyles.grid, `magnification--${magnification}`)}
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
