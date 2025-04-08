@@ -1,6 +1,6 @@
 import type React from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import { CheckIcon } from 'lucide-react';
+import { LuCheck } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
 
 export const Checkbox: React.FC<React.ComponentProps<typeof CheckboxPrimitive.Root>> = ({ className, ...props }) => {
@@ -17,7 +17,7 @@ export const Checkbox: React.FC<React.ComponentProps<typeof CheckboxPrimitive.Ro
         data-slot="checkbox-indicator"
         className="flex items-center justify-center text-current transition-none"
       >
-        <CheckIcon className="size-3.5" />
+        <LuCheck className="size-3.5" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

@@ -1,6 +1,7 @@
 import type React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn } from 'app/utils/tailwind';
+import { LuX } from 'react-icons/lu';
 
 export const Dialog: React.FC<React.ComponentProps<typeof DialogPrimitive.Root>> = ({ ...props }) => {
   return (
@@ -34,7 +35,9 @@ export const DialogClose: React.FC<React.ComponentProps<typeof DialogPrimitive.C
     <DialogPrimitive.Close
       data-slot="dialog-close"
       {...props}
-    />
+    >
+      <LuX className="size-4" />
+    </DialogPrimitive.Close>
   );
 };
 

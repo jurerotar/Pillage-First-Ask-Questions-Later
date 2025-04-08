@@ -1,6 +1,6 @@
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Toggle } from 'app/components/toggle';
+import { Switch } from 'app/components/ui/switch';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 
@@ -22,10 +22,9 @@ const PreferencesPage = () => {
             <span>{t('Enables instant building of buildings and troops with no cost.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Toggle
-              className="flex flex-1"
+            <Switch
               id="develop-mode-toggle"
-              onChange={toggleDeveloperMode}
+              onCheckedChange={toggleDeveloperMode}
               checked={isDeveloperModeActive}
             />
           </div>
@@ -40,10 +39,9 @@ const PreferencesPage = () => {
             <span>{t('Shows the names of buildings on village and resources views.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Toggle
-              className="flex flex-1"
+            <Switch
               id="should-show-building-names-toggle"
-              onChange={() => togglePreference('shouldShowBuildingNames')}
+              onCheckedChange={() => togglePreference('shouldShowBuildingNames')}
               checked={shouldShowBuildingNames}
             />
           </div>
@@ -58,11 +56,10 @@ const PreferencesPage = () => {
             <span>{t('Disables certain animations and effects for a smoother experience.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Toggle
+            <Switch
               disabled
-              className="flex flex-1"
               id="reduced-motion-mode-toggle"
-              onChange={() => togglePreference('isReducedMotionModeEnabled')}
+              onCheckedChange={() => togglePreference('isReducedMotionModeEnabled')}
               checked={isReducedMotionModeEnabled}
             />
           </div>
@@ -77,11 +74,10 @@ const PreferencesPage = () => {
             <span>{t('Enables accessibility enhancements for better usability.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Toggle
+            <Switch
               disabled
-              className="flex flex-1"
               id="accessibility-mode-toggle"
-              onChange={() => togglePreference('isAccessibilityModeEnabled')}
+              onCheckedChange={() => togglePreference('isAccessibilityModeEnabled')}
               checked={isAccessibilityModeEnabled}
             />
           </div>

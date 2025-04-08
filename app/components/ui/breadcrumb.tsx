@@ -1,6 +1,6 @@
 import type React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import { LuChevronRight } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
 
 export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({ ...props }) => {
@@ -72,22 +72,7 @@ export const BreadcrumbSeparator: React.FC<React.ComponentProps<'li'>> = ({ chil
       className={cn('[&>svg]:size-3.5', className)}
       {...props}
     >
-      {children ?? <ChevronRight />}
+      {children ?? <LuChevronRight />}
     </li>
-  );
-};
-
-export const BreadcrumbEllipsis: React.FC<React.ComponentProps<'span'>> = ({ className, ...props }) => {
-  return (
-    <span
-      data-slot="breadcrumb-ellipsis"
-      role="presentation"
-      aria-hidden="true"
-      className={cn('flex size-9 items-center justify-center', className)}
-      {...props}
-    >
-      <MoreHorizontal className="size-4" />
-      <span className="sr-only">More</span>
-    </span>
   );
 };
