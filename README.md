@@ -14,11 +14,11 @@ Remember: pillage first, ask questions later! ⚔️🔥
 > Very much still work in progress.
 
 <p align="center">
-  <img src="/.github/assets/mobile-map-view.jpg" width="30%">
+  <img src="/.github/assets/mobile-map-view.jpeg" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-building-view.jpg" width="30%">
+  <img src="/.github/assets/mobile-building-view.jpeg" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-building-list-view.jpg" width="30%">
+  <img src="/.github/assets/mobile-building-list-view.jpeg" width="30%">
 </p>
 
 # Motivation
@@ -78,3 +78,9 @@ All contributions are welcome at Pillage First!, whether they be tech, game desi
 I advise [joining our Discord server](https://discord.gg/Ep7NKVXUZA) and we'll discuss how you can contribute best!
 
 All contributions are greatly appreciated.
+
+# License
+
+This project is licensed under the AGPLv3.
+
+See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for details.
