@@ -30,6 +30,7 @@ import {
   mapCacheKey,
   mapFiltersCacheKey,
   playersCacheKey,
+  playerTroopsCacheKey,
   playerVillagesCacheKey,
   preferencesCacheKey,
   reputationsCacheKey,
@@ -92,7 +93,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   // Non-dependant factories can run in sync
   const [
     { villages },
-    { troops },
+    { playerTroops, npcTroops },
     { worldItems },
     effects,
     hero,
@@ -141,7 +142,8 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [playerStartingVillage]);
   queryClient.setQueryData<Village[]>([villagesCacheKey], villages);
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], troops);
+  queryClient.setQueryData<Troop[]>([troopsCacheKey], npcTroops);
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], playerTroops);
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
   queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);
@@ -166,7 +168,7 @@ const CreateNewServerPage = () => {
         speed: 1,
       },
       playerConfiguration: {
-        name: 'Player name',
+        name: 'Player',
         tribe: 'gauls',
       },
     },
@@ -232,14 +234,6 @@ const CreateNewServerPage = () => {
                       {...register('name')}
                     />
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">{t('Game Configuration')}</h3>
-                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="server-configuration-world-size">{t('World Size')}</Label>
                     <Input
@@ -247,14 +241,6 @@ const CreateNewServerPage = () => {
                       id="server-configuration-world-size"
                       type="number"
                       {...register('configuration.mapSize')}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="server-configuration-tribe">{t('Tribe')}</Label>
-                    <Input
-                      disabled={isPending}
-                      id="server-configuration-tribe"
-                      {...register('playerConfiguration.tribe')}
                     />
                   </div>
                   <div className="space-y-2">
@@ -266,6 +252,31 @@ const CreateNewServerPage = () => {
                       min="1"
                       max="10"
                       {...register('configuration.speed')}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">{t('Game Configuration')}</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="player-name">{t('Player name')}</Label>
+                    <Input
+                      disabled={isPending}
+                      id="player-name"
+                      defaultValue="Player"
+                      {...register('playerConfiguration.name')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="server-configuration-tribe">{t('Tribe')}</Label>
+                    <Input
+                      disabled={isPending}
+                      id="server-configuration-tribe"
+                      {...register('playerConfiguration.tribe')}
                     />
                   </div>
                 </div>

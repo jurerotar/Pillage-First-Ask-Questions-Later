@@ -51,9 +51,9 @@ export const resolveBattle = ({
       const { category } = getUnitData(unitId)!;
       return category === 'infantry';
     })
-    .reduce((totalAttack, { unitId, level, amount }) => {
+    .reduce((totalAttack, { unitId, amount }) => {
       const { attack, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(attack, unitWheatConsumption, level) * amount;
+      return totalAttack + getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount;
     }, 0);
 
   const totalAttackerCavalryAttackPower = attackerUnits
@@ -61,9 +61,9 @@ export const resolveBattle = ({
       const { category } = getUnitData(unitId)!;
       return category === 'cavalry';
     })
-    .reduce((totalAttack, { unitId, level, amount }) => {
+    .reduce((totalAttack, { unitId, amount }) => {
       const { attack, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(attack, unitWheatConsumption, level) * amount;
+      return totalAttack + getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount;
     }, 0);
 
   const totalAttackerAttackPower = totalAttackerInfantryAttackPower + totalAttackerCavalryAttackPower;
@@ -75,9 +75,9 @@ export const resolveBattle = ({
       const { category } = getUnitData(unitId)!;
       return category === 'infantry';
     })
-    .reduce((totalAttack, { unitId, level, amount }) => {
+    .reduce((totalAttack, { unitId, amount }) => {
       const { infantryDefence, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(infantryDefence, unitWheatConsumption, level) * amount;
+      return totalAttack + getImprovedUnitPower(infantryDefence, unitWheatConsumption, 1) * amount;
     }, 0);
 
   const totalDefenderCavalryDefencePower = defenderUnits
@@ -85,9 +85,9 @@ export const resolveBattle = ({
       const { category } = getUnitData(unitId)!;
       return category === 'cavalry';
     })
-    .reduce((totalAttack, { unitId, level, amount }) => {
+    .reduce((totalAttack, { unitId, amount }) => {
       const { cavalryDefence, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(cavalryDefence, unitWheatConsumption, level) * amount;
+      return totalAttack + getImprovedUnitPower(cavalryDefence, unitWheatConsumption, 1) * amount;
     }, 0);
 
   const _totalDefenderDefencePower =

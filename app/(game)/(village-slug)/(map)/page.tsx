@@ -8,11 +8,10 @@ import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
-import { isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
-import type { OccupiedOccupiableTile, Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import { use, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -22,19 +21,21 @@ import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
+import pageStyles from './page.module.css';
+import { clsx } from 'clsx';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
 const MapPage = () => {
-  const { isOpen: isTileModalOpened } = useDialog<TileType>();
+  const [searchParams] = useSearchParams();
+  const { isOpen: isTileModalOpened, openModal } = useDialog<TileType>();
   const { map, getTileByTileId } = useMap();
   const { height, width, isWiderThanLg } = use(ViewportContext);
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
-  const { getPlayerByPlayerId } = usePlayers();
-  const { getReputationByFaction } = useReputations();
-  const [searchParams] = useSearchParams();
+  const { playersMap } = usePlayers();
+  const { reputationsMap } = useReputations();
   const { villages } = useVillages();
   const { worldItems } = useWorldItems();
 
@@ -73,28 +74,6 @@ const MapPage = () => {
     y: 0,
   });
 
-  // Fun fact, using any kind of hooks in rendered tiles absolutely hammers performance.
-  // We need to get all tile information in here and pass it down as props
-  const tilesWithFactions = useMemo(() => {
-    return map.map((tile: TileType) => {
-      const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-
-      if (isOccupiedOccupiableCell) {
-        const { faction, tribe } = getPlayerByPlayerId((tile as OccupiedOccupiableTile).ownedBy);
-        const reputationLevel = getReputationByFaction(faction)?.reputationLevel;
-
-        return {
-          ...tile,
-          faction,
-          reputationLevel,
-          tribe,
-        };
-      }
-
-      return tile;
-    });
-  }, [map, getReputationByFaction, getPlayerByPlayerId]);
-
   const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
     return new Map<Village['id'], Village>(
       villages.map((village) => {
@@ -113,14 +92,27 @@ const MapPage = () => {
 
   const fixedGridData = useMemo(() => {
     return {
-      tilesWithFactions,
+      map,
+      playersMap,
+      reputationsMap,
+      gridSize,
       mapFilters,
-      magnification,
-      onClick: () => {},
-      villageCoordinatesToVillagesMap,
+      onClick: (tile: TileType) => {
+        openModal(tile);
+      },
       villageCoordinatesToWorldItemsMap,
+      villageCoordinatesToVillagesMap,
     };
-  }, [tilesWithFactions, mapFilters, magnification, villageCoordinatesToVillagesMap, villageCoordinatesToWorldItemsMap]);
+  }, [
+    map,
+    mapFilters,
+    villageCoordinatesToWorldItemsMap,
+    playersMap,
+    reputationsMap,
+    villageCoordinatesToVillagesMap,
+    gridSize,
+    openModal,
+  ]);
 
   useEventListener(
     'mousedown',
@@ -216,11 +208,15 @@ const MapPage = () => {
 
   // We need this due to this bug: https://github.com/ReactTooltip/react-tooltip/issues/1189
   useEffect(() => {
+    // This can be disabled on mobile, because mobile does not render tooltips
+    if (!isWiderThanLg) {
+      return;
+    }
     if (rerenderCount >= 3) {
       return;
     }
     setRerenderCount((prevState) => prevState + 1);
-  }, [rerenderCount]);
+  }, [rerenderCount, isWiderThanLg]);
 
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
@@ -244,7 +240,7 @@ const MapPage = () => {
         }}
       />
       <FixedSizeGrid
-        className="scrollbar-hidden bg-[#8EBF64]"
+        className={clsx('scrollbar-hidden bg-[#8EBF64] will-change-scroll', pageStyles.grid, `magnification--${magnification}`)}
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
@@ -253,9 +249,8 @@ const MapPage = () => {
         height={mapHeight - 1}
         width={width}
         itemData={fixedGridData}
-        itemKey={({ columnIndex, data, rowIndex }) => {
-          const size = Math.sqrt(data.tilesWithFactions.length);
-          const tile: TileType = map[size * rowIndex + columnIndex];
+        itemKey={({ columnIndex, rowIndex }) => {
+          const tile: TileType = map[gridSize * rowIndex + columnIndex];
           return tile.id;
         }}
         onScroll={({ scrollTop, scrollLeft }) => {
@@ -277,7 +272,7 @@ const MapPage = () => {
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 select-none pointer-events-none">
         <FixedSizeList
-          className="scrollbar-hidden"
+          className="scrollbar-hidden will-change-scroll"
           ref={leftMapRulerRef}
           itemSize={tileSize}
           height={mapHeight}
@@ -294,7 +289,7 @@ const MapPage = () => {
       {/* X-axis ruler */}
       <div className="absolute bottom-0 left-0 select-none pointer-events-none">
         <FixedSizeList
-          className="scrollbar-hidden"
+          className="scrollbar-hidden will-change-scroll"
           ref={bottomMapRulerRef}
           itemSize={tileSize}
           height={RULER_SIZE}

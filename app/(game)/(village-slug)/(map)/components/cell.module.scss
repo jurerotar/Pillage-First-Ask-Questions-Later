@@ -17,6 +17,60 @@
   }
 }
 
+.cell {
+  --color-reputation-level-player: #4338ca;
+  --color-reputation-level-ecstatic: #1d4ed8;
+  --color-reputation-level-respected: #0891b2;
+  --color-reputation-level-friendly: #22c55e;
+  --color-reputation-level-neutral: #facc15;
+  --color-reputation-level-unfriendly: #f97316;
+  --color-reputation-level-hostile: #e11d48;
+
+  border-radius: 1px;
+  border: 1px solid rgba(107, 114, 128, 0.5); /* border-gray-500/50 */
+  background-size: contain;
+
+  &[data-tile-reputation-level] {
+    --reputation-color: white;
+
+    &::after {
+      content: '';
+      border: 3px dashed var(--reputation-color);
+      border-radius: 1px;
+      inset: 0;
+      position: absolute;
+    }
+
+    &[data-tile-reputation-level="player"] {
+      --reputation-color: var(--color-reputation-level-player);
+    }
+
+    &[data-tile-reputation-level="ecstatic"] {
+      --reputation-color: var(--color-reputation-level-ecstatic);
+    }
+
+    &[data-tile-reputation-level="respected"] {
+      --reputation-color: var(--color-reputation-level-respected);
+    }
+
+    &[data-tile-reputation-level="friendly"] {
+      --reputation-color: var(--color-reputation-level-friendly);
+    }
+
+    &[data-tile-reputation-level="neutral"] {
+      --reputation-color: var(--color-reputation-level-neutral);
+    }
+
+    &[data-tile-reputation-level="unfriendly"] {
+      --reputation-color: var(--color-reputation-level-unfriendly);
+    }
+
+    &[data-tile-reputation-level="hostile"] {
+      --reputation-color: var(--color-reputation-level-hostile);
+    }
+  }
+}
+
 :global(#{$timeOfDayNightSelector}) {
   & .oasis, .unoccupied-tile {
     & > button {

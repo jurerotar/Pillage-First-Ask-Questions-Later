@@ -2,9 +2,6 @@ import { Icon, type IconProps } from 'app/components/icon';
 import type React from 'react';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
-const treasureIconClassName = 'size-3 select-none';
-const treasureIconWrapperClassName = 'absolute top-0 right-0 z-20';
-
 type TreasureIconProps = Omit<IconProps, 'type'> & {
   item: WorldItem;
 };
@@ -14,8 +11,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="orange"
-        className={treasureIconClassName}
-        wrapperClassName={treasureIconWrapperClassName}
+        wrapperClassName="cell-icon"
         type="treasureTileArtifact"
         asCss
       />
@@ -27,8 +23,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="blue"
-        className={treasureIconClassName}
-        wrapperClassName={treasureIconWrapperClassName}
+        wrapperClassName="cell-icon"
         type="treasureTileItem"
         asCss
       />
@@ -39,8 +34,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="blue"
-        className={treasureIconClassName}
-        wrapperClassName={treasureIconWrapperClassName}
+        wrapperClassName="cell-icon"
         type="treasureTileCurrency"
         asCss
       />
@@ -51,8 +45,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="blue"
-        className={treasureIconClassName}
-        wrapperClassName={treasureIconWrapperClassName}
+        wrapperClassName="cell-icon"
         type="treasureTileResources"
         asCss
       />
@@ -63,8 +56,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
   return (
     <Icon
       borderVariant="blue"
-      className={treasureIconClassName}
-      wrapperClassName={treasureIconWrapperClassName}
+      wrapperClassName="cell-icon"
       type="treasureTileMiscellaneous"
       asCss
     />

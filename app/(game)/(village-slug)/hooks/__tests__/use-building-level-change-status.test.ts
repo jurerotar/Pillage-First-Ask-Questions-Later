@@ -8,15 +8,15 @@ import {
 
 describe('getHasEnoughFreeCrop', () => {
   test('returns true if nextLevelWheatConsumption is 0', () => {
-    expect(getHasEnoughFreeCrop(0, 100, 50)).toBe(true);
+    expect(getHasEnoughFreeCrop(0, 100)).toBe(true);
   });
 
   test('returns true if there is enough free crop', () => {
-    expect(getHasEnoughFreeCrop(10, 100, 85)).toBe(true); // 100 - 85 = 15 >= 10
+    expect(getHasEnoughFreeCrop(10, 100)).toBe(true);
   });
 
   test('returns false if there is not enough free crop', () => {
-    expect(getHasEnoughFreeCrop(20, 100, 90)).toBe(false); // 100 - 90 = 10 < 20
+    expect(getHasEnoughFreeCrop(20, 10)).toBe(false);
   });
 });
 

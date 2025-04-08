@@ -1,6 +1,6 @@
 import type { Unit } from 'app/interfaces/models/game/unit';
 
-const romanUnits: Unit[] = [
+export const romanUnits: Unit[] = [
   {
     id: 'LEGIONNAIRE',
     baseRecruitmentCost: [120, 100, 150, 30],
@@ -171,7 +171,7 @@ const romanUnits: Unit[] = [
   },
 ];
 
-const gaulUnits: Unit[] = [
+export const gaulUnits: Unit[] = [
   {
     id: 'PHALANX',
     baseRecruitmentCost: [100, 130, 55, 30],
@@ -345,7 +345,7 @@ const gaulUnits: Unit[] = [
   },
 ];
 
-const teutonUnits: Unit[] = [
+export const teutonUnits: Unit[] = [
   {
     id: 'MACEMAN',
     baseRecruitmentCost: [95, 75, 40, 40],
@@ -519,7 +519,7 @@ const teutonUnits: Unit[] = [
   },
 ];
 
-const egyptianUnits: Unit[] = [
+export const egyptianUnits: Unit[] = [
   {
     id: 'SLAVE_MILITIA',
     baseRecruitmentCost: [45, 60, 30, 15],
@@ -690,7 +690,7 @@ const egyptianUnits: Unit[] = [
   },
 ];
 
-const hunUnits: Unit[] = [
+export const hunUnits: Unit[] = [
   {
     id: 'MERCENARY',
     baseRecruitmentCost: [130, 80, 40, 40],
@@ -864,7 +864,7 @@ const hunUnits: Unit[] = [
   },
 ];
 
-const spartanUnits: Unit[] = [
+export const spartanUnits: Unit[] = [
   {
     id: 'HOPLITE',
     baseRecruitmentCost: [110, 185, 110, 40],
@@ -1033,7 +1033,7 @@ const spartanUnits: Unit[] = [
 ];
 
 // TODO: Think of cost and recruitment time for nature & natarian units
-const natureUnits: Unit[] = [
+export const natureUnits: Unit[] = [
   {
     id: 'RAT',
     baseRecruitmentCost: [0, 0, 0, 0],
@@ -1186,7 +1186,7 @@ const natureUnits: Unit[] = [
   },
 ];
 
-const natarianUnits: Unit[] = [
+export const natarianUnits: Unit[] = [
   {
     id: 'PIKEMAN',
     baseRecruitmentCost: [0, 0, 0, 0],
@@ -1357,6 +1357,24 @@ const natarianUnits: Unit[] = [
   },
 ];
 
+export const specialUnits: Unit[] = [
+  {
+    id: 'HERO',
+    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentDuration: 0,
+    unitWheatConsumption: 0,
+    attack: 100,
+    infantryDefence: 100,
+    cavalryDefence: 100,
+    unitSpeed: 7,
+    unitCarryCapacity: 0,
+    category: 'hero',
+    tribe: 'all',
+    tier: 'hero',
+    researchRequirements: [],
+  },
+];
+
 export const units: Unit[] = [
   ...romanUnits,
   ...gaulUnits,
@@ -1366,6 +1384,7 @@ export const units: Unit[] = [
   ...spartanUnits,
   ...natureUnits,
   ...natarianUnits,
+  ...specialUnits,
 ];
 
 // Use this for faster lookups

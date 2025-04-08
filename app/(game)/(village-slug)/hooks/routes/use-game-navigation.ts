@@ -12,6 +12,7 @@ const adventuresPagePath = `${heroPagePath}?tab=adventures`;
 const preferencesPagePath = '/preferences';
 const overviewPagePath = '/overview';
 const communityPagePath = '/community';
+const productionOverviewPagePath = '/production-overview';
 
 export const useGameNavigation = () => {
   const { pathname } = useLocation();
@@ -33,6 +34,7 @@ export const useGameNavigation = () => {
   const preferencesPath = `${baseVillagePath}${preferencesPagePath}`;
   const overviewPath = `${baseVillagePath}${overviewPagePath}`;
   const communityPath = `${baseVillagePath}${communityPagePath}`;
+  const productionOverviewPath = `${baseVillagePath}${productionOverviewPagePath}`;
 
   const isVillagePageOpen = pathname.includes(villagePagePath);
   const isResourcesPageOpen = pathname.includes(resourcesPagePath) && !isVillagePageOpen;
@@ -58,5 +60,6 @@ export const useGameNavigation = () => {
     isVillagePageOpen,
     isMapPageOpen,
     isHeroPageOpen,
+    productionOverviewPath,
   };
 };

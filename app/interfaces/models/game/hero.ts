@@ -1,28 +1,16 @@
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { Tribe } from 'app/interfaces/models/game/tribe';
 
-export type Hero = {
-  stats: HeroStats;
-  // Attributes determined by tribe
-  staticAttributes: HeroStaticAttributes;
-  // Attributes, selectable on every level
-  selectableAttributes: HeroSelectableAttributes;
-  resourceToProduce: Resource | 'shared';
-  unitType: 'infantry' | 'cavalry';
-  inventory: HeroItem[];
+// Amount of done adventures of either type
+type HeroAdventures = {
+  short: number;
+  long: number;
 };
 
 type HeroStats = {
-  level: number;
   experience: number;
   health: number;
-};
-
-type HeroStaticAttributes = {
-  unmountedSpeed: number;
-  mountedSpeed: number;
-  baseAttackPower: number;
-  baseHealthRegenerationRate: number;
 };
 
 type HeroSelectableAttributes = {
@@ -36,9 +24,9 @@ export type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
 type HeroItemCategory = 'consumable' | 'currency' | 'resource' | 'wearable' | 'artifact';
 
-type HeroItemSlot = 'head' | 'torso' | 'legs' | 'gloves' | 'right-hand' | 'left-hand' | 'horse' | 'consumable' | 'non-equipable';
+type HeroItemSlot = 'head' | 'torso' | 'legs' | 'right-hand' | 'left-hand' | 'horse' | 'consumable' | 'non-equipable';
 
-type _UppercaseHeroItemRarity = Uppercase<HeroItemRarity>;
+type UppercaseHeroItemRarity<Item extends string> = `${Uppercase<HeroItemRarity>}_${Item}`;
 
 type HeroHeadItemId = '';
 
@@ -68,7 +56,7 @@ type HeroRightHandItemId =
 
 type HeroLeftHandItemId = '';
 
-type HeroHorseItemId = '';
+type HeroHorseItemId = UppercaseHeroItemRarity<'HORSE'>;
 
 type HeroConsumableItemId = 'SILVER' | 'HEALING_POTION' | 'BOOK_OF_WISDOM' | 'ANIMAL_CAGE' | 'REVIVAL_POTION' | Uppercase<keyof Resources>;
 
@@ -80,6 +68,11 @@ type CivilArtifactId =
   `${ArtifactRarity}_ARTIFACT_CIVIL_${'BUILD_TIME_REDUCTION' | 'OASIS_PRODUCTION_BONUS' | 'RESOURCE_PRODUCTION_BONUS' | 'ENABLE_GREAT_BUILDINGS'}`;
 
 export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
+
+type HeroBonus = {
+  attribute: 'power' | 'speed';
+  value: number;
+};
 
 type HeroItemId =
   | HeroHeadItemId
@@ -99,8 +92,32 @@ export type HeroItem = {
   // Base price of null indicates item can't be bought or sold
   basePrice: number | null;
   effects?: Effect[];
+  heroBonus?: HeroBonus[];
 };
 
 export type InventoryItem = HeroItem & {
   amount: number;
+};
+
+export type Hero = {
+  stats: HeroStats;
+  // Attributes, selectable on every level
+  selectableAttributes: HeroSelectableAttributes;
+  resourceToProduce: Resource | 'shared';
+  unitType: 'infantry' | 'cavalry';
+  equippedItems: {
+    horse: null | HeroHorseItemId;
+    head: null | HeroHeadItemId;
+    torso: null | HeroTorsoItemId;
+    legs: null | HeroLegsItemId;
+    'right-hand': null | HeroRightHandItemId;
+    'left-hand': null | HeroLeftHandItemId;
+    consumable: null | {
+      id: HeroConsumableItemId;
+      amount: number;
+    };
+  };
+  inventory: InventoryItem[];
+  adventures: HeroAdventures;
+  tribe: Tribe;
 };

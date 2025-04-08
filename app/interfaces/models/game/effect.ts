@@ -1,4 +1,6 @@
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type { ArtifactId } from 'app/interfaces/models/game/hero';
+import type { Building } from 'app/interfaces/models/game/building';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
@@ -17,6 +19,7 @@ export type EffectId =
   | 'warehouseCapacity'
   | 'granaryCapacity'
   | 'unitSpeed'
+  | 'unitSpeedAfter20Fields'
   | 'unitWheatConsumption'
   | 'unitCarryCapacity'
   | 'buildingDuration'
@@ -64,4 +67,10 @@ export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
   source: 'building';
   buildingFieldId: BuildingField['id'];
+  buildingId: Building['id'];
+};
+
+export type ArtifactEffect = Omit<VillageEffect, 'source'> & {
+  source: 'artifact';
+  artifactId: ArtifactId;
 };

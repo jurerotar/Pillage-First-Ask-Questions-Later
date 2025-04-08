@@ -475,8 +475,62 @@ const artifacts: HeroItem[] = [
   },
 ];
 
-export const items: HeroItem[] = [
-  ...artifacts,
+const horses: HeroItem[] = [
+  {
+    id: 'COMMON_HORSE',
+    slot: 'horse',
+    rarity: 'common',
+    category: 'wearable',
+    basePrice: 5,
+    heroBonus: [
+      {
+        attribute: 'speed',
+        value: 7,
+      },
+    ],
+  },
+  {
+    id: 'UNCOMMON_HORSE',
+    slot: 'horse',
+    rarity: 'uncommon',
+    category: 'wearable',
+    basePrice: 5,
+    heroBonus: [
+      {
+        attribute: 'speed',
+        value: 9,
+      },
+    ],
+  },
+  {
+    id: 'RARE_HORSE',
+    slot: 'horse',
+    rarity: 'rare',
+    category: 'wearable',
+    basePrice: 5,
+    heroBonus: [
+      {
+        attribute: 'speed',
+        value: 11,
+      },
+    ],
+  },
+  {
+    id: 'EPIC_HORSE',
+    slot: 'horse',
+    rarity: 'epic',
+    category: 'wearable',
+    basePrice: 5,
+    heroBonus: [
+      {
+        attribute: 'speed',
+        value: 13,
+      },
+    ],
+  },
+];
+
+const consumables: HeroItem[] = [
   {
     id: 'HEALING_POTION',
     slot: 'consumable',
@@ -541,3 +595,8 @@ export const items: HeroItem[] = [
     basePrice: null,
   },
 ];
+
+export const items: HeroItem[] = [...artifacts, ...horses, ...consumables];
+
+// Use this for faster lookups
+export const itemsMap = new Map<HeroItem['id'], HeroItem>(items.map((heroItem) => [heroItem.id, heroItem]));

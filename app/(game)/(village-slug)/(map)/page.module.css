@@ -1,0 +1,25 @@
+@reference "tailwindcss";
+
+.grid {
+  & :global(.cell-icon) {
+    @apply absolute top-0 right-0 select-none z-20;
+  }
+
+  &:global(.magnification--3) {
+    & :global(.cell-icon) {
+      @apply scale-75 -top-1 -right-1;
+    }
+  }
+
+  &:global(.magnification--4) {
+    & :global(.cell-icon) {
+      @apply scale-100;
+    }
+  }
+
+  &:global(.magnification--5) {
+    & :global(.cell-icon) {
+      @apply scale-125 top-1 right-1;
+    }
+  }
+}

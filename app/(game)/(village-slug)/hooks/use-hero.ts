@@ -9,7 +9,10 @@ export const useHero = () => {
 
   const hero = data as Hero;
 
+  const isHeroAlive = hero.stats.health > 0;
+
   return {
     hero,
+    isHeroAlive,
   };
 };

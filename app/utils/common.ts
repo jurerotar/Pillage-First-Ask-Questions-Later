@@ -69,6 +69,10 @@ export const roundTo2DecimalPoints = (number: number): number => {
   return Math.round(number * 100) / 100;
 };
 
+export const roundTo5 = (n: number) => {
+  return Math.round(n / 5) * 5;
+};
+
 export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
@@ -118,11 +122,15 @@ export const isInDevelopmentMode = () => {
   return import.meta.env.DEV;
 };
 
+export const isMasterDeploy = () => {
+  return import.meta.env.BRANCH_ENV === 'master';
+};
+
 export const formatPercentage = (number: number): string => {
   // We can't differentiate between ints and floats in JS, so every 1.0 numbers is written as 1.001. We check for this number
   // here and just return 100% if
-  if (number.toString() === '1.001') {
-    return '100%';
+  if (`${number}`.endsWith('.001')) {
+    return `${Math.trunc(number)}00%`;
   }
   // Extract the fractional part by subtracting the integer part
   const fractionalPart = number - Math.floor(number);
@@ -143,4 +151,12 @@ export const formatNumber = (number: number): string => {
 // Formats number as either an integer or as a percentage
 export const formatValue = (value: number) => {
   return Number.isInteger(value) && !value.toString().includes('.') ? value : formatPercentage(value);
+};
+
+export const normalizeForcedFloatValue = (value: number) => {
+  if (`${value}`.endsWith('.001')) {
+    return Math.trunc(value);
+  }
+
+  return value;
 };

@@ -1,25 +1,45 @@
-import type { Tile } from 'app/interfaces/models/game/tile';
+import type { Village } from 'app/interfaces/models/game/village';
+import type { Troop } from 'app/interfaces/models/game/troop';
 
-export type ReportTypes =
-  | 'attack'
-  | 'defence'
-  | 'scout-attack'
-  | 'scout-defence'
-  | 'adventure'
-  | 'trade'
-  | 'quest'
-  | 'reinforcements-sent'
-  | 'reinforcements-received';
-
-export type ReportTag = 'read' | 'archived' | 'deleted';
+export type ReportTag = 'read' | 'archived';
 
 export type ReportStatus = 'no-loss' | 'some-loss' | 'full-loss';
 
-export type Report = {
-  id: number;
-  type: ReportTypes;
+type BaseReport = {
+  id: string;
   tags: ReportTag[];
-  tileId: Tile['id'];
-  timestamp: Date;
-  status?: ReportStatus;
+  timestamp: number;
+  villageId: Village['id'];
 };
+
+export type BattleReport = BaseReport & {
+  type: 'attack' | 'defence';
+  status: ReportStatus;
+};
+
+export type ScoutReport = BaseReport & {
+  type: 'scout-attack' | 'scout-defence';
+  status: ReportStatus;
+};
+
+export type AdventureReport = BaseReport & {
+  type: 'adventure';
+};
+
+export type TradeReport = BaseReport & {
+  type: 'trade';
+};
+
+export type TroopMovementReport = BaseReport & {
+  type: 'relocation' | 'reinforcements' | 'return';
+  troops: Troop[];
+  targetId: Village['id'];
+};
+
+export type OasisOccupationReport = BaseReport & {
+  type: 'oasis-occupation';
+  troops: Troop[];
+  targetId: Village['id'];
+};
+
+export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport | OasisOccupationReport;

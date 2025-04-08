@@ -1,9 +1,54 @@
 import type { Unit } from 'app/interfaces/models/game/unit';
-import { unitsMap } from 'app/(game)/(village-slug)/assets/units';
+import {
+  egyptianUnits,
+  gaulUnits,
+  hunUnits,
+  natarianUnits,
+  natureUnits,
+  romanUnits,
+  spartanUnits,
+  teutonUnits,
+  unitsMap,
+} from 'app/(game)/(village-slug)/assets/units';
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
+import type { Tribe } from 'app/interfaces/models/game/tribe';
 
 export const getUnitData = (unitId: Unit['id']): Unit => {
   return unitsMap.get(unitId)!;
+};
+
+export const getUnitsByTribe = (tribe: Tribe): Unit[] => {
+  switch (tribe) {
+    case 'egyptians': {
+      return egyptianUnits;
+    }
+    case 'romans': {
+      return romanUnits;
+    }
+    case 'gauls': {
+      return gaulUnits;
+    }
+    case 'huns': {
+      return hunUnits;
+    }
+    case 'natars': {
+      return natarianUnits;
+    }
+    case 'nature': {
+      return natureUnits;
+    }
+    case 'spartans': {
+      return spartanUnits;
+    }
+    case 'teutons': {
+      return teutonUnits;
+    }
+  }
+};
+
+export const getUnitByTribeAndTier = (tribe: Tribe, tier: Unit['tier']): Unit => {
+  const unitsByTribe = getUnitsByTribe(tribe);
+  return unitsByTribe.find(({ tier: unitTier }) => unitTier === tier)!;
 };
 
 export const calculateMaxUnits = (resources: Resources, costs: number[]): number => {

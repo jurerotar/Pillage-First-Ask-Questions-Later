@@ -1146,7 +1146,7 @@ export const buildings: Building[] = [
     effects: [
       createNegativeWheatProductionEffect('A'),
       {
-        effectId: 'unitSpeed',
+        effectId: 'unitSpeedAfter20Fields',
         valuesPerLevel: [1.001, 1.2, 1.4, 1.6, 1.8, 2.001, 2.2, 2.4, 2.6, 2.8, 3.001, 3.2, 3.4, 3.6, 3.8, 4.001, 4.2, 4.4, 4.6, 4.8, 5.001],
       },
     ],
@@ -1174,3 +1174,32 @@ export const buildings: Building[] = [
 
 // Use this for faster lookups
 export const buildingMap = new Map<Building['id'], Building>(buildings.map((building) => [building.id, building]));
+
+/**
+ * {
+ *     "name": "Trade Office",
+ *     "cost": [
+ *         1400,
+ *         1330,
+ *         1200,
+ *         400
+ *     ],
+ *     "k": 1.28,
+ *     "cu": 3,
+ *     "cp": 3,
+ *     "time": {
+ *         "a": 4875,
+ *         "k": 1.16,
+ *         "b": 1875
+ *     },
+ *     "maxLvl": 20,
+ *     "extra": 3,
+ *     "type": 3,
+ *     "desc": "Increase merchants' capacity by 20%/level.<br/>For Romans bonus is 40%.",
+ *     "breq": {
+ *         "17": 20,
+ *         "20": 10
+ *     },
+ *     "gid": 28
+ * }
+ */

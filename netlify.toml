@@ -1,4 +1,14 @@
 [[redirects]]
+from = "/game/*"
+to = "/__spa-fallback.html"
+status = 200
+
+[[redirects]]
+from = "/create-new-server"
+to = "/create-new-server.html"
+status = 200
+
+[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
@@ -14,7 +24,7 @@ publish = "build/client"
 image = "ubuntu-24.04"
 
 [build.environment]
-NODE_VERSION = "22.13.0"
+NODE_VERSION = "22.14.0"
 NPM_FLAGS = "--experimental-strip-types"
 
 [context.master.environment]
