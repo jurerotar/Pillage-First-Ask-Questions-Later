@@ -34,7 +34,7 @@ export const MemoryIndicator = () => {
   }
 
   return (
-    <div className="fixed bottom-2 lg:bottom-auto right-2 lg:right-auto lg:top-1 lg:left-1 w-fit h-auto pointer-events-none text-2xs lg:text-xs font-mono bg-black/80 text-white px-2 py-1 rounded shadow">
+    <div className="fixed bottom-2 left-2 w-fit h-auto pointer-events-none text-2xs lg:text-xs font-mono bg-black/80 text-white px-2 py-1 rounded shadow">
       Memory: {formatBytes(usedHeap)}
     </div>
   );
