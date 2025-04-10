@@ -4,7 +4,7 @@ import { GameEngineProvider } from 'app/(game)/(village-slug)/providers/game-eng
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
-import { Fragment, useRef } from 'react';
+import { Fragment, useEffect, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
@@ -441,17 +441,29 @@ export const ErrorBoundary = () => {
 };
 
 const GameLayout = () => {
-  const { timeOfDay, skinVariant } = usePreferences();
+  const { timeOfDay, skinVariant, colorScheme } = usePreferences();
+
+  useEffect(() => {
+    const html = document.documentElement;
+
+    html.setAttribute('data-color-scheme', colorScheme);
+    html.setAttribute('data-skin-variant', skinVariant);
+    html.setAttribute('data-time-of-day', timeOfDay);
+
+    return () => {
+      html.removeAttribute('data-color-scheme');
+      html.removeAttribute('data-skin-variant');
+      html.removeAttribute('data-time-of-day');
+    };
+  }, [skinVariant, timeOfDay, colorScheme]);
 
   return (
     <GameEngineProvider>
       <CurrentResourceProvider>
         <CountdownProvider>
-          <div className={clsx(`time-of-day-${timeOfDay}`, `skin-variant-${skinVariant}`)}>
-            <TopNavigation />
-            <Outlet />
-            <MobileBottomNavigation />
-          </div>
+          <TopNavigation />
+          <Outlet />
+          <MobileBottomNavigation />
         </CountdownProvider>
       </CurrentResourceProvider>
     </GameEngineProvider>

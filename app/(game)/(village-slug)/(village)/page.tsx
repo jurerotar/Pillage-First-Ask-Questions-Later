@@ -10,6 +10,18 @@ import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/g
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import type { MetaFunction } from 'react-router';
+import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
+
+export const meta: MetaFunction = () => {
+  const { files } = villageAssetsPreloadPaths;
+  return files.map((href) => ({
+    rel: 'preload',
+    href,
+    as: 'image',
+    type: 'image/avif',
+  }));
+};
 
 const BuildingUpgradeList = () => {
   const { t } = useTranslation();

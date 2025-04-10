@@ -22,14 +22,14 @@ const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconProps['type'
 };
 
 export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (props) => {
-  const { oasisResourceBonus, ...rest } = props;
+  const { oasisResourceBonus, className, ...rest } = props;
 
   const iconType = getIconType(oasisResourceBonus);
 
   return (
     <Icon
       {...rest}
-      wrapperClassName="cell-icon"
+      wrapperClassName={className}
       type={iconType}
       asCss
     />

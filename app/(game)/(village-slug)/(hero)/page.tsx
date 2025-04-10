@@ -3,6 +3,18 @@ import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { StyledTab } from 'app/components/styled-tab';
 import { useTranslation } from 'react-i18next';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
+import type { MetaFunction } from 'react-router';
+import heroItemsAssetsPreloadPaths from 'app/asset-preload-paths/hero-items.json';
+
+export const meta: MetaFunction = () => {
+  const { files } = heroItemsAssetsPreloadPaths;
+  return files.map((href) => ({
+    rel: 'preload',
+    href,
+    as: 'image',
+    type: 'image/avif',
+  }));
+};
 
 const HeroPage = () => {
   const { t } = useTranslation();

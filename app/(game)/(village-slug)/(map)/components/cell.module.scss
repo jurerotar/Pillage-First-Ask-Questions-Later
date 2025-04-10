@@ -1,148 +1,130 @@
-@mixin oasisBackgroundImage($base, $resourceBase, $group, $position, $hasVariants: false) {
+@mixin oasisBackgroundImage($base, $resourceBase, $group, $position) {
   &-position-#{$position} {
-    @if ($hasVariants) {
-      @for $variant from 0 through 3 {
-        &-variant-#{$variant} {
-          $variantPosition: '#{$position}-#{$variant}';
-
-          @if ($variant == 0) {
-            $variantPosition: '#{$position}';
-          }
-          @include imageSet('#{$resourceBase}/#{$group}/#{$variantPosition}');
-        }
-      }
-    } @else {
-      @include imageSet('#{$resourceBase}/#{$group}/#{$position}');
-    }
-  }
-}
-
-.cell {
-  --color-reputation-level-player: #4338ca;
-  --color-reputation-level-ecstatic: #1d4ed8;
-  --color-reputation-level-respected: #0891b2;
-  --color-reputation-level-friendly: #22c55e;
-  --color-reputation-level-neutral: #facc15;
-  --color-reputation-level-unfriendly: #f97316;
-  --color-reputation-level-hostile: #e11d48;
-
-  border-radius: 1px;
-  border: 1px solid rgba(107, 114, 128, 0.5); /* border-gray-500/50 */
-  background-size: contain;
-
-  &[data-tile-reputation-level] {
-    --reputation-color: white;
-
-    &::after {
-      content: '';
-      border: 3px dashed var(--reputation-color);
-      border-radius: 1px;
-      inset: 0;
-      position: absolute;
-    }
-
-    &[data-tile-reputation-level="player"] {
-      --reputation-color: var(--color-reputation-level-player);
-    }
-
-    &[data-tile-reputation-level="ecstatic"] {
-      --reputation-color: var(--color-reputation-level-ecstatic);
-    }
-
-    &[data-tile-reputation-level="respected"] {
-      --reputation-color: var(--color-reputation-level-respected);
-    }
-
-    &[data-tile-reputation-level="friendly"] {
-      --reputation-color: var(--color-reputation-level-friendly);
-    }
-
-    &[data-tile-reputation-level="neutral"] {
-      --reputation-color: var(--color-reputation-level-neutral);
-    }
-
-    &[data-tile-reputation-level="unfriendly"] {
-      --reputation-color: var(--color-reputation-level-unfriendly);
-    }
-
-    &[data-tile-reputation-level="hostile"] {
-      --reputation-color: var(--color-reputation-level-hostile);
-    }
-  }
-}
-
-:global(#{$timeOfDayNightSelector}) {
-  & .oasis, .unoccupied-tile {
-    & > button {
-      background-color: rgba(0, 0, 0, 0.5);
-    }
+    background-image: url('#{$resourceBase}/#{$group}/#{$position}.avif');
   }
 }
 
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  // Occupied occupiable tiles
-  :global(#{$skinVariantSelector}) .occupied-tile {
-    //  $base: '/#{$imagesPath}/map/occupied-tiles';
-    //  @each $tribe in $tribes {
-    //    $tribeBase: '/#{$base}/#{$tribe}';
-    //
-    //    &-#{$tribe} {
-    //      @each $villageSize in $villageSizes {
-    //        &-#{$villageSize} {
-    //          background-image: url('#{$tribeBase}/#{$villageSize}.png');
-    //        }
-    //      }
-    //    }
-    //  }
-  }
+  html[data-skin-variant="#{$skinVariantSelector}"] .tile {
+    background-repeat: no-repeat;
+    border-radius: 1px;
+    border: 1px solid rgba(107, 114, 128, 0.5); /* border-gray-500/50 */
+    background-size: contain;
+    position: relative;
 
-  // Unoccupied occupiable tiles
-  :global(#{$skinVariantSelector}) .unoccupied-tile {
-    $base: '#{$imagesPath}/map/unoccupied-tiles';
+    // Occupied occupiable tiles
+    &.occupied-tile {
+      --reputation-color: white;
 
-    @each $resourceComposition in $resourceCompositions {
-      &-#{$resourceComposition} {
-        @include imageSet('#{$base}/#{$resourceComposition}');
+      // Faction reputation
+      &::after {
+        content: '';
+        border: 3px dashed var(--reputation-color);
+        border-radius: 1px;
+        inset: 0;
+        position: absolute;
+      }
+
+      @each $reputationLevel, $color in $factionReputationColors {
+        &-reputation-#{$reputationLevel} {
+          --reputation-color: #{$color};
+        }
+      }
+
+      &-reputation-disabled {
+        --reputation-color: transparent;
+      }
+
+      // Villages
+      //  $base: '/#{$imagesPath}/map/occupied-tiles';
+      //  @each $tribe in $tribes {
+      //    $tribeBase: '/#{$base}/#{$tribe}';
+      //
+      //    &-#{$tribe} {
+      //      @each $villageSize in $villageSizes {
+      //        &-#{$villageSize} {
+      //          background-image: url('#{$tribeBase}/#{$villageSize}.png');
+      //        }
+      //      }
+      //    }
+      //  }
+    }
+
+    // Unoccupied occupiable tiles
+    &.unoccupied-tile {
+      $base: '#{$imagesPath}/map/unoccupied-tiles';
+
+      @each $resourceComposition in $resourceCompositions {
+        &-#{$resourceComposition} {
+          background-image: url('#{$base}/#{$resourceComposition}.avif');
+        }
+      }
+    }
+
+    // Oasis tiles
+    &.oasis-tile {
+      $base: '#{$imagesPath}/map/oasis';
+
+      @each $resource in $resources {
+        &-#{$resource} {
+          $resourceBase: "#{$base}/#{$resource}";
+
+          &-group-0 {
+            @include oasisBackgroundImage($base, $resourceBase, '0', '0-0');
+          }
+
+          &-group-1 {
+            @include oasisBackgroundImage($base, $resourceBase, '1', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '1', '0-1');
+          }
+
+          &-group-2 {
+            @include oasisBackgroundImage($base, $resourceBase, '2', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '2', '0-1');
+            @include oasisBackgroundImage($base, $resourceBase, '2', '1-0');
+            @include oasisBackgroundImage($base, $resourceBase, '2', '1-1');
+          }
+
+          &-group-3 {
+            @include oasisBackgroundImage($base, $resourceBase, '3', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '3', '1-0');
+            @include oasisBackgroundImage($base, $resourceBase, '3', '2-0');
+          }
+
+          &-group-4 {
+            @include oasisBackgroundImage($base, $resourceBase, '4', '0-0');
+            @include oasisBackgroundImage($base, $resourceBase, '4', '0-1');
+            @include oasisBackgroundImage($base, $resourceBase, '4', '0-2');
+          }
+        }
       }
     }
   }
+}
 
-  // Oasis tiles
-  :global(#{$skinVariantSelector}) .oasis {
-    $base: '#{$imagesPath}/map/oasis';
+.tile-icon {
+  --top: 0;
+  --right: 0;
+  --scale: 1;
 
-    @each $resource in $resources {
-      &-#{$resource} {
-        $resourceBase: "#{$base}/#{$resource}";
+  position: absolute;
+  user-select: none;
+  z-index: 20;
+  top: var(--top);
+  right: var(--right);
+  transform: scale(var(--scale));
 
-        &-group-0 {
-          @include oasisBackgroundImage($base, $resourceBase, '0', '0-0', true);
-        }
+  &-magnification {
+    &-3 {
+      --top: -0.25rem;
+      --right: -0.25rem;
+      --scale: 0.75;
+    }
 
-        &-group-1 {
-          @include oasisBackgroundImage($base, $resourceBase, '1', '0-0');
-          @include oasisBackgroundImage($base, $resourceBase, '1', '0-1');
-        }
-
-        &-group-2 {
-          @include oasisBackgroundImage($base, $resourceBase, '2', '0-0');
-          @include oasisBackgroundImage($base, $resourceBase, '2', '0-1');
-          @include oasisBackgroundImage($base, $resourceBase, '2', '1-0');
-          @include oasisBackgroundImage($base, $resourceBase, '2', '1-1');
-        }
-
-        &-group-3 {
-          @include oasisBackgroundImage($base, $resourceBase, '3', '0-0');
-          @include oasisBackgroundImage($base, $resourceBase, '3', '1-0');
-          @include oasisBackgroundImage($base, $resourceBase, '3', '2-0');
-        }
-
-        &-group-4 {
-          @include oasisBackgroundImage($base, $resourceBase, '4', '0-0');
-          @include oasisBackgroundImage($base, $resourceBase, '4', '0-1');
-          @include oasisBackgroundImage($base, $resourceBase, '4', '0-2');
-        }
-      }
+    &-5 {
+      --top: 0.25rem;
+      --right: 0.25rem;
+      --scale: 1.25;
     }
   }
 }

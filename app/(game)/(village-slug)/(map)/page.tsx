@@ -21,10 +21,20 @@ import { ViewportContext } from 'app/providers/viewport-context';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
-import pageStyles from './page.module.css';
-import { clsx } from 'clsx';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
+import type { MetaFunction } from 'react-router';
+import mapAssetsPreloadPaths from 'app/asset-preload-paths/map.json';
+
+export const meta: MetaFunction = () => {
+  const { files } = mapAssetsPreloadPaths;
+  return files.map((href) => ({
+    rel: 'preload',
+    href,
+    as: 'image',
+    type: 'image/avif',
+  }));
+};
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -96,6 +106,7 @@ const MapPage = () => {
       reputationsMap,
       gridSize,
       mapFilters,
+      magnification,
       onClick: (tile: TileType) => {
         openModal(tile);
       },
@@ -110,6 +121,7 @@ const MapPage = () => {
     reputationsMap,
     villageCoordinatesToVillagesMap,
     gridSize,
+    magnification,
     openModal,
   ]);
 
@@ -202,7 +214,7 @@ const MapPage = () => {
       />
       <FixedSizeGrid
         key={tileSize}
-        className={clsx('scrollbar-hidden bg-[#8EBF64] will-change-scroll', pageStyles.grid, `magnification--${magnification}`)}
+        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
         outerRef={mapRef}
         columnCount={gridSize}
         columnWidth={tileSize}

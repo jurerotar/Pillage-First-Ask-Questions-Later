@@ -1,11 +1,3 @@
-@mixin imageSet($imagePath) {
-  background-repeat: no-repeat;
-  background-image: image-set(
-      '#{$imagePath}.avif' type('image/avif'),
-      '#{$imagePath}.jpg' type('image/jpeg'),
-  );
-}
-
 @mixin horseIconColorSet($base, $eye, $neck-front, $muzzle, $mane-front, $mane-back) {
   & :global(#base) {
     fill: $base;

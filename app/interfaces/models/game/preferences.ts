@@ -5,6 +5,7 @@ type TimeOfDay = 'day' | 'night';
 type SkinVariant = 'default' | 'snow';
 
 export type Preferences = {
+  colorScheme: 'light' | 'dark';
   locale: AvailableLocales;
   timeOfDay: TimeOfDay;
   skinVariant: SkinVariant;

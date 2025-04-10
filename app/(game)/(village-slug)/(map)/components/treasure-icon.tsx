@@ -6,12 +6,12 @@ type TreasureIconProps = Omit<IconProps, 'type'> & {
   item: WorldItem;
 };
 
-export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
+export const TreasureIcon: React.FC<TreasureIconProps> = ({ item, className }) => {
   if (item.type === 'artifact') {
     return (
       <Icon
         borderVariant="orange"
-        wrapperClassName="cell-icon"
+        wrapperClassName={className}
         type="treasureTileArtifact"
         asCss
       />
@@ -23,7 +23,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="blue"
-        wrapperClassName="cell-icon"
+        wrapperClassName={className}
         type="treasureTileItem"
         asCss
       />
@@ -34,7 +34,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="blue"
-        wrapperClassName="cell-icon"
+        wrapperClassName={className}
         type="treasureTileCurrency"
         asCss
       />
@@ -45,7 +45,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
     return (
       <Icon
         borderVariant="blue"
-        wrapperClassName="cell-icon"
+        wrapperClassName={className}
         type="treasureTileResources"
         asCss
       />
@@ -56,7 +56,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({ item }) => {
   return (
     <Icon
       borderVariant="blue"
-      wrapperClassName="cell-icon"
+      wrapperClassName={className}
       type="treasureTileMiscellaneous"
       asCss
     />
