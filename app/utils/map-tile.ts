@@ -12,13 +12,12 @@ export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
 };
 
 export const parseOasisTileGraphicsProperty = (oasisTileGraphics: OasisTile['graphics']) => {
-  const [oasisResource, oasisGroup, oasisGroupPositionString, oasisVariant] = oasisTileGraphics.split('-');
+  const [oasisResource, oasisGroup, oasisGroupPositionString] = oasisTileGraphics.split('-');
   const groupPositions = oasisGroupPositionString.replace('|', '-');
 
   return {
     oasisResource,
     oasisGroup,
     groupPositions,
-    oasisVariant,
   };
 };

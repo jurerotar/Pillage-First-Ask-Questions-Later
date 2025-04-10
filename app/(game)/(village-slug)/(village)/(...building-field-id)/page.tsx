@@ -3,6 +3,18 @@ import { BuildingDetails } from 'app/(game)/(village-slug)/(village)/(...buildin
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
+import type { MetaFunction } from 'react-router';
+import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
+
+export const meta: MetaFunction = () => {
+  const { files } = villageAssetsPreloadPaths;
+  return files.map((href) => ({
+    rel: 'preload',
+    href,
+    as: 'image',
+    type: 'image/avif',
+  }));
+};
 
 const BuildingPage = () => {
   const { buildingFieldId } = useRouteSegments();

@@ -14,14 +14,13 @@ export type OasisResourceBonus = {
 
 type OasisGroup = number;
 type OasisGroupPosition = `${number}|${number}`;
-type OasisVariant = number;
 
 export type OasisTile = BaseTile & {
   type: 'oasis-tile';
   // In order to reduce the final game state object size, all long property names are shortened.
   // Stands for OasisResourceBonus
   ORB: OasisResourceBonus[];
-  graphics: `${Resource}-${OasisGroup}-${OasisGroupPosition}-${OasisVariant}`;
+  graphics: `${Resource}-${OasisGroup}-${OasisGroupPosition}`;
   villageId: null;
 };
 

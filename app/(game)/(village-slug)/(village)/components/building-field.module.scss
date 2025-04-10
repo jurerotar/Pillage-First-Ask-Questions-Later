@@ -24,7 +24,7 @@
 }
 
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  :global(#{$skinVariantSelector}) .building {
+  html[data-skin-variant="#{$skinVariantSelector}"] .building {
     $base: '#{$imagesPath}/buildings';
 
     // Resources

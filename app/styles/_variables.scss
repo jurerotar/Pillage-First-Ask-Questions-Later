@@ -1,5 +1,5 @@
 $skinVariantPaths: (
-  '.skin-variant-default': '/graphic-packs/default-graphic-pack',
+  'default': '/graphic-packs/default-graphic-pack',
 );
 
 $timeOfDayLightSelector: '.time-of-day-day';
@@ -12,6 +12,16 @@ $resources: 'wood', 'clay', 'iron', 'wheat';
 $tribes: 'romans', 'gauls', 'teutons', 'huns', 'egyptians', 'nature', 'natars', 'spartans';
 
 $villageSizes: 'xs', 'sm', 'md', 'lg';
+
+$factionReputationColors: (
+  player: #4338ca,
+  ecstatic: #1d4ed8,
+  respected: #0891b2,
+  friendly: #22c55e,
+  neutral: #facc15,
+  unfriendly: #f97316,
+  hostile: #e11d48,
+);
 
 $buildings: "bakery",
 "brickyard",

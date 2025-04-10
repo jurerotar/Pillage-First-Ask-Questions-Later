@@ -17,9 +17,8 @@ import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
-import { parseCoordinatesFromTileId, parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
-import type { Village, VillageSize } from 'app/interfaces/models/game/village';
+import { parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
+import type { Village } from 'app/interfaces/models/game/village';
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import cellStyles from './cell.module.scss';
 
@@ -41,6 +40,7 @@ type CellBaseProps = {
   map: TileType[];
   gridSize: number;
   mapFilters: MapFilters;
+  magnification: number;
   onClick: (data: TileType) => void;
   villageCoordinatesToWorldItemsMap: Map<string, WorldItem>;
   villageCoordinatesToVillagesMap: Map<Village['id'], Village>;
@@ -55,11 +55,13 @@ type CellIconsProps = CellBaseProps & {
 };
 
 const CellIcons: React.FC<CellIconsProps> = (props) => {
-  const { tile, mapFilters, villageCoordinatesToWorldItemsMap } = props;
+  const { tile, mapFilters, villageCoordinatesToWorldItemsMap, magnification } = props;
   const { shouldShowTreasureIcons, shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
+  const classes = clsx(cellStyles['tile-icon'], cellStyles[`tile-icon-magnification-${magnification}`]);
+
   if (isOccupiableTile(tile) && shouldShowWheatFields && wheatFields.includes(tile.RFC)) {
-    return <WheatFieldIcon />;
+    return <WheatFieldIcon className={classes} />;
   }
 
   if (isOccupiableOasisTile(tile)) {
@@ -67,6 +69,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
       <>
         {shouldShowOasisIcons && (
           <OccupiableOasisIcon
+            className={classes}
             oasisResourceBonus={tile.ORB}
             borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
           />
@@ -80,7 +83,12 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
     const isWorldItemCell = villageCoordinatesToWorldItemsMap.has(tile.id);
     return (
       <>
-        {shouldShowTreasureIcons && isWorldItemCell && <TreasureIcon item={villageCoordinatesToWorldItemsMap.get(tile.id)!} />}
+        {shouldShowTreasureIcons && isWorldItemCell && (
+          <TreasureIcon
+            className={classes}
+            item={villageCoordinatesToWorldItemsMap.get(tile.id)!}
+          />
+        )}
         {/*{shouldShowTroopMovements && <TroopMovements tile={tile} />}*/}
       </>
     );
@@ -89,26 +97,26 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
   return null;
 };
 
-const populationToVillageSizeMap = new Map<number, VillageSize>([
-  [500, 'xl'],
-  [250, 'md'],
-  [100, 'sm'],
-]);
-
-const getVillageSize = (population: number): VillageSize => {
-  for (const [key, size] of populationToVillageSizeMap) {
-    if (population >= key) {
-      return size;
-    }
-  }
-
-  return 'xs';
-};
+// const populationToVillageSizeMap = new Map<number, VillageSize>([
+//   [500, 'xl'],
+//   [250, 'md'],
+//   [100, 'sm'],
+// ]);
+//
+// const getVillageSize = (population: number): VillageSize => {
+//   for (const [key, size] of populationToVillageSizeMap) {
+//     if (population >= key) {
+//       return size;
+//     }
+//   }
+//
+//   return 'xs';
+// };
 
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { map, gridSize, playersMap, reputationsMap, villageCoordinatesToVillagesMap, mapFilters, onClick } = data;
+  const { map, gridSize, playersMap, reputationsMap, mapFilters, onClick } = data;
   const { shouldShowFactionReputation } = mapFilters;
 
   const tile: TileType = map[gridSize * rowIndex + columnIndex];
@@ -121,32 +129,28 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
 
   if (isUnoccupiedOccupiableCell) {
     const { RFC } = tile;
-    classes = clsx(cellStyles.cell, cellStyles['unoccupied-tile'], cellStyles[`unoccupied-tile-${RFC}`]);
+    classes = clsx(cellStyles.tile, cellStyles[`unoccupied-tile-${RFC}`]);
   } else if (isOccupiedOccupiableCell) {
-    const { tribe } = playersMap.get(tile.ownedBy)!;
-    const { x, y } = parseCoordinatesFromTileId(tile.id);
-    const { buildingFields, buildingFieldsPresets } = villageCoordinatesToVillagesMap.get(`${x}|${y}`)!;
+    const { faction } = playersMap.get(tile.ownedBy)!;
 
-    const population = calculatePopulationFromBuildingFields(buildingFields!, buildingFieldsPresets);
-
-    const villageSize = getVillageSize(population);
+    const reputationLevel = reputationsMap.get(faction)!.reputationLevel;
 
     classes = clsx(
-      cellStyles.cell,
+      cellStyles.tile,
       cellStyles['occupied-tile'],
-      cellStyles[`occupied-tile-${tribe}`],
-      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
-      cellStyles[`occupied-tile-${villageSize}`],
+      // cellStyles[`occupied-tile-${tribe}`],
+      // cellStyles[`occupied-tile-${tribe}-${villageSize}`],
+      cellStyles[`occupied-tile-reputation-${reputationLevel}`],
+      !shouldShowFactionReputation && cellStyles['occupied-tile-reputation-disabled'],
     );
   } else if (isOasisCell) {
-    const { oasisResource, oasisGroup, groupPositions, oasisVariant } = parseOasisTileGraphicsProperty((tile as OasisTile).graphics);
+    const { oasisResource, oasisGroup, groupPositions } = parseOasisTileGraphicsProperty((tile as OasisTile).graphics);
     classes = clsx(
-      cellStyles.cell,
-      cellStyles.oasis,
-      cellStyles[`oasis-${oasisResource}`],
-      cellStyles[`oasis-${oasisResource}-group-${oasisGroup}`],
-      cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}`],
-      cellStyles[`oasis-${oasisResource}-group-${oasisGroup}-position-${groupPositions}-variant-${oasisVariant}`],
+      cellStyles.tile,
+      cellStyles['oasis-tile'],
+      cellStyles[`oasis-tile-${oasisResource}`],
+      cellStyles[`oasis-tile-${oasisResource}-group-${oasisGroup}`],
+      cellStyles[`oasis-tile-${oasisResource}-group-${oasisGroup}-position-${groupPositions}`],
     );
   }
 
@@ -157,10 +161,6 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       className={classes}
       style={style}
       data-tile-id={tile.id}
-      {...(shouldShowFactionReputation &&
-        isOccupiedOccupiableCell && {
-          'data-tile-reputation-level': reputationsMap.get(playersMap.get(tile.ownedBy)!.faction)!.reputationLevel,
-        })}
     >
       <CellIcons
         tile={tile}

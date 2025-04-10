@@ -142,14 +142,13 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
   })() as Resource;
 
   const [row, column] = oasisGroupPosition;
-  const oasisVariant = 0;
 
   return {
     ...tile,
     type: 'oasis-tile',
     ORB: oasisResourceBonus,
     villageId: null,
-    graphics: `${oasisResource}-${oasisGroup}-${row}|${column}-${oasisVariant}`,
+    graphics: `${oasisResource}-${oasisGroup}-${row}|${column}`,
   };
 };
 
@@ -186,7 +185,7 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
         id: `${x}|${y}`,
         type: 'oasis-tile',
         ORB: [],
-        graphics: `wood-${0}-${0}|${0}-${0}`,
+        graphics: `wood-${0}-${0}|${0}`,
         villageId: null,
       } satisfies OasisTile;
       continue;

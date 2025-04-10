@@ -8,7 +8,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["build", "app/**/__mocks__/*"]
+    "ignore": ["build", "app/**/__mocks__/*", "app/asset-preload-paths"]
   },
   "organizeImports": {
     "enabled": false
