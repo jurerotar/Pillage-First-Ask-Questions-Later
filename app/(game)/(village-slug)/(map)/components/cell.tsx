@@ -10,14 +10,14 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { OasisTile, OccupiedOccupiableTile as OccupiedOccupiableTileType, Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { OccupiedOccupiableTile as OccupiedOccupiableTileType, Tile as TileType } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
-import { parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
+import { decodeGraphicsProperty } from 'app/utils/map-tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import cellStyles from './cell.module.scss';
@@ -144,13 +144,13 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       !shouldShowFactionReputation && cellStyles['occupied-tile-reputation-disabled'],
     );
   } else if (isOasisCell) {
-    const { oasisResource, oasisGroup, groupPositions } = parseOasisTileGraphicsProperty((tile as OasisTile).graphics);
+    const { oasisResource, oasisGroup, oasisGroupPositions } = decodeGraphicsProperty(tile.graphics);
     classes = clsx(
       cellStyles.tile,
       cellStyles['oasis-tile'],
       cellStyles[`oasis-tile-${oasisResource}`],
       cellStyles[`oasis-tile-${oasisResource}-group-${oasisGroup}`],
-      cellStyles[`oasis-tile-${oasisResource}-group-${oasisGroup}-position-${groupPositions}`],
+      cellStyles[`oasis-tile-${oasisResource}-group-${oasisGroup}-position-${oasisGroupPositions}`],
     );
   }
 

@@ -26,7 +26,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
-import { parseCoordinatesFromTileId, parseOasisTileGraphicsProperty } from 'app/utils/map-tile';
+import { decodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 const queryClient = new QueryClient();
 
@@ -199,8 +199,8 @@ describe('Server initialization', () => {
         return x === -1 && y === 0;
       })! as OccupiedOasisTile;
 
-      const { oasisResource: tile1OasisResource } = parseOasisTileGraphicsProperty(tile1.graphics);
-      const { oasisResource: tile2OasisResource } = parseOasisTileGraphicsProperty(tile2.graphics);
+      const { oasisResource: tile1OasisResource } = decodeGraphicsProperty(tile1.graphics);
+      const { oasisResource: tile2OasisResource } = decodeGraphicsProperty(tile2.graphics);
 
       expect(tile1OasisResource === 'iron' && tile1.ORB[0].bonus === '25%').toBe(true);
       expect(tile2OasisResource === 'iron' && tile2.ORB[0].bonus === '25%').toBe(true);
