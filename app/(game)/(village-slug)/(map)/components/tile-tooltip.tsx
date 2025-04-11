@@ -1,9 +1,6 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
-import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTroops } from 'app/(game)/(village-slug)/hooks/use-troops';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -12,14 +9,7 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import type {
-  OasisResourceBonus,
-  OasisTile,
-  OccupiableTile,
-  OccupiedOasisTile,
-  OccupiedOccupiableTile,
-  Tile,
-} from 'app/interfaces/models/game/tile';
+import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 import { factionTranslationMap, reputationLevelTranslationMap, resourceTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +17,7 @@ import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-player';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -47,15 +38,10 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
 
 const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
-  const { getVillageByOasis, getVillageById } = useVillages();
-  const { playersMap } = usePlayers();
-  const { reputationsMap } = useReputations();
+  const { player, reputation, population } = useTilePlayer(tile);
 
-  const { playerId, buildingFields, buildingFieldsPresets } =
-    tile.type === 'oasis-tile' ? getVillageByOasis(tile as OccupiedOasisTile)! : getVillageById(tile.id)!;
-  const { faction, tribe, name } = playersMap.get(playerId)!;
-  const { reputationLevel } = reputationsMap.get(faction)!;
-  const population = calculatePopulationFromBuildingFields(buildingFields, buildingFieldsPresets);
+  const { name, tribe } = player;
+  const { faction, reputationLevel } = reputation;
 
   return (
     <>

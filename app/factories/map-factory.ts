@@ -17,7 +17,7 @@ import type {
 import type { ResourceFieldComposition, VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomIntFromInterval } from 'app/utils/common';
 import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
-import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { encodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type Shape = { group: number; shape: number[] };
 
@@ -143,12 +143,14 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
 
   const [row, column] = oasisGroupPosition;
 
+  const encodedGraphics = encodeGraphicsProperty(oasisResource, oasisGroup, row, column);
+
   return {
     ...tile,
     type: 'oasis-tile',
     ORB: oasisResourceBonus,
     villageId: null,
-    graphics: `${oasisResource}-${oasisGroup}-${row}|${column}`,
+    graphics: encodedGraphics,
   };
 };
 
@@ -185,7 +187,7 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
         id: `${x}|${y}`,
         type: 'oasis-tile',
         ORB: [],
-        graphics: `wood-${0}-${0}|${0}`,
+        graphics: encodeGraphicsProperty('wood', 0, 0, 0),
         villageId: null,
       } satisfies OasisTile;
       continue;

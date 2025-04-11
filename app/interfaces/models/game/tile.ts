@@ -12,15 +12,13 @@ export type OasisResourceBonus = {
   bonus: '25%' | '50%';
 };
 
-type OasisGroup = number;
-type OasisGroupPosition = `${number}|${number}`;
-
 export type OasisTile = BaseTile & {
   type: 'oasis-tile';
   // In order to reduce the final game state object size, all long property names are shortened.
   // Stands for OasisResourceBonus
   ORB: OasisResourceBonus[];
-  graphics: `${Resource}-${OasisGroup}-${OasisGroupPosition}`;
+  // Values here are bit-packed into a single number to save space. Check `encodeGraphicsProperty` and `decodeGraphicsProperty` functions
+  graphics: number;
   villageId: null;
 };
 
