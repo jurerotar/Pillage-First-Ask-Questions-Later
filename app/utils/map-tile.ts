@@ -1,4 +1,4 @@
-import type { Tile } from 'app/interfaces/models/game/tile';
+import type { OccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 import type { Point } from 'app/interfaces/models/common';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
@@ -11,6 +11,19 @@ export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
     y,
   };
 };
+
+export function parseRFCFromTile(RFC: OccupiableTile['RFC'], as: 'number'): number[];
+export function parseRFCFromTile(RFC: OccupiableTile['RFC'], as?: 'string'): string[];
+export function parseRFCFromTile(RFC: OccupiableTile['RFC'], as: 'string' | 'number' = 'string') {
+  const [wood, clay, iron, ...wheat] = RFC.split('');
+  const values = [wood, clay, iron, wheat.join('')];
+
+  if (as === 'number') {
+    return values.map((value) => Number.parseInt(value));
+  }
+
+  return values;
+}
 
 // Should only be used for bit-packing bellow
 const resourceToId = new Map<Resource, number>([

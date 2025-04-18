@@ -123,14 +123,10 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
 
   let classes = '';
 
-  const isUnoccupiedOccupiableCell = isUnoccupiedOccupiableTile(tile);
-  const isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-  const isOasisCell = isOasisTile(tile);
-
-  if (isUnoccupiedOccupiableCell) {
+  if (isUnoccupiedOccupiableTile(tile)) {
     const { RFC } = tile;
     classes = clsx(cellStyles.tile, cellStyles[`unoccupied-tile-${RFC}`]);
-  } else if (isOccupiedOccupiableCell) {
+  } else if (isOccupiedOccupiableTile(tile)) {
     const { faction } = playersMap.get(tile.ownedBy)!;
 
     const reputationLevel = reputationsMap.get(faction)!.reputationLevel;
@@ -143,7 +139,7 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       cellStyles[`occupied-tile-reputation-${reputationLevel}`],
       !shouldShowFactionReputation && cellStyles['occupied-tile-reputation-disabled'],
     );
-  } else if (isOasisCell) {
+  } else if (isOasisTile(tile)) {
     const { oasisResource, oasisGroup, oasisGroupPositions } = decodeGraphicsProperty(tile.graphics);
     classes = clsx(
       cellStyles.tile,

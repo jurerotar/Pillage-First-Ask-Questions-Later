@@ -25,6 +25,7 @@ export type EffectId =
   | 'buildingDuration'
   | 'merchantSpeed'
   | 'merchantCapacity'
+  | 'merchantAmount'
   | 'crannyCapacity'
   | 'trapperCapacity'
   | 'revealedIncomingTroopsAmount'

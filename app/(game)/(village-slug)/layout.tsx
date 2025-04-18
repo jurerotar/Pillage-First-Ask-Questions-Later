@@ -16,7 +16,7 @@ import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { LinkWithState } from 'app/components/link-with-state';
-import { Link, Outlet, useNavigate } from 'react-router';
+import { Link, Outlet } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -32,6 +32,7 @@ import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { formatNumber } from 'app/utils/common';
+import layoutStyles from './layout.module.scss';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -50,7 +51,8 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ chi
     >
       <span className="lg:size-10 lg:bg-white lg:rounded-full flex items-center justify-center">{children}</span>
       {counter > 0 && (
-        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+        <span
+          className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
           {counter}
         </span>
       )}
@@ -93,7 +95,8 @@ const HeroNavigationItem = () => {
           <HiStar className="text-yellow-300 text-sm" />
         </span>
       )}
-      <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
+      <span
+        className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
         <FaHome className="text-gray-500 text-xs" />
       </span>
     </Link>
@@ -169,8 +172,7 @@ const ResourceCounters = () => {
 
 const VillageSelect = () => {
   const { villageSlug } = useRouteSegments();
-  const navigate = useNavigate();
-  const { baseGamePath } = useGameNavigation();
+  const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
 
@@ -178,7 +180,7 @@ const VillageSelect = () => {
     <select
       className="border-2 border-gray-300 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
       defaultValue={currentVillage.slug}
-      onChange={(event) => navigate(`${baseGamePath}/${event.target.value}/resources`)}
+      onChange={(event) => switchToVillage(event.target.value)}
     >
       {playerVillages.map(({ id, slug, name }) => (
         <option
@@ -328,12 +330,14 @@ const TopNavigation = () => {
       </div>
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+      <div
+        className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
         <DiscordLink />
         <VillageSelect />
         <HeroNavigationItem />
       </div>
-      <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
+      <div
+        className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>
@@ -356,7 +360,8 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brainrot on display here, God help us
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header
+      className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
@@ -436,12 +441,34 @@ const MobileBottomNavigation = () => {
   );
 };
 
+const TroopMovements = () => {
+  return null;
+};
+
+const ConstructionQueue = () => {
+  return null;
+};
+
+const TroopList = () => {
+  return null;
+};
+
 export const ErrorBoundary = () => {
   return <p>Layout error</p>;
 };
 
 const GameLayout = () => {
   const { timeOfDay, skinVariant, colorScheme } = usePreferences();
+
+  useEffect(() => {
+    const body = document.querySelector('body')!;
+
+    body.classList.add(layoutStyles['background-image']);
+
+    return () => {
+      body.classList.remove(layoutStyles['background-image']);
+    }
+  }, []);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -462,7 +489,10 @@ const GameLayout = () => {
       <CurrentResourceProvider>
         <CountdownProvider>
           <TopNavigation />
+          <TroopMovements />
           <Outlet />
+          <ConstructionQueue />
+          <TroopList />
           <MobileBottomNavigation />
         </CountdownProvider>
       </CurrentResourceProvider>

@@ -10,6 +10,10 @@ export default [
       route('color-picker', '(design-system)/(icons)/(color-picker)/page.tsx'),
     ]),
   ]),
+  // Error pages
+  ...prefix('error', [
+    index('(error)/page.tsx'),
+  ]),
   // Game routes
   ...prefix('game/:serverSlug', [
     layout('(game)/layout.tsx', [
