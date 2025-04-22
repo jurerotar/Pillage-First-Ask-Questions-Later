@@ -745,5 +745,21 @@
       "TITLE": "Revival potion",
       "DESCRIPTION": ""
     }
+  },
+  "QUESTS": {
+    "ADVENTURECOUNT": {
+      "TITLE": "{{count}} adventures",
+      "DESCRIPTION": ""
+    },
+    "TROOPCOUNT": {
+      "TITLE": "{{count}} units",
+      "DESCRIPTION": ""
+    },
+    "ONE-OF": {
+      "TITLE": "{{buildingName}} to level {{level}}"
+    },
+    "EVERY": {
+      "TITLE": "All {{buildingName}}s level {{level}}"
+    }
   }
 }

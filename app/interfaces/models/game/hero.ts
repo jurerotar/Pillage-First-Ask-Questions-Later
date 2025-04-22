@@ -2,12 +2,6 @@ import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
-// Amount of done adventures of either type
-type HeroAdventures = {
-  short: number;
-  long: number;
-};
-
 type HeroStats = {
   experience: number;
   health: number;
@@ -118,6 +112,6 @@ export type Hero = {
     };
   };
   inventory: InventoryItem[];
-  adventures: HeroAdventures;
+  adventureCount: number;
   tribe: Tribe;
 };

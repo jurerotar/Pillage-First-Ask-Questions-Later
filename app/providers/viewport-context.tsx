@@ -1,5 +1,6 @@
 import type React from 'react';
 import { createContext, useEffect, useMemo, useState } from 'react';
+import { debounce } from 'moderndash';
 
 type WindowSize = {
   height: number;
@@ -33,18 +34,22 @@ type ViewportProviderProps = {
 export const ViewportProvider: React.FCWithChildren<ViewportProviderProps> = ({ initialSize = { height: 0, width: 0 }, children }) => {
   const [windowSize, setWindowSize] = useState<WindowSize>(initialSize);
 
-  // TODO: Add debounce, maybe through lodash, don't wanna maintain own version
   useEffect(() => {
-    const debouncedHandleResize = () => {
+    const handleResize = () => {
       setWindowSize({
         width: window.innerWidth,
         height: window.innerHeight,
       });
     };
 
+    const debouncedHandleResize = debounce(handleResize, 150);
+
     debouncedHandleResize();
     window.addEventListener('resize', debouncedHandleResize);
-    return () => window.removeEventListener('resize', debouncedHandleResize);
+
+    return () => {
+      window.removeEventListener('resize', debouncedHandleResize);
+    };
   }, []);
 
   const value = useMemo<ViewportContextValues>(() => {

@@ -19,6 +19,6 @@ self.addEventListener('message', async (event: MessageEvent<GenerateWorldItemsWo
 
   const worldItems = worldItemsFactory({ prng, ...event.data });
 
-  self.postMessage({ worldItems });
+  self.postMessage({ worldItems } satisfies GenerateWorldItemsWorkerReturn);
   self.close();
 });

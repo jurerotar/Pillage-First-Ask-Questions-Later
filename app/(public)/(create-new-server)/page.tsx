@@ -32,7 +32,7 @@ import {
   playersCacheKey,
   playerTroopsCacheKey,
   playerVillagesCacheKey,
-  preferencesCacheKey,
+  preferencesCacheKey, questsCacheKey,
   reputationsCacheKey,
   serverCacheKey,
   troopsCacheKey,
@@ -63,6 +63,8 @@ import { adventurePointsFactory } from 'app/factories/adventure-points-factory';
 import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
 import { generateEvents } from 'app/factories/event-factory';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import { generateNewServerQuests } from 'app/factories/quest-factory';
 
 type CreateServerFormValues = Pick<Server, 'seed' | 'name' | 'configuration' | 'playerConfiguration'>;
 
@@ -104,6 +106,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     adventurePoints,
     events,
     reputations,
+    quests,
   ] = await Promise.all([
     workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
       server,
@@ -129,6 +132,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
     adventurePointsFactory(),
     generateEvents(server),
     generateReputations(),
+    generateNewServerQuests(playerStartingVillage.id, server.playerConfiguration.tribe),
   ]);
 
   const queryClient = new QueryClient();
@@ -150,6 +154,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
   queryClient.setQueryData<AdventurePoints>([adventurePointsCacheKey], adventurePoints);
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);
+  queryClient.setQueryData<Quest[]>([questsCacheKey], quests);
 
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };

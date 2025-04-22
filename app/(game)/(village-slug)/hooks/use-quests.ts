@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Quest } from 'app/interfaces/models/game/quest';
+import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
 import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { partition } from 'app/utils/common';
 
 export const useQuests = () => {
   const { currentVillage } = useCurrentVillage();
@@ -11,8 +12,8 @@ export const useQuests = () => {
     initialData: [],
   });
 
-  const globalQuests = quests.filter(({ scope }) => scope === 'global');
-  const currentVillageQuests = quests.filter(({ villageId }) => villageId === currentVillage.id);
+  const [globalQuests, villageQuests] = partition<Quest>(quests, ({ scope }) => scope === 'global') as [Quest[], VillageQuest[]];
+  const currentVillageQuests = (villageQuests).filter(({ villageId }) => villageId === currentVillage.id);
 
   return {
     quests,

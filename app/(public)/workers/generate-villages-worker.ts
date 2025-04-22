@@ -17,6 +17,6 @@ export type GenerateVillageWorkerReturn = {
 self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorkerPayload>) => {
   const villages = generateVillages(event.data);
 
-  self.postMessage({ villages });
+  self.postMessage({ villages } satisfies GenerateVillageWorkerReturn);
   self.close();
 });
