@@ -106,11 +106,11 @@ const calculateResourceReward = (buildingId: Building['id'], level: number, matc
   const base = buildingIdToResourceRewardMap.get(buildingId)!;
   const effectiveLevel = level - 1;
   if (matcher === 'oneOf') {
-    return Math.round(base * effectiveLevel);
+    return Math.round(base * effectiveLevel) + base / 2;
   }
 
   const exponent = 1.3;
-  return Math.round(base * effectiveLevel ** exponent);
+  return Math.round(base * effectiveLevel ** exponent) + base / 2;
 }
 
 export const createBuildingQuest = (buildingId: Building['id'], level: number, matcher: 'oneOf' | 'every' = 'oneOf', reward?: number): Omit<VillageQuest, 'villageId'> => {
@@ -267,5 +267,3 @@ export const villageQuests: (Omit<VillageQuest, 'villageId'>)[] = [
   createBuildingQuest('BAKERY', 3),
   createBuildingQuest('BAKERY', 5),
 ];
-
-export const quests: (Omit<Quest, 'id'>)[] = [...villageQuests, ...globalQuests];

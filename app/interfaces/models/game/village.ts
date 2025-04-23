@@ -24,7 +24,7 @@ type VillagePresetResourcesPrefix = 'resources';
 
 export type VillagePresetId = `${VillagePresetVillagePrefix | VillagePresetResourcesPrefix}-${VillageSize}`;
 
-// Resource fields only, these are predetermined on village creation and can not be changed
+// Resource fields only, these are predetermined on village creation and cannot be changed
 export type ResourceFieldId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
 
 // Player may construct any building on any of these fields
@@ -39,7 +39,7 @@ export type BuildingField = {
   level: number;
 };
 
-// Used mostly for map & village factory
+// Used mostly for map and village factory
 export type VillageSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
 export type Village = {
@@ -52,8 +52,8 @@ export type Village = {
   resources: Resources;
   // This property is only hydrated in user villages or on npc villages that differ from a preset!
   buildingFields: BuildingField[];
-  // In order to reduce amount of data we need to write, we point to a special preset array that represents "buildingFields" of npc villages,
-  // in which case buildingFields only contain the building fields unique to that villages
+  // To reduce the amount of data we need to write, we point to a special preset array that represents "buildingFields" of npc villages,
+  // in which case buildingFields only contain the building fields unique to that village
   buildingFieldsPresets: VillagePresetId[];
   isCapital: boolean;
   RFC: ResourceFieldComposition;
