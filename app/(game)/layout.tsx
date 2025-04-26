@@ -88,8 +88,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
 
             return Number.POSITIVE_INFINITY;
           },
-          queryFn: () => {
-          },
+          queryFn: () => {},
         },
         mutations: {
           networkMode: 'always',
@@ -118,8 +117,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
       const serverState = await getParsedFileContents<PersistedClient>(rootHandle, serverSlug!);
       return serverState;
     },
-    removeClient: () => {
-    },
+    removeClient: () => {},
   };
 
   useEffect(() => {
@@ -131,13 +129,13 @@ const Layout = ({ params }: Route.ComponentProps) => {
       queryClient.setQueryData<Quest[]>([questsCacheKey], () => {
         return event.data.resolvedQuests;
       });
-    }
+    };
 
     questWorkerRef.current.addEventListener('message', eventHandler);
 
     return () => {
       if (questWorkerRef.current) {
-        questWorkerRef.current.removeEventListener('message', eventHandler)
+        questWorkerRef.current.removeEventListener('message', eventHandler);
       }
     };
   }, [questWorkerRef, queryClient]);
@@ -169,7 +167,6 @@ const Layout = ({ params }: Route.ComponentProps) => {
 
       if (questWorkerRef.current) {
         if (hashesThatTriggerQuestValidation.includes(query.queryHash)) {
-
           const dehydratedState = dehydrate(queryClient);
           questWorkerRef.current.postMessage({
             dehydratedState,

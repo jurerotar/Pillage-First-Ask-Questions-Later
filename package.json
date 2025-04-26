@@ -43,8 +43,8 @@
     "@radix-ui/react-switch": "1.2.2",
     "@radix-ui/react-toggle": "1.1.6",
     "@radix-ui/react-toggle-group": "1.1.7",
-    "@react-router/node": "7.5.1",
-    "@react-router/serve": "7.5.1",
+    "@react-router/node": "7.5.2",
+    "@react-router/serve": "7.5.2",
     "@tailwindcss/vite": "4.1.4",
     "@tanstack/react-query": "5.74.4",
     "@tanstack/react-query-devtools": "5.74.6",
@@ -54,15 +54,15 @@
     "cmdk": "1.1.1",
     "date-fns": "4.1.0",
     "i18next": "25.0.1",
-    "isbot": "5.1.26",
+    "isbot": "5.1.27",
     "moderndash": "4.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "7.56.1",
-    "react-i18next": "15.4.1",
+    "react-i18next": "15.5.1",
     "react-icons": "5.5.0",
     "react-icons-tailwindcss": "1.2.0",
-    "react-router": "7.5.1",
+    "react-router": "7.5.2",
     "react-tabs": "6.1.0",
     "react-tooltip": "5.28.1",
     "react-window": "1.8.11",
@@ -77,11 +77,11 @@
     "@biomejs/biome": "1.9.4",
     "@commitlint/cli": "19.8.0",
     "@commitlint/config-conventional": "19.8.0",
-    "@react-router/dev": "7.5.1",
+    "@react-router/dev": "7.5.2",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "22.14.1",
+    "@types/node": "22.15.2",
     "@types/react": "19.1.2",
     "@types/react-dom": "19.1.2",
     "@types/react-window": "1.8.8",
@@ -97,7 +97,7 @@
     "skott": "0.35.4",
     "tailwindcss": "4.1.4",
     "typescript": "5.8.3",
-    "vite": "6.3.2",
+    "vite": "6.3.3",
     "vite-plugin-pwa": "1.0.0",
     "vitest": "3.1.2"
   },
@@ -105,46 +105,22 @@
     "node": ">=22.14.0"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": [
-      "scripts/*.ts",
-      "app/tests/vitest-setup.ts",
-      "app/root.tsx!",
-      "app/**/*page.tsx!",
-      "app/**/*layout.tsx!"
-    ],
-    "project": [
-      "app/**/*.{ts,tsx}!"
-    ],
+    "entry": ["scripts/*.ts", "app/tests/vitest-setup.ts", "app/root.tsx!", "app/**/*page.tsx!", "app/**/*layout.tsx!"],
+    "project": ["app/**/*.{ts,tsx}!"],
     "paths": {
-      "app/*": [
-        "app/*"
-      ]
+      "app/*": ["app/*"]
     }
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
+    "extends": ["@commitlint/config-conventional"],
     "rules": {
-      "header-max-length": [
-        0
-      ],
-      "body-max-line-length": [
-        0
-      ]
+      "header-max-length": [0],
+      "body-max-line-length": [0]
     }
   }
 }

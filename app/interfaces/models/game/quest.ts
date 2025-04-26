@@ -1,9 +1,7 @@
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Building } from 'app/interfaces/models/game/building';
 
-type GlobalQuestGroup =
-  | 'adventureCount'
-  | 'troopCount';
+type GlobalQuestGroup = 'adventureCount' | 'troopCount';
 
 type VillageQuestGroup = Building['id'] | 'resourceFields';
 

@@ -747,19 +747,21 @@
     }
   },
   "QUESTS": {
-    "ADVENTURECOUNT": {
-      "TITLE": "{{count}} adventures",
-      "DESCRIPTION": ""
+    "ADVENTURE-COUNT": {
+      "TITLE": "{{amount}} adventures",
+      "DESCRIPTION": "Send your hero on {{amount}} adventures."
     },
-    "TROOPCOUNT": {
-      "TITLE": "{{count}} units",
-      "DESCRIPTION": ""
+    "TROOP-COUNT": {
+      "TITLE": "{{amount}} units",
+      "DESCRIPTION": "Train additional units until you have at least {{amount}} units."
     },
     "ONE-OF": {
-      "TITLE": "{{buildingName}} to level {{level}}"
+      "TITLE": "{{buildingName}} to level {{level}}",
+      "DESCRIPTION": "Upgrade the {{buildingName}} to level {{level}}"
     },
     "EVERY": {
-      "TITLE": "All {{buildingName}}s level {{level}}"
+      "TITLE": "All {{buildingName}}s level {{level}}",
+      "DESCRIPTION": "Upgrade all {{buildingName}}s to level {{level}}."
     }
   }
 }

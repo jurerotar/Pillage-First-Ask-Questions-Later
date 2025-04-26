@@ -8,7 +8,7 @@ import type {
   QuestReward,
   ResourceQuestReward,
   TroopCountQuestRequirement,
-  VillageQuest
+  VillageQuest,
 } from 'app/interfaces/models/game/quest';
 
 export const isVillageQuest = (quest: Quest): quest is VillageQuest => {
@@ -27,31 +27,25 @@ export const isTroopCountQuestRequirement = (requirement: QuestRequirement): req
   return requirement.type === 'troop-count';
 };
 
-export const isResourceQuestReward = (
-  reward: QuestReward
-): reward is ResourceQuestReward => {
+export const isResourceQuestReward = (reward: QuestReward): reward is ResourceQuestReward => {
   return reward.type === 'resources';
 };
 
-export const isHeroExperienceQuestReward = (
-  reward: QuestReward
-): reward is HeroExperienceQuestReward => {
+export const isHeroExperienceQuestReward = (reward: QuestReward): reward is HeroExperienceQuestReward => {
   return reward.type === 'hero-exp';
 };
 
-export const isHeroItemQuestReward = (
-  reward: QuestReward
-): reward is HeroItemQuestReward => {
+export const isHeroItemQuestReward = (reward: QuestReward): reward is HeroItemQuestReward => {
   return reward.type === 'hero-item';
 };
 
 export const wasQuestCompleted = (quest: Quest) => {
   return quest.completedAt !== null;
-}
+};
 
 export const wasQuestCollected = (quest: Quest) => {
   return quest.collectedAt !== null;
-}
+};
 
 export const isQuestCollectable = (quest: Quest) => {
   return wasQuestCompleted(quest) && !wasQuestCollected(quest);

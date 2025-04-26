@@ -111,9 +111,14 @@ const calculateResourceReward = (buildingId: Building['id'], level: number, matc
 
   const exponent = 1.3;
   return Math.round(base * effectiveLevel ** exponent) + base / 2;
-}
+};
 
-export const createBuildingQuest = (buildingId: Building['id'], level: number, matcher: 'oneOf' | 'every' = 'oneOf', reward?: number): Omit<VillageQuest, 'villageId'> => {
+export const createBuildingQuest = (
+  buildingId: Building['id'],
+  level: number,
+  matcher: 'oneOf' | 'every' = 'oneOf',
+  reward?: number,
+): Omit<VillageQuest, 'villageId'> => {
   return {
     id: `${buildingId}-${matcher}-${level}`,
     scope: 'village',
@@ -136,7 +141,7 @@ export const createBuildingQuest = (buildingId: Building['id'], level: number, m
   };
 };
 
-export const villageQuests: (Omit<VillageQuest, 'villageId'>)[] = [
+export const villageQuests: Omit<VillageQuest, 'villageId'>[] = [
   // Wood
   createBuildingQuest('WOODCUTTER', 1),
   createBuildingQuest('WOODCUTTER', 2),

@@ -26,7 +26,7 @@ export const newVillageQuestsFactory = (villageId: Village['id'], tribe: Playabl
 
   return quests.map((quest) => ({
     villageId,
-    ...quest
+    ...quest,
   }));
 };
 

@@ -86,7 +86,7 @@ const VillagePage = () => {
 
     return () => {
       body.classList.remove(layoutStyles['background-image--village']);
-    }
+    };
   }, [villagePath, pathname]);
 
   return (
@@ -108,8 +108,7 @@ const VillagePage = () => {
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}
       />
-      <main
-        className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
+      <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
         <div className="relative aspect-[16/10] scrollbar-hidden min-w-[460px] max-w-5xl w-full">
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField

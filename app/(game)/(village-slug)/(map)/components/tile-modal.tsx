@@ -31,7 +31,10 @@ const TileModalResources: React.FC<TileModalResourcesProps> = ({ tile }) => {
   const resources = parseRFCFromTile(tile.RFC, 'number');
   return (
     <div className="flex justify-start text-sm">
-      <Resources iconClassName="size-4" resources={resources} />
+      <Resources
+        iconClassName="size-4"
+        resources={resources}
+      />
     </div>
   );
 };
@@ -103,16 +106,13 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
     return isOccupied ? t('Occupied oasis') : t('Unoccupied oasis');
   })();
 
-
   const occupiedByVillage = isOccupiable && isOccupied ? getVillageByOasis(tile) : null;
   const ownedBy = occupiedByVillage?.playerId;
 
   return (
     <>
       <DialogHeader>
-        <DialogTitle>
-          {title}
-        </DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <TileModalLocation tile={tile} />
         {isOccupiable && (
           <div className="flex justify-start gap-2 items-center">
@@ -125,9 +125,7 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
                   className="size-4"
                   type={resource}
                 />
-                <span>
-                  {bonus}
-                </span>
+                <span>{bonus}</span>
               </span>
             ))}
           </div>
@@ -136,11 +134,18 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
           {!isOccupiable && t('This is an un-occupiable oasis.')}
           {isOccupied && (
             <>
-              {ownedBy === 'player' && t('This oasis is occupied by you and is producing resources for village {{villageName}}.', { villageName: occupiedByVillage!.name })}
-              {ownedBy !== 'player' && t('This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.')}
+              {ownedBy === 'player' &&
+                t('This oasis is occupied by you and is producing resources for village {{villageName}}.', {
+                  villageName: occupiedByVillage!.name,
+                })}
+              {ownedBy !== 'player' &&
+                t('This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.')}
             </>
           )}
-          {!isOccupied && t('This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.', { herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME') })}
+          {!isOccupied &&
+            t('This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.', {
+              herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
+            })}
         </DialogDescription>
       </DialogHeader>
     </>
@@ -172,25 +177,27 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       duration,
       targetTileId: tile.id,
     });
-  }
+  };
 
   return (
     <>
       <DialogHeader>
-        <DialogTitle>
-          {t('Abandoned valley')}
-        </DialogTitle>
+        <DialogTitle>{t('Abandoned valley')}</DialogTitle>
         <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>
-          {t('You can establish a new village on this tile. To settle it, make sure you have 3 settlers and an unused expansion slot from one of your villages.')}
+          {t(
+            'You can establish a new village on this tile. To settle it, make sure you have 3 settlers and an unused expansion slot from one of your villages.',
+          )}
         </DialogDescription>
       </DialogHeader>
       <div className="flex flex-col gap-2">
-        <Text as="h3">
-          {t('Actions')}
-        </Text>
-        <Button variant="link" className="p-0 leading-0" onClick={onFoundNewVillage}>
+        <Text as="h3">{t('Actions')}</Text>
+        <Button
+          variant="link"
+          className="p-0 leading-0"
+          onClick={onFoundNewVillage}
+        >
           Found new village
         </Button>
       </div>
@@ -214,22 +221,26 @@ const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = 
   return (
     <>
       <DialogHeader>
-        <DialogTitle>
-          {village.name}
-        </DialogTitle>
+        <DialogTitle>{village.name}</DialogTitle>
         <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>
-          {isOwnedByPlayer ? t('This is your village.') : t('This village belongs to another player. You may trade with it or attack it. Beware though, attacking may provoke retaliation!')}
+          {isOwnedByPlayer
+            ? t('This is your village.')
+            : t(
+                'This village belongs to another player. You may trade with it or attack it. Beware though, attacking may provoke retaliation!',
+              )}
         </DialogDescription>
       </DialogHeader>
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
-        <Text as="h3">
-          {t('Actions')}
-        </Text>
-        {(isOwnedByPlayer && tile.id !== currentVillage.id) && (
-          <Button variant="link" className="p-0 leading-0" onClick={() => switchToVillage(village.slug)}>
+        <Text as="h3">{t('Actions')}</Text>
+        {isOwnedByPlayer && tile.id !== currentVillage.id && (
+          <Button
+            variant="link"
+            className="p-0 leading-0"
+            onClick={() => switchToVillage(village.slug)}
+          >
             Enter village
           </Button>
         )}

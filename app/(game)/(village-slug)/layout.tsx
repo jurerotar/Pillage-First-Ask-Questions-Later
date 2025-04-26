@@ -52,9 +52,7 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ chi
     >
       <span className="lg:size-10 lg:bg-white lg:rounded-full flex items-center justify-center">{children}</span>
       {counter > 0 && (
-        <span
-          className="absolute size-5 lg:size-6 text-sm font-medium bg-white z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center"
-        >
+        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
           {counter > 99 ? '99' : counter}
         </span>
       )}
@@ -97,8 +95,7 @@ const HeroNavigationItem = () => {
           <HiStar className="text-yellow-300 text-sm" />
         </span>
       )}
-      <span
-        className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
+      <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
         <FaHome className="text-gray-500 text-xs" />
       </span>
     </Link>
@@ -135,8 +132,7 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
     >
       <span className="size-12 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
       {counter > 0 && (
-        <span
-          className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
           {counter}
         </span>
       )}
@@ -152,7 +148,7 @@ const QuestsNavigationItem = () => {
       <FaBookBookmark className="text-xl" />
     </NavigationSideItem>
   );
-}
+};
 
 const AdventuresNavigationItem = () => {
   const { adventurePoints } = useAdventurePoints();
@@ -162,7 +158,7 @@ const AdventuresNavigationItem = () => {
       <PiPathBold className="text-xl" />
     </NavigationSideItem>
   );
-}
+};
 
 const ReportsNavigationItem = () => {
   const { reports } = useReports();
@@ -172,7 +168,7 @@ const ReportsNavigationItem = () => {
       <LuScrollText className="text-xl" />
     </NavigationSideItem>
   );
-}
+};
 
 const ResourceCounters = () => {
   const { buildingWheatConsumption, buildingWheatLimit } = useComputedEffect('wheatProduction');
@@ -362,14 +358,12 @@ const TopNavigation = () => {
       </div>
       {/* Empty div to bring down the header on mobile devices */}
       <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div
-        className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
         <DiscordLink />
         <VillageSelect />
         <HeroNavigationItem />
       </div>
-      <div
-        className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
+      <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
     </header>
@@ -392,8 +386,7 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header
-      className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
@@ -493,7 +486,7 @@ const GameLayout = () => {
 
     return () => {
       body.classList.remove(layoutStyles['background-image']);
-    }
+    };
   }, []);
 
   useEffect(() => {

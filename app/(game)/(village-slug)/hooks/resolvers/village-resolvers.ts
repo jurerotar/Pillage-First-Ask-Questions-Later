@@ -6,7 +6,8 @@ import {
   mapCacheKey,
   playersCacheKey,
   playerVillagesCacheKey,
-  questsCacheKey, serverCacheKey
+  questsCacheKey,
+  serverCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';

@@ -121,7 +121,10 @@ type TileTooltipResourcesProps = {
 const TileTooltipResources: React.FC<TileTooltipResourcesProps> = ({ tile }) => {
   const resources = parseRFCFromTile(tile.RFC, 'number');
   return (
-    <Resources iconClassName="size-4" resources={resources} />
+    <Resources
+      iconClassName="size-4"
+      resources={resources}
+    />
   );
 };
 
@@ -208,7 +211,7 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
 };
 
 export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
-  if(isOasisTile(tile)) {
+  if (isOasisTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
         <OasisTileTooltip tile={tile} />
@@ -216,7 +219,7 @@ export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
     );
   }
 
-  if(isOccupiedOccupiableTile(tile)) {
+  if (isOccupiedOccupiableTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
         <OccupiedOccupiableTileTooltip tile={tile} />

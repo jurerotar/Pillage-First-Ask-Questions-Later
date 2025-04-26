@@ -16,4 +16,4 @@ export const useWorkerRef = (module: string): React.RefObject<Worker | null> => 
   }, [module]);
 
   return ref;
-}
+};

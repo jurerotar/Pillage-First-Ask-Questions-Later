@@ -8,7 +8,7 @@ import {
   isAdventureCountQuestRequirement,
   isBuildingQuestRequirement,
   isTroopCountQuestRequirement,
-  isVillageQuest
+  isVillageQuest,
 } from 'app/(game)/workers/guards/quest-guards';
 
 type QuestsWorkerPayload = {
@@ -43,13 +43,13 @@ self.addEventListener('message', async (event: MessageEvent<QuestsWorkerPayload>
 
     for (const requirement of quest.requirements) {
       if (isVillageQuest(quest) && isBuildingQuestRequirement(requirement)) {
-        const village = playerVillagesMap.get(quest.villageId)!
+        const village = playerVillagesMap.get(quest.villageId)!;
         const { matcher, buildingId, level } = requirement;
 
-        if(matcher === 'every') {
+        if (matcher === 'every') {
           const matchingBuildingFields = village.buildingFields.filter((buildingField) => buildingField.buildingId === buildingId);
 
-          if(matchingBuildingFields.length === 0) {
+          if (matchingBuildingFields.length === 0) {
             requirementStatuses.push(false);
             continue;
           }
@@ -58,7 +58,9 @@ self.addEventListener('message', async (event: MessageEvent<QuestsWorkerPayload>
           continue;
         }
 
-        requirementStatuses.push(village.buildingFields.some((buildingField) => buildingField.buildingId === buildingId && buildingField.level >= level));
+        requirementStatuses.push(
+          village.buildingFields.some((buildingField) => buildingField.buildingId === buildingId && buildingField.level >= level),
+        );
       }
 
       if (isAdventureCountQuestRequirement(requirement)) {
