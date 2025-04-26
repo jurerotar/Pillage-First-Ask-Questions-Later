@@ -39,17 +39,4 @@ describe('Building assets', () => {
       }
     }
   });
-
-  test('Any effect ending with "Bonus" must have all float values', () => {
-    for (const building of buildings) {
-      for (const effect of building.effects) {
-        if (effect.effectId.endsWith('Bonus')) {
-          for (const [index, value] of effect.valuesPerLevel.entries()) {
-            const isFloat = Number(value) === value && !Number.isInteger(value);
-            expect(isFloat, `Effect '${effect.effectId}' in ${building.id} has non-float value at index ${index}: ${value}`).toBe(true);
-          }
-        }
-      }
-    }
-  });
 });

@@ -20,6 +20,6 @@ self.addEventListener('message', async (event: MessageEvent<GenerateMapWorkerPay
   const tiles = mapFactory({ server, npcPlayers });
   const occupiableOasisTiles = tiles.filter(isUnoccupiedOasisTile);
   const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
-  self.postMessage({ tiles, occupiableOasisTiles, occupiedOccupiableTiles });
+  self.postMessage({ tiles, occupiableOasisTiles, occupiedOccupiableTiles } satisfies GenerateMapWorkerReturn);
   self.close();
 });

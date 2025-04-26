@@ -534,21 +534,21 @@ export const typeToIconCssClass: Partial<Record<IconType, string>> = {
   missingIcon: 'icon-[gr-document-missing]',
 
   // Resources
-  wood: 'icon icon-[tb-wood] text-[#A1662F]',
+  wood: 'icon icon-[gi-wood-pile] text-[#A1662F]',
   clay: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  iron: 'icon icon-[gi-stone-pile] text-gray-500',
+  iron: 'icon icon-[gi-metal-bar] text-gray-500',
   wheat: 'icon icon-[lu-wheat] text-yellow-500',
-  woodWheat: 'icon icon-[tb-wood] text-[#A1662F]',
+  woodWheat: 'icon icon-[gi-wood-pile] text-[#A1662F]',
   clayWheat: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  ironWheat: 'icon icon-[gi-stone-pile] text-gray-500',
-  woodWood: 'icon icon-[tb-wood] text-[#A1662F]',
+  ironWheat: 'icon icon-[gi-metal-bar] text-gray-500',
+  woodWood: 'icon icon-[gi-wood-pile] text-[#A1662F]',
   clayClay: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  ironIron: 'icon icon-[gi-stone-pile] text-gray-500',
+  ironIron: 'icon icon-[gi-metal-bar] text-gray-500',
   wheatWheat: 'icon icon-[lu-wheat] text-yellow-500',
 
   // Map treasures
   treasureTileItem: 'icon icon-[lu-sword]',
-  treasureTileResources: 'icon icon-[gi-stone-pile]',
+  treasureTileResources: 'icon icon-[gi-wood-pile]',
   treasureTileArtifact: 'icon icon-[si-artifacthub]',
   treasureTileCurrency: 'icon icon-[lia-coins-solid]',
   treasureTileMiscellaneous: 'icon icon-[sl-chemistry]',

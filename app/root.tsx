@@ -2,6 +2,8 @@ import { Links, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } fr
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
+import { sessionContext } from 'app/context/session';
+import type { Route } from '.react-router/types/app/+types/root';
 import './styles/app.css';
 import './i18n';
 
@@ -9,6 +11,15 @@ const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
 const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
 
 export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions Later)' }];
+
+const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction = ({ context }) => {
+  const sessionCtx = context.get(sessionContext);
+  if (!sessionCtx.sessionId) {
+    sessionCtx.sessionId = window.crypto.randomUUID();
+  }
+};
+
+export const unstable_clientMiddleware = [clientSessionMiddleware];
 
 const Root = () => {
   return (

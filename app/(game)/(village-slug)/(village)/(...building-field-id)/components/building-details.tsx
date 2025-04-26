@@ -35,10 +35,6 @@ const RallyPointSimulator = lazy(async () => ({
   default: (await import('./components/rally-point-simulator')).RallyPointSimulator,
 }));
 
-const RallyPointFarmList = lazy(async () => ({
-  default: (await import('./components/rally-point-farm-list')).RallyPointFarmList,
-}));
-
 const PalaceTrainSettler = lazy(async () => ({
   default: (await import('./components/palace-settler-training')).PalaceSettlerTraining,
 }));
@@ -116,7 +112,6 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
       ['default', RallyPointIncomingTroops],
       [t('Send troops'), RallyPointSendTroops],
       [t('Simulator'), RallyPointSimulator],
-      [t('Farm list'), RallyPointFarmList],
     ]),
   ],
   ['TREASURY', new Map([['default', TreasuryArtifacts]])],

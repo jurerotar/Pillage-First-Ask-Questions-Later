@@ -18,10 +18,7 @@ export const heroFactory = (server: Server): Hero => {
     resourceToProduce: 'shared',
     unitType: 'infantry',
     inventory: [],
-    adventures: {
-      short: 0,
-      long: 0,
-    },
+    adventureCount: 0,
     tribe,
     equippedItems: {
       head: null,

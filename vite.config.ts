@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
+// import { visualizer } from "rollup-plugin-visualizer";
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -65,6 +66,7 @@ const viteConfig = defineViteConfig({
         return code.replace(`import debounce from 'lodash.debounce';`, `import { debounce } from 'moderndash';`);
       },
     },
+    // visualizer({ open: true }) as PluginOption,
   ],
   server: {
     open: true,

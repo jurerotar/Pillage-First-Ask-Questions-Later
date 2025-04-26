@@ -15,8 +15,7 @@ import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2 } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { LinkWithState } from 'app/components/link-with-state';
-import { Link, Outlet, useNavigate } from 'react-router';
+import { Link, Outlet } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -32,6 +31,9 @@ import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { formatNumber } from 'app/utils/common';
+import layoutStyles from './layout.module.scss';
+import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
+import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -50,8 +52,8 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ chi
     >
       <span className="lg:size-10 lg:bg-white lg:rounded-full flex items-center justify-center">{children}</span>
       {counter > 0 && (
-        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
-          {counter}
+        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+          {counter > 99 ? '99' : counter}
         </span>
       )}
     </button>
@@ -113,9 +115,10 @@ const DesktopTopRowItem: React.FCWithChildren = ({ children }) => {
 
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
+  counter?: number;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ children, ...rest }) => {
+const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ children, counter = 0, ...rest }) => {
   const { isActive, ...htmlProps } = rest;
 
   return (
@@ -128,7 +131,42 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
       {...htmlProps}
     >
       <span className="size-12 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
+      {counter > 0 && (
+        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+          {counter}
+        </span>
+      )}
     </button>
+  );
+};
+
+const QuestsNavigationItem = () => {
+  const { amountOfUncollectedQuests } = useQuests();
+
+  return (
+    <NavigationSideItem counter={amountOfUncollectedQuests}>
+      <FaBookBookmark className="text-xl" />
+    </NavigationSideItem>
+  );
+};
+
+const AdventuresNavigationItem = () => {
+  const { adventurePoints } = useAdventurePoints();
+
+  return (
+    <NavigationSideItem counter={adventurePoints.amount}>
+      <PiPathBold className="text-xl" />
+    </NavigationSideItem>
+  );
+};
+
+const ReportsNavigationItem = () => {
+  const { reports } = useReports();
+
+  return (
+    <NavigationSideItem counter={reports.length}>
+      <LuScrollText className="text-xl" />
+    </NavigationSideItem>
   );
 };
 
@@ -169,8 +207,7 @@ const ResourceCounters = () => {
 
 const VillageSelect = () => {
   const { villageSlug } = useRouteSegments();
-  const navigate = useNavigate();
-  const { baseGamePath } = useGameNavigation();
+  const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
 
@@ -178,7 +215,7 @@ const VillageSelect = () => {
     <select
       className="border-2 border-gray-300 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
       defaultValue={currentVillage.slug}
-      onChange={(event) => navigate(`${baseGamePath}/${event.target.value}/resources`)}
+      onChange={(event) => switchToVillage(event.target.value)}
     >
       {playerVillages.map(({ id, slug, name }) => (
         <option
@@ -194,7 +231,6 @@ const VillageSelect = () => {
 };
 
 const TopNavigation = () => {
-  const { adventurePoints } = useAdventurePoints();
   const gameNavigation = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
 
@@ -208,7 +244,7 @@ const TopNavigation = () => {
           <nav className="hidden lg:flex justify-end container mx-auto">
             <ul className="flex gap-1">
               <li>
-                <LinkWithState
+                <Link
                   target="_blank"
                   to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                 >
@@ -217,10 +253,10 @@ const TopNavigation = () => {
                       <span className="text-sm hidden xl:inline-flex">GitHub</span> <FaGithub className="text-xl" />
                     </span>
                   </DesktopTopRowItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
-                <LinkWithState
+                <Link
                   target="_blank"
                   to="https://discord.com/invite/Ep7NKVXUZA"
                 >
@@ -229,21 +265,21 @@ const TopNavigation = () => {
                       <span className="text-sm hidden xl:inline-flex">Discord</span> <FaDiscord className="text-xl" />
                     </span>
                   </DesktopTopRowItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.preferencesPath}>
+                <Link to={gameNavigation.preferencesPath}>
                   <DesktopTopRowItem>
                     <MdSettings className="text-xl" />
                   </DesktopTopRowItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
-                <LinkWithState to="/">
+                <Link to="/">
                   <DesktopTopRowItem>
                     <RxExit className="text-xl text-red-500" />
                   </DesktopTopRowItem>
-                </LinkWithState>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -255,71 +291,65 @@ const TopNavigation = () => {
           <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
             <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
               <li>
-                <LinkWithState to={gameNavigation.statisticsPath}>
+                <Link to={gameNavigation.statisticsPath}>
                   <NavigationSideItem>
                     <GoGraph className="text-xl" />
                   </NavigationSideItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.questsPath}>
-                  <NavigationSideItem>
-                    <FaBookBookmark className="text-xl" />
-                  </NavigationSideItem>
-                </LinkWithState>
+                <Link to={gameNavigation.questsPath}>
+                  <QuestsNavigationItem />
+                </Link>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.overviewPath}>
+                <Link to={gameNavigation.overviewPath}>
                   <NavigationSideItem>
                     <CiCircleList className="text-xl" />
                   </NavigationSideItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
                 <ul className="flex gap-1 xl:gap-2 xl:mx-4">
                   <li>
-                    <LinkWithState to={gameNavigation.resourcesPath}>
+                    <Link to={gameNavigation.resourcesPath}>
                       <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
                         <GiWheat className="text-3xl" />
                       </NavigationMainItem>
-                    </LinkWithState>
+                    </Link>
                   </li>
                   <li>
-                    <LinkWithState to={gameNavigation.villagePath}>
+                    <Link to={gameNavigation.villagePath}>
                       <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
                         <MdOutlineHolidayVillage className="text-3xl" />
                       </NavigationMainItem>
-                    </LinkWithState>
+                    </Link>
                   </li>
                   <li>
-                    <LinkWithState to={currentVillageMapPath}>
+                    <Link to={currentVillageMapPath}>
                       <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
                         <TbMap2 className="text-3xl" />
                       </NavigationMainItem>
-                    </LinkWithState>
+                    </Link>
                   </li>
                 </ul>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.reportsPath}>
-                  <NavigationSideItem>
-                    <LuScrollText className="text-xl" />
-                  </NavigationSideItem>
-                </LinkWithState>
+                <Link to={gameNavigation.reportsPath}>
+                  <ReportsNavigationItem />
+                </Link>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.adventuresPath}>
-                  <NavigationSideItem counter={adventurePoints.amount}>
-                    <PiPathBold className="text-xl" />
-                  </NavigationSideItem>
-                </LinkWithState>
+                <Link to={gameNavigation.adventuresPath}>
+                  <AdventuresNavigationItem />
+                </Link>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.auctionsPath}>
+                <Link to={gameNavigation.auctionsPath}>
                   <NavigationSideItem>
                     <RiAuctionLine className="text-xl" />
                   </NavigationSideItem>
-                </LinkWithState>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -351,10 +381,10 @@ const MobileBottomNavigation = () => {
 
   useCenterHorizontally(container);
 
-  // This is literally the hackiest html I've ever written. Basically, fixed header, overflow-x & translate-y do not work together at all.
+  // Basically, fixed header, overflow-x & translate-y do not work together at all.
   // There's always either non-working scroll or elements being cut. The way it works now is that technically, nothing is overflowing with translate,
   // we just have a transparent container and some very hacky gradient to make it look like it works.
-  // There's also massive Tailwind brainrot on display here, God help us
+  // There's also massive Tailwind brain rot on display here. :S
   return (
     <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
       <nav
@@ -363,77 +393,83 @@ const MobileBottomNavigation = () => {
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
-            <LinkWithState to={gameNavigation.statisticsPath}>
+            <Link to={gameNavigation.statisticsPath}>
               <NavigationSideItem>
                 <GoGraph className="text-2xl" />
               </NavigationSideItem>
-            </LinkWithState>
+            </Link>
           </li>
           <li>
-            <LinkWithState to={gameNavigation.adventuresPath}>
-              <NavigationSideItem>
-                <PiPathBold className="text-2xl" />
-              </NavigationSideItem>
-            </LinkWithState>
+            <Link to={gameNavigation.adventuresPath}>
+              <AdventuresNavigationItem />
+            </Link>
           </li>
           <li>
-            <LinkWithState to={gameNavigation.questsPath}>
-              <NavigationSideItem>
-                <FaBookBookmark className="text-2xl" />
-              </NavigationSideItem>
-            </LinkWithState>
+            <Link to={gameNavigation.questsPath}>
+              <QuestsNavigationItem />
+            </Link>
           </li>
           <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
-                <LinkWithState to={gameNavigation.resourcesPath}>
+                <Link to={gameNavigation.resourcesPath}>
                   <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
                     <GiWheat className="text-2xl" />
                   </NavigationMainItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
-                <LinkWithState to={gameNavigation.villagePath}>
+                <Link to={gameNavigation.villagePath}>
                   <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
                     <MdOutlineHolidayVillage className="text-2xl" />
                   </NavigationMainItem>
-                </LinkWithState>
+                </Link>
               </li>
               <li>
-                <LinkWithState to={currentVillageMapPath}>
+                <Link to={currentVillageMapPath}>
                   <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
                     <TbMap2 className="text-2xl" />
                   </NavigationMainItem>
-                </LinkWithState>
+                </Link>
               </li>
             </ul>
           </li>
           <li>
-            <LinkWithState to={gameNavigation.reportsPath}>
-              <NavigationSideItem>
-                <LuScrollText className="text-2xl" />
-              </NavigationSideItem>
-            </LinkWithState>
+            <Link to={gameNavigation.reportsPath}>
+              <ReportsNavigationItem />
+            </Link>
           </li>
 
           <li>
-            <LinkWithState to={gameNavigation.preferencesPath}>
+            <Link to={gameNavigation.preferencesPath}>
               <NavigationSideItem>
                 <MdSettings className="text-2xl" />
               </NavigationSideItem>
-            </LinkWithState>
+            </Link>
           </li>
           <li>
-            <LinkWithState to="/">
+            <Link to="/">
               <NavigationSideItem>
                 <RxExit className="text-2xl text-red-500" />
               </NavigationSideItem>
-            </LinkWithState>
+            </Link>
           </li>
         </ul>
       </nav>
     </header>
   );
+};
+
+const TroopMovements = () => {
+  return null;
+};
+
+const ConstructionQueue = () => {
+  return null;
+};
+
+const TroopList = () => {
+  return null;
 };
 
 export const ErrorBoundary = () => {
@@ -442,6 +478,16 @@ export const ErrorBoundary = () => {
 
 const GameLayout = () => {
   const { timeOfDay, skinVariant, colorScheme } = usePreferences();
+
+  useEffect(() => {
+    const body = document.querySelector('body')!;
+
+    body.classList.add(layoutStyles['background-image']);
+
+    return () => {
+      body.classList.remove(layoutStyles['background-image']);
+    };
+  }, []);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -462,7 +508,10 @@ const GameLayout = () => {
       <CurrentResourceProvider>
         <CountdownProvider>
           <TopNavigation />
+          <TroopMovements />
           <Outlet />
+          <ConstructionQueue />
+          <TroopList />
           <MobileBottomNavigation />
         </CountdownProvider>
       </CurrentResourceProvider>

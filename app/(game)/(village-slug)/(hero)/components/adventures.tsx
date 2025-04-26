@@ -9,16 +9,13 @@ export const Adventures = () => {
   } = useServer();
   const { hero } = useHero();
 
-  const { short: shortAdventureCount, long: longAdventureCount } = hero.adventures;
+  const { adventureCount } = hero;
 
   // We need to do it this was, so that we preserve durations
-  const shortAdventurePrng = prngAlea(`${seed}${shortAdventureCount}`);
-  const longAdventurePrng = prngAlea(`${seed}${longAdventureCount}`);
+  const adventurePrng = prngAlea(`${seed}${adventureCount}`);
 
-  // Short adventure is between 8 & 12 min long
-  const _shortAdventureDuration = seededRandomIntFromInterval(shortAdventurePrng, 8 * 60, 12 * 60) * 1000;
-  // Long adventure is between 55 & 65 min long
-  const _longAdventureDuration = seededRandomIntFromInterval(longAdventurePrng, 55 * 60, 65 * 60) * 1000;
+  // Short adventure is between 8 & 12 minutes long
+  const _shortAdventureDuration = seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
 
   return <p>Adventures</p>;
 };

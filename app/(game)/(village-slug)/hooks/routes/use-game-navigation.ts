@@ -1,4 +1,5 @@
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
+import type { Village } from 'app/interfaces/models/game/village';
 
 const resourcesPagePath = '/resources';
 const villagePagePath = '/village';
@@ -16,6 +17,7 @@ const productionOverviewPagePath = '/production-overview';
 
 export const useGameNavigation = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const [, game, server, village] = pathname.split('/');
 
@@ -41,6 +43,10 @@ export const useGameNavigation = () => {
   const isMapPageOpen = pathname.includes(mapPagePath);
   const isHeroPageOpen = pathname.includes(heroPath);
 
+  const switchToVillage = (slug: Village['slug']) => {
+    navigate(`${baseGamePath}/${slug}/resources`);
+  };
+
   return {
     baseGamePath,
     baseVillagePath,
@@ -61,5 +67,6 @@ export const useGameNavigation = () => {
     isMapPageOpen,
     isHeroPageOpen,
     productionOverviewPath,
+    switchToVillage,
   };
 };
