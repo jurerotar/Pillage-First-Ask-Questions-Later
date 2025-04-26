@@ -25,6 +25,7 @@ import {
   offensiveTroopMovementResolver,
   troopMovementResolver,
 } from 'app/(game)/(village-slug)/hooks/resolvers/troop-movement-resolvers';
+import { findNewVillageResolver } from 'app/(game)/(village-slug)/hooks/resolvers/village-resolvers';
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   switch (gameEventType) {
@@ -54,6 +55,9 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
     }
     case 'oasisOccupation': {
       return oasisOccupationTroopMovementResolver;
+    }
+    case 'findNewVillage': {
+      return findNewVillageResolver;
     }
     default: {
       return console.error('No resolver function set for event type', gameEventType);

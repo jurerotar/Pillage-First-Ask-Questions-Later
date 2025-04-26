@@ -8,7 +8,7 @@ You can see the current stable version at: [pillagefirst.netlify.app](https://pi
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
-![Discord](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235865F2)
+![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235865F2)
 
 > [!NOTE]
 > Very much still work in progress.
@@ -38,8 +38,7 @@ full backend would effectively double the workload, making the project nearly im
 spare time.
 
 The second reason is personal. Building a complex frontend-only app at this scale is a unique challenge, and I wanted to see how far I could
-push it. This project gives me the opportunity to explore problems you don’t usually encounter in typical frontend work — and that's part of
-the appeal.
+push it. This project gives me the opportunity to explore problems you don’t usually encounter in typical frontend work.
 
 ### Can this project be converted to multiplayer?
 
@@ -55,8 +54,7 @@ If you’re passionate about backend development and want to help bring multipla
 ### Are there game design differences between Travian and Pillage First!?
 
 Yes, there's a couple. Game design is still being discussed in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if
-you'd like to
-learn more or give your opinion!
+you'd like to learn more or give your opinion!
 
 ## Development setup
 
@@ -75,7 +73,7 @@ App will automatically open in your default browser at `localhost:5173`.
 # Contributing
 
 All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related.
-I advise [joining our Discord server](https://discord.gg/Ep7NKVXUZA) and we'll discuss how you can contribute best!
+I advise [joining our Discord server](https://discord.gg/Ep7NKVXUZA), and we'll discuss how you can contribute best!
 
 All contributions are greatly appreciated.
 

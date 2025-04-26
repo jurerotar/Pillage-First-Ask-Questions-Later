@@ -7,7 +7,7 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { LinkWithState } from 'app/components/link-with-state';
+import { Link } from 'react-router';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -26,9 +26,9 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
     return (
       <TableRow>
         <TableCell>
-          <LinkWithState to={`${mapPath}?x=${x}&y=${y}`}>
+          <Link to={`${mapPath}?x=${x}&y=${y}`}>
             {x}, {y}
-          </LinkWithState>
+          </Link>
         </TableCell>
         <TableCell className="whitespace-nowrap">
           {occupiedOasis.ORB.map(({ resource, bonus }, index) => (
@@ -117,9 +117,9 @@ export const HerosMansionOasis = () => {
                   <TableRow key={tile.id}>
                     <TableCell>/</TableCell>
                     <TableCell>
-                      <LinkWithState to={`${mapPath}?x=${x}&y=${y}`}>
+                      <Link to={`${mapPath}?x=${x}&y=${y}`}>
                         {x}, {y}
-                      </LinkWithState>
+                      </Link>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       {tile.ORB.map(({ resource, bonus }, index) => (

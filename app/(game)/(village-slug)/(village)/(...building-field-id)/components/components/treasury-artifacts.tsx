@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { LinkWithState } from 'app/components/link-with-state';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { Link } from 'react-router';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
@@ -28,9 +28,9 @@ const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) =
       <TableCell>{assetsT(`ITEMS.${item.id}.TITLE`)}</TableCell>
       <TableCell>{assetsT(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
       <TableCell>
-        <LinkWithState to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
+        <Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
           {coordinates.x}, {coordinates.y}
-        </LinkWithState>
+        </Link>
       </TableCell>
     </TableRow>
   );

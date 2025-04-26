@@ -52,15 +52,6 @@ export const seededShuffleArray = <T>(prng: PRNGFunction, array: T[]): T[] => {
   return copy;
 };
 
-export const isFloat = (number: number): boolean => {
-  return !Number.isInteger(number) && !Number.isNaN(number);
-};
-
-export const partialArraySum = (array: number[], index: number): number => {
-  const sum: number = array.filter((_, i) => i < index).reduce((a, b) => a + b, 0);
-  return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
-};
-
 export const calculateDistanceBetweenPoints = (firstPoint: Point, secondPoint: Point): number => {
   return Math.sqrt((secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2);
 };
@@ -127,7 +118,7 @@ export const isMasterDeploy = () => {
 };
 
 export const formatPercentage = (number: number): string => {
-  // We can't differentiate between ints and floats in JS, so every 1.0 numbers is written as 1.001. We check for this number
+  // We can't differentiate between ints and floats in JS, so every x.0 number is written as 1.001. We check for this number
   // here and just return 100% if
   if (`${number}`.endsWith('.001')) {
     return `${Math.trunc(number)}00%`;

@@ -1357,7 +1357,7 @@ export const natarianUnits: Unit[] = [
   },
 ];
 
-export const specialUnits: Unit[] = [
+const specialUnits: Unit[] = [
   {
     id: 'HERO',
     baseRecruitmentCost: [0, 0, 0, 0],

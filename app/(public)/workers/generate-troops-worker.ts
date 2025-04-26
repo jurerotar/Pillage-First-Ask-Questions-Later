@@ -18,6 +18,6 @@ export type GenerateTroopsWorkerReturn = {
 
 self.addEventListener('message', async (event: MessageEvent<GenerateTroopsWorkerPayload>) => {
   const { playerTroops, npcTroops } = generateTroops(event.data);
-  self.postMessage({ playerTroops, npcTroops });
+  self.postMessage({ playerTroops, npcTroops } satisfies GenerateTroopsWorkerReturn);
   self.close();
 });

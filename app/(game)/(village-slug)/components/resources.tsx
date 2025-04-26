@@ -5,9 +5,10 @@ import type React from 'react';
 
 type ResourcesProps = {
   resources: number[];
+  iconClassName?: string;
 } & React.HTMLAttributes<HTMLSpanElement>;
 
-export const Resources: React.FC<ResourcesProps> = ({ resources, className, ...rest }) => {
+export const Resources: React.FC<ResourcesProps> = ({ resources, className, iconClassName = 'size-5', ...rest }) => {
   const [wood, clay, iron, wheat] = resources;
 
   return (
@@ -18,28 +19,28 @@ export const Resources: React.FC<ResourcesProps> = ({ resources, className, ...r
       <span className="flex gap-1 items-center">
         <Icon
           type="wood"
-          className="size-5"
+          className={iconClassName}
         />
         {formatNumber(wood)}
       </span>
       <span className="flex gap-1 items-center">
         <Icon
           type="clay"
-          className="size-5"
+          className={iconClassName}
         />
         {formatNumber(clay)}
       </span>
       <span className="flex gap-1 items-center">
         <Icon
           type="iron"
-          className="size-5"
+          className={iconClassName}
         />
         {formatNumber(iron)}
       </span>
       <span className="flex gap-1 items-center">
         <Icon
           type="wheat"
-          className="size-5"
+          className={iconClassName}
         />
         {formatNumber(wheat)}
       </span>

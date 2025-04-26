@@ -8,10 +8,12 @@ import { Icon } from 'app/components/icon';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import type { MetaFunction } from 'react-router';
+import { Link, useLocation } from 'react-router';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
+import { useEffect } from 'react';
+import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 
 export const meta: MetaFunction = () => {
   const { files } = villageAssetsPreloadPaths;
@@ -69,10 +71,23 @@ const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as Buil
 const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19) as BuildingFieldType['id'][];
 
 const VillagePage = () => {
+  const { pathname } = useLocation();
   const { t } = useTranslation();
   const { isResourcesPageOpen, villagePath } = useGameNavigation();
 
   const buildingFieldIdsToDisplay = isResourcesPageOpen ? resourceViewBuildingFieldIds : villageViewBuildingFieldIds;
+
+  useEffect(() => {
+    const body = document.querySelector('body')!;
+
+    if (pathname === villagePath) {
+      body.classList.add(layoutStyles['background-image--village']);
+    }
+
+    return () => {
+      body.classList.remove(layoutStyles['background-image--village']);
+    };
+  }, [villagePath, pathname]);
 
   return (
     <>
