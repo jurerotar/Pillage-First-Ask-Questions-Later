@@ -2,6 +2,7 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { StyledTab } from 'app/components/styled-tab';
 import { useTranslation } from 'react-i18next';
+import { WarningAlert } from 'app/components/alert';
 
 const StatisticsPage = () => {
   const { t } = useTranslation();
@@ -22,9 +23,15 @@ const StatisticsPage = () => {
         <StyledTab>{t('Villages')}</StyledTab>
         <StyledTab>{t('Week by week')}</StyledTab>
       </TabList>
-      <TabPanel>{t('Default')}</TabPanel>
-      <TabPanel>{t('Villages')}</TabPanel>
-      <TabPanel>{t('Week by week')}</TabPanel>
+      <TabPanel>
+        <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      </TabPanel>
+      <TabPanel>
+        <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      </TabPanel>
+      <TabPanel>
+        <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      </TabPanel>
     </Tabs>
   );
 };

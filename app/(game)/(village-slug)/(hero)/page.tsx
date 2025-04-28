@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
 import type { MetaFunction } from 'react-router';
 import heroItemsAssetsPreloadPaths from 'app/asset-preload-paths/hero-items.json';
+import { WarningAlert } from 'app/components/alert';
 
 export const meta: MetaFunction = () => {
   const { files } = heroItemsAssetsPreloadPaths;
@@ -35,11 +36,15 @@ const HeroPage = () => {
         <StyledTab>{t('Adventures')}</StyledTab>
         <StyledTab>{t('Auctions')}</StyledTab>
       </TabList>
-      <TabPanel>{t('Overview')}</TabPanel>
+      <TabPanel>
+        <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      </TabPanel>
       <TabPanel>
         <Adventures />
       </TabPanel>
-      <TabPanel>{t('Auctions')}</TabPanel>
+      <TabPanel>
+        <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      </TabPanel>
     </Tabs>
   );
 };
