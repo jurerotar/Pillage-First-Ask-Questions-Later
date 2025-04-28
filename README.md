@@ -1,14 +1,14 @@
 # Pillage First! (Ask Questions Later)
 
-Pillage First! (Ask Questions Later) is a single-player, open-source Travian clone – a real-time browser strategy game where you build
-villages, manage resources, and conquer your enemies. Inspired by classic MMORTS titles like Travian, it captures the essence of early
-web-based strategy games in a solo, offline-friendly format.
+Pillage First! (Ask Questions Later) is a single-player, open-source Travian clone. Real-time browser strategy game where you build
+villages, manage resources, train troops and battle against your enemies. It supports fully-offline gameplay and persistence between sessions,
+without requiring an internet connection or an account.
 
 You can see the current stable version at: [pillagefirst.netlify.app](https://pillagefirst.netlify.app)
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
-![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235865F2)
+![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Join%20our%20Discord%20server&labelColor=%235865F2)
 
 > [!NOTE]
 > Very much still work in progress.
@@ -55,6 +55,10 @@ If you’re passionate about backend development and want to help bring multipla
 
 Yes, there's a couple. Game design is still being discussed in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if
 you'd like to learn more or give your opinion!
+
+# Roadmap
+
+See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming features
 
 ## Development setup
 

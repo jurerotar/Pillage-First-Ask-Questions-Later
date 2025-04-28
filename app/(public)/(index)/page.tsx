@@ -2,18 +2,12 @@ import { ServerCard } from 'app/(public)/(index)/components/server-card';
 import { Button } from 'app/components/buttons/button';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
-import { isInDevelopmentMode } from 'app/utils/common';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 const HomePage = () => {
   const { t } = useTranslation();
   const { availableServers } = useAvailableServers();
-
-  const resetOpfs = async () => {
-    await (await navigator.storage.getDirectory()).removeEntry('pillage-first-ask-questions-later', { recursive: true });
-    window.location.reload();
-  };
 
   return (
     <>
@@ -29,18 +23,6 @@ const HomePage = () => {
             <Link to="/create-new-server">
               <Button>{t('Create new server')}</Button>
             </Link>
-
-            {isInDevelopmentMode() && (
-              <>
-                <p className="">In case of errors, or unexpected data persisting in your OPFS, this button resets OPFS.</p>
-                <Button
-                  onClick={resetOpfs}
-                  variant="danger"
-                >
-                  Delete all saved data
-                </Button>
-              </>
-            )}
           </div>
           <div className="flex flex-1 flex-col items-center justify-center" />
         </section>
