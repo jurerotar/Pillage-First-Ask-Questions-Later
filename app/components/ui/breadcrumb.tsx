@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Slot } from '@radix-ui/react-slot';
+import { Slot } from 'radix-ui';
 import { LuChevronRight } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
 
@@ -38,7 +38,7 @@ type BreadcrumbLinkProps = React.ComponentProps<'a'> & {
 };
 
 export const BreadcrumbLink: React.FC<BreadcrumbLinkProps> = ({ asChild, className, ...props }) => {
-  const Comp = asChild ? Slot : 'a';
+  const Comp = asChild ? Slot.Root : 'a';
 
   return (
     <Comp

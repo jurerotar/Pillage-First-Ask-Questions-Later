@@ -5,6 +5,14 @@ export const isBuildingEvent = (event: GameEvent): event is GameEvent<'buildingC
   return buildingEventTypes.includes(event.type);
 };
 
+export const isTroopMovementEvent = (event: GameEvent): event is GameEvent<'troopMovement'> => {
+  return event.type === 'troopMovement';
+};
+
+export const isNewVillageEvent = (event: GameEvent): event is GameEvent<'troopMovement'> => {
+  return isTroopMovementEvent(event) && event.movementType === 'find-new-village';
+};
+
 export const isScheduledBuildingEvent = (event: GameEvent): event is GameEvent<'buildingScheduledConstruction'> => {
   return event.type === 'buildingScheduledConstruction';
 };

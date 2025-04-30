@@ -7,11 +7,11 @@ import {
   isQuestCollectable,
   isResourceQuestReward,
   wasQuestCollected,
-  wasQuestCompleted,
 } from 'app/(game)/workers/guards/quest-guards';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'app/components/ui/button';
+import { FaStar } from 'react-icons/fa6';
 
 type QuestGroup = {
   groupKey: string;
@@ -20,7 +20,7 @@ type QuestGroup = {
   allCollected: boolean;
 };
 
-export const _groupQuestsById = (quests: Quest[]): QuestGroup[] => {
+const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
   const map = new Map<string, (Quest & { _order: number })[]>();
 
   for (const quest of quests) {
@@ -41,7 +41,6 @@ export const _groupQuestsById = (quests: Quest[]): QuestGroup[] => {
     const sorted = questsWithOrder.sort((a, b) => a._order - b._order).map(({ _order, ...q }) => q);
 
     const hasCollectible = sorted.some((q) => q.completedAt !== null && q.collectedAt === null);
-
     const allCollected = sorted.every((q) => q.collectedAt !== null);
 
     result.push({
@@ -62,7 +61,6 @@ type QuestRewardProps = {
 const QuestReward: React.FC<QuestRewardProps> = ({ reward }) => {
   if (isResourceQuestReward(reward)) {
     const { amount } = reward;
-
     return <Resources resources={[amount, amount, amount, amount]} />;
   }
 
@@ -74,51 +72,40 @@ const QuestReward: React.FC<QuestRewardProps> = ({ reward }) => {
   return null;
 };
 
-const getSortValue = (quest: Quest) => {
-  if (isQuestCollectable(quest)) {
-    return 0;
-  }
-  if (!wasQuestCompleted(quest)) {
-    return 1;
-  }
-  if (wasQuestCollected(quest)) {
-    return 2;
-  }
-  return 3;
-};
-
 const QuestsPage = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { quests, completeQuest } = useQuests();
 
-  const sortedQuests = quests.sort((a, b) => {
-    return getSortValue(a) - getSortValue(b);
-  });
+  const grouped = groupQuestsById(quests);
 
-  const getQuestTexts = (id: Quest['id']) => {
+  const getQuestTexts = (id: Quest['id'] | string) => {
     if (id.includes('every')) {
       const [buildingId, , level] = id.split('-');
       return {
         title: assetsT('QUESTS.EVERY.TITLE', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
         description: assetsT('QUESTS.EVERY.DESCRIPTION', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
+        group: assetsT('QUESTS.EVERY.GROUP', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) }),
       };
     }
 
     if (id.includes('oneOf')) {
       const [buildingId, , level] = id.split('-');
-
       return {
         title: assetsT('QUESTS.ONE-OF.TITLE', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
         description: assetsT('QUESTS.ONE-OF.DESCRIPTION', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
+        group: assetsT('QUESTS.ONE-OF.GROUP', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) }),
       };
     }
 
     if (id.includes('adventureCount')) {
       const [, amount] = id.split('-');
+      const count = Number.parseInt(amount);
+
       return {
-        title: assetsT('QUESTS.ADVENTURE-COUNT.TITLE', { amount }),
-        description: assetsT('QUESTS.ADVENTURE-COUNT.DESCRIPTION', { amount }),
+        title: assetsT('QUESTS.ADVENTURE-COUNT.TITLE', { count }),
+        description: assetsT('QUESTS.ADVENTURE-COUNT.DESCRIPTION', { count }),
+        group: assetsT('QUESTS.ADVENTURE-COUNT.GROUP'),
       };
     }
 
@@ -127,61 +114,77 @@ const QuestsPage = () => {
       return {
         title: assetsT('QUESTS.TROOP-COUNT.TITLE', { amount }),
         description: assetsT('QUESTS.TROOP-COUNT.DESCRIPTION', { amount }),
+        group: assetsT('QUESTS.TROOP-COUNT.GROUP'),
       };
     }
 
     return {
       title: 'Quest title missing',
       description: 'Quest description missing',
+      group: 'Quest group missing',
     };
   };
 
   return (
-    <>
-      <div className="space-y-2">
-        {sortedQuests.map((quest) => {
-          const isCollectable = isQuestCollectable(quest);
-          const isCollected = wasQuestCollected(quest);
-          const { title, description } = getQuestTexts(quest.id);
+    <div className="space-y-2">
+      {grouped.map((group) => (
+        <details
+          key={group.groupKey}
+          className="border rounded-xs p-2 px-4 shadow-xs"
+        >
+          <summary className="flex items-center justify-between cursor-pointer text-lg font-semibold relative">
+            <span>{getQuestTexts(group.groupKey).group}</span>
+            {group.hasCollectible && (
+              <span className="p-0.5 bg-white rounded-full border border-gray-300 absolute -left-6 -top-4">
+                <FaStar className="text-sm text-yellow-300" />
+              </span>
+            )}
+          </summary>
 
-          return (
-            <details
-              key={quest.id}
-              className={clsx('border rounded-lg p-3 w-full', isCollected && 'opacity-50', isCollectable && 'bg-yellow-50')}
-            >
-              <summary className="flex items-center justify-between cursor-pointer text-sm font-medium">
-                <span>{title}</span>
-              </summary>
+          <div className="mt-4 space-y-2">
+            {group.quests.map((quest) => {
+              const isCollectable = isQuestCollectable(quest);
+              const isCollected = wasQuestCollected(quest);
+              const { title, description } = getQuestTexts(quest.id);
 
-              <div className="mt-3">
-                <p className="text-sm text-gray-700 mb-2">{description}</p>
-                <p className="text-sm font-semibold mb-1">{t('Reward')}</p>
-                <div className="flex flex-col gap-2">
-                  <>
-                    {quest.rewards.map((reward) => (
-                      <QuestReward
-                        key={reward.type}
-                        reward={reward}
-                      />
-                    ))}
+              return (
+                <details
+                  key={quest.id}
+                  className={clsx('border rounded p-2', isCollected && 'opacity-50', isCollectable && 'bg-yellow-100')}
+                >
+                  <summary className="cursor-pointer text-sm font-semibold relative">{title}</summary>
+
+                  <div className="mt-3">
+                    <p className="text-sm text-gray-700 mb-2">{description}</p>
+                    <p className="text-sm font-semibold mb-1">{t('Reward')}</p>
+
+                    <div className="flex flex-col gap-2">
+                      {quest.rewards.map((reward) => (
+                        <QuestReward
+                          key={reward.type}
+                          reward={reward}
+                        />
+                      ))}
+                    </div>
+
                     {isCollectable && (
                       <Button
                         variant="default"
                         onClick={() => completeQuest(quest)}
                         type="button"
-                        className="w-fit"
+                        className="mt-3 w-fit"
                       >
                         {t('Collect reward')}
                       </Button>
                     )}
-                  </>
-                </div>
-              </div>
-            </details>
-          );
-        })}
-      </div>
-    </>
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        </details>
+      ))}
+    </div>
   );
 };
 

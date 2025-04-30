@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { Dialog as DialogPrimitive } from 'radix-ui';
 import { cn } from 'app/utils/tailwind';
 import { LuX } from 'react-icons/lu';
 

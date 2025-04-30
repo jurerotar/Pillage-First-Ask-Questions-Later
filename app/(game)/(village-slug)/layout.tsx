@@ -106,7 +106,7 @@ const DesktopTopRowItem: React.FCWithChildren = ({ children }) => {
   return (
     <button
       type="button"
-      className="px-3 py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
+      className="px-3 py-0.5 rounded-xs bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
     >
       {children}
     </button>
@@ -249,20 +249,23 @@ const TopNavigation = () => {
                   to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                 >
                   <DesktopTopRowItem>
-                    <span className="inline-flex gap-1 items-center">
-                      <span className="text-sm hidden xl:inline-flex">GitHub</span> <FaGithub className="text-xl" />
+                    <span className="inline-flex gap-2 items-center">
+                      <FaGithub className="text-xl text-[#24292e]" />{' '}
+                      <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">GitHub</span>
                     </span>
                   </DesktopTopRowItem>
                 </Link>
               </li>
               <li>
                 <Link
+                  className="bg-[#7289da]"
                   target="_blank"
                   to="https://discord.com/invite/Ep7NKVXUZA"
                 >
                   <DesktopTopRowItem>
-                    <span className="inline-flex gap-1 items-center">
-                      <span className="text-sm hidden xl:inline-flex">Discord</span> <FaDiscord className="text-xl" />
+                    <span className="inline-flex gap-2 items-center">
+                      <FaDiscord className="text-xl text-[#7289da]" />{' '}
+                      <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">Discord</span>
                     </span>
                   </DesktopTopRowItem>
                 </Link>

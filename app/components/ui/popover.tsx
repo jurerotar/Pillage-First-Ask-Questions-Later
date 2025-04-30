@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { Popover as PopoverPrimitive } from 'radix-ui';
 import { cn } from 'app/utils/tailwind';
 
 export const Popover: React.FC<React.ComponentProps<typeof PopoverPrimitive.Root>> = ({ ...props }) => {

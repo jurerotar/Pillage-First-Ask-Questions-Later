@@ -2,7 +2,6 @@ import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { Tile } from 'app/interfaces/models/game/tile';
 
 type WithResourceCheck<T> = T & {
   resourceCost: number[];
@@ -43,7 +42,7 @@ type BaseTroopMovementEvent = WithVillageId<{
 }>;
 
 type TroopMovementEvent = BaseTroopMovementEvent & {
-  movementType: 'reinforcements' | 'relocation' | 'return';
+  movementType: 'reinforcements' | 'relocation' | 'return' | 'find-new-village';
 };
 
 type OffensiveTroopMovementEvent = BaseTroopMovementEvent & {
@@ -54,10 +53,6 @@ type OasisOccupationTroopMovementEvent = BaseTroopMovementEvent & {
   movementType: 'oasis-occupation';
 };
 
-type FindNewVillageEvent = WithVillageId<{
-  targetTileId: Tile['id'];
-}>;
-
 export type GameEventType =
   | 'buildingScheduledConstruction'
   | 'buildingConstruction'
@@ -67,7 +62,6 @@ export type GameEventType =
   | 'troopMovement'
   | 'oasisOccupation'
   | 'offensiveTroopMovement'
-  | 'findNewVillage'
   | 'adventurePointIncrease';
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {
@@ -79,7 +73,6 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopMovement: TroopMovementEvent;
   oasisOccupation: OasisOccupationTroopMovementEvent;
   offensiveTroopMovement: OffensiveTroopMovementEvent;
-  findNewVillage: FindNewVillageEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];
 

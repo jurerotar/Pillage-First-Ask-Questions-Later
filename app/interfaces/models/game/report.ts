@@ -31,7 +31,7 @@ export type TradeReport = BaseReport & {
 };
 
 export type TroopMovementReport = BaseReport & {
-  type: 'relocation' | 'reinforcements' | 'return';
+  type: 'relocation' | 'reinforcements' | 'return' | 'find-new-village';
   troops: Troop[];
   targetId: Village['id'];
 };

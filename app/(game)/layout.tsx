@@ -17,6 +17,7 @@ import GameSyncWorker from './workers/sync-worker?worker&url';
 import QuestsWorker from './workers/quests-worker?worker&url';
 import type { QuestsWorkerReturn } from './workers/quests-worker';
 import type { Quest } from 'app/interfaces/models/game/quest';
+import { Toaster } from 'app/components/ui/toaster';
 
 const Fallback = () => {
   return <div>Loader...</div>;
@@ -201,6 +202,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
         initialIsOpen={false}
       />
       {!isMasterDeploy() && <MemoryIndicator />}
+      <Toaster />
     </PersistQueryClientProvider>
   );
 };

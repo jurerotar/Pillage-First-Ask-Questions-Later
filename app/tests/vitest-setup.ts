@@ -1,4 +1,4 @@
-import * as ResizeObserverModule from 'resize-observer-polyfill';
+import ResizeObserverModule from 'resize-observer-polyfill';
 import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -9,7 +9,7 @@ Object.defineProperty(globalThis, 'crypto', {
 });
 
 Object.defineProperty(globalThis, 'ResizeObserver', {
-  value: ResizeObserverModule.default,
+  value: ResizeObserverModule,
 });
 
 vi.mock('react-i18next', () => ({
