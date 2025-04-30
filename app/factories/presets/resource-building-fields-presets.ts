@@ -158,7 +158,7 @@ const resourceTypeToResourceBuildingIdMap = new Map<Resource, BuildingId>([
   ['wood', 'WOODCUTTER'],
   ['clay', 'CLAY_PIT'],
   ['iron', 'IRON_MINE'],
-  ['wheat', 'CROPLAND'],
+  ['wheat', 'WHEAT_FIELD'],
 ]);
 
 const convertResourceFieldLayoutToResourceField = (resourceFieldLayout: ResourceFieldLayout, level: number): BuildingField[] => {

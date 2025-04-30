@@ -16,6 +16,9 @@ import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
+import { Text } from 'app/components/text';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -31,19 +34,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
 
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
-  const [currentlyAvailableBuildings, unavailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
-    const { canBuild } = assessBuildingConstructionReadiness({
-      buildingId,
-      tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
-      isGreatBuildingsArtifactActive,
-    });
-    return canBuild;
-  });
-
-  const [currentlyUnavailableBuildings] = partition<Building>(unavailableBuildings, ({ id: buildingId }: Building) => {
+  const [currentlyAvailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
     const { assessedRequirements } = assessBuildingConstructionReadiness({
       buildingId,
       tribe,
@@ -65,77 +56,74 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
     );
   });
 
-  const hasNoAvailableBuildings = currentlyAvailableBuildings.length + currentlyUnavailableBuildings.length === 0;
+  const hasNoAvailableBuildings = currentlyAvailableBuildings.length === 0;
 
   return (
-    <div className="flex flex-col gap-4 pt-2">
-      {!hasNoAvailableBuildings && (
-        <>
-          {currentlyAvailableBuildings.length > 0 && (
-            <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">{t('Available buildings')}</h2>
-              {currentlyAvailableBuildings.map((building: Building) => (
-                <BuildingCard
-                  key={building.id}
-                  buildingId={building.id}
-                />
-              ))}
-            </section>
-          )}
-          {currentlyUnavailableBuildings.length > 0 && (
-            <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">{t('Buildable in the future')}</h2>
-              {currentlyUnavailableBuildings.map((building: Building) => (
-                <BuildingCard
-                  key={building.id}
-                  buildingId={building.id}
-                />
-              ))}
-            </section>
-          )}
-        </>
-      )}
+    <div className="flex flex-col gap-2 pt-2">
       {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
+      {!hasNoAvailableBuildings && (
+        <section className="flex flex-col gap-2 mb-2">
+          {currentlyAvailableBuildings.map((building: Building) => (
+            <BuildingCard
+              key={building.id}
+              buildingId={building.id}
+            />
+          ))}
+        </section>
+      )}
     </div>
   );
 };
 
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
+  const { villagePath } = useGameNavigation();
 
   const [buildingTab, setBuildingTab] = useState<BuildingCategory>('infrastructure');
 
   return (
-    <Tabs>
-      <TabList className="flex">
-        <StyledTab
-          onSelect={() => setBuildingTab('infrastructure')}
-          selected={buildingTab === 'infrastructure'}
-        >
-          {t('Infrastructure')}
-        </StyledTab>
-        <StyledTab
-          onSelect={() => setBuildingTab('military')}
-          selected={buildingTab === 'military'}
-        >
-          {t('Military')}
-        </StyledTab>
-        <StyledTab
-          onSelect={() => setBuildingTab('resource-booster')}
-          selected={buildingTab === 'resource-booster'}
-        >
-          {t('Resources')}
-        </StyledTab>
-      </TabList>
-      <TabPanel>
-        <BuildingCategoryPanel buildingCategory="infrastructure" />
-      </TabPanel>
-      <TabPanel>
-        <BuildingCategoryPanel buildingCategory="military" />
-      </TabPanel>
-      <TabPanel>
-        <BuildingCategoryPanel buildingCategory="resource-booster" />
-      </TabPanel>
-    </Tabs>
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink to={villagePath}>{t('Village')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Text as="h1">{t('Construct new building')}</Text>
+      <Tabs>
+        <TabList className="flex">
+          <StyledTab
+            onSelect={() => setBuildingTab('infrastructure')}
+            selected={buildingTab === 'infrastructure'}
+          >
+            {t('Infrastructure')}
+          </StyledTab>
+          <StyledTab
+            onSelect={() => setBuildingTab('military')}
+            selected={buildingTab === 'military'}
+          >
+            {t('Military')}
+          </StyledTab>
+          <StyledTab
+            onSelect={() => setBuildingTab('resource-booster')}
+            selected={buildingTab === 'resource-booster'}
+          >
+            {t('Resources')}
+          </StyledTab>
+        </TabList>
+        <TabPanel>
+          <BuildingCategoryPanel buildingCategory="infrastructure" />
+        </TabPanel>
+        <TabPanel>
+          <BuildingCategoryPanel buildingCategory="military" />
+        </TabPanel>
+        <TabPanel>
+          <BuildingCategoryPanel buildingCategory="resource-booster" />
+        </TabPanel>
+      </Tabs>
+    </>
   );
 };

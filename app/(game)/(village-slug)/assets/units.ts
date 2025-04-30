@@ -1036,7 +1036,7 @@ export const spartanUnits: Unit[] = [
 export const natureUnits: Unit[] = [
   {
     id: 'RAT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [85, 75, 120, 25],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 10,
@@ -1051,7 +1051,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'SPIDER',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [125, 130, 60, 40],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 20,
@@ -1066,7 +1066,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'SERPENT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [140, 150, 40, 60],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 60,
@@ -1081,7 +1081,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'BAT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [95, 120, 65, 25],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 80,
@@ -1096,7 +1096,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'WILD_BOAR',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [250, 200, 125, 45],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 2,
     attack: 50,
@@ -1111,7 +1111,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'WOLF',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [250, 125, 250, 150],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 2,
     attack: 100,
@@ -1126,7 +1126,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'BEAR',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [250, 220, 135, 50],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 3,
     attack: 250,
@@ -1141,7 +1141,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'CROCODILE',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [240, 125, 250, 300],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 3,
     attack: 450,
@@ -1156,7 +1156,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'TIGER',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [350, 350, 125, 80],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 3,
     attack: 200,
@@ -1171,14 +1171,14 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'ELEPHANT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [350, 250, 135, 100],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 5,
     attack: 600,
     infantryDefence: 440,
     cavalryDefence: 520,
     unitSpeed: 20,
-    unitCarryCapacity: 0,
+    unitCarryCapacity: 3000,
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-5',

@@ -146,7 +146,7 @@ export const buildings: Building[] = [
       {
         id: 2,
         type: 'building',
-        buildingId: 'CROPLAND',
+        buildingId: 'WHEAT_FIELD',
         level: 10,
       },
       {
@@ -212,7 +212,7 @@ export const buildings: Building[] = [
     buildingDurationReduction: 333,
   },
   {
-    id: 'CROPLAND',
+    id: 'WHEAT_FIELD',
     category: 'resource-production',
     buildingRequirements: [],
     effects: [createNegativeWheatProductionEffect('F'), createResourceProductionEffect('wheatProduction')],
@@ -236,7 +236,7 @@ export const buildings: Building[] = [
       {
         id: 2,
         type: 'building',
-        buildingId: 'CROPLAND',
+        buildingId: 'WHEAT_FIELD',
         level: 5,
       },
     ],

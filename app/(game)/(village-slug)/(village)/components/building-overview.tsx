@@ -15,11 +15,11 @@ type BuildingOverviewProps = {
   buildingId: Building['id'];
   // In case we want to show "2. granary",...
   titleCount?: number;
-  showLevel?: boolean;
   showCumulativeValues?: boolean;
+  showTitle?: boolean;
 };
 
-export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, titleCount = 0, showLevel = false }) => {
+export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, titleCount = 0, showTitle = false }) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
@@ -38,20 +38,14 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         data-testid="building-overview-title-section"
         className="pb-2"
       >
-        <div className="inline-flex gap-2 items-center font-semibold">
-          <Text as="h2">
-            {titleCount > 0 && <span data-testid="building-overview-building-count">{titleCount + 1}.</span>}
-            <span data-testid="building-overview-building-title">{assetsT(`BUILDINGS.${building.id}.NAME`)}</span>
-          </Text>
-          {showLevel && (
-            <span
-              data-testid="building-overview-building-level"
-              className="text-sm text-orange-500"
-            >
-              {t('Level {{level}}', { level: actualLevel })}
-            </span>
-          )}
-        </div>
+        {showTitle && (
+          <div className="inline-flex gap-2 items-center font-semibold">
+            <Text as="h2">
+              {titleCount > 0 && <span data-testid="building-overview-building-count">{titleCount + 1}.</span>}
+              <span data-testid="building-overview-building-title">{assetsT(`BUILDINGS.${building.id}.NAME`)}</span>
+            </Text>
+          </div>
+        )}
         <div
           data-testid="building-overview-building-image"
           className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"

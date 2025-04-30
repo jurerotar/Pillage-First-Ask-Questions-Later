@@ -11,7 +11,9 @@ import {
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'app/components/ui/button';
-import { FaStar } from 'react-icons/fa6';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { Text } from 'app/components/text';
 
 type QuestGroup = {
   groupKey: string;
@@ -76,6 +78,7 @@ const QuestsPage = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { quests, completeQuest } = useQuests();
+  const { resourcesPath } = useGameNavigation();
 
   const grouped = groupQuestsById(quests);
 
@@ -126,65 +129,78 @@ const QuestsPage = () => {
   };
 
   return (
-    <div className="space-y-2">
-      {grouped.map((group) => (
-        <details
-          key={group.groupKey}
-          className="border rounded-xs p-2 px-4 shadow-xs"
-        >
-          <summary className="flex items-center justify-between cursor-pointer text-lg font-semibold relative">
-            <span>{getQuestTexts(group.groupKey).group}</span>
-            {group.hasCollectible && (
-              <span className="p-0.5 bg-white rounded-full border border-gray-300 absolute -left-6 -top-4">
-                <FaStar className="text-sm text-yellow-300" />
-              </span>
-            )}
-          </summary>
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>{t('Quests')}</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Text as="h1">{t('Quests')}</Text>
+      <div className="space-y-2">
+        {grouped.map((group) => (
+          <details
+            key={group.groupKey}
+            className={clsx('border rounded-xs shadow-xs')}
+          >
+            <summary
+              className={clsx(
+                'flex items-center justify-between cursor-pointer text-lg font-semibold py-2 px-4',
+                group.allCollected && 'opacity-50',
+                group.hasCollectible && 'bg-yellow-100',
+              )}
+            >
+              <span>{getQuestTexts(group.groupKey).group}</span>
+            </summary>
 
-          <div className="mt-4 space-y-2">
-            {group.quests.map((quest) => {
-              const isCollectable = isQuestCollectable(quest);
-              const isCollected = wasQuestCollected(quest);
-              const { title, description } = getQuestTexts(quest.id);
+            <div className="mt-2 space-y-2 px-2">
+              {group.quests.map((quest) => {
+                const isCollectable = isQuestCollectable(quest);
+                const isCollected = wasQuestCollected(quest);
+                const { title, description } = getQuestTexts(quest.id);
 
-              return (
-                <details
-                  key={quest.id}
-                  className={clsx('border rounded p-2', isCollected && 'opacity-50', isCollectable && 'bg-yellow-100')}
-                >
-                  <summary className="cursor-pointer text-sm font-semibold relative">{title}</summary>
+                return (
+                  <details
+                    key={quest.id}
+                    className={clsx('border rounded-xs p-2 px-4 shadow-xs', isCollected && 'opacity-50', isCollectable && 'bg-yellow-100')}
+                  >
+                    <summary className="cursor-pointer text-sm font-semibold">{title}</summary>
 
-                  <div className="mt-3">
-                    <p className="text-sm text-gray-700 mb-2">{description}</p>
-                    <p className="text-sm font-semibold mb-1">{t('Reward')}</p>
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-700 mb-2">{description}</p>
+                      <p className="text-sm font-semibold mb-1">{t('Reward')}</p>
 
-                    <div className="flex flex-col gap-2">
-                      {quest.rewards.map((reward) => (
-                        <QuestReward
-                          key={reward.type}
-                          reward={reward}
-                        />
-                      ))}
+                      <div className="flex flex-col gap-2">
+                        {quest.rewards.map((reward) => (
+                          <QuestReward
+                            key={reward.type}
+                            reward={reward}
+                          />
+                        ))}
+                      </div>
+
+                      {isCollectable && (
+                        <Button
+                          variant="default"
+                          onClick={() => completeQuest(quest)}
+                          type="button"
+                          className="mt-3 w-fit"
+                        >
+                          {t('Collect reward')}
+                        </Button>
+                      )}
                     </div>
-
-                    {isCollectable && (
-                      <Button
-                        variant="default"
-                        onClick={() => completeQuest(quest)}
-                        type="button"
-                        className="mt-3 w-fit"
-                      >
-                        {t('Collect reward')}
-                      </Button>
-                    )}
-                  </div>
-                </details>
-              );
-            })}
-          </div>
-        </details>
-      ))}
-    </div>
+                  </details>
+                );
+              })}
+            </div>
+          </details>
+        ))}
+      </div>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
 import type React from 'react';
-import { Slot } from 'radix-ui';
 import { LuChevronRight } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
+import { Link, type LinkProps } from 'react-router';
 
 export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({ ...props }) => {
   return (
@@ -33,17 +33,11 @@ export const BreadcrumbItem: React.FC<React.ComponentProps<'li'>> = ({ className
   );
 };
 
-type BreadcrumbLinkProps = React.ComponentProps<'a'> & {
-  asChild?: boolean;
-};
-
-export const BreadcrumbLink: React.FC<BreadcrumbLinkProps> = ({ asChild, className, ...props }) => {
-  const Comp = asChild ? Slot.Root : 'a';
-
+export const BreadcrumbLink: React.FC<LinkProps> = ({ className, ...props }) => {
   return (
-    <Comp
+    <Link
       data-slot="breadcrumb-link"
-      className={cn('hover:text-foreground transition-colors', className)}
+      className={cn('hover:text-foreground transition-colors underline', className)}
       {...props}
     />
   );

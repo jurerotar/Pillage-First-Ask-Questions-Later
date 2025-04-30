@@ -495,9 +495,9 @@
       "NAME": "Clay pit",
       "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 20 in the capital, or to level 10 in non-capital villages."
     },
-    "CROPLAND": {
-      "NAME": "Cropland",
-      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Cropland can be extended to level 20 in the capital, or to level 10 in non-capital villages."
+    "WHEAT_FIELD": {
+      "NAME": "Wheat field",
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat field can be extended to level 20 in the capital, or to level 10 in non-capital villages."
     },
     "GRAIN_MILL": {
       "NAME": "Grain mill",
@@ -750,7 +750,8 @@
     "ADVENTURE-COUNT": {
       "TITLE_one": "{{count}} adventure",
       "TITLE_other": "{{count}} adventures",
-      "DESCRIPTION": "Send your hero on {{count}} adventures.",
+      "DESCRIPTION_one": "Send your hero on {{count}} adventure.",
+      "DESCRIPTION_other": "Send your hero on {{count}} adventures.",
       "GROUP": "Adventures"
     },
     "TROOP-COUNT": {

@@ -27,7 +27,7 @@ describe('Resource page', () => {
     expect(screen.queryAllByLabelText('BUILDINGS.WOODCUTTER.NAME').length, 'Wood fields').toBe(4);
     expect(screen.queryAllByLabelText('BUILDINGS.CLAY_PIT.NAME').length, 'Clay fields').toBe(4);
     expect(screen.queryAllByLabelText('BUILDINGS.IRON_MINE.NAME').length, 'Iron fields').toBe(4);
-    expect(screen.queryAllByLabelText('BUILDINGS.CROPLAND.NAME').length, 'Wheat fields').toBe(6);
+    expect(screen.queryAllByLabelText('BUILDINGS.WHEAT_FIELD.NAME').length, 'Wheat fields').toBe(6);
   });
 });
 
