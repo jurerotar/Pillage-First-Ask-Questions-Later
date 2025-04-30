@@ -1,4 +1,4 @@
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import { Icon } from 'app/components/icon';
 import type React from 'react';
 import { useState } from 'react';

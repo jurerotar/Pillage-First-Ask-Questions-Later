@@ -4,7 +4,7 @@ import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitImprovement } from 'app/(game)/(village-slug)/hooks/use-unit-improvement';
 import { units } from 'app/(game)/(village-slug)/assets/units';
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import { Icon } from 'app/components/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type React from 'react';
@@ -53,7 +53,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
     <article className="flex flex-col p-2 border border-gray-500">
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, unitId)}</h2>
+          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, { count: 1, unitId })}</h2>
           <span className="text-sm text-orange-500">{t('Level {{level}}', { level: upgradeLevel })}</span>
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
@@ -67,7 +67,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
           <ul className="flex flex-wrap gap-1">
             {sameTierMercenaryUnits.map(({ id }, index) => (
               <li key={id}>
-                {assetsT(`UNITS.${id}.NAME`, id)}
+                {assetsT(`UNITS.${id}.NAME`, { count: 1, id })}
                 {index !== sameTierMercenaryUnits.length - 1 && ','}
               </li>
             ))}
@@ -88,7 +88,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
         <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
           <h2 className="font-medium">{t('Available actions')}</h2>
           <Button
-            variant="confirm"
+            variant="default"
             disabled={!canUpgrade}
             onClick={() => upgradeUnitTier(tier)}
           >

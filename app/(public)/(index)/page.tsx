@@ -3,7 +3,7 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { WarningAlert } from 'app/components/alert';
+import { WarningAlert } from 'app/components/ui/alert';
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -22,7 +22,27 @@ const HomePage = () => {
               <br /> <br />
               <b>Remember: pillage first, ask questions later!</b>
             </span>
-            <WarningAlert>Game is still in development, most features are missing.</WarningAlert>
+            <WarningAlert>
+              Game is still in development, most features are missing. <br /> To see the current list of available features, see{' '}
+              <a
+                rel="noreferrer"
+                className="underline text-blue-600"
+                target="_blank"
+                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/master/docs/ROADMAP.md"
+              >
+                roadmap
+              </a>{' '}
+              or{' '}
+              <a
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+                target="_blank"
+                href="https://discord.gg/Ep7NKVXUZA"
+              >
+                join our Discord server
+              </a>
+              .
+            </WarningAlert>
           </section>
           <section className="flex flex-1 flex-col items-start justify-center p-2 gap-4">
             <h2 className="font-semibold text-2xl">Server list</h2>

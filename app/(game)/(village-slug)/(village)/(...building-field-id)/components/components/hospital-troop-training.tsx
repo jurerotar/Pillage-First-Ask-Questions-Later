@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { WarningAlert } from 'app/components/alert';
+import { WarningAlert } from 'app/components/ui/alert';
 
 export const HospitalTroopTraining = () => {
   const { t } = useTranslation();

@@ -8,13 +8,11 @@ import {
   getBuildingData,
   getBuildingFieldByBuildingFieldId,
 } from 'app/(game)/(village-slug)/utils/building';
-import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
-import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
@@ -25,6 +23,7 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const RallyPointIncomingTroops = lazy(async () => ({
   default: (await import('./components/rally-point-incoming-troops')).RallyPointIncomingTroops,
@@ -302,23 +301,26 @@ export const BuildingDetails = () => {
             navigateToTab(tab);
           }}
         >
-          <TabList className="flex mb-2 overflow-x-scroll scrollbar-hidden">
-            <StyledTab>{t('Overview')}</StyledTab>
+          <TabList>
+            <Tab>{t('Overview')}</Tab>
             {buildingSpecificTabs.map((name: string) => (
-              <StyledTab key={name}>{name}</StyledTab>
+              <Tab key={name}>{name}</Tab>
             ))}
-            <StyledTab>{t('Upgrade details')}</StyledTab>
+            <Tab>{t('Upgrade details')}</Tab>
           </TabList>
           <TabPanel>
-            <BuildingOverview buildingId={buildingId} />
-            <BuildingActions buildingId={buildingId} />
-            <Suspense fallback={<>Loading tab</>}>
-              {!MainTabAdditionalContent ? null : (
-                <div className="mt-2">
-                  <MainTabAdditionalContent />
-                </div>
-              )}
-            </Suspense>
+            <article className="flex flex-col gap-2">
+              <Text as="h2">{t('{{buildingName}} overview', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</Text>
+              <BuildingOverview buildingId={buildingId} />
+              <BuildingActions buildingId={buildingId} />
+              <Suspense fallback={<>Loading tab</>}>
+                {!MainTabAdditionalContent ? null : (
+                  <div className="mt-2">
+                    <MainTabAdditionalContent />
+                  </div>
+                )}
+              </Suspense>
+            </article>
           </TabPanel>
           {buildingSpecificTabs.map((name: string) => {
             const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;

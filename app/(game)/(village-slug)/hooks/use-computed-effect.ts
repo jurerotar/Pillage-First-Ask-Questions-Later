@@ -129,7 +129,7 @@ export const calculateComputedEffect = (
     effectBonusValue *= normalizeForcedFloatValue(value);
   }
 
-  const total = Math.trunc((effectBaseValue === 0 ? 1 : effectBaseValue) * effectBonusValue * serverEffectValue);
+  const total = (effectBaseValue === 0 ? 1 : effectBaseValue) * effectBonusValue * serverEffectValue;
 
   return {
     serverEffectValue,

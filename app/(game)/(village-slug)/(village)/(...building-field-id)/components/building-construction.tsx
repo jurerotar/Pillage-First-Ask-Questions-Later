@@ -6,13 +6,12 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
-import { StyledTab } from 'app/components/styled-tab';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'app/interfaces/models/game/building';
 import { partition } from 'app/utils/common';
 import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TabList, TabPanel, Tabs } from 'react-tabs';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
@@ -32,16 +31,20 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
+  const staticBuildingConstructionReadinessArgs: Omit<Parameters<typeof assessBuildingConstructionReadiness>[0], 'buildingId'> = {
+    tribe,
+    currentVillageBuildingEvents,
+    playerVillages,
+    currentVillage,
+    isGreatBuildingsArtifactActive,
+  };
+
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
   const [currentlyAvailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
     const { assessedRequirements } = assessBuildingConstructionReadiness({
       buildingId,
-      tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
-      isGreatBuildingsArtifactActive,
+      ...staticBuildingConstructionReadinessArgs,
     });
 
     const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
@@ -56,6 +59,22 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
     );
   });
 
+  // TODO: There's probably a better way of handling this instead of repeating assessBuildingConstructionReadiness 3 times
+  const sortedAvailableBuildings = currentlyAvailableBuildings.toSorted((prev, next) => {
+    const prevAssessment = assessBuildingConstructionReadiness({
+      buildingId: prev.id,
+      ...staticBuildingConstructionReadinessArgs,
+    });
+
+    const nextAssessment = assessBuildingConstructionReadiness({
+      buildingId: next.id,
+      ...staticBuildingConstructionReadinessArgs,
+    });
+
+    // Sort buildings where all requirements are fulfilled first
+    return Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild);
+  });
+
   const hasNoAvailableBuildings = currentlyAvailableBuildings.length === 0;
 
   return (
@@ -63,7 +82,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
       {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
       {!hasNoAvailableBuildings && (
         <section className="flex flex-col gap-2 mb-2">
-          {currentlyAvailableBuildings.map((building: Building) => (
+          {sortedAvailableBuildings.map((building: Building) => (
             <BuildingCard
               key={building.id}
               buildingId={building.id}
@@ -94,34 +113,43 @@ export const BuildingConstruction = () => {
       </Breadcrumb>
       <Text as="h1">{t('Construct new building')}</Text>
       <Tabs>
-        <TabList className="flex">
-          <StyledTab
+        <TabList>
+          <Tab
             onSelect={() => setBuildingTab('infrastructure')}
             selected={buildingTab === 'infrastructure'}
           >
             {t('Infrastructure')}
-          </StyledTab>
-          <StyledTab
+          </Tab>
+          <Tab
             onSelect={() => setBuildingTab('military')}
             selected={buildingTab === 'military'}
           >
             {t('Military')}
-          </StyledTab>
-          <StyledTab
+          </Tab>
+          <Tab
             onSelect={() => setBuildingTab('resource-booster')}
             selected={buildingTab === 'resource-booster'}
           >
             {t('Resources')}
-          </StyledTab>
+          </Tab>
         </TabList>
         <TabPanel>
-          <BuildingCategoryPanel buildingCategory="infrastructure" />
+          <article className="flex flex-col gap-2">
+            <Text as="h2">{t('Infrastructure buildings')}</Text>
+            <BuildingCategoryPanel buildingCategory="infrastructure" />
+          </article>
         </TabPanel>
         <TabPanel>
-          <BuildingCategoryPanel buildingCategory="military" />
+          <article className="flex flex-col gap-2">
+            <Text as="h2">{t('Military buildings')}</Text>
+            <BuildingCategoryPanel buildingCategory="military" />
+          </article>
         </TabPanel>
         <TabPanel>
-          <BuildingCategoryPanel buildingCategory="resource-booster" />
+          <article className="flex flex-col gap-2">
+            <Text as="h2">{t('Resource buildings')}</Text>
+            <BuildingCategoryPanel buildingCategory="resource-booster" />
+          </article>
         </TabPanel>
       </Tabs>
     </>

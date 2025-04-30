@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import type { CreateServerWorkerPayload } from 'app/(public)/workers/create-server-worker';
 import CreateServerWorker from 'app/(public)/workers/create-server-worker?worker&url';
 import type { GenerateMapWorkerPayload, GenerateMapWorkerReturn } from 'app/(public)/workers/generate-map-worker';
@@ -295,7 +295,7 @@ const CreateNewServerPage = () => {
               type="submit"
               className="w-full sm:w-auto"
               size="lg"
-              variant="confirm"
+              variant="default"
               disabled={isPending}
             >
               {t('Create Server')}

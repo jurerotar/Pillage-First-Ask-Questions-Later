@@ -1,8 +1,7 @@
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { TabList, TabPanel, Tabs } from 'react-tabs';
-import { StyledTab } from 'app/components/styled-tab';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
-import { WarningAlert } from 'app/components/alert';
+import { WarningAlert } from 'app/components/ui/alert';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
@@ -33,10 +32,10 @@ const StatisticsPage = () => {
           navigateToTab(tabs[index]);
         }}
       >
-        <TabList className="flex mb-2 overflow-x-scroll scrollbar-hidden">
-          <StyledTab>{t('Overview')}</StyledTab>
-          <StyledTab>{t('Villages')}</StyledTab>
-          <StyledTab>{t('Week by week')}</StyledTab>
+        <TabList>
+          <Tab>{t('Overview')}</Tab>
+          <Tab>{t('Villages')}</Tab>
+          <Tab>{t('Week by week')}</Tab>
         </TabList>
         <TabPanel>
           <WarningAlert>{t('This page is still under development')}</WarningAlert>

@@ -1,4 +1,4 @@
-import { WarningAlert } from 'app/components/alert';
+import { WarningAlert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
