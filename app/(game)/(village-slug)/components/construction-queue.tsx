@@ -110,15 +110,10 @@ export const ConstructionQueue = () => {
     <div className={clsx('', shouldShowSidebars ? 'flex' : 'hidden')}>
       <ul className="fixed left-0 bottom-26 lg:left-1/2 lg:-translate-x-1/2 lg:bottom-0 flex gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-l-none lg:rounded-l-xs rounded-xs">
         {tribe !== 'romans' && (
-          <>
-            <li>
-              {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
-              {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
-            </li>
-            <li>
-              <ConstructionQueueEmptySlot type="locked" />
-            </li>
-          </>
+          <li>
+            {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
+            {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
+          </li>
         )}
         {tribe === 'romans' && (
           <>
@@ -132,6 +127,12 @@ export const ConstructionQueue = () => {
             </li>
           </>
         )}
+        {/* TODO: Uncomment and finish whenever you get scheduled events working again! */}
+        {/*{tribe !== 'romans' && (*/}
+        {/*  <li>*/}
+        {/*    <ConstructionQueueEmptySlot type="locked" />*/}
+        {/*  </li>*/}
+        {/*)}*/}
         {/*<li>*/}
         {/*  <ConstructionQueueEmptySlot type="locked" />*/}
         {/*</li>*/}

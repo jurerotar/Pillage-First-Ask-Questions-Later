@@ -80,7 +80,7 @@ const HeroNavigationItem = () => {
   const { heroPath } = useGameNavigation();
   const { playerTroops } = usePlayerTroops();
 
-  const isHeroHome = playerTroops.find(({ unitId }) => unitId === 'HERO')!;
+  const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
 
   const { level } = calculateHeroLevel(hero.stats.experience);
 
