@@ -1,16 +1,11 @@
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { isScheduledBuildingEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { Icon } from 'app/components/icon';
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
 import type { MetaFunction } from 'react-router';
 import { Link, useLocation } from 'react-router';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
 import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
@@ -23,48 +18,6 @@ export const meta: MetaFunction = () => {
     as: 'image',
     type: 'image/avif',
   }));
-};
-
-const BuildingUpgradeList = () => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
-  const { cancelBuildingEvent } = useEvents();
-
-  if (currentVillageBuildingEvents.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="flex gap-2 flex-col">
-      {currentVillageBuildingEvents.map((event, index) => (
-        <p
-          className="inline-flex gap-2 items-center"
-          key={event.id}
-        >
-          <button
-            type="button"
-            onClick={() => cancelBuildingEvent(event.id)}
-          >
-            <Icon
-              type="cancel"
-              className="size-4"
-            />
-          </button>
-          <span className="font-medium">{assetsT(`BUILDINGS.${event.buildingId}.NAME`)}</span>
-          <span className="text-orange-500">{t('level {{level}}', { level: event.level })}</span>
-          <Countdown
-            endsAt={
-              event.startsAt +
-              event.duration +
-              +(isScheduledBuildingEvent(event) ? currentVillageBuildingEvents.at(index - 1)!.duration : 0)
-            }
-          />
-          {isScheduledBuildingEvent(event) && <span className="text-gray-400">(Building queue)</span>}
-        </p>
-      ))}
-    </div>
-  );
 };
 
 const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as BuildingFieldType['id'][];
@@ -126,7 +79,6 @@ const VillagePage = () => {
             </Link>
           )}
         </div>
-        <BuildingUpgradeList />
       </main>
     </>
   );

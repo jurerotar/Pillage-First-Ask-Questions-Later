@@ -1,18 +1,18 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
-import { addTroops, setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
+import { modifyTroops, setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
 import {
   effectsCacheKey,
   mapCacheKey,
   playersCacheKey,
+  playerTroopsCacheKey,
   playerVillagesCacheKey,
   questsCacheKey,
   serverCacheKey,
-  troopsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { createEventFn } from 'app/(game)/(village-slug)/hooks/utils/events';
+import { createEventFn, updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
@@ -27,15 +27,58 @@ import { newVillageQuestsFactory } from 'app/factories/quest-factory';
 export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops: incomingTroops, movementType } = args;
 
-  // All settlers are lost on finding a new village
+  // All settlers are lost on finding a new village, so we just don't add them back
   if (movementType !== 'find-new-village') {
-    queryClient.setQueryData<Troop[]>([troopsCacheKey], (troops) => {
-      return addTroops(troops!, incomingTroops);
+    queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+      const troopsWithSourceAndTile = incomingTroops.map((troop) => {
+        // On relocation update source, so that units can be used from new village
+        if (movementType === 'relocation') {
+          return {
+            ...troop,
+            source: targetId,
+            tileId: targetId,
+          };
+        }
+
+        if (movementType === 'reinforcements') {
+          return {
+            ...troop,
+            tileId: targetId,
+          };
+        }
+
+        return troop;
+      });
+
+      return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
     });
   }
 
   if (movementType === 'find-new-village') {
     await findNewVillageResolver(queryClient, args);
+  }
+
+  // In case we're relocation a hero, we need to unset all hero effects from origin village and re-add them to the target village
+  if (movementType === 'relocation') {
+    const isHeroBeingRelocated = incomingTroops.some(({ unitId }) => unitId === 'HERO');
+
+    if (isHeroBeingRelocated) {
+      updateVillageResources(queryClient, villageId, [0, 0, 0, 0], 'add');
+      updateVillageResources(queryClient, targetId, [0, 0, 0, 0], 'add');
+
+      queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
+        return effects!.map((effect) => {
+          if (effect.source === 'hero') {
+            return {
+              ...effect,
+              villageId: targetId,
+            };
+          }
+
+          return effect;
+        });
+      });
+    }
   }
 
   // We don't create reports on troop return

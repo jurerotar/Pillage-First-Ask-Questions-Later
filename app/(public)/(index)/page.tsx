@@ -13,7 +13,7 @@ const HomePage = () => {
     <>
       <main className="flex flex-col">
         <div className="container relative mx-auto flex min-h-[300px] flex-col gap-2 lg:flex-row">
-          <section className="flex flex-1 flex-col justify-center gap-2 p-2">
+          <section className="flex flex-1 flex-col gap-2 p-2">
             <h1 className="text-3xl font-semibold text-gray-800">Pillage First! (Ask Questions Later)</h1>
             <span className="text-gray-800">
               <b>Pillage First! (Ask Questions Later)</b> is a <b>single-player</b>, <b>real-time</b>,{' '}
@@ -44,7 +44,7 @@ const HomePage = () => {
               .
             </WarningAlert>
           </section>
-          <section className="flex flex-1 flex-col items-start justify-center p-2 gap-4">
+          <section className="flex flex-1 flex-col p-2 gap-4">
             <h2 className="font-semibold text-2xl">Server list</h2>
             <Link
               className="underline text-blue-600 font-semibold"

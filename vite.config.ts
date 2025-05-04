@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
+import packageJson from './package.json' with { type: 'json' };
 // import { visualizer } from "rollup-plugin-visualizer";
 
 const isInTestMode = process.env.VITEST === 'true';
@@ -109,6 +110,7 @@ const viteConfig = defineViteConfig({
     },
   },
   define: {
+    'import.meta.env.VERSION': JSON.stringify(packageJson.version),
     'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
   },
 });

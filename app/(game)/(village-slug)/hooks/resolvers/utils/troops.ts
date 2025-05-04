@@ -3,38 +3,50 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { Report } from 'app/interfaces/models/game/report';
 import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
-export const addTroops = (existing: Troop[], incoming: Troop[]): Troop[] => {
-  for (const inc of incoming) {
-    const match = existing.find((troop) => troop.unitId === inc.unitId && troop.tileId === inc.tileId && troop.source === inc.source);
+type UnitMapKey = `${Troop['unitId']}-${Troop['tileId']}-${Troop['source']}`;
 
-    if (match) {
-      match.amount += inc.amount;
-      continue;
-    }
-    existing.push({ ...inc });
-  }
-
-  return existing;
+const createTroopMap = (troops: Troop[]): Map<UnitMapKey, Troop> => {
+  return new Map<UnitMapKey, Troop>(troops.map((troop) => [`${troop.unitId}-${troop.tileId}-${troop.source}`, troop]));
 };
 
-export const subtractTroops = (base: Troop[], toSubtract: Troop[], differentSourceOnly: boolean): Troop[] => {
-  for (const sub of toSubtract) {
-    for (let i = 0; i < base.length; i++) {
-      const b = base[i];
-      const sourceMatch = differentSourceOnly ? b.source !== sub.source : b.source === sub.source;
+export const canSendTroops = (troops: Troop[], toSend: Troop[]): boolean => {
+  const troopMap = createTroopMap(troops);
 
-      if (b.unitId === sub.unitId && b.tileId === sub.tileId && sourceMatch) {
-        b.amount -= sub.amount;
-        if (b.amount <= 0) {
-          base.splice(i, 1);
-          i--; // adjust index after removal
-        }
-        break; // assume only one match per troop
+  for (const troopChange of toSend) {
+    const key = `${troopChange.unitId}-${troopChange.tileId}-${troopChange.source}` satisfies UnitMapKey;
+    const troop = troopMap.get(key)!;
+    if (troopChange.amount > troop.amount) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const modifyTroops = (troops: Troop[], change: Troop[], mode: 'add' | 'subtract'): Troop[] => {
+  const troopMap = createTroopMap(troops);
+
+  for (const troopChange of change) {
+    const key = `${troopChange.unitId}-${troopChange.tileId}-${troopChange.source}` satisfies UnitMapKey;
+    const troop = troopMap.get(key);
+
+    if (!troop) {
+      troopMap.set(key, troopChange);
+      continue;
+    }
+
+    if (mode === 'add') {
+      troop.amount += troopChange.amount;
+    } else {
+      troop.amount -= troopChange.amount;
+
+      if (troop.amount === 0) {
+        troopMap.delete(key);
       }
     }
   }
 
-  return base;
+  return Array.from(troopMap.values());
 };
 
 export const setReport = (queryClient: QueryClient, report: Report): void => {

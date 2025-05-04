@@ -1,9 +1,7 @@
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitImprovement } from 'app/(game)/(village-slug)/hooks/use-unit-improvement';
-import { units } from 'app/(game)/(village-slug)/assets/units';
 import { Button } from 'app/components/ui/button';
 import { Icon } from 'app/components/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
@@ -21,14 +19,12 @@ type UnitImprovementCardProps = {
 export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { tribe } = useTribe();
   const { isDeveloperModeActive } = useDeveloperMode();
   const { unitImprovements, upgradeUnitTier } = useUnitImprovement();
   const { wood, clay, iron, wheat } = use(CurrentResourceContext);
   const { currentVillage } = useCurrentVillage();
 
   const { tier } = getUnitData(unitId)!;
-  const sameTierMercenaryUnits = units.filter((unit) => tier === unit.tier && tribe !== unit.tribe);
 
   const { level: upgradeLevel } = unitImprovements.find(({ tier: researchTier }) => researchTier === tier)!;
 
@@ -61,17 +57,6 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
             className="size-full"
             type={unitIdToUnitIconMapper(unitId)}
           />
-        </div>
-        <div className="text-gray-500 text-sm">
-          <span>{t('The following mercenary units will also receive an upgrade')}:</span>
-          <ul className="flex flex-wrap gap-1">
-            {sameTierMercenaryUnits.map(({ id }, index) => (
-              <li key={id}>
-                {assetsT(`UNITS.${id}.NAME`, { count: 1, id })}
-                {index !== sameTierMercenaryUnits.length - 1 && ','}
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 

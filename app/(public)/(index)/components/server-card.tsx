@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { FaTrash } from 'react-icons/fa6';
+import { WarningAlert } from 'app/components/ui/alert';
 
 type ServerCardProps = {
   server: Server;
@@ -17,14 +18,18 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const { t } = useTranslation();
   const { deleteServer } = useAvailableServers();
 
+  const appVersion = import.meta.env.VERSION;
+
   const timeSinceCreation = formatDistanceToNow(new Date(server.createdAt), {
     addSuffix: false,
   });
 
+  const serverVersion = server.version ?? '0.0.0';
+
   return (
     <div
       key={server.id}
-      className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-md border border-gray-100 bg-transparent p-2 px-4 shadow-md"
+      className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-gray-100 bg-transparent p-2 px-4 shadow-lg"
     >
       <div className="absolute right-2 top-2">
         <Button
@@ -36,7 +41,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
       </div>
       <span className="text-2xl font-medium">{server.name}</span>
       <div className="flex gap-2">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <span className="flex gap-2">
             <span className="font-medium">{t('Seed')}:</span>
             <span>{server.seed}</span>
@@ -46,7 +51,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
             <span>{timeSinceCreation}</span>
           </span>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <span className="flex gap-2">
             <span className="font-medium">{t('Player name')}:</span>
             <span>{server.playerConfiguration.name}</span>
@@ -57,6 +62,11 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           </span>
         </div>
       </div>
+      {serverVersion !== appVersion && (
+        <WarningAlert>
+          Your server version is outdated. It may not work with current version of the app. In case of error, delete and recreate server.
+        </WarningAlert>
+      )}
       <Link
         className="text-green-600 underline font-semibold"
         to={`/game/${server.slug}/v-1/resources`}

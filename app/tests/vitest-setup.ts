@@ -1,4 +1,3 @@
-import ResizeObserverModule from 'resize-observer-polyfill';
 import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -6,10 +5,6 @@ Object.defineProperty(globalThis, 'crypto', {
   value: {
     randomUUID: () => 'uuid',
   },
-});
-
-Object.defineProperty(globalThis, 'ResizeObserver', {
-  value: ResizeObserverModule,
 });
 
 vi.mock('react-i18next', () => ({
