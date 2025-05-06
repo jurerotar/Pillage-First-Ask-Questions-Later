@@ -23,7 +23,7 @@ import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isNewVillageEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isFindNewVillageTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 
 type TileModalResourcesProps = {
@@ -166,7 +166,7 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
   const { events } = useEvents();
 
   const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
-    if (isNewVillageEvent(event)) {
+    if (isFindNewVillageTroopMovementEvent(event)) {
       return tile.id === event.targetId;
     }
 

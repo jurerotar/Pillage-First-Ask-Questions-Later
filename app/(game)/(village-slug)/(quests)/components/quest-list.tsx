@@ -62,6 +62,7 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
     return 0;
   });
 
+  // TODO: Add quests groups (resources, infrastructure, military,...) to split up quest list a bit
   // TODO: Extract QuestGroup and Quest
   return (
     <div className="space-y-2">
@@ -77,7 +78,9 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
               group.hasCollectible && 'bg-yellow-100',
             )}
           >
-            <span>{getQuestTexts(group.groupKey, assetsT).group}</span>
+            <span>
+              {getQuestTexts(group.groupKey, assetsT).group} ({group.doneQuests}/{group.totalQuests})
+            </span>
           </summary>
 
           <div className="mt-2 space-y-2 px-2">

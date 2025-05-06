@@ -6,6 +6,8 @@ type QuestGroup = {
   quests: Quest[];
   hasCollectible: boolean;
   allCollected: boolean;
+  totalQuests: number;
+  doneQuests: number;
 };
 
 export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
@@ -31,11 +33,16 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
     const hasCollectible = sorted.some((q) => q.completedAt !== null && q.collectedAt === null);
     const allCollected = sorted.every((q) => q.collectedAt !== null);
 
+    const totalQuests = sorted.length;
+    const doneQuests = sorted.filter((q) => q.completedAt !== null).length;
+
     result.push({
       groupKey,
       quests: sorted,
       hasCollectible,
       allCollected,
+      totalQuests,
+      doneQuests,
     });
   }
 

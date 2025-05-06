@@ -42,15 +42,7 @@ type BaseTroopMovementEvent = WithVillageId<{
 }>;
 
 type TroopMovementEvent = BaseTroopMovementEvent & {
-  movementType: 'reinforcements' | 'relocation' | 'return' | 'find-new-village';
-};
-
-type OffensiveTroopMovementEvent = BaseTroopMovementEvent & {
-  movementType: 'attack' | 'raid';
-};
-
-type OasisOccupationTroopMovementEvent = BaseTroopMovementEvent & {
-  movementType: 'oasis-occupation';
+  movementType: 'reinforcements' | 'relocation' | 'return' | 'find-new-village' | 'attack' | 'raid' | 'oasis-occupation' | 'adventure';
 };
 
 export type GameEventType =
@@ -60,8 +52,6 @@ export type GameEventType =
   | 'buildingDestruction'
   | 'troopTraining'
   | 'troopMovement'
-  | 'oasisOccupation'
-  | 'offensiveTroopMovement'
   | 'adventurePointIncrease';
 
 type GameEventTypeToEventArgsMap<T extends GameEventType> = {
@@ -71,8 +61,6 @@ type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
   troopMovement: TroopMovementEvent;
-  oasisOccupation: OasisOccupationTroopMovementEvent;
-  offensiveTroopMovement: OffensiveTroopMovementEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];
 

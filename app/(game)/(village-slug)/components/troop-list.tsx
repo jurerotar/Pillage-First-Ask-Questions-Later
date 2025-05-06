@@ -3,12 +3,15 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { partition } from 'app/utils/common';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import clsx from 'clsx';
 
 export const TroopList = () => {
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { playerTroops } = usePlayerTroops();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
 
   const currentVillagePlayerTroops = playerTroops.filter(({ tileId }) => tileId === currentVillage.id);
 
@@ -19,7 +22,7 @@ export const TroopList = () => {
   }
 
   return (
-    <div className={clsx('absolute right-4 top-40 flex-col gap-2', shouldShowSidebars ? 'flex' : 'hidden')}>
+    <div className="flex flex-col absolute right-4 top-27 lg:top-40 gap-2">
       {ownUnits.length > 0 && (
         <ul className="flex flex-col gap-2">
           {ownUnits.map((troop) => (

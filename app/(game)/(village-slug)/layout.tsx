@@ -36,6 +36,7 @@ import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -448,7 +449,6 @@ const MobileBottomNavigation = () => {
               <ReportsNavigationItem />
             </Link>
           </li>
-
           <li>
             <Link to={gameNavigation.preferencesPath}>
               <NavigationSideItem>
@@ -505,7 +505,7 @@ const GameLayout = () => {
       <CurrentResourceProvider>
         <CountdownProvider>
           <TopNavigation />
-          {/*<TroopMovements />*/}
+          <TroopMovements />
           <Outlet />
           <ConstructionQueue />
           {/*<TroopList />*/}

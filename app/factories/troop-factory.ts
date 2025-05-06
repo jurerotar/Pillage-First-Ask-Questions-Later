@@ -103,7 +103,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['PHALANX', 100, 200],
           ['SWORDSMAN', 60, 150],
-          ['PATHFINDER', 5, 10],
+          ['GAUL_SCOUT', 5, 10],
         ],
       ],
       [
@@ -111,7 +111,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['PHALANX', 300, 600],
           ['SWORDSMAN', 250, 400],
-          ['PATHFINDER', 20, 80],
+          ['GAUL_SCOUT', 20, 80],
           ['THEUTATES_THUNDER', 5, 40],
           ['DRUIDRIDER', 5, 40],
           ['HAEDUAN', 5, 40],
@@ -122,7 +122,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['PHALANX', 700, 1200],
           ['SWORDSMAN', 5, 40],
-          ['PATHFINDER', 5, 40],
+          ['GAUL_SCOUT', 5, 40],
           ['THEUTATES_THUNDER', 5, 40],
           ['DRUIDRIDER', 5, 40],
           ['HAEDUAN', 5, 40],
@@ -147,7 +147,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['LEGIONNAIRE', 10, 35],
           ['PRAETORIAN', 5, 25],
-          ['EQUITES_LEGATI', 5, 10],
+          ['ROMAN_SCOUT', 5, 10],
         ],
       ],
       [
@@ -155,7 +155,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['LEGIONNAIRE', 10, 35],
           ['PRAETORIAN', 5, 25],
-          ['EQUITES_LEGATI', 5, 10],
+          ['ROMAN_SCOUT', 5, 10],
         ],
       ],
       [
@@ -163,7 +163,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['LEGIONNAIRE', 10, 35],
           ['PRAETORIAN', 5, 25],
-          ['EQUITES_LEGATI', 5, 10],
+          ['ROMAN_SCOUT', 5, 10],
           ['ROMAN_RAM', 20, 100],
           ['ROMAN_CATAPULT', 20, 50],
         ],
@@ -185,7 +185,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['MACEMAN', 30, 100],
           ['SPEARMAN', 5, 30],
-          ['SCOUT', 5, 10],
+          ['TEUTONIC_SCOUT', 5, 10],
         ],
       ],
       [
@@ -193,7 +193,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['MACEMAN', 30, 100],
           ['SPEARMAN', 5, 30],
-          ['SCOUT', 5, 10],
+          ['TEUTONIC_SCOUT', 5, 10],
         ],
       ],
       [
@@ -201,7 +201,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['MACEMAN', 30, 100],
           ['SPEARMAN', 5, 30],
-          ['SCOUT', 5, 10],
+          ['TEUTONIC_SCOUT', 5, 10],
           ['TEUTONIC_RAM', 20, 100],
           ['TEUTONIC_CATAPULT', 20, 50],
         ],
@@ -223,7 +223,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['MERCENARY', 15, 45],
           ['BOWMAN', 5, 25],
-          ['SPOTTER', 5, 10],
+          ['HUN_SCOUT', 5, 10],
         ],
       ],
       [
@@ -231,7 +231,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['MERCENARY', 15, 45],
           ['BOWMAN', 5, 25],
-          ['SPOTTER', 5, 10],
+          ['HUN_SCOUT', 5, 10],
         ],
       ],
       [
@@ -239,7 +239,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['MERCENARY', 15, 45],
           ['BOWMAN', 5, 25],
-          ['SPOTTER', 5, 10],
+          ['HUN_SCOUT', 5, 10],
           ['HUN_RAM', 20, 100],
           ['HUN_CATAPULT', 20, 50],
         ],
@@ -261,7 +261,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['SLAVE_MILITIA', 30, 70],
           ['ASH_WARDEN', 5, 20],
-          ['SOPDU_EXPLORER', 5, 10],
+          ['EGYPTIAN_SCOUT', 5, 10],
         ],
       ],
       [
@@ -269,7 +269,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['SLAVE_MILITIA', 30, 70],
           ['ASH_WARDEN', 5, 20],
-          ['SOPDU_EXPLORER', 5, 10],
+          ['EGYPTIAN_SCOUT', 5, 10],
         ],
       ],
       [
@@ -277,7 +277,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
         [
           ['SLAVE_MILITIA', 30, 70],
           ['ASH_WARDEN', 5, 20],
-          ['SOPDU_EXPLORER', 5, 10],
+          ['EGYPTIAN_SCOUT', 5, 10],
           ['EGYPTIAN_RAM', 20, 100],
           ['EGYPTIAN_CATAPULT', 20, 50],
         ],

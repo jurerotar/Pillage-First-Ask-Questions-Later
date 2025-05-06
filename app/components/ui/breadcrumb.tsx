@@ -43,20 +43,6 @@ export const BreadcrumbLink: React.FC<LinkProps> = ({ className, ...props }) => 
   );
 };
 
-export const BreadcrumbPage: React.FC<React.ComponentProps<'span'>> = ({ className, ...props }) => {
-  return (
-    // biome-ignore lint/a11y/useFocusableInteractive: TODO: Fix when you can
-    <span
-      data-slot="breadcrumb-page"
-      role="link"
-      aria-disabled="true"
-      aria-current="page"
-      className={cn('text-foreground font-normal', className)}
-      {...props}
-    />
-  );
-};
-
 export const BreadcrumbSeparator: React.FC<React.ComponentProps<'li'>> = ({ children, className, ...props }) => {
   return (
     <li

@@ -24,79 +24,7 @@ import { newVillageEffectsFactory } from 'app/factories/effect-factory';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { newVillageQuestsFactory } from 'app/factories/quest-factory';
 
-export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops: incomingTroops, movementType } = args;
-
-  // All settlers are lost on finding a new village, so we just don't add them back
-  if (movementType !== 'find-new-village') {
-    queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
-      const troopsWithSourceAndTile = incomingTroops.map((troop) => {
-        // On relocation update source, so that units can be used from new village
-        if (movementType === 'relocation') {
-          return {
-            ...troop,
-            source: targetId,
-            tileId: targetId,
-          };
-        }
-
-        if (movementType === 'reinforcements') {
-          return {
-            ...troop,
-            tileId: targetId,
-          };
-        }
-
-        return troop;
-      });
-
-      return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
-    });
-  }
-
-  if (movementType === 'find-new-village') {
-    await findNewVillageResolver(queryClient, args);
-  }
-
-  // In case we're relocation a hero, we need to unset all hero effects from origin village and re-add them to the target village
-  if (movementType === 'relocation') {
-    const isHeroBeingRelocated = incomingTroops.some(({ unitId }) => unitId === 'HERO');
-
-    if (isHeroBeingRelocated) {
-      updateVillageResources(queryClient, villageId, [0, 0, 0, 0], 'add');
-      updateVillageResources(queryClient, targetId, [0, 0, 0, 0], 'add');
-
-      queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
-        return effects!.map((effect) => {
-          if (effect.source === 'hero') {
-            return {
-              ...effect,
-              villageId: targetId,
-            };
-          }
-
-          return effect;
-        });
-      });
-    }
-  }
-
-  // We don't create reports on troop return
-  if (movementType !== 'return') {
-    return;
-  }
-
-  const relocationReport = generateTroopMovementReport({
-    villageId,
-    targetId,
-    movementType,
-    troops: incomingTroops,
-  });
-
-  setReport(queryClient, relocationReport);
-};
-
-export const offensiveTroopMovementResolver: Resolver<GameEvent<'offensiveTroopMovement'>> = async (queryClient, args) => {
+const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops, startsAt, duration } = args;
 
   // TODO: Add combat calc
@@ -119,7 +47,7 @@ export const offensiveTroopMovementResolver: Resolver<GameEvent<'offensiveTroopM
   });
 };
 
-export const oasisOccupationTroopMovementResolver: Resolver<GameEvent<'offensiveTroopMovement'>> = async (queryClient, args) => {
+const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops, startsAt, duration } = args;
 
   // TODO: Add combat calc
@@ -142,7 +70,7 @@ export const oasisOccupationTroopMovementResolver: Resolver<GameEvent<'offensive
   });
 };
 
-export const findNewVillageResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { targetId } = args;
 
   const server = queryClient.getQueryData<Server>([serverCacheKey])!;
@@ -176,4 +104,125 @@ export const findNewVillageResolver: Resolver<GameEvent<'troopMovement'>> = asyn
     tileToOccupy.ownedBy = 'player';
     return tiles;
   });
+};
+
+const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, targetId, troops, startsAt, duration } = args;
+
+  // TODO: Add combat calc
+
+  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+  await createEventFn<'troopMovement'>(queryClient, {
+    villageId: targetId,
+    targetId: villageId,
+    troops,
+    movementType: 'return',
+    type: 'troopMovement',
+    startsAt: startsAt + duration,
+    duration: calculateTravelDuration({
+      villageId,
+      targetId,
+      troops,
+      effects,
+    }),
+  });
+};
+
+const reinforcementMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, movementType, targetId, troops: incomingTroops } = args;
+
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+    const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, tileId: targetId }));
+    return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
+  });
+
+  const relocationReport = generateTroopMovementReport({
+    villageId,
+    targetId,
+    movementType,
+    troops: incomingTroops,
+  });
+
+  setReport(queryClient, relocationReport);
+};
+
+const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { troops: incomingTroops } = args;
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+    return modifyTroops(troops!, incomingTroops, 'add');
+  });
+};
+
+const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, movementType, targetId, troops: incomingTroops } = args;
+
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+    const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, source: targetId, tileId: targetId }));
+    return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
+  });
+
+  const isHeroBeingRelocated = incomingTroops.some(({ unitId }) => unitId === 'HERO');
+
+  if (isHeroBeingRelocated) {
+    updateVillageResources(queryClient, villageId, [0, 0, 0, 0], 'add');
+    updateVillageResources(queryClient, targetId, [0, 0, 0, 0], 'add');
+
+    queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
+      return effects!.map((effect) => {
+        if (effect.source === 'hero') {
+          return {
+            ...effect,
+            villageId: targetId,
+          };
+        }
+
+        return effect;
+      });
+    });
+  }
+
+  const relocationReport = generateTroopMovementReport({
+    villageId,
+    targetId,
+    movementType,
+    troops: incomingTroops,
+  });
+
+  setReport(queryClient, relocationReport);
+};
+
+export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { movementType } = args;
+
+  switch (movementType) {
+    case 'attack': {
+      await attackMovementResolver(queryClient, args);
+      break;
+    }
+    case 'find-new-village': {
+      await findNewVillageMovementResolver(queryClient, args);
+      break;
+    }
+    case 'oasis-occupation': {
+      await oasisOccupationMovementResolver(queryClient, args);
+      break;
+    }
+    case 'raid': {
+      await raidMovementResolver(queryClient, args);
+      break;
+    }
+    case 'reinforcements': {
+      await reinforcementMovementResolver(queryClient, args);
+      break;
+    }
+    case 'relocation': {
+      await relocationMovementResolver(queryClient, args);
+      break;
+    }
+    case 'return': {
+      await returnMovementResolver(queryClient, args);
+      break;
+    }
+  }
 };

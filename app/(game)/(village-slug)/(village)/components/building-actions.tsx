@@ -8,6 +8,7 @@ import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/buildin
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { startTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
@@ -179,22 +180,30 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
 
   const onBuildingConstruction = () => {
     navigateBack();
-    constructBuilding();
+    startTransition(() => {
+      constructBuilding();
+    });
   };
 
   const onBuildingUpgrade = () => {
     navigateBack();
-    upgradeBuilding();
+    startTransition(() => {
+      upgradeBuilding();
+    });
   };
 
   const onBuildingDowngrade = () => {
     navigateBack();
-    downgradeBuilding();
+    startTransition(() => {
+      downgradeBuilding();
+    });
   };
 
   const onBuildingDemolish = () => {
     navigateBack();
-    demolishBuilding();
+    startTransition(() => {
+      demolishBuilding();
+    });
   };
 
   if (!doesBuildingExist) {

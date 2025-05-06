@@ -1,7 +1,6 @@
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
-import clsx from 'clsx';
 import type React from 'react';
 import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
@@ -106,43 +105,45 @@ export const ConstructionQueue = () => {
   const { currentVillageBuildingEventsQueue: resourcesEventQueue } = useCurrentVillageBuildingEventQueue(1);
   const { currentVillageBuildingEventsQueue: villageEventQueue } = useCurrentVillageBuildingEventQueue(19);
 
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
   return (
-    <div className={clsx('', shouldShowSidebars ? 'flex' : 'hidden')}>
-      <ul className="fixed left-0 bottom-26 lg:left-1/2 lg:-translate-x-1/2 lg:bottom-0 flex gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-l-none lg:rounded-l-xs rounded-xs">
-        {tribe !== 'romans' && (
+    <ul className="fixed left-0 bottom-26 lg:left-1/2 lg:-translate-x-1/2 lg:bottom-0 flex gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-l-none lg:rounded-l-xs rounded-xs">
+      {tribe !== 'romans' && (
+        <li>
+          {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
+          {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
+        </li>
+      )}
+      {tribe === 'romans' && (
+        <>
+          <li>
+            {resourcesEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={resourcesEventQueue[0]} />}
+            {resourcesEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
+          </li>
           <li>
             {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
             {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
           </li>
-        )}
-        {tribe === 'romans' && (
-          <>
-            <li>
-              {resourcesEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={resourcesEventQueue[0]} />}
-              {resourcesEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
-            </li>
-            <li>
-              {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
-              {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
-            </li>
-          </>
-        )}
-        {/* TODO: Uncomment and finish whenever you get scheduled events working again! */}
-        {/*{tribe !== 'romans' && (*/}
-        {/*  <li>*/}
-        {/*    <ConstructionQueueEmptySlot type="locked" />*/}
-        {/*  </li>*/}
-        {/*)}*/}
-        {/*<li>*/}
-        {/*  <ConstructionQueueEmptySlot type="locked" />*/}
-        {/*</li>*/}
-        {/*<li>*/}
-        {/*  <ConstructionQueueEmptySlot type="locked" />*/}
-        {/*</li>*/}
-        {/*<li>*/}
-        {/*  <ConstructionQueueEmptySlot type="locked" />*/}
-        {/*</li>*/}
-      </ul>
-    </div>
+        </>
+      )}
+      {/* TODO: Uncomment and finish whenever you get scheduled events working again! */}
+      {/*{tribe !== 'romans' && (*/}
+      {/*  <li>*/}
+      {/*    <ConstructionQueueEmptySlot type="locked" />*/}
+      {/*  </li>*/}
+      {/*)}*/}
+      {/*<li>*/}
+      {/*  <ConstructionQueueEmptySlot type="locked" />*/}
+      {/*</li>*/}
+      {/*<li>*/}
+      {/*  <ConstructionQueueEmptySlot type="locked" />*/}
+      {/*</li>*/}
+      {/*<li>*/}
+      {/*  <ConstructionQueueEmptySlot type="locked" />*/}
+      {/*</li>*/}
+    </ul>
   );
 };

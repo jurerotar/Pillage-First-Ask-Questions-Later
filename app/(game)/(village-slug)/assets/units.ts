@@ -47,7 +47,7 @@ export const romanUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
-    id: 'EQUITES_LEGATI',
+    id: 'ROMAN_SCOUT',
     baseRecruitmentCost: [140, 160, 20, 40],
     baseRecruitmentDuration: 1360,
     unitWheatConsumption: 2,
@@ -137,7 +137,7 @@ export const romanUnits: Unit[] = [
     ],
   },
   {
-    id: 'SENATOR',
+    id: 'ROMAN_CHIEF',
     baseRecruitmentCost: [30750, 27200, 45000, 37500],
     baseRecruitmentDuration: 90700,
     unitWheatConsumption: 5,
@@ -203,7 +203,7 @@ export const gaulUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
-    id: 'PATHFINDER',
+    id: 'GAUL_SCOUT',
     baseRecruitmentCost: [170, 150, 20, 40],
     baseRecruitmentDuration: 1360,
     unitWheatConsumption: 2,
@@ -311,7 +311,7 @@ export const gaulUnits: Unit[] = [
     ],
   },
   {
-    id: 'CHIEFTAIN',
+    id: 'GAUL_CHIEF',
     baseRecruitmentCost: [30750, 45400, 31000, 37500],
     baseRecruitmentDuration: 90700,
     unitWheatConsumption: 4,
@@ -395,7 +395,7 @@ export const teutonUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
-    id: 'SCOUT',
+    id: 'TEUTONIC_SCOUT',
     baseRecruitmentCost: [160, 100, 50, 50],
     baseRecruitmentDuration: 1120,
     unitWheatConsumption: 1,
@@ -485,7 +485,7 @@ export const teutonUnits: Unit[] = [
     ],
   },
   {
-    id: 'CHIEF',
+    id: 'TEUTONIC_CHIEF',
     baseRecruitmentCost: [35500, 26600, 25000, 27200],
     baseRecruitmentDuration: 70500,
     unitWheatConsumption: 4,
@@ -566,7 +566,7 @@ export const egyptianUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
-    id: 'SOPDU_EXPLORER',
+    id: 'EGYPTIAN_SCOUT',
     baseRecruitmentCost: [170, 150, 20, 40],
     baseRecruitmentDuration: 1360,
     unitWheatConsumption: 2,
@@ -656,7 +656,7 @@ export const egyptianUnits: Unit[] = [
     ],
   },
   {
-    id: 'NOMARCH',
+    id: 'EGYPTIAN_CHIEF',
     baseRecruitmentCost: [34000, 50000, 34000, 42000],
     baseRecruitmentDuration: 90700,
     unitWheatConsumption: 4,
@@ -722,7 +722,7 @@ export const hunUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
-    id: 'SPOTTER',
+    id: 'HUN_SCOUT',
     baseRecruitmentCost: [170, 150, 20, 40],
     baseRecruitmentDuration: 1360,
     unitWheatConsumption: 2,
@@ -830,7 +830,7 @@ export const hunUnits: Unit[] = [
     ],
   },
   {
-    id: 'LOGADES',
+    id: 'HUN_CHIEF',
     baseRecruitmentCost: [37200, 27600, 25200, 27600],
     baseRecruitmentDuration: 90700,
     unitWheatConsumption: 4,
@@ -881,7 +881,7 @@ export const spartanUnits: Unit[] = [
     researchRequirements: [],
   },
   {
-    id: 'SENTINEL',
+    id: 'SPARTAN_SCOUT',
     baseRecruitmentCost: [185, 150, 35, 75],
     baseRecruitmentDuration: 1232,
     unitWheatConsumption: 1,
@@ -998,7 +998,7 @@ export const spartanUnits: Unit[] = [
     ],
   },
   {
-    id: 'EPHOR',
+    id: 'SPARTAN_CHIEF',
     baseRecruitmentCost: [33450, 30665, 36240, 13935],
     baseRecruitmentDuration: 77550,
     unitWheatConsumption: 1,
@@ -1233,7 +1233,7 @@ export const natarianUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
-    id: 'BIRDS_OF_PREY',
+    id: 'NATARIAN_SCOUT',
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
@@ -1323,7 +1323,7 @@ export const natarianUnits: Unit[] = [
     ],
   },
   {
-    id: 'NATARIAN_EMPEROR',
+    id: 'NATARIAN_CHIEF',
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,

@@ -9,7 +9,7 @@ export const isTroopMovementEvent = (event: GameEvent): event is GameEvent<'troo
   return event.type === 'troopMovement';
 };
 
-export const isNewVillageEvent = (event: GameEvent): event is GameEvent<'troopMovement'> => {
+export const isFindNewVillageTroopMovementEvent = (event: GameEvent): event is GameEvent<'troopMovement'> => {
   return isTroopMovementEvent(event) && event.movementType === 'find-new-village';
 };
 

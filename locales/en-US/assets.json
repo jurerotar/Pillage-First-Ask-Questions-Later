@@ -18,7 +18,7 @@
       "DESCRIPTION": "The Imperian is the ultimate attacker of the Roman Empire. He is quick, strong, and the nightmare of all defenders. However, his training is expensive and time-intensive.",
       "USAGE": "The Imperian is the strongest offensive infantry unit of the Romans and surpasses similar units from other tribes in terms of speed, power, and armor. However, its defense is relatively poor, and it is both expensive and slow to produce. It serves as the foundation of the Roman attack force."
     },
-    "EQUITES_LEGATI": {
+    "ROMAN_SCOUT": {
       "NAME_one": "Equites Legati",
       "NAME_other": "Equites Legati",
       "DESCRIPTION": "The Equites Legati are the Roman scouts. Mounted on swift horses, they gather intelligence on enemy villages without engaging in combat.",
@@ -48,7 +48,7 @@
       "DESCRIPTION": "The Roman Catapult is a siege engine designed to destroy enemy buildings and defenses from a distance.",
       "USAGE": "The Fire Catapult is a long-range siege unit used to destroy specific buildings in enemy villages. It is essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
     },
-    "SENATOR": {
+    "ROMAN_CHIEF": {
       "NAME_one": "Senator",
       "NAME_other": "Senators",
       "DESCRIPTION": "The Senator is a persuasive leader who can convince enemy villages to join your empire, effectively reducing their loyalty.",
@@ -78,7 +78,7 @@
       "DESCRIPTION": "Axemen are formidable offensive units of the Teutons, excelling in close combat.",
       "USAGE": "The Axeman is the primary offensive infantry unit for the Teutons. They have high attack power but lack defensive capabilities. They are best utilized in offensive operations rather than village defense."
     },
-    "SCOUT": {
+    "TEUTONIC_SCOUT": {
       "NAME_one": "Scout",
       "NAME_other": "Scouts",
       "DESCRIPTION": "Teuton scouts gather intelligence on enemy villages, similar to their Roman and Gaul counterparts.",
@@ -108,7 +108,7 @@
       "DESCRIPTION": "Teutonic Catapults are designed to target and destroy enemy buildings from a distance.",
       "USAGE": "Catapults are long-range siege units used to destroy specific buildings in enemy villages. They are essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
     },
-    "CHIEF": {
+    "TEUTONIC_CHIEF": {
       "NAME_one": "Chief",
       "NAME_other": "Chiefs",
       "DESCRIPTION": "The Chief is a Teuton leader skilled in persuading enemy villages to join their realm.",
@@ -132,7 +132,7 @@
       "DESCRIPTION": "Swordsmen are offensive infantry units of the Gauls, trained for close combat.",
       "USAGE": "The Gaul Swordsman is the Gauls core offensive unit because of its inexpensive cost, quick training times and relatively decent offensive attributes. The swordsman however falls short in its defense and speed. Swordsman should never be left in a vulnerable position without adequate defensive reinforcements because they are easily slaughtered by almost any unit in the game when on the defense."
     },
-    "PATHFINDER": {
+    "GAUL_SCOUT": {
       "NAME_one": "Pathfinder",
       "NAME_other": "Pathfinders",
       "DESCRIPTION": "Pathfinders are Gaul scouts, adept at gathering intelligence on enemy positions.",
@@ -168,7 +168,7 @@
       "DESCRIPTION": "Gaul Catapults are designed to target and destroy enemy buildings from a distance.",
       "USAGE": ""
     },
-    "CHIEFTAIN": {
+    "GAUL_CHIEF": {
       "NAME_one": "Chieftain",
       "NAME_other": "Chieftains",
       "DESCRIPTION": "The Chieftain is a Gaul leader skilled in persuading enemy villages to join their realm.",
@@ -192,7 +192,7 @@
       "DESCRIPTION": "",
       "USAGE": ""
     },
-    "SPOTTER": {
+    "HUN_SCOUT": {
       "NAME_one": "Spotter",
       "NAME_other": "Spotters",
       "DESCRIPTION": "",
@@ -228,7 +228,7 @@
       "DESCRIPTION": "",
       "USAGE": ""
     },
-    "LOGADES": {
+    "HUN_CHIEF": {
       "NAME_one": "Logades",
       "NAME_other": "Logadeses",
       "DESCRIPTION": "",
@@ -258,7 +258,7 @@
       "DESCRIPTION": "",
       "USAGE": ""
     },
-    "SOPDU_EXPLORER": {
+    "EGYPTIAN_SCOUT": {
       "NAME_one": "Sopdu Explorer",
       "NAME_other": "Sopdu Explorers",
       "DESCRIPTION": "",
@@ -288,7 +288,7 @@
       "DESCRIPTION": "",
       "USAGE": ""
     },
-    "NOMARCH": {
+    "EGYPTIAN_CHIEF": {
       "NAME_one": "Nomarch",
       "NAME_other": "Nomarchs",
       "DESCRIPTION": "",
@@ -306,7 +306,7 @@
       "DESCRIPTION": "",
       "USAGE": ""
     },
-    "SENTINEL": {
+    "SPARTAN_SCOUT": {
       "NAME_one": "Sentinel",
       "NAME_other": "",
       "DESCRIPTION": "",
@@ -348,7 +348,7 @@
       "DESCRIPTION": "",
       "USAGE": ""
     },
-    "EPHOR": {
+    "SPARTAN_CHIEF": {
       "NAME_one": "Ephor",
       "NAME_other": "Ephors",
       "DESCRIPTION": "",
@@ -378,7 +378,7 @@
       "DESCRIPTION": "Guardsmen are stalwart defenders within the Natarian army, specializing in protecting their villages from enemy attacks.",
       "USAGE": "Serving as the primary defensive infantry, Guardsmen are stationed in Natarian villages to repel invasions. They are controlled solely by the Natars and are not accessible to players."
     },
-    "BIRDS_OF_PREY": {
+    "NATARIAN_SCOUT": {
       "NAME_one": "Bird Of Prey",
       "NAME_other": "Birds Of Prey",
       "DESCRIPTION": "Birds Of Prey are swift Natarian cavalry units adept at rapid assaults and reconnaissance.",
@@ -408,7 +408,7 @@
       "DESCRIPTION": "Natarian Catapults are powerful siege engines capable of destroying enemy buildings from a distance.",
       "USAGE": "In offensive operations, the Natars use these catapults to target and demolish key structures in player villages, such as Treasuries holding artifacts. They are not available for player training."
     },
-    "NATARIAN_EMPEROR": {
+    "NATARIAN_CHIEF": {
       "NAME_one": "Natarian Emperor",
       "NAME_other": "Natarian Emperors",
       "DESCRIPTION": "The Natarian Emperor is the leader of the Natar tribe, embodying their authority and command.",
