@@ -129,7 +129,7 @@ export const calculateComputedEffect = (
     effectBonusValue *= normalizeForcedFloatValue(value);
   }
 
-  const total = Math.trunc((effectBaseValue === 0 ? 1 : effectBaseValue) * effectBonusValue * serverEffectValue);
+  const total = (effectBaseValue === 0 ? 1 : effectBaseValue) * effectBonusValue * serverEffectValue;
 
   return {
     serverEffectValue,
@@ -163,7 +163,7 @@ export function useComputedEffect(effectId: EffectId): ComputedEffectReturn | Wh
     gcTime: 10_000,
     queryKeyHashFn: () => {
       const effectHash = effects.map((effect) => effect.value).join('|');
-      return `${nonPersistedCacheKey}-effect-id-[${effectId}]-village-id-[${currentVillage.id}]-${effectHash}`;
+      return `${nonPersistedCacheKey}-effect-id-[${effectId}]-village-id-[${currentVillage.id}]-updated-at-[${currentVillage.lastUpdatedAt}]-${effectHash}`;
     },
   });
 

@@ -9,7 +9,7 @@ import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-
 import { useUnitImprovement } from 'app/(game)/(village-slug)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentResourceContext } from 'app/(game)/(village-slug)/providers/current-resources-provider';
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { Unit } from 'app/interfaces/models/game/unit';
@@ -33,7 +33,9 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   return (
     <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
       <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Research cost')}</h2>
-      {hasResearchedUnit && <span className="text-green-600">{t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`) })}</span>}
+      {hasResearchedUnit && (
+        <span className="text-green-600">{t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}</span>
+      )}
       {!hasResearchedUnit && (
         <Resources
           className="flex-wrap"
@@ -83,7 +85,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
       <h2 className="font-medium">{t('Available actions')}</h2>
       <Button
         onClick={() => __recruitUnits(0)}
-        variant="confirm"
+        variant="default"
       >
         {t('Train {{count}} {{unit}} units', { unit: assetsT(`UNITS.${unitId}.NAME`), count: 1 })}
       </Button>
@@ -159,7 +161,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     <article className="flex flex-col p-2 border border-gray-500">
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`)}</h2>
+          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</h2>
           {shouldShowUnitLevel && (
             <span className="text-sm text-orange-500">{t('Level {{level}}', { level: unitImprovement!.level })}</span>
           )}
@@ -231,10 +233,10 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
           <h2 className="font-medium">{t('Available actions')}</h2>
           <Button
             onClick={() => researchUnit(unitId)}
-            variant="confirm"
+            variant="default"
             disabled={!canResearchUnit}
           >
-            {t('Research {{unit}}', { unit: assetsT(`UNITS.${unitId}.NAME`) })}
+            {t('Research {{unit}}', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
           </Button>
         </section>
       )}

@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import type { CreateServerWorkerPayload } from 'app/(public)/workers/create-server-worker';
 import CreateServerWorker from 'app/(public)/workers/create-server-worker?worker&url';
 import type { GenerateMapWorkerPayload, GenerateMapWorkerReturn } from 'app/(public)/workers/generate-map-worker';
@@ -93,13 +93,14 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
 
   const playerStartingVillage = userVillageFactory({ player, tile: playerStartingTile, slug: 'v-1' });
 
+  const hero = heroFactory(server);
+
   // Non-dependant factories can run in sync
   const [
     { villages },
     { playerTroops, npcTroops },
     { worldItems },
     effects,
-    hero,
     mapFilters,
     unitResearch,
     unitImprovement,
@@ -124,8 +125,7 @@ export const initializeServer = async ({ server }: OnSubmitArgs) => {
       server,
       occupiedOccupiableTiles,
     }),
-    generateEffects(server, playerStartingVillage),
-    heroFactory(server),
+    generateEffects(server, playerStartingVillage, hero),
     mapFiltersFactory(),
     unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
     unitImprovementFactory(),
@@ -295,7 +295,7 @@ const CreateNewServerPage = () => {
               type="submit"
               className="w-full sm:w-auto"
               size="lg"
-              variant="confirm"
+              variant="default"
               disabled={isPending}
             >
               {t('Create Server')}

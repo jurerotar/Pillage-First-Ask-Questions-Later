@@ -57,6 +57,7 @@ export type TribalEffect = Omit<GlobalEffect, 'source'> & {
 
 export type HeroEffect = Omit<GlobalEffect, 'source'> & {
   source: 'hero';
+  villageId: Village['id'];
 };
 
 export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {

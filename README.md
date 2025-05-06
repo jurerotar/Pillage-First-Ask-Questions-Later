@@ -1,24 +1,24 @@
 # Pillage First! (Ask Questions Later)
 
-Pillage First! (Ask Questions Later) is a single-player, open-source Travian clone – a real-time browser strategy game where you build
-villages, manage resources, and conquer your enemies. Inspired by classic MMORTS titles like Travian, it captures the essence of early
-web-based strategy games in a solo, offline-friendly format.
+Pillage First! (Ask Questions Later) is a single-player, open-source Travian clone. Real-time browser strategy game where you build
+villages, manage resources, train troops and battle against your enemies. It supports fully-offline gameplay and persistence between sessions,
+without requiring an internet connection or an account.
 
 You can see the current stable version at: [pillagefirst.netlify.app](https://pillagefirst.netlify.app)
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
-![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Discord&labelColor=%235865F2)
+![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Join%20our%20Discord%20server&labelColor=%235865F2)
 
 > [!NOTE]
 > Very much still work in progress.
 
 <p align="center">
-  <img src="/.github/assets/mobile-map-view.jpeg" width="30%">
+  <img src="/.github/assets/mobile-map-view.png" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-building-view.jpeg" width="30%">
+  <img src="/.github/assets/mobile-building-view.png" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-building-list-view.jpeg" width="30%">
+  <img src="/.github/assets/mobile-resources-view.png" width="30%">
 </p>
 
 # Motivation
@@ -56,9 +56,13 @@ If you’re passionate about backend development and want to help bring multipla
 Yes, there's a couple. Game design is still being discussed in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if
 you'd like to learn more or give your opinion!
 
+# Roadmap
+
+See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming features
+
 ## Development setup
 
-Pillage First! requires [Node.js version 22.14.0 (LTS)](https://nodejs.org/en/download) or later.
+Pillage First! requires [Node.js version 22.15.0 (LTS)](https://nodejs.org/en/download) or later.
 
 ```bash
 # Install dependencies
@@ -72,13 +76,22 @@ App will automatically open in your default browser at `localhost:5173`.
 
 # Contributing
 
-All contributions are welcome at Pillage First!, whether they be tech, game design, localization or art related.
-I advise [joining our Discord server](https://discord.gg/Ep7NKVXUZA), and we'll discuss how you can contribute best!
+All contributions to **Pillage First! (Ask Questions Later)** are welcome — whether you're into development, game design, writing, or localization.
 
-All contributions are greatly appreciated.
+If you're interested in helping out, the best place to start is by [joining our Discord server](https://discord.gg/Ep7NKVXUZA). Introduce yourself, and we’ll figure out where you can contribute most effectively.
+
+Here are a few ways you can get involved:
+
+- Star the project on GitHub to support visibility
+- Share ideas, feedback, or suggestions
+- Tackle open issues or submit your own
+- Contribute code, assets, or translations
+- Ask questions — curiosity helps shape the project
+
+Thanks for your interest! Every bit of input helps make the game better.
 
 # License
 
-This project is licensed under the AGPLv3.
+This project is licensed under the GNU Affero General Public License v3.0.
 
 See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for details.

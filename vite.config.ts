@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
+import packageJson from './package.json' with { type: 'json' };
 // import { visualizer } from "rollup-plugin-visualizer";
 
 const isInTestMode = process.env.VITEST === 'true';
@@ -44,14 +45,16 @@ const viteConfig = defineViteConfig({
       VitePWA({
         registerType: 'autoUpdate',
         manifest,
+        outDir: 'build/client',
         workbox: {
+          globDirectory: 'build',
+          globPatterns: ['**/*.{js,css,html}'],
           clientsClaim: true,
           skipWaiting: true,
           cleanupOutdatedCaches: true,
           navigateFallback: null,
         },
       }),
-    !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
     // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
     // replacing the dependency. Remove once/if this gets resolved.
     // https://github.com/juliencrn/usehooks-ts/discussions/669#discussioncomment-11922434
@@ -107,6 +110,7 @@ const viteConfig = defineViteConfig({
     },
   },
   define: {
+    'import.meta.env.VERSION': JSON.stringify(packageJson.version),
     'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
   },
 });

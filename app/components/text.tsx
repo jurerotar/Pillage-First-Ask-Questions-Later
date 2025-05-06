@@ -4,7 +4,7 @@ import { clsx } from 'clsx';
 type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label' | 'p' | 'span';
 
 const elementStyles: Record<TextElement, string> = {
-  h1: 'text-3xl',
+  h1: 'text-2xl lg:text-3xl',
   h2: 'text-xl font-medium',
   h3: 'font-medium',
   h4: '',

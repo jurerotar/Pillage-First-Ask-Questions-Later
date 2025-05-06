@@ -52,12 +52,14 @@ const createGameEnvironment = (): QueryClient => {
 
   const playerVillageMock = villageMock;
 
+  const hero = heroFactory(server);
+
   queryClient.setQueryData<Server>([serverCacheKey], () => server);
   queryClient.setQueryData<Player[]>([playersCacheKey], () => [playerMock]);
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock));
+  queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock, hero));
   queryClient.setQueryData<Village[]>([playerVillagesCacheKey], () => [playerVillageMock]);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], () => preferencesFactory());
-  queryClient.setQueryData<Hero>([heroCacheKey], () => heroFactory(server));
+  queryClient.setQueryData<Hero>([heroCacheKey], hero);
 
   dehydratedState = dehydrate(queryClient);
 

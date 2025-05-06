@@ -5,9 +5,10 @@ import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-rou
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { startTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
@@ -60,7 +61,7 @@ const BuildingCardActionsConstruction: React.FC<BuildingCardActionsSectionProps>
       <ErrorBag errorBag={buildingConstructionErrorBag} />
       <Button
         data-testid="building-actions-construct-building-button"
-        variant="confirm"
+        variant="default"
         onClick={onBuildingConstruction}
         disabled={buildingConstructionErrorBag.length > 0}
       >
@@ -87,7 +88,7 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
       <ErrorBag errorBag={buildingUpgradeErrorBag} />
       <Button
         data-testid="building-actions-upgrade-building-button"
-        variant="confirm"
+        variant="default"
         onClick={onBuildingUpgrade}
         disabled={buildingUpgradeErrorBag.length > 0}
       >
@@ -122,7 +123,7 @@ const BuildingCardActionsDowngrade: React.FC<BuildingCardActionsDowngradeProps> 
         {buildingLevel > 1 && (
           <Button
             data-testid="building-actions-downgrade-building-button"
-            variant="confirm"
+            variant="default"
             onClick={onBuildingDowngrade}
             disabled={buildingDowngradeErrorBag.length > 0}
           >
@@ -132,7 +133,7 @@ const BuildingCardActionsDowngrade: React.FC<BuildingCardActionsDowngradeProps> 
         {buildingLevel > 0 && (
           <Button
             data-testid="building-actions-demolish-building-button"
-            variant="confirm"
+            variant="default"
             onClick={onBuildingDemolish}
             disabled={buildingDowngradeErrorBag.length > 0}
           >
@@ -179,22 +180,30 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
 
   const onBuildingConstruction = () => {
     navigateBack();
-    constructBuilding();
+    startTransition(() => {
+      constructBuilding();
+    });
   };
 
   const onBuildingUpgrade = () => {
     navigateBack();
-    upgradeBuilding();
+    startTransition(() => {
+      upgradeBuilding();
+    });
   };
 
   const onBuildingDowngrade = () => {
     navigateBack();
-    downgradeBuilding();
+    startTransition(() => {
+      downgradeBuilding();
+    });
   };
 
   const onBuildingDemolish = () => {
     navigateBack();
-    demolishBuilding();
+    startTransition(() => {
+      demolishBuilding();
+    });
   };
 
   if (!doesBuildingExist) {

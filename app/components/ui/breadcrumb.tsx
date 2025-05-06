@@ -1,7 +1,7 @@
 import type React from 'react';
-import { Slot } from '@radix-ui/react-slot';
 import { LuChevronRight } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
+import { Link, type LinkProps } from 'react-router';
 
 export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({ ...props }) => {
   return (
@@ -33,31 +33,11 @@ export const BreadcrumbItem: React.FC<React.ComponentProps<'li'>> = ({ className
   );
 };
 
-type BreadcrumbLinkProps = React.ComponentProps<'a'> & {
-  asChild?: boolean;
-};
-
-export const BreadcrumbLink: React.FC<BreadcrumbLinkProps> = ({ asChild, className, ...props }) => {
-  const Comp = asChild ? Slot : 'a';
-
+export const BreadcrumbLink: React.FC<LinkProps> = ({ className, ...props }) => {
   return (
-    <Comp
+    <Link
       data-slot="breadcrumb-link"
-      className={cn('hover:text-foreground transition-colors', className)}
-      {...props}
-    />
-  );
-};
-
-export const BreadcrumbPage: React.FC<React.ComponentProps<'span'>> = ({ className, ...props }) => {
-  return (
-    // biome-ignore lint/a11y/useFocusableInteractive: TODO: Fix when you can
-    <span
-      data-slot="breadcrumb-page"
-      role="link"
-      aria-disabled="true"
-      aria-current="page"
-      className={cn('text-foreground font-normal', className)}
+      className={cn('hover:text-foreground transition-colors underline', className)}
       {...props}
     />
   );

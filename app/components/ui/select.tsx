@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as SelectPrimitive from '@radix-ui/react-select';
+import { Select as SelectPrimitive } from 'radix-ui';
 import { LuChevronDown, LuChevronUp, LuCheck } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
 

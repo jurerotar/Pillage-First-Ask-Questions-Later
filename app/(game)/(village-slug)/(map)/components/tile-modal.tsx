@@ -22,6 +22,9 @@ import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-m
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
+import { isFindNewVillageTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -160,8 +163,17 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
+  const { events } = useEvents();
 
-  const { createEvent: createFindNewVillageEvent } = useCreateEvent('findNewVillage');
+  const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
+    if (isFindNewVillageTroopMovementEvent(event)) {
+      return tile.id === event.targetId;
+    }
+
+    return false;
+  });
+
+  const { createEvent: createFindNewVillageEvent } = useCreateEvent('troopMovement');
 
   const onFoundNewVillage = () => {
     const duration = calculateTravelDuration({
@@ -173,9 +185,11 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
 
     createFindNewVillageEvent({
       startsAt: Date.now(),
+      movementType: 'find-new-village',
       villageId: currentVillage.id,
       duration,
-      targetTileId: tile.id,
+      targetId: tile.id,
+      troops: [],
     });
   };
 
@@ -193,13 +207,18 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        <Button
-          variant="link"
-          className="p-0 leading-0"
-          onClick={onFoundNewVillage}
-        >
-          Found new village
-        </Button>
+        {hasOngoingVillageFindEventOnThisTile && (
+          <span className="text-gray-500">{t('Settlers are already on route to this location')}</span>
+        )}
+        {!hasOngoingVillageFindEventOnThisTile && (
+          <Button
+            variant="link"
+            className="p-0 leading-0"
+            onClick={onFoundNewVillage}
+          >
+            Found new village
+          </Button>
+        )}
       </div>
     </>
   );
@@ -214,9 +233,31 @@ const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = 
   const { getVillageById } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { switchToVillage } = useGameNavigation();
+  const { playerTroops, sendTroops } = usePlayerTroops();
+
+  const currentVillageMovableTroops = playerTroops.filter(
+    ({ tileId, source }) => tileId === currentVillage.id && source === currentVillage.id,
+  );
+
+  const isHeroInCurrentVillage = currentVillageMovableTroops.some(({ unitId }) => unitId === 'HERO');
 
   const village = getVillageById(tile.id)!;
   const isOwnedByPlayer = tile.ownedBy === 'player';
+
+  const onSendHero = () => {
+    sendTroops({
+      targetId: tile.id,
+      movementType: 'relocation',
+      troops: [
+        {
+          unitId: 'HERO',
+          amount: 1,
+          tileId: currentVillage.id,
+          source: currentVillage.id,
+        },
+      ],
+    });
+  };
 
   return (
     <>
@@ -236,13 +277,24 @@ const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = 
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
-          <Button
-            variant="link"
-            className="p-0 leading-0"
-            onClick={() => switchToVillage(village.slug)}
-          >
-            Enter village
-          </Button>
+          <>
+            <Button
+              variant="link"
+              className="p-0 leading-0"
+              onClick={() => switchToVillage(village.slug)}
+            >
+              Enter village
+            </Button>
+            {isHeroInCurrentVillage && (
+              <Button
+                variant="link"
+                className="p-0 leading-0"
+                onClick={onSendHero}
+              >
+                Send hero
+              </Button>
+            )}
+          </>
         )}
       </div>
     </>

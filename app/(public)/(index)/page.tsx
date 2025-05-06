@@ -1,61 +1,69 @@
 import { ServerCard } from 'app/(public)/(index)/components/server-card';
-import { Button } from 'app/components/buttons/button';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
-import { isInDevelopmentMode } from 'app/utils/common';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { WarningAlert } from 'app/components/ui/alert';
 
 const HomePage = () => {
   const { t } = useTranslation();
   const { availableServers } = useAvailableServers();
 
-  const resetOpfs = async () => {
-    await (await navigator.storage.getDirectory()).removeEntry('pillage-first-ask-questions-later', { recursive: true });
-    window.location.reload();
-  };
-
   return (
     <>
       <main className="flex flex-col">
-        <section className="container relative mx-auto flex min-h-[300px] flex-col gap-4 lg:flex-row">
-          <div className="flex flex-1 flex-col justify-center gap-4 p-4">
-            <h1 className="text-3xl font-semibold dark:text-white">Pillage First! (Ask Questions Later)</h1>
-            <h2 className="text-xl dark:text-white">
-              Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage
-              resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions
-              later!
-            </h2>
-            <Link to="/create-new-server">
-              <Button>{t('Create new server')}</Button>
-            </Link>
-
-            {isInDevelopmentMode() && (
-              <>
-                <p className="">In case of errors, or unexpected data persisting in your OPFS, this button resets OPFS.</p>
-                <Button
-                  onClick={resetOpfs}
-                  variant="danger"
-                >
-                  Delete all saved data
-                </Button>
-              </>
-            )}
-          </div>
-          <div className="flex flex-1 flex-col items-center justify-center" />
-        </section>
-        {availableServers.length > 0 && (
-          <section className="container mx-auto flex flex-col">
-            <div className="scrollbar-hidden flex gap-4 overflow-x-scroll py-4">
-              {availableServers.map((server: Server) => (
-                <ServerCard
-                  key={server.id}
-                  server={server}
-                />
-              ))}
-            </div>
+        <div className="container relative mx-auto flex min-h-[300px] flex-col gap-2 lg:flex-row">
+          <section className="flex flex-1 flex-col gap-2 p-2">
+            <h1 className="text-3xl font-semibold text-gray-800">Pillage First! (Ask Questions Later)</h1>
+            <span className="text-gray-800">
+              <b>Pillage First! (Ask Questions Later)</b> is a <b>single-player</b>, <b>real-time</b>,{' '}
+              <b>browser-based strategy game inspired</b> by <b>Travian</b>. Manage resources to construct buildings, train units, and wage
+              war against your enemies.
+              <br /> <br />
+              <b>Remember: pillage first, ask questions later!</b>
+            </span>
+            <WarningAlert>
+              Game is still in development, most features are missing. <br /> To see the current list of available features, see{' '}
+              <a
+                rel="noreferrer"
+                className="underline text-blue-600"
+                target="_blank"
+                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/master/docs/ROADMAP.md"
+              >
+                roadmap
+              </a>{' '}
+              or{' '}
+              <a
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+                target="_blank"
+                href="https://discord.gg/Ep7NKVXUZA"
+              >
+                join our Discord server
+              </a>
+              .
+            </WarningAlert>
           </section>
-        )}
+          <section className="flex flex-1 flex-col p-2 gap-4">
+            <h2 className="font-semibold text-2xl">Server list</h2>
+            <Link
+              className="underline text-blue-600 font-semibold"
+              to="/create-new-server"
+            >
+              {t('Create new server')}
+            </Link>
+            {availableServers.length > 0 && (
+              <section className="flex flex-col gap-2 w-full">
+                {availableServers.map((server: Server) => (
+                  <ServerCard
+                    key={server.id}
+                    server={server}
+                  />
+                ))}
+              </section>
+            )}
+          </section>
+        </div>
       </main>
     </>
   );

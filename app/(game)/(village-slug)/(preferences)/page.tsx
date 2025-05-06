@@ -3,17 +3,29 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 import { Switch } from 'app/components/ui/switch';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 
 const PreferencesPage = () => {
   const { t } = useTranslation();
   const { togglePreference, shouldShowBuildingNames, isAccessibilityModeEnabled, isReducedMotionModeEnabled } = usePreferences();
   const { isDeveloperModeActive, toggleDeveloperMode } = useDeveloperMode();
+  const { resourcesPath } = useGameNavigation();
 
   return (
-    <article className="flex flex-col gap-4">
-      <section className="flex flex-col gap-2">
-        <Text as="h1">{t('Preferences')}</Text>
-        <div className="flex gap-2 border-b border-gray-300 py-2">
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>{t('Preferences')}</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Text as="h1">{t('Preferences')}</Text>
+      <article className="flex flex-col gap-2">
+        <div className="flex gap-2 border-b border-gray-300 pb-2">
           <Text
             as="p"
             className="flex flex-4 gap-1 flex-col"
@@ -65,7 +77,7 @@ const PreferencesPage = () => {
           </div>
         </div>
 
-        <div className="flex gap-2 py-2">
+        <div className="flex gap-2 pt-2">
           <Text
             as="p"
             className="flex flex-4 gap-1 flex-col"
@@ -82,8 +94,8 @@ const PreferencesPage = () => {
             />
           </div>
         </div>
-      </section>
-    </article>
+      </article>
+    </>
   );
 };
 

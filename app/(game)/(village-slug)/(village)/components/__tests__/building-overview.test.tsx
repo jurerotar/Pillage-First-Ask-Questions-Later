@@ -14,7 +14,13 @@ describe('BuildingOverview', () => {
     queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMock]);
 
     test('Title section should always be rendered with title, description and image', async () => {
-      renderWithGameContext(<BuildingOverview buildingId="MAIN_BUILDING" />, { path: `${serverPathMock}/v-1/village/38` });
+      renderWithGameContext(
+        <BuildingOverview
+          showTitle
+          buildingId="MAIN_BUILDING"
+        />,
+        { path: `${serverPathMock}/v-1/village/38` },
+      );
 
       const titleSection = await screen.findByTestId('building-overview-title-section');
       expect(titleSection, 'Title section is missing').toBeInTheDocument();
@@ -38,11 +44,11 @@ describe('BuildingOverview', () => {
       expect(maxLevelText).not.toBeInTheDocument();
     });
 
-    test('Title section should render count and level when correct props are passed', async () => {
+    test('Title section should render count when correct props are passed', async () => {
       renderWithGameContext(
         <BuildingOverview
           titleCount={1}
-          showLevel
+          showTitle
           buildingId="MAIN_BUILDING"
         />,
         {
@@ -53,10 +59,6 @@ describe('BuildingOverview', () => {
       const count = await screen.findByTestId('building-overview-building-count');
       expect(count, 'Title count is missing').toBeInTheDocument();
       expect(count, 'Title count has incorrect text').toHaveTextContent('2.');
-
-      const level = await screen.findByTestId('building-overview-building-level');
-      expect(level, 'Level is missing').toBeInTheDocument();
-      expect(level, 'Level has incorrect text').toHaveTextContent('Level {{level}}');
     });
 
     test('Benefits section should always be rendered', async () => {

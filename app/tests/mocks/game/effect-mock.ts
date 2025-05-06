@@ -8,5 +8,5 @@ export const wheatProduction100EffectMock: VillageBuildingEffect = {
   source: 'building',
   villageId: villageMock.id,
   buildingFieldId: 1,
-  buildingId: 'CROPLAND',
+  buildingId: 'WHEAT_FIELD',
 };

@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as LabelPrimitive from '@radix-ui/react-label';
+import { Label as LabelPrimitive } from 'radix-ui';
 import { cn } from 'app/utils/tailwind';
 
 export const Label: React.FC<React.ComponentProps<typeof LabelPrimitive.Root>> = ({ className, ...props }) => {

@@ -8,6 +8,7 @@ export const serverFactory = ({ name, seed, configuration, playerConfiguration }
 
   return {
     id,
+    version: import.meta.env.VERSION,
     name,
     seed,
     slug,

@@ -13,7 +13,7 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 import { FaBookBookmark, FaDiscord, FaGithub } from 'react-icons/fa6';
 import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
-import { TbMap2 } from 'react-icons/tb';
+import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { Link, Outlet } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
@@ -34,6 +34,9 @@ import { formatNumber } from 'app/utils/common';
 import layoutStyles from './layout.module.scss';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -76,6 +79,9 @@ const DiscordLink = () => {
 const HeroNavigationItem = () => {
   const { hero } = useHero();
   const { heroPath } = useGameNavigation();
+  const { playerTroops } = usePlayerTroops();
+
+  const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
 
   const { level } = calculateHeroLevel(hero.stats.experience);
 
@@ -96,7 +102,8 @@ const HeroNavigationItem = () => {
         </span>
       )}
       <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
-        <FaHome className="text-gray-500 text-xs" />
+        {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
+        {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
     </Link>
   );
@@ -106,7 +113,7 @@ const DesktopTopRowItem: React.FCWithChildren = ({ children }) => {
   return (
     <button
       type="button"
-      className="px-3 py-0.5 bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
+      className="px-3 py-0.5 rounded-xs bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
     >
       {children}
     </button>
@@ -214,7 +221,7 @@ const VillageSelect = () => {
   return (
     <select
       className="border-2 border-gray-300 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
-      defaultValue={currentVillage.slug}
+      value={currentVillage.slug}
       onChange={(event) => switchToVillage(event.target.value)}
     >
       {playerVillages.map(({ id, slug, name }) => (
@@ -249,20 +256,23 @@ const TopNavigation = () => {
                   to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                 >
                   <DesktopTopRowItem>
-                    <span className="inline-flex gap-1 items-center">
-                      <span className="text-sm hidden xl:inline-flex">GitHub</span> <FaGithub className="text-xl" />
+                    <span className="inline-flex gap-2 items-center">
+                      <FaGithub className="text-xl text-[#24292e]" />{' '}
+                      <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">GitHub</span>
                     </span>
                   </DesktopTopRowItem>
                 </Link>
               </li>
               <li>
                 <Link
+                  className="bg-[#7289da]"
                   target="_blank"
                   to="https://discord.com/invite/Ep7NKVXUZA"
                 >
                   <DesktopTopRowItem>
-                    <span className="inline-flex gap-1 items-center">
-                      <span className="text-sm hidden xl:inline-flex">Discord</span> <FaDiscord className="text-xl" />
+                    <span className="inline-flex gap-2 items-center">
+                      <FaDiscord className="text-xl text-[#7289da]" />{' '}
+                      <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">Discord</span>
                     </span>
                   </DesktopTopRowItem>
                 </Link>
@@ -439,7 +449,6 @@ const MobileBottomNavigation = () => {
               <ReportsNavigationItem />
             </Link>
           </li>
-
           <li>
             <Link to={gameNavigation.preferencesPath}>
               <NavigationSideItem>
@@ -458,18 +467,6 @@ const MobileBottomNavigation = () => {
       </nav>
     </header>
   );
-};
-
-const TroopMovements = () => {
-  return null;
-};
-
-const ConstructionQueue = () => {
-  return null;
-};
-
-const TroopList = () => {
-  return null;
 };
 
 export const ErrorBoundary = () => {
@@ -511,7 +508,7 @@ const GameLayout = () => {
           <TroopMovements />
           <Outlet />
           <ConstructionQueue />
-          <TroopList />
+          {/*<TroopList />*/}
           <MobileBottomNavigation />
         </CountdownProvider>
       </CurrentResourceProvider>

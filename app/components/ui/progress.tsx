@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as ProgressPrimitive from '@radix-ui/react-progress';
+import { Progress as ProgressPrimitive } from 'radix-ui';
 import { cn } from 'app/utils/tailwind';
 
 export const Progress: React.FC<React.ComponentProps<typeof ProgressPrimitive.Root>> = ({ className, value, ...props }) => {

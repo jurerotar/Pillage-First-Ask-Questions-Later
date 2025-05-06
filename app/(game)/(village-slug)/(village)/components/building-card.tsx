@@ -60,6 +60,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
       <BuildingOverview
         buildingId={buildingId}
         titleCount={sameBuildingInstances.length}
+        showTitle
       />
       <BuildingActions buildingId={buildingId} />
       {/* Show building requirements if building can't be built */}

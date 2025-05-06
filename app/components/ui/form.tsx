@@ -1,15 +1,15 @@
 import type React from 'react';
 import { createContext, use, useId } from 'react';
-import type * as LabelPrimitive from '@radix-ui/react-label';
-import { Slot } from '@radix-ui/react-slot';
+import type { Label as LabelPrimitive } from 'radix-ui';
+import { Slot } from 'radix-ui';
 import {
   Controller,
-  FormProvider,
-  useFormContext,
-  useFormState,
   type ControllerProps,
   type FieldPath,
   type FieldValues,
+  FormProvider,
+  useFormContext,
+  useFormState,
 } from 'react-hook-form';
 import { cn } from 'app/utils/tailwind';
 import { Label } from 'app/components/ui/label';
@@ -92,11 +92,11 @@ export const FormLabel: React.FC<React.ComponentProps<typeof LabelPrimitive.Root
   );
 };
 
-export const FormControl: React.FC<React.ComponentProps<typeof Slot>> = ({ ...props }) => {
+export const FormControl: React.FC<React.ComponentProps<typeof Slot.Root>> = ({ ...props }) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return (
-    <Slot
+    <Slot.Root
       data-slot="form-control"
       id={formItemId}
       aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}

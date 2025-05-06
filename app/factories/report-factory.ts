@@ -1,7 +1,6 @@
 import type {
   AdventureReport,
   BattleReport,
-  OasisOccupationReport,
   Report,
   ScoutReport,
   TradeReport,
@@ -15,14 +14,12 @@ type ReportFactoryArgs =
   | ReportOmitter<AdventureReport>
   | ReportOmitter<TradeReport>
   | ReportOmitter<ScoutReport>
-  | ReportOmitter<OasisOccupationReport>
   | ReportOmitter<TroopMovementReport>;
 
 export function reportFactory(args: ReportOmitter<BattleReport>): BattleReport;
 export function reportFactory(args: ReportOmitter<AdventureReport>): AdventureReport;
 export function reportFactory(args: ReportOmitter<TradeReport>): TradeReport;
 export function reportFactory(args: ReportOmitter<ScoutReport>): ScoutReport;
-export function reportFactory(args: ReportOmitter<OasisOccupationReport>): OasisOccupationReport;
 export function reportFactory(args: ReportOmitter<TroopMovementReport>): TroopMovementReport;
 
 export function reportFactory(args: ReportFactoryArgs): Report {

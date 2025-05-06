@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as SeparatorPrimitive from '@radix-ui/react-separator';
+import { Separator as SeparatorPrimitive } from 'radix-ui';
 import { cn } from 'app/utils/tailwind';
 
 export const Separator: React.FC<React.ComponentProps<typeof SeparatorPrimitive.Root>> = ({

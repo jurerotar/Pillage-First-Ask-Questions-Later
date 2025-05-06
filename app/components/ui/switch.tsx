@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as SwitchPrimitive from '@radix-ui/react-switch';
+import { Switch as SwitchPrimitive } from 'radix-ui';
 import { cn } from 'app/utils/tailwind';
 
 export const Switch: React.FC<React.ComponentProps<typeof SwitchPrimitive.Root>> = ({ className, ...props }) => {

@@ -6,16 +6,18 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
-import { StyledTab } from 'app/components/styled-tab';
 import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'app/interfaces/models/game/building';
 import { partition } from 'app/utils/common';
 import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TabList, TabPanel, Tabs } from 'react-tabs';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
+import { Text } from 'app/components/text';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -29,28 +31,20 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
+  const staticBuildingConstructionReadinessArgs: Omit<Parameters<typeof assessBuildingConstructionReadiness>[0], 'buildingId'> = {
+    tribe,
+    currentVillageBuildingEvents,
+    playerVillages,
+    currentVillage,
+    isGreatBuildingsArtifactActive,
+  };
+
   const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
 
-  const [currentlyAvailableBuildings, unavailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
-    const { canBuild } = assessBuildingConstructionReadiness({
-      buildingId,
-      tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
-      isGreatBuildingsArtifactActive,
-    });
-    return canBuild;
-  });
-
-  const [currentlyUnavailableBuildings] = partition<Building>(unavailableBuildings, ({ id: buildingId }: Building) => {
+  const [currentlyAvailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
     const { assessedRequirements } = assessBuildingConstructionReadiness({
       buildingId,
-      tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
-      isGreatBuildingsArtifactActive,
+      ...staticBuildingConstructionReadinessArgs,
     });
 
     const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
@@ -65,77 +59,99 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
     );
   });
 
-  const hasNoAvailableBuildings = currentlyAvailableBuildings.length + currentlyUnavailableBuildings.length === 0;
+  // TODO: There's probably a better way of handling this instead of repeating assessBuildingConstructionReadiness 3 times
+  const sortedAvailableBuildings = currentlyAvailableBuildings.toSorted((prev, next) => {
+    const prevAssessment = assessBuildingConstructionReadiness({
+      buildingId: prev.id,
+      ...staticBuildingConstructionReadinessArgs,
+    });
+
+    const nextAssessment = assessBuildingConstructionReadiness({
+      buildingId: next.id,
+      ...staticBuildingConstructionReadinessArgs,
+    });
+
+    // Sort buildings where all requirements are fulfilled first
+    return Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild);
+  });
+
+  const hasNoAvailableBuildings = currentlyAvailableBuildings.length === 0;
 
   return (
-    <div className="flex flex-col gap-4 pt-2">
-      {!hasNoAvailableBuildings && (
-        <>
-          {currentlyAvailableBuildings.length > 0 && (
-            <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">{t('Available buildings')}</h2>
-              {currentlyAvailableBuildings.map((building: Building) => (
-                <BuildingCard
-                  key={building.id}
-                  buildingId={building.id}
-                />
-              ))}
-            </section>
-          )}
-          {currentlyUnavailableBuildings.length > 0 && (
-            <section className="flex flex-col gap-2 mb-2">
-              <h2 className="text-xl">{t('Buildable in the future')}</h2>
-              {currentlyUnavailableBuildings.map((building: Building) => (
-                <BuildingCard
-                  key={building.id}
-                  buildingId={building.id}
-                />
-              ))}
-            </section>
-          )}
-        </>
-      )}
+    <div className="flex flex-col gap-2 pt-2">
       {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
+      {!hasNoAvailableBuildings && (
+        <section className="flex flex-col gap-2 mb-2">
+          {sortedAvailableBuildings.map((building: Building) => (
+            <BuildingCard
+              key={building.id}
+              buildingId={building.id}
+            />
+          ))}
+        </section>
+      )}
     </div>
   );
 };
 
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
+  const { villagePath } = useGameNavigation();
 
   const [buildingTab, setBuildingTab] = useState<BuildingCategory>('infrastructure');
 
   return (
-    <Tabs>
-      <TabList className="flex">
-        <StyledTab
-          onSelect={() => setBuildingTab('infrastructure')}
-          selected={buildingTab === 'infrastructure'}
-        >
-          {t('Infrastructure')}
-        </StyledTab>
-        <StyledTab
-          onSelect={() => setBuildingTab('military')}
-          selected={buildingTab === 'military'}
-        >
-          {t('Military')}
-        </StyledTab>
-        <StyledTab
-          onSelect={() => setBuildingTab('resource-booster')}
-          selected={buildingTab === 'resource-booster'}
-        >
-          {t('Resources')}
-        </StyledTab>
-      </TabList>
-      <TabPanel>
-        <BuildingCategoryPanel buildingCategory="infrastructure" />
-      </TabPanel>
-      <TabPanel>
-        <BuildingCategoryPanel buildingCategory="military" />
-      </TabPanel>
-      <TabPanel>
-        <BuildingCategoryPanel buildingCategory="resource-booster" />
-      </TabPanel>
-    </Tabs>
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink to={villagePath}>{t('Village')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Text as="h1">{t('Construct new building')}</Text>
+      <Tabs>
+        <TabList>
+          <Tab
+            onSelect={() => setBuildingTab('infrastructure')}
+            selected={buildingTab === 'infrastructure'}
+          >
+            {t('Infrastructure')}
+          </Tab>
+          <Tab
+            onSelect={() => setBuildingTab('military')}
+            selected={buildingTab === 'military'}
+          >
+            {t('Military')}
+          </Tab>
+          <Tab
+            onSelect={() => setBuildingTab('resource-booster')}
+            selected={buildingTab === 'resource-booster'}
+          >
+            {t('Resources')}
+          </Tab>
+        </TabList>
+        <TabPanel>
+          <article className="flex flex-col gap-2">
+            <Text as="h2">{t('Infrastructure buildings')}</Text>
+            <BuildingCategoryPanel buildingCategory="infrastructure" />
+          </article>
+        </TabPanel>
+        <TabPanel>
+          <article className="flex flex-col gap-2">
+            <Text as="h2">{t('Military buildings')}</Text>
+            <BuildingCategoryPanel buildingCategory="military" />
+          </article>
+        </TabPanel>
+        <TabPanel>
+          <article className="flex flex-col gap-2">
+            <Text as="h2">{t('Resource buildings')}</Text>
+            <BuildingCategoryPanel buildingCategory="resource-booster" />
+          </article>
+        </TabPanel>
+      </Tabs>
+    </>
   );
 };

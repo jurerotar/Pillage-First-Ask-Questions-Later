@@ -32,13 +32,10 @@ export default [
             route('preferences', '(game)/(village-slug)/(preferences)/page.tsx'),
             route('statistics', '(game)/(village-slug)/(statistics)/page.tsx'),
             route('overview', '(game)/(village-slug)/(overview)/page.tsx'),
+            route('quests', '(game)/(village-slug)/(quests)/page.tsx'),
             ...prefix('reports', [
               index('(game)/(village-slug)/(reports)/page.tsx'),
               route(':reportId', '(game)/(village-slug)/(reports)/(...report-id)/page.tsx'),
-            ]),
-            ...prefix('quests', [
-              index('(game)/(village-slug)/(quests)/page.tsx'),
-              route(':questId', '(game)/(village-slug)/(quests)/(...quest-id)/page.tsx'),
             ]),
           ]),
         ]),

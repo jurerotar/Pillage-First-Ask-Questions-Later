@@ -1,23 +1,185 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Resolver } from 'app/interfaces/models/common';
 import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
-import { addTroops, setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
-import { effectsCacheKey, troopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { modifyTroops, setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
+import {
+  effectsCacheKey,
+  mapCacheKey,
+  playersCacheKey,
+  playerTroopsCacheKey,
+  playerVillagesCacheKey,
+  questsCacheKey,
+  serverCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { createEventFn } from 'app/(game)/(village-slug)/hooks/utils/events';
+import { createEventFn, updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { Server } from 'app/interfaces/models/game/server';
+import type { OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
+import type { Village } from 'app/interfaces/models/game/village';
+import type { Player } from 'app/interfaces/models/game/player';
+import { userVillageFactory } from 'app/factories/village-factory';
+import { newVillageEffectsFactory } from 'app/factories/effect-factory';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import { newVillageQuestsFactory } from 'app/factories/quest-factory';
 
-export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops: incomingTroops, movementType } = args;
+const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, targetId, troops, startsAt, duration } = args;
 
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], (troops) => {
-    return addTroops(troops!, incomingTroops);
+  // TODO: Add combat calc
+
+  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+  await createEventFn<'troopMovement'>(queryClient, {
+    villageId: targetId,
+    targetId: villageId,
+    troops,
+    movementType: 'return',
+    type: 'troopMovement',
+    startsAt: startsAt + duration,
+    duration: calculateTravelDuration({
+      villageId,
+      targetId,
+      troops,
+      effects,
+    }),
+  });
+};
+
+const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, targetId, troops, startsAt, duration } = args;
+
+  // TODO: Add combat calc
+
+  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+  await createEventFn<'troopMovement'>(queryClient, {
+    villageId: targetId,
+    targetId: villageId,
+    troops,
+    movementType: 'return',
+    type: 'troopMovement',
+    startsAt: startsAt + duration,
+    duration: calculateTravelDuration({
+      villageId,
+      targetId,
+      troops,
+      effects,
+    }),
+  });
+};
+
+const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { targetId } = args;
+
+  const server = queryClient.getQueryData<Server>([serverCacheKey])!;
+
+  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
+  const tileToOccupy = tiles.find(({ id }) => id === targetId)! as OccupiedOccupiableTile;
+
+  const playerVillages = queryClient.getQueryData<Village[]>([playerVillagesCacheKey])!;
+
+  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
+  const player = players.find(({ id }) => id === 'player')!;
+
+  const slug = `v-${playerVillages.length + 1}`;
+
+  const newVillage = userVillageFactory({ player, tile: tileToOccupy, slug });
+
+  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (villages) => {
+    return [...villages!, newVillage];
   });
 
-  // We don't create reports on troop return
-  if (movementType !== 'return') {
-    return;
+  queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
+    return [...effects!, ...newVillageEffectsFactory(newVillage)];
+  });
+
+  queryClient.setQueryData<Quest[]>([questsCacheKey], (quests) => {
+    return [...quests!, ...newVillageQuestsFactory(newVillage.id, server.playerConfiguration.tribe)];
+  });
+
+  queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {
+    const tileToOccupy = tiles!.find(({ id }) => id === targetId)! as OccupiedOccupiableTile;
+    tileToOccupy.ownedBy = 'player';
+    return tiles;
+  });
+};
+
+const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, targetId, troops, startsAt, duration } = args;
+
+  // TODO: Add combat calc
+
+  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+  await createEventFn<'troopMovement'>(queryClient, {
+    villageId: targetId,
+    targetId: villageId,
+    troops,
+    movementType: 'return',
+    type: 'troopMovement',
+    startsAt: startsAt + duration,
+    duration: calculateTravelDuration({
+      villageId,
+      targetId,
+      troops,
+      effects,
+    }),
+  });
+};
+
+const reinforcementMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, movementType, targetId, troops: incomingTroops } = args;
+
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+    const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, tileId: targetId }));
+    return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
+  });
+
+  const relocationReport = generateTroopMovementReport({
+    villageId,
+    targetId,
+    movementType,
+    troops: incomingTroops,
+  });
+
+  setReport(queryClient, relocationReport);
+};
+
+const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { troops: incomingTroops } = args;
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+    return modifyTroops(troops!, incomingTroops, 'add');
+  });
+};
+
+const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { villageId, movementType, targetId, troops: incomingTroops } = args;
+
+  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
+    const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, source: targetId, tileId: targetId }));
+    return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
+  });
+
+  const isHeroBeingRelocated = incomingTroops.some(({ unitId }) => unitId === 'HERO');
+
+  if (isHeroBeingRelocated) {
+    updateVillageResources(queryClient, villageId, [0, 0, 0, 0], 'add');
+    updateVillageResources(queryClient, targetId, [0, 0, 0, 0], 'add');
+
+    queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
+      return effects!.map((effect) => {
+        if (effect.source === 'hero') {
+          return {
+            ...effect,
+            villageId: targetId,
+          };
+        }
+
+        return effect;
+      });
+    });
   }
 
   const relocationReport = generateTroopMovementReport({
@@ -30,48 +192,37 @@ export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async
   setReport(queryClient, relocationReport);
 };
 
-export const offensiveTroopMovementResolver: Resolver<GameEvent<'offensiveTroopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops, startsAt, duration } = args;
+export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
+  const { movementType } = args;
 
-  // TODO: Add combat calc
-
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-
-  await createEventFn<'troopMovement'>(queryClient, {
-    villageId: targetId,
-    targetId: villageId,
-    troops,
-    movementType: 'return',
-    type: 'troopMovement',
-    startsAt: startsAt + duration,
-    duration: calculateTravelDuration({
-      villageId,
-      targetId,
-      troops,
-      effects,
-    }),
-  });
-};
-
-export const oasisOccupationTroopMovementResolver: Resolver<GameEvent<'offensiveTroopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops, startsAt, duration } = args;
-
-  // TODO: Add combat calc
-
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-
-  await createEventFn<'troopMovement'>(queryClient, {
-    villageId: targetId,
-    targetId: villageId,
-    troops,
-    movementType: 'return',
-    type: 'troopMovement',
-    startsAt: startsAt + duration,
-    duration: calculateTravelDuration({
-      villageId,
-      targetId,
-      troops,
-      effects,
-    }),
-  });
+  switch (movementType) {
+    case 'attack': {
+      await attackMovementResolver(queryClient, args);
+      break;
+    }
+    case 'find-new-village': {
+      await findNewVillageMovementResolver(queryClient, args);
+      break;
+    }
+    case 'oasis-occupation': {
+      await oasisOccupationMovementResolver(queryClient, args);
+      break;
+    }
+    case 'raid': {
+      await raidMovementResolver(queryClient, args);
+      break;
+    }
+    case 'reinforcements': {
+      await reinforcementMovementResolver(queryClient, args);
+      break;
+    }
+    case 'relocation': {
+      await relocationMovementResolver(queryClient, args);
+      break;
+    }
+    case 'return': {
+      await returnMovementResolver(queryClient, args);
+      break;
+    }
+  }
 };

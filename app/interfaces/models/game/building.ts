@@ -3,7 +3,7 @@ import type { Tribe } from 'app/interfaces/models/game/tribe';
 
 export type BuildingId =
   | 'CLAY_PIT'
-  | 'CROPLAND'
+  | 'WHEAT_FIELD'
   | 'WOODCUTTER'
   | 'IRON_MINE'
   | 'BAKERY'

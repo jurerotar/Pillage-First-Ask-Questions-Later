@@ -172,7 +172,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
         buildingFieldId={buildingFieldId}
       />
       {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
           {hasEvent && <Countdown endsAt={currentBuildingFieldBuildingEvent.startsAt + currentBuildingFieldBuildingEvent.duration} />}
           {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>

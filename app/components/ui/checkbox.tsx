@@ -1,5 +1,5 @@
 import type React from 'react';
-import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { Checkbox as CheckboxPrimitive } from 'radix-ui';
 import { LuCheck } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
 

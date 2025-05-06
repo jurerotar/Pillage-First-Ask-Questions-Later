@@ -43,6 +43,9 @@ export const useGameNavigation = () => {
   const isMapPageOpen = pathname.includes(mapPagePath);
   const isHeroPageOpen = pathname.includes(heroPath);
 
+  const isVillagePageExact = pathname.endsWith(villagePath);
+  const isResourcesPageExact = pathname.endsWith(resourcesPath);
+
   const switchToVillage = (slug: Village['slug']) => {
     navigate(`${baseGamePath}/${slug}/resources`);
   };
@@ -68,5 +71,7 @@ export const useGameNavigation = () => {
     isHeroPageOpen,
     productionOverviewPath,
     switchToVillage,
+    isVillagePageExact,
+    isResourcesPageExact,
   };
 };

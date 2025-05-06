@@ -69,7 +69,9 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingField
     <button
       className="hover:scale-125 rounded-full cursor-pointer transition-transform duration-300 relative"
       type="button"
-      onClick={onUpgradeButtonClick}
+      {...(isWiderThanMd && {
+        onClick: onUpgradeButtonClick,
+      })}
       {...(!isWiderThanMd && longPressEvent)}
       onMouseEnter={() => setShouldShowUpgradeButton(true)}
       onMouseLeave={() => setShouldShowUpgradeButton(false)}
