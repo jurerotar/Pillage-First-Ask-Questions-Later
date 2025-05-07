@@ -25,6 +25,11 @@ import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import type { MetaFunction } from 'react-router';
 import mapAssetsPreloadPaths from 'app/asset-preload-paths/map.json';
+import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
+import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 
 export const meta: MetaFunction = () => {
   const { files } = mapAssetsPreloadPaths;
@@ -50,6 +55,8 @@ const MapPage = () => {
   const { reputationsMap } = useReputations();
   const { villages } = useVillages();
   const { worldItems } = useWorldItems();
+  const { events } = useEvents();
+  const { playerVillages } = usePlayerVillages();
 
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
@@ -99,6 +106,25 @@ const MapPage = () => {
     );
   }, [worldItems]);
 
+  const tileIdToTroopMovementsMap = useMemo<Map<Village['id'], GameEvent<'troopMovement'>[]>>(() => {
+    const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>([]);
+
+    for (const event of events) {
+      if (!isTroopMovementEvent(event)) {
+        continue;
+      }
+
+      if (!troopMovementMap.has(event.targetId)) {
+        troopMovementMap.set(event.targetId, []);
+      }
+
+      const eventArray = troopMovementMap.get(event.targetId)!;
+      eventArray.push(event);
+    }
+
+    return troopMovementMap;
+  }, [events]);
+
   const fixedGridData = useMemo(() => {
     return {
       map,
@@ -107,11 +133,13 @@ const MapPage = () => {
       gridSize,
       mapFilters,
       magnification,
+      tileIdToTroopMovementsMap,
       onClick: (tile: TileType) => {
         openModal(tile);
       },
       villageCoordinatesToWorldItemsMap,
       villageCoordinatesToVillagesMap,
+      playerVillageIds: playerVillages.map(({ id }) => id),
     };
   }, [
     map,
@@ -123,6 +151,8 @@ const MapPage = () => {
     gridSize,
     magnification,
     openModal,
+    tileIdToTroopMovementsMap,
+    playerVillages,
   ]);
 
   useEventListener(
