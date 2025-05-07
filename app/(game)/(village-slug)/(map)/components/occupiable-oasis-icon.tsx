@@ -31,7 +31,6 @@ export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (props) =
       {...rest}
       wrapperClassName={className}
       type={iconType}
-      asCss
     />
   );
 };
