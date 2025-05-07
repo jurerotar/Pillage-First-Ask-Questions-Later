@@ -1,4 +1,4 @@
-import { Links, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import { Links, Meta, type MetaFunction, Outlet, Scripts } from 'react-router';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
@@ -102,7 +102,6 @@ const Root = () => {
             <Outlet />
           </StateProvider>
         </ViewportProvider>
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>

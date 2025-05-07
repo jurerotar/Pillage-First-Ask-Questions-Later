@@ -9,7 +9,6 @@ export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({ className }) => 
       type="wheat"
       wrapperClassName={className}
       borderVariant="yellow"
-      asCss
     />
   );
 };

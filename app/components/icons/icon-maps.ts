@@ -623,30 +623,3 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   // Common
   cancel: IconCancel,
 };
-
-// Not all icons are present in here, only the needed ones. This object needs to be as narrow as possible, because classes in here
-// are present in final css bundle!
-// TODO: Deprecate this solution once custom icons have been added
-export const typeToIconCssClass: Partial<Record<IconType, string>> = {
-  missingIcon: 'icon-[gr-document-missing]',
-
-  // Resources
-  wood: 'icon icon-[gi-wood-pile] text-[#A1662F]',
-  clay: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  iron: 'icon icon-[gi-metal-bar] text-gray-500',
-  wheat: 'icon icon-[lu-wheat] text-yellow-500',
-  woodWheat: 'icon icon-[gi-wood-pile] text-[#A1662F]',
-  clayWheat: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  ironWheat: 'icon icon-[gi-metal-bar] text-gray-500',
-  woodWood: 'icon icon-[gi-wood-pile] text-[#A1662F]',
-  clayClay: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  ironIron: 'icon icon-[gi-metal-bar] text-gray-500',
-  wheatWheat: 'icon icon-[lu-wheat] text-yellow-500',
-
-  // Map treasures
-  treasureTileItem: 'icon icon-[lu-sword]',
-  treasureTileResources: 'icon icon-[gi-wood-pile]',
-  treasureTileArtifact: 'icon icon-[si-artifacthub]',
-  treasureTileCurrency: 'icon icon-[lia-coins-solid]',
-  treasureTileMiscellaneous: 'icon icon-[sl-chemistry]',
-};

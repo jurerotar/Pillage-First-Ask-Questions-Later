@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
-import { type IconType, typeToIconCssClass, typeToIconMap } from 'app/components/icons/icon-maps';
+import { type IconType, typeToIconMap } from 'app/components/icons/icon-maps';
 
 // Variants
 const IconNegativeChangeVariant = lazy(async () => ({
@@ -26,12 +26,11 @@ export type IconProps = IconBaseProps &
     variant?: 'positive-change' | 'negative-change';
     borderVariant?: BorderIndicatorProps['variant'];
     wrapperClassName?: string;
-    asCss?: boolean;
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, variant, borderVariant, className, wrapperClassName, asCss = false, ...rest } = props;
+  const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
 
   // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
@@ -51,23 +50,20 @@ export const Icon: React.FC<IconProps> = (props) => {
         </BorderIndicator>
       )}
     >
-      {asCss && <span className={typeToIconCssClass[type] ?? typeToIconCssClass.missingIcon} />}
-      {!asCss && (
-        <Suspense fallback={<IconPlaceholder className={className} />}>
-          <span
-            className={clsx(hasVariantIcon && 'relative', className)}
-            {...rest}
-          >
-            <ComputedIcon />
-            {hasVariantIcon && (
-              <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
-                {variant === 'positive-change' && <IconPositiveChangeVariant />}
-                {variant === 'negative-change' && <IconNegativeChangeVariant />}
-              </span>
-            )}
-          </span>
-        </Suspense>
-      )}
+      <Suspense fallback={<IconPlaceholder className={className} />}>
+        <span
+          className={clsx(hasVariantIcon && 'relative', className)}
+          {...rest}
+        >
+          <ComputedIcon />
+          {hasVariantIcon && (
+            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
+              {variant === 'positive-change' && <IconPositiveChangeVariant />}
+              {variant === 'negative-change' && <IconNegativeChangeVariant />}
+            </span>
+          )}
+        </span>
+      </Suspense>
     </ConditionalWrapper>
   );
 };
