@@ -13,10 +13,37 @@ from = "/*"
 to = "/index.html"
 status = 200
 
+# Cache JS and CSS for 1 month
 [[headers]]
-for = "/assets/*, /*.{svg,png,jpg,jpeg,woff,woff2,ttf,eot,otf}"
+for = "/*.js"
 [headers.values]
-Cache-Control = "max-age=31536000, public"
+Cache-Control = "public, max-age=2592000, immutable"
+
+[[headers]]
+for = "/*.css"
+[headers.values]
+Cache-Control = "public, max-age=2592000, immutable"
+
+# Cache images for 1 day
+[[headers]]
+for = "/*.avif"
+[headers.values]
+Cache-Control = "public, max-age=86400"
+
+[[headers]]
+for = "/*.png"
+[headers.values]
+Cache-Control = "public, max-age=86400"
+
+[[headers]]
+for = "/*.jpg"
+[headers.values]
+Cache-Control = "public, max-age=86400"
+
+[[headers]]
+for = "/*.jpeg"
+[headers.values]
+Cache-Control = "public, max-age=86400"
 
 [build]
 command = "npm run build"
