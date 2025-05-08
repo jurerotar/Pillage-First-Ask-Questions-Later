@@ -124,6 +124,22 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@layer utilities {
+  @keyframes scale-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  .animate-scale-pulse {
+    animation: scale-pulse 1.2s ease-in-out infinite;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

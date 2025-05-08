@@ -1,4 +1,4 @@
-import { BorderIndicator, type BorderIndicatorProps } from 'app/(game)/(village-slug)/components/border-indicator';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
 import type React from 'react';
@@ -17,14 +17,14 @@ const IconPositiveChangeVariant = lazy(async () => ({
 type IconPlaceholderProps = React.HTMLAttributes<HTMLSpanElement>;
 
 const IconPlaceholder: React.FC<IconPlaceholderProps> = ({ className }) => {
-  return <span className={className} />;
+  return <span className={clsx(className, 'min-h-4 min-w-4')} />;
 };
 
-export type IconProps = IconBaseProps &
+type IconProps = IconBaseProps &
   React.HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
     variant?: 'positive-change' | 'negative-change';
-    borderVariant?: BorderIndicatorProps['variant'];
+    borderVariant?: React.ComponentProps<typeof BorderIndicator>['variant'];
     wrapperClassName?: string;
   };
 

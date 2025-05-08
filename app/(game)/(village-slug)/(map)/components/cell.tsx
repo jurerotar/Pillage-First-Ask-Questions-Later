@@ -22,13 +22,13 @@ import type { Village } from 'app/interfaces/models/game/village';
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import cellStyles from './cell.module.scss';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { IconType } from 'app/components/icons/icon-maps';
 import { Icon } from 'app/components/icon';
+import type { TroopMovementType } from 'app/components/icons/icon-maps';
 
 type CellBaseProps = {
   map: TileType[];
   gridSize: number;
-  tileIdToTroopMovementsMap: Map<TileType['id'], GameEvent<'troopMovement'>>;
+  tileIdToTroopMovementsMap: Map<TileType['id'], GameEvent<'troopMovement'>[]>;
   mapFilters: MapFilters;
   magnification: number;
   onClick: (data: TileType) => void;
@@ -36,40 +36,59 @@ type CellBaseProps = {
   villageCoordinatesToVillagesMap: Map<Village['id'], Village>;
   playersMap: Map<string, Player>;
   reputationsMap: Map<PlayerFaction, Reputation>;
-  playerVillageIds: Village['id'][];
+  currentVillage: Village;
 };
 
 const offensiveMovements: GameEvent<'troopMovement'>['movementType'][] = ['attack', 'raid'];
+const deploymentMovements: GameEvent<'troopMovement'>['movementType'][] = ['return', 'reinforcements', 'relocation'];
 
 type TroopMovementsProps = CellBaseProps & {
   tile: TileType;
   troopMovements: GameEvent<'troopMovement'>[];
 };
 
-const TroopMovements: React.FC<TroopMovementsProps> = ({ tile, troopMovements, magnification, playerVillageIds }) => {
+const TroopMovements: React.FC<TroopMovementsProps> = ({ tile, troopMovements, magnification, currentVillage }) => {
   const classes = clsx(cellStyles['troop-movements'], cellStyles[`troop-movements-magnification-${magnification}`]);
 
-  // Used for displaying incoming offensive troop movements
-  const isPlayerTile = playerVillageIds.includes(tile.id);
+  const isCurrentVillageTile = currentVillage.id === tile.id;
 
-  let shouldDisplayIncomingOffensiveTroopMovement = false;
+  let troopMovementIcon: TroopMovementType | null = null;
 
-  if (isPlayerTile) {
-    const isReceivingAnAttack = troopMovements.some(({ targetId, movementType }) => {
-      return targetId === tile.id && offensiveMovements.includes(movementType);
-    });
+  for (const troopMovement of troopMovements) {
+    if (offensiveMovements.includes(troopMovement.movementType)) {
+      if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
+        troopMovementIcon = 'offensiveMovementIncoming';
+        break;
+      }
 
-    if (isReceivingAnAttack) {
-      shouldDisplayIncomingOffensiveTroopMovement = true;
+      troopMovementIcon = 'offensiveMovementOutgoing';
+      break;
+    }
+
+    if (deploymentMovements.includes(troopMovement.movementType)) {
+      if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
+        troopMovementIcon = 'deploymentIncoming';
+        break;
+      }
+
+      troopMovementIcon = 'deploymentOutgoing';
+      break;
+    }
+
+    if (troopMovement.movementType === 'find-new-village') {
+      troopMovementIcon = 'findNewVillage';
     }
   }
 
+  if (!troopMovementIcon) {
+    return null;
+  }
+
   return (
-    <>
-      {shouldDisplayIncomingOffensiveTroopMovement && (
-        <Icon className={clsx(classes)} type="offensiveMovementIncoming" />
-      )}
-    </>
+    <Icon
+      className={clsx(classes, 'animate-scale-pulse')}
+      type={troopMovementIcon}
+    />
   );
 };
 
@@ -141,7 +160,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { map, gridSize, playersMap, reputationsMap, mapFilters, onClick, tileIdToTroopMovementsMap, magnification } = data;
+  const { map, gridSize, playersMap, reputationsMap, mapFilters, onClick, tileIdToTroopMovementsMap } = data;
   const { shouldShowFactionReputation } = mapFilters;
 
   const tile: TileType = map[gridSize * rowIndex + columnIndex];

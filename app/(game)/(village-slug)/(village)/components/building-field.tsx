@@ -10,6 +10,7 @@ import type {
 } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
+import { use } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -17,6 +18,7 @@ import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { ViewportContext } from 'app/providers/viewport-context';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -142,6 +144,8 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { currentVillage } = useCurrentVillage();
   const { shouldShowBuildingNames } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { isWiderThanLg } = use(ViewportContext);
+
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
   const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
@@ -164,8 +168,10 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
         'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      {...(isWiderThanLg && {
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+      })}
     >
       <BuildingUpgradeIndicator
         isHovered={isHovered}

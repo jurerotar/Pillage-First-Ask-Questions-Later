@@ -1,8 +1,8 @@
-import { Icon, type IconProps } from 'app/components/icon';
+import { Icon } from 'app/components/icon';
 import type React from 'react';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
-type TreasureIconProps = Omit<IconProps, 'type'> & {
+type TreasureIconProps = Omit<React.ComponentProps<typeof Icon>, 'type'> & {
   item: WorldItem;
 };
 

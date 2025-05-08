@@ -482,7 +482,7 @@ const GameLayout = () => {
     body.classList.add(layoutStyles['background-image']);
 
     return () => {
-      body.classList.remove(layoutStyles['background-image']);
+      body.classList.remove(clsx(layoutStyles['background-image']));
     };
   }, []);
 

@@ -9,6 +9,8 @@ import type { IconType } from 'app/components/icons/icon-maps';
 import type { PickLiteral } from 'app/utils/typescript';
 import { Icon } from 'app/components/icon';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { Separator } from 'app/components/ui/separator';
+import clsx from 'clsx';
 
 type TroopMovementProps = {
   type: PickLiteral<
@@ -26,12 +28,16 @@ const TroopMovement: React.FC<TroopMovementProps> = ({ type, events }) => {
   const earliestEvent = events[0];
 
   return (
-    <div className="inline-flex gap-2 bg-white border-2 border-l-0 rounded-r-xs border-white/80 py-0.5 px-2 lg:py-2 lg:px-4 shadow-xs font-semibold text-xs lg:text-base">
-      <span className="inline-flex gap-1 border-r pr-2 border-gray-200">
-        <Icon type={type} />
+    <div className="inline-flex gap-1 bg-white border-2 border-l-0 items-center rounded-r-xs border-white/80 py-0.5 px-2 lg:py-2 shadow-sm font-semibold text-xs lg:text-base">
+      <span className="inline-flex gap-2 min-w-16">
+        <Icon
+          type={type}
+          className={clsx(type === 'offensiveMovementIncoming' && 'animate-scale-pulse')}
+        />
         <Countdown endsAt={earliestEvent.startsAt + earliestEvent.duration} />
       </span>
-      {events.length > 9 ? '9+' : events.length}
+      <Separator orientation="vertical" />
+      <span className="inline-flex min-w-4 lg:min-w-6 justify-end">{events.length > 9 ? '9+' : events.length}</span>
     </div>
   );
 };
@@ -98,6 +104,9 @@ export const TroopMovements = () => {
   }
 
   const troopMovementEvents = events.filter(isTroopMovementEvent);
+  const currentVillageTroopMovementEvents = troopMovementEvents.filter(({ villageId, targetId }) => {
+    return villageId === currentVillage.id || targetId === currentVillage.id;
+  });
 
   const {
     findNewVillageMovementEvents,
@@ -106,7 +115,7 @@ export const TroopMovements = () => {
     outgoingDeploymentMovementEvents,
     incomingDeploymentMovementEvents,
     adventureMovementEvents,
-  } = partitionTroopMovementEvents(troopMovementEvents, currentVillage.id);
+  } = partitionTroopMovementEvents(currentVillageTroopMovementEvents, currentVillage.id);
 
   return (
     <div className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-29 lg:top-40 z-20">

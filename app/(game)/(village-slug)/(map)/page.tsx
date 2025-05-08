@@ -14,6 +14,7 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import { use, useMemo, useRef } from 'react';
+import type { MetaFunction } from 'react-router';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener } from 'usehooks-ts';
@@ -23,13 +24,11 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
-import type { MetaFunction } from 'react-router';
 import mapAssetsPreloadPaths from 'app/asset-preload-paths/map.json';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 
 export const meta: MetaFunction = () => {
   const { files } = mapAssetsPreloadPaths;
@@ -56,7 +55,7 @@ const MapPage = () => {
   const { villages } = useVillages();
   const { worldItems } = useWorldItems();
   const { events } = useEvents();
-  const { playerVillages } = usePlayerVillages();
+  const { currentVillage } = useCurrentVillage();
 
   const startingX = Number.parseInt(searchParams.get('x') ?? '0');
   const startingY = Number.parseInt(searchParams.get('y') ?? '0');
@@ -114,6 +113,11 @@ const MapPage = () => {
         continue;
       }
 
+      // Show only events targeting or originating from current village
+      if (!(event.villageId === currentVillage.id || event.targetId === currentVillage.id)) {
+        continue;
+      }
+
       if (!troopMovementMap.has(event.targetId)) {
         troopMovementMap.set(event.targetId, []);
       }
@@ -123,7 +127,7 @@ const MapPage = () => {
     }
 
     return troopMovementMap;
-  }, [events]);
+  }, [events, currentVillage]);
 
   const fixedGridData = useMemo(() => {
     return {
@@ -139,7 +143,7 @@ const MapPage = () => {
       },
       villageCoordinatesToWorldItemsMap,
       villageCoordinatesToVillagesMap,
-      playerVillageIds: playerVillages.map(({ id }) => id),
+      currentVillage,
     };
   }, [
     map,
@@ -152,7 +156,7 @@ const MapPage = () => {
     magnification,
     openModal,
     tileIdToTroopMovementsMap,
-    playerVillages,
+    currentVillage,
   ]);
 
   useEventListener(

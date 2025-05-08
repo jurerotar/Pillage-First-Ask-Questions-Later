@@ -433,7 +433,7 @@ type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
 
 type UnitAttributeType = 'carryCapacity' | 'unitSpeed';
 
-type TroopMovementType =
+export type TroopMovementType =
   | 'deploymentOutgoing'
   | 'deploymentIncoming'
   | 'offensiveMovementOutgoing'
