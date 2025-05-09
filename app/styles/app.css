@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @variant dark (&:where(html[data-color-scheme="dark"] *));
 @variant day (&:where(html[data-time-of-day="day"] *));
 @variant night (&:where(html[data-time-of-day="night"] *));

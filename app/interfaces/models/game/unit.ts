@@ -8,7 +8,7 @@ export type RomanUnitId = 'LEGIONNAIRE' | 'PRAETORIAN' | 'IMPERIAN' | 'EQUITES_I
 
 export type GaulUnitId = 'PHALANX' | 'SWORDSMAN' | 'THEUTATES_THUNDER' | 'DRUIDRIDER' | 'HAEDUAN' | ComputedUnits<'gaul'>;
 
-export type TeutonUnitId = 'MACEMAN' | 'SPEARMAN' | 'AXEMAN' | 'PALADIN' | 'TEUTONIC_KNIGHT' | ComputedUnits<'teutonic'>;
+export type TeutonUnitId = 'CLUBSWINGER' | 'SPEARMAN' | 'AXEMAN' | 'PALADIN' | 'TEUTONIC_KNIGHT' | ComputedUnits<'teutonic'>;
 
 export type HunUnitId = 'MERCENARY' | 'BOWMAN' | 'STEPPE_RIDER' | 'MARKSMAN' | 'MARAUDER' | ComputedUnits<'hun'>;
 

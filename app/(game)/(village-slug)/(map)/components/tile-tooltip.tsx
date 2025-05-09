@@ -10,7 +10,6 @@ import {
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
-import { factionTranslationMap, reputationLevelTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
@@ -38,6 +37,7 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
 
 const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile);
 
   const { name, tribe } = player;
@@ -51,15 +51,15 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
       {faction !== 'player' && (
         <>
           <span>
-            {t('Faction')} - {factionTranslationMap.get(faction)!}
+            {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
-            {t('Reputation')} - {reputationLevelTranslationMap.get(reputationLevel)!}
+            {t('Reputation')} - {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
       <span>
-        {t('Tribe')} - {tribeTranslationMap.get(tribe)!}
+        {t('Tribe')} - {assetsT(`TRIBES.${tribe.toUpperCase()}`)}
       </span>
       <span>
         {t('Population')} - {population}

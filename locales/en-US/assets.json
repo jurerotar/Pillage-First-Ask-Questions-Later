@@ -60,7 +60,7 @@
       "DESCRIPTION": "The Roman Settler is tasked with founding new villages, allowing the empire to expand its territory and influence.",
       "USAGE": "Settlers are units tasked with founding new villages. They carry the resources necessary to establish a new settlement, allowing for territorial expansion."
     },
-    "MACEMAN": {
+    "CLUBSWINGER": {
       "NAME": "Clubswinger",
       "NAME_other": "Clubswingers",
       "DESCRIPTION": "The Maceman is the standard infantry unit of the Teutons, known for their aggressive nature and effectiveness in early raids.",
@@ -769,5 +769,39 @@
       "DESCRIPTION": "Upgrade all {{buildingName}}s to level {{level}}.",
       "GROUP": "All {{buildingName}}s"
     }
+  },
+  "TRIBES": {
+    "ROMANS": "Romans",
+    "TEUTONS": "Teutons",
+    "GAULS": "Gauls",
+    "HUNS": "Huns",
+    "EGYPTIANS": "Egyptians",
+    "SPARTANS": "Spartans",
+    "NATARS": "Natars",
+    "NATURE": "Nature"
+  },
+  "REPUTATIONS": {
+    "ECSTATIC": "Ecstatic",
+    "RESPECTED": "Respected",
+    "FRIENDLY": "Friendly",
+    "NEUTRAL": "Neutral",
+    "UNFRIENDLY": "Unfriendly",
+    "HOSTILE": "Hostile"
+  },
+  "FACTIONS": {
+    "NPC1": "NPC faction 1",
+    "NPC2": "NPC faction 2",
+    "NPC3": "NPC faction 3",
+    "NPC4": "NPC faction 4",
+    "NPC5": "NPC faction 5",
+    "NPC6": "NPC faction 6",
+    "NPC7": "NPC faction 7",
+    "NPC8": "NPC faction 8"
+  },
+  "RESOURCES": {
+    "WOOD": "Wood",
+    "CLAY": "Clay",
+    "IRON": "Iron",
+    "WHEAT": "Wheat"
   }
 }

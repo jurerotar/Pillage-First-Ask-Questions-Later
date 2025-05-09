@@ -3,8 +3,9 @@ import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
-import './styles/app.css';
+import './faro';
 import './i18n';
+import './styles/app.css';
 
 const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
 const appIconPostfix = clsx(!isDeployingToMaster && '-dev');

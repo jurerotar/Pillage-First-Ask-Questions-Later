@@ -109,10 +109,6 @@ export const averageExecutionTime = (count = 100) => {
   };
 };
 
-export const isInDevelopmentMode = () => {
-  return import.meta.env.DEV;
-};
-
 export const isMasterDeploy = () => {
   return import.meta.env.BRANCH_ENV === 'master';
 };

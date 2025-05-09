@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { FaTrash } from 'react-icons/fa6';
-import { WarningAlert } from 'app/components/ui/alert';
+import { Alert } from 'app/components/ui/alert';
 
 type ServerCardProps = {
   server: Server;
@@ -63,9 +63,9 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
         </div>
       </div>
       {serverVersion !== appVersion && (
-        <WarningAlert>
+        <Alert variant="warning">
           Your server version is outdated. It may not work with current version of the app. In case of error, delete and recreate server.
-        </WarningAlert>
+        </Alert>
       )}
       <Link
         className="text-green-600 underline font-semibold"

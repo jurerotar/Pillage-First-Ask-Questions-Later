@@ -162,14 +162,14 @@ export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) =
   };
 };
 
-export const useBuildingDowngradeStatus = (buildingId: Building['id']) => {
+export const useBuildingDowngradeStatus = (buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
   const getBuildingDowngradeErrorBag = (): string[] => {
     const errorBag: string[] = [];
 
-    if (currentVillageBuildingEvents.some(({ buildingId: eventBuildingId }) => eventBuildingId === buildingId)) {
+    if (currentVillageBuildingEvents.some(({ buildingFieldId: eventBuildingFieldId }) => eventBuildingFieldId === buildingFieldId)) {
       errorBag.push(t("Building can't be downgraded or demolished while it's being upgraded"));
     }
 

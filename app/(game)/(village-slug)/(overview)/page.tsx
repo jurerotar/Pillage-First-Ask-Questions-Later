@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { WarningAlert } from 'app/components/ui/alert';
+import { Alert } from 'app/components/ui/alert';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
@@ -20,7 +20,7 @@ const OverviewPage = () => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Village overview')}</Text>
-      <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      <Alert variant="warning">{t('This page is still under development')}</Alert>
     </>
   );
 };

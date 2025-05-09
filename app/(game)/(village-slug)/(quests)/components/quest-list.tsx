@@ -12,6 +12,7 @@ import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useTranslation } from 'react-i18next';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { getQuestTexts, groupQuestsById } from 'app/(game)/(village-slug)/(quests)/utils/quests';
+import { Text } from 'app/components/text';
 
 type QuestRewardProps = {
   reward: QuestRewardType;
@@ -96,9 +97,9 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
                 >
                   <summary className="cursor-pointer text-sm font-semibold">{title}</summary>
 
-                  <div className="mt-3">
-                    <p className="text-sm text-gray-700 mb-2">{description}</p>
-                    <p className="text-sm font-semibold mb-1">{t('Reward')}</p>
+                  <div className="flex flex-col gap-2 mt-3">
+                    <Text as="p">{description}</Text>
+                    <Text as="p">{t('Reward')}</Text>
 
                     <div className="flex flex-col gap-2">
                       {quest.rewards.map((reward) => (

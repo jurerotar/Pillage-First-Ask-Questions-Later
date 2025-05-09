@@ -25,7 +25,6 @@ import { FaHome } from 'react-icons/fa';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { HiStar } from 'react-icons/hi';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon';
@@ -37,6 +36,7 @@ import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -213,27 +213,29 @@ const ResourceCounters = () => {
 };
 
 const VillageSelect = () => {
-  const { villageSlug } = useRouteSegments();
   const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
 
   return (
-    <select
-      className="border-2 border-gray-300 rounded-sm truncate overflow-hidden text-center whitespace-nowrap w-full max-w-xs py-2"
+    <Select
+      onValueChange={(value) => switchToVillage(value)}
       value={currentVillage.slug}
-      onChange={(event) => switchToVillage(event.target.value)}
     >
-      {playerVillages.map(({ id, slug, name }) => (
-        <option
-          disabled={slug === villageSlug}
-          key={id}
-          value={slug}
-        >
-          {name} ({id})
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {playerVillages.map(({ slug, name, id }) => (
+          <SelectItem
+            key={id}
+            value={slug}
+          >
+            {name} ({id})
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

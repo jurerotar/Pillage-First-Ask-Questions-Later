@@ -254,6 +254,15 @@ const IconUnitGaulGaulSettler = lazy(async () => ({
 }));
 
 // Teuton troops
+const IconUnitTeutonsClubswinger = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-clubswinger')).IconClubswinger,
+}));
+const IconUnitTeutonsSpearman = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-spearman')).IconSpearman,
+}));
+const IconUnitTeutonsAxeman = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-axeman')).IconAxeman,
+}));
 const IconUnitTeutonsTeutonicScout = lazy(async () => ({
   default: (await import('app/components/icons/troops/teutons/icon-teutonic-scout')).IconTeutonicScout,
 }));
@@ -380,9 +389,9 @@ const IconUnitNatureElephant = lazy(async () => ({
   default: (await import('app/components/icons/troops/nature/icon-elephant')).IconElephant,
 }));
 
-export type MissingIconType = 'missingIcon';
+type MissingIconType = 'missingIcon';
 
-export type ReportIconType =
+type ReportIconType =
   | 'attackerNoLoss'
   | 'attackerSomeLoss'
   | 'attackerFullLoss'
@@ -404,7 +413,7 @@ type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
 
 type CommonIconType = 'cancel';
 
-export type TreasureTileIconType =
+type TreasureTileIconType =
   | 'treasureTileItem'
   | 'treasureTileResources'
   | 'treasureTileArtifact'
@@ -564,6 +573,9 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   gaulSettler: IconUnitGaulGaulSettler,
 
   // Teuton troops
+  clubswinger: IconUnitTeutonsClubswinger,
+  spearman: IconUnitTeutonsSpearman,
+  axeman: IconUnitTeutonsAxeman,
   teutonicScout: IconUnitTeutonsTeutonicScout,
   paladin: IconUnitTeutonsPaladin,
   teutonicKnight: IconUnitTeutonsTeutonicKnight,

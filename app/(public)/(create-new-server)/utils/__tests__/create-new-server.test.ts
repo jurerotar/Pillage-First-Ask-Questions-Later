@@ -1,5 +1,4 @@
 import { isOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
-import { initializeServer } from 'app/(public)/(create-new-server)/page';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
@@ -27,11 +26,12 @@ import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { decodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 
 const queryClient = new QueryClient();
 
 beforeAll(async () => {
-  await initializeServer({ server: serverMock });
+  await initializeServer(serverMock);
   const rootHandle = await getRootHandle();
   const { clientState } = await getParsedFileContents<PersistedClient>(rootHandle, serverMock.slug);
   hydrate(queryClient, clientState);
