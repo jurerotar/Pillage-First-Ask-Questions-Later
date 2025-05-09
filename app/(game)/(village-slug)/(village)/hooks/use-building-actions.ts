@@ -63,6 +63,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration: 0,
       resourceCost: hasCurrentVillageBuildingEvents ? [0, 0, 0, 0] : resourceCost,
       level: 1,
+      changeType: 'upgrade',
     });
 
     // In case we're already building something, just create a scheduled construction event
@@ -74,6 +75,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingId,
         resourceCost,
         level: 1,
+        changeType: 'upgrade',
       });
 
       return;
@@ -87,6 +89,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingId,
       // Cost can be 0, since it's already accounted for in the construction event
       resourceCost: [0, 0, 0, 0],
+      changeType: 'upgrade',
     });
   };
 
@@ -102,6 +105,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingId,
         resourceCost,
         level: virtualLevel + 1,
+        changeType: 'upgrade',
       });
 
       return;
@@ -114,6 +118,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       level: virtualLevel + 1,
       buildingId,
       resourceCost,
+      changeType: 'upgrade',
     });
   };
 
@@ -125,6 +130,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       level: virtualLevel - 1,
       buildingId,
       resourceCost: [0, 0, 0, 0],
+      changeType: 'downgrade',
     });
   };
 
@@ -134,6 +140,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration: 0,
       buildingFieldId: buildingFieldId!,
       buildingId,
+      changeType: 'downgrade',
     });
   };
 

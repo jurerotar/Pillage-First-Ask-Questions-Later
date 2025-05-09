@@ -1,15 +1,6 @@
 import type { Point } from 'app/interfaces/models/common';
 import type { PRNGFunction } from 'ts-seedrandom';
 
-export const randomIntFromInterval = (min: number, max: number): number => {
-  // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min);
-};
-
-export const randomArrayElement = <T>(array: T[]): T => {
-  return array[Math.floor(Math.random() * array.length)];
-};
-
 export const seededRandomIntFromInterval = (prng: PRNGFunction, min: number, max: number): number => {
   return Math.floor(prng() * (max - min + 1) + min);
 };
