@@ -49,6 +49,7 @@ const viteConfig = defineViteConfig({
         injectManifest: {
           swSrc: 'app/sw.ts',
           swDest: 'sw.js',
+          globIgnores: ['**/*.html'],
         },
       }),
     // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually

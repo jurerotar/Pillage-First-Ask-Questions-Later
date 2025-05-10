@@ -5,7 +5,7 @@ status = 200
 
 [[redirects]]
 from = "/create-new-server"
-to = "/create-new-server.html"
+to = "/create-new-server/index.html"
 status = 200
 
 [[redirects]]
