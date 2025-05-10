@@ -4,7 +4,7 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
-import type { MetaFunction } from 'react-router';
+import type { LinksFunction, MetaFunction } from 'react-router';
 import { Link, useLocation } from 'react-router';
 import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
 import { useEffect } from 'react';
@@ -12,7 +12,6 @@ import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { t } from 'i18next';
 
 export const meta: MetaFunction = ({ location, params }) => {
-  const { files } = villageAssetsPreloadPaths;
   const { serverSlug, villageSlug } = params;
   const { pathname } = location;
 
@@ -20,13 +19,18 @@ export const meta: MetaFunction = ({ location, params }) => {
     {
       title: `${pathname.endsWith('resources') ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
     },
-    ...files.map((href) => ({
-      rel: 'preload',
-      href,
-      as: 'image',
-      type: 'image/avif',
-    })),
   ];
+};
+
+export const links: LinksFunction = () => {
+  const { files } = villageAssetsPreloadPaths;
+
+  return files.map((href) => ({
+    rel: 'preload',
+    href,
+    as: 'image',
+    type: 'image/avif',
+  }));
 };
 
 const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as BuildingFieldType['id'][];

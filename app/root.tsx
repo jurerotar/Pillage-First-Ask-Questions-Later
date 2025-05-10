@@ -1,4 +1,4 @@
-import { Links, Meta, type MetaFunction, Outlet, Scripts } from 'react-router';
+import { Links, type LinksFunction, Meta, type MetaFunction, Outlet, Scripts } from 'react-router';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
@@ -12,7 +12,23 @@ await initFaro();
 const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
 const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
 
-export const meta: MetaFunction = () => [{ title: 'Pillage First! (Ask Questions Later)' }];
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Pillage First! (Ask Questions Later)',
+    },
+  ];
+};
+
+export const links: LinksFunction = () => {
+  return [
+    {
+      rel: 'preconnect',
+      href: import.meta.env.VITE_FARO_INGEST_ENDPOINT,
+      crossOrigin: 'anonymous',
+    },
+  ];
+};
 
 const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction = async ({ context }) => {
   const { sessionContext } = await import('app/context/session');

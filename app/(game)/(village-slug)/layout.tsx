@@ -363,7 +363,10 @@ const TopNavigation = () => {
               <li>
                 <ul className="flex gap-1 xl:gap-2 xl:mx-4">
                   <li>
-                    <Link to={gameNavigation.resourcesPath}>
+                    <Link
+                      to={gameNavigation.resourcesPath}
+                      prefetch="render"
+                    >
                       <NavigationMainItem
                         aria-label={t('Resources')}
                         title={t('Resources')}
@@ -374,7 +377,10 @@ const TopNavigation = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to={gameNavigation.villagePath}>
+                    <Link
+                      to={gameNavigation.villagePath}
+                      prefetch="render"
+                    >
                       <NavigationMainItem
                         aria-label={t('Village')}
                         title={t('Village')}
@@ -385,7 +391,10 @@ const TopNavigation = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to={currentVillageMapPath}>
+                    <Link
+                      to={currentVillageMapPath}
+                      prefetch="render"
+                    >
                       <NavigationMainItem
                         aria-label={t('Map')}
                         title={t('Map')}
@@ -482,7 +491,10 @@ const MobileBottomNavigation = () => {
           <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
-                <Link to={gameNavigation.resourcesPath}>
+                <Link
+                  to={gameNavigation.resourcesPath}
+                  prefetch="render"
+                >
                   <NavigationMainItem
                     aria-label={t('Resources')}
                     title={t('Resources')}
@@ -493,7 +505,10 @@ const MobileBottomNavigation = () => {
                 </Link>
               </li>
               <li>
-                <Link to={gameNavigation.villagePath}>
+                <Link
+                  to={gameNavigation.villagePath}
+                  prefetch="render"
+                >
                   <NavigationMainItem
                     aria-label={t('Village')}
                     title={t('Village')}
@@ -504,7 +519,10 @@ const MobileBottomNavigation = () => {
                 </Link>
               </li>
               <li>
-                <Link to={currentVillageMapPath}>
+                <Link
+                  to={currentVillageMapPath}
+                  prefetch="render"
+                >
                   <NavigationMainItem
                     aria-label={t('Map')}
                     title={t('Map')}

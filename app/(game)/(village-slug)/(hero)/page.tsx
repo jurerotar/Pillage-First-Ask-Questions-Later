@@ -2,7 +2,7 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
-import type { MetaFunction } from 'react-router';
+import type { LinksFunction, MetaFunction } from 'react-router';
 import heroItemsAssetsPreloadPaths from 'app/asset-preload-paths/hero-items.json';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
@@ -15,20 +15,24 @@ import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
 import { t } from 'i18next';
 
 export const meta: MetaFunction = ({ params }) => {
-  const { files } = heroItemsAssetsPreloadPaths;
   const { serverSlug, villageSlug } = params;
 
   return [
     {
       title: `${t('Hero')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
     },
-    ...files.map((href) => ({
-      rel: 'preload',
-      href,
-      as: 'image',
-      type: 'image/avif',
-    })),
   ];
+};
+
+export const links: LinksFunction = () => {
+  const { files } = heroItemsAssetsPreloadPaths;
+
+  return files.map((href) => ({
+    rel: 'preload',
+    href,
+    as: 'image',
+    type: 'image/avif',
+  }));
 };
 
 const HeroPage = () => {
