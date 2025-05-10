@@ -2,28 +2,26 @@ import { BuildingActions } from 'app/(game)/(village-slug)/(village)/components/
 import { BuildingOverview } from 'app/(game)/(village-slug)/(village)/components/building-overview';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  calculateBuildingCostForLevel,
-  calculateBuildingDurationForLevel,
-  getBuildingData,
-  getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
 import { Text } from 'app/components/text';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
-import { Icon } from 'app/components/icon';
-import { formatNumber } from 'app/utils/common';
-import { formatTime } from 'app/utils/time';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+
+const BuildingStats = lazy(async () => ({
+  default: (await import('./components/building-stats')).BuildingStats,
+}));
+
+const MainBuildingVillageManagement = lazy(async () => ({
+  default: (await import('./components/main-building-village-management')).MainBuildingVillageManagement,
+}));
 
 const RallyPointIncomingTroops = lazy(async () => ({
   default: (await import('./components/rally-point-incoming-troops')).RallyPointIncomingTroops,
@@ -102,158 +100,48 @@ const HospitalTroopTraining = lazy(async () => ({
 }));
 
 const palaceTabs = new Map<string, React.LazyExoticComponent<() => React.JSX.Element>>([
-  ['default', PalaceTrainSettler],
+  [t('Train settlers'), PalaceTrainSettler],
   [t('Loyalty'), PalaceLoyalty],
   [t('Expansion'), PalaceExpansion],
 ]);
 
 const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => React.JSX.Element>>>([
+  ['MAIN_BUILDING', new Map([[t('Village management'), MainBuildingVillageManagement]])],
   [
     'RALLY_POINT',
     new Map([
-      ['default', RallyPointIncomingTroops],
+      [t('Troop movements'), RallyPointIncomingTroops],
       [t('Send troops'), RallyPointSendTroops],
       [t('Simulator'), RallyPointSimulator],
     ]),
   ],
-  ['TREASURY', new Map([['default', TreasuryArtifacts]])],
+  ['TREASURY', new Map([[t('Artifacts'), TreasuryArtifacts]])],
   [
     'MARKETPLACE',
     new Map([
-      ['default', MarketplaceBuy],
+      [t('Trade'), MarketplaceBuy],
       [t('Trade routes'), MarketplaceTradeRoutes],
     ]),
   ],
   [
     'ACADEMY',
     new Map([
-      ['default', AcademyUnitResearch],
+      [t('Unit research'), AcademyUnitResearch],
       [t('Unit improvement'), AcademyUnitImprovement],
     ]),
   ],
   ['PALACE', palaceTabs],
   ['RESIDENCE', palaceTabs],
   ['COMMAND_CENTER', palaceTabs],
-  ['HEROS_MANSION', new Map([['default', HerosMansionOasis]])],
-  ['BREWERY', new Map([['default', BreweryCelebration]])],
-  ['BARRACKS', new Map([['default', BarracksTroopTraining]])],
-  ['GREAT_BARRACKS', new Map([['default', GreatBarracksTroopTraining]])],
-  ['STABLE', new Map([['default', StableTroopTraining]])],
-  ['GREAT_STABLE', new Map([['default', GreatStableTroopTraining]])],
-  ['WORKSHOP', new Map([['default', WorkshopTroopTraining]])],
-  ['HOSPITAL', new Map([['default', HospitalTroopTraining]])],
+  ['HEROS_MANSION', new Map([[t('Oasis'), HerosMansionOasis]])],
+  ['BREWERY', new Map([[t('Celebration'), BreweryCelebration]])],
+  ['BARRACKS', new Map([[t('Train'), BarracksTroopTraining]])],
+  ['GREAT_BARRACKS', new Map([[t('Train'), GreatBarracksTroopTraining]])],
+  ['STABLE', new Map([[t('Train'), StableTroopTraining]])],
+  ['GREAT_STABLE', new Map([[t('Train'), GreatStableTroopTraining]])],
+  ['WORKSHOP', new Map([[t('Train'), WorkshopTroopTraining]])],
+  ['HOSPITAL', new Map([[t('Train'), HospitalTroopTraining]])],
 ]);
-
-const BuildingStats = () => {
-  const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
-  const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
-  const { buildingId, level } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
-  const building = getBuildingData(buildingId);
-
-  const mainBuildingLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0;
-
-  return (
-    <article className="flex flex-col gap-4">
-      <section className="flex flex-col gap-2">
-        <Text as="h2">{t('Upgrade cost')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell>{t('Level')}</TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="wood"
-                  />
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="clay"
-                  />
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="iron"
-                  />
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="wheat"
-                  />
-                </TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(building.maxLevel)].map((_, index) => {
-                const cost = calculateBuildingCostForLevel(building.id, index + 1);
-
-                return (
-                  <TableRow
-                    // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                    key={index}
-                    {...(index + 1 === level && {
-                      className: 'bg-gray-100',
-                    })}
-                  >
-                    <TableHeaderCell>{index + 1}</TableHeaderCell>
-                    <TableCell>{formatNumber(cost[0])}</TableCell>
-                    <TableCell>{formatNumber(cost[1])}</TableCell>
-                    <TableCell>{formatNumber(cost[2])}</TableCell>
-                    <TableCell>{formatNumber(cost[3])}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-      <section className="flex flex-col gap-2">
-        <Text as="h2">{t('Upgrade duration')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell rowSpan={2}>{t('Level')}</TableHeaderCell>
-                <TableHeaderCell colSpan={3}>{t('Upgrade duration')}</TableHeaderCell>
-              </TableRow>
-              <TableRow>
-                <TableHeaderCell>{t('Main building level {{level}}', { level: 1 })}</TableHeaderCell>
-                <TableHeaderCell>{t('Main building level {{level}}', { level: mainBuildingLevel })}</TableHeaderCell>
-                <TableHeaderCell>{t('Main building level {{level}}', { level: 20 })}</TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(building.maxLevel)].map((_, index) => {
-                const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
-
-                return (
-                  <TableRow
-                    // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                    key={index}
-                    {...(index + 1 === level && {
-                      className: 'bg-gray-100',
-                    })}
-                  >
-                    <TableHeaderCell>{index + 1}</TableHeaderCell>
-                    <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
-                    <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
-                    <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-    </article>
-  );
-};
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
@@ -265,9 +153,6 @@ export const BuildingDetails = () => {
   const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const parentLink = buildingFieldId! > 18 ? villagePath : resourcesPath;
-
-  const hasAdditionalContent = buildingDetailsTabMap.has(buildingId);
-  const MainTabAdditionalContent = hasAdditionalContent ? buildingDetailsTabMap.get(buildingId)!.get('default')! : null;
 
   const tabs = Array.from([
     'default',
@@ -313,13 +198,6 @@ export const BuildingDetails = () => {
               <Text as="h2">{t('{{buildingName}} overview', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</Text>
               <BuildingOverview buildingId={buildingId} />
               <BuildingActions buildingId={buildingId} />
-              <Suspense fallback={<>Loading tab</>}>
-                {!MainTabAdditionalContent ? null : (
-                  <div className="mt-2">
-                    <MainTabAdditionalContent />
-                  </div>
-                )}
-              </Suspense>
             </article>
           </TabPanel>
           {buildingSpecificTabs.map((name: string) => {
@@ -333,7 +211,9 @@ export const BuildingDetails = () => {
             );
           })}
           <TabPanel>
-            <BuildingStats />
+            <Suspense fallback={<>Loading tab</>}>
+              <BuildingStats />
+            </Suspense>
           </TabPanel>
         </Tabs>
       </div>

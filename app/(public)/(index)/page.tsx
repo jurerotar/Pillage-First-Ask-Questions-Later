@@ -3,7 +3,7 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { WarningAlert } from 'app/components/ui/alert';
+import { Alert } from 'app/components/ui/alert';
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -22,7 +22,7 @@ const HomePage = () => {
               <br /> <br />
               <b>Remember: pillage first, ask questions later!</b>
             </span>
-            <WarningAlert>
+            <Alert variant="warning">
               Game is still in development, most features are missing. <br /> To see the current list of available features, see{' '}
               <a
                 rel="noreferrer"
@@ -42,7 +42,7 @@ const HomePage = () => {
                 join our Discord server
               </a>
               .
-            </WarningAlert>
+            </Alert>
           </section>
           <section className="flex flex-1 flex-col p-2 gap-4">
             <h2 className="font-semibold text-2xl">Server list</h2>

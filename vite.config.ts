@@ -46,13 +46,9 @@ const viteConfig = defineViteConfig({
         registerType: 'autoUpdate',
         manifest,
         outDir: 'build/client',
-        workbox: {
-          globDirectory: 'build',
-          globPatterns: ['**/*.{js,css,html}'],
-          clientsClaim: true,
-          skipWaiting: true,
-          cleanupOutdatedCaches: true,
-          navigateFallback: null,
+        injectManifest: {
+          swSrc: 'app/sw.ts',
+          swDest: 'sw.js',
         },
       }),
     // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
@@ -124,6 +120,10 @@ const vitestConfig = defineVitestConfig({
     environment: 'happy-dom',
     setupFiles: './app/tests/vitest-setup.ts',
     reporters: ['default'],
+    coverage: {
+      include: ['app/**/*.{ts,tsx}'],
+      exclude: ['**/*-mock.ts', '**/icon-*.tsx', '**/interfaces/**/*.ts'],
+    },
   },
 });
 

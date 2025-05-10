@@ -21,6 +21,7 @@ import { calculateMaxUnits, calculateUnitResearchCost, getUnitData } from 'app/(
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
+import { Text } from 'app/components/text';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
@@ -87,7 +88,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
         onClick={() => __recruitUnits(0)}
         variant="default"
       >
-        {t('Train {{count}} {{unit}} units', { unit: assetsT(`UNITS.${unitId}.NAME`), count: 1 })}
+        {t('Train {{count}} {{unit}} units', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }), count: 1 })}
       </Button>
     </section>
   );
@@ -100,8 +101,8 @@ type UnitCardProps = {
   showImprovementLevel?: boolean;
   showAttributes?: boolean;
   showUnitCost?: boolean;
-  showRecruitment?: boolean;
   showUnitRecruitmentForm?: boolean;
+  showOuterBorder?: boolean;
 };
 
 type UnitAttributes = Record<
@@ -118,6 +119,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     showAttributes = false,
     showUnitCost = false,
     showUnitRecruitmentForm = false,
+    showOuterBorder = true,
   } = props;
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
@@ -158,7 +160,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   };
 
   return (
-    <article className="flex flex-col p-2 border border-gray-500">
+    <article className={clsx('flex flex-col p-2', showOuterBorder && 'border border-gray-500')}>
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
           <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</h2>
@@ -166,13 +168,13 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
             <span className="text-sm text-orange-500">{t('Level {{level}}', { level: unitImprovement!.level })}</span>
           )}
         </div>
-        <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
+        <div className="flex justify-center items-center mr-1 mb-1 float-left size-10">
           <Icon
             className="size-full"
             type={unitIdToUnitIconMapper(unitId)}
           />
         </div>
-        <p className="text-sm text-gray-500">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</p>
+        <Text as="p">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
       </section>
 
       {showUnitCost && (

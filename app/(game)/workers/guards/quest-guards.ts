@@ -39,7 +39,7 @@ export const isHeroItemQuestReward = (reward: QuestReward): reward is HeroItemQu
   return reward.type === 'hero-item';
 };
 
-export const wasQuestCompleted = (quest: Quest) => {
+const wasQuestCompleted = (quest: Quest) => {
   return quest.completedAt !== null;
 };
 

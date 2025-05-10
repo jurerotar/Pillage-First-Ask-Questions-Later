@@ -2,7 +2,7 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { prngAlea } from 'ts-seedrandom';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { seededRandomIntFromInterval } from 'app/utils/common';
-import { WarningAlert } from 'app/components/ui/alert';
+import { Alert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 
@@ -24,7 +24,7 @@ export const Adventures = () => {
   return (
     <article className="flex flex-col gap-2">
       <Text as="h2">{t('Adventures')}</Text>
-      <WarningAlert>{t('This page is still under development')}</WarningAlert>
+      <Alert variant="warning">{t('This page is still under development')}</Alert>
     </article>
   );
 };

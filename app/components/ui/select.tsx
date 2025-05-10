@@ -44,6 +44,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ className, size = 
         className,
       )}
       {...props}
+      aria-controls={undefined}
     >
       {children}
       <SelectPrimitive.Icon asChild>
@@ -91,7 +92,10 @@ export const SelectLabel: React.FC<React.ComponentProps<typeof SelectPrimitive.L
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn('text-muted-foreground px-2 py-1.5 text-xs', className)}
+      className={cn(
+        'flex items-center py-1.5 gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+        className,
+      )}
       {...props}
     />
   );

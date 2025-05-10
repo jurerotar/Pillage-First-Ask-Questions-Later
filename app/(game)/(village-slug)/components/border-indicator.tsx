@@ -4,7 +4,7 @@ import type React from 'react';
 export type BorderIndicatorBorderVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow' | 'purple' | 'orange';
 export type BorderIndicatorBackgroundVariant = 'orange' | 'white';
 
-export type BorderIndicatorProps = {
+type BorderIndicatorProps = {
   variant?: BorderIndicatorBorderVariant;
   backgroundVariant: BorderIndicatorBackgroundVariant;
 } & React.HTMLProps<HTMLDivElement>;

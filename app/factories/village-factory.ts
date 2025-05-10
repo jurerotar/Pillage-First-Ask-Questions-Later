@@ -8,6 +8,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import type { BuildingField, Village, VillagePresetId, VillageSize } from 'app/interfaces/models/game/village';
+import { t } from 'i18next';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
@@ -72,7 +73,7 @@ type VillageFactoryProps = {
 export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
   const { id, RFC } = tile;
 
-  const { name, tribe } = player;
+  const { tribe } = player;
 
   const buildingFields = [
     ...createVillageResourceFields(RFC, 'player'),
@@ -82,7 +83,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
 
   return {
     id,
-    name: `${name}'s village`,
+    name: t('New village'),
     slug,
     buildingFields,
     buildingFieldsPresets: [],

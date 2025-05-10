@@ -23,6 +23,7 @@ type BaseBuildingEvent = WithResourceCheck<
     buildingFieldId: BuildingField['id'];
     buildingId: Building['id'];
     level: number;
+    changeType: 'upgrade' | 'downgrade';
   }>
 >;
 

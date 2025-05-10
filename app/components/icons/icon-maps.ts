@@ -254,6 +254,15 @@ const IconUnitGaulGaulSettler = lazy(async () => ({
 }));
 
 // Teuton troops
+const IconUnitTeutonsClubswinger = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-clubswinger')).IconClubswinger,
+}));
+const IconUnitTeutonsSpearman = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-spearman')).IconSpearman,
+}));
+const IconUnitTeutonsAxeman = lazy(async () => ({
+  default: (await import('app/components/icons/troops/teutons/icon-axeman')).IconAxeman,
+}));
 const IconUnitTeutonsTeutonicScout = lazy(async () => ({
   default: (await import('app/components/icons/troops/teutons/icon-teutonic-scout')).IconTeutonicScout,
 }));
@@ -380,9 +389,9 @@ const IconUnitNatureElephant = lazy(async () => ({
   default: (await import('app/components/icons/troops/nature/icon-elephant')).IconElephant,
 }));
 
-export type MissingIconType = 'missingIcon';
+type MissingIconType = 'missingIcon';
 
-export type ReportIconType =
+type ReportIconType =
   | 'attackerNoLoss'
   | 'attackerSomeLoss'
   | 'attackerFullLoss'
@@ -404,7 +413,7 @@ type MapAdventureIconType = 'adventureDifficult' | 'adventureNormal';
 
 type CommonIconType = 'cancel';
 
-export type TreasureTileIconType =
+type TreasureTileIconType =
   | 'treasureTileItem'
   | 'treasureTileResources'
   | 'treasureTileArtifact'
@@ -433,7 +442,7 @@ type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
 
 type UnitAttributeType = 'carryCapacity' | 'unitSpeed';
 
-type TroopMovementType =
+export type TroopMovementType =
   | 'deploymentOutgoing'
   | 'deploymentIncoming'
   | 'offensiveMovementOutgoing'
@@ -564,6 +573,9 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   gaulSettler: IconUnitGaulGaulSettler,
 
   // Teuton troops
+  clubswinger: IconUnitTeutonsClubswinger,
+  spearman: IconUnitTeutonsSpearman,
+  axeman: IconUnitTeutonsAxeman,
   teutonicScout: IconUnitTeutonsTeutonicScout,
   paladin: IconUnitTeutonsPaladin,
   teutonicKnight: IconUnitTeutonsTeutonicKnight,
@@ -622,31 +634,4 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
 
   // Common
   cancel: IconCancel,
-};
-
-// Not all icons are present in here, only the needed ones. This object needs to be as narrow as possible, because classes in here
-// are present in final css bundle!
-// TODO: Deprecate this solution once custom icons have been added
-export const typeToIconCssClass: Partial<Record<IconType, string>> = {
-  missingIcon: 'icon-[gr-document-missing]',
-
-  // Resources
-  wood: 'icon icon-[gi-wood-pile] text-[#A1662F]',
-  clay: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  iron: 'icon icon-[gi-metal-bar] text-gray-500',
-  wheat: 'icon icon-[lu-wheat] text-yellow-500',
-  woodWheat: 'icon icon-[gi-wood-pile] text-[#A1662F]',
-  clayWheat: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  ironWheat: 'icon icon-[gi-metal-bar] text-gray-500',
-  woodWood: 'icon icon-[gi-wood-pile] text-[#A1662F]',
-  clayClay: 'icon icon-[gi-stone-block] text-[#cc7357]',
-  ironIron: 'icon icon-[gi-metal-bar] text-gray-500',
-  wheatWheat: 'icon icon-[lu-wheat] text-yellow-500',
-
-  // Map treasures
-  treasureTileItem: 'icon icon-[lu-sword]',
-  treasureTileResources: 'icon icon-[gi-wood-pile]',
-  treasureTileArtifact: 'icon icon-[si-artifacthub]',
-  treasureTileCurrency: 'icon icon-[lia-coins-solid]',
-  treasureTileMiscellaneous: 'icon icon-[sl-chemistry]',
 };

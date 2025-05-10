@@ -176,14 +176,14 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
       [
         'xs',
         [
-          ['MACEMAN', 30, 100],
+          ['CLUBSWINGER', 30, 100],
           ['SPEARMAN', 5, 30],
         ],
       ],
       [
         'sm',
         [
-          ['MACEMAN', 30, 100],
+          ['CLUBSWINGER', 30, 100],
           ['SPEARMAN', 5, 30],
           ['TEUTONIC_SCOUT', 5, 10],
         ],
@@ -191,7 +191,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
       [
         'md',
         [
-          ['MACEMAN', 30, 100],
+          ['CLUBSWINGER', 30, 100],
           ['SPEARMAN', 5, 30],
           ['TEUTONIC_SCOUT', 5, 10],
         ],
@@ -199,7 +199,7 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
       [
         'lg',
         [
-          ['MACEMAN', 30, 100],
+          ['CLUBSWINGER', 30, 100],
           ['SPEARMAN', 5, 30],
           ['TEUTONIC_SCOUT', 5, 10],
           ['TEUTONIC_RAM', 20, 100],

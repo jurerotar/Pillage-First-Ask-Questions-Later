@@ -62,46 +62,11 @@ describe('BuildingActions', () => {
       expect(upgradeButton).not.toBeDisabled();
     });
 
-    test('Downgrade and demolish buttons should not be rendered', () => {
-      renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
-      const downgradeButton = screen.queryByTestId('building-actions-downgrade-building-button');
-      const demolishButton = screen.queryByTestId('building-actions-demolish-building-button');
-
-      expect(downgradeButton).not.toBeInTheDocument();
-      expect(demolishButton).not.toBeInTheDocument();
-    });
-
     test('Construct button should not be rendered', () => {
       renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
       const upgradeButton = screen.queryByTestId('building-actions-construct-building-button');
 
       expect(upgradeButton).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Main building level 10 on building field with cranny already built', () => {
-    const queryClient = new QueryClient();
-
-    const buildingFields: BuildingField[] = [level10MainBuildingBuildingField, level1CrannyBuildingField];
-
-    const villageMockWithLevel10MainBuilding: Village = {
-      ...villageMock,
-      buildingFields,
-    };
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
-
-    test('Downgrade should not be rendered if building is level 1', () => {
-      renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
-      const downgradeButton = screen.queryByTestId('building-actions-downgrade-building-button');
-
-      expect(downgradeButton).not.toBeInTheDocument();
-    });
-
-    test('Demolish button should be rendered', () => {
-      renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
-      const demolishButton = screen.getByTestId('building-actions-demolish-building-button');
-
-      expect(demolishButton).toBeInTheDocument();
     });
   });
 

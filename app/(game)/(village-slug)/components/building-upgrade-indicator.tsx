@@ -5,12 +5,10 @@ import {
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import useLongPress from 'app/hooks/events/use-long-press';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
-import { use, useState } from 'react';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { useState } from 'react';
 import { MdUpgrade } from 'react-icons/md';
 import type { Building } from 'app/interfaces/models/game/building';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
@@ -51,7 +49,6 @@ type UpgradeButtonProps = {
 
 const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingFieldId, backgroundVariant, variant, level }) => {
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
-  const { isWiderThanMd } = use(ViewportContext);
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] = useState<boolean>(false);
 
@@ -61,18 +58,11 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingField
     event.preventDefault();
   };
 
-  const longPressEvent = useLongPress((event) => {
-    onUpgradeButtonClick(event);
-  });
-
   return (
     <button
       className="hover:scale-125 rounded-full cursor-pointer transition-transform duration-300 relative"
       type="button"
-      {...(isWiderThanMd && {
-        onClick: onUpgradeButtonClick,
-      })}
-      {...(!isWiderThanMd && longPressEvent)}
+      onClick={onUpgradeButtonClick}
       onMouseEnter={() => setShouldShowUpgradeButton(true)}
       onMouseLeave={() => setShouldShowUpgradeButton(false)}
     >

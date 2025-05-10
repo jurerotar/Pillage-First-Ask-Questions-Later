@@ -1,10 +1,10 @@
-import { BorderIndicator, type BorderIndicatorProps } from 'app/(game)/(village-slug)/components/border-indicator';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
-import { type IconType, typeToIconCssClass, typeToIconMap } from 'app/components/icons/icon-maps';
+import { type IconType, typeToIconMap } from 'app/components/icons/icon-maps';
 
 // Variants
 const IconNegativeChangeVariant = lazy(async () => ({
@@ -17,21 +17,20 @@ const IconPositiveChangeVariant = lazy(async () => ({
 type IconPlaceholderProps = React.HTMLAttributes<HTMLSpanElement>;
 
 const IconPlaceholder: React.FC<IconPlaceholderProps> = ({ className }) => {
-  return <span className={className} />;
+  return <span className={clsx(className, 'min-h-4 min-w-4')} />;
 };
 
-export type IconProps = IconBaseProps &
+type IconProps = IconBaseProps &
   React.HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
     variant?: 'positive-change' | 'negative-change';
-    borderVariant?: BorderIndicatorProps['variant'];
+    borderVariant?: React.ComponentProps<typeof BorderIndicator>['variant'];
     wrapperClassName?: string;
-    asCss?: boolean;
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, variant, borderVariant, className, wrapperClassName, asCss = false, ...rest } = props;
+  const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
 
   // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
@@ -51,23 +50,20 @@ export const Icon: React.FC<IconProps> = (props) => {
         </BorderIndicator>
       )}
     >
-      {asCss && <span className={typeToIconCssClass[type] ?? typeToIconCssClass.missingIcon} />}
-      {!asCss && (
-        <Suspense fallback={<IconPlaceholder className={className} />}>
-          <span
-            className={clsx(hasVariantIcon && 'relative', className)}
-            {...rest}
-          >
-            <ComputedIcon />
-            {hasVariantIcon && (
-              <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
-                {variant === 'positive-change' && <IconPositiveChangeVariant />}
-                {variant === 'negative-change' && <IconNegativeChangeVariant />}
-              </span>
-            )}
-          </span>
-        </Suspense>
-      )}
+      <Suspense fallback={<IconPlaceholder className={className} />}>
+        <span
+          className={clsx(hasVariantIcon && 'relative', className)}
+          {...rest}
+        >
+          <ComputedIcon />
+          {hasVariantIcon && (
+            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
+              {variant === 'positive-change' && <IconPositiveChangeVariant />}
+              {variant === 'negative-change' && <IconNegativeChangeVariant />}
+            </span>
+          )}
+        </span>
+      </Suspense>
     </ConditionalWrapper>
   );
 };

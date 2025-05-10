@@ -1,7 +1,7 @@
-import { Icon, type IconProps } from 'app/components/icon';
+import { Icon } from 'app/components/icon';
 import type React from 'react';
 
-type WheatFieldIconProps = Omit<IconProps, 'type'>;
+type WheatFieldIconProps = Omit<React.ComponentProps<typeof Icon>, 'type'>;
 
 export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({ className }) => {
   return (
@@ -9,7 +9,6 @@ export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({ className }) => 
       type="wheat"
       wrapperClassName={className}
       borderVariant="yellow"
-      asCss
     />
   );
 };

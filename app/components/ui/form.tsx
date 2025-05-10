@@ -1,5 +1,5 @@
 import type React from 'react';
-import { createContext, use, useId } from 'react';
+import { createContext, use } from 'react';
 import type { Label as LabelPrimitive } from 'radix-ui';
 import { Slot } from 'radix-ui';
 import {
@@ -23,7 +23,7 @@ type FormFieldContextValue<
   name: TName;
 };
 
-export const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue);
+const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 export const FormField = <TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({
   ...props
@@ -35,7 +35,7 @@ export const FormField = <TFieldValues extends FieldValues = FieldValues, TName 
   );
 };
 
-export const useFormField = () => {
+const useFormField = () => {
   const fieldContext = use(FormFieldContext);
   const itemContext = use(FormItemContext);
   const { getFieldState } = useFormContext();
@@ -65,10 +65,10 @@ type FormItemContextValue = {
 const FormItemContext = createContext<FormItemContextValue>({} as FormItemContextValue);
 
 export const FormItem: React.FC<React.ComponentProps<'div'>> = ({ className, ...props }) => {
-  const id = useId();
+  const { name } = use(FormFieldContext);
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={{ id: name }}>
       <div
         data-slot="form-item"
         className={cn('grid gap-2', className)}

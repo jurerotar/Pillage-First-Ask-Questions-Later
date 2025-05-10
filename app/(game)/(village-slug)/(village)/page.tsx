@@ -9,15 +9,24 @@ import { Link, useLocation } from 'react-router';
 import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
 import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
+import { t } from 'i18next';
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ location, params }) => {
   const { files } = villageAssetsPreloadPaths;
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
+  const { serverSlug, villageSlug } = params;
+  const { pathname } = location;
+
+  return [
+    {
+      title: `${pathname.endsWith('resources') ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
+    },
+    ...files.map((href) => ({
+      rel: 'preload',
+      href,
+      as: 'image',
+      type: 'image/avif',
+    })),
+  ];
 };
 
 const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as BuildingFieldType['id'][];

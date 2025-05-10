@@ -1,10 +1,13 @@
-import { Links, Meta, type MetaFunction, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import { Links, Meta, type MetaFunction, Outlet, Scripts } from 'react-router';
 import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
-import './styles/app.css';
+import { initFaro } from './faro';
 import './i18n';
+import './styles/app.css';
+
+await initFaro();
 
 const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
 const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
@@ -102,7 +105,6 @@ const Root = () => {
             <Outlet />
           </StateProvider>
         </ViewportProvider>
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>

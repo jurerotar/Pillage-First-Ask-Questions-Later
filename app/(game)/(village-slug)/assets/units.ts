@@ -347,7 +347,7 @@ export const gaulUnits: Unit[] = [
 
 export const teutonUnits: Unit[] = [
   {
-    id: 'MACEMAN',
+    id: 'CLUBSWINGER',
     baseRecruitmentCost: [95, 75, 40, 40],
     baseRecruitmentDuration: 720,
     unitWheatConsumption: 1,

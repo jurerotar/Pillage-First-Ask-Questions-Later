@@ -5,15 +5,28 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import type { MetaFunction } from 'react-router';
 import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
+import { t } from 'i18next';
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ location, params }) => {
   const { files } = villageAssetsPreloadPaths;
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
+  const { serverSlug, villageSlug } = params;
+
+  const { pathname } = location;
+
+  const segments = pathname.split('/');
+  const buildingFieldId = segments[segments.length - 1];
+
+  return [
+    {
+      title: `${pathname.includes('resources') ? t('Resources') : t('Village')} - ${buildingFieldId} | Pillage First! - ${serverSlug} - ${villageSlug}`,
+    },
+    ...files.map((href) => ({
+      rel: 'preload',
+      href,
+      as: 'image',
+      type: 'image/avif',
+    })),
+  ];
 };
 
 const BuildingPage = () => {

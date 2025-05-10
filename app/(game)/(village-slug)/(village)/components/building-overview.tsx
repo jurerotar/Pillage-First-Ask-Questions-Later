@@ -52,12 +52,12 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         >
           image
         </div>
-        <p
+        <Text
+          as="p"
           data-testid="building-overview-building-description"
-          className="text-gray-500 text-sm"
         >
           {assetsT(`BUILDINGS.${building.id}.DESCRIPTION`)}
-        </p>
+        </Text>
         {actualLevel !== virtualLevel && (
           <span
             data-testid="building-overview-currently-upgrading-span"

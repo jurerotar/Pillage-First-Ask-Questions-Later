@@ -137,3 +137,30 @@
     }
   }
 }
+
+.troop-movements {
+  --top: 0;
+  --left: 0;
+  --scale: 1;
+
+  position: absolute;
+  user-select: none;
+  z-index: 20;
+  top: var(--top);
+  left: var(--left);
+  transform: scale(var(--scale));
+
+  &-magnification {
+    &-3 {
+      --top: -0.25rem;
+      --left: -0.25rem;
+      --scale: 0.75;
+    }
+
+    &-5 {
+      --top: 0.25rem;
+      --left: 0.25rem;
+      --scale: 1.25;
+    }
+  }
+}

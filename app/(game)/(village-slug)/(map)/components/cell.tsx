@@ -10,7 +10,7 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { OccupiedOccupiableTile as OccupiedOccupiableTileType, Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
@@ -21,24 +21,14 @@ import { decodeGraphicsProperty } from 'app/utils/map-tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import cellStyles from './cell.module.scss';
-
-type OccupiedTileWithClasses = TileType & OccupiedOccupiableTileType;
-
-type TroopMovementsProps = {
-  tile: OccupiedTileWithClasses;
-};
-
-const _TroopMovements: React.FC<TroopMovementsProps> = ({ tile }) => {
-  const _isOccupiableCell = isOccupiableTile(tile);
-  const _isOccupiableOasisCell = isOccupiableOasisTile(tile);
-  const _isOccupiedOccupiableCell = isOccupiedOccupiableTile(tile);
-
-  return null;
-};
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { Icon } from 'app/components/icon';
+import type { TroopMovementType } from 'app/components/icons/icon-maps';
 
 type CellBaseProps = {
   map: TileType[];
   gridSize: number;
+  tileIdToTroopMovementsMap: Map<TileType['id'], GameEvent<'troopMovement'>[]>;
   mapFilters: MapFilters;
   magnification: number;
   onClick: (data: TileType) => void;
@@ -46,6 +36,60 @@ type CellBaseProps = {
   villageCoordinatesToVillagesMap: Map<Village['id'], Village>;
   playersMap: Map<string, Player>;
   reputationsMap: Map<PlayerFaction, Reputation>;
+  currentVillage: Village;
+};
+
+const offensiveMovements: GameEvent<'troopMovement'>['movementType'][] = ['attack', 'raid'];
+const deploymentMovements: GameEvent<'troopMovement'>['movementType'][] = ['return', 'reinforcements', 'relocation'];
+
+type TroopMovementsProps = CellBaseProps & {
+  tile: TileType;
+  troopMovements: GameEvent<'troopMovement'>[];
+};
+
+const TroopMovements: React.FC<TroopMovementsProps> = ({ tile, troopMovements, magnification, currentVillage }) => {
+  const classes = clsx(cellStyles['troop-movements'], cellStyles[`troop-movements-magnification-${magnification}`]);
+
+  const isCurrentVillageTile = currentVillage.id === tile.id;
+
+  let troopMovementIcon: TroopMovementType | null = null;
+
+  for (const troopMovement of troopMovements) {
+    if (offensiveMovements.includes(troopMovement.movementType)) {
+      if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
+        troopMovementIcon = 'offensiveMovementIncoming';
+        break;
+      }
+
+      troopMovementIcon = 'offensiveMovementOutgoing';
+      break;
+    }
+
+    if (deploymentMovements.includes(troopMovement.movementType)) {
+      if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
+        troopMovementIcon = 'deploymentIncoming';
+        break;
+      }
+
+      troopMovementIcon = 'deploymentOutgoing';
+      break;
+    }
+
+    if (troopMovement.movementType === 'find-new-village') {
+      troopMovementIcon = 'findNewVillage';
+    }
+  }
+
+  if (!troopMovementIcon) {
+    return null;
+  }
+
+  return (
+    <Icon
+      className={clsx(classes, 'animate-scale-pulse')}
+      type={troopMovementIcon}
+    />
+  );
 };
 
 const wheatFields = ['00018', '11115', '3339'];
@@ -116,7 +160,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { map, gridSize, playersMap, reputationsMap, mapFilters, onClick } = data;
+  const { map, gridSize, playersMap, reputationsMap, mapFilters, onClick, tileIdToTroopMovementsMap } = data;
   const { shouldShowFactionReputation } = mapFilters;
 
   const tile: TileType = map[gridSize * rowIndex + columnIndex];
@@ -162,6 +206,13 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
         tile={tile}
         {...data}
       />
+      {tileIdToTroopMovementsMap.has(tile.id) && (
+        <TroopMovements
+          tile={tile}
+          troopMovements={tileIdToTroopMovementsMap.get(tile.id)!}
+          {...data}
+        />
+      )}
     </button>
   );
 }, areEqual);

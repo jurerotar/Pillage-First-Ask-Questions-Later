@@ -3,7 +3,13 @@ import { type PersistedClient, type Persister, PersistQueryClientProvider } from
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { debounce } from 'moderndash';
 import { useEffect, useState } from 'react';
-import { heroCacheKey, nonPersistedCacheKey, playerVillagesCacheKey, questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  heroCacheKey,
+  nonPersistedCacheKey,
+  playerVillagesCacheKey,
+  questsCacheKey,
+  serverCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Outlet, redirect, useLoaderData } from 'react-router';
 import { PersisterAwaiter } from 'app/(game)/components/persister-awaiter';
@@ -18,6 +24,8 @@ import QuestsWorker from './workers/quests-worker?worker&url';
 import type { QuestsWorkerReturn } from './workers/quests-worker';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { Toaster } from 'app/components/ui/toaster';
+import type { Server } from 'app/interfaces/models/game/server';
+import { faro } from 'app/faro';
 
 const Fallback = () => {
   return <div>Loader...</div>;
@@ -183,6 +191,18 @@ const Layout = ({ params }: Route.ComponentProps) => {
 
   return (
     <PersistQueryClientProvider
+      onSuccess={() => {
+        const { version, seed, configuration, playerConfiguration } = queryClient.getQueryData<Server>([serverCacheKey])!;
+        faro.api.setSession({
+          attributes: {
+            serverVersion: version,
+            serverSeed: seed,
+            serverSpeed: `${configuration.speed}`,
+            serverSize: `${configuration.mapSize}`,
+            serverTribe: playerConfiguration.tribe,
+          },
+        });
+      }}
       client={queryClient}
       persistOptions={{
         persister,

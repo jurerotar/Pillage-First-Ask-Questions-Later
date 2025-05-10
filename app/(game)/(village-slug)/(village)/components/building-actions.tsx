@@ -13,11 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
-import {
-  useBuildingConstructionStatus,
-  useBuildingDowngradeStatus,
-  useBuildingUpgradeStatus,
-} from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { useBuildingConstructionStatus, useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 
@@ -98,53 +94,6 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
   );
 };
 
-type BuildingCardActionsDowngradeProps = {
-  buildingId: Building['id'];
-  onBuildingDowngrade: () => void;
-  onBuildingDemolish: () => void;
-  buildingLevel: number;
-};
-
-const BuildingCardActionsDowngrade: React.FC<BuildingCardActionsDowngradeProps> = ({
-  buildingId,
-  onBuildingDowngrade,
-  onBuildingDemolish,
-  buildingLevel,
-}) => {
-  const { t } = useTranslation();
-  const { getBuildingDowngradeErrorBag } = useBuildingDowngradeStatus(buildingId);
-
-  const buildingDowngradeErrorBag = getBuildingDowngradeErrorBag();
-
-  return (
-    <>
-      <ErrorBag errorBag={buildingDowngradeErrorBag} />
-      <div className="flex gap-2">
-        {buildingLevel > 1 && (
-          <Button
-            data-testid="building-actions-downgrade-building-button"
-            variant="default"
-            onClick={onBuildingDowngrade}
-            disabled={buildingDowngradeErrorBag.length > 0}
-          >
-            {t('Downgrade to level {{level}}', { level: buildingLevel - 1 })}
-          </Button>
-        )}
-        {buildingLevel > 0 && (
-          <Button
-            data-testid="building-actions-demolish-building-button"
-            variant="default"
-            onClick={onBuildingDemolish}
-            disabled={buildingDowngradeErrorBag.length > 0}
-          >
-            {t('Demolish completely')}
-          </Button>
-        )}
-      </div>
-    </>
-  );
-};
-
 type BuildingCardProps = {
   buildingId: Building['id'];
 };
@@ -158,7 +107,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { buildingFieldId } = useRouteSegments();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
-  const { constructBuilding, upgradeBuilding, downgradeBuilding, demolishBuilding } = useBuildingActions(buildingId, buildingFieldId!);
+  const { constructBuilding, upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
@@ -189,20 +138,6 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     navigateBack();
     startTransition(() => {
       upgradeBuilding();
-    });
-  };
-
-  const onBuildingDowngrade = () => {
-    navigateBack();
-    startTransition(() => {
-      downgradeBuilding();
-    });
-  };
-
-  const onBuildingDemolish = () => {
-    navigateBack();
-    startTransition(() => {
-      demolishBuilding();
     });
   };
 
@@ -239,14 +174,6 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
         <BuildingCardActionsUpgrade
           buildingLevel={virtualLevel}
           onBuildingUpgrade={onBuildingUpgrade}
-        />
-      )}
-      {canDemolishBuildings && virtualLevel > 0 && (
-        <BuildingCardActionsDowngrade
-          onBuildingDemolish={onBuildingDemolish}
-          onBuildingDowngrade={onBuildingDowngrade}
-          buildingId={buildingId}
-          buildingLevel={virtualLevel}
         />
       )}
     </section>

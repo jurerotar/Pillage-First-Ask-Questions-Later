@@ -14,7 +14,7 @@ export const Separator: React.FC<React.ComponentProps<typeof SeparatorPrimitive.
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        'inline-flex bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
+        'inline-flex bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:min-h-4 data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
         className,
       )}
       {...props}

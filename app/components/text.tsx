@@ -4,13 +4,13 @@ import { clsx } from 'clsx';
 type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label' | 'p' | 'span';
 
 const elementStyles: Record<TextElement, string> = {
-  h1: 'text-2xl lg:text-3xl',
-  h2: 'text-xl font-medium',
-  h3: 'font-medium',
-  h4: '',
-  h5: '',
-  h6: '',
-  p: '',
+  h1: 'text-2xl lg:text-3xl text-gray-800',
+  h2: 'text-xl font-medium text-gray-800',
+  h3: 'font-medium text-gray-800',
+  h4: 'text-gray-800',
+  h5: 'text-gray-800',
+  h6: 'text-gray-800',
+  p: 'text-sm text-gray-800 leading-6',
   label: '',
   span: '',
 };

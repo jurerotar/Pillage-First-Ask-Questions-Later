@@ -11,7 +11,6 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
-import { factionTranslationMap, reputationLevelTranslationMap, tribeTranslationMap } from 'app/utils/translations';
 import { useTranslation } from 'react-i18next';
 import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map-tile';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-player';
@@ -61,6 +60,7 @@ const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
 
 const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile);
 
   const { name, tribe } = player;
@@ -74,15 +74,15 @@ const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
       {faction !== 'player' && (
         <>
           <span>
-            {t('Faction')} - {factionTranslationMap.get(faction)!}
+            {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
-            {t('Reputation')} - {reputationLevelTranslationMap.get(reputationLevel)!}
+            {t('Reputation')} - {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
       <span>
-        {t('Tribe')} - {tribeTranslationMap.get(tribe)!}
+        {t('Tribe')} - {assetsT(`TRIBES.${tribe.toUpperCase()}`)}
       </span>
       <span>
         {t('Population')} - {population}

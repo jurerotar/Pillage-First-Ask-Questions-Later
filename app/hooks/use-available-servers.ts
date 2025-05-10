@@ -4,10 +4,14 @@ import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 
 const deleteServerData = async (server: Server) => {
-  const rootHandle = await getRootHandle();
-  await rootHandle.removeEntry(`${server.slug}.json`);
-  const servers: Server[] = JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]');
-  window.localStorage.setItem(availableServerCacheKey, JSON.stringify(servers.filter(({ id }) => id !== server.id)));
+  try {
+    const rootHandle = await getRootHandle();
+    // This may fail in case entry was removed by some other means which didn't also remove localStorage
+    await rootHandle.removeEntry(`${server.slug}.json`);
+  } finally {
+    const servers: Server[] = JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]');
+    window.localStorage.setItem(availableServerCacheKey, JSON.stringify(servers.filter(({ id }) => id !== server.id)));
+  }
 };
 
 export const useAvailableServers = () => {
