@@ -9,6 +9,18 @@ import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-l
 import { partition } from 'app/utils/common';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import type { MetaFunction } from 'react-router';
+import { t } from 'i18next';
+
+export const meta: MetaFunction = ({ params }) => {
+  const { serverSlug, villageSlug } = params;
+
+  return [
+    {
+      title: `${t('Quests')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
+    },
+  ];
+};
 
 const QuestsPage = () => {
   const { currentVillage } = useCurrentVillage();

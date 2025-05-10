@@ -37,6 +37,7 @@ import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troo
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
+import { useTranslation } from 'react-i18next';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -68,6 +69,7 @@ const DiscordLink = () => {
     <Link
       to="https://discord.com/invite/Ep7NKVXUZA"
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-white"
+      title="Discord"
     >
       <span className="flex items-center justify-center">
         <FaDiscord className="text-2xl text-[#7289da]" />
@@ -77,6 +79,7 @@ const DiscordLink = () => {
 };
 
 const HeroNavigationItem = () => {
+  const { t } = useTranslation();
   const { hero } = useHero();
   const { heroPath } = useGameNavigation();
   const { playerTroops } = usePlayerTroops();
@@ -92,6 +95,8 @@ const HeroNavigationItem = () => {
     <Link
       to={heroPath}
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
+      aria-label={t('Hero')}
+      title={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
         <MdFace className="text-2xl" />
@@ -109,11 +114,12 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren = ({ children }) => {
+const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> = ({ children, ...rest }) => {
   return (
     <button
       type="button"
       className="px-3 py-0.5 rounded-xs bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
+      {...rest}
     >
       {children}
     </button>
@@ -148,30 +154,45 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
 };
 
 const QuestsNavigationItem = () => {
+  const { t } = useTranslation();
   const { amountOfUncollectedQuests } = useQuests();
 
   return (
-    <NavigationSideItem counter={amountOfUncollectedQuests}>
+    <NavigationSideItem
+      counter={amountOfUncollectedQuests}
+      aria-label={t('Quests')}
+      title={t('Quests')}
+    >
       <FaBookBookmark className="text-xl" />
     </NavigationSideItem>
   );
 };
 
 const AdventuresNavigationItem = () => {
+  const { t } = useTranslation();
   const { adventurePoints } = useAdventurePoints();
 
   return (
-    <NavigationSideItem counter={adventurePoints.amount}>
+    <NavigationSideItem
+      counter={adventurePoints.amount}
+      aria-label={t('Adventures')}
+      title={t('Adventures')}
+    >
       <PiPathBold className="text-xl" />
     </NavigationSideItem>
   );
 };
 
 const ReportsNavigationItem = () => {
+  const { t } = useTranslation();
   const { reports } = useReports();
 
   return (
-    <NavigationSideItem counter={reports.length}>
+    <NavigationSideItem
+      counter={reports.length}
+      aria-label={t('Reports')}
+      title={t('Reports')}
+    >
       <LuScrollText className="text-xl" />
     </NavigationSideItem>
   );
@@ -216,13 +237,18 @@ const VillageSelect = () => {
   const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
+  const { t } = useTranslation();
 
   return (
     <Select
       onValueChange={(value) => switchToVillage(value)}
       value={currentVillage.slug}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger
+        className="w-full"
+        title={t('Village select')}
+        aria-label={t('Village select')}
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -240,6 +266,7 @@ const VillageSelect = () => {
 };
 
 const TopNavigation = () => {
+  const { t } = useTranslation();
   const gameNavigation = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
 
@@ -259,7 +286,7 @@ const TopNavigation = () => {
                 >
                   <DesktopTopRowItem>
                     <span className="inline-flex gap-2 items-center">
-                      <FaGithub className="text-xl text-[#24292e]" />{' '}
+                      <FaGithub className="text-xl text-[#24292e]" />
                       <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">GitHub</span>
                     </span>
                   </DesktopTopRowItem>
@@ -273,7 +300,7 @@ const TopNavigation = () => {
                 >
                   <DesktopTopRowItem>
                     <span className="inline-flex gap-2 items-center">
-                      <FaDiscord className="text-xl text-[#7289da]" />{' '}
+                      <FaDiscord className="text-xl text-[#7289da]" />
                       <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">Discord</span>
                     </span>
                   </DesktopTopRowItem>
@@ -281,14 +308,20 @@ const TopNavigation = () => {
               </li>
               <li>
                 <Link to={gameNavigation.preferencesPath}>
-                  <DesktopTopRowItem>
+                  <DesktopTopRowItem
+                    aria-label={t('Preferences')}
+                    title={t('Preferences')}
+                  >
                     <MdSettings className="text-xl" />
                   </DesktopTopRowItem>
                 </Link>
               </li>
               <li>
                 <Link to="/">
-                  <DesktopTopRowItem>
+                  <DesktopTopRowItem
+                    aria-label={t('Logout')}
+                    title={t('Logout')}
+                  >
                     <RxExit className="text-xl text-red-500" />
                   </DesktopTopRowItem>
                 </Link>
@@ -304,7 +337,10 @@ const TopNavigation = () => {
             <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
               <li>
                 <Link to={gameNavigation.statisticsPath}>
-                  <NavigationSideItem>
+                  <NavigationSideItem
+                    aria-label={t('Statistics')}
+                    title={t('Statistics')}
+                  >
                     <GoGraph className="text-xl" />
                   </NavigationSideItem>
                 </Link>
@@ -316,7 +352,10 @@ const TopNavigation = () => {
               </li>
               <li>
                 <Link to={gameNavigation.overviewPath}>
-                  <NavigationSideItem>
+                  <NavigationSideItem
+                    aria-label={t('Overview')}
+                    title={t('Overview')}
+                  >
                     <CiCircleList className="text-xl" />
                   </NavigationSideItem>
                 </Link>
@@ -325,21 +364,33 @@ const TopNavigation = () => {
                 <ul className="flex gap-1 xl:gap-2 xl:mx-4">
                   <li>
                     <Link to={gameNavigation.resourcesPath}>
-                      <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
+                      <NavigationMainItem
+                        aria-label={t('Resources')}
+                        title={t('Resources')}
+                        isActive={gameNavigation.isResourcesPageOpen}
+                      >
                         <GiWheat className="text-3xl" />
                       </NavigationMainItem>
                     </Link>
                   </li>
                   <li>
                     <Link to={gameNavigation.villagePath}>
-                      <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
+                      <NavigationMainItem
+                        aria-label={t('Village')}
+                        title={t('Village')}
+                        isActive={gameNavigation.isVillagePageOpen}
+                      >
                         <MdOutlineHolidayVillage className="text-3xl" />
                       </NavigationMainItem>
                     </Link>
                   </li>
                   <li>
                     <Link to={currentVillageMapPath}>
-                      <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
+                      <NavigationMainItem
+                        aria-label={t('Map')}
+                        title={t('Map')}
+                        isActive={gameNavigation.isMapPageOpen}
+                      >
                         <TbMap2 className="text-3xl" />
                       </NavigationMainItem>
                     </Link>
@@ -358,7 +409,10 @@ const TopNavigation = () => {
               </li>
               <li>
                 <Link to={gameNavigation.auctionsPath}>
-                  <NavigationSideItem>
+                  <NavigationSideItem
+                    aria-label={t('Auctions')}
+                    title={t('Auctions')}
+                  >
                     <RiAuctionLine className="text-xl" />
                   </NavigationSideItem>
                 </Link>
@@ -383,6 +437,7 @@ const TopNavigation = () => {
 };
 
 const MobileBottomNavigation = () => {
+  const { t } = useTranslation();
   const gameNavigation = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
 
@@ -406,7 +461,10 @@ const MobileBottomNavigation = () => {
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
             <Link to={gameNavigation.statisticsPath}>
-              <NavigationSideItem>
+              <NavigationSideItem
+                aria-label={t('Statistics')}
+                title={t('Statistics')}
+              >
                 <GoGraph className="text-2xl" />
               </NavigationSideItem>
             </Link>
@@ -425,21 +483,33 @@ const MobileBottomNavigation = () => {
             <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
                 <Link to={gameNavigation.resourcesPath}>
-                  <NavigationMainItem isActive={gameNavigation.isResourcesPageOpen}>
+                  <NavigationMainItem
+                    aria-label={t('Resources')}
+                    title={t('Resources')}
+                    isActive={gameNavigation.isResourcesPageOpen}
+                  >
                     <GiWheat className="text-2xl" />
                   </NavigationMainItem>
                 </Link>
               </li>
               <li>
                 <Link to={gameNavigation.villagePath}>
-                  <NavigationMainItem isActive={gameNavigation.isVillagePageOpen}>
+                  <NavigationMainItem
+                    aria-label={t('Village')}
+                    title={t('Village')}
+                    isActive={gameNavigation.isVillagePageOpen}
+                  >
                     <MdOutlineHolidayVillage className="text-2xl" />
                   </NavigationMainItem>
                 </Link>
               </li>
               <li>
                 <Link to={currentVillageMapPath}>
-                  <NavigationMainItem isActive={gameNavigation.isMapPageOpen}>
+                  <NavigationMainItem
+                    aria-label={t('Map')}
+                    title={t('Map')}
+                    isActive={gameNavigation.isMapPageOpen}
+                  >
                     <TbMap2 className="text-2xl" />
                   </NavigationMainItem>
                 </Link>
@@ -453,14 +523,20 @@ const MobileBottomNavigation = () => {
           </li>
           <li>
             <Link to={gameNavigation.preferencesPath}>
-              <NavigationSideItem>
+              <NavigationSideItem
+                aria-label={t('Preferences')}
+                title={t('Preferences')}
+              >
                 <MdSettings className="text-2xl" />
               </NavigationSideItem>
             </Link>
           </li>
           <li>
             <Link to="/">
-              <NavigationSideItem>
+              <NavigationSideItem
+                aria-label={t('Logout')}
+                title={t('Logout')}
+              >
                 <RxExit className="text-2xl text-red-500" />
               </NavigationSideItem>
             </Link>

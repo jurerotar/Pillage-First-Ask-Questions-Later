@@ -5,6 +5,18 @@ import { Alert } from 'app/components/ui/alert';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
+import type { MetaFunction } from 'react-router';
+import { t } from 'i18next';
+
+export const meta: MetaFunction = ({ params }) => {
+  const { serverSlug, villageSlug } = params;
+
+  return [
+    {
+      title: `${t('Statistics')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
+    },
+  ];
+};
 
 const StatisticsPage = () => {
   const { t } = useTranslation();

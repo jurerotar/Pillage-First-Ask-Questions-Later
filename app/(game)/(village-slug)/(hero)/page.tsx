@@ -12,15 +12,23 @@ import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { HeroOverview } from 'app/(game)/(village-slug)/(hero)/components/hero-overview';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
+import { t } from 'i18next';
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ params }) => {
   const { files } = heroItemsAssetsPreloadPaths;
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
+  const { serverSlug, villageSlug } = params;
+
+  return [
+    {
+      title: `${t('Hero')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
+    },
+    ...files.map((href) => ({
+      rel: 'preload',
+      href,
+      as: 'image',
+      type: 'image/avif',
+    })),
+  ];
 };
 
 const HeroPage = () => {

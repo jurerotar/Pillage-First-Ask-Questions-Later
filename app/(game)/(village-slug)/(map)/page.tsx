@@ -29,15 +29,23 @@ import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { t } from 'i18next';
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ params }) => {
   const { files } = mapAssetsPreloadPaths;
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
+  const { serverSlug, villageSlug } = params;
+
+  return [
+    {
+      title: `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
+    },
+    ...files.map((href) => ({
+      rel: 'preload',
+      href,
+      as: 'image',
+      type: 'image/avif',
+    })),
+  ];
 };
 
 // Height/width of ruler on the left-bottom.
