@@ -533,7 +533,7 @@
     },
     "ACADEMY": {
       "NAME": "Academy",
-      "DESCRIPTION": "New unit types can be researched and existing units can be improved in the academy. By increasing its level, you can order the research of better units and upgrade existing ones to a higher degree."
+      "DESCRIPTION": "New unit types can be researched and existing units can be improved in the academy. By increasing its level, you can order the research of better units."
     },
     "BARRACKS": {
       "NAME": "Barracks",
@@ -634,6 +634,10 @@
     "TRADE_OFFICE": {
       "NAME": "Trade office",
       "DESCRIPTION": "In the trade office, the merchants' carts get improved and equipped with more powerful horses. The higher its level, the more your merchants are able to carry."
+    },
+    "SMITHY": {
+      "NAME": "Smithy",
+      "DESCRIPTION": "The weapons and armor of your warriors are enhanced in the smithy's melting furnaces. By increasing its level, you can order the fabrication of even better weapons and armor."
     }
   },
   "ITEMS": {

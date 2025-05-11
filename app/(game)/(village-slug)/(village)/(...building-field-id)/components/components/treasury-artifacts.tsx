@@ -11,7 +11,11 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
-import { Link } from 'react-router';
+import { Link } from 'app/components/link';
+import {
+  BuildingSection,
+  BuildingSectionContent,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
@@ -63,7 +67,14 @@ export const TreasuryArtifacts = () => {
   const _unassignArtifactFromCurrentVillage = () => {};
 
   return (
-    <article className="flex flex-col gap-4">
+    <BuildingSection>
+      <BuildingSectionContent>
+        <Text as="h2">{t('Artifacts')}</Text>
+        <Text as="p">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium ad autem distinctio nesciunt officia quas qui similique.
+          Aperiam atque et excepturi fugiat labore quidem sed sit tempore totam voluptas. Iure!
+        </Text>
+      </BuildingSectionContent>
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Artifact in this village')}</Text>
         <Table>
@@ -132,6 +143,6 @@ export const TreasuryArtifacts = () => {
           </TableBody>
         </Table>
       </section>
-    </article>
+    </BuildingSection>
   );
 };

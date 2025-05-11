@@ -7,7 +7,12 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { Link } from 'react-router';
+import { Link } from 'app/components/link';
+import {
+  BuildingSection,
+  BuildingSectionContent,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -70,79 +75,98 @@ export const HerosMansionOasis = () => {
   const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] = oasisOccupiedByCurrentVillage;
 
   return (
-    <article className="flex flex-col gap-4">
-      <section className="flex flex-col gap-2">
-        <Text as="h2">{t('Oasis you occupy')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
-              <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-              <TableHeaderCell>{t('Actions')}</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <OccupiedOasisRow
-              occupiedOasis={firstOccupiedOasis}
-              heroMansionLevel={10}
-            />
-            <OccupiedOasisRow
-              occupiedOasis={secondOccupiedOasis}
-              heroMansionLevel={15}
-            />
-            <OccupiedOasisRow
-              occupiedOasis={thirdOccupiedOasis}
-              heroMansionLevel={20}
-            />
-          </TableBody>
-        </Table>
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <Text as="h2">{t('Oasis within reach')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell>{t('Owner')}</TableHeaderCell>
-                <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
-                <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-                <TableHeaderCell>{t('Actions')}</TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {oasisTilesInRange.map((tile) => {
-                const [x, y] = tile.id.split('|');
-                return (
-                  <TableRow key={tile.id}>
-                    <TableCell>/</TableCell>
-                    <TableCell>
-                      <Link to={`${mapPath}?x=${x}&y=${y}`}>
-                        {x}, {y}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {tile.ORB.map(({ resource, bonus }, index) => (
-                        <span
-                          className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
-                          key={resource}
-                        >
-                          <Icon
-                            type={resource}
-                            className="flex size-5"
-                          />
-                          {bonus}
-                        </span>
-                      ))}
-                    </TableCell>
-                    <TableCell>/</TableCell>
+    <BuildingSection>
+      <BuildingSectionContent>
+        <Text as="h2">{t('Oasis management')}</Text>
+        <Text as="p">
+          {t(
+            "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still conquer an oasis (1 on level 10, 2 on level 15 and 3 on level 20).",
+          )}
+        </Text>
+      </BuildingSectionContent>
+      <Tabs>
+        <TabList>
+          <Tab>{t('Occupied oasis')}</Tab>
+          <Tab>{t('Oasis within reach')}</Tab>
+        </TabList>
+        <TabPanel>
+          <BuildingSectionContent>
+            <Text as="h2">{t('Occupied oasis')}</Text>
+            <div className="overflow-x-scroll scrollbar-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Actions')}</TableHeaderCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-    </article>
+                </TableHeader>
+                <TableBody>
+                  <OccupiedOasisRow
+                    occupiedOasis={firstOccupiedOasis}
+                    heroMansionLevel={10}
+                  />
+                  <OccupiedOasisRow
+                    occupiedOasis={secondOccupiedOasis}
+                    heroMansionLevel={15}
+                  />
+                  <OccupiedOasisRow
+                    occupiedOasis={thirdOccupiedOasis}
+                    heroMansionLevel={20}
+                  />
+                </TableBody>
+              </Table>
+            </div>
+          </BuildingSectionContent>
+        </TabPanel>
+        <TabPanel>
+          <BuildingSectionContent>
+            <Text as="h2">{t('Oasis within reach')}</Text>
+            <div className="overflow-x-scroll scrollbar-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHeaderCell>{t('Owner')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Actions')}</TableHeaderCell>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {oasisTilesInRange.map((tile) => {
+                    const [x, y] = tile.id.split('|');
+                    return (
+                      <TableRow key={tile.id}>
+                        <TableCell>/</TableCell>
+                        <TableCell>
+                          <Link to={`${mapPath}?x=${x}&y=${y}`}>
+                            {x}, {y}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {tile.ORB.map(({ resource, bonus }, index) => (
+                            <span
+                              className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
+                              key={resource}
+                            >
+                              <Icon
+                                type={resource}
+                                className="flex size-5"
+                              />
+                              {bonus}
+                            </span>
+                          ))}
+                        </TableCell>
+                        <TableCell>/</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </BuildingSectionContent>
+        </TabPanel>
+      </Tabs>
+    </BuildingSection>
   );
 };

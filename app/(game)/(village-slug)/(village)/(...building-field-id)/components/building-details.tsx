@@ -14,6 +14,25 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import {
+  BuildingSection,
+  BuildingSectionContent,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Skeleton } from 'app/components/ui/skeleton';
+
+const BuildingTabFallback = () => {
+  return (
+    <BuildingSection>
+      <BuildingSectionContent>
+        <Skeleton className="flex w-60 h-6" />
+        <Skeleton className="flex w-full h-16" />
+      </BuildingSectionContent>
+      <BuildingSectionContent>
+        <Skeleton className="flex w-full h-30" />
+      </BuildingSectionContent>
+    </BuildingSection>
+  );
+};
 
 const BuildingStats = lazy(async () => ({
   default: (await import('./components/building-stats')).BuildingStats,
@@ -63,8 +82,8 @@ const AcademyUnitResearch = lazy(async () => ({
   default: (await import('./components/academy-unit-research')).AcademyUnitResearch,
 }));
 
-const AcademyUnitImprovement = lazy(async () => ({
-  default: (await import('./components/academy-unit-improvement')).AcademyUnitImprovement,
+const SmithyUnitImprovement = lazy(async () => ({
+  default: (await import('./components/smithy-unit-improvement')).SmithyUnitImprovement,
 }));
 
 const HerosMansionOasis = lazy(async () => ({
@@ -123,13 +142,8 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
       [t('Trade routes'), MarketplaceTradeRoutes],
     ]),
   ],
-  [
-    'ACADEMY',
-    new Map([
-      [t('Unit research'), AcademyUnitResearch],
-      [t('Unit improvement'), AcademyUnitImprovement],
-    ]),
-  ],
+  ['ACADEMY', new Map([[t('Unit research'), AcademyUnitResearch]])],
+  ['SMITHY', new Map([[t('Unit improvement'), SmithyUnitImprovement]])],
   ['PALACE', palaceTabs],
   ['RESIDENCE', palaceTabs],
   ['COMMAND_CENTER', palaceTabs],
@@ -194,24 +208,26 @@ export const BuildingDetails = () => {
             <Tab>{t('Upgrade details')}</Tab>
           </TabList>
           <TabPanel>
-            <article className="flex flex-col gap-2">
-              <Text as="h2">{t('{{buildingName}} overview', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</Text>
-              <BuildingOverview buildingId={buildingId} />
-              <BuildingActions buildingId={buildingId} />
-            </article>
+            <BuildingSection>
+              <BuildingSectionContent>
+                <Text as="h2">{t('{{buildingName}} overview', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</Text>
+                <BuildingOverview buildingId={buildingId} />
+                <BuildingActions buildingId={buildingId} />
+              </BuildingSectionContent>
+            </BuildingSection>
           </TabPanel>
           {buildingSpecificTabs.map((name: string) => {
             const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
             return (
               <TabPanel key={name}>
-                <Suspense fallback={<>Loading tab</>}>
+                <Suspense fallback={<BuildingTabFallback />}>
                   <Panel />
                 </Suspense>
               </TabPanel>
             );
           })}
           <TabPanel>
-            <Suspense fallback={<>Loading tab</>}>
+            <Suspense fallback={<BuildingTabFallback />}>
               <BuildingStats />
             </Suspense>
           </TabPanel>

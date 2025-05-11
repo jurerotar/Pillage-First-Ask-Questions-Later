@@ -13,7 +13,7 @@ import type React from 'react';
 import { use } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link } from 'app/components/link';
 import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';

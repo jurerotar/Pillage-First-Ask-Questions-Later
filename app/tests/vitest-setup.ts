@@ -7,6 +7,17 @@ Object.defineProperty(globalThis, 'crypto', {
   },
 });
 
+vi.mock('react-router', async () => {
+  const actual = await vi.importActual<typeof import('react-router')>('react-router');
+
+  return {
+    ...actual,
+    useNavigation: () => ({
+      state: 'idle',
+    }),
+  };
+});
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (str: string): string => str,

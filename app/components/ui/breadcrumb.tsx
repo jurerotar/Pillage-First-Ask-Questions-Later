@@ -1,7 +1,7 @@
 import type React from 'react';
 import { LuChevronRight } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
-import { Link, type LinkProps } from 'react-router';
+import { Link } from 'app/components/link';
 
 export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({ ...props }) => {
   return (
@@ -33,7 +33,7 @@ export const BreadcrumbItem: React.FC<React.ComponentProps<'li'>> = ({ className
   );
 };
 
-export const BreadcrumbLink: React.FC<LinkProps> = ({ className, ...props }) => {
+export const BreadcrumbLink: React.FC<React.ComponentProps<typeof Link>> = ({ className, ...props }) => {
   return (
     <Link
       data-slot="breadcrumb-link"

@@ -15,7 +15,8 @@ import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Link, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
+import { Link } from 'app/components/link';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -363,7 +364,10 @@ const TopNavigation = () => {
               <li>
                 <ul className="flex gap-1 xl:gap-2 xl:mx-4">
                   <li>
-                    <Link to={gameNavigation.resourcesPath}>
+                    <Link
+                      to={gameNavigation.resourcesPath}
+                      prefetch="render"
+                    >
                       <NavigationMainItem
                         aria-label={t('Resources')}
                         title={t('Resources')}
@@ -374,7 +378,10 @@ const TopNavigation = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to={gameNavigation.villagePath}>
+                    <Link
+                      to={gameNavigation.villagePath}
+                      prefetch="render"
+                    >
                       <NavigationMainItem
                         aria-label={t('Village')}
                         title={t('Village')}
@@ -385,7 +392,10 @@ const TopNavigation = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to={currentVillageMapPath}>
+                    <Link
+                      to={currentVillageMapPath}
+                      prefetch="render"
+                    >
                       <NavigationMainItem
                         aria-label={t('Map')}
                         title={t('Map')}
@@ -482,7 +492,10 @@ const MobileBottomNavigation = () => {
           <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
-                <Link to={gameNavigation.resourcesPath}>
+                <Link
+                  to={gameNavigation.resourcesPath}
+                  prefetch="render"
+                >
                   <NavigationMainItem
                     aria-label={t('Resources')}
                     title={t('Resources')}
@@ -493,7 +506,10 @@ const MobileBottomNavigation = () => {
                 </Link>
               </li>
               <li>
-                <Link to={gameNavigation.villagePath}>
+                <Link
+                  to={gameNavigation.villagePath}
+                  prefetch="render"
+                >
                   <NavigationMainItem
                     aria-label={t('Village')}
                     title={t('Village')}
@@ -504,7 +520,10 @@ const MobileBottomNavigation = () => {
                 </Link>
               </li>
               <li>
-                <Link to={currentVillageMapPath}>
+                <Link
+                  to={currentVillageMapPath}
+                  prefetch="render"
+                >
                   <NavigationMainItem
                     aria-label={t('Map')}
                     title={t('Map')}

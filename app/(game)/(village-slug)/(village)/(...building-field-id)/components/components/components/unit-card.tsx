@@ -32,10 +32,12 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const hasResearchedUnit = isUnitResearched(unitId);
 
   return (
-    <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-      <h2 className="font-medium">{hasResearchedUnit ? t('Research') : t('Research cost')}</h2>
+    <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+      <Text as="h3">{hasResearchedUnit ? t('Research') : t('Research cost')}</Text>
       {hasResearchedUnit && (
-        <span className="text-green-600">{t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}</span>
+        <span className="text-green-600 font-semibold">
+          {t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
+        </span>
       )}
       {!hasResearchedUnit && (
         <Resources
@@ -83,7 +85,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
 
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
-      <h2 className="font-medium">{t('Available actions')}</h2>
+      <Text as="h3">{t('Available actions')}</Text>
       <Button
         onClick={() => __recruitUnits(0)}
         variant="default"
@@ -160,10 +162,10 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   };
 
   return (
-    <article className={clsx('flex flex-col p-2', showOuterBorder && 'border border-gray-500')}>
-      <section className="pb-2">
+    <article className={clsx('flex flex-col gap-2 p-2', showOuterBorder && 'border border-gray-500')}>
+      <section>
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</h2>
+          <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</Text>
           {shouldShowUnitLevel && (
             <span className="text-sm text-orange-500">{t('Level {{level}}', { level: unitImprovement!.level })}</span>
           )}
@@ -178,8 +180,8 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       </section>
 
       {showUnitCost && (
-        <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('Unit cost')}</h2>
+        <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+          <Text as="h3">{t('Unit cost')}</Text>
           <Resources
             className="flex-wrap"
             resources={baseRecruitmentCost}
@@ -188,8 +190,8 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       )}
 
       {showAttributes && (
-        <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('Attributes')}</h2>
+        <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+          <Text as="h3">{t('Attributes')}</Text>
           <div className="flex gap-2 flex-wrap">
             {(Object.keys(attributes) as (keyof UnitAttributes)[]).map((attribute) => (
               <span
@@ -210,8 +212,8 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       {showResearch && <UnitResearch unitId={unitId} />}
 
       {showRequirements && !canResearch && (
-        <section className="py-2 flex flex-col gap-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('Requirements')}</h2>
+        <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
+          <Text as="h3">{t('Requirements')}</Text>
           <ul className="flex gap-2 flex-wrap">
             {assessedRequirements.map((assessedRequirement: AssessedResearchRequirement, index) => (
               <Fragment key={assessedRequirement.buildingId}>
@@ -232,7 +234,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showResearch && canResearch && !hasResearchedUnit && (
         <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('Available actions')}</h2>
+          <Text as="h3">{t('Available actions')}</Text>
           <Button
             onClick={() => researchUnit(unitId)}
             variant="default"

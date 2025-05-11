@@ -10,6 +10,7 @@ import {
   playerVillagesCacheKey,
   questsCacheKey,
   serverCacheKey,
+  unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { createEventFn, updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
@@ -23,6 +24,7 @@ import { userVillageFactory } from 'app/factories/village-factory';
 import { newVillageEffectsFactory } from 'app/factories/effect-factory';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { newVillageQuestsFactory } from 'app/factories/quest-factory';
+import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops, startsAt, duration } = args;
@@ -103,6 +105,19 @@ const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = asy
     const tileToOccupy = tiles!.find(({ id }) => id === targetId)! as OccupiedOccupiableTile;
     tileToOccupy.ownedBy = 'player';
     return tiles;
+  });
+
+  queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], (unitResearch) => {
+    return unitResearch!.map((research, index) => {
+      if (index === 0) {
+        return {
+          ...research,
+          researchedIn: [...research.researchedIn, newVillage.id],
+        };
+      }
+
+      return research;
+    });
   });
 };
 
