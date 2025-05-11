@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { calculateUnitUpgradeCostForLevel, getUnitData } from 'app/(game)/(village-slug)/utils/units';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import { CurrentResourceContext } from 'app/(game)/(village-slug)/providers/current-resources-provider';
+import { Text } from 'app/components/text';
 
 type UnitImprovementCardProps = {
   unitId: Unit['id'];
@@ -47,9 +48,10 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
 
   return (
     <article className="flex flex-col p-2 border border-gray-500">
+      {/* TODO: This first section is shared between UnitCard, it should probably be extracted */}
       <section className="pb-2">
         <div className="inline-flex gap-2 items-center font-semibold">
-          <h2 className="text-xl">{assetsT(`UNITS.${unitId}.NAME`, { count: 1, unitId })}</h2>
+          <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`, { count: 1, unitId })}</Text>
           <span className="text-sm text-orange-500">{t('Level {{level}}', { level: upgradeLevel })}</span>
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10 md:size-14">
@@ -58,23 +60,24 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
             type={unitIdToUnitIconMapper(unitId)}
           />
         </div>
+        <Text as="p">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
       </section>
 
       <section className="flex flex-col gap-2 py-2 border-t border-gray-200">
         {isMaxLevel && <span className="text-orange-500">{t('Max level reached')}</span>}
         {!isMaxLevel && (
           <>
-            <h2 className="font-medium">{t('Upgrade cost for level {{level}}', { level: upgradeLevel + 1 })}</h2>
+            <Text as="h3">{t('Upgrade cost for level {{level}}', { level: upgradeLevel + 1 })}</Text>
             <Resources resources={upgradeCost} />
           </>
         )}
       </section>
       {!isMaxLevel && (
         <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-          <h2 className="font-medium">{t('Available actions')}</h2>
+          <Text as="h3">{t('Available actions')}</Text>
           <Button
             variant="default"
-            disabled={!canUpgrade}
+            disabled={canUpgrade}
             onClick={() => upgradeUnitTier(tier)}
           >
             {t('Upgrade to {{level}}', { level: upgradeLevel + 1 })}

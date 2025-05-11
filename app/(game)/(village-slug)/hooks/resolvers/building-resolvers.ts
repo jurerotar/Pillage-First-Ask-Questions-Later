@@ -59,31 +59,27 @@ export const removeBuildingField = (villages: Village[], args: GameEvent<'buildi
 };
 
 export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChange'>> = async (queryClient, args) => {
-  const { buildingFieldId, level, buildingId, changeType } = args;
+  const { buildingFieldId, level, buildingId, villageId } = args;
 
-  const { effects } = getBuildingData(buildingId);
+  const { effects: buildingEffects } = getBuildingData(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
-    const buildingEffects = prevData!.filter(isBuildingEffect);
+    const buildingEffectsWithoutCurrentBuildingEffects = prevData!.filter((effect) => {
+      return !(isBuildingEffect(effect) && effect.villageId === villageId && effect.buildingFieldId === buildingFieldId);
+    });
 
-    // Loop through all effects gained by the new level, find corresponding village effects and update them to the new values
-    for (const { effectId, valuesPerLevel } of effects) {
-      // We need the effect.value === valuesPerLevel[level +/- 1] check, because otherwise a wheatProduction effect from cropland can override a negative wheatProduction effect from population increasing
-      const indexMatcher = changeType === 'upgrade' ? -1 : 1;
-      const villageEffect = buildingEffects.find(
-        (effect) =>
-          effect.id === effectId && effect?.buildingFieldId === buildingFieldId && effect.value === valuesPerLevel[level + indexMatcher],
-      )!;
-
-      if (!villageEffect) {
-        console.error(
-          `BuildingLevelChangeResolver error: Can't find villageEffect ${effectId} for buildingFieldId ${buildingFieldId}, value of ${valuesPerLevel[level + 1]}`,
-        );
-      }
-      villageEffect.value = valuesPerLevel[level];
-    }
-
-    return prevData;
+    return [
+      ...buildingEffectsWithoutCurrentBuildingEffects,
+      ...buildingEffects.map(({ effectId, valuesPerLevel }) => {
+        return newBuildingEffectFactory({
+          villageId,
+          id: effectId,
+          value: valuesPerLevel[level],
+          buildingFieldId,
+          buildingId,
+        });
+      }),
+    ];
   });
 
   queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (villages) => {
@@ -143,6 +139,5 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
     level,
     villageId,
     resourceCost,
-    changeType: 'upgrade',
   });
 };

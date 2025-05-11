@@ -33,11 +33,8 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
 
   return (
-    <div className="flex flex-col">
-      <section
-        data-testid="building-overview-title-section"
-        className="pb-2"
-      >
+    <>
+      <section data-testid="building-overview-title-section">
         {showTitle && (
           <div className="inline-flex gap-2 items-center font-semibold">
             <Text as="h2">
@@ -101,7 +98,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
       {!isMaxLevel && (
         <section
           data-testid="building-overview-benefits-section"
-          className={'flex flex-col gap-2 py-2 justify-center border-t border-gray-200'}
+          className={'flex flex-col gap-2 pt-2 justify-center border-t border-gray-200'}
         >
           <Text as="h3">{t('Benefits at level {{level}}', { level: doesBuildingExist ? actualLevel + 1 : 1 })}</Text>
           <div className="flex flex-wrap gap-2">
@@ -128,14 +125,14 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         <>
           <section
             data-testid="building-overview-costs-section"
-            className="flex flex-col flex-wrap gap-2 py-2 justify-center border-t border-gray-200"
+            className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-gray-200"
           >
             <Text as="h3">
               {doesBuildingExist ? t('Cost to upgrade to level {{level}}', { level: virtualLevel + 1 }) : t('Building construction cost')}
             </Text>
             <Resources resources={nextLevelResourceCost} />
           </section>
-          <section className="flex flex-col flex-wrap gap-2 py-2 border-t border-gray-200 justify-center">
+          <section className="flex flex-col flex-wrap gap-2 border-t border-gray-200 justify-center">
             <Text as="h3">{t('Construction duration for level {{level}}', { level: virtualLevel + 1 })}</Text>
             <span className="flex gap-1">
               <Icon type="buildingDuration" />
@@ -144,6 +141,6 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
           </section>
         </>
       )}
-    </div>
+    </>
   );
 };

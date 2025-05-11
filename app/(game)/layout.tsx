@@ -16,8 +16,6 @@ import { PersisterAwaiter } from 'app/(game)/components/persister-awaiter';
 import type { Route } from '.react-router/types/app/(game)/+types/layout';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import { assignHeroModelPropertiesToUnitModel } from 'app/(game)/utils/hero';
-import { MemoryIndicator } from 'app/(game)/components/memory-indicator';
-import { isMasterDeploy } from 'app/utils/common';
 import { useWorkerRef } from 'app/(game)/hooks/use-worker-ref';
 import GameSyncWorker from './workers/sync-worker?worker&url';
 import QuestsWorker from './workers/quests-worker?worker&url';
@@ -26,9 +24,16 @@ import type { Quest } from 'app/interfaces/models/game/quest';
 import { Toaster } from 'app/components/ui/toaster';
 import type { Server } from 'app/interfaces/models/game/server';
 import { faro } from 'app/faro';
+import { Skeleton } from 'app/components/ui/skeleton';
 
 const Fallback = () => {
-  return <div>Loader...</div>;
+  return (
+    <div className="relative h-screen overflow-y-hidden scrollbar-hidden">
+      <Skeleton className="absolute top-0 left-0 right-0 h-26 lg:h-20 rounded-none" />
+      <Skeleton className="hidden lg:flex absolute-centering absolute top-30 w-160 h-20 rounded-none" />
+      <Skeleton className="flex lg:hidden absolute bottom-0 left-0 right-0 h-24 rounded-none" />
+    </div>
+  );
 };
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
@@ -221,7 +226,6 @@ const Layout = ({ params }: Route.ComponentProps) => {
         client={queryClient}
         initialIsOpen={false}
       />
-      {!isMasterDeploy() && <MemoryIndicator />}
       <Toaster />
     </PersistQueryClientProvider>
   );

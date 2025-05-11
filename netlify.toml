@@ -1,50 +1,3 @@
-[[redirects]]
-from = "/game/*"
-to = "/__spa-fallback.html"
-status = 200
-
-[[redirects]]
-from = "/create-new-server"
-to = "/create-new-server/index.html"
-status = 200
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
-
-# Cache JS and CSS for 1 month
-[[headers]]
-for = "/*.js"
-[headers.values]
-Cache-Control = "public, max-age=2592000, immutable"
-
-[[headers]]
-for = "/*.css"
-[headers.values]
-Cache-Control = "public, max-age=2592000, immutable"
-
-# Cache images for 1 day
-[[headers]]
-for = "/*.avif"
-[headers.values]
-Cache-Control = "public, max-age=86400"
-
-[[headers]]
-for = "/*.png"
-[headers.values]
-Cache-Control = "public, max-age=86400"
-
-[[headers]]
-for = "/*.jpg"
-[headers.values]
-Cache-Control = "public, max-age=86400"
-
-[[headers]]
-for = "/*.jpeg"
-[headers.values]
-Cache-Control = "public, max-age=86400"
-
 [build]
 command = "npm run build"
 publish = "build/client"
@@ -54,8 +7,9 @@ image = "ubuntu-24.04"
 NODE_VERSION = "22.15.0"
 NPM_FLAGS = "--experimental-strip-types"
 
-[context.master.environment]
-BRANCH_ENV = "master"
+[context.master]
+environment = { BRANCH_ENV = "master" }
 
 [context.branch-deploy.environment]
-BRANCH_ENV = "develop"
+command = "npm run build:dev"
+environment = { BRANCH_ENV = "develop" }

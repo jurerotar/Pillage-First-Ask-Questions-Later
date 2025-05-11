@@ -39,6 +39,7 @@ export type BuildingId =
   | 'RESIDENCE'
   | 'TOURNAMENT_SQUARE'
   | 'TRADE_OFFICE'
+  | 'SMITHY'
   | 'TREASURY';
 
 export type BuildingEffect = {
