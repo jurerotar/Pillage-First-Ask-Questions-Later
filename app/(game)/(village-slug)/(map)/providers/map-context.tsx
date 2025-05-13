@@ -1,7 +1,7 @@
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import type React from 'react';
-import { createContext, use, useState } from 'react';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { createContext, useState } from 'react';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 type MapProviderValues = {
   magnification: number;
@@ -18,7 +18,7 @@ export const MIN_MAGNIFICATION = 3;
 
 export const MapProvider: React.FCWithChildren = ({ children }) => {
   const { mapSize } = useServer();
-  const { isWiderThanLg } = use(ViewportContext);
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const tileBaseSize = isWiderThanLg ? 20 : 15;
 

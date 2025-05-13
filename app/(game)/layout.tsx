@@ -25,6 +25,7 @@ import { Toaster } from 'app/components/ui/toaster';
 import type { Server } from 'app/interfaces/models/game/server';
 import { faro } from 'app/faro';
 import { Skeleton } from 'app/components/ui/skeleton';
+import i18n from 'i18next';
 
 const Fallback = () => {
   return (
@@ -37,7 +38,16 @@ const Fallback = () => {
 };
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
-  const { sessionContext } = await import('app/context/session');
+  const [{ sessionContext }, publicResources, assetResources] = await Promise.all([
+    import('app/context/session'),
+    import('app/locales/en-US/app.json'),
+    import('app/locales/en-US/assets.json'),
+  ]);
+
+  i18n.addResourceBundle('en-US', 'app', {
+    ...publicResources,
+    ...assetResources,
+  });
 
   const { sessionId } = context.get(sessionContext);
 

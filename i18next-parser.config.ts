@@ -1,4 +1,7 @@
 import type { UserConfig } from 'i18next-parser';
+import type { AvailableLocales } from 'app/interfaces/models/locale';
+
+const locales: AvailableLocales[] = ['en-US'];
 
 export default {
   // Key separator used in your translation keys
@@ -12,11 +15,8 @@ export default {
 
   // Default value to give to keys with no value
   // You may also specify a function accepting the locale, namespace, key, and value as arguments
-  defaultValue: (locale, _namespace, key) => {
-    if (locale === 'en-US') {
-      return key!;
-    }
-    return '';
+  defaultValue: (_locale, _namespace, key) => {
+    return key!;
   },
 
   // Indentation of the catalog files
@@ -52,7 +52,7 @@ export default {
   lineEnding: 'lf',
 
   // An array of the locales in your applications
-  locales: ['en-US'],
+  locales,
 
   // Namespace separator used in your translation keys
   // If you want to use plain English keys, separators such as `.` and `:` will conflict.
@@ -62,7 +62,7 @@ export default {
   // Supports $LOCALE and $NAMESPACE injection
   // Supports JSON (.json) and YAML (.yml) file formats
   // Where to write the locale files relative to process.cwd()
-  output: 'locales/$LOCALE/$NAMESPACE.json',
+  output: 'app/locales/$LOCALE/$NAMESPACE.json',
 
   // Plural separator used in your translation keys
   // If you want to use plain English keys, separators such as `_` might conflict.

@@ -4,7 +4,7 @@ import { GameEngineProvider } from 'app/(game)/(village-slug)/providers/game-eng
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment, memo, useEffect, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
@@ -20,7 +20,6 @@ import { Link } from 'app/components/link';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
-import { CountdownProvider } from 'app/(game)/(village-slug)/providers/countdown-provider';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { FaHome } from 'react-icons/fa';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
@@ -39,12 +38,14 @@ import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construc
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
 import { useTranslation } from 'react-i18next';
+import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
 };
 
-const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ children, counter = 0, ...rest }) => {
+const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(({ children, counter = 0, ...rest }) => {
   return (
     <button
       type="button"
@@ -63,7 +64,7 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = ({ chi
       )}
     </button>
   );
-};
+});
 
 const DiscordLink = () => {
   return (
@@ -115,7 +116,7 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> = ({ children, ...rest }) => {
+const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> = memo(({ children, ...rest }) => {
   return (
     <button
       type="button"
@@ -125,14 +126,14 @@ const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> = 
       {children}
     </button>
   );
-};
+});
 
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
   counter?: number;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ children, counter = 0, ...rest }) => {
+const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo(({ children, counter = 0, ...rest }) => {
   const { isActive, ...htmlProps } = rest;
 
   return (
@@ -152,7 +153,7 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({ chi
       )}
     </button>
   );
-};
+});
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
@@ -270,175 +271,182 @@ const TopNavigation = () => {
   const { t } = useTranslation();
   const gameNavigation = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const [x, y] = currentVillage.id.split('|');
   const currentVillageMapPath = `${gameNavigation.mapPath}?x=${x}&y=${y}`;
 
   return (
     <header className="flex flex-col w-full relative">
-      <div className="flex-col hidden lg:flex shadow-sm bg-white">
-        <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
-          <nav className="hidden lg:flex justify-end container mx-auto">
-            <ul className="flex gap-1">
-              <li>
-                <Link
-                  target="_blank"
-                  to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                >
-                  <DesktopTopRowItem>
-                    <span className="inline-flex gap-2 items-center">
-                      <FaGithub className="text-xl text-[#24292e]" />
-                      <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">GitHub</span>
-                    </span>
-                  </DesktopTopRowItem>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="bg-[#7289da]"
-                  target="_blank"
-                  to="https://discord.com/invite/Ep7NKVXUZA"
-                >
-                  <DesktopTopRowItem>
-                    <span className="inline-flex gap-2 items-center">
-                      <FaDiscord className="text-xl text-[#7289da]" />
-                      <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">Discord</span>
-                    </span>
-                  </DesktopTopRowItem>
-                </Link>
-              </li>
-              <li>
-                <Link to={gameNavigation.preferencesPath}>
-                  <DesktopTopRowItem
-                    aria-label={t('Preferences')}
-                    title={t('Preferences')}
+      {isWiderThanLg && (
+        <div className="flex-col hidden lg:flex shadow-sm bg-white">
+          <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
+            <nav className="hidden lg:flex justify-end container mx-auto">
+              <ul className="flex gap-1">
+                <li>
+                  <Link
+                    target="_blank"
+                    to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                   >
-                    <MdSettings className="text-xl" />
-                  </DesktopTopRowItem>
-                </Link>
-              </li>
-              <li>
-                <Link to="/">
-                  <DesktopTopRowItem
-                    aria-label={t('Logout')}
-                    title={t('Logout')}
+                    <DesktopTopRowItem>
+                      <span className="inline-flex gap-2 items-center">
+                        <FaGithub className="text-xl text-[#24292e]" />
+                        <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">GitHub</span>
+                      </span>
+                    </DesktopTopRowItem>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="bg-[#7289da]"
+                    target="_blank"
+                    to="https://discord.com/invite/Ep7NKVXUZA"
                   >
-                    <RxExit className="text-xl text-red-500" />
-                  </DesktopTopRowItem>
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-        <div className="flex justify-between container mx-auto">
-          <div className="flex flex-1 items-center">
-            <VillageSelect />
+                    <DesktopTopRowItem>
+                      <span className="inline-flex gap-2 items-center">
+                        <FaDiscord className="text-xl text-[#7289da]" />
+                        <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">Discord</span>
+                      </span>
+                    </DesktopTopRowItem>
+                  </Link>
+                </li>
+                <li>
+                  <Link to={gameNavigation.preferencesPath}>
+                    <DesktopTopRowItem
+                      aria-label={t('Preferences')}
+                      title={t('Preferences')}
+                    >
+                      <MdSettings className="text-xl" />
+                    </DesktopTopRowItem>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/">
+                    <DesktopTopRowItem
+                      aria-label={t('Logout')}
+                      title={t('Logout')}
+                    >
+                      <RxExit className="text-xl text-red-500" />
+                    </DesktopTopRowItem>
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           </div>
-          <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
-            <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
-              <li>
-                <Link to={gameNavigation.statisticsPath}>
-                  <NavigationSideItem
-                    aria-label={t('Statistics')}
-                    title={t('Statistics')}
-                  >
-                    <GoGraph className="text-xl" />
-                  </NavigationSideItem>
-                </Link>
-              </li>
-              <li>
-                <Link to={gameNavigation.questsPath}>
-                  <QuestsNavigationItem />
-                </Link>
-              </li>
-              <li>
-                <Link to={gameNavigation.overviewPath}>
-                  <NavigationSideItem
-                    aria-label={t('Overview')}
-                    title={t('Overview')}
-                  >
-                    <CiCircleList className="text-xl" />
-                  </NavigationSideItem>
-                </Link>
-              </li>
-              <li>
-                <ul className="flex gap-1 xl:gap-2 xl:mx-4">
-                  <li>
-                    <Link
-                      to={gameNavigation.resourcesPath}
-                      prefetch="render"
+          <div className="flex justify-between container mx-auto">
+            <div className="flex flex-1 items-center">
+              <VillageSelect />
+            </div>
+            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
+              <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
+                <li>
+                  <Link to={gameNavigation.statisticsPath}>
+                    <NavigationSideItem
+                      aria-label={t('Statistics')}
+                      title={t('Statistics')}
                     >
-                      <NavigationMainItem
-                        aria-label={t('Resources')}
-                        title={t('Resources')}
-                        isActive={gameNavigation.isResourcesPageOpen}
-                      >
-                        <GiWheat className="text-3xl" />
-                      </NavigationMainItem>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to={gameNavigation.villagePath}
-                      prefetch="render"
+                      <GoGraph className="text-xl" />
+                    </NavigationSideItem>
+                  </Link>
+                </li>
+                <li>
+                  <Link to={gameNavigation.questsPath}>
+                    <QuestsNavigationItem />
+                  </Link>
+                </li>
+                <li>
+                  <Link to={gameNavigation.overviewPath}>
+                    <NavigationSideItem
+                      aria-label={t('Overview')}
+                      title={t('Overview')}
                     >
-                      <NavigationMainItem
-                        aria-label={t('Village')}
-                        title={t('Village')}
-                        isActive={gameNavigation.isVillagePageOpen}
+                      <CiCircleList className="text-xl" />
+                    </NavigationSideItem>
+                  </Link>
+                </li>
+                <li>
+                  <ul className="flex gap-1 xl:gap-2 xl:mx-4">
+                    <li>
+                      <Link
+                        to={gameNavigation.resourcesPath}
+                        prefetch="render"
                       >
-                        <MdOutlineHolidayVillage className="text-3xl" />
-                      </NavigationMainItem>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to={currentVillageMapPath}
-                      prefetch="render"
+                        <NavigationMainItem
+                          aria-label={t('Resources')}
+                          title={t('Resources')}
+                          isActive={gameNavigation.isResourcesPageOpen}
+                        >
+                          <GiWheat className="text-3xl" />
+                        </NavigationMainItem>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to={gameNavigation.villagePath}
+                        prefetch="render"
+                      >
+                        <NavigationMainItem
+                          aria-label={t('Village')}
+                          title={t('Village')}
+                          isActive={gameNavigation.isVillagePageOpen}
+                        >
+                          <MdOutlineHolidayVillage className="text-3xl" />
+                        </NavigationMainItem>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to={currentVillageMapPath}
+                        prefetch="render"
+                      >
+                        <NavigationMainItem
+                          aria-label={t('Map')}
+                          title={t('Map')}
+                          isActive={gameNavigation.isMapPageOpen}
+                        >
+                          <TbMap2 className="text-3xl" />
+                        </NavigationMainItem>
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <Link to={gameNavigation.reportsPath}>
+                    <ReportsNavigationItem />
+                  </Link>
+                </li>
+                <li>
+                  <Link to={gameNavigation.adventuresPath}>
+                    <AdventuresNavigationItem />
+                  </Link>
+                </li>
+                <li>
+                  <Link to={gameNavigation.auctionsPath}>
+                    <NavigationSideItem
+                      aria-label={t('Auctions')}
+                      title={t('Auctions')}
                     >
-                      <NavigationMainItem
-                        aria-label={t('Map')}
-                        title={t('Map')}
-                        isActive={gameNavigation.isMapPageOpen}
-                      >
-                        <TbMap2 className="text-3xl" />
-                      </NavigationMainItem>
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <Link to={gameNavigation.reportsPath}>
-                  <ReportsNavigationItem />
-                </Link>
-              </li>
-              <li>
-                <Link to={gameNavigation.adventuresPath}>
-                  <AdventuresNavigationItem />
-                </Link>
-              </li>
-              <li>
-                <Link to={gameNavigation.auctionsPath}>
-                  <NavigationSideItem
-                    aria-label={t('Auctions')}
-                    title={t('Auctions')}
-                  >
-                    <RiAuctionLine className="text-xl" />
-                  </NavigationSideItem>
-                </Link>
-              </li>
-            </ul>
-          </nav>
-          <div className="flex flex-1" />
+                      <RiAuctionLine className="text-xl" />
+                    </NavigationSideItem>
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            <div className="flex flex-1" />
+          </div>
         </div>
-      </div>
-      {/* Empty div to bring down the header on mobile devices */}
-      <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-      <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
-        <DiscordLink />
-        <VillageSelect />
-        <HeroNavigationItem />
-      </div>
+      )}
+      {!isWiderThanLg && (
+        <>
+          {/* Empty div to bring down the header on mobile devices */}
+          <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
+          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+            <DiscordLink />
+            <VillageSelect />
+            <HeroNavigationItem />
+          </div>
+        </>
+      )}
       <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
         <ResourceCounters />
       </div>
@@ -572,6 +580,7 @@ export const ErrorBoundary = () => {
 
 const GameLayout = () => {
   const { timeOfDay, skinVariant, colorScheme } = usePreferences();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   useEffect(() => {
     const body = document.querySelector('body')!;
@@ -600,14 +609,12 @@ const GameLayout = () => {
   return (
     <GameEngineProvider>
       <CurrentResourceProvider>
-        <CountdownProvider>
-          <TopNavigation />
-          <TroopMovements />
-          <Outlet />
-          <ConstructionQueue />
-          {/*<TroopList />*/}
-          <MobileBottomNavigation />
-        </CountdownProvider>
+        <TopNavigation />
+        <TroopMovements />
+        <Outlet />
+        <ConstructionQueue />
+        <TroopList />
+        {!isWiderThanLg && <MobileBottomNavigation />}
       </CurrentResourceProvider>
     </GameEngineProvider>
   );

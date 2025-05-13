@@ -1,5 +1,4 @@
 import { Links, type LinksFunction, Meta, type MetaFunction, Outlet, Scripts } from 'react-router';
-import { ViewportProvider } from 'app/providers/viewport-context';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
@@ -116,11 +115,9 @@ const Root = () => {
         <Links />
       </head>
       <body>
-        <ViewportProvider>
-          <StateProvider>
-            <Outlet />
-          </StateProvider>
-        </ViewportProvider>
+        <StateProvider>
+          <Outlet />
+        </StateProvider>
         <Scripts />
       </body>
     </html>

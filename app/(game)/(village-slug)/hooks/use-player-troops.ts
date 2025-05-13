@@ -25,14 +25,14 @@ export const usePlayerTroops = () => {
     initialData: [],
   });
 
-  const getSendableTroops = (villageId: Village['id']) => {
+  const getDeployableTroops = (villageId: Village['id']) => {
     return playerTroops.filter(({ tileId, source }) => tileId === villageId && source === villageId);
   };
 
   const sendTroops = ({ targetId, movementType, troops }: SendTroopsArgs) => {
-    const sendableTroops = getSendableTroops(currentVillage.id);
+    const deployableTroops = getDeployableTroops(currentVillage.id);
 
-    if (!canSendTroops(sendableTroops, troops)) {
+    if (!canSendTroops(deployableTroops, troops)) {
       toast(t('Unable to send that many troops.'));
       return;
     }
@@ -61,6 +61,6 @@ export const usePlayerTroops = () => {
   return {
     playerTroops,
     sendTroops,
-    getSendableTroops,
+    getDeployableTroops,
   };
 };

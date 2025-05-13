@@ -7,7 +7,6 @@ import type { Player } from 'app/interfaces/models/game/player.js';
 import type { Server } from 'app/interfaces/models/game/server.js';
 import type { Village } from 'app/interfaces/models/game/village.js';
 import { StateProvider } from 'app/providers/state-provider.js';
-import { ViewportProvider } from 'app/providers/viewport-context.js';
 import { playerMock } from 'app/tests/mocks/game/player-mock.js';
 import { serverMock, serverPathMock } from 'app/tests/mocks/game/server-mock.js';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock.js';
@@ -71,10 +70,6 @@ type RenderOptions = {
   queryClient?: QueryClient;
   // Wrap your component with layout(s). If property is missing, default layout will be used.
   wrapper?: React.FCWithChildren[] | React.FCWithChildren;
-  deviceSize?: {
-    height: Window['innerHeight'];
-    width: Window['innerWidth'];
-  };
 };
 
 // Game components relly on url pathname params to determine correct data to display, so this testing environments mocks that.
@@ -157,25 +152,17 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
 };
 
 const TestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
-  const { wrapper = [], deviceSize, children, queryClient: providedQueryClient } = props;
+  const { wrapper = [], children, queryClient: providedQueryClient } = props;
 
   const queryClient = providedQueryClient ?? new QueryClient();
 
   return (
-    <StateProvider queryClient={queryClient}>
-      <ViewportProvider initialSize={deviceSize}>
-        {composeComponents(children, Array.isArray(wrapper) ? wrapper : [wrapper])}
-      </ViewportProvider>
-    </StateProvider>
+    <StateProvider queryClient={queryClient}>{composeComponents(children, Array.isArray(wrapper) ? wrapper : [wrapper])}</StateProvider>
   );
 };
 
 const defaultOptions: RenderOptions = {
   wrapper: [],
-  deviceSize: {
-    height: 0,
-    width: 0,
-  },
 };
 
 export const renderHookWithContext = <TProps, TResult>(callback: (props: TProps) => TResult, options?: RenderOptions) => {

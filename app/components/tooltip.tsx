@@ -1,13 +1,12 @@
 import clsx from 'clsx';
 import type React from 'react';
-import { use } from 'react';
 import { type ITooltip as ReactTooltipProps, Tooltip as ReactTooltip } from 'react-tooltip';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 export const Tooltip: React.FC<ReactTooltipProps> = (props) => {
   const { className, ...rest } = props;
 
-  const { isWiderThanLg } = use(ViewportContext);
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   if (!isWiderThanLg) {
     return null;
