@@ -10,7 +10,6 @@ import type {
 } from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
-import { use } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'app/components/link';
@@ -18,7 +17,7 @@ import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -144,7 +143,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { currentVillage } = useCurrentVillage();
   const { shouldShowBuildingNames } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
-  const { isWiderThanLg } = use(ViewportContext);
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -176,6 +175,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       <BuildingUpgradeIndicator
         isHovered={isHovered}
         buildingFieldId={buildingFieldId}
+        buildingEvent={currentBuildingFieldBuildingEvent}
       />
       {shouldShowBuildingNames && (
         <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">

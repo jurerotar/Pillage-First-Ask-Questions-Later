@@ -7,7 +7,7 @@ import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
 
 const HomePage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('public');
   const { availableServers } = useAvailableServers();
 
   return (

@@ -6,14 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import { nonPersistedCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { normalizeForcedFloatValue } from 'app/utils/common';
 
-type ComputedEffectReturn = {
+export type ComputedEffectReturn = {
   effectBaseValue: number;
   effectBonusValue: number;
   serverEffectValue: number;
   total: number;
 };
 
-type WheatProductionEffectReturn = ComputedEffectReturn & {
+export type WheatProductionEffectReturn = ComputedEffectReturn & {
   buildingWheatConsumption: number;
   buildingWheatLimit: number;
   troopWheatConsumption: number;

@@ -48,18 +48,16 @@ type BuildingCardActionsSectionProps = {
 const BuildingCardActionsConstruction: React.FC<BuildingCardActionsSectionProps> = ({ buildingId, onBuildingConstruction }) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
-  const { getBuildingConstructionErrorBag } = useBuildingConstructionStatus(buildingId, buildingFieldId!);
-
-  const buildingConstructionErrorBag = getBuildingConstructionErrorBag();
+  const { errors } = useBuildingConstructionStatus(buildingId, buildingFieldId!);
 
   return (
     <>
-      <ErrorBag errorBag={buildingConstructionErrorBag} />
+      <ErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
         onClick={onBuildingConstruction}
-        disabled={buildingConstructionErrorBag.length > 0}
+        disabled={errors.length > 0}
       >
         {t('Construct')}
       </Button>
@@ -75,18 +73,16 @@ type BuildingCardActionsUpgradeProps = {
 const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({ onBuildingUpgrade, buildingLevel }) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
-  const { getBuildingUpgradeErrorBag } = useBuildingUpgradeStatus(buildingFieldId!);
-
-  const buildingUpgradeErrorBag = getBuildingUpgradeErrorBag();
+  const { errors } = useBuildingUpgradeStatus(buildingFieldId!);
 
   return (
     <>
-      <ErrorBag errorBag={buildingUpgradeErrorBag} />
+      <ErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"
         onClick={onBuildingUpgrade}
-        disabled={buildingUpgradeErrorBag.length > 0}
+        disabled={errors.length > 0}
       >
         {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
       </Button>

@@ -41,8 +41,7 @@ type MutateArgs = {
 };
 
 export const CreateNewServerForm = () => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation('public');
   const navigate = useNavigate();
   const { addServer, deleteServer } = useAvailableServers();
 
@@ -226,11 +225,11 @@ export const CreateNewServerForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="romans">{assetsT('TRIBES.ROMANS')}</SelectItem>
-                        <SelectItem value="gauls">{assetsT('TRIBES.GAULS')}</SelectItem>
-                        <SelectItem value="teutons">{assetsT('TRIBES.TEUTONS')}</SelectItem>
-                        <SelectItem value="huns">{assetsT('TRIBES.HUNS')}</SelectItem>
-                        <SelectItem value="egyptians">{assetsT('TRIBES.EGYPTIANS')}</SelectItem>
+                        <SelectItem value="romans">{t('Romans')}</SelectItem>
+                        <SelectItem value="gauls">{t('Gauls')}</SelectItem>
+                        <SelectItem value="teutons">{t('Teutons')}</SelectItem>
+                        <SelectItem value="huns">{t('Huns')}</SelectItem>
+                        <SelectItem value="egyptians">{t('Egyptians')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

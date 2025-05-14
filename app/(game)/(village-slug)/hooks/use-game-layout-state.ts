@@ -1,10 +1,9 @@
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { use } from 'react';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 
 export const useGameLayoutState = () => {
-  const { isWiderThanMd } = use(ViewportContext);
-  const { isVillagePageExact, isResourcesPageExact } = useGameNavigation();
+  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
+  const { isVillagePageExact, isResourcesPageExact } = useActiveRoute();
 
   const shouldShowSidebars = (() => {
     if (isWiderThanMd) {

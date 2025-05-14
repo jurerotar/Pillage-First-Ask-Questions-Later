@@ -1,7 +1,7 @@
 import type React from 'react';
 import { LuChevronRight } from 'react-icons/lu';
 import { cn } from 'app/utils/tailwind';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 
 export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({ ...props }) => {
   return (

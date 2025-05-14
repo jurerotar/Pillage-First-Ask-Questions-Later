@@ -15,7 +15,7 @@ type ServerCardProps = {
 export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const { server } = props;
 
-  const { t } = useTranslation();
+  const { t } = useTranslation('public');
   const { deleteServer } = useAvailableServers();
 
   const appVersion = import.meta.env.VERSION;

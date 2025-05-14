@@ -1,11 +1,13 @@
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type React from 'react';
+import { use } from 'react';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
 import { formatNumberWithCommas } from 'app/utils/common';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
 import { Link } from 'app/components/link';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -13,7 +15,13 @@ type ResourceCounterProps = {
 
 export const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) => {
   const { productionOverviewPath } = useGameNavigation();
-  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCalculatedResource(resource);
+  const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } = use(CurrentVillageStateContext);
+  const storage = resource === 'wheat' ? computedGranaryCapacityEffect.total : computedWarehouseCapacityEffect.total;
+
+  const { calculatedResourceAmount, hourlyProduction, storageCapacity, isFull, hasNegativeProduction } = useCalculatedResource(
+    resource,
+    storage,
+  );
 
   const storagePercentage = (calculatedResourceAmount / storageCapacity) * 100;
 

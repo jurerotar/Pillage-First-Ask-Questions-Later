@@ -2,7 +2,6 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import type React from 'react';
-import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +10,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Tooltip } from 'react-tooltip';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { ViewportContext } from 'app/providers/viewport-context';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { MdCancel } from 'react-icons/md';
 
@@ -25,7 +24,7 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { cancelBuildingEvent } = useEvents();
-  const { isWiderThanMd } = use(ViewportContext);
+  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
 
   const tooltipId = `tooltip-${buildingEvent.buildingId}-${buildingEvent.level}`;
 

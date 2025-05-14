@@ -3,8 +3,7 @@ import { BuildingDetails } from 'app/(game)/(village-slug)/(village)/(...buildin
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
-import type { LinksFunction, MetaFunction } from 'react-router';
-import villageAssetsPreloadPaths from 'app/asset-preload-paths/village.json';
+import type { MetaFunction } from 'react-router';
 import { t } from 'i18next';
 
 export const meta: MetaFunction = ({ location, params }) => {
@@ -20,17 +19,6 @@ export const meta: MetaFunction = ({ location, params }) => {
       title: `${pathname.includes('resources') ? t('Resources') : t('Village')} - ${buildingFieldId} | Pillage First! - ${serverSlug} - ${villageSlug}`,
     },
   ];
-};
-
-export const links: LinksFunction = () => {
-  const { files } = villageAssetsPreloadPaths;
-
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
 };
 
 const BuildingPage = () => {

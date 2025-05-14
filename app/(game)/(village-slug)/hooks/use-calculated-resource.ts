@@ -53,12 +53,11 @@ export const calculateCurrentAmount = ({
   };
 };
 
-export const useCalculatedResource = (resource: Resource) => {
+export const useCalculatedResource = (resource: Resource, storageCapacity: number) => {
   const { currentVillage } = useCurrentVillage();
 
   // @ts-expect-error: TODO: Overload issue, fix when you can
   const { total: hourlyProduction } = useComputedEffect(resourceToResourceEffectMap.get(resource)!);
-  const { total: storageCapacity } = useComputedEffect(resource === 'wheat' ? 'granaryCapacity' : 'warehouseCapacity');
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
