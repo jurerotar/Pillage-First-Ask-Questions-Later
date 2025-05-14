@@ -1,8 +1,7 @@
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { CurrentResourceContext } from 'app/(game)/(village-slug)/providers/current-resources-provider';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
@@ -31,135 +30,99 @@ export const getHasEnoughResources = (nextLevelResourceCost: number[], currentRe
   return Object.values(currentResources).every((value, index) => value >= nextLevelResourceCost[index]);
 };
 
-export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
+const useBuildingRequirements = (buildingId: Building['id'], level: number, buildingFieldId: BuildingField['id']) => {
   const { t } = useTranslation();
-  const { buildingWheatLimit } = useComputedEffect('wheatProduction');
-  const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
-  const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
-  const resources = use(CurrentResourceContext);
-  const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
+  const { computedGranaryCapacityEffect, computedWarehouseCapacityEffect, computedWheatProductionEffect, wood, clay, iron, wheat } =
+    use(CurrentVillageStateContext);
   const { isDeveloperModeActive } = useDeveloperMode();
+  const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
 
-  const { nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, 1);
+  const { buildingWheatLimit } = computedWheatProductionEffect;
+  const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
+  const { total: granaryCapacity } = computedGranaryCapacityEffect;
 
-  const getBuildingConstructionErrorBag = (): string[] => {
-    const errorBag: string[] = [];
+  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, level);
 
+  const resources = useMemo(() => {
+    return {
+      wood,
+      clay,
+      iron,
+      wheat,
+    };
+  }, [wheat, iron, clay, wood]);
+
+  const requirements = useMemo(() => {
     if (isDeveloperModeActive) {
-      return [];
+      return {
+        errors: [],
+        variant: (isMaxLevel ? 'blue' : 'red') as BorderIndicatorBorderVariant,
+      };
+    }
+
+    const errors: string[] = [];
+
+    if (isMaxLevel) {
+      errors.push(t("Building can't be upgraded any further"));
     }
 
     if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, buildingWheatLimit)) {
-      errorBag.push(t('Upgrade wheat fields first'));
+      errors.push(t('Upgrade wheat fields first'));
     }
 
     if (!getHasEnoughWarehouseCapacity(warehouseCapacity, nextLevelResourceCost)) {
-      errorBag.push(t('Upgrade warehouse first'));
+      errors.push(t('Upgrade warehouse first'));
     }
 
     if (!getHasEnoughGranaryCapacity(granaryCapacity, nextLevelResourceCost[3])) {
-      errorBag.push(t('Upgrade granary first'));
+      errors.push(t('Upgrade granary first'));
     }
 
     if (!getHasEnoughResources(nextLevelResourceCost, resources)) {
-      errorBag.push(t('Not enough resources available'));
+      errors.push(t('Not enough resources available'));
     }
 
     if (!canAddAdditionalBuildingToQueue) {
-      errorBag.push(t('Building queue is full'));
+      errors.push(t('Building queue is full'));
     }
 
-    return errorBag;
-  };
+    const variant: BorderIndicatorBorderVariant = isMaxLevel
+      ? 'blue'
+      : errors.length === 0
+        ? 'green'
+        : errors.includes(t('Not enough resources available')) || errors.includes(t('Building queue is full'))
+          ? 'yellow'
+          : 'gray';
 
-  return {
-    getBuildingConstructionErrorBag,
-  };
+    return {
+      errors,
+      variant,
+    };
+  }, [
+    isMaxLevel,
+    isDeveloperModeActive,
+    nextLevelWheatConsumption,
+    buildingWheatLimit,
+    warehouseCapacity,
+    granaryCapacity,
+    nextLevelResourceCost,
+    canAddAdditionalBuildingToQueue,
+    resources,
+    t,
+  ]);
+
+  return requirements;
 };
 
 export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) => {
-  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { buildingWheatLimit } = useComputedEffect('wheatProduction');
-  const { total: warehouseCapacity } = useComputedEffect('warehouseCapacity');
-  const { total: granaryCapacity } = useComputedEffect('granaryCapacity');
-  const resources = use(CurrentResourceContext);
-  const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)!;
 
-  const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
-  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, level);
+  return useBuildingRequirements(buildingId, level, buildingFieldId);
+};
 
-  const getBuildingUpgradeIndicatorVariant = (): BorderIndicatorBorderVariant => {
-    if (isMaxLevel) {
-      return 'blue';
-    }
-
-    if (isDeveloperModeActive) {
-      return 'red';
-    }
-
-    if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, buildingWheatLimit)) {
-      return 'gray';
-    }
-
-    if (!getHasEnoughWarehouseCapacity(warehouseCapacity, nextLevelResourceCost)) {
-      return 'gray';
-    }
-
-    if (!getHasEnoughGranaryCapacity(granaryCapacity, nextLevelResourceCost[3])) {
-      return 'gray';
-    }
-
-    if (!getHasEnoughResources(nextLevelResourceCost, resources)) {
-      return 'yellow';
-    }
-
-    if (!canAddAdditionalBuildingToQueue) {
-      return 'yellow';
-    }
-
-    return 'green';
-  };
-
-  const getBuildingUpgradeErrorBag = (): string[] => {
-    const errorBag: string[] = [];
-
-    if (isMaxLevel) {
-      return [t("Building can't be upgraded any further")];
-    }
-
-    if (isDeveloperModeActive) {
-      return [];
-    }
-
-    if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, buildingWheatLimit)) {
-      errorBag.push(t('Upgrade wheat fields first'));
-    }
-
-    if (!getHasEnoughWarehouseCapacity(warehouseCapacity, nextLevelResourceCost)) {
-      errorBag.push(t('Upgrade warehouse first'));
-    }
-
-    if (!getHasEnoughGranaryCapacity(granaryCapacity, nextLevelResourceCost[3])) {
-      errorBag.push(t('Upgrade granary first'));
-    }
-
-    if (!getHasEnoughResources(nextLevelResourceCost, resources)) {
-      errorBag.push(t('Not enough resources available'));
-    }
-
-    if (!canAddAdditionalBuildingToQueue) {
-      errorBag.push(t('Building queue is full'));
-    }
-
-    return errorBag;
-  };
-
-  return {
-    getBuildingUpgradeIndicatorVariant,
-    getBuildingUpgradeErrorBag,
-  };
+export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
+  return useBuildingRequirements(buildingId, 1, buildingFieldId);
 };
 
 export const useBuildingDowngradeStatus = (buildingFieldId: BuildingField['id']) => {

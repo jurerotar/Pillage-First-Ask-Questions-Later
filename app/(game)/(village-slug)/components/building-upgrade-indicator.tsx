@@ -6,37 +6,28 @@ import {
 } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import clsx from 'clsx';
 import type React from 'react';
 import { useState } from 'react';
 import { MdUpgrade } from 'react-icons/md';
 import type { Building } from 'app/interfaces/models/game/building';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 type StaticButtonProps = {
   level: number;
   backgroundVariant: BorderIndicatorBackgroundVariant;
   variant: BorderIndicatorBorderVariant;
-  canUpgrade: boolean;
 };
 
-const StaticButton: React.FC<StaticButtonProps> = ({ level, backgroundVariant, variant, canUpgrade }) => (
-  <button
-    className={clsx(
-      canUpgrade && 'lg:hover:scale-125',
-      'rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto',
-    )}
-    type="button"
-    disabled={!canUpgrade}
-  >
+const StaticButton: React.FC<StaticButtonProps> = ({ level, backgroundVariant, variant }) => (
+  <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
     <BorderIndicator
       backgroundVariant={backgroundVariant}
       variant={variant}
     >
       {level}
     </BorderIndicator>
-  </button>
+  </div>
 );
 
 type UpgradeButtonProps = {
@@ -80,27 +71,19 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingField
 type BuildingUpgradeIndicatorProps = {
   isHovered: boolean;
   buildingFieldId: BuildingField['id'];
+  buildingEvent: GameEvent<'buildingLevelChange'> | undefined;
 };
 
-export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered }) => {
+export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered, buildingEvent }) => {
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
-  const { getBuildingUpgradeIndicatorVariant, getBuildingUpgradeErrorBag } = useBuildingUpgradeStatus(buildingFieldId);
+  const { variant, errors } = useBuildingUpgradeStatus(buildingFieldId);
 
-  const variant = getBuildingUpgradeIndicatorVariant();
-  const buildingUpgradeErrorBag = getBuildingUpgradeErrorBag();
   const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
 
-  const canUpgrade: boolean = buildingUpgradeErrorBag.length === 0;
+  const canUpgrade: boolean = errors.length === 0;
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
-    const hasSameBuildingConstructionEvents = currentVillageBuildingEvents.some(
-      ({ buildingFieldId: eventBuildingFieldId, buildingId: eventBuildingId }) => {
-        return eventBuildingId === buildingId && eventBuildingFieldId === buildingFieldId;
-      },
-    );
-
-    if (hasSameBuildingConstructionEvents) {
+    if (buildingEvent) {
       return 'orange';
     }
 
@@ -126,7 +109,6 @@ export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> =
       level={level}
       backgroundVariant={backgroundVariant}
       variant={variant}
-      canUpgrade={canUpgrade}
     />
   );
 };

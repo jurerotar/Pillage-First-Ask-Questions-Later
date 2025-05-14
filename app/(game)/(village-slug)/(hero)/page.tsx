@@ -2,8 +2,7 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
-import type { LinksFunction, MetaFunction } from 'react-router';
-import heroItemsAssetsPreloadPaths from 'app/asset-preload-paths/hero-items.json';
+import type { MetaFunction } from 'react-router';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Text } from 'app/components/text';
@@ -22,17 +21,6 @@ export const meta: MetaFunction = ({ params }) => {
       title: `${t('Hero')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
     },
   ];
-};
-
-export const links: LinksFunction = () => {
-  const { files } = heroItemsAssetsPreloadPaths;
-
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
 };
 
 const HeroPage = () => {

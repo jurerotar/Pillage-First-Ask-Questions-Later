@@ -175,6 +175,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       <BuildingUpgradeIndicator
         isHovered={isHovered}
         buildingFieldId={buildingFieldId}
+        buildingEvent={currentBuildingFieldBuildingEvent}
       />
       {shouldShowBuildingNames && (
         <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">

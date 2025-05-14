@@ -14,7 +14,7 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import { use, useMemo, useRef } from 'react';
-import type { LinksFunction, MetaFunction } from 'react-router';
+import type { MetaFunction } from 'react-router';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
@@ -24,7 +24,6 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
-import mapAssetsPreloadPaths from 'app/asset-preload-paths/map.json';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
@@ -39,17 +38,6 @@ export const meta: MetaFunction = ({ params }) => {
       title: `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
     },
   ];
-};
-
-export const links: LinksFunction = () => {
-  const { files } = mapAssetsPreloadPaths;
-
-  return files.map((href) => ({
-    rel: 'preload',
-    href,
-    as: 'image',
-    type: 'image/avif',
-  }));
 };
 
 // Height/width of ruler on the left-bottom.

@@ -1,6 +1,6 @@
 import { dehydrate, type DehydratedState, hydrate, QueryClient, type QueryClientConfig } from '@tanstack/react-query';
 import { render, renderHook } from '@testing-library/react';
-import { CurrentResourceProvider } from 'app/(game)/(village-slug)/providers/current-resources-provider.js';
+import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { generateEffects } from 'app/factories/effect-factory.js';
 import type { Effect } from 'app/interfaces/models/game/effect.js';
 import type { Player } from 'app/interfaces/models/game/player.js';
@@ -95,7 +95,7 @@ const GameTestingEnvironment: React.FCWithChildren<RenderOptions> = (props) => {
   }
 
   const element = composeComponents(
-    <CurrentResourceProvider>{children}</CurrentResourceProvider>,
+    <CurrentVillageStateProvider>{children}</CurrentVillageStateProvider>,
     Array.isArray(wrapper) ? wrapper : [wrapper],
   );
 

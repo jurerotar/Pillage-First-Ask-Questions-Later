@@ -1,9 +1,13 @@
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { CurrentResourceProvider } from 'app/(game)/(village-slug)/providers/current-resources-provider';
+import {
+  CurrentVillageStateContext,
+  CurrentVillageStateProvider,
+} from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { GameEngineProvider } from 'app/(game)/(village-slug)/providers/game-engine-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
+import { use } from 'react';
 import { Fragment, memo, useEffect, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
@@ -15,8 +19,7 @@ import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Outlet } from 'react-router';
-import { Link } from 'app/components/link';
+import { Outlet, Link } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -28,9 +31,7 @@ import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-vi
 import { HiStar } from 'react-icons/hi';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { formatNumber } from 'app/utils/common';
-import layoutStyles from './layout.module.scss';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
@@ -40,6 +41,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'a
 import { useTranslation } from 'react-i18next';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import layoutStyles from './layout.module.scss';
+import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -68,15 +71,16 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo((
 
 const DiscordLink = () => {
   return (
-    <Link
-      to="https://discord.com/invite/Ep7NKVXUZA"
+    <a
+      href="https://discord.com/invite/Ep7NKVXUZA"
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-white"
       title="Discord"
+      rel="noopener"
     >
       <span className="flex items-center justify-center">
         <FaDiscord className="text-2xl text-[#7289da]" />
       </span>
-    </Link>
+    </a>
   );
 };
 
@@ -158,50 +162,127 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo((
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
   const { amountOfUncollectedQuests } = useQuests();
+  const { questsPath } = useGameNavigation();
 
   return (
-    <NavigationSideItem
-      counter={amountOfUncollectedQuests}
-      aria-label={t('Quests')}
-      title={t('Quests')}
-    >
-      <FaBookBookmark className="text-xl" />
-    </NavigationSideItem>
+    <Link to={questsPath}>
+      <NavigationSideItem
+        counter={amountOfUncollectedQuests}
+        aria-label={t('Quests')}
+        title={t('Quests')}
+      >
+        <FaBookBookmark className="text-xl" />
+      </NavigationSideItem>
+    </Link>
   );
 };
 
 const AdventuresNavigationItem = () => {
   const { t } = useTranslation();
   const { adventurePoints } = useAdventurePoints();
+  const { adventuresPath } = useGameNavigation();
 
   return (
-    <NavigationSideItem
-      counter={adventurePoints.amount}
-      aria-label={t('Adventures')}
-      title={t('Adventures')}
-    >
-      <PiPathBold className="text-xl" />
-    </NavigationSideItem>
+    <Link to={adventuresPath}>
+      <NavigationSideItem
+        counter={adventurePoints.amount}
+        aria-label={t('Adventures')}
+        title={t('Adventures')}
+      >
+        <PiPathBold className="text-xl" />
+      </NavigationSideItem>
+    </Link>
   );
 };
 
 const ReportsNavigationItem = () => {
   const { t } = useTranslation();
   const { reports } = useReports();
+  const { reportsPath } = useGameNavigation();
 
   return (
-    <NavigationSideItem
-      counter={reports.length}
-      aria-label={t('Reports')}
-      title={t('Reports')}
+    <Link to={reportsPath}>
+      <NavigationSideItem
+        counter={reports.length}
+        aria-label={t('Reports')}
+        title={t('Reports')}
+      >
+        <LuScrollText className="text-xl" />
+      </NavigationSideItem>
+    </Link>
+  );
+};
+
+const ResourcesNavigationItem = () => {
+  const { t } = useTranslation();
+  const { resourcesPath } = useGameNavigation();
+  const { isResourcesPageOpen } = useActiveRoute();
+
+  return (
+    <Link
+      to={resourcesPath}
+      prefetch="render"
     >
-      <LuScrollText className="text-xl" />
-    </NavigationSideItem>
+      <NavigationMainItem
+        aria-label={t('Resources')}
+        title={t('Resources')}
+        isActive={isResourcesPageOpen}
+      >
+        <GiWheat className="text-3xl" />
+      </NavigationMainItem>
+    </Link>
+  );
+};
+
+const VillageNavigationItem = () => {
+  const { t } = useTranslation();
+  const { villagePath } = useGameNavigation();
+  const { isVillagePageOpen } = useActiveRoute();
+
+  return (
+    <Link
+      to={villagePath}
+      prefetch="render"
+    >
+      <NavigationMainItem
+        aria-label={t('Village')}
+        title={t('Village')}
+        isActive={isVillagePageOpen}
+      >
+        <MdOutlineHolidayVillage className="text-3xl" />
+      </NavigationMainItem>
+    </Link>
+  );
+};
+
+const MapNavigationItem = () => {
+  const { t } = useTranslation();
+  const { mapPath } = useGameNavigation();
+  const { currentVillage } = useCurrentVillage();
+  const { isMapPageOpen } = useActiveRoute();
+
+  const [x, y] = currentVillage.id.split('|');
+  const currentVillageMapPath = `${mapPath}?x=${x}&y=${y}`;
+
+  return (
+    <Link
+      to={currentVillageMapPath}
+      prefetch="render"
+    >
+      <NavigationMainItem
+        aria-label={t('Map')}
+        title={t('Map')}
+        isActive={isMapPageOpen}
+      >
+        <TbMap2 className="text-3xl" />
+      </NavigationMainItem>
+    </Link>
   );
 };
 
 const ResourceCounters = () => {
-  const { buildingWheatConsumption, buildingWheatLimit } = useComputedEffect('wheatProduction');
+  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { buildingWheatConsumption, buildingWheatLimit } = computedWheatProductionEffect;
 
   return (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5 lg:gap-2">
@@ -236,10 +317,10 @@ const ResourceCounters = () => {
 };
 
 const VillageSelect = () => {
+  const { t } = useTranslation();
   const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
-  const { t } = useTranslation();
 
   return (
     <Select
@@ -270,11 +351,7 @@ const VillageSelect = () => {
 const TopNavigation = () => {
   const { t } = useTranslation();
   const gameNavigation = useGameNavigation();
-  const { currentVillage } = useCurrentVillage();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-
-  const [x, y] = currentVillage.id.split('|');
-  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${x}&y=${y}`;
 
   return (
     <header className="flex flex-col w-full relative">
@@ -350,9 +427,7 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to={gameNavigation.questsPath}>
-                    <QuestsNavigationItem />
-                  </Link>
+                  <QuestsNavigationItem />
                 </li>
                 <li>
                   <Link to={gameNavigation.overviewPath}>
@@ -367,58 +442,21 @@ const TopNavigation = () => {
                 <li>
                   <ul className="flex gap-1 xl:gap-2 xl:mx-4">
                     <li>
-                      <Link
-                        to={gameNavigation.resourcesPath}
-                        prefetch="render"
-                      >
-                        <NavigationMainItem
-                          aria-label={t('Resources')}
-                          title={t('Resources')}
-                          isActive={gameNavigation.isResourcesPageOpen}
-                        >
-                          <GiWheat className="text-3xl" />
-                        </NavigationMainItem>
-                      </Link>
+                      <ResourcesNavigationItem />
                     </li>
                     <li>
-                      <Link
-                        to={gameNavigation.villagePath}
-                        prefetch="render"
-                      >
-                        <NavigationMainItem
-                          aria-label={t('Village')}
-                          title={t('Village')}
-                          isActive={gameNavigation.isVillagePageOpen}
-                        >
-                          <MdOutlineHolidayVillage className="text-3xl" />
-                        </NavigationMainItem>
-                      </Link>
+                      <VillageNavigationItem />
                     </li>
                     <li>
-                      <Link
-                        to={currentVillageMapPath}
-                        prefetch="render"
-                      >
-                        <NavigationMainItem
-                          aria-label={t('Map')}
-                          title={t('Map')}
-                          isActive={gameNavigation.isMapPageOpen}
-                        >
-                          <TbMap2 className="text-3xl" />
-                        </NavigationMainItem>
-                      </Link>
+                      <MapNavigationItem />
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <Link to={gameNavigation.reportsPath}>
-                    <ReportsNavigationItem />
-                  </Link>
+                  <ReportsNavigationItem />
                 </li>
                 <li>
-                  <Link to={gameNavigation.adventuresPath}>
-                    <AdventuresNavigationItem />
-                  </Link>
+                  <AdventuresNavigationItem />
                 </li>
                 <li>
                   <Link to={gameNavigation.auctionsPath}>
@@ -457,12 +495,8 @@ const TopNavigation = () => {
 const MobileBottomNavigation = () => {
   const { t } = useTranslation();
   const gameNavigation = useGameNavigation();
-  const { currentVillage } = useCurrentVillage();
 
   const container = useRef<HTMLDivElement>(null);
-
-  const [x, y] = currentVillage.id.split('|');
-  const currentVillageMapPath = `${gameNavigation.mapPath}?x=${x}&y=${y}`;
 
   useCenterHorizontally(container);
 
@@ -488,65 +522,26 @@ const MobileBottomNavigation = () => {
             </Link>
           </li>
           <li>
-            <Link to={gameNavigation.adventuresPath}>
-              <AdventuresNavigationItem />
-            </Link>
+            <AdventuresNavigationItem />
           </li>
           <li>
-            <Link to={gameNavigation.questsPath}>
-              <QuestsNavigationItem />
-            </Link>
+            <QuestsNavigationItem />
           </li>
           <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
-                <Link
-                  to={gameNavigation.resourcesPath}
-                  prefetch="render"
-                >
-                  <NavigationMainItem
-                    aria-label={t('Resources')}
-                    title={t('Resources')}
-                    isActive={gameNavigation.isResourcesPageOpen}
-                  >
-                    <GiWheat className="text-2xl" />
-                  </NavigationMainItem>
-                </Link>
+                <ResourcesNavigationItem />
               </li>
               <li>
-                <Link
-                  to={gameNavigation.villagePath}
-                  prefetch="render"
-                >
-                  <NavigationMainItem
-                    aria-label={t('Village')}
-                    title={t('Village')}
-                    isActive={gameNavigation.isVillagePageOpen}
-                  >
-                    <MdOutlineHolidayVillage className="text-2xl" />
-                  </NavigationMainItem>
-                </Link>
+                <VillageNavigationItem />
               </li>
               <li>
-                <Link
-                  to={currentVillageMapPath}
-                  prefetch="render"
-                >
-                  <NavigationMainItem
-                    aria-label={t('Map')}
-                    title={t('Map')}
-                    isActive={gameNavigation.isMapPageOpen}
-                  >
-                    <TbMap2 className="text-2xl" />
-                  </NavigationMainItem>
-                </Link>
+                <MapNavigationItem />
               </li>
             </ul>
           </li>
           <li>
-            <Link to={gameNavigation.reportsPath}>
-              <ReportsNavigationItem />
-            </Link>
+            <ReportsNavigationItem />
           </li>
           <li>
             <Link to={gameNavigation.preferencesPath}>
@@ -608,14 +603,14 @@ const GameLayout = () => {
 
   return (
     <GameEngineProvider>
-      <CurrentResourceProvider>
+      <CurrentVillageStateProvider>
         <TopNavigation />
         <TroopMovements />
         <Outlet />
         <ConstructionQueue />
         <TroopList />
         {!isWiderThanLg && <MobileBottomNavigation />}
-      </CurrentResourceProvider>
+      </CurrentVillageStateProvider>
     </GameEngineProvider>
   );
 };

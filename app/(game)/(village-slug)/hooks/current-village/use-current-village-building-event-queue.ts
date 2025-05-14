@@ -1,5 +1,6 @@
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { useMemo } from 'react';
 import { partition } from 'app/utils/common';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
@@ -12,7 +13,7 @@ export const useCurrentVillageBuildingEventQueue = (buildingFieldId: BuildingFie
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
   // Returns building event queue for specific village. Makes sure you get the correct queue in case of roman tribe, since they have 2
-  const getCurrentVillageBuildingEventsQueue = () => {
+  const currentVillageBuildingEventsQueue = useMemo(() => {
     if (tribe !== 'romans') {
       return currentVillageBuildingEvents;
     }
@@ -22,14 +23,8 @@ export const useCurrentVillageBuildingEventQueue = (buildingFieldId: BuildingFie
       (event) => event.buildingFieldId <= 18,
     );
 
-    if (buildingFieldId <= 18) {
-      return resourceQueue;
-    }
-
-    return villageQueue;
-  };
-
-  const currentVillageBuildingEventsQueue = getCurrentVillageBuildingEventsQueue();
+    return buildingFieldId <= 18 ? resourceQueue : villageQueue;
+  }, [tribe, buildingFieldId, currentVillageBuildingEvents]);
 
   const canAddAdditionalBuildingToQueue = currentVillageBuildingEventsQueue.length < MAX_BUILDINGS_IN_QUEUE;
 
