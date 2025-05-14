@@ -212,8 +212,8 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
         )}
         {!hasOngoingVillageFindEventOnThisTile && (
           <Button
+            size="fit"
             variant="link"
-            className="p-0 leading-0"
             onClick={onFoundNewVillage}
           >
             Found new village
@@ -279,16 +279,16 @@ const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = 
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
           <>
             <Button
+              size="fit"
               variant="link"
-              className="p-0 leading-0"
               onClick={() => switchToVillage(village.slug)}
             >
               Enter village
             </Button>
             {isHeroInCurrentVillage && (
               <Button
+                size="fit"
                 variant="link"
-                className="p-0 leading-0"
                 onClick={onSendHero}
               >
                 Send hero

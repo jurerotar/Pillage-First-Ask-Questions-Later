@@ -11,7 +11,7 @@ import {
   useFormContext,
   useFormState,
 } from 'react-hook-form';
-import { cn } from 'app/utils/tailwind';
+import clsx from 'clsx';
 import { Label } from 'app/components/ui/label';
 
 export const Form = FormProvider;
@@ -71,7 +71,7 @@ export const FormItem: React.FC<React.ComponentProps<'div'>> = ({ className, ...
     <FormItemContext.Provider value={{ id: name }}>
       <div
         data-slot="form-item"
-        className={cn('grid gap-2', className)}
+        className={clsx('grid gap-2', className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -85,7 +85,7 @@ export const FormLabel: React.FC<React.ComponentProps<typeof LabelPrimitive.Root
     <Label
       data-slot="form-label"
       data-error={!!error}
-      className={cn('data-[error=true]:text-destructive', className)}
+      className={clsx('data-[error=true]:text-destructive', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -113,7 +113,7 @@ export const FormDescription: React.FC<React.ComponentProps<'p'>> = ({ className
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn('text-muted-foreground text-sm', className)}
+      className={clsx('text-muted-foreground text-sm', className)}
       {...props}
     />
   );
@@ -131,7 +131,7 @@ export const FormMessage: React.FC<React.ComponentProps<'p'>> = ({ className, ..
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn('text-destructive text-sm', className)}
+      className={clsx('text-destructive text-sm', className)}
       {...props}
     >
       {body}
