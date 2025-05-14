@@ -2,7 +2,7 @@ import type React from 'react';
 import { createContext, use } from 'react';
 import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
 import type { VariantProps } from 'class-variance-authority';
-import { cn } from 'app/utils/tailwind';
+import clsx from 'clsx';
 import { toggleVariants } from 'app/components/ui/toggle';
 
 const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
@@ -22,7 +22,7 @@ export const ToggleGroup: React.FC<React.ComponentProps<typeof ToggleGroupPrimit
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
-      className={cn('group/toggle-group flex w-fit items-center rounded-md data-[variant=outline]:shadow-xs', className)}
+      className={clsx('group/toggle-group flex w-fit items-center rounded-md data-[variant=outline]:shadow-xs', className)}
       {...props}
     >
       <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
@@ -44,7 +44,7 @@ export const ToggleGroupItem: React.FC<React.ComponentProps<typeof ToggleGroupPr
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
       data-size={context.size || size}
-      className={cn(
+      className={clsx(
         toggleVariants({
           variant: context.variant || variant,
           size: context.size || size,

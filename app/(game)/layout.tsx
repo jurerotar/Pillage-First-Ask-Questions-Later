@@ -29,7 +29,7 @@ import i18n from 'i18next';
 
 const Fallback = () => {
   return (
-    <div className="relative h-screen overflow-y-hidden scrollbar-hidden">
+    <div className="relative h-[100dvh] overflow-y-hidden scrollbar-hidden">
       <Skeleton className="absolute top-0 left-0 right-0 h-26 lg:h-20 rounded-none" />
       <Skeleton className="hidden lg:flex absolute-centering absolute top-30 w-160 h-20 rounded-none" />
       <Skeleton className="flex lg:hidden absolute bottom-0 left-0 right-0 h-24 rounded-none" />
