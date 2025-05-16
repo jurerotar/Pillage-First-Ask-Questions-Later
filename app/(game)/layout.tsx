@@ -74,7 +74,7 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction = as
     const [, lockSessionId] = lock.name!.split(':');
 
     if (lockSessionId !== sessionId) {
-      throw redirect('/error?error-id=403');
+      throw redirect('/error/403');
     }
   }
 
@@ -84,7 +84,7 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction = as
   try {
     await rootHandle.getFileHandle(`${serverSlug}.json`);
   } catch (_error) {
-    throw redirect('/error?error-id=404');
+    throw redirect('/error/404');
   }
 };
 

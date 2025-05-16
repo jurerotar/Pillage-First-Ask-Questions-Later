@@ -11,7 +11,7 @@ export default [
     ]),
   ]),
   // Error pages
-  ...prefix('error', [index('(error)/page.tsx')]),
+  ...prefix('error', [layout('(error)/layout.tsx', [route('403', '(error)/(403)/page.tsx'), route('404', '(error)/(404)/page.tsx')])]),
   // Game routes
   ...prefix('game/:serverSlug', [
     layout('(game)/layout.tsx', [
