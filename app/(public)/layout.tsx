@@ -1,11 +1,9 @@
 import { Outlet } from 'react-router';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
-import i18n from 'i18next';
+import { loadPublicTranslations } from 'app/localization/loaders/public';
 
 export const clientLoader = async () => {
-  const publicResources = await import('app/locales/en-US/public.json');
-
-  i18n.addResourceBundle('en-US', 'public', publicResources);
+  await loadPublicTranslations();
 };
 
 const PublicLayout = () => {

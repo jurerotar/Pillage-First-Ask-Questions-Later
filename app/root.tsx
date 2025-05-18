@@ -3,7 +3,7 @@ import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from './faro';
-import './i18n';
+import './localization/i18n';
 import './styles/app.css';
 
 await initFaro();

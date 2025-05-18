@@ -317,7 +317,7 @@ const ResourceCounters = () => {
   );
 };
 
-const VillageSelect = () => {
+const VillageSelect = memo(() => {
   const { t } = useTranslation();
   const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
@@ -347,7 +347,7 @@ const VillageSelect = () => {
       </SelectContent>
     </Select>
   );
-};
+});
 
 const TopNavigation = () => {
   const { t } = useTranslation();
