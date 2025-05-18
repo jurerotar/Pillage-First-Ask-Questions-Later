@@ -13,6 +13,7 @@ import {
   BuildingSectionContent,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -26,7 +27,7 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
   const hasOccupiedOasis = !!occupiedOasis;
 
   if (hasOccupiedOasis) {
-    const [x, y] = occupiedOasis.id.split('|');
+    const { x, y } = parseCoordinatesFromTileId(occupiedOasis.id);
 
     return (
       <TableRow>
@@ -134,7 +135,7 @@ export const HerosMansionOasis = () => {
                 </TableHeader>
                 <TableBody>
                   {oasisTilesInRange.map((tile) => {
-                    const [x, y] = tile.id.split('|');
+                    const { x, y } = parseCoordinatesFromTileId(tile.id);
                     return (
                       <TableRow key={tile.id}>
                         <TableCell>/</TableCell>

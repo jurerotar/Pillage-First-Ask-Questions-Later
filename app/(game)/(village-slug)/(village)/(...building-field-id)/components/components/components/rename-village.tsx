@@ -9,7 +9,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
 import { useQueryClient } from '@tanstack/react-query';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 const formSchema = z.object({
@@ -32,7 +32,7 @@ export const RenameVillage = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (playerVillages) => {
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], (playerVillages) => {
       return playerVillages!.map((village) => {
         if (village.id === currentVillage.id) {
           return {

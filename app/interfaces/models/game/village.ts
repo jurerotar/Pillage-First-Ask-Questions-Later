@@ -46,8 +46,6 @@ export type Village = {
   id: Tile['id'];
   playerId: Player['id'];
   name: string;
-  // Only user villages need a slug
-  slug: string;
   lastUpdatedAt: number;
   resources: Resources;
   // This property is only hydrated in user villages or on npc villages that differ from a preset!
@@ -57,5 +55,10 @@ export type Village = {
   buildingFieldsPresets: VillagePresetId[];
   isCapital: boolean;
   RFC: ResourceFieldComposition;
+};
+
+export type PlayerVillage = Village & {
+  slug: string;
   artifactId: ArtifactId | null;
+  expansionSlots: Tile['id'][];
 };

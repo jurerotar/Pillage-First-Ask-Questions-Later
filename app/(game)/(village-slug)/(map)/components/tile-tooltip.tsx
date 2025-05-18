@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
-import { parseRFCFromTile } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map-tile';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 
@@ -27,10 +27,11 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { getDistanceFromCurrentVillage } = useCurrentVillage();
   const distance = getDistanceFromCurrentVillage(tile.id);
+  const { x, y } = parseCoordinatesFromTileId(tile.id);
 
   return (
     <span className="text-xs text-gray-300">
-      ({tile.id}) - {t('{{count}} fields', { count: distance })}
+      ({x}|{y}) - {t('{{count}} fields', { count: distance })}
     </span>
   );
 };

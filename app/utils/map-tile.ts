@@ -2,10 +2,15 @@ import type { OccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 import type { Point } from 'app/interfaces/models/common';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
-export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
-  const [stringX, stringY] = tileId.split('|');
-  const [x, y] = [Number.parseInt(stringX), Number.parseInt(stringY)];
+export const packTileId = (x: number, y: number): Tile['id'] => {
+  const x16 = (x & 0xffff) << 16;
+  const y16 = y & 0xffff;
+  return x16 | y16;
+};
 
+export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
+  const x = ((tileId >> 16) << 16) >> 16;
+  const y = ((tileId & 0xffff) << 16) >> 16;
   return {
     x,
     y,

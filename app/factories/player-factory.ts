@@ -145,13 +145,14 @@ const getName = (tribe: PlayableTribe, prng: PRNGFunction): string => {
 type PlayerFactoryProps = {
   faction: PlayerFaction;
   prng: PRNGFunction;
+  id: number;
 };
 
-const playerFactory = ({ faction, prng }: PlayerFactoryProps): Player => {
+const playerFactory = ({ faction, prng, id }: PlayerFactoryProps): Player => {
   const tribe = seededRandomArrayElement<PlayableTribe>(prng, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
 
   return {
-    id: crypto.randomUUID().substring(0, 8),
+    id,
     name: getName(tribe, prng),
     tribe,
     faction,
@@ -175,8 +176,8 @@ const PLAYER_COUNT = 50;
 export const generateNpcPlayers = (server: Server) => {
   const prng = prngAlea(server.seed);
 
-  return [...Array(PLAYER_COUNT)].map(() => {
+  return [...Array(PLAYER_COUNT)].map((_, index) => {
     const faction = seededRandomArrayElement<PlayerFaction>(prng, npcFactions);
-    return playerFactory({ faction, prng });
+    return playerFactory({ faction, prng, id: index });
   });
 };

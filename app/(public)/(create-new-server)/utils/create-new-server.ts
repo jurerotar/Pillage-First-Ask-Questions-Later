@@ -1,6 +1,6 @@
 import { generateNpcPlayers, userPlayerFactory } from 'app/factories/player-factory';
 import { workerFactory } from 'app/utils/workers';
-import { userVillageFactory } from 'app/factories/village-factory';
+import { playerVillageFactory } from 'app/factories/village-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { generateEffects } from 'app/factories/effect-factory';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';
@@ -38,7 +38,7 @@ import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { PlayerVillage, Village } from 'app/interfaces/models/game/village';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
@@ -71,9 +71,9 @@ export const initializeServer = async (server: Server): Promise<void> => {
     { server, npcPlayers },
   );
 
-  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === '0|0')!;
+  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === 0)!;
 
-  const playerStartingVillage = userVillageFactory({ player, tile: playerStartingTile, slug: 'v-1' });
+  const playerStartingVillage = playerVillageFactory({ player, tile: playerStartingTile, slug: 'v-1' });
 
   const hero = heroFactory(server);
 
@@ -126,7 +126,7 @@ export const initializeServer = async (server: Server): Promise<void> => {
   queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
   queryClient.setQueryData<Hero>([heroCacheKey], hero);
   queryClient.setQueryData<Tile[]>([mapCacheKey], tiles);
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [playerStartingVillage]);
+  queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [playerStartingVillage]);
   queryClient.setQueryData<Village[]>([villagesCacheKey], villages);
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
   queryClient.setQueryData<Troop[]>([troopsCacheKey], npcTroops);

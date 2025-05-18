@@ -24,6 +24,7 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -242,7 +243,7 @@ const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = 
   const isHeroInCurrentVillage = currentVillageMovableTroops.some(({ unitId }) => unitId === 'HERO');
 
   const village = getVillageById(tile.id)!;
-  const isOwnedByPlayer = tile.ownedBy === 'player';
+  const isOwnedByPlayer = isPlayerVillage(village);
 
   const onSendHero = () => {
     sendTroops({

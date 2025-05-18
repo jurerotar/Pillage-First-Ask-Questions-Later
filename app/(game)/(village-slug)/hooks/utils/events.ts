@@ -3,7 +3,7 @@ import { calculateCurrentAmount } from 'app/(game)/(village-slug)/hooks/use-calc
 import { calculateComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { getVillageById } from 'app/(game)/(village-slug)/hooks/use-villages';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventFactory } from 'app/factories/event-factory';
 import { doesEventRequireResourceCheck } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
@@ -56,8 +56,8 @@ export const insertBulkEvent = (events: GameEvent[], newEvents: GameEvent[]): Ga
   return result;
 };
 
-export const getCurrentVillageResources = (queryClient: QueryClient, villageId: Village['id'], timestamp: number = Date.now()) => {
-  const villages = queryClient.getQueryData<Village[]>([playerVillagesCacheKey])!;
+export const getCurrentVillageResources = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number = Date.now()) => {
+  const villages = queryClient.getQueryData<PlayerVillage[]>([playerVillagesCacheKey])!;
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
   const village = getVillageById(villages, villageId);
   const { id } = village;
@@ -109,7 +109,7 @@ export const getCurrentVillageResources = (queryClient: QueryClient, villageId: 
 
 export const updateVillageResources = (
   queryClient: QueryClient,
-  villageId: Village['id'],
+  villageId: PlayerVillage['id'],
   [wood, clay, iron, wheat]: number[],
   mode: 'add' | 'subtract',
 ) => {
@@ -120,7 +120,7 @@ export const updateVillageResources = (
 
   const newLastUpdatedAt = Date.now();
 
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (prevVillages) => {
+  queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], (prevVillages) => {
     return prevVillages!.map((village) => {
       if (village.id !== villageId) {
         return village;
@@ -163,7 +163,7 @@ type CreateEventFnArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id'> & Cre
 export type CreateEventArgs<T extends GameEventType> = Omit<Omit<GameEvent<T>, 'id'>, 'type' | 'villageId'> &
   CreateEventFnHooks<T> & {
     type?: GameEventType;
-    villageId?: Village['id'];
+    villageId?: PlayerVillage['id'];
   };
 
 export type CreateBulkEventArgs<T extends GameEventType> = CreateEventArgs<T> & {

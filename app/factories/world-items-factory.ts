@@ -27,7 +27,7 @@ type TileWithSize = OccupiedOccupiableTile & {
 
 export const worldItemsFactory = ({ server, prng, occupiedOccupiableTiles }: WorldItemsFactoryArgs): WorldItem[] => {
   const eligibleTiles = occupiedOccupiableTiles.filter(({ id }) => {
-    return id !== '0|0';
+    return id !== 0;
   });
 
   const tilesWithSize: TileWithSize[] = eligibleTiles.map((tile) => {

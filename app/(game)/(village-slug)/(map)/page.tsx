@@ -242,7 +242,7 @@ const MapPage = () => {
             return null;
           }
 
-          const tile = getTileByTileId(tileId as TileType['id']);
+          const tile = getTileByTileId(Number.parseInt(tileId));
 
           return <TileTooltip tile={tile} />;
         }}

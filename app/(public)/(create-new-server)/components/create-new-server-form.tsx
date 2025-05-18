@@ -83,6 +83,8 @@ export const CreateNewServerForm = () => {
   };
 
   if (isError) {
+    console.error(error);
+
     return (
       <div className="flex flex-col gap-4 p-6 max-w-md mx-auto">
         <div className="bg-destructive/15 text-destructive p-4 rounded-lg">{error.message}</div>

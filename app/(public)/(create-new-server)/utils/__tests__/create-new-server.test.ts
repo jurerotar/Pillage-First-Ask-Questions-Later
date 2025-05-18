@@ -51,7 +51,7 @@ describe('Server initialization', () => {
 
     test("Each tile should have a type and each tile's type should either be free-tile or oasis-tile", () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-      expect(tiles.every((tile) => Object.hasOwn(tile, 'type') && ['free-tile', 'oasis-tile'].includes(tile.type))).toBe(true);
+      expect(tiles.every((tile) => Object.hasOwn(tile, 'type') && [0, 1].includes(tile.type))).toBe(true);
     });
 
     test("Each tile's coordinates should be between [-size/2, size/2]", () => {
@@ -218,7 +218,7 @@ describe('Server initialization', () => {
         return Math.sqrt(x ** 2 + y ** 2) >= limit - borderWidth / 2;
       });
 
-      const areAllBorderTilesOasis = borderTiles.every((tile) => tile.type === 'oasis-tile');
+      const areAllBorderTilesOasis = borderTiles.every((tile) => tile.type === 1);
 
       expect(areAllBorderTilesOasis).toBe(true);
     });

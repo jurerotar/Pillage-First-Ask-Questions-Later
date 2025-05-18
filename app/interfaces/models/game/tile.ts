@@ -3,8 +3,8 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition, Village } from 'app/interfaces/models/game/village';
 
 export type BaseTile = {
-  // id is constructed from tile coordinate numbers, allowing us to now include a separate coordinates object
-  id: `${number}|${number}`;
+  // id is bit-packed to save space, see `parseCoordinatesFromTileId`
+  id: number;
 };
 
 export type OasisResourceBonus = {
@@ -13,9 +13,11 @@ export type OasisResourceBonus = {
 };
 
 export type OasisTile = BaseTile & {
-  type: 'oasis-tile';
+  // We have 1 instead of 'oasis-tile' to save space
+  type: 1;
   // In order to reduce the final game state object size, all long property names are shortened.
   // Stands for OasisResourceBonus
+  // TODO: Check if it's worth to bit-pack this
   ORB: OasisResourceBonus[];
   // Values here are bit-packed into a single number to save space. Check `encodeGraphicsProperty` and `decodeGraphicsProperty` functions
   graphics: number;
@@ -27,7 +29,8 @@ export type OccupiedOasisTile = Omit<OasisTile, 'villageId'> & {
 };
 
 export type OccupiableTile = BaseTile & {
-  type: 'free-tile';
+  // We have 0 instead of 'free-tile' to save space
+  type: 0;
   // In order to reduce the final game state object size, all long property names are shortened.
   // Stands for ResourceFieldComposition
   RFC: ResourceFieldComposition;

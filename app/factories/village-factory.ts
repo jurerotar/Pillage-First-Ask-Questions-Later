@@ -7,7 +7,7 @@ import type { Resources } from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import type { BuildingField, Village, VillagePresetId, VillageSize } from 'app/interfaces/models/game/village';
+import type { BuildingField, PlayerVillage, Village, VillagePresetId, VillageSize } from 'app/interfaces/models/game/village';
 import { t } from 'i18next';
 
 // TODO: Update these
@@ -64,13 +64,13 @@ const createWallBuildingField = (tribe: PlayableTribe, villageSize: VillageSize 
   };
 };
 
-type VillageFactoryProps = {
+type PlayerVillageFactoryProps = {
   tile: OccupiedOccupiableTile;
   player: Player;
-  slug: Village['slug'];
+  slug: PlayerVillage['slug'];
 };
 
-export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
+export const playerVillageFactory = ({ tile, player, slug }: PlayerVillageFactoryProps): PlayerVillage => {
   const { id, RFC } = tile;
 
   const { tribe } = player;
@@ -92,6 +92,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     lastUpdatedAt: Date.now(),
     RFC,
     artifactId: null,
+    expansionSlots: [],
     resources: {
       wood: 750,
       clay: 750,
@@ -101,8 +102,10 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
   };
 };
 
-type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'> & {
+type NpcVillageFactoryProps = {
   server: Server;
+  tile: OccupiedOccupiableTile;
+  player: Player;
 };
 
 const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Village => {
@@ -120,7 +123,6 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
   return {
     id,
     name: `${name}'s village`,
-    slug: '',
     buildingFields,
     buildingFieldsPresets: [resourcesBuildingFieldPresetId, villageBuildingFieldPresetId],
     playerId,
@@ -128,7 +130,6 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
     RFC,
-    artifactId: null,
   };
 };
 

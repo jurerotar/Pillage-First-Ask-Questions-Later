@@ -5,7 +5,7 @@ import { generateEffects } from 'app/factories/effect-factory.js';
 import type { Effect } from 'app/interfaces/models/game/effect.js';
 import type { Player } from 'app/interfaces/models/game/player.js';
 import type { Server } from 'app/interfaces/models/game/server.js';
-import type { Village } from 'app/interfaces/models/game/village.js';
+import type { PlayerVillage } from 'app/interfaces/models/game/village.js';
 import { StateProvider } from 'app/providers/state-provider.js';
 import { playerMock } from 'app/tests/mocks/game/player-mock.js';
 import { serverMock, serverPathMock } from 'app/tests/mocks/game/server-mock.js';
@@ -56,7 +56,7 @@ const createGameEnvironment = (): QueryClient => {
   queryClient.setQueryData<Server>([serverCacheKey], () => server);
   queryClient.setQueryData<Player[]>([playersCacheKey], () => [playerMock]);
   queryClient.setQueryData<Effect[]>([effectsCacheKey], () => generateEffects(server, playerVillageMock, hero));
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], () => [playerVillageMock]);
+  queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], () => [playerVillageMock]);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], () => preferencesFactory());
   queryClient.setQueryData<Hero>([heroCacheKey], hero);
 

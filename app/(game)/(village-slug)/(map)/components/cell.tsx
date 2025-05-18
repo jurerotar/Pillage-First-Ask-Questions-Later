@@ -32,9 +32,9 @@ type CellBaseProps = {
   mapFilters: MapFilters;
   magnification: number;
   onClick: (data: TileType) => void;
-  villageCoordinatesToWorldItemsMap: Map<string, WorldItem>;
+  villageCoordinatesToWorldItemsMap: Map<Village['id'], WorldItem>;
   villageCoordinatesToVillagesMap: Map<Village['id'], Village>;
-  playersMap: Map<string, Player>;
+  playersMap: Map<Player['id'], Player>;
   reputationsMap: Map<PlayerFaction, Reputation>;
   currentVillage: Village;
 };

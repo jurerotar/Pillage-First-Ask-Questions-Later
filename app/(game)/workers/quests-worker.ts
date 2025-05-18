@@ -1,6 +1,6 @@
 import { type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { heroCacheKey, playerTroopsCacheKey, playerVillagesCacheKey, questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Troop } from 'app/interfaces/models/game/troop';
@@ -25,11 +25,11 @@ self.addEventListener('message', async (event: MessageEvent<QuestsWorkerPayload>
   const queryClient = new QueryClient();
   hydrate(queryClient, dehydratedState);
 
-  const playerVillages = queryClient.getQueryData<Village[]>([playerVillagesCacheKey])!;
+  const playerVillages = queryClient.getQueryData<PlayerVillage[]>([playerVillagesCacheKey])!;
   const playerTroops = queryClient.getQueryData<Troop[]>([playerTroopsCacheKey])!;
   const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
   const hero = queryClient.getQueryData<Hero>([heroCacheKey])!;
-  const playerVillagesMap = new Map<Village['id'], Village>(playerVillages.map((village) => [village.id, village]));
+  const playerVillagesMap = new Map<PlayerVillage['id'], PlayerVillage>(playerVillages.map((village) => [village.id, village]));
 
   const { adventureCount } = hero;
   const troopCount = playerTroops.reduce((total, { amount }) => total + amount, 0);

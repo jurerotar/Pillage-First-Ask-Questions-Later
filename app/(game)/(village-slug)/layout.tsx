@@ -43,6 +43,7 @@ import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import layoutStyles from './layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   counter?: number;
@@ -261,7 +262,7 @@ const MapNavigationItem = () => {
   const { currentVillage } = useCurrentVillage();
   const { isMapPageOpen } = useActiveRoute();
 
-  const [x, y] = currentVillage.id.split('|');
+  const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
   const currentVillageMapPath = `${mapPath}?x=${x}&y=${y}`;
 
   return (

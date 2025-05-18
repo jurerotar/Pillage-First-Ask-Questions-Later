@@ -2,7 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/components/building-actions';
 import type { Resources } from 'app/interfaces/models/game/resource';
-import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type { BuildingField, PlayerVillage } from 'app/interfaces/models/game/village';
 import { serverPathMock } from 'app/tests/mocks/game/server-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { renderWithGameContext } from 'app/tests/test-utils';
@@ -48,11 +48,11 @@ describe('BuildingActions', () => {
 
     const buildingFields: BuildingField[] = [level1MainBuildingBuildingField, level1CrannyBuildingField];
 
-    const villageMockWithLevel1MainBuilding: Village = {
+    const villageMockWithLevel1MainBuilding: PlayerVillage = {
       ...villageMock,
       buildingFields,
     };
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel1MainBuilding]);
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [villageMockWithLevel1MainBuilding]);
 
     test('Upgrade button should be rendered and enabled', () => {
       renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
@@ -75,11 +75,11 @@ describe('BuildingActions', () => {
 
     const buildingFields: BuildingField[] = [level10MainBuildingBuildingField];
 
-    const villageMockWithLevel10MainBuilding: Village = {
+    const villageMockWithLevel10MainBuilding: PlayerVillage = {
       ...villageMock,
       buildingFields,
     };
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
 
     test('Only construct button should be rendered', () => {
       renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/36` });
@@ -100,12 +100,12 @@ describe('BuildingActions', () => {
 
     const buildingFields: BuildingField[] = [level10MainBuildingBuildingField];
 
-    const villageMockWithLevel10MainBuilding: Village = {
+    const villageMockWithLevel10MainBuilding: PlayerVillage = {
       ...villageMock,
       buildingFields,
       resources: noResources,
     };
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
 
     renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/36` });
     const constructButton = screen.getByTestId('building-actions-construct-building-button');
@@ -118,13 +118,13 @@ describe('BuildingActions', () => {
     const queryClient = new QueryClient();
     const buildingFields: BuildingField[] = [level10MainBuildingBuildingField, level1CrannyBuildingField];
 
-    const villageMockWithLevel10MainBuilding: Village = {
+    const villageMockWithLevel10MainBuilding: PlayerVillage = {
       ...villageMock,
       buildingFields,
       resources: noResources,
     };
 
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [villageMockWithLevel10MainBuilding]);
 
     renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
     const upgradeButton = screen.getByTestId('building-actions-upgrade-building-button');
@@ -138,11 +138,11 @@ describe('BuildingActions', () => {
 
     const buildingFields: BuildingField[] = [level1MainBuildingBuildingField, level1CrannyBuildingField];
 
-    const villageMockWithLevel1MainBuilding: Village = {
+    const villageMockWithLevel1MainBuilding: PlayerVillage = {
       ...villageMock,
       buildingFields,
     };
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel1MainBuilding]);
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [villageMockWithLevel1MainBuilding]);
     queryClient.setQueryData<Effect[]>([effectsCacheKey], [wheatProduction100EffectMock]);
 
     renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
@@ -157,12 +157,12 @@ describe('BuildingActions', () => {
 
     const buildingFields: BuildingField[] = [level1MainBuildingBuildingField, level10CrannyBuildingField];
 
-    const villageMockWithLevel1MainBuilding: Village = {
+    const villageMockWithLevel1MainBuilding: PlayerVillage = {
       ...villageMock,
       buildingFields,
     };
 
-    queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [villageMockWithLevel1MainBuilding]);
+    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], [villageMockWithLevel1MainBuilding]);
 
     renderWithGameContext(<BuildingActions buildingId="CRANNY" />, { queryClient, path: `${serverPathMock}/v-1/village/37` });
     const upgradeButton = screen.queryByTestId('building-actions-upgrade-building-button');
