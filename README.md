@@ -1,8 +1,7 @@
 # Pillage First! (Ask Questions Later)
 
-Pillage First! (Ask Questions Later) is a single-player, open-source Travian clone. Real-time browser strategy game where you build
-villages, manage resources, train troops and battle against your enemies. It supports fully-offline gameplay and persistence between sessions,
-without requiring an internet connection or an account.
+**Pillage First! (Ask Questions Later) is an open-source, single-player strategy game inspired by Travian.**
+It's a **Travian alternative**, where you build villages, manage resources, train troops, and wage war, but in a **single-player** setting. It supports massive, **persistent**, **offline-first** game worlds. It requires no account or download.
 
 You can see the current stable version at: [pillagefirst.netlify.app](https://pillagefirst.netlify.app)
 
@@ -26,10 +25,10 @@ Remember: pillage first, ask questions later! ⚔️🔥
 I've always been a huge fan of Travian and similar browser-based strategy games. The slow, methodical village-building, resource management,
 and real-time progression made those games special.
 
-Pillage First! is my attempt to recreate that experience as a single-player Travian clone, with the same core mechanics — but modernized,
-offline-friendly, and open source. No timers tied to servers, no competition — just the classic gameplay loop, reimagined for solo play.
+**Pillage First!** is my attempt to recreate that experience as a **single-player Travian alternative**, with the same core mechanics, but modernized,
+**offline-friendly**, and **open source**, with no game mechanics to incentivize spending real-world money. Just the classic gameplay loop, reimagined for solo play.
 
-### Why single player?
+### Why single-player?
 
 There are several reasons, but I’ll focus on the main ones.
 
@@ -53,12 +52,25 @@ If you’re passionate about backend development and want to help bring multipla
 
 ### Are there game design differences between Travian and Pillage First!?
 
-Yes, there's a couple. Game design is still being discussed in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if
-you'd like to learn more or give your opinion!
+Yes, there's a couple. Main ones are new buildings, more playable tribes and new hero items. Game design is always being discussed in our [Discord server](https://discord.gg/Ep7NKVXUZA), so feel free to join if
+you'd like to join the conversation and share your opinion!
 
 # Roadmap
 
-See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming features
+See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming features.
+
+# Contributing
+
+All contributions to **Pillage First! (Ask Questions Later)** are welcome! We're always on the lookout for contributors in development, game design, writing, or localization.
+If this project interests you, we welcome you to join our [Discord server](https://discord.gg/Ep7NKVXUZA) and say hi!
+
+Other ways to help the project are:
+
+- Starring and forking the project on GitHub.
+- Sharing ideas, feedback, or suggestions either on GitHub issue tracker, or in Discord.
+- Asking questions. Your interest helps us shape the game faster and better.
+
+Thanks for your interest!
 
 ## Development setup
 
@@ -73,22 +85,6 @@ npm run dev
 ```
 
 App will automatically open in your default browser at `localhost:5173`.
-
-# Contributing
-
-All contributions to **Pillage First! (Ask Questions Later)** are welcome — whether you're into development, game design, writing, or localization.
-
-If you're interested in helping out, the best place to start is by [joining our Discord server](https://discord.gg/Ep7NKVXUZA). Introduce yourself, and we’ll figure out where you can contribute most effectively.
-
-Here are a few ways you can get involved:
-
-- Star the project on GitHub to support visibility
-- Share ideas, feedback, or suggestions
-- Tackle open issues or submit your own
-- Contribute code, assets, or translations
-- Ask questions — curiosity helps shape the project
-
-Thanks for your interest! Every bit of input helps make the game better.
 
 # License
 
