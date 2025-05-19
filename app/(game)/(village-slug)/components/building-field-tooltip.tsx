@@ -37,7 +37,11 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
 
   const upgradingToLevel = level + sameBuildingConstructionEvents.length;
 
-  const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(buildingId, upgradingToLevel);
+  const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(
+    buildingId,
+    upgradingToLevel,
+    currentVillage.isCapital,
+  );
 
   const title = `${assetsT(`BUILDINGS.${buildingId}.NAME`)} - ${t('level {{level}}', { level })}`;
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);

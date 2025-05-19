@@ -11,7 +11,7 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import {
   BuildingSection,
   BuildingSectionContent,

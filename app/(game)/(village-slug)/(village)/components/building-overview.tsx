@@ -10,6 +10,7 @@ import { formatTime } from 'app/utils/time';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 
 type BuildingOverviewProps = {
   buildingId: Building['id'];
@@ -23,11 +24,16 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
+  const { currentVillage } = useCurrentVillage();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { actualLevel, virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(buildingId, actualLevel);
-  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(buildingId, virtualLevel);
+  const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(buildingId, actualLevel, currentVillage.isCapital);
+  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(
+    buildingId,
+    virtualLevel,
+    currentVillage.isCapital,
+  );
   const cumulativeEffects = calculateBuildingEffectValues(building, actualLevel);
 
   const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);

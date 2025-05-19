@@ -51,14 +51,24 @@ describe('Building utils', () => {
 
   describe('getBuildingDataForLevel', () => {
     test('Main building level 1', () => {
-      const { isMaxLevel, nextLevelWheatConsumption, nextLevelResourceCost } = getBuildingDataForLevel('MAIN_BUILDING', 1);
+      const { isMaxLevel, nextLevelWheatConsumption, nextLevelResourceCost } = getBuildingDataForLevel('MAIN_BUILDING', 1, false);
       expect(isMaxLevel).toBe(false);
       expect(nextLevelWheatConsumption).toBe(3);
       expect(nextLevelResourceCost).toEqual([90, 55, 80, 30]);
     });
 
     test('Main building level 20', () => {
-      const { isMaxLevel } = getBuildingDataForLevel('MAIN_BUILDING', 20);
+      const { isMaxLevel } = getBuildingDataForLevel('MAIN_BUILDING', 20, false);
+      expect(isMaxLevel).toBe(true);
+    });
+
+    test('Resource building level 10 in capital', () => {
+      const { isMaxLevel } = getBuildingDataForLevel('WOODCUTTER', 10, true);
+      expect(isMaxLevel).toBe(false);
+    });
+
+    test('Resource building level 10 in non-capital', () => {
+      const { isMaxLevel } = getBuildingDataForLevel('WOODCUTTER', 10, false);
       expect(isMaxLevel).toBe(true);
     });
   });

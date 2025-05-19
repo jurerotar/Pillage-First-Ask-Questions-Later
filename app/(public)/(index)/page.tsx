@@ -1,7 +1,7 @@
 import { ServerCard } from 'app/(public)/(index)/components/server-card';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';

@@ -5,7 +5,7 @@ import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calcu
 import { formatNumberWithCommas } from 'app/utils/common';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 

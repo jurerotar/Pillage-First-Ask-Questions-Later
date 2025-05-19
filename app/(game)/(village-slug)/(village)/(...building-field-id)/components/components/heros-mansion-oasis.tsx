@@ -7,7 +7,7 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import {
   BuildingSection,
   BuildingSectionContent,

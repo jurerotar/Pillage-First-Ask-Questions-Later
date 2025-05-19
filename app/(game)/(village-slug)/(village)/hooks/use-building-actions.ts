@@ -7,8 +7,10 @@ import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { isScheduledBuildingEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 
 export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
+  const { currentVillage } = useCurrentVillage();
   const { currentVillageBuildingEventsQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
   const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
@@ -20,7 +22,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const hasCurrentVillageBuildingEvents = currentVillageBuildingEventsQueue.length > 0;
 
-  const { nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
+  const { nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel, currentVillage.isCapital);
 
   const calculateTimings = () => {
     if (isDeveloperModeActive) {
