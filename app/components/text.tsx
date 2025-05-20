@@ -7,7 +7,7 @@ const elementStyles: Record<TextElement, string> = {
   h1: 'text-2xl lg:text-3xl text-gray-800',
   h2: 'text-xl font-medium text-gray-800',
   h3: 'font-medium text-gray-800',
-  h4: 'text-gray-800',
+  h4: 'font-medium text-sm text-gray-800',
   h5: 'text-gray-800',
   h6: 'text-gray-800',
   p: 'text-sm text-gray-800 leading-6',

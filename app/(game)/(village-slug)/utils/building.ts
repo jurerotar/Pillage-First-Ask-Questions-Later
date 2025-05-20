@@ -30,7 +30,7 @@ const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFiel
   return buildingFieldsPresets.flatMap((presetId) => presetIdToPresetMap.get(presetId)!);
 };
 
-const resourceBuildingIds: Building['id'][] = ['WOODCUTTER', 'CLAY_PIT', 'IRON_MINE', 'WHEAT_FIELD'];
+export const resourceBuildingIds: Building['id'][] = ['WOODCUTTER', 'CLAY_PIT', 'IRON_MINE', 'WHEAT_FIELD'];
 
 export const getBuildingDataForLevel = (buildingId: Building['id'], level: number, isCapital: boolean) => {
   const building = getBuildingData(buildingId);

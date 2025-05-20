@@ -19,6 +19,7 @@ import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -78,11 +79,14 @@ type EmptyBuildingFieldProps = {
 };
 
 const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
+  const { resourcesPath, villagePath } = useGameNavigation();
+  const { isVillagePageOpen } = useActiveRoute();
+
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
 
   return (
     <Link
-      to={`${buildingFieldId}`}
+      to={`${isVillagePageOpen ? villagePath : resourcesPath}/${buildingFieldId}`}
       className={clsx(
         styles,
         'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
@@ -145,7 +149,8 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { shouldShowBuildingNames } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { resourcesPath } = useGameNavigation();
+  const { resourcesPath, villagePath } = useGameNavigation();
+  const { isVillagePageOpen } = useActiveRoute();
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -161,7 +166,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
   return (
     <Link
-      to={`${resourcesPath}/${buildingFieldId}`}
+      to={`${isVillagePageOpen ? villagePath : resourcesPath}/${buildingFieldId}`}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
