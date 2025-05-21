@@ -52,7 +52,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
       return instanceAlreadyExists;
     }
 
-    return ['capital', 'building', 'amount'].includes(type);
+    return ['building', 'amount'].includes(type);
   });
 
   return (
@@ -75,7 +75,6 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
                     {assessedRequirement.type === 'amount' &&
                       instanceAlreadyExists &&
                       t('{{building}} level {{level}}', { building: assetsT(`BUILDINGS.${buildingId}.NAME`), level: maxLevel })}
-                    {assessedRequirement.type === 'capital' && t('Capital')}
                     {assessedRequirement.type === 'building' &&
                       t('{{building}} level {{level}}', {
                         building: assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`),

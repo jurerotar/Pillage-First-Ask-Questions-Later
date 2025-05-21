@@ -551,12 +551,6 @@ export const buildings: Building[] = [
         level: 20,
       },
       {
-        id: 3,
-        type: 'capital',
-        canBuildOnlyInCapital: false,
-        canBuildOnlyOutsideOfCapital: true,
-      },
-      {
         id: 4,
         type: 'artifact',
       },
@@ -583,12 +577,6 @@ export const buildings: Building[] = [
         type: 'building',
         buildingId: 'STABLE',
         level: 20,
-      },
-      {
-        id: 3,
-        type: 'capital',
-        canBuildOnlyInCapital: false,
-        canBuildOnlyOutsideOfCapital: true,
       },
       {
         id: 4,
@@ -930,12 +918,6 @@ export const buildings: Building[] = [
         type: 'tribe',
         tribe: 'teutons',
       },
-      {
-        id: 5,
-        type: 'capital',
-        canBuildOnlyInCapital: true,
-        canBuildOnlyOutsideOfCapital: false,
-      },
     ],
     baseBuildingCost: [3210, 2050, 2750, 3830],
     buildingCostCoefficient: 1.4,
@@ -1098,31 +1080,6 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
-    id: 'PALACE',
-    category: 'infrastructure',
-    effects: [createNegativeWheatProductionEffect('A'), ...createGovernmentBuildingDefenceEffects()],
-    buildingRequirements: [
-      {
-        id: 1,
-        type: 'amount',
-        amount: 1,
-        appliesGlobally: true,
-      },
-      {
-        id: 2,
-        type: 'building',
-        buildingId: 'MAIN_BUILDING',
-        level: 5,
-      },
-    ],
-    baseBuildingCost: [550, 800, 750, 250],
-    buildingCostCoefficient: 1.28,
-    maxLevel: 20,
-    buildingDurationBase: 1.16,
-    buildingDurationModifier: 6875,
-    buildingDurationReduction: 1875,
-  },
-  {
     id: 'RESIDENCE',
     category: 'infrastructure',
     effects: [createNegativeWheatProductionEffect('A'), ...createGovernmentBuildingDefenceEffects()],
@@ -1137,12 +1094,6 @@ export const buildings: Building[] = [
         type: 'building',
         buildingId: 'MAIN_BUILDING',
         level: 5,
-      },
-      {
-        id: 3,
-        type: 'capital',
-        canBuildOnlyInCapital: false,
-        canBuildOnlyOutsideOfCapital: true,
       },
     ],
     baseBuildingCost: [580, 460, 350, 180],

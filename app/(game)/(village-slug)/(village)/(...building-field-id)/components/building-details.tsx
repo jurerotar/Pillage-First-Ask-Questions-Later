@@ -144,7 +144,6 @@ const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExot
   ],
   ['ACADEMY', new Map([[t('Unit research'), AcademyUnitResearch]])],
   ['SMITHY', new Map([[t('Unit improvement'), SmithyUnitImprovement]])],
-  ['PALACE', palaceTabs],
   ['RESIDENCE', palaceTabs],
   ['COMMAND_CENTER', palaceTabs],
   ['HEROS_MANSION', new Map([[t('Oasis'), HerosMansionOasis]])],

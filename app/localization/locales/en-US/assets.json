@@ -1,5 +1,11 @@
 {
   "UNITS": {
+    "HERO": {
+      "NAME_one": "Hero",
+      "NAME_other": "Heroes",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
     "LEGIONNAIRE": {
       "NAME_one": "Legionnaire",
       "NAME_other": "Legionnaires",
@@ -493,11 +499,11 @@
     },
     "CLAY_PIT": {
       "NAME": "Clay pit",
-      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 20 in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
     },
     "WHEAT_FIELD": {
       "NAME": "Wheat field",
-      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat field can be extended to level 20 in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat field can be extended to level 20. Wheat production can additionally be increased by occupying wheat oasis."
     },
     "GRAIN_MILL": {
       "NAME": "Grain mill",
@@ -513,7 +519,7 @@
     },
     "IRON_MINE": {
       "NAME": "Iron mine",
-      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron mine can be extended to level 20 in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron mine can be extended to level 20. Iron production can additionally be increased by occupying mountain oasis."
     },
     "SAWMILL": {
       "NAME": "Sawmill",
@@ -529,7 +535,7 @@
     },
     "WOODCUTTER": {
       "NAME": "Woodcutter",
-      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Woodcutter can be extended to level 20 in the capital, or to level 10 in non-capital villages."
+      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Woodcutter can be extended to level 20. Wood production can additionally be increased by occupying forrest oasis."
     },
     "ACADEMY": {
       "NAME": "Academy",
@@ -614,10 +620,6 @@
     "MARKETPLACE": {
       "NAME": "Marketplace",
       "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time.\n"
-    },
-    "PALACE": {
-      "NAME": "Palace",
-      "DESCRIPTION": "The palace building is unique. You can only build one in your whole realm and you can proclaim that village as your capital. It also protects the village against enemy conquests. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the palace provides an expansion slot at levels 10, 15 and 20 each."
     },
     "RESIDENCE": {
       "NAME": "Residence",

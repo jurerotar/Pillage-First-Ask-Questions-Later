@@ -6,7 +6,6 @@ import type {
   Building,
   BuildingLevelBuildingRequirement,
   BuildingRequirement,
-  CapitalBuildingRequirement,
   TribeBuildingRequirement,
 } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
@@ -75,14 +74,6 @@ const assessBuildingAmountRequirement = (args: AssessFunctionArgs<AmountBuilding
   return !(sameBuildingFields.length > 0 || buildingExistsInQueue);
 };
 
-const assessCapitalRequirement = (args: AssessFunctionArgs<CapitalBuildingRequirement>): boolean => {
-  const {
-    requirement,
-    currentVillage: { isCapital },
-  } = args;
-  return requirement.canBuildOnlyInCapital === isCapital;
-};
-
 const assessTribeRequirement = (args: AssessFunctionArgs<TribeBuildingRequirement>): boolean => {
   const { requirement, tribe } = args;
   return requirement.tribe === tribe;
@@ -111,10 +102,6 @@ export const assessBuildingConstructionReadiness = (
       }
       case 'tribe': {
         fulfilled = assessTribeRequirement({ ...args, requirement, building });
-        break;
-      }
-      case 'capital': {
-        fulfilled = assessCapitalRequirement({ ...args, requirement, building });
         break;
       }
       case 'amount': {

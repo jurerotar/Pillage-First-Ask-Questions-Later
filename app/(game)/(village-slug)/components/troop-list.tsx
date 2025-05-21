@@ -1,12 +1,23 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
-import { FaShield } from 'react-icons/fa6';
+import { useTranslation } from 'react-i18next';
+import { GiRallyTheTroops } from 'react-icons/gi';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/utils/icon';
+import { formatNumber, partition } from 'app/utils/common';
+import { Tooltip } from 'react-tooltip';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import { Text } from 'app/components/text';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 export const TroopList = () => {
+  const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { playerTroops } = usePlayerTroops();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   if (!shouldShowSidebars) {
     return null;
@@ -18,28 +29,72 @@ export const TroopList = () => {
     return null;
   }
 
-  const sortedTroops = currentVillagePlayerTroops.sort((a, b) => {
-    const aSame = a.tileId === a.source ? 0 : 1;
-    const bSame = b.tileId === b.source ? 0 : 1;
-    return aSame - bSame;
-  });
+  const [ownTroops, reinforcements] = partition<Troop>(currentVillagePlayerTroops, ({ tileId, source }) => tileId === source);
 
   return (
-    <div className="flex flex-col absolute right-4 top-27 lg:top-40 gap-2">
-      <details>
-        <summary>Expand</summary>
-        <ul className="flex flex-col gap-2">
-          {sortedTroops.map((troop) => (
-            <li
-              className="flex gap-1"
-              key={troop.unitId}
-            >
-              {troop.tileId !== troop.source && <FaShield className="text-green-700" />}
-              {troop.amount} {troop.unitId}
-            </li>
-          ))}
-        </ul>
-      </details>
+    <div className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-r-none rounded-xs">
+      <div
+        data-tooltip-id="troop-list"
+        className="flex flex-col relative cursor-pointer"
+      >
+        <GiRallyTheTroops className="text-2xl lg:text-3xl text-gray-400 bg-white p-2 box-content border border-gray-200 rounded-xs" />
+      </div>
+
+      <Tooltip
+        id="troop-list"
+        className="!z-20 !rounded-xs !px-2 !py-1 !bg-white !text-black border border-gray-200"
+        classNameArrow="border-r border-b border-gray-200"
+        place="top-start"
+        {...(isWiderThanLg && {
+          isOpen: true,
+        })}
+      >
+        <div className="flex flex-col gap-2 max-h-96 lg:max-h-125 overflow-y-scroll scrollbar-hidden">
+          <div className="flex flex-col gap-1">
+            <Text as="h3">{t('Own troops')}</Text>
+            {reinforcements.length === 0 && <Text as="p">{t('There are currently no troops in this village')}</Text>}
+            <ul className="flex flex-col items-end gap-2">
+              {ownTroops.map((troop) => (
+                <li
+                  className="flex items-center gap-1 w-full text-right"
+                  key={troop.unitId}
+                >
+                  <Icon
+                    type={unitIdToUnitIconMapper(troop.unitId)}
+                    className="text-base size-4 lg:size-6"
+                  />
+
+                  <Text as="p">
+                    {formatNumber(troop.amount)} {assetsT(`UNITS.${troop.unitId}.NAME`, { count: troop.amount })}
+                  </Text>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {reinforcements.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <Text as="h3">{t('Reinforcements')}</Text>
+              <ul className="flex flex-col items-end gap-2">
+                {reinforcements.map((troop) => (
+                  <li
+                    className="flex items-center gap-1 w-full text-right"
+                    key={troop.unitId}
+                  >
+                    <Icon
+                      type={unitIdToUnitIconMapper(troop.unitId)}
+                      className="text-base size-4 lg:size-6"
+                    />
+
+                    <Text as="p">
+                      {formatNumber(troop.amount)} {assetsT(`UNITS.${troop.unitId}.NAME`, { count: troop.amount })}
+                    </Text>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </Tooltip>
     </div>
   );
 };

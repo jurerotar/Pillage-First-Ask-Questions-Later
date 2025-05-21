@@ -45,17 +45,12 @@ const useBuildingRequirements = (
     use(CurrentVillageStateContext);
   const { isDeveloperModeActive } = useDeveloperMode();
   const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
-  const { currentVillage } = useCurrentVillage();
 
   const { buildingWheatLimit } = computedWheatProductionEffect;
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
 
-  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(
-    buildingId,
-    level,
-    currentVillage.isCapital,
-  );
+  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, level);
 
   const resources = useMemo(() => {
     return {

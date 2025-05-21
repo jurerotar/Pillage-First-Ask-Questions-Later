@@ -106,7 +106,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { constructBuilding, upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId!);
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel, currentVillage.isCapital);
+  const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
 

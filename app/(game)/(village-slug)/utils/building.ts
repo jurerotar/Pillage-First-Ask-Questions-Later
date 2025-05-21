@@ -30,22 +30,10 @@ const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFiel
   return buildingFieldsPresets.flatMap((presetId) => presetIdToPresetMap.get(presetId)!);
 };
 
-const resourceBuildingIds: Building['id'][] = ['WOODCUTTER', 'CLAY_PIT', 'IRON_MINE', 'WHEAT_FIELD'];
-
-export const getBuildingDataForLevel = (buildingId: Building['id'], level: number, isCapital: boolean) => {
+export const getBuildingDataForLevel = (buildingId: Building['id'], level: number) => {
   const building = getBuildingData(buildingId);
   const wheatConsumptionPerLevel = building.effects[0]!.valuesPerLevel;
-
-  let isMaxLevel = building.maxLevel === level;
-
-  if (resourceBuildingIds.includes(buildingId)) {
-    if (isCapital) {
-      isMaxLevel = building.maxLevel === level;
-    } else {
-      isMaxLevel = level === 10;
-    }
-  }
-
+  const isMaxLevel = building.maxLevel === level;
   const nextLevelWheatConsumption = Math.abs(wheatConsumptionPerLevel[level + 1]);
   const nextLevelResourceCost = calculateBuildingCostForLevel(buildingId, level + 1);
   const nextLevelBuildingDuration = calculateBuildingDurationForLevel(buildingId, level + 1);

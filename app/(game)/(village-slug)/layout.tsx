@@ -336,14 +336,18 @@ const VillageSelect = memo(() => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(({ slug, name, id }) => (
-          <SelectItem
-            key={id}
-            value={slug}
-          >
-            {name} ({id})
-          </SelectItem>
-        ))}
+        {playerVillages.map(({ slug, name, id }) => {
+          const { x, y } = parseCoordinatesFromTileId(id);
+          const formattedId = `${x}|${y}`;
+          return (
+            <SelectItem
+              key={id}
+              value={slug}
+            >
+              {name} ({formattedId})
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );

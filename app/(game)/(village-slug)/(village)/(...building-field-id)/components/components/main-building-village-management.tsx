@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { DemolishBuilding } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/demolish-building';
 import { RenameVillage } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/rename-village';
-import { Alert } from 'app/components/ui/alert';
 import {
   BuildingSection,
   BuildingSectionContent,
@@ -25,7 +24,6 @@ export const MainBuildingVillageManagement = () => {
         <TabList>
           <Tab>{t('Rename village')}</Tab>
           <Tab>{t('Demolish buildings')}</Tab>
-          <Tab>{t('Capital')}</Tab>
         </TabList>
         <TabPanel>
           <BuildingSectionContent>
@@ -35,12 +33,6 @@ export const MainBuildingVillageManagement = () => {
         <TabPanel>
           <BuildingSectionContent>
             <DemolishBuilding />
-          </BuildingSectionContent>
-        </TabPanel>
-        <TabPanel>
-          <BuildingSectionContent>
-            <Text as="h2">{t('Capital')}</Text>
-            <Alert variant="warning">{t('This page is still under development')}</Alert>
           </BuildingSectionContent>
         </TabPanel>
       </Tabs>
