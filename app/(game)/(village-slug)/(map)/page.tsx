@@ -46,7 +46,7 @@ const RULER_SIZE = 20;
 const MapPage = () => {
   const [searchParams] = useSearchParams();
   const { isOpen: isTileModalOpened, openModal, toggleModal, modalArgs } = useDialog<TileType | null>();
-  const { map, getTileByTileId } = useMap();
+  const { map, getTileByTileId, isFetchingMap } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
@@ -247,72 +247,77 @@ const MapPage = () => {
           return <TileTooltip tile={tile} />;
         }}
       />
-      <FixedSizeGrid
-        key={tileSize}
-        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        outerRef={mapRef}
-        columnCount={gridSize}
-        columnWidth={tileSize}
-        rowCount={gridSize}
-        rowHeight={tileSize}
-        height={mapHeight - 1}
-        width={width}
-        itemData={fixedGridData}
-        initialScrollLeft={offsetX}
-        initialScrollTop={offsetY}
-        onScroll={({ scrollTop, scrollLeft }) => {
-          if (bottomMapRulerRef.current) {
-            bottomMapRulerRef.current.scrollTo(scrollLeft);
-          }
+      {isFetchingMap && <p>Loading map</p>}
+      {!isFetchingMap && (
+        <>
+          <FixedSizeGrid
+            key={tileSize}
+            className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
+            outerRef={mapRef}
+            columnCount={gridSize}
+            columnWidth={tileSize}
+            rowCount={gridSize}
+            rowHeight={tileSize}
+            height={mapHeight - 1}
+            width={width}
+            itemData={fixedGridData}
+            initialScrollLeft={offsetX}
+            initialScrollTop={offsetY}
+            onScroll={({ scrollTop, scrollLeft }) => {
+              if (bottomMapRulerRef.current) {
+                bottomMapRulerRef.current.scrollTo(scrollLeft);
+              }
 
-          if (leftMapRulerRef.current) {
-            leftMapRulerRef.current.scrollTo(scrollTop);
-          }
+              if (leftMapRulerRef.current) {
+                leftMapRulerRef.current.scrollTo(scrollTop);
+              }
 
-          // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
-          currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
-        }}
-      >
-        {Cell}
-      </FixedSizeGrid>
-      {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0 select-none pointer-events-none">
-        <FixedSizeList
-          className="scrollbar-hidden will-change-scroll"
-          ref={leftMapRulerRef}
-          itemSize={tileSize}
-          height={mapHeight}
-          itemCount={gridSize}
-          width={RULER_SIZE}
-          initialScrollOffset={offsetY}
-          layout="vertical"
-          itemData={{
-            layout: 'vertical',
-          }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
-      </div>
-      {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-        <FixedSizeList
-          className="scrollbar-hidden will-change-scroll"
-          ref={bottomMapRulerRef}
-          itemSize={tileSize}
-          height={RULER_SIZE}
-          itemCount={gridSize}
-          width={width - RULER_SIZE}
-          initialScrollOffset={offsetX}
-          layout="horizontal"
-          itemData={{
-            layout: 'horizontal',
-          }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
-      </div>
-      <MapControls />
+              // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
+              currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
+              currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
+            }}
+          >
+            {Cell}
+          </FixedSizeGrid>
+          {/* Y-axis ruler */}
+          <div className="absolute left-0 top-0 select-none pointer-events-none">
+            <FixedSizeList
+              className="scrollbar-hidden will-change-scroll"
+              ref={leftMapRulerRef}
+              itemSize={tileSize}
+              height={mapHeight}
+              itemCount={gridSize}
+              width={RULER_SIZE}
+              initialScrollOffset={offsetY}
+              layout="vertical"
+              itemData={{
+                layout: 'vertical',
+              }}
+            >
+              {MapRulerCell}
+            </FixedSizeList>
+          </div>
+          {/* X-axis ruler */}
+          <div className="absolute bottom-0 left-0 select-none pointer-events-none">
+            <FixedSizeList
+              className="scrollbar-hidden will-change-scroll"
+              ref={bottomMapRulerRef}
+              itemSize={tileSize}
+              height={RULER_SIZE}
+              itemCount={gridSize}
+              width={width - RULER_SIZE}
+              initialScrollOffset={offsetX}
+              layout="horizontal"
+              itemData={{
+                layout: 'horizontal',
+              }}
+            >
+              {MapRulerCell}
+            </FixedSizeList>
+          </div>
+          <MapControls />
+        </>
+      )}
     </main>
   );
 };

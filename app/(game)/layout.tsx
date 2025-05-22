@@ -26,6 +26,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { faro } from 'app/faro';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { loadAppTranslations } from 'app/localization/loaders/app';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
 
 const Fallback = () => {
   return (
@@ -223,7 +224,9 @@ const Layout = ({ params }: Route.ComponentProps) => {
       }}
     >
       <PersisterAwaiter fallback={<Fallback />}>
-        <Outlet />
+        <ApiProvider serverSlug={serverSlug!}>
+          <Outlet />
+        </ApiProvider>
       </PersisterAwaiter>
       <ReactQueryDevtools
         client={queryClient}

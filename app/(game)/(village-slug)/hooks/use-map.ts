@@ -1,10 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { mapCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useMap = () => {
-  const { data: map } = useQuery<Tile[]>({
-    queryKey: [mapCacheKey],
+  const { workerFetch } = use(ApiContext);
+
+  const { data: map, isFetching: isFetchingMap } = useQuery<Tile[]>({
+    queryKey: ['api'],
+    queryFn: async () => {
+      const { data } = await workerFetch<void, Tile[]>('/map');
+      return data;
+    },
+    staleTime: 0,
     initialData: [],
   });
 
@@ -14,6 +22,7 @@ export const useMap = () => {
 
   return {
     map,
+    isFetchingMap,
     getTileByTileId,
   };
 };
