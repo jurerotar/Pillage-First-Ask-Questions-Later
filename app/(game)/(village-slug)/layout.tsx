@@ -172,7 +172,7 @@ const QuestsNavigationItem = () => {
         aria-label={t('Quests')}
         title={t('Quests')}
       >
-        <FaBookBookmark className="text-xl" />
+        <FaBookBookmark className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -190,7 +190,7 @@ const AdventuresNavigationItem = () => {
         aria-label={t('Adventures')}
         title={t('Adventures')}
       >
-        <PiPathBold className="text-xl" />
+        <PiPathBold className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -208,7 +208,7 @@ const ReportsNavigationItem = () => {
         aria-label={t('Reports')}
         title={t('Reports')}
       >
-        <LuScrollText className="text-xl" />
+        <LuScrollText className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );

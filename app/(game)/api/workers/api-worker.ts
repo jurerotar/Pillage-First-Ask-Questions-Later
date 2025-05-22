@@ -1,7 +1,7 @@
 import { hydrate, QueryClient } from '@tanstack/react-query';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import type { PersistedClient } from '@tanstack/react-query-persist-client';
-import { routes } from 'app/(game)/api/routes';
+import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 
 const urlParams = new URLSearchParams(self.location.search);
 const serverSlug = urlParams.get('server-slug')!;
@@ -11,21 +11,13 @@ const rootHandle = await getRootHandle();
 const serverState = await getParsedFileContents<PersistedClient>(rootHandle, serverSlug!);
 hydrate(queryClient, serverState.clientState);
 
-type ApiWorkerMessageParams = {
-  url: keyof typeof routes;
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  body: unknown;
-};
-
-self.addEventListener('message', async ({ data, ports }: MessageEvent<ApiWorkerMessageParams>) => {
+self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
   const [port] = ports;
   const { url, method, body } = data;
 
-  const route = routes[url];
-
-  const handler = route[method as keyof typeof route];
-  // @ts-expect-error
-  const response = await handler(queryClient, body);
+  const { handler, params } = matchRoute(url, method)!;
+  // @ts-expect-error: Not sure about this one, fix when you can
+  const response = await handler(queryClient, { params, body });
 
   port.postMessage({
     data: response,

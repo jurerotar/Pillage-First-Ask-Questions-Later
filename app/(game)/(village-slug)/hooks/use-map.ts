@@ -9,7 +9,7 @@ export const useMap = () => {
   const { data: map, isFetching: isFetchingMap } = useQuery<Tile[]>({
     queryKey: ['api'],
     queryFn: async () => {
-      const { data } = await workerFetch<void, Tile[]>('/map');
+      const { data } = await workerFetch<'/map', 'GET'>('/map');
       return data;
     },
     staleTime: 0,
