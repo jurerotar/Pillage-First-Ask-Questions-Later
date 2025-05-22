@@ -52,7 +52,7 @@ export const TroopList = () => {
         <div className="flex flex-col gap-2 max-h-96 lg:max-h-125 overflow-y-scroll scrollbar-hidden">
           <div className="flex flex-col gap-1">
             <Text as="h3">{t('Own troops')}</Text>
-            {reinforcements.length === 0 && <Text as="p">{t('There are currently no troops in this village')}</Text>}
+            {ownTroops.length === 0 && <Text as="p">{t('There are currently no troops in this village')}</Text>}
             <ul className="flex flex-col items-end gap-2">
               {ownTroops.map((troop) => (
                 <li
