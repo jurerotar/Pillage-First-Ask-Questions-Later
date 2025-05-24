@@ -29,6 +29,7 @@ import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/eve
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { t } from 'i18next';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -58,8 +59,10 @@ const MapPage = () => {
   const { events } = useEvents();
   const { currentVillage } = useCurrentVillage();
 
-  const startingX = Number.parseInt(searchParams.get('x') ?? '0');
-  const startingY = Number.parseInt(searchParams.get('y') ?? '0');
+  const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
+
+  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
+  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);

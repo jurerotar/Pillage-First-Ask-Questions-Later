@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -6,9 +6,8 @@ import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/que
 export const useUnitImprovement = () => {
   const queryClient = useQueryClient();
 
-  const { data: unitImprovements } = useQuery<UnitImprovement[]>({
+  const { data: unitImprovements } = useSuspenseQuery<UnitImprovement[]>({
     queryKey: [unitImprovementCacheKey],
-    initialData: [],
   });
 
   const upgradeUnitTier = (tier: Unit['tier']) => {

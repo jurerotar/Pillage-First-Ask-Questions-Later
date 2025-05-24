@@ -20,7 +20,7 @@ export const meta: MetaFunction = ({ params }) => {
 
 const PreferencesPage = () => {
   const { t } = useTranslation();
-  const { togglePreference, shouldShowBuildingNames, isAccessibilityModeEnabled, isReducedMotionModeEnabled } = usePreferences();
+  const { updatePreference, shouldShowBuildingNames, isAccessibilityModeEnabled, isReducedMotionModeEnabled } = usePreferences();
   const { isDeveloperModeActive, toggleDeveloperMode } = useDeveloperMode();
   const { resourcesPath } = useGameNavigation();
 
@@ -48,7 +48,7 @@ const PreferencesPage = () => {
           <div className="flex flex-1 justify-end items-center">
             <Switch
               id="develop-mode-toggle"
-              onCheckedChange={toggleDeveloperMode}
+              onCheckedChange={() => toggleDeveloperMode()}
               checked={isDeveloperModeActive}
             />
           </div>
@@ -65,7 +65,7 @@ const PreferencesPage = () => {
           <div className="flex flex-1 justify-end items-center">
             <Switch
               id="should-show-building-names-toggle"
-              onCheckedChange={() => togglePreference('shouldShowBuildingNames')}
+              onCheckedChange={() => updatePreference({ shouldShowBuildingNames: !shouldShowBuildingNames })}
               checked={shouldShowBuildingNames}
             />
           </div>
@@ -83,7 +83,7 @@ const PreferencesPage = () => {
             <Switch
               disabled
               id="reduced-motion-mode-toggle"
-              onCheckedChange={() => togglePreference('isReducedMotionModeEnabled')}
+              onCheckedChange={() => updatePreference({ isReducedMotionModeEnabled: !isReducedMotionModeEnabled })}
               checked={isReducedMotionModeEnabled}
             />
           </div>
@@ -101,7 +101,7 @@ const PreferencesPage = () => {
             <Switch
               disabled
               id="accessibility-mode-toggle"
-              onCheckedChange={() => togglePreference('isAccessibilityModeEnabled')}
+              onCheckedChange={() => updatePreference({ isAccessibilityModeEnabled: !isAccessibilityModeEnabled })}
               checked={isAccessibilityModeEnabled}
             />
           </div>

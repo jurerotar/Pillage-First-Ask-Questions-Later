@@ -26,10 +26,10 @@ export const meta: MetaFunction = ({ params }) => {
 const HeroPage = () => {
   const { t } = useTranslation();
   const { resourcesPath } = useGameNavigation();
-  const { hero } = useHero();
+  const { experience } = useHero();
   const { server } = useServer();
-  const { level } = calculateHeroLevel(hero.stats.experience);
-  const { name } = server.playerConfiguration;
+  const { level } = calculateHeroLevel(experience);
+  const { name } = server!.playerConfiguration!;
 
   const tabs = ['default', 'adventures', 'auctions'];
 

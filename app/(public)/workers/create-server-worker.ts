@@ -1,5 +1,4 @@
 import type { DehydratedState } from '@tanstack/react-query';
-import type { PersistedClient } from '@tanstack/react-query-persist-client';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle, writeFileContents } from 'app/utils/opfs';
 
@@ -13,13 +12,7 @@ self.addEventListener('message', async (event: MessageEvent<CreateServerWorkerPa
 
   const rootHandle = await getRootHandle();
 
-  const persistedClient: PersistedClient = {
-    clientState: dehydratedState,
-    timestamp: Date.now(),
-    buster: '',
-  };
-
-  await writeFileContents(rootHandle, server.slug, persistedClient);
+  await writeFileContents(rootHandle, server.slug, dehydratedState);
 
   self.postMessage({ resolved: true });
   self.close();

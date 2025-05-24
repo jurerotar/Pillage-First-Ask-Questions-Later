@@ -10,6 +10,7 @@ export const useCurrentVillage = () => {
   const { villageSlug } = useRouteSegments();
 
   const currentVillage = playerVillages.find(({ slug }) => slug === villageSlug)!;
+  const hasCurrentVillage = !!currentVillage;
 
   const getCurrentVillagePopulation = () =>
     calculatePopulationFromBuildingFields(currentVillage.buildingFields, currentVillage.buildingFieldsPresets);
@@ -22,6 +23,7 @@ export const useCurrentVillage = () => {
 
   return {
     currentVillage,
+    hasCurrentVillage,
     getDistanceFromCurrentVillage,
     getCurrentVillagePopulation,
   };

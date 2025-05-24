@@ -58,7 +58,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-faction-reputation-button"
               className={clsx(shouldShowFactionReputation && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowFactionReputation')}
+              onClick={() => toggleMapFilter({ shouldShowFactionReputation: !shouldShowFactionReputation })}
               type="button"
               aria-label={t('Toggle faction reputation display')}
             >
@@ -73,7 +73,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-oasis-button"
               className={clsx(shouldShowOasisIcons && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowOasisIcons')}
+              onClick={() => toggleMapFilter({ shouldShowOasisIcons: !shouldShowOasisIcons })}
               type="button"
               aria-label={t('Toggle oasis resource icons display')}
             >
@@ -88,7 +88,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-treasures-button"
               className={clsx(shouldShowTreasureIcons && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowTreasureIcons')}
+              onClick={() => toggleMapFilter({ shouldShowTreasureIcons: !shouldShowTreasureIcons })}
               type="button"
               aria-label={t('Toggle treasure villages icons display')}
             >
@@ -103,7 +103,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-troop-movements-button"
               className={clsx(shouldShowTroopMovements && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowTroopMovements')}
+              onClick={() => toggleMapFilter({ shouldShowTroopMovements: !shouldShowTroopMovements })}
               type="button"
               aria-label={t('Toggle troop movements display')}
             >
@@ -118,7 +118,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-wheat-fields-button"
               className={clsx(shouldShowWheatFields && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowWheatFields')}
+              onClick={() => toggleMapFilter({ shouldShowWheatFields: !shouldShowWheatFields })}
               type="button"
               aria-label={t('Toggle wheat field icons display')}
             >
@@ -134,7 +134,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-tile-tooltips-button"
               className={clsx(shouldShowTileTooltips && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowTileTooltips')}
+              onClick={() => toggleMapFilter({ shouldShowTileTooltips: !shouldShowTileTooltips })}
               type="button"
               aria-label={t('Toggle tooltip popups')}
             >

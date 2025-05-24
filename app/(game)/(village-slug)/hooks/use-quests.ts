@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
 import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -6,14 +6,21 @@ import { partition } from 'app/utils/common';
 import { isHeroExperienceQuestReward, isQuestCollectable, isResourceQuestReward } from 'app/(game)/workers/guards/quest-guards';
 import { updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { addHeroExperience } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useQuests = () => {
+  const { fetcher } = use(ApiContext);
+
   const queryClient = useQueryClient();
   const { currentVillage } = useCurrentVillage();
 
-  const { data: quests } = useQuery<Quest[]>({
+  const { data: quests } = useSuspenseQuery<Quest[]>({
     queryKey: [questsCacheKey],
-    initialData: [],
+    queryFn: async () => {
+      const { data } = await fetcher<Quest[]>('/quests');
+      return data;
+    },
   });
 
   const [globalQuests, villageQuests] = partition<Quest>(quests, ({ scope }) => scope === 'global') as [Quest[], VillageQuest[]];

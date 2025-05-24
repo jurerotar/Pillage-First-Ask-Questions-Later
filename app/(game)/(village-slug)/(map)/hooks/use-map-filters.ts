@@ -1,24 +1,33 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { MapFilterName, MapFilters } from 'app/interfaces/models/game/map-filters';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useMapFilters = () => {
+  const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
 
-  const { data } = useQuery<MapFilters>({
+  const { data: mapFilters } = useSuspenseQuery<MapFilters>({
     queryKey: [mapFiltersCacheKey],
+    queryFn: async () => {
+      const { data } = await fetcher<MapFilters>('/map-filters');
+      return data;
+    },
   });
 
-  // Due to us working with only local data, which is prefetched in loader, we can do this assertion to save us from having to spam "!" everywhere
-  const mapFilters = data as MapFilters;
+  const { mutate: toggleMapFilter } = useMutation<MapFilters, Error, Partial<MapFilters>>({
+    mutationFn: async (vars) => {
+      const { data } = await fetcher<MapFilters>('/map-filters', {
+        method: 'PATCH',
+        body: {
+          ...vars,
+        },
+      });
 
-  const { mutate: toggleMapFilter } = useMutation<void, Error, MapFilterName>({
-    mutationFn: async (filterName) => {
-      const updatedMapFilters = {
-        ...mapFilters,
-        [filterName]: !mapFilters[filterName],
-      };
-
+      return data;
+    },
+    onSuccess: (updatedMapFilters) => {
       queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], updatedMapFilters);
     },
   });
