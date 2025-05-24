@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import {
   doesEventRequireResourceUpdate,
   isBuildingEvent,
@@ -21,6 +21,8 @@ import { partition } from 'app/utils/common';
 import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { adventurePointIncreaseResolver } from 'app/(game)/(village-slug)/hooks/resolvers/adventure-resolvers';
 import { troopMovementResolver } from 'app/(game)/(village-slug)/hooks/resolvers/troop-movement-resolvers';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => {
   switch (gameEventType) {
@@ -52,12 +54,17 @@ const gameEventTypeToResolverFunctionMapper = (gameEventType: GameEventType) => 
 };
 
 export const useEvents = () => {
+  const { fetcher } = use(ApiContext);
+
   const queryClient = useQueryClient();
   const { tribe } = useTribe();
 
-  const { data: events } = useQuery<GameEvent[]>({
+  const { data: events } = useSuspenseQuery<GameEvent[]>({
     queryKey: [eventsCacheKey],
-    initialData: [],
+    queryFn: async () => {
+      const { data } = await fetcher<GameEvent[]>('/events');
+      return data;
+    },
   });
 
   const { mutate: resolveEvent } = useMutation<void, Error, GameEvent['id']>({

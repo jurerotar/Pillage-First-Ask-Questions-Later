@@ -1,40 +1,30 @@
-import type { ApiMethod, ApiRoute, HandlerArgs, HandlerReturn } from 'app/interfaces/api';
-
-type ApiWorkerMessage<TArgs = unknown> = {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  body?: TArgs | null;
+type ApiWorkerMessage = {
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  body?: unknown | null;
+  params?: unknown | null;
 };
 
-type ApiWorkerResponse<TReturn> = {
-  status: number;
-  data: TReturn;
-};
-
-export type PostMessage<TArgs> = Required<ApiWorkerMessage<TArgs>> & {
-  url: string;
-};
+export type PostMessage = Required<{ url: string } & ApiWorkerMessage>;
 
 export const createWorkerFetcher = (worker: Worker) => {
-  return <Route extends ApiRoute, Method extends ApiMethod>(
-    url: ApiRoute | string,
-    args?: ApiWorkerMessage<HandlerArgs<Route, Method>>,
-  ): Promise<ApiWorkerResponse<HandlerReturn<Route, Method>>> => {
+  return async <TData>(url: string, args?: ApiWorkerMessage): Promise<{ data: TData }> => {
     const { port1, port2 } = new MessageChannel();
 
-    return new Promise<ApiWorkerResponse<HandlerReturn<Route, Method>>>((resolve) => {
+    return new Promise((resolve) => {
       port1.addEventListener('message', ({ data }) => {
         port1.close();
         resolve(data);
       });
       port1.start();
 
-      const data = {
+      const message: PostMessage = {
         url,
         method: args?.method ?? 'GET',
         body: args?.body ?? null,
-      } satisfies PostMessage<HandlerArgs<Route, Method>>;
+        params: args?.params ?? null,
+      };
 
-      worker.postMessage(data, [port2]);
+      worker.postMessage(message, [port2]);
     });
   };
 };

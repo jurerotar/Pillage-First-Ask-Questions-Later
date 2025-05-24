@@ -1,34 +1,47 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const usePreferences = () => {
+  const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
 
-  const { data } = useQuery<Preferences>({
+  const { data: preferences } = useSuspenseQuery<Preferences>({
     queryKey: [preferencesCacheKey],
+    queryFn: async () => {
+      const { data } = await fetcher<Preferences>('/preferences');
+      return data;
+    },
   });
 
-  const preferences = data as Preferences;
+  const { mutate: updatePreference } = useMutation<
+    Preferences,
+    Error,
+    Partial<
+      Record<keyof Pick<Preferences, 'isReducedMotionModeEnabled' | 'isAccessibilityModeEnabled' | 'shouldShowBuildingNames'>, boolean>
+    >
+  >({
+    mutationFn: async (vars) => {
+      const { data } = await fetcher<Preferences>('/preferences', {
+        method: 'PATCH',
+        body: {
+          ...vars,
+        },
+      });
 
-  const togglePreference = (
-    preference: keyof Pick<Preferences, 'isReducedMotionModeEnabled' | 'isAccessibilityModeEnabled' | 'shouldShowBuildingNames'>,
-  ) => {
-    queryClient.setQueryData<Preferences>([preferencesCacheKey], (prevState) => {
-      // This is a very hacky way of getting rid of this annoying prevState being undefined error
-      if (!prevState) {
-        return;
-      }
-
-      return {
-        ...prevState,
-        [preference]: !prevState[preference],
-      };
-    });
-  };
+      return data;
+    },
+    onSuccess: async (preferences) => {
+      queryClient.setQueryData<Preferences>([preferencesCacheKey], () => {
+        return preferences;
+      });
+    },
+  });
 
   return {
     ...preferences,
-    togglePreference,
+    updatePreference,
   };
 };

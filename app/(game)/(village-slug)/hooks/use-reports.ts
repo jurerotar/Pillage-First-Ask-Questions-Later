@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { Report, ReportTag } from 'app/interfaces/models/game/report';
 import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type _ReportMark = ReportTag | `un${ReportTag}`;
 
@@ -42,9 +44,14 @@ type _ReportMark = ReportTag | `un${ReportTag}`;
 // };
 
 export const useReports = () => {
-  const { data: reports } = useQuery<Report[]>({
+  const { fetcher } = use(ApiContext);
+
+  const { data: reports } = useSuspenseQuery<Report[]>({
     queryKey: [reportsCacheKey],
-    initialData: [],
+    queryFn: async () => {
+      const { data } = await fetcher<Report[]>('/reports');
+      return data;
+    },
   });
 
   return {

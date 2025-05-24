@@ -3,7 +3,6 @@ import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import type { Effect, EffectId, VillageEffect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
 import { useQuery } from '@tanstack/react-query';
-import { nonPersistedCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { normalizeForcedFloatValue } from 'app/utils/common';
 
 export type ComputedEffectReturn = {
@@ -156,14 +155,14 @@ export function useComputedEffect(effectId: EffectId): ComputedEffectReturn | Wh
   };
 
   const { data: computedEffect } = useQuery({
-    queryKey: [nonPersistedCacheKey, effectId, currentVillage.id, effects],
+    queryKey: [effectId, currentVillage.id, effects],
     queryFn: fetcher,
     initialData: fetcher,
     initialDataUpdatedAt: Date.now(),
     gcTime: 10_000,
     queryKeyHashFn: () => {
       const effectHash = effects.map((effect) => effect.value).join('|');
-      return `${nonPersistedCacheKey}-effect-id-[${effectId}]-village-id-[${currentVillage.id}]-updated-at-[${currentVillage.lastUpdatedAt}]-${effectHash}`;
+      return `effect-id-[${effectId}]-village-id-[${currentVillage.id}]-updated-at-[${currentVillage.lastUpdatedAt}]-${effectHash}`;
     },
   });
 

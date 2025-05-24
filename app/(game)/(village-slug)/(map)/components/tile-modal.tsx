@@ -136,20 +136,24 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
         )}
         <DialogDescription>
           {!isOccupiable && t('This is an un-occupiable oasis.')}
-          {isOccupied && (
+          {isOccupiable && (
             <>
-              {ownedBy === 'player' &&
-                t('This oasis is occupied by you and is producing resources for village {{villageName}}.', {
-                  villageName: occupiedByVillage!.name,
+              {isOccupied && (
+                <>
+                  {ownedBy === 'player' &&
+                    t('This oasis is occupied by you and is producing resources for village {{villageName}}.', {
+                      villageName: occupiedByVillage!.name,
+                    })}
+                  {ownedBy !== 'player' &&
+                    t('This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.')}
+                </>
+              )}
+              {!isOccupied &&
+                t('This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.', {
+                  herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
                 })}
-              {ownedBy !== 'player' &&
-                t('This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.')}
             </>
           )}
-          {!isOccupied &&
-            t('This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.', {
-              herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
-            })}
         </DialogDescription>
       </DialogHeader>
     </>

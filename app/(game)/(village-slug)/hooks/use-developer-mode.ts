@@ -1,17 +1,34 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { developerModeCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useDeveloperMode = () => {
+  const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
 
-  const { data: isDeveloperModeActive } = useQuery<boolean>({
+  const { data: isDeveloperModeActive } = useSuspenseQuery<boolean>({
     queryKey: [developerModeCacheKey],
-    initialData: false,
+    queryFn: async () => {
+      const { data } = await fetcher<{ isDeveloperModeEnabled: boolean }>('/developer-mode');
+      return data.isDeveloperModeEnabled;
+    },
   });
 
-  const toggleDeveloperMode = () => {
-    queryClient.setQueryData<boolean>([developerModeCacheKey], !isDeveloperModeActive);
-  };
+  const { mutate: toggleDeveloperMode } = useMutation<{ isDeveloperModeEnabled: boolean }, Error, void>({
+    mutationFn: async () => {
+      const { data } = await fetcher<{ isDeveloperModeEnabled: boolean }>('/developer-mode', {
+        method: 'PATCH',
+      });
+
+      return data;
+    },
+    onSuccess: async ({ isDeveloperModeEnabled }) => {
+      queryClient.setQueryData<boolean>([developerModeCacheKey], () => {
+        return isDeveloperModeEnabled;
+      });
+    },
+  });
 
   return {
     isDeveloperModeActive,

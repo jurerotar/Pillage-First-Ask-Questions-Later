@@ -1,48 +1,51 @@
 import type React from 'react';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useMemo } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import ApiWorker from 'app/(game)/api/workers/api-worker?worker&url';
-import type { Server } from 'app/interfaces/models/game/server';
 import { createWorkerFetcher } from 'app/(game)/utils/worker-fetch';
+import type { Server } from 'app/interfaces/models/game/server';
 
 type ApiContextProps = {
   serverSlug: Server['slug'];
 };
 
 type ApiContextReturn = {
-  apiWorker: Worker;
-  workerFetch: ReturnType<typeof createWorkerFetcher>;
+  fetcher: ReturnType<typeof createWorkerFetcher>;
 };
 
 export const ApiContext = createContext<ApiContextReturn>({} as ApiContextReturn);
 
-export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ children, serverSlug }) => {
-  const [apiWorker, setApiWorker] = useState<Worker | null>(null);
+const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
+  return new Promise((resolve) => {
+    const url = new URL(ApiWorker, import.meta.url);
+    url.searchParams.set('server-slug', serverSlug);
+    const worker = new Worker(url.toString(), { type: 'module' });
 
-  useEffect(() => {
-    if (!apiWorker) {
-      const url = new URL(ApiWorker, import.meta.url);
-      url.searchParams.set('server-slug', serverSlug);
-      const worker = new Worker(url.toString(), { type: 'module' });
-      setApiWorker(worker);
-    }
-
-    return () => {
-      if (apiWorker) {
-        apiWorker.terminate();
+    const handleReady = (e: MessageEvent) => {
+      if (e.data?.ready) {
+        worker.removeEventListener('message', handleReady);
+        resolve(worker);
       }
     };
-  }, [apiWorker, serverSlug]);
 
-  if (!apiWorker) {
-    return 'loading worker';
-  }
+    worker.addEventListener('message', handleReady);
+  });
+};
 
-  const workerFetch = createWorkerFetcher(apiWorker);
+export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug, children }) => {
+  const { data: apiWorker } = useSuspenseQuery({
+    queryKey: ['api-worker', serverSlug],
+    queryFn: () => createWorkerWithReadySignal(serverSlug),
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: Number.POSITIVE_INFINITY,
+  });
 
-  const value: ApiContextReturn = {
-    apiWorker,
-    workerFetch,
-  };
+  const value: ApiContextReturn = useMemo(
+    () => ({
+      fetcher: createWorkerFetcher(apiWorker),
+    }),
+    [apiWorker],
+  );
 
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 };

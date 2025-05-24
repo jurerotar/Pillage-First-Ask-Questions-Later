@@ -29,6 +29,7 @@ import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/eve
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { t } from 'i18next';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -46,7 +47,7 @@ const RULER_SIZE = 20;
 const MapPage = () => {
   const [searchParams] = useSearchParams();
   const { isOpen: isTileModalOpened, openModal, toggleModal, modalArgs } = useDialog<TileType | null>();
-  const { map, getTileByTileId, isFetchingMap } = useMap();
+  const { map, getTileByTileId } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
@@ -58,8 +59,10 @@ const MapPage = () => {
   const { events } = useEvents();
   const { currentVillage } = useCurrentVillage();
 
-  const startingX = Number.parseInt(searchParams.get('x') ?? '0');
-  const startingY = Number.parseInt(searchParams.get('y') ?? '0');
+  const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
+
+  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
+  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
@@ -247,77 +250,72 @@ const MapPage = () => {
           return <TileTooltip tile={tile} />;
         }}
       />
-      {isFetchingMap && <p>Loading map</p>}
-      {!isFetchingMap && (
-        <>
-          <FixedSizeGrid
-            key={tileSize}
-            className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-            outerRef={mapRef}
-            columnCount={gridSize}
-            columnWidth={tileSize}
-            rowCount={gridSize}
-            rowHeight={tileSize}
-            height={mapHeight - 1}
-            width={width}
-            itemData={fixedGridData}
-            initialScrollLeft={offsetX}
-            initialScrollTop={offsetY}
-            onScroll={({ scrollTop, scrollLeft }) => {
-              if (bottomMapRulerRef.current) {
-                bottomMapRulerRef.current.scrollTo(scrollLeft);
-              }
+      <FixedSizeGrid
+        key={tileSize}
+        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
+        outerRef={mapRef}
+        columnCount={gridSize}
+        columnWidth={tileSize}
+        rowCount={gridSize}
+        rowHeight={tileSize}
+        height={mapHeight - 1}
+        width={width}
+        itemData={fixedGridData}
+        initialScrollLeft={offsetX}
+        initialScrollTop={offsetY}
+        onScroll={({ scrollTop, scrollLeft }) => {
+          if (bottomMapRulerRef.current) {
+            bottomMapRulerRef.current.scrollTo(scrollLeft);
+          }
 
-              if (leftMapRulerRef.current) {
-                leftMapRulerRef.current.scrollTo(scrollTop);
-              }
+          if (leftMapRulerRef.current) {
+            leftMapRulerRef.current.scrollTo(scrollTop);
+          }
 
-              // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-              currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
-              currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
-            }}
-          >
-            {Cell}
-          </FixedSizeGrid>
-          {/* Y-axis ruler */}
-          <div className="absolute left-0 top-0 select-none pointer-events-none">
-            <FixedSizeList
-              className="scrollbar-hidden will-change-scroll"
-              ref={leftMapRulerRef}
-              itemSize={tileSize}
-              height={mapHeight}
-              itemCount={gridSize}
-              width={RULER_SIZE}
-              initialScrollOffset={offsetY}
-              layout="vertical"
-              itemData={{
-                layout: 'vertical',
-              }}
-            >
-              {MapRulerCell}
-            </FixedSizeList>
-          </div>
-          {/* X-axis ruler */}
-          <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-            <FixedSizeList
-              className="scrollbar-hidden will-change-scroll"
-              ref={bottomMapRulerRef}
-              itemSize={tileSize}
-              height={RULER_SIZE}
-              itemCount={gridSize}
-              width={width - RULER_SIZE}
-              initialScrollOffset={offsetX}
-              layout="horizontal"
-              itemData={{
-                layout: 'horizontal',
-              }}
-            >
-              {MapRulerCell}
-            </FixedSizeList>
-          </div>
-          <MapControls />
-        </>
-      )}
+          // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
+          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
+          currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
+        }}
+      >
+        {Cell}
+      </FixedSizeGrid>
+      {/* Y-axis ruler */}
+      <div className="absolute left-0 top-0 select-none pointer-events-none">
+        <FixedSizeList
+          className="scrollbar-hidden will-change-scroll"
+          ref={leftMapRulerRef}
+          itemSize={tileSize}
+          height={mapHeight}
+          itemCount={gridSize}
+          width={RULER_SIZE}
+          initialScrollOffset={offsetY}
+          layout="vertical"
+          itemData={{
+            layout: 'vertical',
+          }}
+        >
+          {MapRulerCell}
+        </FixedSizeList>
+      </div>
+      {/* X-axis ruler */}
+      <div className="absolute bottom-0 left-0 select-none pointer-events-none">
+        <FixedSizeList
+          className="scrollbar-hidden will-change-scroll"
+          ref={bottomMapRulerRef}
+          itemSize={tileSize}
+          height={RULER_SIZE}
+          itemCount={gridSize}
+          width={width - RULER_SIZE}
+          initialScrollOffset={offsetX}
+          layout="horizontal"
+          itemData={{
+            layout: 'horizontal',
+          }}
+        >
+          {MapRulerCell}
+        </FixedSizeList>
+      </div>
+      <MapControls />
     </main>
   );
 };

@@ -1,15 +1,19 @@
-import { hydrate, QueryClient } from '@tanstack/react-query';
-import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
-import type { PersistedClient } from '@tanstack/react-query-persist-client';
+import { dehydrate, type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
+import { getParsedFileContents, getRootHandle, writeFileContents } from 'app/utils/opfs';
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
+import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 
 const urlParams = new URLSearchParams(self.location.search);
 const serverSlug = urlParams.get('server-slug')!;
 
 const queryClient = new QueryClient();
 const rootHandle = await getRootHandle();
-const serverState = await getParsedFileContents<PersistedClient>(rootHandle, serverSlug!);
-hydrate(queryClient, serverState.clientState);
+const serverState = await getParsedFileContents<DehydratedState>(rootHandle, serverSlug!);
+hydrate(queryClient, serverState);
+
+scheduleNextEvent(queryClient);
+
+self.postMessage({ ready: true });
 
 self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
   const [port] = ports;
@@ -17,9 +21,13 @@ self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
 
   const { handler, params } = matchRoute(url, method)!;
   // @ts-expect-error: Not sure about this one, fix when you can
-  const response = await handler(queryClient, { params, body });
+  const result = await handler(queryClient, { params, body });
 
   port.postMessage({
-    data: response,
+    data: result,
   });
+
+  if (method !== 'GET') {
+    await writeFileContents(rootHandle, serverSlug, dehydrate(queryClient));
+  }
 });
