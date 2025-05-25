@@ -22,6 +22,7 @@ import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/uti
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
 import { Text } from 'app/components/text';
+import { playerTroopsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
@@ -80,6 +81,7 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
       startsAt: Date.now() + 10000,
       duration: 1000,
       resourceCost: [0, 0, 0, 0].map((cost) => cost * unitCostModifier),
+      cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
     });
   };
 

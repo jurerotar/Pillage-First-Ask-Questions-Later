@@ -25,5 +25,6 @@ export const createBuildingConstructionEventMock = ({
     resourceCost: calculateBuildingCostForLevel(buildingId, level),
     startsAt: Date.now(),
     duration: calculateBuildingDurationForLevel(buildingId, level),
+    cachesToClear: [],
   };
 };

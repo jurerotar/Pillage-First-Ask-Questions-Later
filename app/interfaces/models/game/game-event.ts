@@ -16,6 +16,7 @@ type BaseGameEvent = {
   type: GameEventType;
   startsAt: number;
   duration: number;
+  cachesToClear: string[];
 };
 
 type BaseBuildingEvent = WithResourceCheck<

@@ -7,10 +7,6 @@ import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-vi
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-export const getVillageById = (villages: Village[], villageId: Village['id']): Village => {
-  return villages.find(({ id }) => id === villageId)!;
-};
-
 export const useVillages = () => {
   const { fetcher } = use(ApiContext);
   const { playerVillages } = usePlayerVillages();

@@ -2,17 +2,19 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import type React from 'react';
+import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { useTranslation } from 'react-i18next';
 import { LuConstruction } from 'react-icons/lu';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { type PlacesType, Tooltip } from 'react-tooltip';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { MdCancel } from 'react-icons/md';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { useMutation } from '@tanstack/react-query';
 
 const iconClassName = 'text-2xl lg:text-3xl bg-white text-gray-400 p-2 box-content border border-gray-200 rounded-xs';
 
@@ -24,8 +26,21 @@ type ConstructionQueueBuildingProps = {
 const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingProps> = ({ buildingEvent, tooltipPosition }) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
-  const { cancelBuildingEvent } = useEvents();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
+  const { fetcher } = use(ApiContext);
+  const { tribe } = useTribe();
+
+  const { mutate: cancelConstruction } = useMutation<void, Error, { eventId: GameEvent['id'] }>({
+    mutationFn: async ({ eventId }) => {
+      await fetcher<void>('/', {
+        method: 'DELETE',
+        body: {
+          eventId,
+          tribe,
+        },
+      });
+    },
+  });
 
   const tooltipId = `tooltip-${buildingEvent.buildingId}-${buildingEvent.level}`;
 
@@ -78,7 +93,7 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
             <div className="flex items-center">
               <button
                 aria-label={t('Cancel building construction')}
-                onClick={() => cancelBuildingEvent(buildingEvent.id)}
+                onClick={() => cancelConstruction({ eventId: buildingEvent.id })}
                 type="button"
               >
                 <MdCancel className="text-xl lg:text-2xl text-red-400 box-content" />

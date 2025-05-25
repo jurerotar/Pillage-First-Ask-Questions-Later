@@ -11,7 +11,7 @@ const rootHandle = await getRootHandle();
 const serverState = await getParsedFileContents<DehydratedState>(rootHandle, serverSlug!);
 hydrate(queryClient, serverState);
 
-scheduleNextEvent(queryClient);
+await scheduleNextEvent(queryClient);
 
 self.postMessage({ ready: true });
 

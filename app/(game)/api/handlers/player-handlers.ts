@@ -11,7 +11,7 @@ import type { Player } from 'app/interfaces/models/game/player';
 import type { PlayerVillage, Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 
 export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;

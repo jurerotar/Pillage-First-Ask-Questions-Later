@@ -1,4 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 type ApiHandlerArgs<TBody, TParams> = {
   body: TBody;
@@ -9,3 +10,7 @@ export type ApiHandler<TReturn, TParams = Record<string, string>, TBody = Record
   queryClient: QueryClient,
   args: ApiHandlerArgs<TBody, TParams>,
 ) => Promise<TReturn>;
+
+export type EventNotifierEventResolvedArgs = Pick<GameEvent, 'cachesToClear'> & {
+  type: 'event:resolved';
+};

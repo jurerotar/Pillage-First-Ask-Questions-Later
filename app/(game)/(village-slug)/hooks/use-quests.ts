@@ -1,9 +1,8 @@
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
-import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { partition } from 'app/utils/common';
-import { isHeroExperienceQuestReward, isQuestCollectable, isResourceQuestReward } from 'app/(game)/workers/guards/quest-guards';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import { collectableQuestCountCacheKey, questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { isHeroExperienceQuestReward, isResourceQuestReward } from 'app/(game)/workers/guards/quest-guards';
 import { updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { addHeroExperience } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { use } from 'react';
@@ -23,13 +22,13 @@ export const useQuests = () => {
     },
   });
 
-  const [globalQuests, villageQuests] = partition<Quest>(quests, ({ scope }) => scope === 'global') as [Quest[], VillageQuest[]];
-  const currentVillageQuests = villageQuests.filter(({ villageId }) => villageId === currentVillage.id);
-
-  const collectableGlobalQuests = globalQuests.filter(isQuestCollectable);
-  const collectableCurrentVillageQuests = currentVillageQuests.filter(isQuestCollectable);
-
-  const amountOfUncollectedQuests = collectableGlobalQuests.length + collectableCurrentVillageQuests.length;
+  const { data: collectableQuestCount } = useSuspenseQuery<number>({
+    queryKey: [collectableQuestCountCacheKey],
+    queryFn: async () => {
+      const { data } = await fetcher<{ collectableQuestCount: number }>('/quests/collectable-count');
+      return data.collectableQuestCount;
+    },
+  });
 
   const completeQuest = (questToComplete: Quest) => {
     queryClient.setQueryData<Quest[]>([questsCacheKey], (quests) => {
@@ -61,9 +60,7 @@ export const useQuests = () => {
 
   return {
     quests,
-    globalQuests,
-    currentVillageQuests,
-    amountOfUncollectedQuests,
+    collectableQuestCount,
     completeQuest,
   };
 };

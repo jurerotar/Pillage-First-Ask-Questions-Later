@@ -1,13 +1,15 @@
-type ApiWorkerMessage = {
+type ApiWorkerMessage<TBody = unknown> = {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
-  body?: unknown | null;
+  body?: TBody;
   params?: unknown | null;
 };
 
 export type PostMessage = Required<{ url: string } & ApiWorkerMessage>;
 
+export type Fetcher = ReturnType<typeof createWorkerFetcher>;
+
 export const createWorkerFetcher = (worker: Worker) => {
-  return async <TData>(url: string, args?: ApiWorkerMessage): Promise<{ data: TData }> => {
+  return async <TData, TBody = unknown>(url: string, args?: ApiWorkerMessage<TBody>): Promise<{ data: TData }> => {
     const { port1, port2 } = new MessageChannel();
 
     return new Promise((resolve) => {

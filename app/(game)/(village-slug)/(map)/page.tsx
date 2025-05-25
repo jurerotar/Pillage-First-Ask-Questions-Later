@@ -25,7 +25,7 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { t } from 'i18next';
@@ -93,6 +93,8 @@ const MapPage = () => {
     y: 0,
   });
 
+  performance.mark('villageCoordinatesToVillagesMap-start');
+
   const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
     return new Map<Village['id'], Village>(
       villages.map((village) => {
@@ -101,6 +103,11 @@ const MapPage = () => {
     );
   }, [villages]);
 
+  performance.mark('villageCoordinatesToVillagesMap-end');
+
+  performance.mark('villageCoordinatesToWorldItemsMap-start');
+
+
   const villageCoordinatesToWorldItemsMap = useMemo<Map<Village['id'], WorldItem>>(() => {
     return new Map<Village['id'], WorldItem>(
       worldItems.map((worldItem) => {
@@ -108,6 +115,10 @@ const MapPage = () => {
       }),
     );
   }, [worldItems]);
+
+  performance.mark('villageCoordinatesToWorldItemsMap-end');
+
+  performance.mark('tileIdToTroopMovementsMap-start');
 
   const tileIdToTroopMovementsMap = useMemo<Map<Village['id'], GameEvent<'troopMovement'>[]>>(() => {
     const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>([]);
@@ -132,6 +143,12 @@ const MapPage = () => {
 
     return troopMovementMap;
   }, [events, currentVillage]);
+
+  performance.mark('tileIdToTroopMovementsMap-end');
+
+  performance.measure('villageCoordinatesToVillagesMap', 'villageCoordinatesToVillagesMap-start', 'villageCoordinatesToVillagesMap-end');
+  performance.measure('villageCoordinatesToWorldItemsMap', 'villageCoordinatesToWorldItemsMap-start', 'villageCoordinatesToWorldItemsMap-end');
+  performance.measure('tileIdToTroopMovementsMap', 'tileIdToTroopMovementsMap-start', 'tileIdToTroopMovementsMap-end');
 
   const fixedGridData = useMemo(() => {
     return {

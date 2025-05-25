@@ -1,5 +1,5 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { isBuildingEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isBuildingEvent } from 'app/(game)/guards/event-guards';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useSuspenseQuery } from '@tanstack/react-query';

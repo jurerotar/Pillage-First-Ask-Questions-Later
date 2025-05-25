@@ -1,4 +1,3 @@
-import { createEventFn } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { getBuildingData, specialFieldIds } from 'app/(game)/(village-slug)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/models/common';
@@ -7,6 +6,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { effectsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 
 const updateBuildingFieldLevel = (villages: Village[], args: GameEvent<'buildingLevelChange'>): Village[] => {
   const { villageId, buildingFieldId, level } = args;
@@ -130,7 +130,7 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
 ) => {
   const { buildingId, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
 
-  await createEventFn<'buildingLevelChange'>(queryClient, {
+  createEvent(queryClient, {
     type: 'buildingLevelChange',
     startsAt,
     duration,
@@ -139,5 +139,6 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
     level,
     villageId,
     resourceCost,
-  });
+    cachesToClear: [playerVillagesCacheKey]
+  })
 };

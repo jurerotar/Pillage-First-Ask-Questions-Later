@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
 import packageJson from './package.json' with { type: 'json' };
 // import { visualizer } from "rollup-plugin-visualizer";
+import devtoolsJson from 'vite-plugin-devtools-json';
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -39,6 +40,7 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
+    !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
     !isInTestMode &&

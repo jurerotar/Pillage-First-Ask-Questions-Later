@@ -1,16 +1,18 @@
 import type React from 'react';
-import { createContext, useMemo } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { createContext, useEffect, useMemo } from 'react';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import ApiWorker from 'app/(game)/api/workers/api-worker?worker&url';
-import { createWorkerFetcher } from 'app/(game)/utils/worker-fetch';
+import { createWorkerFetcher, type Fetcher } from 'app/(game)/utils/worker-fetch';
 import type { Server } from 'app/interfaces/models/game/server';
+import type { EventNotifierEventResolvedArgs } from 'app/interfaces/api';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 type ApiContextProps = {
   serverSlug: Server['slug'];
 };
 
 type ApiContextReturn = {
-  fetcher: ReturnType<typeof createWorkerFetcher>;
+  fetcher: Fetcher;
 };
 
 export const ApiContext = createContext<ApiContextReturn>({} as ApiContextReturn);
@@ -33,6 +35,8 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
 };
 
 export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug, children }) => {
+  const queryClient = useQueryClient();
+
   const { data: apiWorker } = useSuspenseQuery({
     queryKey: ['api-worker', serverSlug],
     queryFn: () => createWorkerWithReadySignal(serverSlug),
@@ -40,12 +44,32 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug,
     gcTime: Number.POSITIVE_INFINITY,
   });
 
-  const value: ApiContextReturn = useMemo(
-    () => ({
+  useEffect(() => {
+    if (!apiWorker) {
+      return;
+    }
+
+    const handleMessage = async (e: MessageEvent<EventNotifierEventResolvedArgs>) => {
+      if (e.data.type === 'event:resolved') {
+        for (const queryKey of e.data.cachesToClear) {
+          await queryClient.invalidateQueries({ queryKey: [queryKey] });
+        }
+        await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
+      }
+    };
+
+    apiWorker.addEventListener('message', handleMessage);
+
+    return () => {
+      apiWorker.removeEventListener('message', handleMessage);
+    };
+  }, [apiWorker, queryClient]);
+
+  const value: ApiContextReturn = useMemo(() => {
+    return {
       fetcher: createWorkerFetcher(apiWorker),
-    }),
-    [apiWorker],
-  );
+    };
+  }, [apiWorker]);
 
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 };

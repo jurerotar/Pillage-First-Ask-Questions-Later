@@ -1,7 +1,6 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Resolver } from 'app/interfaces/models/common';
-import { generateTroopMovementReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/reports';
-import { modifyTroops, setReport } from 'app/(game)/(village-slug)/hooks/resolvers/utils/troops';
+import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import {
   effectsCacheKey,
   mapCacheKey,
@@ -13,7 +12,7 @@ import {
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { createEventFn, updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
+import { updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
@@ -25,6 +24,7 @@ import { newVillageEffectsFactory } from 'app/factories/effect-factory';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { newVillageQuestsFactory } from 'app/factories/quest-factory';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
+import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops, startsAt, duration } = args;
@@ -33,7 +33,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (quer
 
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
-  await createEventFn<'troopMovement'>(queryClient, {
+  createEvent<'troopMovement'>(queryClient, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -46,6 +46,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (quer
       troops,
       effects,
     }),
+    cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -56,7 +57,7 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryC
 
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
-  await createEventFn<'troopMovement'>(queryClient, {
+  createEvent<'troopMovement'>(queryClient, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -69,6 +70,7 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryC
       troops,
       effects,
     }),
+    cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -128,7 +130,7 @@ const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = as
 
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
-  await createEventFn<'troopMovement'>(queryClient, {
+  createEvent<'troopMovement'>(queryClient, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -141,25 +143,26 @@ const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = as
       troops,
       effects,
     }),
+    cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey, effectsCacheKey],
   });
 };
 
 const reinforcementMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, movementType, targetId, troops: incomingTroops } = args;
+  const { targetId, troops: incomingTroops } = args;
 
   queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
     const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, tileId: targetId }));
     return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
   });
 
-  const relocationReport = generateTroopMovementReport({
-    villageId,
-    targetId,
-    movementType,
-    troops: incomingTroops,
-  });
-
-  setReport(queryClient, relocationReport);
+  // const relocationReport = generateTroopMovementReport({
+  //   villageId,
+  //   targetId,
+  //   movementType,
+  //   troops: incomingTroops,
+  // });
+  //
+  // setReport(queryClient, relocationReport);
 };
 
 const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
@@ -170,7 +173,7 @@ const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (quer
 };
 
 const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, movementType, targetId, troops: incomingTroops } = args;
+  const { villageId, targetId, troops: incomingTroops } = args;
 
   queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
     const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, source: targetId, tileId: targetId }));
@@ -197,14 +200,14 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     });
   }
 
-  const relocationReport = generateTroopMovementReport({
-    villageId,
-    targetId,
-    movementType,
-    troops: incomingTroops,
-  });
+  // const relocationReport = generateTroopMovementReport({
+  //   villageId,
+  //   targetId,
+  //   movementType,
+  //   troops: incomingTroops,
+  // });
 
-  setReport(queryClient, relocationReport);
+  // setReport(queryClient, relocationReport);
 };
 
 export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {

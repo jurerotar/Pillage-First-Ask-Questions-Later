@@ -3,7 +3,6 @@ import {
   CurrentVillageStateContext,
   CurrentVillageStateProvider,
 } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import { GameEngineProvider } from 'app/(game)/(village-slug)/providers/game-engine-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
@@ -19,7 +18,7 @@ import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Link, Outlet } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -72,8 +71,8 @@ const AdventurePointsCounter = () => {
 };
 
 const QuestsCounter = () => {
-  const { amountOfUncollectedQuests } = useQuests();
-  return <Counter counter={amountOfUncollectedQuests} />;
+  const { collectableQuestCount } = useQuests();
+  return <Counter counter={collectableQuestCount} />;
 };
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
@@ -289,7 +288,7 @@ const MapNavigationItem = () => {
   const { isMapPageOpen } = useActiveRoute();
 
   return (
-    <Link
+    <NavLink
       to={mapPath}
       prefetch="render"
     >
@@ -300,7 +299,7 @@ const MapNavigationItem = () => {
       >
         <TbMap2 className="text-3xl" />
       </NavigationMainItem>
-    </Link>
+    </NavLink>
   );
 };
 
@@ -638,24 +637,22 @@ const GameLayout = () => {
 
   return (
     <Suspense fallback="Layout loader">
-      <GameEngineProvider>
-        <CurrentVillageStateProvider>
-          <TopNavigation />
-          <Suspense fallback={null}>
-            <TroopMovements />
-          </Suspense>
-          <Suspense fallback="Loading page">
-            <Outlet />
-          </Suspense>
-          <Suspense fallback={null}>
-            <ConstructionQueue />
-          </Suspense>
-          <Suspense fallback={null}>
-            <TroopList />
-          </Suspense>
-          {!isWiderThanLg && <MobileBottomNavigation />}
-        </CurrentVillageStateProvider>
-      </GameEngineProvider>
+      <CurrentVillageStateProvider>
+        <TopNavigation />
+        <Suspense fallback={null}>
+          <TroopMovements />
+        </Suspense>
+        <Suspense fallback="Loading page">
+          <Outlet />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ConstructionQueue />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TroopList />
+        </Suspense>
+        {!isWiderThanLg && <MobileBottomNavigation />}
+      </CurrentVillageStateProvider>
     </Suspense>
   );
 };

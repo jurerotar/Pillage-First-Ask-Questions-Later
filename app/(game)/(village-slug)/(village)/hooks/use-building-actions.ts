@@ -5,8 +5,9 @@ import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-
 import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { isScheduledBuildingEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
+import { effectsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
   const { currentVillageBuildingEventsQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
@@ -63,6 +64,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration: 0,
       resourceCost: hasCurrentVillageBuildingEvents ? [0, 0, 0, 0] : resourceCost,
       level: 1,
+      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
     });
 
     // In case we're already building something, just create a scheduled construction event
@@ -74,6 +76,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingId,
         resourceCost,
         level: 1,
+        cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
       });
 
       return;
@@ -87,6 +90,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingId,
       // Cost can be 0, since it's already accounted for in the construction event
       resourceCost: [0, 0, 0, 0],
+      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
     });
   };
 
@@ -102,6 +106,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingId,
         resourceCost,
         level: virtualLevel + 1,
+        cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
       });
 
       return;
@@ -114,6 +119,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       level: virtualLevel + 1,
       buildingId,
       resourceCost,
+      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
     });
   };
 
@@ -125,6 +131,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       level: virtualLevel - 1,
       buildingId,
       resourceCost: [0, 0, 0, 0],
+      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
     });
   };
 
@@ -134,6 +141,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration: 0,
       buildingFieldId: buildingFieldId!,
       buildingId,
+      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
     });
   };
 

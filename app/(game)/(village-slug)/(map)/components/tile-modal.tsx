@@ -22,9 +22,10 @@ import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isFindNewVillageTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
+import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -195,6 +196,7 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       duration,
       targetId: tile.id,
       troops: [],
+      cachesToClear: [playerVillagesCacheKey],
     });
   };
 

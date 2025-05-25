@@ -10,8 +10,8 @@ import {
   getTroopsByVillage,
   getVillagesByPlayer,
 } from 'app/(game)/api/handlers/player-handlers';
-import { getQuests } from 'app/(game)/api/handlers/quest-handlers';
-import { getEvents } from 'app/(game)/api/handlers/event-handlers';
+import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/api/handlers/quest-handlers';
+import { cancelConstructionEvent, createNewEvents, getEvents } from 'app/(game)/api/handlers/event-handlers';
 import { getEffects } from 'app/(game)/api/handlers/effect-handlers';
 import { getDeveloperMode, toggleDeveloperMode } from 'app/(game)/api/handlers/developer-mode-handlers';
 import { getMapFilters, updateMapFilter } from 'app/(game)/api/handlers/map-filters-handlers';
@@ -55,6 +55,16 @@ const questRoutes = [
     path: '/quests',
     handler: getQuests,
   },
+  {
+    method: 'GET',
+    path: '/quests/collectable-count',
+    handler: getCollectableQuestCount,
+  },
+  {
+    method: 'PATCH',
+    path: '/quests/collect/:questId',
+    handler: collectQuest,
+  },
 ] as const;
 
 const mapRoutes = [
@@ -83,6 +93,16 @@ const eventRoutes = [
     method: 'GET',
     path: '/events',
     handler: getEvents,
+  },
+  {
+    method: 'POST',
+    path: '/events',
+    handler: createNewEvents,
+  },
+  {
+    method: 'DELETE',
+    path: '/events/construction-event',
+    handler: cancelConstructionEvent,
   },
 ] as const;
 
