@@ -26,7 +26,7 @@ const serverRoutes = [
     path: '/server',
     handler: getServer,
   },
-] as const;
+];
 
 const heroRoutes = [
   {
@@ -49,7 +49,7 @@ const heroRoutes = [
     path: '/hero/auctions',
     handler: () => {},
   },
-] as const;
+];
 
 const reportRoutes = [
   {
@@ -77,7 +77,7 @@ const reportRoutes = [
     path: '/reports/:reportId/delete',
     handler: () => {},
   },
-] as const;
+];
 
 const questRoutes = [
   {
@@ -95,7 +95,7 @@ const questRoutes = [
     path: '/quests/:questId/collect',
     handler: collectQuest,
   },
-] as const;
+];
 
 const mapRoutes = [
   {
@@ -108,7 +108,7 @@ const mapRoutes = [
     path: '/map/optimized',
     handler: () => {},
   },
-] as const;
+];
 
 const settingsRoutes = [
   {
@@ -132,7 +132,7 @@ const settingsRoutes = [
     path: '/settings/developer-mode',
     handler: toggleDeveloperMode,
   },
-] as const;
+];
 
 const eventRoutes = [
   {
@@ -150,7 +150,7 @@ const eventRoutes = [
     path: '/events/:eventId',
     handler: cancelConstructionEvent,
   },
-] as const;
+];
 
 const effectRoutes = [
   {
@@ -158,7 +158,7 @@ const effectRoutes = [
     path: '/effects',
     handler: getEffects,
   },
-] as const;
+];
 
 const playerRoutes = [
   {
@@ -191,7 +191,7 @@ const playerRoutes = [
     path: '/players/:playerId/villages/:villageId/troop-movements',
     handler: getTroopMovementsByVillage,
   },
-] as const;
+];
 
 const villageRoutes = [
   {
@@ -199,7 +199,7 @@ const villageRoutes = [
     path: '/villages',
     handler: getVillages,
   },
-] as const;
+];
 
 const mapFiltersRoutes = [
   {
@@ -212,7 +212,7 @@ const mapFiltersRoutes = [
     path: '/map-filters',
     handler: updateMapFilter,
   },
-] as const;
+];
 
 const worldItemsRoutes = [
   {
@@ -220,7 +220,7 @@ const worldItemsRoutes = [
     path: '/world-items',
     handler: getWorldItems,
   },
-] as const;
+];
 
 const reputationRoutes = [
   {
@@ -228,7 +228,7 @@ const reputationRoutes = [
     path: '/reputations',
     handler: getReputations,
   },
-] as const;
+];
 
 const troopRoutes = [
   {
@@ -236,7 +236,7 @@ const troopRoutes = [
     path: '/troops',
     handler: getTroops,
   },
-] as const;
+];
 
 export const apiRoutes = [
   ...serverRoutes,
@@ -253,4 +253,4 @@ export const apiRoutes = [
   ...worldItemsRoutes,
   ...reputationRoutes,
   ...troopRoutes,
-] as const;
+];
