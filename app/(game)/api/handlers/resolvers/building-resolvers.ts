@@ -130,7 +130,7 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
 ) => {
   const { buildingId, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
 
-  createEvent(queryClient, {
+  createEvent<'buildingLevelChange'>(queryClient, {
     type: 'buildingLevelChange',
     startsAt,
     duration,

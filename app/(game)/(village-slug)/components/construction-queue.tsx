@@ -14,7 +14,8 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { MdCancel } from 'react-icons/md';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 const iconClassName = 'text-2xl lg:text-3xl bg-white text-gray-400 p-2 box-content border border-gray-200 rounded-xs';
 
@@ -29,6 +30,7 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
   const { tribe } = useTribe();
+  const queryClient = useQueryClient();
 
   const { mutate: cancelConstruction } = useMutation<void, Error, { eventId: GameEvent['id'] }>({
     mutationFn: async ({ eventId }) => {
@@ -40,6 +42,10 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
         },
       });
     },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
+    }
   });
 
   const tooltipId = `tooltip-${buildingEvent.buildingId}-${buildingEvent.level}`;

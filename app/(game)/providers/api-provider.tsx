@@ -4,8 +4,13 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import ApiWorker from 'app/(game)/api/workers/api-worker?worker&url';
 import { createWorkerFetcher, type Fetcher } from 'app/(game)/utils/worker-fetch';
 import type { Server } from 'app/interfaces/models/game/server';
-import type { EventNotifierEventResolvedArgs } from 'app/interfaces/api';
+import type { ApiNotificationEvent } from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { eventWorkerReadyKey } from 'app/(game)/keys/event-keys';
+import {
+  isEventResolvedNotificationMessageEvent,
+  isNotificationMessageEvent
+} from 'app/(game)/providers/guards/api-notification-event-guards';
 
 type ApiContextProps = {
   serverSlug: Server['slug'];
@@ -23,14 +28,14 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
     url.searchParams.set('server-slug', serverSlug);
     const worker = new Worker(url.toString(), { type: 'module' });
 
-    const handleReady = (e: MessageEvent) => {
-      if (e.data?.ready) {
-        worker.removeEventListener('message', handleReady);
+    const handleWorkerReadyMessage = (event: MessageEvent) => {
+      if (isNotificationMessageEvent(event) && event.data.eventKey === eventWorkerReadyKey) {
+        worker.removeEventListener('message', handleWorkerReadyMessage);
         resolve(worker);
       }
     };
 
-    worker.addEventListener('message', handleReady);
+    worker.addEventListener('message', handleWorkerReadyMessage);
   });
 };
 
@@ -49,9 +54,15 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug,
       return;
     }
 
-    const handleMessage = async (e: MessageEvent<EventNotifierEventResolvedArgs>) => {
-      if (e.data.type === 'event:resolved') {
-        for (const queryKey of e.data.cachesToClear) {
+    const handleMessage = async (event: MessageEvent<ApiNotificationEvent>) => {
+      if (!isNotificationMessageEvent(event)) {
+        return;
+      }
+
+      if (isEventResolvedNotificationMessageEvent(event)) {
+        const { cachesToClear } = event.data;
+
+        for (const queryKey of cachesToClear) {
           await queryClient.invalidateQueries({ queryKey: [queryKey] });
         }
         await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
@@ -62,6 +73,7 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug,
 
     return () => {
       apiWorker.removeEventListener('message', handleMessage);
+      apiWorker.terminate();
     };
   }, [apiWorker, queryClient]);
 
