@@ -12,7 +12,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const { fetcher } = use(ApiContext);
 
   // If amount property is present, it's going to create multiple events
-  const { mutate: createEvent } = useMutation<void, Error, Omit<GameEvent<T>, 'id' | 'type' | 'villageId' > & { amount?: number }>({
+  const { mutate: createEvent } = useMutation<void, Error, Omit<GameEvent<T>, 'id' | 'type' | 'villageId'> & { amount?: number }>({
     mutationFn: async (args) => {
       // Pre-reserve array space. If amount property is present, we'll be creating {amount} of events, else just one
       const events: GameEvent<T>[] = new Array(args?.amount ?? 1);
@@ -22,7 +22,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
         const { startsAt, duration } = baseArgs;
 
         for (let i = 0; i < args.amount!; i++) {
-          events[i] = (
+          events[i] =
             // @ts-expect-error: This is actually correct, TS just can't correctly merge Omit<X, 'a' | 'b'> + { a: A, b: B }
             eventFactory({
               ...baseArgs,
@@ -30,8 +30,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
               villageId: currentVillage.id,
               startsAt: startsAt + i * duration,
               duration,
-            })
-          );
+            });
         }
       } else {
         // @ts-expect-error: This is actually correct, TS just can't correctly merge Omit<X, 'a' | 'b'> + { a: A, b: B }
@@ -53,7 +52,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
-    }
+    },
   });
 
   return {

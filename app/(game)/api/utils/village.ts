@@ -6,7 +6,7 @@ import type { Resources } from 'app/interfaces/models/game/resource';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
-export const calculateVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number) => {
+const calculateVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number) => {
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
   const villages = queryClient.getQueryData<PlayerVillage[]>([playerVillagesCacheKey])!;
@@ -61,11 +61,7 @@ export const calculateVillageResourcesAt = (queryClient: QueryClient, villageId:
 };
 
 export const updateVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number) => {
-  const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(
-    queryClient,
-    villageId,
-    timestamp,
-  );
+  const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
 
   queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], (prevVillages) => {
     return prevVillages!.map((village) => {
@@ -81,13 +77,18 @@ export const updateVillageResourcesAt = (queryClient: QueryClient, villageId: Pl
           clay: currentClay,
           iron: currentIron,
           wheat: currentWheat,
-        }
-      }
+        },
+      };
     });
   });
 };
 
-export const addVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number, resourcesToAdd: Resources) => {
+export const addVillageResourcesAt = (
+  queryClient: QueryClient,
+  villageId: PlayerVillage['id'],
+  timestamp: number,
+  resourcesToAdd: Resources,
+) => {
   const { currentWood, currentClay, currentIron, currentWheat, warehouseCapacity, granaryCapacity } = calculateVillageResourcesAt(
     queryClient,
     villageId,
@@ -110,18 +111,19 @@ export const addVillageResourcesAt = (queryClient: QueryClient, villageId: Playe
           clay: Math.min(currentClay + clay, warehouseCapacity),
           iron: Math.min(currentIron + iron, warehouseCapacity),
           wheat: Math.min(currentWheat + wheat, granaryCapacity),
-        }
-      }
+        },
+      };
     });
   });
 };
 
-export const removeVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number, resourcesToAdd: Resources) => {
-  const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(
-    queryClient,
-    villageId,
-    timestamp,
-  );
+export const removeVillageResourcesAt = (
+  queryClient: QueryClient,
+  villageId: PlayerVillage['id'],
+  timestamp: number,
+  resourcesToAdd: Resources,
+) => {
+  const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
 
   queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], (prevVillages) => {
     return prevVillages!.map((village) => {
@@ -139,8 +141,8 @@ export const removeVillageResourcesAt = (queryClient: QueryClient, villageId: Pl
           clay: Math.max(currentClay - clay, 0),
           iron: Math.max(currentIron - iron, 0),
           wheat: Math.max(currentWheat - wheat, 0),
-        }
-      }
+        },
+      };
     });
   });
 };

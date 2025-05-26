@@ -100,10 +100,6 @@ export const averageExecutionTime = (count = 100) => {
   };
 };
 
-export const isMasterDeploy = () => {
-  return import.meta.env.BRANCH_ENV === 'master';
-};
-
 export const formatPercentage = (number: number): string => {
   // We can't differentiate between ints and floats in JS, so every x.0 number is written as 1.001. We check for this number
   // here and just return 100% if

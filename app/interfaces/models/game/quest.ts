@@ -50,7 +50,7 @@ type BaseQuest = {
 };
 
 export type VillageQuest = BaseQuest & {
-  id: `${VillageQuestGroup}-${Matcher}-${number}`;
+  id: `${Village['id']}-${VillageQuestGroup}-${Matcher}-${number}`;
   scope: 'village';
   villageId: Village['id'];
   requirements: BuildingQuestRequirement[];

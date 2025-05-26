@@ -57,7 +57,7 @@ type UnitRecruitmentFormProps = {
 const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
+  const { createEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentVillageStateContext);
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();

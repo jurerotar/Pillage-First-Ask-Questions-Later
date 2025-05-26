@@ -2,6 +2,8 @@ import { dehydrate, type DehydratedState, hydrate, QueryClient } from '@tanstack
 import { getParsedFileContents, getRootHandle, writeFileContents } from 'app/utils/opfs';
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
+import type { ApiNotificationEvent } from 'app/interfaces/api';
+import { eventWorkerReadyKey } from 'app/(game)/keys/event-keys';
 
 const urlParams = new URLSearchParams(self.location.search);
 const serverSlug = urlParams.get('server-slug')!;
@@ -13,7 +15,7 @@ hydrate(queryClient, serverState);
 
 await scheduleNextEvent(queryClient);
 
-self.postMessage({ ready: true });
+self.postMessage({ eventKey: eventWorkerReadyKey } satisfies ApiNotificationEvent);
 
 self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
   const [port] = ports;

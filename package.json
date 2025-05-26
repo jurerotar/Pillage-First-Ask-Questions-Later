@@ -38,7 +38,6 @@
     "@tailwindcss/vite": "4.1.7",
     "@tanstack/react-query": "5.76.1",
     "@tanstack/react-query-devtools": "5.76.1",
-    "@tanstack/react-query-persist-client": "5.76.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
@@ -96,46 +95,22 @@
     "node": ">=22.15.0"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
-    "entry": [
-      "scripts/*.ts",
-      "app/tests/vitest-setup.ts",
-      "app/root.tsx!",
-      "app/**/*page.tsx!",
-      "app/**/*layout.tsx!"
-    ],
-    "project": [
-      "app/**/*.{ts,tsx}!"
-    ],
+    "entry": ["scripts/*.ts", "app/tests/vitest-setup.ts", "app/root.tsx!", "app/**/*page.tsx!", "app/**/*layout.tsx!"],
+    "project": ["app/**/*.{ts,tsx}!"],
     "paths": {
-      "app/*": [
-        "app/*"
-      ]
+      "app/*": ["app/*"]
     }
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
+    "extends": ["@commitlint/config-conventional"],
     "rules": {
-      "header-max-length": [
-        0
-      ],
-      "body-max-line-length": [
-        0
-      ]
+      "header-max-length": [0],
+      "body-max-line-length": [0]
     }
   }
 }

@@ -192,7 +192,6 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
     createFindNewVillageEvent({
       startsAt: Date.now(),
       movementType: 'find-new-village',
-      villageId: currentVillage.id,
       duration,
       targetId: tile.id,
       troops: [],

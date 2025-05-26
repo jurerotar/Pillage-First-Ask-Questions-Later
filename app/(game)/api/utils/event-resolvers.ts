@@ -4,16 +4,14 @@ import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import { doesEventRequireResourceUpdate } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import type { EventResolvedApiNotificationEvent } from 'app/interfaces/api';
+import { eventResolvedKey } from 'app/(game)/keys/event-keys';
 
 let scheduledTimeout: number | null = null;
 
 const resolveEvent = async (queryClient: QueryClient, eventId: GameEvent['id']) => {
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
   const event = events.find(({ id }) => id === eventId)!;
-
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
-    return events!.filter(({ id }) => id !== eventId);
-  });
 
   // If event updates any village property (new building, returning troops,...) we need to calculate the amount of resources before
   // said update happens
@@ -26,10 +24,14 @@ const resolveEvent = async (queryClient: QueryClient, eventId: GameEvent['id']) 
   // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
   await resolver(queryClient, event);
 
-  self.postMessage({
-    type: 'event:resolved',
-    cachesToClear: event.cachesToClear,
+  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
+    return events!.filter(({ id }) => id !== eventId);
   });
+
+  self.postMessage({
+    eventKey: eventResolvedKey,
+    cachesToClear: event.cachesToClear,
+  } satisfies EventResolvedApiNotificationEvent);
 };
 
 export const scheduleNextEvent = async (queryClient: QueryClient) => {
@@ -38,11 +40,11 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
     scheduledTimeout = null;
   }
 
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
+  const pastOrFutureEvents = queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
 
   const now = Date.now();
 
-  for (const event of events) {
+  for (const event of pastOrFutureEvents) {
     const endsAt = event.startsAt + event.duration;
 
     if (endsAt > now) {
@@ -53,11 +55,13 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
   }
 
   // At this point, all remaining events are future events
-  if (events.length === 0) {
+  const futureEvents = queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
+
+  if (futureEvents.length === 0) {
     return;
   }
 
-  const nextEvent = events[0];
+  const nextEvent = futureEvents[0];
 
   scheduledTimeout = self.setTimeout(
     async () => {
@@ -66,5 +70,4 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
     },
     nextEvent.startsAt + nextEvent.duration - now,
   );
-
 };

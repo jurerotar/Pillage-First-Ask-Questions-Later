@@ -1,10 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import {
+import type {
   eventConstructionCompletedKey,
   eventConstructionNotStartedKey,
-  eventConstructionStartedKey, eventResolvedKey,
-  type eventWorkerReadyKey
+  eventConstructionStartedKey,
+  eventResolvedKey,
+  eventWorkerReadyKey,
 } from 'app/(game)/keys/event-keys';
 
 type ApiHandlerArgs<TBody, TParams> = {
@@ -12,7 +13,7 @@ type ApiHandlerArgs<TBody, TParams> = {
   params: TParams;
 };
 
-export type ApiHandler<TReturn, TParams = Record<string, string>, TBody = Record<string, unknown>> = (
+export type ApiHandler<TReturn = void, TParams = Record<string, string>, TBody = Record<string, unknown>> = (
   queryClient: QueryClient,
   args: ApiHandlerArgs<TBody, TParams>,
 ) => Promise<TReturn>;
@@ -28,7 +29,4 @@ export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
-export type EventResolvedApiNotificationEvent = ApiNotificationEvent & {
-  cachesToClear: Pick<GameEvent, 'cachesToClear'>;
-};
-
+export type EventResolvedApiNotificationEvent = ApiNotificationEvent & Pick<GameEvent, 'cachesToClear'>;

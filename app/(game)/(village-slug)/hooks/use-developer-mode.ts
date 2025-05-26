@@ -10,14 +10,14 @@ export const useDeveloperMode = () => {
   const { data: isDeveloperModeActive } = useSuspenseQuery<boolean>({
     queryKey: [developerModeCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<{ isDeveloperModeEnabled: boolean }>('/developer-mode');
+      const { data } = await fetcher<{ isDeveloperModeEnabled: boolean }>('/settings/developer-mode');
       return data.isDeveloperModeEnabled;
     },
   });
 
   const { mutate: toggleDeveloperMode } = useMutation<{ isDeveloperModeEnabled: boolean }, Error, void>({
     mutationFn: async () => {
-      const { data } = await fetcher<{ isDeveloperModeEnabled: boolean }>('/developer-mode', {
+      const { data } = await fetcher<{ isDeveloperModeEnabled: boolean }>('/settings/developer-mode', {
         method: 'PATCH',
       });
 

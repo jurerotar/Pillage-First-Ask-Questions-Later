@@ -107,7 +107,6 @@ const MapPage = () => {
 
   performance.mark('villageCoordinatesToWorldItemsMap-start');
 
-
   const villageCoordinatesToWorldItemsMap = useMemo<Map<Village['id'], WorldItem>>(() => {
     return new Map<Village['id'], WorldItem>(
       worldItems.map((worldItem) => {
@@ -147,7 +146,11 @@ const MapPage = () => {
   performance.mark('tileIdToTroopMovementsMap-end');
 
   performance.measure('villageCoordinatesToVillagesMap', 'villageCoordinatesToVillagesMap-start', 'villageCoordinatesToVillagesMap-end');
-  performance.measure('villageCoordinatesToWorldItemsMap', 'villageCoordinatesToWorldItemsMap-start', 'villageCoordinatesToWorldItemsMap-end');
+  performance.measure(
+    'villageCoordinatesToWorldItemsMap',
+    'villageCoordinatesToWorldItemsMap-start',
+    'villageCoordinatesToWorldItemsMap-end',
+  );
   performance.measure('tileIdToTroopMovementsMap', 'tileIdToTroopMovementsMap-start', 'tileIdToTroopMovementsMap-end');
 
   const fixedGridData = useMemo(() => {

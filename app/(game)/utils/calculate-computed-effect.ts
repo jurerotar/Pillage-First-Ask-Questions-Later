@@ -16,7 +16,7 @@ export type WheatProductionEffectReturn = ComputedEffectReturn & {
   troopWheatConsumptionReductionBonus: number;
 };
 
-export const calculateWheatProductionEffect = (
+const calculateWheatProductionEffect = (
   effectId: 'wheatProduction',
   effects: Effect[],
   currentVillageId: Village['id'],

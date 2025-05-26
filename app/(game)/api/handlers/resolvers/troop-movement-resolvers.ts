@@ -12,7 +12,6 @@ import {
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { updateVillageResources } from 'app/(game)/(village-slug)/hooks/utils/events';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
@@ -25,6 +24,7 @@ import type { Quest } from 'app/interfaces/models/game/quest';
 import { newVillageQuestsFactory } from 'app/factories/quest-factory';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops, startsAt, duration } = args;
@@ -173,7 +173,7 @@ const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (quer
 };
 
 const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops: incomingTroops } = args;
+  const { villageId, targetId, troops: incomingTroops, startsAt, duration } = args;
 
   queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
     const troopsWithSourceAndTile = incomingTroops.map((troop) => ({ ...troop, source: targetId, tileId: targetId }));
@@ -183,8 +183,8 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   const isHeroBeingRelocated = incomingTroops.some(({ unitId }) => unitId === 'HERO');
 
   if (isHeroBeingRelocated) {
-    updateVillageResources(queryClient, villageId, [0, 0, 0, 0], 'add');
-    updateVillageResources(queryClient, targetId, [0, 0, 0, 0], 'add');
+    updateVillageResourcesAt(queryClient, villageId, startsAt + duration);
+    updateVillageResourcesAt(queryClient, targetId, startsAt + duration);
 
     queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
       return effects!.map((effect) => {

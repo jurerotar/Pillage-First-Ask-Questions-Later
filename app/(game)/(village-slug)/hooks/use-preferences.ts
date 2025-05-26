@@ -11,7 +11,7 @@ export const usePreferences = () => {
   const { data: preferences } = useSuspenseQuery<Preferences>({
     queryKey: [preferencesCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Preferences>('/preferences');
+      const { data } = await fetcher<Preferences>('/settings/preferences');
       return data;
     },
   });
@@ -24,7 +24,7 @@ export const usePreferences = () => {
     >
   >({
     mutationFn: async (vars) => {
-      const { data } = await fetcher<Preferences>('/preferences', {
+      const { data } = await fetcher<Preferences>('/settings/preferences', {
         method: 'PATCH',
         body: {
           ...vars,

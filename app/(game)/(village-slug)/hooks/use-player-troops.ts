@@ -57,7 +57,6 @@ export const usePlayerTroops = () => {
     });
 
     createTroopMovementEvent({
-      villageId: currentVillage.id,
       movementType,
       targetId,
       troops,

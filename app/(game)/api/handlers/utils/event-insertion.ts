@@ -1,4 +1,4 @@
-import type { GameEvent } from "app/interfaces/models/game/game-event";
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 // Make sure newEvents are already sorted. We avoid sorting to optimize performance.
 export const insertBulkEvent = (events: GameEvent[], newEvents: GameEvent[]): GameEvent[] => {
@@ -29,4 +29,3 @@ export const insertBulkEvent = (events: GameEvent[], newEvents: GameEvent[]): Ga
 
   return result;
 };
-

@@ -9,7 +9,7 @@ import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { eventWorkerReadyKey } from 'app/(game)/keys/event-keys';
 import {
   isEventResolvedNotificationMessageEvent,
-  isNotificationMessageEvent
+  isNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
 
 type ApiContextProps = {
@@ -73,7 +73,6 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug,
 
     return () => {
       apiWorker.removeEventListener('message', handleMessage);
-      apiWorker.terminate();
     };
   }, [apiWorker, queryClient]);
 

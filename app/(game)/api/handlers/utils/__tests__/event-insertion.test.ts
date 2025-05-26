@@ -5,10 +5,10 @@ import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 const now = Date.now();
 
 const events = [
-  { id: 1, startsAt: now, duration: 3000 },          // resolves at now + 3000
-  { id: 2, startsAt: now + 1000, duration: 2000 },   // resolves at now + 3000
-  { id: 3, startsAt: now + 2000, duration: 1000 },   // resolves at now + 3000
-  { id: 4, startsAt: now + 3000, duration: 4000 },   // resolves at now + 7000
+  { id: 1, startsAt: now, duration: 3000 }, // resolves at now + 3000
+  { id: 2, startsAt: now + 1000, duration: 2000 }, // resolves at now + 3000
+  { id: 3, startsAt: now + 2000, duration: 1000 }, // resolves at now + 3000
+  { id: 4, startsAt: now + 3000, duration: 4000 }, // resolves at now + 7000
 ] as unknown as GameEvent[];
 
 describe('insertBulkEvent', () => {
@@ -17,7 +17,7 @@ describe('insertBulkEvent', () => {
 
   test('should insert new events between events with closest resolve times', () => {
     const newEvents = [
-      { id: 'new-event-1', startsAt: now + 500, duration: 500 },   // resolves at now + 1000
+      { id: 'new-event-1', startsAt: now + 500, duration: 500 }, // resolves at now + 1000
       { id: 'new-event-2', startsAt: now + 1500, duration: 1000 }, // resolves at now + 2500
     ] as unknown as GameEvent[];
 

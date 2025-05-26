@@ -29,23 +29,18 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
   const { t } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
-  const { tribe } = useTribe();
   const queryClient = useQueryClient();
 
   const { mutate: cancelConstruction } = useMutation<void, Error, { eventId: GameEvent['id'] }>({
     mutationFn: async ({ eventId }) => {
-      await fetcher<void>('/', {
+      await fetcher(`/events/${eventId}`, {
         method: 'DELETE',
-        body: {
-          eventId,
-          tribe,
-        },
       });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
       await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
-    }
+    },
   });
 
   const tooltipId = `tooltip-${buildingEvent.buildingId}-${buildingEvent.level}`;

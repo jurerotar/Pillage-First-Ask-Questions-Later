@@ -10,15 +10,13 @@ export type CalculateCurrentAmountArgs = {
   timestamp?: number;
 };
 
-export const calculateCurrentAmount = (
-  {
-    village,
-    resource,
-    hourlyProduction,
-    storageCapacity,
-    timestamp = Date.now(),
-  }: CalculateCurrentAmountArgs
-) => {
+export const calculateCurrentAmount = ({
+  village,
+  resource,
+  hourlyProduction,
+  storageCapacity,
+  timestamp = Date.now(),
+}: CalculateCurrentAmountArgs) => {
   const { resources, lastUpdatedAt } = village;
   const resourceAmount = resources[resource];
 

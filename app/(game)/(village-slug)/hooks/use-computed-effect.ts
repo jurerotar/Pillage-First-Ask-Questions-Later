@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   calculateComputedEffect,
   type ComputedEffectReturn,
-  type WheatProductionEffectReturn
+  type WheatProductionEffectReturn,
 } from 'app/(game)/utils/calculate-computed-effect';
 
 export function useComputedEffect(effectId: Exclude<EffectId, 'wheatProduction'>): ComputedEffectReturn;

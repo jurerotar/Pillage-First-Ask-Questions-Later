@@ -2,7 +2,8 @@ import type { GameEventType } from 'app/interfaces/models/game/game-event';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
-  buildingLevelChangeResolver, buildingScheduledConstructionEventResolver
+  buildingLevelChangeResolver,
+  buildingScheduledConstructionEventResolver,
 } from 'app/(game)/api/handlers/resolvers/building-resolvers';
 import { troopTrainingEventResolver } from 'app/(game)/api/handlers/resolvers/troop-resolvers';
 import { adventurePointIncreaseResolver } from 'app/(game)/api/handlers/resolvers/adventure-resolvers';

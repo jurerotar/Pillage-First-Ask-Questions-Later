@@ -7,6 +7,7 @@ import { effectsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slu
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
 
 const updateBuildingFieldLevel = (villages: Village[], args: GameEvent<'buildingLevelChange'>): Village[] => {
   const { villageId, buildingFieldId, level } = args;
@@ -85,6 +86,8 @@ export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChang
   queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (villages) => {
     return updateBuildingFieldLevel(villages!, args);
   });
+
+  evaluateQuestCompletions(queryClient);
 };
 
 export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruction'>> = async (queryClient, args) => {
@@ -128,17 +131,8 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
   args,
 ) => {
-  const { buildingId, buildingFieldId, level, resourceCost, villageId, startsAt, duration } = args;
-
   createEvent<'buildingLevelChange'>(queryClient, {
+    ...args,
     type: 'buildingLevelChange',
-    startsAt,
-    duration,
-    buildingId,
-    buildingFieldId,
-    level,
-    villageId,
-    resourceCost,
-    cachesToClear: [playerVillagesCacheKey]
-  })
+  });
 };
