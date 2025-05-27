@@ -66,26 +66,39 @@ hooks, providers,... and tests.
 
 The app consists of 3 separate logic layers:
 
-- frontend
-- api-worker
-- in-memory database
+- Frontend
+- API worker
+- In-memory database
+
+### Frontend
+
+Frontend is built with React and TypeScript. Components are built with ShadCN.
+
+### API worker
 
 When a user navigates to a game URL (`/game/s-{server-slug}`), the app initializes an `api-worker`. The purpose of this
-worker is to act as an REST API mock, exposing certain endpoints, querying the database, posting responses through message ports as well as
-acting as a WebSocket server. Frontend is connected to this worker through an adapter. This adapter exposes a `fetcher` function, which the
-frontend uses to connect to the worker.
+worker is to act as an RESTful API. It provides a basic router, exposes endpoints, accesses the database, posts responses through message ports,
+acts as a WebSocket server,.... It essentially provides a service you'd typically expect from a normal RESTful API. The goal of this is to
+minimize the differences between offline and online app architectures.
 
-This design may seem a bit of an overkill for a single-player application, but it's been purposefully chosen, because it creates a
-separation between the app's `frontend` and `data` layers. Because of this separation, the adapter easily be adapted for a native `fetch` +
-WebSocket implementation, allowing actual backend and potential multiplayer integration.
-This makes the frontend completely reusable for both single-player & multi-player versions of the game.
+Frontend is connected to this worker through an `adapter`. This `adapter` exposes a `fetcher` function, which the frontend uses to connect
+to the worker.
+
+This design may seem a bit of an overkill for an offline application, but there are reasons for it. This type of design allows for minimal
+differences between offline and online behavior. By simply changing the `adapter`, you are able to connect the frontend to a different data
+source (e.g. actual backend for an online app), without having to touch rest of the frontend.
+This makes the frontend completely reusable for both offline & online versions of the game.
+
+### Database
 
 Game state is kept in `@tanstack/react-query`'s `QueryClient` object. On any change to the object, data is persisted to browser's OPFS
 storage.
 While `react-query` may seem as an odd choice for a database (and it certainly is!), it was chosen as such for historical and DX reasons.
 Before the migration to this new architecture, `react-query` was used a state management solution on frontend. Not wanting to migrate all
 the logic to an actual database implementation, I have decided to keep (ab)using it as a database. If there's performance issues with its
-usage in the future, it can be partially/fully swapped for an actual database (ex. SQLite).
+usage in the future, it can be partially/fully swapped with an actual database (ex. SQLite).
+
+### Architecture graph
 
 ```mermaid
 graph TD
