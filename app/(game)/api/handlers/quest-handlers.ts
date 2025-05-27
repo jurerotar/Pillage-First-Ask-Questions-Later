@@ -21,11 +21,7 @@ export const getCollectableQuestCount: ApiHandler<GetCollectableQuestCountReturn
   };
 };
 
-type CollectQuestParams = {
-  questId: Quest['id'];
-};
-
-export const collectQuest: ApiHandler<void, CollectQuestParams, void> = async (queryClient, args) => {
+export const collectQuest: ApiHandler<void, 'questId', void> = async (queryClient, args) => {
   const {
     params: { questId },
   } = args;

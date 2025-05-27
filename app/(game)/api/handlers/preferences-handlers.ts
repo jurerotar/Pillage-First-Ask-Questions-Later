@@ -10,7 +10,7 @@ type UpdatePreferenceBody = Partial<
   Record<keyof Pick<Preferences, 'isReducedMotionModeEnabled' | 'isAccessibilityModeEnabled' | 'shouldShowBuildingNames'>, boolean>
 >;
 
-export const updatePreference: ApiHandler<Preferences, void, UpdatePreferenceBody> = async (queryClient, args) => {
+export const updatePreference: ApiHandler<Preferences, '', UpdatePreferenceBody> = async (queryClient, args) => {
   const { body } = args;
 
   queryClient.setQueryData<Preferences>([preferencesCacheKey], (prevPreferences) => {

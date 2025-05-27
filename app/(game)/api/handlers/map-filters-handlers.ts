@@ -8,7 +8,7 @@ export const getMapFilters: ApiHandler<MapFilters> = async (queryClient) => {
   return mapFilters;
 };
 
-export const updateMapFilter: ApiHandler<MapFilters, void, Partial<MapFilters>> = async (queryClient, args) => {
+export const updateMapFilter: ApiHandler<MapFilters, '', Partial<MapFilters>> = async (queryClient, args) => {
   const { body } = args;
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], (mapFilters) => {
     return {

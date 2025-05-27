@@ -19,7 +19,7 @@ type CreateNewEventsBody = {
   events: GameEvent[];
 };
 
-export const createNewEvents: ApiHandler<void, void, CreateNewEventsBody> = async (queryClient, args) => {
+export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = async (queryClient, args) => {
   const {
     body: { events },
   } = args;
@@ -31,11 +31,7 @@ export const createNewEvents: ApiHandler<void, void, CreateNewEventsBody> = asyn
   await scheduleNextEvent(queryClient);
 };
 
-type CancelConstructionEventParams = {
-  eventId: GameEvent['id'];
-};
-
-export const cancelConstructionEvent: ApiHandler<void, CancelConstructionEventParams, void> = async (queryClient, args) => {
+export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async (queryClient, args) => {
   const {
     params: { eventId },
   } = args;

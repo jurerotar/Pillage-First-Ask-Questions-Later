@@ -8,7 +8,7 @@ import {
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Player } from 'app/interfaces/models/game/player';
-import type { PlayerVillage, Village } from 'app/interfaces/models/game/village';
+import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
@@ -17,11 +17,7 @@ export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;
 };
 
-type GetPlayerByIdParams = {
-  playerId: Player['id'];
-};
-
-export const getPlayerById: ApiHandler<Player, GetPlayerByIdParams> = async (queryClient, args) => {
+export const getPlayerById: ApiHandler<Player, 'playerId'> = async (queryClient, args) => {
   const {
     params: { playerId },
   } = args;
@@ -30,11 +26,7 @@ export const getPlayerById: ApiHandler<Player, GetPlayerByIdParams> = async (que
   return players.find(({ id }) => id === playerId)!;
 };
 
-type GetVillagesByPlayerParams = {
-  playerId: Player['id'];
-};
-
-export const getVillagesByPlayer: ApiHandler<PlayerVillage[], GetVillagesByPlayerParams> = async (queryClient, args) => {
+export const getVillagesByPlayer: ApiHandler<PlayerVillage[], 'playerId'> = async (queryClient, args) => {
   const {
     params: { playerId },
   } = args;
@@ -49,15 +41,12 @@ export const getVillagesByPlayer: ApiHandler<PlayerVillage[], GetVillagesByPlaye
   return villages.filter(({ playerId: ownedBy }) => ownedBy === playerId)!;
 };
 
-type GetTroopsByVillageParams = {
-  playerId: Player['id'];
-  villageId: Village['id'];
-};
-
-export const getTroopsByVillage: ApiHandler<Troop[], GetTroopsByVillageParams> = async (queryClient, args) => {
+export const getTroopsByVillage: ApiHandler<Troop[], 'playerId' | 'villageId'> = async (queryClient, args) => {
   const {
-    params: { playerId, villageId },
+    params: { playerId, villageId: villageIdParam },
   } = args;
+
+  const villageId = Number.parseInt(villageIdParam);
 
   if (playerId === 'player') {
     const playerTroops = queryClient.getQueryData<Troop[]>([playerTroopsCacheKey]) ?? [];
@@ -68,18 +57,12 @@ export const getTroopsByVillage: ApiHandler<Troop[], GetTroopsByVillageParams> =
   return troops.filter(({ tileId }) => tileId === villageId);
 };
 
-type GetTroopMovementsByVillageParams = {
-  playerId: Player['id'];
-  villageId: Village['id'];
-};
-
-export const getTroopMovementsByVillage: ApiHandler<GameEvent<'troopMovement'>[], GetTroopMovementsByVillageParams> = async (
-  queryClient,
-  args,
-) => {
+export const getTroopMovementsByVillage: ApiHandler<GameEvent<'troopMovement'>[], 'playerId' | 'villageId'> = async (queryClient, args) => {
   const {
-    params: { villageId },
+    params: { villageId: villageIdParam },
   } = args;
+
+  const villageId = Number.parseInt(villageIdParam);
 
   const events = queryClient.getQueryData<GameEvent<'troopMovement'>[]>([eventsCacheKey]) ?? [];
   const troopMovementEvents = events.filter(isTroopMovementEvent);
@@ -88,4 +71,26 @@ export const getTroopMovementsByVillage: ApiHandler<GameEvent<'troopMovement'>[]
   });
 
   return villageTroopMovementEvents;
+};
+
+type RenameVillageBody = {
+  name: string;
+};
+
+export const renameVillage: ApiHandler<void, 'playerId' | 'villageId', RenameVillageBody> = async (queryClient, args) => {
+  const {
+    params: { villageId: villageIdParam },
+    body: { name },
+  } = args;
+
+  const villageId = Number.parseInt(villageIdParam);
+
+  const playerVillages = await getVillagesByPlayer(queryClient, args);
+  const villageToRename = playerVillages.find(({ id }) => id === villageId)!;
+
+  villageToRename.name = name;
+
+  queryClient.setQueryData([playerVillagesCacheKey], () => {
+    return playerVillages;
+  });
 };

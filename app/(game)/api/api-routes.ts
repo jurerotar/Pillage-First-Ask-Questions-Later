@@ -9,6 +9,7 @@ import {
   getTroopMovementsByVillage,
   getTroopsByVillage,
   getVillagesByPlayer,
+  renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
 import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/api/handlers/quest-handlers';
 import { cancelConstructionEvent, createNewEvents, getEvents } from 'app/(game)/api/handlers/event-handlers';
@@ -179,7 +180,7 @@ const playerRoutes = [
   {
     method: 'PATCH',
     path: '/players/:playerId/villages/:villageId/rename',
-    handler: () => {},
+    handler: renameVillage,
   },
   {
     method: 'GET',

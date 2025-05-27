@@ -8,12 +8,12 @@ import type {
   eventWorkerReadyKey,
 } from 'app/(game)/keys/event-keys';
 
-type ApiHandlerArgs<TBody, TParams> = {
+type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
-  params: TParams;
+  params: Record<TParams, string>;
 };
 
-export type ApiHandler<TReturn = void, TParams = Record<string, string>, TBody = Record<string, unknown>> = (
+export type ApiHandler<TReturn = void, TParams extends string = '', TBody = Record<string, unknown>> = (
   queryClient: QueryClient,
   args: ApiHandlerArgs<TBody, TParams>,
 ) => Promise<TReturn>;
