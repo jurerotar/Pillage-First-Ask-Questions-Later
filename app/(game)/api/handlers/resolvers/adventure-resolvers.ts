@@ -21,6 +21,6 @@ export const adventurePointIncreaseResolver: Resolver<GameEvent<'adventurePointI
     type: 'adventurePointIncrease',
     startsAt: startsAt + duration,
     duration: calculateAdventurePointIncreaseEventDuration(server),
-    cachesToClear: [adventurePointsCacheKey],
+    cachesToClearOnResolve: [adventurePointsCacheKey],
   });
 };

@@ -42,7 +42,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
 export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug, children }) => {
   const queryClient = useQueryClient();
 
-  const { data: apiWorker } = useSuspenseQuery({
+  const { data: apiWorker } = useSuspenseQuery<Worker>({
     queryKey: ['api-worker', serverSlug],
     queryFn: () => createWorkerWithReadySignal(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,
@@ -60,9 +60,9 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug,
       }
 
       if (isEventResolvedNotificationMessageEvent(event)) {
-        const { cachesToClear } = event.data;
+        const { cachesToClearOnResolve } = event.data;
 
-        for (const queryKey of cachesToClear) {
+        for (const queryKey of cachesToClearOnResolve) {
           await queryClient.invalidateQueries({ queryKey: [queryKey] });
         }
         await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });

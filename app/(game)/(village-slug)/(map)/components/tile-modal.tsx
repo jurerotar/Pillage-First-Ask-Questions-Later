@@ -25,7 +25,7 @@ import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
-import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerTroopsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -195,7 +195,8 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       duration,
       targetId: tile.id,
       troops: [],
-      cachesToClear: [playerVillagesCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey],
+      cachesToClearImmediately: [playerTroopsCacheKey],
     });
   };
 
@@ -216,7 +217,7 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
         {hasOngoingVillageFindEventOnThisTile && (
           <span className="text-gray-500">{t('Settlers are already on route to this location')}</span>
         )}
-        {!hasOngoingVillageFindEventOnThisTile && (
+        {false && (
           <Button
             size="fit"
             variant="link"

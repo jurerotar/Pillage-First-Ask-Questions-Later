@@ -62,7 +62,8 @@ export const usePlayerTroops = () => {
       troops,
       startsAt: Date.now(),
       duration,
-      cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
+      cachesToClearImmediately: [playerTroopsCacheKey],
     });
   };
 

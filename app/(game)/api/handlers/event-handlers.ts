@@ -1,7 +1,6 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { eventsCacheKey, playersCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
 import { isBuildingEvent, isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
@@ -10,6 +9,11 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
+import {
+  checkAndSubtractVillageResources,
+  insertEvents,
+  notifyAboutEventCreationFailure,
+} from 'app/(game)/api/handlers/utils/create-event';
 
 export const getEvents: ApiHandler<GameEvent[]> = async (queryClient) => {
   return queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
@@ -24,9 +28,14 @@ export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = async 
     body: { events },
   } = args;
 
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-    return insertBulkEvent(prevEvents!, events);
-  });
+  const hasSuccessfullyValidatedAndSubtractedResources = checkAndSubtractVillageResources(queryClient, events);
+
+  if (!hasSuccessfullyValidatedAndSubtractedResources) {
+    notifyAboutEventCreationFailure();
+    return;
+  }
+
+  insertEvents(queryClient, events);
 
   await scheduleNextEvent(queryClient);
 };
@@ -106,7 +115,7 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
 
     const [wood, clay, iron, wheat] = calculateBuildingCancellationRefundForLevel(buildingId, level);
 
-    addVillageResourcesAt(queryClient, villageId, Date.now(), { wood, clay, iron, wheat });
+    addVillageResourcesAt(queryClient, villageId, Date.now(), [wood, clay, iron, wheat]);
 
     return eventsToKeep;
   });

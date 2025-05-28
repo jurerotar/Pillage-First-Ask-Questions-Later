@@ -2,11 +2,10 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { effectsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Resources } from 'app/interfaces/models/game/resource';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
-const calculateVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number) => {
+export const calculateVillageResourcesAt = (queryClient: QueryClient, villageId: PlayerVillage['id'], timestamp: number) => {
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
   const villages = queryClient.getQueryData<PlayerVillage[]>([playerVillagesCacheKey])!;
@@ -87,7 +86,7 @@ export const addVillageResourcesAt = (
   queryClient: QueryClient,
   villageId: PlayerVillage['id'],
   timestamp: number,
-  resourcesToAdd: Resources,
+  resourcesToAdd: number[],
 ) => {
   const { currentWood, currentClay, currentIron, currentWheat, warehouseCapacity, granaryCapacity } = calculateVillageResourcesAt(
     queryClient,
@@ -101,7 +100,7 @@ export const addVillageResourcesAt = (
         return village;
       }
 
-      const { wood, iron, clay, wheat } = resourcesToAdd;
+      const [wood, iron, clay, wheat] = resourcesToAdd;
 
       return {
         ...village,
@@ -117,11 +116,11 @@ export const addVillageResourcesAt = (
   });
 };
 
-export const removeVillageResourcesAt = (
+export const subtractVillageResourcesAt = (
   queryClient: QueryClient,
   villageId: PlayerVillage['id'],
   timestamp: number,
-  resourcesToAdd: Resources,
+  resourcesToSubtract: number[],
 ) => {
   const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
 
@@ -131,7 +130,7 @@ export const removeVillageResourcesAt = (
         return village;
       }
 
-      const { wood, iron, clay, wheat } = resourcesToAdd;
+      const [wood, iron, clay, wheat] = resourcesToSubtract;
 
       return {
         ...village,

@@ -71,7 +71,7 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingField
 type BuildingUpgradeIndicatorProps = {
   isHovered: boolean;
   buildingFieldId: BuildingField['id'];
-  buildingEvent: GameEvent<'buildingLevelChange'> | undefined;
+  buildingEvent: GameEvent<'buildingConstruction'> | undefined;
 };
 
 export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered, buildingEvent }) => {

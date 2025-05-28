@@ -20,7 +20,7 @@ import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug
 const iconClassName = 'text-2xl lg:text-3xl bg-white text-gray-400 p-2 box-content border border-gray-200 rounded-xs';
 
 type ConstructionQueueBuildingProps = {
-  buildingEvent: GameEvent<'buildingLevelChange'>;
+  buildingEvent: GameEvent<'buildingConstruction'>;
   tooltipPosition: PlacesType;
 };
 

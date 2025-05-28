@@ -29,4 +29,4 @@ export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
-export type EventResolvedApiNotificationEvent = ApiNotificationEvent & Pick<GameEvent, 'cachesToClear'>;
+export type EventResolvedApiNotificationEvent = ApiNotificationEvent & Pick<GameEvent, 'cachesToClearOnResolve'>;

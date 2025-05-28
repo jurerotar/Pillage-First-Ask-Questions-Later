@@ -2,7 +2,7 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { QueryClient } from '@tanstack/react-query';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
-import { doesEventRequireResourceUpdate } from 'app/(game)/guards/event-guards';
+import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { EventResolvedApiNotificationEvent } from 'app/interfaces/api';
 import { eventResolvedKey } from 'app/(game)/keys/event-keys';
@@ -15,7 +15,7 @@ const resolveEvent = async (queryClient: QueryClient, eventId: GameEvent['id']) 
 
   // If event updates any village property (new building, returning troops,...) we need to calculate the amount of resources before
   // said update happens
-  if (doesEventRequireResourceUpdate(event, event.type)) {
+  if (isEventWithResourceCost(event)) {
     updateVillageResourcesAt(queryClient, event.villageId, event.startsAt + event.duration);
   }
 
@@ -30,7 +30,7 @@ const resolveEvent = async (queryClient: QueryClient, eventId: GameEvent['id']) 
 
   self.postMessage({
     eventKey: eventResolvedKey,
-    cachesToClear: event.cachesToClear,
+    cachesToClearOnResolve: event.cachesToClearOnResolve,
   } satisfies EventResolvedApiNotificationEvent);
 };
 

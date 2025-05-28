@@ -67,9 +67,9 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingId,
       startsAt: Date.now(),
       duration: 0,
-      resourceCost: hasCurrentVillageBuildingEvents ? [0, 0, 0, 0] : resourceCost,
       level: 1,
-      cachesToClear: [playerVillagesCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey],
+      cachesToClearImmediately: [playerVillagesCacheKey],
     });
 
     // In case we're already building something, just create a scheduled construction event
@@ -81,12 +81,14 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         buildingId,
         resourceCost,
         level: 1,
-        cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
+        cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
+        cachesToClearImmediately: [],
       });
 
       return;
     }
 
+    // else; start upgrade event now
     createBuildingLevelChangeEvent({
       buildingFieldId: buildingFieldId!,
       level: 1,
@@ -94,8 +96,9 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration,
       buildingId,
       // Cost can be 0, since it's already accounted for in the construction event
-      resourceCost: [0, 0, 0, 0],
-      cachesToClear: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
+      resourceCost,
+      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
+      cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
 
@@ -110,7 +113,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingId,
       resourceCost,
       level: virtualLevel + 1,
-      cachesToClear: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
+      cachesToClearImmediately: [playerVillagesCacheKey],
     };
 
     if (hasCurrentVillageBuildingEvents) {
@@ -129,7 +133,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       level: virtualLevel - 1,
       buildingId,
       resourceCost: [0, 0, 0, 0],
-      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
+      cachesToClearImmediately: [],
     });
   };
 
@@ -139,7 +144,8 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration: 0,
       buildingFieldId: buildingFieldId!,
       buildingId,
-      cachesToClear: [playerVillagesCacheKey, effectsCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
+      cachesToClearImmediately: [],
     });
   };
 

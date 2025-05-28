@@ -8,6 +8,7 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
+import { subtractVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 const updateBuildingFieldLevel = (villages: Village[], args: GameEvent<'buildingLevelChange'>): Village[] => {
   const { villageId, buildingFieldId, level } = args;
@@ -131,6 +132,10 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
   args,
 ) => {
+  const { villageId, startsAt, resourceCost } = args;
+
+  subtractVillageResourcesAt(queryClient, villageId, startsAt, resourceCost);
+
   createEvent<'buildingLevelChange'>(queryClient, {
     ...args,
     type: 'buildingLevelChange',

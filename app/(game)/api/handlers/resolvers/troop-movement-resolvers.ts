@@ -46,7 +46,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (quer
       troops,
       effects,
     }),
-    cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
+    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -70,7 +70,7 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryC
       troops,
       effects,
     }),
-    cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
+    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -143,7 +143,7 @@ const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = as
       troops,
       effects,
     }),
-    cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey, effectsCacheKey],
+    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey, effectsCacheKey],
   });
 };
 

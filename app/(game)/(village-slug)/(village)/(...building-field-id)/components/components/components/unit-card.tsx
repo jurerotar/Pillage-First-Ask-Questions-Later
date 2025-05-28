@@ -81,7 +81,8 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
       startsAt: Date.now() + 10000,
       duration: 1000,
       resourceCost: [0, 0, 0, 0].map((cost) => cost * unitCostModifier),
-      cachesToClear: [playerVillagesCacheKey, playerTroopsCacheKey],
+      cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
+      cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
 

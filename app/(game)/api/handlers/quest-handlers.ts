@@ -36,14 +36,8 @@ export const collectQuest: ApiHandler<void, 'questId', void> = async (queryClien
   for (const reward of quest.rewards) {
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
-      const resourcesToAdd = {
-        wood: amount,
-        clay: amount,
-        iron: amount,
-        wheat: amount,
-      };
 
-      addVillageResourcesAt(queryClient, villageId, Date.now(), resourcesToAdd);
+      addVillageResourcesAt(queryClient, villageId, Date.now(), [amount, amount, amount, amount]);
       continue;
     }
 

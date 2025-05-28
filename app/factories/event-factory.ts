@@ -17,7 +17,7 @@ export const generateEvents = (server: Server): GameEvent[] => {
     type: 'adventurePointIncrease',
     startsAt: server.createdAt,
     duration: calculateAdventurePointIncreaseEventDuration(server),
-    cachesToClear: [adventurePointsCacheKey],
+    cachesToClearOnResolve: [adventurePointsCacheKey],
   });
 
   return [adventurePointIncreaseEvent];

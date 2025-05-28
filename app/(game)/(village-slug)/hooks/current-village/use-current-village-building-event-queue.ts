@@ -18,7 +18,7 @@ export const useCurrentVillageBuildingEventQueue = (buildingFieldId: BuildingFie
       return currentVillageBuildingEvents;
     }
 
-    const [resourceQueue, villageQueue] = partition<GameEvent<'buildingLevelChange'>>(
+    const [resourceQueue, villageQueue] = partition<GameEvent<'buildingConstruction'>>(
       currentVillageBuildingEvents,
       (event) => event.buildingFieldId <= 18,
     );
