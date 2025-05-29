@@ -19,13 +19,8 @@ export const meta: MetaFunction = ({ params }) => {
 
 const PreferencesPage = () => {
   const { t } = useTranslation();
-  const {
-    updatePreference,
-    shouldShowBuildingNames,
-    isAccessibilityModeEnabled,
-    isReducedMotionModeEnabled,
-    isDeveloperModeEnabled,
-  } = usePreferences();
+  const { updatePreference, shouldShowBuildingNames, isAccessibilityModeEnabled, isReducedMotionModeEnabled, isDeveloperModeEnabled } =
+    usePreferences();
   const { resourcesPath } = useGameNavigation();
 
   return (
@@ -52,7 +47,7 @@ const PreferencesPage = () => {
           <div className="flex flex-1 justify-end items-center">
             <Switch
               id="develop-mode-toggle"
-              onCheckedChange={() => updatePreference({ preferenceName: 'isDeveloperModeEnabled', value: !isDeveloperModeEnabled})}
+              onCheckedChange={() => updatePreference({ preferenceName: 'isDeveloperModeEnabled', value: !isDeveloperModeEnabled })}
               checked={isDeveloperModeEnabled}
             />
           </div>
@@ -69,7 +64,7 @@ const PreferencesPage = () => {
           <div className="flex flex-1 justify-end items-center">
             <Switch
               id="should-show-building-names-toggle"
-              onCheckedChange={() => updatePreference({ preferenceName: 'shouldShowBuildingNames', value: !shouldShowBuildingNames})}
+              onCheckedChange={() => updatePreference({ preferenceName: 'shouldShowBuildingNames', value: !shouldShowBuildingNames })}
               checked={shouldShowBuildingNames}
             />
           </div>
@@ -87,7 +82,7 @@ const PreferencesPage = () => {
             <Switch
               disabled
               id="reduced-motion-mode-toggle"
-              onCheckedChange={() => updatePreference({ preferenceName: 'isReducedMotionModeEnabled', value: !isReducedMotionModeEnabled})}
+              onCheckedChange={() => updatePreference({ preferenceName: 'isReducedMotionModeEnabled', value: !isReducedMotionModeEnabled })}
               checked={isReducedMotionModeEnabled}
             />
           </div>
@@ -105,7 +100,7 @@ const PreferencesPage = () => {
             <Switch
               disabled
               id="accessibility-mode-toggle"
-              onCheckedChange={() => updatePreference({ preferenceName: 'isAccessibilityModeEnabled', value: !isAccessibilityModeEnabled})}
+              onCheckedChange={() => updatePreference({ preferenceName: 'isAccessibilityModeEnabled', value: !isAccessibilityModeEnabled })}
               checked={isAccessibilityModeEnabled}
             />
           </div>

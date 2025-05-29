@@ -4,7 +4,7 @@ import type {
   OccupiableTile,
   OccupiedOasisTile,
   OccupiedOccupiableTile,
-  Tile
+  Tile,
 } from 'app/interfaces/models/game/tile';
 
 export const isOasisTile = (tile: Tile): tile is OasisTile => {

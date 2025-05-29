@@ -4,7 +4,7 @@ import type {
   GlobalEffect,
   HeroEffect,
   VillageBuildingEffect,
-  VillageEffect
+  VillageEffect,
 } from 'app/interfaces/models/game/effect';
 
 export const isGlobalEffect = (effect: Effect): effect is GlobalEffect => {

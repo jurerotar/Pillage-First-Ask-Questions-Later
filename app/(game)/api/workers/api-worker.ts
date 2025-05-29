@@ -34,7 +34,7 @@ self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
       await writeFileContents(rootHandle, serverSlug, dehydrate(queryClient));
     }
   } catch (_error) {
-    console.error(`Path "${method}@${url}" was not matched to any api routes`)
+    console.error(`Path "${method}@${url}" was not matched to any api routes`);
     return;
   }
 });

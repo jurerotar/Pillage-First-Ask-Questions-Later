@@ -90,12 +90,12 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
     const eligibleEvents =
       tribe === 'romans'
         ? buildingEvents.filter((event) => {
-          if (buildingFieldId! <= 18) {
-            return event.buildingFieldId <= 18;
-          }
+            if (buildingFieldId! <= 18) {
+              return event.buildingFieldId <= 18;
+            }
 
-          return event.buildingFieldId > 18;
-        })
+            return event.buildingFieldId > 18;
+          })
         : buildingEvents;
 
     // If we're building a new building, construction takes place immediately, in that case we need to remove the building

@@ -26,7 +26,7 @@ const serverRoutes = [
   {
     method: 'GET',
     path: '/server',
-    handler: getServer
+    handler: getServer,
   },
 ];
 
@@ -34,7 +34,7 @@ const auctionRoutes = [
   {
     method: 'GET',
     path: '/auctions',
-    handler: () => {}
+    handler: () => {},
   },
 ];
 
