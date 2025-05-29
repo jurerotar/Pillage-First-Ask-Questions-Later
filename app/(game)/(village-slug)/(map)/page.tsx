@@ -9,10 +9,10 @@ import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
-import { use, useMemo, useRef } from 'react';
+import { use, useCallback, useMemo, useRef } from 'react';
 import type { MetaFunction } from 'react-router';
 import { useSearchParams } from 'react-router';
-import { FixedSizeGrid, FixedSizeList } from 'react-window';
+import { FixedSizeGrid, FixedSizeList, type GridOnScrollProps } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { isStandaloneDisplayMode } from 'app/utils/device';
@@ -89,13 +89,7 @@ const MapPage = () => {
         openModal(tile);
       },
     };
-  }, [
-    contextualMap,
-    mapFilters,
-    gridSize,
-    magnification,
-    openModal,
-  ]);
+  }, [contextualMap, mapFilters, gridSize, magnification, openModal]);
 
   useEventListener(
     'mousedown',
@@ -158,6 +152,23 @@ const MapPage = () => {
   const offsetX = scrollLeft(currentCenterTile.current.x);
   const offsetY = scrollTop(currentCenterTile.current.y);
 
+  const onScroll = useCallback(
+    ({ scrollTop, scrollLeft }: GridOnScrollProps) => {
+      if (bottomMapRulerRef.current) {
+        bottomMapRulerRef.current.scrollTo(scrollLeft);
+      }
+
+      if (leftMapRulerRef.current) {
+        leftMapRulerRef.current.scrollTo(scrollTop);
+      }
+
+      // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
+      currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
+      currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
+    },
+    [tileSize, gridSize, width, mapHeight],
+  );
+
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Dialog
@@ -192,24 +203,12 @@ const MapPage = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={mapHeight - 1}
+        height={mapHeight}
         width={width}
         itemData={fixedGridData}
         initialScrollLeft={offsetX}
         initialScrollTop={offsetY}
-        onScroll={({ scrollTop, scrollLeft }) => {
-          if (bottomMapRulerRef.current) {
-            bottomMapRulerRef.current.scrollTo(scrollLeft);
-          }
-
-          if (leftMapRulerRef.current) {
-            leftMapRulerRef.current.scrollTo(scrollTop);
-          }
-
-          // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
-          currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
-        }}
+        onScroll={onScroll}
       >
         {Cell}
       </FixedSizeGrid>

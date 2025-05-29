@@ -12,7 +12,6 @@ import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-m
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 
 type SendTroopsArgs = Pick<GameEvent<'troopMovement'>, 'troops' | 'targetId' | 'movementType'>;
 

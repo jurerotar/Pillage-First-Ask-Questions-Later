@@ -2,7 +2,6 @@ import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition, Village, VillageSize } from 'app/interfaces/models/game/village';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
@@ -60,11 +59,16 @@ export type ContextualOccupiedOasisTile = ContextualBaseTile & OccupiedOasisTile
 
 export type ContextualOccupiableTile = ContextualBaseTile & OccupiableTile;
 
-export type ContextualOccupiedOccupiableTile = ContextualBaseTile & OccupiedOccupiableTile & {
-  villageSize: VillageSize;
-  tribe: Tribe;
-  reputationLevel: Reputation['reputationLevel'];
-  worldItem: WorldItem | null;
-};
+export type ContextualOccupiedOccupiableTile = ContextualBaseTile &
+  OccupiedOccupiableTile & {
+    villageSize: VillageSize;
+    tribe: Tribe;
+    reputationLevel: Reputation['reputationLevel'];
+    worldItem: WorldItem | null;
+  };
 
-export type ContextualTile = ContextualOasisTile | ContextualOccupiedOasisTile | ContextualOccupiableTile | ContextualOccupiedOccupiableTile;
+export type ContextualTile =
+  | ContextualOasisTile
+  | ContextualOccupiedOasisTile
+  | ContextualOccupiableTile
+  | ContextualOccupiedOccupiableTile;

@@ -90,6 +90,7 @@ export const useReports = () => {
     reports,
     markReportAsRead,
     markReportAsArchived,
-    markReportAsUnarchived
+    markReportAsUnarchived,
+    deleteReport,
   };
 };

@@ -1,7 +1,6 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import { isVillageEvent } from 'app/(game)/guards/event-guards';
 import { isGlobalEffect, isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 
 export const getVillageEffects: ApiHandler<Effect[], 'villageId'> = async (queryClient, { params }) => {

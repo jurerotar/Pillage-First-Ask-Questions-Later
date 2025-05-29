@@ -6,7 +6,7 @@ import {
   playersCacheKey,
   reputationsCacheKey,
   villagesCacheKey,
-  worldItemsCacheKey
+  worldItemsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
@@ -25,8 +25,6 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 
-  const a = performance.now();
-
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const reputations = queryClient.getQueryData<Reputation[]>([reputationsCacheKey])!;
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
@@ -34,21 +32,29 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const worldItems = queryClient.getQueryData<WorldItem[]>([worldItemsCacheKey])!;
 
-  const reputationMap = new Map<Player['faction'], Reputation>(reputations.map((reputation) => {
-    return [reputation.faction, reputation];
-  }));
+  const reputationMap = new Map<Player['faction'], Reputation>(
+    reputations.map((reputation) => {
+      return [reputation.faction, reputation];
+    }),
+  );
 
-  const playerMap = new Map<Player['id'], Player>(players.map((player) => {
-    return [player.id, player];
-  }));
+  const playerMap = new Map<Player['id'], Player>(
+    players.map((player) => {
+      return [player.id, player];
+    }),
+  );
 
-  const _villageMap = new Map<Village['id'], Village>(villages.map((village) => {
-    return [village.id, village];
-  }));
+  const _villageMap = new Map<Village['id'], Village>(
+    villages.map((village) => {
+      return [village.id, village];
+    }),
+  );
 
-  const worldItemsMap = new Map<Village['id'], WorldItem>(worldItems.map((worldItem) => {
-    return [worldItem.tileId, worldItem];
-  }));
+  const worldItemsMap = new Map<Village['id'], WorldItem>(
+    worldItems.map((worldItem) => {
+      return [worldItem.tileId, worldItem];
+    }),
+  );
 
   const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>([]);
 
@@ -76,7 +82,7 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async
   const contextualTiles: ContextualTile[] = Array(tiles.length);
 
   for (let i = 0; i < tiles.length; i += 1) {
-    const tile = tiles[i];
+    const tile = tiles[i] as ContextualTile;
 
     const isCurrentVillageTile = villageId === tile.id;
 
@@ -125,8 +131,6 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async
 
     contextualTiles[i] = tile;
   }
-
-  console.log(performance.now() - a);
 
   return contextualTiles;
 };
