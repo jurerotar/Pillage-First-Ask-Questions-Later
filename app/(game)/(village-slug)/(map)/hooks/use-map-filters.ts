@@ -11,14 +11,14 @@ export const useMapFilters = () => {
   const { data: mapFilters } = useSuspenseQuery<MapFilters>({
     queryKey: [mapFiltersCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<MapFilters>('/map-filters');
+      const { data } = await fetcher<MapFilters>('/me/map-filters');
       return data;
     },
   });
 
   const { mutate: toggleMapFilter } = useMutation<MapFilters, Error, Partial<MapFilters>>({
     mutationFn: async (vars) => {
-      const { data } = await fetcher<MapFilters>('/map-filters', {
+      const { data } = await fetcher<MapFilters>('/me/map-filters', {
         method: 'PATCH',
         body: {
           ...vars,

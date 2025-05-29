@@ -1,4 +1,4 @@
-import { getMap } from 'app/(game)/api/handlers/map-handlers';
+import { getContextualMap, getMap } from 'app/(game)/api/handlers/map-handlers';
 import { getPreferences, updatePreference } from 'app/(game)/api/handlers/preferences-handlers';
 import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import { getAdventurePoints, getHero } from 'app/(game)/api/handlers/hero-handlers';
@@ -12,50 +12,59 @@ import {
   renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
 import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/api/handlers/quest-handlers';
-import { cancelConstructionEvent, createNewEvents, getEvents } from 'app/(game)/api/handlers/event-handlers';
-import { getEffects } from 'app/(game)/api/handlers/effect-handlers';
-import { getDeveloperMode, toggleDeveloperMode } from 'app/(game)/api/handlers/developer-mode-handlers';
+import { cancelConstructionEvent, createNewEvents, getVillageEvents } from 'app/(game)/api/handlers/event-handlers';
+import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
 import { getMapFilters, updateMapFilter } from 'app/(game)/api/handlers/map-filters-handlers';
 import { getVillages } from 'app/(game)/api/handlers/village-handlers';
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
-import { getTroops } from 'app/(game)/api/handlers/troop-handlers';
+import { match } from 'path-to-regexp';
+
+// NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
 const serverRoutes = [
   {
     method: 'GET',
     path: '/server',
-    handler: getServer,
+    handler: getServer
+  },
+];
+
+const auctionRoutes = [
+  {
+    method: 'GET',
+    path: '/auctions',
+    handler: () => {}
   },
 ];
 
 const heroRoutes = [
   {
     method: 'GET',
-    path: '/hero',
+    path: '/players/:playerId/hero',
     handler: getHero,
   },
   {
     method: 'GET',
-    path: '/hero/adventures',
+    path: '/players/:playerId/hero/adventures',
+    handler: () => {},
+  },
+  {
+    method: 'POST',
+    path: '/players/:playerId/hero/start',
     handler: () => {},
   },
   {
     method: 'GET',
-    path: '/hero/adventures/count',
+    path: '/players/:playerId/hero/adventures/count',
     handler: getAdventurePoints,
-  },
-  {
-    method: 'GET',
-    path: '/hero/auctions',
-    handler: () => {},
   },
 ];
 
 const reportRoutes = [
   {
     method: 'GET',
-    path: '/reports',
+    path: '/players/:playerId/reports',
     handler: getReports,
   },
   {
@@ -74,8 +83,13 @@ const reportRoutes = [
     handler: () => {},
   },
   {
+    method: 'PATCH',
+    path: '/reports/:reportId/un-archive',
+    handler: () => {},
+  },
+  {
     method: 'DELETE',
-    path: '/reports/:reportId/delete',
+    path: '/reports/:reportId',
     handler: () => {},
   },
 ];
@@ -83,12 +97,12 @@ const reportRoutes = [
 const questRoutes = [
   {
     method: 'GET',
-    path: '/quests',
+    path: '/players/:playerId/quests',
     handler: getQuests,
   },
   {
     method: 'GET',
-    path: '/quests/collectables/count',
+    path: '/players/:playerId/quests/collectables/count',
     handler: getCollectableQuestCount,
   },
   {
@@ -106,41 +120,25 @@ const mapRoutes = [
   },
   {
     method: 'GET',
-    path: '/map/optimized',
-    handler: () => {},
+    path: '/map/:villageId/contextual',
+    handler: getContextualMap,
   },
 ];
 
-const settingsRoutes = [
+const preferencesRoutes = [
   {
     method: 'GET',
-    path: '/settings/preferences',
+    path: '/players/:playerId/preferences',
     handler: getPreferences,
   },
   {
     method: 'PATCH',
-    path: '/settings/preferences',
+    path: '/players/:playerId/preferences/:preferenceName',
     handler: updatePreference,
-  },
-  {
-    method: 'GET',
-    path: '/settings/developer-mode',
-    handler: getDeveloperMode,
-  },
-
-  {
-    method: 'PATCH',
-    path: '/settings/developer-mode',
-    handler: toggleDeveloperMode,
   },
 ];
 
 const eventRoutes = [
-  {
-    method: 'GET',
-    path: '/events',
-    handler: getEvents,
-  },
   {
     method: 'POST',
     path: '/events',
@@ -150,14 +148,6 @@ const eventRoutes = [
     method: 'DELETE',
     path: '/events/:eventId',
     handler: cancelConstructionEvent,
-  },
-];
-
-const effectRoutes = [
-  {
-    method: 'GET',
-    path: '/effects',
-    handler: getEffects,
   },
 ];
 
@@ -177,21 +167,6 @@ const playerRoutes = [
     path: '/players/:playerId/villages',
     handler: getVillagesByPlayer,
   },
-  {
-    method: 'PATCH',
-    path: '/players/:playerId/villages/:villageId/rename',
-    handler: renameVillage,
-  },
-  {
-    method: 'GET',
-    path: '/players/:playerId/villages/:villageId/troops',
-    handler: getTroopsByVillage,
-  },
-  {
-    method: 'GET',
-    path: '/players/:playerId/villages/:villageId/troop-movements',
-    handler: getTroopMovementsByVillage,
-  },
 ];
 
 const villageRoutes = [
@@ -200,17 +175,47 @@ const villageRoutes = [
     path: '/villages',
     handler: getVillages,
   },
+  {
+    method: 'GET',
+    path: '/villages/:villageId',
+    handler: () => {},
+  },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/troops',
+    handler: getTroopsByVillage,
+  },
+  {
+    method: 'GET',
+    path: 'villages/:villageId/troop-movements',
+    handler: getTroopMovementsByVillage,
+  },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/effects',
+    handler: getVillageEffects,
+  },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/events',
+    handler: getVillageEvents,
+  },
+  {
+    method: 'PATCH',
+    path: '/villages/:villageId/rename',
+    handler: renameVillage,
+  },
 ];
 
 const mapFiltersRoutes = [
   {
     method: 'GET',
-    path: '/map-filters',
+    path: '/players/:playerId/map-filters',
     handler: getMapFilters,
   },
   {
     method: 'PATCH',
-    path: '/map-filters',
+    path: '/players/:playerId/map-filters/:filterName',
     handler: updateMapFilter,
   },
 ];
@@ -226,20 +231,12 @@ const worldItemsRoutes = [
 const reputationRoutes = [
   {
     method: 'GET',
-    path: '/reputations',
+    path: '/players/:playerId/reputations',
     handler: getReputations,
   },
 ];
 
-const troopRoutes = [
-  {
-    method: 'GET',
-    path: '/troops',
-    handler: getTroops,
-  },
-];
-
-export const apiRoutes = [
+const apiRoutes = [
   ...serverRoutes,
   ...heroRoutes,
   ...reportRoutes,
@@ -247,11 +244,15 @@ export const apiRoutes = [
   ...mapRoutes,
   ...playerRoutes,
   ...eventRoutes,
-  ...effectRoutes,
   ...villageRoutes,
-  ...settingsRoutes,
+  ...preferencesRoutes,
   ...mapFiltersRoutes,
   ...worldItemsRoutes,
   ...reputationRoutes,
-  ...troopRoutes,
+  ...auctionRoutes,
 ];
+
+export const compiledApiRoutes = apiRoutes.map((route) => ({
+  ...route,
+  matcher: match(route.path, { decode: false }),
+}));

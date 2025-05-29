@@ -130,7 +130,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { unitImprovements } = useUnitImprovement();
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
@@ -146,7 +146,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { assessedRequirements } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const hasEnoughResourcesToResearch = (() => {
-    if (isDeveloperModeActive) {
+    if (isDeveloperModeEnabled) {
       return true;
     }
 

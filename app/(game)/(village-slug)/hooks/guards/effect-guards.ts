@@ -1,4 +1,15 @@
-import type { ArtifactEffect, Effect, HeroEffect, VillageBuildingEffect, VillageEffect } from 'app/interfaces/models/game/effect';
+import type {
+  ArtifactEffect,
+  Effect,
+  GlobalEffect,
+  HeroEffect,
+  VillageBuildingEffect,
+  VillageEffect
+} from 'app/interfaces/models/game/effect';
+
+export const isGlobalEffect = (effect: Effect): effect is GlobalEffect => {
+  return effect.scope === 'global';
+};
 
 export const isVillageEffect = (effect: Effect): effect is VillageEffect => {
   return effect.scope === 'village';

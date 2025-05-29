@@ -6,21 +6,20 @@ export const getPreferences: ApiHandler<Preferences> = async (queryClient) => {
   return queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
 };
 
-type UpdatePreferenceBody = Partial<
-  Record<keyof Pick<Preferences, 'isReducedMotionModeEnabled' | 'isAccessibilityModeEnabled' | 'shouldShowBuildingNames'>, boolean>
->;
+type UpdatePreferenceBody = {
+  value: Preferences[keyof Preferences];
+};
 
-export const updatePreference: ApiHandler<Preferences, '', UpdatePreferenceBody> = async (queryClient, args) => {
-  const { body } = args;
+export const updatePreference: ApiHandler<void, 'preferenceName', UpdatePreferenceBody> = async (queryClient, args) => {
+  const { body, params } = args;
+
+  const { preferenceName } = params;
+  const { value } = body;
 
   queryClient.setQueryData<Preferences>([preferencesCacheKey], (prevPreferences) => {
     return {
       ...prevPreferences!,
-      ...body,
+      [preferenceName]: value,
     };
   });
-
-  const preferences = queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
-
-  return preferences;
 };

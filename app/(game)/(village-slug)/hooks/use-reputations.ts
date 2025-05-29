@@ -11,7 +11,7 @@ export const useReputations = () => {
   const { data: reputations } = useSuspenseQuery<Reputation[]>({
     queryKey: [reputationsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Reputation[]>('/reputations');
+      const { data } = await fetcher<Reputation[]>('/me/reputations');
       return data;
     },
   });

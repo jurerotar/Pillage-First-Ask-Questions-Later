@@ -13,11 +13,12 @@ export const useServer = () => {
       const { data } = await fetcher<Server>('/server');
       return data;
     },
+    staleTime: Number.POSITIVE_INFINITY,
   });
 
-  const serverId = server?.id!;
-  const mapSize = server?.configuration?.mapSize!;
-  const serverSpeed = server?.configuration?.speed!;
+  const serverId = server.id;
+  const mapSize = server.configuration.mapSize;
+  const serverSpeed = server.configuration.speed;
 
   return {
     server,

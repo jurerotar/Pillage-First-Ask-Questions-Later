@@ -96,7 +96,7 @@ type TileTooltipAnimalsProps = {
   tile: OasisTile;
 };
 
-const TileTooltipAnimals: React.FC<TileTooltipAnimalsProps> = ({ tile }) => {
+const _TileTooltipAnimals: React.FC<TileTooltipAnimalsProps> = ({ tile }) => {
   const { getTroopsByTileId } = useTroops();
   const troops = getTroopsByTileId(tile.id);
 
@@ -162,7 +162,7 @@ const OasisTileTooltip: React.FC<OasisTileTooltipProps> = ({ tile }) => {
         </span>
       ))}
       {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
-      {!isOccupied && <TileTooltipAnimals tile={tile} />}
+      {/*{!isOccupied && <TileTooltipAnimals tile={tile} />}*/}
     </>
   );
 };

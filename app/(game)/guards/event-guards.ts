@@ -1,5 +1,9 @@
 import type { GameEvent, GameEventType, WithResourceCheckEvent, WithVillageIdEvent } from 'app/interfaces/models/game/game-event';
 
+export const isVillageEvent = (event: GameEvent): event is WithVillageIdEvent => {
+  return Object.hasOwn(event, 'villageId');
+};
+
 export const isBuildingEvent = (event: GameEvent): event is GameEvent<'buildingConstruction'> => {
   const buildingEventTypes: GameEventType[] = ['buildingScheduledConstruction', 'buildingLevelChange'];
   return buildingEventTypes.includes(event.type);

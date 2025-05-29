@@ -1,6 +1,7 @@
 import { OccupiableOasisIcon } from 'app/(game)/(village-slug)/(map)/components/occupiable-oasis-icon';
 import { WheatFieldIcon } from 'app/(game)/(village-slug)/(map)/components/wheat-field-icon';
 import {
+  isContextualOccupiedOccupiableTile,
   isOasisTile,
   isOccupiableOasisTile,
   isOccupiableTile,
@@ -9,80 +10,32 @@ import {
   isUnoccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { Tile as TileType } from 'app/interfaces/models/game/tile';
+import type { ContextualTile, Tile as TileType } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map-tile';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
-import cellStyles from './cell.module.scss';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { Icon } from 'app/components/icon';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
+import cellStyles from './cell.module.scss';
 
 type CellBaseProps = {
-  map: TileType[];
+  contextualMap: ContextualTile[];
   gridSize: number;
-  tileIdToTroopMovementsMap: Map<TileType['id'], GameEvent<'troopMovement'>[]>;
   mapFilters: MapFilters;
   magnification: number;
   onClick: (data: TileType) => void;
-  villageCoordinatesToWorldItemsMap: Map<Village['id'], WorldItem>;
-  villageCoordinatesToVillagesMap: Map<Village['id'], Village>;
-  playersMap: Map<Player['id'], Player>;
-  reputationsMap: Map<PlayerFaction, Reputation>;
-  currentVillage: Village;
 };
 
-const offensiveMovements: GameEvent<'troopMovement'>['movementType'][] = ['attack', 'raid'];
-const deploymentMovements: GameEvent<'troopMovement'>['movementType'][] = ['return', 'reinforcements', 'relocation'];
-
-type TroopMovementsProps = CellBaseProps & {
-  tile: TileType;
-  troopMovements: GameEvent<'troopMovement'>[];
+type TroopMovementsProps = {
+  troopMovementIcon: TroopMovementType;
+  magnification: number;
 };
 
-const TroopMovements: React.FC<TroopMovementsProps> = ({ tile, troopMovements, magnification, currentVillage }) => {
+const TroopMovements: React.FC<TroopMovementsProps> = ({ troopMovementIcon, magnification }) => {
   const classes = clsx(cellStyles['troop-movements'], cellStyles[`troop-movements-magnification-${magnification}`]);
-
-  const isCurrentVillageTile = currentVillage.id === tile.id;
-
-  let troopMovementIcon: TroopMovementType | null = null;
-
-  for (const troopMovement of troopMovements) {
-    if (offensiveMovements.includes(troopMovement.movementType)) {
-      if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
-        troopMovementIcon = 'offensiveMovementIncoming';
-        break;
-      }
-
-      troopMovementIcon = 'offensiveMovementOutgoing';
-      break;
-    }
-
-    if (deploymentMovements.includes(troopMovement.movementType)) {
-      if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
-        troopMovementIcon = 'deploymentIncoming';
-        break;
-      }
-
-      troopMovementIcon = 'deploymentOutgoing';
-      break;
-    }
-
-    if (troopMovement.movementType === 'find-new-village') {
-      troopMovementIcon = 'findNewVillage';
-    }
-  }
-
-  if (!troopMovementIcon) {
-    return null;
-  }
 
   return (
     <Icon
@@ -95,11 +48,11 @@ const TroopMovements: React.FC<TroopMovementsProps> = ({ tile, troopMovements, m
 const wheatFields = ['00018', '11115', '3339'];
 
 type CellIconsProps = CellBaseProps & {
-  tile: TileType;
+  tile: ContextualTile;
 };
 
 const CellIcons: React.FC<CellIconsProps> = (props) => {
-  const { tile, mapFilters, villageCoordinatesToWorldItemsMap, magnification } = props;
+  const { tile, mapFilters, magnification } = props;
   const { shouldShowTreasureIcons, shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
   const classes = clsx(cellStyles['tile-icon'], cellStyles[`tile-icon-magnification-${magnification}`]);
@@ -108,78 +61,49 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
     return <WheatFieldIcon className={classes} />;
   }
 
-  if (isOccupiableOasisTile(tile)) {
+  if (shouldShowOasisIcons && isOccupiableOasisTile(tile)) {
     return (
-      <>
-        {shouldShowOasisIcons && (
-          <OccupiableOasisIcon
-            className={classes}
-            oasisResourceBonus={tile.ORB}
-            borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
-          />
-        )}
-        {/*{shouldShowTroopMovements && <TroopMovements tile={tile} />}*/}
-      </>
+      <OccupiableOasisIcon
+        className={classes}
+        oasisResourceBonus={tile.ORB}
+        borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
+      />
     );
   }
 
-  if (isOccupiedOccupiableTile(tile)) {
-    const isWorldItemCell = villageCoordinatesToWorldItemsMap.has(tile.id);
+  if (shouldShowTreasureIcons && isOccupiedOccupiableTile(tile) && tile.worldItem !== null) {
     return (
-      <>
-        {shouldShowTreasureIcons && isWorldItemCell && (
-          <TreasureIcon
-            className={classes}
-            item={villageCoordinatesToWorldItemsMap.get(tile.id)!}
-          />
-        )}
-        {/*{shouldShowTroopMovements && <TroopMovements tile={tile} />}*/}
-      </>
+      <TreasureIcon
+        className={classes}
+        item={tile.worldItem}
+      />
     );
   }
 
   return null;
 };
 
-// const populationToVillageSizeMap = new Map<number, VillageSize>([
-//   [500, 'xl'],
-//   [250, 'md'],
-//   [100, 'sm'],
-// ]);
-//
-// const getVillageSize = (population: number): VillageSize => {
-//   for (const [key, size] of populationToVillageSizeMap) {
-//     if (population >= key) {
-//       return size;
-//     }
-//   }
-//
-//   return 'xs';
-// };
-
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { map, gridSize, playersMap, reputationsMap, mapFilters, onClick, tileIdToTroopMovementsMap } = data;
+  const { contextualMap, gridSize, mapFilters, magnification, onClick } = data;
   const { shouldShowFactionReputation } = mapFilters;
 
-  const tile: TileType = map[gridSize * rowIndex + columnIndex];
+  const tile: ContextualTile = contextualMap[gridSize * rowIndex + columnIndex];
 
   let classes = '';
 
   if (isUnoccupiedOccupiableTile(tile)) {
     const { RFC } = tile;
     classes = clsx(cellStyles.tile, cellStyles[`unoccupied-tile-${RFC}`]);
-  } else if (isOccupiedOccupiableTile(tile)) {
-    const { faction } = playersMap.get(tile.ownedBy)!;
-
-    const reputationLevel = reputationsMap.get(faction)!.reputationLevel;
+  } else if (isContextualOccupiedOccupiableTile(tile)) {
+    const { tribe, reputationLevel, villageSize } = tile;
 
     classes = clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
-      // cellStyles[`occupied-tile-${tribe}`],
-      // cellStyles[`occupied-tile-${tribe}-${villageSize}`],
+      cellStyles[`occupied-tile-${tribe}`],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-reputation-${reputationLevel}`],
       !shouldShowFactionReputation && cellStyles['occupied-tile-reputation-disabled'],
     );
@@ -206,11 +130,10 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
         tile={tile}
         {...data}
       />
-      {tileIdToTroopMovementsMap.has(tile.id) && (
+      {tile.troopMovementIcon !== null && (
         <TroopMovements
-          tile={tile}
-          troopMovements={tileIdToTroopMovementsMap.get(tile.id)!}
-          {...data}
+          magnification={magnification}
+          troopMovementIcon={tile.troopMovementIcon}
         />
       )}
     </button>

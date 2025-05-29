@@ -5,28 +5,19 @@ import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-too
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { MapContext, MapProvider } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
-import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
-import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
-import type { Village } from 'app/interfaces/models/game/village';
 import { use, useMemo, useRef } from 'react';
 import type { MetaFunction } from 'react-router';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { t } from 'i18next';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
@@ -47,16 +38,11 @@ const RULER_SIZE = 20;
 const MapPage = () => {
   const [searchParams] = useSearchParams();
   const { isOpen: isTileModalOpened, openModal, toggleModal, modalArgs } = useDialog<TileType | null>();
-  const { map, getTileByTileId } = useMap();
+  const { contextualMap, getTileByTileId } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
-  const { playersMap } = usePlayers();
-  const { reputationsMap } = useReputations();
-  const { villages } = useVillages();
-  const { worldItems } = useWorldItems();
-  const { events } = useEvents();
   const { currentVillage } = useCurrentVillage();
 
   const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
@@ -93,94 +79,22 @@ const MapPage = () => {
     y: 0,
   });
 
-  performance.mark('villageCoordinatesToVillagesMap-start');
-
-  const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
-    return new Map<Village['id'], Village>(
-      villages.map((village) => {
-        return [village.id, village];
-      }),
-    );
-  }, [villages]);
-
-  performance.mark('villageCoordinatesToVillagesMap-end');
-
-  performance.mark('villageCoordinatesToWorldItemsMap-start');
-
-  const villageCoordinatesToWorldItemsMap = useMemo<Map<Village['id'], WorldItem>>(() => {
-    return new Map<Village['id'], WorldItem>(
-      worldItems.map((worldItem) => {
-        return [worldItem.tileId, worldItem];
-      }),
-    );
-  }, [worldItems]);
-
-  performance.mark('villageCoordinatesToWorldItemsMap-end');
-
-  performance.mark('tileIdToTroopMovementsMap-start');
-
-  const tileIdToTroopMovementsMap = useMemo<Map<Village['id'], GameEvent<'troopMovement'>[]>>(() => {
-    const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>([]);
-
-    for (const event of events) {
-      if (!isTroopMovementEvent(event)) {
-        continue;
-      }
-
-      // Show only events targeting or originating from current village
-      if (!(event.villageId === currentVillage.id || event.targetId === currentVillage.id)) {
-        continue;
-      }
-
-      if (!troopMovementMap.has(event.targetId)) {
-        troopMovementMap.set(event.targetId, []);
-      }
-
-      const eventArray = troopMovementMap.get(event.targetId)!;
-      eventArray.push(event);
-    }
-
-    return troopMovementMap;
-  }, [events, currentVillage]);
-
-  performance.mark('tileIdToTroopMovementsMap-end');
-
-  performance.measure('villageCoordinatesToVillagesMap', 'villageCoordinatesToVillagesMap-start', 'villageCoordinatesToVillagesMap-end');
-  performance.measure(
-    'villageCoordinatesToWorldItemsMap',
-    'villageCoordinatesToWorldItemsMap-start',
-    'villageCoordinatesToWorldItemsMap-end',
-  );
-  performance.measure('tileIdToTroopMovementsMap', 'tileIdToTroopMovementsMap-start', 'tileIdToTroopMovementsMap-end');
-
   const fixedGridData = useMemo(() => {
     return {
-      map,
-      playersMap,
-      reputationsMap,
+      contextualMap,
       gridSize,
       mapFilters,
       magnification,
-      tileIdToTroopMovementsMap,
       onClick: (tile: TileType) => {
         openModal(tile);
       },
-      villageCoordinatesToWorldItemsMap,
-      villageCoordinatesToVillagesMap,
-      currentVillage,
     };
   }, [
-    map,
+    contextualMap,
     mapFilters,
-    villageCoordinatesToWorldItemsMap,
-    playersMap,
-    reputationsMap,
-    villageCoordinatesToVillagesMap,
     gridSize,
     magnification,
     openModal,
-    tileIdToTroopMovementsMap,
-    currentVillage,
   ]);
 
   useEventListener(

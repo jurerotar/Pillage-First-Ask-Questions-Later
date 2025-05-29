@@ -20,15 +20,14 @@ export const usePlayerTroops = () => {
   const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { currentPlayer } = usePlayers();
   const { createEvent: createTroopMovementEvent } = useCreateEvent('troopMovement');
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
 
   const { data: playerTroops } = useSuspenseQuery<Troop[]>({
-    queryKey: [playerTroopsCacheKey],
+    queryKey: [playerTroopsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<Troop[]>(`/players/${currentPlayer.id}/villages/${currentVillage.id}/troops`);
+      const { data } = await fetcher<Troop[]>(`/villages/${currentVillage.id}/troops`);
       return data;
     },
   });

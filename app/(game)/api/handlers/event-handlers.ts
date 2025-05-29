@@ -3,7 +3,7 @@ import { eventsCacheKey, playersCacheKey, playerVillagesCacheKey } from 'app/(ga
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
-import { isBuildingEvent, isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { isBuildingEvent, isScheduledBuildingEvent, isVillageEvent } from 'app/(game)/guards/event-guards';
 import { calculateBuildingCancellationRefundForLevel, specialFieldIds } from 'app/(game)/(village-slug)/utils/building';
 import type { Village } from 'app/interfaces/models/game/village';
 import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
@@ -15,8 +15,19 @@ import {
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/create-event';
 
-export const getEvents: ApiHandler<GameEvent[]> = async (queryClient) => {
-  return queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
+export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (queryClient, { params }) => {
+  const { villageId: villageIdParam } = params;
+  const villageId = Number.parseInt(villageIdParam);
+
+  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
+
+  return events.filter((event) => {
+    if (!isVillageEvent(event)) {
+      return true;
+    }
+
+    return event.villageId === villageId;
+  });
 };
 
 type CreateNewEventsBody = {
@@ -79,12 +90,12 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
     const eligibleEvents =
       tribe === 'romans'
         ? buildingEvents.filter((event) => {
-            if (buildingFieldId! <= 18) {
-              return event.buildingFieldId <= 18;
-            }
+          if (buildingFieldId! <= 18) {
+            return event.buildingFieldId <= 18;
+          }
 
-            return event.buildingFieldId > 18;
-          })
+          return event.buildingFieldId > 18;
+        })
         : buildingEvents;
 
     // If we're building a new building, construction takes place immediately, in that case we need to remove the building

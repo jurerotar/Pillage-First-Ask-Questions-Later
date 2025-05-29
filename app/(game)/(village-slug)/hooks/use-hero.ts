@@ -10,13 +10,13 @@ export const useHero = () => {
   const { data: hero } = useSuspenseQuery<Hero>({
     queryKey: [heroCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Hero>('/hero');
+      const { data } = await fetcher<Hero>('/me/hero');
       return data;
     },
   });
 
-  const isHeroAlive = (hero?.stats?.health ?? 0) > 0;
-  const experience = hero?.stats?.experience ?? 0;
+  const isHeroAlive = hero.stats.health > 0;
+  const experience = hero.stats.experience;
 
   return {
     hero,

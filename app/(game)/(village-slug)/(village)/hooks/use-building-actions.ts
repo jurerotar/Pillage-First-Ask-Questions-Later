@@ -22,14 +22,14 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent('buildingLevelChange');
   const { createEvent: createBuildingDestructionEvent } = useCreateEvent('buildingDestruction');
   const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { isDeveloperModeEnabled } = useDeveloperMode();
 
   const hasCurrentVillageBuildingEvents = currentVillageBuildingEventsQueue.length > 0;
 
   const { nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const calculateTimings = () => {
-    if (isDeveloperModeActive) {
+    if (isDeveloperModeEnabled) {
       return {
         startsAt: Date.now(),
         duration: 0,
@@ -59,7 +59,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const constructBuilding = () => {
-    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, 0);
+    const resourceCost = isDeveloperModeEnabled ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, 0);
     const { startsAt, duration } = calculateTimings();
 
     createBuildingConstructionEvent({
@@ -103,7 +103,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const upgradeBuilding = () => {
-    const resourceCost = isDeveloperModeActive ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, virtualLevel + 1);
+    const resourceCost = isDeveloperModeEnabled ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, virtualLevel + 1);
     const { startsAt, duration } = calculateTimings();
 
     const args = {

@@ -16,7 +16,7 @@ export const useQuests = () => {
   const { data: quests } = useSuspenseQuery<Quest[]>({
     queryKey: [questsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Quest[]>('/quests');
+      const { data } = await fetcher<Quest[]>('/me/quests');
       return data;
     },
   });
@@ -24,7 +24,7 @@ export const useQuests = () => {
   const { data: collectableQuestCount } = useSuspenseQuery<number>({
     queryKey: [collectableQuestCountCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<{ collectableQuestCount: number }>('/quests/collectables/count');
+      const { data } = await fetcher<{ collectableQuestCount: number }>('/me/quests/collectables/count');
       return data.collectableQuestCount;
     },
   });

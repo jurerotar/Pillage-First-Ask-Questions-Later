@@ -4,6 +4,7 @@ export const effectsCacheKey = 'effects';
 export const heroCacheKey = 'hero';
 export const mapCacheKey = 'map';
 export const playersCacheKey = 'players';
+export const playerCacheKey = 'player';
 export const preferencesCacheKey = 'preferences';
 export const questsCacheKey = 'quests';
 export const collectableQuestCountCacheKey = 'collectable-quests';

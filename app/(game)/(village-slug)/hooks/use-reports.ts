@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import type { Report, ReportTag } from 'app/interfaces/models/game/report';
 import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
@@ -49,12 +49,47 @@ export const useReports = () => {
   const { data: reports } = useSuspenseQuery<Report[]>({
     queryKey: [reportsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Report[]>('/reports');
+      const { data } = await fetcher<Report[]>('/me/reports');
       return data;
+    },
+  });
+
+  const { mutate: markReportAsRead } = useMutation<void, Error, { reportId: Report['id'] }>({
+    mutationFn: async ({ reportId }) => {
+      await fetcher<Report[]>(`/reports/${reportId}/read`, {
+        method: 'PATCH',
+      });
+    },
+  });
+
+  const { mutate: markReportAsArchived } = useMutation<void, Error, { reportId: Report['id'] }>({
+    mutationFn: async ({ reportId }) => {
+      await fetcher<Report[]>(`/reports/${reportId}/archive`, {
+        method: 'PATCH',
+      });
+    },
+  });
+
+  const { mutate: markReportAsUnarchived } = useMutation<void, Error, { reportId: Report['id'] }>({
+    mutationFn: async ({ reportId }) => {
+      await fetcher<Report[]>(`/reports/${reportId}/un-archive`, {
+        method: 'PATCH',
+      });
+    },
+  });
+
+  const { mutate: deleteReport } = useMutation<void, Error, { reportId: Report['id'] }>({
+    mutationFn: async ({ reportId }) => {
+      await fetcher<Report[]>(`/reports/${reportId}`, {
+        method: 'DELETE',
+      });
     },
   });
 
   return {
     reports,
+    markReportAsRead,
+    markReportAsArchived,
+    markReportAsUnarchived
   };
 };

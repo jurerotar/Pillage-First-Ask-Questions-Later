@@ -21,15 +21,20 @@ self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
   const [port] = ports;
   const { url, method, body } = data;
 
-  const { handler, params } = matchRoute(url, method)!;
-  // @ts-expect-error: Not sure about this one, fix when you can
-  const result = await handler(queryClient, { params, body });
+  try {
+    const { handler, params } = matchRoute(url, method)!;
+    // @ts-expect-error: Not sure about this one, fix when you can
+    const result = await handler(queryClient, { params, body });
 
-  port.postMessage({
-    data: result,
-  });
+    port.postMessage({
+      data: result,
+    });
 
-  if (method !== 'GET') {
-    await writeFileContents(rootHandle, serverSlug, dehydrate(queryClient));
+    if (method !== 'GET') {
+      await writeFileContents(rootHandle, serverSlug, dehydrate(queryClient));
+    }
+  } catch (_error) {
+    console.error(`Path "${method}@${url}" was not matched to any api routes`)
+    return;
   }
 });

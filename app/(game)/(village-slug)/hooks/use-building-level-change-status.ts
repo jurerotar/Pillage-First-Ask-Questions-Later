@@ -43,7 +43,7 @@ const useBuildingRequirements = (
   const { t } = useTranslation();
   const { computedGranaryCapacityEffect, computedWarehouseCapacityEffect, computedWheatProductionEffect, wood, clay, iron, wheat } =
     use(CurrentVillageStateContext);
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { isDeveloperModeEnabled } = useDeveloperMode();
   const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
 
   const { buildingWheatLimit } = computedWheatProductionEffect;
@@ -69,7 +69,7 @@ const useBuildingRequirements = (
       } satisfies UseBuildingRequirementsReturn;
     }
 
-    if (isDeveloperModeActive) {
+    if (isDeveloperModeEnabled) {
       return {
         errors: [],
         variant: 'red',
@@ -112,7 +112,7 @@ const useBuildingRequirements = (
     };
   }, [
     isMaxLevel,
-    isDeveloperModeActive,
+    isDeveloperModeEnabled,
     nextLevelWheatConsumption,
     buildingWheatLimit,
     warehouseCapacity,
