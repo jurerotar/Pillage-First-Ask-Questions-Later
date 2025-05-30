@@ -72,31 +72,41 @@ The app consists of 3 separate logic layers:
 
 ### Frontend
 
-Frontend is built with React and TypeScript. Components are built with ShadCN.
+Frontend is built with React and TypeScript. Components are built with ShadCN. It handles fetching data, showing loading states and
+displaying data once it's ready.
+It's completely headless and requires a RESTful API to work.
 
 ### API worker
 
-When a user navigates to a game URL (`/game/s-{server-slug}`), the app initializes an `api-worker`. The purpose of this
-worker is to act as an RESTful API. It provides a basic router, exposes endpoints, accesses the database, posts responses through message ports,
-acts as a WebSocket server,.... It essentially provides a service you'd typically expect from a normal RESTful API. The goal of this is to
-minimize the differences between offline and online app architectures.
+Frontend receives data and sends actions through an `adapter`. `adapter` is a React context, which exposes a `fetcher` function. `fetcher`
+function is how frontend communicates to the backend of your choice.
 
-Frontend is connected to this worker through an `adapter`. This `adapter` exposes a `fetcher` function, which the frontend uses to connect
-to the worker.
+In the offline version of the app, there is no server. Everything happens exclusively on your device. Due to there being no backend, but
+frontend still expecting a RESTful-like API, we implement a new solution.
 
-This design may seem a bit of an overkill for an offline application, but there are reasons for it. This type of design allows for minimal
-differences between offline and online behavior. By simply changing the `adapter`, you are able to connect the frontend to a different data
+When a user opens a game world, the app initializes an `api-worker`. The purpose of this
+worker is to act as an RESTful API. It exposes required REST API endpoints, queries and writes to the database, posts responses through
+message
+ports, acts as a WebSocket server,.... It essentially provides a service you'd typically expect from a fully-fledged backend. This allows
+the frontend to be truly headless, making it integratable by both offline and online versions of the app.
+
+This design does complicate the codebase for the offline-version of the application, but it's the only way to allow the headless nature of
+the frontend. By simply changing the `adapter`, you are able to connect the frontend to a different data
 source (e.g. actual backend for an online app), without having to touch rest of the frontend.
-This makes the frontend completely reusable for both offline & online versions of the game.
 
 ### Database
 
-Game state is kept in `@tanstack/react-query`'s `QueryClient` object. On any change to the object, data is persisted to browser's OPFS
-storage.
-While `react-query` may seem as an odd choice for a database (and it certainly is!), it was chosen as such for historical and DX reasons.
-Before the migration to this new architecture, `react-query` was used a state management solution on frontend. Not wanting to migrate all
-the logic to an actual database implementation, I have decided to keep (ab)using it as a database. If there's performance issues with its
-usage in the future, it can be partially/fully swapped with an actual database (ex. SQLite).
+Offline version of the application does not use a traditional database. While a `SQLite` implementation was tried as a proof-of-concept and
+does work, to enable a faster workflow and enable a faster onboarding for new contributors, who are more likely to be a frontend developers,
+due to the nature of this project, it's not currently used.
+
+Instead, game state is kept in `@tanstack/react-query`'s `QueryClient` object. On any change to the object, data is persisted to browser's
+OPFS storage.
+
+While `react-query` may seem as an odd choice for a database (and it certainly is!), I argue it's good enough for now. It's widely used in
+frontend development as such, it allows new
+developers to pick it up quickly. If there's performance issues with its usage in the future, it can be partially/fully swapped with an
+actual database (ex. SQLite).
 
 ### Architecture graph
 
@@ -119,7 +129,7 @@ graph TD
 
 ### How would a multiplayer integration look like?
 
-Frontend expects a REST API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request shapes and responses
+Frontend expects a REST API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request parameters and responses
 are found in `app/(game)/api` folder. To integrate your own backend, you need to implement the API routes (e.g., fetching game state,
 interacting with events) and WebSocket support. Once these routes are live, provide a `fetcher` function in the `api-provider.tsx`. This
 function is typically a `fetch` function that connects the frontend to the backend. After this, the app will be fully connected to the

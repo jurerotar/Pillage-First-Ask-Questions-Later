@@ -23,8 +23,14 @@ self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
 
   try {
     const { handler, params } = matchRoute(url, method)!;
+    const handlerStart = performance.now();
     // @ts-expect-error: Not sure about this one, fix when you can
     const result = await handler(queryClient, { params, body });
+
+    const handlerEnd = performance.now();
+
+    // biome-ignore lint/suspicious/noConsole: Used in testing
+    console.table({ url: `${method}@${url}`, duration: `${handlerEnd - handlerStart}ms` });
 
     port.postMessage({
       data: result,

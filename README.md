@@ -34,6 +34,20 @@ modernized,
 **offline-friendly**, and **open source**, with no game mechanics to incentivize spending real-world money. Just the classic gameplay loop,
 reimagined for solo play.
 
+### Can this project be converted to multiplayer?
+
+**Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential backend integration.
+You can find more technical details on how the app works and how a backend integration might look like
+in [ARCHITECTURE.md](/docs/ARCHITECTURE.md).
+
+That being said, the current goal is to keep this repository as a standalone, offline-first app focused on single-player gameplay.
+
+One of the hopes for the future of this project is that someone might eventually fork the project, restructure it, and connect it to a
+backend, enabling a multiplayer experience. Most of the frontend can be completely reused, making the transition easier than starting from
+scratch.
+
+If you’re passionate about backend development and want to help bring multiplayer to life — feel free to reach out!
+
 ### Why single-player?
 
 There are several reasons, but I’ll focus on the main ones.
@@ -44,20 +58,6 @@ spare time.
 
 The second reason is personal. Building a complex frontend-only app at this scale is a unique challenge, and I wanted to see how far I could
 push it. This project gives me the opportunity to explore problems you don’t usually encounter in typical frontend work.
-
-### Can this project be converted to multiplayer?
-
-**Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential backend integration.
-You can find more technical details on how the app works and how a backend integration might look like
-in [ARCHITECTURE.md](/docs/ARCHITECTURE.md).
-
-That being said, the current goal is to keep this repository as a standalone, browser-only app focused entirely on single-player gameplay.
-
-One of the hopes for the future of this project is that someone might eventually fork the project, restructure it, and connect it to a
-backend, enabling a multiplayer experience. Most of the frontend can be completely reused, making the transition easier than starting from
-scratch.
-
-If you’re passionate about backend development and want to help bring multiplayer to life — feel free to reach out!
 
 ### Are there game design differences between Travian and Pillage First!?
 

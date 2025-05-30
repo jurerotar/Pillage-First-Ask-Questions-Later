@@ -42,7 +42,7 @@ export type BuildingField = {
 // Used mostly for map and village factory
 export type VillageSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
-export type Village = {
+type BaseVillage = {
   id: Tile['id'];
   playerId: Player['id'];
   name: string;
@@ -57,8 +57,10 @@ export type Village = {
   RFC: ResourceFieldComposition;
 };
 
-export type PlayerVillage = Village & {
+export type PlayerVillage = BaseVillage & {
   slug: string;
   artifactId: ArtifactId | null;
   expansionSlots: Tile['id'][];
 };
+
+export type Village = BaseVillage | PlayerVillage;

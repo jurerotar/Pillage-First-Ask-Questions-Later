@@ -83,14 +83,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
   return null;
 };
 
-type CellProps = GridChildComponentProps<CellBaseProps>;
-
-export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
-  const { contextualMap, gridSize, mapFilters, magnification, onClick } = data;
-  const { shouldShowFactionReputation } = mapFilters;
-
-  const tile: ContextualTile = contextualMap[gridSize * rowIndex + columnIndex];
-
+const getTileClasses = (tile: ContextualTile, shouldShowFactionReputation: boolean): string => {
   let classes = '';
 
   if (isUnoccupiedOccupiableTile(tile)) {
@@ -117,6 +110,18 @@ export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => 
       cellStyles[`oasis-tile-${oasisResource}-group-${oasisGroup}-position-${oasisGroupPositions}`],
     );
   }
+
+  return classes;
+};
+
+type CellProps = GridChildComponentProps<CellBaseProps>;
+
+export const Cell = memo<CellProps>(({ data, style, rowIndex, columnIndex }) => {
+  const { contextualMap, gridSize, mapFilters, magnification, onClick } = data;
+
+  const tile: ContextualTile = contextualMap[gridSize * rowIndex + columnIndex];
+
+  const classes = getTileClasses(tile, mapFilters.shouldShowFactionReputation);
 
   return (
     <button

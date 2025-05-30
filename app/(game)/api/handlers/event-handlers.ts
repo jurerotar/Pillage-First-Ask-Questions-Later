@@ -1,5 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { eventsCacheKey, playersCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { eventsCacheKey, playersCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
@@ -100,7 +100,7 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
 
     // If we're building a new building, construction takes place immediately, in that case we need to remove the building
     if (!specialFieldIds.includes(cancelledEvent.buildingFieldId) && cancelledEvent.level === 1) {
-      queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (prevData) => {
+      queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
         return removeBuildingField(prevData!, cancelledEvent);
       });
     }
@@ -130,10 +130,6 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
 
     return eventsToKeep;
   });
-
-  // queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-  //   return insertBulkEvent(prevEvents!, events);
-  // });
 
   await scheduleNextEvent(queryClient);
 };

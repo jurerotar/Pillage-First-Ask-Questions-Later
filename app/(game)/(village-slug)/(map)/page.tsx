@@ -9,7 +9,7 @@ import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
-import { use, useCallback, useMemo, useRef } from 'react';
+import { Suspense, use, useCallback, useMemo, useRef } from 'react';
 import type { MetaFunction } from 'react-router';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList, type GridOnScrollProps } from 'react-window';
@@ -175,7 +175,9 @@ const MapPage = () => {
         open={isTileModalOpened}
         onOpenChange={toggleModal}
       >
-        <TileDialog tile={modalArgs.current} />
+        <Suspense fallback={null}>
+          <TileDialog tile={modalArgs.current} />
+        </Suspense>
       </Dialog>
       <Tooltip
         anchorSelect="[data-tile-id]"
@@ -191,7 +193,6 @@ const MapPage = () => {
           }
 
           const tile = getTileByTileId(Number.parseInt(tileId));
-
           return <TileTooltip tile={tile} />;
         }}
       />

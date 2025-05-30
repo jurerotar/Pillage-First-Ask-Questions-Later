@@ -1,6 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { PlayerVillage } from 'app/interfaces/models/game/village';
-import { heroCacheKey, playerTroopsCacheKey, playerVillagesCacheKey, questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { Village } from 'app/interfaces/models/game/village';
+import { heroCacheKey, questsCacheKey, troopsCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import type { Hero } from 'app/interfaces/models/game/hero';
@@ -12,10 +12,17 @@ import {
 } from 'app/(game)/guards/quest-guards';
 
 export const evaluateQuestCompletions = (queryClient: QueryClient) => {
-  const playerVillages = queryClient.getQueryData<PlayerVillage[]>([playerVillagesCacheKey])!;
-  const playerTroops = queryClient.getQueryData<Troop[]>([playerTroopsCacheKey])!;
+  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
+  const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
   const hero = queryClient.getQueryData<Hero>([heroCacheKey])!;
-  const playerVillagesMap = new Map<PlayerVillage['id'], PlayerVillage>(playerVillages.map((village) => [village.id, village]));
+
+  const playerVillages = villages.filter(({ playerId }) => playerId === 'player');
+  const playerVillagesIds = playerVillages.map(({ id }) => id);
+
+  // TODO: This does not count troops in transit
+  const playerTroops = troops.filter(({ tileId }) => playerVillagesIds.includes(tileId));
+
+  const playerVillagesMap = new Map<Village['id'], Village>(playerVillages.map((village) => [village.id, village]));
 
   const { adventureCount } = hero;
   const troopCount = playerTroops.reduce((total, { amount }) => total + amount, 0);

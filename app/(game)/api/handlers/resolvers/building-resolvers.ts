@@ -3,7 +3,7 @@ import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/models/common';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
-import { effectsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { effectsCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
@@ -84,7 +84,7 @@ export const buildingLevelChangeResolver: Resolver<GameEvent<'buildingLevelChang
     ];
   });
 
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (villages) => {
+  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
     return updateBuildingFieldLevel(villages!, args);
   });
 
@@ -103,7 +103,7 @@ export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruct
     return [...prevData!, ...newEffects];
   });
 
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (villages) => {
+  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
     return addBuildingField(villages!, args);
   });
 };
@@ -123,7 +123,7 @@ export const buildingDestructionResolver: Resolver<GameEvent<'buildingDestructio
     });
   });
 
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], (villages) => {
+  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
     return removeBuildingField(villages!, args);
   });
 };

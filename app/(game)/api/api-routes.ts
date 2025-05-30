@@ -1,4 +1,11 @@
-import { getContextualMap, getMap } from 'app/(game)/api/handlers/map-handlers';
+import {
+  getContextualMap,
+  getTileOccupiableOasis,
+  getTilePlayer,
+  getTileReports,
+  getTileTroops,
+  getTileWorldItem,
+} from 'app/(game)/api/handlers/map-handlers';
 import { getPreferences, updatePreference } from 'app/(game)/api/handlers/preferences-handlers';
 import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import { getAdventurePoints, getHero } from 'app/(game)/api/handlers/hero-handlers';
@@ -15,7 +22,7 @@ import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/ap
 import { cancelConstructionEvent, createNewEvents, getVillageEvents } from 'app/(game)/api/handlers/event-handlers';
 import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
 import { getMapFilters, updateMapFilter } from 'app/(game)/api/handlers/map-filters-handlers';
-import { getVillages } from 'app/(game)/api/handlers/village-handlers';
+import { getVillages, getVillagesBySlug } from 'app/(game)/api/handlers/village-handlers';
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
@@ -74,17 +81,7 @@ const reportRoutes = [
   },
   {
     method: 'PATCH',
-    path: '/reports/:reportId/read',
-    handler: () => {},
-  },
-  {
-    method: 'PATCH',
-    path: '/reports/:reportId/archive',
-    handler: () => {},
-  },
-  {
-    method: 'PATCH',
-    path: '/reports/:reportId/un-archive',
+    path: '/reports/:reportId',
     handler: () => {},
   },
   {
@@ -115,13 +112,33 @@ const questRoutes = [
 const mapRoutes = [
   {
     method: 'GET',
-    path: '/map',
-    handler: getMap,
+    path: '/map/:villageId/contextual',
+    handler: getContextualMap,
   },
   {
     method: 'GET',
-    path: '/map/:villageId/contextual',
-    handler: getContextualMap,
+    path: '/tiles/:tileId/reports',
+    handler: getTileReports,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/troops',
+    handler: getTileTroops,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/player',
+    handler: getTilePlayer,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/world-item',
+    handler: getTileWorldItem,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/occupiable-oasis',
+    handler: getTileOccupiableOasis,
   },
 ];
 
@@ -177,8 +194,8 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: '/villages/:villageId',
-    handler: () => {},
+    path: '/villages/:villageSlug',
+    handler: getVillagesBySlug,
   },
   {
     method: 'GET',

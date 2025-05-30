@@ -10,13 +10,14 @@ import {
   questsCacheKey,
   serverCacheKey,
   unitResearchCacheKey,
+  villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
-import type { PlayerVillage } from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
 import type { Player } from 'app/interfaces/models/game/player';
 import { playerVillageFactory } from 'app/factories/village-factory';
 import { newVillageEffectsFactory } from 'app/factories/effect-factory';
@@ -82,7 +83,7 @@ const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = asy
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const tileToOccupy = tiles.find(({ id }) => id === targetId)! as OccupiedOccupiableTile;
 
-  const playerVillages = queryClient.getQueryData<PlayerVillage[]>([playerVillagesCacheKey])!;
+  const playerVillages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
 
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
   const player = players.find(({ id }) => id === 'player')!;
@@ -91,7 +92,7 @@ const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = asy
 
   const newVillage = playerVillageFactory({ player, tile: tileToOccupy, slug });
 
-  queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], (villages) => {
+  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
     return [...villages!, newVillage];
   });
 

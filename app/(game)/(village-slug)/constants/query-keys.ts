@@ -1,5 +1,4 @@
 export const serverCacheKey = 'server';
-export const developerModeCacheKey = 'developer-mode';
 export const effectsCacheKey = 'effects';
 export const heroCacheKey = 'hero';
 export const mapCacheKey = 'map';

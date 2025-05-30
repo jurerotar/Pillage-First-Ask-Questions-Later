@@ -13,7 +13,7 @@ import { Icon } from 'app/components/icon';
 import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
 import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map-tile';
-import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-player';
+import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
@@ -63,7 +63,7 @@ const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
 const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { player, reputation, population } = useTilePlayer(tile);
+  const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
   const { faction, reputationLevel } = reputation;
