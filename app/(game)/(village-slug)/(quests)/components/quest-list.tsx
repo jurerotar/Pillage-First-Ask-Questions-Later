@@ -1,10 +1,5 @@
 import clsx from 'clsx';
-import {
-  isHeroExperienceQuestReward,
-  isQuestCollectable,
-  isResourceQuestReward,
-  wasQuestCollected,
-} from 'app/(game)/workers/guards/quest-guards';
+import { isHeroExperienceQuestReward, isQuestCollectable, isResourceQuestReward, wasQuestCollected } from 'app/(game)/guards/quest-guards';
 import { Button } from 'app/components/ui/button';
 import type React from 'react';
 import type { Quest, QuestReward as QuestRewardType } from 'app/interfaces/models/game/quest';
@@ -113,7 +108,7 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
                     {isCollectable && (
                       <Button
                         variant="default"
-                        onClick={() => completeQuest(quest)}
+                        onClick={() => completeQuest({ questId: quest.id })}
                         type="button"
                         className="mt-3 w-fit"
                       >

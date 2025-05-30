@@ -1,10 +1,10 @@
-import { calculateComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
 const getImprovedUnitPower = (baseValue: number, baseUpkeep: number, level: number): number => {
   return baseValue + (baseValue + (300 * baseUpkeep) / 7) * (1.007 ** level - 1);

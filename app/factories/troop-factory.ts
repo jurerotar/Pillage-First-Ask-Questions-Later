@@ -286,19 +286,6 @@ const npcUnitCompositionByTribeAndSize = new Map<Tribe, Map<VillageSize, [UnitId
   ],
 ]);
 
-// TODO: Update these
-const villageSizeToTroopsLevel = new Map<VillageSize, number>([
-  ['xxs', 0],
-  ['xs', 0],
-  ['sm', 5],
-  ['md', 5],
-  ['lg', 10],
-  ['xl', 15],
-  ['2xl', 15],
-  ['3xl', 20],
-  ['4xl', 20],
-]);
-
 export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiableTiles, players }: GenerateTroopsArgs) => {
   const prng = prngAlea(server.seed);
 
@@ -341,8 +328,7 @@ export const generateTroops = ({ server, occupiableOasisTiles, occupiedOccupiabl
         amount: seededRandomIntFromInterval(prng, min, max),
         source: tileId,
         tileId,
-        level: villageSizeToTroopsLevel.get(villageSize)!,
-      };
+      } satisfies Troop;
     });
   });
 

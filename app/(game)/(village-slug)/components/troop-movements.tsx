@@ -1,6 +1,6 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';

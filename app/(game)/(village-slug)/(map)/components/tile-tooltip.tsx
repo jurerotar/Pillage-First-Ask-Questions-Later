@@ -1,5 +1,4 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useTroops } from 'app/(game)/(village-slug)/hooks/use-troops';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
   isOasisTile,
@@ -11,13 +10,16 @@ import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
+import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
-import { parseRFCFromTile } from 'app/utils/map-tile';
-import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-player';
+import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map-tile';
+import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';
+import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-world-item';
+import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -27,10 +29,11 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { getDistanceFromCurrentVillage } = useCurrentVillage();
   const distance = getDistanceFromCurrentVillage(tile.id);
+  const { x, y } = parseCoordinatesFromTileId(tile.id);
 
   return (
     <span className="text-xs text-gray-300">
-      ({tile.id}) - {t('{{count}} fields', { count: distance })}
+      ({x}|{y}) - {t('{{count}} fields', { count: distance })}
     </span>
   );
 };
@@ -38,7 +41,7 @@ const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
 const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { player, reputation, population } = useTilePlayer(tile);
+  const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
   const { faction, reputationLevel } = reputation;
@@ -96,8 +99,7 @@ type TileTooltipAnimalsProps = {
 };
 
 const TileTooltipAnimals: React.FC<TileTooltipAnimalsProps> = ({ tile }) => {
-  const { getTroopsByTileId } = useTroops();
-  const troops = getTroopsByTileId(tile.id);
+  const { troops } = useTileTroops(tile.id);
 
   return (
     <>
@@ -188,9 +190,7 @@ type OccupiedOccupiableTileTooltipProps = {
 
 const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps> = ({ tile }) => {
   const { getVillageById } = useVillages();
-  const { worldItems } = useWorldItems();
-
-  const worldItem = worldItems.find((item) => tile.id === item.tileId);
+  const { worldItem } = useTileWorldItem(tile.id);
 
   const village = getVillageById(tile.id)!;
   const title = village.name;
@@ -210,11 +210,35 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
   );
 };
 
+type TileTooltipSkeletonProps = {
+  count: number;
+};
+
+const TileTooltipSkeleton: React.FC<TileTooltipSkeletonProps> = ({ count }) => {
+  return (
+    <div className="flex flex-col gap-1">
+      <Skeleton
+        variant="dark"
+        className="w-25 h-2.5 rounded-xs"
+      />
+      {[...Array(count).keys()].map((el) => (
+        <Skeleton
+          key={el}
+          variant="dark"
+          className="w-20 h-2.5 rounded-xs"
+        />
+      ))}
+    </div>
+  );
+};
+
 export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
   if (isOasisTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
-        <OasisTileTooltip tile={tile} />
+        <Suspense fallback={<TileTooltipSkeleton count={3} />}>
+          <OasisTileTooltip tile={tile} />
+        </Suspense>
       </div>
     );
   }
@@ -222,7 +246,9 @@ export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
   if (isOccupiedOccupiableTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
-        <OccupiedOccupiableTileTooltip tile={tile} />
+        <Suspense fallback={<TileTooltipSkeleton count={7} />}>
+          <OccupiedOccupiableTileTooltip tile={tile} />
+        </Suspense>
       </div>
     );
   }

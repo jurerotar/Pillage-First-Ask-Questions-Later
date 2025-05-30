@@ -17,7 +17,7 @@ import type {
 import type { ResourceFieldComposition, VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomIntFromInterval } from 'app/utils/common';
 import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
-import { encodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { encodeGraphicsProperty, packTileId, parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type Shape = { group: number; shape: number[] };
 
@@ -147,7 +147,7 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
 
   return {
     ...tile,
-    type: 'oasis-tile',
+    type: 1,
     ORB: oasisResourceBonus,
     villageId: null,
     graphics: encodedGraphics,
@@ -184,8 +184,8 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
     // This needs to be in a separate if statement so that satisfies works correctly
     if (distance >= halfSize - borderWidth / 2) {
       tiles[i] = {
-        id: `${x}|${y}`,
-        type: 'oasis-tile',
+        id: packTileId(x, y),
+        type: 1,
         ORB: [],
         graphics: encodeGraphicsProperty('wood', 0, 0, 0),
         villageId: null,
@@ -196,16 +196,16 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
     // Initial user village
     if (x === 0 && y === 0) {
       tiles[i] = {
-        id: `${x}|${y}`,
-        type: 'free-tile',
+        id: packTileId(x, y),
+        type: 0,
         RFC: '4446',
         ownedBy: 'player',
-      };
+      } satisfies OccupiedOccupiableTile;
       continue;
     }
 
     tiles[i] = {
-      id: `${x}|${y}`,
+      id: packTileId(x, y),
     } satisfies BaseTile;
   }
 
@@ -232,7 +232,7 @@ const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[
       continue;
     }
 
-    const tileCoordinates = parseCoordinatesFromTileId(currentTile.id);
+    const { x, y } = parseCoordinatesFromTileId(currentTile.id);
     const resourceType: Resource = seededRandomArrayElement<Resource>(prng, ['wheat', 'iron', 'clay', 'wood']);
     const { group: oasisGroup, shape: oasisShape } = seededRandomArrayElement(prng, shapesByResource[resourceType]);
 
@@ -242,7 +242,8 @@ const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[
     for (let k = 0; k < oasisShape.length; k += 1) {
       const amountOfTiles = oasisShape[k];
       for (let j = 0; j < amountOfTiles; j += 1) {
-        const tile: MaybeOccupiedBaseTile | undefined = tilesByCoordinates.get(`${j + tileCoordinates.x}|${tileCoordinates.y - k}`)!;
+        const targetId = packTileId(x + j, y - k);
+        const tile = tilesByCoordinates.get(targetId);
 
         if (!tile || Object.hasOwn(tile, 'type')) {
           continue tileLoop;
@@ -299,7 +300,7 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
   const oasisTilesByCoordinates = new Map<Tile['id'], OasisTile>(oasisTiles.map((tile) => [tile.id, tile]));
 
   for (const tile of npcVillagesEligibleForOasis) {
-    const villageCoordinates = parseCoordinatesFromTileId(tile.id);
+    const { x, y } = parseCoordinatesFromTileId(tile.id);
     const villageSize = getVillageSize(server.configuration.mapSize, tile.id);
 
     const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
@@ -307,7 +308,7 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
 
     outer: for (let dx = -3; dx <= 3; dx++) {
       for (let dy = -3; dy <= 3; dy++) {
-        const key = `${villageCoordinates.x + dx}|${villageCoordinates.y + dy}` satisfies Tile['id'];
+        const key = packTileId(x + dx, y + dy);
         if (!oasisTilesByCoordinates.has(key)) {
           continue;
         }
@@ -360,7 +361,7 @@ const assignOasisAndFreeTileComposition = (server: Server, tiles: MaybeOccupiedB
 
     const tileData = {
       ...tile,
-      type: 'free-tile',
+      type: 0,
       RFC: resourceFieldComposition,
     } satisfies OccupiableTile;
 

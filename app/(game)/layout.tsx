@@ -1,53 +1,16 @@
-import { dehydrate, type Query, QueryClient } from '@tanstack/react-query';
-import { type PersistedClient, type Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
-import { debounce } from 'moderndash';
-import { useEffect, useState } from 'react';
-import {
-  heroCacheKey,
-  nonPersistedCacheKey,
-  playerVillagesCacheKey,
-  questsCacheKey,
-  serverCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Suspense, useEffect, useState } from 'react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Outlet, redirect, useLoaderData } from 'react-router';
-import { PersisterAwaiter } from 'app/(game)/components/persister-awaiter';
 import type { Route } from '.react-router/types/app/(game)/+types/layout';
-import type { Hero } from 'app/interfaces/models/game/hero';
-import { assignHeroModelPropertiesToUnitModel } from 'app/(game)/utils/hero';
-import { useWorkerRef } from 'app/(game)/hooks/use-worker-ref';
-import GameSyncWorker from './workers/sync-worker?worker&url';
-import QuestsWorker from './workers/quests-worker?worker&url';
-import type { QuestsWorkerReturn } from './workers/quests-worker';
-import type { Quest } from 'app/interfaces/models/game/quest';
 import { Toaster } from 'app/components/ui/toaster';
-import type { Server } from 'app/interfaces/models/game/server';
-import { faro } from 'app/faro';
-import { Skeleton } from 'app/components/ui/skeleton';
-import i18n from 'i18next';
-
-const Fallback = () => {
-  return (
-    <div className="relative h-[100dvh] overflow-y-hidden scrollbar-hidden">
-      <Skeleton className="absolute top-0 left-0 right-0 h-26 lg:h-20 rounded-none" />
-      <Skeleton className="hidden lg:flex absolute-centering absolute top-30 w-160 h-20 rounded-none" />
-      <Skeleton className="flex lg:hidden absolute bottom-0 left-0 right-0 h-24 rounded-none" />
-    </div>
-  );
-};
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
-  const [{ sessionContext }, publicResources, assetResources] = await Promise.all([
-    import('app/context/session'),
-    import('app/locales/en-US/app.json'),
-    import('app/locales/en-US/assets.json'),
-  ]);
+  const { sessionContext } = await import('app/context/session');
 
-  i18n.addResourceBundle('en-US', 'app', {
-    ...publicResources,
-    ...assetResources,
-  });
+  await loadAppTranslations();
 
   const { sessionId } = context.get(sessionContext);
 
@@ -74,7 +37,7 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction = as
     const [, lockSessionId] = lock.name!.split(':');
 
     if (lockSessionId !== sessionId) {
-      throw redirect('/error?error-id=403');
+      throw redirect('/error/403');
     }
   }
 
@@ -84,7 +47,7 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction = as
   try {
     await rootHandle.getFileHandle(`${serverSlug}.json`);
   } catch (_error) {
-    throw redirect('/error?error-id=404');
+    throw redirect('/error/404');
   }
 };
 
@@ -95,74 +58,16 @@ const Layout = ({ params }: Route.ComponentProps) => {
 
   const { sessionId } = useLoaderData<typeof clientLoader>();
 
-  const gameSyncWorkerRef = useWorkerRef(GameSyncWorker);
-  const questWorkerRef = useWorkerRef(QuestsWorker);
-
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
       defaultOptions: {
-        queries: {
-          // Non-persisted queries must have a gcTime set individually
-          gcTime: Number.POSITIVE_INFINITY,
-          networkMode: 'always',
-          staleTime: ({ queryKey }) => {
-            if (queryKey.includes(nonPersistedCacheKey)) {
-              return 5_000;
-            }
-
-            return Number.POSITIVE_INFINITY;
-          },
-          queryFn: () => {},
-        },
+        queries: {},
         mutations: {
           networkMode: 'always',
         },
       },
     }),
   );
-
-  // TODO: Figure out if there's a way to limit on which changes query client persists
-  const persistClient = debounce((client: PersistedClient) => {
-    if (!gameSyncWorkerRef.current) {
-      return;
-    }
-
-    gameSyncWorkerRef.current.postMessage({
-      client,
-      serverSlug,
-    });
-  }, 300);
-
-  const persister: Persister = {
-    persistClient,
-    // Do not move this to clientLoader, otherwise a reference to serverState sticks in memory and adds a ton of overhead
-    restoreClient: async () => {
-      const rootHandle = await getRootHandle();
-      const serverState = await getParsedFileContents<PersistedClient>(rootHandle, serverSlug!);
-      return serverState;
-    },
-    removeClient: () => {},
-  };
-
-  useEffect(() => {
-    if (!questWorkerRef.current) {
-      return;
-    }
-
-    const eventHandler = async (event: MessageEvent<QuestsWorkerReturn>) => {
-      queryClient.setQueryData<Quest[]>([questsCacheKey], () => {
-        return event.data.resolvedQuests;
-      });
-    };
-
-    questWorkerRef.current.addEventListener('message', eventHandler);
-
-    return () => {
-      if (questWorkerRef.current) {
-        questWorkerRef.current.removeEventListener('message', eventHandler);
-      }
-    };
-  }, [questWorkerRef, queryClient]);
 
   useEffect(() => {
     const { promise, resolve } = Promise.withResolvers();
@@ -174,70 +79,19 @@ const Layout = ({ params }: Route.ComponentProps) => {
     };
   }, [serverSlug, sessionId]);
 
-  useEffect(() => {
-    const heroQueryHash = `["${heroCacheKey}"]`;
-    const hashesThatTriggerQuestValidation = [`["${playerVillagesCacheKey}"]`];
-
-    const unsubscribe = queryClient.getQueryCache().subscribe(({ query, type }) => {
-      if (type !== 'updated') {
-        return;
-      }
-
-      if (query.queryHash === heroQueryHash) {
-        const hero: Hero = query.state.data;
-        // This is extremely hacky, but the idea is to change the HERO unit data in runtime, which then makes it super convenient in other parts of the app
-        assignHeroModelPropertiesToUnitModel(hero);
-      }
-
-      if (questWorkerRef.current) {
-        if (hashesThatTriggerQuestValidation.includes(query.queryHash)) {
-          const dehydratedState = dehydrate(queryClient);
-          questWorkerRef.current.postMessage({
-            dehydratedState,
-          });
-        }
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [queryClient, questWorkerRef]);
-
   return (
-    <PersistQueryClientProvider
-      onSuccess={() => {
-        const { version, seed, configuration, playerConfiguration } = queryClient.getQueryData<Server>([serverCacheKey])!;
-        faro.api.setSession({
-          attributes: {
-            serverVersion: version,
-            serverSeed: seed,
-            serverSpeed: `${configuration.speed}`,
-            serverSize: `${configuration.mapSize}`,
-            serverTribe: playerConfiguration.tribe,
-          },
-        });
-      }}
-      client={queryClient}
-      persistOptions={{
-        persister,
-        maxAge: Number.MAX_VALUE,
-        dehydrateOptions: {
-          shouldDehydrateQuery: ({ queryHash }: Query) => {
-            return !queryHash.includes(nonPersistedCacheKey);
-          },
-        },
-      }}
-    >
-      <PersisterAwaiter fallback={<Fallback />}>
-        <Outlet />
-      </PersisterAwaiter>
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback="Api provider loader">
+        <ApiProvider serverSlug={serverSlug!}>
+          <Outlet />
+        </ApiProvider>
+      </Suspense>
       <ReactQueryDevtools
         client={queryClient}
         initialIsOpen={false}
       />
       <Toaster />
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
   );
 };
 

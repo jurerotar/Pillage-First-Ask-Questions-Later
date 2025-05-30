@@ -22,19 +22,28 @@ export const getHasEnoughWarehouseCapacity = (calculatedWarehouseCapacity: numbe
   return nextLevelResourceCost.filter((_, i) => i < 3).every((buildingCost) => buildingCost <= calculatedWarehouseCapacity);
 };
 
-export const getHasEnoughGranaryCapacity = (calculatedGranaryCapacity: number, nextLevelWheatCost: number) => {
+export const getHasEnoughGranaryCapacity = (calculatedGranaryCapacity: number, nextLevelWheatCost: number): boolean => {
   return calculatedGranaryCapacity >= nextLevelWheatCost;
 };
 
-export const getHasEnoughResources = (nextLevelResourceCost: number[], currentResources: Resources) => {
+export const getHasEnoughResources = (nextLevelResourceCost: number[], currentResources: Resources): boolean => {
   return Object.values(currentResources).every((value, index) => value >= nextLevelResourceCost[index]);
 };
 
-const useBuildingRequirements = (buildingId: Building['id'], level: number, buildingFieldId: BuildingField['id']) => {
+type UseBuildingRequirementsReturn = {
+  variant: BorderIndicatorBorderVariant;
+  errors: string[];
+};
+
+const useBuildingRequirements = (
+  buildingId: Building['id'],
+  level: number,
+  buildingFieldId: BuildingField['id'],
+): UseBuildingRequirementsReturn => {
   const { t } = useTranslation();
   const { computedGranaryCapacityEffect, computedWarehouseCapacityEffect, computedWheatProductionEffect, wood, clay, iron, wheat } =
     use(CurrentVillageStateContext);
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { isDeveloperModeEnabled } = useDeveloperMode();
   const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
 
   const { buildingWheatLimit } = computedWheatProductionEffect;
@@ -53,18 +62,21 @@ const useBuildingRequirements = (buildingId: Building['id'], level: number, buil
   }, [wheat, iron, clay, wood]);
 
   const requirements = useMemo(() => {
-    if (isDeveloperModeActive) {
+    if (isMaxLevel) {
+      return {
+        errors: [t("Building can't be upgraded any further")],
+        variant: 'blue',
+      } satisfies UseBuildingRequirementsReturn;
+    }
+
+    if (isDeveloperModeEnabled) {
       return {
         errors: [],
-        variant: (isMaxLevel ? 'blue' : 'red') as BorderIndicatorBorderVariant,
-      };
+        variant: 'red',
+      } satisfies UseBuildingRequirementsReturn;
     }
 
     const errors: string[] = [];
-
-    if (isMaxLevel) {
-      errors.push(t("Building can't be upgraded any further"));
-    }
 
     if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, buildingWheatLimit)) {
       errors.push(t('Upgrade wheat fields first'));
@@ -100,7 +112,7 @@ const useBuildingRequirements = (buildingId: Building['id'], level: number, buil
     };
   }, [
     isMaxLevel,
-    isDeveloperModeActive,
+    isDeveloperModeEnabled,
     nextLevelWheatConsumption,
     buildingWheatLimit,
     warehouseCapacity,
@@ -114,14 +126,17 @@ const useBuildingRequirements = (buildingId: Building['id'], level: number, buil
   return requirements;
 };
 
-export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']) => {
+export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']): UseBuildingRequirementsReturn => {
   const { currentVillage } = useCurrentVillage();
   const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)!;
 
   return useBuildingRequirements(buildingId, level, buildingFieldId);
 };
 
-export const useBuildingConstructionStatus = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
+export const useBuildingConstructionStatus = (
+  buildingId: Building['id'],
+  buildingFieldId: BuildingField['id'],
+): UseBuildingRequirementsReturn => {
   return useBuildingRequirements(buildingId, 1, buildingFieldId);
 };
 

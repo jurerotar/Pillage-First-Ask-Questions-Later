@@ -3,12 +3,11 @@ import {
   CurrentVillageStateContext,
   CurrentVillageStateProvider,
 } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import { GameEngineProvider } from 'app/(game)/(village-slug)/providers/game-engine-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
-import { use } from 'react';
-import { Fragment, memo, useEffect, useRef } from 'react';
+import { Suspense } from 'react';
+import { Fragment, memo, use, useEffect, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
@@ -19,7 +18,7 @@ import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Outlet, Link } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -43,12 +42,42 @@ import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import layoutStyles from './layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
-type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type CounterProps = {
   counter?: number;
 };
 
-const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(({ children, counter = 0, ...rest }) => {
+const Counter: React.FC<CounterProps> = ({ counter }) => {
+  if (!counter) {
+    return null;
+  }
+
+  return (
+    <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+      {counter > 99 ? '99' : counter}
+    </span>
+  );
+};
+
+const ReportsCounter = () => {
+  const { reports } = useReports();
+  return <Counter counter={reports.length} />;
+};
+
+const AdventurePointsCounter = () => {
+  const { adventurePoints } = useAdventurePoints();
+  return <Counter counter={adventurePoints.amount} />;
+};
+
+const QuestsCounter = () => {
+  const { collectableQuestCount } = useQuests();
+  return <Counter counter={collectableQuestCount} />;
+};
+
+type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(({ children, ...rest }) => {
   return (
     <button
       type="button"
@@ -60,11 +89,6 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo((
       {...rest}
     >
       <span className="lg:size-10 lg:bg-white lg:rounded-full flex items-center justify-center">{children}</span>
-      {counter > 0 && (
-        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
-          {counter > 99 ? '99' : counter}
-        </span>
-      )}
     </button>
   );
 });
@@ -86,16 +110,16 @@ const DiscordLink = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero } = useHero();
+  const { hero, experience } = useHero();
   const { heroPath } = useGameNavigation();
   const { playerTroops } = usePlayerTroops();
 
   const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
 
-  const { level } = calculateHeroLevel(hero.stats.experience);
+  const { level } = calculateHeroLevel(experience);
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable = (level + 1) * 4 > Object.values(hero.selectableAttributes).reduce((total, curr) => total + curr, 0);
+  const isLevelUpAvailable = (level + 1) * 4 > Object.values(hero?.selectableAttributes ?? 0).reduce((total, curr) => total + curr, 0);
 
   return (
     <Link
@@ -161,17 +185,18 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo((
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
-  const { amountOfUncollectedQuests } = useQuests();
   const { questsPath } = useGameNavigation();
 
   return (
     <Link to={questsPath}>
       <NavigationSideItem
-        counter={amountOfUncollectedQuests}
         aria-label={t('Quests')}
         title={t('Quests')}
       >
-        <FaBookBookmark className="text-xl" />
+        <Suspense fallback={null}>
+          <QuestsCounter />
+        </Suspense>
+        <FaBookBookmark className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -179,17 +204,18 @@ const QuestsNavigationItem = () => {
 
 const AdventuresNavigationItem = () => {
   const { t } = useTranslation();
-  const { adventurePoints } = useAdventurePoints();
   const { adventuresPath } = useGameNavigation();
 
   return (
     <Link to={adventuresPath}>
       <NavigationSideItem
-        counter={adventurePoints.amount}
         aria-label={t('Adventures')}
         title={t('Adventures')}
       >
-        <PiPathBold className="text-xl" />
+        <Suspense fallback={null}>
+          <AdventurePointsCounter />
+        </Suspense>
+        <PiPathBold className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -197,17 +223,18 @@ const AdventuresNavigationItem = () => {
 
 const ReportsNavigationItem = () => {
   const { t } = useTranslation();
-  const { reports } = useReports();
   const { reportsPath } = useGameNavigation();
 
   return (
     <Link to={reportsPath}>
       <NavigationSideItem
-        counter={reports.length}
         aria-label={t('Reports')}
         title={t('Reports')}
       >
-        <LuScrollText className="text-xl" />
+        <Suspense fallback={null}>
+          <ReportsCounter />
+        </Suspense>
+        <LuScrollText className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -258,15 +285,11 @@ const VillageNavigationItem = () => {
 const MapNavigationItem = () => {
   const { t } = useTranslation();
   const { mapPath } = useGameNavigation();
-  const { currentVillage } = useCurrentVillage();
   const { isMapPageOpen } = useActiveRoute();
 
-  const [x, y] = currentVillage.id.split('|');
-  const currentVillageMapPath = `${mapPath}?x=${x}&y=${y}`;
-
   return (
-    <Link
-      to={currentVillageMapPath}
+    <NavLink
+      to={mapPath}
       prefetch="render"
     >
       <NavigationMainItem
@@ -276,7 +299,7 @@ const MapNavigationItem = () => {
       >
         <TbMap2 className="text-3xl" />
       </NavigationMainItem>
-    </Link>
+    </NavLink>
   );
 };
 
@@ -316,7 +339,7 @@ const ResourceCounters = () => {
   );
 };
 
-const VillageSelect = () => {
+const VillageSelect = memo(() => {
   const { t } = useTranslation();
   const { switchToVillage } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
@@ -335,18 +358,22 @@ const VillageSelect = () => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(({ slug, name, id }) => (
-          <SelectItem
-            key={id}
-            value={slug}
-          >
-            {name} ({id})
-          </SelectItem>
-        ))}
+        {playerVillages.map(({ slug, name, id }) => {
+          const { x, y } = parseCoordinatesFromTileId(id);
+          const formattedId = `${x}|${y}`;
+          return (
+            <SelectItem
+              key={id}
+              value={slug}
+            >
+              {name} ({formattedId})
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );
-};
+});
 
 const TopNavigation = () => {
   const { t } = useTranslation();
@@ -412,7 +439,9 @@ const TopNavigation = () => {
           </div>
           <div className="flex justify-between container mx-auto">
             <div className="flex flex-1 items-center">
-              <VillageSelect />
+              <Suspense fallback={null}>
+                <VillageSelect />
+              </Suspense>
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
@@ -480,7 +509,9 @@ const TopNavigation = () => {
           <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
           <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
             <DiscordLink />
-            <VillageSelect />
+            <Suspense fallback={null}>
+              <VillageSelect />
+            </Suspense>
             <HeroNavigationItem />
           </div>
         </>
@@ -588,6 +619,9 @@ const GameLayout = () => {
   }, []);
 
   useEffect(() => {
+    if (!(colorScheme && skinVariant && timeOfDay)) {
+      return;
+    }
     const html = document.documentElement;
 
     html.setAttribute('data-color-scheme', colorScheme);
@@ -602,16 +636,24 @@ const GameLayout = () => {
   }, [skinVariant, timeOfDay, colorScheme]);
 
   return (
-    <GameEngineProvider>
+    <Suspense fallback="Layout loader">
       <CurrentVillageStateProvider>
         <TopNavigation />
-        <TroopMovements />
-        <Outlet />
-        <ConstructionQueue />
-        <TroopList />
+        <Suspense fallback={null}>
+          <TroopMovements />
+        </Suspense>
+        <Suspense fallback="Loading page">
+          <Outlet />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ConstructionQueue />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TroopList />
+        </Suspense>
         {!isWiderThanLg && <MobileBottomNavigation />}
       </CurrentVillageStateProvider>
-    </GameEngineProvider>
+    </Suspense>
   );
 };
 

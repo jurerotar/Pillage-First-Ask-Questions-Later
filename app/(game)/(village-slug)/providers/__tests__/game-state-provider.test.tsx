@@ -17,11 +17,11 @@ const formatSize = (bytes: number) => {
 };
 
 // Make sure all snapshots are created with seed: 1111111111
-const files = ['snapshot-21-03-2025.json', 'snapshot-22-03-2025.json', 'snapshot-11-04-2025.json'];
+const files = ['snapshot-21-03-2025.json', 'snapshot-22-03-2025.json', 'snapshot-11-04-2025.json', 'snapshot-17-05-2025.json'];
 
 // These tests are skipped by default and should be only ran manually to test game-state parsing performance after changes.
 // Previous snapshots are available in ./game-state-snapshots
-describe('Game state OPFS-reading & parsing', () => {
+describe.skip('Game state OPFS-reading & parsing', () => {
   test.each(files)('run perf for %s', async (filename) => {
     const path = `app/(game)/(village-slug)/providers/__tests__/__mocks__/${filename}`;
     const data = readFileSync(path);

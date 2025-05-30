@@ -12,12 +12,13 @@ import clsx from 'clsx';
 import type React from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -77,15 +78,14 @@ type EmptyBuildingFieldProps = {
 };
 
 const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
+  const { villagePath } = useGameNavigation();
+
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
 
   return (
     <Link
-      to={`${buildingFieldId}`}
-      className={clsx(
-        styles,
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
-      )}
+      to={`${villagePath}/${buildingFieldId}`}
+      className={clsx(styles, 'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16')}
       data-building-field-id={buildingFieldId}
     >
       {buildingFieldId}
@@ -144,6 +144,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { shouldShowBuildingNames } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { resourcesPath } = useGameNavigation();
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -159,7 +160,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
   return (
     <Link
-      to={`${buildingFieldId}`}
+      to={`${resourcesPath}/${buildingFieldId}`}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,

@@ -189,6 +189,11 @@ const IconTroopsCropConsumption = lazy(async () => ({
   default: (await import('app/components/icons/village/icon-troops-crop-consumption')).IconTroopsCropConsumption,
 }));
 
+// Special troops
+const IconUnitSpecialHero = lazy(async () => ({
+  default: (await import('app/components/icons/troops/special/icon-hero')).IconHero,
+}));
+
 // Roman troops
 const IconUnitRomansLegionnaire = lazy(async () => ({
   default: (await import('app/components/icons/troops/romans/icon-legionnaire')).IconLegionnaire,
@@ -451,6 +456,7 @@ export type TroopMovementType =
   | 'findNewVillage';
 
 export type UnitIconType =
+  | 'hero'
   | RomanTroopIconType
   | GaulTroopIconType
   | TeutonTroopIconType
@@ -547,6 +553,9 @@ export const typeToIconMap: Record<IconType, React.LazyExoticComponent<() => Rea
   wheatProduction: IconResourceWheat,
   crannyCapacity: IconCrannyCapacity,
   revealedIncomingTroopsAmount: IconRevealedIncomingTroopsAmount,
+
+  // Special troops
+  hero: IconUnitSpecialHero,
 
   // Roman troops
   legionnaire: IconUnitRomansLegionnaire,

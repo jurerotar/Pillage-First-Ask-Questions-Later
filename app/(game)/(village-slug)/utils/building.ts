@@ -33,7 +33,6 @@ const getBuildingFieldPresetData = (buildingFieldsPresets: Village['buildingFiel
 export const getBuildingDataForLevel = (buildingId: Building['id'], level: number) => {
   const building = getBuildingData(buildingId);
   const wheatConsumptionPerLevel = building.effects[0]!.valuesPerLevel;
-
   const isMaxLevel = building.maxLevel === level;
   const nextLevelWheatConsumption = Math.abs(wheatConsumptionPerLevel[level + 1]);
   const nextLevelResourceCost = calculateBuildingCostForLevel(buildingId, level + 1);

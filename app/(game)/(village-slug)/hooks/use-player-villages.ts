@@ -1,11 +1,20 @@
-import { useQuery } from '@tanstack/react-query';
-import type { Village } from 'app/interfaces/models/game/village';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 
 export const usePlayerVillages = () => {
-  const { data: playerVillages } = useQuery<Village[]>({
+  const { fetcher } = use(ApiContext);
+  const { currentPlayer } = usePlayers();
+
+  const { data: playerVillages } = useSuspenseQuery<PlayerVillage[]>({
     queryKey: [playerVillagesCacheKey],
-    initialData: [],
+    queryFn: async () => {
+      const { data } = await fetcher<PlayerVillage[]>(`/players/${currentPlayer.id}/villages`);
+      return data;
+    },
   });
 
   return {

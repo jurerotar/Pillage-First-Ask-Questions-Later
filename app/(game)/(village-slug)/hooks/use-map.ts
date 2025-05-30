@@ -1,19 +1,28 @@
-import { useQuery } from '@tanstack/react-query';
-import type { Tile } from 'app/interfaces/models/game/tile';
-import { mapCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 export const useMap = () => {
-  const { data: map } = useQuery<Tile[]>({
-    queryKey: [mapCacheKey],
-    initialData: [],
+  const { fetcher } = use(ApiContext);
+  const { currentVillage } = useCurrentVillage();
+
+  const { data: contextualMap } = useSuspenseQuery<ContextualTile[]>({
+    queryKey: ['contextual-map', eventsCacheKey, currentVillage.id],
+    queryFn: async () => {
+      const { data } = await fetcher<ContextualTile[]>(`/map/${currentVillage.id}/contextual`);
+      return data;
+    },
   });
 
-  const getTileByTileId = (tileId: Tile['id']): Tile => {
-    return map.find(({ id }) => tileId === id)!;
+  const getTileByTileId = (tileId: Tile['id']): ContextualTile => {
+    return contextualMap.find(({ id }) => tileId === id)!;
   };
 
   return {
-    map,
+    contextualMap,
     getTileByTileId,
   };
 };

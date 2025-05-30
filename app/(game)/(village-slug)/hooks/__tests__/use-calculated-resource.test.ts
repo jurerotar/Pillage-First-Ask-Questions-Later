@@ -1,4 +1,4 @@
-import { calculateCurrentAmount, type CalculateCurrentAmountArgs } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
+import { calculateCurrentAmount, type CalculateCurrentAmountArgs } from 'app/(game)/utils/calculate-current-resources';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { describe, expect, test } from 'vitest';
 

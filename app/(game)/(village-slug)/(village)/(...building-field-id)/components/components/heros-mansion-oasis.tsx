@@ -7,12 +7,13 @@ import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import {
   BuildingSection,
   BuildingSectionContent,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -26,7 +27,7 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
   const hasOccupiedOasis = !!occupiedOasis;
 
   if (hasOccupiedOasis) {
-    const [x, y] = occupiedOasis.id.split('|');
+    const { x, y } = parseCoordinatesFromTileId(occupiedOasis.id);
 
     return (
       <TableRow>
@@ -70,7 +71,7 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
 export const HerosMansionOasis = () => {
   const { t } = useTranslation();
   const { mapPath } = useGameNavigation();
-  const { oasisOccupiedByCurrentVillage, oasisTilesInRange } = useOasis();
+  const { oasisOccupiedByCurrentVillage, occupiableOasisInRange } = useOasis();
 
   const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] = oasisOccupiedByCurrentVillage;
 
@@ -133,8 +134,8 @@ export const HerosMansionOasis = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {oasisTilesInRange.map((tile) => {
-                    const [x, y] = tile.id.split('|');
+                  {occupiableOasisInRange.map((tile) => {
+                    const { x, y } = parseCoordinatesFromTileId(tile.id);
                     return (
                       <TableRow key={tile.id}>
                         <TableCell>/</TableCell>

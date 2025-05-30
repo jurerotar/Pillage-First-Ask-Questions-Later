@@ -5,30 +5,22 @@ import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-too
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { MapContext, MapProvider } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
-import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
-import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
-import type { Village } from 'app/interfaces/models/game/village';
-import { use, useMemo, useRef } from 'react';
+import { Suspense, use, useCallback, useMemo, useRef } from 'react';
 import type { MetaFunction } from 'react-router';
 import { useSearchParams } from 'react-router';
-import { FixedSizeGrid, FixedSizeList } from 'react-window';
+import { FixedSizeGrid, FixedSizeList, type GridOnScrollProps } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isTroopMovementEvent } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { t } from 'i18next';
+import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -46,20 +38,17 @@ const RULER_SIZE = 20;
 const MapPage = () => {
   const [searchParams] = useSearchParams();
   const { isOpen: isTileModalOpened, openModal, toggleModal, modalArgs } = useDialog<TileType | null>();
-  const { map, getTileByTileId } = useMap();
+  const { contextualMap, getTileByTileId } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
-  const { playersMap } = usePlayers();
-  const { reputationsMap } = useReputations();
-  const { villages } = useVillages();
-  const { worldItems } = useWorldItems();
-  const { events } = useEvents();
   const { currentVillage } = useCurrentVillage();
 
-  const startingX = Number.parseInt(searchParams.get('x') ?? '0');
-  const startingY = Number.parseInt(searchParams.get('y') ?? '0');
+  const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
+
+  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
+  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leftMapRulerRef = useRef<FixedSizeList>(null);
@@ -90,75 +79,17 @@ const MapPage = () => {
     y: 0,
   });
 
-  const villageCoordinatesToVillagesMap = useMemo<Map<Village['id'], Village>>(() => {
-    return new Map<Village['id'], Village>(
-      villages.map((village) => {
-        return [village.id, village];
-      }),
-    );
-  }, [villages]);
-
-  const villageCoordinatesToWorldItemsMap = useMemo<Map<Village['id'], WorldItem>>(() => {
-    return new Map<Village['id'], WorldItem>(
-      worldItems.map((worldItem) => {
-        return [worldItem.tileId, worldItem];
-      }),
-    );
-  }, [worldItems]);
-
-  const tileIdToTroopMovementsMap = useMemo<Map<Village['id'], GameEvent<'troopMovement'>[]>>(() => {
-    const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>([]);
-
-    for (const event of events) {
-      if (!isTroopMovementEvent(event)) {
-        continue;
-      }
-
-      // Show only events targeting or originating from current village
-      if (!(event.villageId === currentVillage.id || event.targetId === currentVillage.id)) {
-        continue;
-      }
-
-      if (!troopMovementMap.has(event.targetId)) {
-        troopMovementMap.set(event.targetId, []);
-      }
-
-      const eventArray = troopMovementMap.get(event.targetId)!;
-      eventArray.push(event);
-    }
-
-    return troopMovementMap;
-  }, [events, currentVillage]);
-
   const fixedGridData = useMemo(() => {
     return {
-      map,
-      playersMap,
-      reputationsMap,
+      contextualMap,
       gridSize,
       mapFilters,
       magnification,
-      tileIdToTroopMovementsMap,
       onClick: (tile: TileType) => {
         openModal(tile);
       },
-      villageCoordinatesToWorldItemsMap,
-      villageCoordinatesToVillagesMap,
-      currentVillage,
     };
-  }, [
-    map,
-    mapFilters,
-    villageCoordinatesToWorldItemsMap,
-    playersMap,
-    reputationsMap,
-    villageCoordinatesToVillagesMap,
-    gridSize,
-    magnification,
-    openModal,
-    tileIdToTroopMovementsMap,
-    currentVillage,
-  ]);
+  }, [contextualMap, mapFilters, gridSize, magnification, openModal]);
 
   useEventListener(
     'mousedown',
@@ -221,13 +152,32 @@ const MapPage = () => {
   const offsetX = scrollLeft(currentCenterTile.current.x);
   const offsetY = scrollTop(currentCenterTile.current.y);
 
+  const onScroll = useCallback(
+    ({ scrollTop, scrollLeft }: GridOnScrollProps) => {
+      if (bottomMapRulerRef.current) {
+        bottomMapRulerRef.current.scrollTo(scrollLeft);
+      }
+
+      if (leftMapRulerRef.current) {
+        leftMapRulerRef.current.scrollTo(scrollTop);
+      }
+
+      // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
+      currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
+      currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
+    },
+    [tileSize, gridSize, width, mapHeight],
+  );
+
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Dialog
         open={isTileModalOpened}
         onOpenChange={toggleModal}
       >
-        <TileDialog tile={modalArgs.current} />
+        <Suspense fallback={null}>
+          <TileDialog tile={modalArgs.current} />
+        </Suspense>
       </Dialog>
       <Tooltip
         anchorSelect="[data-tile-id]"
@@ -242,8 +192,7 @@ const MapPage = () => {
             return null;
           }
 
-          const tile = getTileByTileId(tileId as TileType['id']);
-
+          const tile = getTileByTileId(Number.parseInt(tileId));
           return <TileTooltip tile={tile} />;
         }}
       />
@@ -255,24 +204,12 @@ const MapPage = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={mapHeight - 1}
+        height={mapHeight}
         width={width}
         itemData={fixedGridData}
         initialScrollLeft={offsetX}
         initialScrollTop={offsetY}
-        onScroll={({ scrollTop, scrollLeft }) => {
-          if (bottomMapRulerRef.current) {
-            bottomMapRulerRef.current.scrollTo(scrollLeft);
-          }
-
-          if (leftMapRulerRef.current) {
-            leftMapRulerRef.current.scrollTo(scrollTop);
-          }
-
-          // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-          currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2);
-          currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
-        }}
+        onScroll={onScroll}
       >
         {Cell}
       </FixedSizeGrid>

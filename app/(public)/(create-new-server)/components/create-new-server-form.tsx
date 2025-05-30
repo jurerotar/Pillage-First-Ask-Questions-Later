@@ -83,6 +83,8 @@ export const CreateNewServerForm = () => {
   };
 
   if (isError) {
+    console.error(error);
+
     return (
       <div className="flex flex-col gap-4 p-6 max-w-md mx-auto">
         <div className="bg-destructive/15 text-destructive p-4 rounded-lg">{error.message}</div>
@@ -96,7 +98,7 @@ export const CreateNewServerForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 p-2 shadow-xl rounded-md"
+          className="space-y-4 p-2 shadow-xl rounded-md"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-6">
@@ -238,12 +240,14 @@ export const CreateNewServerForm = () => {
               />
             </div>
           </div>
-          <Button
-            disabled={isPending}
-            type="submit"
-          >
-            {t('Create Server')}
-          </Button>
+          <div className="flex justify-end">
+            <Button
+              disabled={isPending}
+              type="submit"
+            >
+              {t('Create Server')}
+            </Button>
+          </div>
           {isSuccess && <Alert variant="success">{t('Redirecting...')}</Alert>}
         </form>
       </Form>

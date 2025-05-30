@@ -32,7 +32,7 @@ const copyFolderSync = async (source: string, dest: string): Promise<void> => {
   }
 };
 
-const generateAssetPreloadMaps = async () => {
+const _generateAssetPreloadMaps = async () => {
   const mapFiles = (await glob('public/graphic-packs/**/map/**/*.avif')).map((filePath) => filePath.replace('public', ''));
   const villageFiles = (await glob('public/graphic-packs/**/village/**/*.avif')).map((filePath) => filePath.replace('public', ''));
   const heroItemsFiles = (await glob('public/graphic-packs/**/hero-items/**/*.avif')).map((filePath) => filePath.replace('public', ''));
@@ -60,5 +60,6 @@ const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
 const destDir = 'public/graphic-packs';
 
 await copyFolderSync(sourceDir, destDir);
-await generateAssetPreloadMaps();
+// TODO: Consider re-enabling this if you encounter issues with asset loading
+// await generateAssetPreloadMaps();
 createDotEnv();

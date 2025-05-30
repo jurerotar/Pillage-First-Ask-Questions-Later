@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
@@ -17,10 +17,9 @@ const deleteServerData = async (server: Server) => {
 export const useAvailableServers = () => {
   const queryClient = useQueryClient();
 
-  const { data: availableServers } = useQuery<Server[]>({
+  const { data: availableServers } = useSuspenseQuery<Server[]>({
     queryKey: [availableServerCacheKey],
     queryFn: () => JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]'),
-    initialData: [],
   });
 
   const { mutate: addServer } = useMutation<void, Error, { server: Server }>({

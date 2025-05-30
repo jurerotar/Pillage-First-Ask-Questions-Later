@@ -3,7 +3,7 @@ import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from './faro';
-import './i18n';
+import './localization/i18n';
 import './styles/app.css';
 
 await initFaro();
@@ -55,6 +55,10 @@ const Root = () => {
             href="/manifest.webmanifest"
           />
         )}
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1"

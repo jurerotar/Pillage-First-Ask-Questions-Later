@@ -35,7 +35,6 @@ export type BuildingId =
   | 'HORSE_DRINKING_TROUGH'
   | 'MAIN_BUILDING'
   | 'MARKETPLACE'
-  | 'PALACE'
   | 'RESIDENCE'
   | 'TOURNAMENT_SQUARE'
   | 'TRADE_OFFICE'
@@ -67,13 +66,6 @@ export type AmountBuildingRequirement = {
   appliesGlobally?: true;
 };
 
-export type CapitalBuildingRequirement = {
-  id: number;
-  type: 'capital';
-  canBuildOnlyInCapital: boolean;
-  canBuildOnlyOutsideOfCapital: boolean;
-};
-
 export type ArtifactBuildingRequirement = {
   id: number;
   type: 'artifact';
@@ -83,7 +75,6 @@ export type BuildingRequirement =
   | ArtifactBuildingRequirement
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement
-  | CapitalBuildingRequirement
   | AmountBuildingRequirement;
 
 export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster' | 'resource-production';

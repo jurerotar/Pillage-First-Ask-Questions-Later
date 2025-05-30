@@ -3,8 +3,8 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
 import { calculateDistanceBetweenPoints } from 'app/utils/common';
-import { calculateComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
 type CalculateTravelDurationArgs = {
   villageId: Village['id'];

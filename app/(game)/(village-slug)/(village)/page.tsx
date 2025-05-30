@@ -5,7 +5,7 @@ import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
 import type { MetaFunction } from 'react-router';
-import { Link } from 'app/components/link';
+import { Link } from 'react-router';
 import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { t } from 'i18next';

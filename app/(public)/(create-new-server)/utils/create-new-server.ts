@@ -1,6 +1,6 @@
 import { generateNpcPlayers, userPlayerFactory } from 'app/factories/player-factory';
 import { workerFactory } from 'app/utils/workers';
-import { userVillageFactory } from 'app/factories/village-factory';
+import { playerVillageFactory } from 'app/factories/village-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { generateEffects } from 'app/factories/effect-factory';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';
@@ -21,8 +21,6 @@ import {
   mapCacheKey,
   mapFiltersCacheKey,
   playersCacheKey,
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
   preferencesCacheKey,
   questsCacheKey,
   reputationsCacheKey,
@@ -71,9 +69,9 @@ export const initializeServer = async (server: Server): Promise<void> => {
     { server, npcPlayers },
   );
 
-  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === '0|0')!;
+  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === 0)!;
 
-  const playerStartingVillage = userVillageFactory({ player, tile: playerStartingTile, slug: 'v-1' });
+  const playerStartingVillage = playerVillageFactory({ player, tile: playerStartingTile, slug: 'v-1' });
 
   const hero = heroFactory(server);
 
@@ -126,11 +124,9 @@ export const initializeServer = async (server: Server): Promise<void> => {
   queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
   queryClient.setQueryData<Hero>([heroCacheKey], hero);
   queryClient.setQueryData<Tile[]>([mapCacheKey], tiles);
-  queryClient.setQueryData<Village[]>([playerVillagesCacheKey], [playerStartingVillage]);
-  queryClient.setQueryData<Village[]>([villagesCacheKey], villages);
+  queryClient.setQueryData<Village[]>([villagesCacheKey], [playerStartingVillage, ...villages]);
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], npcTroops);
-  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], playerTroops);
+  queryClient.setQueryData<Troop[]>([troopsCacheKey], [...playerTroops, ...npcTroops]);
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
   queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
   queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);

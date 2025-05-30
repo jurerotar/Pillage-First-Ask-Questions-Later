@@ -43,7 +43,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
 
   const hasHeroProductionBonus = normalizeForcedFloatValue(heroResourceProductionEffect.value) > 1;
 
-  const summedBonusProductionValues = [...bonusProductionEffects, ...artifactBonuses, heroResourceProductionEffect].reduce(
+  const summedBonusProductionValues = [...bonusProductionEffects, ...artifactBonuses].reduce(
     (accumulator, effect) => accumulator + normalizeForcedFloatValue(effect.value) - 1,
     0,
   );
@@ -105,12 +105,19 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{t('Resource field')}</TableHeaderCell>
+              <TableHeaderCell>{t('Source')}</TableHeaderCell>
               <TableHeaderCell>{t('Production')}</TableHeaderCell>
               <TableHeaderCell>{t('Bonus')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
+            {hasHeroProductionBonus && (
+              <TableRow>
+                <TableCell>{t('Hero')}</TableCell>
+                <TableCell>{heroResourceProductionEffect.value}</TableCell>
+                <TableCell>0</TableCell>
+              </TableRow>
+            )}
             {baseProductionEffects.map(({ value, buildingFieldId, buildingId }) => (
               <TableRow key={buildingFieldId}>
                 <TableCell>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</TableCell>
@@ -120,7 +127,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
             ))}
             <TableRow className="font-medium">
               <TableCell>{t('Total')}</TableCell>
-              <TableCell>{summedBaseProductionValues}</TableCell>
+              <TableCell>{summedBaseProductionValues + (heroResourceProductionEffect?.value ?? 0)}</TableCell>
               <TableCell>
                 {baseProductionEffects.reduce((acc, effect) => acc + Math.trunc(effect.value * summedBonusProductionValues), 0)}
               </TableCell>

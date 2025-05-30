@@ -1,0 +1,813 @@
+{
+  "UNITS": {
+    "HERO": {
+      "NAME_one": "Hero",
+      "NAME_other": "Heroes",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "LEGIONNAIRE": {
+      "NAME_one": "Legionnaire",
+      "NAME_other": "Legionnaires",
+      "DESCRIPTION": "The Legionnaire is the simple and all-purpose infantry of the Roman Empire. With his well-rounded training, he is good at both defence and offence. However, the Legionnaire will never reach the levels of the more specialized troops.",
+      "USAGE": "The Legionnaire is the basic unit of the Roman army. It is more expensive compared to the Teutonic and Gallic beginning units but has significantly higher defense than the Teutonic Clubswinger and much higher offense than the Gallic Phalanx. It is good at defending against cavalry, especially when combined with Praetorians. This all-rounder infantry unit is designed for versatile combat roles, including reinforcement and support for counter-attacking."
+    },
+    "PRAETORIAN": {
+      "NAME_one": "Praetorian",
+      "NAME_other": "Praetorians",
+      "DESCRIPTION": "The Praetorians are the emperor's guard and they defend him with their life. Because their training is specialized for defence, they are very weak attackers.",
+      "USAGE": "The Praetorian is the Roman infantry defense unit. It's the best infantry defender unit in Travian (65 defense per crop) and one of the best defenders overall (total 100 defense per crop). Compared to the Gaul Phalanx, the Praetorian provides more defense per crop but is slightly more expensive to train and is skewed towards infantry defense. It is best used as stationary defense and should be complemented with other units for a balanced defense strategy."
+    },
+    "IMPERIAN": {
+      "NAME_one": "Imperian",
+      "NAME_other": "Imperians",
+      "DESCRIPTION": "The Imperian is the ultimate attacker of the Roman Empire. He is quick, strong, and the nightmare of all defenders. However, his training is expensive and time-intensive.",
+      "USAGE": "The Imperian is the strongest offensive infantry unit of the Romans and surpasses similar units from other tribes in terms of speed, power, and armor. However, its defense is relatively poor, and it is both expensive and slow to produce. It serves as the foundation of the Roman attack force."
+    },
+    "ROMAN_SCOUT": {
+      "NAME_one": "Equites Legati",
+      "NAME_other": "Equites Legati",
+      "DESCRIPTION": "The Equites Legati are the Roman scouts. Mounted on swift horses, they gather intelligence on enemy villages without engaging in combat.",
+      "USAGE": "The Equites Legati is the Roman scouting unit, used to gather information on enemy villages, including troop counts and defenses. They are essential for planning attacks and assessing enemy strength."
+    },
+    "EQUITES_IMPERATORIS": {
+      "NAME_one": "Equites Imperatoris",
+      "NAME": "Equites Imperatoris",
+      "DESCRIPTION": "The Equites Imperatoris are the standard Roman cavalry. They balance speed and strength, making them versatile in both raids and battles.",
+      "USAGE": "The Equites Imperatoris is the standard Roman cavalry unit. Faster than any other Roman military unit and with a high carrying capacity, it makes a good raider. However, it consumes a lot of wheat, which can be mitigated by building a Horse Drinking Pool. It is not the best defender, as its defense against cavalry is moderate."
+    },
+    "EQUITES_CAESARIS": {
+      "NAME_one": "Equites Caesaris",
+      "NAME": "Equites Caesaris",
+      "DESCRIPTION": "The Equites Caesaris are the heavy cavalry of the Roman army. They are heavily armored and possess formidable attack power but are costly to maintain.",
+      "USAGE": "The Equites Caesaris is the heavy Roman cavalry. It is very powerful but slow and requires a lot of wheat upkeep. It can't carry as many resources as the Equites Imperatoris. It makes an adequate defense unit against other cavalry, but its primary role is offense. Many Roman armies include Equites Caesaris for their strong attack capabilities."
+    },
+    "ROMAN_RAM": {
+      "NAME_one": "Roman Ram",
+      "NAME_other": "Roman Rams",
+      "DESCRIPTION": "The Roman Ram is used to breach enemy walls, paving the way for infantry and cavalry to enter fortified villages.",
+      "USAGE": "The Battering Ram is a siege unit that can destroy enemy walls when included in an attack. It requires normal attacks (not raids) to function and is essential for reducing the defensive bonuses provided by enemy walls, making subsequent attacks more effective."
+    },
+    "ROMAN_CATAPULT": {
+      "NAME_one": "Roman Catapult",
+      "NAME_other": "Roman Catapults",
+      "DESCRIPTION": "The Roman Catapult is a siege engine designed to destroy enemy buildings and defenses from a distance.",
+      "USAGE": "The Fire Catapult is a long-range siege unit used to destroy specific buildings in enemy villages. It is essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
+    },
+    "ROMAN_CHIEF": {
+      "NAME_one": "Senator",
+      "NAME_other": "Senators",
+      "DESCRIPTION": "The Senator is a persuasive leader who can convince enemy villages to join your empire, effectively reducing their loyalty.",
+      "USAGE": "The Senator is used to lower the loyalty of enemy villages, facilitating their takeover. It is equivalent to the Teuton Chief and Gaul Chieftain."
+    },
+    "ROMAN_SETTLER": {
+      "NAME_one": "Roman Settler",
+      "NAME_other": "Roman Settlers",
+      "DESCRIPTION": "The Roman Settler is tasked with founding new villages, allowing the empire to expand its territory and influence.",
+      "USAGE": "Settlers are units tasked with founding new villages. They carry the resources necessary to establish a new settlement, allowing for territorial expansion."
+    },
+    "CLUBSWINGER": {
+      "NAME": "Clubswinger",
+      "NAME_other": "Clubswingers",
+      "DESCRIPTION": "The Maceman is the standard infantry unit of the Teutons, known for their aggressive nature and effectiveness in early raids.",
+      "USAGE": "The Clubswinger, also known as the Maceman, is the cheapest unit in Travian and serves as the basic infantry for the Teutons. They have poor defense, especially against cavalry. Their main value lies in their raiding ability, carrying up to 60 resources. Due to their low cost, a few successful raids can cover their training expenses. This makes them highly effective for early-game aggression."
+    },
+    "SPEARMAN": {
+      "NAME_one": "Spearman",
+      "NAME_other": "Spearmen",
+      "DESCRIPTION": "Spearmen are defensive units of the Teutons, particularly strong against cavalry attacks.",
+      "USAGE": "The Spearman is the best defender in the Teuton's arsenal and one of the best in the game. They excel in cavalry defense and are cost-effective. However, they are poor attackers and should be paired with other infantry defenders to maximize defensive output."
+    },
+    "AXEMAN": {
+      "NAME_one": "Axeman",
+      "NAME_other": "Axemen",
+      "DESCRIPTION": "Axemen are formidable offensive units of the Teutons, excelling in close combat.",
+      "USAGE": "The Axeman is the primary offensive infantry unit for the Teutons. They have high attack power but lack defensive capabilities. They are best utilized in offensive operations rather than village defense."
+    },
+    "TEUTONIC_SCOUT": {
+      "NAME_one": "Scout",
+      "NAME_other": "Scouts",
+      "DESCRIPTION": "Teuton scouts gather intelligence on enemy villages, similar to their Roman and Gaul counterparts.",
+      "USAGE": "The Scout is used to gather information on enemy villages, including troop counts and defenses. They are essential for planning attacks and assessing enemy strength."
+    },
+    "PALADIN": {
+      "NAME_one": "Paladin",
+      "NAME_other": "Paladins",
+      "DESCRIPTION": "Paladins are Teuton cavalry units with strong defensive capabilities, especially against infantry.",
+      "USAGE": "The Paladin is a defensive cavalry unit with strong infantry defense. They are faster than infantry units, making them suitable for quick defensive responses. However, they are less effective in offensive roles."
+    },
+    "TEUTONIC_KNIGHT": {
+      "NAME_one": "Teutonic Knight",
+      "NAME_other": "Teutonic Knights",
+      "DESCRIPTION": "Teutonic Knights are elite cavalry units with high offensive power.",
+      "USAGE": "The Teutonic Knight is the strongest Teuton troop, boasting high attack power. However, they are the slowest cavalry unit in the game. Despite their speed, they are cost-effective and train faster than some elite units of other tribes."
+    },
+    "TEUTONIC_RAM": {
+      "NAME_one": "Teutonic Ram",
+      "NAME_other": "Teutonic Rams",
+      "DESCRIPTION": "Teutonic Rams are siege weapons used to break through enemy walls.",
+      "USAGE": "The Ram is a siege unit designed to destroy enemy walls during attacks. Including rams in your army can significantly reduce the defensive bonuses provided by enemy walls, making subsequent attacks more effective."
+    },
+    "TEUTONIC_CATAPULT": {
+      "NAME_one": "Teutonic Catapult",
+      "NAME_other": "Teutonic Catapults",
+      "DESCRIPTION": "Teutonic Catapults are designed to target and destroy enemy buildings from a distance.",
+      "USAGE": "Catapults are long-range siege units used to destroy specific buildings in enemy villages. They are essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
+    },
+    "TEUTONIC_CHIEF": {
+      "NAME_one": "Chief",
+      "NAME_other": "Chiefs",
+      "DESCRIPTION": "The Chief is a Teuton leader skilled in persuading enemy villages to join their realm.",
+      "USAGE": "The Chief is used to lower the loyalty of enemy villages, facilitating their takeover. They are equivalent to the Roman Senator and Gaul Chieftain."
+    },
+    "TEUTONIC_SETTLER": {
+      "NAME_one": "Teutonic Settler",
+      "NAME_other": "Teutonic Settlers",
+      "DESCRIPTION": "Teutonic Settlers are responsible for founding new villages to expand their territory.",
+      "USAGE": "Settlers are units tasked with founding new villages. They carry the resources necessary to establish a new settlement, allowing for territorial expansion."
+    },
+    "PHALANX": {
+      "NAME_one": "Phalanx",
+      "NAME_other": "Phalanxes",
+      "DESCRIPTION": "Phalanxes are the basic infantry units of the Gauls, known for their defensive capabilities.",
+      "USAGE": "Phalanx is the basic Gaul unit (does not require research) which should be almost exclusively used for defense. Phalanx is the cheapest of all Gaul units and though it is not very strong or fast, it is considered by many to be the best defensive unit in the game per resource unit. Unlike all other defenders, phalanx is very balanced between infantry defense and cavalry defense. The best use of the phalanx is as stationary defense and for anticipating future attacks well in advance. Because of its slow travel speed it should be complemented with Druidriders for quick reinforcements until the Phalanx has time to arrive. With the introduction of version 3.5, phalanx now has more capacity and therefore, can be used as an early infantry raider."
+    },
+    "SWORDSMAN": {
+      "NAME_one": "Swordsman",
+      "NAME_other": "Swordsmen",
+      "DESCRIPTION": "Swordsmen are offensive infantry units of the Gauls, trained for close combat.",
+      "USAGE": "The Gaul Swordsman is the Gauls core offensive unit because of its inexpensive cost, quick training times and relatively decent offensive attributes. The swordsman however falls short in its defense and speed. Swordsman should never be left in a vulnerable position without adequate defensive reinforcements because they are easily slaughtered by almost any unit in the game when on the defense."
+    },
+    "GAUL_SCOUT": {
+      "NAME_one": "Pathfinder",
+      "NAME_other": "Pathfinders",
+      "DESCRIPTION": "Pathfinders are Gaul scouts, adept at gathering intelligence on enemy positions.",
+      "USAGE": ""
+    },
+    "THEUTATES_THUNDER": {
+      "NAME_one": "Theutates Thunder",
+      "NAME_other": "Theutates Thunders",
+      "DESCRIPTION": "Theutates Thunders are very fast and powerful cavalry units. They can carry a large amount of resources which makes them excellent raiders too. When it comes to defence, their abilities are average at best.",
+      "USAGE": "The Theutates Thunder is the fastest cavalry unit in the game. With a fully upgraded Tournament Square, the Theutates Thunder can travel at 57 squares/hour allowing them to run from any location to any other location in less than 11 hours. Comparatively the Equites Imperatoris (Theutates Thunder's closest competitor) would take just under 15 hours at 42 square/hour, or about 27% longer time than the Theutates Thunder."
+    },
+    "DRUIDRIDER": {
+      "NAME_one": "Druidrider",
+      "NAME_other": "Druidriders",
+      "DESCRIPTION": "Druidriders are Gaul cavalry units with strong defensive capabilities, especially against infantry.",
+      "USAGE": "The Druidrider is the Gauls best defensive unit against infantry but only have average defense against cavalry. Because Druidriders are cavalry they are much faster than Phalanx which makes them better suited for quick reinforcements. Every Gallic player should have a large complement of these cavalry units on hand in the event they are to be assaulted by a large infantry force at an unknown location. However if the Gallic player has little reason to suspect a surprise infantry attack then it would be much more efficient to have complements of phalanx at the required locations."
+    },
+    "HAEDUAN": {
+      "NAME_one": "Haeduan",
+      "NAME_other": "Haeduans",
+      "DESCRIPTION": "Haeduans are elite Gaul cavalry units, excelling in offensive maneuvers.",
+      "USAGE": "The Haeduan is a cavalry unit and the Gauls strongest defender against cavalry and strongest attacking unit. It is fast (13 fields per hour) but expensive to maintain at 3 crop per hour."
+    },
+    "GAUL_RAM": {
+      "NAME_one": "Gaul Ram",
+      "NAME_other": "Gaul Rams",
+      "DESCRIPTION": "Gaul Rams are siege weapons used to break through enemy fortifications.",
+      "USAGE": ""
+    },
+    "GAUL_CATAPULT": {
+      "NAME_one": "Gaul Catapult",
+      "NAME_other": "Gaul Catapults",
+      "DESCRIPTION": "Gaul Catapults are designed to target and destroy enemy buildings from a distance.",
+      "USAGE": ""
+    },
+    "GAUL_CHIEF": {
+      "NAME_one": "Chieftain",
+      "NAME_other": "Chieftains",
+      "DESCRIPTION": "The Chieftain is a Gaul leader skilled in persuading enemy villages to join their realm.",
+      "USAGE": ""
+    },
+    "GAUL_SETTLER": {
+      "NAME_one": "Gaul Settler",
+      "NAME_other": "Gaul Settlers",
+      "DESCRIPTION": "Gaul Settlers are responsible for founding new villages to expand their territory.",
+      "USAGE": ""
+    },
+    "MERCENARY": {
+      "NAME_one": "Mercenary",
+      "NAME_other": "Mercenaries",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "BOWMAN": {
+      "NAME_one": "Bowman",
+      "NAME_other": "Bowmen",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "HUN_SCOUT": {
+      "NAME_one": "Spotter",
+      "NAME_other": "Spotters",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "STEPPE_RIDER": {
+      "NAME_one": "Steppe Rider",
+      "NAME_other": "Steppe Riders",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "MARKSMAN": {
+      "NAME_one": "Marksman",
+      "NAME_other": "Marksmans",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "MARAUDER": {
+      "NAME_one": "Marauder",
+      "NAME_other": "Marauders",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "HUN_RAM": {
+      "NAME_one": "Hun Ram",
+      "NAME_other": "Hun Rams",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "HUN_CATAPULT": {
+      "NAME_one": "Hun Catapult",
+      "NAME_other": "Hun Catapults",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "HUN_CHIEF": {
+      "NAME_one": "Logades",
+      "NAME_other": "Logadeses",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "HUN_SETTLER": {
+      "NAME_one": "Hun Settler",
+      "NAME_other": "Hun Settlers",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SLAVE_MILITIA": {
+      "NAME_one": "Slave Militia",
+      "NAME_other": "Slave Militia",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "ASH_WARDEN": {
+      "NAME_one": "Ash Warden",
+      "NAME_other": "Ash Wardens",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "KHOPESH_WARRIOR": {
+      "NAME_one": "Khopesh Warrior",
+      "NAME_other": "Khopesh Warriors",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "EGYPTIAN_SCOUT": {
+      "NAME_one": "Sopdu Explorer",
+      "NAME_other": "Sopdu Explorers",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "ANHUR_GUARD": {
+      "NAME_one": "Anhur Guard",
+      "NAME_other": "Anhur Guards",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "RESHEPH_CHARIOT": {
+      "NAME_one": "Resheph Chariot",
+      "NAME_other": "Resheph Chariots",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "EGYPTIAN_RAM": {
+      "NAME_one": "Egyptian Ram",
+      "NAME_other": "Egyptian Rams",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "EGYPTIAN_CATAPULT": {
+      "NAME_one": "Egyptian Catapult",
+      "NAME_other": "Egyptian Catapults",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "EGYPTIAN_CHIEF": {
+      "NAME_one": "Nomarch",
+      "NAME_other": "Nomarchs",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "EGYPTIAN_SETTLER": {
+      "NAME_one": "Egyptian Settler",
+      "NAME_other": "Egyptian Settlers",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "HOPLITE": {
+      "NAME_one": "Hoplite",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SPARTAN_SCOUT": {
+      "NAME_one": "Sentinel",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SHIELDSMAN": {
+      "NAME_one": "Shieldsman",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "TWINSTEEL_THERION": {
+      "NAME_one": "Twinsteel Therion",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "ELPIDA_RIDER": {
+      "NAME_one": "Elpida Rider",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "CORINTHIAN_CRUSHER": {
+      "NAME_one": "Corinthian Crusher",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SPARTAN_RAM": {
+      "NAME_one": "Spartan Ram",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SPARTAN_CATAPULT": {
+      "NAME_one": "Spartan Catapult",
+      "NAME_other": "",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SPARTAN_CHIEF": {
+      "NAME_one": "Ephor",
+      "NAME_other": "Ephors",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "SPARTAN_SETTLER": {
+      "NAME_one": "Spartan Settler",
+      "NAME_other": "Spartan Settlers",
+      "DESCRIPTION": "",
+      "USAGE": ""
+    },
+    "PIKEMAN": {
+      "NAME_one": "Pikeman",
+      "NAME_other": "Pikemen",
+      "DESCRIPTION": "The Pikeman is a Natarian defensive unit experienced at countering attacking cavalry. Their long and pointed pikes serve as the main line of defense in battles.",
+      "USAGE": "Pikemen are utilized by the Natars to defend their villages, especially effective against cavalry assaults. Players cannot train or command Pikemen; they are exclusively controlled by the Natars to protect their holdings, particularly during endgame scenarios."
+    },
+    "THORNED_WARRIOR": {
+      "NAME_one": "Thorned Warrior",
+      "NAME_other": "Thorned Warriors",
+      "DESCRIPTION": "Thorned Warriors are fierce Natarian infantry units known for their offensive capabilities.",
+      "USAGE": "As offensive infantry, Thorned Warriors are deployed by the Natars to launch attacks against player villages, especially targeting World Wonders during the endgame. They are not available for player training or control."
+    },
+    "GUARDSMAN": {
+      "NAME_one": "Guardsman",
+      "NAME_other": "Guardsmen",
+      "DESCRIPTION": "Guardsmen are stalwart defenders within the Natarian army, specializing in protecting their villages from enemy attacks.",
+      "USAGE": "Serving as the primary defensive infantry, Guardsmen are stationed in Natarian villages to repel invasions. They are controlled solely by the Natars and are not accessible to players."
+    },
+    "NATARIAN_SCOUT": {
+      "NAME_one": "Bird Of Prey",
+      "NAME_other": "Birds Of Prey",
+      "DESCRIPTION": "Birds Of Prey are swift Natarian cavalry units adept at rapid assaults and reconnaissance.",
+      "USAGE": "These units are employed by the Natars for quick strikes and scouting missions. Their speed makes them formidable in surprise attacks. Players do not have the ability to train or utilize Birds Of Prey."
+    },
+    "AXERIDER": {
+      "NAME_one": "Axerider",
+      "NAME_other": "Axeriders",
+      "DESCRIPTION": "Axeriders are elite Natarian cavalry known for their high offensive power and combat prowess.",
+      "USAGE": "Axeriders are deployed by the Natars in offensive operations, particularly during assaults on player-held World Wonders. They are not available for player recruitment or command."
+    },
+    "NATARIAN_KNIGHT": {
+      "NAME_one": "Natarian Knight",
+      "NAME_other": "Natarian Knights",
+      "DESCRIPTION": "Natarian Knights are heavily armored cavalry units that play a crucial role in Natarian military strategy.",
+      "USAGE": "These knights are utilized by the Natars to defend their villages and participate in large-scale attacks, especially during endgame events. Players cannot train Natarian Knights; they remain exclusive to Natar forces."
+    },
+    "NATARIAN_RAM": {
+      "NAME_one": "Natarian Ram",
+      "NAME_other": "Natarian Rams",
+      "DESCRIPTION": "Natarian Rams are siege units designed to break through enemy fortifications, clearing the way for infantry and cavalry.",
+      "USAGE": "The Natars deploy these rams during attacks on player villages, particularly targeting walls to weaken defenses. Players do not have access to Natarian Rams for their own use."
+    },
+    "NATARIAN_CATAPULT": {
+      "NAME_one": "Natarian Catapult",
+      "NAME_other": "Natarian Catapults",
+      "DESCRIPTION": "Natarian Catapults are powerful siege engines capable of destroying enemy buildings from a distance.",
+      "USAGE": "In offensive operations, the Natars use these catapults to target and demolish key structures in player villages, such as Treasuries holding artifacts. They are not available for player training."
+    },
+    "NATARIAN_CHIEF": {
+      "NAME_one": "Natarian Emperor",
+      "NAME_other": "Natarian Emperors",
+      "DESCRIPTION": "The Natarian Emperor is the leader of the Natar tribe, embodying their authority and command.",
+      "USAGE": "While not a combat unit, the Natarian Emperor represents the central figure in Natarian lore and strategy. Players do not interact directly with the Emperor unit in gameplay."
+    },
+    "NATARIAN_SETTLER": {
+      "NAME_one": "Natarian Settler",
+      "NAME_other": "Natarian Settlers",
+      "DESCRIPTION": "Natarian Settlers are responsible for establishing new Natarian villages, expanding their realm.",
+      "USAGE": "These units are used by the Natars to colonize new areas on the map. Players cannot train or utilize Natarian Settlers."
+    },
+    "RAT": {
+      "NAME_one": "Rat",
+      "NAME_other": "Rats",
+      "DESCRIPTION": "Rats are small creatures found in unoccupied oases. They have minimal offensive and defensive capabilities.",
+      "USAGE": "In Travian, Rats serve as the weakest form of natural defense in unoccupied oases. Players can capture them using cages to bolster their village's defenses. Due to their low strength, they are primarily used in large numbers or as an early-game defensive measure."
+    },
+    "SPIDER": {
+      "NAME_one": "Spider",
+      "NAME_other": "Spiders",
+      "DESCRIPTION": "Spiders are arachnids inhabiting unoccupied oases. They possess moderate defensive capabilities against both infantry and cavalry.",
+      "USAGE": "Spiders act as natural defenders in oases. Players can capture them to enhance their village's defense. Their balanced defensive stats make them versatile against various attack types."
+    },
+    "SERPENT": {
+      "NAME_one": "Serpent",
+      "NAME_other": "Serpents",
+      "DESCRIPTION": "Serpents are slithering reptiles found in unoccupied oases. They offer balanced defensive strength against both infantry and cavalry units.",
+      "USAGE": "Serpents serve as natural guardians of oases. When captured, they provide a balanced defense for villages, making them useful against a variety of threats."
+    },
+    "BAT": {
+      "NAME_one": "Bat",
+      "NAME_other": "Bats",
+      "DESCRIPTION": "Bats are nocturnal creatures residing in unoccupied oases. They have moderate defensive capabilities, with a slight advantage against infantry.",
+      "USAGE": "Bats function as natural defenders in oases. Players can capture them to improve their village's defense, especially against infantry units."
+    },
+    "WILD_BOAR": {
+      "NAME_one": "Wild Boar",
+      "NAME_other": "Wild Boars",
+      "DESCRIPTION": "Wild Boars are aggressive animals found in unoccupied oases. They provide moderate defense, particularly effective against infantry.",
+      "USAGE": "Wild Boars act as natural protectors of oases. Capturing them can bolster a village's defense, especially against infantry assaults."
+    },
+    "WOLF": {
+      "NAME_one": "Wolf",
+      "NAME_other": "Wolves",
+      "DESCRIPTION": "Wolves are predatory animals inhabiting unoccupied oases. They offer balanced defensive strength, effective against both infantry and cavalry.",
+      "USAGE": "Wolves serve as natural defenders in oases. When captured, they provide balanced defensive support for villages, making them versatile against various threats."
+    },
+    "BEAR": {
+      "NAME_one": "Bear",
+      "NAME_other": "Bears",
+      "DESCRIPTION": "Bears are formidable creatures found in unoccupied oases. They possess strong defensive capabilities against both infantry and cavalry units.",
+      "USAGE": "Bears act as powerful natural defenders in oases. Players can capture them to significantly enhance their village's defense due to their high defensive stats."
+    },
+    "CROCODILE": {
+      "NAME_one": "Crocodile",
+      "NAME_other": "Crocodiles",
+      "DESCRIPTION": "Crocodiles are powerful predators inhabiting certain oases. They offer high defense, particularly against infantry units.",
+      "USAGE": "Crocodiles serve as strong natural defenders in oases. Capturing them can greatly bolster a village's defense, especially against infantry attacks."
+    },
+    "TIGER": {
+      "NAME_one": "Tiger",
+      "NAME_other": "Tigers",
+      "DESCRIPTION": "Tigers are swift and deadly animals residing in some oases. They provide balanced defensive strength against both infantry and cavalry.",
+      "USAGE": "Tigers function as formidable natural defenders in oases. When captured, they offer balanced defensive support for villages, making them effective against various attack types."
+    },
+    "ELEPHANT": {
+      "NAME_one": "Elephant",
+      "NAME_other": "Elephants",
+      "DESCRIPTION": "Elephants are rare and immensely strong creatures found in specific oases. They offer exceptional defense, equivalent to that of 10 to 11 Phalanx units, making them highly sought after for village defense.",
+      "USAGE": "Elephants are the most powerful natural defenders in oases. Capturing them significantly enhances a village's defense due to their extremely high defensive stats. They are rare and highly valued by players seeking robust defense."
+    }
+  },
+  "BUILDINGS": {
+    "BAKERY": {
+      "NAME": "Bakery",
+      "NAME_other": "",
+      "DESCRIPTION": "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
+    },
+    "BRICKYARD": {
+      "NAME": "Brickyard",
+      "DESCRIPTION": "The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent."
+    },
+    "CLAY_PIT": {
+      "NAME": "Clay pit",
+      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
+    },
+    "WHEAT_FIELD": {
+      "NAME": "Wheat field",
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat field can be extended to level 20. Wheat production can additionally be increased by occupying wheat oasis."
+    },
+    "GRAIN_MILL": {
+      "NAME": "Grain mill",
+      "DESCRIPTION": "The grain mill grinds grain into flour. Based on its level, your grain mill can increase your crop production by up to 25 percent."
+    },
+    "GRANARY": {
+      "NAME": "Granary",
+      "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
+    },
+    "IRON_FOUNDRY": {
+      "NAME": "Iron foundry",
+      "DESCRIPTION": "The iron foundry melts iron. Based on its level, your iron foundry can increase your iron production by up to 25 percent."
+    },
+    "IRON_MINE": {
+      "NAME": "Iron mine",
+      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron mine can be extended to level 20. Iron production can additionally be increased by occupying mountain oasis."
+    },
+    "SAWMILL": {
+      "NAME": "Sawmill",
+      "DESCRIPTION": "Lumber cut by your woodcutters is processed here. Based on its level, your sawmill can increase your lumber production by up to 25 percent."
+    },
+    "WAREHOUSE": {
+      "NAME": "Warehouse",
+      "DESCRIPTION": "Wood, clay and iron are stored in your warehouse. By increasing its level you increase your warehouse's capacity. After upgrading one warehouse to level 20, additional warehouses can be built."
+    },
+    "WATERWORKS": {
+      "NAME": "Waterworks",
+      "DESCRIPTION": "The Waterworks allows you to regulate the water flow to your oases. This not only helps to grow trees and crops, but it is also useful for quarries and mines as it supplies workers with water and resource transportation.\n\nThis building increases the bonus of all annexed oases. Its maximum effect at level 20 doubles the effect of oases.\n\nThe Waterworks can only be built by Egyptians."
+    },
+    "WOODCUTTER": {
+      "NAME": "Woodcutter",
+      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Woodcutter can be extended to level 20. Wood production can additionally be increased by occupying forrest oasis."
+    },
+    "ACADEMY": {
+      "NAME": "Academy",
+      "DESCRIPTION": "New unit types can be researched and existing units can be improved in the academy. By increasing its level, you can order the research of better units."
+    },
+    "BARRACKS": {
+      "NAME": "Barracks",
+      "DESCRIPTION": "Infantry can be trained in the barracks. The higher its level, the faster the troops are trained."
+    },
+    "CITY_WALL": {
+      "NAME": "City wall",
+      "DESCRIPTION": "By building a city wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe city wall can only be built by Romans.\n\nThe city wall offers the biggest defence bonus, but it is easier to destroy than the Gaulish palisade or the Teutonic earth wall."
+    },
+    "EARTH_WALL": {
+      "NAME": "Earth wall",
+      "DESCRIPTION": "By building an earth wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe earth wall can only be built by Teutons.\n\nThe earth wall offers the lowest defence bonus but it is almost impossible to destroy it."
+    },
+    "GREAT_BARRACKS": {
+      "NAME": "Great barracks",
+      "DESCRIPTION": "The great barracks allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
+    },
+    "GREAT_STABLE": {
+      "NAME": "Great stable",
+      "DESCRIPTION": "The great stable allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
+    },
+    "HEROS_MANSION": {
+      "NAME": "Hero's mansion",
+      "DESCRIPTION": "The hero's mansion is the home of your glorious hero.\n\nAt building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource (or even two resources, from some oases)."
+    },
+    "HOSPITAL": {
+      "NAME": "Hospital",
+      "DESCRIPTION": "The hospital allows you to treat wounded troops after combat. These can be healed and made ready for war again. Together with regular training in barracks and stable your army can recover faster than ever."
+    },
+    "MAKESHIFT_WALL": {
+      "NAME": "Makeshift wall",
+      "DESCRIPTION": "By building a Makeshift Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Makeshift Wall can only be built by Huns, its defense bonus is lower than the Teutonic Earth Wall and its durability is comparable with the Roman City Wall."
+    },
+    "PALISADE": {
+      "NAME": "Palisade",
+      "DESCRIPTION": "By building a palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic earth wall and the Roman city wall."
+    },
+    "RALLY_POINT": {
+      "NAME": "Rally point",
+      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages.\n\nThe rally point can only be built on the green grassland below and to the right of your main building.\n\nIf there are less attacking units than the level of the rally point, you can see the type of unit attacking."
+    },
+    "STABLE": {
+      "NAME": "Stable",
+      "DESCRIPTION": "Cavalry can be trained in the stable. The higher its level, the faster the troops are trained.\n"
+    },
+    "STONE_WALL": {
+      "NAME": "Stone wall",
+      "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."
+    },
+    "TRAPPER": {
+      "NAME": "Trapper",
+      "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more.\n\nTroops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically.\n\nThe trapper can only be constructed by Gauls."
+    },
+    "WORKSHOP": {
+      "NAME": "Workshop",
+      "DESCRIPTION": "Siege engines, like catapults and rams, can be built in the workshop. The higher its level, the faster these units are produced."
+    },
+    "BREWERY": {
+      "NAME": "Brewery",
+      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations.\n\nThese drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits.\n\nIt can only be built by Teutons and only in their capital. It affects the whole empire."
+    },
+    "COMMAND_CENTER": {
+      "NAME": "Command center",
+      "DESCRIPTION": "The Command Center protects the village against enemy conquests. You can build one Command Center per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the command center provides an expansion slot at levels 10, 15 and 20 each.\n\nThe Command Center can only be built by the Huns."
+    },
+    "CRANNY": {
+      "NAME": "Cranny",
+      "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen.\n\nAt level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger.\n\nIf a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
+    },
+    "HORSE_DRINKING_TROUGH": {
+      "NAME": "Horse drinking trough",
+      "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training.\n\nThe horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20.\n\nThe horse drinking trough can only be built by Romans."
+    },
+    "MAIN_BUILDING": {
+      "NAME": "Main building",
+      "DESCRIPTION": "The village's master builders live in the main building. The higher its level the faster your master builders complete the construction of new buildings.\n"
+    },
+    "MARKETPLACE": {
+      "NAME": "Marketplace",
+      "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time.\n"
+    },
+    "RESIDENCE": {
+      "NAME": "Residence",
+      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the residence provides an expansion slot at levels 10 and 20 each."
+    },
+    "TREASURY": {
+      "NAME": "Treasury",
+      "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time.\n\nYou need a treasury at level 10 for a small artefact, or level 20 for a great one."
+    },
+    "TOURNAMENT_SQUARE": {
+      "NAME": "Tournament square",
+      "DESCRIPTION": "Your troops can increase their stamina at the Tournament Square. The further the building is upgraded, the faster your troops are beyond a minimum distance of 20 squares."
+    },
+    "TRADE_OFFICE": {
+      "NAME": "Trade office",
+      "DESCRIPTION": "In the trade office, the merchants' carts get improved and equipped with more powerful horses. The higher its level, the more your merchants are able to carry."
+    },
+    "SMITHY": {
+      "NAME": "Smithy",
+      "DESCRIPTION": "The weapons and armor of your warriors are enhanced in the smithy's melting furnaces. By increasing its level, you can order the fabrication of even better weapons and armor."
+    }
+  },
+  "ITEMS": {
+    "UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
+      "TITLE": "Weathered artifact of speed",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
+      "TITLE": "Weathered artifact of carrying",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
+      "TITLE": "Weathered artifact of training",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
+      "TITLE": "Weathered artifact of hunger",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
+      "TITLE": "Weathered artifact of building",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
+      "TITLE": "Weathered artifact of oasis",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
+      "TITLE": "Weathered artifact of resources",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
+      "TITLE": "Honed artifact of speed",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
+      "TITLE": "Honed artifact of carrying",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
+      "TITLE": "Honed artifact of training",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
+      "TITLE": "Honed artifact of hunger",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
+      "TITLE": "Honed artifact of building",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
+      "TITLE": "Honed artifact of oasis",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
+      "TITLE": "Honed artifact of resources",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
+      "TITLE": "Natarian artifact of speed",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
+      "TITLE": "Natarian artifact of carrying",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
+      "TITLE": "Natarian artifact of training",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
+      "TITLE": "Natarian artifact of hunger",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
+      "TITLE": "Natarian artifact of building",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
+      "TITLE": "Natarian artifact of oasis",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
+      "TITLE": "Natarian artifact of resources",
+      "DESCRIPTION": ""
+    },
+    "EPIC_ARTIFACT_CIVIL_ENABLE_GREAT_BUILDINGS": {
+      "TITLE": "Natarian artifact of storage",
+      "DESCRIPTION": ""
+    },
+    "SILVER": {
+      "TITLE": "Silver",
+      "DESCRIPTION": ""
+    },
+    "HEALING_POTION": {
+      "TITLE": "Healing potion",
+      "DESCRIPTION": ""
+    },
+    "BOOK_OF_WISDOM": {
+      "TITLE": "Book of Wisdom",
+      "DESCRIPTION": ""
+    },
+    "ANIMAL_CAGE": {
+      "TITLE": "Animal cage",
+      "DESCRIPTION": ""
+    },
+    "REVIVAL_POTION": {
+      "TITLE": "Revival potion",
+      "DESCRIPTION": ""
+    }
+  },
+  "QUESTS": {
+    "ADVENTURE-COUNT": {
+      "TITLE_one": "{{count}} adventure",
+      "TITLE_other": "{{count}} adventures",
+      "DESCRIPTION_one": "Send your hero on {{count}} adventure.",
+      "DESCRIPTION_other": "Send your hero on {{count}} adventures.",
+      "GROUP": "Adventures"
+    },
+    "TROOP-COUNT": {
+      "TITLE": "{{amount}} units",
+      "DESCRIPTION": "Train additional units until you have at least {{amount}} units.",
+      "GROUP": "Train units"
+    },
+    "ONE-OF": {
+      "TITLE": "{{buildingName}} to level {{level}}",
+      "DESCRIPTION": "Upgrade the {{buildingName}} to level {{level}}",
+      "GROUP": "{{buildingName}}"
+    },
+    "EVERY": {
+      "TITLE": "All {{buildingName}}s level {{level}}",
+      "DESCRIPTION": "Upgrade all {{buildingName}}s to level {{level}}.",
+      "GROUP": "All {{buildingName}}s"
+    }
+  },
+  "TRIBES": {
+    "ROMANS": "Romans",
+    "TEUTONS": "Teutons",
+    "GAULS": "Gauls",
+    "HUNS": "Huns",
+    "EGYPTIANS": "Egyptians",
+    "SPARTANS": "Spartans",
+    "NATARS": "Natars",
+    "NATURE": "Nature"
+  },
+  "REPUTATIONS": {
+    "ECSTATIC": "Ecstatic",
+    "RESPECTED": "Respected",
+    "FRIENDLY": "Friendly",
+    "NEUTRAL": "Neutral",
+    "UNFRIENDLY": "Unfriendly",
+    "HOSTILE": "Hostile"
+  },
+  "FACTIONS": {
+    "NPC1": "NPC faction 1",
+    "NPC2": "NPC faction 2",
+    "NPC3": "NPC faction 3",
+    "NPC4": "NPC faction 4",
+    "NPC5": "NPC faction 5",
+    "NPC6": "NPC faction 6",
+    "NPC7": "NPC faction 7",
+    "NPC8": "NPC faction 8"
+  },
+  "RESOURCES": {
+    "WOOD": "Wood",
+    "CLAY": "Clay",
+    "IRON": "Iron",
+    "WHEAT": "Wheat"
+  }
+}

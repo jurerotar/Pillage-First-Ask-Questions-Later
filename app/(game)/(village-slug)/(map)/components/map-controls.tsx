@@ -49,13 +49,8 @@ export const MapControls = () => {
   return (
     <>
       <Tooltip id="map-controls-tooltip" />
-      <div className="pointer-events-none fixed top-29 standalone:top-41 lg:top-[unset] lg:bottom-8 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
-        <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2 order-2 lg:order-1">
-          <MagnificationButton direction="increase" />
-          <Divider orientation="horizontal" />
-          <MagnificationButton direction="decrease" />
-        </div>
-        <div className="pointer-events-auto flex gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2 order-1 lg:order-2">
+      <div className="pointer-events-none fixed top-29 standalone:top-41 lg:top-23 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
+        <div className="pointer-events-auto flex gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2">
           <span
             data-tooltip-id="map-controls-tooltip"
             data-tooltip-content={t('Toggle faction reputation display')}
@@ -63,7 +58,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-faction-reputation-button"
               className={clsx(shouldShowFactionReputation && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowFactionReputation')}
+              onClick={() => toggleMapFilter({ shouldShowFactionReputation: !shouldShowFactionReputation })}
               type="button"
               aria-label={t('Toggle faction reputation display')}
             >
@@ -78,7 +73,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-oasis-button"
               className={clsx(shouldShowOasisIcons && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowOasisIcons')}
+              onClick={() => toggleMapFilter({ shouldShowOasisIcons: !shouldShowOasisIcons })}
               type="button"
               aria-label={t('Toggle oasis resource icons display')}
             >
@@ -93,7 +88,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-treasures-button"
               className={clsx(shouldShowTreasureIcons && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowTreasureIcons')}
+              onClick={() => toggleMapFilter({ shouldShowTreasureIcons: !shouldShowTreasureIcons })}
               type="button"
               aria-label={t('Toggle treasure villages icons display')}
             >
@@ -108,7 +103,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-troop-movements-button"
               className={clsx(shouldShowTroopMovements && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowTroopMovements')}
+              onClick={() => toggleMapFilter({ shouldShowTroopMovements: !shouldShowTroopMovements })}
               type="button"
               aria-label={t('Toggle troop movements display')}
             >
@@ -123,7 +118,7 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-wheat-fields-button"
               className={clsx(shouldShowWheatFields && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowWheatFields')}
+              onClick={() => toggleMapFilter({ shouldShowWheatFields: !shouldShowWheatFields })}
               type="button"
               aria-label={t('Toggle wheat field icons display')}
             >
@@ -139,13 +134,18 @@ export const MapControls = () => {
             <button
               data-testid="map-controls-toggle-tile-tooltips-button"
               className={clsx(shouldShowTileTooltips && 'bg-green-200', 'rounded-md p-1')}
-              onClick={() => toggleMapFilter('shouldShowTileTooltips')}
+              onClick={() => toggleMapFilter({ shouldShowTileTooltips: !shouldShowTileTooltips })}
               type="button"
               aria-label={t('Toggle tooltip popups')}
             >
               <Icon type="mapTileTooltipToggle" />
             </button>
           </span>
+        </div>
+        <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2">
+          <MagnificationButton direction="increase" />
+          <Divider orientation="horizontal" />
+          <MagnificationButton direction="decrease" />
         </div>
       </div>
     </>

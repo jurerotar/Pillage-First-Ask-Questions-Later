@@ -2,29 +2,46 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import type React from 'react';
+import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { useTranslation } from 'react-i18next';
 import { LuConstruction } from 'react-icons/lu';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { Tooltip } from 'react-tooltip';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
+import { type PlacesType, Tooltip } from 'react-tooltip';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { MdCancel } from 'react-icons/md';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 const iconClassName = 'text-2xl lg:text-3xl bg-white text-gray-400 p-2 box-content border border-gray-200 rounded-xs';
 
 type ConstructionQueueBuildingProps = {
-  buildingEvent: GameEvent<'buildingLevelChange'>;
+  buildingEvent: GameEvent<'buildingConstruction'>;
+  tooltipPosition: PlacesType;
 };
 
-const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingProps> = ({ buildingEvent }) => {
+const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingProps> = ({ buildingEvent, tooltipPosition }) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
-  const { cancelBuildingEvent } = useEvents();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
+  const { fetcher } = use(ApiContext);
+  const queryClient = useQueryClient();
+
+  const { mutate: cancelConstruction } = useMutation<void, Error, { eventId: GameEvent['id'] }>({
+    mutationFn: async ({ eventId }) => {
+      await fetcher(`/events/${eventId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
+    },
+  });
 
   const tooltipId = `tooltip-${buildingEvent.buildingId}-${buildingEvent.level}`;
 
@@ -46,35 +63,41 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
         clickable
         className="!z-20 !rounded-xs !px-2 !py-1 !bg-white !w-fit !text-black border border-gray-200"
         classNameArrow="border-r border-b border-gray-200"
-        place="top-start"
+        place={tooltipPosition}
+        {...(isWiderThanMd && {
+          isOpen: true,
+        })}
         {...(!isWiderThanMd && {
           openOnClick: true,
+          place: 'top-start',
         })}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex border-b-1 border-gray-200 pb-1 text-base">
+          <div className="flex md:hidden border-b-1 border-gray-200 pb-1 text-sm">
             <b>{t('Under construction')}</b>
           </div>
           <div className="flex gap-2">
             <div className="flex items-center">
-              <LuConstruction className="text-2xl lg:text-3xl text-gray-400 box-content" />
+              <LuConstruction className="text-xl lg:text-2xl text-gray-400 box-content" />
             </div>
             <div className="flex flex-col px-2 border-x border-gray-200">
               <span className="inline-flex gap-1 whitespace-nowrap">
                 <b>{assetsT(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
-                <span className="inline-flex items-center">
+                <span className="inline-flex items-center text-sm">
                   ({buildingEvent.level - 1} <IoIosArrowRoundForward /> {buildingEvent.level})
                 </span>
               </span>
-              <Countdown endsAt={buildingEvent.startsAt + buildingEvent.duration} />
+              <span className="text-sm">
+                <Countdown endsAt={buildingEvent.startsAt + buildingEvent.duration} />
+              </span>
             </div>
             <div className="flex items-center">
               <button
                 aria-label={t('Cancel building construction')}
-                onClick={() => cancelBuildingEvent(buildingEvent.id)}
+                onClick={() => cancelConstruction({ eventId: buildingEvent.id })}
                 type="button"
               >
-                <MdCancel className="text-2xl lg:text-3xl text-red-400 box-content" />
+                <MdCancel className="text-xl lg:text-2xl text-red-400 box-content" />
               </button>
             </div>
           </div>
@@ -109,21 +132,36 @@ export const ConstructionQueue = () => {
   }
 
   return (
-    <ul className="fixed left-0 bottom-26 lg:left-1/2 lg:-translate-x-1/2 lg:bottom-0 flex gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-l-none lg:rounded-l-xs rounded-xs">
+    <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-l-none rounded-xs">
       {tribe !== 'romans' && (
         <li>
-          {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
+          {villageEventQueue.length > 0 && (
+            <ConstructionQueueBuilding
+              tooltipPosition="right-start"
+              buildingEvent={villageEventQueue[0]}
+            />
+          )}
           {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
         </li>
       )}
       {tribe === 'romans' && (
         <>
           <li>
-            {resourcesEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={resourcesEventQueue[0]} />}
+            {resourcesEventQueue.length > 0 && (
+              <ConstructionQueueBuilding
+                tooltipPosition="right-end"
+                buildingEvent={resourcesEventQueue[0]}
+              />
+            )}
             {resourcesEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
           </li>
           <li>
-            {villageEventQueue.length > 0 && <ConstructionQueueBuilding buildingEvent={villageEventQueue[0]} />}
+            {villageEventQueue.length > 0 && (
+              <ConstructionQueueBuilding
+                tooltipPosition="right-start"
+                buildingEvent={villageEventQueue[0]}
+              />
+            )}
             {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
           </li>
         </>
