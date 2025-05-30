@@ -210,29 +210,24 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
   );
 };
 
-const TileTooltipSkeleton = () => {
+type TileTooltipSkeletonProps = {
+  count: number;
+};
+
+const TileTooltipSkeleton: React.FC<TileTooltipSkeletonProps> = ({ count }) => {
   return (
     <div className="flex flex-col gap-1">
       <Skeleton
         variant="dark"
-        className="w-20 h-2"
+        className="w-25 h-2.5 rounded-xs"
       />
-      <Skeleton
-        variant="dark"
-        className="w-15 h-2"
-      />
-      <Skeleton
-        variant="dark"
-        className="w-15 h-2"
-      />
-      <Skeleton
-        variant="dark"
-        className="w-15 h-2"
-      />
-      <Skeleton
-        variant="dark"
-        className="w-15 h-2"
-      />
+      {[...Array(count).keys()].map((el) => (
+        <Skeleton
+          key={el}
+          variant="dark"
+          className="w-20 h-2.5 rounded-xs"
+        />
+      ))}
     </div>
   );
 };
@@ -241,7 +236,7 @@ export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
   if (isOasisTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
-        <Suspense fallback={<TileTooltipSkeleton />}>
+        <Suspense fallback={<TileTooltipSkeleton count={3} />}>
           <OasisTileTooltip tile={tile} />
         </Suspense>
       </div>
@@ -251,7 +246,7 @@ export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
   if (isOccupiedOccupiableTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
-        <Suspense fallback={<TileTooltipSkeleton />}>
+        <Suspense fallback={<TileTooltipSkeleton count={7} />}>
           <OccupiedOccupiableTileTooltip tile={tile} />
         </Suspense>
       </div>
@@ -260,9 +255,7 @@ export const TileTooltip: React.FC<TileTooltipProps> = ({ tile }) => {
 
   return (
     <div className="flex flex-col gap-1">
-      <Suspense fallback={<TileTooltipSkeleton />}>
-        <OccupiableTileTooltip tile={tile as OccupiableTile} />
-      </Suspense>
+      <OccupiableTileTooltip tile={tile as OccupiableTile} />
     </div>
   );
 };
