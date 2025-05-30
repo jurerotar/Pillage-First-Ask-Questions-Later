@@ -10,6 +10,6 @@ NPM_FLAGS = "--experimental-strip-types"
 [context.master]
 environment = { BRANCH_ENV = "master" }
 
-[context.branch-deploy.environment]
+[context.branch-deploy]
 command = "npm run build:dev"
 environment = { BRANCH_ENV = "develop" }
