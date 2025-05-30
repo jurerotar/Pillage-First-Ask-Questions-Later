@@ -3,18 +3,6 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 
 let instance: Faro | null = null;
 
-export const faro: Faro = new Proxy({} as Faro, {
-  get: (_target, prop: keyof Faro) => {
-    const value = instance?.[prop];
-
-    if (typeof value === 'function') {
-      return (...args: Parameters<typeof value>) => (value as (...args: unknown[]) => unknown).apply(instance, args);
-    }
-
-    return value;
-  },
-});
-
 export const initFaro = async () => {
   if (typeof window === 'undefined' || import.meta.env.MODE === 'development' || instance) {
     return;

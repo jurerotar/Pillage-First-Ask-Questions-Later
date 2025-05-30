@@ -78,15 +78,14 @@ type EmptyBuildingFieldProps = {
 };
 
 const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
+  const { villagePath } = useGameNavigation();
+
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
 
   return (
     <Link
-      to={`${buildingFieldId}`}
-      className={clsx(
-        styles,
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
-      )}
+      to={`${villagePath}/${buildingFieldId}`}
+      className={clsx(styles, 'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16')}
       data-building-field-id={buildingFieldId}
     >
       {buildingFieldId}

@@ -38,7 +38,6 @@
     "@tailwindcss/vite": "4.1.7",
     "@tanstack/react-query": "5.76.1",
     "@tanstack/react-query-devtools": "5.76.1",
-    "@tanstack/react-query-persist-client": "5.76.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
@@ -46,6 +45,7 @@
     "i18next": "25.2.0",
     "isbot": "5.1.28",
     "moderndash": "4.0.0",
+    "path-to-regexp": "8.2.0",
     "radix-ui": "1.4.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -87,6 +87,7 @@
     "tailwindcss": "4.1.7",
     "typescript": "5.8.3",
     "vite": "6.3.5",
+    "vite-plugin-devtools-json": "^0.1.0",
     "vite-plugin-pwa": "1.0.0",
     "vitest": "3.1.4"
   },

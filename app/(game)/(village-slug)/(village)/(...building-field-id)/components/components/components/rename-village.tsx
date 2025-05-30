@@ -8,9 +8,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
-import { useQueryClient } from '@tanstack/react-query';
-import type { PlayerVillage } from 'app/interfaces/models/game/village';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 
 const formSchema = z.object({
   name: z
@@ -20,8 +22,10 @@ const formSchema = z.object({
 });
 
 export const RenameVillage = () => {
+  const { fetcher } = use(ApiContext);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { currentPlayer } = usePlayers();
   const { currentVillage } = useCurrentVillage();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -31,19 +35,22 @@ export const RenameVillage = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    queryClient.setQueryData<PlayerVillage[]>([playerVillagesCacheKey], (playerVillages) => {
-      return playerVillages!.map((village) => {
-        if (village.id === currentVillage.id) {
-          return {
-            ...village,
-            name: values.name,
-          };
-        }
-
-        return village;
+  const { mutate: renameVillage } = useMutation<void, Error, z.infer<typeof formSchema>>({
+    mutationFn: async ({ name }) => {
+      await fetcher(`/players/${currentPlayer.id}/villages/${currentVillage.id}/rename`, {
+        method: 'PATCH',
+        body: {
+          name,
+        },
       });
-    });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    renameVillage(values);
   };
 
   return (

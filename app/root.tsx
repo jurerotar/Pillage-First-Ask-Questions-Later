@@ -55,6 +55,10 @@ const Root = () => {
             href="/manifest.webmanifest"
           />
         )}
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1"

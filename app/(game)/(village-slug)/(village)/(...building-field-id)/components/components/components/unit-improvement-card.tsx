@@ -20,7 +20,7 @@ type UnitImprovementCardProps = {
 export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { isDeveloperModeEnabled } = useDeveloperMode();
   const { unitImprovements, upgradeUnitTier } = useUnitImprovement();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { currentVillage } = useCurrentVillage();
@@ -34,7 +34,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
   const upgradeCost = calculateUnitUpgradeCostForLevel(unitId, upgradeLevel);
 
   const hasEnoughResourcesToUpgrade = (() => {
-    if (isDeveloperModeActive) {
+    if (isDeveloperModeEnabled) {
       return true;
     }
 

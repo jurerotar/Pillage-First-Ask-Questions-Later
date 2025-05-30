@@ -1,4 +1,4 @@
-# Architecture Documentation for Pillage First, Ask Questions Later
+# Architecture Documentation for `Pillage First, Ask Questions Later`
 
 ## 1. Introduction
 
@@ -12,10 +12,11 @@ Questions Later** game. It covers some implementation details, notes important f
 - **Frontend:** [React](https://react.dev) + [TypeScript](https://www.typescriptlang.org/)
 - **State Management:** [React Query](https://tanstack.com/query/latest)
 - **UI Framework:** [Tailwind CSS](https://tailwindcss.com)
-- **Routing:** [React Router](https://reactrouter.com)
+- **Routing:** [React Router v7 - framework mode](https://reactrouter.com)
 - **Build System:** [Vite](https://vitejs.dev)
 - **Format and lint:** [Biome.js](https://biomejs.dev)
-- **Localization:** [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com)
+- **Localization:
+  ** [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) + [i18next-parser](https://github.com/i18next/i18next-parser)
 - **Unit testing:** [Vitest](https://vitest.dev)
 - **Deployment:** Netlify ([Master Deploy](https://pillagefirst.netlify.app) | [Dev Deploy](https://develop--pillagefirst.netlify.app))
 - **Version Control:** GitHub ([Repository](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later))
@@ -40,17 +41,21 @@ hooks, providers,... and tests.
 │   ├── (game)              # Game-specific routes and assets
 │   │   ├── (xxx)           # Game routes (/resources, /map,...)
 │   │   ├── providers       # Game engine, game-state,... providers
+│   │   ├── api             # local-api
 │   │   ├── assets          # Buildings, units, items... data
 │   │   ├── layout.ts       # Game-only layout
+│   │   ├── ...
 │   ├── (public)            # Public pages (/, /create-new-server)
 │   │   ├── workers         # Server creation workers
 │   │   ├── layout.ts       # Public-pages only layout
+│   │   ├── ...
 │   ├── interfaces          # TypeScript interfaces and types
+│   ├── localization        # Localization files
 │   ├── tests               # Unit test environments and mocks
 │   ├── root.tsx            # Root entry point for the application
 │   ├── routes.ts           # Application route definitions
+│   ├── ...
 ├── docs                    # Project documentation
-├── locales                 # Localization files
 ├── public                  # Static files served by the app (e.g., index.html)
 ├── scripts                 # Custom scripts for development and build automation
 ```
@@ -59,39 +64,79 @@ hooks, providers,... and tests.
 
 ## 4. Game lifecycle
 
-On opening a game url (`/game/s-{server-slug}/v-{village-slug}`), a `GameStateProvider` provider gets mounted. This provider is responsible
-for providing game state (map, hero data, units,...) to consumers as well as handle saving said state through
-`@tanstack/react-query-persist-client` module.
-Data is being persisted to browser's origin private file system and never leaves user's machine. Data is persisted on every state change
-through `sync-worker.ts`.
+The app consists of 3 separate logic layers:
 
-Next, `GameEngineProvider` is mounted. This provider has a singular task of executing events at specific times. Whenever a user executes an
-action,
-an `event` object is created. This `event` object contains action details, along with `startsAt` and `duration` properties.
-`GameEngineProvider`'s
-responsibility is to maintain a sorted list of these events, keep a running timer for the earliest event and run a custom `resolver`
-function when event
-is expected to resolve. Each `resolver` function is tied to specific event type. Resolvers have access to game state and thus may trigger
-new events or
-delete existing ones.
+- Frontend
+- API worker
+- In-memory database
 
-To maintain an illusion of app running even while user is not using it actively, `GameEngineProvider` executes all expired events on
-application start.
-Example of this: user starts a building process that takes an hour. User closes the app and comes back after 2 hours. On app load,
-`GameEngineProvider` will loop through
-the list of events and sequentially execute each one that should have already been resolved. Since 2 hours have passed, building will get
-upgraded.
+### Frontend
+
+Frontend is built with React and TypeScript. Components are built with ShadCN. It handles fetching data, showing loading states and
+displaying data once it's ready.
+It's completely headless and requires a RESTful API to work.
+
+### API worker
+
+Frontend receives data and sends actions through an `adapter`. `adapter` is a React context, which exposes a `fetcher` function. `fetcher`
+function is how frontend communicates to the backend of your choice.
+
+In the offline version of the app, there is no server. Everything happens exclusively on your device. Due to there being no backend, but
+frontend still expecting a RESTful-like API, we implement a new solution.
+
+When a user opens a game world, the app initializes an `api-worker`. The purpose of this
+worker is to act as an RESTful API. It exposes required REST API endpoints, queries and writes to the database, posts responses through
+message
+ports, acts as a WebSocket server,.... It essentially provides a service you'd typically expect from a fully-fledged backend. This allows
+the frontend to be truly headless, making it integratable by both offline and online versions of the app.
+
+This design does complicate the codebase for the offline-version of the application, but it's the only way to allow the headless nature of
+the frontend. By simply changing the `adapter`, you are able to connect the frontend to a different data
+source (e.g. actual backend for an online app), without having to touch rest of the frontend.
+
+### Database
+
+Offline version of the application does not use a traditional database. While a `SQLite` implementation was tried as a proof-of-concept and
+does work, to enable a faster workflow and enable a faster onboarding for new contributors, who are more likely to be a frontend developers,
+due to the nature of this project, it's not currently used.
+
+Instead, game state is kept in `@tanstack/react-query`'s `QueryClient` object. On any change to the object, data is persisted to browser's
+OPFS storage.
+
+While `react-query` may seem as an odd choice for a database (and it certainly is!), I argue it's good enough for now. It's widely used in
+frontend development as such, it allows new
+developers to pick it up quickly. If there's performance issues with its usage in the future, it can be partially/fully swapped with an
+actual database (ex. SQLite).
+
+### Architecture graph
 
 ```mermaid
 graph TD
-    A[App Start] --> B[GameStateProvider restores last saved state from OPFS]
-    B --> C[GameStateProvider hydrates React Query State]
-    C --> D[GameEngineProvider is mounted and resolves expired events]
-    D --> E[User Interacts with App]
-    E --> F[New event is created, GameEngineProvider starts a timer]
-    F --> G[New game state is persisted to OPFS]
-    G --> D[Wait for New State Changes]
+  A[App Frontend] -->|Adapter| B[API Worker]
+  B -->|Fetches game data & events| C[In-Memory Database]
+  B -->|Sends game state updates| D[OPFS]
+  C -->|Persisted on state change| D
+  D -->|Retrieves saved state| B
+  B -->|Event Processing & State Updates| C
+  A -->|User Interacts| B
 ```
+
+### Important files
+
+- [`api-worker.ts`](/app/(game)/api/workers/api-worker.ts)
+- [`api-routes.ts`](/app/(game)/api/api-routes.ts)
+- [`api-provider.tsx`](/app/(game)/providers/api-provider.tsx)
+
+### How would a multiplayer integration look like?
+
+Frontend expects a REST API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request parameters and responses
+are found in `app/(game)/api` folder. To integrate your own backend, you need to implement the API routes (e.g., fetching game state,
+interacting with events) and WebSocket support. Once these routes are live, provide a `fetcher` function in the `api-provider.tsx`. This
+function is typically a `fetch` function that connects the frontend to the backend. After this, the app will be fully connected to the
+backend
+for multiplayer functionality.
+
+Optionally, you can remove the `app/(game)/api` folder from your fork, as it will no longer be needed when connecting to a real backend.
 
 ---
 

@@ -71,7 +71,7 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
 export const HerosMansionOasis = () => {
   const { t } = useTranslation();
   const { mapPath } = useGameNavigation();
-  const { oasisOccupiedByCurrentVillage, oasisTilesInRange } = useOasis();
+  const { oasisOccupiedByCurrentVillage, occupiableOasisInRange } = useOasis();
 
   const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] = oasisOccupiedByCurrentVillage;
 
@@ -134,7 +134,7 @@ export const HerosMansionOasis = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {oasisTilesInRange.map((tile) => {
+                  {occupiableOasisInRange.map((tile) => {
                     const { x, y } = parseCoordinatesFromTileId(tile.id);
                     return (
                       <TableRow key={tile.id}>

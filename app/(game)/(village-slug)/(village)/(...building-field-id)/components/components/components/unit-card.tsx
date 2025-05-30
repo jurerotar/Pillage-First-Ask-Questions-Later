@@ -22,6 +22,7 @@ import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/uti
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
 import { Text } from 'app/components/text';
+import { playerTroopsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
@@ -56,7 +57,7 @@ type UnitRecruitmentFormProps = {
 const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { createBulkEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
+  const { createEvent: createBulkBarracksTrainingEvent } = useCreateEvent('troopTraining');
   const currentResources = use(CurrentVillageStateContext);
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();
@@ -80,6 +81,8 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
       startsAt: Date.now() + 10000,
       duration: 1000,
       resourceCost: [0, 0, 0, 0].map((cost) => cost * unitCostModifier),
+      cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
+      cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
 
@@ -127,7 +130,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { unitImprovements } = useUnitImprovement();
-  const { isDeveloperModeActive } = useDeveloperMode();
+  const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { researchUnit, isUnitResearched } = useUnitResearch();
 
@@ -143,7 +146,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { assessedRequirements } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const hasEnoughResourcesToResearch = (() => {
-    if (isDeveloperModeActive) {
+    if (isDeveloperModeEnabled) {
       return true;
     }
 

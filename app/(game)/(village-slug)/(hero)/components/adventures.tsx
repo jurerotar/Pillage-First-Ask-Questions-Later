@@ -8,12 +8,11 @@ import { Text } from 'app/components/text';
 
 export const Adventures = () => {
   const { t } = useTranslation();
-  const {
-    server: { seed },
-  } = useServer();
+  const { server } = useServer();
   const { hero } = useHero();
 
-  const { adventureCount } = hero;
+  const seed = server!.seed;
+  const { adventureCount } = hero!;
 
   // We need to do it this was, so that we preserve durations
   const adventurePrng = prngAlea(`${seed}${adventureCount}`);

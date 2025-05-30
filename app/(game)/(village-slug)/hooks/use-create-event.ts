@@ -1,67 +1,80 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  type CreateBulkEventArgs,
-  type CreateEventArgs,
-  createEventFn,
-  getCurrentVillageResources,
-  insertBulkEvent,
-  updateVillageResources,
-} from 'app/(game)/(village-slug)/hooks/utils/events';
 import { eventFactory } from 'app/factories/event-factory';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { doesEventRequireResourceUpdate } from 'app/(game)/(village-slug)/hooks/guards/event-guards';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+
+type CreateEventArgs<T extends GameEventType> = Omit<GameEvent<T>, 'id' | 'type' | 'villageId'> & {
+  cachesToClearImmediately: string[];
+};
+
+type CreateBulkEventArgs<T extends GameEventType> = CreateEventArgs<T> & {
+  amount: number;
+};
+
+type SendEventArgs<T extends GameEventType> = {
+  events: GameEvent<T>[];
+  cachesToClearImmediately: string[];
+};
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();
   const { currentVillage } = useCurrentVillage();
+  const { fetcher } = use(ApiContext);
 
-  const { mutate: createEvent } = useMutation<void, Error, CreateEventArgs<T>>({
-    mutationFn: async (args) => {
-      // @ts-expect-error - This is a dumb TypeScript issue, not sure how to fix it. Essentially we want CreateEventArgs to not
-      // need type and villageId, since they are injected at hook level. But TypeScript cries about this.
-      await createEventFn<T>(queryClient, {
-        ...args,
-        type: eventType,
-        villageId: currentVillage.id,
+  const { mutate: sendEvent } = useMutation<void, Error, SendEventArgs<T>>({
+    mutationFn: async ({ events }) => {
+      await fetcher<void, { events: GameEvent[] }>('/events', {
+        method: 'POST',
+        body: {
+          events,
+        },
       });
+    },
+    onSuccess: async (_, { cachesToClearImmediately }) => {
+      for (const queryKey of cachesToClearImmediately) {
+        await queryClient.invalidateQueries({ queryKey: [queryKey] });
+      }
+      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
     },
   });
 
-  const { mutate: createBulkEvent } = useMutation<void, Error, CreateBulkEventArgs<T>>({
-    mutationFn: async (args) => {
-      const { amount, startsAt, duration, onFailure, onSuccess } = args;
+  const createEvent = (args: CreateEventArgs<T>) => {
+    // @ts-expect-error: My types suck, fix when you can
+    const event = eventFactory<T>({
+      ...args,
+      type: eventType,
+      villageId: currentVillage.id,
+    });
 
-      if (doesEventRequireResourceUpdate(args, eventType)) {
-        const { resourceCost } = args;
-        const { currentWood, currentClay, currentIron, currentWheat } = getCurrentVillageResources(queryClient, currentVillage.id);
+    const { cachesToClearImmediately } = args;
 
-        const [woodCost, clayCost, ironCost, wheatCost] = resourceCost;
-        if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
-          onFailure?.(queryClient, args);
-          return;
-        }
+    const events = [event];
+    sendEvent({ events, cachesToClearImmediately });
+  };
 
-        updateVillageResources(queryClient, currentVillage.id, resourceCost, 'subtract');
-      }
+  const createBulkEvent = (args: CreateBulkEventArgs<T>) => {
+    const events: GameEvent<T>[] = new Array(args.amount);
 
-      const events = [...Array(amount)].map((_, index) => {
-        return eventFactory({
-          ...args,
+    const { amount, ...baseArgs } = args;
+    const { startsAt, duration, cachesToClearImmediately } = baseArgs;
+
+    for (let i = 0; i < args.amount!; i++) {
+      events[i] =
+        // @ts-expect-error: My types suck, fix when you can
+        eventFactory({
+          ...baseArgs,
           type: eventType,
           villageId: currentVillage.id,
-          startsAt: startsAt + index * duration,
+          startsAt: startsAt + i * duration,
           duration,
         });
-      });
+    }
 
-      queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (previousEvents) => {
-        return insertBulkEvent(previousEvents!, events);
-      });
-      onSuccess?.(queryClient, args);
-    },
-  });
+    sendEvent({ events, cachesToClearImmediately });
+  };
 
   return {
     createEvent,

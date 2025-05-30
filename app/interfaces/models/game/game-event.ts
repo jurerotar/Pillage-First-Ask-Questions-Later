@@ -16,23 +16,26 @@ type BaseGameEvent = {
   type: GameEventType;
   startsAt: number;
   duration: number;
+  cachesToClearOnResolve: string[];
 };
 
-type BaseBuildingEvent = WithResourceCheck<
-  WithVillageId<{
-    buildingFieldId: BuildingField['id'];
-    buildingId: Building['id'];
-    level: number;
-  }>
->;
+type BaseBuildingEvent = WithVillageId<{
+  buildingFieldId: BuildingField['id'];
+  buildingId: Building['id'];
+  level: number;
+}>;
 
-type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level' | 'resourceCost'>;
+type BuildingLevelChangeEvent = WithResourceCheck<BaseBuildingEvent>;
+type BuildingScheduledConstructionEvent = WithResourceCheck<BaseBuildingEvent>;
+
+type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
 
 type BaseUnitTrainingEvent = WithResourceCheck<
   WithVillageId<{
     amount: number;
     unitId: Unit['id'];
     buildingId: Building['id'];
+    resourceCost: number[];
   }>
 >;
 
@@ -54,10 +57,10 @@ export type GameEventType =
   | 'troopMovement'
   | 'adventurePointIncrease';
 
-type GameEventTypeToEventArgsMap<T extends GameEventType> = {
-  buildingScheduledConstruction: BaseBuildingEvent;
+export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
+  buildingScheduledConstruction: BuildingScheduledConstructionEvent;
   buildingConstruction: BaseBuildingEvent;
-  buildingLevelChange: BaseBuildingEvent;
+  buildingLevelChange: BuildingLevelChangeEvent;
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
   troopMovement: TroopMovementEvent;

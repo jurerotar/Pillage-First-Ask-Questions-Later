@@ -1,12 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { troopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useTroops = () => {
-  const { data: troops } = useQuery<Troop[]>({
+  const { fetcher } = use(ApiContext);
+
+  const { data: troops } = useSuspenseQuery<Troop[]>({
     queryKey: [troopsCacheKey],
-    initialData: [],
+    queryFn: async () => {
+      const { data } = await fetcher<Troop[]>('/troops');
+      return data;
+    },
   });
 
   const getTroopsByTileId = (tileId: Tile['id']): Troop[] => {

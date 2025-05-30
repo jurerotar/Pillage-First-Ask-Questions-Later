@@ -4,8 +4,7 @@ import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { beforeAll, describe, expect, test } from 'vitest';
 import 'opfs-mock';
 import '@vitest/web-worker';
-import { hydrate, QueryClient } from '@tanstack/react-query';
-import type { PersistedClient } from '@tanstack/react-query-persist-client';
+import { type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import {
   effectsCacheKey,
   eventsCacheKey,
@@ -33,8 +32,8 @@ const queryClient = new QueryClient();
 beforeAll(async () => {
   await initializeServer(serverMock);
   const rootHandle = await getRootHandle();
-  const { clientState } = await getParsedFileContents<PersistedClient>(rootHandle, serverMock.slug);
-  hydrate(queryClient, clientState);
+  const dehydratedState = await getParsedFileContents<DehydratedState>(rootHandle, serverMock.slug);
+  hydrate(queryClient, dehydratedState);
 });
 
 // TODO: Write these tests

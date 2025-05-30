@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
@@ -9,9 +9,8 @@ export const useUnitResearch = () => {
   const queryClient = useQueryClient();
   const { currentVillage } = useCurrentVillage();
 
-  const { data: unitResearch } = useQuery<UnitResearch[]>({
+  const { data: unitResearch } = useSuspenseQuery<UnitResearch[]>({
     queryKey: [unitResearchCacheKey],
-    initialData: [],
   });
 
   const researchUnit = (unitId: Unit['id']) => {

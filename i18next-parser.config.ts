@@ -62,7 +62,7 @@ export default {
   // Supports $LOCALE and $NAMESPACE injection
   // Supports JSON (.json) and YAML (.yml) file formats
   // Where to write the locale files relative to process.cwd()
-  output: 'app/locales/$LOCALE/$NAMESPACE.json',
+  output: 'app/localization/locales/$LOCALE/$NAMESPACE.json',
 
   // Plural separator used in your translation keys
   // If you want to use plain English keys, separators such as `_` might conflict.

@@ -51,7 +51,7 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
 
 export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   if (id.includes('every')) {
-    const [buildingId, , level] = id.split('-');
+    const [, buildingId, , level] = id.split('-');
     return {
       title: assetsT('QUESTS.EVERY.TITLE', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
       description: assetsT('QUESTS.EVERY.DESCRIPTION', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
@@ -60,7 +60,7 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   }
 
   if (id.includes('oneOf')) {
-    const [buildingId, , level] = id.split('-');
+    const [, buildingId, , level] = id.split('-');
     return {
       title: assetsT('QUESTS.ONE-OF.TITLE', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
       description: assetsT('QUESTS.ONE-OF.DESCRIPTION', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
