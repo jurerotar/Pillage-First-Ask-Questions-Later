@@ -21,7 +21,7 @@ import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import type { Report } from 'app/interfaces/models/game/report';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
-import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
 
 type GetTilePlayerReturn = {
   player: Player;

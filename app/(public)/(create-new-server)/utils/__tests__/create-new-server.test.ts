@@ -24,7 +24,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
-import { decodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { calculateGridLayout, decodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map';
 import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 
 const queryClient = new QueryClient();
@@ -53,15 +53,14 @@ describe('Server initialization', () => {
       expect(tiles.every((tile) => Object.hasOwn(tile, 'type') && [0, 1].includes(tile.type))).toBe(true);
     });
 
-    test("Each tile's coordinates should be between [-size/2, size/2]", () => {
-      const borderWidth = 4;
-      const totalSize = Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) + borderWidth;
-      const limit = totalSize / 2;
+    test("Each tile's coordinates should be between [-halfSize, halfSize]", () => {
+      const { halfSize } = calculateGridLayout(serverMock.configuration.mapSize);
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
+
       expect(
         tiles.every(({ id }) => {
           const { x, y } = parseCoordinatesFromTileId(id);
-          return x >= -limit && x <= limit && y >= -limit && y <= limit;
+          return x >= -halfSize && x <= halfSize && y >= -halfSize && y <= halfSize;
         }),
       ).toBe(true);
     });

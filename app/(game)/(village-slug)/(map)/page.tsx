@@ -20,7 +20,7 @@ import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { t } from 'i18next';
-import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;

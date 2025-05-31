@@ -17,7 +17,7 @@ import type {
 import type { ResourceFieldComposition, VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomArrayElement, seededRandomIntFromInterval } from 'app/utils/common';
 import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
-import { encodeGraphicsProperty, packTileId, parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { calculateGridLayout, encodeGraphicsProperty, packTileId, parseCoordinatesFromTileId } from 'app/utils/map';
 
 type Shape = { group: number; shape: number[] };
 
@@ -155,14 +155,10 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
 };
 
 const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
-  const {
-    configuration: { mapSize: size },
-  } = server;
+  const { configuration } = server;
 
-  const borderWidth = 4;
-  const totalSize = Math.ceil(size * Math.sqrt(2)) + borderWidth;
-  const halfSize = totalSize / 2;
-  const totalTiles = (totalSize + 1) ** 2;
+  const { gridSize, halfSize, borderWidth } = calculateGridLayout(configuration.mapSize);
+  const totalTiles = gridSize ** 2;
 
   let xCoordinateCounter = -halfSize - 1;
   let yCoordinateCounter = halfSize;

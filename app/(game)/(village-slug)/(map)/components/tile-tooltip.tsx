@@ -14,7 +14,7 @@ import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
-import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';

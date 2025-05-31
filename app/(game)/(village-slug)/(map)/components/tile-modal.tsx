@@ -12,7 +12,7 @@ import {
 import { Icon } from 'app/components/icon';
 import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
-import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
