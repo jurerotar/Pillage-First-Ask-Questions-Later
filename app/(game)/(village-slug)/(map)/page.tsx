@@ -9,8 +9,8 @@ import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
-import { Suspense, use, useCallback, useMemo, useRef } from 'react';
-import type { MetaFunction } from 'react-router';
+import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
+import { type MetaFunction, useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
 import { FixedSizeGrid, FixedSizeList, type GridOnScrollProps } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
@@ -44,6 +44,7 @@ const MapPage = () => {
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
+  const location = useLocation();
 
   const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
 
@@ -168,6 +169,33 @@ const MapPage = () => {
     },
     [tileSize, gridSize, width, mapHeight],
   );
+
+  const isInitialRender = useRef<boolean>(true);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We intentionally only want to react on location.key and nothing else
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    const scrollX = scrollLeft(startingX);
+    const scrollY = scrollTop(startingY);
+
+    if (mapRef.current) {
+      mapRef.current.scrollTo({ left: scrollX, top: scrollY, behavior: 'smooth' });
+    }
+
+    if (leftMapRulerRef.current) {
+      leftMapRulerRef.current.scrollTo(scrollY);
+    }
+
+    if (bottomMapRulerRef.current) {
+      bottomMapRulerRef.current.scrollTo(scrollX);
+    }
+
+    currentCenterTile.current = { x: startingX, y: startingY };
+  }, [location.key]);
 
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
