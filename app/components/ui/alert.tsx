@@ -20,6 +20,8 @@ const AlertIcon = () => (
     className="w-5 h-5 inline mr-3 flex-shrink-0"
     fill="currentColor"
     viewBox="0 0 20 20"
+    height={20}
+    width={20}
     xmlns="http://www.w3.org/2000/svg"
   >
     <title>Alert</title>
