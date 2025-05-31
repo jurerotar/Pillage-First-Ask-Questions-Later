@@ -24,7 +24,7 @@ const formSchema = z.object({
     // fom completely breaks
     speed: z.enum(['1', '2', '3', '5', '10']).overwrite((val) => Number.parseInt(val)),
     // @ts-expect-error
-    mapSize: z.enum(['100', '200', '300']).overwrite((val) => Number.parseInt(val)),
+    mapSize: z.enum(['100']).overwrite((val) => Number.parseInt(val)),
   }),
   playerConfiguration: z.object({
     name: z.string().min(1, { error: t('Player name is required') }),
@@ -155,8 +155,8 @@ export const CreateNewServerForm = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="100">100</SelectItem>
-                        <SelectItem value="200">200</SelectItem>
-                        <SelectItem value="300">300</SelectItem>
+                        {/*<SelectItem value="200">200</SelectItem>*/}
+                        {/*<SelectItem value="300">300</SelectItem>*/}
                       </SelectContent>
                     </Select>
                     <FormMessage />

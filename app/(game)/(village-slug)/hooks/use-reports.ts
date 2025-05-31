@@ -54,26 +54,13 @@ export const useReports = () => {
     },
   });
 
-  const { mutate: markReportAsRead } = useMutation<void, Error, { reportId: Report['id'] }>({
-    mutationFn: async ({ reportId }) => {
-      await fetcher<Report[]>(`/reports/${reportId}/read`, {
+  const { mutate: tagReport } = useMutation<void, Error, { reportId: Report['id']; tag: ReportTag }>({
+    mutationFn: async ({ reportId, tag }) => {
+      await fetcher<Report[]>(`/reports/${reportId}`, {
         method: 'PATCH',
-      });
-    },
-  });
-
-  const { mutate: markReportAsArchived } = useMutation<void, Error, { reportId: Report['id'] }>({
-    mutationFn: async ({ reportId }) => {
-      await fetcher<Report[]>(`/reports/${reportId}/archive`, {
-        method: 'PATCH',
-      });
-    },
-  });
-
-  const { mutate: markReportAsUnarchived } = useMutation<void, Error, { reportId: Report['id'] }>({
-    mutationFn: async ({ reportId }) => {
-      await fetcher<Report[]>(`/reports/${reportId}/un-archive`, {
-        method: 'PATCH',
+        body: {
+          tag,
+        },
       });
     },
   });
@@ -88,9 +75,7 @@ export const useReports = () => {
 
   return {
     reports,
-    markReportAsRead,
-    markReportAsArchived,
-    markReportAsUnarchived,
+    tagReport,
     deleteReport,
   };
 };

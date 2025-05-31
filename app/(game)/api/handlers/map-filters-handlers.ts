@@ -8,16 +8,18 @@ export const getMapFilters: ApiHandler<MapFilters> = async (queryClient) => {
   return mapFilters;
 };
 
-export const updateMapFilter: ApiHandler<MapFilters, '', Partial<MapFilters>> = async (queryClient, args) => {
-  const { body } = args;
+type UpdateMapFilterBody = {
+  value: boolean;
+};
+
+export const updateMapFilter: ApiHandler<void, 'filterName', UpdateMapFilterBody> = async (queryClient, { params, body }) => {
+  const { filterName } = params;
+  const { value } = body;
+
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], (mapFilters) => {
     return {
       ...mapFilters!,
-      ...body,
+      [filterName]: value,
     };
   });
-
-  const mapFilters = queryClient.getQueryData<MapFilters>([mapFiltersCacheKey])!;
-
-  return mapFilters;
 };

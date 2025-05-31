@@ -43,6 +43,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import layoutStyles from './layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { Tooltip } from 'app/components/tooltip';
 
 type CounterProps = {
   counter?: number;
@@ -638,6 +639,7 @@ const GameLayout = () => {
   return (
     <Suspense fallback="Layout loader">
       <CurrentVillageStateProvider>
+        <Tooltip id="general-tooltip" />
         <TopNavigation />
         <Suspense fallback={null}>
           <TroopMovements />

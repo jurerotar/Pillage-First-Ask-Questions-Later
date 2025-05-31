@@ -22,7 +22,7 @@ export const ToggleGroup: React.FC<React.ComponentProps<typeof ToggleGroupPrimit
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
-      className={clsx('group/toggle-group flex w-fit items-center rounded-md data-[variant=outline]:shadow-xs', className)}
+      className={clsx('group/toggle-group flex w-fit gap-1 lg:gap-2 items-center', className)}
       {...props}
     >
       <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
@@ -49,7 +49,7 @@ export const ToggleGroupItem: React.FC<React.ComponentProps<typeof ToggleGroupPr
           variant: context.variant || variant,
           size: context.size || size,
         }),
-        'bg-muted text-muted-foreground hover:bg-accent data-[state=on]:bg-primary data-[state=on]:text-white min-w-0 flex-1 shrink-0 rounded-none shadow-none first:rounded-l-md last:rounded-r-md focus:z-10 focus-visible:z-10 data-[variant=outline]:border-l-0 data-[variant=outline]:first:border-l',
+        'bg-muted text-muted-foreground hover:bg-accent data-[state=on]:bg-gray-200 data-[state=on]:text-black min-w-0 flex-1 shrink-0 rounded-sm shadow-none focus:z-10 focus-visible:z-10',
         className,
       )}
       {...props}

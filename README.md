@@ -1,10 +1,12 @@
 # Pillage First! (Ask Questions Later)
 
-**Pillage First! (Ask Questions Later) is an open-source, single-player strategy game inspired by Travian.**
-It's a **Travian alternative**, where you build villages, manage resources, train troops, and wage war, but in a **single-player** setting.
-It supports massive, **persistent**, **offline-first** game worlds. It requires no account or download.
+Pillage First! (Ask Questions Later) is an **open-source**, **single-player** **strategy game** inspired by Travian.
+
+Build villages, manage resources, train troops, and wage war in **persistent**, **massive**, **offline-first** game worlds. It requires no account or
+download.
+
 Game mechanics are inspired by both Travian Legends and Travian Kingdoms. It's designed to be as light-weight as possible, giving you a
-great experience even on older devices. It is not a Travian clone per-se, because it iterates on the original design and introduces new
+great experience even on older devices. It is not a Travian clone per se, because it iterates on the original design and introduces new
 mechanics.
 
 You can see the current stable version at: [pillagefirst.netlify.app](https://pillagefirst.netlify.app)
@@ -29,9 +31,13 @@ Remember: pillage first, ask questions later! ⚔️🔥
 I've always been a huge fan of Travian and similar browser-based strategy games. The slow, methodical village-building, resource management,
 and real-time progression made those games special.
 
+Sadly, Travian requires a massive time (and gold!) investment to remain competitive. Not being able to commit either of these, I set out to
+create a similar, but less commitment-hungry experience.
+
 **Pillage First!** is my attempt to recreate that experience as a **single-player Travian alternative**, with the same core mechanics, but
 modernized,
-**offline-friendly**, and **open source**, with no game mechanics to incentivize spending real-world money. Just the classic gameplay loop,
+**offline-friendly**, and **fully open source**, with no game mechanics to incentivize spending real-world money. Just the classic gameplay
+loop,
 reimagined for solo play.
 
 ### Can this project be converted to multiplayer?

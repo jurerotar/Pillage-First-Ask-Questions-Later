@@ -4,6 +4,11 @@ import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-ke
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
+type UpdateMapFiltersArgs = {
+  filterName: keyof MapFilters;
+  value: boolean;
+};
+
 export const useMapFilters = () => {
   const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
@@ -16,19 +21,19 @@ export const useMapFilters = () => {
     },
   });
 
-  const { mutate: toggleMapFilter } = useMutation<MapFilters, Error, Partial<MapFilters>>({
-    mutationFn: async (vars) => {
-      const { data } = await fetcher<MapFilters>('/me/map-filters', {
+  const { mutate: toggleMapFilter } = useMutation<MapFilters, Error, UpdateMapFiltersArgs>({
+    mutationFn: async ({ filterName, value }) => {
+      const { data } = await fetcher<MapFilters>(`/me/map-filters/${filterName}`, {
         method: 'PATCH',
         body: {
-          ...vars,
+          value,
         },
       });
 
       return data;
     },
-    onSuccess: (updatedMapFilters) => {
-      queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], updatedMapFilters);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [mapFiltersCacheKey] });
     },
   });
 

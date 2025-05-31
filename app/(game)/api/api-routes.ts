@@ -9,7 +9,16 @@ import {
 import { getPreferences, updatePreference } from 'app/(game)/api/handlers/preferences-handlers';
 import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import { getAdventurePoints, getHero } from 'app/(game)/api/handlers/hero-handlers';
-import { getReports } from 'app/(game)/api/handlers/report-handlers';
+import {
+  deleteMultipleReports,
+  deleteReport,
+  getArchivedReports,
+  getReportById,
+  getReports,
+  getReportsByVillage,
+  patchMultipleReports,
+  patchReport,
+} from 'app/(game)/api/handlers/report-handlers';
 import {
   getPlayerById,
   getPlayers,
@@ -76,18 +85,38 @@ const reportRoutes = [
   },
   {
     method: 'GET',
+    path: '/players/:playerId/reports/archived',
+    handler: getArchivedReports,
+  },
+  {
+    method: 'GET',
+    path: '/players/:playerId/reports/:villageId',
+    handler: getReportsByVillage,
+  },
+  {
+    method: 'GET',
     path: '/reports/:reportId',
-    handler: () => {},
+    handler: getReportById,
   },
   {
     method: 'PATCH',
     path: '/reports/:reportId',
-    handler: () => {},
+    handler: patchReport,
+  },
+  {
+    method: 'PATCH',
+    path: '/reports/bulk-tag',
+    handler: patchMultipleReports,
   },
   {
     method: 'DELETE',
     path: '/reports/:reportId',
-    handler: () => {},
+    handler: deleteReport,
+  },
+  {
+    method: 'DELETE',
+    path: '/reports/bulk-delete',
+    handler: deleteMultipleReports,
   },
 ];
 
