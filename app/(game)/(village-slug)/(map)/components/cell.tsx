@@ -16,7 +16,7 @@ import type React from 'react';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
-import { decodeGraphicsProperty } from 'app/utils/map-tile';
+import { decodeGraphicsProperty } from 'app/utils/map';
 import { Icon } from 'app/components/icon';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import cellStyles from './cell.module.scss';

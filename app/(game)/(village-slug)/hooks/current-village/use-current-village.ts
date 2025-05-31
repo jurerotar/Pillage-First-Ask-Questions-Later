@@ -1,7 +1,7 @@
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { calculateDistanceBetweenPoints, roundTo2DecimalPoints } from 'app/utils/common';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import type { PlayerVillage } from 'app/interfaces/models/game/village';

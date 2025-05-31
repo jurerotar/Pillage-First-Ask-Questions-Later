@@ -13,7 +13,7 @@ import {
   BuildingSectionContent,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;

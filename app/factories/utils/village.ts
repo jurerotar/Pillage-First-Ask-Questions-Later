@@ -1,6 +1,6 @@
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
 
 export const getVillageSize = (mapSize: number, tileId: Tile['id']): VillageSize => {
   // These are essentially percentage values so it works regardless of server size

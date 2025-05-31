@@ -73,6 +73,9 @@ const viteConfig = defineViteConfig({
   server: {
     open: true,
   },
+  experimental: {
+    enableNativePlugin: false,
+  },
   esbuild: {
     ...(!isDeployingToMaster && {
       minifyIdentifiers: false,
