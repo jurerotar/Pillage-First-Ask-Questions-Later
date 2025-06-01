@@ -19,6 +19,7 @@ export const useCurrentVillage = () => {
       const { data } = await fetcher<PlayerVillage>(`/villages/${villageSlug}`);
       return data;
     },
+    staleTime: 20_000,
   });
 
   const getCurrentVillagePopulation = () => {

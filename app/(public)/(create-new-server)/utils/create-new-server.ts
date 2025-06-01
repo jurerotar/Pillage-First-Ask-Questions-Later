@@ -4,7 +4,7 @@ import { playerVillageFactory } from 'app/factories/village-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { generateEffects } from 'app/factories/effect-factory';
 import { mapFiltersFactory } from 'app/factories/map-filters-factory';
-import { unitResearchFactory } from 'app/factories/unit-research-factory';
+import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
 import { preferencesFactory } from 'app/factories/preferences-factory';
 import { adventurePointsFactory } from 'app/factories/adventure-points-factory';
@@ -107,8 +107,8 @@ export const initializeServer = async (server: Server): Promise<void> => {
     }),
     generateEffects(server, playerStartingVillage, hero),
     mapFiltersFactory(),
-    unitResearchFactory({ initialVillageId: playerStartingVillage.id, tribe: server.playerConfiguration.tribe }),
-    unitImprovementFactory(),
+    newVillageUnitResearchFactory(playerStartingVillage.id, player.tribe),
+    unitImprovementFactory(player.tribe),
     preferencesFactory(),
     adventurePointsFactory(),
     generateEvents(server),

@@ -1,35 +1,26 @@
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useUnitResearch = () => {
-  const queryClient = useQueryClient();
+  const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: unitResearch } = useSuspenseQuery<UnitResearch[]>({
-    queryKey: [unitResearchCacheKey],
+    queryKey: [unitResearchCacheKey, currentVillage.id],
+    queryFn: async () => {
+      const { data } = await fetcher<UnitResearch[]>(`/researched-units/${currentVillage.id}`);
+      return data;
+    },
   });
 
-  const researchUnit = (unitId: Unit['id']) => {
-    queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], (prevData) => {
-      return prevData!.map((research) => {
-        if (research.unitId !== unitId) {
-          return research;
-        }
-
-        return {
-          ...research,
-          researchedIn: [...research.researchedIn, currentVillage.id],
-        };
-      });
-    });
-  };
-
-  const isUnitResearched = (unitId: Unit['id']) => {
-    return unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.researchedIn.includes(currentVillage.id));
+  const isUnitResearched = (unitId: Unit['id']): boolean => {
+    return !!unitResearch.find((unitResearch) => unitResearch.unitId === unitId);
   };
 
   const getResearchedUnits = () => unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
@@ -45,7 +36,6 @@ export const useUnitResearch = () => {
 
   return {
     unitResearch,
-    researchUnit,
     isUnitResearched,
     getResearchedUnitsByCategory,
   };
