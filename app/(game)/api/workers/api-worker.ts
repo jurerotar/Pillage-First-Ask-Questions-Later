@@ -3,7 +3,6 @@ import { enqueueWrite, getParsedFileContents, getRootHandle, writeFileContents }
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import type { ApiNotificationEvent } from 'app/interfaces/api';
-import { eventWorkerReadyKey } from 'app/(game)/keys/event-keys';
 
 const urlParams = new URLSearchParams(self.location.search);
 const serverSlug = urlParams.get('server-slug')!;
@@ -22,7 +21,7 @@ queryClient.getQueryCache().subscribe(({ type }) => {
 
 await scheduleNextEvent(queryClient);
 
-self.postMessage({ eventKey: eventWorkerReadyKey } satisfies ApiNotificationEvent);
+self.postMessage({ eventKey: 'event:worker-ready' } satisfies ApiNotificationEvent);
 
 self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
   const [port] = ports;

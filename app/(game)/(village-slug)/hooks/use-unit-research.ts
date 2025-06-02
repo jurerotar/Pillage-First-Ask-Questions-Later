@@ -20,7 +20,7 @@ export const useUnitResearch = () => {
   });
 
   const isUnitResearched = (unitId: Unit['id']): boolean => {
-    return !!unitResearch.find((unitResearch) => unitResearch.unitId === unitId);
+    return !!unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.isResearched);
   };
 
   const getResearchedUnits = () => unitResearch.filter(({ unitId }) => isUnitResearched(unitId));

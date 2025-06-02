@@ -6,7 +6,6 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import { useUnitImprovement } from 'app/(game)/(village-slug)/hooks/use-unit-improvement';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { Button } from 'app/components/ui/button';
@@ -22,7 +21,8 @@ import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/uti
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useForm } from 'react-hook-form';
 import { Text } from 'app/components/text';
-import { playerTroopsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerTroopsCacheKey, playerVillagesCacheKey, unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 
 const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
   const { t } = useTranslation();
@@ -99,6 +99,22 @@ const UnitRecruitment: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) =>
   );
 };
 
+type UnitLevelProps = {
+  unitId: Unit['id'];
+};
+
+const UnitLevel: React.FC<UnitLevelProps> = ({ unitId }) => {
+  const { t } = useTranslation();
+  const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
+
+  return (
+    <span className="text-sm text-orange-500">
+      {unitLevel !== unitVirtualLevel && t('Being upgraded from {{currentLevel}} to {{nextLevel}}', { currentLevel: unitLevel, nextLevel: unitVirtualLevel })}
+      {unitLevel === unitVirtualLevel && t('Level {{currentLevel}}', { level: unitLevel })}
+    </span>
+  );
+};
+
 type UnitCardProps = {
   unitId: Unit['id'];
   showRequirements?: boolean;
@@ -129,17 +145,16 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { unitImprovements } = useUnitImprovement();
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
-  const { researchUnit, isUnitResearched } = useUnitResearch();
+  const { isUnitResearched } = useUnitResearch();
+  const { createEvent: createUnitResearchEvent } = useCreateEvent('unitResearch');
 
   const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, unitSpeed, unitCarryCapacity, unitWheatConsumption } =
     getUnitData(unitId)!;
   const researchCost = calculateUnitResearchCost(unitId);
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
-  const unitImprovement = unitImprovements.find((unitImprovement) => unitImprovement.tier === tier);
   const hasResearchedUnit = isUnitResearched(unitId);
   const shouldShowUnitLevel = tier !== 'special' && showImprovementLevel;
 
@@ -164,13 +179,25 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
     unitWheatConsumption,
   };
 
+  const researchUnit = () => {
+    createUnitResearchEvent({
+      villageId: currentVillage.id,
+      startsAt: Date.now(),
+      duration: 0,
+      resourceCost: researchCost,
+      unitId,
+      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearOnResolve: [unitResearchCacheKey],
+    });
+  };
+
   return (
     <article className={clsx('flex flex-col gap-2 p-2', showOuterBorder && 'border border-gray-500')}>
       <section>
         <div className="inline-flex gap-2 items-center font-semibold">
           <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</Text>
           {shouldShowUnitLevel && (
-            <span className="text-sm text-orange-500">{t('Level {{level}}', { level: unitImprovement!.level })}</span>
+            <UnitLevel unitId={unitId} />
           )}
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10">
@@ -239,7 +266,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
         <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
           <Text as="h3">{t('Available actions')}</Text>
           <Button
-            onClick={() => researchUnit(unitId)}
+            onClick={researchUnit}
             variant="default"
             disabled={!canResearchUnit}
           >

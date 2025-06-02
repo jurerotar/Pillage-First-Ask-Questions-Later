@@ -32,6 +32,7 @@ export const AcademyUnitResearch = () => {
                 unitId={unitId}
                 showAttributes
                 showUnitCost
+                showImprovementLevel={false}
                 showResearch
                 {...(!assessUnitResearchReadiness(unitId, currentVillage).canResearch
                   ? {

@@ -1,5 +1,4 @@
 import type { ApiNotificationEvent, EventResolvedApiNotificationEvent } from 'app/interfaces/api';
-import { eventResolvedKey } from 'app/(game)/keys/event-keys';
 
 export const isNotificationMessageEvent = (event: MessageEvent): event is MessageEvent<ApiNotificationEvent> => {
   const { data } = event;
@@ -7,5 +6,9 @@ export const isNotificationMessageEvent = (event: MessageEvent): event is Messag
 };
 
 export const isEventResolvedNotificationMessageEvent = (event: MessageEvent): event is MessageEvent<EventResolvedApiNotificationEvent> => {
-  return isNotificationMessageEvent(event) && event.data.eventKey === eventResolvedKey;
+  return isNotificationMessageEvent(event) && event.data.eventKey === 'event:resolved';
+};
+
+export const isEventNotStartedNotificationMessageEvent = (event: MessageEvent): event is MessageEvent<EventResolvedApiNotificationEvent> => {
+  return isNotificationMessageEvent(event) && event.data.eventKey === 'event:construction-not-started';
 };
