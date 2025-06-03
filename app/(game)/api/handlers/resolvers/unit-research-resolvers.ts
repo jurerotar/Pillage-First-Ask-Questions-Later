@@ -7,9 +7,6 @@ export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = async (
   const { villageId, unitId } = args;
 
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], (unitResearch) => {
-    const unitToResearch = unitResearch!.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.villageId === villageId)!;
-    unitToResearch.isResearched = true;
-
-    return unitResearch;
+    return [...unitResearch!, { villageId, unitId }];
   });
 };

@@ -3,13 +3,18 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitData, getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 export const useUnitResearch = () => {
   const { fetcher } = use(ApiContext);
+  const { tribe } = useTribe();
   const { currentVillage } = useCurrentVillage();
+
+  const unitsByTribe = getUnitsByTribe(tribe);
+  const researchableUnits = unitsByTribe.filter((unit) => !unit.id.includes('SETTLER'));
 
   const { data: unitResearch } = useSuspenseQuery<UnitResearch[]>({
     queryKey: [unitResearchCacheKey, currentVillage.id],
@@ -20,16 +25,18 @@ export const useUnitResearch = () => {
   });
 
   const isUnitResearched = (unitId: Unit['id']): boolean => {
-    return !!unitResearch.find((unitResearch) => unitResearch.unitId === unitId && unitResearch.isResearched);
+    return !!unitResearch.find((unitResearch) => unitResearch.unitId === unitId);
   };
 
-  const getResearchedUnits = () => unitResearch.filter(({ unitId }) => isUnitResearched(unitId));
+  const getResearchedUnits = () => {
+    return researchableUnits.filter(({ id }) => isUnitResearched(id));
+  };
 
   const getResearchedUnitsByCategory = (category: Unit['category']) => {
     const researchedUnits = getResearchedUnits();
 
-    return researchedUnits.filter(({ unitId }) => {
-      const unit = getUnitData(unitId);
+    return researchedUnits.filter(({ id }) => {
+      const unit = getUnitData(id);
       return unit.category === category;
     });
   };
@@ -38,5 +45,6 @@ export const useUnitResearch = () => {
     unitResearch,
     isUnitResearched,
     getResearchedUnitsByCategory,
+    researchableUnits,
   };
 };

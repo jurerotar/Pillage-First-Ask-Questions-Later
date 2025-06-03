@@ -5,13 +5,13 @@ import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 
 export const newVillageUnitResearchFactory = (villageId: Village['id'], tribe: Tribe): UnitResearch[] => {
   const unitsByTribe = getUnitsByTribe(tribe);
-  const researchableUnits = unitsByTribe.filter((unit) => !unit.id.includes('SETTLER'));
 
-  return researchableUnits.map((unit) => {
-    return {
-      unitId: unit.id,
+  const tier1Unit = unitsByTribe.find(({ tier }) => tier === 'tier-1')!;
+
+  return [
+    {
       villageId,
-      isResearched: unit.tier === 'tier-1',
-    };
-  });
+      unitId: tier1Unit.id,
+    },
+  ];
 };

@@ -36,9 +36,12 @@ const UnitResearch: React.FC<Pick<UnitCardProps, 'unitId'>> = ({ unitId }) => {
     <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
       <Text as="h3">{hasResearchedUnit ? t('Research') : t('Research cost')}</Text>
       {hasResearchedUnit && (
-        <span className="text-green-600 font-semibold">
+        <Text
+          as="p"
+          className="text-green-600 font-semibold"
+        >
           {t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
-        </span>
+        </Text>
       )}
       {!hasResearchedUnit && (
         <Resources
@@ -108,10 +111,17 @@ const UnitLevel: React.FC<UnitLevelProps> = ({ unitId }) => {
   const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
 
   return (
-    <span className="text-sm text-orange-500">
-      {unitLevel !== unitVirtualLevel && t('Being upgraded from {{currentLevel}} to {{nextLevel}}', { currentLevel: unitLevel, nextLevel: unitVirtualLevel })}
-      {unitLevel === unitVirtualLevel && t('Level {{currentLevel}}', { level: unitLevel })}
-    </span>
+    <Text
+      as="p"
+      className="text-orange-500 flex self-end"
+    >
+      {unitLevel !== unitVirtualLevel &&
+        t('Being upgraded from {{currentLevel}} to {{nextLevel}}', {
+          currentLevel: unitLevel,
+          nextLevel: unitVirtualLevel,
+        })}
+      {unitLevel === unitVirtualLevel && t('level {{currentLevel}}', { currentLevel: unitLevel })}
+    </Text>
   );
 };
 
@@ -150,13 +160,19 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const { isUnitResearched } = useUnitResearch();
   const { createEvent: createUnitResearchEvent } = useCreateEvent('unitResearch');
 
-  const { tier, baseRecruitmentCost, attack, infantryDefence, cavalryDefence, unitSpeed, unitCarryCapacity, unitWheatConsumption } =
-    getUnitData(unitId)!;
-  const researchCost = calculateUnitResearchCost(unitId);
+  const unit = getUnitData(unitId)!;
+  const researchCost = (() => {
+    if (isDeveloperModeEnabled) {
+      return [0, 0, 0, 0];
+    }
+
+    return calculateUnitResearchCost(unitId);
+  })();
+
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const hasResearchedUnit = isUnitResearched(unitId);
-  const shouldShowUnitLevel = tier !== 'special' && showImprovementLevel;
+  const shouldShowUnitLevel = unit.tier !== 'special' && showImprovementLevel;
 
   const { assessedRequirements } = assessUnitResearchReadiness(unitId, currentVillage);
 
@@ -171,17 +187,16 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
   const canResearchUnit = hasEnoughResourcesToResearch && canResearch;
 
   const attributes: UnitAttributes = {
-    attack,
-    infantryDefence,
-    cavalryDefence,
-    unitSpeed,
-    unitCarryCapacity,
-    unitWheatConsumption,
+    attack: unit.attack,
+    infantryDefence: unit.infantryDefence,
+    cavalryDefence: unit.cavalryDefence,
+    unitSpeed: unit.unitSpeed,
+    unitCarryCapacity: unit.unitCarryCapacity,
+    unitWheatConsumption: unit.unitWheatConsumption,
   };
 
   const researchUnit = () => {
     createUnitResearchEvent({
-      villageId: currentVillage.id,
       startsAt: Date.now(),
       duration: 0,
       resourceCost: researchCost,
@@ -196,9 +211,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
       <section>
         <div className="inline-flex gap-2 items-center font-semibold">
           <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</Text>
-          {shouldShowUnitLevel && (
-            <UnitLevel unitId={unitId} />
-          )}
+          {shouldShowUnitLevel && <UnitLevel unitId={unitId} />}
         </div>
         <div className="flex justify-center items-center mr-1 mb-1 float-left size-10">
           <Icon
@@ -214,7 +227,7 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
           <Text as="h3">{t('Unit cost')}</Text>
           <Resources
             className="flex-wrap"
-            resources={baseRecruitmentCost}
+            resources={unit.baseRecruitmentCost}
           />
         </section>
       )}
@@ -241,18 +254,20 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
       {showResearch && <UnitResearch unitId={unitId} />}
 
-      {showRequirements && !canResearch && (
+      {showRequirements && (
         <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
           <Text as="h3">{t('Requirements')}</Text>
           <ul className="flex gap-2 flex-wrap">
             {assessedRequirements.map((assessedRequirement: AssessedResearchRequirement, index) => (
               <Fragment key={assessedRequirement.buildingId}>
                 <li className="whitespace-nowrap">
-                  <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
-                    {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
-                    {t('level {{level}}', { level: assessedRequirement.level })}
-                  </span>
-                  {index !== assessedRequirements.length - 1 && ','}
+                  <Text as="p">
+                    <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
+                      {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
+                      {t('level {{level}}', { level: assessedRequirement.level })}
+                    </span>
+                    {index !== assessedRequirements.length - 1 && ','}
+                  </Text>
                 </li>
               </Fragment>
             ))}

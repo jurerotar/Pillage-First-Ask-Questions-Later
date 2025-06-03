@@ -7,9 +7,7 @@ export const useUnitImprovementLevel = (unitId: Unit['id']) => {
   const { unitImprovements } = useUnitImprovement();
   const { events } = useEvents();
 
-
   const unitImprovement = unitImprovements.find((unitImprovement) => unitImprovement.unitId === unitId)!;
-  console.log(unitId, unitImprovement);
   const unitLevel = unitImprovement.level;
 
   const unitImprovementEventsForUnit = events.filter((event) => {

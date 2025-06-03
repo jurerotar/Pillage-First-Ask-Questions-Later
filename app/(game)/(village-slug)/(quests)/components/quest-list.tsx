@@ -90,7 +90,7 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
                   key={quest.id}
                   className={clsx('border rounded-xs p-2 px-4 shadow-xs', isCollected && 'opacity-50', isCollectable && 'bg-yellow-100')}
                 >
-                  <summary className="cursor-pointer text-sm font-semibold">{title}</summary>
+                  <summary className="cursor-pointer font-semibold">{title}</summary>
 
                   <div className="flex flex-col gap-2 mt-3">
                     <Text as="p">{description}</Text>
