@@ -28,20 +28,20 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
   const { createEvent: createUnitImprovementEvent } = useCreateEvent('unitImprovement');
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
 
-  const upgradeCost = calculateUnitUpgradeCostForLevel(unitId, unitVirtualLevel);
-
-  const hasEnoughResourcesToUpgrade = (() => {
+  const upgradeCost = (() => {
     if (isDeveloperModeEnabled) {
-      return true;
+      return [0, 0, 0, 0];
     }
 
-    return wood >= upgradeCost[0] && clay >= upgradeCost[1] && iron >= upgradeCost[2] && wheat >= upgradeCost[3];
+    return calculateUnitUpgradeCostForLevel(unitId, unitVirtualLevel);
   })();
 
-  const academyLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'ACADEMY')?.level ?? 0;
-  const isAcademyLevelHigherThanNextUpgradeLevel = academyLevel >= unitVirtualLevel + 1;
+  const hasEnoughResourcesToUpgrade = wood >= upgradeCost[0] && clay >= upgradeCost[1] && iron >= upgradeCost[2] && wheat >= upgradeCost[3];
 
-  const canUpgrade = hasEnoughResourcesToUpgrade && isAcademyLevelHigherThanNextUpgradeLevel;
+  const academyLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'SMITHY')?.level ?? 0;
+  const isSmithyLevelHigherThanNextUpgradeLevel = academyLevel >= unitVirtualLevel + 1;
+
+  const canUpgrade = hasEnoughResourcesToUpgrade && isSmithyLevelHigherThanNextUpgradeLevel;
 
   const upgradeUnit = () => {
     createUnitImprovementEvent({
@@ -86,7 +86,7 @@ export const UnitImprovementCard: React.FC<UnitImprovementCardProps> = ({ unitId
           <Text as="h3">{t('Available actions')}</Text>
           <Button
             variant="default"
-            disabled={canUpgrade}
+            disabled={!canUpgrade}
             onClick={() => upgradeUnit()}
           >
             {t('Upgrade to {{level}}', { level: unitVirtualLevel + 1 })}

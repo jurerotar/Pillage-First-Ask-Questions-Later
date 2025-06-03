@@ -176,13 +176,8 @@ export const UnitCard: React.FC<UnitCardProps> = (props) => {
 
   const { assessedRequirements } = assessUnitResearchReadiness(unitId, currentVillage);
 
-  const hasEnoughResourcesToResearch = (() => {
-    if (isDeveloperModeEnabled) {
-      return true;
-    }
-
-    return wood >= researchCost![0] && clay >= researchCost![1] && iron >= researchCost![2] && wheat >= researchCost![3];
-  })();
+  const hasEnoughResourcesToResearch =
+    wood >= researchCost![0] && clay >= researchCost![1] && iron >= researchCost![2] && wheat >= researchCost![3];
 
   const canResearchUnit = hasEnoughResourcesToResearch && canResearch;
 
