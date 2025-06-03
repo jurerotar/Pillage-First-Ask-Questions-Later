@@ -10,7 +10,7 @@ const elementStyles: Record<TextElement, string> = {
   h4: 'text-gray-800',
   h5: 'text-gray-800',
   h6: 'text-gray-800',
-  p: 'text-sm text-gray-800 leading-6',
+  p: 'text-gray-800 leading-6',
   label: '',
   span: '',
 };

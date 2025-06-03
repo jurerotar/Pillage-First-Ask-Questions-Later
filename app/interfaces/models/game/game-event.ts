@@ -30,6 +30,19 @@ type BuildingScheduledConstructionEvent = WithResourceCheck<BaseBuildingEvent>;
 
 type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
 
+type UnitResearchEvent = WithResourceCheck<
+  WithVillageId<{
+    unitId: Unit['id'];
+  }>
+>;
+
+type UnitImprovementEvent = WithResourceCheck<
+  WithVillageId<{
+    unitId: Unit['id'];
+    level: number;
+  }>
+>;
+
 type BaseUnitTrainingEvent = WithResourceCheck<
   WithVillageId<{
     amount: number;
@@ -55,6 +68,8 @@ export type GameEventType =
   | 'buildingDestruction'
   | 'troopTraining'
   | 'troopMovement'
+  | 'unitResearch'
+  | 'unitImprovement'
   | 'adventurePointIncrease';
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
@@ -63,6 +78,8 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingLevelChange: BuildingLevelChangeEvent;
   buildingDestruction: BuildingDestructionEvent;
   troopTraining: BaseUnitTrainingEvent;
+  unitResearch: UnitResearchEvent;
+  unitImprovement: UnitImprovementEvent;
   troopMovement: TroopMovementEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];

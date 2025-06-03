@@ -5,6 +5,7 @@ import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import { eventFactory } from 'app/factories/event-factory';
 import { isEventWithResourceCost, isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
 import { calculateVillageResourcesAt, subtractVillageResourcesAt } from 'app/(game)/api/utils/village';
+import type { ApiNotificationEvent } from 'app/interfaces/api';
 
 export const insertEvents = (queryClient: QueryClient, events: GameEvent[]) => {
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
@@ -13,7 +14,9 @@ export const insertEvents = (queryClient: QueryClient, events: GameEvent[]) => {
 };
 
 // TODO: Implement this
-export const notifyAboutEventCreationFailure = () => {};
+export const notifyAboutEventCreationFailure = () => {
+  self.postMessage({ eventKey: 'event:construction-not-started' } satisfies ApiNotificationEvent);
+};
 
 export const checkAndSubtractVillageResources = (queryClient: QueryClient, events: GameEvent[]): boolean => {
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event

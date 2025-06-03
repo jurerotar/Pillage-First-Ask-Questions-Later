@@ -144,7 +144,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { shouldShowBuildingNames } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { resourcesPath } = useGameNavigation();
+  const { resourcesPath, villagePath } = useGameNavigation();
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -158,9 +158,11 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
+  const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
+
   return (
     <Link
-      to={`${resourcesPath}/${buildingFieldId}`}
+      to={`${linkPrefix}/${buildingFieldId}`}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,

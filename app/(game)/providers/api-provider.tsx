@@ -6,7 +6,6 @@ import { createWorkerFetcher, type Fetcher } from 'app/(game)/utils/worker-fetch
 import type { Server } from 'app/interfaces/models/game/server';
 import type { ApiNotificationEvent } from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { eventWorkerReadyKey } from 'app/(game)/keys/event-keys';
 import {
   isEventResolvedNotificationMessageEvent,
   isNotificationMessageEvent,
@@ -29,7 +28,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
     const worker = new Worker(url.toString(), { type: 'module' });
 
     const handleWorkerReadyMessage = (event: MessageEvent) => {
-      if (isNotificationMessageEvent(event) && event.data.eventKey === eventWorkerReadyKey) {
+      if (isNotificationMessageEvent(event) && event.data.eventKey === 'event:worker-ready') {
         worker.removeEventListener('message', handleWorkerReadyMessage);
         resolve(worker);
       }

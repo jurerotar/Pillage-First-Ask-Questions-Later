@@ -113,7 +113,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
                   variant={areEffectValuesRising || index === 0 ? 'positive-change' : 'negative-change'}
                 />
                 <span>
-                  {doesBuildingExist && <span>{formatValue(Math.abs(currentLevelValue))} &rarr;</span>}
+                  {doesBuildingExist && <span>{formatValue(Math.abs(currentLevelValue))} &rarr; </span>}
                   {formatValue(Math.abs(nextLevelValue))}
                 </span>
               </span>

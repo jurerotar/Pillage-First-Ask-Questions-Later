@@ -12,7 +12,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { unitResearch } = useUnitResearch();
+  const { researchableUnits } = useUnitResearch();
 
   return (
     <BuildingSection>
@@ -26,18 +26,15 @@ export const AcademyUnitResearch = () => {
       </BuildingSectionContent>
       <BuildingSectionContent>
         <ul className="flex flex-col gap-2">
-          {unitResearch.map(({ unitId }) => (
-            <li key={unitId}>
+          {researchableUnits.map(({ id }) => (
+            <li key={id}>
               <UnitCard
-                unitId={unitId}
+                unitId={id}
                 showAttributes
                 showUnitCost
+                showImprovementLevel={false}
                 showResearch
-                {...(!assessUnitResearchReadiness(unitId, currentVillage).canResearch
-                  ? {
-                      showRequirements: true,
-                    }
-                  : {})}
+                {...(!assessUnitResearchReadiness(id, currentVillage).canResearch ? { showRequirements: true } : {})}
               />
             </li>
           ))}

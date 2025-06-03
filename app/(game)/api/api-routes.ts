@@ -35,6 +35,8 @@ import { getVillages, getVillagesBySlug } from 'app/(game)/api/handlers/village-
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
+import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
+import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -74,6 +76,22 @@ const heroRoutes = [
     method: 'GET',
     path: '/players/:playerId/hero/adventures/count',
     handler: getAdventurePoints,
+  },
+];
+
+const unitResearchRoutes = [
+  {
+    method: 'GET',
+    path: '/researched-units/:villageId',
+    handler: getResearchedUnits,
+  },
+];
+
+const unitImprovementRoutes = [
+  {
+    method: 'GET',
+    path: '/unit-improvements',
+    handler: getUnitImprovements,
   },
 ];
 
@@ -233,7 +251,7 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: 'villages/:villageId/troop-movements',
+    path: '/villages/:villageId/troop-movements',
     handler: getTroopMovementsByVillage,
   },
   {
@@ -296,6 +314,8 @@ const apiRoutes = [
   ...worldItemsRoutes,
   ...reputationRoutes,
   ...auctionRoutes,
+  ...unitResearchRoutes,
+  ...unitImprovementRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

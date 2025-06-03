@@ -1,12 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type {
-  eventConstructionCompletedKey,
-  eventConstructionNotStartedKey,
-  eventConstructionStartedKey,
-  eventResolvedKey,
-  eventWorkerReadyKey,
-} from 'app/(game)/keys/event-keys';
 
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
@@ -19,11 +12,11 @@ export type ApiHandler<TReturn = void, TParams extends string = '', TBody = Reco
 ) => Promise<TReturn>;
 
 type EventKey =
-  | typeof eventWorkerReadyKey
-  | typeof eventResolvedKey
-  | typeof eventConstructionNotStartedKey
-  | typeof eventConstructionStartedKey
-  | typeof eventConstructionCompletedKey;
+  | 'event:worker-ready'
+  | 'event:resolved'
+  | 'event:construction-not-started'
+  | 'event:construction-started'
+  | 'event:construction-completed';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
