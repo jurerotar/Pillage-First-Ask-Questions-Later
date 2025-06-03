@@ -9,6 +9,8 @@ export const isEventResolvedNotificationMessageEvent = (event: MessageEvent): ev
   return isNotificationMessageEvent(event) && event.data.eventKey === 'event:resolved';
 };
 
-export const isEventNotStartedNotificationMessageEvent = (event: MessageEvent): event is MessageEvent<EventResolvedApiNotificationEvent> => {
+export const isEventNotStartedNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventResolvedApiNotificationEvent> => {
   return isNotificationMessageEvent(event) && event.data.eventKey === 'event:construction-not-started';
 };
