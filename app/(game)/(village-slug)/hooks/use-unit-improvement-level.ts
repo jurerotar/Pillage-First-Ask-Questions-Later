@@ -7,8 +7,8 @@ export const useUnitImprovementLevel = (unitId: Unit['id']) => {
   const { unitImprovements } = useUnitImprovement();
   const { events } = useEvents();
 
-  const unitImprovement = unitImprovements.find((unitImprovement) => unitImprovement.unitId === unitId)!;
-  const unitLevel = unitImprovement.level;
+  const unitImprovement = unitImprovements.find((unitImprovement) => unitImprovement.unitId === unitId);
+  const unitLevel = unitImprovement?.level ?? 0;
 
   const unitImprovementEventsForUnit = events.filter((event) => {
     if (!isUnitImprovementEvent(event)) {
@@ -24,6 +24,7 @@ export const useUnitImprovementLevel = (unitId: Unit['id']) => {
   const isMaxLevel = unitVirtualLevel === 20;
 
   return {
+    canBeImproved: !!unitLevel,
     unitLevel,
     unitVirtualLevel,
     isMaxLevel,

@@ -28,7 +28,13 @@ import {
   renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
 import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/api/handlers/quest-handlers';
-import { cancelConstructionEvent, createNewEvents, getVillageEvents } from 'app/(game)/api/handlers/event-handlers';
+import {
+  cancelConstructionEvent,
+  createNewEvents,
+  getVillageEvents,
+  getVillageUnitImprovementEvent,
+  getVillageUnitResearchEvent,
+} from 'app/(game)/api/handlers/event-handlers';
 import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
 import { getMapFilters, updateMapFilter } from 'app/(game)/api/handlers/map-filters-handlers';
 import { getVillages, getVillagesBySlug } from 'app/(game)/api/handlers/village-handlers';
@@ -263,6 +269,16 @@ const villageRoutes = [
     method: 'GET',
     path: '/villages/:villageId/events',
     handler: getVillageEvents,
+  },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/events/unit-improvement',
+    handler: getVillageUnitImprovementEvent,
+  },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/events/unit-research',
+    handler: getVillageUnitResearchEvent,
   },
   {
     method: 'PATCH',

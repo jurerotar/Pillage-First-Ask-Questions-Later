@@ -1,4 +1,12 @@
-import { UnitCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
+import {
+  UnitAttributes,
+  UnitCard,
+  UnitCost,
+  UnitLevel,
+  UnitOverview,
+  UnitRecruitment,
+  UnitRequirements,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -29,17 +37,20 @@ export const BarracksTroopTraining = () => {
             <TabPanel key={id}>
               <UnitCard
                 unitId={id}
-                showAttributes
                 showOuterBorder={false}
-                {...(!hasResearchedUnit && {
-                  showRequirements: true,
-                })}
-                {...(hasResearchedUnit && {
-                  showImprovementLevel: true,
-                  showUnitCost: true,
-                  showUnitRecruitmentForm: true,
-                })}
-              />
+                durationEffect="barracksTrainingDuration"
+              >
+                <UnitOverview />
+                <UnitAttributes />
+                <UnitLevel />
+                {hasResearchedUnit && (
+                  <>
+                    <UnitCost />
+                    <UnitRecruitment />
+                  </>
+                )}
+                {!hasResearchedUnit && <UnitRequirements />}
+              </UnitCard>
             </TabPanel>
           );
         })}

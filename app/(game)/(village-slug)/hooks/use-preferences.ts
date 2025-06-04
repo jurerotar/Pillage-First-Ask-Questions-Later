@@ -36,7 +36,7 @@ export const usePreferences = () => {
   });
 
   return {
-    ...preferences,
+    preferences,
     updatePreference,
   };
 };

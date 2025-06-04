@@ -1,8 +1,8 @@
-import type { AvailableLocales } from 'app/interfaces/models/locale';
+import type { AvailableLocale } from 'app/interfaces/models/locale';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-const supportedLngs: AvailableLocales[] = ['en-US'];
+const supportedLngs: AvailableLocale[] = ['en-US'];
 
 await i18n.use(initReactI18next).init({
   lng: 'en-US',

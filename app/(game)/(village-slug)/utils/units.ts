@@ -74,7 +74,7 @@ export const calculateUnitUpgradeDurationForLevel = (unitId: Unit['id'], level: 
 
   const unitUpgradeDurationModifier = 1.35;
 
-  return Math.ceil((baseRecruitmentDuration * unitUpgradeDurationModifier ** (level - 1)) / 5) * 5 * 1000;
+  return Math.ceil((baseRecruitmentDuration * unitUpgradeDurationModifier ** (level - 1)) / 5) * 30;
 };
 
 export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
@@ -118,5 +118,5 @@ export const calculateUnitResearchDuration = (unitId: Unit['id']): number => {
     return 2;
   })();
 
-  return Math.ceil((baseRecruitmentDuration * unitResearchDurationModifier) / 5) * 5 * 1000;
+  return Math.ceil((baseRecruitmentDuration * unitResearchDurationModifier) / 5) * 5;
 };

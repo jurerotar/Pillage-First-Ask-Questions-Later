@@ -141,10 +141,12 @@ type OccupiedBuildingFieldProps = {
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { shouldShowBuildingNames } = usePreferences();
+  const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { resourcesPath, villagePath } = useGameNavigation();
+
+  const { shouldShowBuildingNames } = preferences;
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 

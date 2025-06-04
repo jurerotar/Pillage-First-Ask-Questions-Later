@@ -606,8 +606,10 @@ export const ErrorBoundary = () => {
 };
 
 const GameLayout = () => {
-  const { timeOfDay, skinVariant, colorScheme } = usePreferences();
+  const { preferences } = usePreferences();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+
+  const { timeOfDay, skinVariant, colorScheme } = preferences;
 
   useEffect(() => {
     const body = document.querySelector('body')!;
