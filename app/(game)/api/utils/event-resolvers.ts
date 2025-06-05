@@ -5,7 +5,6 @@ import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { EventResolvedApiNotificationEvent } from 'app/interfaces/api';
-import { eventResolvedKey } from 'app/(game)/keys/event-keys';
 
 let scheduledTimeout: number | null = null;
 
@@ -29,7 +28,7 @@ const resolveEvent = async (queryClient: QueryClient, eventId: GameEvent['id']) 
   });
 
   self.postMessage({
-    eventKey: eventResolvedKey,
+    eventKey: 'event:resolved',
     cachesToClearOnResolve: event.cachesToClearOnResolve,
   } satisfies EventResolvedApiNotificationEvent);
 };

@@ -9,9 +9,10 @@ import { Text } from 'app/components/text';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { HeroOverview } from 'app/(game)/(village-slug)/(hero)/components/hero-overview';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
 import { t } from 'i18next';
+import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
+import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -31,7 +32,7 @@ const HeroPage = () => {
   const { level } = calculateHeroLevel(experience);
   const { name } = server!.playerConfiguration!;
 
-  const tabs = ['default', 'adventures', 'auctions'];
+  const tabs = ['default', 'inventory', 'adventures', 'auctions'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
@@ -56,12 +57,16 @@ const HeroPage = () => {
         }}
       >
         <TabList>
-          <Tab>{t('Overview')}</Tab>
+          <Tab>{t('Attributes')}</Tab>
+          <Tab>{t('Inventory')}</Tab>
           <Tab>{t('Adventures')}</Tab>
           <Tab>{t('Auctions')}</Tab>
         </TabList>
         <TabPanel>
-          <HeroOverview />
+          <HeroAttributes />
+        </TabPanel>
+        <TabPanel>
+          <HeroInventory />
         </TabPanel>
         <TabPanel>
           <Adventures />

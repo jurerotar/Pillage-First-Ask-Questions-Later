@@ -1,28 +1,25 @@
 import React from 'react';
 import { clsx } from 'clsx';
 
-type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label' | 'p' | 'span';
+type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
 
 const elementStyles: Record<TextElement, string> = {
-  h1: 'text-2xl lg:text-3xl text-gray-800',
-  h2: 'text-xl font-medium text-gray-800',
-  h3: 'font-medium text-gray-800',
-  h4: 'text-gray-800',
-  h5: 'text-gray-800',
-  h6: 'text-gray-800',
-  p: 'text-sm text-gray-800 leading-6',
-  label: '',
-  span: '',
+  h1: 'text-2xl lg:text-3xl text-foreground',
+  h2: 'text-xl font-medium text-foreground',
+  h3: 'font-medium text-foreground',
+  h4: 'text-foreground',
+  h5: 'text-foreground',
+  h6: 'text-foreground',
+  p: 'text-foreground leading-6',
 };
 
 type TextVariant = 'body' | 'orange' | 'green' | 'muted';
 
-// TODO: Think of better names lol
 const variantStyles: Record<TextVariant, string> = {
-  body: 'text-black',
-  orange: 'text-orange-500',
-  green: 'text-green-600',
-  muted: 'text-gray-400',
+  body: 'text-foreground',
+  orange: 'text-warning',
+  green: 'text-success',
+  muted: 'text-muted-foreground',
 };
 
 type TextProps = React.HTMLAttributes<HTMLElement> & {

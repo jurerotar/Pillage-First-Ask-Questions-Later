@@ -7,6 +7,8 @@ import {
 } from 'app/(game)/api/handlers/resolvers/building-resolvers';
 import { troopTrainingEventResolver } from 'app/(game)/api/handlers/resolvers/troop-resolvers';
 import { adventurePointIncreaseResolver } from 'app/(game)/api/handlers/resolvers/adventure-resolvers';
+import { unitResearchResolver } from 'app/(game)/api/handlers/resolvers/unit-research-resolvers';
+import { unitImprovementResolver } from 'app/(game)/api/handlers/resolvers/unit-improvement-resolvers';
 // import { troopMovementResolver } from 'app/(game)/api/handlers/resolvers/troop-movement-resolvers';
 
 export const getGameEventResolver = (gameEventType: GameEventType) => {
@@ -28,6 +30,12 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'adventurePointIncrease': {
       return adventurePointIncreaseResolver;
+    }
+    case 'unitResearch': {
+      return unitResearchResolver;
+    }
+    case 'unitImprovement': {
+      return unitImprovementResolver;
     }
     // case 'troopMovement': {
     //   return troopMovementResolver;

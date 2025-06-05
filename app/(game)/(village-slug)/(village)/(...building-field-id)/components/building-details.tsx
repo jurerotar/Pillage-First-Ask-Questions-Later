@@ -14,23 +14,20 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import {
-  BuildingSection,
-  BuildingSectionContent,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Skeleton } from 'app/components/ui/skeleton';
 
 const BuildingTabFallback = () => {
   return (
-    <BuildingSection>
-      <BuildingSectionContent>
+    <Section>
+      <SectionContent>
         <Skeleton className="flex w-60 h-6" />
         <Skeleton className="flex w-full h-16" />
-      </BuildingSectionContent>
-      <BuildingSectionContent>
+      </SectionContent>
+      <SectionContent>
         <Skeleton className="flex w-full h-30" />
-      </BuildingSectionContent>
-    </BuildingSection>
+      </SectionContent>
+    </Section>
   );
 };
 
@@ -207,13 +204,13 @@ export const BuildingDetails = () => {
             <Tab>{t('Upgrade details')}</Tab>
           </TabList>
           <TabPanel>
-            <BuildingSection>
-              <BuildingSectionContent>
+            <Section>
+              <SectionContent>
                 <Text as="h2">{t('{{buildingName}} overview', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</Text>
                 <BuildingOverview buildingId={buildingId} />
                 <BuildingActions buildingId={buildingId} />
-              </BuildingSectionContent>
-            </BuildingSection>
+              </SectionContent>
+            </Section>
           </TabPanel>
           {buildingSpecificTabs.map((name: string) => {
             const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;

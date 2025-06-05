@@ -5,6 +5,7 @@ import { seededRandomIntFromInterval } from 'app/utils/common';
 import { Alert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 
 export const Adventures = () => {
   const { t } = useTranslation();
@@ -21,9 +22,16 @@ export const Adventures = () => {
   const _shortAdventureDuration = seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
 
   return (
-    <article className="flex flex-col gap-2">
-      <Text as="h2">{t('Adventures')}</Text>
+    <Section>
+      <SectionContent>
+        <Text as="h2">{t('Adventures')}</Text>
+        <Text as="p">
+          {t(
+            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
+          )}
+        </Text>
+      </SectionContent>
       <Alert variant="warning">{t('This page is still under development')}</Alert>
-    </article>
+    </Section>
   );
 };

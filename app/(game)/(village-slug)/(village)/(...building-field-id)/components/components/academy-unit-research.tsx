@@ -1,48 +1,84 @@
-import { UnitCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
+import {
+  UnitAttributes,
+  UnitCard,
+  UnitCost,
+  UnitOverview,
+  UnitRequirements,
+  UnitResearch,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import {
-  BuildingSection,
-  BuildingSectionContent,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { unitResearch } = useUnitResearch();
+  const { researchableUnits } = useUnitResearch();
+  const { eventsByType: currentVillageUnitResearchEvents, hasEvents: hasResearchEventsOngoing } = useEventsByType('unitResearch');
 
   return (
-    <BuildingSection>
-      <BuildingSectionContent>
+    <Section>
+      <SectionContent>
         <Text as="h2">{t('Unit research')}</Text>
         <Text as="p">
           {t(
             'To be able to train stronger units, you will need to do research in your academy. The more this building is upgraded, the more you will have access to advanced research.',
           )}
         </Text>
-      </BuildingSectionContent>
-      <BuildingSectionContent>
+      </SectionContent>
+      <SectionContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>{t('Unit')}</TableHeaderCell>
+              <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {hasResearchEventsOngoing && (
+              <TableRow>
+                <TableCell>{assetsT(`UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`, { count: 1 })}</TableCell>
+                <TableCell>
+                  <Countdown endsAt={currentVillageUnitResearchEvents[0].startsAt + currentVillageUnitResearchEvents[0].duration} />
+                </TableCell>
+              </TableRow>
+            )}
+            {!hasResearchEventsOngoing && (
+              <TableRow>
+                <TableCell colSpan={2}>{t('No research is currently taking place')}</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </SectionContent>
+      <SectionContent>
         <ul className="flex flex-col gap-2">
-          {unitResearch.map(({ unitId }) => (
-            <li key={unitId}>
-              <UnitCard
-                unitId={unitId}
-                showAttributes
-                showUnitCost
-                showResearch
-                {...(!assessUnitResearchReadiness(unitId, currentVillage).canResearch
-                  ? {
-                      showRequirements: true,
-                    }
-                  : {})}
-              />
-            </li>
-          ))}
+          {researchableUnits.map(({ id }) => {
+            const { canResearch } = assessUnitResearchReadiness(id, currentVillage);
+            return (
+              <li key={id}>
+                <UnitCard
+                  unitId={id}
+                  buildingId="BARRACKS"
+                >
+                  <UnitOverview />
+                  <UnitAttributes />
+                  <UnitCost />
+                  <UnitResearch />
+                  {!canResearch && <UnitRequirements />}
+                </UnitCard>
+              </li>
+            );
+          })}
         </ul>
-      </BuildingSectionContent>
-    </BuildingSection>
+      </SectionContent>
+    </Section>
   );
 };

@@ -22,5 +22,5 @@ export const matchRoute = (url: string, method: string) => {
     }
   }
 
-  return null;
+  throw new Error(`Cannot match route ${method}::${url}`);
 };

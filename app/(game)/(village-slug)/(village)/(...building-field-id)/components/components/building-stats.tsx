@@ -14,10 +14,7 @@ import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
 import { formatTime } from 'app/utils/time';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import {
-  BuildingSection,
-  BuildingSectionContent,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 
 export const BuildingStats = () => {
   const { t } = useTranslation();
@@ -30,15 +27,15 @@ export const BuildingStats = () => {
   const mainBuildingLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0;
 
   return (
-    <BuildingSection>
-      <BuildingSectionContent>
+    <Section>
+      <SectionContent>
         <Text as="h2">{t('Upgrade details')}</Text>
         <Text as="p">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores consectetur cum deleniti dicta, distinctio error facilis
           fugit illo iure pariatur porro qui quibusdam rerum saepe temporibus totam unde vitae.
         </Text>
-      </BuildingSectionContent>
-      <BuildingSectionContent>
+      </SectionContent>
+      <SectionContent>
         <Tabs>
           <TabList>
             <Tab>{t('Upgrade cost')}</Tab>
@@ -154,7 +151,7 @@ export const BuildingStats = () => {
             </section>
           </TabPanel>
         </Tabs>
-      </BuildingSectionContent>
-    </BuildingSection>
+      </SectionContent>
+    </Section>
   );
 };

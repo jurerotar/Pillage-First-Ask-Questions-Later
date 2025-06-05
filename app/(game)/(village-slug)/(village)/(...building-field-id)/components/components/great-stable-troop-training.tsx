@@ -2,8 +2,18 @@ import { useTranslation } from 'react-i18next';
 import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { UnitCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
+import {
+  UnitAttributes,
+  UnitCard,
+  UnitCost,
+  UnitLevel,
+  UnitOverview,
+  UnitRecruitment,
+  UnitRequirements,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { TroopTrainingTable } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/troop-training-table';
 
 export const GreatStableTroopTraining = () => {
   const { t } = useTranslation();
@@ -14,36 +24,52 @@ export const GreatStableTroopTraining = () => {
   const cavalryUnits = getTribeUnitsByCategory('cavalry');
 
   return (
-    <article className="flex flex-col gap-2">
-      <Text as="h2">{t('Train cavalry units')}</Text>
-      <Tabs>
-        <TabList>
-          {cavalryUnits.map(({ id }) => (
-            <Tab key={id}>{assetsT(`UNITS.${id}.NAME`, { count: 1 })}</Tab>
-          ))}
-        </TabList>
-        {cavalryUnits.map(({ id }) => {
-          const hasResearchedUnit = isUnitResearched(id);
+    <Section>
+      <SectionContent>
+        <Text as="h2">{t('Train cavalry units')}</Text>
+        <Text as="p">
+          {t(
+            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam consequuntur corporis ducimus esse iste itaque laudantium minima modi molestiae molestias nam pariatur perspiciatis placeat praesentium quaerat rerum sit, ullam vitae!',
+          )}
+        </Text>
+      </SectionContent>
+      <SectionContent>
+        <TroopTrainingTable buildingId="GREAT_STABLE" />
+      </SectionContent>
+      <SectionContent>
+        <Tabs>
+          <TabList>
+            {cavalryUnits.map(({ id }) => (
+              <Tab key={id}>{assetsT(`UNITS.${id}.NAME`, { count: 1 })}</Tab>
+            ))}
+          </TabList>
+          {cavalryUnits.map(({ id }) => {
+            const hasResearchedUnit = isUnitResearched(id);
 
-          return (
-            <TabPanel key={id}>
-              <UnitCard
-                unitId={id}
-                showAttributes
-                showOuterBorder={false}
-                {...(!hasResearchedUnit && {
-                  showRequirements: true,
-                })}
-                {...(hasResearchedUnit && {
-                  showImprovementLevel: true,
-                  showUnitCost: true,
-                  showUnitRecruitmentForm: true,
-                })}
-              />
-            </TabPanel>
-          );
-        })}
-      </Tabs>
-    </article>
+            return (
+              <TabPanel key={id}>
+                <UnitCard
+                  unitId={id}
+                  buildingId="GREAT_BARRACKS"
+                  showOuterBorder={false}
+                  durationEffect="greatBarracksTrainingDuration"
+                >
+                  <UnitOverview />
+                  <UnitAttributes />
+                  <UnitLevel />
+                  {hasResearchedUnit && (
+                    <>
+                      <UnitCost />
+                      <UnitRecruitment />
+                    </>
+                  )}
+                  {!hasResearchedUnit && <UnitRequirements />}
+                </UnitCard>
+              </TabPanel>
+            );
+          })}
+        </Tabs>
+      </SectionContent>
+    </Section>
   );
 };

@@ -17,7 +17,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
-const iconClassName = 'text-2xl lg:text-3xl bg-white text-gray-400 p-2 box-content border border-gray-200 rounded-xs';
+const iconClassName = 'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
 
 type ConstructionQueueBuildingProps = {
   buildingEvent: GameEvent<'buildingConstruction'>;
@@ -51,9 +51,9 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer"
       >
-        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-white px-2 pb-4 pt-0 box-content border border-gray-200 rounded-xs" />
+        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2 pb-4 pt-0 box-content border border-border rounded-xs" />
         <Countdown
-          className="absolute bottom-0 left-0 text-xs w-full leading-none bg-white border border-gray-200 text-center"
+          className="absolute bottom-0 left-0 text-xs w-full leading-none bg-background border border-border text-center"
           endsAt={buildingEvent.startsAt + buildingEvent.duration}
         />
       </div>
@@ -61,8 +61,8 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
       <Tooltip
         id={tooltipId}
         clickable
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-white !w-fit !text-black border border-gray-200"
-        classNameArrow="border-r border-b border-gray-200"
+        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !w-fit !text-black border border-border"
+        classNameArrow="border-r border-b border-border"
         place={tooltipPosition}
         {...(isWiderThanMd && {
           isOpen: true,
@@ -73,14 +73,14 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
         })}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex md:hidden border-b-1 border-gray-200 pb-1 text-sm">
+          <div className="flex md:hidden border-b-1 border-border pb-1 text-sm">
             <b>{t('Under construction')}</b>
           </div>
           <div className="flex gap-2">
             <div className="flex items-center">
               <LuConstruction className="text-xl lg:text-2xl text-gray-400 box-content" />
             </div>
-            <div className="flex flex-col px-2 border-x border-gray-200">
+            <div className="flex flex-col px-2 border-x border-border">
               <span className="inline-flex gap-1 whitespace-nowrap">
                 <b>{assetsT(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
                 <span className="inline-flex items-center text-sm">
@@ -132,7 +132,7 @@ export const ConstructionQueue = () => {
   }
 
   return (
-    <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-l-none rounded-xs">
+    <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
       {tribe !== 'romans' && (
         <li>
           {villageEventQueue.length > 0 && (

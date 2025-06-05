@@ -32,10 +32,12 @@ TabList.tabsRole = 'TabList';
 export const Tab: ReactTabsFunctionComponent<TabProps> = ({ children, ...rest }) => {
   return (
     <ReactTabsTab
-      selectedClassName="border-b-0 bg-white"
-      className={
-        'flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer border-t border-b border-r border-gray-500 bg-gray-200 first:rounded-tl-xs last:rounded-tr-xs first:border-l border-l-0'
-      }
+      selectedClassName="border-b-0 bg-input"
+      className={`
+        flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer
+        border-t border-b border-r border-border
+        first:rounded-tl-xs last:rounded-tr-xs first:border-l border-l-0
+      `}
       {...rest}
     >
       {children}
@@ -48,7 +50,7 @@ Tab.tabsRole = 'Tab';
 export const TabPanel: ReactTabsFunctionComponent<TabPanelProps> = ({ children, ...rest }) => {
   return (
     <ReactTabsTabPanel
-      selectedClassName="border border-black p-2 rounded-bl-xs rounded-br-xs"
+      selectedClassName="border border-border p-2 rounded-bl-xs rounded-br-xs"
       {...rest}
     >
       {children}

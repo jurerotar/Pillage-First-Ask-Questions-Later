@@ -19,7 +19,7 @@ const MagnificationButton = ({ direction }: { direction: 'increase' | 'decrease'
       onClick={onClick}
       disabled={isDisabled}
       className={clsx(
-        'rounded-md p-2 disabled:text-black text-muted-foreground hover:bg-accent transition-colors duration-300 border border-gray-300',
+        'rounded-md p-2 disabled:text-black text-muted-foreground hover:bg-accent transition-colors duration-300 border border-border',
         isDisabled && 'bg-gray-200',
       )}
       data-testid={`map-controls-magnification-${direction}-button`}
@@ -60,7 +60,7 @@ export const MapControls = () => {
         variant="outline"
         size="sm"
         value={activeValues}
-        className="pointer-events-auto flex flex-wrap gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2"
+        className="pointer-events-auto flex flex-wrap gap-1 sm:gap-2 rounded-md bg-background p-1 md:p-2"
       >
         <ToggleGroupItem
           value="shouldShowFactionReputation"
@@ -129,7 +129,7 @@ export const MapControls = () => {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-white p-1 md:p-2">
+      <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-background p-1 md:p-2">
         <MagnificationButton direction="increase" />
         <MagnificationButton direction="decrease" />
       </div>

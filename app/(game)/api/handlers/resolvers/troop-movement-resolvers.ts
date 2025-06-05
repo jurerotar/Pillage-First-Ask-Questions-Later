@@ -26,6 +26,7 @@ import { newVillageQuestsFactory } from 'app/factories/quest-factory';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
   const { villageId, targetId, troops, startsAt, duration } = args;
@@ -111,16 +112,8 @@ const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = asy
   });
 
   queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], (unitResearch) => {
-    return unitResearch!.map((research, index) => {
-      if (index === 0) {
-        return {
-          ...research,
-          researchedIn: [...research.researchedIn, newVillage.id],
-        };
-      }
-
-      return research;
-    });
+    const newVillageUnitResearch = newVillageUnitResearchFactory(newVillage.id, player.tribe);
+    return [...unitResearch!, ...newVillageUnitResearch];
   });
 };
 

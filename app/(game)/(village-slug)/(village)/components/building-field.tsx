@@ -141,10 +141,12 @@ type OccupiedBuildingFieldProps = {
 const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { shouldShowBuildingNames } = usePreferences();
+  const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { resourcesPath } = useGameNavigation();
+  const { resourcesPath, villagePath } = useGameNavigation();
+
+  const { shouldShowBuildingNames } = preferences;
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -158,9 +160,11 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
+  const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
+
   return (
     <Link
-      to={`${resourcesPath}/${buildingFieldId}`}
+      to={`${linkPrefix}/${buildingFieldId}`}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
@@ -179,7 +183,7 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
         buildingEvent={currentBuildingFieldBuildingEvent}
       />
       {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
           {hasEvent && <Countdown endsAt={currentBuildingFieldBuildingEvent.startsAt + currentBuildingFieldBuildingEvent.duration} />}
           {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>

@@ -35,24 +35,22 @@ const ReportsPage = () => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Reports')}</Text>
-      <div className="flex flex-col gap-2">
-        <Tabs>
-          <TabList>
-            <Tab>{t('All')}</Tab>
-            <Tab>{t('Archived')}</Tab>
-            <Tab>{t('This village')}</Tab>
-          </TabList>
-          <TabPanel>
-            <Reports />
-          </TabPanel>
-          <TabPanel>
-            <ArchivedReports />
-          </TabPanel>
-          <TabPanel>
-            <CurrentVillageReports />
-          </TabPanel>
-        </Tabs>
-      </div>
+      <Tabs>
+        <TabList>
+          <Tab>{t('All')}</Tab>
+          <Tab>{t('Archived')}</Tab>
+          <Tab>{t('This village')}</Tab>
+        </TabList>
+        <TabPanel>
+          <Reports />
+        </TabPanel>
+        <TabPanel>
+          <ArchivedReports />
+        </TabPanel>
+        <TabPanel>
+          <CurrentVillageReports />
+        </TabPanel>
+      </Tabs>
     </>
   );
 };

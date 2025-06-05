@@ -7,10 +7,7 @@ import { Text } from 'app/components/text';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
 import { useTranslation } from 'react-i18next';
 import { normalizeForcedFloatValue } from 'app/utils/common';
-import {
-  BuildingSection,
-  BuildingSectionContent,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 
 const formatBonus = (number: number) => {
   return Math.trunc(normalizeForcedFloatValue(number) * 100);
@@ -52,8 +49,8 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
   const hasBonusValues = summedBonusProductionValues > 0;
 
   return (
-    <BuildingSection>
-      <BuildingSectionContent>
+    <Section>
+      <SectionContent>
         <Text as="h2">{t('Production bonuses')}</Text>
         <Table>
           <TableHeader>
@@ -98,9 +95,9 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
             </TableRow>
           </TableBody>
         </Table>
-      </BuildingSectionContent>
+      </SectionContent>
 
-      <BuildingSectionContent>
+      <SectionContent>
         <Text as="h2">{t('Base production')}</Text>
         <Table>
           <TableHeader>
@@ -134,7 +131,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({ eff
             </TableRow>
           </TableBody>
         </Table>
-      </BuildingSectionContent>
-    </BuildingSection>
+      </SectionContent>
+    </Section>
   );
 };

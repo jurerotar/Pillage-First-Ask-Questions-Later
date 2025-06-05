@@ -56,7 +56,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
   });
 
   return (
-    <article className="flex flex-col p-2 md:p-4 border border-gray-500 content-visibility-auto contain-intrinsic-size-[auto_none]">
+    <article className="flex flex-col p-2 md:p-4 border border-border content-visibility-auto contain-intrinsic-size-[auto_none]">
       <BuildingOverview
         buildingId={buildingId}
         titleCount={sameBuildingInstances.length}
@@ -65,13 +65,13 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
       <BuildingActions buildingId={buildingId} />
       {/* Show building requirements if building can't be built */}
       {!canBuild && !specialFieldIds.includes(buildingFieldId!) && (
-        <section className="flex flex-col border-t border-gray-200 pt-2 gap-2">
+        <section className="flex flex-col border-t border-border pt-2 gap-2">
           <Text as="h3">{t('Requirements')}</Text>
           <ul className="flex gap-x-2 flex-wrap">
             {requirementsToDisplay.map((assessedRequirement: AssessedBuildingRequirement, index) => (
               <Fragment key={assessedRequirement.id}>
                 <li className="whitespace-nowrap">
-                  <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
+                  <span className={clsx(assessedRequirement.fulfilled && 'text-muted-foreground line-through')}>
                     {assessedRequirement.type === 'amount' &&
                       instanceAlreadyExists &&
                       t('{{building}} level {{level}}', { building: assetsT(`BUILDINGS.${buildingId}.NAME`), level: maxLevel })}

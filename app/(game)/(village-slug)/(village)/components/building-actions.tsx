@@ -145,7 +145,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
     return (
       <section
         data-testid="building-actions-section"
-        className="flex flex-col gap-2 pt-2 border-t border-gray-200"
+        className="flex flex-col gap-2 pt-2 border-t border-border"
       >
         <Text as="h3">{t('Available actions')}</Text>
         <BuildingCardActionsConstruction
@@ -163,7 +163,7 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   return (
     <section
       data-testid="building-actions-section"
-      className="flex flex-col gap-2 pt-2 border-t border-gray-200"
+      className="flex flex-col gap-2 pt-2 border-t border-border"
     >
       <Text as="h3">{t('Available actions')}</Text>
       {!isMaxLevel && (

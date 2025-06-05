@@ -55,7 +55,7 @@
 
 // Unoccupied occupiable tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  html[data-skin-variant="#{$skinVariantSelector}"] {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
     $base: '#{$imagesPath}/map/unoccupied-tiles';
 
     .unoccupied-tile {
@@ -70,7 +70,7 @@
 
 // Oasis tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  html[data-skin-variant="#{$skinVariantSelector}"] {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
     $base: '#{$imagesPath}/map/oasis';
 
     .oasis-tile {

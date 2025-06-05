@@ -19,22 +19,17 @@ import {
   patchMultipleReports,
   patchReport,
 } from 'app/(game)/api/handlers/report-handlers';
-import {
-  getPlayerById,
-  getPlayers,
-  getTroopMovementsByVillage,
-  getTroopsByVillage,
-  getVillagesByPlayer,
-  renameVillage,
-} from 'app/(game)/api/handlers/player-handlers';
+import { getPlayerById, getPlayers, getTroopsByVillage, getVillagesByPlayer, renameVillage } from 'app/(game)/api/handlers/player-handlers';
 import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/api/handlers/quest-handlers';
-import { cancelConstructionEvent, createNewEvents, getVillageEvents } from 'app/(game)/api/handlers/event-handlers';
+import { cancelConstructionEvent, createNewEvents, getVillageEvents, getVillageEventsByType } from 'app/(game)/api/handlers/event-handlers';
 import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
 import { getMapFilters, updateMapFilter } from 'app/(game)/api/handlers/map-filters-handlers';
 import { getVillages, getVillagesBySlug } from 'app/(game)/api/handlers/village-handlers';
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
+import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
+import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -67,13 +62,29 @@ const heroRoutes = [
   },
   {
     method: 'POST',
-    path: '/players/:playerId/hero/start',
+    path: '/players/:playerId/hero/adventures/start',
     handler: () => {},
   },
   {
     method: 'GET',
     path: '/players/:playerId/hero/adventures/count',
     handler: getAdventurePoints,
+  },
+];
+
+const unitResearchRoutes = [
+  {
+    method: 'GET',
+    path: '/researched-units/:villageId',
+    handler: getResearchedUnits,
+  },
+];
+
+const unitImprovementRoutes = [
+  {
+    method: 'GET',
+    path: '/unit-improvements',
+    handler: getUnitImprovements,
   },
 ];
 
@@ -233,11 +244,6 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: 'villages/:villageId/troop-movements',
-    handler: getTroopMovementsByVillage,
-  },
-  {
-    method: 'GET',
     path: '/villages/:villageId/effects',
     handler: getVillageEffects,
   },
@@ -245,6 +251,11 @@ const villageRoutes = [
     method: 'GET',
     path: '/villages/:villageId/events',
     handler: getVillageEvents,
+  },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/events/:eventType',
+    handler: getVillageEventsByType,
   },
   {
     method: 'PATCH',
@@ -296,6 +307,8 @@ const apiRoutes = [
   ...worldItemsRoutes,
   ...reputationRoutes,
   ...auctionRoutes,
+  ...unitResearchRoutes,
+  ...unitImprovementRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

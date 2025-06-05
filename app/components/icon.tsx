@@ -57,7 +57,7 @@ export const Icon: React.FC<IconProps> = (props) => {
         >
           <ComputedIcon />
           {hasVariantIcon && (
-            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-white">
+            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-background">
               {variant === 'positive-change' && <IconPositiveChangeVariant />}
               {variant === 'negative-change' && <IconNegativeChangeVariant />}
             </span>

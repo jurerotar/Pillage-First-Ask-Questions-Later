@@ -55,7 +55,7 @@ const Counter: React.FC<CounterProps> = ({ counter }) => {
   }
 
   return (
-    <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+    <span className="absolute size-5 lg:size-6 text-sm font-medium bg-background z-10 -top-2 lg:top-0 -right-2 lg:-right-3 rounded-full border lg:border-2 border-border shadow-md inline-flex justify-center items-center">
       {counter > 99 ? '99' : counter}
     </span>
   );
@@ -83,13 +83,13 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo((
     <button
       type="button"
       className="
-        flex items-center justify-center shadow-md rounded-xs px-3 py-2 border border-gray-300 relative
+        flex items-center justify-center shadow-md rounded-xs px-3 py-2 border border-border relative
         bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
         lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
       "
       {...rest}
     >
-      <span className="lg:size-10 lg:bg-white lg:rounded-full flex items-center justify-center">{children}</span>
+      <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">{children}</span>
     </button>
   );
 });
@@ -98,7 +98,7 @@ const DiscordLink = () => {
   return (
     <a
       href="https://discord.com/invite/Ep7NKVXUZA"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-white"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background"
       title="Discord"
       rel="noopener"
     >
@@ -125,7 +125,7 @@ const HeroNavigationItem = () => {
   return (
     <Link
       to={heroPath}
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-gray-300 relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
       aria-label={t('Hero')}
       title={t('Hero')}
     >
@@ -133,11 +133,11 @@ const HeroNavigationItem = () => {
         <MdFace className="text-2xl" />
       </span>
       {isLevelUpAvailable && (
-        <span className="absolute text-center size-4 bg-white top-0 -right-1.5 rounded-full border border-gray-300 shadow-md">
+        <span className="absolute text-center size-4 bg-background top-0 -right-1.5 rounded-full border border-border shadow-md">
           <HiStar className="text-yellow-300 text-sm" />
         </span>
       )}
-      <span className="absolute size-4 bg-white bottom-0 -right-1.5 rounded-full border border-gray-300 shadow-md inline-flex justify-center items-center">
+      <span className="absolute size-4 bg-background bottom-0 -right-1.5 rounded-full border border-border shadow-md inline-flex justify-center items-center">
         {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
         {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
@@ -149,7 +149,7 @@ const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> = 
   return (
     <button
       type="button"
-      className="px-3 py-0.5 rounded-xs bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] flex items-center justify-center"
+      className="px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card flex items-center justify-center"
       {...rest}
     >
       {children}
@@ -174,9 +174,9 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo((
       )}
       {...htmlProps}
     >
-      <span className="size-12 lg:size-15 bg-white rounded-full flex items-center justify-center">{children}</span>
+      <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">{children}</span>
       {counter > 0 && (
-        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-white top-0 -right-3 rounded-full border lg:border-2 border-gray-300 shadow-md inline-flex justify-center items-center">
+        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-background top-0 -right-3 rounded-full border lg:border-2 border-border shadow-md inline-flex justify-center items-center">
           {counter}
         </span>
       )}
@@ -384,8 +384,8 @@ const TopNavigation = () => {
   return (
     <header className="flex flex-col w-full relative">
       {isWiderThanLg && (
-        <div className="flex-col hidden lg:flex shadow-sm bg-white">
-          <div className="hidden lg:flex w-full bg-gray-300 py-1 px-2">
+        <div className="flex-col hidden lg:flex shadow-sm bg-card">
+          <div className="hidden lg:flex w-full bg-muted py-1 px-2">
             <nav className="hidden lg:flex justify-end container mx-auto">
               <ul className="flex gap-1">
                 <li>
@@ -517,7 +517,7 @@ const TopNavigation = () => {
           </div>
         </>
       )}
-      <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-white max-w-xl w-full lg:z-20 px-2 shadow-lg border-b border-b-gray-200 lg:border-b-none">
+      <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-20 px-2 shadow-lg">
         <ResourceCounters />
       </div>
     </header>
@@ -606,8 +606,10 @@ export const ErrorBoundary = () => {
 };
 
 const GameLayout = () => {
-  const { timeOfDay, skinVariant, colorScheme } = usePreferences();
+  const { preferences } = usePreferences();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+
+  const { timeOfDay, skinVariant, colorScheme } = preferences;
 
   useEffect(() => {
     const body = document.querySelector('body')!;
@@ -625,14 +627,10 @@ const GameLayout = () => {
     }
     const html = document.documentElement;
 
-    html.setAttribute('data-color-scheme', colorScheme);
-    html.setAttribute('data-skin-variant', skinVariant);
-    html.setAttribute('data-time-of-day', timeOfDay);
+    html.classList.add(colorScheme, `skin-variant-${skinVariant}`, `time-of-day-${timeOfDay}`);
 
     return () => {
-      html.removeAttribute('data-color-scheme');
-      html.removeAttribute('data-skin-variant');
-      html.removeAttribute('data-time-of-day');
+      html.classList.remove(colorScheme, `skin-variant-${skinVariant}`, `time-of-day-${timeOfDay}`);
     };
   }, [skinVariant, timeOfDay, colorScheme]);
 

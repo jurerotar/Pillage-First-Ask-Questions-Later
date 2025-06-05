@@ -8,10 +8,7 @@ import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { Link } from 'react-router';
-import {
-  BuildingSection,
-  BuildingSectionContent,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/building-layout';
+import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 
@@ -76,22 +73,22 @@ export const HerosMansionOasis = () => {
   const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] = oasisOccupiedByCurrentVillage;
 
   return (
-    <BuildingSection>
-      <BuildingSectionContent>
+    <Section>
+      <SectionContent>
         <Text as="h2">{t('Oasis management')}</Text>
         <Text as="p">
           {t(
             "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still conquer an oasis (1 on level 10, 2 on level 15 and 3 on level 20).",
           )}
         </Text>
-      </BuildingSectionContent>
+      </SectionContent>
       <Tabs>
         <TabList>
           <Tab>{t('Occupied oasis')}</Tab>
           <Tab>{t('Oasis within reach')}</Tab>
         </TabList>
         <TabPanel>
-          <BuildingSectionContent>
+          <SectionContent>
             <Text as="h2">{t('Occupied oasis')}</Text>
             <div className="overflow-x-scroll scrollbar-hidden">
               <Table>
@@ -118,10 +115,10 @@ export const HerosMansionOasis = () => {
                 </TableBody>
               </Table>
             </div>
-          </BuildingSectionContent>
+          </SectionContent>
         </TabPanel>
         <TabPanel>
-          <BuildingSectionContent>
+          <SectionContent>
             <Text as="h2">{t('Oasis within reach')}</Text>
             <div className="overflow-x-scroll scrollbar-hidden">
               <Table>
@@ -165,9 +162,9 @@ export const HerosMansionOasis = () => {
                 </TableBody>
               </Table>
             </div>
-          </BuildingSectionContent>
+          </SectionContent>
         </TabPanel>
       </Tabs>
-    </BuildingSection>
+    </Section>
   );
 };

@@ -1,32 +1,21 @@
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import type { Unit } from 'app/interfaces/models/game/unit';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useUnitImprovement = () => {
-  const queryClient = useQueryClient();
+  const { fetcher } = use(ApiContext);
 
   const { data: unitImprovements } = useSuspenseQuery<UnitImprovement[]>({
     queryKey: [unitImprovementCacheKey],
+    queryFn: async () => {
+      const { data } = await fetcher<UnitImprovement[]>('/unit-improvements');
+      return data;
+    },
   });
-
-  const upgradeUnitTier = (tier: Unit['tier']) => {
-    queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], (prevData) => {
-      return prevData!.map((unitImprovement) => {
-        if (tier !== unitImprovement.tier) {
-          return unitImprovement;
-        }
-
-        return {
-          ...unitImprovement,
-          level: unitImprovement.level + 1,
-        };
-      });
-    });
-  };
 
   return {
     unitImprovements,
-    upgradeUnitTier,
   };
 };

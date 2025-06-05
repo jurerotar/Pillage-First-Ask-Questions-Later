@@ -30,6 +30,27 @@ export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (que
   });
 };
 
+export const getVillageEventsByType: ApiHandler<GameEvent[], 'villageId' | 'eventType'> = async (queryClient, { params }) => {
+  const { villageId: villageIdParam, eventType } = params;
+  const villageId = Number.parseInt(villageIdParam);
+
+  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
+
+  const result: GameEvent[] = [];
+
+  for (const event of events) {
+    if (!isVillageEvent(event)) {
+      continue;
+    }
+
+    if (event.type === eventType && event.villageId === villageId) {
+      result.push(event);
+    }
+  }
+
+  return result;
+};
+
 type CreateNewEventsBody = {
   events: GameEvent[];
 };
