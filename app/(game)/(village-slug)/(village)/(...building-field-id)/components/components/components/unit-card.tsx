@@ -39,8 +39,7 @@ import {
   unitImprovementCacheKey,
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { useCurrentVillageUnitImprovementEvent } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-current-village-unit-improvement-event';
-import { useCurrentVillageUnitResearchEvent } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-current-village-unit-research-event';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 type DurationEffect = PickLiteral<
   EffectId,
@@ -203,7 +202,7 @@ export const UnitResearch = () => {
   const hasResearched = isUnitResearched(unitId);
   const { createEvent: createUnitResearchEvent } = useCreateEvent('unitResearch');
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageUnitResearchEvent } = useCurrentVillageUnitResearchEvent();
+  const { hasEvents: hasResearchEventsOngoing } = useEventsByType('unitResearch');
 
   const unitResearchDuration = (() => {
     if (isDeveloperModeEnabled) {
@@ -226,7 +225,7 @@ export const UnitResearch = () => {
   const hasEnoughResourcesToResearch =
     wood >= researchCost![0] && clay >= researchCost![1] && iron >= researchCost![2] && wheat >= researchCost![3];
 
-  const canStartResearch = hasEnoughResourcesToResearch && !currentVillageUnitResearchEvent && canResearch;
+  const canStartResearch = hasEnoughResourcesToResearch && !hasResearchEventsOngoing && canResearch;
 
   const researchUnit = () => {
     createUnitResearchEvent({
@@ -277,8 +276,8 @@ export const UnitResearch = () => {
             variant="default"
             disabled={!canStartResearch}
           >
-            {currentVillageUnitResearchEvent && t('Research is already taking place')}
-            {!currentVillageUnitResearchEvent && t('Research {{unit}}', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
+            {hasResearchEventsOngoing && t('Research is already taking place')}
+            {!hasResearchEventsOngoing && t('Research {{unit}}', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
           </Button>
         </section>
       )}
@@ -295,7 +294,7 @@ export const UnitImprovement = () => {
   const { currentVillage } = useCurrentVillage();
   const { createEvent: createUnitImprovementEvent } = useCreateEvent('unitImprovement');
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
-  const { currentVillageUnitImprovementEvent } = useCurrentVillageUnitImprovementEvent();
+  const { hasEvents: hasImprovementEventsOngoing } = useEventsByType('unitImprovement');
 
   const unitUpgradeDuration = (() => {
     if (isDeveloperModeEnabled) {
@@ -318,7 +317,7 @@ export const UnitImprovement = () => {
   const academyLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'SMITHY')?.level ?? 0;
   const isSmithyLevelHigherThanNextUpgradeLevel = academyLevel >= unitVirtualLevel + 1;
 
-  const canUpgrade = hasEnoughResourcesToUpgrade && isSmithyLevelHigherThanNextUpgradeLevel && !currentVillageUnitImprovementEvent;
+  const canUpgrade = hasEnoughResourcesToUpgrade && isSmithyLevelHigherThanNextUpgradeLevel && !hasImprovementEventsOngoing;
 
   const upgradeUnit = () => {
     createUnitImprovementEvent({

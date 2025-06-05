@@ -3,13 +3,7 @@ import { eventsCacheKey, playersCacheKey, villagesCacheKey } from 'app/(game)/(v
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
-import {
-  isBuildingEvent,
-  isScheduledBuildingEvent,
-  isUnitImprovementEvent,
-  isUnitResearchEvent,
-  isVillageEvent,
-} from 'app/(game)/guards/event-guards';
+import { isBuildingEvent, isScheduledBuildingEvent, isVillageEvent } from 'app/(game)/guards/event-guards';
 import { calculateBuildingCancellationRefundForLevel, specialFieldIds } from 'app/(game)/(village-slug)/utils/building';
 import type { Village } from 'app/interfaces/models/game/village';
 import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
@@ -20,9 +14,11 @@ import {
   insertEvents,
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/create-event';
-import type { QueryClient } from '@tanstack/react-query';
 
-const getEventsByVillage = (queryClient: QueryClient, villageId: Village['id']): GameEvent[] => {
+export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (queryClient, { params }) => {
+  const { villageId: villageIdParam } = params;
+  const villageId = Number.parseInt(villageIdParam);
+
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
   return events.filter((event) => {
@@ -34,42 +30,25 @@ const getEventsByVillage = (queryClient: QueryClient, villageId: Village['id']):
   });
 };
 
-export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (queryClient, { params }) => {
-  const { villageId: villageIdParam } = params;
+export const getVillageEventsByType: ApiHandler<GameEvent[], 'villageId' | 'eventType'> = async (queryClient, { params }) => {
+  const { villageId: villageIdParam, eventType } = params;
   const villageId = Number.parseInt(villageIdParam);
 
-  return getEventsByVillage(queryClient, villageId);
-};
+  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
-export const getVillageUnitImprovementEvent: ApiHandler<
-  { unitImprovementEvent: GameEvent<'unitImprovement'> | null },
-  'villageId'
-> = async (queryClient, { params }) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const result: GameEvent[] = [];
 
-  const eventsByVillage = getEventsByVillage(queryClient, villageId);
+  for (const event of events) {
+    if (!isVillageEvent(event)) {
+      continue;
+    }
 
-  const unitImprovementEvent = eventsByVillage.find(isUnitImprovementEvent);
+    if (event.type === eventType && event.villageId === villageId) {
+      result.push(event);
+    }
+  }
 
-  return {
-    unitImprovementEvent: unitImprovementEvent ?? null,
-  };
-};
-
-export const getVillageUnitResearchEvent: ApiHandler<{ unitResearchEvent: GameEvent<'unitResearch'> | null }, 'villageId'> = async (
-  queryClient,
-  { params },
-) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
-
-  const eventsByVillage = getEventsByVillage(queryClient, villageId);
-  const unitResearchEvent = eventsByVillage.find(isUnitResearchEvent);
-
-  return {
-    unitResearchEvent: unitResearchEvent ?? null,
-  };
+  return result;
 };
 
 type CreateNewEventsBody = {

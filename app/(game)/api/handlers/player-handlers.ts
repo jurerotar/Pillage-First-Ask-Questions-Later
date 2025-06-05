@@ -1,10 +1,8 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { eventsCacheKey, playersCacheKey, troopsCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { playersCacheKey, troopsCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 
 export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;
@@ -38,22 +36,6 @@ export const getTroopsByVillage: ApiHandler<Troop[], 'playerId' | 'villageId'> =
 
   const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey]) ?? [];
   return troops.filter(({ tileId }) => tileId === villageId);
-};
-
-export const getTroopMovementsByVillage: ApiHandler<GameEvent<'troopMovement'>[], 'playerId' | 'villageId'> = async (queryClient, args) => {
-  const {
-    params: { villageId: villageIdParam },
-  } = args;
-
-  const villageId = Number.parseInt(villageIdParam);
-
-  const events = queryClient.getQueryData<GameEvent<'troopMovement'>[]>([eventsCacheKey]) ?? [];
-  const troopMovementEvents = events.filter(isTroopMovementEvent);
-  const villageTroopMovementEvents = troopMovementEvents.filter(({ villageId: sourceVillageId, targetId }) => {
-    return sourceVillageId === villageId || targetId === villageId;
-  });
-
-  return villageTroopMovementEvents;
 };
 
 type RenameVillageBody = {

@@ -1,6 +1,4 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -11,6 +9,7 @@ import { Icon } from 'app/components/icon';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Separator } from 'app/components/ui/separator';
 import clsx from 'clsx';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 type TroopMovementProps = {
   type: PickLiteral<
@@ -95,18 +94,13 @@ const partitionTroopMovementEvents = (events: GameEvent<'troopMovement'>[], curr
 };
 
 export const TroopMovements = () => {
-  const { events } = useEvents();
   const { currentVillage } = useCurrentVillage();
   const { shouldShowSidebars } = useGameLayoutState();
+  const { eventsByType: troopMovementEvents } = useEventsByType('troopMovement');
 
   if (!shouldShowSidebars) {
     return null;
   }
-
-  const troopMovementEvents = events.filter(isTroopMovementEvent);
-  const currentVillageTroopMovementEvents = troopMovementEvents.filter(({ villageId, targetId }) => {
-    return villageId === currentVillage.id || targetId === currentVillage.id;
-  });
 
   const {
     findNewVillageMovementEvents,
@@ -115,7 +109,7 @@ export const TroopMovements = () => {
     outgoingDeploymentMovementEvents,
     incomingDeploymentMovementEvents,
     adventureMovementEvents,
-  } = partitionTroopMovementEvents(currentVillageTroopMovementEvents, currentVillage.id);
+  } = partitionTroopMovementEvents(troopMovementEvents, currentVillage.id);
 
   return (
     <div className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-29 lg:top-40 z-20">

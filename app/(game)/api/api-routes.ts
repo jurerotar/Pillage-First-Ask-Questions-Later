@@ -19,22 +19,9 @@ import {
   patchMultipleReports,
   patchReport,
 } from 'app/(game)/api/handlers/report-handlers';
-import {
-  getPlayerById,
-  getPlayers,
-  getTroopMovementsByVillage,
-  getTroopsByVillage,
-  getVillagesByPlayer,
-  renameVillage,
-} from 'app/(game)/api/handlers/player-handlers';
+import { getPlayerById, getPlayers, getTroopsByVillage, getVillagesByPlayer, renameVillage } from 'app/(game)/api/handlers/player-handlers';
 import { collectQuest, getCollectableQuestCount, getQuests } from 'app/(game)/api/handlers/quest-handlers';
-import {
-  cancelConstructionEvent,
-  createNewEvents,
-  getVillageEvents,
-  getVillageUnitImprovementEvent,
-  getVillageUnitResearchEvent,
-} from 'app/(game)/api/handlers/event-handlers';
+import { cancelConstructionEvent, createNewEvents, getVillageEvents, getVillageEventsByType } from 'app/(game)/api/handlers/event-handlers';
 import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
 import { getMapFilters, updateMapFilter } from 'app/(game)/api/handlers/map-filters-handlers';
 import { getVillages, getVillagesBySlug } from 'app/(game)/api/handlers/village-handlers';
@@ -75,7 +62,7 @@ const heroRoutes = [
   },
   {
     method: 'POST',
-    path: '/players/:playerId/hero/start',
+    path: '/players/:playerId/hero/adventures/start',
     handler: () => {},
   },
   {
@@ -257,11 +244,6 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: '/villages/:villageId/troop-movements',
-    handler: getTroopMovementsByVillage,
-  },
-  {
-    method: 'GET',
     path: '/villages/:villageId/effects',
     handler: getVillageEffects,
   },
@@ -272,13 +254,8 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: '/villages/:villageId/events/unit-improvement',
-    handler: getVillageUnitImprovementEvent,
-  },
-  {
-    method: 'GET',
-    path: '/villages/:villageId/events/unit-research',
-    handler: getVillageUnitResearchEvent,
+    path: '/villages/:villageId/:eventType',
+    handler: getVillageEventsByType,
   },
   {
     method: 'PATCH',

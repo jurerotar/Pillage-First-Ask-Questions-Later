@@ -12,21 +12,19 @@ import {
   UnitOverview,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
-import { useCurrentVillageUnitImprovementEvent } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-current-village-unit-improvement-event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { tribe } = useTribe();
   const { isUnitResearched } = useUnitResearch();
-  const { currentVillageUnitImprovementEvent } = useCurrentVillageUnitImprovementEvent();
+  const { eventsByType: currentVillageUnitImprovementEvents, hasEvents: hasImprovementEventsOngoing } = useEventsByType('unitImprovement');
 
   const upgradableUnits = units.filter(({ category, tribe: unitTribe, id }) => {
     return category !== 'special' && unitTribe === tribe && isUnitResearched(id);
   });
-
-  const hasImprovementEventOngoing = !!currentVillageUnitImprovementEvent;
 
   return (
     <Section>
@@ -48,16 +46,16 @@ export const SmithyUnitImprovement = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {hasImprovementEventOngoing && (
+            {hasImprovementEventsOngoing && (
               <TableRow>
-                <TableCell>{assetsT(`UNITS.${currentVillageUnitImprovementEvent.unitId}.NAME`, { count: 1 })}</TableCell>
-                <TableCell>{currentVillageUnitImprovementEvent.level}</TableCell>
+                <TableCell>{assetsT(`UNITS.${currentVillageUnitImprovementEvents[0].unitId}.NAME`, { count: 1 })}</TableCell>
+                <TableCell>{currentVillageUnitImprovementEvents[0].level}</TableCell>
                 <TableCell>
-                  <Countdown endsAt={currentVillageUnitImprovementEvent.startsAt + currentVillageUnitImprovementEvent.duration} />
+                  <Countdown endsAt={currentVillageUnitImprovementEvents[0].startsAt + currentVillageUnitImprovementEvents[0].duration} />
                 </TableCell>
               </TableRow>
             )}
-            {!hasImprovementEventOngoing && (
+            {!hasImprovementEventsOngoing && (
               <TableRow>
                 <TableCell colSpan={3}>{t('No improvements are currently taking place')}</TableCell>
               </TableRow>

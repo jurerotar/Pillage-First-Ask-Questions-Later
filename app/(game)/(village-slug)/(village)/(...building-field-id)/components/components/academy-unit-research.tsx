@@ -14,16 +14,14 @@ import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useCurrentVillageUnitResearchEvent } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-current-village-unit-research-event';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { researchableUnits } = useUnitResearch();
-  const { currentVillageUnitResearchEvent } = useCurrentVillageUnitResearchEvent();
-
-  const hasResearchEventOngoing = !!currentVillageUnitResearchEvent;
+  const { eventsByType: currentVillageUnitResearchEvents, hasEvents: hasResearchEventsOngoing } = useEventsByType('unitResearch');
 
   return (
     <Section>
@@ -44,15 +42,15 @@ export const AcademyUnitResearch = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {hasResearchEventOngoing && (
+            {hasResearchEventsOngoing && (
               <TableRow>
-                <TableCell>{assetsT(`UNITS.${currentVillageUnitResearchEvent.unitId}.NAME`, { count: 1 })}</TableCell>
+                <TableCell>{assetsT(`UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`, { count: 1 })}</TableCell>
                 <TableCell>
-                  <Countdown endsAt={currentVillageUnitResearchEvent.startsAt + currentVillageUnitResearchEvent.duration} />
+                  <Countdown endsAt={currentVillageUnitResearchEvents[0].startsAt + currentVillageUnitResearchEvents[0].duration} />
                 </TableCell>
               </TableRow>
             )}
-            {!hasResearchEventOngoing && (
+            {!hasResearchEventsOngoing && (
               <TableRow>
                 <TableCell colSpan={2}>{t('No research is currently taking place')}</TableCell>
               </TableRow>
