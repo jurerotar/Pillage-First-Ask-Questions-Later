@@ -63,15 +63,19 @@ export const useCalculatedResource = (resource: Resource, storageCapacity: numbe
     }
 
     const updateResourceAmount = () => {
+      const perTickAmount = hourlyProduction / 3600;
+
       startTransition(() => {
         setCalculatedResourceAmount((prevAmount) => {
-          let newAmount = prevAmount + 1;
+          let newAmount = prevAmount + perTickAmount * secondsForResourceGeneration;
+
           if (newAmount > storageCapacity) {
             newAmount = storageCapacity;
           }
           if (newAmount < 0) {
             newAmount = 0;
           }
+
           return newAmount;
         });
       });

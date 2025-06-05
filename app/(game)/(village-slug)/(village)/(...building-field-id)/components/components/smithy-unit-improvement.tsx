@@ -66,6 +66,7 @@ export const SmithyUnitImprovement = () => {
       <SectionContent>
         {upgradableUnits.map(({ id }) => (
           <UnitCard
+            buildingId="BARRACKS"
             unitId={id}
             key={id}
           >

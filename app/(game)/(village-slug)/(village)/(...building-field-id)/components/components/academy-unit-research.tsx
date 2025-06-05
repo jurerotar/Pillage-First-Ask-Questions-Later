@@ -64,7 +64,10 @@ export const AcademyUnitResearch = () => {
             const { canResearch } = assessUnitResearchReadiness(id, currentVillage);
             return (
               <li key={id}>
-                <UnitCard unitId={id}>
+                <UnitCard
+                  unitId={id}
+                  buildingId="BARRACKS"
+                >
                   <UnitOverview />
                   <UnitAttributes />
                   <UnitCost />
