@@ -254,7 +254,7 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: '/villages/:villageId/:eventType',
+    path: '/villages/:villageId/events/:eventType',
     handler: getVillageEventsByType,
   },
   {

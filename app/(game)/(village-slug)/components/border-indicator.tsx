@@ -21,7 +21,7 @@ const borderVariantToClassNameMap: Record<BorderIndicatorBorderVariant, string> 
 
 const backgroundVariantToClassNameMap: Record<BorderIndicatorBackgroundVariant, string> = {
   orange: 'bg-yellow-400',
-  white: 'bg-white',
+  white: 'bg-background',
 };
 
 export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (props) => {
@@ -38,8 +38,8 @@ export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (prop
     >
       <span
         className={clsx(
-          !backgroundVariant ? 'bg-white' : backgroundVariantToClassNameMap[backgroundVariant],
-          'relative inline-flex size-5 items-center justify-center rounded-full bg-white text-xs',
+          !backgroundVariant ? 'bg-background' : backgroundVariantToClassNameMap[backgroundVariant],
+          'relative inline-flex size-5 items-center justify-center rounded-full bg-background text-xs',
         )}
       >
         {children}

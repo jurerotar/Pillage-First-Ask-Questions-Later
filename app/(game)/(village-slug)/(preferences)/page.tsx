@@ -43,7 +43,7 @@ const PreferencesPage = () => {
       <Section>
         <SectionContent>
           <Text as="h2">{t('Appearance')}</Text>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"
@@ -65,7 +65,7 @@ const PreferencesPage = () => {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"
@@ -87,7 +87,7 @@ const PreferencesPage = () => {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"
@@ -112,7 +112,7 @@ const PreferencesPage = () => {
         </SectionContent>
         <SectionContent>
           <Text as="h2">{t('Localization')}</Text>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"
@@ -137,7 +137,7 @@ const PreferencesPage = () => {
         </SectionContent>
         <SectionContent>
           <Text as="h2">{t('Accessibility')}</Text>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"
@@ -156,7 +156,7 @@ const PreferencesPage = () => {
               />
             </div>
           </div>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"
@@ -178,7 +178,7 @@ const PreferencesPage = () => {
         </SectionContent>
         <SectionContent>
           <Text as="h2">{t('Display')}</Text>
-          <div className="flex gap-2 border-b border-gray-300 py-2">
+          <div className="flex gap-2 border-b border-border py-2">
             <Text
               as="p"
               className="flex flex-4 gap-1 flex-col"

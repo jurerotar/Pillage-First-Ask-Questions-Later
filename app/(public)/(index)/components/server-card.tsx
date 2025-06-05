@@ -29,7 +29,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   return (
     <div
       key={server.id}
-      className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-gray-100 bg-transparent p-2 px-4 shadow-lg"
+      className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
     >
       <div className="absolute right-2 top-2">
         <Button

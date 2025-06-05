@@ -202,7 +202,7 @@ const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps
       <TileTooltipResources tile={tile} />
       <TileTooltipPlayerInfo tile={tile} />
       {!!worldItem && (
-        <div className="flex flex-col gap-1 border-t border-t-gray-400 py-1">
+        <div className="flex flex-col gap-1 border-t border-border py-1">
           <TileTooltipWorldItem item={worldItem} />
         </div>
       )}

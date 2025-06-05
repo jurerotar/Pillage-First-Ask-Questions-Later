@@ -28,18 +28,18 @@ export const TroopList = () => {
   const [ownTroops, reinforcements] = partition<Troop>(currentVillagePlayerTroops, ({ tileId, source }) => tileId === source);
 
   return (
-    <div className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-white/80 p-1 shadow-xs border-gray-100 rounded-r-none rounded-xs">
+    <div className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs">
       <div
         data-tooltip-id="troop-list"
         className="flex flex-col relative cursor-pointer"
       >
-        <GiRallyTheTroops className="text-2xl lg:text-3xl text-gray-400 bg-white p-2 box-content border border-gray-200 rounded-xs" />
+        <GiRallyTheTroops className="text-2xl lg:text-3xl text-gray-400 bg-background p-2 box-content border border-border rounded-xs" />
       </div>
 
       <Tooltip
         id="troop-list"
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-white !text-black border border-gray-200"
-        classNameArrow="border-r border-b border-gray-200"
+        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !text-black border border-border"
+        classNameArrow="border-r border-b border-border"
         place="top-start"
         {...(isWiderThanLg && {
           isOpen: true,

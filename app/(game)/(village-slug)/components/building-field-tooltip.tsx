@@ -49,7 +49,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({ buil
       {!isMaxLevel && (
         <>
           {isCurrentlyUpgradingThisBuilding && (
-            <span className="text-orange-500">{t('Currently upgrading to level {{level}}', { level: upgradingToLevel })}</span>
+            <span className="text-warning">{t('Currently upgrading to level {{level}}', { level: upgradingToLevel })}</span>
           )}
           <span className="text-gray-300">{t('Cost for upgrading building to level {{level}}', { level: upgradingToLevel + 1 })}:</span>
           <Resources resources={nextLevelResourceCost} />

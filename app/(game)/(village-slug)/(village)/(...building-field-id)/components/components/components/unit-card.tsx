@@ -69,7 +69,7 @@ export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
 
   return (
     <UnitCardContext.Provider value={{ unitId, durationEffect }}>
-      <article className={clsx('flex flex-col gap-2 p-2', showOuterBorder && 'border border-gray-500')}>{children}</article>
+      <article className={clsx('flex flex-col gap-2 p-2', showOuterBorder && 'border border-border')}>{children}</article>
     </UnitCardContext.Provider>
   );
 };
@@ -112,12 +112,12 @@ export const UnitLevel: React.FC = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+    <section className="flex flex-col gap-2 pt-2 border-t border-border">
       <Text as="h3">{t('Combat attributes at level {{level}}', { level: unitLevel })}</Text>
       {unitLevel !== unitVirtualLevel && (
         <Text
           as="p"
-          className="text-orange-500"
+          className="text-warning"
         >
           {t('Currently being upgraded to level {{level}}', { level: unitVirtualLevel })}
         </Text>
@@ -138,7 +138,7 @@ export const UnitLevel: React.FC = () => {
                 {unitVirtualLevel > 0 && (
                   <>
                     &rarr;
-                    <span className={clsx(unitLevel !== unitVirtualLevel && 'text-orange-500', 'ml-0.5')}>
+                    <span className={clsx(unitLevel !== unitVirtualLevel && 'text-warning', 'ml-0.5')}>
                       {calculateUpgradedValue(value, unitVirtualLevel)}
                     </span>
                   </>
@@ -172,7 +172,7 @@ export const UnitAttributes = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+    <section className="flex flex-col gap-2 pt-2 border-t border-border">
       <Text as="h3">{t('Attributes')}</Text>
       <div className="flex gap-2 flex-wrap">
         {Object.entries(attributes).map(([key, value]) => (
@@ -240,7 +240,7 @@ export const UnitResearch = () => {
 
   if (hasResearched) {
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Research')}</Text>
         <Text
           as="p"
@@ -254,7 +254,7 @@ export const UnitResearch = () => {
 
   return (
     <>
-      <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Research cost and duration')}</Text>
         <div className="flex gap-2 items-center">
           <Resources
@@ -269,7 +269,7 @@ export const UnitResearch = () => {
         </div>
       </section>
       {canResearch && (
-        <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+        <section className="flex flex-col gap-2 pt-2 border-t border-border">
           <Text as="h3">{t('Available actions')}</Text>
           <Button
             onClick={researchUnit}
@@ -333,7 +333,7 @@ export const UnitImprovement = () => {
 
   if (isMaxLevel) {
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Improvement')}</Text>
         <Text
           as="p"
@@ -347,7 +347,7 @@ export const UnitImprovement = () => {
 
   return (
     <>
-      <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Improvement cost and duration for level {{level}}', { level: unitVirtualLevel + 1 })}</Text>
         <div className="flex gap-2 items-center">
           <Resources
@@ -361,7 +361,7 @@ export const UnitImprovement = () => {
           </div>
         </div>
       </section>
-      <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Available actions')}</Text>
         <Button
           variant="default"
@@ -383,14 +383,14 @@ export const UnitRequirements = () => {
   const { assessedRequirements } = assessUnitResearchReadiness(unitId, currentVillage);
 
   return (
-    <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
+    <section className="pt-2 flex flex-col gap-2 border-t border-border">
       <Text as="h3">{t('Requirements')}</Text>
       <ul className="flex gap-2 flex-wrap">
         {assessedRequirements.map((assessedRequirement, index) => (
           <Fragment key={assessedRequirement.buildingId}>
             <li className="whitespace-nowrap">
               <Text as="p">
-                <span className={clsx(assessedRequirement.fulfilled && 'line-through')}>
+                <span className={clsx(assessedRequirement.fulfilled && 'text-muted-foreground line-through')}>
                   {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} {t('level {{level}}', { level: assessedRequirement.level })}
                 </span>
                 {index !== assessedRequirements.length - 1 && ','}
@@ -410,7 +410,7 @@ export const UnitCost = () => {
   const { total } = useComputedEffect(durationEffect ?? 'barracksTrainingDuration');
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+    <section className="flex flex-col gap-2 pt-2 border-t border-border">
       <Text as="h3">{t('Cost and training duration')}</Text>
       <div className="flex gap-2 flex-col md:flex-row items-start justify-start">
         <Resources resources={baseRecruitmentCost} />
@@ -480,7 +480,7 @@ export const UnitRecruitment = () => {
   };
 
   return (
-    <section className="pt-2 flex flex-col gap-2 border-t border-gray-200">
+    <section className="pt-2 flex flex-col gap-2 border-t border-border">
       <Text as="h3">{t('Train units')}</Text>
       <div className="flex gap-2 flex-col md:flex-row items-start justify-start">
         <Resources resources={totalCost} />
@@ -540,7 +540,7 @@ export const UnitRecruitment = () => {
         </div>
         <Button
           type="submit"
-          disabled={maxUnits === 0}
+          disabled={maxUnits === 0 || amount === 0}
         >
           {maxUnits === 0 && t('Not enough resources')}
           {maxUnits > 0 && (
