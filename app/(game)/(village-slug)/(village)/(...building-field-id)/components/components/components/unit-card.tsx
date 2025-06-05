@@ -34,12 +34,14 @@ import type { PickLiteral } from 'app/utils/typescript';
 import type { EffectId } from 'app/interfaces/models/game/effect';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import {
+  effectsCacheKey,
   playerTroopsCacheKey,
   playerVillagesCacheKey,
   unitImprovementCacheKey,
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import type { Building } from 'app/interfaces/models/game/building';
 
 type DurationEffect = PickLiteral<
   EffectId,
@@ -53,6 +55,7 @@ type DurationEffect = PickLiteral<
 
 type UnitCardContextState = {
   unitId: Unit['id'];
+  buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
   durationEffect?: DurationEffect;
 };
 
@@ -60,15 +63,16 @@ const UnitCardContext = createContext<UnitCardContextState>({} as UnitCardContex
 
 type UnitCardProps = {
   unitId: Unit['id'];
+  buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
   durationEffect?: DurationEffect;
   showOuterBorder?: boolean;
 };
 
 export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
-  const { unitId, durationEffect, children, showOuterBorder = true } = props;
+  const { unitId, buildingId, durationEffect, children, showOuterBorder = true } = props;
 
   return (
-    <UnitCardContext.Provider value={{ unitId, durationEffect }}>
+    <UnitCardContext.Provider value={{ unitId, durationEffect, buildingId }}>
       <article className={clsx('flex flex-col gap-2 p-2', showOuterBorder && 'border border-border')}>{children}</article>
     </UnitCardContext.Provider>
   );
@@ -427,17 +431,34 @@ export const UnitCost = () => {
 };
 
 export const UnitRecruitment = () => {
-  const { unitId, durationEffect } = use(UnitCardContext);
+  const { unitId, durationEffect, buildingId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const currentResources = use(CurrentVillageStateContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } = getUnitData(unitId);
   const { total } = useComputedEffect(durationEffect!);
+  const { eventsByType } = useEventsByType('troopTraining');
+  const { createBulkEvent: createTroopTrainingEvents } = useCreateEvent('troopTraining');
+
+  const relevantTrainingEvents = eventsByType.filter((event) => {
+    return event.buildingId === buildingId;
+  });
+
+  const hasEvents = relevantTrainingEvents.length > 0;
+
+  const startsAt = (() => {
+    if (hasEvents) {
+      const lastEvent = relevantTrainingEvents.at(-1)!;
+      return lastEvent.startsAt + lastEvent.duration;
+    }
+
+    return Date.now();
+  })();
 
   const individualUnitRecruitmentCost = (() => {
     if (isDeveloperModeEnabled) {
-      return [1, 1, 1, 1];
+      return [0, 0, 0, 0];
     }
 
     // Great barracks/stable have 3x the cost
@@ -450,13 +471,13 @@ export const UnitRecruitment = () => {
 
   const individualUnitRecruitmentDuration = (() => {
     if (isDeveloperModeEnabled) {
-      return 1_000;
+      return 0;
     }
 
     return baseRecruitmentDuration;
   })();
 
-  const maxUnits = calculateMaxUnits(currentResources, individualUnitRecruitmentCost);
+  const maxUnits = isDeveloperModeEnabled ? 1000 : calculateMaxUnits(currentResources, individualUnitRecruitmentCost);
 
   const form = useForm({ defaultValues: { amount: 0 } });
   const { register, handleSubmit, setValue, watch } = form;
@@ -464,17 +485,19 @@ export const UnitRecruitment = () => {
   const duration = Math.trunc(total * individualUnitRecruitmentDuration * amount);
   const formattedDuration = formatTime(duration);
   const totalCost = individualUnitRecruitmentCost.map((cost) => cost * amount);
-  const { createBulkEvent: createTroopTrainingEvents } = useCreateEvent('troopTraining');
 
   const onSubmit = ({ amount }: { amount: number }) => {
+    form.reset();
+
     createTroopTrainingEvents({
+      batchId: window.crypto.randomUUID(),
       buildingId: 'BARRACKS',
       amount,
       unitId,
-      startsAt: Date.now(),
-      duration,
+      startsAt,
+      duration: 60_000,
       resourceCost: totalCost,
-      cachesToClearOnResolve: [playerTroopsCacheKey],
+      cachesToClearOnResolve: [playerTroopsCacheKey, effectsCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };

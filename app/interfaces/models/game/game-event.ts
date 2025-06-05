@@ -45,6 +45,7 @@ type UnitImprovementEvent = WithResourceCheck<
 
 type BaseUnitTrainingEvent = WithResourceCheck<
   WithVillageId<{
+    batchId: string;
     amount: number;
     unitId: Unit['id'];
     buildingId: Building['id'];
