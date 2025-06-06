@@ -471,7 +471,7 @@ export const UnitRecruitment = () => {
 
   const individualUnitRecruitmentDuration = (() => {
     if (isDeveloperModeEnabled) {
-      return 0;
+      return 5_000;
     }
 
     return baseRecruitmentDuration;
@@ -491,7 +491,7 @@ export const UnitRecruitment = () => {
 
     createTroopTrainingEvents({
       batchId: window.crypto.randomUUID(),
-      buildingId: 'BARRACKS',
+      buildingId,
       amount,
       unitId,
       startsAt,
