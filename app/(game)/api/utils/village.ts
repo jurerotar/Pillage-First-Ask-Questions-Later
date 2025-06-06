@@ -125,7 +125,7 @@ export const subtractVillageResourcesAt = (
         return village;
       }
 
-      const [wood, iron, clay, wheat] = resourcesToSubtract;
+      const [wood, clay, iron, wheat] = resourcesToSubtract;
 
       return {
         ...village,
