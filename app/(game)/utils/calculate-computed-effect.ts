@@ -72,7 +72,7 @@ const calculateWheatProductionEffect = (
     troopWheatConsumptionReductionBonus *= normalizeForcedFloatValue(value);
   }
 
-  const buildingWheatLimit = Math.trunc(baseWheatProduction * wheatProductionBonus) + buildingWheatConsumption;
+  const buildingWheatLimit = Math.trunc(serverEffectValue * baseWheatProduction * wheatProductionBonus) + buildingWheatConsumption;
 
   const total = buildingWheatLimit - Math.trunc(troopWheatConsumption * troopWheatConsumptionReductionBonus);
 
