@@ -14,6 +14,8 @@ import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/troop-training-table';
 import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/utils/icon';
 
 export const BarracksTroopTraining = () => {
   const { t } = useTranslation();
@@ -40,7 +42,15 @@ export const BarracksTroopTraining = () => {
         <Tabs>
           <TabList>
             {infantryUnits.map(({ id }) => (
-              <Tab key={id}>{assetsT(`UNITS.${id}.NAME`, { count: 1 })}</Tab>
+              <Tab key={id}>
+                <div className="inline-flex items-center gap-2">
+                  <Icon
+                    type={unitIdToUnitIconMapper(id)}
+                    className="size-4"
+                  />
+                  {assetsT(`UNITS.${id}.NAME`, { count: 1 })}
+                </div>
+              </Tab>
             ))}
           </TabList>
           {infantryUnits.map(({ id }) => {

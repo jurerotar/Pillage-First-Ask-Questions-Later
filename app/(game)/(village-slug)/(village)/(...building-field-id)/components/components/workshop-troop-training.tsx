@@ -50,7 +50,7 @@ export const WorkshopTroopTraining = () => {
               <TabPanel key={id}>
                 <UnitCard
                   unitId={id}
-                  buildingId="GREAT_BARRACKS"
+                  buildingId="WORKSHOP"
                   showOuterBorder={false}
                   durationEffect="greatBarracksTrainingDuration"
                 >

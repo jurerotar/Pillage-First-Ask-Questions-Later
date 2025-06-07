@@ -50,9 +50,9 @@ export const GreatStableTroopTraining = () => {
               <TabPanel key={id}>
                 <UnitCard
                   unitId={id}
-                  buildingId="GREAT_BARRACKS"
+                  buildingId="GREAT_STABLE"
                   showOuterBorder={false}
-                  durationEffect="greatBarracksTrainingDuration"
+                  durationEffect="greatStableTrainingDuration"
                 >
                   <UnitOverview />
                   <UnitAttributes />

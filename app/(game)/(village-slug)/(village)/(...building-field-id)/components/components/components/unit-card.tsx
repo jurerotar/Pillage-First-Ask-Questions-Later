@@ -210,7 +210,7 @@ export const UnitResearch = () => {
 
   const unitResearchDuration = (() => {
     if (isDeveloperModeEnabled) {
-      return 1_000_000;
+      return 0;
     }
 
     return calculateUnitResearchDuration(unitId);
@@ -471,7 +471,7 @@ export const UnitRecruitment = () => {
 
   const individualUnitRecruitmentDuration = (() => {
     if (isDeveloperModeEnabled) {
-      return 0;
+      return 5_000;
     }
 
     return baseRecruitmentDuration;
@@ -482,8 +482,10 @@ export const UnitRecruitment = () => {
   const form = useForm({ defaultValues: { amount: 0 } });
   const { register, handleSubmit, setValue, watch } = form;
   const amount = watch('amount');
-  const duration = Math.trunc(total * individualUnitRecruitmentDuration * amount);
-  const formattedDuration = formatTime(duration);
+  const duration = Math.trunc(total * individualUnitRecruitmentDuration);
+
+  const formattedDuration = formatTime(duration * amount);
+
   const totalCost = individualUnitRecruitmentCost.map((cost) => cost * amount);
 
   const onSubmit = ({ amount }: { amount: number }) => {
@@ -491,11 +493,11 @@ export const UnitRecruitment = () => {
 
     createTroopTrainingEvents({
       batchId: window.crypto.randomUUID(),
-      buildingId: 'BARRACKS',
+      buildingId,
       amount,
       unitId,
       startsAt,
-      duration: 60_000,
+      duration,
       resourceCost: totalCost,
       cachesToClearOnResolve: [playerTroopsCacheKey, effectsCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],

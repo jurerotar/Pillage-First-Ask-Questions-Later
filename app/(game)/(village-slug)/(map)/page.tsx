@@ -52,6 +52,11 @@ const MapPage = () => {
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
 
   const mapRef = useRef<HTMLDivElement>(null);
+
+  const setMapRef = useCallback((node: HTMLDivElement | null) => {
+    mapRef.current = node;
+  }, []);
+
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
@@ -92,10 +97,18 @@ const MapPage = () => {
     };
   }, [contextualMap, mapFilters, gridSize, magnification, openModal]);
 
-  useEventListener(
-    'mousedown',
-    (event) => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
+  useEffect(() => {
+    const node = mapRef.current;
+    if (!node) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const handleMouseDown = (event: MouseEvent) => {
       event.preventDefault();
+
       const { clientX, clientY } = event;
 
       mouseDownPosition.current = {
@@ -104,10 +117,17 @@ const MapPage = () => {
       };
 
       isScrolling.current = true;
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    mapRef,
-  );
+    };
+
+    node.addEventListener('mousedown', handleMouseDown, {
+      signal: controller.signal,
+      passive: false,
+    });
+
+    return () => {
+      controller.abort();
+    };
+  }, [mapRef.current, tileSize]);
 
   useEventListener(
     'mousemove',
@@ -142,12 +162,12 @@ const MapPage = () => {
     window,
   );
 
-  const scrollLeft = (centerXTile: number) => {
-    return tileSize * centerXTile + (tileSize * gridSize) / 2 - width / 2;
+  const scrollLeft = (tileX: number) => {
+    return tileSize * (tileX + gridSize / 2) - width / 2;
   };
 
-  const scrollTop = (centerYTile: number) => {
-    return (tileSize * gridSize) / 2 - tileSize * centerYTile - mapHeight / 2;
+  const scrollTop = (tileY: number) => {
+    return tileSize * (tileY + gridSize / 2) - mapHeight / 2;
   };
 
   const offsetX = scrollLeft(currentCenterTile.current.x);
@@ -227,7 +247,7 @@ const MapPage = () => {
       <FixedSizeGrid
         key={tileSize}
         className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        outerRef={mapRef}
+        outerRef={setMapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}

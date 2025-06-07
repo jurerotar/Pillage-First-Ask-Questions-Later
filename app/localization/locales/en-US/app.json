@@ -161,6 +161,7 @@
   "Update village name": "Update village name",
   "Amount": "Amount",
   "Next unit ready in": "Next unit ready in",
+  "... with {{units}} awaiting training": "... with {{units}} awaiting training",
   "No units are currently being trained": "No units are currently being trained",
   "Combat attributes at level {{level}}": "Combat attributes at level {{level}}",
   "Currently being upgraded to level {{level}}": "Currently being upgraded to level {{level}}",
