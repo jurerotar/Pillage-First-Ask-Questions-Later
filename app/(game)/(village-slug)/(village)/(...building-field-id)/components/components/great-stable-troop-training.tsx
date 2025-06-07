@@ -52,7 +52,7 @@ export const GreatStableTroopTraining = () => {
                   unitId={id}
                   buildingId="GREAT_STABLE"
                   showOuterBorder={false}
-                  durationEffect="greatBarracksTrainingDuration"
+                  durationEffect="greatStableTrainingDuration"
                 >
                   <UnitOverview />
                   <UnitAttributes />

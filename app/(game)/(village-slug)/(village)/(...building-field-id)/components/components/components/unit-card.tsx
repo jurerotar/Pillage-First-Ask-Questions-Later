@@ -482,8 +482,10 @@ export const UnitRecruitment = () => {
   const form = useForm({ defaultValues: { amount: 0 } });
   const { register, handleSubmit, setValue, watch } = form;
   const amount = watch('amount');
-  const duration = Math.trunc(total * individualUnitRecruitmentDuration * amount);
-  const formattedDuration = formatTime(duration);
+  const duration = Math.trunc(total * individualUnitRecruitmentDuration);
+
+  const formattedDuration = formatTime(duration * amount);
+
   const totalCost = individualUnitRecruitmentCost.map((cost) => cost * amount);
 
   const onSubmit = ({ amount }: { amount: number }) => {

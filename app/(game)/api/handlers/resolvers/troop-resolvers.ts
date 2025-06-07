@@ -10,8 +10,6 @@ import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-g
 export const troopTrainingEventResolver: Resolver<GameEvent<'troopTraining'>> = async (queryClient, args) => {
   const { unitId, villageId } = args;
 
-  const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
-
   const { unitWheatConsumption } = getUnitData(unitId);
 
   const troopsToAdd: Troop[] = [
@@ -23,7 +21,9 @@ export const troopTrainingEventResolver: Resolver<GameEvent<'troopTraining'>> = 
     },
   ];
 
-  modifyTroops(troops, troopsToAdd, 'add');
+  queryClient.setQueryData<Troop[]>([troopsCacheKey], (troops) => {
+    return modifyTroops(troops!, troopsToAdd, 'add');
+  });
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
     const troopConsumptionEffect = effects!.find(

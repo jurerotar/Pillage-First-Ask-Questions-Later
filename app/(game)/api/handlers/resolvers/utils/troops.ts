@@ -28,12 +28,12 @@ export const modifyTroops = (troops: Troop[], change: Troop[], mode: 'add' | 'su
 
   for (const troopChange of change) {
     const key = `${troopChange.unitId}-${troopChange.tileId}-${troopChange.source}` satisfies UnitMapKey;
-    const troop = troopMap.get(key);
 
-    if (!troop) {
-      troopMap.set(key, troopChange);
-      continue;
+    if (!troopMap.has(key)) {
+      troopMap.set(key, { ...troopChange, amount: 0 });
     }
+
+    const troop = troopMap.get(key)!;
 
     if (mode === 'add') {
       troop.amount += troopChange.amount;
