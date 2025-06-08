@@ -5,6 +5,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import type { MetaFunction } from 'react-router';
 import { t } from 'i18next';
+import { BuildingProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
 
 export const meta: MetaFunction = ({ location, params }) => {
   const { serverSlug, villageSlug } = params;
@@ -28,7 +29,11 @@ const BuildingPage = () => {
   const hasBuilding = !!buildingField;
 
   if (hasBuilding) {
-    return <BuildingDetails />;
+    return (
+      <BuildingProvider buildingField={buildingField}>
+        <BuildingDetails />
+      </BuildingProvider>
+    );
   }
 
   return <BuildingConstruction />;

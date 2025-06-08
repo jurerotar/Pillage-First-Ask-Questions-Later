@@ -19,6 +19,7 @@ import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -146,10 +147,14 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { resourcesPath, villagePath } = useGameNavigation();
+  const { bookmarks } = useBookmarks();
 
-  const { shouldShowBuildingNames } = preferences;
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
+  const { shouldShowBuildingNames } = preferences;
+
+  const tab = bookmarks[buildingId] ?? 'default';
 
   const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
     ({ buildingFieldId: buildingEventBuildingFieldId }) => buildingEventBuildingFieldId === buildingFieldId,
@@ -159,13 +164,11 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
 
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
   const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
 
   return (
     <Link
-      to={`${linkPrefix}/${buildingFieldId}`}
+      to={`${linkPrefix}/${buildingFieldId}?tab=${tab}`}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,

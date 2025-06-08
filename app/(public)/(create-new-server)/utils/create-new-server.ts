@@ -15,6 +15,7 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import {
   adventurePointsCacheKey,
+  bookmarksCacheKey,
   effectsCacheKey,
   eventsCacheKey,
   heroCacheKey,
@@ -56,6 +57,8 @@ import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from '
 import GenerateVillagesWorker from 'app/(public)/workers/generate-villages-worker?worker&url';
 import type { GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn } from 'app/(public)/workers/generate-world-items-worker';
 import GenerateWorldItemsWorker from 'app/(public)/workers/generate-world-items-worker?worker&url';
+import { bookmarkFactory } from 'app/factories/bookmark-factory';
+import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
 export const initializeServer = async (server: Server): Promise<void> => {
   const player = userPlayerFactory(server);
@@ -89,6 +92,7 @@ export const initializeServer = async (server: Server): Promise<void> => {
     events,
     reputations,
     quests,
+    bookmarks,
   ] = await Promise.all([
     workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
       server,
@@ -114,6 +118,7 @@ export const initializeServer = async (server: Server): Promise<void> => {
     generateEvents(server),
     generateReputations(),
     generateNewServerQuests(playerStartingVillage.id, server.playerConfiguration.tribe),
+    bookmarkFactory(),
   ]);
 
   const queryClient = new QueryClient();
@@ -134,6 +139,7 @@ export const initializeServer = async (server: Server): Promise<void> => {
   queryClient.setQueryData<AdventurePoints>([adventurePointsCacheKey], adventurePoints);
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);
   queryClient.setQueryData<Quest[]>([questsCacheKey], quests);
+  queryClient.setQueryData<Bookmarks>([bookmarksCacheKey], bookmarks);
 
   await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
 };

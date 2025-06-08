@@ -4,14 +4,14 @@ import { Section, SectionContent } from 'app/(game)/(village-slug)/components/bu
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { Text } from 'app/components/text';
 
-export const MarketplaceTrade = () => {
+export const RallyPointTroopMovements = () => {
   const { t } = useTranslation();
 
   return (
     <Section>
       <SectionContent>
-        <Bookmark tab="trade" />
-        <Text as="h2">{t('Trade')}</Text>
+        <Bookmark tab="troop-movements" />
+        <Text as="h2">{t('Troop movements')}</Text>
         <Text as="p">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium ad autem distinctio nesciunt officia quas qui similique.
           Aperiam atque et excepturi fugiat labore quidem sed sit tempore totam voluptas. Iure!

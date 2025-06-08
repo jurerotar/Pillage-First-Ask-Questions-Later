@@ -1,13 +1,10 @@
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/components/building-actions';
 import { BuildingOverview } from 'app/(game)/(village-slug)/(village)/components/building-overview';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { use } from 'react';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { t } from 'i18next';
 import { Text } from 'app/components/text';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
@@ -16,6 +13,8 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Skeleton } from 'app/components/ui/skeleton';
+import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 const BuildingTabFallback = () => {
   return (
@@ -39,8 +38,8 @@ const MainBuildingVillageManagement = lazy(async () => ({
   default: (await import('./components/main-building-village-management')).MainBuildingVillageManagement,
 }));
 
-const RallyPointIncomingTroops = lazy(async () => ({
-  default: (await import('./components/rally-point-incoming-troops')).RallyPointIncomingTroops,
+const RallyPointTroopMovements = lazy(async () => ({
+  default: (await import('./components/rally-point-troop-movements')).RallyPointTroopMovements,
 }));
 
 const RallyPointSendTroops = lazy(async () => ({
@@ -116,49 +115,64 @@ const HospitalTroopTraining = lazy(async () => ({
 }));
 
 const palaceTabs = new Map<string, React.LazyExoticComponent<() => React.JSX.Element>>([
-  [t('Train settlers'), PalaceTrainSettler],
-  [t('Loyalty'), PalaceLoyalty],
-  [t('Expansion'), PalaceExpansion],
+  ['train-settlers', PalaceTrainSettler],
+  ['loyalty', PalaceLoyalty],
+  ['expansion', PalaceExpansion],
 ]);
 
 const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => React.JSX.Element>>>([
-  ['MAIN_BUILDING', new Map([[t('Village management'), MainBuildingVillageManagement]])],
+  ['MAIN_BUILDING', new Map([['village-management', MainBuildingVillageManagement]])],
   [
     'RALLY_POINT',
     new Map([
-      [t('Troop movements'), RallyPointIncomingTroops],
-      [t('Send troops'), RallyPointSendTroops],
-      [t('Simulator'), RallyPointSimulator],
+      ['troop-movements', RallyPointTroopMovements],
+      ['send-troops', RallyPointSendTroops],
+      ['simulator', RallyPointSimulator],
     ]),
   ],
-  ['TREASURY', new Map([[t('Artifacts'), TreasuryArtifacts]])],
+  ['TREASURY', new Map([['artifacts', TreasuryArtifacts]])],
   [
     'MARKETPLACE',
     new Map([
-      [t('Trade'), MarketplaceBuy],
-      [t('Trade routes'), MarketplaceTradeRoutes],
+      ['trade', MarketplaceBuy],
+      ['trade-routes', MarketplaceTradeRoutes],
     ]),
   ],
-  ['ACADEMY', new Map([[t('Unit research'), AcademyUnitResearch]])],
-  ['SMITHY', new Map([[t('Unit improvement'), SmithyUnitImprovement]])],
+  ['ACADEMY', new Map([['unit-research', AcademyUnitResearch]])],
+  ['SMITHY', new Map([['unit-improvement', SmithyUnitImprovement]])],
   ['RESIDENCE', palaceTabs],
   ['COMMAND_CENTER', palaceTabs],
-  ['HEROS_MANSION', new Map([[t('Oasis'), HerosMansionOasis]])],
-  ['BREWERY', new Map([[t('Celebration'), BreweryCelebration]])],
-  ['BARRACKS', new Map([[t('Train'), BarracksTroopTraining]])],
-  ['GREAT_BARRACKS', new Map([[t('Train'), GreatBarracksTroopTraining]])],
-  ['STABLE', new Map([[t('Train'), StableTroopTraining]])],
-  ['GREAT_STABLE', new Map([[t('Train'), GreatStableTroopTraining]])],
-  ['WORKSHOP', new Map([[t('Train'), WorkshopTroopTraining]])],
-  ['HOSPITAL', new Map([[t('Train'), HospitalTroopTraining]])],
+  ['HEROS_MANSION', new Map([['oasis', HerosMansionOasis]])],
+  ['BREWERY', new Map([['celebration', BreweryCelebration]])],
+  ['BARRACKS', new Map([['train', BarracksTroopTraining]])],
+  ['GREAT_BARRACKS', new Map([['train', GreatBarracksTroopTraining]])],
+  ['STABLE', new Map([['train', StableTroopTraining]])],
+  ['GREAT_STABLE', new Map([['train', GreatStableTroopTraining]])],
+  ['WORKSHOP', new Map([['train', WorkshopTroopTraining]])],
+  ['HOSPITAL', new Map([['train', HospitalTroopTraining]])],
 ]);
+
+// t('train-settlers')
+// t('loyalty')
+// t('expansion')
+// t('village-management')
+// t('troop-movements')
+// t('send-troops')
+// t('simulator')
+// t('artifacts')
+// t('trade')
+// t('trade-routes')
+// t('unit-research')
+// t('unit-improvement')
+// t('oasis')
+// t('celebration')
+// t('train')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
-  const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
+  const { t: dynamicT } = useTranslation();
+  const { buildingId, id: buildingFieldId } = use(BuildingContext);
   const { villagePath, resourcesPath } = useGameNavigation();
   const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
@@ -199,13 +213,14 @@ export const BuildingDetails = () => {
           <TabList>
             <Tab>{t('Overview')}</Tab>
             {buildingSpecificTabs.map((name: string) => (
-              <Tab key={name}>{name}</Tab>
+              <Tab key={name}>{dynamicT(name)}</Tab>
             ))}
             <Tab>{t('Upgrade details')}</Tab>
           </TabList>
           <TabPanel>
             <Section>
               <SectionContent>
+                <Bookmark tab="default" />
                 <Text as="h2">{t('{{buildingName}} overview', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) })}</Text>
                 <BuildingOverview buildingId={buildingId} />
                 <BuildingActions buildingId={buildingId} />

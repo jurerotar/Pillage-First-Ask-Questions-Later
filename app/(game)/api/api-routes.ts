@@ -30,6 +30,7 @@ import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
 import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
 import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
+import { getBookmarks, updateBookmark } from 'app/(game)/api/handlers/bookmark-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -293,6 +294,19 @@ const reputationRoutes = [
   },
 ];
 
+const bookmarkRoutes = [
+  {
+    method: 'GET',
+    path: '/players/:playerId/bookmarks',
+    handler: getBookmarks,
+  },
+  {
+    method: 'PATCH',
+    path: '/players/:playerId/bookmarks/:buildingId',
+    handler: updateBookmark,
+  },
+];
+
 const apiRoutes = [
   ...serverRoutes,
   ...heroRoutes,
@@ -309,6 +323,7 @@ const apiRoutes = [
   ...auctionRoutes,
   ...unitResearchRoutes,
   ...unitImprovementRoutes,
+  ...bookmarkRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

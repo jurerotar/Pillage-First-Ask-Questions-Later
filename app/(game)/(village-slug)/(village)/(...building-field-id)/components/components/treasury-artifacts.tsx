@@ -13,6 +13,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Link } from 'react-router';
 import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
@@ -66,6 +67,7 @@ export const TreasuryArtifacts = () => {
   return (
     <Section>
       <SectionContent>
+        <Bookmark tab="train" />
         <Text as="h2">{t('Artifacts')}</Text>
         <Text as="p">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium ad autem distinctio nesciunt officia quas qui similique.

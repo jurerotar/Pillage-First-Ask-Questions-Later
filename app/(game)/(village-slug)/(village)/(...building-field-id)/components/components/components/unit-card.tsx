@@ -30,7 +30,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { PickLiteral } from 'app/utils/typescript';
-import type { EffectId } from 'app/interfaces/models/game/effect';
+import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import {
   effectsCacheKey,
@@ -42,20 +42,10 @@ import {
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import type { Building } from 'app/interfaces/models/game/building';
 
-type DurationEffect = PickLiteral<
-  EffectId,
-  | 'barracksTrainingDuration'
-  | 'greatBarracksTrainingDuration'
-  | 'stableTrainingDuration'
-  | 'greatStableTrainingDuration'
-  | 'workshopTrainingDuration'
-  | 'hospitalTrainingDuration'
->;
-
 type UnitCardContextState = {
   unitId: Unit['id'];
   buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
-  durationEffect?: DurationEffect;
+  durationEffect?: TroopTrainingDurationEffectId;
 };
 
 const UnitCardContext = createContext<UnitCardContextState>({} as UnitCardContextState);
@@ -63,7 +53,7 @@ const UnitCardContext = createContext<UnitCardContextState>({} as UnitCardContex
 type UnitCardProps = {
   unitId: Unit['id'];
   buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
-  durationEffect?: DurationEffect;
+  durationEffect?: TroopTrainingDurationEffectId;
   showOuterBorder?: boolean;
 };
 

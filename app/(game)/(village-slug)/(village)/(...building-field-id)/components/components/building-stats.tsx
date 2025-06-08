@@ -15,6 +15,7 @@ import { formatNumber } from 'app/utils/common';
 import { formatTime } from 'app/utils/time';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 export const BuildingStats = () => {
   const { t } = useTranslation();
@@ -29,6 +30,7 @@ export const BuildingStats = () => {
   return (
     <Section>
       <SectionContent>
+        <Bookmark tab="upgrade-cost" />
         <Text as="h2">{t('Upgrade details')}</Text>
         <Text as="p">
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores consectetur cum deleniti dicta, distinctio error facilis

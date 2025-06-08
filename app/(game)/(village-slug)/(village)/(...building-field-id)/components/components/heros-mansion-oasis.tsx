@@ -11,6 +11,7 @@ import { Link } from 'react-router';
 import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -75,6 +76,7 @@ export const HerosMansionOasis = () => {
   return (
     <Section>
       <SectionContent>
+        <Bookmark tab="oasis" />
         <Text as="h2">{t('Oasis management')}</Text>
         <Text as="p">
           {t(
