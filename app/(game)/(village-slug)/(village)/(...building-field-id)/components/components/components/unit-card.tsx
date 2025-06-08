@@ -8,7 +8,6 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
 import { Input } from 'app/components/ui/input';
 import { Slider } from 'app/components/ui/slider';
-import { Separator } from 'app/components/ui/separator';
 import {
   getUnitData,
   calculateMaxUnits,
@@ -98,17 +97,28 @@ export const UnitOverview = () => {
   );
 };
 
-export const UnitLevel: React.FC = () => {
+type UnitAttributes = Record<
+  'attack' | 'infantryDefence' | 'cavalryDefence' | 'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption',
+  number
+>;
+
+export const UnitAttributes: React.FC = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
 
   const unit = getUnitData(unitId);
 
-  const attributes: Pick<UnitAttributes, 'attack' | 'infantryDefence' | 'cavalryDefence'> = {
+  const dynamicAttributes: Pick<UnitAttributes, 'attack' | 'infantryDefence' | 'cavalryDefence'> = {
     attack: unit.attack,
     infantryDefence: unit.infantryDefence,
     cavalryDefence: unit.cavalryDefence,
+  };
+
+  const staticAttributes: Pick<UnitAttributes, 'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption'> = {
+    unitSpeed: unit.unitSpeed,
+    unitCarryCapacity: unit.unitCarryCapacity,
+    unitWheatConsumption: unit.unitWheatConsumption,
   };
 
   const calculateUpgradedValue = (value: number, level: number) => {
@@ -117,7 +127,7 @@ export const UnitLevel: React.FC = () => {
 
   return (
     <section className="flex flex-col gap-2 pt-2 border-t border-border">
-      <Text as="h3">{t('Combat attributes at level {{level}}', { level: unitLevel })}</Text>
+      <Text as="h3">{t('Attributes at level {{level}}', { level: unitLevel })}</Text>
       {unitLevel !== unitVirtualLevel && (
         <Text
           as="p"
@@ -128,69 +138,35 @@ export const UnitLevel: React.FC = () => {
       )}
       <div className="flex gap-2 items-center">
         <div className="flex gap-2 flex-wrap">
-          {Object.entries(attributes).map(([key, value]) => (
+          {Object.entries(dynamicAttributes).map(([key, value]) => (
             <span
               key={key}
-              className="inline-flex whitespace-nowrap gap-2 items-center"
+              className="inline-flex whitespace-nowrap gap-1 items-center"
             >
               <Icon
                 className="size-5"
                 type={key as keyof UnitAttributes}
               />
               <Text as="p">
-                {value}
-                {unitVirtualLevel > 0 && (
-                  <>
-                    &rarr;
-                    <span className={clsx(unitLevel !== unitVirtualLevel && 'text-warning', 'ml-0.5')}>
-                      {calculateUpgradedValue(value, unitVirtualLevel)}
-                    </span>
-                  </>
-                )}
+                <span className={clsx(unitLevel !== unitVirtualLevel && 'text-warning')}>
+                  {calculateUpgradedValue(value, unitVirtualLevel)}
+                </span>
               </Text>
             </span>
           ))}
+          {Object.entries(staticAttributes).map(([key, value]) => (
+            <span
+              key={key}
+              className="inline-flex whitespace-nowrap gap-1 items-center"
+            >
+              <Icon
+                className="size-5"
+                type={key as keyof UnitAttributes}
+              />
+              <Text as="p">{value}</Text>
+            </span>
+          ))}
         </div>
-      </div>
-    </section>
-  );
-};
-
-type UnitAttributes = Record<
-  'attack' | 'infantryDefence' | 'cavalryDefence' | 'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption',
-  number
->;
-
-export const UnitAttributes = () => {
-  const { unitId } = use(UnitCardContext);
-  const { t } = useTranslation();
-  const unit = getUnitData(unitId);
-
-  const attributes: UnitAttributes = {
-    attack: unit.attack,
-    infantryDefence: unit.infantryDefence,
-    cavalryDefence: unit.cavalryDefence,
-    unitSpeed: unit.unitSpeed,
-    unitCarryCapacity: unit.unitCarryCapacity,
-    unitWheatConsumption: unit.unitWheatConsumption,
-  };
-
-  return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-border">
-      <Text as="h3">{t('Attributes')}</Text>
-      <div className="flex gap-2 flex-wrap">
-        {Object.entries(attributes).map(([key, value]) => (
-          <span
-            key={key}
-            className="inline-flex whitespace-nowrap gap-2 items-center"
-          >
-            <Icon
-              className="size-5"
-              type={key as keyof UnitAttributes}
-            />
-            {value}
-          </span>
-        ))}
       </div>
     </section>
   );
@@ -248,7 +224,7 @@ export const UnitResearch = () => {
         <Text as="h3">{t('Research')}</Text>
         <Text
           as="p"
-          className="text-green-600 font-semibold"
+          className="text-green-600"
         >
           {t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
         </Text>
@@ -260,14 +236,16 @@ export const UnitResearch = () => {
     <>
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Research cost and duration')}</Text>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
           <Resources
             className="flex-wrap"
             resources={researchCost!}
           />
-          <Separator orientation="vertical" />
-          <div className="flex gap-1">
-            <Icon type="barracksTrainingDuration" />
+          <div className="flex gap-1 items-center">
+            <Icon
+              className="size-5"
+              type="barracksTrainingDuration"
+            />
             {formatTime(unitResearchDuration)}
           </div>
         </div>
@@ -341,7 +319,7 @@ export const UnitImprovement = () => {
         <Text as="h3">{t('Improvement')}</Text>
         <Text
           as="p"
-          className="text-green-600 font-semibold"
+          className="text-green-600"
         >
           {t('{{unit}} is fully upgraded', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
         </Text>
@@ -353,14 +331,13 @@ export const UnitImprovement = () => {
     <>
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Improvement cost and duration for level {{level}}', { level: unitVirtualLevel + 1 })}</Text>
-        <div className="flex gap-2 items-center">
-          <Resources
-            className="flex-wrap"
-            resources={upgradeCost!}
-          />
-          <Separator orientation="vertical" />
-          <div className="flex gap-1">
-            <Icon type="barracksTrainingDuration" />
+        <div className="flex gap-2 items-center flex-wrap">
+          <Resources resources={upgradeCost!} />
+          <div className="flex items-center gap-1">
+            <Icon
+              className="size-5"
+              type="barracksTrainingDuration"
+            />
             {formatTime(unitUpgradeDuration)}
           </div>
         </div>
@@ -416,13 +393,13 @@ export const UnitCost = () => {
   return (
     <section className="flex flex-col gap-2 pt-2 border-t border-border">
       <Text as="h3">{t('Cost and training duration')}</Text>
-      <div className="flex gap-2 flex-col md:flex-row items-start justify-start">
+      <div className="flex gap-2 items-start justify-start flex-wrap">
         <Resources resources={baseRecruitmentCost} />
-        <div className="hidden md:flex">
-          <Separator orientation="vertical" />
-        </div>
-        <div className="flex gap-1">
-          <Icon type="barracksTrainingDuration" />
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            type="barracksTrainingDuration"
+          />
           {formatTime(baseRecruitmentDuration * (durationEffect ? total : 1))}
         </div>
       </div>
@@ -507,24 +484,22 @@ export const UnitRecruitment = () => {
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-border">
       <Text as="h3">{t('Train units')}</Text>
-      <div className="flex gap-2 flex-col md:flex-row items-start justify-start">
+      <div className="flex items-start gap-2 justify-start flex-wrap">
         <Resources resources={totalCost} />
-        <div className="hidden md:flex">
-          <Separator orientation="vertical" />
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            type="barracksTrainingDuration"
+          />
+          {formattedDuration}
         </div>
-        <div className="flex gap-2 items-center">
-          <div className="flex gap-1">
-            <Icon type="barracksTrainingDuration" />
-            {formattedDuration}
-          </div>
-          <Separator orientation="vertical" />
-          <div className="flex gap-1">
-            <Icon
-              variant="negative-change"
-              type="unitWheatConsumption"
-            />
-            {unitWheatConsumption * amount}
-          </div>
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            variant="negative-change"
+            type="unitWheatConsumption"
+          />
+          {unitWheatConsumption * amount}
         </div>
       </div>
       <form
