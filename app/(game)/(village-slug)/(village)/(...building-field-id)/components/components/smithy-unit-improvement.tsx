@@ -8,7 +8,6 @@ import {
   UnitAttributes,
   UnitCard,
   UnitImprovement,
-  UnitLevel,
   UnitOverview,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
@@ -72,7 +71,6 @@ export const SmithyUnitImprovement = () => {
           >
             <UnitOverview />
             <UnitAttributes />
-            <UnitLevel />
             <UnitImprovement />
           </UnitCard>
         ))}

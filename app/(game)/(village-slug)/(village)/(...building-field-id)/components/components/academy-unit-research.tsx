@@ -1,5 +1,4 @@
 import {
-  UnitAttributes,
   UnitCard,
   UnitCost,
   UnitOverview,
@@ -69,7 +68,6 @@ export const AcademyUnitResearch = () => {
                   buildingId="BARRACKS"
                 >
                   <UnitOverview />
-                  <UnitAttributes />
                   <UnitCost />
                   <UnitResearch />
                   {!canResearch && <UnitRequirements />}

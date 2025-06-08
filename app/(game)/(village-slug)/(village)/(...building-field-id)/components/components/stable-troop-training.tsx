@@ -6,7 +6,6 @@ import {
   UnitAttributes,
   UnitCard,
   UnitCost,
-  UnitLevel,
   UnitOverview,
   UnitRecruitment,
   UnitRequirements,
@@ -29,7 +28,7 @@ export const StableTroopTraining = () => {
         <Text as="h2">{t('Train cavalry units')}</Text>
         <Text as="p">
           {t(
-            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam consequuntur corporis ducimus esse iste itaque laudantium minima modi molestiae molestias nam pariatur perspiciatis placeat praesentium quaerat rerum sit, ullam vitae!',
+            'Select the type and number of infantry units to train. Once queued, units will be trained one at a time, in the order you queued them in.',
           )}
         </Text>
       </SectionContent>
@@ -56,7 +55,6 @@ export const StableTroopTraining = () => {
                 >
                   <UnitOverview />
                   <UnitAttributes />
-                  <UnitLevel />
                   {hasResearchedUnit && (
                     <>
                       <UnitCost />
