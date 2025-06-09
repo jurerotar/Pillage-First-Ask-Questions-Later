@@ -3,7 +3,7 @@ import { UnitTraining } from 'app/(game)/(village-slug)/(village)/(...building-f
 export const GreatBarracksTroopTraining = () => {
   return (
     <UnitTraining
-      buildingId="BARRACKS"
+      buildingId="GREAT_BARRACKS"
       durationEffect="greatBarracksTrainingDuration"
       category="infantry"
     />
