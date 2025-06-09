@@ -21,16 +21,14 @@ export const useMapFilters = () => {
     },
   });
 
-  const { mutate: toggleMapFilter } = useMutation<MapFilters, Error, UpdateMapFiltersArgs>({
+  const { mutate: toggleMapFilter } = useMutation<void, Error, UpdateMapFiltersArgs>({
     mutationFn: async ({ filterName, value }) => {
-      const { data } = await fetcher<MapFilters>(`/me/map-filters/${filterName}`, {
+      await fetcher(`/me/map-filters/${filterName}`, {
         method: 'PATCH',
         body: {
           value,
         },
       });
-
-      return data;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [mapFiltersCacheKey] });

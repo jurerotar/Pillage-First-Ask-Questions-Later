@@ -14,6 +14,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export const AcademyUnitResearch = () => {
   return (
     <Section>
       <SectionContent>
+        <Bookmark tab="unit-research" />
         <Text as="h2">{t('Unit research')}</Text>
         <Text as="p">
           {t(

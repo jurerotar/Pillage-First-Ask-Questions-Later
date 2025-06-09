@@ -18,6 +18,7 @@ export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
 export const worldItemsCacheKey = 'world-items';
 export const adventurePointsCacheKey = 'adventure-points';
+export const bookmarksCacheKey = 'bookmarks';
 
 export const playerVillagesCacheKey = 'player-villages';
 export const playerTroopsCacheKey = 'player-units';
