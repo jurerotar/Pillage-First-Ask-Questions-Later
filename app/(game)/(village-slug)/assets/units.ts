@@ -575,7 +575,7 @@ export const egyptianUnits: Unit[] = [
     cavalryDefence: 10,
     unitSpeed: 16,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'egyptians',
     tier: 'scout',
     researchRequirements: [
@@ -593,7 +593,7 @@ export const egyptianUnits: Unit[] = [
     cavalryDefence: 50,
     unitSpeed: 15,
     unitCarryCapacity: 50,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'egyptians',
     tier: 'tier-4',
     researchRequirements: [
@@ -611,7 +611,7 @@ export const egyptianUnits: Unit[] = [
     cavalryDefence: 150,
     unitSpeed: 10,
     unitCarryCapacity: 70,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'egyptians',
     tier: 'tier-5',
     researchRequirements: [
@@ -731,7 +731,7 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 10,
     unitSpeed: 19,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'scout',
     researchRequirements: [
@@ -749,7 +749,7 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 15,
     unitSpeed: 16,
     unitCarryCapacity: 75,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-3',
     researchRequirements: [
@@ -767,7 +767,7 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 70,
     unitSpeed: 16,
     unitCarryCapacity: 105,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-4',
     researchRequirements: [
@@ -785,7 +785,7 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 40,
     unitSpeed: 14,
     unitCarryCapacity: 80,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-5',
     researchRequirements: [
