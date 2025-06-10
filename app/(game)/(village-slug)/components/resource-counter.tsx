@@ -48,7 +48,8 @@ export const ResourceCounter: React.FC<ResourceCounterProps> = ({ resource }) =>
         <div
           className={clsx(
             isFull || hasNegativeProduction ? 'bg-red-500 border-red-700' : 'bg-green-400 border-green-600',
-            'flex h-full border lg:border-2 rounded-xs',
+            calculatedResourceAmount !== 0 && 'border lg:border-2',
+            'flex h-full  rounded-xs',
           )}
           style={{
             width: `${storagePercentage}%`,

@@ -9,6 +9,8 @@ import packageJson from './package.json' with { type: 'json' };
 // import { visualizer } from "rollup-plugin-visualizer";
 import devtoolsJson from 'vite-plugin-devtools-json';
 
+const graphicsVersion = packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
+
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
 const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
@@ -107,12 +109,16 @@ const viteConfig = defineViteConfig({
     preprocessorOptions: {
       scss: {
         api: 'modern',
-        additionalData: '@use "./app/styles/_globals.scss" as *;',
+        additionalData: `
+        @use "./app/styles/_globals.scss" as *;
+        $graphics-version: "${graphicsVersion}";
+        `,
       },
     },
   },
   define: {
     'import.meta.env.VERSION': JSON.stringify(packageJson.version),
+    'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
     'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
   },
 });
