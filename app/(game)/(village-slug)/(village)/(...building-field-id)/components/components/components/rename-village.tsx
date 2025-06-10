@@ -1,7 +1,7 @@
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'app/components/ui/button';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { t } from 'i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
