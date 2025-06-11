@@ -3,10 +3,6 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import type { BuildingField, Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 
-type WithResourceCheck<T> = T & {
-  resourceCost: number[];
-};
-
 type WithVillageId<T> = T & {
   villageId: Village['id'];
 };
@@ -25,33 +21,26 @@ type BaseBuildingEvent = WithVillageId<{
   level: number;
 }>;
 
-type BuildingLevelChangeEvent = WithResourceCheck<BaseBuildingEvent>;
-type BuildingScheduledConstructionEvent = WithResourceCheck<BaseBuildingEvent>;
+type BuildingLevelChangeEvent = BaseBuildingEvent;
+type BuildingScheduledConstructionEvent = BaseBuildingEvent;
 
 type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
 
-type UnitResearchEvent = WithResourceCheck<
-  WithVillageId<{
-    unitId: Unit['id'];
-  }>
->;
+type UnitResearchEvent = WithVillageId<{
+  unitId: Unit['id'];
+}>;
 
-type UnitImprovementEvent = WithResourceCheck<
-  WithVillageId<{
-    unitId: Unit['id'];
-    level: number;
-  }>
->;
+type UnitImprovementEvent = WithVillageId<{
+  unitId: Unit['id'];
+  level: number;
+}>;
 
-type BaseUnitTrainingEvent = WithResourceCheck<
-  WithVillageId<{
-    batchId: string;
-    amount: number;
-    unitId: Unit['id'];
-    buildingId: Building['id'];
-    resourceCost: number[];
-  }>
->;
+type BaseUnitTrainingEvent = WithVillageId<{
+  batchId: string;
+  amount: number;
+  unitId: Unit['id'];
+  buildingId: Building['id'];
+}>;
 
 type BaseTroopMovementEvent = WithVillageId<{
   troops: Troop[];
@@ -90,5 +79,4 @@ export type GameEvent<T extends GameEventType | undefined = undefined> = T exten
   : // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
     BaseGameEvent & GameEventTypeToEventArgsMap<T>;
 
-export type WithResourceCheckEvent = WithResourceCheck<BaseGameEvent>;
 export type WithVillageIdEvent = WithVillageId<BaseGameEvent>;

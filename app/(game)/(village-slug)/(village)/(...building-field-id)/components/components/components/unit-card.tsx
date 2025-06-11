@@ -201,7 +201,6 @@ export const UnitResearch = () => {
     createUnitResearchEvent({
       startsAt: Date.now(),
       duration: unitResearchDuration,
-      resourceCost: researchCost,
       unitId,
       cachesToClearImmediately: [playerVillagesCacheKey],
       cachesToClearOnResolve: [unitResearchCacheKey],
@@ -298,7 +297,6 @@ export const UnitImprovement = () => {
       duration: unitUpgradeDuration,
       unitId,
       cachesToClearOnResolve: [unitImprovementCacheKey],
-      resourceCost: upgradeCost,
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
@@ -406,7 +404,7 @@ export const UnitRecruitment = () => {
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } = getUnitData(unitId);
   const { total } = useComputedEffect(durationEffect!);
   const { eventsByType } = useEventsByType('troopTraining');
-  const { createBulkEvent: createTroopTrainingEvents } = useCreateEvent('troopTraining');
+  const { createEvent: createTroopTrainingEvent } = useCreateEvent('troopTraining');
 
   const relevantTrainingEvents = eventsByType.filter((event) => {
     return event.buildingId === buildingId;
@@ -458,14 +456,13 @@ export const UnitRecruitment = () => {
   const onSubmit = ({ amount }: { amount: number }) => {
     form.reset();
 
-    createTroopTrainingEvents({
+    createTroopTrainingEvent({
       batchId: window.crypto.randomUUID(),
       buildingId,
       amount,
       unitId,
       startsAt,
       duration,
-      resourceCost: individualUnitRecruitmentCost,
       cachesToClearOnResolve: [playerTroopsCacheKey, effectsCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });

@@ -2,7 +2,7 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import { calculateBuildingCostForLevel, getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
@@ -59,7 +59,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const constructBuilding = () => {
-    const resourceCost = isDeveloperModeEnabled ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, 0);
     const { startsAt, duration } = calculateTimings();
 
     createBuildingConstructionEvent({
@@ -79,7 +78,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
         startsAt,
         duration,
         buildingId,
-        resourceCost,
         level: 1,
         cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
         cachesToClearImmediately: [],
@@ -95,15 +93,12 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       startsAt,
       duration,
       buildingId,
-      // Cost can be 0, since it's already accounted for in the construction event
-      resourceCost,
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
 
   const upgradeBuilding = () => {
-    const resourceCost = isDeveloperModeEnabled ? [0, 0, 0, 0] : calculateBuildingCostForLevel(buildingId, virtualLevel + 1);
     const { startsAt, duration } = calculateTimings();
 
     const args = {
@@ -111,7 +106,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       duration,
       buildingFieldId: buildingFieldId!,
       buildingId,
-      resourceCost,
       level: virtualLevel + 1,
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
@@ -132,7 +126,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingFieldId: buildingFieldId!,
       level: virtualLevel - 1,
       buildingId,
-      resourceCost: [0, 0, 0, 0],
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
       cachesToClearImmediately: [],
     });
