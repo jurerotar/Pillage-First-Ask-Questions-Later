@@ -6,9 +6,10 @@ import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
 import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 export const troopTrainingEventResolver: Resolver<GameEvent<'troopTraining'>> = async (queryClient, args) => {
-  const { unitId, villageId } = args;
+  const { unitId, villageId, duration, startsAt } = args;
 
   const { unitWheatConsumption } = getUnitData(unitId);
 
@@ -32,4 +33,6 @@ export const troopTrainingEventResolver: Resolver<GameEvent<'troopTraining'>> = 
     troopConsumptionEffect.value += unitWheatConsumption;
     return effects;
   });
+
+  updateVillageResourcesAt(queryClient, villageId, startsAt + duration);
 };
