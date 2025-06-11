@@ -19,28 +19,28 @@ export const calculateVillageResourcesAt = (queryClient: QueryClient, villageId:
   const { total: ironProduction } = calculateComputedEffect('ironProduction', effects, id);
   const { total: wheatProduction } = calculateComputedEffect('wheatProduction', effects, id);
 
-  const { currentAmount: currentWood } = calculateCurrentAmount({
+  const { currentAmount: currentWood, lastEffectiveUpdate: lastEffectiveWoodUpdate } = calculateCurrentAmount({
     village,
     resource: 'wood',
     hourlyProduction: woodProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
   });
-  const { currentAmount: currentClay } = calculateCurrentAmount({
+  const { currentAmount: currentClay, lastEffectiveUpdate: lastEffectiveClayUpdate } = calculateCurrentAmount({
     village,
     resource: 'clay',
     hourlyProduction: clayProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
   });
-  const { currentAmount: currentIron } = calculateCurrentAmount({
+  const { currentAmount: currentIron, lastEffectiveUpdate: lastEffectiveIronUpdate } = calculateCurrentAmount({
     village,
     resource: 'iron',
     hourlyProduction: ironProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
   });
-  const { currentAmount: currentWheat } = calculateCurrentAmount({
+  const { currentAmount: currentWheat, lastEffectiveUpdate: lastEffectiveWheatUpdate } = calculateCurrentAmount({
     village,
     resource: 'wheat',
     hourlyProduction: wheatProduction,
@@ -56,11 +56,26 @@ export const calculateVillageResourcesAt = (queryClient: QueryClient, villageId:
     warehouseCapacity,
     granaryCapacity,
     timestamp,
+    lastEffectiveWoodUpdate,
+    lastEffectiveClayUpdate,
+    lastEffectiveIronUpdate,
+    lastEffectiveWheatUpdate,
   };
 };
 
 export const updateVillageResourcesAt = (queryClient: QueryClient, villageId: Village['id'], timestamp: number) => {
-  const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
+  const {
+    currentWood,
+    currentClay,
+    currentIron,
+    currentWheat,
+    lastEffectiveWoodUpdate,
+    lastEffectiveClayUpdate,
+    lastEffectiveIronUpdate,
+    lastEffectiveWheatUpdate,
+  } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
+
+  const latestTick = Math.max(lastEffectiveWoodUpdate, lastEffectiveClayUpdate, lastEffectiveIronUpdate, lastEffectiveWheatUpdate);
 
   queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
     return prevVillages!.map((village) => {
@@ -70,7 +85,7 @@ export const updateVillageResourcesAt = (queryClient: QueryClient, villageId: Vi
 
       return {
         ...village,
-        lastUpdatedAt: timestamp,
+        lastUpdatedAt: latestTick,
         resources: {
           wood: currentWood,
           clay: currentClay,
