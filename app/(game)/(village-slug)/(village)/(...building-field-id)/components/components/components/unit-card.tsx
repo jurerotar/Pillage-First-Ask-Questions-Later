@@ -465,7 +465,7 @@ export const UnitRecruitment = () => {
       unitId,
       startsAt,
       duration,
-      resourceCost: totalCost,
+      resourceCost: individualUnitRecruitmentCost,
       cachesToClearOnResolve: [playerTroopsCacheKey, effectsCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
