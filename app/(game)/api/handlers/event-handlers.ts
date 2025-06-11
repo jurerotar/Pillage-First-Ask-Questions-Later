@@ -14,6 +14,7 @@ import {
   insertEvents,
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/create-event';
+import { eventFactory } from 'app/factories/event-factory';
 
 export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (queryClient, { params }) => {
   const { villageId: villageIdParam } = params;
@@ -51,14 +52,30 @@ export const getVillageEventsByType: ApiHandler<GameEvent[], 'villageId' | 'even
   return result;
 };
 
-type CreateNewEventsBody = {
-  events: GameEvent[];
+type CreateNewEventsBody = Omit<GameEvent, 'id'> & {
+  amount: number;
 };
 
 export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = async (queryClient, args) => {
-  const {
-    body: { events },
-  } = args;
+  const { body } = args;
+
+  const events: GameEvent[] = (() => {
+    const amount = body?.amount ?? 1;
+
+    if (amount > 1) {
+      const events: GameEvent[] = new Array(amount);
+
+      const { startsAt, duration } = body;
+
+      for (let i = 0; i < amount; i++) {
+        events[i] = eventFactory({ ...body, startsAt: startsAt + i * duration, duration });
+      }
+
+      return events;
+    }
+
+    return [eventFactory({ ...body })];
+  })();
 
   const hasSuccessfullyValidatedAndSubtractedResources = checkAndSubtractVillageResources(queryClient, events);
 

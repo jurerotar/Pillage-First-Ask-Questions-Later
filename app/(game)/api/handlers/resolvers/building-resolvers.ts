@@ -8,7 +8,6 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
-import { subtractVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 const updateBuildingFieldLevel = (villages: Village[], args: GameEvent<'buildingLevelChange'>): Village[] => {
   const { villageId, buildingFieldId, level } = args;
@@ -106,13 +105,18 @@ export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruct
   queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
     return addBuildingField(villages!, args);
   });
+
+  createEvent<'buildingLevelChange'>(queryClient, {
+    ...args,
+    type: 'buildingLevelChange',
+  });
 };
 
 export const buildingDestructionResolver: Resolver<GameEvent<'buildingDestruction'>> = async (queryClient, args) => {
   const { buildingFieldId, villageId } = args;
 
   if (specialFieldIds.includes(buildingFieldId)) {
-    await buildingLevelChangeResolver(queryClient, { ...args, resourceCost: [0, 0, 0, 0], level: 0 });
+    await buildingLevelChangeResolver(queryClient, { ...args, level: 0 });
     return;
   }
 
@@ -132,10 +136,6 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
   args,
 ) => {
-  const { villageId, startsAt, resourceCost } = args;
-
-  subtractVillageResourcesAt(queryClient, villageId, startsAt, resourceCost);
-
   createEvent<'buildingLevelChange'>(queryClient, {
     ...args,
     type: 'buildingLevelChange',

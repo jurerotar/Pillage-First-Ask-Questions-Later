@@ -1,4 +1,4 @@
-import { calculateBuildingCostForLevel, calculateBuildingDurationForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { calculateBuildingDurationForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
@@ -22,7 +22,6 @@ export const createBuildingConstructionEventMock = ({
     buildingId,
     buildingFieldId,
     level,
-    resourceCost: calculateBuildingCostForLevel(buildingId, level),
     startsAt: Date.now(),
     duration: calculateBuildingDurationForLevel(buildingId, level),
     cachesToClearOnResolve: [],
