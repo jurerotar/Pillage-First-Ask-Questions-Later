@@ -1,8 +1,12 @@
 import type { GameEvent, GameEventType, WithVillageIdEvent } from 'app/interfaces/models/game/game-event';
-import { getEventCost } from 'app/(game)/api/handlers/utils/create-event';
+import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 
 export const isVillageEvent = (event: GameEvent): event is WithVillageIdEvent => {
   return Object.hasOwn(event, 'villageId');
+};
+
+export const isBuildingConstructionEvent = (event: GameEvent): event is GameEvent<'buildingConstruction'> => {
+  return event.type === 'buildingConstruction';
 };
 
 export const isBuildingLevelUpEvent = (event: GameEvent): event is GameEvent<'buildingLevelChange'> => {
@@ -36,6 +40,10 @@ export const isUnitResearchEvent = (event: GameEvent): event is GameEvent<'unitR
 
 export const isTroopTrainingEvent = (event: GameEvent): event is GameEvent<'troopTraining'> => {
   return event.type === 'troopTraining';
+};
+
+export const isAdventurePointIncreaseEvent = (event: GameEvent): event is GameEvent<'adventurePointIncrease'> => {
+  return event.type === 'adventurePointIncrease';
 };
 
 export const isEventWithResourceCost = (event: GameEvent): event is WithVillageIdEvent => {

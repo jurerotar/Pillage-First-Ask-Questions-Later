@@ -199,8 +199,6 @@ export const UnitResearch = () => {
 
   const researchUnit = () => {
     createUnitResearchEvent({
-      startsAt: Date.now(),
-      duration: unitResearchDuration,
       unitId,
       cachesToClearImmediately: [playerVillagesCacheKey],
       cachesToClearOnResolve: [unitResearchCacheKey],
@@ -293,8 +291,6 @@ export const UnitImprovement = () => {
   const upgradeUnit = () => {
     createUnitImprovementEvent({
       level: 1,
-      startsAt: Date.now(),
-      duration: unitUpgradeDuration,
       unitId,
       cachesToClearOnResolve: [unitImprovementCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
@@ -403,23 +399,7 @@ export const UnitRecruitment = () => {
   const currentResources = use(CurrentVillageStateContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } = getUnitData(unitId);
   const { total } = useComputedEffect(durationEffect!);
-  const { eventsByType } = useEventsByType('troopTraining');
   const { createEvent: createTroopTrainingEvent } = useCreateEvent('troopTraining');
-
-  const relevantTrainingEvents = eventsByType.filter((event) => {
-    return event.buildingId === buildingId;
-  });
-
-  const hasEvents = relevantTrainingEvents.length > 0;
-
-  const startsAt = (() => {
-    if (hasEvents) {
-      const lastEvent = relevantTrainingEvents.at(-1)!;
-      return lastEvent.startsAt + lastEvent.duration;
-    }
-
-    return Date.now();
-  })();
 
   const individualUnitRecruitmentCost = (() => {
     if (isDeveloperModeEnabled) {
@@ -461,8 +441,7 @@ export const UnitRecruitment = () => {
       buildingId,
       amount,
       unitId,
-      startsAt,
-      duration,
+      durationEffectId: durationEffect!,
       cachesToClearOnResolve: [playerTroopsCacheKey, effectsCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });

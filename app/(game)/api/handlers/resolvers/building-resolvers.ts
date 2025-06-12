@@ -106,7 +106,7 @@ export const buildingConstructionResolver: Resolver<GameEvent<'buildingConstruct
     return addBuildingField(villages!, args);
   });
 
-  createEvent<'buildingLevelChange'>(queryClient, {
+  await createEvent<'buildingLevelChange'>(queryClient, {
     ...args,
     type: 'buildingLevelChange',
   });
@@ -136,7 +136,7 @@ export const buildingScheduledConstructionEventResolver: Resolver<GameEvent<'bui
   queryClient,
   args,
 ) => {
-  createEvent<'buildingLevelChange'>(queryClient, {
+  await createEvent<'buildingLevelChange'>(queryClient, {
     ...args,
     type: 'buildingLevelChange',
   });

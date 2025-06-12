@@ -222,6 +222,7 @@
   "Currently upgrading to level {{level}}": "Currently upgrading to level {{level}}",
   "Cost for upgrading building to level {{level}}": "Cost for upgrading building to level {{level}}",
   "Under construction": "Under construction",
+  "In queue": "In queue",
   "Cancel building construction": "Cancel building construction",
   "Own troops": "Own troops",
   "There are currently no troops in this village": "There are currently no troops in this village",

@@ -9,7 +9,7 @@ type CreateEventArgs<T extends GameEventType> = Omit<GameEventTypeToEventArgsMap
 
 type SendEventArgs<T extends GameEventType> = CreateEventArgs<T> & {
   cachesToClearImmediately: string[];
-} & Pick<GameEvent, 'duration' | 'startsAt' | 'cachesToClearOnResolve'>;
+} & Pick<GameEvent, 'cachesToClearOnResolve'>;
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const queryClient = useQueryClient();

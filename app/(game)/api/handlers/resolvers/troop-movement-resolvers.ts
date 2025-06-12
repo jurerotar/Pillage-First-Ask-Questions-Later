@@ -13,7 +13,6 @@ import {
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
@@ -29,49 +28,31 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops, startsAt, duration } = args;
+  const { villageId, targetId, troops } = args;
 
   // TODO: Add combat calc
 
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-
-  createEvent<'troopMovement'>(queryClient, {
+  await createEvent<'troopMovement'>(queryClient, {
     villageId: targetId,
     targetId: villageId,
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    startsAt: startsAt + duration,
-    duration: calculateTravelDuration({
-      villageId,
-      targetId,
-      troops,
-      effects,
-    }),
     cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
 const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops, startsAt, duration } = args;
+  const { villageId, targetId, troops } = args;
 
   // TODO: Add combat calc
 
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-
-  createEvent<'troopMovement'>(queryClient, {
+  await createEvent<'troopMovement'>(queryClient, {
     villageId: targetId,
     targetId: villageId,
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    startsAt: startsAt + duration,
-    duration: calculateTravelDuration({
-      villageId,
-      targetId,
-      troops,
-      effects,
-    }),
     cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
@@ -118,25 +99,16 @@ const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = asy
 };
 
 const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (queryClient, args) => {
-  const { villageId, targetId, troops, startsAt, duration } = args;
+  const { villageId, targetId, troops } = args;
 
   // TODO: Add combat calc
 
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-
-  createEvent<'troopMovement'>(queryClient, {
+  await createEvent<'troopMovement'>(queryClient, {
     villageId: targetId,
     targetId: villageId,
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    startsAt: startsAt + duration,
-    duration: calculateTravelDuration({
-      villageId,
-      targetId,
-      troops,
-      effects,
-    }),
     cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey, effectsCacheKey],
   });
 };
