@@ -11,7 +11,7 @@ import type { Server } from 'app/interfaces/models/game/server';
  * The result is returned in milliseconds.
  */
 export const calculateAdventurePointIncreaseEventDuration = (server: Server) => {
-  const serverDurationHours = (Date.now() - new Date(server.createdAt).getTime()) / (1000 * 60 * 60);
+  const serverDurationHours = (Date.now() - server.createdAt) / (1000 * 60 * 60);
   let baseFrequency = 24;
 
   if (serverDurationHours < 7 * 24) {
