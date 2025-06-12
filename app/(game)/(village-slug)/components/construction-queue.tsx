@@ -1,6 +1,4 @@
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import type React from 'react';
 import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
@@ -16,6 +14,9 @@ import { MdCancel } from 'react-icons/md';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 const iconClassName = 'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
 
@@ -43,7 +44,9 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
     },
   });
 
-  const tooltipId = `tooltip-${buildingEvent.buildingId}-${buildingEvent.level}`;
+  const tooltipId = `tooltip-${buildingEvent.id}`;
+
+  const isScheduledEvent = isScheduledBuildingEvent(buildingEvent);
 
   return (
     <>
@@ -87,8 +90,9 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
                   ({buildingEvent.level - 1} <IoIosArrowRoundForward /> {buildingEvent.level})
                 </span>
               </span>
-              <span className="text-sm">
+              <span className="inline-flex gap-1 text-sm">
                 <Countdown endsAt={buildingEvent.startsAt + buildingEvent.duration} />
+                {isScheduledEvent && <span>({t('In queue')})</span>}
               </span>
             </div>
             <div className="flex items-center">
@@ -122,65 +126,31 @@ const ConstructionQueueEmptySlot: React.FCWithChildren<ConstructionQueueEmptySlo
 export const ConstructionQueue = () => {
   const { tribe } = useTribe();
   const { shouldShowSidebars } = useGameLayoutState();
-
-  // We need 2 of them because romans have 2 separate ones
-  const { currentVillageBuildingEventsQueue: resourcesEventQueue } = useCurrentVillageBuildingEventQueue(1);
-  const { currentVillageBuildingEventsQueue: villageEventQueue } = useCurrentVillageBuildingEventQueue(19);
+  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
   if (!shouldShowSidebars) {
     return null;
   }
 
+  const emptySlots = (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
+
   return (
     <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
-      {tribe !== 'romans' && (
-        <li>
-          {villageEventQueue.length > 0 && (
-            <ConstructionQueueBuilding
-              tooltipPosition="right-start"
-              buildingEvent={villageEventQueue[0]}
-            />
-          )}
-          {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
+      {currentVillageBuildingEvents.map((event) => (
+        <li key={event.id}>
+          <ConstructionQueueBuilding
+            tooltipPosition="right-start"
+            buildingEvent={event}
+          />
         </li>
-      )}
-      {tribe === 'romans' && (
-        <>
-          <li>
-            {resourcesEventQueue.length > 0 && (
-              <ConstructionQueueBuilding
-                tooltipPosition="right-end"
-                buildingEvent={resourcesEventQueue[0]}
-              />
-            )}
-            {resourcesEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
-          </li>
-          <li>
-            {villageEventQueue.length > 0 && (
-              <ConstructionQueueBuilding
-                tooltipPosition="right-start"
-                buildingEvent={villageEventQueue[0]}
-              />
-            )}
-            {villageEventQueue.length === 0 && <ConstructionQueueEmptySlot type="free" />}
-          </li>
-        </>
-      )}
-      {/* TODO: Uncomment and finish whenever you get scheduled events working again! */}
-      {/*{tribe !== 'romans' && (*/}
-      {/*  <li>*/}
-      {/*    <ConstructionQueueEmptySlot type="locked" />*/}
-      {/*  </li>*/}
-      {/*)}*/}
-      {/*<li>*/}
-      {/*  <ConstructionQueueEmptySlot type="locked" />*/}
-      {/*</li>*/}
-      {/*<li>*/}
-      {/*  <ConstructionQueueEmptySlot type="locked" />*/}
-      {/*</li>*/}
-      {/*<li>*/}
-      {/*  <ConstructionQueueEmptySlot type="locked" />*/}
-      {/*</li>*/}
+      ))}
+
+      {[...Array(emptySlots)].map((_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: It's fine here
+        <li key={`empty-slot-${i}`}>
+          <ConstructionQueueEmptySlot type="free" />
+        </li>
+      ))}
     </ul>
   );
 };

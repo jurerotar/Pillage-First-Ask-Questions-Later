@@ -1,96 +1,71 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
-import { eventsCacheKey, preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import { eventFactory } from 'app/factories/event-factory';
 import {
-  isBuildingLevelUpEvent,
-  isEventWithResourceCost,
-  isTroopTrainingEvent,
-  isUnitImprovementEvent,
-  isUnitResearchEvent,
-} from 'app/(game)/guards/event-guards';
-import { calculateVillageResourcesAt, subtractVillageResourcesAt } from 'app/(game)/api/utils/village';
-import type { ApiNotificationEvent } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { calculateBuildingCostForLevel } from 'app/(game)/(village-slug)/utils/building';
-import { calculateUnitResearchCost, calculateUnitUpgradeCostForLevel, getUnitData } from 'app/(game)/(village-slug)/utils/units';
+  checkAndSubtractVillageResources,
+  getEventDuration,
+  getEventStartTime,
+  insertEvents,
+  notifyAboutEventCreationFailure,
+} from 'app/(game)/api/handlers/utils/events';
+import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 
-export const insertEvents = (queryClient: QueryClient, events: GameEvent[]) => {
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-    return insertBulkEvent(prevEvents!, events);
-  });
-};
-
-export const getEventCost = (event: GameEvent): number[] => {
-  if (isBuildingLevelUpEvent(event)) {
-    const { buildingId, level } = event;
-    const cost = calculateBuildingCostForLevel(buildingId, level);
-    return cost;
-  }
-
-  if (isUnitResearchEvent(event)) {
-    const { unitId } = event;
-    const cost = calculateUnitResearchCost(unitId);
-    return cost;
-  }
-
-  if (isUnitImprovementEvent(event)) {
-    const { unitId, level } = event;
-    const cost = calculateUnitUpgradeCostForLevel(unitId, level);
-    return cost;
-  }
-
-  if (isTroopTrainingEvent(event)) {
-    const { unitId, buildingId, amount } = event;
-    const { baseRecruitmentCost } = getUnitData(unitId);
-
-    const costModifier = buildingId === 'GREAT_BARRACKS' || buildingId === 'GREAT_STABLE' ? 3 : 1;
-
-    return baseRecruitmentCost.map((cost) => cost * costModifier * amount);
-  }
-
-  return [0, 0, 0, 0];
-};
-
-// TODO: Implement this
-export const notifyAboutEventCreationFailure = () => {
-  self.postMessage({ eventKey: 'event:construction-not-started' } satisfies ApiNotificationEvent);
-};
-
-export const checkAndSubtractVillageResources = (queryClient: QueryClient, events: GameEvent[]): boolean => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
-
-  // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
-  const event = events[0];
-
-  const eventCost = getEventCost(event);
-
-  if (!isDeveloperModeEnabled && isEventWithResourceCost(event)) {
-    const { villageId, startsAt } = event;
-    const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
-    const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(queryClient, villageId, startsAt);
-
-    if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
-      return false;
-    }
-
-    subtractVillageResourcesAt(queryClient, villageId, startsAt, eventCost);
-  }
-
-  return true;
-};
-
-// This function is used for events created on the server. "createNewEvents" is used for client-sent events.
-export const createEvent = <T extends GameEventType>(queryClient: QueryClient, args: Omit<GameEvent<T>, 'id'>) => {
-  const events = [eventFactory<T>(args)];
-
+export const validateAndInsertEvents = async (queryClient: QueryClient, events: GameEvent[]) => {
   const hasSuccessfullyValidatedAndSubtractedResources = checkAndSubtractVillageResources(queryClient, events);
 
   if (!hasSuccessfullyValidatedAndSubtractedResources) {
-    notifyAboutEventCreationFailure();
+    notifyAboutEventCreationFailure(events);
     return;
   }
 
   insertEvents(queryClient, events);
+};
+
+type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
+  amount: number;
+};
+
+export const createClientEvents = async (queryClient: QueryClient, args: CreateNewEventsBody) => {
+  // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
+  const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
+  const duration = getEventDuration(queryClient, args as unknown as GameEvent);
+
+  const events: GameEvent[] = (() => {
+    const amount = args?.amount ?? 1;
+
+    if (amount > 1) {
+      const events: GameEvent[] = new Array(amount);
+
+      for (let i = 0; i < amount; i++) {
+        events[i] = eventFactory({ ...args, startsAt: startsAt + i * duration, duration });
+      }
+
+      return events;
+    }
+
+    return [eventFactory({ ...args, startsAt, duration })];
+  })();
+
+  await validateAndInsertEvents(queryClient, events);
+  await scheduleNextEvent(queryClient);
+};
+
+// This function is used for events created on the server. "createClientEvents" is used for client-sent events.
+export const createEvent = async <T extends GameEventType>(
+  queryClient: QueryClient,
+  args: Omit<GameEvent<T>, 'id' | 'startsAt' | 'duration'>,
+) => {
+  // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
+  const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
+  const duration = getEventDuration(queryClient, args as unknown as GameEvent);
+
+  const eventFactoryArgs = {
+    ...args,
+    duration,
+    startsAt,
+  } as Omit<GameEvent<T>, 'id'>;
+
+  const events = [eventFactory<T>(eventFactoryArgs)];
+
+  await validateAndInsertEvents(queryClient, events);
 };

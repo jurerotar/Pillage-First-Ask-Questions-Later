@@ -1,6 +1,6 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { eventsCacheKey, playersCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
 import { isBuildingEvent, isScheduledBuildingEvent, isVillageEvent } from 'app/(game)/guards/event-guards';
@@ -9,12 +9,8 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
-import {
-  checkAndSubtractVillageResources,
-  insertEvents,
-  notifyAboutEventCreationFailure,
-} from 'app/(game)/api/handlers/utils/create-event';
-import { eventFactory } from 'app/factories/event-factory';
+import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
+import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
 
 export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (queryClient, { params }) => {
   const { villageId: villageIdParam } = params;
@@ -37,56 +33,17 @@ export const getVillageEventsByType: ApiHandler<GameEvent[], 'villageId' | 'even
 
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
-  const result: GameEvent[] = [];
-
-  for (const event of events) {
-    if (!isVillageEvent(event)) {
-      continue;
-    }
-
-    if (event.type === eventType && event.villageId === villageId) {
-      result.push(event);
-    }
-  }
-
-  return result;
+  return filterEventsByType(events, eventType as GameEventType, villageId);
 };
 
-type CreateNewEventsBody = Omit<GameEvent, 'id'> & {
+type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
 export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = async (queryClient, args) => {
   const { body } = args;
 
-  const events: GameEvent[] = (() => {
-    const amount = body?.amount ?? 1;
-
-    if (amount > 1) {
-      const events: GameEvent[] = new Array(amount);
-
-      const { startsAt, duration } = body;
-
-      for (let i = 0; i < amount; i++) {
-        events[i] = eventFactory({ ...body, startsAt: startsAt + i * duration, duration });
-      }
-
-      return events;
-    }
-
-    return [eventFactory({ ...body })];
-  })();
-
-  const hasSuccessfullyValidatedAndSubtractedResources = checkAndSubtractVillageResources(queryClient, events);
-
-  if (!hasSuccessfullyValidatedAndSubtractedResources) {
-    notifyAboutEventCreationFailure();
-    return;
-  }
-
-  insertEvents(queryClient, events);
-
-  await scheduleNextEvent(queryClient);
+  await createClientEvents(queryClient, body);
 };
 
 export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async (queryClient, args) => {
@@ -162,9 +119,9 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
       }
     }
 
-    const [wood, clay, iron, wheat] = calculateBuildingCancellationRefundForLevel(buildingId, level);
+    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(buildingId, level);
 
-    addVillageResourcesAt(queryClient, villageId, Date.now(), [wood, clay, iron, wheat]);
+    addVillageResourcesAt(queryClient, villageId, Date.now(), resourcesToRefund);
 
     return eventsToKeep;
   });

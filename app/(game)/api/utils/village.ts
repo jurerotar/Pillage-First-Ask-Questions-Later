@@ -110,7 +110,7 @@ export const addVillageResourcesAt = (queryClient: QueryClient, villageId: Villa
         return village;
       }
 
-      const [wood, iron, clay, wheat] = resourcesToAdd;
+      const [wood, clay, iron, wheat] = resourcesToAdd;
 
       return {
         ...village,

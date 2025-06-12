@@ -8,8 +8,6 @@ import { canSendTroops, modifyTroops } from 'app/(game)/api/handlers/resolvers/u
 import type { Village } from 'app/interfaces/models/game/village';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
-import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
@@ -21,7 +19,6 @@ export const usePlayerTroops = () => {
   const { t } = useTranslation();
   const { createEvent: createTroopMovementEvent } = useCreateEvent('troopMovement');
   const { currentVillage } = useCurrentVillage();
-  const { effects } = useEffects();
 
   const { data: playerTroops } = useSuspenseQuery<Troop[]>({
     queryKey: [playerTroopsCacheKey, currentVillage.id],
@@ -47,19 +44,10 @@ export const usePlayerTroops = () => {
       return modifyTroops(playerTroops!, troops, 'subtract');
     });
 
-    const duration = calculateTravelDuration({
-      villageId: currentVillage.id,
-      targetId,
-      troops,
-      effects,
-    });
-
     createTroopMovementEvent({
       movementType,
       targetId,
       troops,
-      startsAt: Date.now(),
-      duration,
       cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
       cachesToClearImmediately: [playerTroopsCacheKey],
     });

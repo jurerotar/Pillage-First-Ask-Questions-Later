@@ -17,8 +17,6 @@ import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
-import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
@@ -167,8 +165,6 @@ type OccupiableTileModalProps = {
 
 const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { effects } = useEffects();
   const { events } = useEvents();
 
   const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
@@ -182,17 +178,8 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
   const { createEvent: createFindNewVillageEvent } = useCreateEvent('troopMovement');
 
   const onFoundNewVillage = () => {
-    const duration = calculateTravelDuration({
-      villageId: currentVillage.id,
-      targetId: tile.id,
-      troops: [{ unitId: 'GAUL_SETTLER', amount: 3, tileId: currentVillage.id, source: currentVillage.id }],
-      effects,
-    });
-
     createFindNewVillageEvent({
-      startsAt: Date.now(),
       movementType: 'find-new-village',
-      duration,
       targetId: tile.id,
       troops: [],
       cachesToClearOnResolve: [playerVillagesCacheKey],

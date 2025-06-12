@@ -1,11 +1,7 @@
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import {
   collectableQuestCountCacheKey,
@@ -21,51 +17,13 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
   const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent('buildingLevelChange');
   const { createEvent: createBuildingDestructionEvent } = useCreateEvent('buildingDestruction');
-  const { total: buildingDurationModifier } = useComputedEffect('buildingDuration');
-  const { isDeveloperModeEnabled } = useDeveloperMode();
 
   const hasCurrentVillageBuildingEvents = currentVillageBuildingEventsQueue.length > 0;
 
-  const { nextLevelBuildingDuration } = getBuildingDataForLevel(buildingId, virtualLevel);
-
-  const calculateTimings = () => {
-    if (isDeveloperModeEnabled) {
-      return {
-        startsAt: Date.now(),
-        duration: 0,
-      };
-    }
-
-    const lastBuildingEventCompletionTimestamp = (() => {
-      if (!hasCurrentVillageBuildingEvents) {
-        return Date.now();
-      }
-
-      const lastBuildingEvent = currentVillageBuildingEventsQueue.at(-1)!;
-      const { startsAt, duration } = lastBuildingEvent;
-
-      if (isScheduledBuildingEvent(lastBuildingEvent)) {
-        return startsAt + duration;
-      }
-
-      return startsAt + duration - (Date.now() - startsAt);
-    })();
-
-    // Idea is that createBuildingScheduledConstructionEvent should resolve whenever a previous building was completed and then start a new one
-    return {
-      startsAt: lastBuildingEventCompletionTimestamp,
-      duration: nextLevelBuildingDuration * buildingDurationModifier,
-    };
-  };
-
   const constructBuilding = () => {
-    const { startsAt, duration } = calculateTimings();
-
     createBuildingConstructionEvent({
       buildingFieldId: buildingFieldId!,
       buildingId,
-      startsAt: Date.now(),
-      duration: 0,
       level: 1,
       cachesToClearOnResolve: [playerVillagesCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
@@ -75,8 +33,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     if (hasCurrentVillageBuildingEvents) {
       createBuildingScheduledConstructionEvent({
         buildingFieldId: buildingFieldId!,
-        startsAt,
-        duration,
         buildingId,
         level: 1,
         cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
@@ -90,8 +46,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     createBuildingLevelChangeEvent({
       buildingFieldId: buildingFieldId!,
       level: 1,
-      startsAt,
-      duration,
       buildingId,
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
@@ -99,11 +53,7 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
   };
 
   const upgradeBuilding = () => {
-    const { startsAt, duration } = calculateTimings();
-
     const args = {
-      startsAt,
-      duration,
       buildingFieldId: buildingFieldId!,
       buildingId,
       level: virtualLevel + 1,
@@ -121,8 +71,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const downgradeBuilding = () => {
     createBuildingLevelChangeEvent({
-      startsAt: Date.now(),
-      duration: 0,
       buildingFieldId: buildingFieldId!,
       level: virtualLevel - 1,
       buildingId,
@@ -133,8 +81,6 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
 
   const demolishBuilding = () => {
     createBuildingDestructionEvent({
-      startsAt: Date.now(),
-      duration: 0,
       buildingFieldId: buildingFieldId!,
       buildingId,
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
@@ -147,6 +93,5 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
     upgradeBuilding,
     downgradeBuilding,
     demolishBuilding,
-    calculateTimings,
   };
 };
