@@ -12,7 +12,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
 
 const formSchema = z.object({
   name: z
@@ -25,7 +24,6 @@ export const RenameVillage = () => {
   const { fetcher } = use(ApiContext);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { currentPlayer } = usePlayers();
   const { currentVillage } = useCurrentVillage();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -37,7 +35,7 @@ export const RenameVillage = () => {
 
   const { mutate: renameVillage } = useMutation<void, Error, z.infer<typeof formSchema>>({
     mutationFn: async ({ name }) => {
-      await fetcher(`/players/${currentPlayer.id}/villages/${currentVillage.id}/rename`, {
+      await fetcher(`/villages/${currentVillage.id}/rename`, {
         method: 'PATCH',
         body: {
           name,
