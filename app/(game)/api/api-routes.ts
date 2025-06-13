@@ -31,6 +31,7 @@ import { match } from 'path-to-regexp';
 import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
 import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
 import { getBookmarks, updateBookmark } from 'app/(game)/api/handlers/bookmark-handlers';
+import { getStatistics } from './handlers/statistics-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -307,6 +308,14 @@ const bookmarkRoutes = [
   },
 ];
 
+const statisticsRoutes = [
+  {
+    method: 'GET',
+    path: '/statistics',
+    handler: getStatistics,
+  },
+];
+
 const apiRoutes = [
   ...serverRoutes,
   ...heroRoutes,
@@ -324,6 +333,7 @@ const apiRoutes = [
   ...unitResearchRoutes,
   ...unitImprovementRoutes,
   ...bookmarkRoutes,
+  ...statisticsRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({
