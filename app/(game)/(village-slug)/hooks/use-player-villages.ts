@@ -3,11 +3,11 @@ import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
+import { useCurrentPlayer } from 'app/(game)/(village-slug)/hooks/use-current-player';
 
 export const usePlayerVillages = () => {
   const { fetcher } = use(ApiContext);
-  const { currentPlayer } = usePlayers();
+  const { currentPlayer } = useCurrentPlayer();
 
   const { data: playerVillages } = useSuspenseQuery<PlayerVillage[]>({
     queryKey: [playerVillagesCacheKey],

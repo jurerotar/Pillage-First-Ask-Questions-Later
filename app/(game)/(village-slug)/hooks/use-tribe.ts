@@ -1,7 +1,7 @@
-import { usePlayers } from 'app/(game)/(village-slug)/hooks/use-players';
+import { useCurrentPlayer } from 'app/(game)/(village-slug)/hooks/use-current-player';
 
 export const useTribe = () => {
-  const { currentPlayer } = usePlayers();
+  const { currentPlayer } = useCurrentPlayer();
 
   const tribe = currentPlayer.tribe;
 

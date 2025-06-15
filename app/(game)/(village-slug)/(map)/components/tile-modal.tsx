@@ -24,6 +24,7 @@ import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guar
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
 import { playerTroopsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -69,7 +70,7 @@ const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
   return (
     <div className="flex flex-col gap-2">
       <span>
-        {t('Player')} - {name}
+        {t('Player')} - {getPlayerName(name)}
       </span>
       {faction !== 'player' && (
         <>

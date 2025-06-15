@@ -3,14 +3,12 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
 export const packTileId = (x: number, y: number): Tile['id'] => {
-  const x16 = (x & 0xffff) << 16;
-  const y16 = y & 0xffff;
-  return x16 | y16;
+  return (x << 16) | (y & 0xffff);
 };
 
 export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
-  const x = ((tileId >> 16) << 16) >> 16;
-  const y = ((tileId & 0xffff) << 16) >> 16;
+  const x = tileId >> 16;
+  const y = (tileId << 16) >> 16;
   return {
     x,
     y,
@@ -79,10 +77,13 @@ export const calculateGridLayout = (mapSize: number) => {
   const gridSize = totalSize + 1;
   const halfSize = Math.floor(totalSize / 2);
 
+  const totalTiles = gridSize ** 2;
+
   return {
     gridSize,
     totalSize,
     halfSize,
     borderWidth,
+    totalTiles,
   };
 };

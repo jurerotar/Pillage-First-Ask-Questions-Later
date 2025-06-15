@@ -110,6 +110,7 @@ export const CreateNewServerForm = () => {
                     <FormLabel>{t('Server Seed')}</FormLabel>
                     <FormControl>
                       <Input
+                        disabled={isPending || isSuccess}
                         placeholder="abc123"
                         {...field}
                       />
@@ -140,11 +141,11 @@ export const CreateNewServerForm = () => {
               <FormField
                 control={form.control}
                 name="configuration.mapSize"
-                disabled={isPending || isSuccess}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('World Size')}</FormLabel>
                     <Select
+                      disabled={isPending || isSuccess}
                       onValueChange={field.onChange}
                       value={field.value}
                     >
@@ -167,11 +168,11 @@ export const CreateNewServerForm = () => {
               <FormField
                 control={form.control}
                 name="configuration.speed"
-                disabled={isPending || isSuccess}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('Game Speed')}</FormLabel>
                     <Select
+                      disabled={isPending || isSuccess}
                       onValueChange={field.onChange}
                       value={field.value}
                     >
@@ -213,11 +214,11 @@ export const CreateNewServerForm = () => {
               <FormField
                 control={form.control}
                 name="playerConfiguration.tribe"
-                disabled={isPending || isSuccess}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t('Tribe')}</FormLabel>
                     <Select
+                      disabled={isPending || isSuccess}
                       onValueChange={field.onChange}
                       value={field.value}
                     >
@@ -242,7 +243,7 @@ export const CreateNewServerForm = () => {
           </div>
           <div className="flex justify-end">
             <Button
-              disabled={isPending}
+              disabled={isPending || isSuccess}
               type="submit"
             >
               {t('Create Server')}

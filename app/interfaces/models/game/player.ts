@@ -5,7 +5,7 @@ export type PlayerFaction = 'player' | 'npc1' | 'npc2' | 'npc3' | 'npc4' | 'npc5
 
 export type Player = {
   id: 'player' | number;
-  name: string;
+  name: string | number;
   tribe: PlayableTribe;
   faction: PlayerFaction;
 };

@@ -20,6 +20,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';
 import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-world-item';
 import { Skeleton } from 'app/components/ui/skeleton';
+import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -49,7 +50,7 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
   return (
     <>
       <span>
-        {t('Player')} - {name}
+        {t('Player')} - {getPlayerName(name)}
       </span>
       {faction !== 'player' && (
         <>
