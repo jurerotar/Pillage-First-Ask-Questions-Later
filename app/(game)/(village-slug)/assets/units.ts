@@ -665,7 +665,7 @@ export const egyptianUnits: Unit[] = [
     cavalryDefence: 50,
     unitSpeed: 4,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'special',
     tribe: 'egyptians',
     tier: 'special',
     researchRequirements: [
@@ -839,7 +839,7 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 30,
     unitSpeed: 5,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'special',
     tribe: 'huns',
     tier: 'special',
     researchRequirements: [
