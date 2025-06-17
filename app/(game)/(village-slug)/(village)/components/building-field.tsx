@@ -64,7 +64,10 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [40, 'top-[83%] left-[81%]'],
 ]);
 
-const buildingToBuildingLevelToGraphicVariantMap = new Map<Building['id'], Map<number, string[]>>([
+const buildingToBuildingLevelToGraphicVariantMap = new Map<
+  Building['id'],
+  Map<number, string[]>
+>([
   [
     'MAIN_BUILDING',
     new Map([
@@ -78,7 +81,9 @@ type EmptyBuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
+const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({
+  buildingFieldId,
+}) => {
   const { villagePath } = useGameNavigation();
 
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
@@ -95,7 +100,9 @@ const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId
   );
 };
 
-const transformBuildingIdIntoCssClass = (buildingId: Building['id']): string => {
+const transformBuildingIdIntoCssClass = (
+  buildingId: Building['id'],
+): string => {
   return buildingId.toLowerCase().replaceAll('_', '-');
 };
 
@@ -105,7 +112,11 @@ type DynamicCellClassesArgs = {
   level: number;
 };
 
-const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: DynamicCellClassesArgs): string => {
+const dynamicCellClasses = ({
+  buildingField,
+  resourceFieldComposition,
+  level,
+}: DynamicCellClassesArgs): string => {
   const { buildingId, id } = buildingField;
   const isResourceField = id <= 18;
 
@@ -115,12 +126,15 @@ const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: 
       buildingFieldStyles['building-resource'],
       buildingFieldStyles[`building-resource-${id}`],
       buildingFieldStyles[`building-resource-${resourceFieldComposition}`],
-      buildingFieldStyles[`building-resource-${resourceFieldComposition}-${id}`],
+      buildingFieldStyles[
+        `building-resource-${resourceFieldComposition}-${id}`
+      ],
     );
   }
 
   const buildingIdToCssClass = transformBuildingIdIntoCssClass(buildingId);
-  const buildingLevelMap = buildingToBuildingLevelToGraphicVariantMap.get(buildingId);
+  const buildingLevelMap =
+    buildingToBuildingLevelToGraphicVariantMap.get(buildingId);
 
   const buildingLevelVariant = buildingLevelMap
     ? (() => {
@@ -133,14 +147,20 @@ const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: 
       })()
     : null;
 
-  return clsx(buildingFieldStyles.building, buildingFieldStyles[`building-village-${buildingIdToCssClass}`], buildingLevelVariant);
+  return clsx(
+    buildingFieldStyles.building,
+    buildingFieldStyles[`building-village-${buildingIdToCssClass}`],
+    buildingLevelVariant,
+  );
 };
 
 type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
 };
 
-const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
+const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
+  buildingField,
+}) => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
@@ -157,12 +177,15 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
   const tab = bookmarks[buildingId] ?? 'default';
 
   const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
-    ({ buildingFieldId: buildingEventBuildingFieldId }) => buildingEventBuildingFieldId === buildingFieldId,
+    ({ buildingFieldId: buildingEventBuildingFieldId }) =>
+      buildingEventBuildingFieldId === buildingFieldId,
   );
 
   const hasEvent = !!currentBuildingFieldBuildingEvent;
 
-  const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
+  const styles = buildingFieldIdToStyleMap.get(
+    buildingFieldId as VillageFieldId | ReservedFieldId,
+  );
 
   const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
 
@@ -172,7 +195,12 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        buildingFieldId <= 18 && dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.RFC, level }),
+        buildingFieldId <= 18 &&
+          dynamicCellClasses({
+            buildingField,
+            resourceFieldComposition: currentVillage.RFC,
+            level,
+          }),
         buildingFieldId > 18 && 'border border-red-500',
         'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16 bg-contain',
       )}
@@ -189,7 +217,14 @@ const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingF
       />
       {shouldShowBuildingNames && (
         <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
-          {hasEvent && <Countdown endsAt={currentBuildingFieldBuildingEvent.startsAt + currentBuildingFieldBuildingEvent.duration} />}
+          {hasEvent && (
+            <Countdown
+              endsAt={
+                currentBuildingFieldBuildingEvent.startsAt +
+                currentBuildingFieldBuildingEvent.duration
+              }
+            />
+          )}
           {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}
@@ -201,10 +236,15 @@ type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
+export const BuildingField: React.FC<BuildingFieldProps> = ({
+  buildingFieldId,
+}) => {
   const { currentVillage } = useCurrentVillage();
 
-  const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
+  const buildingField = getBuildingFieldByBuildingFieldId(
+    currentVillage,
+    buildingFieldId,
+  );
 
   if (buildingField === null) {
     return <EmptyBuildingField buildingFieldId={buildingFieldId} />;

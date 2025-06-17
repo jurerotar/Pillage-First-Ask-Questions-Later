@@ -46,35 +46,58 @@ export const getUnitsByTribe = (tribe: Tribe): Unit[] => {
   }
 };
 
-export const getUnitByTribeAndTier = (tribe: Tribe, tier: Unit['tier']): Unit => {
+export const getUnitByTribeAndTier = (
+  tribe: Tribe,
+  tier: Unit['tier'],
+): Unit => {
   const unitsByTribe = getUnitsByTribe(tribe);
   return unitsByTribe.find(({ tier: unitTier }) => unitTier === tier)!;
 };
 
-export const calculateMaxUnits = (resources: Resources, costs: number[]): number => {
+export const calculateMaxUnits = (
+  resources: Resources,
+  costs: number[],
+): number => {
   const resourceKeys: Resource[] = ['wood', 'clay', 'iron', 'wheat'];
 
   const maxUnitsPerResource = resourceKeys.map((resource, index) =>
-    costs[index] > 0 ? Math.floor(resources[resource] / costs[index]) : Number.POSITIVE_INFINITY,
+    costs[index] > 0
+      ? Math.floor(resources[resource] / costs[index])
+      : Number.POSITIVE_INFINITY,
   );
 
   return Math.min(...maxUnitsPerResource);
 };
 
-export const calculateUnitUpgradeCostForLevel = (unitId: Unit['id'], level: number): number[] => {
+export const calculateUnitUpgradeCostForLevel = (
+  unitId: Unit['id'],
+  level: number,
+): number[] => {
   const { baseRecruitmentCost } = getUnitData(unitId);
 
   const unitUpgradeCostModifier = 1.35;
 
-  return baseRecruitmentCost.map((resource) => Math.ceil((5 * resource * unitUpgradeCostModifier ** (level - 1)) / 5) * 5);
+  return baseRecruitmentCost.map(
+    (resource) =>
+      Math.ceil((5 * resource * unitUpgradeCostModifier ** (level - 1)) / 5) *
+      5,
+  );
 };
 
-export const calculateUnitUpgradeDurationForLevel = (unitId: Unit['id'], level: number): number => {
+export const calculateUnitUpgradeDurationForLevel = (
+  unitId: Unit['id'],
+  level: number,
+): number => {
   const { baseRecruitmentDuration } = getUnitData(unitId);
 
   const unitUpgradeDurationModifier = 1.35;
 
-  return Math.ceil((baseRecruitmentDuration * unitUpgradeDurationModifier ** (level - 1)) / 5) * 30;
+  return (
+    Math.ceil(
+      (baseRecruitmentDuration * unitUpgradeDurationModifier ** (level - 1)) /
+        5,
+    ) * 30
+  );
 };
 
 export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
@@ -96,7 +119,9 @@ export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
     return 1.5;
   })();
 
-  return baseRecruitmentCost.map((resource) => Math.ceil((resource * unitResearchCostModifier) / 5) * 5);
+  return baseRecruitmentCost.map(
+    (resource) => Math.ceil((resource * unitResearchCostModifier) / 5) * 5,
+  );
 };
 
 export const calculateUnitResearchDuration = (unitId: Unit['id']): number => {
@@ -118,5 +143,7 @@ export const calculateUnitResearchDuration = (unitId: Unit['id']): number => {
     return 2;
   })();
 
-  return Math.ceil((baseRecruitmentDuration * unitResearchDurationModifier) / 5) * 5;
+  return (
+    Math.ceil((baseRecruitmentDuration * unitResearchDurationModifier) / 5) * 5
+  );
 };

@@ -12,7 +12,9 @@ export const useMap = () => {
   const { data: contextualMap } = useSuspenseQuery<ContextualTile[]>({
     queryKey: ['contextual-map', eventsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<ContextualTile[]>(`/map/${currentVillage.id}/contextual`);
+      const { data } = await fetcher<ContextualTile[]>(
+        `/map/${currentVillage.id}/contextual`,
+      );
       return data;
     },
   });

@@ -1,5 +1,8 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 import { eventFactory } from 'app/factories/event-factory';
 import {
   checkAndSubtractVillageResources,
@@ -10,8 +13,12 @@ import {
 } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 
-export const validateAndInsertEvents = async (queryClient: QueryClient, events: GameEvent[]) => {
-  const hasSuccessfullyValidatedAndSubtractedResources = checkAndSubtractVillageResources(queryClient, events);
+export const validateAndInsertEvents = async (
+  queryClient: QueryClient,
+  events: GameEvent[],
+) => {
+  const hasSuccessfullyValidatedAndSubtractedResources =
+    checkAndSubtractVillageResources(queryClient, events);
 
   if (!hasSuccessfullyValidatedAndSubtractedResources) {
     notifyAboutEventCreationFailure(events);
@@ -25,7 +32,10 @@ type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
-export const createClientEvents = async (queryClient: QueryClient, args: CreateNewEventsBody) => {
+export const createClientEvents = async (
+  queryClient: QueryClient,
+  args: CreateNewEventsBody,
+) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
   const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
   const duration = getEventDuration(queryClient, args as unknown as GameEvent);
@@ -37,7 +47,11 @@ export const createClientEvents = async (queryClient: QueryClient, args: CreateN
       const events: GameEvent[] = new Array(amount);
 
       for (let i = 0; i < amount; i++) {
-        events[i] = eventFactory({ ...args, startsAt: startsAt + i * duration, duration });
+        events[i] = eventFactory({
+          ...args,
+          startsAt: startsAt + i * duration,
+          duration,
+        });
       }
 
       return events;

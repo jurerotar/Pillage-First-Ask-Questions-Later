@@ -10,33 +10,32 @@ const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
   variant: 'default',
 });
 
-export const ToggleGroup: React.FC<React.ComponentProps<typeof ToggleGroupPrimitive.Root> & VariantProps<typeof toggleVariants>> = ({
-  className,
-  variant,
-  size,
-  children,
-  ...props
-}) => {
+export const ToggleGroup: React.FC<
+  React.ComponentProps<typeof ToggleGroupPrimitive.Root> &
+    VariantProps<typeof toggleVariants>
+> = ({ className, variant, size, children, ...props }) => {
   return (
     <ToggleGroupPrimitive.Root
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
-      className={clsx('group/toggle-group flex w-fit gap-1 lg:gap-2 items-center', className)}
+      className={clsx(
+        'group/toggle-group flex w-fit gap-1 lg:gap-2 items-center',
+        className,
+      )}
       {...props}
     >
-      <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
+      <ToggleGroupContext.Provider value={{ variant, size }}>
+        {children}
+      </ToggleGroupContext.Provider>
     </ToggleGroupPrimitive.Root>
   );
 };
 
-export const ToggleGroupItem: React.FC<React.ComponentProps<typeof ToggleGroupPrimitive.Item> & VariantProps<typeof toggleVariants>> = ({
-  className,
-  children,
-  variant,
-  size,
-  ...props
-}) => {
+export const ToggleGroupItem: React.FC<
+  React.ComponentProps<typeof ToggleGroupPrimitive.Item> &
+    VariantProps<typeof toggleVariants>
+> = ({ className, children, variant, size, ...props }) => {
   const context = use(ToggleGroupContext);
 
   return (

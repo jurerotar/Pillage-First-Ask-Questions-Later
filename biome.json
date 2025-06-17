@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -8,11 +8,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "ignore": ["build", "app/**/__mocks__/*", "app/asset-preload-paths"]
+    "includes": [
+      "**",
+      "!**/build",
+      "!**/app/**/__mocks__/**/*",
+      "!**/app/asset-preload-paths"
+    ]
   },
-  "organizeImports": {
-    "enabled": false
-  },
+  "assist": { "actions": { "source": { "organizeImports": "off" } } },
   "formatter": {
     "useEditorconfig": true,
     "formatWithErrors": true,
@@ -35,7 +38,17 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useBlockStatements": "error"
+        "useBlockStatements": "error",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
       }
     }
   },

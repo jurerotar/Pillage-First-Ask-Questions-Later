@@ -7,7 +7,11 @@ type CountdownProps = {
   showCompletionDate?: boolean;
 } & React.HTMLAttributes<HTMLElement>;
 
-export const Countdown: React.FC<CountdownProps> = ({ endsAt, showCompletionDate = false, ...rest }) => {
+export const Countdown: React.FC<CountdownProps> = ({
+  endsAt,
+  showCompletionDate = false,
+  ...rest
+}) => {
   const currentTime = useCountdown();
 
   const remainingTime = Math.max(0, endsAt - currentTime);
@@ -16,7 +20,9 @@ export const Countdown: React.FC<CountdownProps> = ({ endsAt, showCompletionDate
   return (
     <span {...rest}>
       {formattedTime}
-      {showCompletionDate && <span>(done at: {formatFutureTimestamp(endsAt)})</span>}
+      {showCompletionDate && (
+        <span>(done at: {formatFutureTimestamp(endsAt)})</span>
+      )}
     </span>
   );
 };

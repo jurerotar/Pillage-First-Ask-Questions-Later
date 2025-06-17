@@ -1,6 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { Village } from 'app/interfaces/models/game/village';
-import { heroCacheKey, questsCacheKey, troopsCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  heroCacheKey,
+  questsCacheKey,
+  troopsCacheKey,
+  villagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import type { Hero } from 'app/interfaces/models/game/hero';
@@ -16,16 +21,25 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
   const hero = queryClient.getQueryData<Hero>([heroCacheKey])!;
 
-  const playerVillages = villages.filter(({ playerId }) => playerId === 'player');
+  const playerVillages = villages.filter(
+    ({ playerId }) => playerId === 'player',
+  );
   const playerVillagesIds = playerVillages.map(({ id }) => id);
 
   // TODO: This does not count troops in transit
-  const playerTroops = troops.filter(({ tileId }) => playerVillagesIds.includes(tileId));
+  const playerTroops = troops.filter(({ tileId }) =>
+    playerVillagesIds.includes(tileId),
+  );
 
-  const playerVillagesMap = new Map<Village['id'], Village>(playerVillages.map((village) => [village.id, village]));
+  const playerVillagesMap = new Map<Village['id'], Village>(
+    playerVillages.map((village) => [village.id, village]),
+  );
 
   const { adventureCount } = hero;
-  const troopCount = playerTroops.reduce((total, { amount }) => total + amount, 0);
+  const troopCount = playerTroops.reduce(
+    (total, { amount }) => total + amount,
+    0,
+  );
 
   queryClient.setQueryData<Quest[]>([questsCacheKey], (quests) => {
     return quests!.map((quest) => {
@@ -41,19 +55,29 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
           const { matcher, buildingId, level } = requirement;
 
           if (matcher === 'every') {
-            const matchingBuildingFields = village.buildingFields.filter((buildingField) => buildingField.buildingId === buildingId);
+            const matchingBuildingFields = village.buildingFields.filter(
+              (buildingField) => buildingField.buildingId === buildingId,
+            );
 
             if (matchingBuildingFields.length === 0) {
               requirementStatuses.push(false);
               continue;
             }
 
-            requirementStatuses.push(matchingBuildingFields.every((matchingBuildingField) => matchingBuildingField.level >= level));
+            requirementStatuses.push(
+              matchingBuildingFields.every(
+                (matchingBuildingField) => matchingBuildingField.level >= level,
+              ),
+            );
             continue;
           }
 
           requirementStatuses.push(
-            village.buildingFields.some((buildingField) => buildingField.buildingId === buildingId && buildingField.level >= level),
+            village.buildingFields.some(
+              (buildingField) =>
+                buildingField.buildingId === buildingId &&
+                buildingField.level >= level,
+            ),
           );
         }
 

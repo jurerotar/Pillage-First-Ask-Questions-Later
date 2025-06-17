@@ -28,11 +28,22 @@ type TextProps = React.HTMLAttributes<HTMLElement> & {
   children: React.ReactNode;
 };
 
-export const Text: React.FC<TextProps> = ({ as = 'p', variant = 'body', className, children, ...props }) => {
+export const Text: React.FC<TextProps> = ({
+  as = 'p',
+  variant = 'body',
+  className,
+  children,
+  ...props
+}) => {
   return React.createElement(
     as,
     {
-      className: clsx(variantStyles[variant], elementStyles[as], 'transition-colors', className),
+      className: clsx(
+        variantStyles[variant],
+        elementStyles[as],
+        'transition-colors',
+        className,
+      ),
       ...props,
     },
     children,

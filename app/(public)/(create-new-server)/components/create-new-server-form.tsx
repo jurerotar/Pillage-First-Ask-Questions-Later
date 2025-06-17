@@ -1,10 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod/v4';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from 'app/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
 import { Button } from 'app/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
 import { Text } from 'app/components/text';
 import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
@@ -20,11 +33,15 @@ const formSchema = z.object({
   seed: z.string().min(1, { error: t('Seed is required') }),
   name: z.string().min(1, { error: t('Server name is required') }),
   configuration: z.object({
-    // @ts-expect-error: I don't know how to solve this one, speed is expected to be number, but if I use z.literal to use exact numbers
-    // fom completely breaks
-    speed: z.enum(['1', '2', '3', '5', '10']).overwrite((val) => Number.parseInt(val)),
-    // @ts-expect-error
-    mapSize: z.enum(['100', '200', '300']).overwrite((val) => Number.parseInt(val)),
+    speed: z
+      .enum(['1', '2', '3', '5', '10'])
+      // @ts-expect-error: I don't know how to solve this one, speed is expected to be number, but if I use z.literal to use exact numbers
+      // fom completely breaks
+      .overwrite((val) => Number.parseInt(val)),
+    mapSize: z
+      .enum(['100', '200', '300'])
+      // @ts-expect-error
+      .overwrite((val) => Number.parseInt(val)),
   }),
   playerConfiguration: z.object({
     name: z.string().min(1, { error: t('Player name is required') }),
@@ -87,7 +104,9 @@ export const CreateNewServerForm = () => {
 
     return (
       <div className="flex flex-col gap-4 p-6 max-w-md mx-auto">
-        <div className="bg-destructive/15 text-destructive p-4 rounded-lg">{error.message}</div>
+        <div className="bg-destructive/15 text-destructive p-4 rounded-lg">
+          {error.message}
+        </div>
       </div>
     );
   }
@@ -232,7 +251,9 @@ export const CreateNewServerForm = () => {
                         <SelectItem value="gauls">{t('Gauls')}</SelectItem>
                         <SelectItem value="teutons">{t('Teutons')}</SelectItem>
                         <SelectItem value="huns">{t('Huns')}</SelectItem>
-                        <SelectItem value="egyptians">{t('Egyptians')}</SelectItem>
+                        <SelectItem value="egyptians">
+                          {t('Egyptians')}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

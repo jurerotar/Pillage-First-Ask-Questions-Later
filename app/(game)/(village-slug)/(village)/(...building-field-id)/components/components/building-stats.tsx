@@ -9,23 +9,40 @@ import {
   getBuildingFieldByBuildingFieldId,
 } from 'app/(game)/(village-slug)/utils/building';
 import { Text } from 'app/components/text';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
 import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
 import { formatTime } from 'app/utils/time';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 export const BuildingStats = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
-  const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
-  const { buildingId, level } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
+  const { total: buildingDurationModifier, serverEffectValue } =
+    useComputedEffect('buildingDuration');
+  const { buildingId, level } = getBuildingFieldByBuildingFieldId(
+    currentVillage,
+    buildingFieldId!,
+  )!;
   const building = getBuildingData(buildingId);
 
-  const mainBuildingLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0;
+  const mainBuildingLevel =
+    currentVillage.buildingFields.find(
+      ({ buildingId }) => buildingId === 'MAIN_BUILDING',
+    )?.level ?? 0;
 
   return (
     <Section>
@@ -33,8 +50,10 @@ export const BuildingStats = () => {
         <Bookmark tab="upgrade-cost" />
         <Text as="h2">{t('Upgrade details')}</Text>
         <Text as="p">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet asperiores consectetur cum deleniti dicta, distinctio error facilis
-          fugit illo iure pariatur porro qui quibusdam rerum saepe temporibus totam unde vitae.
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet
+          asperiores consectetur cum deleniti dicta, distinctio error facilis
+          fugit illo iure pariatur porro qui quibusdam rerum saepe temporibus
+          totam unde vitae.
         </Text>
       </SectionContent>
       <SectionContent>
@@ -84,7 +103,10 @@ export const BuildingStats = () => {
                   </TableHeader>
                   <TableBody>
                     {[...Array(building.maxLevel)].map((_, index) => {
-                      const cost = calculateBuildingCostForLevel(building.id, index + 1);
+                      const cost = calculateBuildingCostForLevel(
+                        building.id,
+                        index + 1,
+                      );
 
                       return (
                         <TableRow
@@ -119,18 +141,33 @@ export const BuildingStats = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHeaderCell rowSpan={2}>{t('Level')}</TableHeaderCell>
-                      <TableHeaderCell colSpan={3}>{t('Upgrade duration')}</TableHeaderCell>
+                      <TableHeaderCell rowSpan={2}>
+                        {t('Level')}
+                      </TableHeaderCell>
+                      <TableHeaderCell colSpan={3}>
+                        {t('Upgrade duration')}
+                      </TableHeaderCell>
                     </TableRow>
                     <TableRow>
-                      <TableHeaderCell>{t('Main building level {{level}}', { level: 1 })}</TableHeaderCell>
-                      <TableHeaderCell>{t('Main building level {{level}}', { level: mainBuildingLevel })}</TableHeaderCell>
-                      <TableHeaderCell>{t('Main building level {{level}}', { level: 20 })}</TableHeaderCell>
+                      <TableHeaderCell>
+                        {t('Main building level {{level}}', { level: 1 })}
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        {t('Main building level {{level}}', {
+                          level: mainBuildingLevel,
+                        })}
+                      </TableHeaderCell>
+                      <TableHeaderCell>
+                        {t('Main building level {{level}}', { level: 20 })}
+                      </TableHeaderCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {[...Array(building.maxLevel)].map((_, index) => {
-                      const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
+                      const duration = calculateBuildingDurationForLevel(
+                        buildingId,
+                        index + 1,
+                      );
 
                       return (
                         <TableRow
@@ -141,9 +178,15 @@ export const BuildingStats = () => {
                           })}
                         >
                           <TableHeaderCell>{index + 1}</TableHeaderCell>
-                          <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
-                          <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
-                          <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
+                          <TableCell>
+                            {formatTime(duration * serverEffectValue)}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(duration * buildingDurationModifier)}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(duration * serverEffectValue * 0.5)}
+                          </TableCell>
                         </TableRow>
                       );
                     })}

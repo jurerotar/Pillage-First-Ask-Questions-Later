@@ -1,7 +1,10 @@
 import { Alert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 
 export const AuctionsTradeHistory = () => {
   const { t } = useTranslation();
@@ -16,7 +19,9 @@ export const AuctionsTradeHistory = () => {
           )}
         </Text>
       </SectionContent>
-      <Alert variant="warning">{t('This page is still under development')}</Alert>
+      <Alert variant="warning">
+        {t('This page is still under development')}
+      </Alert>
     </Section>
   );
 };

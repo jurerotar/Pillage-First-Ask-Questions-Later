@@ -1,4 +1,7 @@
-import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField,
+  Village,
+} from 'app/interfaces/models/game/village';
 import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { Building } from 'app/interfaces/models/game/building';
 
@@ -10,7 +13,11 @@ export type TroopTrainingDurationEffectId =
   | 'workshopTrainingDuration'
   | 'hospitalTrainingDuration';
 
-export type ResourceProductionEffectId = 'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction';
+export type ResourceProductionEffectId =
+  | 'woodProduction'
+  | 'clayProduction'
+  | 'ironProduction'
+  | 'wheatProduction';
 
 export type EffectId =
   | 'attack'
@@ -39,7 +46,14 @@ export type Effect = {
   // Important rule! If value is integer, it's going to be counted as baseEffectValue. If value is float, it's going to be counter as
   // a bonus value. Rule goes base * bonus!
   value: number;
-  source: 'hero' | 'oasis' | 'artifact' | 'building' | 'tribe' | 'server' | 'troops';
+  source:
+    | 'hero'
+    | 'oasis'
+    | 'artifact'
+    | 'building'
+    | 'tribe'
+    | 'server'
+    | 'troops';
 };
 
 export type ServerEffect = Omit<Effect, 'scope'> & {

@@ -6,7 +6,11 @@ type ApiHandlerArgs<TBody, TParams extends string> = {
   params: Record<TParams, string>;
 };
 
-export type ApiHandler<TReturn = void, TParams extends string = '', TBody = Record<string, unknown>> = (
+export type ApiHandler<
+  TReturn = void,
+  TParams extends string = '',
+  TBody = Record<string, unknown>,
+> = (
   queryClient: QueryClient,
   args: ApiHandlerArgs<TBody, TParams>,
 ) => Promise<TReturn>;
@@ -22,4 +26,5 @@ export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
-export type EventResolvedApiNotificationEvent = ApiNotificationEvent & Pick<GameEvent, 'cachesToClearOnResolve'>;
+export type EventResolvedApiNotificationEvent = ApiNotificationEvent &
+  Pick<GameEvent, 'cachesToClearOnResolve'>;

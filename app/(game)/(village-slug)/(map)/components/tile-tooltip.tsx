@@ -8,7 +8,13 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
+import type {
+  OasisResourceBonus,
+  OasisTile,
+  OccupiableTile,
+  OccupiedOccupiableTile,
+  Tile,
+} from 'app/interfaces/models/game/tile';
 import type React from 'react';
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -58,7 +64,8 @@ const TileTooltipPlayerInfo: React.FC<TileTooltipProps> = ({ tile }) => {
             {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
-            {t('Reputation')} - {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t('Reputation')} -{' '}
+            {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
@@ -76,7 +83,9 @@ type TileTooltipWorldItemProps = {
   item: WorldItem;
 };
 
-const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({ item }) => {
+const TileTooltipWorldItem: React.FC<TileTooltipWorldItemProps> = ({
+  item,
+}) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
 
@@ -121,7 +130,9 @@ type TileTooltipResourcesProps = {
   tile: OccupiableTile;
 };
 
-const TileTooltipResources: React.FC<TileTooltipResourcesProps> = ({ tile }) => {
+const TileTooltipResources: React.FC<TileTooltipResourcesProps> = ({
+  tile,
+}) => {
   const resources = parseRFCFromTile(tile.RFC, 'number');
   return (
     <Resources
@@ -173,7 +184,9 @@ type OccupiableTileTooltipProps = {
   tile: OccupiableTile;
 };
 
-const OccupiableTileTooltip: React.FC<OccupiableTileTooltipProps> = ({ tile }) => {
+const OccupiableTileTooltip: React.FC<OccupiableTileTooltipProps> = ({
+  tile,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -189,7 +202,9 @@ type OccupiedOccupiableTileTooltipProps = {
   tile: OccupiedOccupiableTile;
 };
 
-const OccupiedOccupiableTileTooltip: React.FC<OccupiedOccupiableTileTooltipProps> = ({ tile }) => {
+const OccupiedOccupiableTileTooltip: React.FC<
+  OccupiedOccupiableTileTooltipProps
+> = ({ tile }) => {
   const { getVillageById } = useVillages();
   const { worldItem } = useTileWorldItem(tile.id);
 

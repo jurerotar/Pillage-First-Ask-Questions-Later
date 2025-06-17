@@ -15,9 +15,18 @@ export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
   };
 };
 
-export function parseRFCFromTile(RFC: OccupiableTile['RFC'], as: 'number'): number[];
-export function parseRFCFromTile(RFC: OccupiableTile['RFC'], as?: 'string'): string[];
-export function parseRFCFromTile(RFC: OccupiableTile['RFC'], as: 'string' | 'number' = 'string') {
+export function parseRFCFromTile(
+  RFC: OccupiableTile['RFC'],
+  as: 'number',
+): number[];
+export function parseRFCFromTile(
+  RFC: OccupiableTile['RFC'],
+  as?: 'string',
+): string[];
+export function parseRFCFromTile(
+  RFC: OccupiableTile['RFC'],
+  as: 'string' | 'number' = 'string',
+) {
   const [wood, clay, iron, ...wheat] = RFC.split('');
   const values = [wood, clay, iron, wheat.join('')];
 
@@ -36,9 +45,16 @@ const resourceToId = new Map<Resource, number>([
   ['wheat', 3],
 ]);
 
-const idToResource = new Map(Array.from(resourceToId.entries()).map(([key, value]) => [value, key]));
+const idToResource = new Map(
+  Array.from(resourceToId.entries()).map(([key, value]) => [value, key]),
+);
 
-export const encodeGraphicsProperty = (resource: Resource, group: number, x: number, y: number): number => {
+export const encodeGraphicsProperty = (
+  resource: Resource,
+  group: number,
+  x: number,
+  y: number,
+): number => {
   const resId = resourceToId.get(resource)!; // 2 bits
   return (resId << 8) | (group << 5) | (x << 3) | y;
 };

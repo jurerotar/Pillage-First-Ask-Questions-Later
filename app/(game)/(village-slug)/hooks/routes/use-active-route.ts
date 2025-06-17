@@ -6,7 +6,8 @@ export const useActiveRoute = () => {
   const { villagePath, resourcesPath, mapPath, heroPath } = useGameNavigation();
 
   const isVillagePageOpen = pathname.includes(villagePath);
-  const isResourcesPageOpen = pathname.includes(resourcesPath) && !isVillagePageOpen;
+  const isResourcesPageOpen =
+    pathname.includes(resourcesPath) && !isVillagePageOpen;
   const isMapPageOpen = pathname.includes(mapPath);
   const isHeroPageOpen = pathname.includes(heroPath);
 

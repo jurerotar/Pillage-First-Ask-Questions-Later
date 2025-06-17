@@ -1,7 +1,15 @@
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from 'app/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
 import { Button } from 'app/components/ui/button';
 import { useState } from 'react';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
@@ -16,18 +24,32 @@ export const DemolishBuilding = () => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
 
-  const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
+  const canDemolishBuildings =
+    (currentVillage.buildingFields.find(
+      ({ buildingId }) => buildingId === 'MAIN_BUILDING',
+    )?.level ?? 0) >= 10;
 
-  const demolishableBuildings = currentVillage.buildingFields.filter(({ level }) => level > 0);
+  const demolishableBuildings = currentVillage.buildingFields.filter(
+    ({ level }) => level > 0,
+  );
 
-  const [buildingFieldToDemolish, setBuildingFieldToDemolish] = useState<BuildingField>(demolishableBuildings[0]);
+  const [buildingFieldToDemolish, setBuildingFieldToDemolish] =
+    useState<BuildingField>(demolishableBuildings[0]);
 
-  const { demolishBuilding, downgradeBuilding } = useBuildingActions(buildingFieldToDemolish.buildingId, buildingFieldToDemolish.id);
-  const { getBuildingDowngradeErrorBag } = useBuildingDowngradeStatus(buildingFieldToDemolish.id);
+  const { demolishBuilding, downgradeBuilding } = useBuildingActions(
+    buildingFieldToDemolish.buildingId,
+    buildingFieldToDemolish.id,
+  );
+  const { getBuildingDowngradeErrorBag } = useBuildingDowngradeStatus(
+    buildingFieldToDemolish.id,
+  );
   const buildingDowngradeErrorBag = getBuildingDowngradeErrorBag();
 
   const onValueChange = (value: string) => {
-    const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, Number.parseInt(value) as BuildingField['id'])!;
+    const buildingField = getBuildingFieldByBuildingFieldId(
+      currentVillage,
+      Number.parseInt(value) as BuildingField['id'],
+    )!;
     setBuildingFieldToDemolish(buildingField);
   };
 
@@ -69,7 +91,8 @@ export const DemolishBuilding = () => {
                 key={buildingField.id}
                 value={`${buildingField.id}`}
               >
-                {assetsT(`BUILDINGS.${buildingField.buildingId}.NAME`)} - {t('level {{level}}', { level: buildingField.level })}
+                {assetsT(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
+                {t('level {{level}}', { level: buildingField.level })}
               </SelectItem>
             ))}
           </SelectContent>
@@ -79,14 +102,20 @@ export const DemolishBuilding = () => {
       <div className="flex gap-2">
         {buildingFieldToDemolish.level > 1 && (
           <Button
-            disabled={!canDemolishBuildings || buildingDowngradeErrorBag.length > 0}
+            disabled={
+              !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
+            }
             onClick={onDowngrade}
           >
-            {t('Downgrade to level {{level}}', { level: buildingFieldToDemolish.level - 1 })}
+            {t('Downgrade to level {{level}}', {
+              level: buildingFieldToDemolish.level - 1,
+            })}
           </Button>
         )}
         <Button
-          disabled={!canDemolishBuildings || buildingDowngradeErrorBag.length > 0}
+          disabled={
+            !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
+          }
           onClick={onDemolish}
         >
           {t('Demolish completely')}

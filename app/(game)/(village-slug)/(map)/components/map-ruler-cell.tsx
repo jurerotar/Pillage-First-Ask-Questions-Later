@@ -7,12 +7,17 @@ type MapRulerCellProps = {
   layout: 'vertical' | 'horizontal';
 };
 
-export const MapRulerCell: React.FC<ListChildComponentProps<MapRulerCellProps>> = ({ index, style, data: { layout } }) => {
+export const MapRulerCell: React.FC<
+  ListChildComponentProps<MapRulerCellProps>
+> = ({ index, style, data: { layout } }) => {
   const { gridSize } = use(MapContext);
 
   const modifier = (gridSize - 1) / 2 + 1;
 
-  const cellIndex = layout === 'vertical' ? gridSize - index - modifier : -gridSize + index + modifier;
+  const cellIndex =
+    layout === 'vertical'
+      ? gridSize - index - modifier
+      : -gridSize + index + modifier;
 
   return (
     <span

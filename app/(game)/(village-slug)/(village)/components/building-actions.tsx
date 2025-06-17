@@ -13,7 +13,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
-import { useBuildingConstructionStatus, useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import {
+  useBuildingConstructionStatus,
+  useBuildingUpgradeStatus,
+} from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 
@@ -45,10 +48,15 @@ type BuildingCardActionsSectionProps = {
   onBuildingConstruction: () => void;
 };
 
-const BuildingCardActionsConstruction: React.FC<BuildingCardActionsSectionProps> = ({ buildingId, onBuildingConstruction }) => {
+const BuildingCardActionsConstruction: React.FC<
+  BuildingCardActionsSectionProps
+> = ({ buildingId, onBuildingConstruction }) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
-  const { errors } = useBuildingConstructionStatus(buildingId, buildingFieldId!);
+  const { errors } = useBuildingConstructionStatus(
+    buildingId,
+    buildingFieldId!,
+  );
 
   return (
     <>
@@ -70,7 +78,10 @@ type BuildingCardActionsUpgradeProps = {
   buildingLevel: number;
 };
 
-const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({ onBuildingUpgrade, buildingLevel }) => {
+const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
+  onBuildingUpgrade,
+  buildingLevel,
+}) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { errors } = useBuildingUpgradeStatus(buildingFieldId!);
@@ -94,7 +105,9 @@ type BuildingCardProps = {
   buildingId: Building['id'];
 };
 
-export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => {
+export const BuildingActions: React.FC<BuildingCardProps> = ({
+  buildingId,
+}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { tribe } = useTribe();
@@ -103,12 +116,21 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({ buildingId }) => 
   const { buildingFieldId } = useRouteSegments();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
-  const { constructBuilding, upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId!);
-  const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
+  const { constructBuilding, upgradeBuilding } = useBuildingActions(
+    buildingId,
+    buildingFieldId!,
+  );
+  const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
+    buildingId,
+    buildingFieldId!,
+  );
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
 
-  const canDemolishBuildings = (currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0) >= 10;
+  const canDemolishBuildings =
+    (currentVillage.buildingFields.find(
+      ({ buildingId }) => buildingId === 'MAIN_BUILDING',
+    )?.level ?? 0) >= 10;
 
   const navigateBack = () => {
     navigate('..', { relative: 'path' });

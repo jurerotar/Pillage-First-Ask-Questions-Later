@@ -13,26 +13,36 @@ import { IoIosArrowRoundForward } from 'react-icons/io';
 import { MdCancel } from 'react-icons/md';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { eventsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  eventsCacheKey,
+  playerVillagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
-const iconClassName = 'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
+const iconClassName =
+  'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
 
 type ConstructionQueueBuildingProps = {
   buildingEvent: GameEvent<'buildingConstruction'>;
   tooltipPosition: PlacesType;
 };
 
-const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingProps> = ({ buildingEvent, tooltipPosition }) => {
+const ConstructionQueueBuilding: React.FCWithChildren<
+  ConstructionQueueBuildingProps
+> = ({ buildingEvent, tooltipPosition }) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
 
-  const { mutate: cancelConstruction } = useMutation<void, Error, { eventId: GameEvent['id'] }>({
+  const { mutate: cancelConstruction } = useMutation<
+    void,
+    Error,
+    { eventId: GameEvent['id'] }
+  >({
     mutationFn: async ({ eventId }) => {
       await fetcher(`/events/${eventId}`, {
         method: 'DELETE',
@@ -40,7 +50,9 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
-      await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
+      await queryClient.invalidateQueries({
+        queryKey: [playerVillagesCacheKey],
+      });
     },
   });
 
@@ -87,18 +99,23 @@ const ConstructionQueueBuilding: React.FCWithChildren<ConstructionQueueBuildingP
               <span className="inline-flex gap-1 whitespace-nowrap">
                 <b>{assetsT(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
                 <span className="inline-flex items-center text-sm">
-                  ({buildingEvent.level - 1} <IoIosArrowRoundForward /> {buildingEvent.level})
+                  ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
+                  {buildingEvent.level})
                 </span>
               </span>
               <span className="inline-flex gap-1 text-sm">
-                <Countdown endsAt={buildingEvent.startsAt + buildingEvent.duration} />
+                <Countdown
+                  endsAt={buildingEvent.startsAt + buildingEvent.duration}
+                />
                 {isScheduledEvent && <span>({t('In queue')})</span>}
               </span>
             </div>
             <div className="flex items-center">
               <button
                 aria-label={t('Cancel building construction')}
-                onClick={() => cancelConstruction({ eventId: buildingEvent.id })}
+                onClick={() =>
+                  cancelConstruction({ eventId: buildingEvent.id })
+                }
                 type="button"
               >
                 <MdCancel className="text-xl lg:text-2xl text-red-400 box-content" />
@@ -115,7 +132,9 @@ type ConstructionQueueEmptySlotProps = {
   type: 'free' | 'locked';
 };
 
-const ConstructionQueueEmptySlot: React.FCWithChildren<ConstructionQueueEmptySlotProps> = ({ type }) => {
+const ConstructionQueueEmptySlot: React.FCWithChildren<
+  ConstructionQueueEmptySlotProps
+> = ({ type }) => {
   if (type === 'free') {
     return <ImHammer className={iconClassName} />;
   }
@@ -132,7 +151,8 @@ export const ConstructionQueue = () => {
     return null;
   }
 
-  const emptySlots = (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
+  const emptySlots =
+    (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
 
   return (
     <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">

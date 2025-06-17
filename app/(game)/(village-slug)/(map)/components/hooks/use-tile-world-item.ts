@@ -10,7 +10,9 @@ export const useTileWorldItem = (tileId: Tile['id']) => {
   const { data: worldItem } = useSuspenseQuery<WorldItem | null>({
     queryKey: ['tile-world-item', tileId],
     queryFn: async () => {
-      const { data } = await fetcher<WorldItem | null>(`/tiles/${tileId}/world-item`);
+      const { data } = await fetcher<WorldItem | null>(
+        `/tiles/${tileId}/world-item`,
+      );
       return data;
     },
   });

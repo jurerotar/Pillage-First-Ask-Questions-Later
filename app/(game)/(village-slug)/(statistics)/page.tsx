@@ -3,7 +3,13 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 import type { MetaFunction } from 'react-router';
 import { t } from 'i18next';
@@ -50,13 +56,19 @@ const StatisticsPage = () => {
           <Tab>{t('Week by week')}</Tab>
         </TabList>
         <TabPanel>
-          <Alert variant="warning">{t('This page is still under development')}</Alert>
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
         </TabPanel>
         <TabPanel>
-          <Alert variant="warning">{t('This page is still under development')}</Alert>
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
         </TabPanel>
         <TabPanel>
-          <Alert variant="warning">{t('This page is still under development')}</Alert>
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
         </TabPanel>
       </Tabs>
     </>

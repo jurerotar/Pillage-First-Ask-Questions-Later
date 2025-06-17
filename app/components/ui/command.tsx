@@ -2,13 +2,24 @@ import type React from 'react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { LuSearch } from 'react-icons/lu';
 import clsx from 'clsx';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from 'app/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
 
-export const Command: React.FC<React.ComponentProps<typeof CommandPrimitive>> = ({ className, ...props }) => {
+export const Command: React.FC<
+  React.ComponentProps<typeof CommandPrimitive>
+> = ({ className, ...props }) => {
   return (
     <CommandPrimitive
       data-slot="command"
-      className={clsx('bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md', className)}
+      className={clsx(
+        'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
+        className,
+      )}
       {...props}
     />
   );
@@ -19,7 +30,12 @@ type CommandDialogProps = React.ComponentProps<typeof Dialog> & {
   description: string;
 };
 
-export const CommandDialog: React.FC<CommandDialogProps> = ({ title, description, children, ...props }) => {
+export const CommandDialog: React.FC<CommandDialogProps> = ({
+  title,
+  description,
+  children,
+  ...props
+}) => {
   return (
     <Dialog {...props}>
       <DialogHeader className="sr-only">
@@ -35,7 +51,9 @@ export const CommandDialog: React.FC<CommandDialogProps> = ({ title, description
   );
 };
 
-export const CommandInput: React.FC<React.ComponentProps<typeof CommandPrimitive.Input>> = ({ className, ...props }) => {
+export const CommandInput: React.FC<
+  React.ComponentProps<typeof CommandPrimitive.Input>
+> = ({ className, ...props }) => {
   return (
     <div
       data-slot="command-input-wrapper"
@@ -54,17 +72,24 @@ export const CommandInput: React.FC<React.ComponentProps<typeof CommandPrimitive
   );
 };
 
-export const CommandList: React.FC<React.ComponentProps<typeof CommandPrimitive.List>> = ({ className, ...props }) => {
+export const CommandList: React.FC<
+  React.ComponentProps<typeof CommandPrimitive.List>
+> = ({ className, ...props }) => {
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      className={clsx('max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto', className)}
+      className={clsx(
+        'max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto',
+        className,
+      )}
       {...props}
     />
   );
 };
 
-export const CommandEmpty: React.FC<React.ComponentProps<typeof CommandPrimitive.Empty>> = ({ ...props }) => {
+export const CommandEmpty: React.FC<
+  React.ComponentProps<typeof CommandPrimitive.Empty>
+> = ({ ...props }) => {
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
@@ -74,7 +99,9 @@ export const CommandEmpty: React.FC<React.ComponentProps<typeof CommandPrimitive
   );
 };
 
-export const CommandGroup: React.FC<React.ComponentProps<typeof CommandPrimitive.Group>> = ({ className, ...props }) => {
+export const CommandGroup: React.FC<
+  React.ComponentProps<typeof CommandPrimitive.Group>
+> = ({ className, ...props }) => {
   return (
     <CommandPrimitive.Group
       data-slot="command-group"
@@ -87,7 +114,9 @@ export const CommandGroup: React.FC<React.ComponentProps<typeof CommandPrimitive
   );
 };
 
-export const CommandSeparator: React.FC<React.ComponentProps<typeof CommandPrimitive.Separator>> = ({ className, ...props }) => {
+export const CommandSeparator: React.FC<
+  React.ComponentProps<typeof CommandPrimitive.Separator>
+> = ({ className, ...props }) => {
   return (
     <CommandPrimitive.Separator
       data-slot="command-separator"
@@ -97,7 +126,9 @@ export const CommandSeparator: React.FC<React.ComponentProps<typeof CommandPrimi
   );
 };
 
-export const CommandItem: React.FC<React.ComponentProps<typeof CommandPrimitive.Item>> = ({ className, ...props }) => {
+export const CommandItem: React.FC<
+  React.ComponentProps<typeof CommandPrimitive.Item>
+> = ({ className, ...props }) => {
   return (
     <CommandPrimitive.Item
       data-slot="command-item"
@@ -110,11 +141,17 @@ export const CommandItem: React.FC<React.ComponentProps<typeof CommandPrimitive.
   );
 };
 
-export const CommandShortcut: React.FC<React.ComponentProps<'span'>> = ({ className, ...props }) => {
+export const CommandShortcut: React.FC<React.ComponentProps<'span'>> = ({
+  className,
+  ...props
+}) => {
   return (
     <span
       data-slot="command-shortcut"
-      className={clsx('text-muted-foreground ml-auto text-xs tracking-widest', className)}
+      className={clsx(
+        'text-muted-foreground ml-auto text-xs tracking-widest',
+        className,
+      )}
       {...props}
     />
   );

@@ -25,7 +25,10 @@ export const meta: MetaFunction = ({ location, params }) => {
 const BuildingPage = () => {
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();
-  const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!);
+  const buildingField = getBuildingFieldByBuildingFieldId(
+    currentVillage,
+    buildingFieldId!,
+  );
   const hasBuilding = !!buildingField;
 
   if (hasBuilding) {

@@ -1,10 +1,24 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { eventsCacheKey, playersCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import {
+  eventsCacheKey,
+  playersCacheKey,
+  villagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
-import { isBuildingEvent, isScheduledBuildingEvent, isVillageEvent } from 'app/(game)/guards/event-guards';
-import { calculateBuildingCancellationRefundForLevel, specialFieldIds } from 'app/(game)/(village-slug)/utils/building';
+import {
+  isBuildingEvent,
+  isScheduledBuildingEvent,
+  isVillageEvent,
+} from 'app/(game)/guards/event-guards';
+import {
+  calculateBuildingCancellationRefundForLevel,
+  specialFieldIds,
+} from 'app/(game)/(village-slug)/utils/building';
 import type { Village } from 'app/interfaces/models/game/village';
 import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
@@ -12,7 +26,10 @@ import type { Player } from 'app/interfaces/models/game/player';
 import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
 import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
 
-export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (queryClient, { params }) => {
+export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
+  queryClient,
+  { params },
+) => {
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 
@@ -27,7 +44,10 @@ export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (que
   });
 };
 
-export const getVillageEventsByType: ApiHandler<GameEvent[], 'villageId' | 'eventType'> = async (queryClient, { params }) => {
+export const getVillageEventsByType: ApiHandler<
+  GameEvent[],
+  'villageId' | 'eventType'
+> = async (queryClient, { params }) => {
   const { villageId: villageIdParam, eventType } = params;
   const villageId = Number.parseInt(villageIdParam);
 
@@ -40,13 +60,21 @@ type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
-export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = async (queryClient, args) => {
+export const createNewEvents: ApiHandler<
+  void,
+  '',
+  CreateNewEventsBody
+> = async (queryClient, args) => {
   const { body } = args;
 
   await createClientEvents(queryClient, body);
 };
 
-export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async (queryClient, args) => {
+export const cancelConstructionEvent: ApiHandler<
+  void,
+  'eventId',
+  void
+> = async (queryClient, args) => {
   const {
     params: { eventId },
   } = args;
@@ -55,7 +83,9 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
   const { tribe } = players.find(({ id }) => id === 'player')!;
 
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-    const cancelledEvent = prevEvents!.find(({ id }) => eventId === id) as GameEvent<'buildingConstruction'>;
+    const cancelledEvent = prevEvents!.find(
+      ({ id }) => eventId === id,
+    ) as GameEvent<'buildingConstruction'>;
 
     // If there's other building upgrades of same building, we need to cancel them as well
     const [eventsToRemove, eventsToKeep] = partition(prevEvents!, (event) => {
@@ -75,9 +105,18 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
     }, 0);
 
     // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
-    const eventToRemove = eventsToRemove.at(-1) as GameEvent<'buildingConstruction'>;
+    const eventToRemove = eventsToRemove.at(
+      -1,
+    ) as GameEvent<'buildingConstruction'>;
 
-    const { buildingFieldId, buildingId, level, villageId, startsAt, duration } = eventToRemove;
+    const {
+      buildingFieldId,
+      buildingId,
+      level,
+      villageId,
+      startsAt,
+      duration,
+    } = eventToRemove;
 
     const buildingEvents = eventsToKeep.filter(isBuildingEvent);
 
@@ -94,7 +133,10 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
         : buildingEvents;
 
     // If we're building a new building, construction takes place immediately, in that case we need to remove the building
-    if (!specialFieldIds.includes(cancelledEvent.buildingFieldId) && cancelledEvent.level === 1) {
+    if (
+      !specialFieldIds.includes(cancelledEvent.buildingFieldId) &&
+      cancelledEvent.level === 1
+    ) {
       queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
         return removeBuildingField(prevData!, cancelledEvent);
       });
@@ -119,9 +161,17 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = async 
       }
     }
 
-    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(buildingId, level);
+    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
+      buildingId,
+      level,
+    );
 
-    addVillageResourcesAt(queryClient, villageId, Date.now(), resourcesToRefund);
+    addVillageResourcesAt(
+      queryClient,
+      villageId,
+      Date.now(),
+      resourcesToRefund,
+    );
 
     return eventsToKeep;
   });

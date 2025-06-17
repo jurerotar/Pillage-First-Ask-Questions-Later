@@ -6,20 +6,32 @@ import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import type React from 'react';
 import { useMemo } from 'react';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Link } from 'react-router';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;
 };
 
-const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({ item }) => {
+const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({
+  item,
+}) => {
   const { t: assetsT } = useTranslation();
   const { mapPath } = useGameNavigation();
 
@@ -42,21 +54,35 @@ export const TreasuryArtifacts = () => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { hero } = useHero();
-  const { currentVillageArtifactId, hasCurrentVillageArtifact, assignedArtifacts } = useArtifacts();
+  const {
+    currentVillageArtifactId,
+    hasCurrentVillageArtifact,
+    assignedArtifacts,
+  } = useArtifacts();
   const { worldItems } = useWorldItems();
   const { getDistanceFromCurrentVillage } = useCurrentVillage();
 
-  const availableArtifacts = hero.inventory.filter(({ category }) => category === 'artifact');
+  const availableArtifacts = hero.inventory.filter(
+    ({ category }) => category === 'artifact',
+  );
   const hasAvailableArtifacts = availableArtifacts.length > 0;
 
   const unclaimedArtifactWorldItems = worldItems.filter(({ id, type }) => {
-    // @ts-expect-error: TODO: Fix these type narrowing issues
-    return type === 'artifact' && !assignedArtifacts.includes(id) && !availableArtifacts.includes(id);
+    return (
+      type === 'artifact' &&
+      // @ts-expect-error: TODO: Fix these type narrowing issues
+      !assignedArtifacts.includes(id) &&
+      // @ts-expect-error: TODO: Fix these type narrowing issues
+      !availableArtifacts.includes(id)
+    );
   });
 
   const sortedByDistanceArtifactWorldItems = useMemo<WorldItem[]>(() => {
     return unclaimedArtifactWorldItems.toSorted((prev, next) => {
-      return getDistanceFromCurrentVillage(prev.tileId) - getDistanceFromCurrentVillage(next.tileId);
+      return (
+        getDistanceFromCurrentVillage(prev.tileId) -
+        getDistanceFromCurrentVillage(next.tileId)
+      );
     });
   }, [unclaimedArtifactWorldItems, getDistanceFromCurrentVillage]);
 
@@ -70,8 +96,10 @@ export const TreasuryArtifacts = () => {
         <Bookmark tab="train" />
         <Text as="h2">{t('Artifacts')}</Text>
         <Text as="p">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium ad autem distinctio nesciunt officia quas qui similique.
-          Aperiam atque et excepturi fugiat labore quidem sed sit tempore totam voluptas. Iure!
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
+          ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
+          et excepturi fugiat labore quidem sed sit tempore totam voluptas.
+          Iure!
         </Text>
       </SectionContent>
       <section className="flex flex-col gap-2">
@@ -88,8 +116,12 @@ export const TreasuryArtifacts = () => {
             <TableRow>
               {hasCurrentVillageArtifact && (
                 <>
-                  <TableCell>{assetsT(`ITEMS.${currentVillageArtifactId}.TITLE`)}</TableCell>
-                  <TableCell>{assetsT(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}</TableCell>
+                  <TableCell>
+                    {assetsT(`ITEMS.${currentVillageArtifactId}.TITLE`)}
+                  </TableCell>
+                  <TableCell>
+                    {assetsT(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}
+                  </TableCell>
                   <TableCell>/</TableCell>
                 </>
               )}
@@ -100,10 +132,16 @@ export const TreasuryArtifacts = () => {
                     colSpan={hasAvailableArtifacts ? 2 : 3}
                   >
                     {hasAvailableArtifacts
-                      ? t('This village does not host an artifact. Select an artifact to assign.')
-                      : t('This village does not host an artifact. Capture one first from the list bellow.')}
+                      ? t(
+                          'This village does not host an artifact. Select an artifact to assign.',
+                        )
+                      : t(
+                          'This village does not host an artifact. Capture one first from the list bellow.',
+                        )}
                   </TableCell>
-                  {hasAvailableArtifacts && <TableCell className="text-left">TODO</TableCell>}
+                  {hasAvailableArtifacts && (
+                    <TableCell className="text-left">TODO</TableCell>
+                  )}
                 </>
               )}
             </TableRow>

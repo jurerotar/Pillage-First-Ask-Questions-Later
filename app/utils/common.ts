@@ -1,15 +1,26 @@
 import type { Point } from 'app/interfaces/models/common';
 import type { PRNGFunction } from 'ts-seedrandom';
 
-export const seededRandomIntFromInterval = (prng: PRNGFunction, min: number, max: number): number => {
+export const seededRandomIntFromInterval = (
+  prng: PRNGFunction,
+  min: number,
+  max: number,
+): number => {
   return Math.floor(prng() * (max - min + 1) + min);
 };
 
-export const seededRandomArrayElement = <T>(prng: PRNGFunction, array: T[]): T => {
+export const seededRandomArrayElement = <T>(
+  prng: PRNGFunction,
+  array: T[],
+): T => {
   return array[Math.floor(prng() * array.length)];
 };
 
-export const seededRandomArrayElements = <T>(prng: PRNGFunction, array: T[], n: number): T[] => {
+export const seededRandomArrayElements = <T>(
+  prng: PRNGFunction,
+  array: T[],
+  n: number,
+): T[] => {
   const result: T[] = [];
   let len = array.length;
 
@@ -43,8 +54,13 @@ export const seededShuffleArray = <T>(prng: PRNGFunction, array: T[]): T[] => {
   return copy;
 };
 
-export const calculateDistanceBetweenPoints = (firstPoint: Point, secondPoint: Point): number => {
-  return Math.sqrt((secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2);
+export const calculateDistanceBetweenPoints = (
+  firstPoint: Point,
+  secondPoint: Point,
+): number => {
+  return Math.sqrt(
+    (secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2,
+  );
 };
 
 export const roundTo2DecimalPoints = (number: number): number => {
@@ -59,7 +75,10 @@ export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-export const partition = <T>(array: T[], callback: (element: T) => boolean): [T[], T[]] => {
+export const partition = <T>(
+  array: T[],
+  callback: (element: T) => boolean,
+): [T[], T[]] => {
   return array.reduce(
     (result, element) => {
       result[callback(element) ? 0 : 1].push(element);
@@ -73,31 +92,14 @@ export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
 
-export const timeExecution = async (callback: () => void | Promise<void>, name = 'Performance mark') => {
+export const timeExecution = async (
+  callback: () => void | Promise<void>,
+  name = 'Performance mark',
+) => {
   performance.mark(`${name} - start`);
   await callback();
   performance.mark(`${name} - end`);
   performance.measure(name, `${name} - start`, `${name} - end`);
-};
-
-export const averageExecutionTime = (count = 100) => {
-  let executionCount = 0;
-  let totalTime = 0;
-
-  return (callback: () => void) => {
-    const startTime = performance.now();
-    callback();
-    const endTime = performance.now();
-
-    const runTime = endTime - startTime;
-    executionCount += 1;
-    totalTime += runTime;
-
-    if (executionCount === count) {
-      // biome-ignore lint/suspicious/noConsole:
-      console.log(`${totalTime / executionCount}ms`);
-    }
-  };
 };
 
 export const formatPercentage = (number: number): string => {
@@ -124,7 +126,9 @@ export const formatNumber = (number: number): string => {
 
 // Formats number as either an integer or as a percentage
 export const formatValue = (value: number) => {
-  return Number.isInteger(value) && !value.toString().includes('.') ? value : formatPercentage(value);
+  return Number.isInteger(value) && !value.toString().includes('.')
+    ? value
+    : formatPercentage(value);
 };
 
 export const normalizeForcedFloatValue = (value: number) => {

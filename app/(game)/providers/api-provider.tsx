@@ -2,7 +2,10 @@ import type React from 'react';
 import { createContext, useEffect, useMemo } from 'react';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import ApiWorker from 'app/(game)/api/workers/api-worker?worker&url';
-import { createWorkerFetcher, type Fetcher } from 'app/(game)/utils/worker-fetch';
+import {
+  createWorkerFetcher,
+  type Fetcher,
+} from 'app/(game)/utils/worker-fetch';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { ApiNotificationEvent } from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -19,7 +22,9 @@ type ApiContextReturn = {
   fetcher: Fetcher;
 };
 
-export const ApiContext = createContext<ApiContextReturn>({} as ApiContextReturn);
+export const ApiContext = createContext<ApiContextReturn>(
+  {} as ApiContextReturn,
+);
 
 const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
   return new Promise((resolve) => {
@@ -28,7 +33,10 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
     const worker = new Worker(url.toString(), { type: 'module' });
 
     const handleWorkerReadyMessage = (event: MessageEvent) => {
-      if (isNotificationMessageEvent(event) && event.data.eventKey === 'event:worker-ready') {
+      if (
+        isNotificationMessageEvent(event) &&
+        event.data.eventKey === 'event:worker-ready'
+      ) {
         worker.removeEventListener('message', handleWorkerReadyMessage);
         resolve(worker);
       }
@@ -38,7 +46,10 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
   });
 };
 
-export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({ serverSlug, children }) => {
+export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({
+  serverSlug,
+  children,
+}) => {
   const queryClient = useQueryClient();
 
   const { data: apiWorker } = useSuspenseQuery<Worker>({

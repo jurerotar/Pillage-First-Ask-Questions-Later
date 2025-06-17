@@ -6,7 +6,14 @@ import { t } from 'i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from 'app/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -33,7 +40,11 @@ export const RenameVillage = () => {
     },
   });
 
-  const { mutate: renameVillage } = useMutation<void, Error, z.infer<typeof formSchema>>({
+  const { mutate: renameVillage } = useMutation<
+    void,
+    Error,
+    z.infer<typeof formSchema>
+  >({
     mutationFn: async ({ name }) => {
       await fetcher(`/villages/${currentVillage.id}/rename`, {
         method: 'PATCH',
@@ -43,7 +54,9 @@ export const RenameVillage = () => {
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
+      await queryClient.invalidateQueries({
+        queryKey: [playerVillagesCacheKey],
+      });
     },
   });
 
@@ -54,7 +67,9 @@ export const RenameVillage = () => {
   return (
     <section className="flex flex-col gap-2">
       <Text as="h2">{t('Rename village')}</Text>
-      <Text>{t('Rename current village. Name cannot exceed 30 characters.')}</Text>
+      <Text>
+        {t('Rename current village. Name cannot exceed 30 characters.')}
+      </Text>
 
       <Form {...form}>
         <form

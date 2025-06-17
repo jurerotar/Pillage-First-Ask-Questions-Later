@@ -1,30 +1,41 @@
 import { describe, test, expect } from 'vitest';
 import { units } from 'app/(game)/(village-slug)/assets/units';
 
-const getBuildingIds = (unit: (typeof units)[number]) => unit.researchRequirements.map((r) => r.buildingId);
+const getBuildingIds = (unit: (typeof units)[number]) =>
+  unit.researchRequirements.map((r) => r.buildingId);
 
 describe('Unit validation rules', () => {
   test('Tier-1 and SETTLER units must not have researchRequirements', () => {
     const invalidUnits = units.filter(
-      (unit) => (unit.tier === 'tier-1' || unit.id.includes('SETTLER')) && unit.researchRequirements.length > 0,
+      (unit) =>
+        (unit.tier === 'tier-1' || unit.id.includes('SETTLER')) &&
+        unit.researchRequirements.length > 0,
     );
     expect(invalidUnits).toEqual([]);
   });
 
   test('CHIEF and SETTLER units must be category "special" and tier "special"', () => {
     const invalidUnits = units.filter(
-      (unit) => (unit.id.includes('SETTLER') || unit.id.includes('CHIEF')) && (unit.category !== 'special' || unit.tier !== 'special'),
+      (unit) =>
+        (unit.id.includes('SETTLER') || unit.id.includes('CHIEF')) &&
+        (unit.category !== 'special' || unit.tier !== 'special'),
     );
     expect(invalidUnits).toEqual([]);
   });
 
   test('CATAPULT and RAM units must be category "siege"', () => {
-    const invalidUnits = units.filter((unit) => (unit.id.includes('RAM') || unit.id.includes('CATAPULT')) && unit.category !== 'siege');
+    const invalidUnits = units.filter(
+      (unit) =>
+        (unit.id.includes('RAM') || unit.id.includes('CATAPULT')) &&
+        unit.category !== 'siege',
+    );
     expect(invalidUnits).toEqual([]);
   });
 
   test('SCOUT units must have tier "scout"', () => {
-    const invalidUnits = units.filter((unit) => unit.id.includes('SCOUT') && unit.tier !== 'scout');
+    const invalidUnits = units.filter(
+      (unit) => unit.id.includes('SCOUT') && unit.tier !== 'scout',
+    );
     expect(invalidUnits).toEqual([]);
   });
 

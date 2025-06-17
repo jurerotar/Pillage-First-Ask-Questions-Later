@@ -8,15 +8,28 @@ type SliderProps = React.ComponentProps<typeof SliderPrimitive.Root> & {
 };
 
 export const Slider: React.FC<SliderProps> = (props) => {
-  const { className, defaultValue, value, min = 0, max = 100, marks = [] } = props;
+  const {
+    className,
+    defaultValue,
+    value,
+    min = 0,
+    max = 100,
+    marks = [],
+  } = props;
 
   const _values = useMemo(() => {
-    return Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max];
+    return Array.isArray(value)
+      ? value
+      : Array.isArray(defaultValue)
+        ? defaultValue
+        : [min, max];
   }, [value, defaultValue, min, max]);
 
   return (
     <>
-      {marks.length > 0 && <span className="text-muted-foreground text-xs">{marks[0]}</span>}
+      {marks.length > 0 && (
+        <span className="text-muted-foreground text-xs">{marks[0]}</span>
+      )}
       <SliderPrimitive.Root
         data-slot="slider"
         defaultValue={defaultValue}
@@ -37,7 +50,9 @@ export const Slider: React.FC<SliderProps> = (props) => {
         >
           <SliderPrimitive.Range
             data-slot="slider-range"
-            className={clsx('bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full')}
+            className={clsx(
+              'bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full',
+            )}
           />
         </SliderPrimitive.Track>
         {Array.from({ length: _values.length }, (_, index) => (
@@ -49,7 +64,9 @@ export const Slider: React.FC<SliderProps> = (props) => {
           />
         ))}
       </SliderPrimitive.Root>
-      {marks.length > 0 && <span className="text-muted-foreground text-xs">{marks[1]}</span>}
+      {marks.length > 0 && (
+        <span className="text-muted-foreground text-xs">{marks[1]}</span>
+      )}
     </>
   );
 };

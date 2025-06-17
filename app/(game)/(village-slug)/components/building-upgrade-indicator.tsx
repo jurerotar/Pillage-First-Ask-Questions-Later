@@ -19,7 +19,11 @@ type StaticButtonProps = {
   variant: BorderIndicatorBorderVariant;
 };
 
-const StaticButton: React.FC<StaticButtonProps> = ({ level, backgroundVariant, variant }) => (
+const StaticButton: React.FC<StaticButtonProps> = ({
+  level,
+  backgroundVariant,
+  variant,
+}) => (
   <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
     <BorderIndicator
       backgroundVariant={backgroundVariant}
@@ -38,10 +42,17 @@ type UpgradeButtonProps = {
   level: number;
 };
 
-const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingFieldId, backgroundVariant, variant, level }) => {
+const UpgradeButton: React.FC<UpgradeButtonProps> = ({
+  buildingId,
+  buildingFieldId,
+  backgroundVariant,
+  variant,
+  level,
+}) => {
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
-  const [shouldShowUpgradeButton, setShouldShowUpgradeButton] = useState<boolean>(false);
+  const [shouldShowUpgradeButton, setShouldShowUpgradeButton] =
+    useState<boolean>(false);
 
   const onUpgradeButtonClick = (event: React.MouseEvent | React.TouchEvent) => {
     upgradeBuilding();
@@ -61,7 +72,9 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({ buildingId, buildingField
         backgroundVariant={backgroundVariant}
         variant={variant}
       >
-        {shouldShowUpgradeButton && <MdUpgrade className="size-3/4 rounded-full text-gray-400" />}
+        {shouldShowUpgradeButton && (
+          <MdUpgrade className="size-3/4 rounded-full text-gray-400" />
+        )}
         {!shouldShowUpgradeButton && level}
       </BorderIndicator>
     </button>
@@ -74,11 +87,15 @@ type BuildingUpgradeIndicatorProps = {
   buildingEvent: GameEvent<'buildingConstruction'> | undefined;
 };
 
-export const BuildingUpgradeIndicator: React.FC<BuildingUpgradeIndicatorProps> = ({ buildingFieldId, isHovered, buildingEvent }) => {
+export const BuildingUpgradeIndicator: React.FC<
+  BuildingUpgradeIndicatorProps
+> = ({ buildingFieldId, isHovered, buildingEvent }) => {
   const { currentVillage } = useCurrentVillage();
   const { variant, errors } = useBuildingUpgradeStatus(buildingFieldId);
 
-  const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => buildingFieldId === id)!;
+  const { buildingId, level } = currentVillage.buildingFields.find(
+    ({ id }) => buildingFieldId === id,
+  )!;
 
   const canUpgrade: boolean = errors.length === 0;
 

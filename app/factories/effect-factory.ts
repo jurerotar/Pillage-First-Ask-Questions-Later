@@ -1,6 +1,9 @@
 import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
 import { merchants } from 'app/(game)/(village-slug)/assets/merchants';
-import type { Building, BuildingEffect } from 'app/interfaces/models/game/building';
+import type {
+  Building,
+  BuildingEffect,
+} from 'app/interfaces/models/game/building';
 import type {
   Effect,
   GlobalEffect,
@@ -11,14 +14,18 @@ import type {
   VillageEffect,
 } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
-import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField,
+  Village,
+} from 'app/interfaces/models/game/village';
 import type { Hero } from 'app/interfaces/models/game/hero';
 
 const heroEffectsFactory = (villageId: Village['id'], hero: Hero): Effect[] => {
   const { selectableAttributes, tribe } = hero;
 
   const baseResourceProduction = 9;
-  const baseHeroProduction = tribe === 'egyptians' ? baseResourceProduction * 2 : baseResourceProduction;
+  const baseHeroProduction =
+    tribe === 'egyptians' ? baseResourceProduction * 2 : baseResourceProduction;
 
   const heroEffects: Pick<HeroEffect, 'id' | 'value'>[] = [
     {
@@ -67,7 +74,9 @@ type NewBuildingEffectFactoryArgs = {
   buildingId: Building['id'];
 };
 
-export const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): VillageBuildingEffect => {
+export const newBuildingEffectFactory = (
+  args: NewBuildingEffectFactoryArgs,
+): VillageBuildingEffect => {
   return {
     ...args,
     scope: 'village',
@@ -75,23 +84,31 @@ export const newBuildingEffectFactory = (args: NewBuildingEffectFactoryArgs): Vi
   };
 };
 
-const newVillageBuildingFieldsEffectsFactory = (village: Village): VillageBuildingEffect[] => {
-  return village.buildingFields.flatMap(({ buildingId, id, level }: BuildingField) => {
-    const building = getBuildingData(buildingId);
-    return building.effects.map(({ effectId, valuesPerLevel }: BuildingEffect) =>
-      newBuildingEffectFactory({
-        id: effectId,
-        villageId: village.id,
-        value: valuesPerLevel[level],
-        buildingFieldId: id,
-        buildingId,
-      }),
-    );
-  });
+const newVillageBuildingFieldsEffectsFactory = (
+  village: Village,
+): VillageBuildingEffect[] => {
+  return village.buildingFields.flatMap(
+    ({ buildingId, id, level }: BuildingField) => {
+      const building = getBuildingData(buildingId);
+      return building.effects.map(
+        ({ effectId, valuesPerLevel }: BuildingEffect) =>
+          newBuildingEffectFactory({
+            id: effectId,
+            villageId: village.id,
+            value: valuesPerLevel[level],
+            buildingFieldId: id,
+            buildingId,
+          }),
+      );
+    },
+  );
 };
 
 export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
-  const villageDefaultStorageEffectsIds: Effect['id'][] = ['warehouseCapacity', 'granaryCapacity'];
+  const villageDefaultStorageEffectsIds: Effect['id'][] = [
+    'warehouseCapacity',
+    'granaryCapacity',
+  ];
   return [
     ...newVillageBuildingFieldsEffectsFactory(village),
     ...villageDefaultStorageEffectsIds.map((effectId) => {
@@ -116,7 +133,9 @@ export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
 const globalEffectsFactory = (server: Server): GlobalEffect[] => {
   const { tribe } = server.playerConfiguration;
 
-  const tribeMerchant = merchants.find(({ tribe: tribeToFind }) => tribeToFind === tribe)!;
+  const tribeMerchant = merchants.find(
+    ({ tribe: tribeToFind }) => tribeToFind === tribe,
+  )!;
 
   const merchantEffects: Omit<TribalEffect, 'scope'>[] = [
     {
@@ -162,10 +181,15 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
     'buildingDuration',
   ];
 
-  const serverEffectIds: ServerEffect['id'][] = [...increasedValueEffectIds, ...decreasedValueEffectIds];
+  const serverEffectIds: ServerEffect['id'][] = [
+    ...increasedValueEffectIds,
+    ...decreasedValueEffectIds,
+  ];
 
   return serverEffectIds.map((effectId) => {
-    const value = increasedValueEffectIds.includes(effectId) ? speed : 1 / speed;
+    const value = increasedValueEffectIds.includes(effectId)
+      ? speed
+      : 1 / speed;
     return {
       id: effectId,
       value,
@@ -175,11 +199,20 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
   });
 };
 
-export const generateEffects = (server: Server, village: Village, hero: Hero): Effect[] => {
+export const generateEffects = (
+  server: Server,
+  village: Village,
+  hero: Hero,
+): Effect[] => {
   const serverEffects = serverEffectsFactory(server);
   const globalEffects = globalEffectsFactory(server);
   const villageEffects = newVillageEffectsFactory(village);
   const heroEffects = heroEffectsFactory(village.id, hero);
 
-  return [...serverEffects, ...globalEffects, ...villageEffects, ...heroEffects];
+  return [
+    ...serverEffects,
+    ...globalEffects,
+    ...villageEffects,
+    ...heroEffects,
+  ];
 };

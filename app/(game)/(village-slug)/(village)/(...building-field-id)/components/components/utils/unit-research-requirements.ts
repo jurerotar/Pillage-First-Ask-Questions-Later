@@ -1,4 +1,7 @@
-import type { Unit, UnitResearchRequirement } from 'app/interfaces/models/game/unit';
+import type {
+  Unit,
+  UnitResearchRequirement,
+} from 'app/interfaces/models/game/unit';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
 
@@ -12,24 +15,37 @@ type AssessUnitResearchReadinessReturn = {
   assessedRequirements: AssessedResearchRequirement[];
 };
 
-const assessBuildingLevelRequirement = (requirement: UnitResearchRequirement, village: Village): boolean => {
+const assessBuildingLevelRequirement = (
+  requirement: UnitResearchRequirement,
+  village: Village,
+): boolean => {
   const { buildingFields } = village;
-  return (buildingFields.find(({ buildingId: id }) => requirement.buildingId === id)?.level ?? 0) >= requirement.level;
+  return (
+    (buildingFields.find(({ buildingId: id }) => requirement.buildingId === id)
+      ?.level ?? 0) >= requirement.level
+  );
 };
 
-export const assessUnitResearchReadiness = (unitId: Unit['id'], village: Village): AssessUnitResearchReadinessReturn => {
+export const assessUnitResearchReadiness = (
+  unitId: Unit['id'],
+  village: Village,
+): AssessUnitResearchReadinessReturn => {
   const { researchRequirements } = getUnitData(unitId)!;
 
-  const assessedRequirements: AssessedResearchRequirement[] = researchRequirements.map((requirement) => {
-    const fulfilled = assessBuildingLevelRequirement(requirement, village);
+  const assessedRequirements: AssessedResearchRequirement[] =
+    researchRequirements.map((requirement) => {
+      const fulfilled = assessBuildingLevelRequirement(requirement, village);
 
-    return {
-      ...requirement,
-      fulfilled,
-    };
-  });
+      return {
+        ...requirement,
+        fulfilled,
+      };
+    });
 
-  const canResearch = assessedRequirements.length > 0 ? assessedRequirements.every(({ fulfilled }) => fulfilled) : true;
+  const canResearch =
+    assessedRequirements.length > 0
+      ? assessedRequirements.every(({ fulfilled }) => fulfilled)
+      : true;
 
   return {
     unitId,

@@ -2,7 +2,9 @@ import type React from 'react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import clsx from 'clsx';
 
-export const Popover: React.FC<React.ComponentProps<typeof PopoverPrimitive.Root>> = ({ ...props }) => {
+export const Popover: React.FC<
+  React.ComponentProps<typeof PopoverPrimitive.Root>
+> = ({ ...props }) => {
   return (
     <PopoverPrimitive.Root
       data-slot="popover"
@@ -11,7 +13,9 @@ export const Popover: React.FC<React.ComponentProps<typeof PopoverPrimitive.Root
   );
 };
 
-export const PopoverTrigger: React.FC<React.ComponentProps<typeof PopoverPrimitive.Trigger>> = ({ ...props }) => {
+export const PopoverTrigger: React.FC<
+  React.ComponentProps<typeof PopoverPrimitive.Trigger>
+> = ({ ...props }) => {
   return (
     <PopoverPrimitive.Trigger
       data-slot="popover-trigger"
@@ -20,12 +24,9 @@ export const PopoverTrigger: React.FC<React.ComponentProps<typeof PopoverPrimiti
   );
 };
 
-export const PopoverContent: React.FC<React.ComponentProps<typeof PopoverPrimitive.Content>> = ({
-  className,
-  align = 'center',
-  sideOffset = 4,
-  ...props
-}) => {
+export const PopoverContent: React.FC<
+  React.ComponentProps<typeof PopoverPrimitive.Content>
+> = ({ className, align = 'center', sideOffset = 4, ...props }) => {
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
@@ -42,7 +43,9 @@ export const PopoverContent: React.FC<React.ComponentProps<typeof PopoverPrimiti
   );
 };
 
-export const PopoverAnchor: React.FC<React.ComponentProps<typeof PopoverPrimitive.Anchor>> = ({ ...props }) => {
+export const PopoverAnchor: React.FC<
+  React.ComponentProps<typeof PopoverPrimitive.Anchor>
+> = ({ ...props }) => {
   return (
     <PopoverPrimitive.Anchor
       data-slot="popover-anchor"

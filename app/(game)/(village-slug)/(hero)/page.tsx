@@ -3,7 +3,13 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
 import type { MetaFunction } from 'react-router';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Text } from 'app/components/text';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';

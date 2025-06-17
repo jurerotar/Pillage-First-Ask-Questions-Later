@@ -4,11 +4,17 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 let instance: Faro | null = null;
 
 export const initFaro = async () => {
-  if (typeof window === 'undefined' || import.meta.env.MODE === 'development' || instance) {
+  if (
+    typeof window === 'undefined' ||
+    import.meta.env.MODE === 'development' ||
+    instance
+  ) {
     return;
   }
 
-  const { initializeFaro, getWebInstrumentations } = await import('@grafana/faro-web-sdk');
+  const { initializeFaro, getWebInstrumentations } = await import(
+    '@grafana/faro-web-sdk'
+  );
 
   instance = initializeFaro({
     url: import.meta.env.VITE_FARO_INGEST_ENDPOINT,

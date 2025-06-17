@@ -2,11 +2,16 @@ import type React from 'react';
 import { Progress as ProgressPrimitive } from 'radix-ui';
 import clsx from 'clsx';
 
-export const Progress: React.FC<React.ComponentProps<typeof ProgressPrimitive.Root>> = ({ className, value, ...props }) => {
+export const Progress: React.FC<
+  React.ComponentProps<typeof ProgressPrimitive.Root>
+> = ({ className, value, ...props }) => {
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
-      className={clsx('bg-primary/20 relative h-2 w-full overflow-hidden rounded-full', className)}
+      className={clsx(
+        'bg-primary/20 relative h-2 w-full overflow-hidden rounded-full',
+        className,
+      )}
       {...props}
     >
       <ProgressPrimitive.Indicator

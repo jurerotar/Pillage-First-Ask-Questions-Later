@@ -6,7 +6,9 @@ describe('useCountdown', () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'Date'] });
     vi.setSystemTime(new Date('2025-01-01T00:00:00Z'));
 
-    const { useCountdown } = await import('app/(game)/(village-slug)/hooks/use-countdown');
+    const { useCountdown } = await import(
+      'app/(game)/(village-slug)/hooks/use-countdown'
+    );
 
     const { result } = renderHook(() => useCountdown());
 

@@ -54,7 +54,11 @@ export const useReports = () => {
     },
   });
 
-  const { mutate: tagReport } = useMutation<void, Error, { reportId: Report['id']; tag: ReportTag }>({
+  const { mutate: tagReport } = useMutation<
+    void,
+    Error,
+    { reportId: Report['id']; tag: ReportTag }
+  >({
     mutationFn: async ({ reportId, tag }) => {
       await fetcher<Report[]>(`/reports/${reportId}`, {
         method: 'PATCH',
@@ -65,7 +69,11 @@ export const useReports = () => {
     },
   });
 
-  const { mutate: deleteReport } = useMutation<void, Error, { reportId: Report['id'] }>({
+  const { mutate: deleteReport } = useMutation<
+    void,
+    Error,
+    { reportId: Report['id'] }
+  >({
     mutationFn: async ({ reportId }) => {
       await fetcher<Report[]>(`/reports/${reportId}`, {
         method: 'DELETE',

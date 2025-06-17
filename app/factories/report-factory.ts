@@ -17,10 +17,14 @@ type ReportFactoryArgs =
   | ReportOmitter<TroopMovementReport>;
 
 export function reportFactory(args: ReportOmitter<BattleReport>): BattleReport;
-export function reportFactory(args: ReportOmitter<AdventureReport>): AdventureReport;
+export function reportFactory(
+  args: ReportOmitter<AdventureReport>,
+): AdventureReport;
 export function reportFactory(args: ReportOmitter<TradeReport>): TradeReport;
 export function reportFactory(args: ReportOmitter<ScoutReport>): ScoutReport;
-export function reportFactory(args: ReportOmitter<TroopMovementReport>): TroopMovementReport;
+export function reportFactory(
+  args: ReportOmitter<TroopMovementReport>,
+): TroopMovementReport;
 
 export function reportFactory(args: ReportFactoryArgs): Report {
   return {

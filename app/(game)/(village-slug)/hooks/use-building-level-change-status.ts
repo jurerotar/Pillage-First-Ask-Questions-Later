@@ -11,23 +11,39 @@ import type { Building } from 'app/interfaces/models/game/building';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 
-export const getHasEnoughFreeCrop = (nextLevelWheatConsumption: number, buildingWheatLimit: number): boolean => {
+export const getHasEnoughFreeCrop = (
+  nextLevelWheatConsumption: number,
+  buildingWheatLimit: number,
+): boolean => {
   if (nextLevelWheatConsumption === 0) {
     return true;
   }
   return buildingWheatLimit >= nextLevelWheatConsumption;
 };
 
-export const getHasEnoughWarehouseCapacity = (calculatedWarehouseCapacity: number, nextLevelResourceCost: number[]): boolean => {
-  return nextLevelResourceCost.filter((_, i) => i < 3).every((buildingCost) => buildingCost <= calculatedWarehouseCapacity);
+export const getHasEnoughWarehouseCapacity = (
+  calculatedWarehouseCapacity: number,
+  nextLevelResourceCost: number[],
+): boolean => {
+  return nextLevelResourceCost
+    .filter((_, i) => i < 3)
+    .every((buildingCost) => buildingCost <= calculatedWarehouseCapacity);
 };
 
-export const getHasEnoughGranaryCapacity = (calculatedGranaryCapacity: number, nextLevelWheatCost: number): boolean => {
+export const getHasEnoughGranaryCapacity = (
+  calculatedGranaryCapacity: number,
+  nextLevelWheatCost: number,
+): boolean => {
   return calculatedGranaryCapacity >= nextLevelWheatCost;
 };
 
-export const getHasEnoughResources = (nextLevelResourceCost: number[], currentResources: Resources): boolean => {
-  return Object.values(currentResources).every((value, index) => value >= nextLevelResourceCost[index]);
+export const getHasEnoughResources = (
+  nextLevelResourceCost: number[],
+  currentResources: Resources,
+): boolean => {
+  return Object.values(currentResources).every(
+    (value, index) => value >= nextLevelResourceCost[index],
+  );
 };
 
 type UseBuildingRequirementsReturn = {
@@ -41,16 +57,25 @@ const useBuildingRequirements = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
   const { t } = useTranslation();
-  const { computedGranaryCapacityEffect, computedWarehouseCapacityEffect, computedWheatProductionEffect, wood, clay, iron, wheat } =
-    use(CurrentVillageStateContext);
+  const {
+    computedGranaryCapacityEffect,
+    computedWarehouseCapacityEffect,
+    computedWheatProductionEffect,
+    wood,
+    clay,
+    iron,
+    wheat,
+  } = use(CurrentVillageStateContext);
   const { isDeveloperModeEnabled } = useDeveloperMode();
-  const { canAddAdditionalBuildingToQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
+  const { canAddAdditionalBuildingToQueue } =
+    useCurrentVillageBuildingEventQueue(buildingFieldId);
 
   const { buildingWheatLimit } = computedWheatProductionEffect;
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
 
-  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } = getBuildingDataForLevel(buildingId, level);
+  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } =
+    getBuildingDataForLevel(buildingId, level);
 
   const resources = useMemo(() => {
     return {
@@ -82,11 +107,15 @@ const useBuildingRequirements = (
       errors.push(t('Upgrade wheat fields first'));
     }
 
-    if (!getHasEnoughWarehouseCapacity(warehouseCapacity, nextLevelResourceCost)) {
+    if (
+      !getHasEnoughWarehouseCapacity(warehouseCapacity, nextLevelResourceCost)
+    ) {
       errors.push(t('Upgrade warehouse first'));
     }
 
-    if (!getHasEnoughGranaryCapacity(granaryCapacity, nextLevelResourceCost[3])) {
+    if (
+      !getHasEnoughGranaryCapacity(granaryCapacity, nextLevelResourceCost[3])
+    ) {
       errors.push(t('Upgrade granary first'));
     }
 
@@ -102,7 +131,8 @@ const useBuildingRequirements = (
       ? 'blue'
       : errors.length === 0
         ? 'green'
-        : errors.includes(t('Not enough resources available')) || errors.includes(t('Building queue is full'))
+        : errors.includes(t('Not enough resources available')) ||
+            errors.includes(t('Building queue is full'))
           ? 'yellow'
           : 'gray';
 
@@ -126,9 +156,13 @@ const useBuildingRequirements = (
   return requirements;
 };
 
-export const useBuildingUpgradeStatus = (buildingFieldId: BuildingField['id']): UseBuildingRequirementsReturn => {
+export const useBuildingUpgradeStatus = (
+  buildingFieldId: BuildingField['id'],
+): UseBuildingRequirementsReturn => {
   const { currentVillage } = useCurrentVillage();
-  const { buildingId, level } = currentVillage.buildingFields.find(({ id }) => id === buildingFieldId)!;
+  const { buildingId, level } = currentVillage.buildingFields.find(
+    ({ id }) => id === buildingFieldId,
+  )!;
 
   return useBuildingRequirements(buildingId, level, buildingFieldId);
 };
@@ -140,15 +174,26 @@ export const useBuildingConstructionStatus = (
   return useBuildingRequirements(buildingId, 1, buildingFieldId);
 };
 
-export const useBuildingDowngradeStatus = (buildingFieldId: BuildingField['id']) => {
+export const useBuildingDowngradeStatus = (
+  buildingFieldId: BuildingField['id'],
+) => {
   const { t } = useTranslation();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
   const getBuildingDowngradeErrorBag = (): string[] => {
     const errorBag: string[] = [];
 
-    if (currentVillageBuildingEvents.some(({ buildingFieldId: eventBuildingFieldId }) => eventBuildingFieldId === buildingFieldId)) {
-      errorBag.push(t("Building can't be downgraded or demolished while it's being upgraded"));
+    if (
+      currentVillageBuildingEvents.some(
+        ({ buildingFieldId: eventBuildingFieldId }) =>
+          eventBuildingFieldId === buildingFieldId,
+      )
+    ) {
+      errorBag.push(
+        t(
+          "Building can't be downgraded or demolished while it's being upgraded",
+        ),
+      );
     }
 
     return errorBag;

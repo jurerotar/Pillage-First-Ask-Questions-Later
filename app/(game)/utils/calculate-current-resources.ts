@@ -20,16 +20,24 @@ export const calculateCurrentAmount = ({
   const { resources, lastUpdatedAt } = village;
   const resourceAmount = resources[resource];
 
-  const timeSinceLastUpdateInSeconds = differenceInSeconds(new Date(timestamp), new Date(lastUpdatedAt));
+  const timeSinceLastUpdateInSeconds = differenceInSeconds(
+    new Date(timestamp),
+    new Date(lastUpdatedAt),
+  );
 
   const hasNegativeProduction = hourlyProduction < 0;
   const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
-  const producedResources = Math.floor(timeSinceLastUpdateInSeconds / secondsForResourceGeneration);
+  const producedResources = Math.floor(
+    timeSinceLastUpdateInSeconds / secondsForResourceGeneration,
+  );
   const delta = producedResources * (hasNegativeProduction ? -1 : 1);
   const calculatedCurrentAmount = resourceAmount + delta;
-  const currentAmount = hasNegativeProduction ? Math.max(calculatedCurrentAmount, 0) : Math.min(calculatedCurrentAmount, storageCapacity);
+  const currentAmount = hasNegativeProduction
+    ? Math.max(calculatedCurrentAmount, 0)
+    : Math.min(calculatedCurrentAmount, storageCapacity);
 
-  const lastEffectiveUpdate = lastUpdatedAt + producedResources * secondsForResourceGeneration * 1000;
+  const lastEffectiveUpdate =
+    lastUpdatedAt + producedResources * secondsForResourceGeneration * 1000;
 
   return {
     timeSinceLastUpdateInSeconds,

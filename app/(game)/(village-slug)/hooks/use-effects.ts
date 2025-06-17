@@ -12,7 +12,9 @@ export const useEffects = () => {
   const { data: effects } = useSuspenseQuery<Effect[]>({
     queryKey: [effectsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<Effect[]>(`/villages/${currentVillage.id}/effects`);
+      const { data } = await fetcher<Effect[]>(
+        `/villages/${currentVillage.id}/effects`,
+      );
       return data;
     },
   });

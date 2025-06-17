@@ -1,7 +1,14 @@
 import clsx from 'clsx';
 import type React from 'react';
 
-export type BorderIndicatorBorderVariant = 'green' | 'blue' | 'red' | 'gray' | 'yellow' | 'purple' | 'orange';
+export type BorderIndicatorBorderVariant =
+  | 'green'
+  | 'blue'
+  | 'red'
+  | 'gray'
+  | 'yellow'
+  | 'purple'
+  | 'orange';
 export type BorderIndicatorBackgroundVariant = 'orange' | 'white';
 
 type BorderIndicatorProps = {
@@ -9,7 +16,10 @@ type BorderIndicatorProps = {
   backgroundVariant: BorderIndicatorBackgroundVariant;
 } & React.HTMLProps<HTMLDivElement>;
 
-const borderVariantToClassNameMap: Record<BorderIndicatorBorderVariant, string> = {
+const borderVariantToClassNameMap: Record<
+  BorderIndicatorBorderVariant,
+  string
+> = {
   green: 'from-[#7da100] to-[#c7e94f]',
   blue: 'from-[#0d648e] to-[#b1e4ff]',
   red: 'from-[#D40000] to-[#F58C8C]',
@@ -19,13 +29,24 @@ const borderVariantToClassNameMap: Record<BorderIndicatorBorderVariant, string> 
   orange: 'from-[#e67e22] to-[#ffd7a1]',
 };
 
-const backgroundVariantToClassNameMap: Record<BorderIndicatorBackgroundVariant, string> = {
+const backgroundVariantToClassNameMap: Record<
+  BorderIndicatorBackgroundVariant,
+  string
+> = {
   orange: 'bg-yellow-400',
   white: 'bg-background',
 };
 
-export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (props) => {
-  const { variant = 'gray', backgroundVariant, className, children, ...rest } = props;
+export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (
+  props,
+) => {
+  const {
+    variant = 'gray',
+    backgroundVariant,
+    className,
+    children,
+    ...rest
+  } = props;
 
   return (
     <span
@@ -38,7 +59,9 @@ export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (prop
     >
       <span
         className={clsx(
-          !backgroundVariant ? 'bg-background' : backgroundVariantToClassNameMap[backgroundVariant],
+          !backgroundVariant
+            ? 'bg-background'
+            : backgroundVariantToClassNameMap[backgroundVariant],
           'relative inline-flex size-5 items-center justify-center rounded-full bg-background text-xs',
         )}
       >

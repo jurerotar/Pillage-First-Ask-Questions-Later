@@ -9,7 +9,10 @@ export const getVillages: ApiHandler<Village[]> = async (queryClient) => {
   return villages;
 };
 
-export const getVillagesBySlug: ApiHandler<Village, 'villageSlug'> = async (queryClient, { params }) => {
+export const getVillagesBySlug: ApiHandler<Village, 'villageSlug'> = async (
+  queryClient,
+  { params },
+) => {
   const { villageSlug } = params;
 
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;

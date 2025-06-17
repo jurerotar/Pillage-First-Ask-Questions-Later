@@ -1,12 +1,23 @@
 import clsx from 'clsx';
-import { isHeroExperienceQuestReward, isQuestCollectable, isResourceQuestReward, wasQuestCollected } from 'app/(game)/guards/quest-guards';
+import {
+  isHeroExperienceQuestReward,
+  isQuestCollectable,
+  isResourceQuestReward,
+  wasQuestCollected,
+} from 'app/(game)/guards/quest-guards';
 import { Button } from 'app/components/ui/button';
 import type React from 'react';
-import type { Quest, QuestReward as QuestRewardType } from 'app/interfaces/models/game/quest';
+import type {
+  Quest,
+  QuestReward as QuestRewardType,
+} from 'app/interfaces/models/game/quest';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useTranslation } from 'react-i18next';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { getQuestTexts, groupQuestsById } from 'app/(game)/(village-slug)/(quests)/utils/quests';
+import {
+  getQuestTexts,
+  groupQuestsById,
+} from 'app/(game)/(village-slug)/(quests)/utils/quests';
 import { Text } from 'app/components/text';
 
 type QuestRewardProps = {
@@ -75,7 +86,8 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
             )}
           >
             <span>
-              {getQuestTexts(group.groupKey, assetsT).group} ({group.doneQuests}/{group.totalQuests})
+              {getQuestTexts(group.groupKey, assetsT).group} ({group.doneQuests}
+              /{group.totalQuests})
             </span>
           </summary>
 
@@ -88,9 +100,15 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
               return (
                 <details
                   key={quest.id}
-                  className={clsx('border rounded-xs p-2 px-4 shadow-xs', isCollected && 'opacity-50', isCollectable && 'bg-yellow-100')}
+                  className={clsx(
+                    'border rounded-xs p-2 px-4 shadow-xs',
+                    isCollected && 'opacity-50',
+                    isCollectable && 'bg-yellow-100',
+                  )}
                 >
-                  <summary className="cursor-pointer font-semibold">{title}</summary>
+                  <summary className="cursor-pointer font-semibold">
+                    {title}
+                  </summary>
 
                   <div className="flex flex-col gap-2 mt-3">
                     <Text as="p">{description}</Text>

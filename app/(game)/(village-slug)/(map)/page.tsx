@@ -3,7 +3,10 @@ import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-cont
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
-import { MapContext, MapProvider } from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import {
+  MapContext,
+  MapProvider,
+} from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -12,7 +15,11 @@ import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
 import { type MetaFunction, useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
-import { FixedSizeGrid, FixedSizeList, type GridOnScrollProps } from 'react-window';
+import {
+  FixedSizeGrid,
+  FixedSizeList,
+  type GridOnScrollProps,
+} from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { isStandaloneDisplayMode } from 'app/utils/device';
@@ -37,7 +44,12 @@ const RULER_SIZE = 20;
 
 const MapPage = () => {
   const [searchParams] = useSearchParams();
-  const { isOpen: isTileModalOpened, openModal, toggleModal, modalArgs } = useDialog<TileType | null>();
+  const {
+    isOpen: isTileModalOpened,
+    openModal,
+    toggleModal,
+    modalArgs,
+  } = useDialog<TileType | null>();
   const { contextualMap, getTileByTileId } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -73,7 +85,9 @@ const MapPage = () => {
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
    *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
    */
-  const mapHeight = isWiderThanLg ? height - 76 : height - 210 - (isPwa ? 48 : 0);
+  const mapHeight = isWiderThanLg
+    ? height - 76
+    : height - 210 - (isPwa ? 48 : 0);
 
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
@@ -184,8 +198,13 @@ const MapPage = () => {
       }
 
       // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-      currentCenterTile.current.x = Math.floor((scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2) + 1;
-      currentCenterTile.current.y = Math.ceil((scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2);
+      currentCenterTile.current.x =
+        Math.floor(
+          (scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2,
+        ) + 1;
+      currentCenterTile.current.y = Math.ceil(
+        (scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2,
+      );
     },
     [tileSize, gridSize, width, mapHeight],
   );
@@ -203,7 +222,11 @@ const MapPage = () => {
     const scrollY = scrollTop(startingY);
 
     if (mapRef.current) {
-      mapRef.current.scrollTo({ left: scrollX, top: scrollY, behavior: 'smooth' });
+      mapRef.current.scrollTo({
+        left: scrollX,
+        top: scrollY,
+        behavior: 'smooth',
+      });
     }
 
     if (leftMapRulerRef.current) {

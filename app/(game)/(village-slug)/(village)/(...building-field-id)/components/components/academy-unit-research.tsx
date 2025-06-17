@@ -8,10 +8,20 @@ import {
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
@@ -21,7 +31,10 @@ export const AcademyUnitResearch = () => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { researchableUnits } = useUnitResearch();
-  const { eventsByType: currentVillageUnitResearchEvents, hasEvents: hasResearchEventsOngoing } = useEventsByType('unitResearch');
+  const {
+    eventsByType: currentVillageUnitResearchEvents,
+    hasEvents: hasResearchEventsOngoing,
+  } = useEventsByType('unitResearch');
 
   return (
     <Section>
@@ -45,15 +58,27 @@ export const AcademyUnitResearch = () => {
           <TableBody>
             {hasResearchEventsOngoing && (
               <TableRow>
-                <TableCell>{assetsT(`UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`, { count: 1 })}</TableCell>
                 <TableCell>
-                  <Countdown endsAt={currentVillageUnitResearchEvents[0].startsAt + currentVillageUnitResearchEvents[0].duration} />
+                  {assetsT(
+                    `UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`,
+                    { count: 1 },
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Countdown
+                    endsAt={
+                      currentVillageUnitResearchEvents[0].startsAt +
+                      currentVillageUnitResearchEvents[0].duration
+                    }
+                  />
                 </TableCell>
               </TableRow>
             )}
             {!hasResearchEventsOngoing && (
               <TableRow>
-                <TableCell colSpan={2}>{t('No research is currently taking place')}</TableCell>
+                <TableCell colSpan={2}>
+                  {t('No research is currently taking place')}
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -62,7 +87,10 @@ export const AcademyUnitResearch = () => {
       <SectionContent>
         <ul className="flex flex-col gap-2">
           {researchableUnits.map(({ id }) => {
-            const { canResearch } = assessUnitResearchReadiness(id, currentVillage);
+            const { canResearch } = assessUnitResearchReadiness(
+              id,
+              currentVillage,
+            );
             return (
               <li key={id}>
                 <UnitCard

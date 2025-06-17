@@ -32,7 +32,9 @@ describe('calculateCurrentAmount', () => {
   });
 
   test('caps amount at storageCapacity', () => {
-    const village = getMockVillage({ resources: { ...villageMock.resources, wood: 990 } });
+    const village = getMockVillage({
+      resources: { ...villageMock.resources, wood: 990 },
+    });
     const timestamp = baseTime + oneHour;
 
     const result = calculateCurrentAmount({
@@ -62,7 +64,9 @@ describe('calculateCurrentAmount', () => {
   });
 
   test('never goes below 0 with negative production', () => {
-    const village = getMockVillage({ resources: { ...villageMock.resources, wood: 10 } });
+    const village = getMockVillage({
+      resources: { ...villageMock.resources, wood: 10 },
+    });
     const timestamp = baseTime + 5 * oneHour; // try to subtract 300
 
     const result = calculateCurrentAmount({

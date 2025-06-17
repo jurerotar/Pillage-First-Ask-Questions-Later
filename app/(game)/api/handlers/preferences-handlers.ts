@@ -10,16 +10,23 @@ type UpdatePreferenceBody = {
   value: Preferences[keyof Preferences];
 };
 
-export const updatePreference: ApiHandler<void, 'preferenceName', UpdatePreferenceBody> = async (queryClient, args) => {
+export const updatePreference: ApiHandler<
+  void,
+  'preferenceName',
+  UpdatePreferenceBody
+> = async (queryClient, args) => {
   const { body, params } = args;
 
   const { preferenceName } = params;
   const { value } = body;
 
-  queryClient.setQueryData<Preferences>([preferencesCacheKey], (prevPreferences) => {
-    return {
-      ...prevPreferences!,
-      [preferenceName]: value,
-    };
-  });
+  queryClient.setQueryData<Preferences>(
+    [preferencesCacheKey],
+    (prevPreferences) => {
+      return {
+        ...prevPreferences!,
+        [preferenceName]: value,
+      };
+    },
+  );
 };

@@ -14,7 +14,12 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 type TroopMovementProps = {
   type: PickLiteral<
     IconType,
-    'deploymentOutgoing' | 'deploymentIncoming' | 'offensiveMovementOutgoing' | 'offensiveMovementIncoming' | 'adventure' | 'findNewVillage'
+    | 'deploymentOutgoing'
+    | 'deploymentIncoming'
+    | 'offensiveMovementOutgoing'
+    | 'offensiveMovementIncoming'
+    | 'adventure'
+    | 'findNewVillage'
   >;
   events: GameEvent<'troopMovement'>[];
 };
@@ -31,17 +36,24 @@ const TroopMovement: React.FC<TroopMovementProps> = ({ type, events }) => {
       <span className="inline-flex gap-2 min-w-16">
         <Icon
           type={type}
-          className={clsx(type === 'offensiveMovementIncoming' && 'animate-scale-pulse')}
+          className={clsx(
+            type === 'offensiveMovementIncoming' && 'animate-scale-pulse',
+          )}
         />
         <Countdown endsAt={earliestEvent.startsAt + earliestEvent.duration} />
       </span>
       <Separator orientation="vertical" />
-      <span className="inline-flex min-w-4 lg:min-w-6 justify-end">{events.length > 9 ? '9+' : events.length}</span>
+      <span className="inline-flex min-w-4 lg:min-w-6 justify-end">
+        {events.length > 9 ? '9+' : events.length}
+      </span>
     </div>
   );
 };
 
-const partitionTroopMovementEvents = (events: GameEvent<'troopMovement'>[], currentVillageId: Village['id']) => {
+const partitionTroopMovementEvents = (
+  events: GameEvent<'troopMovement'>[],
+  currentVillageId: Village['id'],
+) => {
   // Raid, attack, oasis-occupation
   const outgoingOffensiveMovementEvents: GameEvent<'troopMovement'>[] = [];
   // Relocation, reinforcement
@@ -66,13 +78,19 @@ const partitionTroopMovementEvents = (events: GameEvent<'troopMovement'>[], curr
       case 'reinforcements':
       case 'relocation':
       case 'return': {
-        const target = currentVillageId === event.targetId ? incomingDeploymentMovementEvents : outgoingDeploymentMovementEvents;
+        const target =
+          currentVillageId === event.targetId
+            ? incomingDeploymentMovementEvents
+            : outgoingDeploymentMovementEvents;
         target.push(event);
         break;
       }
       case 'attack':
       case 'raid': {
-        const target = currentVillageId === event.targetId ? incomingOffensiveMovementEvents : outgoingOffensiveMovementEvents;
+        const target =
+          currentVillageId === event.targetId
+            ? incomingOffensiveMovementEvents
+            : outgoingOffensiveMovementEvents;
         target.push(event);
         break;
       }
@@ -96,7 +114,8 @@ const partitionTroopMovementEvents = (events: GameEvent<'troopMovement'>[], curr
 export const TroopMovements = () => {
   const { currentVillage } = useCurrentVillage();
   const { shouldShowSidebars } = useGameLayoutState();
-  const { eventsByType: troopMovementEvents } = useEventsByType('troopMovement');
+  const { eventsByType: troopMovementEvents } =
+    useEventsByType('troopMovement');
 
   if (!shouldShowSidebars) {
     return null;

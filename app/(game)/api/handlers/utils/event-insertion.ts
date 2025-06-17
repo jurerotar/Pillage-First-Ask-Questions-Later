@@ -1,7 +1,10 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 // Make sure newEvents are already sorted. We avoid sorting to optimize performance.
-export const insertBulkEvent = (events: GameEvent[], newEvents: GameEvent[]): GameEvent[] => {
+export const insertBulkEvent = (
+  events: GameEvent[],
+  newEvents: GameEvent[],
+): GameEvent[] => {
   const result = new Array(events.length + newEvents.length);
 
   let i = 0; // Pointer for old events

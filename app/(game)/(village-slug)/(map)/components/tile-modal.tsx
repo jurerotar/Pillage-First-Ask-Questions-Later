@@ -1,4 +1,10 @@
-import { type Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from 'app/components/ui/dialog';
+import {
+  type Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
 import type React from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
@@ -10,7 +16,13 @@ import {
   isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
-import type { OasisResourceBonus, OasisTile, OccupiableTile, OccupiedOccupiableTile, Tile } from 'app/interfaces/models/game/tile';
+import type {
+  OasisResourceBonus,
+  OasisTile,
+  OccupiableTile,
+  OccupiedOccupiableTile,
+  Tile,
+} from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
 import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
@@ -23,7 +35,10 @@ import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
-import { playerTroopsCacheKey, playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  playerTroopsCacheKey,
+  playerVillagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 
 type TileModalResourcesProps = {
@@ -78,7 +93,8 @@ const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
             {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
-            {t('Reputation')} - {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t('Reputation')} -{' '}
+            {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
@@ -110,7 +126,8 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
     return isOccupied ? t('Occupied oasis') : t('Unoccupied oasis');
   })();
 
-  const occupiedByVillage = isOccupiable && isOccupied ? getVillageByOasis(tile) : null;
+  const occupiedByVillage =
+    isOccupiable && isOccupied ? getVillageByOasis(tile) : null;
   const ownedBy = occupiedByVillage?.playerId;
 
   return (
@@ -141,17 +158,25 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
               {isOccupied && (
                 <>
                   {ownedBy === 'player' &&
-                    t('This oasis is occupied by you and is producing resources for village {{villageName}}.', {
-                      villageName: occupiedByVillage!.name,
-                    })}
+                    t(
+                      'This oasis is occupied by you and is producing resources for village {{villageName}}.',
+                      {
+                        villageName: occupiedByVillage!.name,
+                      },
+                    )}
                   {ownedBy !== 'player' &&
-                    t('This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.')}
+                    t(
+                      'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
+                    )}
                 </>
               )}
               {!isOccupied &&
-                t('This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.', {
-                  herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
-                })}
+                t(
+                  'This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.',
+                  {
+                    herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
+                  },
+                )}
             </>
           )}
         </DialogDescription>
@@ -176,7 +201,8 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
     return false;
   });
 
-  const { createEvent: createFindNewVillageEvent } = useCreateEvent('troopMovement');
+  const { createEvent: createFindNewVillageEvent } =
+    useCreateEvent('troopMovement');
 
   const onFoundNewVillage = () => {
     createFindNewVillageEvent({
@@ -203,7 +229,9 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
         {hasOngoingVillageFindEventOnThisTile && (
-          <span className="text-gray-500">{t('Settlers are already on route to this location')}</span>
+          <span className="text-gray-500">
+            {t('Settlers are already on route to this location')}
+          </span>
         )}
         {false && (
           <Button
@@ -223,7 +251,9 @@ type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
 };
 
-const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = ({ tile }) => {
+const OccupiedOccupiableTileModal: React.FC<
+  OccupiedOccupiableTileModalProps
+> = ({ tile }) => {
   const { t } = useTranslation();
   const { getVillageById } = useVillages();
   const { currentVillage } = useCurrentVillage();
@@ -231,10 +261,13 @@ const OccupiedOccupiableTileModal: React.FC<OccupiedOccupiableTileModalProps> = 
   const { playerTroops, sendTroops } = usePlayerTroops();
 
   const currentVillageMovableTroops = playerTroops.filter(
-    ({ tileId, source }) => tileId === currentVillage.id && source === currentVillage.id,
+    ({ tileId, source }) =>
+      tileId === currentVillage.id && source === currentVillage.id,
   );
 
-  const isHeroInCurrentVillage = currentVillageMovableTroops.some(({ unitId }) => unitId === 'HERO');
+  const isHeroInCurrentVillage = currentVillageMovableTroops.some(
+    ({ unitId }) => unitId === 'HERO',
+  );
 
   const village = getVillageById(tile.id)!;
   const isOwnedByPlayer = isPlayerVillage(village);

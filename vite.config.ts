@@ -9,7 +9,8 @@ import packageJson from './package.json' with { type: 'json' };
 // import { visualizer } from "rollup-plugin-visualizer";
 import devtoolsJson from 'vite-plugin-devtools-json';
 
-const graphicsVersion = packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
+const graphicsVersion =
+  packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -29,9 +30,22 @@ const manifest: Partial<ManifestOptions> = {
   theme_color: '#ffffff',
   orientation: 'portrait',
   icons: [
-    { src: `/logo${appIconPostfix}-192.png`, type: 'image/png', sizes: '192x192' },
-    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512', purpose: 'maskable' },
-    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512' },
+    {
+      src: `/logo${appIconPostfix}-192.png`,
+      type: 'image/png',
+      sizes: '192x192',
+    },
+    {
+      src: `/logo${appIconPostfix}-512.png`,
+      type: 'image/png',
+      sizes: '512x512',
+      purpose: 'maskable',
+    },
+    {
+      src: `/logo${appIconPostfix}-512.png`,
+      type: 'image/png',
+      sizes: '512x512',
+    },
   ],
   scope: '/',
   lang: 'en',
@@ -67,7 +81,10 @@ const viteConfig = defineViteConfig({
           return;
         }
 
-        return code.replace(`import debounce from 'lodash.debounce';`, `import { debounce } from 'moderndash';`);
+        return code.replace(
+          `import debounce from 'lodash.debounce';`,
+          `import { debounce } from 'moderndash';`,
+        );
       },
     },
     // visualizer({ open: true }) as PluginOption,
@@ -119,7 +136,9 @@ const viteConfig = defineViteConfig({
   define: {
     'import.meta.env.VERSION': JSON.stringify(packageJson.version),
     'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
-    'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
+    'import.meta.env.BRANCH_ENV': JSON.stringify(
+      isDeployingToMaster ? 'master' : 'develop',
+    ),
   },
 });
 

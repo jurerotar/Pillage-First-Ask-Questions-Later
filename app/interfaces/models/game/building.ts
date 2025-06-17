@@ -77,7 +77,11 @@ export type BuildingRequirement =
   | TribeBuildingRequirement
   | AmountBuildingRequirement;
 
-export type BuildingCategory = 'infrastructure' | 'military' | 'resource-booster' | 'resource-production';
+export type BuildingCategory =
+  | 'infrastructure'
+  | 'military'
+  | 'resource-booster'
+  | 'resource-production';
 
 export type Building = {
   id: BuildingId;

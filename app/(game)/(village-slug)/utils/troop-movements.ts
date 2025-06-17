@@ -18,7 +18,10 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
 
   const originatingVillageCoordinates = parseCoordinatesFromTileId(villageId);
   const targetVillageCoordinates = parseCoordinatesFromTileId(targetId);
-  const distance = calculateDistanceBetweenPoints(originatingVillageCoordinates, targetVillageCoordinates);
+  const distance = calculateDistanceBetweenPoints(
+    originatingVillageCoordinates,
+    targetVillageCoordinates,
+  );
 
   const unitSpeeds = troops.map(({ unitId }) => {
     const { unitSpeed } = getUnitData(unitId);
@@ -28,7 +31,11 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   // Tiles/h
   const speedOfSlowestUnit = Math.min(...unitSpeeds);
 
-  const { effectBonusValue: unitSpeedBonus } = calculateComputedEffect('unitSpeed', effects, villageId);
+  const { effectBonusValue: unitSpeedBonus } = calculateComputedEffect(
+    'unitSpeed',
+    effects,
+    villageId,
+  );
 
   const computedSpeed = speedOfSlowestUnit * unitSpeedBonus;
 
@@ -40,9 +47,12 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const remainingDistanceAfter20Fields = distance - 20;
   const timeToCross20Fields = 20 / computedSpeed;
 
-  const { effectBonusValue: unitSpeedAfter20FieldsBonus } = calculateComputedEffect('unitSpeedAfter20Fields', effects, villageId);
+  const { effectBonusValue: unitSpeedAfter20FieldsBonus } =
+    calculateComputedEffect('unitSpeedAfter20Fields', effects, villageId);
 
-  const timeToCrossRemainingFields = remainingDistanceAfter20Fields / (computedSpeed * unitSpeedAfter20FieldsBonus);
+  const timeToCrossRemainingFields =
+    remainingDistanceAfter20Fields /
+    (computedSpeed * unitSpeedAfter20FieldsBonus);
 
   return (timeToCross20Fields + timeToCrossRemainingFields) * 3_600_000;
 };

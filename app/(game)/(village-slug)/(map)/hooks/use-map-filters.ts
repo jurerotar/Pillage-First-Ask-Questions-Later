@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
@@ -21,7 +25,11 @@ export const useMapFilters = () => {
     },
   });
 
-  const { mutate: toggleMapFilter } = useMutation<void, Error, UpdateMapFiltersArgs>({
+  const { mutate: toggleMapFilter } = useMutation<
+    void,
+    Error,
+    UpdateMapFiltersArgs
+  >({
     mutationFn: async ({ filterName, value }) => {
       await fetcher(`/me/map-filters/${filterName}`, {
         method: 'PATCH',

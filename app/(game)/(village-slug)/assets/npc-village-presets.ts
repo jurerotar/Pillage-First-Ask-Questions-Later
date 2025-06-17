@@ -20,7 +20,10 @@ import {
   xxxlVillageBuildingFieldsPreset,
   xxxxlVillageBuildingFieldsPreset,
 } from 'app/factories/presets/village-building-fields-presets';
-import type { BuildingField, VillagePresetId } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField,
+  VillagePresetId,
+} from 'app/interfaces/models/game/village';
 
 export const presetIdToPresetMap = new Map<VillagePresetId, BuildingField[]>([
   ['resources-xxs', xxsVillageResourceFieldsPreset],

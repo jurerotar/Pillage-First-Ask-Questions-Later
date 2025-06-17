@@ -3,7 +3,16 @@ import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvemen
 import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
-const upgradableTiers: UnitTier[] = ['tier-1', 'tier-2', 'tier-3', 'scout', 'tier-4', 'tier-5', 'siege-ram', 'siege-catapult'];
+const upgradableTiers: UnitTier[] = [
+  'tier-1',
+  'tier-2',
+  'tier-3',
+  'scout',
+  'tier-4',
+  'tier-5',
+  'siege-ram',
+  'siege-catapult',
+];
 
 export const unitImprovementFactory = (tribe: Tribe): UnitImprovement[] => {
   const unitsByTribe = getUnitsByTribe(tribe);

@@ -32,7 +32,9 @@ describe('getHasEnoughWarehouseCapacity', () => {
   });
 
   test('ignores the 4th value (wheat)', () => {
-    expect(getHasEnoughWarehouseCapacity(600, [500, 600, 500, 9999])).toBe(true);
+    expect(getHasEnoughWarehouseCapacity(600, [500, 600, 500, 9999])).toBe(
+      true,
+    );
   });
 });
 

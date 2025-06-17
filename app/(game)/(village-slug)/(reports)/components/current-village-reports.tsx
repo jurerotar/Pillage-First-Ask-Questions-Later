@@ -1,6 +1,9 @@
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
 import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/components/hooks/use-report-filters';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
@@ -29,7 +32,9 @@ export const CurrentVillageReports = () => {
         reportFilters={reportFilters}
         onChange={onReportFiltersChange}
       />
-      <Alert variant="warning">{t('This page is still under development')}</Alert>
+      <Alert variant="warning">
+        {t('This page is still under development')}
+      </Alert>
     </Section>
   );
 };

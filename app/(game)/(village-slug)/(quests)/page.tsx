@@ -1,6 +1,12 @@
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Text } from 'app/components/text';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
@@ -32,7 +38,10 @@ const QuestsPage = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
-  const [villageQuests, globalQuests] = partition<Quest>(quests, (quest) => quest.scope === 'village');
+  const [villageQuests, globalQuests] = partition<Quest>(
+    quests,
+    (quest) => quest.scope === 'village',
+  );
 
   return (
     <>
@@ -58,7 +67,11 @@ const QuestsPage = () => {
         </TabList>
         <TabPanel>
           <article className="flex flex-col gap-2">
-            <Text as="h2">{t('{{villageName}} quests', { villageName: currentVillage.name })}</Text>
+            <Text as="h2">
+              {t('{{villageName}} quests', {
+                villageName: currentVillage.name,
+              })}
+            </Text>
             <QuestList quests={villageQuests} />
           </article>
         </TabPanel>

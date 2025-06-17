@@ -28,9 +28,13 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
   const result: QuestGroup[] = [];
 
   for (const [groupKey, questsWithOrder] of map.entries()) {
-    const sorted = questsWithOrder.sort((a, b) => a._order - b._order).map(({ _order, ...q }) => q);
+    const sorted = questsWithOrder
+      .sort((a, b) => a._order - b._order)
+      .map(({ _order, ...q }) => q);
 
-    const hasCollectible = sorted.some((q) => q.completedAt !== null && q.collectedAt === null);
+    const hasCollectible = sorted.some(
+      (q) => q.completedAt !== null && q.collectedAt === null,
+    );
     const allCollected = sorted.every((q) => q.collectedAt !== null);
 
     const totalQuests = sorted.length;
@@ -53,18 +57,34 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   if (id.includes('every')) {
     const [, buildingId, , level] = id.split('-');
     return {
-      title: assetsT('QUESTS.EVERY.TITLE', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
-      description: assetsT('QUESTS.EVERY.DESCRIPTION', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
-      group: assetsT('QUESTS.EVERY.GROUP', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) }),
+      title: assetsT('QUESTS.EVERY.TITLE', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+        level,
+      }),
+      description: assetsT('QUESTS.EVERY.DESCRIPTION', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+        level,
+      }),
+      group: assetsT('QUESTS.EVERY.GROUP', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+      }),
     };
   }
 
   if (id.includes('oneOf')) {
     const [, buildingId, , level] = id.split('-');
     return {
-      title: assetsT('QUESTS.ONE-OF.TITLE', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
-      description: assetsT('QUESTS.ONE-OF.DESCRIPTION', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`), level }),
-      group: assetsT('QUESTS.ONE-OF.GROUP', { buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`) }),
+      title: assetsT('QUESTS.ONE-OF.TITLE', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+        level,
+      }),
+      description: assetsT('QUESTS.ONE-OF.DESCRIPTION', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+        level,
+      }),
+      group: assetsT('QUESTS.ONE-OF.GROUP', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+      }),
     };
   }
 

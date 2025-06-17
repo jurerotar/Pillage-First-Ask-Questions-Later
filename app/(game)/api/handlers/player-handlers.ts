@@ -1,5 +1,9 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { playersCacheKey, troopsCacheKey, villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  playersCacheKey,
+  troopsCacheKey,
+  villagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
@@ -8,7 +12,10 @@ export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;
 };
 
-export const getPlayerById: ApiHandler<Player, 'playerId'> = async (queryClient, args) => {
+export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
+  queryClient,
+  args,
+) => {
   const {
     params: { playerId },
   } = args;
@@ -17,7 +24,10 @@ export const getPlayerById: ApiHandler<Player, 'playerId'> = async (queryClient,
   return players.find(({ id }) => id === playerId)!;
 };
 
-export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (queryClient, args) => {
+export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
+  queryClient,
+  args,
+) => {
   const {
     params: { playerId },
   } = args;
@@ -27,7 +37,10 @@ export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (que
   return villages.filter(({ playerId: ownedBy }) => ownedBy === playerId)!;
 };
 
-export const getTroopsByVillage: ApiHandler<Troop[], 'playerId' | 'villageId'> = async (queryClient, args) => {
+export const getTroopsByVillage: ApiHandler<
+  Troop[],
+  'playerId' | 'villageId'
+> = async (queryClient, args) => {
   const {
     params: { villageId: villageIdParam },
   } = args;
@@ -42,7 +55,11 @@ type RenameVillageBody = {
   name: string;
 };
 
-export const renameVillage: ApiHandler<void, 'playerId' | 'villageId', RenameVillageBody> = async (queryClient, args) => {
+export const renameVillage: ApiHandler<
+  void,
+  'playerId' | 'villageId',
+  RenameVillageBody
+> = async (queryClient, args) => {
   const {
     params: { villageId: villageIdParam },
     body: { name },

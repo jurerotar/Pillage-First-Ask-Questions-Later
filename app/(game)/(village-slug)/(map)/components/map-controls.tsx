@@ -1,17 +1,30 @@
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
-import { MapContext, MAX_MAGNIFICATION, MIN_MAGNIFICATION } from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import {
+  MapContext,
+  MAX_MAGNIFICATION,
+  MIN_MAGNIFICATION,
+} from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const MagnificationButton = ({ direction }: { direction: 'increase' | 'decrease' }) => {
+const MagnificationButton = ({
+  direction,
+}: {
+  direction: 'increase' | 'decrease';
+}) => {
   const { t } = useTranslation();
-  const { magnification, increaseMagnification, decreaseMagnification } = use(MapContext);
+  const { magnification, increaseMagnification, decreaseMagnification } =
+    use(MapContext);
 
-  const onClick = direction === 'increase' ? increaseMagnification : decreaseMagnification;
-  const isDisabled = direction === 'increase' ? magnification === MAX_MAGNIFICATION : magnification === MIN_MAGNIFICATION;
+  const onClick =
+    direction === 'increase' ? increaseMagnification : decreaseMagnification;
+  const isDisabled =
+    direction === 'increase'
+      ? magnification === MAX_MAGNIFICATION
+      : magnification === MIN_MAGNIFICATION;
 
   return (
     <button
@@ -25,9 +38,17 @@ const MagnificationButton = ({ direction }: { direction: 'increase' | 'decrease'
       data-testid={`map-controls-magnification-${direction}-button`}
       aria-label={direction === 'increase' ? t('Zoom in') : t('Zoom out')}
       data-tooltip-id="general-tooltip"
-      data-tooltip-content={direction === 'increase' ? t('Zoom in') : t('Zoom out')}
+      data-tooltip-content={
+        direction === 'increase' ? t('Zoom in') : t('Zoom out')
+      }
     >
-      <Icon type={direction === 'increase' ? 'mapMagnificationIncrease' : 'mapMagnificationDecrease'} />
+      <Icon
+        type={
+          direction === 'increase'
+            ? 'mapMagnificationIncrease'
+            : 'mapMagnificationDecrease'
+        }
+      />
     </button>
   );
 };
@@ -64,7 +85,12 @@ export const MapControls = () => {
       >
         <ToggleGroupItem
           value="shouldShowFactionReputation"
-          onClick={() => toggleMapFilter({ filterName: 'shouldShowFactionReputation', value: !shouldShowFactionReputation })}
+          onClick={() =>
+            toggleMapFilter({
+              filterName: 'shouldShowFactionReputation',
+              value: !shouldShowFactionReputation,
+            })
+          }
           aria-label={t('Toggle faction reputation display')}
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle faction reputation display')}
@@ -75,7 +101,12 @@ export const MapControls = () => {
 
         <ToggleGroupItem
           value="shouldShowOasisIcons"
-          onClick={() => toggleMapFilter({ filterName: 'shouldShowOasisIcons', value: !shouldShowOasisIcons })}
+          onClick={() =>
+            toggleMapFilter({
+              filterName: 'shouldShowOasisIcons',
+              value: !shouldShowOasisIcons,
+            })
+          }
           aria-label={t('Toggle oasis resource icons display')}
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle oasis resource icons display')}
@@ -86,7 +117,12 @@ export const MapControls = () => {
 
         <ToggleGroupItem
           value="shouldShowTreasureIcons"
-          onClick={() => toggleMapFilter({ filterName: 'shouldShowTreasureIcons', value: !shouldShowTreasureIcons })}
+          onClick={() =>
+            toggleMapFilter({
+              filterName: 'shouldShowTreasureIcons',
+              value: !shouldShowTreasureIcons,
+            })
+          }
           aria-label={t('Toggle treasure villages icons display')}
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle treasure villages icons display')}
@@ -97,7 +133,12 @@ export const MapControls = () => {
 
         <ToggleGroupItem
           value="shouldShowTroopMovements"
-          onClick={() => toggleMapFilter({ filterName: 'shouldShowTroopMovements', value: !shouldShowTroopMovements })}
+          onClick={() =>
+            toggleMapFilter({
+              filterName: 'shouldShowTroopMovements',
+              value: !shouldShowTroopMovements,
+            })
+          }
           aria-label={t('Toggle troop movements display')}
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle troop movements display')}
@@ -108,7 +149,12 @@ export const MapControls = () => {
 
         <ToggleGroupItem
           value="shouldShowWheatFields"
-          onClick={() => toggleMapFilter({ filterName: 'shouldShowWheatFields', value: !shouldShowWheatFields })}
+          onClick={() =>
+            toggleMapFilter({
+              filterName: 'shouldShowWheatFields',
+              value: !shouldShowWheatFields,
+            })
+          }
           aria-label={t('Toggle wheat field icons display')}
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle wheat field icons display')}
@@ -119,7 +165,12 @@ export const MapControls = () => {
 
         <ToggleGroupItem
           value="shouldShowTileTooltips"
-          onClick={() => toggleMapFilter({ filterName: 'shouldShowTileTooltips', value: !shouldShowTileTooltips })}
+          onClick={() =>
+            toggleMapFilter({
+              filterName: 'shouldShowTileTooltips',
+              value: !shouldShowTileTooltips,
+            })
+          }
           aria-label={t('Toggle tooltip popups')}
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle tooltip popups')}

@@ -27,14 +27,20 @@ export const isOccupiableTile = (tile: Tile): tile is OccupiableTile => {
   return tile.type === 0;
 };
 
-export const isOccupiedOccupiableTile = (tile: Tile): tile is OccupiedOccupiableTile => {
+export const isOccupiedOccupiableTile = (
+  tile: Tile,
+): tile is OccupiedOccupiableTile => {
   return isOccupiableTile(tile) && Object.hasOwn(tile, 'ownedBy');
 };
 
-export const isContextualOccupiedOccupiableTile = (tile: Tile): tile is ContextualOccupiedOccupiableTile => {
+export const isContextualOccupiedOccupiableTile = (
+  tile: Tile,
+): tile is ContextualOccupiedOccupiableTile => {
   return isOccupiableTile(tile) && Object.hasOwn(tile, 'ownedBy');
 };
 
-export const isUnoccupiedOccupiableTile = (tile: Tile): tile is OccupiedOccupiableTile => {
+export const isUnoccupiedOccupiableTile = (
+  tile: Tile,
+): tile is OccupiedOccupiableTile => {
   return isOccupiableTile(tile) && !Object.hasOwn(tile, 'ownedBy');
 };

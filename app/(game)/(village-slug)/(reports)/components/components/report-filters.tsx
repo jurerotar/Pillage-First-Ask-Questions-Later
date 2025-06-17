@@ -13,7 +13,10 @@ type ReportFiltersProps = {
   onChange: (reportFilters: ReportType[]) => void;
 };
 
-export const ReportFilters: React.FC<ReportFiltersProps> = ({ reportFilters, onChange }) => {
+export const ReportFilters: React.FC<ReportFiltersProps> = ({
+  reportFilters,
+  onChange,
+}) => {
   const { t } = useTranslation();
 
   return (

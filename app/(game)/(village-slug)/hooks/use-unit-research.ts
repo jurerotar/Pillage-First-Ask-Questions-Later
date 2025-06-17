@@ -3,7 +3,10 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitData, getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
+import {
+  getUnitData,
+  getUnitsByTribe,
+} from 'app/(game)/(village-slug)/utils/units';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
@@ -14,18 +17,24 @@ export const useUnitResearch = () => {
   const { currentVillage } = useCurrentVillage();
 
   const unitsByTribe = getUnitsByTribe(tribe);
-  const researchableUnits = unitsByTribe.filter((unit) => !unit.id.includes('SETTLER'));
+  const researchableUnits = unitsByTribe.filter(
+    (unit) => !unit.id.includes('SETTLER'),
+  );
 
   const { data: unitResearch } = useSuspenseQuery<UnitResearch[]>({
     queryKey: [unitResearchCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<UnitResearch[]>(`/researched-units/${currentVillage.id}`);
+      const { data } = await fetcher<UnitResearch[]>(
+        `/researched-units/${currentVillage.id}`,
+      );
       return data;
     },
   });
 
   const isUnitResearched = (unitId: Unit['id']): boolean => {
-    return !!unitResearch.find((unitResearch) => unitResearch.unitId === unitId);
+    return !!unitResearch.find(
+      (unitResearch) => unitResearch.unitId === unitId,
+    );
   };
 
   const getResearchedUnits = () => {

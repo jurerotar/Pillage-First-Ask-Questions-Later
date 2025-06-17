@@ -20,7 +20,10 @@ export type HeroItemQuestReward = {
   amount: number;
 };
 
-export type QuestReward = ResourceQuestReward | HeroExperienceQuestReward | HeroItemQuestReward;
+export type QuestReward =
+  | ResourceQuestReward
+  | HeroExperienceQuestReward
+  | HeroItemQuestReward;
 
 type Matcher = 'oneOf' | 'every';
 
@@ -41,7 +44,10 @@ export type TroopCountQuestRequirement = {
   count: number;
 };
 
-export type QuestRequirement = BuildingQuestRequirement | AdventureCountQuestRequirement | TroopCountQuestRequirement;
+export type QuestRequirement =
+  | BuildingQuestRequirement
+  | AdventureCountQuestRequirement
+  | TroopCountQuestRequirement;
 
 type BaseQuest = {
   completedAt: number | null;

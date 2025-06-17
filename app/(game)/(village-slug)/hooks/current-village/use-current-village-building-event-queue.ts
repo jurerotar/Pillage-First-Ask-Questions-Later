@@ -8,7 +8,9 @@ import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks
 // TODO: Raise this to 5 once you figure out how to solve the scheduledBuildingEvent bug
 const MAX_BUILDINGS_IN_QUEUE = 1;
 
-export const useCurrentVillageBuildingEventQueue = (buildingFieldId: BuildingField['id']) => {
+export const useCurrentVillageBuildingEventQueue = (
+  buildingFieldId: BuildingField['id'],
+) => {
   const { tribe } = useTribe();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
@@ -18,15 +20,15 @@ export const useCurrentVillageBuildingEventQueue = (buildingFieldId: BuildingFie
       return currentVillageBuildingEvents;
     }
 
-    const [resourceQueue, villageQueue] = partition<GameEvent<'buildingConstruction'>>(
-      currentVillageBuildingEvents,
-      (event) => event.buildingFieldId <= 18,
-    );
+    const [resourceQueue, villageQueue] = partition<
+      GameEvent<'buildingConstruction'>
+    >(currentVillageBuildingEvents, (event) => event.buildingFieldId <= 18);
 
     return buildingFieldId <= 18 ? resourceQueue : villageQueue;
   }, [tribe, buildingFieldId, currentVillageBuildingEvents]);
 
-  const canAddAdditionalBuildingToQueue = currentVillageBuildingEventsQueue.length < MAX_BUILDINGS_IN_QUEUE;
+  const canAddAdditionalBuildingToQueue =
+    currentVillageBuildingEventsQueue.length < MAX_BUILDINGS_IN_QUEUE;
 
   return {
     currentVillageBuildingEventsQueue,

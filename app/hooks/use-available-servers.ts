@@ -9,8 +9,13 @@ const deleteServerData = async (server: Server) => {
     // This may fail in case entry was removed by some other means which didn't also remove localStorage
     await rootHandle.removeEntry(`${server.slug}.json`);
   } finally {
-    const servers: Server[] = JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]');
-    window.localStorage.setItem(availableServerCacheKey, JSON.stringify(servers.filter(({ id }) => id !== server.id)));
+    const servers: Server[] = JSON.parse(
+      window.localStorage.getItem(availableServerCacheKey) ?? '[]',
+    );
+    window.localStorage.setItem(
+      availableServerCacheKey,
+      JSON.stringify(servers.filter(({ id }) => id !== server.id)),
+    );
   }
 };
 
@@ -20,15 +25,22 @@ export const useAvailableServers = () => {
   const { data: availableServers } = useQuery<Server[]>({
     queryKey: [availableServerCacheKey],
     queryFn: async () => {
-      return JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]');
+      return JSON.parse(
+        window.localStorage.getItem(availableServerCacheKey) ?? '[]',
+      );
     },
     initialData: [],
   });
 
   const { mutate: addServer } = useMutation<void, Error, { server: Server }>({
     mutationFn: async ({ server }) => {
-      const servers: Server[] = JSON.parse(window.localStorage.getItem(availableServerCacheKey) ?? '[]');
-      window.localStorage.setItem(availableServerCacheKey, JSON.stringify([...servers, server]));
+      const servers: Server[] = JSON.parse(
+        window.localStorage.getItem(availableServerCacheKey) ?? '[]',
+      );
+      window.localStorage.setItem(
+        availableServerCacheKey,
+        JSON.stringify([...servers, server]),
+      );
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -37,7 +49,11 @@ export const useAvailableServers = () => {
     },
   });
 
-  const { mutateAsync: deleteServer } = useMutation<void, Error, { server: Server }>({
+  const { mutateAsync: deleteServer } = useMutation<
+    void,
+    Error,
+    { server: Server }
+  >({
     mutationFn: ({ server }) => deleteServerData(server),
     onSuccess: async () => {
       await queryClient.invalidateQueries({

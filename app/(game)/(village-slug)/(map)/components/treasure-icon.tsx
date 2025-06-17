@@ -6,7 +6,10 @@ type TreasureIconProps = Omit<React.ComponentProps<typeof Icon>, 'type'> & {
   item: WorldItem;
 };
 
-export const TreasureIcon: React.FC<TreasureIconProps> = ({ item, className }) => {
+export const TreasureIcon: React.FC<TreasureIconProps> = ({
+  item,
+  className,
+}) => {
   if (item.type === 'artifact') {
     return (
       <Icon

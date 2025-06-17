@@ -3,7 +3,10 @@ import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 
-export const newVillageUnitResearchFactory = (villageId: Village['id'], tribe: Tribe): UnitResearch[] => {
+export const newVillageUnitResearchFactory = (
+  villageId: Village['id'],
+  tribe: Tribe,
+): UnitResearch[] => {
   const unitsByTribe = getUnitsByTribe(tribe);
 
   const tier1Unit = unitsByTribe.find(({ tier }) => tier === 'tier-1')!;

@@ -13,12 +13,15 @@ export type GenerateWorldItemsWorkerReturn = {
   worldItems: WorldItem[];
 };
 
-self.addEventListener('message', async (event: MessageEvent<GenerateWorldItemsWorkerPayload>) => {
-  const { server } = event.data;
-  const prng = prngAlea(server.seed);
+self.addEventListener(
+  'message',
+  async (event: MessageEvent<GenerateWorldItemsWorkerPayload>) => {
+    const { server } = event.data;
+    const prng = prngAlea(server.seed);
 
-  const worldItems = worldItemsFactory({ prng, ...event.data });
+    const worldItems = worldItemsFactory({ prng, ...event.data });
 
-  self.postMessage({ worldItems } satisfies GenerateWorldItemsWorkerReturn);
-  self.close();
-});
+    self.postMessage({ worldItems } satisfies GenerateWorldItemsWorkerReturn);
+    self.close();
+  },
+);

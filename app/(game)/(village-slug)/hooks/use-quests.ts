@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import {
   collectableQuestCountCacheKey,
@@ -24,12 +28,18 @@ export const useQuests = () => {
   const { data: collectableQuestCount } = useSuspenseQuery<number>({
     queryKey: [collectableQuestCountCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<{ collectableQuestCount: number }>('/me/quests/collectables/count');
+      const { data } = await fetcher<{ collectableQuestCount: number }>(
+        '/me/quests/collectables/count',
+      );
       return data.collectableQuestCount;
     },
   });
 
-  const { mutate: completeQuest } = useMutation<void, Error, { questId: Quest['id'] }>({
+  const { mutate: completeQuest } = useMutation<
+    void,
+    Error,
+    { questId: Quest['id'] }
+  >({
     mutationFn: async ({ questId }) => {
       await fetcher(`/quests/${questId}/collect`, {
         method: 'PATCH',
@@ -40,8 +50,12 @@ export const useQuests = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [questsCacheKey] });
-      await queryClient.invalidateQueries({ queryKey: [collectableQuestCountCacheKey] });
-      await queryClient.invalidateQueries({ queryKey: [playerVillagesCacheKey] });
+      await queryClient.invalidateQueries({
+        queryKey: [collectableQuestCountCacheKey],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [playerVillagesCacheKey],
+      });
       await queryClient.invalidateQueries({ queryKey: [heroCacheKey] });
     },
   });

@@ -6,7 +6,9 @@ const ReportPage = () => {
   const { reportId: _reportId } = useRouteSegments();
   const { t } = useTranslation();
 
-  return <Alert variant="warning">{t('This page is still under development')}</Alert>;
+  return (
+    <Alert variant="warning">{t('This page is still under development')}</Alert>
+  );
 };
 
 export default ReportPage;

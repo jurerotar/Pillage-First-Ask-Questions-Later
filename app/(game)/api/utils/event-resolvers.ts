@@ -8,14 +8,21 @@ import type { EventResolvedApiNotificationEvent } from 'app/interfaces/api';
 
 let scheduledTimeout: number | null = null;
 
-const resolveEvent = async (queryClient: QueryClient, eventId: GameEvent['id']) => {
+const resolveEvent = async (
+  queryClient: QueryClient,
+  eventId: GameEvent['id'],
+) => {
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
   const event = events.find(({ id }) => id === eventId)!;
 
   // If event updates any village property (new building, returning troops,...) we need to calculate the amount of resources before
   // said update happens
   if (isEventWithResourceCost(event)) {
-    updateVillageResourcesAt(queryClient, event.villageId, event.startsAt + event.duration);
+    updateVillageResourcesAt(
+      queryClient,
+      event.villageId,
+      event.startsAt + event.duration,
+    );
   }
 
   const resolver = getGameEventResolver(event.type)!;
@@ -39,7 +46,8 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
     scheduledTimeout = null;
   }
 
-  const pastOrFutureEvents = queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
+  const pastOrFutureEvents =
+    queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
 
   const now = Date.now();
 
@@ -54,7 +62,8 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
   }
 
   // At this point, all remaining events are future events
-  const futureEvents = queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
+  const futureEvents =
+    queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
 
   if (futureEvents.length === 0) {
     return;

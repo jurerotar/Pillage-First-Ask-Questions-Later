@@ -36,7 +36,13 @@ import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
 import { useTranslation } from 'react-i18next';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
@@ -78,21 +84,25 @@ const QuestsCounter = () => {
 
 type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(({ children, ...rest }) => {
-  return (
-    <button
-      type="button"
-      className="
+const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(
+  ({ children, ...rest }) => {
+    return (
+      <button
+        type="button"
+        className="
         flex items-center justify-center shadow-md rounded-xs px-3 py-2 border border-border relative
         bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
         lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
       "
-      {...rest}
-    >
-      <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">{children}</span>
-    </button>
-  );
-});
+        {...rest}
+      >
+        <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+          {children}
+        </span>
+      </button>
+    );
+  },
+);
 
 const DiscordLink = () => {
   return (
@@ -120,7 +130,12 @@ const HeroNavigationItem = () => {
   const { level } = calculateHeroLevel(experience);
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable = (level + 1) * 4 > Object.values(hero?.selectableAttributes ?? 0).reduce((total, curr) => total + curr, 0);
+  const isLevelUpAvailable =
+    (level + 1) * 4 >
+    Object.values(hero?.selectableAttributes ?? 0).reduce(
+      (total, curr) => total + curr,
+      0,
+    );
 
   return (
     <Link
@@ -145,44 +160,51 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> = memo(({ children, ...rest }) => {
-  return (
-    <button
-      type="button"
-      className="px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card flex items-center justify-center"
-      {...rest}
-    >
-      {children}
-    </button>
-  );
-});
+const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> =
+  memo(({ children, ...rest }) => {
+    return (
+      <button
+        type="button"
+        className="px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card flex items-center justify-center"
+        {...rest}
+      >
+        {children}
+      </button>
+    );
+  });
 
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
   counter?: number;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo(({ children, counter = 0, ...rest }) => {
-  const { isActive, ...htmlProps } = rest;
+const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo(
+  ({ children, counter = 0, ...rest }) => {
+    const { isActive, ...htmlProps } = rest;
 
-  return (
-    <button
-      type="button"
-      className={clsx(
-        isActive ? 'from-[#7da100] to-[#c7e94f]' : 'from-[#b8b2a9] to-[#f1f0ee]',
-        'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-      )}
-      {...htmlProps}
-    >
-      <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">{children}</span>
-      {counter > 0 && (
-        <span className="absolute size-5 lg:size-6 text-sm font-medium bg-background top-0 -right-3 rounded-full border lg:border-2 border-border shadow-md inline-flex justify-center items-center">
-          {counter}
+    return (
+      <button
+        type="button"
+        className={clsx(
+          isActive
+            ? 'from-[#7da100] to-[#c7e94f]'
+            : 'from-[#b8b2a9] to-[#f1f0ee]',
+          'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+        )}
+        {...htmlProps}
+      >
+        <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
+          {children}
         </span>
-      )}
-    </button>
-  );
-});
+        {counter > 0 && (
+          <span className="absolute size-5 lg:size-6 text-sm font-medium bg-background top-0 -right-3 rounded-full border lg:border-2 border-border shadow-md inline-flex justify-center items-center">
+            {counter}
+          </span>
+        )}
+      </button>
+    );
+  },
+);
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
@@ -306,16 +328,19 @@ const MapNavigationItem = () => {
 
 const ResourceCounters = () => {
   const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
-  const { buildingWheatConsumption, buildingWheatLimit } = computedWheatProductionEffect;
+  const { buildingWheatConsumption, buildingWheatLimit } =
+    computedWheatProductionEffect;
 
   return (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5 lg:gap-2">
-      {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map((resource: Resource, index) => (
-        <Fragment key={resource}>
-          <ResourceCounter resource={resource} />
-          {index !== 3 && <span className="w-[2px] h-full bg-gray-300" />}
-        </Fragment>
-      ))}
+      {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map(
+        (resource: Resource, index) => (
+          <Fragment key={resource}>
+            <ResourceCounter resource={resource} />
+            {index !== 3 && <span className="w-[2px] h-full bg-gray-300" />}
+          </Fragment>
+        ),
+      )}
       <span className="flex gap-0.5 lg:hidden h-full min-w-10">
         <span className="w-[2px] h-full bg-gray-300" />
         <span className="flex flex-col justify-between gap-0.5 w-full">
@@ -324,7 +349,9 @@ const ResourceCounters = () => {
               className="size-4"
               type="population"
             />
-            <span className="text-2xs font-medium">{formatNumber(Math.abs(buildingWheatConsumption))}</span>
+            <span className="text-2xs font-medium">
+              {formatNumber(Math.abs(buildingWheatConsumption))}
+            </span>
           </span>
           <span className="h-[2px] w-full bg-gray-300" />
           <span className="flex justify-between items-center gap-0.5">
@@ -332,7 +359,9 @@ const ResourceCounters = () => {
               className="size-4"
               type="wheatProduction"
             />
-            <span className="text-2xs font-medium">{formatNumber(buildingWheatLimit)}</span>
+            <span className="text-2xs font-medium">
+              {formatNumber(buildingWheatLimit)}
+            </span>
           </span>
         </span>
       </span>
@@ -396,7 +425,9 @@ const TopNavigation = () => {
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
                         <FaGithub className="text-xl text-[#24292e]" />
-                        <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">GitHub</span>
+                        <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">
+                          GitHub
+                        </span>
                       </span>
                     </DesktopTopRowItem>
                   </Link>
@@ -410,7 +441,9 @@ const TopNavigation = () => {
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
                         <FaDiscord className="text-xl text-[#7289da]" />
-                        <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">Discord</span>
+                        <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">
+                          Discord
+                        </span>
                       </span>
                     </DesktopTopRowItem>
                   </Link>
@@ -627,16 +660,25 @@ const GameLayout = () => {
     }
     const html = document.documentElement;
 
-    html.classList.add(colorScheme, `skin-variant-${skinVariant}`, `time-of-day-${timeOfDay}`);
+    html.classList.add(
+      colorScheme,
+      `skin-variant-${skinVariant}`,
+      `time-of-day-${timeOfDay}`,
+    );
 
     return () => {
-      html.classList.remove(colorScheme, `skin-variant-${skinVariant}`, `time-of-day-${timeOfDay}`);
+      html.classList.remove(
+        colorScheme,
+        `skin-variant-${skinVariant}`,
+        `time-of-day-${timeOfDay}`,
+      );
     };
   }, [skinVariant, timeOfDay, colorScheme]);
 
   return (
     <Suspense fallback="Layout loader">
       <CurrentVillageStateProvider>
+        {/** biome-ignore lint/nursery/useUniqueElementIds: This is intentional, since this tooltip is references all throughout the app */}
         <Tooltip id="general-tooltip" />
         <TopNavigation />
         <Suspense fallback={null}>
