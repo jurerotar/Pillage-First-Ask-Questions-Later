@@ -2,17 +2,34 @@ import type React from 'react';
 import type { PickLiteral } from 'app/utils/typescript';
 import type { Building } from 'app/interfaces/models/game/building';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 
 type TroopTrainingTableProps = {
-  buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
+  buildingId: PickLiteral<
+    Building['id'],
+    | 'BARRACKS'
+    | 'GREAT_BARRACKS'
+    | 'STABLE'
+    | 'GREAT_STABLE'
+    | 'WORKSHOP'
+    | 'HOSPITAL'
+  >;
 };
 
-export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({ buildingId }) => {
+export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
+  buildingId,
+}) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { eventsByType } = useEventsByType('troopTraining');
@@ -21,7 +38,10 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({ building
     return event.buildingId === buildingId;
   });
 
-  const batchedTroopTrainingEventsMap = new Map<string, GameEvent<'troopTraining'>[]>();
+  const batchedTroopTrainingEventsMap = new Map<
+    string,
+    GameEvent<'troopTraining'>[]
+  >();
 
   for (const event of relevantTrainingEvents) {
     if (!batchedTroopTrainingEventsMap.has(event.batchId)) {
@@ -44,7 +64,10 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({ building
   }
 
   const remainingUnitSummary = Object.entries(unitCounts)
-    .map(([unitId, count]) => `${count} ${assetsT(`UNITS.${unitId}.NAME`, { count })}`)
+    .map(
+      ([unitId, count]) =>
+        `${count} ${assetsT(`UNITS.${unitId}.NAME`, { count })}`,
+    )
     .join(', ');
 
   return (
@@ -64,7 +87,8 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({ building
               {batchedArray.slice(0, maxVisible).map(([batchId, events]) => {
                 const earliestEvent = events[0]!;
                 const latestEvent = events.at(-1)!;
-                const totalDuration = latestEvent.startsAt + latestEvent.duration;
+                const totalDuration =
+                  latestEvent.startsAt + latestEvent.duration;
 
                 return (
                   <TableRow key={batchId}>
@@ -73,14 +97,18 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({ building
                       {/*  type={unitIdToUnitIconMapper(earliestEvent.unitId)}*/}
                       {/*  className="size-4 inline-flex"*/}
                       {/*/>*/}
-                      {assetsT(`UNITS.${earliestEvent.unitId}.NAME`, { count: 1 })}
+                      {assetsT(`UNITS.${earliestEvent.unitId}.NAME`, {
+                        count: 1,
+                      })}
                     </TableCell>
                     <TableCell>{events.length}</TableCell>
                     <TableCell>
                       <Countdown endsAt={totalDuration} />
                     </TableCell>
                     <TableCell>
-                      <Countdown endsAt={earliestEvent.startsAt + earliestEvent.duration} />
+                      <Countdown
+                        endsAt={earliestEvent.startsAt + earliestEvent.duration}
+                      />
                     </TableCell>
                   </TableRow>
                 );
@@ -88,7 +116,11 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({ building
               {batchedArray.length > maxVisible && (
                 <TableRow>
                   <TableCell colSpan={4}>
-                    <Text as="p">{t('... with {{units}} awaiting training', { units: remainingUnitSummary })}</Text>
+                    <Text as="p">
+                      {t('... with {{units}} awaiting training', {
+                        units: remainingUnitSummary,
+                      })}
+                    </Text>
                   </TableCell>
                 </TableRow>
               )}

@@ -1,7 +1,11 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import { isHeroExperienceQuestReward, isQuestCollectable, isResourceQuestReward } from 'app/(game)/guards/quest-guards';
+import {
+  isHeroExperienceQuestReward,
+  isQuestCollectable,
+  isResourceQuestReward,
+} from 'app/(game)/guards/quest-guards';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
 
@@ -13,7 +17,9 @@ type GetCollectableQuestCountReturn = {
   collectableQuestCount: number;
 };
 
-export const getCollectableQuestCount: ApiHandler<GetCollectableQuestCountReturn> = async (queryClient) => {
+export const getCollectableQuestCount: ApiHandler<
+  GetCollectableQuestCountReturn
+> = async (queryClient) => {
   const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
 
   return {
@@ -21,7 +27,10 @@ export const getCollectableQuestCount: ApiHandler<GetCollectableQuestCountReturn
   };
 };
 
-export const collectQuest: ApiHandler<void, 'questId', void> = async (queryClient, args) => {
+export const collectQuest: ApiHandler<void, 'questId', void> = async (
+  queryClient,
+  args,
+) => {
   const {
     params: { questId },
   } = args;
@@ -37,7 +46,12 @@ export const collectQuest: ApiHandler<void, 'questId', void> = async (queryClien
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
 
-      addVillageResourcesAt(queryClient, villageId, Date.now(), [amount, amount, amount, amount]);
+      addVillageResourcesAt(queryClient, villageId, Date.now(), [
+        amount,
+        amount,
+        amount,
+        amount,
+      ]);
       continue;
     }
 

@@ -1,4 +1,8 @@
-import { createBuildingQuest, generateVillageQuests, globalQuests } from 'app/(game)/(village-slug)/assets/quests';
+import {
+  createBuildingQuest,
+  generateVillageQuests,
+  globalQuests,
+} from 'app/(game)/(village-slug)/assets/quests';
 import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
@@ -12,7 +16,10 @@ const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
   ['egyptians', 'STONE_WALL'],
 ]);
 
-export const newVillageQuestsFactory = (villageId: Village['id'], tribe: PlayableTribe): VillageQuest[] => {
+export const newVillageQuestsFactory = (
+  villageId: Village['id'],
+  tribe: PlayableTribe,
+): VillageQuest[] => {
   const wallBuildingId = tribeToWallBuildingIdMap.get(tribe)!;
 
   const villageQuests = generateVillageQuests(villageId);
@@ -27,6 +34,9 @@ export const newVillageQuestsFactory = (villageId: Village['id'], tribe: Playabl
   ];
 };
 
-export const generateNewServerQuests = (villageId: Village['id'], tribe: PlayableTribe): Quest[] => {
+export const generateNewServerQuests = (
+  villageId: Village['id'],
+  tribe: PlayableTribe,
+): Quest[] => {
   return [...globalQuests, ...newVillageQuestsFactory(villageId, tribe)];
 };

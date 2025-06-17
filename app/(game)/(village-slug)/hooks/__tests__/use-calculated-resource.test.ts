@@ -1,4 +1,7 @@
-import { calculateCurrentAmount, type CalculateCurrentAmountArgs } from 'app/(game)/utils/calculate-current-resources';
+import {
+  calculateCurrentAmount,
+  type CalculateCurrentAmountArgs,
+} from 'app/(game)/utils/calculate-current-resources';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { describe, expect, test } from 'vitest';
 
@@ -21,7 +24,9 @@ describe('useCurrentResources', () => {
         hourlyProduction: 60,
       };
 
-      const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
+      const { currentAmount } = calculateCurrentAmount(
+        calculateCurrentAmountArgs,
+      );
 
       expect(currentAmount).toBe(760);
     });
@@ -43,7 +48,9 @@ describe('useCurrentResources', () => {
         hourlyProduction: 0,
       };
 
-      const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
+      const { currentAmount } = calculateCurrentAmount(
+        calculateCurrentAmountArgs,
+      );
 
       expect(currentAmount).toBe(700);
     });
@@ -65,7 +72,9 @@ describe('useCurrentResources', () => {
         hourlyProduction: -60,
       };
 
-      const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
+      const { currentAmount } = calculateCurrentAmount(
+        calculateCurrentAmountArgs,
+      );
 
       expect(currentAmount).toBe(640);
     });
@@ -87,7 +96,9 @@ describe('useCurrentResources', () => {
         hourlyProduction: 200,
       };
 
-      const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
+      const { currentAmount } = calculateCurrentAmount(
+        calculateCurrentAmountArgs,
+      );
 
       expect(currentAmount).toBe(800);
     });
@@ -109,7 +120,9 @@ describe('useCurrentResources', () => {
         hourlyProduction: -200,
       };
 
-      const { currentAmount } = calculateCurrentAmount(calculateCurrentAmountArgs);
+      const { currentAmount } = calculateCurrentAmount(
+        calculateCurrentAmountArgs,
+      );
 
       expect(currentAmount).toBe(0);
     });

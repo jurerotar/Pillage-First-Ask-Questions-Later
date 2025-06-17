@@ -2,7 +2,13 @@ import type { Config } from '@react-router/dev/config';
 
 export default {
   ssr: false,
-  prerender: ['/', '/create-new-server', '/design-system/icons', '/error/403', '/error/404'],
+  prerender: [
+    '/',
+    '/create-new-server',
+    '/design-system/icons',
+    '/error/403',
+    '/error/404',
+  ],
   future: {
     unstable_middleware: true,
     unstable_optimizeDeps: true,

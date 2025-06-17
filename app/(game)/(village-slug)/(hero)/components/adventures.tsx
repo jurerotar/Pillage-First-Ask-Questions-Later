@@ -5,7 +5,10 @@ import { seededRandomIntFromInterval } from 'app/utils/common';
 import { Alert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 
 export const Adventures = () => {
   const { t } = useTranslation();
@@ -19,7 +22,8 @@ export const Adventures = () => {
   const adventurePrng = prngAlea(`${seed}${adventureCount}`);
 
   // Short adventure is between 8 & 12 minutes long
-  const _shortAdventureDuration = seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+  const _shortAdventureDuration =
+    seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
 
   return (
     <Section>
@@ -31,7 +35,9 @@ export const Adventures = () => {
           )}
         </Text>
       </SectionContent>
-      <Alert variant="warning">{t('This page is still under development')}</Alert>
+      <Alert variant="warning">
+        {t('This page is still under development')}
+      </Alert>
     </Section>
   );
 };

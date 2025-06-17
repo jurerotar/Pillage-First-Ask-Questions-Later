@@ -8,11 +8,17 @@ import {
   type WheatProductionEffectReturn,
 } from 'app/(game)/utils/calculate-computed-effect';
 
-export function useComputedEffect(effectId: Exclude<EffectId, 'wheatProduction'>): ComputedEffectReturn;
-export function useComputedEffect(effectId: 'wheatProduction'): WheatProductionEffectReturn;
+export function useComputedEffect(
+  effectId: Exclude<EffectId, 'wheatProduction'>,
+): ComputedEffectReturn;
+export function useComputedEffect(
+  effectId: 'wheatProduction',
+): WheatProductionEffectReturn;
 
 // The idea behind this hook is to give you a computed effect value based on currentVillage effects & global effects
-export function useComputedEffect(effectId: EffectId): ComputedEffectReturn | WheatProductionEffectReturn {
+export function useComputedEffect(
+  effectId: EffectId,
+): ComputedEffectReturn | WheatProductionEffectReturn {
   const { effects } = useEffects();
   const { currentVillage } = useCurrentVillage();
 

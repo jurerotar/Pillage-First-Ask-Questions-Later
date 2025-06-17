@@ -2,7 +2,10 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { calculateBuildingEffectValues, getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
+import {
+  calculateBuildingEffectValues,
+  getBuildingDataForLevel,
+} from 'app/(game)/(village-slug)/utils/building';
 import { Icon } from 'app/components/icon';
 import type { Building } from 'app/interfaces/models/game/building';
 import { formatValue } from 'app/utils/common';
@@ -19,18 +22,32 @@ type BuildingOverviewProps = {
   showTitle?: boolean;
 };
 
-export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, titleCount = 0, showTitle = false }) => {
+export const BuildingOverview: React.FC<BuildingOverviewProps> = ({
+  buildingId,
+  titleCount = 0,
+  showTitle = false,
+}) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
-  const { actualLevel, virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
+  const { actualLevel, virtualLevel, doesBuildingExist } =
+    useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(buildingId, actualLevel);
-  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } = getBuildingDataForLevel(buildingId, virtualLevel);
-  const cumulativeEffects = calculateBuildingEffectValues(building, actualLevel);
+  const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(
+    buildingId,
+    actualLevel,
+  );
+  const { isMaxLevel, nextLevelBuildingDuration, nextLevelResourceCost } =
+    getBuildingDataForLevel(buildingId, virtualLevel);
+  const cumulativeEffects = calculateBuildingEffectValues(
+    building,
+    actualLevel,
+  );
 
-  const formattedTime = formatTime(buildingDuration * nextLevelBuildingDuration);
+  const formattedTime = formatTime(
+    buildingDuration * nextLevelBuildingDuration,
+  );
 
   return (
     <>
@@ -38,8 +55,14 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         {showTitle && (
           <div className="inline-flex gap-2 items-center font-semibold">
             <Text as="h2">
-              {titleCount > 0 && <span data-testid="building-overview-building-count">{titleCount + 1}.</span>}
-              <span data-testid="building-overview-building-title">{assetsT(`BUILDINGS.${building.id}.NAME`)}</span>
+              {titleCount > 0 && (
+                <span data-testid="building-overview-building-count">
+                  {titleCount + 1}.
+                </span>
+              )}
+              <span data-testid="building-overview-building-title">
+                {assetsT(`BUILDINGS.${building.id}.NAME`)}
+              </span>
             </Text>
           </div>
         )}
@@ -60,7 +83,9 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             data-testid="building-overview-currently-upgrading-span"
             className="inline-flex text-warning mt-2"
           >
-            {assetsT('Currently upgrading to level {{level}}', { level: virtualLevel })}
+            {assetsT('Currently upgrading to level {{level}}', {
+              level: virtualLevel,
+            })}
           </span>
         )}
         {isActualMaxLevel && (
@@ -68,7 +93,9 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             data-testid="building-overview-max-level"
             className="inline-flex text-green-600 mt-2"
           >
-            {t('{{building}} is fully upgraded', { building: assetsT(`BUILDINGS.${building.id}.NAME`) })}
+            {t('{{building}} is fully upgraded', {
+              building: assetsT(`BUILDINGS.${building.id}.NAME`),
+            })}
           </span>
         )}
       </section>
@@ -79,45 +106,78 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
         >
           <Text as="h3">{t('Benefits')}</Text>
           <div className="flex flex-wrap gap-2">
-            {cumulativeEffects.map(({ effectId, currentLevelValue, areEffectValuesRising }, index) => (
-              <span
-                key={index === 0 ? 'population' : effectId}
-                className="flex gap-2"
-              >
-                <Icon
-                  type={index === 0 ? 'population' : effectId}
-                  className="size-6"
-                  variant={areEffectValuesRising || index === 0 ? 'positive-change' : 'negative-change'}
-                />
-                <span>{formatValue(Math.abs(currentLevelValue))}</span>
-              </span>
-            ))}
+            {cumulativeEffects.map(
+              (
+                { effectId, currentLevelValue, areEffectValuesRising },
+                index,
+              ) => (
+                <span
+                  key={index === 0 ? 'population' : effectId}
+                  className="flex gap-2"
+                >
+                  <Icon
+                    type={index === 0 ? 'population' : effectId}
+                    className="size-6"
+                    variant={
+                      areEffectValuesRising || index === 0
+                        ? 'positive-change'
+                        : 'negative-change'
+                    }
+                  />
+                  <span>{formatValue(Math.abs(currentLevelValue))}</span>
+                </span>
+              ),
+            )}
           </div>
         </section>
       )}
       {!isMaxLevel && (
         <section
           data-testid="building-overview-benefits-section"
-          className={'flex flex-col gap-2 pt-2 justify-center border-t border-border'}
+          className={
+            'flex flex-col gap-2 pt-2 justify-center border-t border-border'
+          }
         >
-          <Text as="h3">{t('Benefits at level {{level}}', { level: doesBuildingExist ? actualLevel + 1 : 1 })}</Text>
+          <Text as="h3">
+            {t('Benefits at level {{level}}', {
+              level: doesBuildingExist ? actualLevel + 1 : 1,
+            })}
+          </Text>
           <div className="flex flex-wrap gap-2">
-            {cumulativeEffects.map(({ effectId, currentLevelValue, nextLevelValue, areEffectValuesRising }, index) => (
-              <span
-                key={index === 0 ? 'population' : effectId}
-                className="flex gap-2"
-              >
-                <Icon
-                  type={index === 0 ? 'population' : effectId}
-                  className="size-6"
-                  variant={areEffectValuesRising || index === 0 ? 'positive-change' : 'negative-change'}
-                />
-                <span>
-                  {doesBuildingExist && <span>{formatValue(Math.abs(currentLevelValue))} &rarr; </span>}
-                  {formatValue(Math.abs(nextLevelValue))}
+            {cumulativeEffects.map(
+              (
+                {
+                  effectId,
+                  currentLevelValue,
+                  nextLevelValue,
+                  areEffectValuesRising,
+                },
+                index,
+              ) => (
+                <span
+                  key={index === 0 ? 'population' : effectId}
+                  className="flex gap-2"
+                >
+                  <Icon
+                    type={index === 0 ? 'population' : effectId}
+                    className="size-6"
+                    variant={
+                      areEffectValuesRising || index === 0
+                        ? 'positive-change'
+                        : 'negative-change'
+                    }
+                  />
+                  <span>
+                    {doesBuildingExist && (
+                      <span>
+                        {formatValue(Math.abs(currentLevelValue))} &rarr;{' '}
+                      </span>
+                    )}
+                    {formatValue(Math.abs(nextLevelValue))}
+                  </span>
                 </span>
-              </span>
-            ))}
+              ),
+            )}
           </div>
         </section>
       )}
@@ -128,12 +188,20 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({ buildingId, 
             className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border"
           >
             <Text as="h3">
-              {doesBuildingExist ? t('Cost to upgrade to level {{level}}', { level: virtualLevel + 1 }) : t('Building construction cost')}
+              {doesBuildingExist
+                ? t('Cost to upgrade to level {{level}}', {
+                    level: virtualLevel + 1,
+                  })
+                : t('Building construction cost')}
             </Text>
             <Resources resources={nextLevelResourceCost} />
           </section>
           <section className="flex flex-col flex-wrap gap-2 border-t border-border justify-center">
-            <Text as="h3">{t('Construction duration for level {{level}}', { level: virtualLevel + 1 })}</Text>
+            <Text as="h3">
+              {t('Construction duration for level {{level}}', {
+                level: virtualLevel + 1,
+              })}
+            </Text>
             <span className="flex gap-1">
               <Icon type="buildingDuration" />
               {formattedTime}

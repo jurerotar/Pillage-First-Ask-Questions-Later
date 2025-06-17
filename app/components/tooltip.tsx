@@ -1,6 +1,9 @@
 import clsx from 'clsx';
 import type React from 'react';
-import { type ITooltip as ReactTooltipProps, Tooltip as ReactTooltip } from 'react-tooltip';
+import {
+  type ITooltip as ReactTooltipProps,
+  Tooltip as ReactTooltip,
+} from 'react-tooltip';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 export const Tooltip: React.FC<ReactTooltipProps> = (props) => {

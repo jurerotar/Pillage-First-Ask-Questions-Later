@@ -5,7 +5,9 @@ type MapMarkerFactoryProps = {
   tileId: Tile['id'];
 };
 
-export const mapMarkerFactory = ({ tileId }: MapMarkerFactoryProps): MapMarker => {
+export const mapMarkerFactory = ({
+  tileId,
+}: MapMarkerFactoryProps): MapMarker => {
   return {
     tileId,
   };

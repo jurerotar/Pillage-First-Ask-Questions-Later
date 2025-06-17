@@ -1,4 +1,7 @@
-import type { GameEvent, GameEventType } from 'app/interfaces/models/game/game-event';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import {
   isAdventurePointIncreaseEvent,
@@ -20,7 +23,10 @@ import {
   serverCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
-import { calculateBuildingCostForLevel, calculateBuildingDurationForLevel } from 'app/(game)/(village-slug)/utils/building';
+import {
+  calculateBuildingCostForLevel,
+  calculateBuildingDurationForLevel,
+} from 'app/(game)/(village-slug)/utils/building';
 import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
@@ -35,16 +41,26 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type { ApiNotificationEvent } from 'app/interfaces/api';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { calculateVillageResourcesAt, subtractVillageResourcesAt } from 'app/(game)/api/utils/village';
+import {
+  calculateVillageResourcesAt,
+  subtractVillageResourcesAt,
+} from 'app/(game)/api/utils/village';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
   console.error('Following events failed to create', events);
-  self.postMessage({ eventKey: 'event:construction-not-started' } satisfies ApiNotificationEvent);
+  self.postMessage({
+    eventKey: 'event:construction-not-started',
+  } satisfies ApiNotificationEvent);
 };
 
-export const checkAndSubtractVillageResources = (queryClient: QueryClient, events: GameEvent[]): boolean => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
+export const checkAndSubtractVillageResources = (
+  queryClient: QueryClient,
+  events: GameEvent[],
+): boolean => {
+  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
+    preferencesCacheKey,
+  ])!;
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
   const event = events[0];
@@ -54,9 +70,15 @@ export const checkAndSubtractVillageResources = (queryClient: QueryClient, event
   if (!isDeveloperModeEnabled && isEventWithResourceCost(event)) {
     const { villageId, startsAt } = event;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
-    const { currentWood, currentClay, currentIron, currentWheat } = calculateVillageResourcesAt(queryClient, villageId, startsAt);
+    const { currentWood, currentClay, currentIron, currentWheat } =
+      calculateVillageResourcesAt(queryClient, villageId, startsAt);
 
-    if (woodCost > currentWood || clayCost > currentClay || ironCost > currentIron || wheatCost > currentWheat) {
+    if (
+      woodCost > currentWood ||
+      clayCost > currentClay ||
+      ironCost > currentIron ||
+      wheatCost > currentWheat
+    ) {
       return false;
     }
 
@@ -72,7 +94,11 @@ export const insertEvents = (queryClient: QueryClient, events: GameEvent[]) => {
   });
 };
 
-export const filterEventsByType = <T extends GameEventType>(events: GameEvent[], type: T, villageId: Village['id']): GameEvent<T>[] => {
+export const filterEventsByType = <T extends GameEventType>(
+  events: GameEvent[],
+  type: T,
+  villageId: Village['id'],
+): GameEvent<T>[] => {
   const result: GameEvent<T>[] = [];
 
   for (const event of events) {
@@ -111,7 +137,8 @@ export const getEventCost = (event: GameEvent): number[] => {
     const { unitId, buildingId, amount } = event;
     const { baseRecruitmentCost } = getUnitData(unitId);
 
-    const costModifier = buildingId === 'GREAT_BARRACKS' || buildingId === 'GREAT_STABLE' ? 3 : 1;
+    const costModifier =
+      buildingId === 'GREAT_BARRACKS' || buildingId === 'GREAT_STABLE' ? 3 : 1;
 
     return baseRecruitmentCost.map((cost) => cost * costModifier * amount);
   }
@@ -119,8 +146,13 @@ export const getEventCost = (event: GameEvent): number[] => {
   return [0, 0, 0, 0];
 };
 
-export const getEventDuration = (queryClient: QueryClient, event: GameEvent): number => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
+export const getEventDuration = (
+  queryClient: QueryClient,
+  event: GameEvent,
+): number => {
+  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
+    preferencesCacheKey,
+  ])!;
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     if (isDeveloperModeEnabled) {
@@ -130,9 +162,16 @@ export const getEventDuration = (queryClient: QueryClient, event: GameEvent): nu
     const { villageId, buildingId, level } = event;
 
     const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-    const { total } = calculateComputedEffect('buildingDuration', effects, villageId);
+    const { total } = calculateComputedEffect(
+      'buildingDuration',
+      effects,
+      villageId,
+    );
 
-    const baseBuildingDuration = calculateBuildingDurationForLevel(buildingId, level);
+    const baseBuildingDuration = calculateBuildingDurationForLevel(
+      buildingId,
+      level,
+    );
     return baseBuildingDuration * total;
   }
 
@@ -161,7 +200,11 @@ export const getEventDuration = (queryClient: QueryClient, event: GameEvent): nu
   if (isTroopTrainingEvent(event)) {
     const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     const { unitId, villageId, durationEffectId } = event;
-    const { total } = calculateComputedEffect(durationEffectId, effects, villageId);
+    const { total } = calculateComputedEffect(
+      durationEffectId,
+      effects,
+      villageId,
+    );
 
     if (isDeveloperModeEnabled) {
       return 5_000 * total;
@@ -182,12 +225,19 @@ export const getEventDuration = (queryClient: QueryClient, event: GameEvent): nu
   return 0;
 };
 
-export const getEventStartTime = (queryClient: QueryClient, event: GameEvent): number => {
+export const getEventStartTime = (
+  queryClient: QueryClient,
+  event: GameEvent,
+): number => {
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
     const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
-    const trainingEvents = filterEventsByType(events, 'troopTraining', villageId);
+    const trainingEvents = filterEventsByType(
+      events,
+      'troopTraining',
+      villageId,
+    );
 
     const relevantTrainingEvents = trainingEvents.filter((event) => {
       return event.buildingId === buildingId;
@@ -214,10 +264,21 @@ export const getEventStartTime = (queryClient: QueryClient, event: GameEvent): n
 
     const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
-    const buildingLevelChangeEvents = filterEventsByType(events, 'buildingLevelChange', villageId);
-    const buildingScheduledConstructionEvents = filterEventsByType(events, 'buildingScheduledConstruction', villageId);
+    const buildingLevelChangeEvents = filterEventsByType(
+      events,
+      'buildingLevelChange',
+      villageId,
+    );
+    const buildingScheduledConstructionEvents = filterEventsByType(
+      events,
+      'buildingScheduledConstruction',
+      villageId,
+    );
 
-    const buildingEvents = [...buildingLevelChangeEvents, ...buildingScheduledConstructionEvents];
+    const buildingEvents = [
+      ...buildingLevelChangeEvents,
+      ...buildingScheduledConstructionEvents,
+    ];
 
     if (tribe === 'romans') {
       const relevantEvents = buildingEvents.filter((event) => {

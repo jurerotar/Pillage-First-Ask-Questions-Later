@@ -1,4 +1,7 @@
-import type { GlobalQuest, VillageQuest } from 'app/interfaces/models/game/quest';
+import type {
+  GlobalQuest,
+  VillageQuest,
+} from 'app/interfaces/models/game/quest';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Village } from 'app/interfaces/models/game/village';
 
@@ -103,7 +106,11 @@ const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['PALISADE', 150],
 ]);
 
-const calculateResourceReward = (buildingId: Building['id'], level: number, matcher: 'oneOf' | 'every'): number => {
+const calculateResourceReward = (
+  buildingId: Building['id'],
+  level: number,
+  matcher: 'oneOf' | 'every',
+): number => {
   const base = buildingIdToResourceRewardMap.get(buildingId)!;
   const effectiveLevel = level - 1;
   if (matcher === 'oneOf') {
@@ -144,7 +151,9 @@ export const createBuildingQuest = (
   };
 };
 
-export const generateVillageQuests = (villageId: Village['id']): VillageQuest[] => [
+export const generateVillageQuests = (
+  villageId: Village['id'],
+): VillageQuest[] => [
   // Wood
   createBuildingQuest(villageId, 'WOODCUTTER', 1),
   createBuildingQuest(villageId, 'WOODCUTTER', 2),

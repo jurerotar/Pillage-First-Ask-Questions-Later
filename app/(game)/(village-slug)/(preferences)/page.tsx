@@ -3,13 +3,28 @@ import { Switch } from 'app/components/ui/switch';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
 import type { MetaFunction } from 'react-router';
 import { t } from 'i18next';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'app/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { AvailableLocale } from 'app/interfaces/models/locale';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -26,7 +41,12 @@ const PreferencesPage = () => {
   const { updatePreference, preferences } = usePreferences();
   const { resourcesPath } = useGameNavigation();
 
-  const { shouldShowBuildingNames, isAccessibilityModeEnabled, isReducedMotionModeEnabled, isDeveloperModeEnabled } = preferences;
+  const {
+    shouldShowBuildingNames,
+    isAccessibilityModeEnabled,
+    isReducedMotionModeEnabled,
+    isDeveloperModeEnabled,
+  } = preferences;
 
   return (
     <>
@@ -49,12 +69,18 @@ const PreferencesPage = () => {
               className="flex flex-4 gap-1 flex-col"
             >
               <span className="font-medium">{t('UI color scheme')}</span>
-              <span>{t('Select a light or dark theme for the interface appearance.')}</span>
+              <span>
+                {t(
+                  'Select a light or dark theme for the interface appearance.',
+                )}
+              </span>
             </Text>
             <div className="flex flex-1 justify-end items-center">
               <Select
                 value={preferences.colorScheme}
-                onValueChange={(value: Preferences['colorScheme']) => updatePreference({ preferenceName: 'colorScheme', value })}
+                onValueChange={(value: Preferences['colorScheme']) =>
+                  updatePreference({ preferenceName: 'colorScheme', value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -71,12 +97,18 @@ const PreferencesPage = () => {
               className="flex flex-4 gap-1 flex-col"
             >
               <span className="font-medium">{t('Graphics color scheme')}</span>
-              <span>{t('Select a daytime or nighttime setting to adjust the overall visual atmosphere.')}</span>
+              <span>
+                {t(
+                  'Select a daytime or nighttime setting to adjust the overall visual atmosphere.',
+                )}
+              </span>
             </Text>
             <div className="flex flex-1 justify-end items-center">
               <Select
                 value={preferences.timeOfDay}
-                onValueChange={(value: Preferences['timeOfDay']) => updatePreference({ preferenceName: 'timeOfDay', value })}
+                onValueChange={(value: Preferences['timeOfDay']) =>
+                  updatePreference({ preferenceName: 'timeOfDay', value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -98,7 +130,9 @@ const PreferencesPage = () => {
             <div className="flex flex-1 justify-end items-center">
               <Select
                 value={preferences.skinVariant}
-                onValueChange={(value: Preferences['skinVariant']) => updatePreference({ preferenceName: 'skinVariant', value })}
+                onValueChange={(value: Preferences['skinVariant']) =>
+                  updatePreference({ preferenceName: 'skinVariant', value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -123,7 +157,9 @@ const PreferencesPage = () => {
             <div className="flex flex-1 justify-end items-center">
               <Select
                 value={preferences.locale}
-                onValueChange={(value: AvailableLocale) => updatePreference({ preferenceName: 'locale', value })}
+                onValueChange={(value: AvailableLocale) =>
+                  updatePreference({ preferenceName: 'locale', value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -142,15 +178,21 @@ const PreferencesPage = () => {
               as="p"
               className="flex flex-4 gap-1 flex-col"
             >
-              <span className="font-medium">{t('Additional accessibility features (in development))')}</span>
-              <span>{t('Enables accessibility enhancements for better usability.')}</span>
+              <span className="font-medium">
+                {t('Additional accessibility features (in development))')}
+              </span>
+              <span>
+                {t('Enables accessibility enhancements for better usability.')}
+              </span>
             </Text>
             <div className="flex flex-1 justify-end items-center">
               <Switch
                 disabled
-                id="accessibility-mode-toggle"
                 onCheckedChange={() =>
-                  updatePreference({ preferenceName: 'isAccessibilityModeEnabled', value: !isAccessibilityModeEnabled })
+                  updatePreference({
+                    preferenceName: 'isAccessibilityModeEnabled',
+                    value: !isAccessibilityModeEnabled,
+                  })
                 }
                 checked={isAccessibilityModeEnabled}
               />
@@ -161,15 +203,23 @@ const PreferencesPage = () => {
               as="p"
               className="flex flex-4 gap-1 flex-col"
             >
-              <span className="font-medium">{t('Reduced motion (in development)')}</span>
-              <span>{t('Disables certain animations and effects for a smoother experience.')}</span>
+              <span className="font-medium">
+                {t('Reduced motion (in development)')}
+              </span>
+              <span>
+                {t(
+                  'Disables certain animations and effects for a smoother experience.',
+                )}
+              </span>
             </Text>
             <div className="flex flex-1 justify-end items-center">
               <Switch
                 disabled
-                id="reduced-motion-mode-toggle"
                 onCheckedChange={() =>
-                  updatePreference({ preferenceName: 'isReducedMotionModeEnabled', value: !isReducedMotionModeEnabled })
+                  updatePreference({
+                    preferenceName: 'isReducedMotionModeEnabled',
+                    value: !isReducedMotionModeEnabled,
+                  })
                 }
                 checked={isReducedMotionModeEnabled}
               />
@@ -184,12 +234,20 @@ const PreferencesPage = () => {
               className="flex flex-4 gap-1 flex-col"
             >
               <span className="font-medium">{t('Building names display')}</span>
-              <span>{t('Shows the names of buildings on village and resources views.')}</span>
+              <span>
+                {t(
+                  'Shows the names of buildings on village and resources views.',
+                )}
+              </span>
             </Text>
             <div className="flex flex-1 justify-end items-center">
               <Switch
-                id="should-show-building-names-toggle"
-                onCheckedChange={() => updatePreference({ preferenceName: 'shouldShowBuildingNames', value: !shouldShowBuildingNames })}
+                onCheckedChange={() =>
+                  updatePreference({
+                    preferenceName: 'shouldShowBuildingNames',
+                    value: !shouldShowBuildingNames,
+                  })
+                }
                 checked={shouldShowBuildingNames}
               />
             </div>
@@ -203,12 +261,20 @@ const PreferencesPage = () => {
               className="flex flex-4 gap-1 flex-col"
             >
               <span className="font-medium">{t('Developer mode')}</span>
-              <span>{t('Enables instant building of buildings and troops with no cost.')}</span>
+              <span>
+                {t(
+                  'Enables instant building of buildings and troops with no cost.',
+                )}
+              </span>
             </Text>
             <div className="flex flex-1 justify-end items-center">
               <Switch
-                id="develop-mode-toggle"
-                onCheckedChange={() => updatePreference({ preferenceName: 'isDeveloperModeEnabled', value: !isDeveloperModeEnabled })}
+                onCheckedChange={() =>
+                  updatePreference({
+                    preferenceName: 'isDeveloperModeEnabled',
+                    value: !isDeveloperModeEnabled,
+                  })
+                }
                 checked={isDeveloperModeEnabled}
               />
             </div>

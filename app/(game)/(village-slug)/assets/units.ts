@@ -1388,4 +1388,6 @@ export const units: Unit[] = [
 ];
 
 // Use this for faster lookups
-export const unitsMap = new Map<Unit['id'], Unit>(units.map((unit) => [unit.id, unit]));
+export const unitsMap = new Map<Unit['id'], Unit>(
+  units.map((unit) => [unit.id, unit]),
+);

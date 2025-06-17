@@ -5,37 +5,51 @@ import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 
-const resourceToResourceEffectMap = new Map<Resource, ResourceProductionEffectId>([
+const resourceToResourceEffectMap = new Map<
+  Resource,
+  ResourceProductionEffectId
+>([
   ['wood', 'woodProduction'],
   ['clay', 'clayProduction'],
   ['iron', 'ironProduction'],
   ['wheat', 'wheatProduction'],
 ]);
 
-export const useCalculatedResource = (resource: Resource, storageCapacity: number) => {
+export const useCalculatedResource = (
+  resource: Resource,
+  storageCapacity: number,
+) => {
   const { currentVillage } = useCurrentVillage();
 
-  // @ts-expect-error: TODO: Overload issue, fix when you can
-  const { total: hourlyProduction } = useComputedEffect(resourceToResourceEffectMap.get(resource)!);
+  const { total: hourlyProduction } = useComputedEffect(
+    // @ts-expect-error: TODO: Overload issue, fix when you can
+    resourceToResourceEffectMap.get(resource)!,
+  );
 
   const timeoutId = useRef<number | null>(null);
   const intervalId = useRef<number | null>(null);
 
-  const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration, currentAmount } = calculateCurrentAmount({
+  const {
+    timeSinceLastUpdateInSeconds,
+    secondsForResourceGeneration,
+    currentAmount,
+  } = calculateCurrentAmount({
     village: currentVillage,
     resource,
     storageCapacity,
     hourlyProduction,
   });
 
-  const [calculatedResourceAmount, setCalculatedResourceAmount] = useState<number>(currentAmount);
+  const [calculatedResourceAmount, setCalculatedResourceAmount] =
+    useState<number>(currentAmount);
 
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
 
   const resourceDepletionOrFullAt = useMemo<number | null>(() => {
     if (hourlyProduction > 0 && !isFull) {
-      const secondsToFull = (storageCapacity - currentAmount) / (hourlyProduction / 3600);
+      const secondsToFull =
+        (storageCapacity - currentAmount) / (hourlyProduction / 3600);
       return new Date(Date.now() + secondsToFull * 1000).getTime();
     }
     if (hourlyProduction < 0 && currentAmount > 0) {
@@ -45,7 +59,7 @@ export const useCalculatedResource = (resource: Resource, storageCapacity: numbe
     return null; // Neither fills nor depletes
   }, [hourlyProduction, currentAmount, storageCapacity, isFull]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
   useEffect(() => {
     startTransition(() => {
       setCalculatedResourceAmount(currentAmount);
@@ -67,7 +81,8 @@ export const useCalculatedResource = (resource: Resource, storageCapacity: numbe
 
       startTransition(() => {
         setCalculatedResourceAmount((prevAmount) => {
-          let newAmount = prevAmount + perTickAmount * secondsForResourceGeneration;
+          let newAmount =
+            prevAmount + perTickAmount * secondsForResourceGeneration;
 
           if (newAmount > storageCapacity) {
             newAmount = storageCapacity;
@@ -81,11 +96,16 @@ export const useCalculatedResource = (resource: Resource, storageCapacity: numbe
       });
     };
 
-    const remainingTimeForNextUnit = secondsForResourceGeneration - (timeSinceLastUpdateInSeconds % secondsForResourceGeneration);
+    const remainingTimeForNextUnit =
+      secondsForResourceGeneration -
+      (timeSinceLastUpdateInSeconds % secondsForResourceGeneration);
 
     timeoutId.current = window.setTimeout(() => {
       updateResourceAmount();
-      intervalId.current = window.setInterval(updateResourceAmount, secondsForResourceGeneration * 1000);
+      intervalId.current = window.setInterval(
+        updateResourceAmount,
+        secondsForResourceGeneration * 1000,
+      );
     }, remainingTimeForNextUnit * 1000);
 
     return () => {
@@ -96,7 +116,12 @@ export const useCalculatedResource = (resource: Resource, storageCapacity: numbe
         window.clearInterval(intervalId.current);
       }
     };
-  }, [currentVillage.lastUpdatedAt, hourlyProduction, storageCapacity, secondsForResourceGeneration]);
+  }, [
+    currentVillage.lastUpdatedAt,
+    hourlyProduction,
+    storageCapacity,
+    secondsForResourceGeneration,
+  ]);
 
   return {
     calculatedResourceAmount,

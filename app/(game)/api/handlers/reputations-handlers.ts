@@ -3,7 +3,9 @@ import { reputationsCacheKey } from 'app/(game)/(village-slug)/constants/query-k
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 
 export const getReputations: ApiHandler<Reputation[]> = async (queryClient) => {
-  const reputations = queryClient.getQueryData<Reputation[]>([reputationsCacheKey])!;
+  const reputations = queryClient.getQueryData<Reputation[]>([
+    reputationsCacheKey,
+  ])!;
 
   return reputations;
 };

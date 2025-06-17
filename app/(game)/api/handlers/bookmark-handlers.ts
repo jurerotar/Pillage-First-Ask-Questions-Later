@@ -8,7 +8,11 @@ export const getBookmarks: ApiHandler<Bookmarks> = async (queryClient) => {
   return bookmarks;
 };
 
-export const updateBookmark: ApiHandler<void, 'buildingId', { tab: string }> = async (queryClient, { params, body }) => {
+export const updateBookmark: ApiHandler<
+  void,
+  'buildingId',
+  { tab: string }
+> = async (queryClient, { params, body }) => {
   const { buildingId } = params;
   const { tab } = body;
 

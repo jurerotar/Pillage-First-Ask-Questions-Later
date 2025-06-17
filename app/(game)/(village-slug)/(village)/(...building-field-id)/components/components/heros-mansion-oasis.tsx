@@ -1,4 +1,11 @@
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
 import { useOasis } from 'app/(game)/(village-slug)/hooks/use-oasis';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Icon } from 'app/components/icon';
@@ -8,7 +15,10 @@ import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { Link } from 'react-router';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
@@ -18,7 +28,10 @@ type OccupiedOasisRowProps = {
   heroMansionLevel: number;
 };
 
-const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, heroMansionLevel }) => {
+const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
+  occupiedOasis,
+  heroMansionLevel,
+}) => {
   const { t } = useTranslation();
   const { mapPath } = useGameNavigation();
 
@@ -60,7 +73,12 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({ occupiedOasis, hero
         className="text-left"
         colSpan={3}
       >
-        <Text>{t("Next oasis available at Hero's mansion level {{heroMansionLevel}}", { heroMansionLevel })}</Text>
+        <Text>
+          {t(
+            "Next oasis available at Hero's mansion level {{heroMansionLevel}}",
+            { heroMansionLevel },
+          )}
+        </Text>
       </TableCell>
     </TableRow>
   );
@@ -71,7 +89,8 @@ export const HerosMansionOasis = () => {
   const { mapPath } = useGameNavigation();
   const { oasisOccupiedByCurrentVillage, occupiableOasisInRange } = useOasis();
 
-  const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] = oasisOccupiedByCurrentVillage;
+  const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] =
+    oasisOccupiedByCurrentVillage;
 
   return (
     <Section>
@@ -146,7 +165,10 @@ export const HerosMansionOasis = () => {
                         <TableCell className="whitespace-nowrap">
                           {tile.ORB.map(({ resource, bonus }, index) => (
                             <span
-                              className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
+                              className={clsx(
+                                'inline-flex gap-1',
+                                index > 0 && 'ml-2',
+                              )}
                               key={resource}
                             >
                               <Icon

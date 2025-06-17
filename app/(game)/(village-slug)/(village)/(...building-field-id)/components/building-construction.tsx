@@ -6,7 +6,12 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
-import type { AmountBuildingRequirement, Building, BuildingCategory, TribeBuildingRequirement } from 'app/interfaces/models/game/building';
+import type {
+  AmountBuildingRequirement,
+  Building,
+  BuildingCategory,
+  TribeBuildingRequirement,
+} from 'app/interfaces/models/game/building';
 import { partition } from 'app/utils/common';
 import type React from 'react';
 import { useState } from 'react';
@@ -16,14 +21,22 @@ import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { Text } from 'app/components/text';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from 'app/components/ui/breadcrumb';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
 };
 
-const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingCategory }) => {
+const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
+  buildingCategory,
+}) => {
   const { t } = useTranslation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
@@ -31,7 +44,10 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
-  const staticBuildingConstructionReadinessArgs: Omit<Parameters<typeof assessBuildingConstructionReadiness>[0], 'buildingId'> = {
+  const staticBuildingConstructionReadinessArgs: Omit<
+    Parameters<typeof assessBuildingConstructionReadiness>[0],
+    'buildingId'
+  > = {
     tribe,
     currentVillageBuildingEvents,
     playerVillages,
@@ -39,41 +55,56 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({ buildingC
     isGreatBuildingsArtifactActive,
   };
 
-  const buildingsByCategory = buildings.filter(({ category }) => category === buildingCategory);
+  const buildingsByCategory = buildings.filter(
+    ({ category }) => category === buildingCategory,
+  );
 
-  const [currentlyAvailableBuildings] = partition<Building>(buildingsByCategory, ({ id: buildingId }: Building) => {
-    const { assessedRequirements } = assessBuildingConstructionReadiness({
-      buildingId,
-      ...staticBuildingConstructionReadinessArgs,
-    });
+  const [currentlyAvailableBuildings] = partition<Building>(
+    buildingsByCategory,
+    ({ id: buildingId }: Building) => {
+      const { assessedRequirements } = assessBuildingConstructionReadiness({
+        buildingId,
+        ...staticBuildingConstructionReadinessArgs,
+      });
 
-    const tribeRequirement = assessedRequirements.find(({ type }) => type === 'tribe') as TribeBuildingRequirement | undefined;
-    const amountRequirement = assessedRequirements.find(({ type }) => type === 'amount') as
-      | (AmountBuildingRequirement & AssessedBuildingRequirement)
-      | undefined;
+      const tribeRequirement = assessedRequirements.find(
+        ({ type }) => type === 'tribe',
+      ) as TribeBuildingRequirement | undefined;
+      const amountRequirement = assessedRequirements.find(
+        ({ type }) => type === 'amount',
+      ) as
+        | (AmountBuildingRequirement & AssessedBuildingRequirement)
+        | undefined;
 
-    // Other tribes' building or unique buildings can never be built again, so we filter them out
-    return (
-      (!tribeRequirement || tribeRequirement.tribe === tribe) &&
-      !(amountRequirement && amountRequirement.amount === 1 && !amountRequirement.fulfilled)
-    );
-  });
+      // Other tribes' building or unique buildings can never be built again, so we filter them out
+      return (
+        (!tribeRequirement || tribeRequirement.tribe === tribe) &&
+        !(
+          amountRequirement &&
+          amountRequirement.amount === 1 &&
+          !amountRequirement.fulfilled
+        )
+      );
+    },
+  );
 
   // TODO: There's probably a better way of handling this instead of repeating assessBuildingConstructionReadiness 3 times
-  const sortedAvailableBuildings = currentlyAvailableBuildings.toSorted((prev, next) => {
-    const prevAssessment = assessBuildingConstructionReadiness({
-      buildingId: prev.id,
-      ...staticBuildingConstructionReadinessArgs,
-    });
+  const sortedAvailableBuildings = currentlyAvailableBuildings.toSorted(
+    (prev, next) => {
+      const prevAssessment = assessBuildingConstructionReadiness({
+        buildingId: prev.id,
+        ...staticBuildingConstructionReadinessArgs,
+      });
 
-    const nextAssessment = assessBuildingConstructionReadiness({
-      buildingId: next.id,
-      ...staticBuildingConstructionReadinessArgs,
-    });
+      const nextAssessment = assessBuildingConstructionReadiness({
+        buildingId: next.id,
+        ...staticBuildingConstructionReadinessArgs,
+      });
 
-    // Sort buildings where all requirements are fulfilled first
-    return Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild);
-  });
+      // Sort buildings where all requirements are fulfilled first
+      return Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild);
+    },
+  );
 
   const hasNoAvailableBuildings = currentlyAvailableBuildings.length === 0;
 
@@ -98,7 +129,8 @@ export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { villagePath } = useGameNavigation();
 
-  const [buildingTab, setBuildingTab] = useState<BuildingCategory>('infrastructure');
+  const [buildingTab, setBuildingTab] =
+    useState<BuildingCategory>('infrastructure');
 
   return (
     <>

@@ -7,13 +7,16 @@ export type CreateServerWorkerPayload = {
   dehydratedState: DehydratedState;
 };
 
-self.addEventListener('message', async (event: MessageEvent<CreateServerWorkerPayload>) => {
-  const { dehydratedState, server } = event.data;
+self.addEventListener(
+  'message',
+  async (event: MessageEvent<CreateServerWorkerPayload>) => {
+    const { dehydratedState, server } = event.data;
 
-  const rootHandle = await getRootHandle();
+    const rootHandle = await getRootHandle();
 
-  await writeFileContents(rootHandle, server.slug, dehydratedState);
+    await writeFileContents(rootHandle, server.slug, dehydratedState);
 
-  self.postMessage({ resolved: true });
-  self.close();
-});
+    self.postMessage({ resolved: true });
+    self.close();
+  },
+);

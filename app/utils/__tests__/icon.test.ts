@@ -12,7 +12,9 @@ describe('unitIdToUnitIconMapper', () => {
     expect(unitIdToUnitIconMapper('EQUITES_CAESARIS')).toBe('equitesCaesaris');
     expect(unitIdToUnitIconMapper('TEUTONIC_KNIGHT')).toBe('teutonicKnight');
     expect(unitIdToUnitIconMapper('STEPPE_RIDER')).toBe('steppeRider');
-    expect(unitIdToUnitIconMapper('CORINTHIAN_CRUSHER')).toBe('corinthianCrusher');
+    expect(unitIdToUnitIconMapper('CORINTHIAN_CRUSHER')).toBe(
+      'corinthianCrusher',
+    );
   });
 
   test('handles computed units correctly', () => {

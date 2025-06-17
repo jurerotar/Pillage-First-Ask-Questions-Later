@@ -12,7 +12,9 @@ export const usePlayerVillages = () => {
   const { data: playerVillages } = useSuspenseQuery<PlayerVillage[]>({
     queryKey: [playerVillagesCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<PlayerVillage[]>(`/players/${currentPlayer.id}/villages`);
+      const { data } = await fetcher<PlayerVillage[]>(
+        `/players/${currentPlayer.id}/villages`,
+      );
       return data;
     },
   });

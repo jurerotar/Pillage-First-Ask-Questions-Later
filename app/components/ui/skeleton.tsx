@@ -14,9 +14,14 @@ const skeletonVariants = cva('animate-pulse rounded-md', {
   },
 });
 
-type SkeletonProps = React.ComponentProps<'div'> & VariantProps<typeof skeletonVariants>;
+type SkeletonProps = React.ComponentProps<'div'> &
+  VariantProps<typeof skeletonVariants>;
 
-export const Skeleton: React.FC<SkeletonProps> = ({ className, variant, ...props }) => {
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className,
+  variant,
+  ...props
+}) => {
   return (
     <div
       data-slot="skeleton"

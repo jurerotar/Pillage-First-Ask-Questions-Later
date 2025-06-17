@@ -1,5 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { parseCoordinatesFromTileId, encodeGraphicsProperty, decodeGraphicsProperty, packTileId } from '../map';
+import {
+  parseCoordinatesFromTileId,
+  encodeGraphicsProperty,
+  decodeGraphicsProperty,
+  packTileId,
+} from '../map';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
 describe('Tile ID Bit-packing', () => {

@@ -1,4 +1,7 @@
-import { generateNpcPlayers, userPlayerFactory } from 'app/factories/player-factory';
+import {
+  generateNpcPlayers,
+  userPlayerFactory,
+} from 'app/factories/player-factory';
 import { workerFactory } from 'app/utils/workers';
 import { playerVillageFactory } from 'app/factories/village-factory';
 import { heroFactory } from 'app/factories/hero-factory';
@@ -49,13 +52,25 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import type { CreateServerWorkerPayload } from 'app/(public)/workers/create-server-worker';
 import CreateServerWorker from 'app/(public)/workers/create-server-worker?worker&url';
-import type { GenerateMapWorkerPayload, GenerateMapWorkerReturn } from 'app/(public)/workers/generate-map-worker';
+import type {
+  GenerateMapWorkerPayload,
+  GenerateMapWorkerReturn,
+} from 'app/(public)/workers/generate-map-worker';
 import GenerateMapWorker from 'app/(public)/workers/generate-map-worker?worker&url';
-import type { GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn } from 'app/(public)/workers/generate-troops-worker';
+import type {
+  GenerateTroopsWorkerPayload,
+  GenerateTroopsWorkerReturn,
+} from 'app/(public)/workers/generate-troops-worker';
 import GenerateTroopsWorker from 'app/(public)/workers/generate-troops-worker?worker&url';
-import type { GenerateVillageWorkerPayload, GenerateVillageWorkerReturn } from 'app/(public)/workers/generate-villages-worker';
+import type {
+  GenerateVillageWorkerPayload,
+  GenerateVillageWorkerReturn,
+} from 'app/(public)/workers/generate-villages-worker';
 import GenerateVillagesWorker from 'app/(public)/workers/generate-villages-worker?worker&url';
-import type { GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn } from 'app/(public)/workers/generate-world-items-worker';
+import type {
+  GenerateWorldItemsWorkerPayload,
+  GenerateWorldItemsWorkerReturn,
+} from 'app/(public)/workers/generate-world-items-worker';
 import GenerateWorldItemsWorker from 'app/(public)/workers/generate-world-items-worker?worker&url';
 import { bookmarkFactory } from 'app/factories/bookmark-factory';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
@@ -67,14 +82,21 @@ export const initializeServer = async (server: Server): Promise<void> => {
   const players = [player, ...npcPlayers];
 
   // Map data
-  const { tiles, occupiedOccupiableTiles, occupiableOasisTiles } = await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
-    GenerateMapWorker,
-    { server, npcPlayers },
-  );
+  const { tiles, occupiedOccupiableTiles, occupiableOasisTiles } =
+    await workerFactory<GenerateMapWorkerPayload, GenerateMapWorkerReturn>(
+      GenerateMapWorker,
+      { server, npcPlayers },
+    );
 
-  const playerStartingTile = occupiedOccupiableTiles.find(({ id }) => id === 0)!;
+  const playerStartingTile = occupiedOccupiableTiles.find(
+    ({ id }) => id === 0,
+  )!;
 
-  const playerStartingVillage = playerVillageFactory({ player, tile: playerStartingTile, slug: 'v-1' });
+  const playerStartingVillage = playerVillageFactory({
+    player,
+    tile: playerStartingTile,
+    slug: 'v-1',
+  });
 
   const hero = heroFactory(server);
 
@@ -94,18 +116,27 @@ export const initializeServer = async (server: Server): Promise<void> => {
     quests,
     bookmarks,
   ] = await Promise.all([
-    workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(GenerateVillagesWorker, {
-      server,
-      occupiedOccupiableTiles,
-      npcPlayers,
-    }),
-    workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(GenerateTroopsWorker, {
-      server,
-      occupiedOccupiableTiles,
-      occupiableOasisTiles,
-      players,
-    }),
-    workerFactory<GenerateWorldItemsWorkerPayload, GenerateWorldItemsWorkerReturn>(GenerateWorldItemsWorker, {
+    workerFactory<GenerateVillageWorkerPayload, GenerateVillageWorkerReturn>(
+      GenerateVillagesWorker,
+      {
+        server,
+        occupiedOccupiableTiles,
+        npcPlayers,
+      },
+    ),
+    workerFactory<GenerateTroopsWorkerPayload, GenerateTroopsWorkerReturn>(
+      GenerateTroopsWorker,
+      {
+        server,
+        occupiedOccupiableTiles,
+        occupiableOasisTiles,
+        players,
+      },
+    ),
+    workerFactory<
+      GenerateWorldItemsWorkerPayload,
+      GenerateWorldItemsWorkerReturn
+    >(GenerateWorldItemsWorker, {
       server,
       occupiedOccupiableTiles,
     }),
@@ -117,7 +148,10 @@ export const initializeServer = async (server: Server): Promise<void> => {
     adventurePointsFactory(),
     generateEvents(server),
     generateReputations(),
-    generateNewServerQuests(playerStartingVillage.id, server.playerConfiguration.tribe),
+    generateNewServerQuests(
+      playerStartingVillage.id,
+      server.playerConfiguration.tribe,
+    ),
     bookmarkFactory(),
   ]);
 
@@ -129,17 +163,35 @@ export const initializeServer = async (server: Server): Promise<void> => {
   queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
   queryClient.setQueryData<Hero>([heroCacheKey], hero);
   queryClient.setQueryData<Tile[]>([mapCacheKey], tiles);
-  queryClient.setQueryData<Village[]>([villagesCacheKey], [playerStartingVillage, ...villages]);
+  queryClient.setQueryData<Village[]>(
+    [villagesCacheKey],
+    [playerStartingVillage, ...villages],
+  );
   queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
-  queryClient.setQueryData<Troop[]>([troopsCacheKey], [...playerTroops, ...npcTroops]);
-  queryClient.setQueryData<UnitResearch[]>([unitResearchCacheKey], unitResearch);
-  queryClient.setQueryData<UnitImprovement[]>([unitImprovementCacheKey], unitImprovement);
+  queryClient.setQueryData<Troop[]>(
+    [troopsCacheKey],
+    [...playerTroops, ...npcTroops],
+  );
+  queryClient.setQueryData<UnitResearch[]>(
+    [unitResearchCacheKey],
+    unitResearch,
+  );
+  queryClient.setQueryData<UnitImprovement[]>(
+    [unitImprovementCacheKey],
+    unitImprovement,
+  );
   queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
-  queryClient.setQueryData<AdventurePoints>([adventurePointsCacheKey], adventurePoints);
+  queryClient.setQueryData<AdventurePoints>(
+    [adventurePointsCacheKey],
+    adventurePoints,
+  );
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);
   queryClient.setQueryData<Quest[]>([questsCacheKey], quests);
   queryClient.setQueryData<Bookmarks>([bookmarksCacheKey], bookmarks);
 
-  await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, { dehydratedState: dehydrate(queryClient), server });
+  await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, {
+    dehydratedState: dehydrate(queryClient),
+    server,
+  });
 };

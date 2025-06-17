@@ -12,7 +12,9 @@ type MapProviderValues = {
   gridSize: number;
 };
 
-export const MapContext = createContext<MapProviderValues>({} as MapProviderValues);
+export const MapContext = createContext<MapProviderValues>(
+  {} as MapProviderValues,
+);
 
 export const MAX_MAGNIFICATION = 5;
 export const MIN_MAGNIFICATION = 3;

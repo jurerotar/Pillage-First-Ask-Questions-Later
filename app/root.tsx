@@ -1,4 +1,11 @@
-import { Links, type LinksFunction, Meta, type MetaFunction, Outlet, Scripts } from 'react-router';
+import {
+  Links,
+  type LinksFunction,
+  Meta,
+  type MetaFunction,
+  Outlet,
+  Scripts,
+} from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
@@ -29,14 +36,15 @@ export const links: LinksFunction = () => {
   ];
 };
 
-const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction = async ({ context }) => {
-  const { sessionContext } = await import('app/context/session');
+const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
+  async ({ context }) => {
+    const { sessionContext } = await import('app/context/session');
 
-  const sessionCtx = context.get(sessionContext);
-  if (!sessionCtx.sessionId) {
-    sessionCtx.sessionId = window.crypto.randomUUID();
-  }
-};
+    const sessionCtx = context.get(sessionContext);
+    if (!sessionCtx.sessionId) {
+      sessionCtx.sessionId = window.crypto.randomUUID();
+    }
+  };
 
 export const unstable_clientMiddleware = [clientSessionMiddleware];
 

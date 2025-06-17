@@ -1,6 +1,9 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
-import type { BuildingField, Village } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField,
+  Village,
+} from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 
@@ -50,7 +53,15 @@ type BaseTroopMovementEvent = WithVillageId<{
 }>;
 
 type TroopMovementEvent = BaseTroopMovementEvent & {
-  movementType: 'reinforcements' | 'relocation' | 'return' | 'find-new-village' | 'attack' | 'raid' | 'oasis-occupation' | 'adventure';
+  movementType:
+    | 'reinforcements'
+    | 'relocation'
+    | 'return'
+    | 'find-new-village'
+    | 'attack'
+    | 'raid'
+    | 'oasis-occupation'
+    | 'adventure';
 };
 
 export type GameEventType =
@@ -76,9 +87,10 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   adventurePointIncrease: BaseGameEvent;
 }[T];
 
-export type GameEvent<T extends GameEventType | undefined = undefined> = T extends undefined
-  ? BaseGameEvent
-  : // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
-    BaseGameEvent & GameEventTypeToEventArgsMap<T>;
+export type GameEvent<T extends GameEventType | undefined = undefined> =
+  T extends undefined
+    ? BaseGameEvent
+    : // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
+      BaseGameEvent & GameEventTypeToEventArgsMap<T>;
 
 export type WithVillageIdEvent = WithVillageId<BaseGameEvent>;

@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { use } from 'react';
@@ -21,7 +25,11 @@ export const usePreferences = () => {
     },
   });
 
-  const { mutate: updatePreference } = useMutation<void, Error, UpdatePreferenceArgs>({
+  const { mutate: updatePreference } = useMutation<
+    void,
+    Error,
+    UpdatePreferenceArgs
+  >({
     mutationFn: async ({ preferenceName, value }) => {
       await fetcher<Preferences>(`/me/preferences/${preferenceName}`, {
         method: 'PATCH',

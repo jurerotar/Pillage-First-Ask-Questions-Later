@@ -9,7 +9,8 @@ export const toggleVariants = cva(
     variants: {
       variant: {
         default: 'bg-transparent',
-        outline: 'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
+        outline:
+          'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
       },
       size: {
         default: 'h-9 px-2 min-w-9',
@@ -24,12 +25,10 @@ export const toggleVariants = cva(
   },
 );
 
-export const Toggle: React.FC<React.ComponentProps<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>> = ({
-  className,
-  variant,
-  size,
-  ...props
-}) => {
+export const Toggle: React.FC<
+  React.ComponentProps<typeof TogglePrimitive.Root> &
+    VariantProps<typeof toggleVariants>
+> = ({ className, variant, size, ...props }) => {
   return (
     <TogglePrimitive.Root
       data-slot="toggle"

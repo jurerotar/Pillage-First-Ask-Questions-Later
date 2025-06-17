@@ -12,7 +12,10 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/troop-training-table';
-import { Section, SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { Building } from 'app/interfaces/models/game/building';
@@ -24,12 +27,24 @@ import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field
 
 type UnitTrainingProps = {
   // This can be extracted from BuildingContext, but we'd need some type narrowing
-  buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
+  buildingId: PickLiteral<
+    Building['id'],
+    | 'BARRACKS'
+    | 'GREAT_BARRACKS'
+    | 'STABLE'
+    | 'GREAT_STABLE'
+    | 'WORKSHOP'
+    | 'HOSPITAL'
+  >;
   durationEffect: TroopTrainingDurationEffectId;
   category: Unit['category'];
 };
 
-export const UnitTraining: React.FC<UnitTrainingProps> = ({ buildingId, durationEffect, category }) => {
+export const UnitTraining: React.FC<UnitTrainingProps> = ({
+  buildingId,
+  durationEffect,
+  category,
+}) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();

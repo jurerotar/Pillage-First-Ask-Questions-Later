@@ -1,6 +1,10 @@
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import type { ResourceFieldComposition, Village, VillageSize } from 'app/interfaces/models/game/village';
+import type {
+  ResourceFieldComposition,
+  Village,
+  VillageSize,
+} from 'app/interfaces/models/game/village';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
@@ -44,7 +48,11 @@ export type OccupiedOccupiableTile = OccupiableTile & {
   ownedBy: Player['id'];
 };
 
-export type Tile = OasisTile | OccupiedOasisTile | OccupiableTile | OccupiedOccupiableTile;
+export type Tile =
+  | OasisTile
+  | OccupiedOasisTile
+  | OccupiableTile
+  | OccupiedOccupiableTile;
 
 export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
 export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;
@@ -55,7 +63,8 @@ type ContextualBaseTile = BaseTile & {
 
 export type ContextualOasisTile = ContextualBaseTile & OasisTile;
 
-export type ContextualOccupiedOasisTile = ContextualBaseTile & OccupiedOasisTile;
+export type ContextualOccupiedOasisTile = ContextualBaseTile &
+  OccupiedOasisTile;
 
 export type ContextualOccupiableTile = ContextualBaseTile & OccupiableTile;
 

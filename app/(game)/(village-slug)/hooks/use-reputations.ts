@@ -16,16 +16,23 @@ export const useReputations = () => {
     },
   });
 
-  const getReputationsMap = () => new Map(reputations.map((reputation) => [reputation.faction, reputation]));
+  const getReputationsMap = () =>
+    new Map(reputations.map((reputation) => [reputation.faction, reputation]));
 
-  const { data: reputationsMap } = useSuspenseQuery<Map<PlayerFaction, Reputation>>({
+  const { data: reputationsMap } = useSuspenseQuery<
+    Map<PlayerFaction, Reputation>
+  >({
     queryKey: [reputations],
     queryFn: getReputationsMap,
     initialData: getReputationsMap,
     initialDataUpdatedAt: Date.now(),
     gcTime: 10_000,
     queryKeyHashFn: () => {
-      const reputationsHash = reputations.map((reputation) => `${reputation.faction}-${reputation.reputationLevel}`).join('|');
+      const reputationsHash = reputations
+        .map(
+          (reputation) => `${reputation.faction}-${reputation.reputationLevel}`,
+        )
+        .join('|');
       return `reputation-hash-[${reputationsHash}]`;
     },
   });

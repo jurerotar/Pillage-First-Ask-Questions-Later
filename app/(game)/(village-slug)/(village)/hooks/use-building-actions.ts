@@ -10,15 +10,27 @@ import {
   questsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 
-export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: BuildingField['id']) => {
-  const { currentVillageBuildingEventsQueue } = useCurrentVillageBuildingEventQueue(buildingFieldId);
+export const useBuildingActions = (
+  buildingId: Building['id'],
+  buildingFieldId: BuildingField['id'],
+) => {
+  const { currentVillageBuildingEventsQueue } =
+    useCurrentVillageBuildingEventQueue(buildingFieldId);
   const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
-  const { createEvent: createBuildingScheduledConstructionEvent } = useCreateEvent('buildingScheduledConstruction');
-  const { createEvent: createBuildingConstructionEvent } = useCreateEvent('buildingConstruction');
-  const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent('buildingLevelChange');
-  const { createEvent: createBuildingDestructionEvent } = useCreateEvent('buildingDestruction');
+  const { createEvent: createBuildingScheduledConstructionEvent } =
+    useCreateEvent('buildingScheduledConstruction');
+  const { createEvent: createBuildingConstructionEvent } = useCreateEvent(
+    'buildingConstruction',
+  );
+  const { createEvent: createBuildingLevelChangeEvent } = useCreateEvent(
+    'buildingLevelChange',
+  );
+  const { createEvent: createBuildingDestructionEvent } = useCreateEvent(
+    'buildingDestruction',
+  );
 
-  const hasCurrentVillageBuildingEvents = currentVillageBuildingEventsQueue.length > 0;
+  const hasCurrentVillageBuildingEvents =
+    currentVillageBuildingEventsQueue.length > 0;
 
   const constructBuilding = () => {
     createBuildingConstructionEvent({
@@ -47,7 +59,12 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingFieldId: buildingFieldId!,
       level: 1,
       buildingId,
-      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
+      cachesToClearOnResolve: [
+        playerVillagesCacheKey,
+        effectsCacheKey,
+        questsCacheKey,
+        collectableQuestCountCacheKey,
+      ],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
@@ -57,7 +74,12 @@ export const useBuildingActions = (buildingId: Building['id'], buildingFieldId: 
       buildingFieldId: buildingFieldId!,
       buildingId,
       level: virtualLevel + 1,
-      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey, questsCacheKey, collectableQuestCountCacheKey],
+      cachesToClearOnResolve: [
+        playerVillagesCacheKey,
+        effectsCacheKey,
+        questsCacheKey,
+        collectableQuestCountCacheKey,
+      ],
       cachesToClearImmediately: [playerVillagesCacheKey],
     };
 

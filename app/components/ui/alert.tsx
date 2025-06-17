@@ -33,7 +33,10 @@ const AlertIcon = () => (
   </svg>
 );
 
-export const Alert: React.FC<AlertProps> = ({ variant = 'warning', children }) => {
+export const Alert: React.FC<AlertProps> = ({
+  variant = 'warning',
+  children,
+}) => {
   const { bg, text } = variantStyles[variant];
 
   return (

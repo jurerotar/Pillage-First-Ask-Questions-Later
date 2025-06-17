@@ -21,7 +21,9 @@ const calculateWheatProductionEffect = (
   effects: Effect[],
   currentVillageId: Village['id'],
 ): WheatProductionEffectReturn => {
-  const serverEffect = effects.find((effect) => effect.scope === 'server' && effect.id === effectId);
+  const serverEffect = effects.find(
+    (effect) => effect.scope === 'server' && effect.id === effectId,
+  );
   const serverEffectValue = normalizeForcedFloatValue(serverEffect?.value ?? 1);
 
   let baseWheatProduction = 0;
@@ -39,7 +41,9 @@ const calculateWheatProductionEffect = (
       continue;
     }
 
-    const shouldEffectApplyToCurrentVillage = scope === 'global' || (effect as VillageEffect).villageId === currentVillageId;
+    const shouldEffectApplyToCurrentVillage =
+      scope === 'global' ||
+      (effect as VillageEffect).villageId === currentVillageId;
 
     if (!shouldEffectApplyToCurrentVillage) {
       continue;
@@ -72,9 +76,13 @@ const calculateWheatProductionEffect = (
     troopWheatConsumptionReductionBonus *= normalizeForcedFloatValue(value);
   }
 
-  const buildingWheatLimit = Math.trunc(serverEffectValue * baseWheatProduction * wheatProductionBonus) + buildingWheatConsumption;
+  const buildingWheatLimit =
+    Math.trunc(serverEffectValue * baseWheatProduction * wheatProductionBonus) +
+    buildingWheatConsumption;
 
-  const total = buildingWheatLimit - Math.trunc(troopWheatConsumption * troopWheatConsumptionReductionBonus);
+  const total =
+    buildingWheatLimit -
+    Math.trunc(troopWheatConsumption * troopWheatConsumptionReductionBonus);
 
   return {
     serverEffectValue,
@@ -94,11 +102,17 @@ export const calculateComputedEffect = (
   currentVillageId: Village['id'],
 ): ComputedEffectReturn => {
   if (effectId === 'wheatProduction') {
-    return calculateWheatProductionEffect('wheatProduction', effects, currentVillageId);
+    return calculateWheatProductionEffect(
+      'wheatProduction',
+      effects,
+      currentVillageId,
+    );
   }
 
   // There is at most 1 server effect for specific effect type, so we find it here and can skip iterations with server scope effects later
-  const serverEffect = effects.find((effect) => effect.scope === 'server' && effect.id === effectId);
+  const serverEffect = effects.find(
+    (effect) => effect.scope === 'server' && effect.id === effectId,
+  );
   const serverEffectValue = normalizeForcedFloatValue(serverEffect?.value ?? 1);
 
   let effectBaseValue = 0;
@@ -111,7 +125,9 @@ export const calculateComputedEffect = (
       continue;
     }
 
-    const shouldEffectApplyToCurrentVillage = scope === 'global' || (effect as VillageEffect).villageId === currentVillageId;
+    const shouldEffectApplyToCurrentVillage =
+      scope === 'global' ||
+      (effect as VillageEffect).villageId === currentVillageId;
 
     if (!shouldEffectApplyToCurrentVillage) {
       continue;
@@ -125,7 +141,10 @@ export const calculateComputedEffect = (
     effectBonusValue *= normalizeForcedFloatValue(value);
   }
 
-  const total = (effectBaseValue === 0 ? 1 : effectBaseValue) * effectBonusValue * serverEffectValue;
+  const total =
+    (effectBaseValue === 0 ? 1 : effectBaseValue) *
+    effectBonusValue *
+    serverEffectValue;
 
   return {
     serverEffectValue,

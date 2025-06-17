@@ -12,7 +12,9 @@ export const useEvents = () => {
   const { data: events } = useSuspenseQuery<GameEvent[]>({
     queryKey: [eventsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<GameEvent[]>(`/villages/${currentVillage.id}/events`);
+      const { data } = await fetcher<GameEvent[]>(
+        `/villages/${currentVillage.id}/events`,
+      );
       return data;
     },
   });

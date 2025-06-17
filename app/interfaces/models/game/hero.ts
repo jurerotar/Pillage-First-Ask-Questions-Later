@@ -16,11 +16,25 @@ type HeroSelectableAttributes = {
 
 export type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
-type HeroItemCategory = 'consumable' | 'currency' | 'resource' | 'wearable' | 'artifact';
+type HeroItemCategory =
+  | 'consumable'
+  | 'currency'
+  | 'resource'
+  | 'wearable'
+  | 'artifact';
 
-type HeroItemSlot = 'head' | 'torso' | 'legs' | 'right-hand' | 'left-hand' | 'horse' | 'consumable' | 'non-equipable';
+type HeroItemSlot =
+  | 'head'
+  | 'torso'
+  | 'legs'
+  | 'right-hand'
+  | 'left-hand'
+  | 'horse'
+  | 'consumable'
+  | 'non-equipable';
 
-type UppercaseHeroItemRarity<Item extends string> = `${Uppercase<HeroItemRarity>}_${Item}`;
+type UppercaseHeroItemRarity<Item extends string> =
+  `${Uppercase<HeroItemRarity>}_${Item}`;
 
 type HeroHeadItemId = '';
 
@@ -52,7 +66,13 @@ type HeroLeftHandItemId = '';
 
 type HeroHorseItemId = UppercaseHeroItemRarity<'HORSE'>;
 
-type HeroConsumableItemId = 'SILVER' | 'HEALING_POTION' | 'BOOK_OF_WISDOM' | 'ANIMAL_CAGE' | 'REVIVAL_POTION' | Uppercase<keyof Resources>;
+type HeroConsumableItemId =
+  | 'SILVER'
+  | 'HEALING_POTION'
+  | 'BOOK_OF_WISDOM'
+  | 'ANIMAL_CAGE'
+  | 'REVIVAL_POTION'
+  | Uppercase<keyof Resources>;
 
 type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
 

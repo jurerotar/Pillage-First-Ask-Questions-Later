@@ -6,8 +6,14 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
-const getImprovedUnitPower = (baseValue: number, baseUpkeep: number, level: number): number => {
-  return baseValue + (baseValue + (300 * baseUpkeep) / 7) * (1.007 ** level - 1);
+const getImprovedUnitPower = (
+  baseValue: number,
+  baseUpkeep: number,
+  level: number,
+): number => {
+  return (
+    baseValue + (baseValue + (300 * baseUpkeep) / 7) * (1.007 ** level - 1)
+  );
 };
 
 const getCombatantTileId = (units: Troop[]): Tile['id'] => {
@@ -39,12 +45,32 @@ export const resolveBattle = ({
   const attackerVillageId = getCombatantTileId(attackerUnits);
   const defenderVillageId = defenderVillage.id;
 
-  const { total: _attackerAttackBonus } = calculateComputedEffect('attack', attackerEffects, attackerVillageId);
+  const { total: _attackerAttackBonus } = calculateComputedEffect(
+    'attack',
+    attackerEffects,
+    attackerVillageId,
+  );
 
-  const { total: _defenderInfantryDefence } = calculateComputedEffect('infantryDefence', defenderEffects, defenderVillageId);
-  const { total: _defenderInfantryDefenceBonus } = calculateComputedEffect('infantryDefence', defenderEffects, defenderVillageId);
-  const { total: _defenderCavalryDefence } = calculateComputedEffect('cavalryDefence', defenderEffects, defenderVillageId);
-  const { total: _defenderCavalryDefenceBonus } = calculateComputedEffect('cavalryDefence', defenderEffects, defenderVillageId);
+  const { total: _defenderInfantryDefence } = calculateComputedEffect(
+    'infantryDefence',
+    defenderEffects,
+    defenderVillageId,
+  );
+  const { total: _defenderInfantryDefenceBonus } = calculateComputedEffect(
+    'infantryDefence',
+    defenderEffects,
+    defenderVillageId,
+  );
+  const { total: _defenderCavalryDefence } = calculateComputedEffect(
+    'cavalryDefence',
+    defenderEffects,
+    defenderVillageId,
+  );
+  const { total: _defenderCavalryDefenceBonus } = calculateComputedEffect(
+    'cavalryDefence',
+    defenderEffects,
+    defenderVillageId,
+  );
 
   const totalAttackerInfantryAttackPower = attackerUnits
     .filter(({ unitId }) => {
@@ -53,7 +79,10 @@ export const resolveBattle = ({
     })
     .reduce((totalAttack, { unitId, amount }) => {
       const { attack, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount;
+      return (
+        totalAttack +
+        getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount
+      );
     }, 0);
 
   const totalAttackerCavalryAttackPower = attackerUnits
@@ -63,12 +92,18 @@ export const resolveBattle = ({
     })
     .reduce((totalAttack, { unitId, amount }) => {
       const { attack, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount;
+      return (
+        totalAttack +
+        getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount
+      );
     }, 0);
 
-  const totalAttackerAttackPower = totalAttackerInfantryAttackPower + totalAttackerCavalryAttackPower;
-  const infantryAttackPowerRatio = totalAttackerInfantryAttackPower / totalAttackerAttackPower;
-  const cavalryAttackPowerRatio = totalAttackerCavalryAttackPower / totalAttackerAttackPower;
+  const totalAttackerAttackPower =
+    totalAttackerInfantryAttackPower + totalAttackerCavalryAttackPower;
+  const infantryAttackPowerRatio =
+    totalAttackerInfantryAttackPower / totalAttackerAttackPower;
+  const cavalryAttackPowerRatio =
+    totalAttackerCavalryAttackPower / totalAttackerAttackPower;
 
   const totalDefenderInfantryDefencePower = defenderUnits
     .filter(({ unitId }) => {
@@ -77,7 +112,10 @@ export const resolveBattle = ({
     })
     .reduce((totalAttack, { unitId, amount }) => {
       const { infantryDefence, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(infantryDefence, unitWheatConsumption, 1) * amount;
+      return (
+        totalAttack +
+        getImprovedUnitPower(infantryDefence, unitWheatConsumption, 1) * amount
+      );
     }, 0);
 
   const totalDefenderCavalryDefencePower = defenderUnits
@@ -87,9 +125,13 @@ export const resolveBattle = ({
     })
     .reduce((totalAttack, { unitId, amount }) => {
       const { cavalryDefence, unitWheatConsumption } = getUnitData(unitId)!;
-      return totalAttack + getImprovedUnitPower(cavalryDefence, unitWheatConsumption, 1) * amount;
+      return (
+        totalAttack +
+        getImprovedUnitPower(cavalryDefence, unitWheatConsumption, 1) * amount
+      );
     }, 0);
 
   const _totalDefenderDefencePower =
-    totalDefenderInfantryDefencePower * infantryAttackPowerRatio + totalDefenderCavalryDefencePower * cavalryAttackPowerRatio;
+    totalDefenderInfantryDefencePower * infantryAttackPowerRatio +
+    totalDefenderCavalryDefencePower * cavalryAttackPowerRatio;
 };

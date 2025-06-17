@@ -32,6 +32,11 @@ export type TradeReport = BaseReport & {
 
 export type TroopMovementReport = BaseReport & GameEvent<'troopMovement'>;
 
-export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport;
+export type Report =
+  | BattleReport
+  | ScoutReport
+  | AdventureReport
+  | TradeReport
+  | TroopMovementReport;
 
 export type ReportType = Report['type'];

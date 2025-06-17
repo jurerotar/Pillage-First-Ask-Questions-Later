@@ -8,10 +8,14 @@ import { type IconType, typeToIconMap } from 'app/components/icons/icon-maps';
 
 // Variants
 const IconNegativeChangeVariant = lazy(async () => ({
-  default: (await import('app/components/icons/variants/icon-negative-change-variant')).IconNegativeChangeVariant,
+  default: (
+    await import('app/components/icons/variants/icon-negative-change-variant')
+  ).IconNegativeChangeVariant,
 }));
 const IconPositiveChangeVariant = lazy(async () => ({
-  default: (await import('app/components/icons/variants/icon-positive-change-variant')).IconPositiveChangeVariant,
+  default: (
+    await import('app/components/icons/variants/icon-positive-change-variant')
+  ).IconPositiveChangeVariant,
 }));
 
 type IconPlaceholderProps = React.HTMLAttributes<HTMLSpanElement>;
@@ -30,7 +34,8 @@ type IconProps = IconBaseProps &
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, variant, borderVariant, className, wrapperClassName, ...rest } = props;
+  const { type, variant, borderVariant, className, wrapperClassName, ...rest } =
+    props;
 
   // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;

@@ -15,7 +15,7 @@ const IconsPage = () => {
             {chunkedIconNames.map((chunk, i) => (
               <ul
                 className="flex flex-col gap-1"
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                // biome-ignore lint/suspicious/noArrayIndexKey: It's only rendered once and it never changes
                 key={i}
               >
                 {chunk.map((name: IconType) => (

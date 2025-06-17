@@ -20,7 +20,9 @@ export const isVillageEffect = (effect: Effect): effect is VillageEffect => {
   return effect.scope === 'village';
 };
 
-export const isBuildingEffect = (effect: Effect): effect is VillageBuildingEffect => {
+export const isBuildingEffect = (
+  effect: Effect,
+): effect is VillageBuildingEffect => {
   return isVillageEffect(effect) && effect.source === 'building';
 };
 

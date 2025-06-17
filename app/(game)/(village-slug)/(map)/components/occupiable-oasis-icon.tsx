@@ -1,10 +1,19 @@
 import { Icon } from 'app/components/icon';
-import type { IconType, ResourceCombinationIconType } from 'app/components/icons/icon-maps';
-import type { OasisResourceBonus, OasisTile } from 'app/interfaces/models/game/tile';
+import type {
+  IconType,
+  ResourceCombinationIconType,
+} from 'app/components/icons/icon-maps';
+import type {
+  OasisResourceBonus,
+  OasisTile,
+} from 'app/interfaces/models/game/tile';
 import { capitalize } from 'moderndash';
 import type React from 'react';
 
-type OccupiableOasisIconProps = Omit<React.ComponentProps<typeof Icon>, 'type'> & {
+type OccupiableOasisIconProps = Omit<
+  React.ComponentProps<typeof Icon>,
+  'type'
+> & {
   oasisResourceBonus: OasisTile['ORB'];
 };
 
@@ -18,10 +27,14 @@ const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconType => {
 
   // Single resource
   const { resource, bonus } = oasisResourceBonus[0];
-  return (bonus === '50%' ? `${resource}${capitalize(resource)}` : resource) as ResourceCombinationIconType;
+  return (
+    bonus === '50%' ? `${resource}${capitalize(resource)}` : resource
+  ) as ResourceCombinationIconType;
 };
 
-export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (props) => {
+export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (
+  props,
+) => {
   const { oasisResourceBonus, className, ...rest } = props;
 
   const iconType = getIconType(oasisResourceBonus);

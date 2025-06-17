@@ -1,5 +1,15 @@
-import { dehydrate, type DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
-import { enqueueWrite, getParsedFileContents, getRootHandle, writeFileContents } from 'app/utils/opfs';
+import {
+  dehydrate,
+  type DehydratedState,
+  hydrate,
+  QueryClient,
+} from '@tanstack/react-query';
+import {
+  enqueueWrite,
+  getParsedFileContents,
+  getRootHandle,
+  writeFileContents,
+} from 'app/utils/opfs';
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import type { ApiNotificationEvent } from 'app/interfaces/api';
@@ -9,19 +19,26 @@ const serverSlug = urlParams.get('server-slug')!;
 
 const queryClient = new QueryClient();
 const rootHandle = await getRootHandle();
-const serverState = await getParsedFileContents<DehydratedState>(rootHandle, serverSlug!);
+const serverState = await getParsedFileContents<DehydratedState>(
+  rootHandle,
+  serverSlug!,
+);
 hydrate(queryClient, serverState);
 
 queryClient.getQueryCache().subscribe(({ type }) => {
   if (type !== 'updated') {
     return;
   }
-  enqueueWrite(() => writeFileContents(rootHandle, serverSlug, dehydrate(queryClient)));
+  enqueueWrite(() =>
+    writeFileContents(rootHandle, serverSlug, dehydrate(queryClient)),
+  );
 });
 
 await scheduleNextEvent(queryClient);
 
-self.postMessage({ eventKey: 'event:worker-ready' } satisfies ApiNotificationEvent);
+self.postMessage({
+  eventKey: 'event:worker-ready',
+} satisfies ApiNotificationEvent);
 
 self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
   const [port] = ports;

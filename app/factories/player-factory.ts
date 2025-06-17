@@ -1,7 +1,10 @@
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import { seededRandomArrayElement, seededRandomIntFromInterval } from 'app/utils/common';
+import {
+  seededRandomArrayElement,
+  seededRandomIntFromInterval,
+} from 'app/utils/common';
 import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
 import { npcFactions } from 'app/factories/reputation-factory';
 import { usernameRoots } from 'app/assets/player';
@@ -9,7 +12,11 @@ import { calculateGridLayout } from 'app/utils/map';
 
 const generateName = (prng: PRNGFunction): number => {
   const id = seededRandomIntFromInterval(prng, 1, 1000);
-  const rootIndex = seededRandomIntFromInterval(prng, 0, usernameRoots.length - 1);
+  const rootIndex = seededRandomIntFromInterval(
+    prng,
+    0,
+    usernameRoots.length - 1,
+  );
 
   // Pack into a single number: rootIndex * 10000 + id
   return rootIndex * 10000 + id;
@@ -22,7 +29,13 @@ type PlayerFactoryProps = {
 };
 
 const playerFactory = ({ faction, prng, id }: PlayerFactoryProps): Player => {
-  const tribe = seededRandomArrayElement<PlayableTribe>(prng, ['romans', 'gauls', 'teutons', 'egyptians', 'huns']);
+  const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
+    'romans',
+    'gauls',
+    'teutons',
+    'egyptians',
+    'huns',
+  ]);
 
   return {
     id,

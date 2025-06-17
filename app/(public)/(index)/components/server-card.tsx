@@ -64,7 +64,8 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
       </div>
       {serverVersion !== appVersion && (
         <Alert variant="warning">
-          Your server version is outdated. It may not work with current version of the app. In case of error, delete and recreate server.
+          Your server version is outdated. It may not work with current version
+          of the app. In case of error, delete and recreate server.
         </Alert>
       )}
       <Link

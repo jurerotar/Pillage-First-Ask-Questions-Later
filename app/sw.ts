@@ -10,7 +10,10 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     self.clients.matchAll().then((clients) => {
       const isStandalone = clients.some((client) => {
-        return client.url.includes('standalone=true') || client.frameType === 'top-level';
+        return (
+          client.url.includes('standalone=true') ||
+          client.frameType === 'top-level'
+        );
       });
 
       if (isStandalone) {

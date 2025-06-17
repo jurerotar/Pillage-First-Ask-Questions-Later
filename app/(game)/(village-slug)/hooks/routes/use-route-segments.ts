@@ -7,7 +7,9 @@ export const useRouteSegments = () => {
   return {
     serverSlug: serverSlug as string,
     villageSlug: villageSlug as string,
-    buildingFieldId: buildingFieldId ? (Number.parseInt(buildingFieldId) as BuildingField['id']) : null,
+    buildingFieldId: buildingFieldId
+      ? (Number.parseInt(buildingFieldId) as BuildingField['id'])
+      : null,
     reportId,
   };
 };

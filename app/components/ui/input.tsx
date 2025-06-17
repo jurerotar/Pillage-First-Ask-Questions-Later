@@ -1,7 +1,11 @@
 import type React from 'react';
 import clsx from 'clsx';
 
-export const Input: React.FC<React.ComponentProps<'input'>> = ({ className, type, ...props }) => {
+export const Input: React.FC<React.ComponentProps<'input'>> = ({
+  className,
+  type,
+  ...props
+}) => {
   return (
     <input
       type={type}

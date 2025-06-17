@@ -12,7 +12,10 @@ export const getArchivedReports: ApiHandler<Report[]> = async (queryClient) => {
   return reports.filter((report) => report.tags.includes('archived'));
 };
 
-export const getReportsByVillage: ApiHandler<Report[], 'villageId'> = async (queryClient, { params }) => {
+export const getReportsByVillage: ApiHandler<Report[], 'villageId'> = async (
+  queryClient,
+  { params },
+) => {
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 
@@ -20,7 +23,10 @@ export const getReportsByVillage: ApiHandler<Report[], 'villageId'> = async (que
   return reports.filter((report) => report.villageId === villageId);
 };
 
-export const getReportById: ApiHandler<Report, 'reportId'> = async (queryClient, { params }) => {
+export const getReportById: ApiHandler<Report, 'reportId'> = async (
+  queryClient,
+  { params },
+) => {
   const { reportId } = params;
 
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
@@ -33,7 +39,11 @@ export const getReportById: ApiHandler<Report, 'reportId'> = async (queryClient,
   return report;
 };
 
-export const patchReport: ApiHandler<void, 'reportId', { tag: ReportTag }> = async (queryClient, { params, body }) => {
+export const patchReport: ApiHandler<
+  void,
+  'reportId',
+  { tag: ReportTag }
+> = async (queryClient, { params, body }) => {
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
 
   const updatedReports = reports.map((report) => {
@@ -42,7 +52,9 @@ export const patchReport: ApiHandler<void, 'reportId', { tag: ReportTag }> = asy
     }
 
     const hasTag = report.tags.includes(body.tag);
-    const updatedTags = hasTag ? report.tags.filter((t) => t !== body.tag) : [...report.tags, body.tag];
+    const updatedTags = hasTag
+      ? report.tags.filter((t) => t !== body.tag)
+      : [...report.tags, body.tag];
 
     return {
       ...report,
@@ -53,7 +65,11 @@ export const patchReport: ApiHandler<void, 'reportId', { tag: ReportTag }> = asy
   queryClient.setQueryData<Report[]>([reportsCacheKey], updatedReports);
 };
 
-export const patchMultipleReports: ApiHandler<void, '', { reportIds: Report['id'][]; tag: ReportTag }> = async (queryClient, { body }) => {
+export const patchMultipleReports: ApiHandler<
+  void,
+  '',
+  { reportIds: Report['id'][]; tag: ReportTag }
+> = async (queryClient, { body }) => {
   const { reportIds, tag } = body;
 
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
@@ -64,7 +80,9 @@ export const patchMultipleReports: ApiHandler<void, '', { reportIds: Report['id'
     }
 
     const hasTag = report.tags.includes(tag);
-    const updatedTags = hasTag ? report.tags.filter((t) => t !== tag) : [...report.tags, tag];
+    const updatedTags = hasTag
+      ? report.tags.filter((t) => t !== tag)
+      : [...report.tags, tag];
 
     return { ...report, tags: updatedTags };
   });
@@ -72,7 +90,10 @@ export const patchMultipleReports: ApiHandler<void, '', { reportIds: Report['id'
   queryClient.setQueryData([reportsCacheKey], updatedReports);
 };
 
-export const deleteReport: ApiHandler<void, 'reportId'> = async (queryClient, { params }) => {
+export const deleteReport: ApiHandler<void, 'reportId'> = async (
+  queryClient,
+  { params },
+) => {
   const { reportId } = params;
 
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
@@ -82,11 +103,17 @@ export const deleteReport: ApiHandler<void, 'reportId'> = async (queryClient, { 
   queryClient.setQueryData<Report[]>([reportsCacheKey], updatedReports);
 };
 
-export const deleteMultipleReports: ApiHandler<void, '', { reportIds: Report['id'][] }> = async (queryClient, { body }) => {
+export const deleteMultipleReports: ApiHandler<
+  void,
+  '',
+  { reportIds: Report['id'][] }
+> = async (queryClient, { body }) => {
   const { reportIds } = body;
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
 
-  const updatedReports = reports.filter((report) => !reportIds.includes(report.id));
+  const updatedReports = reports.filter(
+    (report) => !reportIds.includes(report.id),
+  );
 
   queryClient.setQueryData([reportsCacheKey], updatedReports);
 };

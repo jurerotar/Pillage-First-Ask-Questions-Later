@@ -22,15 +22,21 @@ export const meta: MetaFunction = ({ location, params }) => {
   ];
 };
 
-const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1) as BuildingFieldType['id'][];
-const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19) as BuildingFieldType['id'][];
+const resourceViewBuildingFieldIds = [...Array(18)].map(
+  (_, i) => i + 1,
+) as BuildingFieldType['id'][];
+const villageViewBuildingFieldIds = [...Array(22)].map(
+  (_, i) => i + 19,
+) as BuildingFieldType['id'][];
 
 const VillagePage = () => {
   const { t } = useTranslation();
   const { villagePath } = useGameNavigation();
   const { isResourcesPageOpen, isVillagePageOpen } = useActiveRoute();
 
-  const buildingFieldIdsToDisplay = isResourcesPageOpen ? resourceViewBuildingFieldIds : villageViewBuildingFieldIds;
+  const buildingFieldIdsToDisplay = isResourcesPageOpen
+    ? resourceViewBuildingFieldIds
+    : villageViewBuildingFieldIds;
 
   useEffect(() => {
     const className = layoutStyles['background-image--village'];
@@ -49,13 +55,17 @@ const VillagePage = () => {
           mouseleave: true,
         }}
         render={({ activeAnchor }) => {
-          const buildingFieldIdAttribute = activeAnchor?.getAttribute('data-building-field-id');
+          const buildingFieldIdAttribute = activeAnchor?.getAttribute(
+            'data-building-field-id',
+          );
 
           if (!buildingFieldIdAttribute) {
             return null;
           }
 
-          const buildingFieldId = Number(buildingFieldIdAttribute) as BuildingFieldType['id'];
+          const buildingFieldId = Number(
+            buildingFieldIdAttribute,
+          ) as BuildingFieldType['id'];
 
           return <BuildingFieldTooltip buildingFieldId={buildingFieldId} />;
         }}

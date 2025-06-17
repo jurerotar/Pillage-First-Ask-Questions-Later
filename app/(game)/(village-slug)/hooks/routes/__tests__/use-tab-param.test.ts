@@ -15,7 +15,10 @@ describe('useTabParam', () => {
   });
 
   test('returns correct tab index from search param', () => {
-    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([new URLSearchParams({ tab: 'profile' }), setSearchParams]);
+    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
+      new URLSearchParams({ tab: 'profile' }),
+      setSearchParams,
+    ]);
 
     const tabs = ['default', 'home', 'profile', 'settings'];
     const { result } = renderHook(() => useTabParam(tabs));
@@ -24,7 +27,10 @@ describe('useTabParam', () => {
   });
 
   test('defaults to index of "default" if tab is missing', () => {
-    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([new URLSearchParams(), setSearchParams]);
+    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
+      new URLSearchParams(),
+      setSearchParams,
+    ]);
 
     const tabs = ['default', 'home', 'profile'];
     const { result } = renderHook(() => useTabParam(tabs));
@@ -33,7 +39,10 @@ describe('useTabParam', () => {
   });
 
   test('updates search param when navigateToTab is called', () => {
-    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([new URLSearchParams(), setSearchParams]);
+    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
+      new URLSearchParams(),
+      setSearchParams,
+    ]);
 
     const tabs = ['default', 'home', 'profile'];
     const { result } = renderHook(() => useTabParam(tabs));

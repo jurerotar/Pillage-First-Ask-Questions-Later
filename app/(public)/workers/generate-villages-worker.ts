@@ -14,9 +14,12 @@ export type GenerateVillageWorkerReturn = {
   villages: Village[];
 };
 
-self.addEventListener('message', async (event: MessageEvent<GenerateVillageWorkerPayload>) => {
-  const villages = generateVillages(event.data);
+self.addEventListener(
+  'message',
+  async (event: MessageEvent<GenerateVillageWorkerPayload>) => {
+    const villages = generateVillages(event.data);
 
-  self.postMessage({ villages } satisfies GenerateVillageWorkerReturn);
-  self.close();
-});
+    self.postMessage({ villages } satisfies GenerateVillageWorkerReturn);
+    self.close();
+  },
+);

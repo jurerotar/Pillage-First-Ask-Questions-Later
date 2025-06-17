@@ -19,7 +19,9 @@ export const useTilePlayer = (tileId: Tile['id']) => {
   const { data: tilePlayer } = useSuspenseQuery<UseTilePlayerReturn>({
     queryKey: ['tile-player', tileId],
     queryFn: async () => {
-      const { data } = await fetcher<UseTilePlayerReturn>(`/tiles/${tileId}/player`);
+      const { data } = await fetcher<UseTilePlayerReturn>(
+        `/tiles/${tileId}/player`,
+      );
       return data;
     },
   });

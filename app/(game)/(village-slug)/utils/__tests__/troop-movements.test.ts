@@ -19,7 +19,9 @@ describe('calculateTravelDuration', () => {
       },
     ];
 
-    using _ = vi.spyOn(effectUtils, 'calculateComputedEffect').mockReturnValueOnce({ effectBonusValue: 1.2 } as ComputedEffectReturn);
+    using _ = vi
+      .spyOn(effectUtils, 'calculateComputedEffect')
+      .mockReturnValueOnce({ effectBonusValue: 1.2 } as ComputedEffectReturn);
 
     const duration = calculateTravelDuration({
       villageId: mockVillageId,

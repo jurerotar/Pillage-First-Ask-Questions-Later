@@ -6,7 +6,10 @@ export const useUnits = () => {
   const { tribe } = useTribe();
 
   const getTribeUnitsByCategory = (category: Unit['category']) => {
-    return units.filter(({ category: unitCategory, tribe: unitTribe }) => unitCategory === category && unitTribe === tribe);
+    return units.filter(
+      ({ category: unitCategory, tribe: unitTribe }) =>
+        unitCategory === category && unitTribe === tribe,
+    );
   };
 
   return {

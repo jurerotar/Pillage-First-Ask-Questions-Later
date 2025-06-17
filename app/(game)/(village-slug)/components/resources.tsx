@@ -8,7 +8,12 @@ type ResourcesProps = {
   iconClassName?: string;
 } & React.HTMLAttributes<HTMLSpanElement>;
 
-export const Resources: React.FC<ResourcesProps> = ({ resources, className, iconClassName = 'size-5', ...rest }) => {
+export const Resources: React.FC<ResourcesProps> = ({
+  resources,
+  className,
+  iconClassName = 'size-5',
+  ...rest
+}) => {
   const [wood, clay, iron, wheat] = resources;
 
   return (

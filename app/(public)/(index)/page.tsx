@@ -34,15 +34,21 @@ const HomePage = () => {
       <main className="flex flex-col">
         <div className="container relative mx-auto flex min-h-[300px] flex-col gap-2 lg:flex-row">
           <section className="flex flex-1 flex-col gap-2 p-2">
-            <h1 className="text-3xl font-semibold text-gray-800">Pillage First! (Ask Questions Later)</h1>
+            <h1 className="text-3xl font-semibold text-gray-800">
+              Pillage First! (Ask Questions Later)
+            </h1>
             <span className="text-gray-800">
-              <b>Pillage First! (Ask Questions Later)</b> is a <b>single-player</b>, <b>real-time</b>, <b>browser-based strategy game</b>{' '}
-              inspired by <b>Travian</b>. Manage resources to construct buildings, train units, and wage war against your enemies.
+              <b>Pillage First! (Ask Questions Later)</b> is a{' '}
+              <b>single-player</b>, <b>real-time</b>,{' '}
+              <b>browser-based strategy game</b> inspired by <b>Travian</b>.
+              Manage resources to construct buildings, train units, and wage war
+              against your enemies.
               <br /> <br />
               <b>Remember: pillage first, ask questions later!</b>
             </span>
             <Alert variant="warning">
-              Game is still in development, most features are missing. <br /> To see the current list of available features, see{' '}
+              Game is still in development, most features are missing. <br /> To
+              see the current list of available features, see{' '}
               <a
                 rel="noreferrer"
                 className="underline text-blue-600"

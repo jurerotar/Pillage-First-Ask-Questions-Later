@@ -23,9 +23,14 @@ type FormFieldContextValue<
   name: TName;
 };
 
-const FormFieldContext = createContext<FormFieldContextValue>({} as FormFieldContextValue);
+const FormFieldContext = createContext<FormFieldContextValue>(
+  {} as FormFieldContextValue,
+);
 
-export const FormField = <TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({
+export const FormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
   return (
@@ -62,9 +67,14 @@ type FormItemContextValue = {
   id: string;
 };
 
-const FormItemContext = createContext<FormItemContextValue>({} as FormItemContextValue);
+const FormItemContext = createContext<FormItemContextValue>(
+  {} as FormItemContextValue,
+);
 
-export const FormItem: React.FC<React.ComponentProps<'div'>> = ({ className, ...props }) => {
+export const FormItem: React.FC<React.ComponentProps<'div'>> = ({
+  className,
+  ...props
+}) => {
   const { name } = use(FormFieldContext);
 
   return (
@@ -78,7 +88,9 @@ export const FormItem: React.FC<React.ComponentProps<'div'>> = ({ className, ...
   );
 };
 
-export const FormLabel: React.FC<React.ComponentProps<typeof LabelPrimitive.Root>> = ({ className, ...props }) => {
+export const FormLabel: React.FC<
+  React.ComponentProps<typeof LabelPrimitive.Root>
+> = ({ className, ...props }) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -92,21 +104,31 @@ export const FormLabel: React.FC<React.ComponentProps<typeof LabelPrimitive.Root
   );
 };
 
-export const FormControl: React.FC<React.ComponentProps<typeof Slot.Root>> = ({ ...props }) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+export const FormControl: React.FC<React.ComponentProps<typeof Slot.Root>> = ({
+  ...props
+}) => {
+  const { error, formItemId, formDescriptionId, formMessageId } =
+    useFormField();
 
   return (
     <Slot.Root
       data-slot="form-control"
       id={formItemId}
-      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={
+        !error
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
       aria-invalid={!!error}
       {...props}
     />
   );
 };
 
-export const FormDescription: React.FC<React.ComponentProps<'p'>> = ({ className, ...props }) => {
+export const FormDescription: React.FC<React.ComponentProps<'p'>> = ({
+  className,
+  ...props
+}) => {
   const { formDescriptionId } = useFormField();
 
   return (
@@ -119,7 +141,10 @@ export const FormDescription: React.FC<React.ComponentProps<'p'>> = ({ className
   );
 };
 
-export const FormMessage: React.FC<React.ComponentProps<'p'>> = ({ className, ...props }) => {
+export const FormMessage: React.FC<React.ComponentProps<'p'>> = ({
+  className,
+  ...props
+}) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message ?? '') : props.children;
 

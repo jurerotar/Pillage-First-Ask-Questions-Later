@@ -44,25 +44,56 @@ import type { Building } from 'app/interfaces/models/game/building';
 
 type UnitCardContextState = {
   unitId: Unit['id'];
-  buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
+  buildingId: PickLiteral<
+    Building['id'],
+    | 'BARRACKS'
+    | 'GREAT_BARRACKS'
+    | 'STABLE'
+    | 'GREAT_STABLE'
+    | 'WORKSHOP'
+    | 'HOSPITAL'
+  >;
   durationEffect?: TroopTrainingDurationEffectId;
 };
 
-const UnitCardContext = createContext<UnitCardContextState>({} as UnitCardContextState);
+const UnitCardContext = createContext<UnitCardContextState>(
+  {} as UnitCardContextState,
+);
 
 type UnitCardProps = {
   unitId: Unit['id'];
-  buildingId: PickLiteral<Building['id'], 'BARRACKS' | 'GREAT_BARRACKS' | 'STABLE' | 'GREAT_STABLE' | 'WORKSHOP' | 'HOSPITAL'>;
+  buildingId: PickLiteral<
+    Building['id'],
+    | 'BARRACKS'
+    | 'GREAT_BARRACKS'
+    | 'STABLE'
+    | 'GREAT_STABLE'
+    | 'WORKSHOP'
+    | 'HOSPITAL'
+  >;
   durationEffect?: TroopTrainingDurationEffectId;
   showOuterBorder?: boolean;
 };
 
 export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
-  const { unitId, buildingId, durationEffect, children, showOuterBorder = true } = props;
+  const {
+    unitId,
+    buildingId,
+    durationEffect,
+    children,
+    showOuterBorder = true,
+  } = props;
 
   return (
     <UnitCardContext.Provider value={{ unitId, durationEffect, buildingId }}>
-      <article className={clsx('flex flex-col gap-2 p-2', showOuterBorder && 'border border-border')}>{children}</article>
+      <article
+        className={clsx(
+          'flex flex-col gap-2 p-2',
+          showOuterBorder && 'border border-border',
+        )}
+      >
+        {children}
+      </article>
     </UnitCardContext.Provider>
   );
 };
@@ -88,7 +119,12 @@ export const UnitOverview = () => {
 };
 
 type UnitAttributes = Record<
-  'attack' | 'infantryDefence' | 'cavalryDefence' | 'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption',
+  | 'attack'
+  | 'infantryDefence'
+  | 'cavalryDefence'
+  | 'unitSpeed'
+  | 'unitCarryCapacity'
+  | 'unitWheatConsumption',
   number
 >;
 
@@ -99,13 +135,19 @@ export const UnitAttributes: React.FC = () => {
 
   const unit = getUnitData(unitId);
 
-  const dynamicAttributes: Pick<UnitAttributes, 'attack' | 'infantryDefence' | 'cavalryDefence'> = {
+  const dynamicAttributes: Pick<
+    UnitAttributes,
+    'attack' | 'infantryDefence' | 'cavalryDefence'
+  > = {
     attack: unit.attack,
     infantryDefence: unit.infantryDefence,
     cavalryDefence: unit.cavalryDefence,
   };
 
-  const staticAttributes: Pick<UnitAttributes, 'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption'> = {
+  const staticAttributes: Pick<
+    UnitAttributes,
+    'unitSpeed' | 'unitCarryCapacity' | 'unitWheatConsumption'
+  > = {
     unitSpeed: unit.unitSpeed,
     unitCarryCapacity: unit.unitCarryCapacity,
     unitWheatConsumption: unit.unitWheatConsumption,
@@ -117,13 +159,17 @@ export const UnitAttributes: React.FC = () => {
 
   return (
     <section className="flex flex-col gap-2 pt-2 border-t border-border">
-      <Text as="h3">{t('Attributes at level {{level}}', { level: unitLevel })}</Text>
+      <Text as="h3">
+        {t('Attributes at level {{level}}', { level: unitLevel })}
+      </Text>
       {unitLevel !== unitVirtualLevel && (
         <Text
           as="p"
           className="text-warning"
         >
-          {t('Currently being upgraded to level {{level}}', { level: unitVirtualLevel })}
+          {t('Currently being upgraded to level {{level}}', {
+            level: unitVirtualLevel,
+          })}
         </Text>
       )}
       <div className="flex gap-2 items-center">
@@ -138,7 +184,11 @@ export const UnitAttributes: React.FC = () => {
                 type={key as keyof UnitAttributes}
               />
               <Text as="p">
-                <span className={clsx(unitLevel !== unitVirtualLevel && 'text-warning')}>
+                <span
+                  className={clsx(
+                    unitLevel !== unitVirtualLevel && 'text-warning',
+                  )}
+                >
                   {calculateUpgradedValue(value, unitVirtualLevel)}
                 </span>
               </Text>
@@ -170,9 +220,11 @@ export const UnitResearch = () => {
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const hasResearched = isUnitResearched(unitId);
-  const { createEvent: createUnitResearchEvent } = useCreateEvent('unitResearch');
+  const { createEvent: createUnitResearchEvent } =
+    useCreateEvent('unitResearch');
   const { currentVillage } = useCurrentVillage();
-  const { hasEvents: hasResearchEventsOngoing } = useEventsByType('unitResearch');
+  const { hasEvents: hasResearchEventsOngoing } =
+    useEventsByType('unitResearch');
 
   const unitResearchDuration = (() => {
     if (isDeveloperModeEnabled) {
@@ -193,9 +245,13 @@ export const UnitResearch = () => {
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const hasEnoughResourcesToResearch =
-    wood >= researchCost![0] && clay >= researchCost![1] && iron >= researchCost![2] && wheat >= researchCost![3];
+    wood >= researchCost![0] &&
+    clay >= researchCost![1] &&
+    iron >= researchCost![2] &&
+    wheat >= researchCost![3];
 
-  const canStartResearch = hasEnoughResourcesToResearch && !hasResearchEventsOngoing && canResearch;
+  const canStartResearch =
+    hasEnoughResourcesToResearch && !hasResearchEventsOngoing && canResearch;
 
   const researchUnit = () => {
     createUnitResearchEvent({
@@ -213,7 +269,9 @@ export const UnitResearch = () => {
           as="p"
           className="text-green-600"
         >
-          {t('{{unit}} researched', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
+          {t('{{unit}} researched', {
+            unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
+          })}
         </Text>
       </section>
     );
@@ -246,7 +304,10 @@ export const UnitResearch = () => {
             disabled={!canStartResearch}
           >
             {hasResearchEventsOngoing && t('Research is already taking place')}
-            {!hasResearchEventsOngoing && t('Research {{unit}}', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
+            {!hasResearchEventsOngoing &&
+              t('Research {{unit}}', {
+                unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
+              })}
           </Button>
         </section>
       )}
@@ -261,9 +322,11 @@ export const UnitImprovement = () => {
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { currentVillage } = useCurrentVillage();
-  const { createEvent: createUnitImprovementEvent } = useCreateEvent('unitImprovement');
+  const { createEvent: createUnitImprovementEvent } =
+    useCreateEvent('unitImprovement');
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
-  const { hasEvents: hasImprovementEventsOngoing } = useEventsByType('unitImprovement');
+  const { hasEvents: hasImprovementEventsOngoing } =
+    useEventsByType('unitImprovement');
 
   const unitUpgradeDuration = (() => {
     if (isDeveloperModeEnabled) {
@@ -281,12 +344,23 @@ export const UnitImprovement = () => {
     return calculateUnitUpgradeCostForLevel(unitId, unitVirtualLevel);
   })();
 
-  const hasEnoughResourcesToUpgrade = wood >= upgradeCost[0] && clay >= upgradeCost[1] && iron >= upgradeCost[2] && wheat >= upgradeCost[3];
+  const hasEnoughResourcesToUpgrade =
+    wood >= upgradeCost[0] &&
+    clay >= upgradeCost[1] &&
+    iron >= upgradeCost[2] &&
+    wheat >= upgradeCost[3];
 
-  const academyLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'SMITHY')?.level ?? 0;
-  const isSmithyLevelHigherThanNextUpgradeLevel = academyLevel >= unitVirtualLevel + 1;
+  const academyLevel =
+    currentVillage.buildingFields.find(
+      ({ buildingId }) => buildingId === 'SMITHY',
+    )?.level ?? 0;
+  const isSmithyLevelHigherThanNextUpgradeLevel =
+    academyLevel >= unitVirtualLevel + 1;
 
-  const canUpgrade = hasEnoughResourcesToUpgrade && isSmithyLevelHigherThanNextUpgradeLevel && !hasImprovementEventsOngoing;
+  const canUpgrade =
+    hasEnoughResourcesToUpgrade &&
+    isSmithyLevelHigherThanNextUpgradeLevel &&
+    !hasImprovementEventsOngoing;
 
   const upgradeUnit = () => {
     createUnitImprovementEvent({
@@ -305,7 +379,9 @@ export const UnitImprovement = () => {
           as="p"
           className="text-green-600"
         >
-          {t('{{unit}} is fully upgraded', { unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) })}
+          {t('{{unit}} is fully upgraded', {
+            unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
+          })}
         </Text>
       </section>
     );
@@ -314,7 +390,11 @@ export const UnitImprovement = () => {
   return (
     <>
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
-        <Text as="h3">{t('Improvement cost and duration for level {{level}}', { level: unitVirtualLevel + 1 })}</Text>
+        <Text as="h3">
+          {t('Improvement cost and duration for level {{level}}', {
+            level: unitVirtualLevel + 1,
+          })}
+        </Text>
         <div className="flex gap-2 items-center flex-wrap">
           <Resources resources={upgradeCost!} />
           <div className="flex items-center gap-1">
@@ -345,7 +425,10 @@ export const UnitRequirements = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { assessedRequirements } = assessUnitResearchReadiness(unitId, currentVillage);
+  const { assessedRequirements } = assessUnitResearchReadiness(
+    unitId,
+    currentVillage,
+  );
 
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-border">
@@ -355,8 +438,14 @@ export const UnitRequirements = () => {
           <Fragment key={assessedRequirement.buildingId}>
             <li className="whitespace-nowrap">
               <Text as="p">
-                <span className={clsx(assessedRequirement.fulfilled && 'text-muted-foreground line-through')}>
-                  {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)} {t('level {{level}}', { level: assessedRequirement.level })}
+                <span
+                  className={clsx(
+                    assessedRequirement.fulfilled &&
+                      'text-muted-foreground line-through',
+                  )}
+                >
+                  {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
+                  {t('level {{level}}', { level: assessedRequirement.level })}
                 </span>
                 {index !== assessedRequirements.length - 1 && ','}
               </Text>
@@ -372,7 +461,9 @@ export const UnitCost = () => {
   const { unitId, durationEffect } = use(UnitCardContext);
   const { t } = useTranslation();
   const { baseRecruitmentDuration, baseRecruitmentCost } = getUnitData(unitId);
-  const { total } = useComputedEffect(durationEffect ?? 'barracksTrainingDuration');
+  const { total } = useComputedEffect(
+    durationEffect ?? 'barracksTrainingDuration',
+  );
 
   return (
     <section className="flex flex-col gap-2 pt-2 border-t border-border">
@@ -397,9 +488,11 @@ export const UnitRecruitment = () => {
   const { t: assetsT } = useTranslation();
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const currentResources = use(CurrentVillageStateContext);
-  const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } = getUnitData(unitId);
+  const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
+    getUnitData(unitId);
   const { total } = useComputedEffect(durationEffect!);
-  const { createEvent: createTroopTrainingEvent } = useCreateEvent('troopTraining');
+  const { createEvent: createTroopTrainingEvent } =
+    useCreateEvent('troopTraining');
 
   const individualUnitRecruitmentCost = (() => {
     if (isDeveloperModeEnabled) {
@@ -407,7 +500,11 @@ export const UnitRecruitment = () => {
     }
 
     // Great barracks/stable have 3x the cost
-    if (['greatBarracksTrainingDuration', 'greatStableTrainingDuration'].includes(durationEffect!)) {
+    if (
+      ['greatBarracksTrainingDuration', 'greatStableTrainingDuration'].includes(
+        durationEffect!,
+      )
+    ) {
       return baseRecruitmentCost.map((cost) => cost * 3);
     }
 
@@ -422,7 +519,9 @@ export const UnitRecruitment = () => {
     return baseRecruitmentDuration;
   })();
 
-  const maxUnits = isDeveloperModeEnabled ? 1000 : calculateMaxUnits(currentResources, individualUnitRecruitmentCost);
+  const maxUnits = isDeveloperModeEnabled
+    ? 1000
+    : calculateMaxUnits(currentResources, individualUnitRecruitmentCost);
 
   const form = useForm({ defaultValues: { amount: 0 } });
   const { register, handleSubmit, setValue, watch } = form;

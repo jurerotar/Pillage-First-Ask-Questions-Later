@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 import { use } from 'react';
@@ -22,7 +26,11 @@ export const useBookmarks = () => {
     staleTime: Number.POSITIVE_INFINITY,
   });
 
-  const { mutate: updateBookmark } = useMutation<void, Error, UpdateBookmarksArgs>({
+  const { mutate: updateBookmark } = useMutation<
+    void,
+    Error,
+    UpdateBookmarksArgs
+  >({
     mutationFn: async ({ buildingId, tab }) => {
       await fetcher(`/me/bookmarks/${buildingId}`, {
         method: 'PATCH',

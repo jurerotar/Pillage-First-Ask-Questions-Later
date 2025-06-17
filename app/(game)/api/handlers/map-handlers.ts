@@ -1,5 +1,9 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { ContextualTile, OasisTile, Tile } from 'app/interfaces/models/game/tile';
+import type {
+  ContextualTile,
+  OasisTile,
+  Tile,
+} from 'app/interfaces/models/game/tile';
 import {
   eventsCacheKey,
   mapCacheKey,
@@ -15,7 +19,11 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { isOccupiableOasisTile, isOccupiedOasisTile, isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import {
+  isOccupiableOasisTile,
+  isOccupiedOasisTile,
+  isOccupiedOccupiableTile,
+} from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import type { Report } from 'app/interfaces/models/game/report';
@@ -30,14 +38,19 @@ type GetTilePlayerReturn = {
   population: number;
 };
 
-export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (queryClient, { params }) => {
+export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
+  queryClient,
+  { params },
+) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const reputations = queryClient.getQueryData<Reputation[]>([reputationsCacheKey])!;
+  const reputations = queryClient.getQueryData<Reputation[]>([
+    reputationsCacheKey,
+  ])!;
 
   const tile = tiles.find((tile) => tile.id === tileId)!;
 
@@ -46,9 +59,14 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (q
     : villages.find((village) => village.id === tileId)!;
 
   const player = players.find((player) => village.playerId === player.id)!;
-  const reputation = reputations.find((reputation) => reputation.faction === player.faction)!;
+  const reputation = reputations.find(
+    (reputation) => reputation.faction === player.faction,
+  )!;
 
-  const population = calculatePopulationFromBuildingFields(village.buildingFields, village.buildingFieldsPresets);
+  const population = calculatePopulationFromBuildingFields(
+    village.buildingFields,
+    village.buildingFieldsPresets,
+  );
 
   return {
     player,
@@ -58,7 +76,10 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (q
   };
 };
 
-export const getTileReports: ApiHandler<Report[], 'tileId'> = async (queryClient, { params }) => {
+export const getTileReports: ApiHandler<Report[], 'tileId'> = async (
+  queryClient,
+  { params },
+) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
@@ -81,7 +102,10 @@ export const getTileReports: ApiHandler<Report[], 'tileId'> = async (queryClient
   return reportsToReturn;
 };
 
-export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (queryClient, { params }) => {
+export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
+  queryClient,
+  { params },
+) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
@@ -90,16 +114,24 @@ export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (queryClient, 
   return troops.filter((troop) => troop.tileId === tileId);
 };
 
-export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (queryClient, { params }) => {
+export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
+  queryClient,
+  { params },
+) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
-  const worldItems = queryClient.getQueryData<WorldItem[]>([worldItemsCacheKey])!;
+  const worldItems = queryClient.getQueryData<WorldItem[]>([
+    worldItemsCacheKey,
+  ])!;
 
   return worldItems.find((worldItem) => worldItem.tileId === tileId) ?? null;
 };
 
-export const getTileOccupiableOasis: ApiHandler<OasisTile[], 'tileId'> = async (queryClient, { params }) => {
+export const getTileOccupiableOasis: ApiHandler<OasisTile[], 'tileId'> = async (
+  queryClient,
+  { params },
+) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
@@ -127,16 +159,23 @@ export const getTileOccupiableOasis: ApiHandler<OasisTile[], 'tileId'> = async (
   return occupiableOasisInRange;
 };
 
-export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async (queryClient, { params }) => {
+export const getContextualMap: ApiHandler<
+  ContextualTile[],
+  'villageId'
+> = async (queryClient, { params }) => {
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const reputations = queryClient.getQueryData<Reputation[]>([reputationsCacheKey])!;
+  const reputations = queryClient.getQueryData<Reputation[]>([
+    reputationsCacheKey,
+  ])!;
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const worldItems = queryClient.getQueryData<WorldItem[]>([worldItemsCacheKey])!;
+  const worldItems = queryClient.getQueryData<WorldItem[]>([
+    worldItemsCacheKey,
+  ])!;
 
   const reputationMap = new Map<Player['faction'], Reputation>(
     reputations.map((reputation) => {
@@ -162,7 +201,9 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async
     }),
   );
 
-  const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>([]);
+  const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>(
+    [],
+  );
 
   for (const event of events) {
     if (!isTroopMovementEvent(event)) {
@@ -182,8 +223,15 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = async
     eventArray.push(event);
   }
 
-  const offensiveMovements: GameEvent<'troopMovement'>['movementType'][] = ['attack', 'raid'];
-  const deploymentMovements: GameEvent<'troopMovement'>['movementType'][] = ['return', 'reinforcements', 'relocation'];
+  const offensiveMovements: GameEvent<'troopMovement'>['movementType'][] = [
+    'attack',
+    'raid',
+  ];
+  const deploymentMovements: GameEvent<'troopMovement'>['movementType'][] = [
+    'return',
+    'reinforcements',
+    'relocation',
+  ];
 
   const contextualTiles: ContextualTile[] = Array(tiles.length);
 
