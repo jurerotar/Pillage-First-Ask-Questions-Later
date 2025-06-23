@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { Text } from 'app/components/text';
 import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -112,167 +111,164 @@ export const CreateNewServerForm = () => {
   }
 
   return (
-    <main className="flex flex-col gap-4">
-      <Text as="h1">{t('Create new server')}</Text>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 p-2 shadow-xl rounded-md"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <FormField
-                control={form.control}
-                name="seed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Server Seed')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isPending || isSuccess}
-                        placeholder="abc123"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="name"
-                disabled={isPending || isSuccess}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Server Name')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t('New World')}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configuration.mapSize"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('World Size')}</FormLabel>
-                    <Select
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 p-2 shadow-xl rounded-md"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="seed"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Server Seed')}</FormLabel>
+                  <FormControl>
+                    <Input
                       disabled={isPending || isSuccess}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="100">100</SelectItem>
-                        <SelectItem value="200">200</SelectItem>
-                        <SelectItem value="300">300</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      placeholder="abc123"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="configuration.speed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Game Speed')}</FormLabel>
-                    <Select
-                      disabled={isPending || isSuccess}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="1">1x</SelectItem>
-                        <SelectItem value="2">2x</SelectItem>
-                        <SelectItem value="3">3x</SelectItem>
-                        <SelectItem value="5">5x</SelectItem>
-                        <SelectItem value="10">10x</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-6">
-              <FormField
-                control={form.control}
-                name="playerConfiguration.name"
-                disabled={isPending || isSuccess}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Player Name')}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="playerConfiguration.tribe"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Tribe')}</FormLabel>
-                    <Select
-                      disabled={isPending || isSuccess}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t('Select a tribe')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="romans">{t('Romans')}</SelectItem>
-                        <SelectItem value="gauls">{t('Gauls')}</SelectItem>
-                        <SelectItem value="teutons">{t('Teutons')}</SelectItem>
-                        <SelectItem value="huns">{t('Huns')}</SelectItem>
-                        <SelectItem value="egyptians">
-                          {t('Egyptians')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <Button
+            <FormField
+              control={form.control}
+              name="name"
               disabled={isPending || isSuccess}
-              type="submit"
-            >
-              {t('Create Server')}
-            </Button>
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Server Name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('New World')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="configuration.mapSize"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('World Size')}</FormLabel>
+                  <Select
+                    disabled={isPending || isSuccess}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="100">100</SelectItem>
+                      <SelectItem value="200">200</SelectItem>
+                      <SelectItem value="300">300</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="configuration.speed"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Game Speed')}</FormLabel>
+                  <Select
+                    disabled={isPending || isSuccess}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">1x</SelectItem>
+                      <SelectItem value="2">2x</SelectItem>
+                      <SelectItem value="3">3x</SelectItem>
+                      <SelectItem value="5">5x</SelectItem>
+                      <SelectItem value="10">10x</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          {isSuccess && <Alert variant="success">{t('Redirecting...')}</Alert>}
-        </form>
-      </Form>
-    </main>
+
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="playerConfiguration.name"
+              disabled={isPending || isSuccess}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Player Name')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="playerConfiguration.tribe"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Tribe')}</FormLabel>
+                  <Select
+                    disabled={isPending || isSuccess}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={t('Select a tribe')} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="romans">{t('Romans')}</SelectItem>
+                      <SelectItem value="gauls">{t('Gauls')}</SelectItem>
+                      <SelectItem value="teutons">{t('Teutons')}</SelectItem>
+                      <SelectItem value="huns">{t('Huns')}</SelectItem>
+                      <SelectItem value="egyptians">
+                        {t('Egyptians')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button
+            disabled={isPending || isSuccess}
+            type="submit"
+          >
+            {t('Create Server')}
+          </Button>
+        </div>
+        {isSuccess && <Alert variant="success">{t('Redirecting...')}</Alert>}
+      </form>
+    </Form>
   );
 };
