@@ -65,35 +65,33 @@ const shapesByResource: Record<Resource, Shape[]> = {
   wheat: shapes,
 };
 
-const weightedResourceFieldComposition: Record<
-  number,
-  ResourceFieldComposition
-> = {
-  1: '00018',
-  2: '11115',
-  4: '3339',
-  7: '4437',
-  10: '4347',
-  13: '3447',
-  21: '3456',
-  29: '4356',
-  37: '3546',
-  45: '4536',
-  53: '5346',
-  61: '5436',
-};
+const weightedResourceFieldComposition: [number, ResourceFieldComposition][] = [
+  [1, '00018'],
+  [2, '11115'],
+  [4, '3339'],
+  [7, '4437'],
+  [10, '4347'],
+  [13, '3447'],
+  [21, '3456'],
+  [29, '4356'],
+  [37, '3546'],
+  [45, '4536'],
+  [53, '5346'],
+  [61, '5436'],
+];
 
 const generateOccupiableTileType = (
   prng: PRNGFunction,
 ): ResourceFieldComposition => {
-  const randomInt: number = seededRandomIntFromInterval(prng, 1, 90);
+  const randomInt = seededRandomIntFromInterval(prng, 1, 90);
 
-  for (const weight in weightedResourceFieldComposition) {
-    if (randomInt <= Number(weight)) {
-      return weightedResourceFieldComposition[weight];
+  for (const [weight, composition] of weightedResourceFieldComposition) {
+    if (randomInt <= weight) {
+      return composition;
     }
   }
 
+  // Fallback for randomInt > all defined weights
   return '4446';
 };
 

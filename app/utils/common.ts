@@ -21,24 +21,19 @@ export const seededRandomArrayElements = <T>(
   array: T[],
   n: number,
 ): T[] => {
-  const result: T[] = [];
-  let len = array.length;
-
-  // If n is greater than array length, return the whole array
+  const len = array.length;
   if (n >= len) {
-    return array;
+    return [...array];
   }
 
-  // Select n random elements
-  for (let i = 0; i < n; i += 1) {
-    if (len === 0) {
-      return result;
-    }
-    const randomIndex = Math.floor(prng() * len);
-    result.push(array[randomIndex]);
-    // Remove the selected element to avoid duplicates
-    array.splice(randomIndex, 1);
-    len -= 1;
+  const result: T[] = [];
+  const indices = Array.from({ length: len }, (_, i) => i);
+
+  // Partial Fisher-Yates shuffle
+  for (let i = 0; i < n; i++) {
+    const j = i + Math.floor(prng() * (len - i));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+    result.push(array[indices[i]]);
   }
 
   return result;
