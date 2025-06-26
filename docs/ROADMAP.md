@@ -2,7 +2,7 @@
 
 ## Core game mechanics
 - [x] Game engine
-- [ ] Troop training
+- [x] Troop training
 - [x] Village settlement
 - [x] Troop research (needs to have timer added)
 - [x] Troop improvement (needs to have timer added)
@@ -29,9 +29,9 @@
 - [ ] Game layout
   - [x] Main navigation
   - [x] Village select
-  - [ ] Troop movements
-  - [ ] Building queue
-  - [ ] Troops in village
+  - [x] Troop movements
+  - [x] Building queue
+  - [x] Troops in village
 - [ ] Village view
   - [ ] Core implementation
     - [x] Constructing & destructing buildings

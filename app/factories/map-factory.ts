@@ -211,10 +211,11 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
       yCoordinateCounter -= 1;
     }
 
-    const distance = Math.sqrt(x ** 2 + y ** 2);
+    const distanceSquared = x ** 2 + y ** 2;
+    const thresholdSquared = (halfSize - borderWidth / 2) ** 2;
 
     // This needs to be in a separate if statement so that satisfies works correctly
-    if (distance >= halfSize - borderWidth / 2) {
+    if (distanceSquared >= thresholdSquared) {
       tiles[i] = {
         id: packTileId(x, y),
         type: 1,
@@ -300,7 +301,7 @@ const generateShapedOasisFields = (
       }
     }
 
-    tilesToUpdate.forEach((tile, index) => {
+    for (const [index, tile] of tilesToUpdate.entries()) {
       const oasisTile = generateOasisTile({
         tile,
         oasisGroup,
@@ -309,7 +310,7 @@ const generateShapedOasisFields = (
         prng,
       });
       Object.assign(tile, oasisTile);
-    });
+    }
   }
 
   return tilesWithOasisShapes;
@@ -358,7 +359,9 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
     outer: for (let dx = -3; dx <= 3; dx++) {
       for (let dy = -3; dy <= 3; dy++) {
         const key = packTileId(x + dx, y + dy);
-        if (!oasisTilesByCoordinates.has(key)) {
+
+        const tileToUpdate = oasisTilesByCoordinates.get(key);
+        if (!tileToUpdate) {
           continue;
         }
 
@@ -368,8 +371,6 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
         if (!willOasisBeAssigned) {
           continue;
         }
-
-        const tileToUpdate = oasisTilesByCoordinates.get(key)!;
 
         (tileToUpdate as never as OccupiedOasisTile).villageId = tile.id;
         assignedOasisCounter += 1;
