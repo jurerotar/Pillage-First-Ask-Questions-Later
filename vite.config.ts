@@ -125,7 +125,6 @@ const viteConfig = defineViteConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern',
         additionalData: `
         @use "./app/styles/_globals.scss" as *;
         $graphics-version: "${graphicsVersion}";

@@ -107,13 +107,11 @@ const ColorPickerPage = () => {
   const Component = paramToComponentMap[name as Param] ?? null;
 
   return (
-    <>
-      <main className="flex flex-col">
-        <section className="container relative mx-auto py-4 flex">
-          <Component />
-        </section>
-      </main>
-    </>
+    <main className="flex flex-col">
+      <section className="container relative mx-auto py-4 flex">
+        <Component />
+      </section>
+    </main>
   );
 };
 

@@ -678,7 +678,6 @@ const GameLayout = () => {
   return (
     <Suspense fallback="Layout loader">
       <CurrentVillageStateProvider>
-        {/** biome-ignore lint/nursery/useUniqueElementIds: This is intentional, since this tooltip is references all throughout the app */}
         <Tooltip id="general-tooltip" />
         <TopNavigation />
         <Suspense fallback={null}>

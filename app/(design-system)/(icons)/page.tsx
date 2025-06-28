@@ -8,34 +8,32 @@ const chunkedIconNames = chunk(iconNames, Math.trunc(iconNames.length / 5));
 
 const IconsPage = () => {
   return (
-    <>
-      <main className="flex flex-col">
-        <section className="container relative mx-auto py-4">
-          <ul className="flex flex-col md:flex-row justify-between">
-            {chunkedIconNames.map((chunk, i) => (
-              <ul
-                className="flex flex-col gap-1"
-                // biome-ignore lint/suspicious/noArrayIndexKey: It's only rendered once and it never changes
-                key={i}
-              >
-                {chunk.map((name: IconType) => (
-                  <li
-                    key={name}
-                    className="flex gap-4"
-                  >
-                    <Icon
-                      className="size-12"
-                      type={name}
-                    />
-                    <p>{name}</p>
-                  </li>
-                ))}
-              </ul>
-            ))}
-          </ul>
-        </section>
-      </main>
-    </>
+    <main className="flex flex-col">
+      <section className="container relative mx-auto py-4">
+        <ul className="flex flex-col md:flex-row justify-between">
+          {chunkedIconNames.map((chunk, i) => (
+            <ul
+              className="flex flex-col gap-1"
+              // biome-ignore lint/suspicious/noArrayIndexKey: It's only rendered once and it never changes
+              key={i}
+            >
+              {chunk.map((name: IconType) => (
+                <li
+                  key={name}
+                  className="flex gap-4"
+                >
+                  <Icon
+                    className="size-12"
+                    type={name}
+                  />
+                  <p>{name}</p>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </ul>
+      </section>
+    </main>
   );
 };
 

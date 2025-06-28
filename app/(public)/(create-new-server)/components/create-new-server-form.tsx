@@ -23,10 +23,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
-import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 import type { Server } from 'app/interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
 import { Alert } from 'app/components/ui/alert';
+import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
+import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
+import { workerFactory } from 'app/utils/workers';
 
 const formSchema = z.object({
   seed: z.string().min(1, { error: t('Seed is required') }),
@@ -68,7 +70,11 @@ export const CreateNewServerForm = () => {
     isPending,
     isSuccess,
   } = useMutation<void, Error, MutateArgs>({
-    mutationFn: ({ server }) => initializeServer(server),
+    mutationFn: async ({ server }) => {
+      await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, {
+        server,
+      });
+    },
     onSuccess: (_, { server }) => {
       addServer({ server });
       navigate(`/game/${server.slug}/v-1/resources`);

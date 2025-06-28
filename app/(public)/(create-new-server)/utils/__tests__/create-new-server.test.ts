@@ -5,14 +5,9 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
-import { beforeAll, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import 'opfs-mock';
 import '@vitest/web-worker';
-import {
-  type DehydratedState,
-  hydrate,
-  QueryClient,
-} from '@tanstack/react-query';
 import {
   effectsCacheKey,
   eventsCacheKey,
@@ -31,7 +26,6 @@ import type { Server } from 'app/interfaces/models/game/server';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import {
   calculateGridLayout,
   decodeGraphicsProperty,
@@ -39,17 +33,7 @@ import {
 } from 'app/utils/map';
 import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 
-const queryClient = new QueryClient();
-
-beforeAll(async () => {
-  await initializeServer(serverMock);
-  const rootHandle = await getRootHandle();
-  const dehydratedState = await getParsedFileContents<DehydratedState>(
-    rootHandle,
-    serverMock.slug,
-  );
-  hydrate(queryClient, dehydratedState);
-});
+const queryClient = await initializeServer(serverMock);
 
 // TODO: Write these tests
 

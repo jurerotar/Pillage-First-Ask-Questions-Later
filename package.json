@@ -33,11 +33,11 @@
     "@grafana/faro-web-sdk": "1.18.2",
     "@hookform/resolvers": "5.1.1",
     "@pillage-first/graphics": "0.0.5",
-    "@react-router/node": "7.6.2",
-    "@react-router/serve": "7.6.2",
-    "@tailwindcss/vite": "4.1.10",
-    "@tanstack/react-query": "5.81.2",
-    "@tanstack/react-query-devtools": "5.81.2",
+    "@react-router/node": "7.6.3",
+    "@react-router/serve": "7.6.3",
+    "@tailwindcss/vite": "4.1.11",
+    "@tanstack/react-query": "5.81.5",
+    "@tanstack/react-query-devtools": "5.81.5",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
@@ -49,10 +49,10 @@
     "radix-ui": "1.4.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-hook-form": "7.58.1",
+    "react-hook-form": "7.59.0",
     "react-i18next": "15.5.3",
     "react-icons": "5.5.0",
-    "react-router": "7.6.2",
+    "react-router": "7.6.3",
     "react-tabs": "6.1.0",
     "react-tooltip": "5.29.1",
     "react-window": "1.8.11",
@@ -63,14 +63,14 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.5",
+    "@biomejs/biome": "2.0.6",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
-    "@react-router/dev": "7.6.2",
+    "@react-router/dev": "7.6.3",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "24.0.4",
+    "@types/node": "24.0.7",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "@types/react-window": "1.8.8",
@@ -79,17 +79,25 @@
     "happy-dom": "18.0.1",
     "husky": "9.1.7",
     "i18next-parser": "9.3.0",
-    "knip": "5.61.2",
+    "knip": "5.61.3",
     "opfs-mock": "2.2.0",
-    "rolldown-vite": "6.3.21",
+    "rolldown-vite": "7.0.3",
     "sass-embedded": "1.89.2",
     "skott": "0.35.4",
-    "tailwindcss": "4.1.10",
+    "tailwindcss": "4.1.11",
     "typescript": "5.8.3",
-    "vite": "npm:rolldown-vite@6.3.21",
+    "vite": "npm:rolldown-vite@7.0.3",
     "vite-plugin-devtools-json": "0.2.0",
     "vite-plugin-pwa": "1.0.0",
     "vitest": "3.2.4"
+  },
+  "overrides": {
+    "vite-plugin-devtools-json": {
+      "vite": "^7.0.0"
+    },
+    "vite-plugin-pwa": {
+      "vite": "^7.0.0"
+    }
   },
   "engines": {
     "node": ">=22.15.0"

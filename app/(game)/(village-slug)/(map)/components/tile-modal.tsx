@@ -131,57 +131,55 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
   const ownedBy = occupiedByVillage?.playerId;
 
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        <TileModalLocation tile={tile} />
+    <DialogHeader>
+      <DialogTitle>{title}</DialogTitle>
+      <TileModalLocation tile={tile} />
+      {isOccupiable && (
+        <div className="flex justify-start gap-2 items-center">
+          {tile.ORB.map(({ resource, bonus }: OasisResourceBonus) => (
+            <span
+              key={resource}
+              className="flex items-center gap-1"
+            >
+              <Icon
+                className="size-4"
+                type={resource}
+              />
+              <span>{bonus}</span>
+            </span>
+          ))}
+        </div>
+      )}
+      <DialogDescription>
+        {!isOccupiable && t('This is an un-occupiable oasis.')}
         {isOccupiable && (
-          <div className="flex justify-start gap-2 items-center">
-            {tile.ORB.map(({ resource, bonus }: OasisResourceBonus) => (
-              <span
-                key={resource}
-                className="flex items-center gap-1"
-              >
-                <Icon
-                  className="size-4"
-                  type={resource}
-                />
-                <span>{bonus}</span>
-              </span>
-            ))}
-          </div>
-        )}
-        <DialogDescription>
-          {!isOccupiable && t('This is an un-occupiable oasis.')}
-          {isOccupiable && (
-            <>
-              {isOccupied && (
-                <>
-                  {ownedBy === 'player' &&
-                    t(
-                      'This oasis is occupied by you and is producing resources for village {{villageName}}.',
-                      {
-                        villageName: occupiedByVillage!.name,
-                      },
-                    )}
-                  {ownedBy !== 'player' &&
-                    t(
-                      'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
-                    )}
-                </>
+          <>
+            {isOccupied && (
+              <>
+                {ownedBy === 'player' &&
+                  t(
+                    'This oasis is occupied by you and is producing resources for village {{villageName}}.',
+                    {
+                      villageName: occupiedByVillage!.name,
+                    },
+                  )}
+                {ownedBy !== 'player' &&
+                  t(
+                    'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
+                  )}
+              </>
+            )}
+            {!isOccupied &&
+              t(
+                'This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.',
+                {
+                  herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
+                },
               )}
-              {!isOccupied &&
-                t(
-                  'This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.',
-                  {
-                    herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
-                  },
-                )}
-            </>
-          )}
-        </DialogDescription>
-      </DialogHeader>
-    </>
+          </>
+        )}
+      </DialogDescription>
+    </DialogHeader>
   );
 };
 
