@@ -6,12 +6,18 @@ import { describe, expect, test } from 'vitest';
 // TODO: Add more tests here
 describe('unit-research-requirements', () => {
   test('You should not be able to research swordsman without lvl. 3 academy', () => {
-    const { canResearch } = assessUnitResearchReadiness('SWORDSMAN', villageMock);
+    const { canResearch } = assessUnitResearchReadiness(
+      'SWORDSMAN',
+      villageMock,
+    );
     expect(canResearch).toBe(false);
   });
 
   test('You should be able to research swordsman with lvl. 3 academy', () => {
-    const village: Village = { ...villageMock, buildingFields: [{ buildingId: 'ACADEMY', id: 1, level: 3 }] };
+    const village: Village = {
+      ...villageMock,
+      buildingFields: [{ buildingId: 'ACADEMY', id: 1, level: 3 }],
+    };
     const { canResearch } = assessUnitResearchReadiness('SWORDSMAN', village);
     expect(canResearch).toBe(true);
   });

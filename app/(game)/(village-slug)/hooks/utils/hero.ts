@@ -17,7 +17,10 @@ export const calculateHeroLevel = (currentExp: number) => {
   };
 };
 
-export const calculateHeroRevivalCost = (tribe: Tribe, level: number): number[] => {
+export const calculateHeroRevivalCost = (
+  tribe: Tribe,
+  level: number,
+): number[] => {
   const tribeToHeroRevivalCostMap = new Map<Tribe, number[]>([
     ['romans', [130, 115, 180, 75]],
     ['teutons', [180, 130, 115, 75]],
@@ -32,7 +35,9 @@ export const calculateHeroRevivalCost = (tribe: Tribe, level: number): number[] 
 
   const baseRevivalCost = tribeToHeroRevivalCostMap.get(tribe)!;
 
-  return baseRevivalCost.map((resource) => roundTo5(resource * (1 + level / 24) * (level + 1)));
+  return baseRevivalCost.map((resource) =>
+    roundTo5(resource * (1 + level / 24) * (level + 1)),
+  );
 };
 
 export const calculateHeroRevivalTime = (level: number): number => {

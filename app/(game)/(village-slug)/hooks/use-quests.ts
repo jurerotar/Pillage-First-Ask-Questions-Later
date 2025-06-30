@@ -1,22 +1,68 @@
-import { useQuery } from '@tanstack/react-query';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  collectableQuestCountCacheKey,
+  heroCacheKey,
+  playerVillagesCacheKey,
+  questsCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useQuests = () => {
-  const { currentVillage } = useCurrentVillage();
+  const { fetcher } = use(ApiContext);
+  const queryClient = useQueryClient();
 
-  const { data: quests } = useQuery<Quest[]>({
+  const { data: quests } = useSuspenseQuery<Quest[]>({
     queryKey: [questsCacheKey],
-    initialData: [],
+    queryFn: async () => {
+      const { data } = await fetcher<Quest[]>('/me/quests');
+      return data;
+    },
   });
 
-  const globalQuests = quests.filter(({ scope }) => scope === 'global');
-  const currentVillageQuests = quests.filter(({ villageId }) => villageId === currentVillage.id);
+  const { data: collectableQuestCount } = useSuspenseQuery<number>({
+    queryKey: [collectableQuestCountCacheKey],
+    queryFn: async () => {
+      const { data } = await fetcher<{ collectableQuestCount: number }>(
+        '/me/quests/collectables/count',
+      );
+      return data.collectableQuestCount;
+    },
+  });
+
+  const { mutate: completeQuest } = useMutation<
+    void,
+    Error,
+    { questId: Quest['id'] }
+  >({
+    mutationFn: async ({ questId }) => {
+      await fetcher(`/quests/${questId}/collect`, {
+        method: 'PATCH',
+        body: {
+          questId,
+        },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [questsCacheKey] });
+      await queryClient.invalidateQueries({
+        queryKey: [collectableQuestCountCacheKey],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [playerVillagesCacheKey],
+      });
+      await queryClient.invalidateQueries({ queryKey: [heroCacheKey] });
+    },
+  });
 
   return {
     quests,
-    globalQuests,
-    currentVillageQuests,
+    collectableQuestCount,
+    completeQuest,
   };
 };

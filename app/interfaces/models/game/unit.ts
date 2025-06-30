@@ -1,91 +1,84 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
+type ComputedUnits<
+  T extends
+    | 'roman'
+    | 'gaul'
+    | 'hun'
+    | 'egyptian'
+    | 'natarian'
+    | 'teutonic'
+    | 'spartan',
+> = `${Uppercase<T>}_${'SCOUT' | 'RAM' | 'CATAPULT' | 'CHIEF' | 'SETTLER'}`;
+
 export type RomanUnitId =
   | 'LEGIONNAIRE'
   | 'PRAETORIAN'
   | 'IMPERIAN'
-  | 'EQUITES_LEGATI'
   | 'EQUITES_IMPERATORIS'
   | 'EQUITES_CAESARIS'
-  | 'ROMAN_RAM'
-  | 'ROMAN_CATAPULT'
-  | 'SENATOR'
-  | 'ROMAN_SETTLER';
+  | ComputedUnits<'roman'>;
 
 export type GaulUnitId =
   | 'PHALANX'
   | 'SWORDSMAN'
-  | 'PATHFINDER'
   | 'THEUTATES_THUNDER'
   | 'DRUIDRIDER'
   | 'HAEDUAN'
-  | 'GAUL_RAM'
-  | 'GAUL_CATAPULT'
-  | 'CHIEFTAIN'
-  | 'GAUL_SETTLER';
+  | ComputedUnits<'gaul'>;
 
 export type TeutonUnitId =
-  | 'MACEMAN'
+  | 'CLUBSWINGER'
   | 'SPEARMAN'
   | 'AXEMAN'
-  | 'SCOUT'
   | 'PALADIN'
   | 'TEUTONIC_KNIGHT'
-  | 'TEUTONIC_RAM'
-  | 'TEUTONIC_CATAPULT'
-  | 'CHIEF'
-  | 'TEUTONIC_SETTLER';
+  | ComputedUnits<'teutonic'>;
 
 export type HunUnitId =
   | 'MERCENARY'
   | 'BOWMAN'
-  | 'SPOTTER'
   | 'STEPPE_RIDER'
   | 'MARKSMAN'
   | 'MARAUDER'
-  | 'HUN_RAM'
-  | 'HUN_CATAPULT'
-  | 'LOGADES'
-  | 'HUN_SETTLER';
+  | ComputedUnits<'hun'>;
 
 export type EgyptianUnitId =
   | 'SLAVE_MILITIA'
   | 'ASH_WARDEN'
   | 'KHOPESH_WARRIOR'
-  | 'SOPDU_EXPLORER'
   | 'ANHUR_GUARD'
   | 'RESHEPH_CHARIOT'
-  | 'EGYPTIAN_RAM'
-  | 'EGYPTIAN_CATAPULT'
-  | 'NOMARCH'
-  | 'EGYPTIAN_SETTLER';
+  | ComputedUnits<'egyptian'>;
 
 type SpartanUnitId =
   | 'HOPLITE'
-  | 'SENTINEL'
   | 'SHIELDSMAN'
   | 'TWINSTEEL_THERION'
   | 'ELPIDA_RIDER'
   | 'CORINTHIAN_CRUSHER'
-  | 'SPARTAN_RAM'
-  | 'SPARTAN_CATAPULT'
-  | 'EPHOR'
-  | 'SPARTAN_SETTLER';
+  | ComputedUnits<'spartan'>;
 
 export type NatarUnitId =
   | 'PIKEMAN'
   | 'THORNED_WARRIOR'
   | 'GUARDSMAN'
-  | 'BIRDS_OF_PREY'
   | 'AXERIDER'
   | 'NATARIAN_KNIGHT'
-  | 'NATARIAN_RAM'
-  | 'NATARIAN_CATAPULT'
-  | 'NATARIAN_EMPEROR'
-  | 'NATARIAN_SETTLER';
+  | ComputedUnits<'natarian'>;
 
-export type NatureUnitId = 'RAT' | 'SPIDER' | 'SERPENT' | 'BAT' | 'WILD_BOAR' | 'WOLF' | 'BEAR' | 'CROCODILE' | 'TIGER' | 'ELEPHANT';
+export type NatureUnitId =
+  | 'RAT'
+  | 'SPIDER'
+  | 'SERPENT'
+  | 'BAT'
+  | 'WILD_BOAR'
+  | 'WOLF'
+  | 'BEAR'
+  | 'CROCODILE'
+  | 'TIGER'
+  | 'ELEPHANT';
 
 export type UnitId =
   | 'HERO'
@@ -103,7 +96,17 @@ export type UnitResearchRequirement = {
   level: number;
 };
 
-export type UnitTier = 'tier-1' | 'tier-2' | 'tier-3' | 'scout' | 'tier-4' | 'tier-5' | 'siege-ram' | 'siege-catapult' | 'special' | 'hero';
+export type UnitTier =
+  | 'tier-1'
+  | 'tier-2'
+  | 'tier-3'
+  | 'scout'
+  | 'tier-4'
+  | 'tier-5'
+  | 'siege-ram'
+  | 'siege-catapult'
+  | 'special'
+  | 'hero';
 
 export type Unit = {
   id: UnitId;

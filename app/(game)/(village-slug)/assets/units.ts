@@ -4,7 +4,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'LEGIONNAIRE',
     baseRecruitmentCost: [120, 100, 150, 30],
-    baseRecruitmentDuration: 1600,
+    baseRecruitmentDuration: 1600000,
     unitWheatConsumption: 1,
     attack: 40,
     infantryDefence: 35,
@@ -19,7 +19,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'PRAETORIAN',
     baseRecruitmentCost: [100, 130, 160, 70],
-    baseRecruitmentDuration: 1760,
+    baseRecruitmentDuration: 1760000,
     unitWheatConsumption: 1,
     attack: 30,
     infantryDefence: 65,
@@ -34,7 +34,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'IMPERIAN',
     baseRecruitmentCost: [150, 160, 210, 80],
-    baseRecruitmentDuration: 1920,
+    baseRecruitmentDuration: 1920000,
     unitWheatConsumption: 1,
     attack: 70,
     infantryDefence: 40,
@@ -47,9 +47,9 @@ export const romanUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
-    id: 'EQUITES_LEGATI',
+    id: 'ROMAN_SCOUT',
     baseRecruitmentCost: [140, 160, 20, 40],
-    baseRecruitmentDuration: 1360,
+    baseRecruitmentDuration: 1360000,
     unitWheatConsumption: 2,
     attack: 0,
     infantryDefence: 20,
@@ -67,7 +67,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'EQUITES_IMPERATORIS',
     baseRecruitmentCost: [550, 440, 320, 100],
-    baseRecruitmentDuration: 2640,
+    baseRecruitmentDuration: 2640000,
     unitWheatConsumption: 3,
     attack: 120,
     infantryDefence: 65,
@@ -85,7 +85,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'EQUITES_CAESARIS',
     baseRecruitmentCost: [550, 640, 800, 180],
-    baseRecruitmentDuration: 3520,
+    baseRecruitmentDuration: 3520000,
     unitWheatConsumption: 4,
     attack: 180,
     infantryDefence: 80,
@@ -103,7 +103,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'ROMAN_RAM',
     baseRecruitmentCost: [900, 360, 500, 70],
-    baseRecruitmentDuration: 4600,
+    baseRecruitmentDuration: 4600000,
     unitWheatConsumption: 3,
     attack: 60,
     infantryDefence: 30,
@@ -121,7 +121,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'ROMAN_CATAPULT',
     baseRecruitmentCost: [950, 1350, 600, 90],
-    baseRecruitmentDuration: 9000,
+    baseRecruitmentDuration: 9000000,
     unitWheatConsumption: 6,
     attack: 75,
     infantryDefence: 60,
@@ -137,9 +137,9 @@ export const romanUnits: Unit[] = [
     ],
   },
   {
-    id: 'SENATOR',
+    id: 'ROMAN_CHIEF',
     baseRecruitmentCost: [30750, 27200, 45000, 37500],
-    baseRecruitmentDuration: 90700,
+    baseRecruitmentDuration: 90700000,
     unitWheatConsumption: 5,
     attack: 50,
     infantryDefence: 40,
@@ -157,7 +157,7 @@ export const romanUnits: Unit[] = [
   {
     id: 'ROMAN_SETTLER',
     baseRecruitmentCost: [4600, 4200, 5800, 4400],
-    baseRecruitmentDuration: 26900,
+    baseRecruitmentDuration: 26900000,
     unitWheatConsumption: 1,
     attack: 0,
     infantryDefence: 80,
@@ -175,7 +175,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'PHALANX',
     baseRecruitmentCost: [100, 130, 55, 30],
-    baseRecruitmentDuration: 1040,
+    baseRecruitmentDuration: 1040000,
     unitWheatConsumption: 1,
     attack: 15,
     infantryDefence: 40,
@@ -190,7 +190,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'SWORDSMAN',
     baseRecruitmentCost: [140, 150, 185, 60],
-    baseRecruitmentDuration: 1440,
+    baseRecruitmentDuration: 1440000,
     unitWheatConsumption: 1,
     attack: 65,
     infantryDefence: 35,
@@ -203,9 +203,9 @@ export const gaulUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
-    id: 'PATHFINDER',
+    id: 'GAUL_SCOUT',
     baseRecruitmentCost: [170, 150, 20, 40],
-    baseRecruitmentDuration: 1360,
+    baseRecruitmentDuration: 1360000,
     unitWheatConsumption: 2,
     attack: 0,
     infantryDefence: 20,
@@ -223,7 +223,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'THEUTATES_THUNDER',
     baseRecruitmentCost: [350, 450, 230, 60],
-    baseRecruitmentDuration: 2480,
+    baseRecruitmentDuration: 2480000,
     unitWheatConsumption: 2,
     attack: 90,
     infantryDefence: 25,
@@ -241,7 +241,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'DRUIDRIDER',
     baseRecruitmentCost: [360, 330, 280, 120],
-    baseRecruitmentDuration: 2560,
+    baseRecruitmentDuration: 2560000,
     unitWheatConsumption: 2,
     attack: 45,
     infantryDefence: 115,
@@ -259,7 +259,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'HAEDUAN',
     baseRecruitmentCost: [500, 620, 675, 170],
-    baseRecruitmentDuration: 3120,
+    baseRecruitmentDuration: 3120000,
     unitWheatConsumption: 3,
     attack: 140,
     infantryDefence: 60,
@@ -277,7 +277,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'GAUL_RAM',
     baseRecruitmentCost: [950, 555, 330, 75],
-    baseRecruitmentDuration: 5000,
+    baseRecruitmentDuration: 5000000,
     unitWheatConsumption: 3,
     attack: 50,
     infantryDefence: 30,
@@ -295,7 +295,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'GAUL_CATAPULT',
     baseRecruitmentCost: [960, 1450, 630, 90],
-    baseRecruitmentDuration: 9000,
+    baseRecruitmentDuration: 9000000,
     unitWheatConsumption: 6,
     attack: 70,
     infantryDefence: 45,
@@ -311,9 +311,9 @@ export const gaulUnits: Unit[] = [
     ],
   },
   {
-    id: 'CHIEFTAIN',
+    id: 'GAUL_CHIEF',
     baseRecruitmentCost: [30750, 45400, 31000, 37500],
-    baseRecruitmentDuration: 90700,
+    baseRecruitmentDuration: 90700000,
     unitWheatConsumption: 4,
     attack: 40,
     infantryDefence: 50,
@@ -331,7 +331,7 @@ export const gaulUnits: Unit[] = [
   {
     id: 'GAUL_SETTLER',
     baseRecruitmentCost: [4400, 5600, 4200, 3900],
-    baseRecruitmentDuration: 22700,
+    baseRecruitmentDuration: 22700000,
     unitWheatConsumption: 1,
     attack: 0,
     infantryDefence: 80,
@@ -347,9 +347,9 @@ export const gaulUnits: Unit[] = [
 
 export const teutonUnits: Unit[] = [
   {
-    id: 'MACEMAN',
+    id: 'CLUBSWINGER',
     baseRecruitmentCost: [95, 75, 40, 40],
-    baseRecruitmentDuration: 720,
+    baseRecruitmentDuration: 720000,
     unitWheatConsumption: 1,
     attack: 40,
     infantryDefence: 20,
@@ -364,7 +364,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'SPEARMAN',
     baseRecruitmentCost: [145, 70, 85, 40],
-    baseRecruitmentDuration: 1120,
+    baseRecruitmentDuration: 1120000,
     unitWheatConsumption: 1,
     attack: 10,
     infantryDefence: 35,
@@ -382,7 +382,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'AXEMAN',
     baseRecruitmentCost: [130, 120, 170, 70],
-    baseRecruitmentDuration: 1200,
+    baseRecruitmentDuration: 1200000,
     unitWheatConsumption: 1,
     attack: 60,
     infantryDefence: 30,
@@ -395,9 +395,9 @@ export const teutonUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
-    id: 'SCOUT',
+    id: 'TEUTONIC_SCOUT',
     baseRecruitmentCost: [160, 100, 50, 50],
-    baseRecruitmentDuration: 1120,
+    baseRecruitmentDuration: 1120000,
     unitWheatConsumption: 1,
     attack: 0,
     infantryDefence: 10,
@@ -415,7 +415,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'PALADIN',
     baseRecruitmentCost: [370, 270, 290, 75],
-    baseRecruitmentDuration: 2400,
+    baseRecruitmentDuration: 2400000,
     unitWheatConsumption: 2,
     attack: 55,
     infantryDefence: 100,
@@ -433,7 +433,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'TEUTONIC_KNIGHT',
     baseRecruitmentCost: [450, 515, 480, 80],
-    baseRecruitmentDuration: 2960,
+    baseRecruitmentDuration: 2960000,
     unitWheatConsumption: 3,
     attack: 150,
     infantryDefence: 50,
@@ -451,7 +451,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'TEUTONIC_RAM',
     baseRecruitmentCost: [1000, 300, 350, 70],
-    baseRecruitmentDuration: 4200,
+    baseRecruitmentDuration: 4200000,
     unitWheatConsumption: 3,
     attack: 65,
     infantryDefence: 30,
@@ -469,7 +469,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'TEUTONIC_CATAPULT',
     baseRecruitmentCost: [900, 1200, 600, 60],
-    baseRecruitmentDuration: 9000,
+    baseRecruitmentDuration: 9000000,
     unitWheatConsumption: 6,
     attack: 50,
     infantryDefence: 60,
@@ -485,9 +485,9 @@ export const teutonUnits: Unit[] = [
     ],
   },
   {
-    id: 'CHIEF',
+    id: 'TEUTONIC_CHIEF',
     baseRecruitmentCost: [35500, 26600, 25000, 27200],
-    baseRecruitmentDuration: 70500,
+    baseRecruitmentDuration: 70500000,
     unitWheatConsumption: 4,
     attack: 40,
     infantryDefence: 60,
@@ -505,7 +505,7 @@ export const teutonUnits: Unit[] = [
   {
     id: 'TEUTONIC_SETTLER',
     baseRecruitmentCost: [5800, 4400, 4600, 5200],
-    baseRecruitmentDuration: 31000,
+    baseRecruitmentDuration: 31000000,
     unitWheatConsumption: 1,
     attack: 0,
     infantryDefence: 80,
@@ -523,7 +523,7 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'SLAVE_MILITIA',
     baseRecruitmentCost: [45, 60, 30, 15],
-    baseRecruitmentDuration: 530,
+    baseRecruitmentDuration: 530000,
     unitWheatConsumption: 1,
     attack: 10,
     infantryDefence: 30,
@@ -538,7 +538,7 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'ASH_WARDEN',
     baseRecruitmentCost: [115, 100, 145, 60],
-    baseRecruitmentDuration: 1320,
+    baseRecruitmentDuration: 1320000,
     unitWheatConsumption: 1,
     attack: 30,
     infantryDefence: 55,
@@ -553,7 +553,7 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'KHOPESH_WARRIOR',
     baseRecruitmentCost: [170, 180, 220, 80],
-    baseRecruitmentDuration: 1440,
+    baseRecruitmentDuration: 1440000,
     unitWheatConsumption: 1,
     attack: 65,
     infantryDefence: 50,
@@ -566,16 +566,16 @@ export const egyptianUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
-    id: 'SOPDU_EXPLORER',
+    id: 'EGYPTIAN_SCOUT',
     baseRecruitmentCost: [170, 150, 20, 40],
-    baseRecruitmentDuration: 1360,
+    baseRecruitmentDuration: 1360000,
     unitWheatConsumption: 2,
     attack: 0,
     infantryDefence: 20,
     cavalryDefence: 10,
     unitSpeed: 16,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'egyptians',
     tier: 'scout',
     researchRequirements: [
@@ -586,14 +586,14 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'ANHUR_GUARD',
     baseRecruitmentCost: [360, 330, 280, 120],
-    baseRecruitmentDuration: 2560,
+    baseRecruitmentDuration: 2560000,
     unitWheatConsumption: 2,
     attack: 50,
     infantryDefence: 110,
     cavalryDefence: 50,
     unitSpeed: 15,
     unitCarryCapacity: 50,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'egyptians',
     tier: 'tier-4',
     researchRequirements: [
@@ -604,14 +604,14 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'RESHEPH_CHARIOT',
     baseRecruitmentCost: [450, 560, 610, 180],
-    baseRecruitmentDuration: 3240,
+    baseRecruitmentDuration: 3240000,
     unitWheatConsumption: 3,
     attack: 110,
     infantryDefence: 120,
     cavalryDefence: 150,
     unitSpeed: 10,
     unitCarryCapacity: 70,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'egyptians',
     tier: 'tier-5',
     researchRequirements: [
@@ -622,7 +622,7 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'EGYPTIAN_RAM',
     baseRecruitmentCost: [995, 575, 340, 80],
-    baseRecruitmentDuration: 4800,
+    baseRecruitmentDuration: 4800000,
     unitWheatConsumption: 3,
     attack: 55,
     infantryDefence: 30,
@@ -640,7 +640,7 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'EGYPTIAN_CATAPULT',
     baseRecruitmentCost: [980, 1510, 660, 100],
-    baseRecruitmentDuration: 9000,
+    baseRecruitmentDuration: 9000000,
     unitWheatConsumption: 6,
     attack: 65,
     infantryDefence: 55,
@@ -656,16 +656,16 @@ export const egyptianUnits: Unit[] = [
     ],
   },
   {
-    id: 'NOMARCH',
+    id: 'EGYPTIAN_CHIEF',
     baseRecruitmentCost: [34000, 50000, 34000, 42000],
-    baseRecruitmentDuration: 90700,
+    baseRecruitmentDuration: 90700000,
     unitWheatConsumption: 4,
     attack: 40,
     infantryDefence: 50,
     cavalryDefence: 50,
     unitSpeed: 4,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'special',
     tribe: 'egyptians',
     tier: 'special',
     researchRequirements: [
@@ -676,14 +676,14 @@ export const egyptianUnits: Unit[] = [
   {
     id: 'EGYPTIAN_SETTLER',
     baseRecruitmentCost: [5040, 6510, 4830, 4620],
-    baseRecruitmentDuration: 24800,
+    baseRecruitmentDuration: 24800000,
     unitWheatConsumption: 1,
     attack: 0,
     infantryDefence: 80,
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'infantry',
+    category: 'special',
     tribe: 'egyptians',
     tier: 'special',
     researchRequirements: [],
@@ -694,7 +694,7 @@ export const hunUnits: Unit[] = [
   {
     id: 'MERCENARY',
     baseRecruitmentCost: [130, 80, 40, 40],
-    baseRecruitmentDuration: 810,
+    baseRecruitmentDuration: 810000,
     unitWheatConsumption: 1,
     attack: 35,
     infantryDefence: 40,
@@ -709,7 +709,7 @@ export const hunUnits: Unit[] = [
   {
     id: 'BOWMAN',
     baseRecruitmentCost: [140, 110, 60, 60],
-    baseRecruitmentDuration: 1120,
+    baseRecruitmentDuration: 1120000,
     unitWheatConsumption: 1,
     attack: 50,
     infantryDefence: 30,
@@ -722,16 +722,16 @@ export const hunUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
-    id: 'SPOTTER',
+    id: 'HUN_SCOUT',
     baseRecruitmentCost: [170, 150, 20, 40],
-    baseRecruitmentDuration: 1360,
+    baseRecruitmentDuration: 1360000,
     unitWheatConsumption: 2,
     attack: 0,
     infantryDefence: 20,
     cavalryDefence: 10,
     unitSpeed: 19,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'scout',
     researchRequirements: [
@@ -742,14 +742,14 @@ export const hunUnits: Unit[] = [
   {
     id: 'STEPPE_RIDER',
     baseRecruitmentCost: [290, 370, 190, 45],
-    baseRecruitmentDuration: 2400,
+    baseRecruitmentDuration: 2400000,
     unitWheatConsumption: 2,
     attack: 120,
     infantryDefence: 30,
     cavalryDefence: 15,
     unitSpeed: 16,
     unitCarryCapacity: 75,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-3',
     researchRequirements: [
@@ -760,14 +760,14 @@ export const hunUnits: Unit[] = [
   {
     id: 'MARKSMAN',
     baseRecruitmentCost: [320, 350, 330, 50],
-    baseRecruitmentDuration: 2480,
+    baseRecruitmentDuration: 2480000,
     unitWheatConsumption: 2,
     attack: 115,
     infantryDefence: 80,
     cavalryDefence: 70,
     unitSpeed: 16,
     unitCarryCapacity: 105,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-4',
     researchRequirements: [
@@ -778,14 +778,14 @@ export const hunUnits: Unit[] = [
   {
     id: 'MARAUDER',
     baseRecruitmentCost: [450, 560, 610, 140],
-    baseRecruitmentDuration: 2990,
+    baseRecruitmentDuration: 2990000,
     unitWheatConsumption: 3,
     attack: 180,
     infantryDefence: 60,
     cavalryDefence: 40,
     unitSpeed: 14,
     unitCarryCapacity: 80,
-    category: 'infantry',
+    category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-5',
     researchRequirements: [
@@ -796,7 +796,7 @@ export const hunUnits: Unit[] = [
   {
     id: 'HUN_RAM',
     baseRecruitmentCost: [1060, 330, 360, 70],
-    baseRecruitmentDuration: 4400,
+    baseRecruitmentDuration: 4400000,
     unitWheatConsumption: 3,
     attack: 65,
     infantryDefence: 30,
@@ -814,7 +814,7 @@ export const hunUnits: Unit[] = [
   {
     id: 'HUN_CATAPULT',
     baseRecruitmentCost: [950, 1280, 620, 60],
-    baseRecruitmentDuration: 9000,
+    baseRecruitmentDuration: 9000000,
     unitWheatConsumption: 6,
     attack: 45,
     infantryDefence: 55,
@@ -830,16 +830,16 @@ export const hunUnits: Unit[] = [
     ],
   },
   {
-    id: 'LOGADES',
+    id: 'HUN_CHIEF',
     baseRecruitmentCost: [37200, 27600, 25200, 27600],
-    baseRecruitmentDuration: 90700,
+    baseRecruitmentDuration: 90700000,
     unitWheatConsumption: 4,
     attack: 50,
     infantryDefence: 40,
     cavalryDefence: 30,
     unitSpeed: 5,
     unitCarryCapacity: 0,
-    category: 'infantry',
+    category: 'special',
     tribe: 'huns',
     tier: 'special',
     researchRequirements: [
@@ -850,14 +850,14 @@ export const hunUnits: Unit[] = [
   {
     id: 'HUN_SETTLER',
     baseRecruitmentCost: [6100, 4600, 4800, 5400],
-    baseRecruitmentDuration: 28950,
+    baseRecruitmentDuration: 28950000,
     unitWheatConsumption: 1,
     attack: 10,
     infantryDefence: 80,
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'infantry',
+    category: 'special',
     tribe: 'huns',
     tier: 'special',
     researchRequirements: [],
@@ -868,7 +868,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'HOPLITE',
     baseRecruitmentCost: [110, 185, 110, 40],
-    baseRecruitmentDuration: 1700,
+    baseRecruitmentDuration: 1700000,
     unitWheatConsumption: 1,
     attack: 50,
     infantryDefence: 35,
@@ -881,9 +881,9 @@ export const spartanUnits: Unit[] = [
     researchRequirements: [],
   },
   {
-    id: 'SENTINEL',
+    id: 'SPARTAN_SCOUT',
     baseRecruitmentCost: [185, 150, 35, 75],
-    baseRecruitmentDuration: 1232,
+    baseRecruitmentDuration: 1232000,
     unitWheatConsumption: 1,
     attack: 0,
     infantryDefence: 40,
@@ -898,7 +898,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'SHIELDSMAN',
     baseRecruitmentCost: [145, 95, 245, 45],
-    baseRecruitmentDuration: 1936,
+    baseRecruitmentDuration: 1936000,
     unitWheatConsumption: 1,
     attack: 40,
     infantryDefence: 85,
@@ -913,7 +913,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'TWINSTEEL_THERION',
     baseRecruitmentCost: [130, 200, 400, 65],
-    baseRecruitmentDuration: 2112,
+    baseRecruitmentDuration: 2112000,
     unitWheatConsumption: 1,
     attack: 90,
     infantryDefence: 55,
@@ -928,7 +928,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'ELPIDA_RIDER',
     baseRecruitmentCost: [555, 445, 330, 110],
-    baseRecruitmentDuration: 2816,
+    baseRecruitmentDuration: 2816000,
     unitWheatConsumption: 2,
     attack: 55,
     infantryDefence: 120,
@@ -946,7 +946,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'CORINTHIAN_CRUSHER',
     baseRecruitmentCost: [660, 495, 995, 165],
-    baseRecruitmentDuration: 3432,
+    baseRecruitmentDuration: 3432000,
     unitWheatConsumption: 3,
     attack: 195,
     infantryDefence: 80,
@@ -964,7 +964,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'SPARTAN_RAM',
     baseRecruitmentCost: [525, 260, 790, 130],
-    baseRecruitmentDuration: 4620,
+    baseRecruitmentDuration: 4620000,
     unitWheatConsumption: 3,
     attack: 65,
     infantryDefence: 30,
@@ -998,9 +998,9 @@ export const spartanUnits: Unit[] = [
     ],
   },
   {
-    id: 'EPHOR',
+    id: 'SPARTAN_CHIEF',
     baseRecruitmentCost: [33450, 30665, 36240, 13935],
-    baseRecruitmentDuration: 77550,
+    baseRecruitmentDuration: 77550000,
     unitWheatConsumption: 1,
     attack: 40,
     infantryDefence: 60,
@@ -1018,7 +1018,7 @@ export const spartanUnits: Unit[] = [
   {
     id: 'SPARTAN_SETTLER',
     baseRecruitmentCost: [5115, 5580, 6045, 3255],
-    baseRecruitmentDuration: 34100,
+    baseRecruitmentDuration: 34100000,
     unitWheatConsumption: 1,
     attack: 10,
     infantryDefence: 80,
@@ -1036,7 +1036,7 @@ export const spartanUnits: Unit[] = [
 export const natureUnits: Unit[] = [
   {
     id: 'RAT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [85, 75, 120, 25],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 10,
@@ -1051,7 +1051,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'SPIDER',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [125, 130, 60, 40],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 20,
@@ -1066,7 +1066,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'SERPENT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [140, 150, 40, 60],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 60,
@@ -1081,7 +1081,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'BAT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [95, 120, 65, 25],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
     attack: 80,
@@ -1096,7 +1096,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'WILD_BOAR',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [250, 200, 125, 45],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 2,
     attack: 50,
@@ -1111,7 +1111,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'WOLF',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [250, 125, 250, 150],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 2,
     attack: 100,
@@ -1126,7 +1126,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'BEAR',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [250, 220, 135, 50],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 3,
     attack: 250,
@@ -1141,7 +1141,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'CROCODILE',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [240, 125, 250, 300],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 3,
     attack: 450,
@@ -1156,7 +1156,7 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'TIGER',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [350, 350, 125, 80],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 3,
     attack: 200,
@@ -1171,14 +1171,14 @@ export const natureUnits: Unit[] = [
   },
   {
     id: 'ELEPHANT',
-    baseRecruitmentCost: [0, 0, 0, 0],
+    baseRecruitmentCost: [350, 250, 135, 100],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 5,
     attack: 600,
     infantryDefence: 440,
     cavalryDefence: 520,
     unitSpeed: 20,
-    unitCarryCapacity: 0,
+    unitCarryCapacity: 3000,
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-5',
@@ -1233,7 +1233,7 @@ export const natarianUnits: Unit[] = [
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
-    id: 'BIRDS_OF_PREY',
+    id: 'NATARIAN_SCOUT',
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
@@ -1323,7 +1323,7 @@ export const natarianUnits: Unit[] = [
     ],
   },
   {
-    id: 'NATARIAN_EMPEROR',
+    id: 'NATARIAN_CHIEF',
     baseRecruitmentCost: [0, 0, 0, 0],
     baseRecruitmentDuration: 0,
     unitWheatConsumption: 1,
@@ -1357,7 +1357,7 @@ export const natarianUnits: Unit[] = [
   },
 ];
 
-export const specialUnits: Unit[] = [
+const specialUnits: Unit[] = [
   {
     id: 'HERO',
     baseRecruitmentCost: [0, 0, 0, 0],
@@ -1388,4 +1388,6 @@ export const units: Unit[] = [
 ];
 
 // Use this for faster lookups
-export const unitsMap = new Map<Unit['id'], Unit>(units.map((unit) => [unit.id, unit]));
+export const unitsMap = new Map<Unit['id'], Unit>(
+  units.map((unit) => [unit.id, unit]),
+);

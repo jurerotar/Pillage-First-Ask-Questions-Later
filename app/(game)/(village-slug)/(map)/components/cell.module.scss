@@ -1,6 +1,6 @@
 @mixin oasisBackgroundImage($base, $resourceBase, $group, $position) {
   &-position-#{$position} {
-    background-image: url('#{$resourceBase}/#{$group}/#{$position}.avif');
+    background-image: url('#{$resourceBase}/#{$group}/#{$position}.avif?v=#{$graphics-version}');
   }
 }
 
@@ -55,7 +55,7 @@
 
 // Unoccupied occupiable tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  html[data-skin-variant="#{$skinVariantSelector}"] {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
     $base: '#{$imagesPath}/map/unoccupied-tiles';
 
     .unoccupied-tile {
@@ -70,7 +70,7 @@
 
 // Oasis tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  html[data-skin-variant="#{$skinVariantSelector}"] {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
     $base: '#{$imagesPath}/map/oasis';
 
     .oasis-tile {
@@ -133,6 +133,33 @@
     &-5 {
       --top: 0.25rem;
       --right: 0.25rem;
+      --scale: 1.25;
+    }
+  }
+}
+
+.troop-movements {
+  --top: 0;
+  --left: 0;
+  --scale: 1;
+
+  position: absolute;
+  user-select: none;
+  z-index: 20;
+  top: var(--top);
+  left: var(--left);
+  transform: scale(var(--scale));
+
+  &-magnification {
+    &-3 {
+      --top: -0.25rem;
+      --left: -0.25rem;
+      --scale: 0.75;
+    }
+
+    &-5 {
+      --top: 0.25rem;
+      --left: 0.25rem;
       --scale: 1.25;
     }
   }

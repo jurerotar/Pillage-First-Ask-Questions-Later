@@ -1,42 +1,39 @@
 import type { Point } from 'app/interfaces/models/common';
 import type { PRNGFunction } from 'ts-seedrandom';
 
-export const randomIntFromInterval = (min: number, max: number): number => {
-  // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min);
-};
-
-export const randomArrayElement = <T>(array: T[]): T => {
-  return array[Math.floor(Math.random() * array.length)];
-};
-
-export const seededRandomIntFromInterval = (prng: PRNGFunction, min: number, max: number): number => {
+export const seededRandomIntFromInterval = (
+  prng: PRNGFunction,
+  min: number,
+  max: number,
+): number => {
   return Math.floor(prng() * (max - min + 1) + min);
 };
 
-export const seededRandomArrayElement = <T>(prng: PRNGFunction, array: T[]): T => {
+export const seededRandomArrayElement = <T>(
+  prng: PRNGFunction,
+  array: T[],
+): T => {
   return array[Math.floor(prng() * array.length)];
 };
 
-export const seededRandomArrayElements = <T>(prng: PRNGFunction, array: T[], n: number): T[] => {
-  const result: T[] = [];
-  let len = array.length;
-
-  // If n is greater than array length, return the whole array
+export const seededRandomArrayElements = <T>(
+  prng: PRNGFunction,
+  array: T[],
+  n: number,
+): T[] => {
+  const len = array.length;
   if (n >= len) {
-    return array;
+    return [...array];
   }
 
-  // Select n random elements
-  for (let i = 0; i < n; i += 1) {
-    if (len === 0) {
-      return result;
-    }
-    const randomIndex = Math.floor(prng() * len);
-    result.push(array[randomIndex]);
-    // Remove the selected element to avoid duplicates
-    array.splice(randomIndex, 1);
-    len -= 1;
+  const result: T[] = [];
+  const indices = Array.from({ length: len }, (_, i) => i);
+
+  // Partial Fisher-Yates shuffle
+  for (let i = 0; i < n; i++) {
+    const j = i + Math.floor(prng() * (len - i));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+    result.push(array[indices[i]]);
   }
 
   return result;
@@ -52,17 +49,13 @@ export const seededShuffleArray = <T>(prng: PRNGFunction, array: T[]): T[] => {
   return copy;
 };
 
-export const isFloat = (number: number): boolean => {
-  return !Number.isInteger(number) && !Number.isNaN(number);
-};
-
-export const partialArraySum = (array: number[], index: number): number => {
-  const sum: number = array.filter((_, i) => i < index).reduce((a, b) => a + b, 0);
-  return isFloat(sum) ? Number(sum.toFixed(2)) : sum;
-};
-
-export const calculateDistanceBetweenPoints = (firstPoint: Point, secondPoint: Point): number => {
-  return Math.sqrt((secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2);
+export const calculateDistanceBetweenPoints = (
+  firstPoint: Point,
+  secondPoint: Point,
+): number => {
+  return Math.sqrt(
+    (secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2,
+  );
 };
 
 export const roundTo2DecimalPoints = (number: number): number => {
@@ -77,7 +70,10 @@ export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-export const partition = <T>(array: T[], callback: (element: T) => boolean): [T[], T[]] => {
+export const partition = <T>(
+  array: T[],
+  callback: (element: T) => boolean,
+): [T[], T[]] => {
   return array.reduce(
     (result, element) => {
       result[callback(element) ? 0 : 1].push(element);
@@ -91,43 +87,18 @@ export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
 
-export const timeExecution = async (callback: () => void | Promise<void>, name = 'Performance mark') => {
+export const timeExecution = async (
+  callback: () => void | Promise<void>,
+  name = 'Performance mark',
+) => {
   performance.mark(`${name} - start`);
   await callback();
   performance.mark(`${name} - end`);
   performance.measure(name, `${name} - start`, `${name} - end`);
 };
 
-export const averageExecutionTime = (count = 100) => {
-  let executionCount = 0;
-  let totalTime = 0;
-
-  return (callback: () => void) => {
-    const startTime = performance.now();
-    callback();
-    const endTime = performance.now();
-
-    const runTime = endTime - startTime;
-    executionCount += 1;
-    totalTime += runTime;
-
-    if (executionCount === count) {
-      // biome-ignore lint/suspicious/noConsole:
-      console.log(`${totalTime / executionCount}ms`);
-    }
-  };
-};
-
-export const isInDevelopmentMode = () => {
-  return import.meta.env.DEV;
-};
-
-export const isMasterDeploy = () => {
-  return import.meta.env.BRANCH_ENV === 'master';
-};
-
 export const formatPercentage = (number: number): string => {
-  // We can't differentiate between ints and floats in JS, so every 1.0 numbers is written as 1.001. We check for this number
+  // We can't differentiate between ints and floats in JS, so every x.0 number is written as 1.001. We check for this number
   // here and just return 100% if
   if (`${number}`.endsWith('.001')) {
     return `${Math.trunc(number)}00%`;
@@ -150,7 +121,9 @@ export const formatNumber = (number: number): string => {
 
 // Formats number as either an integer or as a percentage
 export const formatValue = (value: number) => {
-  return Number.isInteger(value) && !value.toString().includes('.') ? value : formatPercentage(value);
+  return Number.isInteger(value) && !value.toString().includes('.')
+    ? value
+    : formatPercentage(value);
 };
 
 export const normalizeForcedFloatValue = (value: number) => {

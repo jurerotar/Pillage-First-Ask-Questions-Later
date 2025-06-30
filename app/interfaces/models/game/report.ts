@@ -1,5 +1,5 @@
 import type { Village } from 'app/interfaces/models/game/village';
-import type { Troop } from 'app/interfaces/models/game/troop';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export type ReportTag = 'read' | 'archived';
 
@@ -13,7 +13,7 @@ type BaseReport = {
 };
 
 export type BattleReport = BaseReport & {
-  type: 'attack' | 'defence';
+  type: 'attack' | 'raid' | 'defence';
   status: ReportStatus;
 };
 
@@ -30,16 +30,13 @@ export type TradeReport = BaseReport & {
   type: 'trade';
 };
 
-export type TroopMovementReport = BaseReport & {
-  type: 'relocation' | 'reinforcements' | 'return';
-  troops: Troop[];
-  targetId: Village['id'];
-};
+export type TroopMovementReport = BaseReport & GameEvent<'troopMovement'>;
 
-export type OasisOccupationReport = BaseReport & {
-  type: 'oasis-occupation';
-  troops: Troop[];
-  targetId: Village['id'];
-};
+export type Report =
+  | BattleReport
+  | ScoutReport
+  | AdventureReport
+  | TradeReport
+  | TroopMovementReport;
 
-export type Report = BattleReport | ScoutReport | AdventureReport | TradeReport | TroopMovementReport | OasisOccupationReport;
+export type ReportType = Report['type'];

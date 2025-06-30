@@ -7,7 +7,14 @@ import type { Resources } from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import type { BuildingField, Village, VillagePresetId, VillageSize } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField,
+  PlayerVillage,
+  Village,
+  VillagePresetId,
+  VillageSize,
+} from 'app/interfaces/models/game/village';
+import { t } from 'i18next';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
@@ -55,7 +62,10 @@ const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
   ['egyptians', 'STONE_WALL'],
 ]);
 
-const createWallBuildingField = (tribe: PlayableTribe, villageSize: VillageSize | 'player'): BuildingField => {
+const createWallBuildingField = (
+  tribe: PlayableTribe,
+  villageSize: VillageSize | 'player',
+): BuildingField => {
   return {
     buildingId: tribeToWallBuildingIdMap.get(tribe)!,
     id: 40,
@@ -63,16 +73,20 @@ const createWallBuildingField = (tribe: PlayableTribe, villageSize: VillageSize 
   };
 };
 
-type VillageFactoryProps = {
+type PlayerVillageFactoryProps = {
   tile: OccupiedOccupiableTile;
   player: Player;
-  slug: Village['slug'];
+  slug: PlayerVillage['slug'];
 };
 
-export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps): Village => {
+export const playerVillageFactory = ({
+  tile,
+  player,
+  slug,
+}: PlayerVillageFactoryProps): PlayerVillage => {
   const { id, RFC } = tile;
 
-  const { name, tribe } = player;
+  const { tribe } = player;
 
   const buildingFields = [
     ...createVillageResourceFields(RFC, 'player'),
@@ -82,7 +96,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
 
   return {
     id,
-    name: `${name}'s village`,
+    name: t('New village'),
     slug,
     buildingFields,
     buildingFieldsPresets: [],
@@ -91,6 +105,7 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
     lastUpdatedAt: Date.now(),
     RFC,
     artifactId: null,
+    expansionSlots: [],
     resources: {
       wood: 750,
       clay: 750,
@@ -100,11 +115,17 @@ export const userVillageFactory = ({ tile, player, slug }: VillageFactoryProps):
   };
 };
 
-type NpcVillageFactoryProps = Omit<VillageFactoryProps, 'slug'> & {
+type NpcVillageFactoryProps = {
   server: Server;
+  tile: OccupiedOccupiableTile;
+  player: Player;
 };
 
-const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Village => {
+const npcVillageFactory = ({
+  tile,
+  player,
+  server,
+}: NpcVillageFactoryProps): Village => {
   const { RFC, id } = tile;
 
   const { id: playerId, name, tribe } = player;
@@ -119,15 +140,16 @@ const npcVillageFactory = ({ tile, player, server }: NpcVillageFactoryProps): Vi
   return {
     id,
     name: `${name}'s village`,
-    slug: '',
     buildingFields,
-    buildingFieldsPresets: [resourcesBuildingFieldPresetId, villageBuildingFieldPresetId],
+    buildingFieldsPresets: [
+      resourcesBuildingFieldPresetId,
+      villageBuildingFieldPresetId,
+    ],
     playerId,
     isCapital: false,
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
     RFC,
-    artifactId: null,
   };
 };
 
@@ -137,7 +159,11 @@ type GenerateVillagesArgs = {
   npcPlayers: Player[];
 };
 
-export const generateVillages = ({ occupiedOccupiableTiles, npcPlayers, server }: GenerateVillagesArgs) => {
+export const generateVillages = ({
+  occupiedOccupiableTiles,
+  npcPlayers,
+  server,
+}: GenerateVillagesArgs) => {
   const playerMap = new Map(npcPlayers.map((p) => [p.id, p]));
 
   const villages: Village[] = occupiedOccupiableTiles

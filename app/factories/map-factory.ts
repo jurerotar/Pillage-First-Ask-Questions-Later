@@ -1,7 +1,14 @@
-import { isOccupiableOasisTile, isOccupiedOccupiableTile } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import {
+  isOccupiableOasisTile,
+  isOccupiedOccupiableTile,
+  isUnoccupiedOccupiableTile,
+} from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { getVillageSize } from 'app/factories/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
-import type { Resource, ResourceCombination } from 'app/interfaces/models/game/resource';
+import type {
+  Resource,
+  ResourceCombination,
+} from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
 import type {
   BaseTile,
@@ -14,10 +21,21 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import type { ResourceFieldComposition, VillageSize } from 'app/interfaces/models/game/village';
-import { seededRandomArrayElement, seededRandomIntFromInterval } from 'app/utils/common';
+import type {
+  ResourceFieldComposition,
+  VillageSize,
+} from 'app/interfaces/models/game/village';
+import {
+  seededRandomArrayElement,
+  seededRandomIntFromInterval,
+} from 'app/utils/common';
 import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
-import { encodeGraphicsProperty, parseCoordinatesFromTileId } from 'app/utils/map-tile';
+import {
+  calculateGridLayout,
+  encodeGraphicsProperty,
+  packTileId,
+  parseCoordinatesFromTileId,
+} from 'app/utils/map';
 
 type Shape = { group: number; shape: number[] };
 
@@ -40,34 +58,40 @@ const shapesByResource: Record<Resource, Shape[]> = {
   wood: [...shapes, { group: 4, shape: [3] }],
   clay: shapes,
   // Iron doesn't have shape 3
-  iron: [...shapes.filter(({ group }) => group !== 3), { group: 4, shape: [3] }],
+  iron: [
+    ...shapes.filter(({ group }) => group !== 3),
+    { group: 4, shape: [3] },
+  ],
   wheat: shapes,
 };
 
-const weightedResourceFieldComposition: Record<number, ResourceFieldComposition> = {
-  1: '00018',
-  2: '11115',
-  4: '3339',
-  7: '4437',
-  10: '4347',
-  13: '3447',
-  21: '3456',
-  29: '4356',
-  37: '3546',
-  45: '4536',
-  53: '5346',
-  61: '5436',
-};
+const weightedResourceFieldComposition: [number, ResourceFieldComposition][] = [
+  [1, '00018'],
+  [2, '11115'],
+  [4, '3339'],
+  [7, '4437'],
+  [10, '4347'],
+  [13, '3447'],
+  [21, '3456'],
+  [29, '4356'],
+  [37, '3546'],
+  [45, '4536'],
+  [53, '5346'],
+  [61, '5436'],
+];
 
-const generateOccupiableTileType = (prng: PRNGFunction): ResourceFieldComposition => {
-  const randomInt: number = seededRandomIntFromInterval(prng, 1, 90);
+const generateOccupiableTileType = (
+  prng: PRNGFunction,
+): ResourceFieldComposition => {
+  const randomInt = seededRandomIntFromInterval(prng, 1, 90);
 
-  for (const weight in weightedResourceFieldComposition) {
-    if (randomInt <= Number(weight)) {
-      return weightedResourceFieldComposition[weight];
+  for (const [weight, composition] of weightedResourceFieldComposition) {
+    if (randomInt <= weight) {
+      return composition;
     }
   }
 
+  // Fallback for randomInt > all defined weights
   return '4446';
 };
 
@@ -79,7 +103,13 @@ type GenerateOasisTileArgs = {
   prng: PRNGFunction;
 };
 
-const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGeneratedResourceType }: GenerateOasisTileArgs): OasisTile => {
+const generateOasisTile = ({
+  tile,
+  oasisGroup,
+  oasisGroupPosition,
+  prng,
+  preGeneratedResourceType,
+}: GenerateOasisTileArgs): OasisTile => {
   const resourceType = (() => {
     if (!preGeneratedResourceType) {
       return seededRandomArrayElement<Resource | ResourceCombination>(prng, [
@@ -143,11 +173,16 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
 
   const [row, column] = oasisGroupPosition;
 
-  const encodedGraphics = encodeGraphicsProperty(oasisResource, oasisGroup, row, column);
+  const encodedGraphics = encodeGraphicsProperty(
+    oasisResource,
+    oasisGroup,
+    row,
+    column,
+  );
 
   return {
     ...tile,
-    type: 'oasis-tile',
+    type: 1,
     ORB: oasisResourceBonus,
     villageId: null,
     graphics: encodedGraphics,
@@ -155,14 +190,11 @@ const generateOasisTile = ({ tile, oasisGroup, oasisGroupPosition, prng, preGene
 };
 
 const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
-  const {
-    configuration: { mapSize: size },
-  } = server;
+  const { configuration } = server;
 
-  const borderWidth = 4;
-  const totalSize = Math.ceil(size * Math.sqrt(2)) + borderWidth;
-  const halfSize = totalSize / 2;
-  const totalTiles = (totalSize + 1) ** 2;
+  const { halfSize, borderWidth, totalTiles } = calculateGridLayout(
+    configuration.mapSize,
+  );
 
   let xCoordinateCounter = -halfSize - 1;
   let yCoordinateCounter = halfSize;
@@ -179,13 +211,14 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
       yCoordinateCounter -= 1;
     }
 
-    const distance = Math.sqrt(x ** 2 + y ** 2);
+    const distanceSquared = x ** 2 + y ** 2;
+    const thresholdSquared = (halfSize - borderWidth / 2) ** 2;
 
     // This needs to be in a separate if statement so that satisfies works correctly
-    if (distance >= halfSize - borderWidth / 2) {
+    if (distanceSquared >= thresholdSquared) {
       tiles[i] = {
-        id: `${x}|${y}`,
-        type: 'oasis-tile',
+        id: packTileId(x, y),
+        type: 1,
         ORB: [],
         graphics: encodeGraphicsProperty('wood', 0, 0, 0),
         villageId: null,
@@ -196,28 +229,33 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
     // Initial user village
     if (x === 0 && y === 0) {
       tiles[i] = {
-        id: `${x}|${y}`,
-        type: 'free-tile',
+        id: packTileId(x, y),
+        type: 0,
         RFC: '4446',
         ownedBy: 'player',
-      };
+      } satisfies OccupiedOccupiableTile;
       continue;
     }
 
     tiles[i] = {
-      id: `${x}|${y}`,
+      id: packTileId(x, y),
     } satisfies BaseTile;
   }
 
   return tiles;
 };
 
-const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[]): MaybeOccupiedBaseTile[] => {
+const generateShapedOasisFields = (
+  server: Server,
+  tiles: MaybeOccupiedBaseTile[],
+): MaybeOccupiedBaseTile[] => {
   const tilesWithOasisShapes: MaybeOccupiedBaseTile[] = [...tiles];
 
   const prng = prngAlea(server.seed);
 
-  const tilesByCoordinates = new Map<Tile['id'], MaybeOccupiedBaseTile>(tiles.map((tile) => [tile.id, tile]));
+  const tilesByCoordinates = new Map<Tile['id'], MaybeOccupiedBaseTile>(
+    tiles.map((tile) => [tile.id, tile]),
+  );
 
   tileLoop: for (let i = 0; i < tilesWithOasisShapes.length; i += 1) {
     const currentTile = tilesWithOasisShapes[i];
@@ -226,15 +264,24 @@ const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[
       continue; // Skip already occupied tiles
     }
 
-    const willTileBeOasis: boolean = seededRandomIntFromInterval(prng, 1, 20) === 1;
+    const willTileBeOasis: boolean =
+      seededRandomIntFromInterval(prng, 1, 20) === 1;
 
     if (!willTileBeOasis) {
       continue;
     }
 
-    const tileCoordinates = parseCoordinatesFromTileId(currentTile.id);
-    const resourceType: Resource = seededRandomArrayElement<Resource>(prng, ['wheat', 'iron', 'clay', 'wood']);
-    const { group: oasisGroup, shape: oasisShape } = seededRandomArrayElement(prng, shapesByResource[resourceType]);
+    const { x, y } = parseCoordinatesFromTileId(currentTile.id);
+    const resourceType: Resource = seededRandomArrayElement<Resource>(prng, [
+      'wheat',
+      'iron',
+      'clay',
+      'wood',
+    ]);
+    const { group: oasisGroup, shape: oasisShape } = seededRandomArrayElement(
+      prng,
+      shapesByResource[resourceType],
+    );
 
     const tilesToUpdate: BaseTile[] = [];
     const oasisGroupPositions: number[][] = [];
@@ -242,7 +289,8 @@ const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[
     for (let k = 0; k < oasisShape.length; k += 1) {
       const amountOfTiles = oasisShape[k];
       for (let j = 0; j < amountOfTiles; j += 1) {
-        const tile: MaybeOccupiedBaseTile | undefined = tilesByCoordinates.get(`${j + tileCoordinates.x}|${tileCoordinates.y - k}`)!;
+        const targetId = packTileId(x + j, y - k);
+        const tile = tilesByCoordinates.get(targetId);
 
         if (!tile || Object.hasOwn(tile, 'type')) {
           continue tileLoop;
@@ -253,7 +301,7 @@ const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[
       }
     }
 
-    tilesToUpdate.forEach((tile, index) => {
+    for (const [index, tile] of tilesToUpdate.entries()) {
       const oasisTile = generateOasisTile({
         tile,
         oasisGroup,
@@ -262,7 +310,7 @@ const generateShapedOasisFields = (server: Server, tiles: MaybeOccupiedBaseTile[
         prng,
       });
       Object.assign(tile, oasisTile);
-    });
+    }
   }
 
   return tilesWithOasisShapes;
@@ -292,14 +340,17 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
     }
 
     const villageSize = getVillageSize(server.configuration.mapSize, tile.id);
-    const maxAmountOfOccupiableOasis = villageSizeToMaxOasisAmountMap.get(villageSize)!;
+    const maxAmountOfOccupiableOasis =
+      villageSizeToMaxOasisAmountMap.get(villageSize)!;
     return maxAmountOfOccupiableOasis > 0;
   }) as OccupiedOccupiableTile[];
 
-  const oasisTilesByCoordinates = new Map<Tile['id'], OasisTile>(oasisTiles.map((tile) => [tile.id, tile]));
+  const oasisTilesByCoordinates = new Map<Tile['id'], OasisTile>(
+    oasisTiles.map((tile) => [tile.id, tile]),
+  );
 
   for (const tile of npcVillagesEligibleForOasis) {
-    const villageCoordinates = parseCoordinatesFromTileId(tile.id);
+    const { x, y } = parseCoordinatesFromTileId(tile.id);
     const villageSize = getVillageSize(server.configuration.mapSize, tile.id);
 
     const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
@@ -307,18 +358,19 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
 
     outer: for (let dx = -3; dx <= 3; dx++) {
       for (let dy = -3; dy <= 3; dy++) {
-        const key = `${villageCoordinates.x + dx}|${villageCoordinates.y + dy}` satisfies Tile['id'];
-        if (!oasisTilesByCoordinates.has(key)) {
+        const key = packTileId(x + dx, y + dy);
+
+        const tileToUpdate = oasisTilesByCoordinates.get(key);
+        if (!tileToUpdate) {
           continue;
         }
 
-        const willOasisBeAssigned = seededRandomIntFromInterval(prng, 1, 3) === 1;
+        const willOasisBeAssigned =
+          seededRandomIntFromInterval(prng, 1, 3) === 1;
 
         if (!willOasisBeAssigned) {
           continue;
         }
-
-        const tileToUpdate = oasisTilesByCoordinates.get(key)!;
 
         (tileToUpdate as never as OccupiedOasisTile).villageId = tile.id;
         assignedOasisCounter += 1;
@@ -336,7 +388,10 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
   return tiles;
 };
 
-const assignOasisAndFreeTileComposition = (server: Server, tiles: MaybeOccupiedBaseTile[], npcPlayers: Player[]): Tile[] => {
+const assignOasisAndFreeTileComposition = (
+  server: Server,
+  tiles: MaybeOccupiedBaseTile[],
+): Tile[] => {
   const prng = prngAlea(server.seed);
 
   return tiles.map((tile): Tile => {
@@ -360,26 +415,125 @@ const assignOasisAndFreeTileComposition = (server: Server, tiles: MaybeOccupiedB
 
     const tileData = {
       ...tile,
-      type: 'free-tile',
+      type: 0,
       RFC: resourceFieldComposition,
     } satisfies OccupiableTile;
 
-    // Only if resourceFieldComposition is 4446 consider tile as a potential npc tile
-    if (resourceFieldComposition !== '4446') {
-      return tileData;
-    }
-
-    const willBeOccupied = seededRandomIntFromInterval(prng, 1, 2) === 1;
-
-    if (!willBeOccupied) {
-      return tileData;
-    }
-
-    return {
-      ...tileData,
-      ownedBy: seededRandomArrayElement(prng, npcPlayers).id,
-    };
+    return tileData;
   });
+};
+
+// This function is kinda heavy and slow, see if you can find any performance improvements
+const assignNpcPlayers = (
+  server: Server,
+  tiles: Tile[],
+  npcPlayers: Player[],
+): Tile[] => {
+  const prng = prngAlea(server.seed);
+
+  const villageSizeToVillageGroupRadiusMap = new Map<VillageSize, number>([
+    ['xxs', 0],
+    ['xs', 0],
+    ['sm', 0],
+    ['md', 3],
+    ['lg', 4],
+    ['xl', 5],
+    ['2xl', 6],
+    ['3xl', 7],
+    ['4xl', 8],
+  ]);
+
+  const villageSizeToAmountOfSupportingVillagesMap = new Map<
+    VillageSize,
+    number
+  >([
+    ['xxs', 0],
+    ['xs', 0],
+    ['sm', 0],
+    ['md', 1],
+    ['lg', 2],
+    ['xl', 4],
+    ['2xl', 7],
+    ['3xl', 10],
+    ['4xl', 15],
+  ]);
+
+  const npcOccupiableTiles = tiles.filter((tile) => {
+    return isUnoccupiedOccupiableTile(tile) && tile.RFC === '4446';
+  });
+
+  const npcOccupiableTilesMap = new Map(
+    npcOccupiableTiles.map((tile) => [tile.id, tile]),
+  );
+
+  const getNthMapValue = (map: Map<number, Tile>, n: number): Tile => {
+    let i = 0;
+    for (const value of map.values()) {
+      if (i === n) {
+        return value;
+      }
+      i++;
+    }
+    throw new Error('Index out of range');
+  };
+
+  for (const player of npcPlayers) {
+    // Select a random tile for the main village
+    const startIndex = seededRandomIntFromInterval(
+      prng,
+      0,
+      npcOccupiableTilesMap.size - 1,
+    );
+    const startingTile = getNthMapValue(npcOccupiableTilesMap, startIndex);
+
+    // Assign player to this tile
+    (startingTile as OccupiedOccupiableTile).ownedBy = player.id;
+    npcOccupiableTilesMap.delete(startingTile.id);
+
+    const villageSize = getVillageSize(
+      server.configuration.mapSize,
+      startingTile.id,
+    );
+    const radius = villageSizeToVillageGroupRadiusMap.get(villageSize) ?? 0;
+    const extraVillageCount =
+      villageSizeToAmountOfSupportingVillagesMap.get(villageSize) ?? 0;
+
+    const { x, y } = parseCoordinatesFromTileId(startingTile.id);
+
+    let assigned = 0;
+    outer: for (let dx = -radius; dx <= radius; dx++) {
+      if (assigned === extraVillageCount) {
+        break;
+      }
+
+      for (let dy = -radius; dy <= radius; dy++) {
+        if (assigned === extraVillageCount) {
+          break outer;
+        }
+
+        if (dx === 0 && dy === 0) {
+          continue;
+        }
+
+        const id = packTileId(x + dx, y + dy);
+        if (!npcOccupiableTilesMap.has(id)) {
+          continue;
+        }
+
+        const candidateTile = npcOccupiableTilesMap.get(id)!;
+        (candidateTile as OccupiedOccupiableTile).ownedBy = player.id;
+
+        npcOccupiableTilesMap.delete(id);
+        assigned++;
+
+        if (assigned === extraVillageCount) {
+          break outer;
+        }
+      }
+    }
+  }
+
+  return tiles;
 };
 
 type MapFactoryProps = {
@@ -389,8 +543,20 @@ type MapFactoryProps = {
 
 export const mapFactory = ({ server, npcPlayers }: MapFactoryProps): Tile[] => {
   const emptyTiles = generateGrid(server);
-  const tilesWithShapedOasisFields = generateShapedOasisFields(server, emptyTiles);
-  const tilesWithSingleOasisAndFreeTileTypes = assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields, npcPlayers);
-  const tilesWithAssignedOasis = assignOasisToNpcVillages(server, tilesWithSingleOasisAndFreeTileTypes);
+  const tilesWithShapedOasisFields = generateShapedOasisFields(
+    server,
+    emptyTiles,
+  );
+  const tilesWithSingleOasisAndFreeTileTypes =
+    assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
+  const tilesWithNpcPlayers = assignNpcPlayers(
+    server,
+    tilesWithSingleOasisAndFreeTileTypes,
+    npcPlayers,
+  );
+  const tilesWithAssignedOasis = assignOasisToNpcVillages(
+    server,
+    tilesWithNpcPlayers,
+  );
   return tilesWithAssignedOasis;
 };

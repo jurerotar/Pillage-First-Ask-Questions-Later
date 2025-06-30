@@ -6,7 +6,10 @@ type StateProviderProps = {
   queryClient?: QueryClient;
 };
 
-export const StateProvider: React.FCWithChildren<StateProviderProps> = ({ children, queryClient: providedQueryClient }) => {
+export const StateProvider: React.FCWithChildren<StateProviderProps> = ({
+  children,
+  queryClient: providedQueryClient,
+}) => {
   const [queryClient] = useState<QueryClient>(
     providedQueryClient ??
       new QueryClient({
@@ -22,5 +25,7 @@ export const StateProvider: React.FCWithChildren<StateProviderProps> = ({ childr
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 };

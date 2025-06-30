@@ -1,5 +1,5 @@
-import { TbWood } from 'react-icons/tb';
+import { GiWoodPile } from 'react-icons/gi';
 
 export const IconMapOasisIconsToggle = () => {
-  return <TbWood className="size-full" />;
+  return <GiWoodPile className="size-full" />;
 };

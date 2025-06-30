@@ -1,1 +1,1 @@
-export type AvailableLocales = 'en-US' | 'sl-SL';
+export type AvailableLocale = 'en-US' | 'sl-SI';

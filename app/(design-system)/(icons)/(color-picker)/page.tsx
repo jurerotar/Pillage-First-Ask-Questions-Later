@@ -1,4 +1,4 @@
-import { Button } from 'app/components/buttons/button';
+import { Button } from 'app/components/ui/button';
 import { Icon } from 'app/components/icon';
 import type React from 'react';
 import { useState } from 'react';
@@ -6,14 +6,25 @@ import { useSearchParams } from 'react-router';
 import styles from './horse.module.scss';
 
 const HorseColorPicker = () => {
-  const svgIds = ['base', 'eye_1_', 'neck-front_1_', 'muzzle_1_', 'mane-front_1_', 'mane-back_1_'];
+  const svgIds = [
+    'base',
+    'eye_1_',
+    'neck-front_1_',
+    'muzzle_1_',
+    'mane-front_1_',
+    'mane-back_1_',
+  ];
 
   // State for selected ID and color map
   const [selectedId, setSelectedId] = useState(svgIds[0]); // default to first id
-  const [colors, setColors] = useState(Object.fromEntries(svgIds.map((e) => [e, 'black'])));
+  const [colors, setColors] = useState(
+    Object.fromEntries(svgIds.map((e) => [e, 'black'])),
+  );
 
   // Handle changes in the dropdown
-  const handleIdChange = (event: { target: { value: React.SetStateAction<string> } }) => {
+  const handleIdChange = (event: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
     setSelectedId(event.target.value);
   };
 
@@ -27,7 +38,9 @@ const HorseColorPicker = () => {
   };
 
   const copyColors = async () => {
-    await navigator.clipboard.writeText(`@include horseIconColorSet(${Object.values(colors).join(', ')})`);
+    await navigator.clipboard.writeText(
+      `@include horseIconColorSet(${Object.values(colors).join(', ')})`,
+    );
   };
 
   return (
@@ -94,13 +107,11 @@ const ColorPickerPage = () => {
   const Component = paramToComponentMap[name as Param] ?? null;
 
   return (
-    <>
-      <main className="flex flex-col">
-        <section className="container relative mx-auto py-4 flex">
-          <Component />
-        </section>
-      </main>
-    </>
+    <main className="flex flex-col">
+      <section className="container relative mx-auto py-4 flex">
+        <Component />
+      </section>
+    </main>
   );
 };
 

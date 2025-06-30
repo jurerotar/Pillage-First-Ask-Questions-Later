@@ -1,5 +1,5 @@
-import { TbWood } from 'react-icons/tb';
+import { GiWoodPile } from 'react-icons/gi';
 
 export const IconWood = () => {
-  return <TbWood className="size-full text-[#A1662F]" />;
+  return <GiWoodPile className="size-full text-[#A1662F]" />;
 };

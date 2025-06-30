@@ -1,0 +1,179 @@
+# Roadmap
+
+## Core game mechanics
+- [x] Game engine
+- [x] Troop training
+- [x] Village settlement
+- [x] Troop research (needs to have timer added)
+- [x] Troop improvement (needs to have timer added)
+- [x] Building restrictions
+- [x] Unit travel duration calculation
+- [x] Artifact, building & hero effects
+- [ ] Combat
+- [ ] NPC attacks
+- [ ] Oasis & NPC troop regeneration
+- [ ] NPC village growth
+- [ ] Trading system village growth
+
+## Server creation
+- [x] Map
+  - [x] Single-tile oasis
+  - [x] Multi-tile oasis
+  - [x] NPC villages
+  - [x] Occupiable tiles
+- [ ] Troops
+  - [x] Generate NPC troops based on distance & tribe
+  - [ ] NPC troops balancing
+
+## Views
+- [ ] Game layout
+  - [x] Main navigation
+  - [x] Village select
+  - [x] Troop movements
+  - [x] Building queue
+  - [x] Troops in village
+- [ ] Village view
+  - [ ] Core implementation
+    - [x] Constructing & destructing buildings
+    - [x] Leveling-up/down buildings
+    - [ ] Scheduling building construction
+    - [x] Roman double queue
+  - [ ] UI
+    - [ ] Building assets
+- [ ] Map view
+  - [ ] Core implementation
+    - [x] Scrollable & draggable map
+  - [ ] UI
+    - [x] Assets
+    - [x] Tile popup
+    - [ ] Action modal (send units,...)
+- [ ] Hero view
+  - [ ] Overview (Hero items & stats)
+    - [x] Core implementation
+    - [ ] UI
+  - [ ] Adventures
+    - [x] Core implementation
+    - [ ] UI
+  - [ ] Auctions
+    - [x] Core implementation
+  - [ ] UI
+- [x] Quests view
+  - [x] Core implementation
+  - [x] UI
+- [ ] Reports
+  - [ ] Core implementation
+  - [ ] UI
+- [x] Village resource production overview
+  - [x] Core implementation
+  - [x] UI
+- [ ] Statistics
+  - [ ] Core implementation
+  - [ ] UI
+- [ ] Building-specific views
+  - [x] Clay Pit
+  - [x] Cropland
+  - [x] Woodcutter
+  - [x] Iron Mine
+  - [x] Bakery
+  - [x] Brickyard
+  - [x] Grain Mill
+  - [x] Iron Foundry
+  - [x] Sawmill
+  - [x] Waterworks
+  - [x] Granary
+  - [x] Warehouse
+  - [ ] Marketplace
+  - [x] Trade Office
+  - [x] Cranny
+  - [x] Treasury
+  - [ ] Barracks
+  - [ ] Great Barracks
+  - [ ] Stable
+  - [ ] Great Stable
+  - [ ] Workshop
+  - [x] Tournament Square
+  - [ ] Rally Point
+  - [x] Horse Drinking Trough
+  - [ ] Trapper
+  - [ ] Hospital
+  - [x] City Wall
+  - [x] Earth Wall
+  - [x] Stone Wall
+  - [x] Palisade
+  - [x] Makeshift Wall
+  - [ ] Command Center
+  - [x] Hero’s Mansion
+  - [x] Academy
+  - [ ] Main Building
+  - [ ] Palace
+  - [ ] Residence
+  - [ ] Brewery
+  - [ ] Smithy
+  - [ ] Hunter's Lodge
+  - [ ] Terrain shaper
+
+## Game data
+Recruitment/building durations & costs, wheat consumption, quest definition,...
+- [ ] Quests
+  - [x] Village-building quests
+  - [x] Troop count quests
+  - [x] Adventure count quests
+  - [ ] Village-population count quests
+  - [ ] Troops killed while attacking quests
+  - [ ] Troops killed while defending quests
+  - [ ] Total-oasis occupied quests
+- [ ] Troops
+  - [x] Roman troops
+  - [x] Gaul troops
+  - [x] Teuton troops
+  - [x] Hun troops
+  - [x] Egyptian troops
+  - [ ] Nature troops (missing troop cost)
+  - [ ] Natarian troops (missing troop cost)
+- [ ] Buildings
+  - [x] Clay Pit
+  - [x] Cropland
+  - [x] Woodcutter
+  - [x] Iron Mine
+  - [x] Bakery
+  - [x] Brickyard
+  - [x] Grain Mill
+  - [x] Iron Foundry
+  - [x] Sawmill
+  - [x] Waterworks
+  - [x] Granary
+  - [x] Warehouse
+  - [x] Marketplace
+  - [x] Trade Office
+  - [x] Cranny
+  - [x] Treasury
+  - [x] Barracks
+  - [x] Great Barracks
+  - [x] Stable
+  - [x] Great Stable
+  - [x] Workshop
+  - [x] Tournament Square
+  - [x] Rally Point
+  - [x] Horse Drinking Trough
+  - [x] Trapper
+  - [x] Hospital
+  - [x] City Wall
+  - [x] Earth Wall
+  - [x] Stone Wall
+  - [x] Palisade
+  - [x] Makeshift Wall
+  - [x] Command Center
+  - [x] Hero’s Mansion
+  - [x] Academy
+  - [x] Main Building
+  - [x] Palace
+  - [x] Residence
+  - [x] Brewery
+  - [ ] Smithy
+  - [ ] Hunter's Lodge
+  - [ ] Terrain shaper
+
+## User preferences & accessibility
+- [x] Dark mode
+- [x] Localization (fully supported, but only English locale is available)
+- [ ] Advanced accessibility features (contrast mode, reduced motion mode,...)

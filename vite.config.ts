@@ -5,6 +5,12 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import clsx from 'clsx';
 import tailwindcss from '@tailwindcss/vite';
+import packageJson from './package.json' with { type: 'json' };
+// import { visualizer } from "rollup-plugin-visualizer";
+import devtoolsJson from 'vite-plugin-devtools-json';
+
+const graphicsVersion =
+  packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
 
 const isInTestMode = process.env.VITEST === 'true';
 // We're setting special icons on non-master environments to differentiate PWAs
@@ -24,9 +30,22 @@ const manifest: Partial<ManifestOptions> = {
   theme_color: '#ffffff',
   orientation: 'portrait',
   icons: [
-    { src: `/logo${appIconPostfix}-192.png`, type: 'image/png', sizes: '192x192' },
-    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512', purpose: 'maskable' },
-    { src: `/logo${appIconPostfix}-512.png`, type: 'image/png', sizes: '512x512' },
+    {
+      src: `/logo${appIconPostfix}-192.png`,
+      type: 'image/png',
+      sizes: '192x192',
+    },
+    {
+      src: `/logo${appIconPostfix}-512.png`,
+      type: 'image/png',
+      sizes: '512x512',
+      purpose: 'maskable',
+    },
+    {
+      src: `/logo${appIconPostfix}-512.png`,
+      type: 'image/png',
+      sizes: '512x512',
+    },
   ],
   scope: '/',
   lang: 'en',
@@ -37,20 +56,20 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
+    !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
     !isInTestMode &&
       VitePWA({
         registerType: 'autoUpdate',
         manifest,
-        workbox: {
-          clientsClaim: true,
-          skipWaiting: true,
-          cleanupOutdatedCaches: true,
-          navigateFallback: null,
+        outDir: 'build/client',
+        injectManifest: {
+          swSrc: 'app/sw.ts',
+          swDest: 'sw.js',
+          globIgnores: ['**/*.html'],
         },
       }),
-    !isInTestMode && VitePWA({ registerType: 'autoUpdate', manifest }),
     // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
     // replacing the dependency. Remove once/if this gets resolved.
     // https://github.com/juliencrn/usehooks-ts/discussions/669#discussioncomment-11922434
@@ -62,12 +81,19 @@ const viteConfig = defineViteConfig({
           return;
         }
 
-        return code.replace(`import debounce from 'lodash.debounce';`, `import { debounce } from 'moderndash';`);
+        return code.replace(
+          `import debounce from 'lodash.debounce';`,
+          `import { debounce } from 'moderndash';`,
+        );
       },
     },
+    // visualizer({ open: true }) as PluginOption,
   ],
   server: {
     open: true,
+  },
+  experimental: {
+    enableNativePlugin: false,
   },
   esbuild: {
     ...(!isDeployingToMaster && {
@@ -99,13 +125,19 @@ const viteConfig = defineViteConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern',
-        additionalData: '@use "./app/styles/_globals.scss" as *;',
+        additionalData: `
+        @use "./app/styles/_globals.scss" as *;
+        $graphics-version: "${graphicsVersion}";
+        `,
       },
     },
   },
   define: {
-    'import.meta.env.BRANCH_ENV': JSON.stringify(isDeployingToMaster ? 'master' : 'develop'),
+    'import.meta.env.VERSION': JSON.stringify(packageJson.version),
+    'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
+    'import.meta.env.BRANCH_ENV': JSON.stringify(
+      isDeployingToMaster ? 'master' : 'develop',
+    ),
   },
 });
 
@@ -118,6 +150,10 @@ const vitestConfig = defineVitestConfig({
     environment: 'happy-dom',
     setupFiles: './app/tests/vitest-setup.ts',
     reporters: ['default'],
+    coverage: {
+      include: ['app/**/*.{ts,tsx}'],
+      exclude: ['**/*-mock.ts', '**/icon-*.tsx', '**/interfaces/**/*.ts'],
+    },
   },
 });
 

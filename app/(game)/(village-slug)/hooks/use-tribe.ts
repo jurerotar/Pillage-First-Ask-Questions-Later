@@ -1,11 +1,9 @@
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { useCurrentPlayer } from 'app/(game)/(village-slug)/hooks/use-current-player';
 
 export const useTribe = () => {
-  const {
-    server: {
-      playerConfiguration: { tribe },
-    },
-  } = useServer();
+  const { currentPlayer } = useCurrentPlayer();
+
+  const tribe = currentPlayer.tribe;
 
   return {
     tribe,

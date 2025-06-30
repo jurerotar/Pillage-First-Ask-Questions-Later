@@ -1,46 +1,71 @@
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/components/building-actions';
 import { BuildingOverview } from 'app/(game)/(village-slug)/(village)/components/building-overview';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  calculateBuildingCostForLevel,
-  calculateBuildingDurationForLevel,
-  getBuildingData,
-  getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
-import { StyledTab } from 'app/components/styled-tab';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { use } from 'react';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { t } from 'i18next';
-import { TabList, TabPanel, Tabs } from 'react-tabs';
 import { Text } from 'app/components/text';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'app/components/ui/table';
-import { Icon } from 'app/components/icon';
-import { formatNumber } from 'app/utils/common';
-import { formatTime } from 'app/utils/time';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { Skeleton } from 'app/components/ui/skeleton';
+import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
-const RallyPointIncomingTroops = lazy(async () => ({
-  default: (await import('./components/rally-point-incoming-troops')).RallyPointIncomingTroops,
+const BuildingTabFallback = () => {
+  return (
+    <Section>
+      <SectionContent>
+        <Skeleton className="flex w-60 h-6" />
+        <Skeleton className="flex w-full h-16" />
+      </SectionContent>
+      <SectionContent>
+        <Skeleton className="flex w-full h-30" />
+      </SectionContent>
+    </Section>
+  );
+};
+
+const BuildingStats = lazy(async () => ({
+  default: (await import('./components/building-stats')).BuildingStats,
+}));
+
+const MainBuildingVillageManagement = lazy(async () => ({
+  default: (await import('./components/main-building-village-management'))
+    .MainBuildingVillageManagement,
+}));
+
+const RallyPointTroopMovements = lazy(async () => ({
+  default: (await import('./components/rally-point-troop-movements'))
+    .RallyPointTroopMovements,
 }));
 
 const RallyPointSendTroops = lazy(async () => ({
-  default: (await import('./components/rally-point-send-troops')).RallyPointSendTroops,
+  default: (await import('./components/rally-point-send-troops'))
+    .RallyPointSendTroops,
 }));
 
 const RallyPointSimulator = lazy(async () => ({
-  default: (await import('./components/rally-point-simulator')).RallyPointSimulator,
-}));
-
-const RallyPointFarmList = lazy(async () => ({
-  default: (await import('./components/rally-point-farm-list')).RallyPointFarmList,
+  default: (await import('./components/rally-point-simulator'))
+    .RallyPointSimulator,
 }));
 
 const PalaceTrainSettler = lazy(async () => ({
-  default: (await import('./components/palace-settler-training')).PalaceSettlerTraining,
+  default: (await import('./components/palace-settler-training'))
+    .PalaceSettlerTraining,
 }));
 
 const PalaceLoyalty = lazy(async () => ({
@@ -60,15 +85,18 @@ const MarketplaceBuy = lazy(async () => ({
 }));
 
 const MarketplaceTradeRoutes = lazy(async () => ({
-  default: (await import('./components/marketplace-trade-routes')).MarketplaceTradeRoutes,
+  default: (await import('./components/marketplace-trade-routes'))
+    .MarketplaceTradeRoutes,
 }));
 
 const AcademyUnitResearch = lazy(async () => ({
-  default: (await import('./components/academy-unit-research')).AcademyUnitResearch,
+  default: (await import('./components/academy-unit-research'))
+    .AcademyUnitResearch,
 }));
 
-const AcademyUnitImprovement = lazy(async () => ({
-  default: (await import('./components/academy-unit-improvement')).AcademyUnitImprovement,
+const SmithyUnitImprovement = lazy(async () => ({
+  default: (await import('./components/smithy-unit-improvement'))
+    .SmithyUnitImprovement,
 }));
 
 const HerosMansionOasis = lazy(async () => ({
@@ -76,251 +104,192 @@ const HerosMansionOasis = lazy(async () => ({
 }));
 
 const BreweryCelebration = lazy(async () => ({
-  default: (await import('./components/brewery-celebrations')).BreweryCelebration,
+  default: (await import('./components/brewery-celebrations'))
+    .BreweryCelebration,
 }));
 
 const BarracksTroopTraining = lazy(async () => ({
-  default: (await import('./components/barracks-troop-training')).BarracksTroopTraining,
+  default: (await import('./components/barracks-troop-training'))
+    .BarracksTroopTraining,
 }));
 
 const GreatBarracksTroopTraining = lazy(async () => ({
-  default: (await import('./components/great-barracks-troop-training')).GreatBarracksTroopTraining,
+  default: (await import('./components/great-barracks-troop-training'))
+    .GreatBarracksTroopTraining,
 }));
 
 const StableTroopTraining = lazy(async () => ({
-  default: (await import('./components/stable-troop-training')).StableTroopTraining,
+  default: (await import('./components/stable-troop-training'))
+    .StableTroopTraining,
 }));
 
 const GreatStableTroopTraining = lazy(async () => ({
-  default: (await import('./components/great-stable-troop-training')).GreatStableTroopTraining,
+  default: (await import('./components/great-stable-troop-training'))
+    .GreatStableTroopTraining,
 }));
 
 const WorkshopTroopTraining = lazy(async () => ({
-  default: (await import('./components/workshop-troop-training')).WorkshopTroopTraining,
+  default: (await import('./components/workshop-troop-training'))
+    .WorkshopTroopTraining,
 }));
 
 const HospitalTroopTraining = lazy(async () => ({
-  default: (await import('./components/hospital-troop-training')).HospitalTroopTraining,
+  default: (await import('./components/hospital-troop-training'))
+    .HospitalTroopTraining,
 }));
 
-const palaceTabs = new Map<string, React.LazyExoticComponent<() => React.JSX.Element>>([
-  ['default', PalaceTrainSettler],
-  [t('Loyalty'), PalaceLoyalty],
-  [t('Expansion'), PalaceExpansion],
+const palaceTabs = new Map<
+  string,
+  React.LazyExoticComponent<() => React.JSX.Element>
+>([
+  ['train-settlers', PalaceTrainSettler],
+  ['loyalty', PalaceLoyalty],
+  ['expansion', PalaceExpansion],
 ]);
 
-const buildingDetailsTabMap = new Map<Building['id'], Map<string, React.LazyExoticComponent<() => React.JSX.Element>>>([
+const buildingDetailsTabMap = new Map<
+  Building['id'],
+  Map<string, React.LazyExoticComponent<() => React.JSX.Element>>
+>([
+  [
+    'MAIN_BUILDING',
+    new Map([['village-management', MainBuildingVillageManagement]]),
+  ],
   [
     'RALLY_POINT',
     new Map([
-      ['default', RallyPointIncomingTroops],
-      [t('Send troops'), RallyPointSendTroops],
-      [t('Simulator'), RallyPointSimulator],
-      [t('Farm list'), RallyPointFarmList],
+      ['troop-movements', RallyPointTroopMovements],
+      ['send-troops', RallyPointSendTroops],
+      ['simulator', RallyPointSimulator],
     ]),
   ],
-  ['TREASURY', new Map([['default', TreasuryArtifacts]])],
+  ['TREASURY', new Map([['artifacts', TreasuryArtifacts]])],
   [
     'MARKETPLACE',
     new Map([
-      ['default', MarketplaceBuy],
-      [t('Trade routes'), MarketplaceTradeRoutes],
+      ['trade', MarketplaceBuy],
+      ['trade-routes', MarketplaceTradeRoutes],
     ]),
   ],
-  [
-    'ACADEMY',
-    new Map([
-      ['default', AcademyUnitResearch],
-      [t('Unit improvement'), AcademyUnitImprovement],
-    ]),
-  ],
-  ['PALACE', palaceTabs],
+  ['ACADEMY', new Map([['unit-research', AcademyUnitResearch]])],
+  ['SMITHY', new Map([['unit-improvement', SmithyUnitImprovement]])],
   ['RESIDENCE', palaceTabs],
   ['COMMAND_CENTER', palaceTabs],
-  ['HEROS_MANSION', new Map([['default', HerosMansionOasis]])],
-  ['BREWERY', new Map([['default', BreweryCelebration]])],
-  ['BARRACKS', new Map([['default', BarracksTroopTraining]])],
-  ['GREAT_BARRACKS', new Map([['default', GreatBarracksTroopTraining]])],
-  ['STABLE', new Map([['default', StableTroopTraining]])],
-  ['GREAT_STABLE', new Map([['default', GreatStableTroopTraining]])],
-  ['WORKSHOP', new Map([['default', WorkshopTroopTraining]])],
-  ['HOSPITAL', new Map([['default', HospitalTroopTraining]])],
+  ['HEROS_MANSION', new Map([['oasis', HerosMansionOasis]])],
+  ['BREWERY', new Map([['celebration', BreweryCelebration]])],
+  ['BARRACKS', new Map([['train', BarracksTroopTraining]])],
+  ['GREAT_BARRACKS', new Map([['train', GreatBarracksTroopTraining]])],
+  ['STABLE', new Map([['train', StableTroopTraining]])],
+  ['GREAT_STABLE', new Map([['train', GreatStableTroopTraining]])],
+  ['WORKSHOP', new Map([['train', WorkshopTroopTraining]])],
+  ['HOSPITAL', new Map([['train', HospitalTroopTraining]])],
 ]);
 
-const BuildingStats = () => {
-  const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
-  const { total: buildingDurationModifier, serverEffectValue } = useComputedEffect('buildingDuration');
-  const { buildingId, level } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
-  const building = getBuildingData(buildingId);
-
-  const mainBuildingLevel = currentVillage.buildingFields.find(({ buildingId }) => buildingId === 'MAIN_BUILDING')?.level ?? 0;
-
-  return (
-    <article className="flex flex-col gap-4">
-      <section className="flex flex-col gap-2">
-        <Text as="h2">{t('Upgrade cost')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell>{t('Level')}</TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="wood"
-                  />
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="clay"
-                  />
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="iron"
-                  />
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Icon
-                    className="inline-flex size-6"
-                    type="wheat"
-                  />
-                </TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(building.maxLevel)].map((_, index) => {
-                const cost = calculateBuildingCostForLevel(building.id, index + 1);
-
-                return (
-                  <TableRow
-                    // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                    key={index}
-                    {...(index + 1 === level && {
-                      className: 'bg-gray-100',
-                    })}
-                  >
-                    <TableHeaderCell>{index + 1}</TableHeaderCell>
-                    <TableCell>{formatNumber(cost[0])}</TableCell>
-                    <TableCell>{formatNumber(cost[1])}</TableCell>
-                    <TableCell>{formatNumber(cost[2])}</TableCell>
-                    <TableCell>{formatNumber(cost[3])}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-      <section className="flex flex-col gap-2">
-        <Text as="h2">{t('Upgrade duration')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell rowSpan={2}>{t('Level')}</TableHeaderCell>
-                <TableHeaderCell colSpan={3}>{t('Upgrade duration')}</TableHeaderCell>
-              </TableRow>
-              <TableRow>
-                <TableHeaderCell>{t('Main building level {{level}}', { level: 1 })}</TableHeaderCell>
-                <TableHeaderCell>{t('Main building level {{level}}', { level: mainBuildingLevel })}</TableHeaderCell>
-                <TableHeaderCell>{t('Main building level {{level}}', { level: 20 })}</TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(building.maxLevel)].map((_, index) => {
-                const duration = calculateBuildingDurationForLevel(buildingId, index + 1);
-
-                return (
-                  <TableRow
-                    // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                    key={index}
-                    {...(index + 1 === level && {
-                      className: 'bg-gray-100',
-                    })}
-                  >
-                    <TableHeaderCell>{index + 1}</TableHeaderCell>
-                    <TableCell>{formatTime(duration * serverEffectValue)}</TableCell>
-                    <TableCell>{formatTime(duration * buildingDurationModifier)}</TableCell>
-                    <TableCell>{formatTime(duration * serverEffectValue * 0.5)}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-    </article>
-  );
-};
+// t('train-settlers')
+// t('loyalty')
+// t('expansion')
+// t('village-management')
+// t('troop-movements')
+// t('send-troops')
+// t('simulator')
+// t('artifacts')
+// t('trade')
+// t('trade-routes')
+// t('unit-research')
+// t('unit-improvement')
+// t('oasis')
+// t('celebration')
+// t('train')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
-  const { buildingId } = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId!)!;
+  const { t: assetsT } = useTranslation();
+  const { t: dynamicT } = useTranslation();
+  const { buildingId, id: buildingFieldId } = use(BuildingContext);
+  const { villagePath, resourcesPath } = useGameNavigation();
+  const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const hasAdditionalContent = buildingDetailsTabMap.has(buildingId);
-  const MainTabAdditionalContent = hasAdditionalContent ? buildingDetailsTabMap.get(buildingId)!.get('default')! : null;
+  const parentLink = buildingFieldId! > 18 ? villagePath : resourcesPath;
 
   const tabs = Array.from([
     'default',
-    ...(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter((tabName) => tabName !== 'default'),
+    ...(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter(
+      (tabName) => tabName !== 'default',
+    ),
     'upgrade-cost',
   ]);
 
-  const buildingSpecificTabs = tabs.filter((tab: string) => !['default', 'upgrade-cost'].includes(tab));
+  const buildingSpecificTabs = tabs.filter(
+    (tab: string) => !['default', 'upgrade-cost'].includes(tab),
+  );
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
   return (
-    <div className="flex flex-col gap-2">
-      <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          const tab = tabs[index];
-          navigateToTab(tab);
-        }}
-      >
-        <TabList className="flex mb-2 overflow-x-scroll scrollbar-hidden">
-          <StyledTab>{t('Overview')}</StyledTab>
-          {buildingSpecificTabs.map((name: string) => (
-            <StyledTab key={name}>{name}</StyledTab>
-          ))}
-          <StyledTab>{t('Upgrade details')}</StyledTab>
-        </TabList>
-        <TabPanel>
-          <BuildingOverview
-            buildingId={buildingId}
-            showLevel
-          />
-          <BuildingActions buildingId={buildingId} />
-          <Suspense fallback={<>Loading tab</>}>
-            {!MainTabAdditionalContent ? null : (
-              <div className="mt-2">
-                <MainTabAdditionalContent />
-              </div>
-            )}
-          </Suspense>
-        </TabPanel>
-        {buildingSpecificTabs.map((name: string) => {
-          const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
-          return (
-            <TabPanel key={name}>
-              <Suspense fallback={<>Loading tab</>}>
-                <Panel />
-              </Suspense>
-            </TabPanel>
-          );
-        })}
-        <TabPanel>
-          <BuildingStats />
-        </TabPanel>
-      </Tabs>
-    </div>
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink to={parentLink}>
+              {buildingFieldId! > 18 ? t('Village') : t('Resources')}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            {assetsT(`BUILDINGS.${buildingId}.NAME`)}
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Text as="h1">
+        {assetsT(`BUILDINGS.${buildingId}.NAME`)} -{' '}
+        {t('level {{level}}', { level: actualLevel })}
+      </Text>
+      <div className="flex flex-col gap-2">
+        <Tabs
+          selectedIndex={tabIndex}
+          onSelect={(index) => {
+            const tab = tabs[index];
+            navigateToTab(tab);
+          }}
+        >
+          <TabList>
+            <Tab>{t('Overview')}</Tab>
+            {buildingSpecificTabs.map((name: string) => (
+              <Tab key={name}>{dynamicT(name)}</Tab>
+            ))}
+            <Tab>{t('Upgrade details')}</Tab>
+          </TabList>
+          <TabPanel>
+            <Section>
+              <SectionContent>
+                <Bookmark tab="default" />
+                <Text as="h2">
+                  {t('{{buildingName}} overview', {
+                    buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+                  })}
+                </Text>
+                <BuildingOverview buildingId={buildingId} />
+                <BuildingActions buildingId={buildingId} />
+              </SectionContent>
+            </Section>
+          </TabPanel>
+          {buildingSpecificTabs.map((name: string) => {
+            const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
+            return (
+              <TabPanel key={name}>
+                <Suspense fallback={<BuildingTabFallback />}>
+                  <Panel />
+                </Suspense>
+              </TabPanel>
+            );
+          })}
+          <TabPanel>
+            <Suspense fallback={<BuildingTabFallback />}>
+              <BuildingStats />
+            </Suspense>
+          </TabPanel>
+        </Tabs>
+      </div>
+    </>
   );
 };

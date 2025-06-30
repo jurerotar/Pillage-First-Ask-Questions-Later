@@ -12,6 +12,7 @@ type PlayerConfiguration = {
 
 export type Server = {
   id: string;
+  version: string;
   name: string;
   slug: string;
   createdAt: number;

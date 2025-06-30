@@ -10,8 +10,11 @@ import type { Server } from 'app/interfaces/models/game/server';
  * All values are for 1x servers and scale with server speed.
  * The result is returned in milliseconds.
  */
-export const calculateAdventurePointIncreaseEventDuration = (server: Server) => {
-  const serverDurationHours = (Date.now() - new Date(server.createdAt).getTime()) / (1000 * 60 * 60);
+export const calculateAdventurePointIncreaseEventDuration = (
+  server: Server,
+) => {
+  const serverDurationHours =
+    (Date.now() - new Date(server.createdAt).getTime()) / (1000 * 60 * 60);
   let baseFrequency = 24;
 
   if (serverDurationHours < 7 * 24) {
@@ -22,5 +25,7 @@ export const calculateAdventurePointIncreaseEventDuration = (server: Server) => 
     baseFrequency = 16;
   }
 
-  return Math.trunc((baseFrequency / server.configuration.speed) * 60 * 60 * 1000);
+  return Math.trunc(
+    (baseFrequency / server.configuration.speed) * 60 * 60 * 1000,
+  );
 };

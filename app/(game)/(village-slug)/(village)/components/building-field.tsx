@@ -17,6 +17,9 @@ import buildingFieldStyles from './building-field.module.scss';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [1, 'top-[20%] left-[33%]'],
@@ -37,31 +40,34 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [16, 'top-[77%] left-[36%]'],
   [17, 'top-[86%] left-[50%]'],
   [18, 'top-[76%] left-[62%]'],
-  [19, 'top-[33%] left-[26%] border border-red-400'],
-  [20, 'top-[24%] left-[36%] border border-red-400'],
-  [21, 'top-[18%] left-[47%] border border-red-400'],
-  [22, 'top-[19%] left-[57%] border border-red-400'],
-  [23, 'top-[22%] left-[68%] border border-red-400'],
-  [24, 'top-[35%] left-[76%] border border-red-400'],
-  [25, 'top-[47%] left-[79%] border border-red-400'],
-  [26, 'top-[61%] left-[80%] border border-red-400'],
-  [27, 'top-[73%] left-[76%] border border-red-400'],
-  [28, 'top-[84%] left-[66%] border border-red-400'],
-  [29, 'top-[75%] left-[57%] border border-red-400'],
-  [30, 'top-[90%] left-[51%] border border-red-400'],
-  [31, 'top-[86%] left-[35%] border border-red-400'],
-  [32, 'top-[73%] left-[22%] border border-red-400'],
-  [33, 'top-[59%] left-[17%] border border-red-400'],
-  [34, 'top-[44%] left-[19%] border border-red-400'],
-  [35, 'top-[62%] left-[48%] border border-red-400'],
-  [36, 'top-[53%] left-[36%] border border-red-400'],
-  [37, 'top-[42%] left-[42%] border border-red-400'],
-  [38, 'top-[37%] left-[53%] border border-red-400'],
-  [39, 'top-[51%] left-[64%] border border-red-400'],
-  [40, 'top-[83%] left-[81%] border border-red-400'],
+  [19, 'top-[33%] left-[26%]'],
+  [20, 'top-[24%] left-[36%]'],
+  [21, 'top-[18%] left-[47%]'],
+  [22, 'top-[19%] left-[57%]'],
+  [23, 'top-[22%] left-[68%]'],
+  [24, 'top-[35%] left-[76%]'],
+  [25, 'top-[47%] left-[79%]'],
+  [26, 'top-[61%] left-[80%]'],
+  [27, 'top-[73%] left-[76%]'],
+  [28, 'top-[84%] left-[66%]'],
+  [29, 'top-[75%] left-[57%]'],
+  [30, 'top-[90%] left-[51%]'],
+  [31, 'top-[86%] left-[35%]'],
+  [32, 'top-[73%] left-[22%]'],
+  [33, 'top-[59%] left-[17%]'],
+  [34, 'top-[44%] left-[19%]'],
+  [35, 'top-[62%] left-[48%]'],
+  [36, 'top-[53%] left-[36%]'],
+  [37, 'top-[42%] left-[42%]'],
+  [38, 'top-[37%] left-[53%]'],
+  [39, 'top-[51%] left-[64%]'],
+  [40, 'top-[83%] left-[81%]'],
 ]);
 
-const buildingToBuildingLevelToGraphicVariantMap = new Map<Building['id'], Map<number, string[]>>([
+const buildingToBuildingLevelToGraphicVariantMap = new Map<
+  Building['id'],
+  Map<number, string[]>
+>([
   [
     'MAIN_BUILDING',
     new Map([
@@ -75,24 +81,28 @@ type EmptyBuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({ buildingFieldId }) => {
+const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({
+  buildingFieldId,
+}) => {
+  const { villagePath } = useGameNavigation();
+
   const styles = buildingFieldIdToStyleMap.get(buildingFieldId);
 
   return (
     <Link
-      to={`${buildingFieldId}`}
+      to={`${villagePath}/${buildingFieldId}`}
       className={clsx(
         styles,
-        'absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-400 md:size-16',
+        'absolute flex size-10 bg-green-900/50 hover:bg-green-800/50 transition-colors duration-150 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16 transform rotate-140 skew-x-20',
       )}
       data-building-field-id={buildingFieldId}
-    >
-      {buildingFieldId}
-    </Link>
+    />
   );
 };
 
-const transformBuildingIdIntoCssClass = (buildingId: Building['id']): string => {
+const transformBuildingIdIntoCssClass = (
+  buildingId: Building['id'],
+): string => {
   return buildingId.toLowerCase().replaceAll('_', '-');
 };
 
@@ -102,7 +112,11 @@ type DynamicCellClassesArgs = {
   level: number;
 };
 
-const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: DynamicCellClassesArgs): string => {
+const dynamicCellClasses = ({
+  buildingField,
+  resourceFieldComposition,
+  level,
+}: DynamicCellClassesArgs): string => {
   const { buildingId, id } = buildingField;
   const isResourceField = id <= 18;
 
@@ -112,12 +126,15 @@ const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: 
       buildingFieldStyles['building-resource'],
       buildingFieldStyles[`building-resource-${id}`],
       buildingFieldStyles[`building-resource-${resourceFieldComposition}`],
-      buildingFieldStyles[`building-resource-${resourceFieldComposition}-${id}`],
+      buildingFieldStyles[
+        `building-resource-${resourceFieldComposition}-${id}`
+      ],
     );
   }
 
   const buildingIdToCssClass = transformBuildingIdIntoCssClass(buildingId);
-  const buildingLevelMap = buildingToBuildingLevelToGraphicVariantMap.get(buildingId);
+  const buildingLevelMap =
+    buildingToBuildingLevelToGraphicVariantMap.get(buildingId);
 
   const buildingLevelVariant = buildingLevelMap
     ? (() => {
@@ -130,50 +147,84 @@ const dynamicCellClasses = ({ buildingField, resourceFieldComposition, level }: 
       })()
     : null;
 
-  return clsx(buildingFieldStyles.building, buildingFieldStyles[`building-village-${buildingIdToCssClass}`], buildingLevelVariant);
+  return clsx(
+    buildingFieldStyles.building,
+    buildingFieldStyles[`building-village-${buildingIdToCssClass}`],
+    buildingLevelVariant,
+  );
 };
 
 type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
 };
 
-const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({ buildingField }) => {
+const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
+  buildingField,
+}) => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { shouldShowBuildingNames } = usePreferences();
+  const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { resourcesPath, villagePath } = useGameNavigation();
+  const { bookmarks } = useBookmarks();
+
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
   const { id: buildingFieldId, buildingId, level } = buildingField;
+  const { shouldShowBuildingNames } = preferences;
+
+  const tab = bookmarks[buildingId] ?? 'default';
 
   const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
-    ({ buildingFieldId: buildingEventBuildingFieldId }) => buildingEventBuildingFieldId === buildingFieldId,
+    ({ buildingFieldId: buildingEventBuildingFieldId }) =>
+      buildingEventBuildingFieldId === buildingFieldId,
   );
 
   const hasEvent = !!currentBuildingFieldBuildingEvent;
 
-  const styles = buildingFieldIdToStyleMap.get(buildingFieldId as VillageFieldId | ReservedFieldId);
+  const styles = buildingFieldIdToStyleMap.get(
+    buildingFieldId as VillageFieldId | ReservedFieldId,
+  );
 
-  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
 
   return (
     <Link
-      to={`${buildingFieldId}`}
+      to={`${linkPrefix}/${buildingFieldId}?tab=${tab}`}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       className={clsx(
         styles,
-        dynamicCellClasses({ buildingField, resourceFieldComposition: currentVillage.RFC, level }),
+        buildingFieldId <= 18 &&
+          dynamicCellClasses({
+            buildingField,
+            resourceFieldComposition: currentVillage.RFC,
+            level,
+          }),
+        buildingFieldId > 18 && 'border border-red-500',
         'absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full md:size-16 bg-contain',
       )}
       data-building-field-id={buildingFieldId}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      {...(isWiderThanLg && {
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+      })}
     >
       <BuildingUpgradeIndicator
         isHovered={isHovered}
         buildingFieldId={buildingFieldId}
+        buildingEvent={currentBuildingFieldBuildingEvent}
       />
       {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-white border border-gray-200 rounded-sm whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
-          {hasEvent && <Countdown endsAt={currentBuildingFieldBuildingEvent.startsAt + currentBuildingFieldBuildingEvent.duration} />}
+        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-full">
+          {hasEvent && (
+            <Countdown
+              endsAt={
+                currentBuildingFieldBuildingEvent.startsAt +
+                currentBuildingFieldBuildingEvent.duration
+              }
+            />
+          )}
           {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}
@@ -185,10 +236,15 @@ type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-export const BuildingField: React.FC<BuildingFieldProps> = ({ buildingFieldId }) => {
+export const BuildingField: React.FC<BuildingFieldProps> = ({
+  buildingFieldId,
+}) => {
   const { currentVillage } = useCurrentVillage();
 
-  const buildingField = getBuildingFieldByBuildingFieldId(currentVillage, buildingFieldId);
+  const buildingField = getBuildingFieldByBuildingFieldId(
+    currentVillage,
+    buildingFieldId,
+  );
 
   if (buildingField === null) {
     return <EmptyBuildingField buildingFieldId={buildingFieldId} />;

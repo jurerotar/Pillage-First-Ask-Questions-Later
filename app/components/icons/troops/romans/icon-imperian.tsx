@@ -1,5 +1,5 @@
-import { PiSword } from 'react-icons/pi';
+import { LuSword } from 'react-icons/lu';
 
 export const IconImperian = () => {
-  return <PiSword className="size-full" />;
+  return <LuSword className="size-full" />;
 };

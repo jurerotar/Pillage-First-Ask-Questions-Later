@@ -1,56 +1,73 @@
-import { type Query, QueryClient } from '@tanstack/react-query';
-import { type PersistedClient, type Persister, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
-import { debounce } from 'moderndash';
-import { useEffect, useRef, useState } from 'react';
-import { heroCacheKey, nonPersistedCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Suspense, useEffect, useState } from 'react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Outlet } from 'react-router';
-import GameSyncWorker from './workers/sync-worker?worker&url';
-import { PersisterAwaiter } from 'app/(game)/components/persister-awaiter';
+import { Outlet, redirect, useLoaderData } from 'react-router';
 import type { Route } from '.react-router/types/app/(game)/+types/layout';
-import type { Hero } from 'app/interfaces/models/game/hero';
-import { assignHeroModelPropertiesToUnitModel } from 'app/(game)/utils/hero';
-import { MemoryIndicator } from 'app/(game)/components/memory-indicator';
-import { isMasterDeploy } from 'app/utils/common';
+import { Toaster } from 'app/components/ui/toaster';
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
 
-const Fallback = () => {
-  return <div>Loader...</div>;
+export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
+  const { sessionContext } = await import('app/context/session');
+
+  await loadAppTranslations();
+
+  const { sessionId } = context.get(sessionContext);
+
+  return {
+    sessionId,
+  };
 };
 
-// We're abusing client loader for checking whether server exists. If not, getFileHandle throws an error which triggers ErrorBoundary.
-export const clientLoader = async ({ params }: Route.ClientLoaderArgs) => {
-  const { serverSlug } = params;
+// Check whether server even exists && whether server is already opened in another tab
+const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
+  async ({ context, params }) => {
+    const { sessionContext } = await import('app/context/session');
 
-  const rootHandle = await getRootHandle();
-  await rootHandle.getFileHandle(`${serverSlug}.json`);
-};
+    const { serverSlug } = params;
 
-export const ErrorBoundary = () => {
-  return <p>Persistence provider error</p>;
-};
+    const { sessionId } = context.get(sessionContext);
+
+    const lockManager = await window.navigator.locks.query();
+
+    // Check if there exists a lock with server slug. If yes, we check if current sessionId matches.
+    // If it doesn't, it means the same server was opened in a different tab
+    const lock = lockManager.held!.find((lock) =>
+      lock?.name?.startsWith(serverSlug!),
+    );
+
+    if (lock) {
+      const [, lockSessionId] = lock.name!.split(':');
+
+      if (lockSessionId !== sessionId) {
+        throw redirect('/error/403');
+      }
+    }
+
+    const root = await navigator.storage.getDirectory();
+    const rootHandle = await root.getDirectoryHandle(
+      'pillage-first-ask-questions-later',
+      { create: true },
+    );
+
+    try {
+      await rootHandle.getFileHandle(`${serverSlug}.json`);
+    } catch (_error) {
+      throw redirect('/error/404');
+    }
+  };
+
+export const unstable_clientMiddleware = [serverExistAndLockMiddleware];
 
 const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
 
-  const gameSyncWorkerRef = useRef<Worker | null>(null);
+  const { sessionId } = useLoaderData<typeof clientLoader>();
 
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
       defaultOptions: {
-        queries: {
-          // Non-persisted queries must have a gcTime set individually
-          gcTime: Number.POSITIVE_INFINITY,
-          networkMode: 'always',
-          staleTime: ({ queryKey }) => {
-            if (queryKey.includes(nonPersistedCacheKey)) {
-              return 5_000;
-            }
-
-            return Number.POSITIVE_INFINITY;
-          },
-          queryFn: () => {},
-        },
+        queries: {},
         mutations: {
           networkMode: 'always',
         },
@@ -58,77 +75,29 @@ const Layout = ({ params }: Route.ComponentProps) => {
     }),
   );
 
-  const persistClient = debounce((client: PersistedClient) => {
-    if (!gameSyncWorkerRef.current) {
-      return;
-    }
-
-    gameSyncWorkerRef.current.postMessage({
-      client,
-      serverSlug,
-    });
-  }, 300);
-
-  const persister: Persister = {
-    persistClient,
-    // Do not move this to clientLoader, otherwise a reference to serverState sticks in memory and adds a ton of overhead
-    restoreClient: async () => {
-      const rootHandle = await getRootHandle();
-      const serverState = await getParsedFileContents<PersistedClient>(rootHandle, serverSlug!);
-      return serverState;
-    },
-    removeClient: () => {},
-  };
-
   useEffect(() => {
-    if (!gameSyncWorkerRef.current) {
-      gameSyncWorkerRef.current = new Worker(GameSyncWorker, { type: 'module' });
-    }
+    const { promise, resolve } = Promise.withResolvers();
+
+    navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
 
     return () => {
-      if (gameSyncWorkerRef.current) {
-        gameSyncWorkerRef.current.terminate();
-        gameSyncWorkerRef.current = null;
-      }
+      resolve(null);
     };
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = queryClient.getQueryCache().subscribe(({ query }) => {
-      if (query.queryHash === `["${heroCacheKey}"]`) {
-        const hero: Hero = query.state.data;
-        // This is extremely hacky, but the idea is to change the HERO unit data, which then makes it super convenient in other parts of the app
-        assignHeroModelPropertiesToUnitModel(hero);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [queryClient]);
+  }, [serverSlug, sessionId]);
 
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister,
-        maxAge: Number.MAX_VALUE,
-        dehydrateOptions: {
-          shouldDehydrateQuery: ({ queryHash }: Query) => {
-            return !queryHash.includes(nonPersistedCacheKey);
-          },
-        },
-      }}
-    >
-      <PersisterAwaiter fallback={<Fallback />}>
-        <Outlet />
-      </PersisterAwaiter>
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback="Api provider loader">
+        <ApiProvider serverSlug={serverSlug!}>
+          <Outlet />
+        </ApiProvider>
+      </Suspense>
       <ReactQueryDevtools
         client={queryClient}
         initialIsOpen={false}
       />
-      {!isMasterDeploy() && <MemoryIndicator />}
-    </PersistQueryClientProvider>
+      <Toaster />
+    </QueryClientProvider>
   );
 };
 

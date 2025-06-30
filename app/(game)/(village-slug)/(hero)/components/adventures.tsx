@@ -2,23 +2,42 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { prngAlea } from 'ts-seedrandom';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { seededRandomIntFromInterval } from 'app/utils/common';
+import { Alert } from 'app/components/ui/alert';
+import { useTranslation } from 'react-i18next';
+import { Text } from 'app/components/text';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 
 export const Adventures = () => {
-  const {
-    server: { seed },
-  } = useServer();
+  const { t } = useTranslation();
+  const { server } = useServer();
   const { hero } = useHero();
 
-  const { short: shortAdventureCount, long: longAdventureCount } = hero.adventures;
+  const seed = server!.seed;
+  const { adventureCount } = hero!;
 
   // We need to do it this was, so that we preserve durations
-  const shortAdventurePrng = prngAlea(`${seed}${shortAdventureCount}`);
-  const longAdventurePrng = prngAlea(`${seed}${longAdventureCount}`);
+  const adventurePrng = prngAlea(`${seed}${adventureCount}`);
 
-  // Short adventure is between 8 & 12 min long
-  const _shortAdventureDuration = seededRandomIntFromInterval(shortAdventurePrng, 8 * 60, 12 * 60) * 1000;
-  // Long adventure is between 55 & 65 min long
-  const _longAdventureDuration = seededRandomIntFromInterval(longAdventurePrng, 55 * 60, 65 * 60) * 1000;
+  // Short adventure is between 8 & 12 minutes long
+  const _shortAdventureDuration =
+    seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
 
-  return <p>Adventures</p>;
+  return (
+    <Section>
+      <SectionContent>
+        <Text as="h2">{t('Adventures')}</Text>
+        <Text as="p">
+          {t(
+            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
+          )}
+        </Text>
+      </SectionContent>
+      <Alert variant="warning">
+        {t('This page is still under development')}
+      </Alert>
+    </Section>
+  );
 };

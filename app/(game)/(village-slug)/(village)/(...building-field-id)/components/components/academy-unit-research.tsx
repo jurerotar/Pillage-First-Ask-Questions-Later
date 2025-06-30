@@ -1,69 +1,112 @@
-import { UnitCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  UnitCard,
+  UnitCost,
+  UnitOverview,
+  UnitRequirements,
+  UnitResearch,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { partition } from 'app/utils/common';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { unitResearch } = useUnitResearch();
-
-  const [researchedUnits, unresearchedUnits] = partition(unitResearch, ({ researchedIn }) => researchedIn.includes(currentVillage.id));
-
-  const assessedUnits = unresearchedUnits.map(({ unitId }) => assessUnitResearchReadiness(unitId, currentVillage));
-
-  const [researchReadyUnits, unitsNotReadyForResearch] = partition(assessedUnits, ({ canResearch }) => canResearch);
+  const { researchableUnits } = useUnitResearch();
+  const {
+    eventsByType: currentVillageUnitResearchEvents,
+    hasEvents: hasResearchEventsOngoing,
+  } = useEventsByType('unitResearch');
 
   return (
-    <section className="flex flex-col gap-2">
-      <Text as="h2">{t('Unit research')}</Text>
-      {researchedUnits.length > 0 && (
+    <Section>
+      <SectionContent>
+        <Bookmark tab="unit-research" />
+        <Text as="h2">{t('Unit research')}</Text>
+        <Text as="p">
+          {t(
+            'To be able to train stronger units, you will need to do research in your academy. The more this building is upgraded, the more you will have access to advanced research.',
+          )}
+        </Text>
+      </SectionContent>
+      <SectionContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>{t('Unit')}</TableHeaderCell>
+              <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {hasResearchEventsOngoing && (
+              <TableRow>
+                <TableCell>
+                  {assetsT(
+                    `UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`,
+                    { count: 1 },
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Countdown
+                    endsAt={
+                      currentVillageUnitResearchEvents[0].startsAt +
+                      currentVillageUnitResearchEvents[0].duration
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            )}
+            {!hasResearchEventsOngoing && (
+              <TableRow>
+                <TableCell colSpan={2}>
+                  {t('No research is currently taking place')}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </SectionContent>
+      <SectionContent>
         <ul className="flex flex-col gap-2">
-          {researchedUnits.map(({ unitId }) => (
-            <li key={unitId}>
-              <UnitCard
-                unitId={unitId}
-                showResearch
-                showAttributes
-                showUnitCost
-              />
-            </li>
-          ))}
+          {researchableUnits.map(({ id }) => {
+            const { canResearch } = assessUnitResearchReadiness(
+              id,
+              currentVillage,
+            );
+            return (
+              <li key={id}>
+                <UnitCard
+                  unitId={id}
+                  buildingId="BARRACKS"
+                >
+                  <UnitOverview />
+                  <UnitCost />
+                  <UnitResearch />
+                  {!canResearch && <UnitRequirements />}
+                </UnitCard>
+              </li>
+            );
+          })}
         </ul>
-      )}
-
-      {researchReadyUnits.length > 0 && (
-        <ul className="flex flex-col gap-2">
-          {researchReadyUnits.map(({ unitId }) => (
-            <li key={unitId}>
-              <UnitCard
-                unitId={unitId}
-                showRequirements
-                showResearch
-                showUnitCost
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {unitsNotReadyForResearch.length > 0 && (
-        <ul className="flex flex-col gap-2">
-          {unitsNotReadyForResearch.map(({ unitId }) => (
-            <li key={unitId}>
-              <UnitCard
-                unitId={unitId}
-                showRequirements
-                showResearch
-                showUnitCost
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+      </SectionContent>
+    </Section>
   );
 };

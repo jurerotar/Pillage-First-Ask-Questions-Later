@@ -13,15 +13,12 @@ export const heroFactory = (server: Server): Hero => {
       attackPower: 0,
       attackBonus: 0,
       defenceBonus: 0,
-      resourceProduction: 0,
+      resourceProduction: 4,
     },
     resourceToProduce: 'shared',
     unitType: 'infantry',
     inventory: [],
-    adventures: {
-      short: 0,
-      long: 0,
-    },
+    adventureCount: 0,
     tribe,
     equippedItems: {
       head: null,

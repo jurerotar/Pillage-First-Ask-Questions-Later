@@ -8,7 +8,10 @@ type UseLongPressEvent = {
   onTouchEnd: (e: React.TouchEvent) => void;
 };
 
-const useLongPress = (callback: (e: React.MouseEvent | React.TouchEvent) => void, ms = 1500): UseLongPressEvent => {
+const useLongPress = (
+  callback: (e: React.MouseEvent | React.TouchEvent) => void,
+  ms = 1500,
+): UseLongPressEvent => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startRef = useRef<number | null>(null);
   const isCallbackExecuted = useRef(false);

@@ -599,4 +599,6 @@ const consumables: HeroItem[] = [
 export const items: HeroItem[] = [...artifacts, ...horses, ...consumables];
 
 // Use this for faster lookups
-export const itemsMap = new Map<HeroItem['id'], HeroItem>(items.map((heroItem) => [heroItem.id, heroItem]));
+export const itemsMap = new Map<HeroItem['id'], HeroItem>(
+  items.map((heroItem) => [heroItem.id, heroItem]),
+);

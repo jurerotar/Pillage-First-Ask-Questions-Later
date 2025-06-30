@@ -21,10 +21,17 @@ export const assignHeroModelPropertiesToUnitModel = (hero: Hero): void => {
         return total;
       }
 
-      return item.heroBonus.find(({ attribute }) => attribute === 'power')?.value ?? 0;
+      return (
+        item.heroBonus.find(({ attribute }) => attribute === 'power')?.value ??
+        0
+      );
     }, 0);
 
-    return baseAttackPower + bonusAttackPower + selectableAttributes.attackPower * attackPowerModifier;
+    return (
+      baseAttackPower +
+      bonusAttackPower +
+      selectableAttributes.attackPower * attackPowerModifier
+    );
   })();
 
   const heroSpeed = (() => {
@@ -37,10 +44,14 @@ export const assignHeroModelPropertiesToUnitModel = (hero: Hero): void => {
         return total;
       }
 
-      return item.heroBonus.find(({ attribute }) => attribute === 'speed')?.value ?? 0;
+      return (
+        item.heroBonus.find(({ attribute }) => attribute === 'speed')?.value ??
+        0
+      );
     }, 0);
 
-    const calculatedHeroSpeed = baseHeroSpeed + (hasHorseEquipped ? bonusSpeed : 0);
+    const calculatedHeroSpeed =
+      baseHeroSpeed + (hasHorseEquipped ? bonusSpeed : 0);
 
     if (tribe === 'gauls') {
       // Gaul hero is faster when on horse

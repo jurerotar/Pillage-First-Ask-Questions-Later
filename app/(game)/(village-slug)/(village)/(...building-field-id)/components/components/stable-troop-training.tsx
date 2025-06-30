@@ -1,3 +1,11 @@
+import { UnitTraining } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-training';
+
 export const StableTroopTraining = () => {
-  return <>StableTroopTraining</>;
+  return (
+    <UnitTraining
+      buildingId="STABLE"
+      durationEffect="stableTrainingDuration"
+      category="cavalry"
+    />
+  );
 };
