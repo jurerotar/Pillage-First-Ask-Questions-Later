@@ -1,0 +1,135 @@
+@mixin resourceBuildingBackground($resourceBase, $buildingFieldId, $resource) {
+  &-#{$buildingFieldId} {
+    $bg: #426002;
+    @if $resource == 'clay' {
+      $bg: #C29760;
+    }
+    @if $resource == 'iron' {
+      $bg: #7B90A1;
+    }
+    @if $resource == 'wheat' {
+      $bg: #FFF600;
+    }
+    background-color: $bg;
+
+    //@if $resource == 'wood' {
+    //  background-color: #426002;
+    //  border-radius: 100%;
+    //}
+    //
+    //@else {
+    //  $url: '#{$resourceBase}/#{$resource}-#{$buildingFieldId}.avif?v=#{$graphics-version}';
+    //  background-image: url("#{$url}");
+    //}
+  }
+}
+
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
+    $resourceBase: '#{$imagesPath}/buildings/resources';
+
+    .building-resource {
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+
+      // Base mapping for building numbers to resource types
+      @each $id, $type in (
+        1: 'wood',
+        2: 'wheat',
+        3: 'wood',
+        4: 'iron',
+        5: 'clay',
+        6: 'clay',
+        7: 'iron',
+        8: 'wheat',
+        9: 'wheat',
+        10: 'iron',
+        11: 'iron',
+        12: 'wheat',
+        13: 'wheat',
+        14: 'wood',
+        15: 'wheat',
+        16: 'clay',
+        17: 'wood',
+        18: 'clay'
+      ) {
+        @include resourceBuildingBackground($resourceBase, $id, $type);
+      }
+    }
+
+    // Custom overrides for specific .rfc-xxxx cases
+    @each $class, $overrides in (
+      rfc-5436: (10: 'wood'),
+      rfc-5346: (5: 'wood'),
+      rfc-4536: (10: 'clay'),
+      rfc-3546: (1: 'clay'),
+      rfc-4356: (5: 'iron'),
+      rfc-3456: (1: 'iron'),
+      rfc-4437: (10: 'wheat'),
+      rfc-4347: (5: 'wheat'),
+      rfc-3447: (1: 'wheat'),
+      rfc-3339: (
+        1: 'wheat',
+        5: 'wheat',
+        10: 'wheat'
+      ),
+      rfc-11115: (
+        6: 'wheat',
+        7: 'wheat',
+        10: 'wheat',
+        11: 'wheat',
+        14: 'wheat',
+        17: 'wheat',
+        18: 'wheat'
+      ),
+      rfc-00018: (
+        1: 'wheat',
+        3: 'wheat',
+        4: 'wheat',
+        5: 'wheat',
+        6: 'wheat',
+        7: 'wheat',
+        10: 'wheat',
+        11: 'wheat',
+        14: 'wheat',
+        16: 'wheat',
+        17: 'wheat',
+        18: 'wheat'
+      )
+    ) {
+      :global(.#{$class}).building-resource {
+        @each $id, $type in $overrides {
+          @include resourceBuildingBackground($resourceBase, $id, $type);
+        }
+      }
+    }
+  }
+}
+
+
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(html.skin-variant-#{$skinVariantSelector}) .building {
+    $base: '#{$imagesPath}/buildings';
+    //&-village {
+    //  $villageBase: '#{$base}/village';
+    //
+    //  // TODO: Warehouse and granary need to have 'full' variant
+    //  @each $building in $buildings {
+    //    $buildingBase: '#{$villageBase}/#{$building}';
+    //
+    //    &-#{$building} {
+    //      background-image: url('#{$buildingBase}/#{$building}-tier-1.jpg');
+    //
+    //      &-tier-2 {
+    //        background-image: url('#{$buildingBase}/#{$building}-tier-2.jpg');
+    //      }
+    //
+    //      &-tier-3 {
+    //        background-image: url('#{$buildingBase}/#{$building}-tier-3.jpg');
+    //      }
+    //    }
+    //  }
+    //}
+  }
+}

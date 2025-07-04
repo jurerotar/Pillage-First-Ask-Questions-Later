@@ -1,4 +1,4 @@
-import { BuildingCard } from 'app/(game)/(village-slug)/(village)/components/building-card';
+import { BuildingCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import {
   assessBuildingConstructionReadiness,
   type AssessedBuildingRequirement,

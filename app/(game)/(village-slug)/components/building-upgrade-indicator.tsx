@@ -4,52 +4,50 @@ import {
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import type React from 'react';
 import { useState } from 'react';
 import { MdUpgrade } from 'react-icons/md';
-import type { Building } from 'app/interfaces/models/game/building';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 type StaticButtonProps = {
-  level: number;
+  buildingField: BuildingField;
   backgroundVariant: BorderIndicatorBackgroundVariant;
   variant: BorderIndicatorBorderVariant;
 };
 
 const StaticButton: React.FC<StaticButtonProps> = ({
-  level,
+  buildingField,
   backgroundVariant,
   variant,
-}) => (
-  <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
-    <BorderIndicator
-      backgroundVariant={backgroundVariant}
-      variant={variant}
-    >
-      {level}
-    </BorderIndicator>
-  </div>
-);
+}) => {
+  const { level } = buildingField;
+  return (
+    <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
+      <BorderIndicator
+        backgroundVariant={backgroundVariant}
+        variant={variant}
+      >
+        {level}
+      </BorderIndicator>
+    </div>
+  );
+};
 
 type UpgradeButtonProps = {
-  buildingId: Building['id'];
-  buildingFieldId: BuildingField['id'];
+  buildingField: BuildingField;
   backgroundVariant: BorderIndicatorBackgroundVariant;
   variant: BorderIndicatorBorderVariant;
-  level: number;
 };
 
 const UpgradeButton: React.FC<UpgradeButtonProps> = ({
-  buildingId,
-  buildingFieldId,
+  buildingField,
   backgroundVariant,
   variant,
-  level,
 }) => {
-  const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
+  const { buildingId, id, level } = buildingField;
+  const { upgradeBuilding } = useBuildingActions(buildingId, id);
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] =
     useState<boolean>(false);
@@ -83,19 +81,14 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({
 
 type BuildingUpgradeIndicatorProps = {
   isHovered: boolean;
-  buildingFieldId: BuildingField['id'];
+  buildingField: BuildingField;
   buildingEvent: GameEvent<'buildingConstruction'> | undefined;
 };
 
 export const BuildingUpgradeIndicator: React.FC<
   BuildingUpgradeIndicatorProps
-> = ({ buildingFieldId, isHovered, buildingEvent }) => {
-  const { currentVillage } = useCurrentVillage();
-  const { variant, errors } = useBuildingUpgradeStatus(buildingFieldId);
-
-  const { buildingId, level } = currentVillage.buildingFields.find(
-    ({ id }) => buildingFieldId === id,
-  )!;
+> = ({ buildingField, isHovered, buildingEvent }) => {
+  const { variant, errors } = useBuildingUpgradeStatus(buildingField);
 
   const canUpgrade: boolean = errors.length === 0;
 
@@ -112,18 +105,16 @@ export const BuildingUpgradeIndicator: React.FC<
   if (canUpgrade && isHovered) {
     return (
       <UpgradeButton
-        buildingId={buildingId}
-        buildingFieldId={buildingFieldId}
+        buildingField={buildingField}
         backgroundVariant={backgroundVariant}
         variant={variant}
-        level={level}
       />
     );
   }
 
   return (
     <StaticButton
-      level={level}
+      buildingField={buildingField}
       backgroundVariant={backgroundVariant}
       variant={variant}
     />

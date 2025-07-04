@@ -4,7 +4,10 @@ import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
+import {
+  getBuildingDataForLevel,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/(game)/(village-slug)/utils/building';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
@@ -84,7 +87,14 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
 }) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
-  const { errors } = useBuildingUpgradeStatus(buildingFieldId!);
+  const { currentVillage } = useCurrentVillage();
+
+  const buildingField = getBuildingFieldByBuildingFieldId(
+    currentVillage,
+    buildingFieldId!,
+  );
+
+  const { errors } = useBuildingUpgradeStatus(buildingField!);
 
   return (
     <>

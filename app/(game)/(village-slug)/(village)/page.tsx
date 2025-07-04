@@ -54,6 +54,7 @@ const VillagePage = () => {
         closeEvents={{
           mouseleave: true,
         }}
+        offset={40}
         render={({ activeAnchor }) => {
           const buildingFieldIdAttribute = activeAnchor?.getAttribute(
             'data-building-field-id',

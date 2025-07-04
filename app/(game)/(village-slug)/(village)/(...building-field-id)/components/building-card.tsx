@@ -1,5 +1,5 @@
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/components/building-actions';
-import { BuildingOverview } from 'app/(game)/(village-slug)/(village)/components/building-overview';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import { BuildingOverview } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-overview';
 import {
   assessBuildingConstructionReadiness,
   type AssessedBuildingRequirement,

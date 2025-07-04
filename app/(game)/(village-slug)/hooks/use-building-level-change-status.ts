@@ -1,6 +1,5 @@
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { use, useMemo } from 'react';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
@@ -157,14 +156,11 @@ const useBuildingRequirements = (
 };
 
 export const useBuildingUpgradeStatus = (
-  buildingFieldId: BuildingField['id'],
+  buildingField: BuildingField,
 ): UseBuildingRequirementsReturn => {
-  const { currentVillage } = useCurrentVillage();
-  const { buildingId, level } = currentVillage.buildingFields.find(
-    ({ id }) => id === buildingFieldId,
-  )!;
+  const { buildingId, level, id } = buildingField;
 
-  return useBuildingRequirements(buildingId, level, buildingFieldId);
+  return useBuildingRequirements(buildingId, level, id);
 };
 
 export const useBuildingConstructionStatus = (
