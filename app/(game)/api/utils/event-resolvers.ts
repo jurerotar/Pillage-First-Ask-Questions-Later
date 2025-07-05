@@ -40,9 +40,10 @@ const resolveEvent = async (
   } satisfies EventResolvedApiNotificationEvent);
 };
 
+// TODO: This code is probably bugged, make sure to refactor and double-check when possible
 export const scheduleNextEvent = async (queryClient: QueryClient) => {
   if (scheduledTimeout !== null) {
-    return;
+    self.clearTimeout(scheduledTimeout);
   }
 
   const pastOrFutureEvents =
