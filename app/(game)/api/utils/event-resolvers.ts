@@ -42,8 +42,7 @@ const resolveEvent = async (
 
 export const scheduleNextEvent = async (queryClient: QueryClient) => {
   if (scheduledTimeout !== null) {
-    clearTimeout(scheduledTimeout);
-    scheduledTimeout = null;
+    return;
   }
 
   const pastOrFutureEvents =
@@ -73,6 +72,7 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
 
   scheduledTimeout = self.setTimeout(
     async () => {
+      scheduledTimeout = null;
       await resolveEvent(queryClient, nextEvent.id);
       await scheduleNextEvent(queryClient);
     },

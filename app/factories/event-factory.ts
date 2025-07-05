@@ -12,8 +12,8 @@ export const eventFactory = <T extends GameEventType>(
   const id = crypto.randomUUID();
 
   return {
-    id,
     ...args,
+    id,
   } as GameEvent<T>;
 };
 

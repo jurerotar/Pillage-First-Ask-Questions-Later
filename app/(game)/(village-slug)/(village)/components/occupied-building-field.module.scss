@@ -11,16 +11,6 @@
       $bg: #FFF600;
     }
     background-color: $bg;
-
-    //@if $resource == 'wood' {
-    //  background-color: #426002;
-    //  border-radius: 100%;
-    //}
-    //
-    //@else {
-    //  $url: '#{$resourceBase}/#{$resource}-#{$buildingFieldId}.avif?v=#{$graphics-version}';
-    //  background-image: url("#{$url}");
-    //}
   }
 }
 

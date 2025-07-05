@@ -148,63 +148,45 @@ export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
 
   const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
 
-  const _shouldShowBuildingImage = (() => {
-    if (buildingId === 'WHEAT_FIELD') {
-      return ![9, 12, 13].includes(buildingFieldId);
-    }
-
-    return true;
-  })();
-
   return (
-    <div className="relative size-full">
-      {/*{shouldShowBuildingImage && (*/}
-      <div
-        className={clsx(
-          buildingFieldId <= 18 &&
-            dynamicCellClasses({
-              buildingField,
-              resourceFieldComposition: currentVillage.RFC,
-            }),
-          buildingFieldId > 18 && 'border border-red-500',
-          'absolute absolute-centering size-10 lg:size-16 pointer-events-none select-none rounded-full',
-        )}
-      />
-      {/*)}*/}
-      <Link
-        to={`${linkPrefix}/${buildingFieldId}?tab=${tab}`}
-        aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
-        data-building-field-id={buildingFieldId}
-        {...(isWiderThanLg && {
-          onMouseEnter: () => setIsHovered(true),
-          onMouseLeave: () => setIsHovered(false),
-        })}
-      >
-        {/*<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">*/}
-        {/*  <circle cx="50" cy="50" r="40" fill="transparent" stroke="black" strokeWidth="2" />*/}
-        {/*</svg>*/}
-        <div className="absolute absolute-centering size-10 lg:size-16" />
-        <div className="absolute absolute-centering">
-          <BuildingUpgradeIndicator
-            isHovered={isHovered}
-            buildingField={buildingField}
-            buildingEvent={currentBuildingFieldBuildingEvent}
-          />
-        </div>
-        {shouldShowBuildingNames && (
-          <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
-            {hasEvent && (
-              <Countdown
-                endsAt={
-                  currentBuildingFieldBuildingEvent.startsAt +
-                  currentBuildingFieldBuildingEvent.duration
-                }
-              />
-            )}
-            {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
-          </span>
-        )}
-      </Link>
-    </div>
+    <Link
+      to={`${linkPrefix}/${buildingFieldId}?tab=${tab}`}
+      aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
+      data-building-field-id={buildingFieldId}
+      {...(isWiderThanLg && {
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+      })}
+      className={clsx(
+        buildingFieldId <= 18 &&
+          dynamicCellClasses({
+            buildingField,
+            resourceFieldComposition: currentVillage.RFC,
+          }),
+        buildingFieldId > 18 && 'border border-red-500',
+        'relative size-10 lg:size-16 rounded-full',
+      )}
+    >
+      <div className="absolute absolute-centering">
+        <BuildingUpgradeIndicator
+          isHovered={isHovered}
+          buildingField={buildingField}
+          buildingEvent={currentBuildingFieldBuildingEvent}
+        />
+      </div>
+      {shouldShowBuildingNames && (
+        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
+          {hasEvent && (
+            <Countdown
+              endsAt={
+                currentBuildingFieldBuildingEvent.startsAt +
+                currentBuildingFieldBuildingEvent.duration
+              }
+            />
+          )}
+          {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
+        </span>
+      )}
+    </Link>
   );
 };
