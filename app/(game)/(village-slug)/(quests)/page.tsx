@@ -17,6 +17,7 @@ import type { Quest } from 'app/interfaces/models/game/quest';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { MetaFunction } from 'react-router';
 import { t } from 'i18next';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 
 export const meta: MetaFunction = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -55,6 +56,11 @@ const QuestsPage = () => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Quests')}</Text>
+      <Text as="p">
+        {t(
+          'This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.',
+        )}
+      </Text>
       <Tabs
         selectedIndex={tabIndex}
         onSelect={(index) => {
@@ -66,20 +72,30 @@ const QuestsPage = () => {
           <Tab>{t('Global')}</Tab>
         </TabList>
         <TabPanel>
-          <article className="flex flex-col gap-2">
+          <SectionContent>
             <Text as="h2">
-              {t('{{villageName}} quests', {
+              {t('Quests for village {{villageName}}', {
                 villageName: currentVillage.name,
               })}
             </Text>
+            <Text as="p">
+              {t(
+                'These quests are tied to the current village and can only be progressed in current village.',
+              )}
+            </Text>
             <QuestList quests={villageQuests} />
-          </article>
+          </SectionContent>
         </TabPanel>
         <TabPanel>
-          <article className="flex flex-col gap-2">
-            <Text as="h2">{t('Quests')}</Text>
+          <SectionContent>
+            <Text as="h2">{t('Global quests')}</Text>
+            <Text as="p">
+              {t(
+                'These quests are not tied to any village and are progress in all villages.',
+              )}
+            </Text>
             <QuestList quests={globalQuests} />
-          </article>
+          </SectionContent>
         </TabPanel>
       </Tabs>
     </>

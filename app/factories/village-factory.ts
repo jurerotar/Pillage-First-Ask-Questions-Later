@@ -14,7 +14,6 @@ import type {
   VillagePresetId,
   VillageSize,
 } from 'app/interfaces/models/game/village';
-import { t } from 'i18next';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
@@ -96,7 +95,8 @@ export const playerVillageFactory = ({
 
   return {
     id,
-    name: t('New village'),
+    // TODO: Figure out how to translate this, dumping t() around it makes it undefined
+    name: 'New village',
     slug,
     buildingFields,
     buildingFieldsPresets: [],
