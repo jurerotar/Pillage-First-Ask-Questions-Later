@@ -39,21 +39,15 @@ export const BuildingStats = () => {
   )!;
   const building = getBuildingData(buildingId);
 
-  const mainBuildingLevel =
-    currentVillage.buildingFields.find(
-      ({ buildingId }) => buildingId === 'MAIN_BUILDING',
-    )?.level ?? 0;
-
   return (
     <Section>
       <SectionContent>
         <Bookmark tab="upgrade-cost" />
         <Text as="h2">{t('Upgrade details')}</Text>
         <Text as="p">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet
-          asperiores consectetur cum deleniti dicta, distinctio error facilis
-          fugit illo iure pariatur porro qui quibusdam rerum saepe temporibus
-          totam unde vitae.
+          {t(
+            'This section provides detailed information about building upgrades, including the resource costs and the time required to reach each level. Use the tabs below to explore how upgrades impact both your economy and strategy.',
+          )}
         </Text>
       </SectionContent>
       <SectionContent>
@@ -153,9 +147,7 @@ export const BuildingStats = () => {
                         {t('Main building level {{level}}', { level: 1 })}
                       </TableHeaderCell>
                       <TableHeaderCell>
-                        {t('Main building level {{level}}', {
-                          level: mainBuildingLevel,
-                        })}
+                        {t('Current Main building level')}
                       </TableHeaderCell>
                       <TableHeaderCell>
                         {t('Main building level {{level}}', { level: 20 })}

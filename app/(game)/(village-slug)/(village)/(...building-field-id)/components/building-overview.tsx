@@ -102,7 +102,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({
       {isMaxLevel && (
         <section
           data-testid="building-overview-max-level-benefits-section"
-          className="pt-2 flex flex-col gap-2 py-2 justify-center border-t border-border"
+          className="pt-2 flex flex-col gap-2 py-2 justify-center border-t border-border mt-2"
         >
           <Text as="h3">{t('Benefits')}</Text>
           <div className="flex flex-wrap gap-2">
@@ -135,7 +135,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({
         <section
           data-testid="building-overview-benefits-section"
           className={
-            'flex flex-col gap-2 pt-2 justify-center border-t border-border'
+            'flex flex-col gap-2 pt-2 justify-center border-t border-border mt-2'
           }
         >
           <Text as="h3">
@@ -185,7 +185,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({
         <>
           <section
             data-testid="building-overview-costs-section"
-            className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border"
+            className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border mt-2"
           >
             <Text as="h3">
               {doesBuildingExist
@@ -196,7 +196,7 @@ export const BuildingOverview: React.FC<BuildingOverviewProps> = ({
             </Text>
             <Resources resources={nextLevelResourceCost} />
           </section>
-          <section className="flex flex-col flex-wrap gap-2 border-t border-border justify-center">
+          <section className="flex flex-col flex-wrap gap-2 border-t border-border justify-center mt-2">
             <Text as="h3">
               {t('Construction duration for level {{level}}', {
                 level: virtualLevel + 1,

@@ -2,7 +2,6 @@ import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/g
 import type React from 'react';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Link } from 'react-router';
-import clsx from 'clsx';
 
 type EmptyBuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
@@ -17,13 +16,11 @@ export const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({
     <Link
       to={`${villagePath}/${buildingFieldId}`}
       tabIndex={0}
-      className={clsx(
-        'absolute flex size-10 md:size-16 items-center justify-center rounded-full',
-        'bg-green-900/50 transition-colors duration-150 -translate-x-1/2 -translate-y-1/2',
-        'hover:bg-green-800/70 ring-2 ring-transparent hover:ring-black/60 ',
-        'transform rotate-140 skew-x-20',
-      )}
       data-building-field-id={buildingFieldId}
+      className="w-12 lg:w-20 h-8 lg:h-12 bg-green-900/50 hover:bg-green-800/70 transition-colors duration-150 focus:ring-2 focus:ring-black/80 cursor-pointer"
+      style={{
+        clipPath: 'ellipse(50% 50% at 50% 50%)',
+      }}
     />
   );
 };

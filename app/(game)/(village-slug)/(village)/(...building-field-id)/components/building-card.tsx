@@ -71,7 +71,7 @@ export const BuildingCard: React.FC<BuildingCardProps> = ({ buildingId }) => {
       <BuildingActions buildingId={buildingId} />
       {/* Show building requirements if building can't be built */}
       {!canBuild && !specialFieldIds.includes(buildingFieldId!) && (
-        <section className="flex flex-col border-t border-border pt-2 gap-2">
+        <section className="flex flex-col border-t border-border pt-2 gap-2 mt-2">
           <Text as="h3">{t('Requirements')}</Text>
           <ul className="flex gap-x-2 flex-wrap">
             {requirementsToDisplay.map(
