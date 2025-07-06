@@ -1,18 +1,20 @@
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { units } from 'app/(game)/(village-slug)/assets/units';
-import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   UnitAttributes,
   UnitCard,
   UnitImprovement,
   UnitOverview,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
+import { units } from 'app/(game)/(village-slug)/assets/units';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -21,9 +23,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { useTranslation } from 'react-i18next';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();
@@ -67,7 +67,9 @@ export const SmithyUnitImprovement = () => {
                 <TableCell>
                   {assetsT(
                     `UNITS.${currentVillageUnitImprovementEvents[0].unitId}.NAME`,
-                    { count: 1 },
+                    {
+                      count: 1,
+                    },
                   )}
                 </TableCell>
                 <TableCell>

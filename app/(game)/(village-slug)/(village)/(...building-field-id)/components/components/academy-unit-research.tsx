@@ -1,3 +1,4 @@
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   UnitCard,
   UnitCost,
@@ -5,15 +6,16 @@ import {
   UnitRequirements,
   UnitResearch,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
-import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -22,9 +24,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { useTranslation } from 'react-i18next';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
@@ -61,7 +61,9 @@ export const AcademyUnitResearch = () => {
                 <TableCell>
                   {assetsT(
                     `UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`,
-                    { count: 1 },
+                    {
+                      count: 1,
+                    },
                   )}
                 </TableCell>
                 <TableCell>

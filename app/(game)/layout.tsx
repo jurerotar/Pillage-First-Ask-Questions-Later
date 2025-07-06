@@ -1,11 +1,11 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Suspense, useEffect, useState } from 'react';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Outlet, redirect, useLoaderData } from 'react-router';
 import type { Route } from '.react-router/types/app/(game)/+types/layout';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { Toaster } from 'app/components/ui/toaster';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { Suspense, useEffect, useState } from 'react';
+import { Outlet, redirect, useLoaderData } from 'react-router';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -47,7 +47,9 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
     const root = await navigator.storage.getDirectory();
     const rootHandle = await root.getDirectoryHandle(
       'pillage-first-ask-questions-later',
-      { create: true },
+      {
+        create: true,
+      },
     );
 
     try {

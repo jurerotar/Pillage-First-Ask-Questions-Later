@@ -1,7 +1,7 @@
+import { copyFileSync, existsSync } from 'node:fs';
 import { copyFile, mkdir, readdir, stat, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { glob } from 'tinyglobby';
-import { existsSync, copyFileSync } from 'node:fs';
 
 const copyFolderSync = async (source: string, dest: string): Promise<void> => {
   try {
@@ -47,17 +47,23 @@ const _generateAssetPreloadMaps = async () => {
   await writeFile(
     'app/asset-preload-paths/map.json',
     JSON.stringify({ files: mapFiles }),
-    { encoding: 'utf-8' },
+    {
+      encoding: 'utf-8',
+    },
   );
   await writeFile(
     'app/asset-preload-paths/village.json',
     JSON.stringify({ files: villageFiles }),
-    { encoding: 'utf-8' },
+    {
+      encoding: 'utf-8',
+    },
   );
   await writeFile(
     'app/asset-preload-paths/hero-items.json',
     JSON.stringify({ files: heroItemsFiles }),
-    { encoding: 'utf-8' },
+    {
+      encoding: 'utf-8',
+    },
   );
 };
 

@@ -1,3 +1,12 @@
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useOasis } from 'app/(game)/(village-slug)/hooks/use-oasis';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -6,22 +15,13 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { useOasis } from 'app/(game)/(village-slug)/hooks/use-oasis';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { Icon } from 'app/components/icon';
-import clsx from 'clsx';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
+import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
 import { Link } from 'react-router';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OccupiedOasisTile | undefined;
@@ -76,7 +76,9 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
         <Text>
           {t(
             "Next oasis available at Hero's mansion level {{heroMansionLevel}}",
-            { heroMansionLevel },
+            {
+              heroMansionLevel,
+            },
           )}
         </Text>
       </TableCell>
