@@ -85,7 +85,7 @@ export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
   } = props;
 
   return (
-    <UnitCardContext.Provider value={{ unitId, durationEffect, buildingId }}>
+    <UnitCardContext value={{ unitId, durationEffect, buildingId }}>
       <article
         className={clsx(
           'flex flex-col gap-2 p-2',
@@ -94,7 +94,7 @@ export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
       >
         {children}
       </article>
-    </UnitCardContext.Provider>
+    </UnitCardContext>
   );
 };
 
@@ -128,7 +128,7 @@ type UnitAttributes = Record<
   number
 >;
 
-export const UnitAttributes: React.FC = () => {
+export const UnitAttributes = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);

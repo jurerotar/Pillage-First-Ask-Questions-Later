@@ -22,7 +22,13 @@ import {
 import { Skeleton } from 'app/components/ui/skeleton';
 import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { BuildingCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import {
+  BuildingBenefits,
+  BuildingCard,
+  BuildingCost,
+  BuildingOverview,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 
 const BuildingTabFallback = () => {
   return (
@@ -267,7 +273,12 @@ export const BuildingDetails = () => {
                     buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
                   })}
                 </Text>
-                <BuildingCard buildingId={buildingId} />
+                <BuildingCard buildingId={buildingId}>
+                  <BuildingOverview />
+                  <BuildingBenefits />
+                  <BuildingCost />
+                  <BuildingActions />
+                </BuildingCard>
               </SectionContent>
             </Section>
           </TabPanel>

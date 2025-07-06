@@ -1,4 +1,10 @@
-import { BuildingCard } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import {
+  BuildingBenefits,
+  BuildingCard,
+  BuildingCost,
+  BuildingOverview,
+  BuildingRequirements,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import {
   assessBuildingConstructionReadiness,
   type AssessedBuildingRequirement,
@@ -29,6 +35,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -117,7 +124,13 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
             <BuildingCard
               key={building.id}
               buildingId={building.id}
-            />
+            >
+              <BuildingOverview />
+              <BuildingBenefits />
+              <BuildingCost />
+              <BuildingActions />
+              <BuildingRequirements />
+            </BuildingCard>
           ))}
         </section>
       )}
