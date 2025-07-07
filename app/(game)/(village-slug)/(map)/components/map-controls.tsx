@@ -75,7 +75,7 @@ export const MapControls = () => {
   ].flatMap((v) => (v ? [v] : []));
 
   return (
-    <div className="pointer-events-none fixed top-29 standalone:top-41 lg:top-23 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
+    <div className="pointer-events-none fixed top-31 standalone:top-31 lg:top-23 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
       <ToggleGroup
         type="multiple"
         variant="outline"

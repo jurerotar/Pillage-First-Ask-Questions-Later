@@ -1,13 +1,10 @@
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import {
-  CurrentVillageStateContext,
-  CurrentVillageStateProvider,
-} from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
 import { Suspense } from 'react';
-import { Fragment, memo, use, useEffect, useRef } from 'react';
+import { Fragment, memo, useEffect, useRef } from 'react';
 import { GiWheat } from 'react-icons/gi';
 import { LuScrollText } from 'react-icons/lu';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
@@ -29,8 +26,6 @@ import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-c
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { HiStar } from 'react-icons/hi';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
-import { Icon } from 'app/components/icon';
-import { formatNumber } from 'app/utils/common';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
@@ -90,7 +85,7 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(
       <button
         type="button"
         className="
-        flex items-center justify-center shadow-md rounded-xs px-3 py-2 border border-border relative
+        flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
         bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
         lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
       "
@@ -327,12 +322,8 @@ const MapNavigationItem = () => {
 };
 
 const ResourceCounters = () => {
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
-  const { buildingWheatConsumption, buildingWheatLimit } =
-    computedWheatProductionEffect;
-
   return (
-    <div className="flex w-full lg:border-none py-0.5 mx-auto gap-0.5 lg:gap-2">
+    <div className="flex w-full lg:border-none py-0.5 mx-auto gap-1 lg:gap-2">
       {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map(
         (resource: Resource, index) => (
           <Fragment key={resource}>
@@ -341,30 +332,6 @@ const ResourceCounters = () => {
           </Fragment>
         ),
       )}
-      <span className="flex gap-0.5 lg:hidden h-full min-w-10">
-        <span className="w-[2px] h-full bg-gray-300" />
-        <span className="flex flex-col justify-between gap-0.5 w-full">
-          <span className="inline-flex justify-between items-center gap-0.5">
-            <Icon
-              className="size-4"
-              type="population"
-            />
-            <span className="text-2xs font-medium">
-              {formatNumber(Math.abs(buildingWheatConsumption))}
-            </span>
-          </span>
-          <span className="h-[2px] w-full bg-gray-300" />
-          <span className="flex justify-between items-center gap-0.5">
-            <Icon
-              className="size-4"
-              type="wheatProduction"
-            />
-            <span className="text-2xs font-medium">
-              {formatNumber(buildingWheatLimit)}
-            </span>
-          </span>
-        </span>
-      </span>
     </div>
   );
 };
@@ -411,7 +378,7 @@ const TopNavigation = () => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   return (
-    <header className="flex flex-col w-full relative">
+    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-gradient-to-r from-gray-200 via-white to-gray-200">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
@@ -503,7 +470,7 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <ul className="flex gap-1 xl:gap-2 xl:mx-4">
+                  <ul className="flex gap-1 xl:gap-2 xl:mx-2">
                     <li>
                       <ResourcesNavigationItem />
                     </li>
@@ -541,7 +508,7 @@ const TopNavigation = () => {
         <>
           {/* Empty div to bring down the header on mobile devices */}
           <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full px-2 gap-4 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-4">
             <DiscordLink />
             <Suspense fallback={null}>
               <VillageSelect />
@@ -550,7 +517,7 @@ const TopNavigation = () => {
           </div>
         </>
       )}
-      <div className="flex relative lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-20 px-2 shadow-lg">
+      <div className="flex relative rounded-md lg:rounded-none lg:rounded-b-sm px-2 lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-20 shadow-lg">
         <ResourceCounters />
       </div>
     </header>
