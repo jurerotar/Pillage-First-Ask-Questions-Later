@@ -9,11 +9,17 @@ export const calculateHeroLevel = (currentExp: number) => {
   const nextLevelExp = (level + 1) * (level + 2) * 25;
 
   const expToNextLevel = nextLevelExp - currentExp;
+  const expInLevel = currentExp - currentLevelExp;
+  const expLevelRange = nextLevelExp - currentLevelExp;
+
+  const rawPercent = expLevelRange > 0 ? expInLevel / expLevelRange : 1;
+  const percentToNextLevel = Math.floor(rawPercent * 100);
 
   return {
     level,
     currentLevelExp,
     expToNextLevel,
+    percentToNextLevel,
   };
 };
 

@@ -17,10 +17,12 @@ export const useHero = () => {
 
   const isHeroAlive = hero.stats.health > 0;
   const experience = hero.stats.experience;
+  const health = hero.stats.health;
 
   return {
     hero,
     experience,
+    health,
     isHeroAlive,
   };
 };

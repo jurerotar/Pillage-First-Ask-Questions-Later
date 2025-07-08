@@ -116,13 +116,13 @@ const DiscordLink = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, experience } = useHero();
+  const { hero, health, experience } = useHero();
   const { heroPath } = useGameNavigation();
   const { playerTroops } = usePlayerTroops();
 
   const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
 
-  const { level } = calculateHeroLevel(experience);
+  const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
   const isLevelUpAvailable =
@@ -151,6 +151,43 @@ const HeroNavigationItem = () => {
         {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
         {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
+      <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
+        <span className="relative inline-flex size-full bg-gray-100 rounded-full">
+          <span
+            className={clsx(
+              'absolute top-0 left-0 h-full',
+              health === 100 ? 'rounded-full' : 'rounded-l-full',
+              health > 50
+                ? 'bg-green-500'
+                : health > 20
+                  ? 'bg-orange-500'
+                  : 'bg-red-500',
+            )}
+            style={{
+              width: `${health}%`,
+            }}
+          />
+        </span>
+        <span className="absolute absolute-centering text-2xs text-white text-shadow-lg">
+          {health}%
+        </span>
+      </span>
+      <span className="inline-flex items-center justify-center absolute bottom-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
+        <span className="relative inline-flex size-full bg-gray-100 rounded-full">
+          <span
+            className={clsx(
+              'absolute top-0 left-0 bg-blue-500 h-full',
+              percentToNextLevel === 100 ? 'rounded-full' : 'rounded-l-full',
+            )}
+            style={{
+              width: `${percentToNextLevel}%`,
+            }}
+          />
+        </span>
+        <span className="absolute absolute-centering text-2xs text-white text-shadow-lg">
+          {percentToNextLevel}%
+        </span>
+      </span>
     </Link>
   );
 };
@@ -171,6 +208,7 @@ const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> =
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
   counter?: number;
+  className?: string;
 };
 
 const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo(
@@ -508,7 +546,7 @@ const TopNavigation = () => {
         <>
           {/* Empty div to bring down the header on mobile devices */}
           <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-4">
+          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
             <DiscordLink />
             <Suspense fallback={null}>
               <VillageSelect />
