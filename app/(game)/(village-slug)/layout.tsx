@@ -567,8 +567,9 @@ const MobileBottomNavigation = () => {
   const gameNavigation = useGameNavigation();
 
   const container = useRef<HTMLDivElement>(null);
+  const centeredElement = useRef<HTMLLIElement>(null);
 
-  useCenterHorizontally(container);
+  useCenterHorizontally(container, centeredElement);
 
   // Basically, fixed header, overflow-x & translate-y do not work together at all.
   // There's always either non-working scroll or elements being cut. The way it works now is that technically, nothing is overflowing with translate,
@@ -598,11 +599,21 @@ const MobileBottomNavigation = () => {
             <QuestsNavigationItem />
           </li>
           <li>
+            <Link to={gameNavigation.overviewPath}>
+              <NavigationSideItem
+                aria-label={t('Overview')}
+                title={t('Overview')}
+              >
+                <CiCircleList className="text-2xl" />
+              </NavigationSideItem>
+            </Link>
+          </li>
+          <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">
               <li>
                 <ResourcesNavigationItem />
               </li>
-              <li>
+              <li ref={centeredElement}>
                 <VillageNavigationItem />
               </li>
               <li>
