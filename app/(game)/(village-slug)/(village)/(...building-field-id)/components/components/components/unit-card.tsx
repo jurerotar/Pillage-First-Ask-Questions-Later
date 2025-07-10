@@ -29,7 +29,6 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import type { PickLiteral } from 'app/utils/typescript';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import {
@@ -40,19 +39,11 @@ import {
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import type { Building } from 'app/interfaces/models/game/building';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 
 type UnitCardContextState = {
   unitId: Unit['id'];
-  buildingId: PickLiteral<
-    Building['id'],
-    | 'BARRACKS'
-    | 'GREAT_BARRACKS'
-    | 'STABLE'
-    | 'GREAT_STABLE'
-    | 'WORKSHOP'
-    | 'HOSPITAL'
-  >;
+  buildingId: TroopTrainingBuildingId;
   durationEffect?: TroopTrainingDurationEffectId;
 };
 
@@ -62,15 +53,7 @@ const UnitCardContext = createContext<UnitCardContextState>(
 
 type UnitCardProps = {
   unitId: Unit['id'];
-  buildingId: PickLiteral<
-    Building['id'],
-    | 'BARRACKS'
-    | 'GREAT_BARRACKS'
-    | 'STABLE'
-    | 'GREAT_STABLE'
-    | 'WORKSHOP'
-    | 'HOSPITAL'
-  >;
+  buildingId: TroopTrainingBuildingId;
   durationEffect?: TroopTrainingDurationEffectId;
   showOuterBorder?: boolean;
 };

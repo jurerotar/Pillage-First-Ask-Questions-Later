@@ -60,13 +60,13 @@ import {
   isUnoccupiedOasisTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { generateTroops } from 'app/factories/troop-factory';
-import { prngAlea } from 'ts-seedrandom';
+import { prngMulberry32 } from 'ts-seedrandom';
 import { worldItemsFactory } from 'app/factories/world-items-factory';
 
 export const initializeServer = async (
   server: Server,
 ): Promise<QueryClient> => {
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   const player = userPlayerFactory(server);
   const npcPlayers = generateNpcPlayers(server);

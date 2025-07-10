@@ -1,6 +1,5 @@
 import type React from 'react';
-import type { PickLiteral } from 'app/utils/typescript';
-import type { Building } from 'app/interfaces/models/game/building';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import {
   Table,
@@ -16,15 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 
 type TroopTrainingTableProps = {
-  buildingId: PickLiteral<
-    Building['id'],
-    | 'BARRACKS'
-    | 'GREAT_BARRACKS'
-    | 'STABLE'
-    | 'GREAT_STABLE'
-    | 'WORKSHOP'
-    | 'HOSPITAL'
-  >;
+  buildingId: TroopTrainingBuildingId;
 };
 
 export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({

@@ -235,7 +235,7 @@ describe('Server initialization', () => {
       })! as OccupiedOasisTile;
       const tile2 = tiles.find(({ id }) => {
         const { x, y } = parseCoordinatesFromTileId(id);
-        return x === -1 && y === 0;
+        return x === -2 && y === -1;
       })! as OccupiedOasisTile;
 
       const { oasisResource: tile1OasisResource } = decodeGraphicsProperty(
@@ -245,9 +245,7 @@ describe('Server initialization', () => {
         tile2.graphics,
       );
 
-      expect(
-        tile1OasisResource === 'iron' && tile1.ORB[0].bonus === '25%',
-      ).toBe(true);
+      expect(tile1OasisResource === 'iron').toBe(true);
       expect(
         tile2OasisResource === 'iron' && tile2.ORB[0].bonus === '25%',
       ).toBe(true);

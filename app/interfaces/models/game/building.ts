@@ -1,7 +1,16 @@
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
+export type TroopTrainingBuildingId =
+  | 'BARRACKS'
+  | 'GREAT_BARRACKS'
+  | 'STABLE'
+  | 'GREAT_STABLE'
+  | 'WORKSHOP'
+  | 'HOSPITAL';
+
 export type BuildingId =
+  | TroopTrainingBuildingId
   | 'CLAY_PIT'
   | 'WHEAT_FIELD'
   | 'WOODCUTTER'
@@ -15,17 +24,12 @@ export type BuildingId =
   | 'WAREHOUSE'
   | 'WATERWORKS'
   | 'ACADEMY'
-  | 'BARRACKS'
   | 'CITY_WALL'
   | 'EARTH_WALL'
-  | 'GREAT_BARRACKS'
-  | 'GREAT_STABLE'
   | 'HEROS_MANSION'
-  | 'HOSPITAL'
   | 'MAKESHIFT_WALL'
   | 'PALISADE'
   | 'RALLY_POINT'
-  | 'STABLE'
   | 'STONE_WALL'
   | 'TRAPPER'
   | 'WORKSHOP'

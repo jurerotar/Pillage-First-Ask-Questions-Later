@@ -13,7 +13,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { NatureUnitId, UnitId } from 'app/interfaces/models/game/unit';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
-import { prngAlea } from 'ts-seedrandom';
+import { prngMulberry32 } from 'ts-seedrandom';
 import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
 
 type GenerateTroopsArgs = {
@@ -304,7 +304,7 @@ export const generateTroops = ({
   occupiedOccupiableTiles,
   players,
 }: GenerateTroopsArgs) => {
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   const playerMap = new Map(players.map((p) => [p.id, p]));
 

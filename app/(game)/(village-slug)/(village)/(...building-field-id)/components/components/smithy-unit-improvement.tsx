@@ -10,30 +10,15 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-} from 'app/components/ui/table';
 import { useTranslation } from 'react-i18next';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { tribe } = useTribe();
   const { isUnitResearched } = useUnitResearch();
-  const {
-    eventsByType: currentVillageUnitImprovementEvents,
-    hasEvents: hasImprovementEventsOngoing,
-  } = useEventsByType('unitImprovement');
 
   const upgradableUnits = units.filter(({ category, tribe: unitTribe, id }) => {
     return (
@@ -52,49 +37,7 @@ export const SmithyUnitImprovement = () => {
           )}
         </Text>
       </SectionContent>
-      <SectionContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>{t('Unit')}</TableHeaderCell>
-              <TableHeaderCell>{t('Level')}</TableHeaderCell>
-              <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {hasImprovementEventsOngoing && (
-              <TableRow>
-                <TableCell>
-                  {assetsT(
-                    `UNITS.${currentVillageUnitImprovementEvents[0].unitId}.NAME`,
-                    {
-                      count: 1,
-                    },
-                  )}
-                </TableCell>
-                <TableCell>
-                  {currentVillageUnitImprovementEvents[0].level}
-                </TableCell>
-                <TableCell>
-                  <Countdown
-                    endsAt={
-                      currentVillageUnitImprovementEvents[0].startsAt +
-                      currentVillageUnitImprovementEvents[0].duration
-                    }
-                  />
-                </TableCell>
-              </TableRow>
-            )}
-            {!hasImprovementEventsOngoing && (
-              <TableRow>
-                <TableCell colSpan={3}>
-                  {t('No improvements are currently taking place')}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </SectionContent>
+      <SectionContent />
       <SectionContent>
         {upgradableUnits.map(({ id }) => (
           <UnitCard
