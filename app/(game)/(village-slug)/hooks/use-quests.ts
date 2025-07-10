@@ -12,10 +12,12 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 
 export const useQuests = () => {
   const { fetcher } = use(ApiContext);
   const queryClient = useQueryClient();
+  const { currentVillage } = useCurrentVillage();
 
   const { data: quests } = useSuspenseQuery<Quest[]>({
     queryKey: [questsCacheKey],
@@ -44,7 +46,7 @@ export const useQuests = () => {
       await fetcher(`/quests/${questId}/collect`, {
         method: 'PATCH',
         body: {
-          questId,
+          villageId: currentVillage.id,
         },
       });
     },

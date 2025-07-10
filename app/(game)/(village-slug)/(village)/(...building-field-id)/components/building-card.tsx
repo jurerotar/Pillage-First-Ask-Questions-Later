@@ -124,12 +124,16 @@ export const BuildingCost = () => {
   );
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
-  const { nextLevelBuildingDuration, nextLevelResourceCost } =
+  const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, virtualLevel);
 
   const formattedTime = formatTime(
     buildingDuration * nextLevelBuildingDuration,
   );
+
+  if (isMaxLevel) {
+    return null;
+  }
 
   return (
     <>
