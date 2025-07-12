@@ -4,7 +4,7 @@ import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
-import type { EventResolvedApiNotificationEvent } from 'app/interfaces/api';
+import type { EventApiNotificationEvent } from 'app/interfaces/api';
 
 let scheduledTimeout: number | null = null;
 
@@ -25,19 +25,27 @@ const resolveEvent = async (
     );
   }
 
-  const resolver = getGameEventResolver(event.type)!;
+  try {
+    const resolver = getGameEventResolver(event.type)!;
 
-  // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
-  await resolver(queryClient, event);
+    // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
+    await resolver(queryClient, event);
 
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
-    return events!.filter(({ id }) => id !== eventId);
-  });
+    queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
+      return events!.filter(({ id }) => id !== eventId);
+    });
 
-  self.postMessage({
-    eventKey: 'event:resolved',
-    cachesToClearOnResolve: event.cachesToClearOnResolve,
-  } satisfies EventResolvedApiNotificationEvent);
+    self.postMessage({
+      eventKey: 'event:worker-event-resolve-success',
+      ...event,
+    } satisfies EventApiNotificationEvent);
+  } catch (error) {
+    console.error(error);
+    self.postMessage({
+      eventKey: 'event:worker-event-resolve-error',
+      ...event,
+    } satisfies EventApiNotificationEvent);
+  }
 };
 
 // TODO: This code is probably bugged, make sure to refactor and double-check when possible

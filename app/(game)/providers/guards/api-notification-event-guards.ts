@@ -1,6 +1,6 @@
 import type {
   ApiNotificationEvent,
-  EventResolvedApiNotificationEvent,
+  EventApiNotificationEvent,
 } from 'app/interfaces/api';
 
 export const isNotificationMessageEvent = (
@@ -12,18 +12,9 @@ export const isNotificationMessageEvent = (
 
 export const isEventResolvedNotificationMessageEvent = (
   event: MessageEvent,
-): event is MessageEvent<EventResolvedApiNotificationEvent> => {
+): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:resolved'
-  );
-};
-
-export const isEventNotStartedNotificationMessageEvent = (
-  event: MessageEvent,
-): event is MessageEvent<EventResolvedApiNotificationEvent> => {
-  return (
-    isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:construction-not-started'
+    event.data.eventKey === 'event:worker-event-resolve-success'
   );
 };

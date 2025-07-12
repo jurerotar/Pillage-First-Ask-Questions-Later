@@ -1,5 +1,8 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
@@ -16,15 +19,24 @@ export type ApiHandler<
 ) => Promise<TReturn>;
 
 type EventKey =
-  | 'event:worker-ready'
-  | 'event:resolved'
-  | 'event:construction-not-started'
-  | 'event:construction-started'
-  | 'event:construction-completed';
+  | 'event:worker-initialization-success'
+  | 'event:worker-initialization-error'
+  | 'event:worker-event-creation-success'
+  | 'event:worker-event-creation-error'
+  | 'event:worker-event-resolve-success'
+  | 'event:worker-event-resolve-error';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
-export type EventResolvedApiNotificationEvent = ApiNotificationEvent &
-  Pick<GameEvent, 'cachesToClearOnResolve'>;
+export type WorkerInitializationErrorEvent = {
+  eventKey: EventKey;
+  error: Error;
+};
+
+export type EventApiNotificationEvent<
+  T extends GameEventType | undefined = undefined,
+> = GameEvent<T> & {
+  eventKey: EventKey;
+};

@@ -5,7 +5,7 @@ import type React from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
-import { FaTrash } from 'react-icons/fa6';
+import { FaDownload, FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 
 type ServerCardProps = {
@@ -16,7 +16,7 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   const { server } = props;
 
   const { t } = useTranslation('public');
-  const { deleteServer } = useAvailableServers();
+  const { deleteServer, exportServer } = useAvailableServers();
 
   const appVersion = import.meta.env.VERSION;
 
@@ -31,8 +31,18 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
       key={server.id}
       className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
     >
-      <div className="absolute right-2 top-2">
+      <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
         <Button
+          data-tooltip-id="public-tooltip"
+          data-tooltip-content="Export server"
+          variant="outline"
+          onClick={() => exportServer({ server })}
+        >
+          <FaDownload className="text-gray-400" />
+        </Button>
+        <Button
+          data-tooltip-id="public-tooltip"
+          data-tooltip-content="Delete server"
           variant="outline"
           onClick={() => deleteServer({ server })}
         >

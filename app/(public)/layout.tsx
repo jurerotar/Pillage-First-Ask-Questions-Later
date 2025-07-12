@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { loadPublicTranslations } from 'app/localization/loaders/public';
+import { Tooltip } from 'app/components/tooltip';
 
 export const clientLoader = async () => {
   await loadPublicTranslations();
@@ -35,6 +36,7 @@ const PublicLayout = () => {
           </div>
         </div>
       </header>
+      <Tooltip id="public-tooltip" />
       <Outlet />
     </>
   );

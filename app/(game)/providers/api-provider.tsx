@@ -6,17 +6,16 @@ import {
   createWorkerFetcher,
   type Fetcher,
 } from 'app/(game)/utils/worker-fetch';
-import type { Server } from 'app/interfaces/models/game/server';
-import type { ApiNotificationEvent } from 'app/interfaces/api';
+import type {
+  EventApiNotificationEvent,
+  WorkerInitializationErrorEvent,
+} from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import {
   isEventResolvedNotificationMessageEvent,
   isNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
-
-type ApiContextProps = {
-  serverSlug: Server['slug'];
-};
+import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 
 type ApiContextReturn = {
   fetcher: Fetcher;
@@ -27,29 +26,41 @@ export const ApiContext = createContext<ApiContextReturn>(
 );
 
 const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const url = new URL(ApiWorker, import.meta.url);
     url.searchParams.set('server-slug', serverSlug);
     const worker = new Worker(url.toString(), { type: 'module' });
 
-    const handleWorkerReadyMessage = (event: MessageEvent) => {
-      if (
-        isNotificationMessageEvent(event) &&
-        event.data.eventKey === 'event:worker-ready'
-      ) {
-        worker.removeEventListener('message', handleWorkerReadyMessage);
+    const handleWorkerInitializationMessage = (
+      event: MessageEvent<WorkerInitializationErrorEvent>,
+    ) => {
+      if (!isNotificationMessageEvent(event)) {
+        return;
+      }
+
+      if (event.data.eventKey === 'event:worker-initialization-success') {
+        worker.removeEventListener(
+          'message',
+          handleWorkerInitializationMessage,
+        );
         resolve(worker);
+      }
+
+      if (event.data.eventKey === 'event:worker-initialization-error') {
+        worker.removeEventListener(
+          'message',
+          handleWorkerInitializationMessage,
+        );
+        reject(new Error(event.data.error.message));
       }
     };
 
-    worker.addEventListener('message', handleWorkerReadyMessage);
+    worker.addEventListener('message', handleWorkerInitializationMessage);
   });
 };
 
-export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({
-  serverSlug,
-  children,
-}) => {
+export const ApiProvider: React.FCWithChildren = ({ children }) => {
+  const { serverSlug } = useRouteSegments();
   const queryClient = useQueryClient();
 
   const { data: apiWorker } = useSuspenseQuery<Worker>({
@@ -57,6 +68,7 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({
     queryFn: () => createWorkerWithReadySignal(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
+    retry: false,
   });
 
   useEffect(() => {
@@ -64,7 +76,9 @@ export const ApiProvider: React.FCWithChildren<ApiContextProps> = ({
       return;
     }
 
-    const handleMessage = async (event: MessageEvent<ApiNotificationEvent>) => {
+    const handleMessage = async (
+      event: MessageEvent<EventApiNotificationEvent>,
+    ) => {
       if (!isNotificationMessageEvent(event)) {
         return;
       }

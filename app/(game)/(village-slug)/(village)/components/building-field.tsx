@@ -7,9 +7,9 @@ import { OccupiedBuildingField } from 'app/(game)/(village-slug)/(village)/compo
 import { EmptyBuildingField } from 'app/(game)/(village-slug)/(village)/components/empty-building-field';
 
 const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
-  [1, 'top-[20%] left-[33%]'],
+  [1, 'top-[20%] left-[31%]'],
   [2, 'top-[10%] left-[47%]'],
-  [3, 'top-[17%] left-[63%]'],
+  [3, 'top-[17%] left-[65%]'],
   [4, 'top-[35%] left-[20%]'],
   [5, 'top-[30%] left-[43%]'],
   [6, 'top-[27%] left-[55%]'],
@@ -18,7 +18,7 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [9, 'top-[51%] left-[26%]'],
   [10, 'top-[39%] left-[69%]'],
   [11, 'top-[39%] left-[86%]'],
-  [12, 'top-[68%] left-[19%]'],
+  [12, 'top-[72%] left-[19%]'],
   [13, 'top-[67%] left-[32%]'],
   [14, 'top-[71%] left-[48%]'],
   [15, 'top-[59%] left-[76%]'],
@@ -28,7 +28,7 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [19, 'top-[33%] left-[28%]'],
   [20, 'top-[24%] left-[38%]'],
   [21, 'top-[18%] left-[49%]'],
-  [22, 'top-[19%] left-[59%]'],
+  [22, 'top-[19%] left-[60%]'],
   [23, 'top-[22%] left-[70%]'],
   [24, 'top-[35%] left-[78%]'],
   [25, 'top-[47%] left-[81%]'],
@@ -41,7 +41,7 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
   [32, 'top-[73%] left-[24%]'],
   [33, 'top-[59%] left-[19%]'],
   [34, 'top-[44%] left-[21%]'],
-  [35, 'top-[62%] left-[50%]'],
+  [35, 'top-[65%] left-[48%]'],
   [36, 'top-[53%] left-[38%]'],
   [37, 'top-[42%] left-[44%]'],
   [38, 'top-[37%] left-[55%]'],
