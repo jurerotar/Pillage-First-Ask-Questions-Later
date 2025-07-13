@@ -48,7 +48,7 @@ const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
 
 export const unstable_clientMiddleware = [clientSessionMiddleware];
 
-const Root = () => {
+export const Layout = () => {
   return (
     <html lang="en-US">
       <head>
@@ -132,4 +132,8 @@ const Root = () => {
   );
 };
 
-export default Root;
+const App = () => {
+  return <Outlet />;
+};
+
+export default App;
