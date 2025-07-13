@@ -1,4 +1,4 @@
-import { Outlet, Scripts } from 'react-router';
+import { Links, Outlet, Scripts } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
@@ -32,18 +32,18 @@ export const Layout = () => {
           href={`/logo${appIconPostfix}.svg`}
           type="image/svg+xml"
         />
-        {isDeployingToMaster && (
-          <link
-            rel="preconnect"
-            href={import.meta.env.VITE_FARO_INGEST_ENDPOINT}
-            crossOrigin="anonymous"
-          />
-        )}
         {import.meta.env.MODE === 'production' && (
-          <link
-            rel="manifest"
-            href="/manifest.webmanifest"
-          />
+          <>
+            <link
+              rel="manifest"
+              href="/manifest.webmanifest"
+            />
+            <link
+              rel="preconnect"
+              href={import.meta.env.VITE_FARO_INGEST_ENDPOINT}
+              crossOrigin="anonymous"
+            />
+          </>
         )}
         <meta
           name="viewport"
@@ -101,6 +101,7 @@ export const Layout = () => {
           property="og:image:alt"
           content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
         />
+        <Links />
       </head>
       <body>
         <StateProvider>
