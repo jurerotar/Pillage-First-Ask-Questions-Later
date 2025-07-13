@@ -9,26 +9,18 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
 import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
 
-export const meta: MetaFunction = ({ params }) => {
+const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const OverviewPage = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { resourcesPath } = useGameNavigation();
@@ -53,8 +45,11 @@ const OverviewPage = () => {
   const marketplaceName = assetsT('BUILDINGS.MARKETPLACE.NAME');
   const breweryName = assetsT('BUILDINGS.BREWERY.NAME');
 
+  const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

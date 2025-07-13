@@ -8,29 +8,24 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
 import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/archived-reports';
 import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/+types/page';
 
-export const meta: MetaFunction = ({ params }) => {
+const ReportsPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const ReportsPage = () => {
   const { t } = useTranslation();
   const { resourcesPath } = useGameNavigation();
 
+  const title = `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

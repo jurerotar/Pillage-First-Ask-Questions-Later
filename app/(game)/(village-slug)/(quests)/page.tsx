@@ -15,21 +15,13 @@ import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-l
 import { partition } from 'app/utils/common';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 
-export const meta: MetaFunction = ({ params }) => {
+const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Quests')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const QuestsPage = () => {
   const { currentVillage } = useCurrentVillage();
   const { t } = useTranslation();
   const { quests } = useQuests();
@@ -44,8 +36,11 @@ const QuestsPage = () => {
     (quest) => quest.scope === 'village',
   );
 
+  const title = `${t('Quests')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

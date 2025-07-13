@@ -10,8 +10,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
 import {
   Select,
   SelectContent,
@@ -25,18 +23,12 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(preferences)/+types/page';
 
-export const meta: MetaFunction = ({ params }) => {
+const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Preferences')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const PreferencesPage = () => {
   const { t } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
   const { resourcesPath } = useGameNavigation();
@@ -48,8 +40,11 @@ const PreferencesPage = () => {
     isDeveloperModeEnabled,
   } = preferences;
 
+  const title = `${t('Preferences')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

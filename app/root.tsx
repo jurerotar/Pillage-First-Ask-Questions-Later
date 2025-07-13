@@ -1,11 +1,4 @@
-import {
-  Links,
-  type LinksFunction,
-  Meta,
-  type MetaFunction,
-  Outlet,
-  Scripts,
-} from 'react-router';
+import { Outlet, Scripts } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
@@ -17,24 +10,6 @@ await initFaro();
 
 const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
 const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
-
-export const meta: MetaFunction = () => {
-  return [
-    {
-      title: 'Pillage First! (Ask Questions Later)',
-    },
-  ];
-};
-
-export const links: LinksFunction = () => {
-  return [
-    {
-      rel: 'preconnect',
-      href: import.meta.env.VITE_FARO_INGEST_ENDPOINT,
-      crossOrigin: 'anonymous',
-    },
-  ];
-};
 
 const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
   async ({ context }) => {
@@ -57,6 +32,13 @@ export const Layout = () => {
           href={`/logo${appIconPostfix}.svg`}
           type="image/svg+xml"
         />
+        {isDeployingToMaster && (
+          <link
+            rel="preconnect"
+            href={import.meta.env.VITE_FARO_INGEST_ENDPOINT}
+            crossOrigin="anonymous"
+          />
+        )}
         {import.meta.env.MODE === 'production' && (
           <link
             rel="manifest"
@@ -119,8 +101,6 @@ export const Layout = () => {
           property="og:image:alt"
           content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
         />
-        <Meta />
-        <Links />
       </head>
       <body>
         <StateProvider>
