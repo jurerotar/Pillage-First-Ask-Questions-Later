@@ -25,10 +25,10 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
-import { Alert } from 'app/components/ui/alert';
 import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
 import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
 import { workerFactory } from 'app/utils/workers';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   seed: z.string().min(1, { error: t('Seed is required') }),
@@ -78,6 +78,7 @@ export const CreateNewServerForm = () => {
     onSuccess: (_, { server }) => {
       addServer({ server });
       navigate(`/game/${server.slug}/v-1/resources`);
+      toast.success(t('Server successfully created! Redirecting...'));
     },
     onError: (_, { server }) => deleteServer({ server }),
   });
@@ -273,7 +274,6 @@ export const CreateNewServerForm = () => {
             {t('Create Server')}
           </Button>
         </div>
-        {isSuccess && <Alert variant="success">{t('Redirecting...')}</Alert>}
       </form>
     </Form>
   );

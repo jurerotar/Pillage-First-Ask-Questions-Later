@@ -5,6 +5,7 @@ import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from './faro';
 import './localization/i18n';
 import './styles/app.css';
+import { Toaster } from 'sonner';
 
 await initFaro();
 
@@ -107,6 +108,7 @@ export const Layout = () => {
         <StateProvider>
           <Outlet />
         </StateProvider>
+        <Toaster />
         <Scripts />
       </body>
     </html>

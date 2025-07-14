@@ -7,6 +7,8 @@ import {
 import type { Server } from 'app/interfaces/models/game/server';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const deleteServerData = async (server: Server) => {
   try {
@@ -25,6 +27,7 @@ const deleteServerData = async (server: Server) => {
 };
 
 export const useAvailableServers = () => {
+  const { t } = useTranslation('public');
   const queryClient = useQueryClient();
 
   const { data: availableServers } = useQuery<Server[]>({
@@ -64,6 +67,7 @@ export const useAvailableServers = () => {
       await queryClient.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
+      toast.success(t('Server was deleted successfully.'));
     },
   });
 
