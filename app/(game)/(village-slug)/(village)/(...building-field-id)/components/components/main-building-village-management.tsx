@@ -17,7 +17,7 @@ export const MainBuildingVillageManagement = () => {
       <SectionContent>
         <Bookmark tab="village-management" />
         <Text as="h2">{t('Village management')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'The main building is the administrative center of your village. From here, you can rename your village and manage its infrastructure. If needed, you can also demolish existing buildings to make room for new development or restructure your layout.',
           )}

@@ -44,7 +44,7 @@ export const BuildingStats = () => {
       <SectionContent>
         <Bookmark tab="upgrade-cost" />
         <Text as="h2">{t('Upgrade details')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'This section provides detailed information about building upgrades, including the resource costs and the time required to reach each level. Use the tabs below to explore how upgrades impact both your economy and strategy.',
           )}
@@ -59,7 +59,7 @@ export const BuildingStats = () => {
           <TabPanel>
             <section className="flex flex-col gap-2">
               <Text as="h2">{t('Upgrade cost')}</Text>
-              <Text as="p">
+              <Text>
                 {t(
                   'This section displays the resource costs required to upgrade a building at each level. It includes a breakdown of wood, clay, iron, and wheat needed for each level from 1 upward.',
                 )}
@@ -126,7 +126,7 @@ export const BuildingStats = () => {
           <TabPanel>
             <section className="flex flex-col gap-2">
               <Text as="h2">{t('Upgrade duration')}</Text>
-              <Text as="p">
+              <Text>
                 {t(
                   'This section displays the time required to upgrade a building at each level, depending on the level of your Main Building. The middle column reflects the duration based on your current Main Building level, while the left and right columns show durations for Main Building levels 1 and 20, respectively.',
                 )}

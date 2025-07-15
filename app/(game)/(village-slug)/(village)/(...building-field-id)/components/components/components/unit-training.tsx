@@ -56,7 +56,7 @@ export const UnitTraining: React.FC<UnitTrainingProps> = ({ buildingId }) => {
       <SectionContent>
         <Bookmark tab="train" />
         <Text as="h2">{t('Train units')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'Select the type and number of units to train. Once queued, units will be trained one at a time, in the order you queued them in.',
           )}

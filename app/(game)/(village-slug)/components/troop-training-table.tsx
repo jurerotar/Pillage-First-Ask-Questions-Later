@@ -107,7 +107,7 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
               {batchedArray.length > maxVisible && (
                 <TableRow>
                   <TableCell colSpan={4}>
-                    <Text as="p">
+                    <Text>
                       {t('... with {{units}} awaiting training', {
                         units: remainingUnitSummary,
                       })}
@@ -120,7 +120,7 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
           {!hasEvents && (
             <TableRow>
               <TableCell colSpan={4}>
-                <Text as="p">{t('No units are currently being trained')}</Text>
+                <Text>{t('No units are currently being trained')}</Text>
               </TableCell>
             </TableRow>
           )}

@@ -3,6 +3,7 @@ import type {
   Effect,
   GlobalEffect,
   HeroEffect,
+  OasisEffect,
   ServerEffect,
   VillageBuildingEffect,
   VillageEffect,
@@ -32,4 +33,8 @@ export const isArtifactEffect = (effect: Effect): effect is ArtifactEffect => {
 
 export const isHeroEffect = (effect: Effect): effect is HeroEffect => {
   return effect.source === 'hero';
+};
+
+export const isOasisEffect = (effect: Effect): effect is OasisEffect => {
+  return effect.source === 'oasis';
 };

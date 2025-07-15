@@ -51,7 +51,7 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Quests')}</Text>
-      <Text as="p">
+      <Text>
         {t(
           'This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.',
         )}
@@ -73,7 +73,7 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
                 villageName: currentVillage.name,
               })}
             </Text>
-            <Text as="p">
+            <Text>
               {t(
                 'These quests are tied to the current village and can only be progressed in current village.',
               )}
@@ -84,7 +84,7 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <TabPanel>
           <SectionContent>
             <Text as="h2">{t('Global quests')}</Text>
-            <Text as="p">
+            <Text>
               {t(
                 'These quests are not tied to any village and are progress in all villages.',
               )}

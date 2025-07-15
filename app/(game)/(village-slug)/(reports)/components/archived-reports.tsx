@@ -22,7 +22,7 @@ export const ArchivedReports = () => {
     <Section>
       <SectionContent>
         <Text as="h2">{t('Archived reports')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'This is a categorized view of archived reports. These reports are not deleted once a limit is reached and you can have an unlimited amount of them. You can toggle different types of reports by using report filters below.',
           )}

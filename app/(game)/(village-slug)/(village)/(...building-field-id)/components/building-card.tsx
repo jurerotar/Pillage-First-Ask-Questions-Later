@@ -84,10 +84,7 @@ export const BuildingOverview = () => {
       >
         image
       </div>
-      <Text
-        as="p"
-        data-testid="building-overview-building-description"
-      >
+      <Text data-testid="building-overview-building-description">
         {assetsT(`BUILDINGS.${building.id}.DESCRIPTION`)}
       </Text>
       {actualLevel !== virtualLevel && (

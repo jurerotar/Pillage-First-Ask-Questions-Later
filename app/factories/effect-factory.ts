@@ -8,6 +8,7 @@ import type {
   Effect,
   GlobalEffect,
   HeroEffect,
+  OasisEffect,
   ServerEffect,
   TribalEffect,
   VillageBuildingEffect,
@@ -19,6 +20,7 @@ import type {
   Village,
 } from 'app/interfaces/models/game/village';
 import type { Hero } from 'app/interfaces/models/game/hero';
+import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 
 const heroEffectsFactory = (villageId: Village['id'], hero: Hero): Effect[] => {
   const { selectableAttributes, tribe } = hero;
@@ -64,6 +66,23 @@ const heroEffectsFactory = (villageId: Village['id'], hero: Hero): Effect[] => {
     source: 'hero',
     villageId,
   }));
+};
+
+export const oasisEffectsFactory = (
+  villageId: Village['id'],
+  oasisId: Tile['id'],
+  oasisResourceBonus: OasisTile['ORB'],
+): Effect[] => {
+  return oasisResourceBonus.map(({ resource, bonus }) => {
+    return {
+      id: `${resource}Production`,
+      scope: 'village',
+      source: 'oasis',
+      value: bonus === '25%' ? 1.25 : 1.5,
+      villageId,
+      oasisId,
+    } satisfies OasisEffect;
+  });
 };
 
 type NewBuildingEffectFactoryArgs = {

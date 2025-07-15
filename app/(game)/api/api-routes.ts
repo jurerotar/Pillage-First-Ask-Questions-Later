@@ -61,7 +61,10 @@ import {
   getBookmarks,
   updateBookmark,
 } from 'app/(game)/api/handlers/bookmark-handlers';
-import { abandonOasis } from 'app/(game)/api/handlers/oasis-handlers';
+import {
+  abandonOasis,
+  occupyOasis,
+} from 'app/(game)/api/handlers/oasis-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -294,12 +297,14 @@ const villageRoutes = [
     path: '/villages/:villageId/rename',
     handler: renameVillage,
   },
-];
-
-const oasisRoutes = [
+  {
+    method: 'POST',
+    path: '/villages/:villageId/oasis/:oasisId',
+    handler: occupyOasis,
+  },
   {
     method: 'DELETE',
-    path: '/oasis/:oasisId',
+    path: '/villages/:villageId/oasis/:oasisId',
     handler: abandonOasis,
   },
 ];

@@ -43,7 +43,7 @@ const HomePage = () => {
             >
               Pillage First! (Ask Questions Later)
             </Text>
-            <Text as="p">
+            <Text>
               <b>Pillage First! (Ask Questions Later)</b> is an{' '}
               <b>in-development</b>, <b>open-source</b>,{' '}
               <b>single-player strategy game</b> inspired by <b>Travian</b>.
@@ -62,7 +62,7 @@ const HomePage = () => {
                 >
                   Motivation
                 </Text>
-                <Text as="p">
+                <Text>
                   I've always been a huge fan of Travian and similar
                   browser-based strategy games. The slow, methodical
                   village-building, resource management, and real-time
@@ -92,7 +92,7 @@ const HomePage = () => {
                   Are there game design differences between Travian and Pillage
                   First!?
                 </Text>
-                <Text as="p">
+                <Text>
                   Yes, there's a couple. Main ones are new buildings, more
                   playable tribes, removal of capital village mechanic and new
                   hero items.
@@ -120,7 +120,7 @@ const HomePage = () => {
             >
               {t('Existing game worlds')}
             </Text>
-            <Text as="p">
+            <Text>
               {t('Create a new game world or enter a previously created one')}
             </Text>
             <Suspense fallback={null}>
@@ -136,7 +136,7 @@ const HomePage = () => {
                 >
                   Motivation
                 </Text>
-                <Text as="p">
+                <Text>
                   I've always been a huge fan of Travian and similar
                   browser-based strategy games. The slow, methodical
                   village-building, resource management, and real-time
@@ -166,7 +166,7 @@ const HomePage = () => {
                   Are there game design differences between Travian and Pillage
                   First!?
                 </Text>
-                <Text as="p">
+                <Text>
                   Yes, there's a couple. Main ones are new buildings, more
                   playable tribes, removal of capital village mechanic and new
                   hero items.

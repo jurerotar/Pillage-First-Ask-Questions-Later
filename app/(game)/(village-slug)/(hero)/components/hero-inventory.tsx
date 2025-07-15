@@ -13,7 +13,7 @@ export const HeroInventory = () => {
     <Section>
       <SectionContent>
         <Text as="h2">{t('Inventory')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
           )}

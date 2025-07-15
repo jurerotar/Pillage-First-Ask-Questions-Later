@@ -16,7 +16,7 @@ export const BreweryCelebration = () => {
       <SectionContent>
         <Bookmark tab="celebration" />
         <Text as="h2">{t('Celebration')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'Tasty mead is brewed in the brewery and later quaffed by the soldiers during their celebrations. These drinks make your soldiers braver and stronger when attacking others. Different brews served cause different effects on your troops.',
           )}
@@ -32,28 +32,21 @@ export const BreweryCelebration = () => {
           <TabPanel>
             <SectionContent>
               <Text as="h2">{t('Brew of war')}</Text>
-              <Text as="p">
+              <Text>
                 {t(
                   'A potent blend brewed for berserk fury. Your warriors march with unmatched aggression, gaining +20% attack power. But in their drunken rage, catapult no longer aim accurately and chiefs lose 50% of their persuasive edge',
                 )}
               </Text>
-              <Text
-                as="p"
-                className="font-medium"
-              >
-                {t('Effects')}:
-              </Text>
+              <Text className="font-medium">{t('Effects')}:</Text>
               <ul className="list-disc pl-4">
                 <li>
-                  <Text as="p">{t('20% attack bonus')}</Text>
+                  <Text>{t('20% attack bonus')}</Text>
                 </li>
                 <li>
-                  <Text as="p">
-                    {t('Catapult may only target random buildings')}
-                  </Text>
+                  <Text>{t('Catapult may only target random buildings')}</Text>
                 </li>
                 <li>
-                  <Text as="p">{t('Chiefs effectiveness reduced by 50%')}</Text>
+                  <Text>{t('Chiefs effectiveness reduced by 50%')}</Text>
                 </li>
               </ul>
             </SectionContent>
@@ -61,28 +54,23 @@ export const BreweryCelebration = () => {
           <TabPanel>
             <SectionContent>
               <Text as="h2">{t('Brew of siege')}</Text>
-              <Text as="p">
+              <Text>
                 {t(
                   'A strong ale that stirs courage without clouding aim. Your armies gain a solid +10% attack, while siege weapons remain steady. Chiefs, however, still stumble over their words, reducing their effectiveness by 50%.',
                 )}
               </Text>
-              <Text
-                as="p"
-                className="font-medium"
-              >
-                {t('Effects')}:
-              </Text>
+              <Text className="font-medium">{t('Effects')}:</Text>
               <ul className="list-disc pl-4">
                 <li>
-                  <Text as="p">{t('10% attack bonus')}</Text>
+                  <Text>{t('10% attack bonus')}</Text>
                 </li>
                 <li>
-                  <Text as="p">
+                  <Text>
                     {t('Catapult retain ability to target specific buildings')}
                   </Text>
                 </li>
                 <li>
-                  <Text as="p">{t('Chiefs effectiveness reduced by 50%')}</Text>
+                  <Text>{t('Chiefs effectiveness reduced by 50%')}</Text>
                 </li>
               </ul>
             </SectionContent>
@@ -90,28 +78,21 @@ export const BreweryCelebration = () => {
           <TabPanel>
             <SectionContent>
               <Text as="h2">{t('Brew of conquer')}</Text>
-              <Text as="p">
+              <Text>
                 {t(
                   'A refined brew favored by chieftains. Grants a modest +5% attack boost, sharpens tongues for loyalty speeches, but leaves catapult operators too cheerful to aim straight.',
                 )}
               </Text>
-              <Text
-                as="p"
-                className="font-medium"
-              >
-                {t('Effects')}:
-              </Text>
+              <Text className="font-medium">{t('Effects')}:</Text>
               <ul className="list-disc pl-4">
                 <li>
-                  <Text as="p">{t('5% attack bonus')}</Text>
+                  <Text>{t('5% attack bonus')}</Text>
                 </li>
                 <li>
-                  <Text as="p">
-                    {t('Catapult may only target random buildings')}
-                  </Text>
+                  <Text>{t('Catapult may only target random buildings')}</Text>
                 </li>
                 <li>
-                  <Text as="p">{t('Chiefs retain full effectiveness')}</Text>
+                  <Text>{t('Chiefs retain full effectiveness')}</Text>
                 </li>
               </ul>
             </SectionContent>

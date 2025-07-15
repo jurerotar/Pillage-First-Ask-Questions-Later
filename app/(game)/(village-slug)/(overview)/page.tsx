@@ -61,7 +61,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
       </Breadcrumb>
       <Section>
         <Text as="h1">{t('Village overview')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'Village overview allows you to track active troop training, smithy and academy queues, monitor merchant availability and movements and track ongoing celebrations.',
           )}

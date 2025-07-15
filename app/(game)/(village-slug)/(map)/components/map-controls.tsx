@@ -163,21 +163,23 @@ export const MapControls = () => {
           <Icon type="mapWheatFieldIconToggle" />
         </ToggleGroupItem>
 
-        <ToggleGroupItem
-          value="shouldShowTileTooltips"
-          onClick={() =>
-            toggleMapFilter({
-              filterName: 'shouldShowTileTooltips',
-              value: !shouldShowTileTooltips,
-            })
-          }
-          aria-label={t('Toggle tooltip popups')}
-          data-tooltip-id="general-tooltip"
-          data-tooltip-content={t('Toggle tooltip popups')}
-          data-testid="map-controls-toggle-tile-tooltips-button"
-        >
-          <Icon type="mapTileTooltipToggle" />
-        </ToggleGroupItem>
+        <div className="hidden lg:flex">
+          <ToggleGroupItem
+            value="shouldShowTileTooltips"
+            onClick={() =>
+              toggleMapFilter({
+                filterName: 'shouldShowTileTooltips',
+                value: !shouldShowTileTooltips,
+              })
+            }
+            aria-label={t('Toggle tooltip popups')}
+            data-tooltip-id="general-tooltip"
+            data-tooltip-content={t('Toggle tooltip popups')}
+            data-testid="map-controls-toggle-tile-tooltips-button"
+          >
+            <Icon type="mapTileTooltipToggle" />
+          </ToggleGroupItem>
+        </div>
       </ToggleGroup>
 
       <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-background p-1 md:p-2">

@@ -172,7 +172,7 @@ const MapPage = () => {
   };
 
   const scrollTop = (tileY: number) => {
-    return tileSize * (tileY + gridSize / 2) - mapHeight / 2;
+    return tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
   };
 
   const offsetX = scrollLeft(currentCenterTile.current.x);

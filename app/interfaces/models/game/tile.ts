@@ -29,7 +29,7 @@ export type OasisTile = BaseTile & {
   ORB: OasisResourceBonus[];
   // Values here are bit-packed into a single number to save space. Check `encodeGraphicsProperty` and `decodeGraphicsProperty` functions
   graphics: number;
-  villageId: null;
+  villageId: Village['id'] | null;
 };
 
 export type OccupiedOasisTile = Omit<OasisTile, 'villageId'> & {
