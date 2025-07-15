@@ -27,7 +27,7 @@ export const AcademyUnitResearch = () => {
       <SectionContent>
         <Bookmark tab="unit-research" />
         <Text as="h2">{t('Unit research')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'To be able to train stronger units, you will need to do research in your academy. The more this building is upgraded, the more you will have access to advanced research.',
           )}

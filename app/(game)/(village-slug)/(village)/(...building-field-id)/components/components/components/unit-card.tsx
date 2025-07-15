@@ -96,7 +96,7 @@ export const UnitOverview = () => {
           type={unitIdToUnitIconMapper(unitId)}
         />
       </div>
-      <Text as="p">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
+      <Text>{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
     </section>
   );
 };
@@ -146,10 +146,7 @@ export const UnitAttributes = () => {
         {t('Attributes at level {{level}}', { level: unitLevel })}
       </Text>
       {unitLevel !== unitVirtualLevel && (
-        <Text
-          as="p"
-          className="text-warning"
-        >
+        <Text className="text-warning">
           {t('Currently being upgraded to level {{level}}', {
             level: unitVirtualLevel,
           })}
@@ -166,7 +163,7 @@ export const UnitAttributes = () => {
                 className="size-5"
                 type={key as keyof UnitAttributes}
               />
-              <Text as="p">
+              <Text>
                 <span
                   className={clsx(
                     unitLevel !== unitVirtualLevel && 'text-warning',
@@ -186,7 +183,7 @@ export const UnitAttributes = () => {
                 className="size-5"
                 type={key as keyof UnitAttributes}
               />
-              <Text as="p">{value}</Text>
+              <Text>{value}</Text>
             </span>
           ))}
         </div>
@@ -248,10 +245,7 @@ export const UnitResearch = () => {
     return (
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Research')}</Text>
-        <Text
-          as="p"
-          className="text-green-600"
-        >
+        <Text className="text-green-600">
           {t('{{unit}} researched', {
             unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
           })}
@@ -358,10 +352,7 @@ export const UnitImprovement = () => {
     return (
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Improvement')}</Text>
-        <Text
-          as="p"
-          className="text-green-600"
-        >
+        <Text className="text-green-600">
           {t('{{unit}} is fully upgraded', {
             unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
           })}
@@ -420,7 +411,7 @@ export const UnitRequirements = () => {
         {assessedRequirements.map((assessedRequirement, index) => (
           <Fragment key={assessedRequirement.buildingId}>
             <li className="whitespace-nowrap">
-              <Text as="p">
+              <Text>
                 <span
                   className={clsx(
                     assessedRequirement.fulfilled &&

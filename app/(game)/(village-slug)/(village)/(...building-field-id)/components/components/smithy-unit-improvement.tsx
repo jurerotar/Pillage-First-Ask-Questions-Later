@@ -31,7 +31,7 @@ export const SmithyUnitImprovement = () => {
       <SectionContent>
         <Bookmark tab="unit-improvement" />
         <Text as="h2">{t('Improve units')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'The smithy improves the attack and defence values of troops by 1.5% per upgrade. Only researched units can be improved. Upgrades are limited by current smithy level, up to max level of 20. If you choose to demolish your smithy, you will not lose the upgrades to your troops. Each smithy can only work on 1 upgrade at the time, but multiple smithies may work on multiple level upgrades for the same unit at the same time.',
           )}

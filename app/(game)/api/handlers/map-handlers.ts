@@ -1,9 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type {
-  ContextualTile,
-  OasisTile,
-  Tile,
-} from 'app/interfaces/models/game/tile';
+import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
 import {
   eventsCacheKey,
   mapCacheKey,
@@ -30,6 +26,7 @@ import type { Report } from 'app/interfaces/models/game/report';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
+import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 
 type GetTilePlayerReturn = {
   player: Player;
@@ -128,32 +125,71 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
   return worldItems.find((worldItem) => worldItem.tileId === tileId) ?? null;
 };
 
-export const getTileOccupiableOasis: ApiHandler<OasisTile[], 'tileId'> = async (
-  queryClient,
-  { params },
-) => {
+export const getTileOccupiableOasis: ApiHandler<
+  OccupiableOasisInRangeDTO[],
+  'tileId'
+> = async (queryClient, { params }) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
+  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
+  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
 
-  const occupiableOasisInRange: OasisTile[] = [];
+  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
+
+  const tileCoordinates = parseCoordinatesFromTileId(tileId);
+
+  const oasisEligibilityRadius = 3;
+
+  const validXRange = [
+    tileCoordinates.x - oasisEligibilityRadius,
+    tileCoordinates.x + oasisEligibilityRadius,
+  ];
+  const validYRange = [
+    tileCoordinates.y - oasisEligibilityRadius,
+    tileCoordinates.y + oasisEligibilityRadius,
+  ];
 
   for (const tile of tiles) {
     if (!isOccupiableOasisTile(tile)) {
       continue;
     }
 
-    const villageCoordinates = parseCoordinatesFromTileId(tileId);
-    const tileCoordinates = parseCoordinatesFromTileId(tile.id);
+    const { x: oasisXCoordinate, y: oasisYCoordinate } =
+      parseCoordinatesFromTileId(tile.id);
 
-    const distanceX = (villageCoordinates.x - tileCoordinates.x) ** 2;
-    const distanceY = Math.abs(villageCoordinates.y - tileCoordinates.y) ** 2;
-    const distance = Math.sqrt(distanceX + distanceY);
-
-    if (distance <= 4.5) {
-      occupiableOasisInRange.push(tile);
+    if (
+      !(
+        oasisXCoordinate >= validXRange[0] &&
+        oasisXCoordinate <= validXRange[1] &&
+        oasisYCoordinate >= validYRange[0] &&
+        oasisYCoordinate <= validYRange[1]
+      )
+    ) {
+      continue;
     }
+
+    if (isOccupiedOasisTile(tile)) {
+      const villageId = tile.villageId;
+      const village = villages.find(({ id }) => id === villageId)!;
+      const playerId = village.playerId;
+      const player = players.find(({ id }) => id === playerId)!;
+
+      occupiableOasisInRange.push({
+        oasis: tile,
+        player: player,
+        village: village,
+      });
+
+      continue;
+    }
+
+    occupiableOasisInRange.push({
+      oasis: tile,
+      player: null,
+      village: null,
+    });
   }
 
   return occupiableOasisInRange;

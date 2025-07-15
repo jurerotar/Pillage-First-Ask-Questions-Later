@@ -59,10 +59,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <SectionContent>
           <Text as="h2">{t('Appearance')}</Text>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('UI color scheme')}</span>
               <span>
                 {t(
@@ -87,10 +84,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Graphics color scheme')}</span>
               <span>
                 {t(
@@ -115,10 +109,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Graphic set')}</span>
               <span>{t('Select your preferred graphic set')}</span>
             </Text>
@@ -142,10 +133,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <SectionContent>
           <Text as="h2">{t('Localization')}</Text>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Locale')}</span>
               <span>{t('Select your preferred language.')}</span>
             </Text>
@@ -169,10 +157,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <SectionContent>
           <Text as="h2">{t('Accessibility')}</Text>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">
                 {t('Additional accessibility features (in development))')}
               </span>
@@ -194,10 +179,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">
                 {t('Reduced motion (in development)')}
               </span>
@@ -224,10 +206,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <SectionContent>
           <Text as="h2">{t('Display')}</Text>
           <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Building names display')}</span>
               <span>
                 {t(
@@ -251,10 +230,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <SectionContent>
           <Text as="h2">{t('Developer Tools')}</Text>
           <div className="flex gap-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Developer mode')}</span>
               <span>
                 {t(

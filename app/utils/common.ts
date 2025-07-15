@@ -53,9 +53,10 @@ export const calculateDistanceBetweenPoints = (
   firstPoint: Point,
   secondPoint: Point,
 ): number => {
-  return Math.sqrt(
-    (secondPoint.x - firstPoint.x) ** 2 + (secondPoint.y - firstPoint.y) ** 2,
-  );
+  const dx = secondPoint.x - firstPoint.x;
+  const dy = secondPoint.y - firstPoint.y;
+
+  return Math.sqrt(dx ** 2 + dy ** 2);
 };
 
 export const roundTo2DecimalPoints = (number: number): number => {

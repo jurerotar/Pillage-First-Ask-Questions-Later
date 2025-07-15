@@ -2,7 +2,6 @@ import type { Route } from '.react-router/types/app/(game)/+types/layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
-import { Toaster } from 'app/components/ui/toaster';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { Suspense, useEffect, useState } from 'react';
 import {
@@ -148,7 +147,6 @@ const Layout = ({ params }: Route.ComponentProps) => {
         client={queryClient}
         initialIsOpen={false}
       />
-      <Toaster />
     </QueryClientProvider>
   );
 };

@@ -31,7 +31,7 @@ const CreateNewServerPage = () => {
               </BreadcrumbList>
             </Breadcrumb>
             <Text as="h1">{t('Create new server')}</Text>
-            <Text as="p">
+            <Text>
               {t(
                 "Creating a new server will generate a game state and store it in your browser's persistent memory. You can safely close the tab or browser at any time, your server will still be there when you return. A link to your new server will appear in the server list on the homepage, and you'll be automatically redirected to it after creation.",
               )}

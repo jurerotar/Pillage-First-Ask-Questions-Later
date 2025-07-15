@@ -16,24 +16,32 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import type { OccupiedOasisTile } from 'app/interfaces/models/game/tile';
+import type { OasisTile } from 'app/interfaces/models/game/tile';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { Button } from 'app/components/ui/button';
+import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
+import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 
 type OccupiedOasisRowProps = {
-  occupiedOasis: OccupiedOasisTile | undefined;
+  occupiedOasis: OasisTile | undefined;
   heroMansionLevel: number;
+  heroMansionLevelRequirement: number;
 };
 
 const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
   occupiedOasis,
   heroMansionLevel,
+  heroMansionLevelRequirement,
 }) => {
   const { t } = useTranslation();
   const { mapPath } = useGameNavigation();
+  const { abandonOasis } = useOasis();
 
   const hasOccupiedOasis = !!occupiedOasis;
 
@@ -43,14 +51,22 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
     return (
       <TableRow>
         <TableCell>
-          <Link to={`${mapPath}?x=${x}&y=${y}`}>
-            {x}, {y}
-          </Link>
+          <Text>
+            <Link
+              className="underline"
+              to={`${mapPath}?x=${x}&y=${y}`}
+            >
+              {x}, {y}
+            </Link>
+          </Text>
         </TableCell>
         <TableCell className="whitespace-nowrap">
           {occupiedOasis.ORB.map(({ resource, bonus }, index) => (
             <span
-              className={clsx('inline-flex gap-1', index > 0 && 'ml-2')}
+              className={clsx(
+                'inline-flex items-center gap-1',
+                index > 0 && 'ml-2',
+              )}
               key={resource}
             >
               <Icon
@@ -61,12 +77,15 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
             </span>
           ))}
         </TableCell>
-        <TableCell>/</TableCell>
+        <TableCell>
+          <Button onClick={() => abandonOasis({ oasisId: occupiedOasis.id })}>
+            {t('Abandon oasis')}
+          </Button>
+        </TableCell>
       </TableRow>
     );
   }
 
-  // TODO: Maybe show a different text depending on whether player already has 10/15/20 Hero's mansion
   return (
     <TableRow>
       <TableCell
@@ -74,13 +93,131 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
         colSpan={3}
       >
         <Text>
-          {t(
-            "Next oasis available at Hero's mansion level {{heroMansionLevel}}",
-            {
-              heroMansionLevel,
-            },
-          )}
+          {heroMansionLevel >= heroMansionLevelRequirement
+            ? t('Free oasis slot')
+            : t(
+                "Next oasis slot available at Hero's mansion level {{heroMansionLevelRequirement}}",
+                {
+                  heroMansionLevelRequirement,
+                },
+              )}
         </Text>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+type OccupiableOasisRowActionsProps = {
+  occupiableOasisDTO: OccupiableOasisInRangeDTO;
+  freeSlots: number;
+};
+
+const OccupiableOasisRowActions: React.FC<OccupiableOasisRowActionsProps> = ({
+  occupiableOasisDTO,
+  freeSlots,
+}) => {
+  const { oasis, player } = occupiableOasisDTO;
+
+  const { t } = useTranslation();
+  const { occupyOasis } = useOasis();
+  const { playerTroops } = usePlayerTroops();
+  const { currentVillage } = useCurrentVillage();
+
+  const isHeroAvailable = !!playerTroops.find(
+    ({ unitId, tileId, source }) =>
+      unitId === 'HERO' &&
+      tileId === currentVillage.id &&
+      source === currentVillage.id,
+  );
+
+  const isOccupiedByPlayer = player !== null && player.id === 'player';
+
+  if (isOccupiedByPlayer) {
+    return <Text>{t('You already occupy this oasis')}</Text>;
+  }
+
+  if (!isHeroAvailable) {
+    return <Text>{t('Hero is not available')}</Text>;
+  }
+
+  if (freeSlots < 1) {
+    return <Text>{t('No free slots available')}</Text>;
+  }
+
+  return (
+    <Button onClick={() => occupyOasis({ oasisId: oasis.id })}>
+      {t('Occupy')}
+    </Button>
+  );
+};
+
+type OccupiableOasisRowProps = {
+  occupiableOasisDTO: OccupiableOasisInRangeDTO;
+  freeSlots: number;
+};
+
+const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
+  occupiableOasisDTO,
+  freeSlots,
+}) => {
+  const { oasis, village, player } = occupiableOasisDTO;
+
+  const { mapPath } = useGameNavigation();
+
+  const oasisCoordinates = parseCoordinatesFromTileId(oasis.id);
+  const villageCoordinates =
+    village === null ? null : parseCoordinatesFromTileId(village.id);
+
+  return (
+    <TableRow key={oasis.id}>
+      <TableCell>
+        <Text>{player !== null ? getPlayerName(player.name) : '/'}</Text>
+      </TableCell>
+      <TableCell>
+        <Text>
+          {village !== null && (
+            <Link
+              className="underline"
+              to={`${mapPath}?x=${villageCoordinates!.x}&y=${villageCoordinates!.y}`}
+            >
+              {village.name} ({villageCoordinates!.x}, {villageCoordinates!.y})
+            </Link>
+          )}
+          {village === null && '/'}
+        </Text>
+      </TableCell>
+      <TableCell>
+        <Text>
+          <Link
+            className="underline"
+            to={`${mapPath}?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
+          >
+            {oasisCoordinates.x}, {oasisCoordinates.y}
+          </Link>
+        </Text>
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
+        {oasis.ORB.map(({ resource, bonus }, index) => (
+          <span
+            className={clsx(
+              'inline-flex items-center gap-1',
+              index > 0 && 'ml-2',
+            )}
+            key={resource}
+          >
+            <Icon
+              type={resource}
+              className="flex size-5"
+            />
+            {bonus}
+          </span>
+        ))}
+      </TableCell>
+      <TableCell>
+        <OccupiableOasisRowActions
+          occupiableOasisDTO={occupiableOasisDTO}
+          freeSlots={freeSlots}
+        />
       </TableCell>
     </TableRow>
   );
@@ -88,52 +225,101 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
 
 export const HerosMansionOasis = () => {
   const { t } = useTranslation();
-  const { mapPath } = useGameNavigation();
-  const { oasisOccupiedByCurrentVillage, occupiableOasisInRange } = useOasis();
+  const { occupiableOasisInRange } = useOasis();
+  const { currentVillage } = useCurrentVillage();
+
+  const heroMansionLevel =
+    currentVillage.buildingFields.find(
+      ({ buildingId }) => buildingId === 'HEROS_MANSION',
+    )?.level ?? 0;
+
+  const oasisOccupiedByCurrentVillage = occupiableOasisInRange.filter(
+    ({ village }) => {
+      return village?.id === currentVillage.id;
+    },
+  );
 
   const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] =
     oasisOccupiedByCurrentVillage;
+
+  const availableSlots = (() => {
+    if (heroMansionLevel === 20) {
+      return 3;
+    }
+
+    if (heroMansionLevel >= 15) {
+      return 2;
+    }
+
+    if (heroMansionLevel >= 10) {
+      return 1;
+    }
+
+    return 0;
+  })();
+
+  const occupiedSlots = oasisOccupiedByCurrentVillage.length;
+
+  const freeSlots = availableSlots - occupiedSlots;
 
   return (
     <Section>
       <SectionContent>
         <Bookmark tab="oasis" />
         <Text as="h2">{t('Oasis management')}</Text>
-        <Text as="p">
+        <Text>
           {t(
-            "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still conquer an oasis (1 on level 10, 2 on level 15 and 3 on level 20).",
+            "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still have an empty oasis slot (1 on level 10, 2 on level 15 and 3 on level 20).",
           )}
         </Text>
       </SectionContent>
       <Tabs>
         <TabList>
-          <Tab>{t('Occupied oasis')}</Tab>
-          <Tab>{t('Oasis within reach')}</Tab>
+          <Tab>
+            <Text>{t('Occupied oasis')}</Text>
+          </Tab>
+          <Tab>
+            <Text>{t('Oasis within reach')}</Text>
+          </Tab>
         </TabList>
         <TabPanel>
           <SectionContent>
             <Text as="h2">{t('Occupied oasis')}</Text>
+            <Text>
+              {t(
+                'Occupied oasis provide a resource production bonus of either 25% or 50% to one or multiple resources. If you choose to abandon an oasis, the abandoned oasis will start to regenerate animals.',
+              )}
+            </Text>
             <div className="overflow-x-scroll scrollbar-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Actions')}</TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Coordinates')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Resources')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Actions')}</Text>
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   <OccupiedOasisRow
-                    occupiedOasis={firstOccupiedOasis}
-                    heroMansionLevel={10}
+                    occupiedOasis={firstOccupiedOasis?.oasis}
+                    heroMansionLevel={heroMansionLevel}
+                    heroMansionLevelRequirement={10}
                   />
                   <OccupiedOasisRow
-                    occupiedOasis={secondOccupiedOasis}
-                    heroMansionLevel={15}
+                    occupiedOasis={secondOccupiedOasis?.oasis}
+                    heroMansionLevel={heroMansionLevel}
+                    heroMansionLevelRequirement={15}
                   />
                   <OccupiedOasisRow
-                    occupiedOasis={thirdOccupiedOasis}
-                    heroMansionLevel={20}
+                    occupiedOasis={thirdOccupiedOasis?.oasis}
+                    heroMansionLevel={heroMansionLevel}
+                    heroMansionLevelRequirement={20}
                   />
                 </TableBody>
               </Table>
@@ -143,48 +329,40 @@ export const HerosMansionOasis = () => {
         <TabPanel>
           <SectionContent>
             <Text as="h2">{t('Oasis within reach')}</Text>
+            <Text>
+              {t(
+                'For an oasis to be occupiable, it has to be in a radius of 3 squares around your village. To successfully occupy an oasis, you have to have an empty oasis slot available.',
+              )}
+            </Text>
             <div className="overflow-x-scroll scrollbar-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHeaderCell>{t('Owner')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-                    <TableHeaderCell>{t('Actions')}</TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Player')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Village')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Coordinates')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Resources')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Actions')}</Text>
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {occupiableOasisInRange.map((tile) => {
-                    const { x, y } = parseCoordinatesFromTileId(tile.id);
-                    return (
-                      <TableRow key={tile.id}>
-                        <TableCell>/</TableCell>
-                        <TableCell>
-                          <Link to={`${mapPath}?x=${x}&y=${y}`}>
-                            {x}, {y}
-                          </Link>
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {tile.ORB.map(({ resource, bonus }, index) => (
-                            <span
-                              className={clsx(
-                                'inline-flex gap-1',
-                                index > 0 && 'ml-2',
-                              )}
-                              key={resource}
-                            >
-                              <Icon
-                                type={resource}
-                                className="flex size-5"
-                              />
-                              {bonus}
-                            </span>
-                          ))}
-                        </TableCell>
-                        <TableCell>/</TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {occupiableOasisInRange.map((occupiableOasisDTO) => (
+                    <OccupiableOasisRow
+                      key={occupiableOasisDTO.oasis.id}
+                      freeSlots={freeSlots}
+                      occupiableOasisDTO={occupiableOasisDTO}
+                    />
+                  ))}
                 </TableBody>
               </Table>
             </div>
