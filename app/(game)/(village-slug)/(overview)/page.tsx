@@ -17,6 +17,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
+import { Separator } from 'app/components/ui/separator';
 
 const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -69,11 +70,16 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <Section>
           <Text as="h2">{t('Troop training')}</Text>
           <TroopTrainingQueue buildingId="BARRACKS" />
+          <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="STABLE" />
+          <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="WORKSHOP" />
+          <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="GREAT_BARRACKS" />
+          <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="GREAT_STABLE" />
         </Section>
+        <Separator orientation="horizontal" />
         <Section>
           <Text as="h2">{academyName}</Text>
           {!doesAcademyExist &&
@@ -83,6 +89,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
             )}
           {doesAcademyExist && <AcademyResearchTable />}
         </Section>
+        <Separator orientation="horizontal" />
         <Section>
           <Text as="h2">{smithyName}</Text>
           {!doesSmithyExist &&
@@ -92,6 +99,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
             )}
           {doesSmithyExist && <SmithyImprovementTable />}
         </Section>
+        <Separator orientation="horizontal" />
         <Section>
           <Text as="h2">{marketplaceName}</Text>
           {!doesMarketplaceExist &&
@@ -104,17 +112,20 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
           </Alert>
         </Section>
         {tribe === 'teutons' && (
-          <Section>
-            <Text as="h2">{breweryName}</Text>
-            {!doesBreweryExist &&
-              t(
-                'You need to build the {{buildingName}} before you can organize celebrations.',
-                { buildingName: breweryName },
-              )}
-            <Alert variant="warning">
-              {t('This section is still under development')}
-            </Alert>
-          </Section>
+          <>
+            <Separator orientation="horizontal" />
+            <Section>
+              <Text as="h2">{breweryName}</Text>
+              {!doesBreweryExist &&
+                t(
+                  'You need to build the {{buildingName}} before you can organize celebrations.',
+                  { buildingName: breweryName },
+                )}
+              <Alert variant="warning">
+                {t('This section is still under development')}
+              </Alert>
+            </Section>
+          </>
         )}
       </Section>
     </>

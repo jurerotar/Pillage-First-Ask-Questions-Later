@@ -25,6 +25,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(preferences)/+types/page';
+import { Separator } from 'app/components/ui/separator';
 
 const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
@@ -38,6 +39,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
     isAccessibilityModeEnabled,
     isReducedMotionModeEnabled,
     isDeveloperModeEnabled,
+    isAutomaticNavigationAfterBuildingLevelChangeEnabled,
   } = preferences;
 
   const title = `${t('Preferences')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
@@ -58,7 +60,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Section>
         <SectionContent>
           <Text as="h2">{t('Appearance')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('UI color scheme')}</span>
               <span>
@@ -83,7 +85,8 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2 border-b border-border py-2">
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Graphics color scheme')}</span>
               <span>
@@ -108,7 +111,8 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2 border-b border-border py-2">
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Graphic set')}</span>
               <span>{t('Select your preferred graphic set')}</span>
@@ -130,9 +134,10 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Localization')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Locale')}</span>
               <span>{t('Select your preferred language.')}</span>
@@ -154,9 +159,10 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Accessibility')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">
                 {t('Additional accessibility features (in development))')}
@@ -178,7 +184,8 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
               />
             </div>
           </div>
-          <div className="flex gap-2 border-b border-border py-2">
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">
                 {t('Reduced motion (in development)')}
@@ -203,9 +210,10 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Display')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
+          <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Building names display')}</span>
               <span>
@@ -227,8 +235,35 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
-          <Text as="h2">{t('Developer Tools')}</Text>
+          <Text as="h2">{t('Functionality')}</Text>
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
+              <span className="font-medium">
+                {t('Navigation after building upgrade')}
+              </span>
+              <span>
+                {t(
+                  'Enable automatic navigation to resources or village views after starting a building upgrade or downgrade',
+                )}
+              </span>
+            </Text>
+            <div className="flex flex-1 justify-end items-center">
+              <Switch
+                onCheckedChange={() =>
+                  updatePreference({
+                    preferenceName:
+                      'isAutomaticNavigationAfterBuildingLevelChangeEnabled',
+                    value:
+                      !isAutomaticNavigationAfterBuildingLevelChangeEnabled,
+                  })
+                }
+                checked={isAutomaticNavigationAfterBuildingLevelChangeEnabled}
+              />
+            </div>
+          </div>
+          <Separator orientation="horizontal" />
           <div className="flex gap-2">
             <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Developer mode')}</span>

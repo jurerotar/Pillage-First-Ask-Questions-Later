@@ -24,6 +24,7 @@ import {
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 
 type ErrorBagProps = {
   errorBag: string[];
@@ -121,6 +122,7 @@ export const BuildingActions = () => {
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
+  const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
@@ -160,7 +162,10 @@ export const BuildingActions = () => {
   };
 
   const onBuildingUpgrade = () => {
-    navigateBack();
+    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
+      navigateBack();
+    }
+
     startTransition(() => {
       upgradeBuilding();
     });

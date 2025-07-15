@@ -17,12 +17,14 @@ import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useBuildingDowngradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import { useNavigate } from 'react-router';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 
 export const DemolishBuilding = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
+  const { preferences } = usePreferences();
 
   const canDemolishBuildings =
     (currentVillage.buildingFields.find(
@@ -54,7 +56,10 @@ export const DemolishBuilding = () => {
   };
 
   const onDowngrade = () => {
-    downgradeBuilding();
+    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
+      downgradeBuilding();
+    }
+
     navigate('..', { relative: 'path' });
   };
 
