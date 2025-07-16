@@ -76,13 +76,21 @@ export const truncateToShortForm = (value: number): string => {
   const sign = value < 0 ? '-' : '';
 
   if (absValue >= 1_000_000) {
-    const truncated = Math.trunc((absValue / 1_000_000) * 10) / 10;
-    return `${sign}${truncated}M`;
+    const raw = absValue / 1_000_000;
+    const truncated = Math.trunc(raw * 10) / 10;
+    const intPart = Math.trunc(truncated);
+    const showDecimal = intPart < 100;
+
+    return `${sign}${showDecimal ? truncated : intPart}M`;
   }
 
   if (absValue >= 1_000) {
-    const truncated = Math.trunc((absValue / 1_000) * 10) / 10;
-    return `${sign}${truncated}K`;
+    const raw = absValue / 1_000;
+    const truncated = Math.trunc(raw * 10) / 10;
+    const intPart = Math.trunc(truncated);
+    const showDecimal = intPart < 100;
+
+    return `${sign}${showDecimal ? truncated : intPart}K`;
   }
 
   return `${value}`;
