@@ -17,7 +17,7 @@ export const MapContext = createContext<MapProviderValues>(
 );
 
 export const MAX_MAGNIFICATION = 5;
-export const MIN_MAGNIFICATION = 3;
+export const MIN_MAGNIFICATION = 2;
 
 export const MapProvider: React.FCWithChildren = ({ children }) => {
   const { mapSize } = useServer();

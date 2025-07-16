@@ -24,6 +24,14 @@
     position: absolute;
   }
 
+  &-magnification {
+    &-2 {
+      &::after {
+        border: 2px dashed var(--reputation-color);
+      }
+    }
+  }
+
   @each $reputationLevel, $color in $factionReputationColors {
     &-reputation-#{$reputationLevel} {
       --reputation-color: #{$color};
@@ -124,9 +132,15 @@
   transform: scale(var(--scale));
 
   &-magnification {
+    &-2 {
+      --top: -0.40rem;
+      --right: -0.40rem;
+      --scale: 0.50;
+    }
+
     &-3 {
-      --top: -0.25rem;
-      --right: -0.25rem;
+      --top: -0.20rem;
+      --right: -0.20rem;
       --scale: 0.75;
     }
 

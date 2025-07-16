@@ -109,6 +109,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
 
 const getTileClasses = (
   tile: ContextualTile,
+  magnification: number,
   shouldShowFactionReputation: boolean,
 ): string => {
   let classes = '';
@@ -122,6 +123,7 @@ const getTileClasses = (
     classes = clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-magnification-${magnification}`],
       cellStyles[`occupied-tile-${tribe}`],
       cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-reputation-${reputationLevel}`],
@@ -157,6 +159,7 @@ export const Cell = memo<CellProps>(
 
     const classes = getTileClasses(
       tile,
+      magnification,
       mapFilters.shouldShowFactionReputation,
     );
 
