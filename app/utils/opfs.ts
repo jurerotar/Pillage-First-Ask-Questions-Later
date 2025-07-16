@@ -19,38 +19,66 @@ export const writeFileContents = async <T>(
   serverHandle: FileSystemDirectoryHandle,
   name: string,
   data: T,
+  onSuccess?: () => void,
+  onError?: () => void,
 ): Promise<void> => {
   const textEncoder = new TextEncoder();
-  const file = await serverHandle.getFileHandle(`${name}.json`, {
+  const fileHandle = await serverHandle.getFileHandle(`${name}.json`, {
     create: true,
   });
 
-  const syncHandle = await file.createSyncAccessHandle();
+  let encodedData: Uint8Array;
 
   try {
+    const jsonString = JSON.stringify(data);
+    encodedData = textEncoder.encode(jsonString);
+  } catch (err) {
+    onError?.();
+    console.error('Failed to encode JSON:', err, data);
+    return;
+  }
+
+  let syncHandle: FileSystemSyncAccessHandle | null = null;
+
+  try {
+    syncHandle = await fileHandle.createSyncAccessHandle();
+
     syncHandle.truncate(0);
-    syncHandle.write(textEncoder.encode(JSON.stringify(data)));
+    syncHandle.write(encodedData);
+    onSuccess?.();
+  } catch (err) {
+    onError?.();
+    console.error('Failed to write file:', err);
   } finally {
-    syncHandle.close();
+    if (syncHandle) {
+      try {
+        syncHandle.close();
+      } catch (closeErr) {
+        console.error('Failed to close sync handle:', closeErr);
+      }
+    }
   }
 };
 
 const createOpfsWriteQueue = () => {
-  let pendingWrite: (() => Promise<void>) | null = null;
+  const queue: (() => Promise<void>)[] = [];
   let isWriting = false;
 
   return (task: () => Promise<void>) => {
-    pendingWrite = task;
+    queue.push(task);
 
     if (isWriting) {
       return;
     }
 
     const process = async () => {
-      while (pendingWrite) {
-        const current = pendingWrite;
-        pendingWrite = null;
-        isWriting = true;
+      isWriting = true;
+
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (!current) {
+          continue;
+        }
 
         try {
           await current();
@@ -62,7 +90,6 @@ const createOpfsWriteQueue = () => {
       isWriting = false;
     };
 
-    // Don't await, just run
     void process();
   };
 };
