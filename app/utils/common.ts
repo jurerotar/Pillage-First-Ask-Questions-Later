@@ -71,6 +71,23 @@ export const formatNumberWithCommas = (number: number): string => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
+export const truncateToShortForm = (value: number): string => {
+  const absValue = Math.abs(value);
+  const sign = value < 0 ? '-' : '';
+
+  if (absValue >= 1_000_000) {
+    const truncated = Math.trunc((absValue / 1_000_000) * 10) / 10;
+    return `${sign}${truncated}M`;
+  }
+
+  if (absValue >= 1_000) {
+    const truncated = Math.trunc((absValue / 1_000) * 10) / 10;
+    return `${sign}${truncated}K`;
+  }
+
+  return `${value}`;
+};
+
 export const partition = <T>(
   array: T[],
   callback: (element: T) => boolean,

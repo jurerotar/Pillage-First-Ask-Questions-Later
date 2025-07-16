@@ -2,12 +2,13 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type React from 'react';
 import { use } from 'react';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import { formatNumberWithCommas } from 'app/utils/common';
+import { formatNumberWithCommas, truncateToShortForm } from 'app/utils/common';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
 import { Link } from 'react-router';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 type ResourceCounterProps = {
   resource: Resource;
@@ -16,6 +17,7 @@ type ResourceCounterProps = {
 export const ResourceCounter: React.FC<ResourceCounterProps> = ({
   resource,
 }) => {
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { productionOverviewPath } = useGameNavigation();
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
     use(CurrentVillageStateContext);
@@ -37,8 +39,11 @@ export const ResourceCounter: React.FC<ResourceCounterProps> = ({
   const formattedCurrentAmount = formatNumberWithCommas(
     calculatedResourceAmount,
   );
-  const formattedStorageCapacity = formatNumberWithCommas(storageCapacity);
-  const formattedHourlyProduction = formatNumberWithCommas(hourlyProduction);
+
+  const formattedStorageCapacity = truncateToShortForm(storageCapacity);
+  const formattedHourlyProduction = isWiderThanLg
+    ? formatNumberWithCommas(hourlyProduction)
+    : truncateToShortForm(hourlyProduction);
 
   return (
     <Link
@@ -78,7 +83,6 @@ export const ResourceCounter: React.FC<ResourceCounterProps> = ({
           {formattedStorageCapacity}
         </span>
         <span className="inline-flex text-2xs md:text-xs">
-          {!hasNegativeProduction && '+'}
           {formattedHourlyProduction}/h
         </span>
       </div>
