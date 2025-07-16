@@ -152,10 +152,10 @@ const HeroNavigationItem = () => {
         {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
-        <span className="relative inline-flex size-full bg-gray-100 rounded-full">
+        <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">
           <span
             className={clsx(
-              'absolute top-0 left-0 h-full',
+              'absolute top-0 left-0 w-full h-full origin-left transition-transform',
               health === 100 ? 'rounded-full' : 'rounded-l-full',
               health > 50
                 ? 'bg-green-500'
@@ -164,7 +164,7 @@ const HeroNavigationItem = () => {
                   : 'bg-red-500',
             )}
             style={{
-              width: `${health}%`,
+              transform: `scaleX(${health / 100})`,
             }}
           />
         </span>
@@ -173,14 +173,14 @@ const HeroNavigationItem = () => {
         </span>
       </span>
       <span className="inline-flex items-center justify-center absolute bottom-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
-        <span className="relative inline-flex size-full bg-gray-100 rounded-full">
+        <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">
           <span
             className={clsx(
-              'absolute top-0 left-0 bg-blue-500 h-full',
+              'absolute top-0 left-0 w-full h-full bg-blue-500 origin-left transition-transform',
               percentToNextLevel === 100 ? 'rounded-full' : 'rounded-l-full',
             )}
             style={{
-              width: `${percentToNextLevel}%`,
+              transform: `scaleX(${percentToNextLevel / 100})`,
             }}
           />
         </span>

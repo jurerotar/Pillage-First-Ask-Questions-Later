@@ -189,121 +189,121 @@
     "MERCENARY": {
       "NAME_one": "Mercenary",
       "NAME_other": "Mercenaries",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Mercenary is a jack-of-all-trades. Their offensive and defensive performance can easily be compared to other units, but they do not excel in any form of combat. However, their moderate abilities are reflected by their moderate training costs.",
       "USAGE": ""
     },
     "BOWMAN": {
       "NAME_one": "Bowman",
       "NAME_other": "Bowmen",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Bowman is your first choice for large offensive strikes. They love to be at the front lines, which is fortunate because of their puny defensive skills.",
       "USAGE": ""
     },
     "HUN_SCOUT": {
       "NAME_one": "Spotter",
       "NAME_other": "Spotters",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Spotter is a lightning-fast scout unit who detects the military and economic secrets of your enemies‘ villages and relays them back to you.",
       "USAGE": ""
     },
     "STEPPE_RIDER": {
       "NAME_one": "Steppe Rider",
       "NAME_other": "Steppe Riders",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Steppe Rider is an outstanding attacker who undergoes training faster than most other mounted warriors. As a result, however, they are very weak in defensive combat.",
       "USAGE": ""
     },
     "MARKSMAN": {
       "NAME_one": "Marksman",
       "NAME_other": "Marksmans",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Marksman is a well-rounded cavalry unit. Their solid attacking power is overshadowed by the fact that they are the only proficient defensive soldier of the Huns.",
       "USAGE": ""
     },
     "MARAUDER": {
       "NAME_one": "Marauder",
       "NAME_other": "Marauders",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Marauder is an absolute force to be reckoned with. With incredible attacking power and impressive speed, it overruns most defenses without a scratch on its armor.",
       "USAGE": ""
     },
     "HUN_RAM": {
       "NAME_one": "Hun Ram",
       "NAME_other": "Hun Rams",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy the enemy walls and therefore increase your troops’ chances of overcoming the enemy's fortifications.",
       "USAGE": ""
     },
     "HUN_CATAPULT": {
       "NAME_one": "Hun Catapult",
       "NAME_other": "Hun Catapults",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
       "USAGE": ""
     },
     "HUN_CHIEF": {
       "NAME_one": "Logades",
       "NAME_other": "Logadeses",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Logades have earned their position by defeating all challengers in a deadly battle of physical and mental prowess. Now they only leave home to conquer.",
       "USAGE": ""
     },
     "HUN_SETTLER": {
       "NAME_one": "Hun Settler",
       "NAME_other": "Hun Settlers",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "Settlers are brave and daring citizens who move out of the village after much training to establish a new village in your honor.",
       "USAGE": ""
     },
     "SLAVE_MILITIA": {
       "NAME_one": "Slave Militia",
       "NAME_other": "Slave Militia",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Slave Militia is the cheapest unit with the shortest production time in the game. While this allows you to raise a defense very quickly, it compares poorly in fighting strength to other defensive troops.",
       "USAGE": ""
     },
     "ASH_WARDEN": {
       "NAME_one": "Ash Warden",
       "NAME_other": "Ash Wardens",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Ash Warden is your standard defensive foot soldier with solid combat power. They fare exceptionally well against other infantry, yet its defense against cavalry should not be overlooked.",
       "USAGE": ""
     },
     "KHOPESH_WARRIOR": {
       "NAME_one": "Khopesh Warrior",
       "NAME_other": "Khopesh Warriors",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Khopesh Warrior is an elite soldier boasting a strong offense and remarkable defense against other warriors on foot.\n",
       "USAGE": ""
     },
     "EGYPTIAN_SCOUT": {
       "NAME_one": "Sopdu Explorer",
       "NAME_other": "Sopdu Explorers",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Sopdu Explorer rides out into unknown territory to explore the area and count the soldiers of your enemies. They are also able to critically examine opposing villages and detect any weak points.",
       "USAGE": ""
     },
     "ANHUR_GUARD": {
       "NAME_one": "Anhur Guard",
       "NAME_other": "Anhur Guards",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Anhur Guard is a mounted defender that dominates any attacking infantry. In addition to moderate prowess in offense and defense against cavalry, they are the fastest Egyptian unit after the Sopdu Explorer.",
       "USAGE": ""
     },
     "RESHEPH_CHARIOT": {
       "NAME_one": "Resheph Chariot",
       "NAME_other": "Resheph Chariots",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Resheph Chariot is well-versed in all fields of combat. It packs a heavy offensive punch as well as a very solid defense against infantry, though it truly excels at defending against cavalry. In return, they are very costly to train and consume plenty of crop.",
       "USAGE": ""
     },
     "EGYPTIAN_RAM": {
       "NAME_one": "Egyptian Ram",
       "NAME_other": "Egyptian Rams",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy the enemy walls and therefore increase your troops’ chances of overcoming the enemy's fortifications.",
       "USAGE": ""
     },
     "EGYPTIAN_CATAPULT": {
       "NAME_one": "Egyptian Catapult",
       "NAME_other": "Egyptian Catapults",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Stone Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
       "USAGE": ""
     },
     "EGYPTIAN_CHIEF": {
       "NAME_one": "Nomarch",
       "NAME_other": "Nomarchs",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "The Nomarch is the administrative leader of the Egyptians. They negotiate terms of surrender and, thanks to their charisma, they can win over enemy people to join your empire.",
       "USAGE": ""
     },
     "EGYPTIAN_SETTLER": {
       "NAME_one": "Egyptian Settler",
       "NAME_other": "Egyptian Settlers",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "Settlers are brave and daring citizens who move out of the village after much training to establish a new village in your honor.",
       "USAGE": ""
     },
     "HOPLITE": {

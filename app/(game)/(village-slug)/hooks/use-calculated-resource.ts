@@ -125,8 +125,8 @@ export const useCalculatedResource = (
 
   return {
     calculatedResourceAmount,
-    hourlyProduction,
-    storageCapacity,
+    hourlyProduction: Math.trunc(hourlyProduction),
+    storageCapacity: Math.trunc(storageCapacity),
     isFull,
     hasNegativeProduction,
     resourceDepletionOrFullAt,
