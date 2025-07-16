@@ -10,8 +10,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
 import {
   Select,
   SelectContent,
@@ -25,18 +23,13 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(preferences)/+types/page';
+import { Separator } from 'app/components/ui/separator';
 
-export const meta: MetaFunction = ({ params }) => {
+const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Preferences')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const PreferencesPage = () => {
   const { t } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
   const { resourcesPath } = useGameNavigation();
@@ -46,10 +39,14 @@ const PreferencesPage = () => {
     isAccessibilityModeEnabled,
     isReducedMotionModeEnabled,
     isDeveloperModeEnabled,
+    isAutomaticNavigationAfterBuildingLevelChangeEnabled,
   } = preferences;
+
+  const title = `${t('Preferences')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -63,11 +60,8 @@ const PreferencesPage = () => {
       <Section>
         <SectionContent>
           <Text as="h2">{t('Appearance')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('UI color scheme')}</span>
               <span>
                 {t(
@@ -91,11 +85,9 @@ const PreferencesPage = () => {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Graphics color scheme')}</span>
               <span>
                 {t(
@@ -119,11 +111,9 @@ const PreferencesPage = () => {
               </Select>
             </div>
           </div>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Graphic set')}</span>
               <span>{t('Select your preferred graphic set')}</span>
             </Text>
@@ -144,13 +134,11 @@ const PreferencesPage = () => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Localization')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Locale')}</span>
               <span>{t('Select your preferred language.')}</span>
             </Text>
@@ -171,13 +159,11 @@ const PreferencesPage = () => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Accessibility')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">
                 {t('Additional accessibility features (in development))')}
               </span>
@@ -198,11 +184,9 @@ const PreferencesPage = () => {
               />
             </div>
           </div>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">
                 {t('Reduced motion (in development)')}
               </span>
@@ -226,13 +210,11 @@ const PreferencesPage = () => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Display')}</Text>
-          <div className="flex gap-2 border-b border-border py-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Building names display')}</span>
               <span>
                 {t(
@@ -253,13 +235,37 @@ const PreferencesPage = () => {
             </div>
           </div>
         </SectionContent>
+        <Separator orientation="horizontal" />
         <SectionContent>
-          <Text as="h2">{t('Developer Tools')}</Text>
+          <Text as="h2">{t('Functionality')}</Text>
           <div className="flex gap-2">
-            <Text
-              as="p"
-              className="flex flex-4 gap-1 flex-col"
-            >
+            <Text className="flex flex-4 gap-1 flex-col">
+              <span className="font-medium">
+                {t('Navigation after building upgrade')}
+              </span>
+              <span>
+                {t(
+                  'Enable automatic navigation to resources or village views after starting a building upgrade or downgrade',
+                )}
+              </span>
+            </Text>
+            <div className="flex flex-1 justify-end items-center">
+              <Switch
+                onCheckedChange={() =>
+                  updatePreference({
+                    preferenceName:
+                      'isAutomaticNavigationAfterBuildingLevelChangeEnabled',
+                    value:
+                      !isAutomaticNavigationAfterBuildingLevelChangeEnabled,
+                  })
+                }
+                checked={isAutomaticNavigationAfterBuildingLevelChangeEnabled}
+              />
+            </div>
+          </div>
+          <Separator orientation="horizontal" />
+          <div className="flex gap-2">
+            <Text className="flex flex-4 gap-1 flex-col">
               <span className="font-medium">{t('Developer mode')}</span>
               <span>
                 {t(

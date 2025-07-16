@@ -12,5 +12,6 @@ export type Preferences = {
   isAccessibilityModeEnabled: boolean;
   isReducedMotionModeEnabled: boolean;
   shouldShowBuildingNames: boolean;
+  isAutomaticNavigationAfterBuildingLevelChangeEnabled: boolean;
   isDeveloperModeEnabled: boolean;
 };

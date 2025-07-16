@@ -13,7 +13,7 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
-import { type MetaFunction, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
 import {
   FixedSizeGrid,
@@ -26,18 +26,9 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { t } from 'i18next';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
-
-export const meta: MetaFunction = ({ params }) => {
-  const { serverSlug, villageSlug } = params;
-
-  return [
-    {
-      title: `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
+import { useTranslation } from 'react-i18next';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -79,7 +70,7 @@ const MapPage = () => {
    * Desktop:
    *  - Header is 76px tall
    * Mobile:
-   *  - Top navigation is 120px tall
+   *  - Top navigation is 128px tall
    *   - Navigation section is 63px tall
    *   - Resource section is 57px tall
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
@@ -87,7 +78,7 @@ const MapPage = () => {
    */
   const mapHeight = isWiderThanLg
     ? height - 76
-    : height - 210 - (isPwa ? 48 : 0);
+    : height - 218 - (isPwa ? 48 : 0);
 
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
@@ -181,7 +172,7 @@ const MapPage = () => {
   };
 
   const scrollTop = (tileY: number) => {
-    return tileSize * (tileY + gridSize / 2) - mapHeight / 2;
+    return tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
   };
 
   const offsetX = scrollLeft(currentCenterTile.current.x);
@@ -325,10 +316,19 @@ const MapPage = () => {
   );
 };
 
-export default () => {
+export default ({ params }: Route.ComponentProps) => {
+  const { serverSlug, villageSlug } = params;
+
+  const { t } = useTranslation();
+
+  const title = `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
-    <MapProvider>
-      <MapPage />
-    </MapProvider>
+    <>
+      <title>{title}</title>
+      <MapProvider>
+        <MapPage />
+      </MapProvider>
+    </>
   );
 };

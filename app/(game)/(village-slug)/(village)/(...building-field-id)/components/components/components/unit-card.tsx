@@ -29,7 +29,6 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import type { PickLiteral } from 'app/utils/typescript';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
 import {
@@ -40,19 +39,11 @@ import {
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import type { Building } from 'app/interfaces/models/game/building';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 
 type UnitCardContextState = {
   unitId: Unit['id'];
-  buildingId: PickLiteral<
-    Building['id'],
-    | 'BARRACKS'
-    | 'GREAT_BARRACKS'
-    | 'STABLE'
-    | 'GREAT_STABLE'
-    | 'WORKSHOP'
-    | 'HOSPITAL'
-  >;
+  buildingId: TroopTrainingBuildingId;
   durationEffect?: TroopTrainingDurationEffectId;
 };
 
@@ -62,15 +53,7 @@ const UnitCardContext = createContext<UnitCardContextState>(
 
 type UnitCardProps = {
   unitId: Unit['id'];
-  buildingId: PickLiteral<
-    Building['id'],
-    | 'BARRACKS'
-    | 'GREAT_BARRACKS'
-    | 'STABLE'
-    | 'GREAT_STABLE'
-    | 'WORKSHOP'
-    | 'HOSPITAL'
-  >;
+  buildingId: TroopTrainingBuildingId;
   durationEffect?: TroopTrainingDurationEffectId;
   showOuterBorder?: boolean;
 };
@@ -85,7 +68,7 @@ export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
   } = props;
 
   return (
-    <UnitCardContext.Provider value={{ unitId, durationEffect, buildingId }}>
+    <UnitCardContext value={{ unitId, durationEffect, buildingId }}>
       <article
         className={clsx(
           'flex flex-col gap-2 p-2',
@@ -94,7 +77,7 @@ export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
       >
         {children}
       </article>
-    </UnitCardContext.Provider>
+    </UnitCardContext>
   );
 };
 
@@ -113,7 +96,7 @@ export const UnitOverview = () => {
           type={unitIdToUnitIconMapper(unitId)}
         />
       </div>
-      <Text as="p">{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
+      <Text>{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
     </section>
   );
 };
@@ -128,7 +111,7 @@ type UnitAttributes = Record<
   number
 >;
 
-export const UnitAttributes: React.FC = () => {
+export const UnitAttributes = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
@@ -163,10 +146,7 @@ export const UnitAttributes: React.FC = () => {
         {t('Attributes at level {{level}}', { level: unitLevel })}
       </Text>
       {unitLevel !== unitVirtualLevel && (
-        <Text
-          as="p"
-          className="text-warning"
-        >
+        <Text className="text-warning">
           {t('Currently being upgraded to level {{level}}', {
             level: unitVirtualLevel,
           })}
@@ -183,7 +163,7 @@ export const UnitAttributes: React.FC = () => {
                 className="size-5"
                 type={key as keyof UnitAttributes}
               />
-              <Text as="p">
+              <Text>
                 <span
                   className={clsx(
                     unitLevel !== unitVirtualLevel && 'text-warning',
@@ -203,7 +183,7 @@ export const UnitAttributes: React.FC = () => {
                 className="size-5"
                 type={key as keyof UnitAttributes}
               />
-              <Text as="p">{value}</Text>
+              <Text>{value}</Text>
             </span>
           ))}
         </div>
@@ -265,10 +245,7 @@ export const UnitResearch = () => {
     return (
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Research')}</Text>
-        <Text
-          as="p"
-          className="text-green-600"
-        >
+        <Text className="text-green-600">
           {t('{{unit}} researched', {
             unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
           })}
@@ -375,10 +352,7 @@ export const UnitImprovement = () => {
     return (
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Improvement')}</Text>
-        <Text
-          as="p"
-          className="text-green-600"
-        >
+        <Text className="text-green-600">
           {t('{{unit}} is fully upgraded', {
             unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
           })}
@@ -437,7 +411,7 @@ export const UnitRequirements = () => {
         {assessedRequirements.map((assessedRequirement, index) => (
           <Fragment key={assessedRequirement.buildingId}>
             <li className="whitespace-nowrap">
-              <Text as="p">
+              <Text>
                 <span
                   className={clsx(
                     assessedRequirement.fulfilled &&

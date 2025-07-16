@@ -9,6 +9,7 @@ export const preferencesFactory = (): Preferences => {
     isAccessibilityModeEnabled: false,
     isReducedMotionModeEnabled: false,
     shouldShowBuildingNames: true,
+    isAutomaticNavigationAfterBuildingLevelChangeEnabled: true,
     isDeveloperModeEnabled: false,
   };
 };

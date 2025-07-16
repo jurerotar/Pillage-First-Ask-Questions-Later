@@ -1,5 +1,3 @@
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/components/building-actions';
-import { BuildingOverview } from 'app/(game)/(village-slug)/(village)/components/building-overview';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { use } from 'react';
@@ -24,6 +22,13 @@ import {
 import { Skeleton } from 'app/components/ui/skeleton';
 import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import {
+  BuildingBenefits,
+  BuildingCard,
+  BuildingCost,
+  BuildingOverview,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 
 const BuildingTabFallback = () => {
   return (
@@ -268,8 +273,12 @@ export const BuildingDetails = () => {
                     buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
                   })}
                 </Text>
-                <BuildingOverview buildingId={buildingId} />
-                <BuildingActions buildingId={buildingId} />
+                <BuildingCard buildingId={buildingId}>
+                  <BuildingOverview />
+                  <BuildingBenefits />
+                  <BuildingCost />
+                  <BuildingActions />
+                </BuildingCard>
               </SectionContent>
             </Section>
           </TabPanel>

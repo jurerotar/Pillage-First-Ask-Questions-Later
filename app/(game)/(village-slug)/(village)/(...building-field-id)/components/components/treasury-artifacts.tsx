@@ -95,7 +95,7 @@ export const TreasuryArtifacts = () => {
       <SectionContent>
         <Bookmark tab="train" />
         <Text as="h2">{t('Artifacts')}</Text>
-        <Text as="p">
+        <Text>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
           ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
           et excepturi fugiat labore quidem sed sit tempore totam voluptas.

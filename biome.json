@@ -12,7 +12,8 @@
       "**",
       "!**/build",
       "!**/app/**/__mocks__/**/*",
-      "!**/app/asset-preload-paths"
+      "!**/app/asset-preload-paths",
+      "!*.md"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "off" } } },

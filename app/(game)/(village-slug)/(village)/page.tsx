@@ -4,23 +4,13 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
-import type { MetaFunction } from 'react-router';
+import { useLocation } from 'react-router';
 import { Link } from 'react-router';
+import type React from 'react';
 import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
-import { t } from 'i18next';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
-
-export const meta: MetaFunction = ({ location, params }) => {
-  const { serverSlug, villageSlug } = params;
-  const { pathname } = location;
-
-  return [
-    {
-      title: `${pathname.endsWith('resources') ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 
 const resourceViewBuildingFieldIds = [...Array(18)].map(
   (_, i) => i + 1,
@@ -29,8 +19,11 @@ const villageViewBuildingFieldIds = [...Array(22)].map(
   (_, i) => i + 19,
 ) as BuildingFieldType['id'][];
 
-const VillagePage = () => {
+const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
+  const { serverSlug, villageSlug } = params;
+
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const { villagePath } = useGameNavigation();
   const { isResourcesPageOpen, isVillagePageOpen } = useActiveRoute();
 
@@ -47,8 +40,11 @@ const VillagePage = () => {
     };
   }, [isVillagePageOpen]);
 
+  const title = `${pathname.endsWith('resources') ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Tooltip
         anchorSelect="[data-building-field-id]"
         closeEvents={{

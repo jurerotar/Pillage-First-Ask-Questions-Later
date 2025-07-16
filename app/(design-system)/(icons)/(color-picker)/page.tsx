@@ -107,11 +107,14 @@ const ColorPickerPage = () => {
   const Component = paramToComponentMap[name as Param] ?? null;
 
   return (
-    <main className="flex flex-col">
-      <section className="container relative mx-auto py-4 flex">
-        <Component />
-      </section>
-    </main>
+    <>
+      <title>Design system - Icon color picker | Pillage First!</title>
+      <main className="flex flex-col">
+        <section className="container relative mx-auto py-4 flex">
+          <Component />
+        </section>
+      </main>
+    </>
   );
 };
 

@@ -8,6 +8,7 @@ import {
 } from 'app/(game)/guards/quest-guards';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const getQuests: ApiHandler<Quest[]> = async (queryClient) => {
   return queryClient.getQueryData<Quest[]>([questsCacheKey])!;
@@ -27,18 +28,23 @@ export const getCollectableQuestCount: ApiHandler<
   };
 };
 
-export const collectQuest: ApiHandler<void, 'questId', void> = async (
-  queryClient,
-  args,
-) => {
+export const collectQuest: ApiHandler<
+  void,
+  'questId',
+  { villageId: Village['id'] }
+> = async (queryClient, args) => {
   const {
     params: { questId },
+    body: { villageId: villageIdParam },
   } = args;
 
   const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
   const quest = quests.find(({ id }) => id === questId)!;
   const [villageIdString] = quest.id.split('-');
-  const villageId = Number.parseInt(villageIdString);
+  const villageId =
+    quest.scope === 'global'
+      ? villageIdParam
+      : Number.parseInt(villageIdString);
 
   quest.collectedAt = Date.now();
 

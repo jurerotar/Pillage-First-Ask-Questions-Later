@@ -4,10 +4,14 @@ import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
+import {
+  getBuildingDataForLevel,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/(game)/(village-slug)/utils/building';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
+import { use } from 'react';
 import { startTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -19,6 +23,8 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
+import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 
 type ErrorBagProps = {
   errorBag: string[];
@@ -84,7 +90,14 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
 }) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
-  const { errors } = useBuildingUpgradeStatus(buildingFieldId!);
+  const { currentVillage } = useCurrentVillage();
+
+  const buildingField = getBuildingFieldByBuildingFieldId(
+    currentVillage,
+    buildingFieldId!,
+  );
+
+  const { errors } = useBuildingUpgradeStatus(buildingField!);
 
   return (
     <>
@@ -101,19 +114,15 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
   );
 };
 
-type BuildingCardProps = {
-  buildingId: Building['id'];
-};
-
-export const BuildingActions: React.FC<BuildingCardProps> = ({
-  buildingId,
-}) => {
+export const BuildingActions = () => {
   const { t } = useTranslation();
+  const { buildingId } = use(BuildingCardContext);
   const navigate = useNavigate();
   const { tribe } = useTribe();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
+  const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
@@ -153,7 +162,10 @@ export const BuildingActions: React.FC<BuildingCardProps> = ({
   };
 
   const onBuildingUpgrade = () => {
-    navigateBack();
+    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
+      navigateBack();
+    }
+
     startTransition(() => {
       upgradeBuilding();
     });

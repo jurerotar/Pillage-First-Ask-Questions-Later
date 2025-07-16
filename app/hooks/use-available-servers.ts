@@ -1,7 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type DehydratedState,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
-import { getRootHandle } from 'app/utils/opfs';
+import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const deleteServerData = async (server: Server) => {
   try {
@@ -20,6 +27,7 @@ const deleteServerData = async (server: Server) => {
 };
 
 export const useAvailableServers = () => {
+  const { t } = useTranslation('public');
   const queryClient = useQueryClient();
 
   const { data: availableServers } = useQuery<Server[]>({
@@ -59,6 +67,33 @@ export const useAvailableServers = () => {
       await queryClient.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
+      toast.success(t('Server was deleted successfully.'));
+    },
+  });
+
+  const { mutateAsync: exportServer } = useMutation<
+    void,
+    Error,
+    { server: Server }
+  >({
+    mutationFn: async ({ server }) => {
+      const rootHandle = await getRootHandle();
+      const state = await getParsedFileContents<DehydratedState>(
+        rootHandle,
+        server.slug,
+      );
+
+      const json = JSON.stringify(state);
+      const blob = new Blob([json], { type: 'application/json' });
+
+      const filename = `${server.slug}-state.json`;
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
     },
   });
 
@@ -66,5 +101,6 @@ export const useAvailableServers = () => {
     availableServers,
     addServer,
     deleteServer,
+    exportServer,
   };
 };

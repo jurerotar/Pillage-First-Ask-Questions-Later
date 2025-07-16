@@ -111,8 +111,8 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
                   </summary>
 
                   <div className="flex flex-col gap-2 mt-3">
-                    <Text as="p">{description}</Text>
-                    <Text as="p">{t('Reward')}</Text>
+                    <Text>{description}</Text>
+                    <Text>{t('Reward')}</Text>
 
                     <div className="flex flex-col gap-2">
                       {quest.rewards.map((reward) => (

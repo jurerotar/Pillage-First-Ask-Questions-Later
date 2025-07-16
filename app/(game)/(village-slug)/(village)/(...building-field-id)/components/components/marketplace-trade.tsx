@@ -15,7 +15,7 @@ export const MarketplaceTrade = () => {
       <SectionContent>
         <Bookmark tab="trade" />
         <Text as="h2">{t('Trade')}</Text>
-        <Text as="p">
+        <Text>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
           ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
           et excepturi fugiat labore quidem sed sit tempore totam voluptas.

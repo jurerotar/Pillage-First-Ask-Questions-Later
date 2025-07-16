@@ -4,6 +4,7 @@ import { Button } from 'app/components/ui/button';
 const ErrorPage = () => {
   return (
     <>
+      <title>404 | Pillage First!</title>
       <h1 className="text-3xl font-bold text-gray-900 mb-2">
         403 - server cannot be found
       </h1>

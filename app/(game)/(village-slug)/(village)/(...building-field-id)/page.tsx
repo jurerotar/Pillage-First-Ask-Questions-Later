@@ -3,26 +3,15 @@ import { BuildingDetails } from 'app/(game)/(village-slug)/(village)/(...buildin
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
 import { BuildingProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
+import type React from 'react';
+import { useTranslation } from 'react-i18next';
 
-export const meta: MetaFunction = ({ location, params }) => {
+const BuildingPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  const { pathname } = location;
-
-  const segments = pathname.split('/');
-  const buildingFieldId = segments[segments.length - 1];
-
-  return [
-    {
-      title: `${pathname.includes('resources') ? t('Resources') : t('Village')} - ${buildingFieldId} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const BuildingPage = () => {
+  const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();
   const buildingField = getBuildingFieldByBuildingFieldId(
@@ -31,15 +20,25 @@ const BuildingPage = () => {
   );
   const hasBuilding = !!buildingField;
 
+  const title = `${buildingFieldId! <= 18 ? t('Resources') : t('Village')} - ${buildingFieldId} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   if (hasBuilding) {
     return (
-      <BuildingProvider buildingField={buildingField}>
-        <BuildingDetails />
-      </BuildingProvider>
+      <>
+        <title>{title}</title>
+        <BuildingProvider buildingField={buildingField}>
+          <BuildingDetails />
+        </BuildingProvider>
+      </>
     );
   }
 
-  return <BuildingConstruction />;
+  return (
+    <>
+      <title>{title}</title>
+      <BuildingConstruction />
+    </>
+  );
 };
 
 export default BuildingPage;

@@ -2,7 +2,6 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
-import type { MetaFunction } from 'react-router';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,21 +15,14 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
-import { t } from 'i18next';
 import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
 import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 
-export const meta: MetaFunction = ({ params }) => {
+const HeroPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Hero')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const HeroPage = () => {
   const { t } = useTranslation();
   const { resourcesPath } = useGameNavigation();
   const { experience } = useHero();
@@ -42,8 +34,11 @@ const HeroPage = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
+  const title = `${t('Hero')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

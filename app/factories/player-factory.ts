@@ -5,7 +5,7 @@ import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from 'app/utils/common';
-import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
+import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { npcFactions } from 'app/factories/reputation-factory';
 import { usernameRoots } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
@@ -58,7 +58,7 @@ export const userPlayerFactory = (server: Server): Player => {
 };
 
 export const generateNpcPlayers = (server: Server) => {
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   const { mapSize } = server.configuration;
 

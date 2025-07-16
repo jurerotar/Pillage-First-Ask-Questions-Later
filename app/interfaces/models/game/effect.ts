@@ -4,6 +4,7 @@ import type {
 } from 'app/interfaces/models/game/village';
 import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { Building } from 'app/interfaces/models/game/building';
+import type { Tile } from 'app/interfaces/models/game/tile';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
@@ -89,4 +90,9 @@ export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
 export type ArtifactEffect = Omit<VillageEffect, 'source'> & {
   source: 'artifact';
   artifactId: ArtifactId;
+};
+
+export type OasisEffect = Omit<VillageEffect, 'source'> & {
+  source: 'oasis';
+  oasisId: Tile['id'];
 };

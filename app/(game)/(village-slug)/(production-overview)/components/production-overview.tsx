@@ -5,6 +5,8 @@ import {
   isArtifactEffect,
   isBuildingEffect,
   isHeroEffect,
+  isOasisEffect,
+  isServerEffect,
   isVillageEffect,
 } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -24,7 +26,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 
-const formatBonus = (number: number) => {
+const formatBonus = (number: number): number => {
   return Math.trunc(normalizeForcedFloatValue(number) * 100);
 };
 
@@ -40,45 +42,51 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
 
-  const { value: serverValue } = effects.find(
-    ({ scope, id }) => scope === 'server' && id === effectId,
-  )!;
+  const relevantEffects = effects.filter(({ id }) => id === effectId);
 
-  const effectsAffectingCurrentVillage = effects.filter(
+  const { value: serverValue } = relevantEffects.find(isServerEffect)!;
+
+  const effectsAffectingCurrentVillage = relevantEffects.filter(
     (effect) =>
-      effect.id === effectId &&
-      (effect.scope === 'global' ||
-        (isVillageEffect(effect) && effect.villageId === currentVillage.id)),
+      effect.scope === 'global' ||
+      (isVillageEffect(effect) && effect.villageId === currentVillage.id),
   );
-  const buildingEffects =
-    effectsAffectingCurrentVillage.filter(isBuildingEffect);
-  const artifactBonuses =
-    effectsAffectingCurrentVillage.filter(isArtifactEffect);
-  const heroEffects = effectsAffectingCurrentVillage.filter(isHeroEffect);
 
-  const baseProductionEffects = buildingEffects.filter(
+  const baseProductionEffects = effectsAffectingCurrentVillage.filter(
     ({ value }) => Number.isInteger(value) && value > 0,
   );
-  const bonusProductionEffects = buildingEffects.filter(
+  const bonusProductionEffects = effectsAffectingCurrentVillage.filter(
     ({ value }) => !Number.isInteger(value),
   );
 
-  const heroResourceProductionEffect = heroEffects.find(
-    ({ id }) => id === effectId,
-  )!;
+  const buildingBaseProductionEffects =
+    baseProductionEffects.filter(isBuildingEffect);
+  const heroBaseProductionEffects = baseProductionEffects.filter(isHeroEffect);
 
-  const hasHeroProductionBonus =
-    normalizeForcedFloatValue(heroResourceProductionEffect.value) > 1;
+  const oasisBonusProductionEffects =
+    bonusProductionEffects.filter(isOasisEffect);
+  const buildingBonusProductionEffects =
+    bonusProductionEffects.filter(isBuildingEffect);
+  const heroBonusProductionEffects =
+    bonusProductionEffects.filter(isHeroEffect);
+  const artifactBonusProductionEffects =
+    effectsAffectingCurrentVillage.filter(isArtifactEffect);
 
   const summedBonusProductionValues = [
-    ...bonusProductionEffects,
-    ...artifactBonuses,
+    ...oasisBonusProductionEffects,
+    ...buildingBonusProductionEffects,
+    ...heroBonusProductionEffects,
+    ...artifactBonusProductionEffects,
   ].reduce(
     (accumulator, effect) =>
       accumulator + normalizeForcedFloatValue(effect.value) - 1,
     0,
   );
-  const summedBaseProductionValues = baseProductionEffects.reduce(
+
+  const summedBaseProductionValues = [
+    ...heroBaseProductionEffects,
+    ...buildingBaseProductionEffects,
+  ].reduce(
     (accumulator, effect) => accumulator + effect.value * serverValue,
     0,
   );
@@ -92,49 +100,77 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{t('Source')}</TableHeaderCell>
-              <TableHeaderCell>{t('Value')}</TableHeaderCell>
+              <TableHeaderCell>
+                <Text>{t('Source')}</Text>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Text>{t('Value')}</Text>
+              </TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {!hasBonusValues && (
               <TableRow>
-                <TableCell colSpan={2}>{t('No production bonuses')}</TableCell>
+                <TableCell colSpan={2}>
+                  <Text>{t('No production bonuses')}</Text>
+                </TableCell>
               </TableRow>
             )}
             {hasBonusValues && (
               <>
-                {hasHeroProductionBonus && (
-                  <TableRow>
-                    <TableCell>{t('Hero production bonus')}</TableCell>
+                {heroBonusProductionEffects.map(({ id, value }) => (
+                  <TableRow key={id}>
                     <TableCell>
-                      {formatBonus(heroResourceProductionEffect.value - 1)}%
+                      <Text>{t('Hero production bonus')}</Text>
                     </TableCell>
-                  </TableRow>
-                )}
-                {artifactBonuses.map(({ value, artifactId }) => (
-                  <TableRow key={artifactId}>
                     <TableCell>
-                      {t('Artifact')} - {assetsT(`ITEMS.${artifactId}.TITLE`)}
+                      <Text>{formatBonus(value - 1)}%</Text>
                     </TableCell>
-                    <TableCell>{value - 1}%</TableCell>
                   </TableRow>
                 ))}
-                {bonusProductionEffects.map(
+                {artifactBonusProductionEffects.map(({ value, artifactId }) => (
+                  <TableRow key={artifactId}>
+                    <TableCell>
+                      <Text>
+                        {t('Artifact')} - {assetsT(`ITEMS.${artifactId}.TITLE`)}
+                      </Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{value - 1}%</Text>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {oasisBonusProductionEffects.map(({ oasisId, value }) => (
+                  <TableRow key={oasisId}>
+                    <TableCell>
+                      <Text>{t('Oasis')}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{formatBonus(value - 1)}%</Text>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {buildingBonusProductionEffects.map(
                   ({ value, buildingFieldId, buildingId }) => (
                     <TableRow key={buildingFieldId}>
                       <TableCell>
-                        {assetsT(`BUILDINGS.${buildingId}.NAME`)}
+                        <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
-                      <TableCell>{formatBonus(value - 1)}%</TableCell>
+                      <TableCell>
+                        <Text>{formatBonus(value - 1)}%</Text>
+                      </TableCell>
                     </TableRow>
                   ),
                 )}
               </>
             )}
             <TableRow className="font-medium">
-              <TableCell>{t('Total')}</TableCell>
-              <TableCell>{formatBonus(summedBonusProductionValues)}%</TableCell>
+              <TableCell>
+                <Text>{t('Total')}</Text>
+              </TableCell>
+              <TableCell>
+                <Text>{formatBonus(summedBonusProductionValues)}%</Text>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -145,45 +181,67 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{t('Source')}</TableHeaderCell>
-              <TableHeaderCell>{t('Production')}</TableHeaderCell>
-              <TableHeaderCell>{t('Bonus')}</TableHeaderCell>
+              <TableHeaderCell>
+                <Text>{t('Source')}</Text>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Text>{t('Production')}</Text>
+              </TableHeaderCell>
+              <TableHeaderCell>
+                <Text>{t('Bonus')}</Text>
+              </TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {hasHeroProductionBonus && (
-              <TableRow>
-                <TableCell>{t('Hero')}</TableCell>
-                <TableCell>{heroResourceProductionEffect.value}</TableCell>
-                <TableCell>0</TableCell>
+            {heroBaseProductionEffects.map(({ id, value }) => (
+              <TableRow key={id}>
+                <TableCell>
+                  <Text>{t('Hero')}</Text>
+                </TableCell>
+                <TableCell>
+                  <Text>{value}</Text>
+                </TableCell>
+                <TableCell>
+                  <Text>{Math.trunc(value * summedBonusProductionValues)}</Text>
+                </TableCell>
               </TableRow>
-            )}
-            {baseProductionEffects.map(
+            ))}
+            {buildingBaseProductionEffects.map(
               ({ value, buildingFieldId, buildingId }) => (
                 <TableRow key={buildingFieldId}>
                   <TableCell>
-                    {assetsT(`BUILDINGS.${buildingId}.NAME`)}
+                    <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
                   </TableCell>
-                  <TableCell>{value}</TableCell>
                   <TableCell>
-                    {Math.trunc(value * summedBonusProductionValues)}
+                    <Text>{value}</Text>
+                  </TableCell>
+                  <TableCell>
+                    <Text>
+                      {Math.trunc(value * summedBonusProductionValues)}
+                    </Text>
                   </TableCell>
                 </TableRow>
               ),
             )}
             <TableRow className="font-medium">
-              <TableCell>{t('Total')}</TableCell>
               <TableCell>
-                {summedBaseProductionValues +
-                  (heroResourceProductionEffect?.value ?? 0)}
+                <Text>{t('Total')}</Text>
               </TableCell>
               <TableCell>
-                {baseProductionEffects.reduce(
-                  (acc, effect) =>
-                    acc +
-                    Math.trunc(effect.value * summedBonusProductionValues),
-                  0,
-                )}
+                <Text>
+                  {summedBaseProductionValues +
+                    (heroBaseProductionEffects[0]?.value ?? 0)}
+                </Text>
+              </TableCell>
+              <TableCell>
+                <Text>
+                  {baseProductionEffects.reduce(
+                    (acc, effect) =>
+                      acc +
+                      Math.trunc(effect.value * summedBonusProductionValues),
+                    0,
+                  )}
+                </Text>
               </TableCell>
             </TableRow>
           </TableBody>

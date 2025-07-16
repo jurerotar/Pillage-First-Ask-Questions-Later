@@ -75,7 +75,7 @@ export const MapControls = () => {
   ].flatMap((v) => (v ? [v] : []));
 
   return (
-    <div className="pointer-events-none fixed top-29 standalone:top-41 lg:top-23 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
+    <div className="pointer-events-none fixed top-31 standalone:top-31 lg:top-23 right-2 md:right-4 flex flex-col items-end gap-1 sm:gap-2">
       <ToggleGroup
         type="multiple"
         variant="outline"
@@ -163,21 +163,23 @@ export const MapControls = () => {
           <Icon type="mapWheatFieldIconToggle" />
         </ToggleGroupItem>
 
-        <ToggleGroupItem
-          value="shouldShowTileTooltips"
-          onClick={() =>
-            toggleMapFilter({
-              filterName: 'shouldShowTileTooltips',
-              value: !shouldShowTileTooltips,
-            })
-          }
-          aria-label={t('Toggle tooltip popups')}
-          data-tooltip-id="general-tooltip"
-          data-tooltip-content={t('Toggle tooltip popups')}
-          data-testid="map-controls-toggle-tile-tooltips-button"
-        >
-          <Icon type="mapTileTooltipToggle" />
-        </ToggleGroupItem>
+        <div className="hidden lg:flex">
+          <ToggleGroupItem
+            value="shouldShowTileTooltips"
+            onClick={() =>
+              toggleMapFilter({
+                filterName: 'shouldShowTileTooltips',
+                value: !shouldShowTileTooltips,
+              })
+            }
+            aria-label={t('Toggle tooltip popups')}
+            data-tooltip-id="general-tooltip"
+            data-tooltip-content={t('Toggle tooltip popups')}
+            data-testid="map-controls-toggle-tile-tooltips-button"
+          >
+            <Icon type="mapTileTooltipToggle" />
+          </ToggleGroupItem>
+        </div>
       </ToggleGroup>
 
       <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-background p-1 md:p-2">

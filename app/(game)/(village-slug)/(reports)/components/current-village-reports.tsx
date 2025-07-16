@@ -22,7 +22,7 @@ export const CurrentVillageReports = () => {
     <Section>
       <SectionContent>
         <Text as="h2">{t('Current village reports')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'This is a categorized view of in-game reports for current village. You can toggle different types of reports by using report filters below.',
           )}

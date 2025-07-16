@@ -56,9 +56,7 @@ export const TroopList = () => {
           <div className="flex flex-col gap-1">
             <Text as="h3">{t('Own troops')}</Text>
             {ownTroops.length === 0 && (
-              <Text as="p">
-                {t('There are currently no troops in this village')}
-              </Text>
+              <Text>{t('There are currently no troops in this village')}</Text>
             )}
             <ul className="flex flex-col items-end gap-2">
               {ownTroops.map((troop) => (
@@ -71,7 +69,7 @@ export const TroopList = () => {
                     className="text-base size-4 lg:size-6"
                   />
 
-                  <Text as="p">
+                  <Text>
                     {formatNumber(troop.amount)}{' '}
                     {assetsT(`UNITS.${troop.unitId}.NAME`, {
                       count: troop.amount,
@@ -95,7 +93,7 @@ export const TroopList = () => {
                       className="text-base size-4 lg:size-6"
                     />
 
-                    <Text as="p">
+                    <Text>
                       {formatNumber(troop.amount)}{' '}
                       {assetsT(`UNITS.${troop.unitId}.NAME`, {
                         count: troop.amount,

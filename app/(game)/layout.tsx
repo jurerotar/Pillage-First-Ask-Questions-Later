@@ -1,11 +1,16 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Suspense, useEffect, useState } from 'react';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Outlet, redirect, useLoaderData } from 'react-router';
 import type { Route } from '.react-router/types/app/(game)/+types/layout';
-import { Toaster } from 'app/components/ui/toaster';
-import { loadAppTranslations } from 'app/localization/loaders/app';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import { Suspense, useEffect, useState } from 'react';
+import {
+  Link,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useRouteError,
+} from 'react-router';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -47,7 +52,9 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
     const root = await navigator.storage.getDirectory();
     const rootHandle = await root.getDirectoryHandle(
       'pillage-first-ask-questions-later',
-      { create: true },
+      {
+        create: true,
+      },
     );
 
     try {
@@ -58,6 +65,50 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
   };
 
 export const unstable_clientMiddleware = [serverExistAndLockMiddleware];
+
+export const ErrorBoundary = () => {
+  const err = useRouteError();
+  const error = err as Error;
+
+  return (
+    <main className="container mx-auto max-w-lg p-2 flex flex-col gap-4">
+      <p>
+        An error has occurred while initializing the game world. The error was
+        logged. You can try to refresh this page. If the error persists after
+        refreshing, please export the game state of this world through the{' '}
+        <Link
+          className="underline"
+          to="/"
+        >
+          home page
+        </Link>{' '}
+        and report the issue in the{' '}
+        <a
+          className="underline"
+          href="https://discord.gg/Ep7NKVXUZA"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          #bugs channel on Discord
+        </a>{' '}
+        or raise a{' '}
+        <a
+          className="underline"
+          href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub issue
+        </a>
+        .
+      </p>
+      <div className="flex flex-col gap-2">
+        <p>Error description:</p>
+        <pre>{error.message}</pre>
+      </div>
+    </main>
+  );
+};
 
 const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
@@ -88,7 +139,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Suspense fallback="Api provider loader">
-        <ApiProvider serverSlug={serverSlug!}>
+        <ApiProvider>
           <Outlet />
         </ApiProvider>
       </Suspense>
@@ -96,7 +147,6 @@ const Layout = ({ params }: Route.ComponentProps) => {
         client={queryClient}
         initialIsOpen={false}
       />
-      <Toaster />
     </QueryClientProvider>
   );
 };

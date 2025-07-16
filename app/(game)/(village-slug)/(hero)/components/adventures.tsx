@@ -1,5 +1,5 @@
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { prngAlea } from 'ts-seedrandom';
+import { prngMulberry32 } from 'ts-seedrandom';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { Alert } from 'app/components/ui/alert';
@@ -19,7 +19,7 @@ export const Adventures = () => {
   const { adventureCount } = hero!;
 
   // We need to do it this was, so that we preserve durations
-  const adventurePrng = prngAlea(`${seed}${adventureCount}`);
+  const adventurePrng = prngMulberry32(`${seed}${adventureCount}`);
 
   // Short adventure is between 8 & 12 minutes long
   const _shortAdventureDuration =
@@ -29,7 +29,7 @@ export const Adventures = () => {
     <Section>
       <SectionContent>
         <Text as="h2">{t('Adventures')}</Text>
-        <Text as="p">
+        <Text>
           {t(
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
           )}

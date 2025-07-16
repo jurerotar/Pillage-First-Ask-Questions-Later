@@ -1,40 +1,16 @@
-import {
-  Links,
-  type LinksFunction,
-  Meta,
-  type MetaFunction,
-  Outlet,
-  Scripts,
-} from 'react-router';
+import { Links, Outlet, Scripts } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
 import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from './faro';
 import './localization/i18n';
 import './styles/app.css';
+import { Toaster } from 'sonner';
 
 await initFaro();
 
 const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
 const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
-
-export const meta: MetaFunction = () => {
-  return [
-    {
-      title: 'Pillage First! (Ask Questions Later)',
-    },
-  ];
-};
-
-export const links: LinksFunction = () => {
-  return [
-    {
-      rel: 'preconnect',
-      href: import.meta.env.VITE_FARO_INGEST_ENDPOINT,
-      crossOrigin: 'anonymous',
-    },
-  ];
-};
 
 const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
   async ({ context }) => {
@@ -48,7 +24,7 @@ const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
 
 export const unstable_clientMiddleware = [clientSessionMiddleware];
 
-const Root = () => {
+export const Layout = () => {
   return (
     <html lang="en-US">
       <head>
@@ -58,10 +34,17 @@ const Root = () => {
           type="image/svg+xml"
         />
         {import.meta.env.MODE === 'production' && (
-          <link
-            rel="manifest"
-            href="/manifest.webmanifest"
-          />
+          <>
+            <link
+              rel="manifest"
+              href="/manifest.webmanifest"
+            />
+            <link
+              rel="preconnect"
+              href={import.meta.env.VITE_FARO_INGEST_ENDPOINT}
+              crossOrigin="anonymous"
+            />
+          </>
         )}
         <meta
           name="viewport"
@@ -119,17 +102,21 @@ const Root = () => {
           property="og:image:alt"
           content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
         />
-        <Meta />
         <Links />
       </head>
       <body>
         <StateProvider>
           <Outlet />
         </StateProvider>
+        <Toaster />
         <Scripts />
       </body>
     </html>
   );
 };
 
-export default Root;
+const App = () => {
+  return <Outlet />;
+};
+
+export default App;

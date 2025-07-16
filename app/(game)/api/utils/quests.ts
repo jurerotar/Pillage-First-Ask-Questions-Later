@@ -86,6 +86,7 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
           continue;
         }
 
+        // TODO: This is only evaluated once another quest is done, not when troops are constructed.
         if (isTroopCountQuestRequirement(requirement)) {
           requirementStatuses.push(requirement.count <= troopCount);
         }

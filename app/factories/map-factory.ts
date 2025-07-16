@@ -29,7 +29,7 @@ import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from 'app/utils/common';
-import { prngAlea, type PRNGFunction } from 'ts-seedrandom';
+import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import {
   calculateGridLayout,
   encodeGraphicsProperty,
@@ -251,7 +251,7 @@ const generateShapedOasisFields = (
 ): MaybeOccupiedBaseTile[] => {
   const tilesWithOasisShapes: MaybeOccupiedBaseTile[] = [...tiles];
 
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   const tilesByCoordinates = new Map<Tile['id'], MaybeOccupiedBaseTile>(
     tiles.map((tile) => [tile.id, tile]),
@@ -318,7 +318,7 @@ const generateShapedOasisFields = (
 
 // Some NPC villages have occupied oasis tiles
 const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
     ['xxs', 0],
@@ -392,7 +392,7 @@ const assignOasisAndFreeTileComposition = (
   server: Server,
   tiles: MaybeOccupiedBaseTile[],
 ): Tile[] => {
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   return tiles.map((tile): Tile => {
     // 1. If it already has a type from previous steps, just return
@@ -429,7 +429,7 @@ const assignNpcPlayers = (
   tiles: Tile[],
   npcPlayers: Player[],
 ): Tile[] => {
-  const prng = prngAlea(server.seed);
+  const prng = prngMulberry32(server.seed);
 
   const villageSizeToVillageGroupRadiusMap = new Map<VillageSize, number>([
     ['xxs', 0],

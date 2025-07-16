@@ -11,20 +11,12 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
-import type { MetaFunction } from 'react-router';
-import { t } from 'i18next';
+import type React from 'react';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
 
-export const meta: MetaFunction = ({ params }) => {
+const StatisticsPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
-  return [
-    {
-      title: `${t('Statistics')} | Pillage First! - ${serverSlug} - ${villageSlug}`,
-    },
-  ];
-};
-
-const StatisticsPage = () => {
   const { t } = useTranslation();
   const { resourcesPath } = useGameNavigation();
 
@@ -32,8 +24,11 @@ const StatisticsPage = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
+  const title = `${t('Statistics')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
   return (
     <>
+      <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

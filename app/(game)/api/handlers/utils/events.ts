@@ -39,7 +39,7 @@ import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-eff
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
-import type { ApiNotificationEvent } from 'app/interfaces/api';
+import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
   calculateVillageResourcesAt,
@@ -49,9 +49,13 @@ import {
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
   console.error('Following events failed to create', events);
+
+  const event = events[0];
+
   self.postMessage({
-    eventKey: 'event:construction-not-started',
-  } satisfies ApiNotificationEvent);
+    eventKey: 'event:worker-event-creation-error',
+    ...event,
+  } satisfies EventApiNotificationEvent);
 };
 
 export const checkAndSubtractVillageResources = (
