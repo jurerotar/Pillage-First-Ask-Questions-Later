@@ -3,97 +3,18 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { normalizeForcedFloatValue } from 'app/utils/common';
 
 export type ComputedEffectReturn = {
-  effectBaseValue: number;
-  effectBonusValue: number;
   serverEffectValue: number;
+  buildingEffectBaseValue: number;
+  buildingEffectBonusValue: number;
+  heroEffectBaseValue: number;
+  heroEffectBonusValue: number;
+  oasisEffectBaseValue: number;
+  oasisEffectBonusValue: number;
+  oasisBoosterEffectBonusValue: number;
+  artifactEffectBaseValue: number;
+  artifactEffectBonusValue: number;
+  villageEffectBaseValue: number;
   total: number;
-};
-
-export type WheatProductionEffectReturn = ComputedEffectReturn & {
-  buildingWheatConsumption: number;
-  buildingWheatLimit: number;
-  troopWheatConsumption: number;
-  troopWheatConsumptionReductionBonus: number;
-};
-
-const calculateWheatProductionEffect = (
-  effectId: 'wheatProduction',
-  effects: Effect[],
-  currentVillageId: Village['id'],
-): WheatProductionEffectReturn => {
-  const serverEffect = effects.find(
-    (effect) => effect.scope === 'server' && effect.id === effectId,
-  );
-  const serverEffectValue = normalizeForcedFloatValue(serverEffect?.value ?? 1);
-
-  let baseWheatProduction = 0;
-  let wheatProductionBonus = 1;
-
-  let buildingWheatConsumption = 0;
-  let troopWheatConsumption = 0;
-
-  let troopWheatConsumptionReductionBonus = 1;
-
-  for (const effect of effects) {
-    // Skip all server effects because we already have a value and skip all non-wheatProduction effects because we're only checking for this one
-    const { source, value, scope, id } = effect;
-    if (id !== 'wheatProduction' || effect.scope === 'server') {
-      continue;
-    }
-
-    const shouldEffectApplyToCurrentVillage =
-      scope === 'global' ||
-      (effect as VillageEffect).villageId === currentVillageId;
-
-    if (!shouldEffectApplyToCurrentVillage) {
-      continue;
-    }
-
-    // Only troops contribute to troopWheatConsumption
-    if (source === 'troops') {
-      troopWheatConsumption += value;
-      continue;
-    }
-
-    if (Number.isInteger(value)) {
-      const isPositive = value > 0;
-
-      if (isPositive) {
-        baseWheatProduction += value;
-        continue;
-      }
-
-      buildingWheatConsumption += value;
-      continue;
-    }
-
-    const isGreaterThanOne = value > 1;
-    if (isGreaterThanOne) {
-      wheatProductionBonus *= normalizeForcedFloatValue(value);
-      continue;
-    }
-
-    troopWheatConsumptionReductionBonus *= normalizeForcedFloatValue(value);
-  }
-
-  const buildingWheatLimit =
-    Math.trunc(serverEffectValue * baseWheatProduction * wheatProductionBonus) +
-    buildingWheatConsumption;
-
-  const total =
-    buildingWheatLimit -
-    Math.trunc(troopWheatConsumption * troopWheatConsumptionReductionBonus);
-
-  return {
-    serverEffectValue,
-    effectBaseValue: baseWheatProduction,
-    effectBonusValue: wheatProductionBonus,
-    buildingWheatLimit,
-    buildingWheatConsumption,
-    troopWheatConsumption,
-    troopWheatConsumptionReductionBonus,
-    total,
-  };
 };
 
 export const calculateComputedEffect = (
@@ -109,47 +30,283 @@ export const calculateComputedEffect = (
     );
   }
 
-  // There is at most 1 server effect for specific effect type, so we find it here and can skip iterations with server scope effects later
-  const serverEffect = effects.find(
-    (effect) => effect.scope === 'server' && effect.id === effectId,
-  );
-  const serverEffectValue = normalizeForcedFloatValue(serverEffect?.value ?? 1);
+  let serverEffectValue = 1;
 
-  let effectBaseValue = 0;
-  let effectBonusValue = 1;
+  let buildingEffectBaseValue = 0;
+  let heroEffectBaseValue = 0;
+  let oasisEffectBaseValue = 0;
+  let artifactEffectBaseValue = 0;
+  let villageEffectBaseValue = 0;
+
+  // Buildings like sawmill & granary that boost production by %
+  let buildingEffectBonusValue = 1;
+  // Hero effects that increase production by %
+  let heroEffectBonusValue = 1;
+  // Oasis effects that increase production by %
+  let oasisEffectBonusValue = 1;
+  // Effects that increase oasis effects by an additional %
+  let oasisBoosterEffectBonusValue = 1;
+  // Artifact effects that increase production by %
+  let artifactEffectBonusValue = 1;
+
+  const oasisBonusEffectName = `${effectId}OasisBonus`;
 
   for (const effect of effects) {
-    const { value, scope } = effect;
-
-    if (scope === 'server' || effectId !== effect.id) {
+    if (effect.id !== effectId && effect.id !== oasisBonusEffectName) {
       continue;
     }
 
     const shouldEffectApplyToCurrentVillage =
-      scope === 'global' ||
+      effect.scope === 'global' ||
+      effect.scope === 'server' ||
       (effect as VillageEffect).villageId === currentVillageId;
 
     if (!shouldEffectApplyToCurrentVillage) {
       continue;
     }
 
-    if (Number.isInteger(value)) {
-      effectBaseValue += value;
+    if (effect.id === oasisBonusEffectName) {
+      // oasisEffectBonusValue is cumulative, so only take the decimal part
+      oasisEffectBonusValue *= normalizeForcedFloatValue(effect.value % 1);
       continue;
     }
 
-    effectBonusValue *= normalizeForcedFloatValue(value);
+    if (effect.scope === 'server') {
+      serverEffectValue = effect.value;
+      continue;
+    }
+
+    if (effect.source === 'hero') {
+      if (Number.isInteger(effect.value)) {
+        heroEffectBaseValue += effect.value;
+        continue;
+      }
+
+      heroEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.source === 'building') {
+      if (Number.isInteger(effect.value)) {
+        buildingEffectBaseValue += effect.value;
+        continue;
+      }
+
+      buildingEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.source === 'artifact') {
+      if (Number.isInteger(effect.value)) {
+        artifactEffectBaseValue += effect.value;
+        continue;
+      }
+
+      artifactEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.source === 'oasis') {
+      if (Number.isInteger(effect.value)) {
+        oasisEffectBaseValue += effect.value;
+        continue;
+      }
+
+      oasisEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.scope === 'village') {
+      if (Number.isInteger(effect.value)) {
+        villageEffectBaseValue += effect.value;
+        continue;
+      }
+    }
   }
 
+  const normalizedBuildingEffectBaseValue = buildingEffectBaseValue || 1;
+
   const total =
-    (effectBaseValue === 0 ? 1 : effectBaseValue) *
-    effectBonusValue *
-    serverEffectValue;
+    normalizedBuildingEffectBaseValue * serverEffectValue
+    + ((normalizedBuildingEffectBaseValue || 1) * (buildingEffectBonusValue - 1))
+    + (normalizedBuildingEffectBaseValue * (oasisEffectBonusValue - 1) * oasisBoosterEffectBonusValue)
+    + (normalizedBuildingEffectBaseValue * (artifactEffectBonusValue - 1))
+    + villageEffectBaseValue
+    + artifactEffectBaseValue
+    + oasisEffectBaseValue
+    + heroEffectBaseValue;
 
   return {
     serverEffectValue,
-    effectBaseValue,
-    effectBonusValue,
+    buildingEffectBaseValue,
+    buildingEffectBonusValue,
+    heroEffectBaseValue,
+    heroEffectBonusValue,
+    oasisEffectBaseValue,
+    oasisEffectBonusValue,
+    oasisBoosterEffectBonusValue,
+    artifactEffectBaseValue,
+    artifactEffectBonusValue,
+    villageEffectBaseValue,
     total,
   };
 };
+
+export type WheatProductionEffectReturn = ComputedEffectReturn & {
+  buildingEffectBaseValueReduction: number;
+  troopEffectBaseValueReduction: number;
+  troopEffectBonusValueReduction: number;
+  buildingWheatLimit: number;
+};
+
+export const calculateWheatProductionEffect = (
+  _effectId: 'wheatProduction',
+  effects: Effect[],
+  currentVillageId: Village['id'],
+): WheatProductionEffectReturn => {
+  let serverEffectValue = 1;
+
+  let buildingEffectBaseValue = 0;
+  let heroEffectBaseValue = 0;
+  let oasisEffectBaseValue = 0;
+  let artifactEffectBaseValue = 0;
+  let villageEffectBaseValue = 0;
+
+  // Buildings like sawmill & granary that boost production by %
+  let buildingEffectBonusValue = 1;
+  // Hero effects that increase production by %
+  let heroEffectBonusValue = 1;
+  // Oasis effects that increase production by %
+  let oasisEffectBonusValue = 1;
+  // Effects that increase oasis effects by an additional %
+  let oasisBoosterEffectBonusValue = 1;
+  // Artifact effects that increase production by %
+  let artifactEffectBonusValue = 1;
+
+  let buildingEffectBaseValueReduction = 0;
+  let troopEffectBaseValueReduction = 0;
+
+  let troopEffectBonusValueReduction = 1;
+
+  for (const effect of effects) {
+    if (effect.id !== 'wheatProduction' && effect.id !== 'wheatProductionOasisBonus' && effect.id !== 'unitWheatConsumption') {
+      continue;
+    }
+
+    const shouldEffectApplyToCurrentVillage =
+      effect.scope === 'global' ||
+      effect.scope === 'server' ||
+      (effect as VillageEffect).villageId === currentVillageId;
+
+    if (!shouldEffectApplyToCurrentVillage) {
+      continue;
+    }
+
+    if (effect.id === 'unitWheatConsumption') {
+      troopEffectBonusValueReduction *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.id === 'wheatProductionOasisBonus') {
+      // oasisEffectBonusValue is cumulative, so only take the decimal part
+      oasisEffectBonusValue *= normalizeForcedFloatValue(effect.value % 1);
+      continue;
+    }
+
+    if (effect.source === 'troops') {
+      troopEffectBaseValueReduction += effect.value;
+      continue;
+    }
+
+    if (effect.scope === 'server') {
+      serverEffectValue = effect.value;
+      continue;
+    }
+
+    if (effect.source === 'hero') {
+      if (Number.isInteger(effect.value)) {
+        heroEffectBaseValue += effect.value;
+        continue;
+      }
+
+      heroEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.source === 'building') {
+      if (Number.isInteger(effect.value)) {
+        if (effect.value > 0) {
+          buildingEffectBaseValue += effect.value;
+          continue;
+        }
+
+        buildingEffectBaseValueReduction += effect.value;
+        continue;
+      }
+
+      buildingEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.source === 'artifact') {
+      if (Number.isInteger(effect.value)) {
+        artifactEffectBaseValue += effect.value;
+        continue;
+      }
+
+      artifactEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.source === 'oasis') {
+      if (Number.isInteger(effect.value)) {
+        oasisEffectBaseValue += effect.value;
+        continue;
+      }
+
+      oasisEffectBonusValue *= normalizeForcedFloatValue(effect.value);
+      continue;
+    }
+
+    if (effect.scope === 'village') {
+      if (Number.isInteger(effect.value)) {
+        villageEffectBaseValue += effect.value;
+        continue;
+      }
+    }
+  }
+
+  const buildingWheatLimit = buildingEffectBaseValue * serverEffectValue - buildingEffectBaseValueReduction;
+
+  const total =
+    buildingEffectBaseValue * serverEffectValue
+    + (buildingEffectBaseValue * (buildingEffectBonusValue - 1))
+    + (buildingEffectBaseValue * (oasisEffectBonusValue - 1) * oasisBoosterEffectBonusValue)
+    + (buildingEffectBaseValue * (artifactEffectBonusValue - 1))
+    + artifactEffectBaseValue
+    + oasisEffectBaseValue
+    + heroEffectBaseValue
+    + villageEffectBaseValue
+    - buildingEffectBaseValueReduction
+    - troopEffectBaseValueReduction * troopEffectBonusValueReduction;
+
+  return {
+    serverEffectValue,
+    buildingEffectBaseValue,
+    buildingEffectBonusValue,
+    heroEffectBaseValue,
+    heroEffectBonusValue,
+    oasisEffectBaseValue,
+    oasisEffectBonusValue,
+    oasisBoosterEffectBonusValue,
+    artifactEffectBaseValue,
+    artifactEffectBonusValue,
+    villageEffectBaseValue,
+    buildingEffectBaseValueReduction,
+    troopEffectBaseValueReduction,
+    troopEffectBonusValueReduction,
+    buildingWheatLimit,
+    total,
+  };
+};
+

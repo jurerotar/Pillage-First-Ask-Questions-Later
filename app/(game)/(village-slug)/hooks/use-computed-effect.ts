@@ -9,10 +9,10 @@ import {
 } from 'app/(game)/utils/calculate-computed-effect';
 
 export function useComputedEffect(
-  effectId: Exclude<EffectId, 'wheatProduction'>,
+  effectId: Exclude<EffectId, 'wheatProduction' | 'woodProduction' | 'clayProduction' | 'ironProduction'>,
 ): ComputedEffectReturn;
 export function useComputedEffect(
-  effectId: 'wheatProduction',
+  effectId: 'wheatProduction' | 'woodProduction' | 'clayProduction' | 'ironProduction',
 ): WheatProductionEffectReturn;
 
 // The idea behind this hook is to give you a computed effect value based on currentVillage effects & global effects
@@ -23,10 +23,6 @@ export function useComputedEffect(
   const { currentVillage } = useCurrentVillage();
 
   const fetcher = () => {
-    // This is stupid, but we need to have it like this for the overload to work correctly
-    if (effectId === 'wheatProduction') {
-      return calculateComputedEffect(effectId, effects, currentVillage.id);
-    }
     return calculateComputedEffect(effectId, effects, currentVillage.id);
   };
 

@@ -20,6 +20,12 @@ export type ResourceProductionEffectId =
   | 'ironProduction'
   | 'wheatProduction';
 
+export type OasisResourceProductionBonusEffectId =
+  | 'woodProductionOasisBonus'
+  | 'clayProductionOasisBonus'
+  | 'ironProductionOasisBonus'
+  | 'wheatProductionOasisBonus';
+
 export type EffectId =
   | 'attack'
   | 'infantryDefence'
@@ -37,6 +43,7 @@ export type EffectId =
   | 'crannyCapacity'
   | 'trapperCapacity'
   | 'revealedIncomingTroopsAmount'
+  | OasisResourceProductionBonusEffectId
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 
