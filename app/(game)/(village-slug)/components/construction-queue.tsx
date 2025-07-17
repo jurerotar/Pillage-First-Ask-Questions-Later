@@ -20,6 +20,7 @@ import {
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { faro } from '@grafana/faro-web-sdk';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
@@ -153,6 +154,16 @@ export const ConstructionQueue = () => {
 
   const emptySlots =
     (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
+
+  // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
+  if (emptySlots < 0) {
+    faro.api.pushError(
+      new Error(
+        'Invalid array length at ConstructionQueue' +
+          JSON.stringify({ currentVillageBuildingEvents }),
+      ),
+    );
+  }
 
   return (
     <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
