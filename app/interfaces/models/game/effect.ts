@@ -43,6 +43,7 @@ export type EffectId =
   | 'crannyCapacity'
   | 'trapperCapacity'
   | 'revealedIncomingTroopsAmount'
+  | OasisResourceProductionBonusEffectId
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 

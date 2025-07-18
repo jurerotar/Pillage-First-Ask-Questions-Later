@@ -22,7 +22,6 @@ export const useCalculatedResource = (
   const { currentVillage } = useCurrentVillage();
 
   const { total: hourlyProduction } = useComputedEffect(
-    // @ts-expect-error: TODO: Overload issue, fix when you can
     resourceToResourceEffectMap.get(resource)!,
   );
 
