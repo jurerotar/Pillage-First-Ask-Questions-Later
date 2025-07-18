@@ -37,28 +37,6 @@ export const useBuildingActions = (
       buildingFieldId: buildingFieldId!,
       buildingId,
       level: 1,
-      cachesToClearOnResolve: [playerVillagesCacheKey],
-      cachesToClearImmediately: [playerVillagesCacheKey],
-    });
-
-    // In case we're already building something, just create a scheduled construction event
-    if (hasCurrentVillageBuildingEvents) {
-      createBuildingScheduledConstructionEvent({
-        buildingFieldId: buildingFieldId!,
-        buildingId,
-        level: 1,
-        cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
-        cachesToClearImmediately: [],
-      });
-
-      return;
-    }
-
-    // else; start upgrade event now
-    createBuildingLevelChangeEvent({
-      buildingFieldId: buildingFieldId!,
-      level: 1,
-      buildingId,
       cachesToClearOnResolve: [
         playerVillagesCacheKey,
         effectsCacheKey,
