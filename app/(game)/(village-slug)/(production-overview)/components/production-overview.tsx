@@ -4,7 +4,7 @@ import type {
   HeroEffect,
   OasisEffect,
   ResourceProductionEffectId,
-  VillageBuildingEffect
+  VillageBuildingEffect,
 } from 'app/interfaces/models/game/effect';
 import type React from 'react';
 import {
@@ -43,8 +43,8 @@ type ResourceBoosterBenefitsProps = {
 };
 
 export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
-                                                                             effectId,
-                                                                           }) => {
+  effectId,
+}) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { effects } = useEffects();
@@ -52,35 +52,59 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
 
   // TODO: There's 10 array loops in a row here. It's not really an issue, because we usually loop through only a couple of objects, but you still might want to clean this up sometime
 
-  const relevantEffects = effects.filter(({ id }) => id === effectId || id === `${effectId}OasisBonus`);
+  const relevantEffects = effects.filter(
+    ({ id }) => id === effectId || id === `${effectId}OasisBonus`,
+  );
 
   const serverEffectValue = relevantEffects.find(isServerEffect)?.value ?? 1;
 
   // Waterworks needs to be excluded, because it does not provide a value by itself, but rather enhances oasis
-  const buildingEffects = relevantEffects.filter(isBuildingEffect).filter(({ buildingId }) => buildingId !== 'WATERWORKS');
+  const buildingEffects = relevantEffects
+    .filter(isBuildingEffect)
+    .filter(({ buildingId }) => buildingId !== 'WATERWORKS');
   const heroEffects = relevantEffects.filter(isHeroEffect);
   const artifactEffects = relevantEffects.filter(isArtifactEffect);
   const oasisEffects = relevantEffects.filter(isOasisEffect);
   const oasisBoosterEffects = relevantEffects.filter(isOasisBoosterEffect);
 
-  const [baseBuildingEffects, bonusBuildingEffects] = partition<VillageBuildingEffect>(buildingEffects, ({ value }) => Number.isInteger(value));
-  const [baseHeroEffects, bonusHeroEffects] = partition<HeroEffect>(heroEffects, ({ value }) => Number.isInteger(value));
-  const [baseArtifactEffects, bonusArtifactEffects] = partition<ArtifactEffect>(artifactEffects, ({ value }) => Number.isInteger(value));
-  const [baseOasisEffects, bonusOasisEffects] = partition<OasisEffect>(oasisEffects, ({ value }) => Number.isInteger(value));
-  const [, bonusOasisBoosterEffects] = partition<VillageBuildingEffect>(oasisBoosterEffects, ({ value }) => Number.isInteger(value));
+  const [baseBuildingEffects, bonusBuildingEffects] =
+    partition<VillageBuildingEffect>(buildingEffects, ({ value }) =>
+      Number.isInteger(value),
+    );
+  const [baseHeroEffects, bonusHeroEffects] = partition<HeroEffect>(
+    heroEffects,
+    ({ value }) => Number.isInteger(value),
+  );
+  const [baseArtifactEffects, bonusArtifactEffects] = partition<ArtifactEffect>(
+    artifactEffects,
+    ({ value }) => Number.isInteger(value),
+  );
+  const [baseOasisEffects, bonusOasisEffects] = partition<OasisEffect>(
+    oasisEffects,
+    ({ value }) => Number.isInteger(value),
+  );
+  const [, bonusOasisBoosterEffects] = partition<VillageBuildingEffect>(
+    oasisBoosterEffects,
+    ({ value }) => Number.isInteger(value),
+  );
 
-  const hasBonuses = bonusBuildingEffects.length > 0
-  || bonusHeroEffects.length > 0
-  || bonusArtifactEffects.length > 0
-  || bonusOasisEffects.length > 0
-  || bonusOasisBoosterEffects.length > 0;
+  const hasBonuses =
+    bonusBuildingEffects.length > 0 ||
+    bonusHeroEffects.length > 0 ||
+    bonusArtifactEffects.length > 0 ||
+    bonusOasisEffects.length > 0 ||
+    bonusOasisBoosterEffects.length > 0;
 
-  const hasBaseProduction = baseBuildingEffects.length > 0
-    || baseHeroEffects.length > 0
-    || baseArtifactEffects.length > 0
-    || baseOasisEffects.length > 0;
+  const hasBaseProduction =
+    baseBuildingEffects.length > 0 ||
+    baseHeroEffects.length > 0 ||
+    baseArtifactEffects.length > 0 ||
+    baseOasisEffects.length > 0;
 
-  const summerBonusOasisBoosterEffectValue = bonusOasisBoosterEffects.reduce((acc, { value }) => acc + (value % 1), 1);
+  const summerBonusOasisBoosterEffectValue = bonusOasisBoosterEffects.reduce(
+    (acc, { value }) => acc + (value % 1),
+    1,
+  );
 
   const boostedOasisEffects = bonusOasisEffects.map((effect) => {
     return {
@@ -103,7 +127,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
     ...boostedOasisEffects,
   ].reduce((acc, { value }) => acc + (value % 1), 0);
 
-  const summedBaseBuildingEffectWithBonusValue = baseBuildingEffects.reduce((acc, { value }) => acc + Math.trunc(value * summedBonusEffectValue), 0);
+  const summedBaseBuildingEffectWithBonusValue = baseBuildingEffects.reduce(
+    (acc, { value }) => acc + Math.trunc(value * summedBonusEffectValue),
+    0,
+  );
 
   return (
     <Section>
@@ -149,14 +176,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                 {bonusArtifactEffects.map(({ value, artifactId }) => (
                   <TableRow key={artifactId}>
                     <TableCell>
-                      <Text>
-                        {t('Artifact')}
-                      </Text>
+                      <Text>{t('Artifact')}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>
-                        {assetsT(`ITEMS.${artifactId}.TITLE`)}
-                      </Text>
+                      <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{value - 1}%</Text>
@@ -173,7 +196,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       </TableCell>
                       <TableCell>
                         <Text>
-                          <Link className="underline" to={`${mapPath}?x=${x}&y=${y}`}>
+                          <Link
+                            className="underline"
+                            to={`${mapPath}?x=${x}&y=${y}`}
+                          >
                             {x}, {y}
                           </Link>
                         </Text>
@@ -182,7 +208,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         <Text>{formatBonus(value - 1)}%</Text>
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
                 {bonusBuildingEffects.map(
                   ({ value, buildingFieldId, buildingId }) => (
@@ -264,9 +290,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       <Text>{t('Artifact')}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>
-                        {assetsT(`ITEMS.${artifactId}.TITLE`)}
-                      </Text>
+                      <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{value * serverEffectValue}</Text>
@@ -286,7 +310,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       </TableCell>
                       <TableCell>
                         <Text>
-                          <Link className="underline" to={`${mapPath}?x=${x}&y=${y}`}>
+                          <Link
+                            className="underline"
+                            to={`${mapPath}?x=${x}&y=${y}`}
+                          >
                             {x}, {y}
                           </Link>
                         </Text>
@@ -298,7 +325,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         <Text>0</Text>
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
                 {baseBuildingEffects.map(
                   ({ value, buildingFieldId, buildingId }) => (
@@ -327,14 +354,10 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                 <Text>{t('Total')}</Text>
               </TableCell>
               <TableCell>
-                <Text>
-                  {summedBaseEffectValue}
-                </Text>
+                <Text>{summedBaseEffectValue}</Text>
               </TableCell>
               <TableCell>
-                <Text>
-                  {summedBaseBuildingEffectWithBonusValue}
-                </Text>
+                <Text>{summedBaseBuildingEffectWithBonusValue}</Text>
               </TableCell>
             </TableRow>
           </TableBody>

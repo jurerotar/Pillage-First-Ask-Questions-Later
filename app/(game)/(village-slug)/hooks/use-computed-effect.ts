@@ -9,10 +9,17 @@ import {
 } from 'app/(game)/utils/calculate-computed-effect';
 
 export function useComputedEffect(
-  effectId: Exclude<EffectId, 'wheatProduction' | 'woodProduction' | 'clayProduction' | 'ironProduction'>,
+  effectId: Exclude<
+    EffectId,
+    'wheatProduction' | 'woodProduction' | 'clayProduction' | 'ironProduction'
+  >,
 ): ComputedEffectReturn;
 export function useComputedEffect(
-  effectId: 'wheatProduction' | 'woodProduction' | 'clayProduction' | 'ironProduction',
+  effectId:
+    | 'wheatProduction'
+    | 'woodProduction'
+    | 'clayProduction'
+    | 'ironProduction',
 ): WheatProductionEffectReturn;
 
 // The idea behind this hook is to give you a computed effect value based on currentVillage effects & global effects

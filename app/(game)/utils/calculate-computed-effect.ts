@@ -45,7 +45,7 @@ export const calculateComputedEffect = (
   // Oasis effects that increase production by %
   let oasisEffectBonusValue = 1;
   // Effects that increase oasis effects by an additional %
-  let oasisBoosterEffectBonusValue = 1;
+  const oasisBoosterEffectBonusValue = 1;
   // Artifact effects that increase production by %
   let artifactEffectBonusValue = 1;
 
@@ -119,7 +119,6 @@ export const calculateComputedEffect = (
     if (effect.scope === 'village') {
       if (Number.isInteger(effect.value)) {
         villageEffectBaseValue += effect.value;
-        continue;
       }
     }
   }
@@ -127,14 +126,16 @@ export const calculateComputedEffect = (
   const normalizedBuildingEffectBaseValue = buildingEffectBaseValue || 1;
 
   const total =
-    normalizedBuildingEffectBaseValue * serverEffectValue
-    + ((normalizedBuildingEffectBaseValue || 1) * (buildingEffectBonusValue - 1))
-    + (normalizedBuildingEffectBaseValue * (oasisEffectBonusValue - 1) * oasisBoosterEffectBonusValue)
-    + (normalizedBuildingEffectBaseValue * (artifactEffectBonusValue - 1))
-    + villageEffectBaseValue
-    + artifactEffectBaseValue
-    + oasisEffectBaseValue
-    + heroEffectBaseValue;
+    normalizedBuildingEffectBaseValue * serverEffectValue +
+    (normalizedBuildingEffectBaseValue || 1) * (buildingEffectBonusValue - 1) +
+    normalizedBuildingEffectBaseValue *
+      (oasisEffectBonusValue - 1) *
+      oasisBoosterEffectBonusValue +
+    normalizedBuildingEffectBaseValue * (artifactEffectBonusValue - 1) +
+    villageEffectBaseValue +
+    artifactEffectBaseValue +
+    oasisEffectBaseValue +
+    heroEffectBaseValue;
 
   return {
     serverEffectValue,
@@ -179,7 +180,7 @@ export const calculateWheatProductionEffect = (
   // Oasis effects that increase production by %
   let oasisEffectBonusValue = 1;
   // Effects that increase oasis effects by an additional %
-  let oasisBoosterEffectBonusValue = 1;
+  const oasisBoosterEffectBonusValue = 1;
   // Artifact effects that increase production by %
   let artifactEffectBonusValue = 1;
 
@@ -189,7 +190,11 @@ export const calculateWheatProductionEffect = (
   let troopEffectBonusValueReduction = 1;
 
   for (const effect of effects) {
-    if (effect.id !== 'wheatProduction' && effect.id !== 'wheatProductionOasisBonus' && effect.id !== 'unitWheatConsumption') {
+    if (
+      effect.id !== 'wheatProduction' &&
+      effect.id !== 'wheatProductionOasisBonus' &&
+      effect.id !== 'unitWheatConsumption'
+    ) {
       continue;
     }
 
@@ -271,24 +276,27 @@ export const calculateWheatProductionEffect = (
     if (effect.scope === 'village') {
       if (Number.isInteger(effect.value)) {
         villageEffectBaseValue += effect.value;
-        continue;
       }
     }
   }
 
-  const buildingWheatLimit = buildingEffectBaseValue * serverEffectValue - buildingEffectBaseValueReduction;
+  const buildingWheatLimit =
+    buildingEffectBaseValue * serverEffectValue -
+    buildingEffectBaseValueReduction;
 
   const total =
-    buildingEffectBaseValue * serverEffectValue
-    + (buildingEffectBaseValue * (buildingEffectBonusValue - 1))
-    + (buildingEffectBaseValue * (oasisEffectBonusValue - 1) * oasisBoosterEffectBonusValue)
-    + (buildingEffectBaseValue * (artifactEffectBonusValue - 1))
-    + artifactEffectBaseValue
-    + oasisEffectBaseValue
-    + heroEffectBaseValue
-    + villageEffectBaseValue
-    - buildingEffectBaseValueReduction
-    - troopEffectBaseValueReduction * troopEffectBonusValueReduction;
+    buildingEffectBaseValue * serverEffectValue +
+    buildingEffectBaseValue * (buildingEffectBonusValue - 1) +
+    buildingEffectBaseValue *
+      (oasisEffectBonusValue - 1) *
+      oasisBoosterEffectBonusValue +
+    buildingEffectBaseValue * (artifactEffectBonusValue - 1) +
+    artifactEffectBaseValue +
+    oasisEffectBaseValue +
+    heroEffectBaseValue +
+    villageEffectBaseValue -
+    buildingEffectBaseValueReduction -
+    troopEffectBaseValueReduction * troopEffectBonusValueReduction;
 
   return {
     serverEffectValue,
@@ -309,4 +317,3 @@ export const calculateWheatProductionEffect = (
     total,
   };
 };
-

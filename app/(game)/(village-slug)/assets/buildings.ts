@@ -113,7 +113,7 @@ const createResourceBoosterEffect = (
 };
 
 const createOasisBonusBoosterEffect = (
-  effectId: OasisResourceProductionBonusEffectId
+  effectId: OasisResourceProductionBonusEffectId,
 ): BuildingEffect => {
   return {
     effectId,
