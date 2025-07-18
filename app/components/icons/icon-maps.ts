@@ -1,4 +1,7 @@
-import type { Effect } from 'app/interfaces/models/game/effect';
+import type {
+  Effect,
+  OasisResourceProductionBonusEffectId,
+} from 'app/interfaces/models/game/effect';
 import type {
   EgyptianUnitId,
   GaulUnitId,
@@ -705,6 +708,7 @@ export type IconType =
   | MapAdventureIconType
   | OtherIconType
   | TroopMovementType
+  | OasisResourceProductionBonusEffectId
   | Effect['id'];
 
 // @ts-ignore - TODO: Add missing icons
@@ -780,6 +784,10 @@ export const typeToIconMap: Record<
   wheatProduction: IconResourceWheat,
   crannyCapacity: IconCrannyCapacity,
   revealedIncomingTroopsAmount: IconRevealedIncomingTroopsAmount,
+  woodProductionOasisBonus: IconMissingIcon,
+  clayProductionOasisBonus: IconMissingIcon,
+  ironProductionOasisBonus: IconMissingIcon,
+  wheatProductionOasisBonus: IconMissingIcon,
 
   // Special troops
   hero: IconUnitSpecialHero,
@@ -821,6 +829,9 @@ export const typeToIconMap: Record<
   teutonicSettler: IconUnitTeutonsTeutonicSettler,
 
   // Egyptian troops
+  slaveMilitia: IconMissingIcon,
+  ashWarden: IconMissingIcon,
+  khopeshWarrior: IconMissingIcon,
   egyptianScout: IconUnitEgyptiansEgyptianScout,
   anhurGuard: IconUnitEgyptiansAnhurGuard,
   reshephChariot: IconUnitEgyptiansReshephChariot,
@@ -830,6 +841,8 @@ export const typeToIconMap: Record<
   egyptianSettler: IconUnitEgyptiansEgyptianSettler,
 
   // Hun troops
+  mercenary: IconMissingIcon,
+  bowman: IconMissingIcon,
   hunScout: IconUnitHunHunScout,
   steppeRider: IconUnitHunSteppeRider,
   marksman: IconUnitHunMarksman,
@@ -840,6 +853,9 @@ export const typeToIconMap: Record<
   hunSettler: IconUnitHunHunSettler,
 
   // Natarian troops
+  pikeman: IconMissingIcon,
+  thornedWarrior: IconMissingIcon,
+  guardsman: IconMissingIcon,
   axerider: IconUnitNatarAxerider,
   natarianScout: IconUnitNatarNatarianScout,
   natarianKnight: IconUnitNatarNatarianKnight,

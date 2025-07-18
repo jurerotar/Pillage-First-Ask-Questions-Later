@@ -20,6 +20,12 @@ export type ResourceProductionEffectId =
   | 'ironProduction'
   | 'wheatProduction';
 
+export type OasisResourceProductionBonusEffectId =
+  | 'woodProductionOasisBonus'
+  | 'clayProductionOasisBonus'
+  | 'ironProductionOasisBonus'
+  | 'wheatProductionOasisBonus';
+
 export type EffectId =
   | 'attack'
   | 'infantryDefence'

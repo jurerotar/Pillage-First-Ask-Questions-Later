@@ -3,7 +3,7 @@
     "HERO": {
       "NAME_one": "Hero",
       "NAME_other": "Heroes",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "Hero is a special troop type that can be used like other troops however it also has special abilities depending on the tribe and can give additional bonuses depending on its level.",
       "USAGE": ""
     },
     "LEGIONNAIRE": {
@@ -32,13 +32,13 @@
     },
     "EQUITES_IMPERATORIS": {
       "NAME_one": "Equites Imperatoris",
-      "NAME": "Equites Imperatoris",
+      "NAME_other": "Equites Imperatoris",
       "DESCRIPTION": "The Equites Imperatoris are the standard Roman cavalry. They balance speed and strength, making them versatile in both raids and battles.",
       "USAGE": "The Equites Imperatoris is the standard Roman cavalry unit. Faster than any other Roman military unit and with a high carrying capacity, it makes a good raider. However, it consumes a lot of wheat, which can be mitigated by building a Horse Drinking Pool. It is not the best defender, as its defense against cavalry is moderate."
     },
     "EQUITES_CAESARIS": {
       "NAME_one": "Equites Caesaris",
-      "NAME": "Equites Caesaris",
+      "NAME_other": "Equites Caesaris",
       "DESCRIPTION": "The Equites Caesaris are the heavy cavalry of the Roman army. They are heavily armored and possess formidable attack power but are costly to maintain.",
       "USAGE": "The Equites Caesaris is the heavy Roman cavalry. It is very powerful but slow and requires a lot of wheat upkeep. It can't carry as many resources as the Equites Imperatoris. It makes an adequate defense unit against other cavalry, but its primary role is offense. Many Roman armies include Equites Caesaris for their strong attack capabilities."
     },
@@ -52,7 +52,7 @@
       "NAME_one": "Roman Catapult",
       "NAME_other": "Roman Catapults",
       "DESCRIPTION": "The Roman Catapult is a siege engine designed to destroy enemy buildings and defenses from a distance.",
-      "USAGE": "The Fire Catapult is a long-range siege unit used to destroy specific buildings in enemy villages. It is essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
+      "USAGE": "The Roman Catapult is a long-range siege unit used to destroy specific buildings in enemy villages. It is essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
     },
     "ROMAN_CHIEF": {
       "NAME_one": "Senator",
@@ -67,7 +67,7 @@
       "USAGE": "Settlers are units tasked with founding new villages. They carry the resources necessary to establish a new settlement, allowing for territorial expansion."
     },
     "CLUBSWINGER": {
-      "NAME": "Clubswinger",
+      "NAME_one": "Clubswinger",
       "NAME_other": "Clubswingers",
       "DESCRIPTION": "The Maceman is the standard infantry unit of the Teutons, known for their aggressive nature and effectiveness in early raids.",
       "USAGE": "The Clubswinger, also known as the Maceman, is the cheapest unit in Travian and serves as the basic infantry for the Teutons. They have poor defense, especially against cavalry. Their main value lies in their raiding ability, carrying up to 60 resources. Due to their low cost, a few successful raids can cover their training expenses. This makes them highly effective for early-game aggression."
@@ -112,7 +112,7 @@
       "NAME_one": "Teutonic Catapult",
       "NAME_other": "Teutonic Catapults",
       "DESCRIPTION": "Teutonic Catapults are designed to target and destroy enemy buildings from a distance.",
-      "USAGE": "Catapults are long-range siege units used to destroy specific buildings in enemy villages. They are essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
+      "USAGE": "Teutonic Catapults are long-range siege units used to destroy specific buildings in enemy villages. They are essential for crippling enemy infrastructure and can target resource fields, military buildings, or defenses."
     },
     "TEUTONIC_CHIEF": {
       "NAME_one": "Chief",
@@ -231,7 +231,7 @@
     "HUN_CATAPULT": {
       "NAME_one": "Hun Catapult",
       "NAME_other": "Hun Catapults",
-      "DESCRIPTION": "The Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
+      "DESCRIPTION": "The Hun Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
       "USAGE": ""
     },
     "HUN_CHIEF": {
@@ -261,7 +261,7 @@
     "KHOPESH_WARRIOR": {
       "NAME_one": "Khopesh Warrior",
       "NAME_other": "Khopesh Warriors",
-      "DESCRIPTION": "The Khopesh Warrior is an elite soldier boasting a strong offense and remarkable defense against other warriors on foot.\n",
+      "DESCRIPTION": "The Khopesh Warrior is an elite soldier boasting a strong offense and remarkable defense against other warriors on foot.",
       "USAGE": ""
     },
     "EGYPTIAN_SCOUT": {
@@ -291,7 +291,7 @@
     "EGYPTIAN_CATAPULT": {
       "NAME_one": "Egyptian Catapult",
       "NAME_other": "Egyptian Catapults",
-      "DESCRIPTION": "The Stone Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
+      "DESCRIPTION": "The Egyptian Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
       "USAGE": ""
     },
     "EGYPTIAN_CHIEF": {
@@ -308,62 +308,62 @@
     },
     "HOPLITE": {
       "NAME_one": "Hoplite",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Hoplites",
+      "DESCRIPTION": "The hoplites were the most common unit of the Greek city-states. With their universal training and attention to physical fitness, they are averagely good at attack and can carry lots of resources. Hoplites also have an average defence, both against infantry and cavalry. Due to the necessity to get all-around training, however, their training time is not the fastest in the game.",
       "USAGE": ""
     },
     "SPARTAN_SCOUT": {
       "NAME_one": "Sentinel",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Sentinels",
+      "DESCRIPTION": "Sentinels dedicate their lives to searching for secrets other tribes might hide. They normally travel on foot and in disguise, which allows them to sneak into highly secured sanctuaries unnoticed. Just like all Spartans, they receive excellent training, which makes them not only tireless runners, but also good defenders. In defence, sentinels stand shoulder to shoulder with others and will fight to their death!",
       "USAGE": ""
     },
     "SHIELDSMAN": {
       "NAME_one": "Shieldsman",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Shieldsmen",
+      "DESCRIPTION": "Shieldsmen are elite defenders that the world has never seen before. They undergo high-level training starting in early childhood. Due to that, they can move fast despite their heavy armour and huge shields. They are extremely good in battles against enemy infantry, creating unbreakable walls that are more robust than those made of bricks.",
       "USAGE": ""
     },
     "TWINSTEEL_THERION": {
       "NAME_one": "Twinsteel Therion",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Twinsteel Therions",
+      "DESCRIPTION": "Meet the real beast! These fearless and experienced attackers cast horror into the hearts of those who hear their war cry. Thanks to two blades, Twinsteel Therions can keep initiative during attack infinitely. They break through any defence just like a hot knife slides through butter. Their training is expensive and takes a lot of time, but they are worth every minute of it!",
       "USAGE": ""
     },
     "ELPIDA_RIDER": {
       "NAME_one": "Elpida Rider",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Elpida Riders",
+      "DESCRIPTION": "Elpida means “hope”, and this is exactly what these brave riders bring to the settlements which are under attack. Fast and relentless they will hurry to your aid while riding on their gracious horses. Not only are they well-trained to resist both cavalry and infantry, but they are also the fastest units of the Spartan army. However, their attack is rather weak.",
       "USAGE": ""
     },
     "CORINTHIAN_CRUSHER": {
       "NAME_one": "Corinthian Crusher",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Corinthian Crusher",
+      "DESCRIPTION": "Corinthian Crushers are an elite attacking cavalry in the Spartan army. As strong and disciplined riders in bronze Corinthian helmets, they became a true legend. Those units need space to show what they are worth; therefore, they are better suited for attack than for defence. They might not be the fastest riders, but when they arrive at the battle, their enemies will tremble!",
       "USAGE": ""
     },
     "SPARTAN_RAM": {
       "NAME_one": "Spartan Ram",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Spartan Rams",
+      "DESCRIPTION": "The ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy enemy walls and thus increase the chances of your troops overcoming enemy fortifications.",
       "USAGE": ""
     },
     "SPARTAN_CATAPULT": {
       "NAME_one": "Spartan Catapult",
-      "NAME_other": "",
-      "DESCRIPTION": "",
+      "NAME_other": "Spartan Catapults",
+      "DESCRIPTION": "The Spartan Catapult is an excellent long-distance weapon; it is used to destroy the fields and buildings of enemy villages. However, without escorting troops, it is virtually defenseless, so don't forget to send some of your troops with it.",
       "USAGE": ""
     },
     "SPARTAN_CHIEF": {
       "NAME_one": "Ephor",
       "NAME_other": "Ephors",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "Integrity and loyalty are the features that make Ephors great leaders. Strong yet not disrespectful, kind but not weak, they can persuade anyone to do what they believe is right. Every time they step foot into the village of an enemy, their powerful presence will reduce the loyalty of the people to their owner, until they decide to join your command.",
       "USAGE": ""
     },
     "SPARTAN_SETTLER": {
       "NAME_one": "Spartan Settler",
       "NAME_other": "Spartan Settlers",
-      "DESCRIPTION": "",
+      "DESCRIPTION": "Settlers are brave and daring citizens who move out of the village after much training to establish a new village in your honor.",
       "USAGE": ""
     },
     "PIKEMAN": {
@@ -490,7 +490,6 @@
   "BUILDINGS": {
     "BAKERY": {
       "NAME": "Bakery",
-      "NAME_other": "",
       "DESCRIPTION": "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
     },
     "BRICKYARD": {
@@ -531,7 +530,7 @@
     },
     "WATERWORKS": {
       "NAME": "Waterworks",
-      "DESCRIPTION": "The Waterworks allows you to regulate the water flow to your oases. This not only helps to grow trees and crops, but it is also useful for quarries and mines as it supplies workers with water and resource transportation.\n\nThis building increases the bonus of all annexed oases. Its maximum effect at level 20 doubles the effect of oases.\n\nThe Waterworks can only be built by Egyptians."
+      "DESCRIPTION": "The Waterworks allows you to regulate the water flow to your oases. This not only helps to grow trees and crops, but it is also useful for quarries and mines as it supplies workers with water and resource transportation. This building increases the bonus of all annexed oases. Its maximum effect at level 20 doubles the effect of oases. The Waterworks can only be built by Egyptians."
     },
     "WOODCUTTER": {
       "NAME": "Woodcutter",
@@ -547,23 +546,23 @@
     },
     "CITY_WALL": {
       "NAME": "City wall",
-      "DESCRIPTION": "By building a city wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe city wall can only be built by Romans.\n\nThe city wall offers the biggest defence bonus, but it is easier to destroy than the Gaulish palisade or the Teutonic earth wall."
+      "DESCRIPTION": "By building a city wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The city wall can only be built by Romans. The city wall offers the biggest defence bonus, but it is easier to destroy than the Gaulish palisade or the Teutonic earth wall."
     },
     "EARTH_WALL": {
       "NAME": "Earth wall",
-      "DESCRIPTION": "By building an earth wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe earth wall can only be built by Teutons.\n\nThe earth wall offers the lowest defence bonus but it is almost impossible to destroy it."
+      "DESCRIPTION": "By building an earth wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The earth wall can only be built by Teutons. The earth wall offers the lowest defence bonus but it is almost impossible to destroy it."
     },
     "GREAT_BARRACKS": {
       "NAME": "Great barracks",
-      "DESCRIPTION": "The great barracks allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
+      "DESCRIPTION": "The great barracks allows you to build more units at the same time but they cost thrice the original amount."
     },
     "GREAT_STABLE": {
       "NAME": "Great stable",
-      "DESCRIPTION": "The great stable allows you to build more units at the same time but they cost thrice the original amount.\n\nIt cannot be built in the capital."
+      "DESCRIPTION": "The great stable allows you to build more units at the same time but they cost thrice the original amount."
     },
     "HEROS_MANSION": {
       "NAME": "Hero's mansion",
-      "DESCRIPTION": "The hero's mansion is the home of your glorious hero.\n\nAt building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource (or even two resources, from some oases)."
+      "DESCRIPTION": "The hero's mansion is the home of your glorious hero. At building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource (or even two resources, from some oases)."
     },
     "HOSPITAL": {
       "NAME": "Hospital",
@@ -571,27 +570,27 @@
     },
     "MAKESHIFT_WALL": {
       "NAME": "Makeshift wall",
-      "DESCRIPTION": "By building a Makeshift Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Makeshift Wall can only be built by Huns, its defense bonus is lower than the Teutonic Earth Wall and its durability is comparable with the Roman City Wall."
+      "DESCRIPTION": "By building a Makeshift Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The Makeshift Wall can only be built by Huns, its defense bonus is lower than the Teutonic Earth Wall and its durability is comparable with the Roman City Wall."
     },
     "PALISADE": {
       "NAME": "Palisade",
-      "DESCRIPTION": "By building a palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic earth wall and the Roman city wall."
+      "DESCRIPTION": "By building a palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic earth wall and the Roman city wall."
     },
     "RALLY_POINT": {
       "NAME": "Rally point",
-      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages.\n\nThe rally point can only be built on the green grassland below and to the right of your main building.\n\nIf there are less attacking units than the level of the rally point, you can see the type of unit attacking."
+      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages. The rally point can only be built on the green grassland below and to the right of your main building. If there are less attacking units than the level of the rally point, you can see the type of unit attacking."
     },
     "STABLE": {
       "NAME": "Stable",
-      "DESCRIPTION": "Cavalry can be trained in the stable. The higher its level, the faster the troops are trained.\n"
+      "DESCRIPTION": "Cavalry can be trained in the stable. The higher its level, the faster the troops are trained."
     },
     "STONE_WALL": {
       "NAME": "Stone wall",
-      "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense.\n\nThe Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."
+      "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."
     },
     "TRAPPER": {
       "NAME": "Trapper",
-      "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more.\n\nTroops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically.\n\nThe trapper can only be constructed by Gauls."
+      "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more. Troops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically. The trapper can only be constructed by Gauls."
     },
     "WORKSHOP": {
       "NAME": "Workshop",
@@ -599,35 +598,35 @@
     },
     "BREWERY": {
       "NAME": "Brewery",
-      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations.\n\nThese drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits.\n\nIt can only be built by Teutons and only in their capital. It affects the whole empire."
+      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations. These drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits. It can only be built by Teutons and only in their capital. It affects the whole empire."
     },
     "COMMAND_CENTER": {
       "NAME": "Command center",
-      "DESCRIPTION": "The Command Center protects the village against enemy conquests. You can build one Command Center per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the command center provides an expansion slot at levels 10, 15 and 20 each.\n\nThe Command Center can only be built by the Huns."
+      "DESCRIPTION": "The Command Center protects the village against enemy conquests. You can build one Command Center per village. Units that can found a new village or conquer existing villages can be trained here. Additionally, the command center provides an expansion slot at levels 10, 15 and 20 each. The Command Center can only be built by the Huns."
     },
     "CRANNY": {
       "NAME": "Cranny",
-      "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen.\n\nAt level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger.\n\nIf a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
+      "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen. At level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger. If a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
     },
     "HORSE_DRINKING_TROUGH": {
       "NAME": "Horse drinking trough",
-      "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training.\n\nThe horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20.\n\nThe horse drinking trough can only be built by Romans."
+      "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training. The horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20. The horse drinking trough can only be built by Romans."
     },
     "MAIN_BUILDING": {
       "NAME": "Main building",
-      "DESCRIPTION": "The village's master builders live in the main building. The higher its level the faster your master builders complete the construction of new buildings.\n"
+      "DESCRIPTION": "The village's master builders live in the main building. The higher its level the faster your master builders complete the construction of new buildings."
     },
     "MARKETPLACE": {
       "NAME": "Marketplace",
-      "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time.\n"
+      "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time."
     },
     "RESIDENCE": {
       "NAME": "Residence",
-      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here.\n\nAdditionally, the residence provides an expansion slot at levels 10 and 20 each."
+      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here. Additionally, the residence provides an expansion slot at levels 10 and 20 each."
     },
     "TREASURY": {
       "NAME": "Treasury",
-      "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time.\n\nYou need a treasury at level 10 for a small artefact, or level 20 for a great one."
+      "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time. You need a treasury at level 10 for a small artefact, or level 20 for a great one."
     },
     "TOURNAMENT_SQUARE": {
       "NAME": "Tournament square",
@@ -809,5 +808,162 @@
     "CLAY": "Clay",
     "IRON": "Iron",
     "WHEAT": "Wheat"
+  },
+  "EFFECTS": {
+    "missingIcon": "Missing icon",
+
+    "wood": "Wood",
+    "clay": "Clay",
+    "iron": "Iron",
+    "wheat": "Wheat",
+    "woodWheat": "Wood and wheat",
+    "clayWheat": "Clay and wheat",
+    "ironWheat": "Iron and wheat",
+    "woodWood": "Wood and wood",
+    "clayClay": "Clay and clay",
+    "ironIron": "Iron and iron",
+    "wheatWheat": "Wheat and wheat",
+
+    "mapMagnificationIncrease": "Zoom in",
+    "mapMagnificationDecrease": "Zoom out",
+    "mapReputationToggle": "Toggle reputation",
+    "mapOasisIconsToggle": "Toggle oasis icons",
+    "mapTroopMovementsToggle": "Toggle troop movements",
+    "mapWheatFieldIconToggle": "Toggle wheat field icons",
+    "mapTileTooltipToggle": "Toggle tile tooltips",
+    "mapTreasureIconToggle": "Toggle treasures",
+
+    "treasureTileItem": "Treasure item",
+    "treasureTileResources": "Treasure resources",
+    "treasureTileArtifact": "Treasure artifact",
+    "treasureTileCurrency": "Treasure currency",
+    "treasureTileMiscellaneous": "Miscellaneous treasure",
+
+    "attackerNoLoss": "Attacker (no loss)",
+    "attackerSomeLoss": "Attacker (some loss)",
+    "attackerFullLoss": "Attacker (full loss)",
+    "defenderNoLoss": "Defender (no loss)",
+    "defenderSomeLoss": "Defender (some loss)",
+    "defenderFullLoss": "Defender (full loss)",
+
+    "freeCrop": "Free crop",
+    "populationCropConsumption": "Population crop consumption",
+    "troopsCropConsumption": "Troops crop consumption",
+    "warehouseCapacity": "Warehouse capacity",
+    "granaryCapacity": "Granary capacity",
+    "buildingDuration": "Building duration",
+    "infantryDefence": "Infantry defense",
+    "cavalryDefence": "Cavalry defense",
+    "population": "Population",
+    "attack": "Attack",
+    "barracksTrainingDuration": "Barracks training duration",
+    "greatBarracksTrainingDuration": "Great barracks training duration",
+    "stableTrainingDuration": "Stable training duration",
+    "greatStableTrainingDuration": "Great stable training duration",
+    "workshopTrainingDuration": "Workshop training duration",
+    "hospitalTrainingDuration": "Hospital training duration",
+    "unitSpeed": "Unit speed",
+    "unitCarryCapacity": "Unit carry capacity",
+    "unitWheatConsumption": "Unit wheat consumption",
+    "trapperCapacity": "Trapper capacity",
+    "merchantCapacity": "Merchant capacity",
+    "woodProduction": "Wood production",
+    "clayProduction": "Clay production",
+    "ironProduction": "Iron production",
+    "wheatProduction": "Wheat production",
+    "crannyCapacity": "Cranny capacity",
+    "revealedIncomingTroopsAmount": "Revealed incoming troops",
+    "woodProductionOasisBonus": "Wood production oasis bonus",
+    "clayProductionOasisBonus": "Clay production oasis bonus",
+    "ironProductionOasisBonus": "Iron production oasis bonus",
+    "wheatProductionOasisBonus": "Wheat production oasis bonus",
+
+    "hero": "Hero",
+
+    "legionnaire": "Legionnaire",
+    "praetorian": "Praetorian",
+    "imperian": "Imperian",
+    "romanScout": "Roman scout",
+    "equitesImperatoris": "Equites Imperatoris",
+    "equitesCaesaris": "Equites Caesaris",
+    "romanRam": "Roman ram",
+    "romanCatapult": "Roman catapult",
+    "romanChief": "Roman chief",
+    "romanSettler": "Roman settler",
+
+    "phalanx": "Phalanx",
+    "swordsman": "Swordsman",
+    "gaulScout": "Gaul scout",
+    "theutatesThunder": "Theutates Thunder",
+    "druidrider": "Druidrider",
+    "haeduan": "Haeduan",
+    "gaulRam": "Gaul ram",
+    "gaulCatapult": "Gaul catapult",
+    "gaulChief": "Gaul chief",
+    "gaulSettler": "Gaul settler",
+
+    "clubswinger": "Clubswinger",
+    "spearman": "Spearman",
+    "axeman": "Axeman",
+    "teutonicScout": "Teutonic scout",
+    "paladin": "Paladin",
+    "teutonicKnight": "Teutonic knight",
+    "teutonicRam": "Teutonic ram",
+    "teutonicCatapult": "Teutonic catapult",
+    "teutonicChief": "Teutonic chief",
+    "teutonicSettler": "Teutonic settler",
+
+    "slaveMilitia": "Slave militia",
+    "ashWarden": "Ash warden",
+    "khopeshWarrior": "Khopesh warrior",
+    "egyptianScout": "Egyptian scout",
+    "anhurGuard": "Anhur guard",
+    "reshephChariot": "Resheph chariot",
+    "egyptianRam": "Egyptian ram",
+    "egyptianCatapult": "Egyptian catapult",
+    "egyptianChief": "Egyptian chief",
+    "egyptianSettler": "Egyptian settler",
+
+    "mercenary": "Mercenary",
+    "bowman": "Bowman",
+    "hunScout": "Hun scout",
+    "steppeRider": "Steppe rider",
+    "marksman": "Marksman",
+    "marauder": "Marauder",
+    "hunRam": "Hun ram",
+    "hunCatapult": "Hun catapult",
+    "hunChief": "Hun chief",
+    "hunSettler": "Hun settler",
+
+    "pikeman": "Pikeman",
+    "thornedWarrior": "Thorned warrior",
+    "guardsman": "Guardsman",
+    "axerider": "Axe rider",
+    "natarianScout": "Natarian scout",
+    "natarianKnight": "Natarian knight",
+    "natarianRam": "Natarian ram",
+    "natarianCatapult": "Natarian catapult",
+    "natarianChief": "Natarian chief",
+    "natarianSettler": "Natarian settler",
+
+    "rat": "Rat",
+    "spider": "Spider",
+    "serpent": "Serpent",
+    "bat": "Bat",
+    "wildBoar": "Wild boar",
+    "wolf": "Wolf",
+    "bear": "Bear",
+    "crocodile": "Crocodile",
+    "tiger": "Tiger",
+    "elephant": "Elephant",
+
+    "deploymentOutgoing": "Deployment (outgoing)",
+    "deploymentIncoming": "Deployment (incoming)",
+    "offensiveMovementOutgoing": "Offensive movement (outgoing)",
+    "offensiveMovementIncoming": "Offensive movement (incoming)",
+    "adventure": "Adventure",
+    "findNewVillage": "Find new village",
+
+    "cancel": "Cancel"
   }
 }
