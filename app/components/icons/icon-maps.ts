@@ -259,6 +259,14 @@ const IconInfantryDefence = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-infantry-defence'))
     .IconInfantryDefence,
 }));
+const IconDefence = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-defence'))
+    .IconDefence,
+}));
+const IconDefenceBonus = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-defence-bonus'))
+    .IconDefenceBonus,
+}));
 const IconPopulation = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-population'))
     .IconPopulation,
@@ -294,6 +302,10 @@ const IconMerchantCapacity = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-merchant-capacity'))
     .IconMerchantCapacity,
 }));
+const IconMerchantAmount = lazy(async () => ({
+  default: (await import('app/components/icons/effects/icon-merchant-amount'))
+    .IconMerchantAmount,
+}));
 const IconCrannyCapacity = lazy(async () => ({
   default: (await import('app/components/icons/effects/icon-cranny-capacity'))
     .IconCrannyCapacity,
@@ -304,6 +316,39 @@ const IconRevealedIncomingTroopsAmount = lazy(async () => ({
       'app/components/icons/effects/icon-revealed-incoming-troops-amount'
     )
   ).IconRevealedIncomingTroopsAmount,
+}));
+const IconWoodProductionOasisBonus = lazy(async () => ({
+  default: (
+    await import(
+      'app/components/icons/effects/icon-wood-production-oasis-bonus'
+    )
+  ).IconWoodProductionOasisBonus,
+}));
+const IconClayProductionOasisBonus = lazy(async () => ({
+  default: (
+    await import(
+      'app/components/icons/effects/icon-clay-production-oasis-bonus'
+    )
+  ).IconClayProductionOasisBonus,
+}));
+const IconIronProductionOasisBonus = lazy(async () => ({
+  default: (
+    await import(
+      'app/components/icons/effects/icon-iron-production-oasis-bonus'
+    )
+  ).IconIronProductionOasisBonus,
+}));
+const IconWheatProductionOasisBonus = lazy(async () => ({
+  default: (
+    await import(
+      'app/components/icons/effects/icon-wheat-production-oasis-bonus'
+    )
+  ).IconWheatProductionOasisBonus,
+}));
+const IconUnitSpeedAfter20Fields = lazy(async () => ({
+  default: (
+    await import('app/components/icons/effects/icon-unit-speed-after-20-fields')
+  ).IconUnitSpeedAfter20Fields,
 }));
 
 // Village
@@ -767,6 +812,8 @@ export const typeToIconMap: Record<
   cavalryDefence: IconCavalryDefence,
   population: IconPopulation,
   attack: IconAttack,
+  defence: IconDefence,
+  defenceBonus: IconDefenceBonus,
   barracksTrainingDuration: IconTroopBuildingDuration,
   greatBarracksTrainingDuration: IconTroopBuildingDuration,
   stableTrainingDuration: IconTroopBuildingDuration,
@@ -778,16 +825,18 @@ export const typeToIconMap: Record<
   unitWheatConsumption: IconUnitWheatConsumption,
   trapperCapacity: IconTrapperCapacity,
   merchantCapacity: IconMerchantCapacity,
+  merchantAmount: IconMerchantAmount,
   woodProduction: IconResourceWood,
   clayProduction: IconResourceClay,
   ironProduction: IconResourceIron,
   wheatProduction: IconResourceWheat,
   crannyCapacity: IconCrannyCapacity,
   revealedIncomingTroopsAmount: IconRevealedIncomingTroopsAmount,
-  woodProductionOasisBonus: IconMissingIcon,
-  clayProductionOasisBonus: IconMissingIcon,
-  ironProductionOasisBonus: IconMissingIcon,
-  wheatProductionOasisBonus: IconMissingIcon,
+  woodProductionOasisBonus: IconWoodProductionOasisBonus,
+  clayProductionOasisBonus: IconClayProductionOasisBonus,
+  ironProductionOasisBonus: IconIronProductionOasisBonus,
+  wheatProductionOasisBonus: IconWheatProductionOasisBonus,
+  unitSpeedAfter20Fields: IconUnitSpeedAfter20Fields,
 
   // Special troops
   hero: IconUnitSpecialHero,

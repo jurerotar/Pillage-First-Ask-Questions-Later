@@ -28,6 +28,8 @@ export type OasisResourceProductionBonusEffectId =
 
 export type EffectId =
   | 'attack'
+  | 'defence'
+  | 'defenceBonus'
   | 'infantryDefence'
   | 'cavalryDefence'
   | 'warehouseCapacity'
@@ -90,7 +92,7 @@ export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
 
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
   source: 'building';
-  buildingFieldId: BuildingField['id'];
+  buildingFieldId: BuildingField['id'] | 'hidden';
   buildingId: Building['id'];
 };
 

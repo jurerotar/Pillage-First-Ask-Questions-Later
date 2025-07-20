@@ -31,7 +31,7 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   // Tiles/h
   const speedOfSlowestUnit = Math.min(...unitSpeeds);
 
-  const { effectBonusValue: unitSpeedBonus } = calculateComputedEffect(
+  const { total: unitSpeedBonus } = calculateComputedEffect(
     'unitSpeed',
     effects,
     villageId,
@@ -47,8 +47,11 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const remainingDistanceAfter20Fields = distance - 20;
   const timeToCross20Fields = 20 / computedSpeed;
 
-  const { effectBonusValue: unitSpeedAfter20FieldsBonus } =
-    calculateComputedEffect('unitSpeedAfter20Fields', effects, villageId);
+  const { total: unitSpeedAfter20FieldsBonus } = calculateComputedEffect(
+    'unitSpeedAfter20Fields',
+    effects,
+    villageId,
+  );
 
   const timeToCrossRemainingFields =
     remainingDistanceAfter20Fields /

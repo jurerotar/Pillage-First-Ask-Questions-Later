@@ -107,7 +107,7 @@ export const calculatePopulationFromBuildingFields = (
   return Math.abs(sum);
 };
 
-type CalculatedCumulativeEffect = {
+export type CalculatedCumulativeEffect = {
   effectId: Effect['id'];
   currentLevelValue: number;
   nextLevelValue: number;

@@ -59,9 +59,17 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
   const serverEffectValue = relevantEffects.find(isServerEffect)?.value ?? 1;
 
   // Waterworks needs to be excluded, because it does not provide a value by itself, but rather enhances oasis
+  // We're also excluding negative effects, because that's handled by the balance overview
   const buildingEffects = relevantEffects
     .filter(isBuildingEffect)
-    .filter(({ buildingId }) => buildingId !== 'WATERWORKS');
+    .filter(({ buildingId, value }) => {
+      if (value <= 0) {
+        return false;
+      }
+
+      return buildingId !== 'WATERWORKS';
+    });
+
   const heroEffects = relevantEffects.filter(isHeroEffect);
   const artifactEffects = relevantEffects.filter(isArtifactEffect);
   const oasisEffects = relevantEffects.filter(isOasisEffect);
@@ -71,6 +79,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
     partition<VillageBuildingEffect>(buildingEffects, ({ value }) =>
       Number.isInteger(value),
     );
+
   const [baseHeroEffects, bonusHeroEffects] = partition<HeroEffect>(
     heroEffects,
     ({ value }) => Number.isInteger(value),
@@ -92,8 +101,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
     bonusBuildingEffects.length > 0 ||
     bonusHeroEffects.length > 0 ||
     bonusArtifactEffects.length > 0 ||
-    bonusOasisEffects.length > 0 ||
-    bonusOasisBoosterEffects.length > 0;
+    bonusOasisEffects.length > 0;
 
   const hasBaseProduction =
     baseBuildingEffects.length > 0 ||
@@ -101,15 +109,15 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
     baseArtifactEffects.length > 0 ||
     baseOasisEffects.length > 0;
 
-  const summerBonusOasisBoosterEffectValue = bonusOasisBoosterEffects.reduce(
-    (acc, { value }) => acc + (value % 1),
-    1,
+  const summedBonusOasisBoosterEffectValue = bonusOasisBoosterEffects.reduce(
+    (acc, { value }) => acc + normalizeForcedFloatValue(value),
+    0,
   );
 
   const boostedOasisEffects = bonusOasisEffects.map((effect) => {
     return {
       ...effect,
-      value: effect.value * summerBonusOasisBoosterEffectValue,
+      value: (effect.value - 1) * summedBonusOasisBoosterEffectValue + 1,
     };
   });
 
@@ -274,13 +282,13 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       <Text>{t('Hero')}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>-</Text>
+                      <Text>{t('Hero')}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{value * serverEffectValue}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>0</Text>
+                      <Text>-</Text>
                     </TableCell>
                   </TableRow>
                 ))}

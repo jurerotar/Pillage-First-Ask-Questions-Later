@@ -435,7 +435,7 @@ export const UnitCost = () => {
   const { unitId, durationEffect } = use(UnitCardContext);
   const { t } = useTranslation();
   const { baseRecruitmentDuration, baseRecruitmentCost } = getUnitData(unitId);
-  const { total } = useComputedEffect(
+  const { total: trainingDurationModifier } = useComputedEffect(
     durationEffect ?? 'barracksTrainingDuration',
   );
 
@@ -449,7 +449,10 @@ export const UnitCost = () => {
             className="size-5"
             type="barracksTrainingDuration"
           />
-          {formatTime(baseRecruitmentDuration * (durationEffect ? total : 1))}
+          {formatTime(
+            baseRecruitmentDuration *
+              (durationEffect ? trainingDurationModifier : 1),
+          )}
         </div>
       </div>
     </section>

@@ -21,7 +21,7 @@ describe('calculateTravelDuration', () => {
 
     using _ = vi
       .spyOn(effectUtils, 'calculateComputedEffect')
-      .mockReturnValueOnce({ effectBonusValue: 1.2 } as ComputedEffectReturn);
+      .mockReturnValueOnce({ total: 1.2 } as ComputedEffectReturn);
 
     const duration = calculateTravelDuration({
       villageId: mockVillageId,
@@ -50,8 +50,8 @@ describe('calculateTravelDuration', () => {
 
     using _ = vi
       .spyOn(effectUtils, 'calculateComputedEffect')
-      .mockReturnValueOnce({ effectBonusValue: 1.5 } as ComputedEffectReturn) // unitSpeed bonus
-      .mockReturnValueOnce({ effectBonusValue: 2 } as ComputedEffectReturn); // unitSpeedAfter20Fields bonus
+      .mockReturnValueOnce({ total: 1.5 } as ComputedEffectReturn) // unitSpeed bonus
+      .mockReturnValueOnce({ total: 2 } as ComputedEffectReturn); // unitSpeedAfter20Fields bonus
 
     const duration = calculateTravelDuration({
       villageId: mockVillageId,
@@ -81,8 +81,8 @@ describe('calculateTravelDuration', () => {
 
     using _ = vi
       .spyOn(effectUtils, 'calculateComputedEffect')
-      .mockReturnValueOnce({ effectBonusValue: 1.1 } as ComputedEffectReturn) // unitSpeed bonus
-      .mockReturnValueOnce({ effectBonusValue: 2 } as ComputedEffectReturn); // should be ignored
+      .mockReturnValueOnce({ total: 1.1 } as ComputedEffectReturn) // unitSpeed bonus
+      .mockReturnValueOnce({ total: 2 } as ComputedEffectReturn); // should be ignored
 
     const duration = calculateTravelDuration({
       villageId: mockVillageId,
