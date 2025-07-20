@@ -6,6 +6,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   calculateBuildingEffectValues,
+  type CalculatedCumulativeEffect,
   getBuildingData,
   getBuildingDataForLevel,
 } from 'app/(game)/(village-slug)/utils/building';
@@ -26,6 +27,7 @@ import { formatTime } from 'app/utils/time';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Icon } from 'app/components/icon';
 import { formatValue } from 'app/utils/common';
+import type { BuildingField } from 'app/interfaces/models/game/village';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -162,6 +164,58 @@ export const BuildingCost = () => {
   );
 };
 
+type BuildingBenefitProps = {
+  effect: CalculatedCumulativeEffect;
+  isMaxLevel: boolean;
+  buildingFieldId: BuildingField['id'];
+};
+
+const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
+  effect,
+  isMaxLevel,
+}) => {
+  const type =
+    effect.effectId === 'wheatProduction' && effect.currentLevelValue <= 0
+      ? 'population'
+      : effect.effectId;
+
+  return (
+    <span
+      key={effect.effectId}
+      className="flex gap-2"
+    >
+      <Icon
+        type={type}
+        className="size-6"
+        variant={
+          effect.areEffectValuesRising || type === 'population'
+            ? 'positive-change'
+            : 'negative-change'
+        }
+      />
+      <span>
+        {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
+          <>
+            {/*This is super hacky, but wall percentage does not work correctly, because it's increasing from 0->100 instead of the other way around, and it just doesn't work*/}
+            {formatValue(
+              Math.abs(
+                effect.currentLevelValue -
+                  (effect.effectId === 'defenceBonus' ? 1 : 0),
+              ),
+            )}
+            <span className="mx-0.5">&rarr;</span>
+          </>
+        )}
+        {formatValue(
+          Math.abs(
+            isMaxLevel ? effect.currentLevelValue : effect.nextLevelValue,
+          ),
+        )}
+      </span>
+    </span>
+  );
+};
+
 export const BuildingBenefits = () => {
   const { t } = useTranslation();
   const { building, buildingId } = use(BuildingCardContext);
@@ -176,6 +230,39 @@ export const BuildingBenefits = () => {
     actualLevel,
   );
 
+  const [population, ...rest] = cumulativeEffects;
+
+  // In case we have both infantry and cavalry defence, we show combined defence icon instead
+  const shouldCombineEffects =
+    rest.length > 0 &&
+    rest.every(
+      ({ effectId }) =>
+        effectId === 'infantryDefence' || effectId === 'cavalryDefence',
+    );
+  const effectsToShow = (() => {
+    if (shouldCombineEffects) {
+      const [infantryDefenceEffect, , infantryBonusEffect] = rest;
+
+      const effects: CalculatedCumulativeEffect[] = [
+        {
+          ...infantryDefenceEffect,
+          effectId: 'defenceBonus',
+        } satisfies CalculatedCumulativeEffect,
+      ];
+
+      if (infantryBonusEffect) {
+        effects.push({
+          ...infantryBonusEffect,
+          effectId: 'defence',
+        } satisfies CalculatedCumulativeEffect);
+      }
+
+      return effects;
+    }
+
+    return rest;
+  })();
+
   return (
     <section className="flex flex-col gap-2 pt-2 justify-center border-t border-border">
       <Text as="h3">
@@ -186,31 +273,21 @@ export const BuildingBenefits = () => {
             })}
       </Text>
       <div className="flex flex-wrap gap-2">
-        {cumulativeEffects.map((effect, index) => (
-          <span
-            key={index === 0 ? 'population' : effect.effectId}
-            className="flex gap-2"
-          >
-            <Icon
-              type={index === 0 ? 'population' : effect.effectId}
-              className="size-6"
-              variant={
-                effect.areEffectValuesRising || index === 0
-                  ? 'positive-change'
-                  : 'negative-change'
-              }
-            />
-            <span>
-              {!isMaxLevel && doesBuildingExist && (
-                <>{formatValue(Math.abs(effect.currentLevelValue))} &rarr; </>
-              )}
-              {formatValue(
-                Math.abs(
-                  isMaxLevel ? effect.currentLevelValue : effect.nextLevelValue,
-                ),
-              )}
-            </span>
-          </span>
+        {(isMaxLevel ||
+          population.currentLevelValue !== population.nextLevelValue) && (
+          <BuildingBenefit
+            effect={population}
+            isMaxLevel={isMaxLevel}
+            buildingFieldId={buildingFieldId!}
+          />
+        )}
+        {effectsToShow.map((effect) => (
+          <BuildingBenefit
+            key={effect.effectId}
+            effect={effect}
+            isMaxLevel={isMaxLevel}
+            buildingFieldId={buildingFieldId!}
+          />
         ))}
       </div>
     </section>
@@ -284,8 +361,8 @@ export const BuildingRequirements = () => {
                       ),
                       level: assessedRequirement.level,
                     })}
-                  {index !== requirementsToDisplay.length - 1 && ','}
                 </span>
+                {index !== requirementsToDisplay.length - 1 && ','}
               </li>
             </Fragment>
           ),

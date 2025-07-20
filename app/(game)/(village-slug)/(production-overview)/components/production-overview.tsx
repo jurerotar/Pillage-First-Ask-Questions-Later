@@ -1,15 +1,20 @@
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import type { Effect } from 'app/interfaces/models/game/effect';
+import type {
+  ArtifactEffect,
+  HeroEffect,
+  OasisEffect,
+  ResourceProductionEffectId,
+  VillageBuildingEffect,
+} from 'app/interfaces/models/game/effect';
 import type React from 'react';
 import {
   isArtifactEffect,
   isBuildingEffect,
   isHeroEffect,
+  isOasisBoosterEffect,
   isOasisEffect,
   isServerEffect,
-  isVillageEffect,
 } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -20,18 +25,21 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { useTranslation } from 'react-i18next';
-import { normalizeForcedFloatValue } from 'app/utils/common';
+import { normalizeForcedFloatValue, partition } from 'app/utils/common';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { Link } from 'react-router';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { parseCoordinatesFromTileId } from 'app/utils/map';
 
 const formatBonus = (number: number): number => {
-  return Math.trunc(normalizeForcedFloatValue(number) * 100);
+  return Math.trunc(normalizeForcedFloatValue(number) * 10000) / 100;
 };
 
 type ResourceBoosterBenefitsProps = {
-  effectId: Effect['id'];
+  effectId: ResourceProductionEffectId;
 };
 
 export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
@@ -39,59 +47,98 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
 }) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
+  const { mapPath } = useGameNavigation();
 
-  const relevantEffects = effects.filter(({ id }) => id === effectId);
+  // TODO: There's 10 array loops in a row here. It's not really an issue, because we usually loop through only a couple of objects, but you still might want to clean this up sometime
 
-  const { value: serverValue } = relevantEffects.find(isServerEffect)!;
-
-  const effectsAffectingCurrentVillage = relevantEffects.filter(
-    (effect) =>
-      effect.scope === 'global' ||
-      (isVillageEffect(effect) && effect.villageId === currentVillage.id),
+  const relevantEffects = effects.filter(
+    ({ id }) => id === effectId || id === `${effectId}OasisBonus`,
   );
 
-  const baseProductionEffects = effectsAffectingCurrentVillage.filter(
-    ({ value }) => Number.isInteger(value) && value > 0,
+  const serverEffectValue = relevantEffects.find(isServerEffect)?.value ?? 1;
+
+  // Waterworks needs to be excluded, because it does not provide a value by itself, but rather enhances oasis
+  // We're also excluding negative effects, because that's handled by the balance overview
+  const buildingEffects = relevantEffects
+    .filter(isBuildingEffect)
+    .filter(({ buildingId, value }) => {
+      if (value <= 0) {
+        return false;
+      }
+
+      return buildingId !== 'WATERWORKS';
+    });
+
+  const heroEffects = relevantEffects.filter(isHeroEffect);
+  const artifactEffects = relevantEffects.filter(isArtifactEffect);
+  const oasisEffects = relevantEffects.filter(isOasisEffect);
+  const oasisBoosterEffects = relevantEffects.filter(isOasisBoosterEffect);
+
+  const [baseBuildingEffects, bonusBuildingEffects] =
+    partition<VillageBuildingEffect>(buildingEffects, ({ value }) =>
+      Number.isInteger(value),
+    );
+
+  const [baseHeroEffects, bonusHeroEffects] = partition<HeroEffect>(
+    heroEffects,
+    ({ value }) => Number.isInteger(value),
   );
-  const bonusProductionEffects = effectsAffectingCurrentVillage.filter(
-    ({ value }) => !Number.isInteger(value),
+  const [baseArtifactEffects, bonusArtifactEffects] = partition<ArtifactEffect>(
+    artifactEffects,
+    ({ value }) => Number.isInteger(value),
+  );
+  const [baseOasisEffects, bonusOasisEffects] = partition<OasisEffect>(
+    oasisEffects,
+    ({ value }) => Number.isInteger(value),
+  );
+  const [, bonusOasisBoosterEffects] = partition<VillageBuildingEffect>(
+    oasisBoosterEffects,
+    ({ value }) => Number.isInteger(value),
   );
 
-  const buildingBaseProductionEffects =
-    baseProductionEffects.filter(isBuildingEffect);
-  const heroBaseProductionEffects = baseProductionEffects.filter(isHeroEffect);
+  const hasBonuses =
+    bonusBuildingEffects.length > 0 ||
+    bonusHeroEffects.length > 0 ||
+    bonusArtifactEffects.length > 0 ||
+    bonusOasisEffects.length > 0;
 
-  const oasisBonusProductionEffects =
-    bonusProductionEffects.filter(isOasisEffect);
-  const buildingBonusProductionEffects =
-    bonusProductionEffects.filter(isBuildingEffect);
-  const heroBonusProductionEffects =
-    bonusProductionEffects.filter(isHeroEffect);
-  const artifactBonusProductionEffects =
-    effectsAffectingCurrentVillage.filter(isArtifactEffect);
+  const hasBaseProduction =
+    baseBuildingEffects.length > 0 ||
+    baseHeroEffects.length > 0 ||
+    baseArtifactEffects.length > 0 ||
+    baseOasisEffects.length > 0;
 
-  const summedBonusProductionValues = [
-    ...oasisBonusProductionEffects,
-    ...buildingBonusProductionEffects,
-    ...heroBonusProductionEffects,
-    ...artifactBonusProductionEffects,
-  ].reduce(
-    (accumulator, effect) =>
-      accumulator + normalizeForcedFloatValue(effect.value) - 1,
+  const summedBonusOasisBoosterEffectValue = bonusOasisBoosterEffects.reduce(
+    (acc, { value }) => acc + normalizeForcedFloatValue(value),
     0,
   );
 
-  const summedBaseProductionValues = [
-    ...heroBaseProductionEffects,
-    ...buildingBaseProductionEffects,
-  ].reduce(
-    (accumulator, effect) => accumulator + effect.value * serverValue,
+  const boostedOasisEffects = bonusOasisEffects.map((effect) => {
+    return {
+      ...effect,
+      value: (effect.value - 1) * summedBonusOasisBoosterEffectValue + 1,
+    };
+  });
+
+  const summedBaseEffectValue = [
+    ...baseBuildingEffects,
+    ...baseHeroEffects,
+    ...baseArtifactEffects,
+    ...baseOasisEffects,
+  ].reduce((acc, { value }) => acc + value, 0);
+
+  const summedBonusEffectValue = [
+    ...bonusBuildingEffects,
+    ...bonusHeroEffects,
+    ...bonusArtifactEffects,
+    ...boostedOasisEffects,
+  ].reduce((acc, { value }) => acc + (value % 1), 0);
+
+  const summedBaseBuildingEffectWithBonusValue = baseBuildingEffects.reduce(
+    (acc, { value }) => acc + Math.trunc(value * summedBonusEffectValue),
     0,
   );
-
-  const hasBonusValues = summedBonusProductionValues > 0;
 
   return (
     <Section>
@@ -101,58 +148,82 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
           <TableHeader>
             <TableRow>
               <TableHeaderCell>
+                <Text>{t('Type')}</Text>
+              </TableHeaderCell>
+              <TableHeaderCell>
                 <Text>{t('Source')}</Text>
               </TableHeaderCell>
               <TableHeaderCell>
-                <Text>{t('Value')}</Text>
+                <Text>{t('Amount')}</Text>
               </TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!hasBonusValues && (
+            {!hasBonuses && (
               <TableRow>
-                <TableCell colSpan={2}>
+                <TableCell colSpan={3}>
                   <Text>{t('No production bonuses')}</Text>
                 </TableCell>
               </TableRow>
             )}
-            {hasBonusValues && (
+            {hasBonuses && (
               <>
-                {heroBonusProductionEffects.map(({ id, value }) => (
+                {bonusHeroEffects.map(({ id, value }) => (
                   <TableRow key={id}>
                     <TableCell>
-                      <Text>{t('Hero production bonus')}</Text>
+                      <Text>{t('Hero')}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>-</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{formatBonus(value - 1)}%</Text>
                     </TableCell>
                   </TableRow>
                 ))}
-                {artifactBonusProductionEffects.map(({ value, artifactId }) => (
+                {bonusArtifactEffects.map(({ value, artifactId }) => (
                   <TableRow key={artifactId}>
                     <TableCell>
-                      <Text>
-                        {t('Artifact')} - {assetsT(`ITEMS.${artifactId}.TITLE`)}
-                      </Text>
+                      <Text>{t('Artifact')}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{value - 1}%</Text>
                     </TableCell>
                   </TableRow>
                 ))}
-                {oasisBonusProductionEffects.map(({ oasisId, value }) => (
-                  <TableRow key={oasisId}>
-                    <TableCell>
-                      <Text>{t('Oasis')}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{formatBonus(value - 1)}%</Text>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {buildingBonusProductionEffects.map(
+                {boostedOasisEffects.map(({ oasisId, value }) => {
+                  const { x, y } = parseCoordinatesFromTileId(oasisId);
+
+                  return (
+                    <TableRow key={oasisId}>
+                      <TableCell>
+                        <Text>{t('Oasis')}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>
+                          <Link
+                            className="underline"
+                            to={`${mapPath}?x=${x}&y=${y}`}
+                          >
+                            {x}, {y}
+                          </Link>
+                        </Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>{formatBonus(value - 1)}%</Text>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {bonusBuildingEffects.map(
                   ({ value, buildingFieldId, buildingId }) => (
                     <TableRow key={buildingFieldId}>
+                      <TableCell>
+                        <Text>{t('Building')}</Text>
+                      </TableCell>
                       <TableCell>
                         <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
@@ -165,11 +236,11 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
               </>
             )}
             <TableRow className="font-medium">
-              <TableCell>
+              <TableCell colSpan={2}>
                 <Text>{t('Total')}</Text>
               </TableCell>
               <TableCell>
-                <Text>{formatBonus(summedBonusProductionValues)}%</Text>
+                <Text>{formatBonus(summedBonusEffectValue)}%</Text>
               </TableCell>
             </TableRow>
           </TableBody>
@@ -182,10 +253,13 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
           <TableHeader>
             <TableRow>
               <TableHeaderCell>
+                <Text>{t('Type')}</Text>
+              </TableHeaderCell>
+              <TableHeaderCell>
                 <Text>{t('Source')}</Text>
               </TableHeaderCell>
               <TableHeaderCell>
-                <Text>{t('Production')}</Text>
+                <Text>{t('Amount')}</Text>
               </TableHeaderCell>
               <TableHeaderCell>
                 <Text>{t('Bonus')}</Text>
@@ -193,55 +267,105 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {heroBaseProductionEffects.map(({ id, value }) => (
-              <TableRow key={id}>
-                <TableCell>
-                  <Text>{t('Hero')}</Text>
-                </TableCell>
-                <TableCell>
-                  <Text>{value}</Text>
-                </TableCell>
-                <TableCell>
-                  <Text>{Math.trunc(value * summedBonusProductionValues)}</Text>
+            {!hasBaseProduction && (
+              <TableRow>
+                <TableCell colSpan={3}>
+                  <Text>{t('No resource production')}</Text>
                 </TableCell>
               </TableRow>
-            ))}
-            {buildingBaseProductionEffects.map(
-              ({ value, buildingFieldId, buildingId }) => (
-                <TableRow key={buildingFieldId}>
-                  <TableCell>
-                    <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
-                  </TableCell>
-                  <TableCell>
-                    <Text>{value}</Text>
-                  </TableCell>
-                  <TableCell>
-                    <Text>
-                      {Math.trunc(value * summedBonusProductionValues)}
-                    </Text>
-                  </TableCell>
-                </TableRow>
-              ),
+            )}
+            {hasBaseProduction && (
+              <>
+                {baseHeroEffects.map(({ id, value }) => (
+                  <TableRow key={id}>
+                    <TableCell>
+                      <Text>{t('Hero')}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{t('Hero')}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{value * serverEffectValue}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>-</Text>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {baseArtifactEffects.map(({ value, artifactId }) => (
+                  <TableRow key={artifactId}>
+                    <TableCell>
+                      <Text>{t('Artifact')}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>{value * serverEffectValue}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <Text>0</Text>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {baseOasisEffects.map(({ value, oasisId }) => {
+                  const { x, y } = parseCoordinatesFromTileId(oasisId);
+
+                  return (
+                    <TableRow key={oasisId}>
+                      <TableCell>
+                        <Text>{t('Oasis')}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>
+                          <Link
+                            className="underline"
+                            to={`${mapPath}?x=${x}&y=${y}`}
+                          >
+                            {x}, {y}
+                          </Link>
+                        </Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>{value}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>0</Text>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {baseBuildingEffects.map(
+                  ({ value, buildingFieldId, buildingId }) => (
+                    <TableRow key={buildingFieldId}>
+                      <TableCell>
+                        <Text>{t('Building')}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>{value * serverEffectValue}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>
+                          {Math.trunc(value * summedBonusEffectValue)}
+                        </Text>
+                      </TableCell>
+                    </TableRow>
+                  ),
+                )}
+              </>
             )}
             <TableRow className="font-medium">
-              <TableCell>
+              <TableCell colSpan={2}>
                 <Text>{t('Total')}</Text>
               </TableCell>
               <TableCell>
-                <Text>
-                  {summedBaseProductionValues +
-                    (heroBaseProductionEffects[0]?.value ?? 0)}
-                </Text>
+                <Text>{summedBaseEffectValue}</Text>
               </TableCell>
               <TableCell>
-                <Text>
-                  {baseProductionEffects.reduce(
-                    (acc, effect) =>
-                      acc +
-                      Math.trunc(effect.value * summedBonusProductionValues),
-                    0,
-                  )}
-                </Text>
+                <Text>{summedBaseBuildingEffectWithBonusValue}</Text>
               </TableCell>
             </TableRow>
           </TableBody>

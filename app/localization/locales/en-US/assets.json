@@ -811,7 +811,6 @@
   },
   "EFFECTS": {
     "missingIcon": "Missing icon",
-
     "wood": "Wood",
     "clay": "Clay",
     "iron": "Iron",
@@ -823,7 +822,6 @@
     "clayClay": "Clay and clay",
     "ironIron": "Iron and iron",
     "wheatWheat": "Wheat and wheat",
-
     "mapMagnificationIncrease": "Zoom in",
     "mapMagnificationDecrease": "Zoom out",
     "mapReputationToggle": "Toggle reputation",
@@ -832,20 +830,17 @@
     "mapWheatFieldIconToggle": "Toggle wheat field icons",
     "mapTileTooltipToggle": "Toggle tile tooltips",
     "mapTreasureIconToggle": "Toggle treasures",
-
     "treasureTileItem": "Treasure item",
     "treasureTileResources": "Treasure resources",
     "treasureTileArtifact": "Treasure artifact",
     "treasureTileCurrency": "Treasure currency",
     "treasureTileMiscellaneous": "Miscellaneous treasure",
-
     "attackerNoLoss": "Attacker (no loss)",
     "attackerSomeLoss": "Attacker (some loss)",
     "attackerFullLoss": "Attacker (full loss)",
     "defenderNoLoss": "Defender (no loss)",
     "defenderSomeLoss": "Defender (some loss)",
     "defenderFullLoss": "Defender (full loss)",
-
     "freeCrop": "Free crop",
     "populationCropConsumption": "Population crop consumption",
     "troopsCropConsumption": "Troops crop consumption",
@@ -856,6 +851,8 @@
     "cavalryDefence": "Cavalry defense",
     "population": "Population",
     "attack": "Attack",
+    "defence": "Defence",
+    "defenceBonus": "Defence bonus",
     "barracksTrainingDuration": "Barracks training duration",
     "greatBarracksTrainingDuration": "Great barracks training duration",
     "stableTrainingDuration": "Stable training duration",
@@ -877,9 +874,9 @@
     "clayProductionOasisBonus": "Clay production oasis bonus",
     "ironProductionOasisBonus": "Iron production oasis bonus",
     "wheatProductionOasisBonus": "Wheat production oasis bonus",
-
+    "merchantAmount": "Merchant amount",
+    "unitSpeedAfter20Fields": "Unit speed after 20 fields",
     "hero": "Hero",
-
     "legionnaire": "Legionnaire",
     "praetorian": "Praetorian",
     "imperian": "Imperian",
@@ -890,7 +887,6 @@
     "romanCatapult": "Roman catapult",
     "romanChief": "Roman chief",
     "romanSettler": "Roman settler",
-
     "phalanx": "Phalanx",
     "swordsman": "Swordsman",
     "gaulScout": "Gaul scout",
@@ -901,7 +897,6 @@
     "gaulCatapult": "Gaul catapult",
     "gaulChief": "Gaul chief",
     "gaulSettler": "Gaul settler",
-
     "clubswinger": "Clubswinger",
     "spearman": "Spearman",
     "axeman": "Axeman",
@@ -912,7 +907,6 @@
     "teutonicCatapult": "Teutonic catapult",
     "teutonicChief": "Teutonic chief",
     "teutonicSettler": "Teutonic settler",
-
     "slaveMilitia": "Slave militia",
     "ashWarden": "Ash warden",
     "khopeshWarrior": "Khopesh warrior",
@@ -923,7 +917,6 @@
     "egyptianCatapult": "Egyptian catapult",
     "egyptianChief": "Egyptian chief",
     "egyptianSettler": "Egyptian settler",
-
     "mercenary": "Mercenary",
     "bowman": "Bowman",
     "hunScout": "Hun scout",
@@ -934,7 +927,6 @@
     "hunCatapult": "Hun catapult",
     "hunChief": "Hun chief",
     "hunSettler": "Hun settler",
-
     "pikeman": "Pikeman",
     "thornedWarrior": "Thorned warrior",
     "guardsman": "Guardsman",
@@ -945,7 +937,6 @@
     "natarianCatapult": "Natarian catapult",
     "natarianChief": "Natarian chief",
     "natarianSettler": "Natarian settler",
-
     "rat": "Rat",
     "spider": "Spider",
     "serpent": "Serpent",
@@ -956,14 +947,12 @@
     "crocodile": "Crocodile",
     "tiger": "Tiger",
     "elephant": "Elephant",
-
     "deploymentOutgoing": "Deployment (outgoing)",
     "deploymentIncoming": "Deployment (incoming)",
     "offensiveMovementOutgoing": "Offensive movement (outgoing)",
     "offensiveMovementIncoming": "Offensive movement (incoming)",
     "adventure": "Adventure",
     "findNewVillage": "Find new village",
-
     "cancel": "Cancel"
   }
 }

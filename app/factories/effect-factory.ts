@@ -124,21 +124,26 @@ const newVillageBuildingFieldsEffectsFactory = (
 };
 
 export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
-  const villageDefaultStorageEffectsIds: Effect['id'][] = [
-    'warehouseCapacity',
-    'granaryCapacity',
-  ];
   return [
     ...newVillageBuildingFieldsEffectsFactory(village),
-    ...villageDefaultStorageEffectsIds.map((effectId) => {
-      return {
-        id: effectId,
-        scope: 'village',
-        source: 'server',
-        value: 800,
-        villageId: village.id,
-      } satisfies VillageEffect;
-    }),
+    {
+      id: 'warehouseCapacity',
+      scope: 'village',
+      source: 'building',
+      value: 800,
+      villageId: village.id,
+      buildingId: 'WAREHOUSE',
+      buildingFieldId: 'hidden',
+    } satisfies VillageBuildingEffect,
+    {
+      id: 'granaryCapacity',
+      scope: 'village',
+      source: 'building',
+      value: 800,
+      villageId: village.id,
+      buildingId: 'GRANARY',
+      buildingFieldId: 'hidden',
+    } satisfies VillageBuildingEffect,
     {
       id: 'wheatProduction',
       scope: 'village',

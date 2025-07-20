@@ -1,5 +1,5 @@
-import { FaHandshakeAngle } from 'react-icons/fa6';
+import { BsMinecartLoaded } from 'react-icons/bs';
 
 export const IconMerchantCapacity = () => {
-  return <FaHandshakeAngle className="size-full" />;
+  return <BsMinecartLoaded className="size-full" />;
 };
