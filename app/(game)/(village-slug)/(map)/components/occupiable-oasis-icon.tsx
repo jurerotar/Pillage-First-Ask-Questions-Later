@@ -44,6 +44,7 @@ export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (
       {...rest}
       wrapperClassName={className}
       type={iconType}
+      shouldShowTooltip={false}
     />
   );
 };

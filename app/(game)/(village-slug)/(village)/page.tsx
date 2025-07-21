@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 const resourceViewBuildingFieldIds = [...Array(18)].map(
   (_, i) => i + 1,
@@ -26,6 +27,7 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { pathname } = useLocation();
   const { villagePath } = useGameNavigation();
   const { isResourcesPageOpen, isVillagePageOpen } = useActiveRoute();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const buildingFieldIdsToDisplay = isResourcesPageOpen
     ? resourceViewBuildingFieldIds
@@ -50,6 +52,7 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
         closeEvents={{
           mouseleave: true,
         }}
+        hidden={!isWiderThanLg}
         render={({ activeAnchor }) => {
           const buildingFieldIdAttribute = activeAnchor?.getAttribute(
             'data-building-field-id',

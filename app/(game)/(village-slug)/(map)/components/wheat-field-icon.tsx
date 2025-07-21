@@ -11,6 +11,7 @@ export const WheatFieldIcon: React.FC<WheatFieldIconProps> = ({
       type="wheat"
       wrapperClassName={className}
       borderVariant="yellow"
+      shouldShowTooltip={false}
     />
   );
 };

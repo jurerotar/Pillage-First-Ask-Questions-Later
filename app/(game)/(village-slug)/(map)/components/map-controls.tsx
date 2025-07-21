@@ -48,6 +48,7 @@ const MagnificationButton = ({
             ? 'mapMagnificationIncrease'
             : 'mapMagnificationDecrease'
         }
+        shouldShowTooltip={false}
       />
     </button>
   );
@@ -96,7 +97,10 @@ export const MapControls = () => {
           data-tooltip-content={t('Toggle faction reputation display')}
           data-testid="map-controls-toggle-faction-reputation-button"
         >
-          <Icon type="mapReputationToggle" />
+          <Icon
+            type="mapReputationToggle"
+            shouldShowTooltip={false}
+          />
         </ToggleGroupItem>
 
         <ToggleGroupItem
@@ -112,7 +116,10 @@ export const MapControls = () => {
           data-tooltip-content={t('Toggle oasis resource icons display')}
           data-testid="map-controls-toggle-oasis-button"
         >
-          <Icon type="mapOasisIconsToggle" />
+          <Icon
+            type="mapOasisIconsToggle"
+            shouldShowTooltip={false}
+          />
         </ToggleGroupItem>
 
         <ToggleGroupItem
@@ -128,7 +135,10 @@ export const MapControls = () => {
           data-tooltip-content={t('Toggle treasure villages icons display')}
           data-testid="map-controls-toggle-treasures-button"
         >
-          <Icon type="mapTreasureIconToggle" />
+          <Icon
+            type="mapTreasureIconToggle"
+            shouldShowTooltip={false}
+          />
         </ToggleGroupItem>
 
         <ToggleGroupItem
@@ -144,7 +154,10 @@ export const MapControls = () => {
           data-tooltip-content={t('Toggle troop movements display')}
           data-testid="map-controls-toggle-troop-movements-button"
         >
-          <Icon type="mapTroopMovementsToggle" />
+          <Icon
+            type="mapTroopMovementsToggle"
+            shouldShowTooltip={false}
+          />
         </ToggleGroupItem>
 
         <ToggleGroupItem
@@ -160,7 +173,10 @@ export const MapControls = () => {
           data-tooltip-content={t('Toggle wheat field icons display')}
           data-testid="map-controls-toggle-wheat-fields-button"
         >
-          <Icon type="mapWheatFieldIconToggle" />
+          <Icon
+            type="mapWheatFieldIconToggle"
+            shouldShowTooltip={false}
+          />
         </ToggleGroupItem>
 
         <div className="hidden lg:flex">
@@ -177,7 +193,10 @@ export const MapControls = () => {
             data-tooltip-content={t('Toggle tooltip popups')}
             data-testid="map-controls-toggle-tile-tooltips-button"
           >
-            <Icon type="mapTileTooltipToggle" />
+            <Icon
+              type="mapTileTooltipToggle"
+              shouldShowTooltip={false}
+            />
           </ToggleGroupItem>
         </div>
       </ToggleGroup>

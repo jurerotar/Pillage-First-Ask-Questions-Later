@@ -196,11 +196,11 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
       <span>
         {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
           <>
-            {/*This is super hacky, but wall percentage does not work correctly, because it's increasing from 0->100 instead of the other way around, and it just doesn't work*/}
             {formatValue(
               Math.abs(
-                effect.currentLevelValue -
-                  (effect.effectId === 'defenceBonus' ? 1 : 0),
+                effect.currentLevelValue - effect.nextLevelValue < 0
+                  ? effect.currentLevelValue - 1
+                  : effect.currentLevelValue,
               ),
             )}
             <span className="mx-0.5">&rarr;</span>

@@ -5,6 +5,7 @@ import type React from 'react';
 import { lazy, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
 import { type IconType, typeToIconMap } from 'app/components/icons/icon-maps';
+import { useTranslation } from 'react-i18next';
 
 // Variants
 const IconNegativeChangeVariant = lazy(async () => ({
@@ -30,12 +31,22 @@ type IconProps = IconBaseProps &
     variant?: 'positive-change' | 'negative-change';
     borderVariant?: React.ComponentProps<typeof BorderIndicator>['variant'];
     wrapperClassName?: string;
+    shouldShowTooltip?: boolean;
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const { type, variant, borderVariant, className, wrapperClassName, ...rest } =
-    props;
+  const {
+    type,
+    variant,
+    borderVariant,
+    className,
+    wrapperClassName,
+    shouldShowTooltip = true,
+    ...rest
+  } = props;
+
+  const { t: assetsT } = useTranslation();
 
   // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
@@ -58,6 +69,10 @@ export const Icon: React.FC<IconProps> = (props) => {
       <Suspense fallback={<IconPlaceholder className={className} />}>
         <span
           className={clsx(hasVariantIcon && 'relative', className)}
+          {...(shouldShowTooltip && {
+            'data-tooltip-id': 'general-tooltip',
+            'data-tooltip-content': assetsT(`EFFECTS.${type}`),
+          })}
           {...rest}
         >
           <ComputedIcon />

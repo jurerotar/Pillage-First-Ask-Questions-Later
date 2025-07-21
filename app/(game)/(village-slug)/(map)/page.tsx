@@ -246,7 +246,11 @@ const MapPage = () => {
         closeEvents={{
           mouseleave: true,
         }}
-        hidden={!mapFilters.shouldShowTileTooltips || isTileModalOpened}
+        hidden={
+          !isWiderThanLg ||
+          !mapFilters.shouldShowTileTooltips ||
+          isTileModalOpened
+        }
         render={({ activeAnchor }) => {
           const tileId = activeAnchor?.getAttribute('data-tile-id');
 

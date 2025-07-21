@@ -50,6 +50,7 @@ const TroopMovements: React.FC<TroopMovementsProps> = ({
     <Icon
       className={clsx(classes, 'animate-scale-pulse')}
       type={troopMovementIcon}
+      shouldShowTooltip={false}
     />
   );
 };

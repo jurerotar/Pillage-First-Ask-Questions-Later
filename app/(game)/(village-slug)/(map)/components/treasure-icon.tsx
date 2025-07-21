@@ -16,6 +16,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({
         borderVariant="orange"
         wrapperClassName={className}
         type="treasureTileArtifact"
+        shouldShowTooltip={false}
       />
     );
   }
@@ -27,6 +28,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({
         borderVariant="blue"
         wrapperClassName={className}
         type="treasureTileItem"
+        shouldShowTooltip={false}
       />
     );
   }
@@ -37,6 +39,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({
         borderVariant="blue"
         wrapperClassName={className}
         type="treasureTileCurrency"
+        shouldShowTooltip={false}
       />
     );
   }
@@ -46,6 +49,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({
       <Icon
         borderVariant="blue"
         wrapperClassName={className}
+        shouldShowTooltip={false}
         type="treasureTileResources"
       />
     );
@@ -57,6 +61,7 @@ export const TreasureIcon: React.FC<TreasureIconProps> = ({
       borderVariant="blue"
       wrapperClassName={className}
       type="treasureTileMiscellaneous"
+      shouldShowTooltip={false}
     />
   );
 };

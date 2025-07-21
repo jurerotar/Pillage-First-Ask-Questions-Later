@@ -1,5 +1,5 @@
-import { Icon } from 'app/components/icon';
+import { GiWoodPile } from 'react-icons/gi';
 
 export const IconTreasureTileResources = () => {
-  return <Icon type="wood" />;
+  return <GiWoodPile className="size-full text-[#A1662F]" />;
 };
