@@ -10,10 +10,7 @@ export const Tooltip: React.FC<ReactTooltipProps> = (props) => {
 
   return (
     <ReactTooltip
-      className={clsx(
-        '!z-20 !rounded-lg !px-2 !py-1 !text-xs !opacity-100 !lg:opacity-90',
-        className,
-      )}
+      className={clsx('!z-20 !rounded-lg !px-2 !py-1 !text-xs', className)}
       {...rest}
     />
   );
