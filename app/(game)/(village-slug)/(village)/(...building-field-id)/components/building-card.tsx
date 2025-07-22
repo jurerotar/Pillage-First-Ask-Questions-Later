@@ -198,7 +198,8 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
           <>
             {formatValue(
               Math.abs(
-                effect.currentLevelValue - effect.nextLevelValue < 0
+                !Number.isInteger(effect.currentLevelValue) &&
+                  effect.currentLevelValue - effect.nextLevelValue < 0
                   ? effect.currentLevelValue - 1
                   : effect.currentLevelValue,
               ),
