@@ -28,6 +28,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Icon } from 'app/components/icon';
 import { formatValue } from 'app/utils/common';
 import type { BuildingField } from 'app/interfaces/models/game/village';
+import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -174,10 +175,23 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
   effect,
   isMaxLevel,
 }) => {
+  // TODO: Resource production, warehouse & granary values need to be increased by server effect value
+  const { hasEffect, serverEffectValue } = useEffectServerValue(
+    effect.effectId,
+  );
+
   const type =
     effect.effectId === 'wheatProduction' && effect.currentLevelValue <= 0
       ? 'population'
       : effect.effectId;
+
+  const effectModifier =
+    type !== 'population' &&
+    Number.isInteger(effect.currentLevelValue) &&
+    Number.isInteger(effect.nextLevelValue) &&
+    hasEffect
+      ? serverEffectValue
+      : 1;
 
   return (
     <span
@@ -200,8 +214,8 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
               Math.abs(
                 !Number.isInteger(effect.currentLevelValue) &&
                   effect.currentLevelValue - effect.nextLevelValue < 0
-                  ? effect.currentLevelValue - 1
-                  : effect.currentLevelValue,
+                  ? (effect.currentLevelValue - 1) * effectModifier
+                  : effect.currentLevelValue * effectModifier,
               ),
             )}
             <span className="mx-0.5">&rarr;</span>
@@ -209,7 +223,9 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
         )}
         {formatValue(
           Math.abs(
-            isMaxLevel ? effect.currentLevelValue : effect.nextLevelValue,
+            isMaxLevel
+              ? effect.currentLevelValue * effectModifier
+              : effect.nextLevelValue * effectModifier,
           ),
         )}
       </span>

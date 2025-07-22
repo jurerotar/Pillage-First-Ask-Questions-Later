@@ -140,7 +140,7 @@ export const calculateComputedEffect = (
       oasisEffectBaseValue +
       heroEffectBaseValue;
   } else {
-    total = combinedBonusEffectValue;
+    total = combinedBonusEffectValue * serverEffectValue;
   }
 
   return {
