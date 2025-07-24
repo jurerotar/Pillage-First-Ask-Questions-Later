@@ -79,6 +79,9 @@ See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming f
 
 All contributions to **Pillage First! (Ask Questions Later)** are welcome! We're always on the lookout for contributors in development, game
 design, writing, or localization.
+
+Please refer to the [contribution guide](./CONTRIBUTING.md) for more information.
+
 If this project interests you, we welcome you to join our [Discord server](https://discord.gg/Ep7NKVXUZA) and say hi!
 
 Other ways to help the project are:
@@ -88,20 +91,6 @@ Other ways to help the project are:
 - Asking questions. Your interest helps us shape the game faster and better.
 
 Thanks for your interest!
-
-## Development setup
-
-Pillage First! requires [Node.js version 22.15.0 (LTS)](https://nodejs.org/en/download) or later.
-
-```bash
-# Install dependencies
-npm install
-
-# Starts a development server with hot-reloading
-npm run dev
-```
-
-App will automatically open in your default browser at `localhost:5173`.
 
 # License
 

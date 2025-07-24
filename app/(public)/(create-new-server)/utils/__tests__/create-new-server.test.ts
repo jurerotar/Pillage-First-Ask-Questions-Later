@@ -39,12 +39,11 @@ const queryClient = await initializeServer(serverMock);
 
 describe('Server initialization', () => {
   describe('Map', () => {
-    test('There should be exactly (size * sqrt(2) + borderWidth + 1) ** 2 tiles', () => {
+    test('There should be exactly (size + borderWidth + 1) ** 2 tiles', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
       const borderWidth = 4;
       const totalSize =
-        Math.ceil(serverMock.configuration.mapSize * Math.sqrt(2)) +
-        borderWidth;
+        Math.ceil(serverMock.configuration.mapSize) + borderWidth;
       const totalTiles = (totalSize + 1) ** 2;
       expect(tiles.length).toBe(totalTiles);
     });
@@ -231,11 +230,11 @@ describe('Server initialization', () => {
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
       const tile1 = tiles.find(({ id }) => {
         const { x, y } = parseCoordinatesFromTileId(id);
-        return x === -2 && y === 0;
+        return x === -2 && y === 2;
       })! as OccupiedOasisTile;
       const tile2 = tiles.find(({ id }) => {
         const { x, y } = parseCoordinatesFromTileId(id);
-        return x === -2 && y === -1;
+        return x === -3 && y === 2;
       })! as OccupiedOasisTile;
 
       const { oasisResource: tile1OasisResource } = decodeGraphicsProperty(
@@ -245,9 +244,9 @@ describe('Server initialization', () => {
         tile2.graphics,
       );
 
-      expect(tile1OasisResource === 'iron').toBe(true);
+      expect(tile1OasisResource === 'clay').toBe(true);
       expect(
-        tile2OasisResource === 'iron' && tile2.ORB[0].bonus === '25%',
+        tile2OasisResource === 'clay' && tile2.ORB[0].bonus === '25%',
       ).toBe(true);
     });
 

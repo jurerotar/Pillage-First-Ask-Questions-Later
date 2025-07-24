@@ -178,9 +178,9 @@ export const CreateNewServerForm = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="100">100</SelectItem>
-                      <SelectItem value="200">200</SelectItem>
-                      <SelectItem value="300">300</SelectItem>
+                      <SelectItem value="100">100x100</SelectItem>
+                      <SelectItem value="200">200x200</SelectItem>
+                      <SelectItem value="300">300x300</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

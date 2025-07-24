@@ -78,14 +78,8 @@ export const calculateGridLayout = (mapSize: number) => {
   // Extra padding added around the playable map (in tile units)
   const borderWidth = 4;
 
-  // Raw diagonal span of the square grid (based on Pythagorean geometry)
-  // This gives the minimum bounding box needed for a circular map
-  const raw = mapSize * Math.sqrt(2);
-
-  // Round up to the nearest integer, then ensure it's even
-  const roundedRaw = Math.ceil(raw);
   // Make sure it's even for symmetric rendering
-  const evenRaw = roundedRaw % 2 === 0 ? roundedRaw : roundedRaw + 1;
+  const evenRaw = mapSize % 2 === 0 ? mapSize : mapSize + 1;
 
   // Full logical grid size (excluding +1 for tile center alignment)
   const totalSize = evenRaw + borderWidth;
