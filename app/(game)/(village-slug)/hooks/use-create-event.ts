@@ -27,7 +27,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
     mutationFn: async (args) => {
       const { cachesToClearImmediately: _, ...eventBody } = args;
 
-      await fetcher<void>('/events', {
+      await fetcher('/events', {
         method: 'POST',
         body: {
           ...eventBody,

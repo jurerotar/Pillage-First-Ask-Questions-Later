@@ -38,6 +38,7 @@
   --radius: 0.625rem;
   --success: oklch(0.7 0.18 145);
   --warning: oklch(0.7 0.18 60);
+  --link: oklch(0.6432 0.2313 142.62);
 }
 
 .dark {
@@ -98,6 +99,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --color-warning: var(--warning);
   --color-success: var(--success);
+  --color-link: oklch(0.6432 0.2313 142.62);
 }
 
 @layer utilities {

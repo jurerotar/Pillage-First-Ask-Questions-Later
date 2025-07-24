@@ -1,17 +1,9 @@
-type ApiWorkerMessage<TBody = unknown> = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
-  body?: TBody;
-  params?: unknown | null;
-};
-
-export type PostMessage = Required<{ url: string } & ApiWorkerMessage>;
-
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 
 export const createWorkerFetcher = (worker: Worker) => {
-  return async <TData, TBody = unknown>(
+  return async <TData = void, TArgs = unknown | null>(
     url: string,
-    args?: ApiWorkerMessage<TBody>,
+    init?: Omit<RequestInit, 'body'> & { body?: TArgs },
   ): Promise<{ data: TData }> => {
     const { port1, port2 } = new MessageChannel();
 
@@ -22,11 +14,11 @@ export const createWorkerFetcher = (worker: Worker) => {
       });
       port1.start();
 
-      const message: PostMessage = {
+      const message = {
         url,
-        method: args?.method ?? 'GET',
-        body: args?.body ?? null,
-        params: args?.params ?? null,
+        ...init,
+        method: init?.method ?? 'GET',
+        body: init?.body ?? null,
       };
 
       worker.postMessage(message, [port2]);

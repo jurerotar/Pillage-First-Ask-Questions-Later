@@ -15,7 +15,7 @@ import clsx from 'clsx';
 import type React from 'react';
 import { createContext, use } from 'react';
 import { Fragment } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
@@ -29,6 +29,7 @@ import { Icon } from 'app/components/icon';
 import { formatValue } from 'app/utils/common';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -313,7 +314,6 @@ export const BuildingBenefits = () => {
 
 export const BuildingRequirements = () => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { tribe } = useTribe();
   const { playerVillages } = usePlayerVillages();
@@ -359,27 +359,29 @@ export const BuildingRequirements = () => {
           (assessedRequirement: AssessedBuildingRequirement, index) => (
             <Fragment key={assessedRequirement.id}>
               <li className="whitespace-nowrap">
-                <span
+                <Text
                   className={clsx(
                     assessedRequirement.fulfilled &&
                       'text-muted-foreground line-through',
                   )}
                 >
                   {assessedRequirement.type === 'amount' &&
-                    instanceAlreadyExists &&
-                    t('{{building}} level {{level}}', {
-                      building: assetsT(`BUILDINGS.${buildingId}.NAME`),
-                      level: maxLevel,
-                    })}
-                  {assessedRequirement.type === 'building' &&
-                    t('{{building}} level {{level}}', {
-                      building: assetsT(
-                        `BUILDINGS.${assessedRequirement.buildingId}.NAME`,
-                      ),
-                      level: assessedRequirement.level,
-                    })}
-                </span>
-                {index !== requirementsToDisplay.length - 1 && ','}
+                    instanceAlreadyExists && (
+                      <Trans>
+                        <VillageBuildingLink buildingId={buildingId} /> level{' '}
+                        {{ level: maxLevel }}
+                      </Trans>
+                    )}
+                  {assessedRequirement.type === 'building' && (
+                    <Trans>
+                      <VillageBuildingLink
+                        buildingId={assessedRequirement.buildingId}
+                      />{' '}
+                      level {{ level: assessedRequirement.level }}
+                    </Trans>
+                  )}
+                  {index !== requirementsToDisplay.length - 1 && ','}
+                </Text>
               </li>
             </Fragment>
           ),

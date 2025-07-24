@@ -1,7 +1,7 @@
 import type React from 'react';
 import { Fragment } from 'react';
 import { createContext } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
@@ -40,6 +40,7 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
+import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 
 type UnitCardContextState = {
   unitId: Unit['id'];
@@ -397,7 +398,6 @@ export const UnitImprovement = () => {
 export const UnitRequirements = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { assessedRequirements } = assessUnitResearchReadiness(
     unitId,
@@ -418,8 +418,12 @@ export const UnitRequirements = () => {
                       'text-muted-foreground line-through',
                   )}
                 >
-                  {assetsT(`BUILDINGS.${assessedRequirement.buildingId}.NAME`)}{' '}
-                  {t('level {{level}}', { level: assessedRequirement.level })}
+                  <Trans>
+                    <VillageBuildingLink
+                      buildingId={assessedRequirement.buildingId}
+                    />{' '}
+                    level {{ level: assessedRequirement.level }}
+                  </Trans>
                 </span>
                 {index !== assessedRequirements.length - 1 && ','}
               </Text>
@@ -455,6 +459,26 @@ export const UnitCost = () => {
           )}
         </div>
       </div>
+    </section>
+  );
+};
+
+export const UnitRecruitmentNoResearch = () => {
+  const { unitId } = use(UnitCardContext);
+  const { t } = useTranslation();
+  const { t: assetsT } = useTranslation();
+
+  return (
+    <section className="pt-2 flex flex-col gap-2 border-t border-border">
+      <Text as="h3">{t('Train units')}</Text>
+      <Text variant="orange">
+        <Trans>
+          You need to research{' '}
+          {{ unitName: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) }} at the{' '}
+          <VillageBuildingLink buildingId="ACADEMY" /> before you can begin
+          training
+        </Trans>
+      </Text>
     </section>
   );
 };
@@ -502,7 +526,7 @@ export const UnitRecruitment = () => {
 
   const form = useForm({ defaultValues: { amount: 0 } });
   const { register, handleSubmit, setValue, watch } = form;
-  const amount = watch('amount');
+  const amount = watch('amount')!;
   const duration = Math.trunc(total * individualUnitRecruitmentDuration);
 
   const formattedDuration = formatTime(duration * amount);

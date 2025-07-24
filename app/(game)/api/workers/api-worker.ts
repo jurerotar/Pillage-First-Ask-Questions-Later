@@ -50,11 +50,13 @@ try {
       // @ts-expect-error: Not sure about this one, fix when you can
       const result = await handler(queryClient, { params, body });
 
-      self.postMessage({
-        eventKey: 'event:worker-event-creation-success',
-        ...body,
-        ...params,
-      } satisfies EventApiNotificationEvent);
+      if (method !== 'GET') {
+        self.postMessage({
+          eventKey: 'event:worker-event-creation-success',
+          ...body,
+          ...params,
+        } satisfies EventApiNotificationEvent);
+      }
 
       port.postMessage({
         data: result,

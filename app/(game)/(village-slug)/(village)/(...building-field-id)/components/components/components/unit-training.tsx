@@ -4,6 +4,7 @@ import {
   UnitCost,
   UnitOverview,
   UnitRecruitment,
+  UnitRecruitmentNoResearch,
   UnitRequirements,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
 import { Text } from 'app/components/text';
@@ -99,7 +100,12 @@ export const UnitTraining: React.FC<UnitTrainingProps> = ({ buildingId }) => {
                       <UnitRecruitment />
                     </>
                   )}
-                  {!hasResearchedUnit && <UnitRequirements />}
+                  {!hasResearchedUnit && (
+                    <>
+                      <UnitRequirements />
+                      <UnitRecruitmentNoResearch />
+                    </>
+                  )}
                 </UnitCard>
               </TabPanel>
             );

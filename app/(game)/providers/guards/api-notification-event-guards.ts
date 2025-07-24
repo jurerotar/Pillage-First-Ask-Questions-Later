@@ -15,6 +15,17 @@ export const isEventResolvedNotificationMessageEvent = (
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:worker-event-resolve-success'
+    (event.data.eventKey === 'event:worker-event-resolve-success' ||
+      event.data.eventKey === 'event:worker-event-resolve-error')
+  );
+};
+
+export const isEventCreatedNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventApiNotificationEvent> => {
+  return (
+    isNotificationMessageEvent(event) &&
+    (event.data.eventKey === 'event:worker-event-creation-success' ||
+      event.data.eventKey === 'event:worker-event-creation-error')
   );
 };

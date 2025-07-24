@@ -1,7 +1,7 @@
 import React from 'react';
 import { clsx } from 'clsx';
 
-type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
+type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
 
 const elementStyles: Record<TextElement, string> = {
   h1: 'text-2xl lg:text-3xl text-foreground',
@@ -11,14 +11,16 @@ const elementStyles: Record<TextElement, string> = {
   h5: 'text-foreground',
   h6: 'text-foreground',
   p: 'text-foreground leading-6',
+  span: 'text-foreground leading-6',
 };
 
-type TextVariant = 'body' | 'orange' | 'green' | 'muted';
+type TextVariant = 'body' | 'orange' | 'green' | 'muted' | 'link';
 
 const variantStyles: Record<TextVariant, string> = {
   body: 'text-foreground',
   orange: 'text-warning',
   green: 'text-success',
+  link: 'text-link font-medium w-fit',
   muted: 'text-muted-foreground',
 };
 

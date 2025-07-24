@@ -11,6 +11,7 @@ import {
   useLoaderData,
   useRouteError,
 } from 'react-router';
+import { Notifier } from 'app/(game)/components/notifier';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -141,6 +142,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
       <Suspense fallback="Api provider loader">
         <ApiProvider>
           <Outlet />
+          <Notifier />
         </ApiProvider>
       </Suspense>
       <ReactQueryDevtools
