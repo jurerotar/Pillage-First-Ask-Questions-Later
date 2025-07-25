@@ -1,3 +1,4 @@
 i18next
 biome check --write --staged --no-errors-on-unmatched
+npm run react-compiler:check
 git add .
