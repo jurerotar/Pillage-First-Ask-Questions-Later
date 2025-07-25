@@ -1,5 +1,4 @@
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import {
@@ -25,13 +24,6 @@ export const useCurrentVillage = () => {
     staleTime: 20_000,
   });
 
-  const getCurrentVillagePopulation = () => {
-    return calculatePopulationFromBuildingFields(
-      currentVillage.buildingFields,
-      currentVillage.buildingFieldsPresets,
-    );
-  };
-
   const getDistanceFromCurrentVillage = (tileId: Tile['id']): number => {
     const villageCoordinates = parseCoordinatesFromTileId(currentVillage!.id);
     const tileCoordinates = parseCoordinatesFromTileId(tileId);
@@ -43,6 +35,5 @@ export const useCurrentVillage = () => {
   return {
     currentVillage,
     getDistanceFromCurrentVillage,
-    getCurrentVillagePopulation,
   };
 };

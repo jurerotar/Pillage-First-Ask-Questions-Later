@@ -15,7 +15,7 @@ import { GoGraph } from 'react-icons/go';
 import { PiPathBold } from 'react-icons/pi';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Link, NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import { CiCircleList } from 'react-icons/ci';
 import { RxExit } from 'react-icons/rx';
 import { RiAuctionLine } from 'react-icons/ri';
@@ -376,13 +376,14 @@ const ResourceCounters = () => {
 
 const VillageSelect = memo(() => {
   const { t } = useTranslation();
-  const { switchToVillage } = useGameNavigation();
+  const navigate = useNavigate();
+  const { getNewVillageUrl } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
 
   return (
     <Select
-      onValueChange={(value) => switchToVillage(value)}
+      onValueChange={(value) => navigate(getNewVillageUrl(value))}
       value={currentVillage.slug}
     >
       <SelectTrigger

@@ -14,6 +14,7 @@ export const useServer = () => {
       return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
+    gcTime: Number.POSITIVE_INFINITY,
   });
 
   const serverId = server.id;

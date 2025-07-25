@@ -1,18 +1,21 @@
-import { useLocation } from 'react-router';
+import { useMatch } from 'react-router';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 
 export const useActiveRoute = () => {
-  const { pathname } = useLocation();
   const { villagePath, resourcesPath, mapPath, heroPath } = useGameNavigation();
 
-  const isVillagePageOpen = pathname.includes(villagePath);
-  const isResourcesPageOpen =
-    pathname.includes(resourcesPath) && !isVillagePageOpen;
-  const isMapPageOpen = pathname.includes(mapPath);
-  const isHeroPageOpen = pathname.includes(heroPath);
+  const villageMatch = useMatch(villagePath);
+  const resourcesMatch = useMatch(resourcesPath);
+  const mapMatch = useMatch(mapPath);
+  const heroMatch = useMatch(heroPath);
 
-  const isVillagePageExact = pathname.endsWith(villagePath);
-  const isResourcesPageExact = pathname.endsWith(resourcesPath);
+  const isVillagePageOpen = !!villageMatch;
+  const isResourcesPageOpen = !!resourcesMatch && !isVillagePageOpen;
+  const isMapPageOpen = !!mapMatch;
+  const isHeroPageOpen = !!heroMatch;
+
+  const isVillagePageExact = villageMatch?.pathname === villagePath;
+  const isResourcesPageExact = resourcesMatch?.pathname === resourcesPath;
 
   return {
     isResourcesPageOpen,

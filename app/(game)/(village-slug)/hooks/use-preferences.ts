@@ -23,6 +23,8 @@ export const usePreferences = () => {
       const { data } = await fetcher<Preferences>('/me/preferences');
       return data;
     },
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: Number.POSITIVE_INFINITY,
   });
 
   const { mutate: updatePreference } = useMutation<

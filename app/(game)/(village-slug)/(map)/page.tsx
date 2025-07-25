@@ -29,6 +29,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { useTranslation } from 'react-i18next';
+import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -231,6 +232,22 @@ const MapPage = () => {
     currentCenterTile.current = { x: startingX, y: startingY };
   }, [location.key]);
 
+  const renderTooltip = useCallback(
+    ({
+      activeAnchor,
+    }: Parameters<NonNullable<ReactTooltipProps['render']>>[0]) => {
+      const tileId = activeAnchor?.getAttribute('data-tile-id');
+
+      if (!tileId) {
+        return null;
+      }
+
+      const tile = getTileByTileId(Number.parseInt(tileId));
+      return <TileTooltip tile={tile} />;
+    },
+    [getTileByTileId],
+  );
+
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Dialog
@@ -251,16 +268,7 @@ const MapPage = () => {
           !mapFilters.shouldShowTileTooltips ||
           isTileModalOpened
         }
-        render={({ activeAnchor }) => {
-          const tileId = activeAnchor?.getAttribute('data-tile-id');
-
-          if (!tileId) {
-            return null;
-          }
-
-          const tile = getTileByTileId(Number.parseInt(tileId));
-          return <TileTooltip tile={tile} />;
-        }}
+        render={renderTooltip}
       />
       <FixedSizeGrid
         key={tileSize}

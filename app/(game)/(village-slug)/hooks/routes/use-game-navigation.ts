@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router';
 import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { useCallback, useMemo } from 'react';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 
 export const useGameNavigation = () => {
-  const navigate = useNavigate();
   const { serverSlug, villageSlug } = useRouteSegments();
 
   const baseGamePath = `/game/${serverSlug}`;
@@ -28,20 +26,20 @@ export const useGameNavigation = () => {
     [baseVillagePath],
   );
 
-  const switchToVillage = useCallback(
+  const getNewVillageUrl = useCallback(
     (slug: PlayerVillage['slug']) => {
-      navigate(`/game/${serverSlug}/${slug}/resources`);
+      return `/game/${serverSlug}/${slug}/resources`;
     },
-    [serverSlug, navigate],
+    [serverSlug],
   );
 
   return useMemo(
     () => ({
       baseGamePath,
       baseVillagePath,
-      switchToVillage,
+      getNewVillageUrl,
       ...paths,
     }),
-    [baseGamePath, baseVillagePath, switchToVillage, paths],
+    [baseGamePath, baseVillagePath, getNewVillageUrl, paths],
   );
 };

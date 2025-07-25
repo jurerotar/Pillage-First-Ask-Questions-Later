@@ -13,6 +13,8 @@ export const useCurrentPlayer = () => {
       const { data } = await fetcher<Player>('/me');
       return data;
     },
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: Number.POSITIVE_INFINITY,
   });
 
   return {

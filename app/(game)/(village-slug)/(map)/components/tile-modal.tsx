@@ -40,6 +40,7 @@ import {
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
+import { useNavigate } from 'react-router';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -253,9 +254,10 @@ const OccupiedOccupiableTileModal: React.FC<
   OccupiedOccupiableTileModalProps
 > = ({ tile }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { getVillageById } = useVillages();
   const { currentVillage } = useCurrentVillage();
-  const { switchToVillage } = useGameNavigation();
+  const { getNewVillageUrl } = useGameNavigation();
   const { playerTroops, sendTroops } = usePlayerTroops();
 
   const currentVillageMovableTroops = playerTroops.filter(
@@ -307,7 +309,7 @@ const OccupiedOccupiableTileModal: React.FC<
             <Button
               size="fit"
               variant="link"
-              onClick={() => switchToVillage(village.slug)}
+              onClick={() => navigate(getNewVillageUrl(village.slug))}
             >
               Enter village
             </Button>
