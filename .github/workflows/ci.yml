@@ -30,6 +30,9 @@ jobs:
       - name: Lint check
         run: npm run lint:check
 
+      - name: React compiler compatibility check
+        run: npm run react-compiler:check
+
       - name: Format check
         run: npm run format:check
 
