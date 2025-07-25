@@ -6,10 +6,16 @@ import { parser } from 'typescript-eslint';
 export default [
   reactCompiler.configs.recommended,
   {
-    ignores: ['build', '*.config.ts', 'scripts'],
+    ignores: [
+      'build',
+      '*.config.ts',
+      'scripts',
+      'node_modules',
+      '.react-router',
+    ],
   },
   {
-    files: ['app/**/*.{ts,tsx}'],
+    files: ['app/**/*.tsx'],
     languageOptions: {
       parser,
     },
