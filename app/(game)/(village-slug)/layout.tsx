@@ -114,6 +114,17 @@ const DiscordLink = () => {
   );
 };
 
+const HeroNavigationItemFallback = () => {
+  return (
+    <div
+      className="flex items-center justify-center shadow-md rounded-full border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] animate-pulse w-fit h-fit"
+      aria-hidden="true"
+    >
+      <span className="lg:size-10 size-10 rounded-full bg-gray-300" />
+    </div>
+  );
+};
+
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
   const { hero, health, experience } = useHero();
@@ -549,10 +560,19 @@ const TopNavigation = () => {
           <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
           <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
             <DiscordLink />
-            <Suspense fallback={null}>
+            <Suspense
+              fallback={
+                <div
+                  className="animate-pulse flex w-full rounded-md h-10 bg-gray-300"
+                  aria-hidden
+                />
+              }
+            >
               <VillageSelect />
             </Suspense>
-            <HeroNavigationItem />
+            <Suspense fallback={<HeroNavigationItemFallback />}>
+              <HeroNavigationItem />
+            </Suspense>
           </div>
         </>
       )}
