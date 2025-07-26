@@ -45,6 +45,7 @@ import layoutStyles from './layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Tooltip } from 'app/components/tooltip';
+import { Spinner } from 'app/components/ui/spinner';
 
 type CounterProps = {
   counter?: number;
@@ -111,17 +112,6 @@ const DiscordLink = () => {
         <FaDiscord className="text-2xl text-[#7289da]" />
       </span>
     </a>
-  );
-};
-
-const HeroNavigationItemFallback = () => {
-  return (
-    <div
-      className="flex items-center justify-center shadow-md rounded-full border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] animate-pulse w-fit h-fit"
-      aria-hidden="true"
-    >
-      <span className="lg:size-10 size-10 rounded-full bg-gray-300" />
-    </div>
   );
 };
 
@@ -560,19 +550,8 @@ const TopNavigation = () => {
           <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
           <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
             <DiscordLink />
-            <Suspense
-              fallback={
-                <div
-                  className="animate-pulse flex w-full rounded-md h-10 bg-gray-300"
-                  aria-hidden
-                />
-              }
-            >
-              <VillageSelect />
-            </Suspense>
-            <Suspense fallback={<HeroNavigationItemFallback />}>
-              <HeroNavigationItem />
-            </Suspense>
+            <VillageSelect />
+            <HeroNavigationItem />
           </div>
         </>
       )}
@@ -675,6 +654,14 @@ export const ErrorBoundary = () => {
   return <p>Layout error</p>;
 };
 
+const PageFallback = () => {
+  return (
+    <div className="flex items-center justify-center h-[calc(100vh-12rem)] lg:h-[calc(100vh-4.75rem)]">
+      <Spinner className="size-16" />
+    </div>
+  );
+};
+
 const GameLayout = () => {
   const { preferences } = usePreferences();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -713,25 +700,23 @@ const GameLayout = () => {
   }, [skinVariant, timeOfDay, colorScheme]);
 
   return (
-    <Suspense fallback="Layout loader">
-      <CurrentVillageStateProvider>
-        <Tooltip id="general-tooltip" />
-        <TopNavigation />
-        <Suspense fallback={null}>
-          <TroopMovements />
-        </Suspense>
-        <Suspense fallback="Loading page">
-          <Outlet />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ConstructionQueue />
-        </Suspense>
-        <Suspense fallback={null}>
-          <TroopList />
-        </Suspense>
-        {!isWiderThanLg && <MobileBottomNavigation />}
-      </CurrentVillageStateProvider>
-    </Suspense>
+    <CurrentVillageStateProvider>
+      <Tooltip id="general-tooltip" />
+      <TopNavigation />
+      <Suspense fallback={null}>
+        <TroopMovements />
+      </Suspense>
+      <Suspense fallback={<PageFallback />}>
+        <Outlet />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ConstructionQueue />
+      </Suspense>
+      <Suspense fallback={null}>
+        <TroopList />
+      </Suspense>
+      {!isWiderThanLg && <MobileBottomNavigation />}
+    </CurrentVillageStateProvider>
   );
 };
 

@@ -12,6 +12,7 @@ import {
   useRouteError,
 } from 'react-router';
 import { Notifier } from 'app/(game)/components/notifier';
+import { Skeleton } from 'app/components/ui/skeleton';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -111,6 +112,28 @@ export const ErrorBoundary = () => {
   );
 };
 
+const LayoutFallback = () => {
+  return (
+    <>
+      <div className="h-dvh w-full flex flex-col justify-between gap-2 lg:hidden ">
+        <div className="flex flex-col p-2 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+          <div className="flex gap-6 w-full h-14 items-center">
+            <Skeleton className="size-11.5 !rounded-full" />
+            <Skeleton className="h-10 flex-1" />
+            <Skeleton className="size-11.5 !rounded-full" />
+          </div>
+          <Skeleton className="h-12" />
+        </div>
+        <Skeleton className="h-24 !rounded-none" />
+      </div>
+      <div className="hidden lg:flex flex-col justify-center relative">
+        <Skeleton className="h-19 w-full !rounded-none" />
+        <Skeleton className="h-16 w-144 mx-auto !rounded-none absolute top-27 absolute-centering absolute" />
+      </div>
+    </>
+  );
+};
+
 const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
 
@@ -139,7 +162,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense fallback="Api provider loader">
+      <Suspense fallback={<LayoutFallback />}>
         <ApiProvider>
           <Outlet />
           <Notifier />

@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 const skeletonVariants = cva('animate-pulse rounded-md', {
   variants: {
     variant: {
-      default: 'bg-gray-200',
+      default: 'bg-gray-300',
       dark: 'bg-gray-700',
     },
   },
