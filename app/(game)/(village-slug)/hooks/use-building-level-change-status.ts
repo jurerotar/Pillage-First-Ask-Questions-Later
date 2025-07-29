@@ -167,7 +167,7 @@ export const useBuildingConstructionStatus = (
   buildingId: Building['id'],
   buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
-  return useBuildingRequirements(buildingId, 1, buildingFieldId);
+  return useBuildingRequirements(buildingId, 0, buildingFieldId);
 };
 
 export const useBuildingDowngradeStatus = (
