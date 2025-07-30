@@ -11,5 +11,8 @@ export const preferencesFactory = (): Preferences => {
     shouldShowBuildingNames: true,
     isAutomaticNavigationAfterBuildingLevelChangeEnabled: true,
     isDeveloperModeEnabled: false,
+    shouldShowNotificationsOnBuildingUpgradeCompletion: false,
+    shouldShowNotificationsOnUnitUpgradeCompletion: false,
+    shouldShowNotificationsOnAcademyResearchCompletion: false,
   };
 };

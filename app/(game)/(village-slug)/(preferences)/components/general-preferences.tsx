@@ -128,7 +128,7 @@ export const GeneralPreferences = () => {
         <div className="flex gap-2">
           <Text className="flex flex-4 gap-1 flex-col">
             <span className="font-medium">
-              {t('Additional accessibility features (in development))')}
+              {t('Additional accessibility features (in development)')}
             </span>
             <span>
               {t('Enables accessibility enhancements for better usability.')}

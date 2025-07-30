@@ -1,7 +1,7 @@
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 
@@ -44,19 +44,6 @@ export const useCalculatedResource = (
 
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
-
-  const resourceDepletionOrFullAt = useMemo<number | null>(() => {
-    if (hourlyProduction > 0 && !isFull) {
-      const secondsToFull =
-        (storageCapacity - currentAmount) / (hourlyProduction / 3600);
-      return new Date(Date.now() + secondsToFull * 1000).getTime();
-    }
-    if (hourlyProduction < 0 && currentAmount > 0) {
-      const secondsToEmpty = currentAmount / Math.abs(hourlyProduction / 3600);
-      return new Date(Date.now() + secondsToEmpty * 1000).getTime();
-    }
-    return null; // Neither fills nor depletes
-  }, [hourlyProduction, currentAmount, storageCapacity, isFull]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
   useEffect(() => {
@@ -128,6 +115,5 @@ export const useCalculatedResource = (
     storageCapacity: Math.trunc(storageCapacity),
     isFull,
     hasNegativeProduction,
-    resourceDepletionOrFullAt,
   };
 };

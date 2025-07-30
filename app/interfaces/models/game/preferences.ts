@@ -14,4 +14,7 @@ export type Preferences = {
   shouldShowBuildingNames: boolean;
   isAutomaticNavigationAfterBuildingLevelChangeEnabled: boolean;
   isDeveloperModeEnabled: boolean;
+  shouldShowNotificationsOnBuildingUpgradeCompletion: boolean;
+  shouldShowNotificationsOnUnitUpgradeCompletion: boolean;
+  shouldShowNotificationsOnAcademyResearchCompletion: boolean;
 };
