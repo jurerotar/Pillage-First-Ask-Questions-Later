@@ -23,6 +23,11 @@ export const NotificationPreferences = () => {
     <Section>
       <SectionContent>
         <Text as="h2">{t('Notifications')}</Text>
+        {notificationPermission === 'not-available' && (
+          <Alert variant="error">
+            {t('Notifications are not available on your device.')}
+          </Alert>
+        )}
         {notificationPermission === 'denied' && (
           <Alert variant="error">
             {t(
