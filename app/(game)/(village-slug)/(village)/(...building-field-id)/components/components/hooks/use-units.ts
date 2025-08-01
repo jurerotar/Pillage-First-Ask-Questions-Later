@@ -3,7 +3,7 @@ import type { Unit } from 'app/interfaces/models/game/unit';
 import { units } from 'app/(game)/(village-slug)/assets/units';
 
 export const useUnits = () => {
-  const { tribe } = useTribe();
+  const tribe = useTribe();
 
   const getTribeUnitsByCategory = (category: Unit['category']) => {
     return units.filter(

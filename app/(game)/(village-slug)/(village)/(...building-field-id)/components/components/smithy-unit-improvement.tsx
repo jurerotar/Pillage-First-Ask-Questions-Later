@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();
-  const { tribe } = useTribe();
+  const tribe = useTribe();
   const { isUnitResearched } = useUnitResearch();
 
   const upgradableUnits = units.filter(({ category, tribe: unitTribe, id }) => {

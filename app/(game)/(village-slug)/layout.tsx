@@ -46,6 +46,7 @@ import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-activ
 import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
+import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type CounterProps = {
   counter?: number;
@@ -701,21 +702,23 @@ const GameLayout = () => {
 
   return (
     <CurrentVillageStateProvider>
-      <Tooltip id="general-tooltip" />
-      <TopNavigation />
-      <Suspense fallback={null}>
-        <TroopMovements />
-      </Suspense>
-      <Suspense fallback={<PageFallback />}>
-        <Outlet />
-      </Suspense>
-      <Suspense fallback={null}>
-        <ConstructionQueue />
-      </Suspense>
-      <Suspense fallback={null}>
-        <TroopList />
-      </Suspense>
-      {!isWiderThanLg && <MobileBottomNavigation />}
+      <CurrentVillageBuildingQueueContextProvider>
+        <Tooltip id="general-tooltip" />
+        <TopNavigation />
+        <Suspense fallback={null}>
+          <TroopMovements />
+        </Suspense>
+        <Suspense fallback={<PageFallback />}>
+          <Outlet />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ConstructionQueue />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TroopList />
+        </Suspense>
+        {!isWiderThanLg && <MobileBottomNavigation />}
+      </CurrentVillageBuildingQueueContextProvider>
     </CurrentVillageStateProvider>
   );
 };

@@ -55,5 +55,5 @@ export const ApiProvider: React.FCWithChildren = ({ children }) => {
     };
   }, [apiWorker]);
 
-  return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
+  return <ApiContext value={value}>{children}</ApiContext>;
 };

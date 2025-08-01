@@ -3,6 +3,7 @@ import type {
   ResourceFieldComposition,
 } from 'app/interfaces/models/game/village';
 import type React from 'react';
+import { use } from 'react';
 import { useState } from 'react';
 import type { Building } from 'app/interfaces/models/game/building';
 import clsx from 'clsx';
@@ -10,13 +11,13 @@ import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
 import { Link } from 'react-router';
 import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 // The trick here is that resource buildings have different graphics based on their position, but don't change through the levels.
 // Village buildings are exactly the opposite.
@@ -127,7 +128,9 @@ export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { resourcesPath, villagePath } = useGameNavigation();
   const { bookmarks } = useBookmarks();

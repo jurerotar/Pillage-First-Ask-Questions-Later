@@ -7,8 +7,7 @@ import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/com
 import type { Resources } from 'app/interfaces/models/game/resource';
 import { useTranslation } from 'react-i18next';
 import type { Building } from 'app/interfaces/models/game/building';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
-import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 export const getHasEnoughFreeCrop = (
   nextLevelWheatConsumption: number,
@@ -45,6 +44,9 @@ export const getHasEnoughResources = (
   );
 };
 
+// TODO: Raise this to 5 once you figure out how to solve the scheduledBuildingEvent bug
+const MAX_BUILDINGS_IN_QUEUE = 1;
+
 type UseBuildingRequirementsReturn = {
   variant: BorderIndicatorBorderVariant;
   errors: string[];
@@ -66,8 +68,12 @@ const useBuildingRequirements = (
     wheat,
   } = use(CurrentVillageStateContext);
   const { isDeveloperModeEnabled } = useDeveloperMode();
-  const { canAddAdditionalBuildingToQueue } =
-    useCurrentVillageBuildingEventQueue(buildingFieldId);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
+
+  const currentVillageBuildingEventsQueue =
+    getBuildingEventQueue(buildingFieldId);
+  const canAddAdditionalBuildingToQueue =
+    currentVillageBuildingEventsQueue.length < MAX_BUILDINGS_IN_QUEUE;
 
   const { buildingWheatLimit } = computedWheatProductionEffect;
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
@@ -174,7 +180,9 @@ export const useBuildingDowngradeStatus = (
   buildingFieldId: BuildingField['id'],
 ) => {
   const { t } = useTranslation();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
 
   const getBuildingDowngradeErrorBag = (): string[] => {
     const errorBag: string[] = [];

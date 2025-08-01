@@ -1,14 +1,17 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import { use } from 'react';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 export const useBuildingVirtualLevel = (
   buildingId: Building['id'],
   buildingFieldId: BuildingField['id'],
 ) => {
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
 
   const building = currentVillage.buildingFields.find(
     ({ id }) => id === buildingFieldId,

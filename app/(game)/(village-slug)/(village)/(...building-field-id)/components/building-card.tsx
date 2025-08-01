@@ -18,7 +18,6 @@ import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
@@ -30,6 +29,7 @@ import { formatValue } from 'app/utils/common';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -315,10 +315,12 @@ export const BuildingBenefits = () => {
 export const BuildingRequirements = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { tribe } = useTribe();
+  const tribe = useTribe();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const { canBuild, assessedRequirements } =

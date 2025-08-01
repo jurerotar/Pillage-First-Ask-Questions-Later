@@ -2,20 +2,20 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useCurrentVillageBuildingEventQueue } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-event-queue';
 import {
   collectableQuestCountCacheKey,
   effectsCacheKey,
   playerVillagesCacheKey,
   questsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
+import { use } from 'react';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 export const useBuildingActions = (
   buildingId: Building['id'],
   buildingFieldId: BuildingField['id'],
 ) => {
-  const { currentVillageBuildingEventsQueue } =
-    useCurrentVillageBuildingEventQueue(buildingFieldId);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } =
     useCreateEvent('buildingScheduledConstruction');
@@ -28,6 +28,9 @@ export const useBuildingActions = (
   const { createEvent: createBuildingDestructionEvent } = useCreateEvent(
     'buildingDestruction',
   );
+
+  const currentVillageBuildingEventsQueue =
+    getBuildingEventQueue(buildingFieldId);
 
   const hasCurrentVillageBuildingEvents =
     currentVillageBuildingEventsQueue.length > 0;

@@ -26,7 +26,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { t: assetsT } = useTranslation();
   const { resourcesPath } = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
-  const { tribe } = useTribe();
+  const tribe = useTribe();
 
   const doesAcademyExist = currentVillage.buildingFields.some(
     ({ buildingId }) => buildingId === 'ACADEMY',

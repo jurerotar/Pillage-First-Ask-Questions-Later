@@ -17,10 +17,10 @@ import {
   eventsCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { faro } from '@grafana/faro-web-sdk';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
@@ -144,9 +144,11 @@ const ConstructionQueueEmptySlot: React.FCWithChildren<
 };
 
 export const ConstructionQueue = () => {
-  const { tribe } = useTribe();
+  const tribe = useTribe();
   const { shouldShowSidebars } = useGameLayoutState();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
 
   if (!shouldShowSidebars) {
     return null;

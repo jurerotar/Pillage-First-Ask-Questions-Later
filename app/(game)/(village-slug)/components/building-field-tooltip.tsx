@@ -9,8 +9,9 @@ import { Icon } from 'app/components/icon';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { formatTime } from 'app/utils/time';
 import type React from 'react';
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingField['id'];
@@ -27,7 +28,9 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({
     buildingFieldId,
   );
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
 
   if (!buildingField) {
     return t('Building site');

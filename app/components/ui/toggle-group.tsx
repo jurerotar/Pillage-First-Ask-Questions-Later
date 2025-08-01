@@ -25,9 +25,9 @@ export const ToggleGroup: React.FC<
       )}
       {...props}
     >
-      <ToggleGroupContext.Provider value={{ variant, size }}>
+      <ToggleGroupContext value={{ variant, size }}>
         {children}
-      </ToggleGroupContext.Provider>
+      </ToggleGroupContext>
     </ToggleGroupPrimitive.Root>
   );
 };

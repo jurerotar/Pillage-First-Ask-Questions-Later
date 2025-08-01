@@ -20,11 +20,11 @@ import type {
 } from 'app/interfaces/models/game/building';
 import { partition } from 'app/utils/common';
 import type React from 'react';
+import { use } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { Text } from 'app/components/text';
 import {
@@ -36,6 +36,7 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -47,8 +48,10 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
   const { t } = useTranslation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
-  const { tribe } = useTribe();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const tribe = useTribe();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
   const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const staticBuildingConstructionReadinessArgs: Omit<

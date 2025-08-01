@@ -21,10 +21,10 @@ import {
   useBuildingConstructionStatus,
   useBuildingUpgradeStatus,
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type ErrorBagProps = {
   errorBag: string[];
@@ -118,12 +118,14 @@ export const BuildingActions = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const navigate = useNavigate();
-  const { tribe } = useTribe();
+  const tribe = useTribe();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
   const { preferences } = usePreferences();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { currentVillageBuildingEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
   const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,

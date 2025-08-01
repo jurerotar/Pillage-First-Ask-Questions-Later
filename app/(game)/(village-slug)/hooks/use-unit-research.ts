@@ -13,7 +13,7 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 export const useUnitResearch = () => {
   const { fetcher } = use(ApiContext);
-  const { tribe } = useTribe();
+  const tribe = useTribe();
   const { currentVillage } = useCurrentVillage();
 
   const unitsByTribe = getUnitsByTribe(tribe);
