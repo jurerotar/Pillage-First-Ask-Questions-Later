@@ -4,7 +4,7 @@ publish = "build/client"
 image = "ubuntu-24.04"
 
 [build.environment]
-NODE_VERSION = "22.17.0"
+NODE_VERSION = "22.18.0"
 NPM_FLAGS = "--experimental-strip-types"
 
 [context.master]

@@ -28,7 +28,7 @@
     "test": "vitest",
     "prepare": "husky",
     "analyze-graph": "npx skott --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies --ignorePattern='{app/**/icon-*.tsx,app/**/*.test.ts,app/**/*.test.tsx}'",
-    "postinstall": "node --experimental-strip-types scripts/postinstall.ts"
+    "postinstall": "node scripts/postinstall.ts"
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "1.19.0",
@@ -100,7 +100,7 @@
     "vitest": "3.2.4"
   },
   "engines": {
-    "node": ">=22.17.0"
+    "node": ">=22.18.0"
   },
   "browserslist": {
     "production": [

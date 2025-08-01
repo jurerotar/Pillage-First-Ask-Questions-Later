@@ -80,6 +80,15 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
       Number.isInteger(value),
     );
 
+  const baseBuildingEffectsWithServerModifier = baseBuildingEffects.map(
+    (effect) => {
+      return {
+        ...effect,
+        value: effect.value * serverEffectValue,
+      };
+    },
+  );
+
   const [baseHeroEffects, bonusHeroEffects] = partition<HeroEffect>(
     heroEffects,
     ({ value }) => Number.isInteger(value),
@@ -117,12 +126,12 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
   const boostedOasisEffects = bonusOasisEffects.map((effect) => {
     return {
       ...effect,
-      value: (effect.value - 1) * summedBonusOasisBoosterEffectValue + 1,
+      value: (effect.value - 1) * (summedBonusOasisBoosterEffectValue + 1),
     };
   });
 
   const summedBaseEffectValue = [
-    ...baseBuildingEffects,
+    ...baseBuildingEffectsWithServerModifier,
     ...baseHeroEffects,
     ...baseArtifactEffects,
     ...baseOasisEffects,
@@ -135,10 +144,11 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
     ...boostedOasisEffects,
   ].reduce((acc, { value }) => acc + (value % 1), 0);
 
-  const summedBaseBuildingEffectWithBonusValue = baseBuildingEffects.reduce(
-    (acc, { value }) => acc + Math.trunc(value * summedBonusEffectValue),
-    0,
-  );
+  const summedBaseBuildingEffectWithBonusValue =
+    baseBuildingEffectsWithServerModifier.reduce(
+      (acc, { value }) => acc + Math.trunc(value * summedBonusEffectValue),
+      0,
+    );
 
   return (
     <Section>
@@ -213,7 +223,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         </Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{formatBonus(value - 1)}%</Text>
+                        <Text>{formatBonus(value)}%</Text>
                       </TableCell>
                     </TableRow>
                   );
@@ -285,7 +295,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       <Text>{t('Hero')}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>{value * serverEffectValue}</Text>
+                      <Text>{value}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>-</Text>
@@ -301,7 +311,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>{value * serverEffectValue}</Text>
+                      <Text>{value}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>0</Text>
@@ -335,7 +345,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                     </TableRow>
                   );
                 })}
-                {baseBuildingEffects.map(
+                {baseBuildingEffectsWithServerModifier.map(
                   ({ value, buildingFieldId, buildingId }) => (
                     <TableRow key={buildingFieldId}>
                       <TableCell>
@@ -345,7 +355,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{value * serverEffectValue}</Text>
+                        <Text>{value}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>
@@ -359,13 +369,24 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
             )}
             <TableRow className="font-medium">
               <TableCell colSpan={2}>
-                <Text>{t('Total')}</Text>
+                <Text>{t('Sum')}</Text>
               </TableCell>
               <TableCell>
                 <Text>{summedBaseEffectValue}</Text>
               </TableCell>
               <TableCell>
                 <Text>{summedBaseBuildingEffectWithBonusValue}</Text>
+              </TableCell>
+            </TableRow>
+            <TableRow className="font-medium">
+              <TableCell colSpan={2}>
+                <Text>{t('Total')}</Text>
+              </TableCell>
+              <TableCell colSpan={2}>
+                <Text>
+                  {summedBaseEffectValue +
+                    summedBaseBuildingEffectWithBonusValue}
+                </Text>
               </TableCell>
             </TableRow>
           </TableBody>
