@@ -1,7 +1,13 @@
-import { copyFileSync, existsSync } from 'node:fs';
+import { copyFileSync, existsSync, rmSync } from 'node:fs';
 import { copyFile, mkdir, readdir, stat, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { glob } from 'tinyglobby';
+
+const clearDirectory = async (path: string) => {
+  if (existsSync(path)) {
+    rmSync(path, { recursive: true, force: true });
+  }
+};
 
 const copyFolderSync = async (source: string, dest: string): Promise<void> => {
   try {
@@ -83,6 +89,7 @@ const createDotEnv = () => {
 const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
 const destDir = 'public/graphic-packs';
 
+await clearDirectory(destDir);
 await copyFolderSync(sourceDir, destDir);
 // TODO: Consider re-enabling this if you encounter issues with asset loading
 // await generateAssetPreloadMaps();

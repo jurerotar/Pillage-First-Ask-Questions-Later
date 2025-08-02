@@ -1,6 +1,6 @@
 @mixin oasisBackgroundImage($base, $resourceBase, $group, $position) {
   &-position-#{$position} {
-    background-image: url('#{$resourceBase}/#{$group}/#{$position}.avif?v=#{$graphics-version}');
+    background-image: url('#{$resourceBase}/#{$group}-#{$position}.avif?v=#{$graphics-version}');
   }
 }
 
@@ -69,7 +69,7 @@
     .unoccupied-tile {
       @each $resourceComposition in $resourceCompositions {
         &-#{$resourceComposition} {
-          background-image: url('#{$base}/#{$resourceComposition}.avif');
+          background-image: url('#{$base}/#{$resourceComposition}.avif?v=#{$graphics-version}');
         }
       }
     }
