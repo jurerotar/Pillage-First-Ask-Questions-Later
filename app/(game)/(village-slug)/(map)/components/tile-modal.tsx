@@ -41,6 +41,7 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 import { useNavigate } from 'react-router';
+import { getVillageName } from 'app/(game)/(village-slug)/utils/village';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -290,7 +291,7 @@ const OccupiedOccupiableTileModal: React.FC<
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{village.name}</DialogTitle>
+        <DialogTitle>{getVillageName(village.name)}</DialogTitle>
         <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>

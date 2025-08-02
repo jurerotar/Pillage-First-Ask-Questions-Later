@@ -10,7 +10,7 @@ import { npcFactions } from 'app/factories/reputation-factory';
 import { usernameRoots } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
 
-const generateName = (prng: PRNGFunction): number => {
+const generateNameId = (prng: PRNGFunction): number => {
   const id = seededRandomIntFromInterval(prng, 1, 1000);
   const rootIndex = seededRandomIntFromInterval(
     prng,
@@ -39,7 +39,7 @@ const playerFactory = ({ faction, prng, id }: PlayerFactoryProps): Player => {
 
   return {
     id,
-    name: generateName(prng),
+    name: generateNameId(prng),
     tribe,
     faction,
   };

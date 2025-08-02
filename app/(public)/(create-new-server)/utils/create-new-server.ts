@@ -97,6 +97,7 @@ export const initializeServer = async (
   });
 
   const villages = generateVillages({
+    prng,
     server,
     occupiedOccupiableTiles,
     npcPlayers,

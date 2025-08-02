@@ -36,7 +36,7 @@ export const RenameVillage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: currentVillage.name,
+      name: `${currentVillage.name}`,
     },
   });
 

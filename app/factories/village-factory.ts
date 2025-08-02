@@ -14,6 +14,12 @@ import type {
   VillagePresetId,
   VillageSize,
 } from 'app/interfaces/models/game/village';
+import type { PRNGFunction } from 'ts-seedrandom';
+import {
+  npcVillageNameAdjectives,
+  npcVillageNameNouns,
+} from 'app/assets/village';
+import { seededRandomIntFromInterval } from 'app/utils/common';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
@@ -60,6 +66,21 @@ const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
   ['huns', 'MAKESHIFT_WALL'],
   ['egyptians', 'STONE_WALL'],
 ]);
+
+const generateVillageNameId = (prng: PRNGFunction): number => {
+  const adjectiveIndex = seededRandomIntFromInterval(
+    prng,
+    0,
+    npcVillageNameAdjectives.length - 1,
+  );
+  const nounIndex = seededRandomIntFromInterval(
+    prng,
+    0,
+    npcVillageNameNouns.length - 1,
+  );
+
+  return adjectiveIndex * npcVillageNameNouns.length + nounIndex;
+};
 
 const createWallBuildingField = (
   tribe: PlayableTribe,
@@ -116,19 +137,21 @@ export const playerVillageFactory = ({
 };
 
 type NpcVillageFactoryProps = {
+  prng: PRNGFunction;
   server: Server;
   tile: OccupiedOccupiableTile;
   player: Player;
 };
 
 const npcVillageFactory = ({
+  prng,
   tile,
   player,
   server,
 }: NpcVillageFactoryProps): Village => {
   const { RFC, id } = tile;
 
-  const { id: playerId, name, tribe } = player;
+  const { id: playerId, tribe } = player;
 
   const villageSize = getVillageSize(server.configuration.mapSize, tile.id);
 
@@ -139,7 +162,7 @@ const npcVillageFactory = ({
 
   return {
     id,
-    name: `${name}'s village`,
+    name: generateVillageNameId(prng),
     buildingFields,
     buildingFieldsPresets: [
       resourcesBuildingFieldPresetId,
@@ -154,12 +177,14 @@ const npcVillageFactory = ({
 };
 
 type GenerateVillagesArgs = {
+  prng: PRNGFunction;
   server: Server;
   occupiedOccupiableTiles: OccupiedOccupiableTile[];
   npcPlayers: Player[];
 };
 
 export const generateVillages = ({
+  prng,
   occupiedOccupiableTiles,
   npcPlayers,
   server,
@@ -170,7 +195,7 @@ export const generateVillages = ({
     .filter(({ ownedBy }) => ownedBy !== 'player')
     .map((tile) => {
       const player = playerMap.get(tile.ownedBy)!;
-      return npcVillageFactory({ player, tile, server });
+      return npcVillageFactory({ prng, player, tile, server });
     });
 
   return villages;
