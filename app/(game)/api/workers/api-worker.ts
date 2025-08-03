@@ -17,10 +17,17 @@ import type {
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
+import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 try {
   const urlParams = new URLSearchParams(self.location.search);
   const serverSlug = urlParams.get('server-slug')!;
+
+  const sqlite3 = await sqlite3InitModule();
+  const database = new sqlite3.oo1.OpfsDb(
+    `/pillage-first-ask-questions-later/${serverSlug}.sqlite3`,
+    'w',
+  );
 
   const queryClient = new QueryClient();
   const rootHandle = await getRootHandle();
@@ -39,7 +46,7 @@ try {
     );
   });
 
-  await scheduleNextEvent(queryClient);
+  await scheduleNextEvent(queryClient, database);
 
   self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
     const [port] = ports;
@@ -48,7 +55,7 @@ try {
     try {
       const { handler, params } = matchRoute(url, method)!;
       // @ts-expect-error: Not sure about this one, fix when you can
-      const result = await handler(queryClient, { params, body });
+      const result = await handler(queryClient, database, { params, body });
 
       if (method !== 'GET') {
         self.postMessage({

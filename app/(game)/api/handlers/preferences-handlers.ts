@@ -14,7 +14,7 @@ export const updatePreference: ApiHandler<
   void,
   'preferenceName',
   UpdatePreferenceBody
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { body, params } = args;
 
   const { preferenceName } = params;

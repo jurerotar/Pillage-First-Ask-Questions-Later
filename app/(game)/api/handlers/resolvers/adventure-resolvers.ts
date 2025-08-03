@@ -6,7 +6,7 @@ import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 
 export const adventurePointIncreaseResolver: Resolver<
   GameEvent<'adventurePointIncrease'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   queryClient.setQueryData<AdventurePoints>(
     [adventurePointsCacheKey],
     (prevState) => {

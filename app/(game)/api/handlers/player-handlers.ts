@@ -14,6 +14,7 @@ export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
 
 export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const {
@@ -26,6 +27,7 @@ export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
 
 export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const {
@@ -40,7 +42,7 @@ export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
 export const getTroopsByVillage: ApiHandler<
   Troop[],
   'playerId' | 'villageId'
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const {
     params: { villageId: villageIdParam },
   } = args;
@@ -59,7 +61,7 @@ export const renameVillage: ApiHandler<
   void,
   'playerId' | 'villageId',
   RenameVillageBody
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const {
     params: { villageId: villageIdParam },
     body: { name },

@@ -28,6 +28,7 @@ import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
 
 export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { villageId: villageIdParam } = params;
@@ -47,7 +48,7 @@ export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
 export const getVillageEventsByType: ApiHandler<
   GameEvent[],
   'villageId' | 'eventType'
-> = async (queryClient, { params }) => {
+> = async (queryClient, _database, { params }) => {
   const { villageId: villageIdParam, eventType } = params;
   const villageId = Number.parseInt(villageIdParam);
 
@@ -64,17 +65,17 @@ export const createNewEvents: ApiHandler<
   void,
   '',
   CreateNewEventsBody
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const { body } = args;
 
-  await createClientEvents(queryClient, body);
+  await createClientEvents(queryClient, database, body);
 };
 
 export const cancelConstructionEvent: ApiHandler<
   void,
   'eventId',
   void
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const {
     params: { eventId },
   } = args;
@@ -176,5 +177,5 @@ export const cancelConstructionEvent: ApiHandler<
     return eventsToKeep;
   });
 
-  await scheduleNextEvent(queryClient);
+  await scheduleNextEvent(queryClient, database);
 };

@@ -4,6 +4,7 @@ import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvemen
 
 export const getUnitImprovements: ApiHandler<UnitImprovement[]> = async (
   queryClient,
+  _database,
 ) => {
   const unitImprovements = queryClient.getQueryData<UnitImprovement[]>([
     unitImprovementCacheKey,

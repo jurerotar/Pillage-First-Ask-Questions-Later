@@ -6,12 +6,13 @@ import {
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
 
-export const getHero: ApiHandler<Hero> = async (queryClient) => {
+export const getHero: ApiHandler<Hero> = async (queryClient, _database) => {
   return queryClient.getQueryData<Hero>([heroCacheKey])!;
 };
 
 export const getAdventurePoints: ApiHandler<AdventurePoints> = async (
   queryClient,
+  _database,
 ) => {
   return queryClient.getQueryData<AdventurePoints>([adventurePointsCacheKey])!;
 };

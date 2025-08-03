@@ -32,6 +32,7 @@ import { newVillageUnitResearchFactory } from 'app/factories/unit-research-facto
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const { villageId, targetId, troops } = args;
@@ -50,6 +51,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
 const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const { villageId, targetId, troops } = args;
@@ -68,7 +70,7 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
 const findNewVillageMovementResolver: Resolver<
   GameEvent<'troopMovement'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { targetId } = args;
 
   const server = queryClient.getQueryData<Server>([serverCacheKey])!;
@@ -129,7 +131,7 @@ const findNewVillageMovementResolver: Resolver<
 
 const oasisOccupationMovementResolver: Resolver<
   GameEvent<'troopMovement'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { villageId, targetId, troops } = args;
 
   // TODO: Add combat calc
@@ -150,7 +152,7 @@ const oasisOccupationMovementResolver: Resolver<
 
 const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovement'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { targetId, troops: incomingTroops } = args;
 
   queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
@@ -173,6 +175,7 @@ const reinforcementMovementResolver: Resolver<
 
 const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const { troops: incomingTroops } = args;
@@ -183,6 +186,7 @@ const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
 const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const {
@@ -236,36 +240,36 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
 export const troopMovementResolver: Resolver<
   GameEvent<'troopMovement'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { movementType } = args;
 
   switch (movementType) {
     case 'attack': {
-      await attackMovementResolver(queryClient, args);
+      await attackMovementResolver(queryClient, _database, args);
       break;
     }
     case 'find-new-village': {
-      await findNewVillageMovementResolver(queryClient, args);
+      await findNewVillageMovementResolver(queryClient, _database, args);
       break;
     }
     case 'oasis-occupation': {
-      await oasisOccupationMovementResolver(queryClient, args);
+      await oasisOccupationMovementResolver(queryClient, _database, args);
       break;
     }
     case 'raid': {
-      await raidMovementResolver(queryClient, args);
+      await raidMovementResolver(queryClient, _database, args);
       break;
     }
     case 'reinforcements': {
-      await reinforcementMovementResolver(queryClient, args);
+      await reinforcementMovementResolver(queryClient, _database, args);
       break;
     }
     case 'relocation': {
-      await relocationMovementResolver(queryClient, args);
+      await relocationMovementResolver(queryClient, _database, args);
       break;
     }
     case 'return': {
-      await returnMovementResolver(queryClient, args);
+      await returnMovementResolver(queryClient, _database, args);
       break;
     }
   }

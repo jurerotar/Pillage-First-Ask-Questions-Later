@@ -37,6 +37,7 @@ type GetTilePlayerReturn = {
 
 export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { tileId: tileIdParam } = params;
@@ -75,6 +76,7 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
 
 export const getTileReports: ApiHandler<Report[], 'tileId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { tileId: tileIdParam } = params;
@@ -101,6 +103,7 @@ export const getTileReports: ApiHandler<Report[], 'tileId'> = async (
 
 export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { tileId: tileIdParam } = params;
@@ -113,6 +116,7 @@ export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
 
 export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { tileId: tileIdParam } = params;
@@ -128,7 +132,7 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
 export const getTileOccupiableOasis: ApiHandler<
   OccupiableOasisInRangeDTO[],
   'tileId'
-> = async (queryClient, { params }) => {
+> = async (queryClient, _database, { params }) => {
   const { tileId: tileIdParam } = params;
   const tileId = Number.parseInt(tileIdParam);
 
@@ -198,7 +202,7 @@ export const getTileOccupiableOasis: ApiHandler<
 export const getContextualMap: ApiHandler<
   ContextualTile[],
   'villageId'
-> = async (queryClient, { params }) => {
+> = async (queryClient, _database, { params }) => {
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 

@@ -2,7 +2,10 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { worldItemsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
-export const getWorldItems: ApiHandler<WorldItem[]> = async (queryClient) => {
+export const getWorldItems: ApiHandler<WorldItem[]> = async (
+  queryClient,
+  _database,
+) => {
   const worldItems = queryClient.getQueryData<WorldItem[]>([
     worldItemsCacheKey,
   ])!;

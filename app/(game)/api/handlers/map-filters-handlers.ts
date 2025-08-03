@@ -2,7 +2,10 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
-export const getMapFilters: ApiHandler<MapFilters> = async (queryClient) => {
+export const getMapFilters: ApiHandler<MapFilters> = async (
+  queryClient,
+  _database,
+) => {
   const mapFilters = queryClient.getQueryData<MapFilters>([
     mapFiltersCacheKey,
   ])!;
@@ -18,7 +21,7 @@ export const updateMapFilter: ApiHandler<
   void,
   'filterName',
   UpdateMapFilterBody
-> = async (queryClient, { params, body }) => {
+> = async (queryClient, _database, { params, body }) => {
   const { filterName } = params;
   const { value } = body;
 

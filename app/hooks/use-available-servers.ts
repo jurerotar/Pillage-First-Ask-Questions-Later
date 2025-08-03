@@ -14,7 +14,17 @@ const deleteServerData = async (server: Server) => {
   try {
     const rootHandle = await getRootHandle();
     // This may fail in case entry was removed by some other means which didn't also remove localStorage
-    await rootHandle.removeEntry(`${server.slug}.json`);
+    const jsonFileName = `${server.slug}.json`;
+    const sqliteFileName = `${server.slug}.sqlite3`;
+    try {
+      await rootHandle.getFileHandle(jsonFileName);
+      await rootHandle.removeEntry(jsonFileName);
+    } catch (_) {}
+
+    try {
+      await rootHandle.getFileHandle(sqliteFileName);
+      await rootHandle.removeEntry(sqliteFileName);
+    } catch (_) {}
   } finally {
     const servers: Server[] = JSON.parse(
       window.localStorage.getItem(availableServerCacheKey) ?? '[]',

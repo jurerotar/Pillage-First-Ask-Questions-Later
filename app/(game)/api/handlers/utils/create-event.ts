@@ -12,6 +12,7 @@ import {
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
+import type { Database } from 'app/interfaces/models/common';
 
 export const validateAndInsertEvents = async (
   queryClient: QueryClient,
@@ -34,6 +35,7 @@ type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
 
 export const createClientEvents = async (
   queryClient: QueryClient,
+  database: Database,
   args: CreateNewEventsBody,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
@@ -61,7 +63,7 @@ export const createClientEvents = async (
   })();
 
   await validateAndInsertEvents(queryClient, events);
-  await scheduleNextEvent(queryClient);
+  await scheduleNextEvent(queryClient, database);
 };
 
 // This function is used for events created on the server. "createClientEvents" is used for client-sent events.
