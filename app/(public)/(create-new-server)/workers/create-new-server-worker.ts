@@ -2,7 +2,6 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle, writeFileContents } from 'app/utils/opfs';
 import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 import { dehydrate } from '@tanstack/react-query';
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import createPreferencesTable from 'app/db/schemas/preferences-schema.sql?raw';
 import createBookmarksTable from 'app/db/schemas/bookmarks-schema.sql?raw';
 import createMapMarkersTable from 'app/db/schemas/map-markers-schema.sql?raw';
@@ -14,6 +13,8 @@ import { bookmarksSeeder } from 'app/db/seeders/bookmarks-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
 import { adventurePointsSeeder } from 'app/db/seeders/adventure-points-seeder';
 import { serverSeeder } from 'app/db/seeders/server-seeder';
+
+const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
 
 export type CreateServerWorkerPayload = {
   server: Server;

@@ -17,7 +17,8 @@ import type {
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+
+const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
 
 try {
   const urlParams = new URLSearchParams(self.location.search);
