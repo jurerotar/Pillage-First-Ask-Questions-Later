@@ -1,3 +1,7 @@
+/*
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Opener-Policy: same-origin
+
 /*.js
   Cache-Control: public, max-age=31536000, immutable
 
@@ -39,7 +43,3 @@
 
 /sw.js
   Cache-Control: no-cache
-
-/*
-  Cross-Origin-Embedder-Policy: require-corp
-  Cross-Origin-Opener-Policy: same-origin
