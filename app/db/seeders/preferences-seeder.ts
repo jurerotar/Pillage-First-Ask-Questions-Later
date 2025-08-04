@@ -2,7 +2,7 @@ import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { Database } from 'app/interfaces/models/common';
 
 const sql =
-  'INSERT INTO preferences (preference_id, text_value, bool_value) VALUES (?, ?, ?);';
+  'INSERT INTO preferences (preference_key, text_value, bool_value) VALUES (?, ?, ?);';
 
 export const preferencesSeeder = (database: Database): void => {
   const preferences: Preferences = {

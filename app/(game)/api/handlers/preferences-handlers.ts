@@ -7,7 +7,7 @@ export const getPreferences: ApiHandler<Preferences> = async (
 ) => {
   return Object.fromEntries(
     database.selectArrays(`
-    SELECT preference_id,
+    SELECT preference_key,
            coalesce(bool_value, text_value) AS value
     FROM preferences;
   `),
@@ -31,7 +31,7 @@ export const updatePreference: ApiHandler<
     UPDATE preferences
     SET text_value = ?,
         bool_value = ?
-    WHERE preference_id = ?;
+    WHERE preference_key = ?;
   `;
 
   const isBoolean = typeof value === 'boolean';

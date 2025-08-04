@@ -3,7 +3,7 @@ import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
 const sql = `INSERT INTO map_filters
   (
-    filter_id,
+    filter_key,
     value
   )
 VALUES (?, ?);`;

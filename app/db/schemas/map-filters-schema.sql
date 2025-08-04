@@ -1,7 +1,7 @@
 CREATE TABLE map_filters
 (
-  filter_id TEXT CHECK (
-    filter_id IN (
+  filter_key TEXT CHECK (
+    filter_key IN (
       'shouldShowFactionReputation',
       'shouldShowOasisIcons',
       'shouldShowTroopMovements',
@@ -13,5 +13,5 @@ CREATE TABLE map_filters
   value     BOOLEAN NOT NULL
 );
 
-CREATE INDEX idx_map_filters_filter_id ON map_filters (filter_id);
+CREATE INDEX idx_map_filters_filter_key ON map_filters (filter_key);
 

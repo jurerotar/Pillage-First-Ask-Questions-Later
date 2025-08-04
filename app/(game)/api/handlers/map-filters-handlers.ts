@@ -6,7 +6,7 @@ export const getMapFilters: ApiHandler<MapFilters> = async (
   database,
 ) => {
   return Object.fromEntries(
-    database.selectArrays('SELECT filter_id, value FROM map_filters'),
+    database.selectArrays('SELECT filter_key, value FROM map_filters'),
   );
 };
 
@@ -23,7 +23,7 @@ export const updateMapFilter: ApiHandler<
   const { value } = body;
 
   database.exec({
-    sql: 'UPDATE map_filters SET value = ? WHERE filter_id = ?;',
+    sql: 'UPDATE map_filters SET value = ? WHERE filter_key = ?;',
     bind: [value, filterName],
   });
 };

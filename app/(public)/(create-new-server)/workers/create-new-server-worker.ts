@@ -14,8 +14,6 @@ import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
 import { adventurePointsSeeder } from 'app/db/seeders/adventure-points-seeder';
 import { serverSeeder } from 'app/db/seeders/server-seeder';
 
-const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
-
 export type CreateServerWorkerPayload = {
   server: Server;
 };
@@ -23,6 +21,10 @@ export type CreateServerWorkerPayload = {
 self.addEventListener(
   'message',
   async (event: MessageEvent<CreateServerWorkerPayload>) => {
+    const { default: sqlite3InitModule } = await import(
+      '@sqlite.org/sqlite-wasm'
+    );
+
     const { server } = event.data;
 
     const sqlite3 = await sqlite3InitModule();

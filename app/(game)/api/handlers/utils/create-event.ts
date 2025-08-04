@@ -16,10 +16,11 @@ import type { Database } from 'app/interfaces/models/common';
 
 export const validateAndInsertEvents = async (
   queryClient: QueryClient,
+  database: Database,
   events: GameEvent[],
 ) => {
   const hasSuccessfullyValidatedAndSubtractedResources =
-    checkAndSubtractVillageResources(queryClient, events);
+    checkAndSubtractVillageResources(queryClient, database, events);
 
   if (!hasSuccessfullyValidatedAndSubtractedResources) {
     notifyAboutEventCreationFailure(events);
@@ -39,8 +40,16 @@ export const createClientEvents = async (
   args: CreateNewEventsBody,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
-  const duration = getEventDuration(queryClient, args as unknown as GameEvent);
+  const startsAt = getEventStartTime(
+    queryClient,
+    database,
+    args as unknown as GameEvent,
+  );
+  const duration = getEventDuration(
+    queryClient,
+    database,
+    args as unknown as GameEvent,
+  );
 
   const events: GameEvent[] = (() => {
     const amount = args?.amount ?? 1;
@@ -62,18 +71,27 @@ export const createClientEvents = async (
     return [eventFactory({ ...args, startsAt, duration })];
   })();
 
-  await validateAndInsertEvents(queryClient, events);
+  await validateAndInsertEvents(queryClient, database, events);
   await scheduleNextEvent(queryClient, database);
 };
 
 // This function is used for events created on the server. "createClientEvents" is used for client-sent events.
 export const createEvent = async <T extends GameEventType>(
   queryClient: QueryClient,
+  database: Database,
   args: Omit<GameEvent<T>, 'id' | 'startsAt' | 'duration'>,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
-  const duration = getEventDuration(queryClient, args as unknown as GameEvent);
+  const startsAt = getEventStartTime(
+    queryClient,
+    database,
+    args as unknown as GameEvent,
+  );
+  const duration = getEventDuration(
+    queryClient,
+    database,
+    args as unknown as GameEvent,
+  );
 
   const eventFactoryArgs = {
     ...args,
@@ -83,5 +101,5 @@ export const createEvent = async <T extends GameEventType>(
 
   const events = [eventFactory<T>(eventFactoryArgs)];
 
-  await validateAndInsertEvents(queryClient, events);
+  await validateAndInsertEvents(queryClient, database, events);
 };
