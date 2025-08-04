@@ -12,12 +12,10 @@ export const bookmarksSeeder = (database: Database): void => {
     tabName: 'default',
   }));
 
-  database.transaction((db) => {
-    for (const { buildingId, tabName } of values) {
-      db.exec({
-        sql,
-        bind: [buildingId, tabName],
-      });
-    }
-  });
+  for (const { buildingId, tabName } of values) {
+    database.exec({
+      sql,
+      bind: [buildingId, tabName],
+    });
+  }
 };

@@ -30,28 +30,32 @@ self.addEventListener(
       'c',
     );
 
-    // Preferences
-    database.exec(createPreferencesTable);
-    preferencesSeeder(database);
+    database.transaction((db) => {
+      // Preferences
+      db.exec(createPreferencesTable);
+      preferencesSeeder(db);
 
-    // Map filters
-    database.exec(createMapFiltersTable);
-    mapFiltersSeeder(database);
+      // Map filters
+      db.exec(createMapFiltersTable);
+      mapFiltersSeeder(db);
 
-    // Map markers
-    database.exec(createMapMarkersTable);
+      // Map markers
+      db.exec(createMapMarkersTable);
 
-    // Bookmarks
-    database.exec(createBookmarksTable);
-    bookmarksSeeder(database);
+      // Bookmarks
+      db.exec(createBookmarksTable);
+      bookmarksSeeder(db);
 
-    // Adventure points
-    database.exec(createAdventurePointsTable);
-    adventurePointsSeeder(database);
+      // Adventure points
+      db.exec(createAdventurePointsTable);
+      adventurePointsSeeder(db);
 
-    // Server
-    database.exec(createServerTable);
-    serverSeeder(database, server);
+      // Server
+      db.exec(createServerTable);
+      serverSeeder(db, server);
+    });
+
+    database.close();
 
     const serverState = await initializeServer(server);
 

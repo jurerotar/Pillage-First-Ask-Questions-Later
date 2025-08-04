@@ -22,3 +22,5 @@ CREATE TABLE preferences
     )
 );
 
+CREATE INDEX idx_preferences_preference_id ON preferences(preference_id);
+

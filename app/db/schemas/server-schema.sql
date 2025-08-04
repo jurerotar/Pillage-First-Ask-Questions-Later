@@ -11,3 +11,5 @@ CREATE TABLE servers
   player_name  TEXT                                                                             NOT NULL,
   player_tribe TEXT CHECK (player_tribe IN ('romans', 'gauls', 'teutons', 'huns', 'egyptians')) NOT NULL
 );
+
+CREATE INDEX idx_servers_slug ON servers(slug);
