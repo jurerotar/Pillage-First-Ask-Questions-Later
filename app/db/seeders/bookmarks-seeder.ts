@@ -3,20 +3,20 @@ import type { Database } from 'app/interfaces/models/common';
 
 const sql = `INSERT INTO bookmarks (
   building_id,
-  tab_id
+  tab_name
 ) VALUES (?, ?);`;
 
 export const bookmarksSeeder = (database: Database): void => {
   const values = buildings.map(({ id }) => ({
-    building_id: id,
-    tab_id: 'default',
+    buildingId: id,
+    tabName: 'default',
   }));
 
   database.transaction((db) => {
-    for (const { building_id, tab_id } of values) {
+    for (const { buildingId, tabName } of values) {
       db.exec({
         sql,
-        bind: [building_id, tab_id],
+        bind: [buildingId, tabName],
       });
     }
   });

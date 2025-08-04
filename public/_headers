@@ -39,3 +39,7 @@
 
 /sw.js
   Cache-Control: no-cache
+
+/*.html
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Opener-Policy: same-origin

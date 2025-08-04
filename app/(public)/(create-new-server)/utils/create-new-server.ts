@@ -8,26 +8,19 @@ import {
 } from 'app/factories/village-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { generateEffects } from 'app/factories/effect-factory';
-import { mapFiltersFactory } from 'app/factories/map-filters-factory';
 import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
-import { preferencesFactory } from 'app/factories/preferences-factory';
-import { adventurePointsFactory } from 'app/factories/adventure-points-factory';
 import { generateEvents } from 'app/factories/event-factory';
 import { generateReputations } from 'app/factories/reputation-factory';
 import { generateNewServerQuests } from 'app/factories/quest-factory';
 import { QueryClient } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import {
-  adventurePointsCacheKey,
-  bookmarksCacheKey,
   effectsCacheKey,
   eventsCacheKey,
   heroCacheKey,
   mapCacheKey,
-  mapFiltersCacheKey,
   playersCacheKey,
-  preferencesCacheKey,
   questsCacheKey,
   reputationsCacheKey,
   serverCacheKey,
@@ -43,17 +36,12 @@ import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import { bookmarkFactory } from 'app/factories/bookmark-factory';
-import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 import { mapFactory } from 'app/factories/map-factory';
 import {
   isOccupiedOccupiableTile,
@@ -110,21 +98,17 @@ export const initializeServer = async (
   });
 
   const effects = generateEffects(server, playerStartingVillage, hero);
-  const mapFilters = mapFiltersFactory();
   const unitResearch = newVillageUnitResearchFactory(
     playerStartingVillage.id,
     player.tribe,
   );
   const unitImprovement = unitImprovementFactory(player.tribe);
-  const preferences = preferencesFactory();
-  const adventurePoints = adventurePointsFactory();
   const events = generateEvents(server);
   const reputations = generateReputations();
   const quests = generateNewServerQuests(
     playerStartingVillage.id,
     server.playerConfiguration.tribe,
   );
-  const bookmarks = bookmarkFactory();
 
   const queryClient = new QueryClient();
 
@@ -138,7 +122,6 @@ export const initializeServer = async (
     [villagesCacheKey],
     [playerStartingVillage, ...villages],
   );
-  queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], mapFilters);
   queryClient.setQueryData<Troop[]>(
     [troopsCacheKey],
     [...playerTroops, ...npcTroops],
@@ -151,15 +134,9 @@ export const initializeServer = async (
     [unitImprovementCacheKey],
     unitImprovement,
   );
-  queryClient.setQueryData<Preferences>([preferencesCacheKey], preferences);
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
-  queryClient.setQueryData<AdventurePoints>(
-    [adventurePointsCacheKey],
-    adventurePoints,
-  );
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);
   queryClient.setQueryData<Quest[]>([questsCacheKey], quests);
-  queryClient.setQueryData<Bookmarks>([bookmarksCacheKey], bookmarks);
 
   return queryClient;
 };

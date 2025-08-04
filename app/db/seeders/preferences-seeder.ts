@@ -1,20 +1,8 @@
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { Database } from 'app/interfaces/models/common';
 
-const sql = `INSERT INTO preferences (
-   color_scheme,
-   locale,
-   time_of_day,
-   skin_variant,
-   is_accessibility_mode_enabled,
-   is_reduced_motion_mode_enabled,
-   should_show_building_names,
-   is_automatic_navigation_after_building_level_change_enabled,
-   is_developer_mode_enabled,
-   should_show_notifications_on_building_upgrade_completion,
-   should_show_notifications_on_unit_upgrade_completion,
-   should_show_notifications_on_academy_research_completion)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+const sql =
+  'INSERT INTO preferences (preference_id, text_value, bool_value) VALUES (?, ?, ?);';
 
 export const preferencesSeeder = (database: Database): void => {
   const preferences: Preferences = {
@@ -32,23 +20,51 @@ export const preferencesSeeder = (database: Database): void => {
     shouldShowNotificationsOnAcademyResearchCompletion: false,
   };
 
-  const values = [
-    preferences.colorScheme,
-    preferences.locale,
-    preferences.timeOfDay,
-    preferences.skinVariant,
-    preferences.isAccessibilityModeEnabled,
-    preferences.isReducedMotionModeEnabled,
-    preferences.shouldShowBuildingNames,
-    preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled,
-    preferences.isDeveloperModeEnabled,
-    preferences.shouldShowNotificationsOnBuildingUpgradeCompletion,
-    preferences.shouldShowNotificationsOnUnitUpgradeCompletion,
-    preferences.shouldShowNotificationsOnAcademyResearchCompletion,
+  const entries: [string, string | null, boolean | null][] = [
+    ['colorScheme', preferences.colorScheme, null],
+    ['locale', preferences.locale, null],
+    ['timeOfDay', preferences.timeOfDay, null],
+    ['skinVariant', preferences.skinVariant, null],
+    [
+      'isAccessibilityModeEnabled',
+      null,
+      preferences.isAccessibilityModeEnabled,
+    ],
+    [
+      'isReducedMotionModeEnabled',
+      null,
+      preferences.isReducedMotionModeEnabled,
+    ],
+    ['shouldShowBuildingNames', null, preferences.shouldShowBuildingNames],
+    [
+      'isAutomaticNavigationAfterBuildingLevelChangeEnabled',
+      null,
+      preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled,
+    ],
+    ['isDeveloperModeEnabled', null, preferences.isDeveloperModeEnabled],
+    [
+      'shouldShowNotificationsOnBuildingUpgradeCompletion',
+      null,
+      preferences.shouldShowNotificationsOnBuildingUpgradeCompletion,
+    ],
+    [
+      'shouldShowNotificationsOnUnitUpgradeCompletion',
+      null,
+      preferences.shouldShowNotificationsOnUnitUpgradeCompletion,
+    ],
+    [
+      'shouldShowNotificationsOnAcademyResearchCompletion',
+      null,
+      preferences.shouldShowNotificationsOnAcademyResearchCompletion,
+    ],
   ];
 
-  database.exec({
-    sql,
-    bind: values,
+  database.transaction((db) => {
+    for (const [id, text, bool] of entries) {
+      db.exec({
+        sql,
+        bind: [id, text, bool],
+      });
+    }
   });
 };

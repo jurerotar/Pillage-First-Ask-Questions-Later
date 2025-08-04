@@ -1,4 +1,5 @@
-CREATE TABLE map_markers (
+CREATE TABLE map_markers
+(
   id INTEGER PRIMARY KEY
   -- tile_id INTEGER NOT NULL UNIQUE,
   -- FOREIGN KEY (tile_id) REFERENCES tiles(id) ON DELETE CASCADE

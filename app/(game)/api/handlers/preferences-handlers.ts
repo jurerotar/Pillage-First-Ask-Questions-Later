@@ -1,9 +1,17 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
-export const getPreferences: ApiHandler<Preferences> = async (queryClient) => {
-  return queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
+export const getPreferences: ApiHandler<Preferences> = async (
+  _queryClient,
+  database,
+) => {
+  return Object.fromEntries(
+    database.selectArrays(`
+    SELECT preference_id,
+           coalesce(bool_value, text_value) AS value
+    FROM preferences;
+  `),
+  );
 };
 
 type UpdatePreferenceBody = {
@@ -14,19 +22,24 @@ export const updatePreference: ApiHandler<
   void,
   'preferenceName',
   UpdatePreferenceBody
-> = async (queryClient, _database, args) => {
+> = async (_queryClient, database, args) => {
   const { body, params } = args;
-
   const { preferenceName } = params;
   const { value } = body;
 
-  queryClient.setQueryData<Preferences>(
-    [preferencesCacheKey],
-    (prevPreferences) => {
-      return {
-        ...prevPreferences!,
-        [preferenceName]: value,
-      };
-    },
-  );
+  const sql = `
+    UPDATE preferences
+    SET text_value = ?,
+        bool_value = ?
+    WHERE preference_id = ?;
+  `;
+
+  const isBoolean = typeof value === 'boolean';
+  const textValue = isBoolean ? null : value;
+  const boolValue = isBoolean ? value : null;
+
+  database.exec({
+    sql,
+    bind: [textValue, boolValue, preferenceName],
+  });
 };
