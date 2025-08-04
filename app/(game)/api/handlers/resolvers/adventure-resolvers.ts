@@ -8,7 +8,7 @@ export const adventurePointIncreaseResolver: Resolver<
 > = async (queryClient, database, args) => {
   database.exec('UPDATE adventure_points SET amount = amount + 1;');
 
-  await createEvent<'adventurePointIncrease'>(queryClient, {
+  await createEvent<'adventurePointIncrease'>(queryClient, database, {
     // Args need to be present, because next events depends on end of last
     ...args,
     type: 'adventurePointIncrease',
