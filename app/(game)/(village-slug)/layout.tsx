@@ -87,10 +87,11 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(
       <button
         type="button"
         className="
-        flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
-        bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
-        lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
-      "
+          flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
+          bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
+          transition-transform active:scale-95 active:shadow-inner
+          lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
+        "
         {...rest}
       >
         <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
@@ -194,52 +195,53 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> =
-  memo(({ children, ...rest }) => {
-    return (
-      <button
-        type="button"
-        className="px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card flex items-center justify-center"
-        {...rest}
-      >
-        {children}
-      </button>
-    );
-  });
+const DesktopTopRowItem: React.FCWithChildren<
+  React.ComponentProps<'button'>
+> = ({ children, ...rest }) => {
+  return (
+    <button
+      type="button"
+      className="
+        px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card
+        flex items-center justify-center
+        transition-transform active:scale-95 active:shadow-inner
+      "
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+};
 
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
-  counter?: number;
   className?: string;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo(
-  ({ children, counter = 0, ...rest }) => {
-    const { isActive, ...htmlProps } = rest;
+const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({
+  children,
+  ...rest
+}) => {
+  const { isActive, ...htmlProps } = rest;
 
-    return (
-      <button
-        type="button"
-        className={clsx(
-          isActive
-            ? 'from-[#7da100] to-[#c7e94f]'
-            : 'from-[#b8b2a9] to-[#f1f0ee]',
-          'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-        )}
-        {...htmlProps}
-      >
-        <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
-          {children}
-        </span>
-        {counter > 0 && (
-          <span className="absolute size-5 lg:size-6 text-sm font-medium bg-background top-0 -right-3 rounded-full border lg:border-2 border-border shadow-md inline-flex justify-center items-center">
-            {counter}
-          </span>
-        )}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      type="button"
+      className={clsx(
+        isActive
+          ? 'from-[#7da100] to-[#c7e94f]'
+          : 'from-[#b8b2a9] to-[#f1f0ee]',
+        'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+        'transition-transform transform-gpu active:scale-95 lg:active:scale-100',
+      )}
+      {...htmlProps}
+    >
+      <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
+        {children}
+      </span>
+    </button>
+  );
+};
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();

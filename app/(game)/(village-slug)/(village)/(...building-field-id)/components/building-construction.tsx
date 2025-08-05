@@ -21,7 +21,6 @@ import type {
 import { partition } from 'app/utils/common';
 import type React from 'react';
 import { use } from 'react';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
@@ -145,9 +144,6 @@ export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { villagePath } = useGameNavigation();
 
-  const [buildingTab, setBuildingTab] =
-    useState<BuildingCategory>('infrastructure');
-
   return (
     <>
       <Breadcrumb>
@@ -162,24 +158,9 @@ export const BuildingConstruction = () => {
       <Text as="h1">{t('Construct new building')}</Text>
       <Tabs>
         <TabList>
-          <Tab
-            onSelect={() => setBuildingTab('infrastructure')}
-            selected={buildingTab === 'infrastructure'}
-          >
-            {t('Infrastructure')}
-          </Tab>
-          <Tab
-            onSelect={() => setBuildingTab('military')}
-            selected={buildingTab === 'military'}
-          >
-            {t('Military')}
-          </Tab>
-          <Tab
-            onSelect={() => setBuildingTab('resource-booster')}
-            selected={buildingTab === 'resource-booster'}
-          >
-            {t('Resources')}
-          </Tab>
+          <Tab>{t('Infrastructure')}</Tab>
+          <Tab>{t('Military')}</Tab>
+          <Tab>{t('Resources')}</Tab>
         </TabList>
         <TabPanel>
           <article className="flex flex-col gap-2">
