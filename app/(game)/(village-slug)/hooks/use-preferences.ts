@@ -33,7 +33,7 @@ export const usePreferences = () => {
     if (preferences) {
       syncLocaleFromPreferences(preferences);
     }
-  }, [preferences.locale]);
+  }, [preferences]); // Changed from [preferences.locale] to [preferences] to run on initial load
 
   const { mutate: updatePreference } = useMutation<
     void,

@@ -1,8 +1,8 @@
-import type { QueryClient } from '@tanstack/react-query';
+import type { QueryClient } from "@tanstack/react-query";
 import type {
   GameEvent,
   GameEventType,
-} from 'app/interfaces/models/game/game-event';
+} from "app/interfaces/models/game/game-event";
 
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
@@ -11,7 +11,7 @@ type ApiHandlerArgs<TBody, TParams extends string> = {
 
 export type ApiHandler<
   TReturn = void,
-  TParams extends string = '',
+  TParams extends string = "",
   TBody = Record<string, unknown>,
 > = (
   queryClient: QueryClient,
@@ -19,12 +19,13 @@ export type ApiHandler<
 ) => Promise<TReturn>;
 
 type EventKey =
-  | 'event:worker-initialization-success'
-  | 'event:worker-initialization-error'
-  | 'event:worker-event-creation-success'
-  | 'event:worker-event-creation-error'
-  | 'event:worker-event-resolve-success'
-  | 'event:worker-event-resolve-error';
+  | "event:worker-initialization-success"
+  | "event:worker-initialization-error"
+  | "event:worker-event-creation-success"
+  | "event:worker-event-creation-error"
+  | "event:worker-event-resolve-success"
+  | "event:worker-event-resolve-error"
+  | "event:locale-changed";
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
@@ -33,6 +34,11 @@ export type ApiNotificationEvent = {
 export type WorkerInitializationErrorEvent = {
   eventKey: EventKey;
   error: Error;
+};
+
+export type LocaleChangedEvent = {
+  eventKey: "event:locale-changed";
+  locale: string;
 };
 
 export type EventApiNotificationEvent<

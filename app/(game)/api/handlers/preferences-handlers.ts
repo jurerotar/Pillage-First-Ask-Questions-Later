@@ -30,10 +30,8 @@ export const updatePreference: ApiHandler<
     try {
       // Check if we're in a worker context where i18n might not be available
       if (typeof window !== "undefined" && i18n) {
-        // Update i18n language
+        // Main thread context - handle i18n directly
         await i18n.changeLanguage(locale);
-
-        // Set cookie for translation loaders
         setCookie("locale", locale);
 
         // Load translations for the new locale if not already loaded
@@ -55,9 +53,17 @@ export const updatePreference: ApiHandler<
           }
         }
       } else {
-        // In worker context, just set the cookie
+        // Worker context - set cookie and notify main thread
         if (typeof document !== "undefined") {
           setCookie("locale", locale);
+        }
+
+        // Post message to main thread to handle locale change
+        if (typeof self !== "undefined" && self.postMessage) {
+          self.postMessage({
+            eventKey: "event:locale-changed",
+            locale: locale,
+          });
         }
       }
     } catch (error) {
