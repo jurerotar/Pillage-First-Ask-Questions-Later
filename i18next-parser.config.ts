@@ -1,17 +1,17 @@
-import type { UserConfig } from 'i18next-parser';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
+import type { UserConfig } from "i18next-parser";
+import type { AvailableLocale } from "app/interfaces/models/locale";
 
-const locales: AvailableLocale[] = ['en-US'];
+const locales: AvailableLocale[] = ["en-US", "ar-SA"];
 
 export default {
   // Key separator used in your translation keys
-  contextSeparator: '_',
+  contextSeparator: "_",
 
   // Save the _old files
   createOldCatalogs: false,
 
   // Default namespace used in your i18next config
-  defaultNamespace: 'app',
+  defaultNamespace: "app",
 
   // Default value to give to keys with no value
   // You may also specify a function accepting the locale, namespace, key, and value as arguments
@@ -36,20 +36,20 @@ export default {
 
   // Define which lexers should be used for each file type
   lexers: {
-    hbs: ['HandlebarsLexer'],
-    handlebars: ['HandlebarsLexer'],
-    htm: ['HTMLLexer'],
-    html: ['HTMLLexer'],
-    mjs: ['JavascriptLexer'],
-    js: ['JavascriptLexer'], // if you're writing jsx inside .js files, change this to JsxLexer
-    ts: ['JavascriptLexer'],
-    jsx: ['JsxLexer'],
-    tsx: ['JsxLexer'],
-    default: ['JavascriptLexer'],
+    hbs: ["HandlebarsLexer"],
+    handlebars: ["HandlebarsLexer"],
+    htm: ["HTMLLexer"],
+    html: ["HTMLLexer"],
+    mjs: ["JavascriptLexer"],
+    js: ["JavascriptLexer"], // if you're writing jsx inside .js files, change this to JsxLexer
+    ts: ["JavascriptLexer"],
+    jsx: ["JsxLexer"],
+    tsx: ["JsxLexer"],
+    default: ["JavascriptLexer"],
   },
 
   // Control the line ending format. See options at https://github.com/ryanve/eol
-  lineEnding: 'lf',
+  lineEnding: "lf",
 
   // An array of the locales in your applications
   locales,
@@ -57,22 +57,22 @@ export default {
   // Namespace separator used in your translation keys
   // If you want to use plain English keys, separators such as `.` and `:` will conflict.
   // You might want to set `keySeparator: false` and `namespaceSeparator: false`.
-  namespaceSeparator: ':',
+  namespaceSeparator: ":",
 
   // Supports $LOCALE and $NAMESPACE injection
   // Supports JSON (.json) and YAML (.yml) file formats
   // Where to write the locale files relative to process.cwd()
-  output: 'app/localization/locales/$LOCALE/$NAMESPACE.json',
+  output: "app/localization/locales/$LOCALE/$NAMESPACE.json",
 
   // Plural separator used in your translation keys
   // If you want to use plain English keys, separators such as `_` might conflict.
   // You might want to set `pluralSeparator` to a different string that does not occur in your keys.
   // If you don't want to generate keys for plurals (for example, in case you are using ICU format), set `pluralSeparator: false`.
-  pluralSeparator: '_',
+  pluralSeparator: "_",
 
   // An array of globs that describe where to look for source files
   // relative to the location of the configuration file
-  input: ['app/**/*.{ts,tsx}'],
+  input: ["app/**/*.{ts,tsx}"],
 
   // Whether to sort the catalog. Can also be a compare function
   // (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters)

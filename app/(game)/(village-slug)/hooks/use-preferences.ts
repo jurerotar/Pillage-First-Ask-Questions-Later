@@ -2,11 +2,12 @@ import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from '@tanstack/react-query';
-import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+} from "@tanstack/react-query";
+import { preferencesCacheKey } from "app/(game)/(village-slug)/constants/query-keys";
+import type { Preferences } from "app/interfaces/models/game/preferences";
+import { use, useEffect } from "react";
+import { ApiContext } from "app/(game)/providers/api-provider";
+import { syncLocaleFromPreferences } from "app/utils/locale-sync";
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;
@@ -20,12 +21,19 @@ export const usePreferences = () => {
   const { data: preferences } = useSuspenseQuery<Preferences>({
     queryKey: [preferencesCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Preferences>('/me/preferences');
+      const { data } = await fetcher<Preferences>("/me/preferences");
       return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
   });
+
+  // Sync locale with i18n when preferences are loaded or updated
+  useEffect(() => {
+    if (preferences) {
+      syncLocaleFromPreferences(preferences);
+    }
+  }, [preferences.locale]);
 
   const { mutate: updatePreference } = useMutation<
     void,
@@ -34,7 +42,7 @@ export const usePreferences = () => {
   >({
     mutationFn: async ({ preferenceName, value }) => {
       await fetcher<Preferences>(`/me/preferences/${preferenceName}`, {
-        method: 'PATCH',
+        method: "PATCH",
         body: {
           value,
         },

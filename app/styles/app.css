@@ -126,6 +126,54 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* RTL Support */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+
+  [dir="ltr"] {
+    direction: ltr;
+  }
+
+  /* RTL-specific adjustments for common UI elements */
+  [dir="rtl"] .text-left {
+    text-align: right;
+  }
+
+  [dir="rtl"] .text-right {
+    text-align: left;
+  }
+
+  [dir="rtl"] .float-left {
+    float: right;
+  }
+
+  [dir="rtl"] .float-right {
+    float: left;
+  }
+
+  /* RTL adjustments for margins and padding */
+  [dir="rtl"] .ml-auto {
+    margin-left: unset;
+    margin-right: auto;
+  }
+
+  [dir="rtl"] .mr-auto {
+    margin-right: unset;
+    margin-left: auto;
+  }
+
+  /* RTL adjustments for positioning */
+  [dir="rtl"] .left-0 {
+    left: unset;
+    right: 0;
+  }
+
+  [dir="rtl"] .right-0 {
+    right: unset;
+    left: 0;
+  }
 }
 
 @utility text-2xs {
