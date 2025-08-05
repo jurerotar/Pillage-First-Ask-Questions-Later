@@ -2,9 +2,11 @@ name: ci
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
   push:
 
 jobs:
@@ -18,7 +20,7 @@ jobs:
       - name: Use Node.js LTS
         uses: actions/setup-node@v4
         with:
-          node-version: '22.18.0'
+          node-version: 'lts/*'
           cache: npm
 
       - name: Install modules

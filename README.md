@@ -78,7 +78,10 @@ See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming f
 # Contributing
 
 All contributions to **Pillage First! (Ask Questions Later)** are welcome! We're always on the lookout for contributors in development, game
-design, writing, or localization.
+design and UI/UX design.
+
+> [!WARNING]
+> We currently only accept localization changes for the English language.
 
 Please refer to the [contribution guide](./CONTRIBUTING.md) for more information.
 
