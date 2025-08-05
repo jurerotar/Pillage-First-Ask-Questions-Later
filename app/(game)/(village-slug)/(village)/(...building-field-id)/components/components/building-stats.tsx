@@ -31,7 +31,7 @@ export const BuildingStats = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = useRouteSegments();
-  const { total: buildingDurationModifier, serverEffectValue } =
+  const { total: buildingDurationModifier } =
     useComputedEffect('buildingDuration');
   const { buildingId, level } = getBuildingFieldByBuildingFieldId(
     currentVillage,
@@ -128,29 +128,16 @@ export const BuildingStats = () => {
               <Text as="h2">{t('Upgrade duration')}</Text>
               <Text>
                 {t(
-                  'This section displays the time required to upgrade a building at each level, depending on the level of your Main Building. The middle column reflects the duration based on your current Main Building level, while the left and right columns show durations for Main Building levels 1 and 20, respectively.',
+                  'This section displays the time required to upgrade a building at each level, with consideration of the level of your Main Building, artifacts and any other building duration reduction effects.',
                 )}
               </Text>
               <div className="overflow-x-scroll scrollbar-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHeaderCell rowSpan={2}>
-                        {t('Level')}
-                      </TableHeaderCell>
+                      <TableHeaderCell>{t('Level')}</TableHeaderCell>
                       <TableHeaderCell colSpan={3}>
                         {t('Upgrade duration')}
-                      </TableHeaderCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHeaderCell>
-                        {t('Main building level {{level}}', { level: 1 })}
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        {t('Current Main building level')}
-                      </TableHeaderCell>
-                      <TableHeaderCell>
-                        {t('Main building level {{level}}', { level: 20 })}
                       </TableHeaderCell>
                     </TableRow>
                   </TableHeader>
@@ -169,15 +156,9 @@ export const BuildingStats = () => {
                             className: 'bg-gray-100',
                           })}
                         >
-                          <TableHeaderCell>{index + 1}</TableHeaderCell>
-                          <TableCell>
-                            {formatTime(duration * serverEffectValue)}
-                          </TableCell>
+                          <TableCell>{index + 1}</TableCell>
                           <TableCell>
                             {formatTime(duration * buildingDurationModifier)}
-                          </TableCell>
-                          <TableCell>
-                            {formatTime(duration * serverEffectValue * 0.5)}
                           </TableCell>
                         </TableRow>
                       );
