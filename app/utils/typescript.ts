@@ -19,6 +19,3 @@ export type UpperCaseToCamelCase<S extends string> =
   S extends `${infer First}_${infer Rest}`
     ? `${LowerFirst<Lowercase<First>>}${CapitalizeWords<Rest>}`
     : LowerFirst<Lowercase<S>>;
-
-// Custom Pick type to pick specific literals
-export type PickLiteral<T, U> = T extends U ? T : never;
