@@ -116,7 +116,8 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
 
 export const BuildingActions = () => {
   const { t } = useTranslation();
-  const { buildingId } = use(BuildingCardContext);
+  const { buildingId, buildingConstructionReadinessAssessment } =
+    use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
   const { playerVillages } = usePlayerVillages();
@@ -147,14 +148,16 @@ export const BuildingActions = () => {
     navigate('..', { relative: 'path' });
   };
 
-  const { canBuild } = assessBuildingConstructionReadiness({
-    buildingId,
-    tribe,
-    currentVillageBuildingEvents,
-    playerVillages,
-    currentVillage,
-    isGreatBuildingsArtifactActive,
-  });
+  const { canBuild } =
+    buildingConstructionReadinessAssessment ??
+    assessBuildingConstructionReadiness({
+      buildingId,
+      tribe,
+      currentVillageBuildingEvents,
+      playerVillages,
+      currentVillage,
+      isGreatBuildingsArtifactActive,
+    });
 
   const onBuildingConstruction = () => {
     navigateBack();

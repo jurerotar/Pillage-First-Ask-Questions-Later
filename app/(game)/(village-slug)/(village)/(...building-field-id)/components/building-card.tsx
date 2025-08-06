@@ -1,9 +1,8 @@
-import {
+import type {
   assessBuildingConstructionReadiness,
-  type AssessedBuildingRequirement,
+  AssessedBuildingRequirement,
 } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   calculateBuildingEffectValues,
   type CalculatedCumulativeEffect,
@@ -16,9 +15,7 @@ import type React from 'react';
 import { createContext, use } from 'react';
 import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
@@ -29,11 +26,13 @@ import { formatValue } from 'app/utils/common';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
   building: Building;
+  buildingConstructionReadinessAssessment?: ReturnType<
+    typeof assessBuildingConstructionReadiness
+  >;
 };
 
 export const BuildingCardContext = createContext<BuildingCardContextState>(
@@ -42,16 +41,22 @@ export const BuildingCardContext = createContext<BuildingCardContextState>(
 
 type BuildingCardProps = {
   buildingId: Building['id'];
+  buildingConstructionReadinessAssessment?: ReturnType<
+    typeof assessBuildingConstructionReadiness
+  >;
 };
 
 export const BuildingCard: React.FCWithChildren<BuildingCardProps> = ({
   buildingId,
+  buildingConstructionReadinessAssessment,
   children,
 }) => {
   const building = getBuildingData(buildingId);
 
   return (
-    <BuildingCardContext value={{ buildingId, building }}>
+    <BuildingCardContext
+      value={{ buildingId, building, buildingConstructionReadinessAssessment }}
+    >
       <article className="flex flex-col gap-2 p-2 border border-border">
         {children}
       </article>
@@ -314,24 +319,12 @@ export const BuildingBenefits = () => {
 
 export const BuildingRequirements = () => {
   const { t } = useTranslation();
-  const { buildingId } = use(BuildingCardContext);
-  const tribe = useTribe();
-  const { playerVillages } = usePlayerVillages();
+  const { buildingId, buildingConstructionReadinessAssessment } =
+    use(BuildingCardContext);
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
-  const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const { canBuild, assessedRequirements } =
-    assessBuildingConstructionReadiness({
-      buildingId,
-      tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
-      isGreatBuildingsArtifactActive,
-    });
+    buildingConstructionReadinessAssessment!;
 
   if (canBuild) {
     return null;
