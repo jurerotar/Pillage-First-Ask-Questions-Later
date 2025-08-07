@@ -24,7 +24,8 @@ type EventKey =
   | 'event:worker-event-creation-success'
   | 'event:worker-event-creation-error'
   | 'event:worker-event-resolve-success'
-  | 'event:worker-event-resolve-error';
+  | 'event:worker-event-resolve-error'
+  | 'event:locale-changed';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
@@ -33,6 +34,11 @@ export type ApiNotificationEvent = {
 export type WorkerInitializationErrorEvent = {
   eventKey: EventKey;
   error: Error;
+};
+
+export type LocaleChangedEvent = {
+  eventKey: 'event:locale-changed';
+  locale: string;
 };
 
 export type EventApiNotificationEvent<

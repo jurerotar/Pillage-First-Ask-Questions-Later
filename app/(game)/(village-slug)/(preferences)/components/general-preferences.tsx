@@ -117,6 +117,7 @@ export const GeneralPreferences = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en-US">{t('English')}</SelectItem>
+                <SelectItem value="ar-SA">العربية</SelectItem>
               </SelectContent>
             </Select>
           </div>

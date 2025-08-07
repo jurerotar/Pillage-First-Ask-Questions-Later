@@ -1,7 +1,7 @@
 import type { UserConfig } from 'i18next-parser';
 import type { AvailableLocale } from 'app/interfaces/models/locale';
 
-const locales: AvailableLocale[] = ['en-US'];
+const locales: AvailableLocale[] = ['en-US', 'ar-SA'];
 
 export default {
   // Key separator used in your translation keys

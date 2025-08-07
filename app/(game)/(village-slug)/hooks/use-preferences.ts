@@ -5,8 +5,9 @@ import {
 } from '@tanstack/react-query';
 import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { syncLocaleFromPreferences } from 'app/utils/locale-sync';
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;
@@ -26,6 +27,13 @@ export const usePreferences = () => {
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
   });
+
+  // Sync locale with i18n when preferences are loaded or updated
+  useEffect(() => {
+    if (preferences) {
+      syncLocaleFromPreferences(preferences);
+    }
+  }, [preferences]); // Changed from [preferences.locale] to [preferences] to run on initial load
 
   const { mutate: updatePreference } = useMutation<
     void,
