@@ -4,7 +4,10 @@ import { loadPublicTranslations } from 'app/localization/loaders/public';
 import { Tooltip } from 'app/components/tooltip';
 
 export const clientLoader = async () => {
-  await loadPublicTranslations();
+  // const locale = await getCookie('locale', 'en-US');
+  const locale = 'en-US';
+
+  await loadPublicTranslations(locale);
 };
 
 const PublicLayout = () => {
