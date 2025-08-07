@@ -7,6 +7,7 @@ export const initFaro = async () => {
   if (
     typeof window === 'undefined' ||
     import.meta.env.MODE === 'development' ||
+    import.meta.env.BRANCH_ENV !== 'master' ||
     instance
   ) {
     return;

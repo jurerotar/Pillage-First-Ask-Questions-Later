@@ -2,18 +2,25 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Report, ReportTag } from 'app/interfaces/models/game/report';
 
-export const getReports: ApiHandler<Report[]> = async (queryClient) => {
+export const getReports: ApiHandler<Report[]> = async (
+  queryClient,
+  _database,
+) => {
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
   return reports;
 };
 
-export const getArchivedReports: ApiHandler<Report[]> = async (queryClient) => {
+export const getArchivedReports: ApiHandler<Report[]> = async (
+  queryClient,
+  _database,
+) => {
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
   return reports.filter((report) => report.tags.includes('archived'));
 };
 
 export const getReportsByVillage: ApiHandler<Report[], 'villageId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { villageId: villageIdParam } = params;
@@ -25,6 +32,7 @@ export const getReportsByVillage: ApiHandler<Report[], 'villageId'> = async (
 
 export const getReportById: ApiHandler<Report, 'reportId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { reportId } = params;
@@ -43,7 +51,7 @@ export const patchReport: ApiHandler<
   void,
   'reportId',
   { tag: ReportTag }
-> = async (queryClient, { params, body }) => {
+> = async (queryClient, _database, { params, body }) => {
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
 
   const updatedReports = reports.map((report) => {
@@ -69,7 +77,7 @@ export const patchMultipleReports: ApiHandler<
   void,
   '',
   { reportIds: Report['id'][]; tag: ReportTag }
-> = async (queryClient, { body }) => {
+> = async (queryClient, _database, { body }) => {
   const { reportIds, tag } = body;
 
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
@@ -92,6 +100,7 @@ export const patchMultipleReports: ApiHandler<
 
 export const deleteReport: ApiHandler<void, 'reportId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { reportId } = params;
@@ -107,7 +116,7 @@ export const deleteMultipleReports: ApiHandler<
   void,
   '',
   { reportIds: Report['id'][] }
-> = async (queryClient, { body }) => {
+> = async (queryClient, _database, { body }) => {
   const { reportIds } = body;
   const reports = queryClient.getQueryData<Report[]>([reportsCacheKey]) ?? [];
 

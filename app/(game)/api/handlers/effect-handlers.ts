@@ -9,6 +9,7 @@ import {
 
 export const getVillageEffects: ApiHandler<Effect[], 'villageId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { villageId: villageIdParam } = params;

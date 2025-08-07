@@ -5,6 +5,7 @@ import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-
 
 export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const { villageId, unitId } = args;

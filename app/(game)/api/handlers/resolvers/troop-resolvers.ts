@@ -13,7 +13,7 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { unitId, villageId, duration, startsAt } = args;
 
   const { unitWheatConsumption } = getUnitData(unitId);

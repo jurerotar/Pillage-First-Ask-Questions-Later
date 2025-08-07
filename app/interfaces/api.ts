@@ -3,6 +3,7 @@ import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
+import type { Database } from 'app/interfaces/models/common';
 
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
@@ -15,6 +16,7 @@ export type ApiHandler<
   TBody = Record<string, unknown>,
 > = (
   queryClient: QueryClient,
+  database: Database,
   args: ApiHandlerArgs<TBody, TParams>,
 ) => Promise<TReturn>;
 

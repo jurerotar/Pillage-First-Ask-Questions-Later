@@ -5,7 +5,7 @@ import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/que
 
 export const unitImprovementResolver: Resolver<
   GameEvent<'unitImprovement'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { unitId } = args;
 
   queryClient.setQueryData<UnitImprovement[]>(

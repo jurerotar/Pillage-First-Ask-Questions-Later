@@ -20,7 +20,7 @@ type GetCollectableQuestCountReturn = {
 
 export const getCollectableQuestCount: ApiHandler<
   GetCollectableQuestCountReturn
-> = async (queryClient) => {
+> = async (queryClient, _database) => {
   const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
 
   return {
@@ -32,7 +32,7 @@ export const collectQuest: ApiHandler<
   void,
   'questId',
   { villageId: Village['id'] }
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const {
     params: { questId },
     body: { villageId: villageIdParam },

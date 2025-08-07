@@ -5,7 +5,7 @@ import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 export const getResearchedUnits: ApiHandler<
   UnitResearch[],
   'villageId'
-> = async (queryClient, { params }) => {
+> = async (queryClient, _database, { params }) => {
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 
