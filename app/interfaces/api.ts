@@ -36,11 +36,6 @@ export type WorkerInitializationErrorEvent = {
   error: Error;
 };
 
-export type LocaleChangedEvent = {
-  eventKey: 'event:locale-changed';
-  locale: string;
-};
-
 export type EventApiNotificationEvent<
   T extends GameEventType | undefined = undefined,
 > = GameEvent<T> & {

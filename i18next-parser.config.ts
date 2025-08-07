@@ -1,7 +1,5 @@
 import type { UserConfig } from 'i18next-parser';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
-
-const locales: AvailableLocale[] = ['en-US', 'ar-SA'];
+import { supportedLngs } from 'app/localization/i18n';
 
 export default {
   // Key separator used in your translation keys
@@ -52,7 +50,7 @@ export default {
   lineEnding: 'lf',
 
   // An array of the locales in your applications
-  locales,
+  locales: supportedLngs,
 
   // Namespace separator used in your translation keys
   // If you want to use plain English keys, separators such as `.` and `:` will conflict.

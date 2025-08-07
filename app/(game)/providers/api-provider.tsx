@@ -5,14 +5,10 @@ import {
   createWorkerFetcher,
   type Fetcher,
 } from 'app/(game)/utils/worker-fetch';
-import type {
-  EventApiNotificationEvent,
-  LocaleChangedEvent,
-} from 'app/interfaces/api';
+import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
-import { syncLocaleFromCookie } from 'app/utils/locale-sync';
 
 type ApiContextReturn = {
   fetcher: Fetcher;
@@ -32,15 +28,8 @@ export const ApiProvider: React.FCWithChildren = ({ children }) => {
     }
 
     const handleMessage = async (
-      event: MessageEvent<EventApiNotificationEvent | LocaleChangedEvent>,
+      event: MessageEvent<EventApiNotificationEvent>,
     ) => {
-      // Handle locale change events
-      if (event.data.eventKey === 'event:locale-changed') {
-        await syncLocaleFromCookie();
-        return;
-      }
-
-      // Handle other event notifications
       if (!isEventResolvedNotificationMessageEvent(event)) {
         return;
       }

@@ -2,12 +2,15 @@ export const isStandaloneDisplayMode = () => {
   return window.matchMedia('(display-mode: standalone)').matches;
 };
 
-export const getCookie = async (name: string): Promise<string | null> => {
+export const _getCookie = async (
+  name: string,
+  fallback: string,
+): Promise<string> => {
   const cookie = await cookieStore.get(name);
-  return cookie?.value ?? null;
+  return cookie?.value ?? fallback;
 };
 
-export const setCookie = async (
+export const _setCookie = async (
   name: string,
   value: string,
   days = 365,

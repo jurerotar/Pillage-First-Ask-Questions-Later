@@ -1,9 +1,7 @@
 import i18n from 'i18next';
-import { getCookie } from 'app/utils/device';
+import type { AvailableLocale } from 'app/interfaces/models/locale';
 
-export const loadPublicTranslations = async () => {
-  const locale = getCookie('locale') || i18n.language || 'en-US';
-
+export const loadPublicTranslations = async (locale: AvailableLocale) => {
   if (!i18n.hasResourceBundle(locale, 'public')) {
     const { default: publicResources } = await import(
       `app/localization/locales/${locale}/public.json`

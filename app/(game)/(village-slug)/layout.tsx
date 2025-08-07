@@ -35,6 +35,7 @@ import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { useTextDirection } from 'app/hooks/use-text-direction';
 
 type CounterProps = {
   counter?: number;
@@ -661,7 +662,9 @@ const GameLayout = () => {
   const { preferences } = usePreferences();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { timeOfDay, skinVariant, colorScheme } = preferences;
+  const { timeOfDay, skinVariant, colorScheme, locale } = preferences;
+
+  const { direction } = useTextDirection(locale);
 
   useEffect(() => {
     const body = document.querySelector('body')!;
@@ -679,6 +682,7 @@ const GameLayout = () => {
     }
     const html = document.documentElement;
 
+    html.setAttribute('dir', direction);
     html.classList.add(
       colorScheme,
       `skin-variant-${skinVariant}`,
@@ -686,13 +690,14 @@ const GameLayout = () => {
     );
 
     return () => {
+      html.removeAttribute('dir');
       html.classList.remove(
         colorScheme,
         `skin-variant-${skinVariant}`,
         `time-of-day-${timeOfDay}`,
       );
     };
-  }, [skinVariant, timeOfDay, colorScheme]);
+  }, [skinVariant, timeOfDay, colorScheme, direction]);
 
   return (
     <CurrentVillageStateProvider>
