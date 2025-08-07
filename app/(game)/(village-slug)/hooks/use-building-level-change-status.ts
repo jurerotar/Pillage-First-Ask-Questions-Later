@@ -23,9 +23,12 @@ export const getHasEnoughWarehouseCapacity = (
   calculatedWarehouseCapacity: number,
   nextLevelResourceCost: number[],
 ): boolean => {
-  return nextLevelResourceCost
-    .filter((_, i) => i < 3)
-    .every((buildingCost) => buildingCost <= calculatedWarehouseCapacity);
+  for (let i = 0; i < 3; i++) {
+    if (nextLevelResourceCost[i] > calculatedWarehouseCapacity) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export const getHasEnoughGranaryCapacity = (
@@ -39,8 +42,11 @@ export const getHasEnoughResources = (
   nextLevelResourceCost: number[],
   currentResources: Resources,
 ): boolean => {
-  return Object.values(currentResources).every(
-    (value, index) => value >= nextLevelResourceCost[index],
+  return (
+    currentResources.wood >= nextLevelResourceCost[0] &&
+    currentResources.clay >= nextLevelResourceCost[1] &&
+    currentResources.iron >= nextLevelResourceCost[2] &&
+    currentResources.wheat >= nextLevelResourceCost[3]
   );
 };
 

@@ -1,17 +1,13 @@
 import { Links, Outlet, Scripts } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
-import clsx from 'clsx';
 import type { Route } from '.react-router/types/app/+types/root';
-import { initFaro } from './faro';
-import './localization/i18n';
-import './styles/app.css';
+import { initFaro } from 'app/faro';
 import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import 'app/localization/i18n';
+import 'app/styles/app.css';
 
 await initFaro();
-
-const isDeployingToMaster = import.meta.env.BRANCH_ENV === 'master';
-const appIconPostfix = clsx(!isDeployingToMaster && '-dev');
 
 const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
   async ({ context }) => {
@@ -35,11 +31,6 @@ export const Layout = () => {
   return (
     <html lang="en-US">
       <head>
-        <link
-          rel="icon"
-          href={`/logo${appIconPostfix}.svg`}
-          type="image/svg+xml"
-        />
         {import.meta.env.MODE === 'production' && (
           <>
             <link
@@ -53,21 +44,32 @@ export const Layout = () => {
             />
           </>
         )}
+        <link
+          rel="icon"
+          type="image/png"
+          href={`/favicon-96x96.png?v=${import.meta.env.GRAPHICS_VERSION}`}
+          sizes="96x96"
+        />
+        <link
+          rel="shortcut icon"
+          href={`/favicon.ico?v=${import.meta.env.GRAPHICS_VERSION}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href={`/apple-touch-icon.png?v=${import.meta.env.GRAPHICS_VERSION}`}
+        />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Pillage First!"
+        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1"
         />
         <meta
-          name="theme-color"
-          content="#111111"
-        />
-        <meta
           name="description"
           content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
-        />
-        <link
-          rel="apple-touch-icon"
-          href={`/logo${appIconPostfix}-192.png`}
         />
         <meta
           name="twitter:card"
@@ -75,39 +77,11 @@ export const Layout = () => {
         />
         <meta
           property="og:url"
-          content=""
+          content="https://pillagefirst.netlify.app"
         />
         <meta
           property="og:type"
           content="website"
-        />
-        <meta
-          name="twitter:image"
-          content="/images/"
-        />
-        <meta
-          property="og:image"
-          content="/images/"
-        />
-        <meta
-          property="og:image:secure_url"
-          content="/images/"
-        />
-        <meta
-          property="og:image:type"
-          content="image/png"
-        />
-        <meta
-          property="og:image:width"
-          content="1200"
-        />
-        <meta
-          property="og:image:height"
-          content="630"
-        />
-        <meta
-          property="og:image:alt"
-          content="Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!"
         />
         <Links />
       </head>

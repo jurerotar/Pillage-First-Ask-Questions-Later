@@ -5,9 +5,9 @@ import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import packageJson from './package.json' with { type: 'json' };
-// import { visualizer } from "rollup-plugin-visualizer";
 import devtoolsJson from 'vite-plugin-devtools-json';
 import babel from 'vite-plugin-babel';
+// import { visualizer } from "rollup-plugin-visualizer";
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -27,25 +27,19 @@ const manifest: Partial<ManifestOptions> = {
   orientation: 'portrait',
   icons: [
     {
-      src: '/logo-192.png',
-      type: 'image/png',
+      src: `/web-app-manifest-192x192.png?v=${graphicsVersion}`,
       sizes: '192x192',
-    },
-    {
-      src: '/logo-512.png',
       type: 'image/png',
-      sizes: '512x512',
       purpose: 'maskable',
     },
     {
-      src: '/logo-512.png',
-      type: 'image/png',
+      src: `/web-app-manifest-512x512.png?v=${graphicsVersion}`,
       sizes: '512x512',
+      type: 'image/png',
+      purpose: 'maskable',
     },
   ],
   scope: '/',
-  lang: 'en',
-  dir: 'ltr',
   categories: ['games', 'strategy', 'browser-game'],
 };
 
@@ -96,17 +90,9 @@ const viteConfig = defineViteConfig({
   server: {
     open: true,
   },
-  experimental: {
-    enableNativePlugin: false,
-  },
-  esbuild: {
-    ...(!isDeployingToMaster && {
-      minifyIdentifiers: false,
-    }),
-  },
   build: {
     target: 'esnext',
-    rollupOptions: {
+    rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
       external: [/^\/graphic-packs/],
     },

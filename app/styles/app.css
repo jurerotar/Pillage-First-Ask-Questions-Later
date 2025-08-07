@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin 'react-icons-tailwindcss';
 
 @variant standalone (@media (display-mode: standalone));
 @variant browser (@media (display-mode: browser));

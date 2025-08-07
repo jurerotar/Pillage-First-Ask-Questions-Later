@@ -1,5 +1,4 @@
 import type React from 'react';
-import { LuChevronRight } from 'react-icons/lu';
 import clsx from 'clsx';
 import { Link } from 'react-router';
 
@@ -70,10 +69,12 @@ export const BreadcrumbSeparator: React.FC<React.ComponentProps<'li'>> = ({
       data-slot="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
-      className={clsx('[&>svg]:size-3.5', className)}
+      className={clsx(className, 'inline-flex items-center')}
       {...props}
     >
-      {children ?? <LuChevronRight />}
+      {children ?? (
+        <i className="icon icon-[lu-chevron-right] size-3.5 inline-flex" />
+      )}
     </li>
   );
 };
