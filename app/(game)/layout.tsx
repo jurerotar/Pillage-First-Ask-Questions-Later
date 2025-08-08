@@ -18,6 +18,9 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
   const { sessionId } = context.get(sessionContext);
 
+  // biome-ignore lint/suspicious/noConsole: Needed to show results
+  console.log('loader', { sessionId });
+
   return {
     sessionId,
   };
@@ -32,6 +35,9 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
 
   const { sessionId } = context.get(sessionContext);
 
+  // biome-ignore lint/suspicious/noConsole: Needed to show results
+  console.log('clientLoader', { sessionId });
+
   return {
     sessionId,
   };
@@ -45,6 +51,9 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
     const { serverSlug } = params;
 
     const { sessionId } = context.get(sessionContext);
+
+    // biome-ignore lint/suspicious/noConsole: Needed to show results
+    console.log('middleware', { serverSlug }, { sessionId });
 
     const lockManager = await window.navigator.locks.query();
 
