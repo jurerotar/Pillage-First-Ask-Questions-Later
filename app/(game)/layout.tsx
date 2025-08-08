@@ -63,6 +63,9 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
       lock?.name?.startsWith(serverSlug!),
     );
 
+    // biome-ignore lint/suspicious/noConsole: Needed to show results
+    console.log('middleware', { lock }, { lockManager });
+
     if (lock) {
       const [, lockSessionId] = lock.name!.split(':');
 
