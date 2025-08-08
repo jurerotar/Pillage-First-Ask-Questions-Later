@@ -14,6 +14,15 @@ import {
 import { Notifier } from 'app/(game)/components/notifier';
 import { Skeleton } from 'app/components/ui/skeleton';
 
+export const loader = async ({ context }: Route.LoaderArgs) => {
+  const { sessionContext } = await import('app/context/session');
+  const { sessionId } = context.get(sessionContext);
+
+  return {
+    sessionId,
+  };
+};
+
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
   // const locale = await getCookie('locale', 'en-US');
