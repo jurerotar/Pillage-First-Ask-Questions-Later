@@ -77,4 +77,5 @@ export default [
       ]),
     ]),
   ]),
+  route('__prerender', '(internal)/(pre-render)/page.tsx'),
 ] satisfies RouteConfigEntry[];

@@ -14,19 +14,6 @@ import {
 import { Notifier } from 'app/(game)/components/notifier';
 import { Skeleton } from 'app/components/ui/skeleton';
 
-export const loader = async ({ context }: Route.LoaderArgs) => {
-  const { sessionContext } = await import('app/context/session');
-  const { sessionId } = context.get(sessionContext);
-
-  // biome-ignore lint/suspicious/noConsole: Needed to show results
-  console.log('loader', { sessionId });
-
-  return {
-    source: 'loader',
-    sessionId,
-  };
-};
-
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
   // const locale = await getCookie('locale', 'en-US');
@@ -36,11 +23,7 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
 
   const { sessionId } = context.get(sessionContext);
 
-  // biome-ignore lint/suspicious/noConsole: Needed to show results
-  console.log('clientLoader', { sessionId });
-
   return {
-    source: 'clientLoader',
     sessionId,
   };
 };
@@ -56,9 +39,6 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
 
     const { sessionId } = context.get(sessionContext);
 
-    // biome-ignore lint/suspicious/noConsole: Needed to show results
-    console.log('middleware', { serverSlug }, { sessionId });
-
     const lockManager = await window.navigator.locks.query();
 
     // Check if there exists a lock with server slug. If yes, we check if current sessionId matches.
@@ -66,9 +46,6 @@ const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
     const lock = lockManager.held!.find((lock) =>
       lock?.name?.startsWith(serverSlug!),
     );
-
-    // biome-ignore lint/suspicious/noConsole: Needed to show results
-    console.log('middleware', { lock }, { lockManager });
 
     if (lock) {
       const [, lockSessionId] = lock.name!.split(':');
@@ -164,10 +141,8 @@ const LayoutFallback = () => {
 const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
 
-  const { sessionId, source } = useLoaderData<typeof clientLoader>();
-
-  // biome-ignore lint/suspicious/noConsole: Needed to show results
-  console.log('layout', { serverSlug }, { sessionId }, { source });
+  const loaderData = useLoaderData<typeof clientLoader>();
+  const sessionId = loaderData?.sessionId ?? null;
 
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
