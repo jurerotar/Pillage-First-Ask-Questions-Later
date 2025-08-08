@@ -22,6 +22,7 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
   console.log('loader', { sessionId });
 
   return {
+    source: 'loader',
     sessionId,
   };
 };
@@ -39,9 +40,12 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   console.log('clientLoader', { sessionId });
 
   return {
+    source: 'clientLoader',
     sessionId,
   };
 };
+
+clientLoader.hydrate = true;
 
 // Check whether server even exists && whether server is already opened in another tab
 const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
@@ -160,10 +164,10 @@ const LayoutFallback = () => {
 const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
 
-  const { sessionId } = useLoaderData<typeof clientLoader>();
+  const { sessionId, source } = useLoaderData<typeof clientLoader>();
 
   // biome-ignore lint/suspicious/noConsole: Needed to show results
-  console.log('layout', { serverSlug }, { sessionId });
+  console.log('layout', { serverSlug }, { sessionId }, { source });
 
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
