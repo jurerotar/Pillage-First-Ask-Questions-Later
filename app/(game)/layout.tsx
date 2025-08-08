@@ -183,6 +183,10 @@ const Layout = ({ params }: Route.ComponentProps) => {
   );
 
   useEffect(() => {
+    if (sessionId === null) {
+      return;
+    }
+
     const { promise, resolve } = Promise.withResolvers();
 
     navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
