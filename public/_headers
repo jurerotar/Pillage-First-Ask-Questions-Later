@@ -39,3 +39,9 @@
 
 /sw.js
   Cache-Control: no-cache
+
+/__spa-fallback.html
+  X-Prerendered: false
+
+/index.html
+  X-Prerendered: false
