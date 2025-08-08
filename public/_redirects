@@ -1,3 +1,27 @@
-/game/*              /__spa-fallback.html     200
-/create-new-server   /create-new-server/index.html 200
-/*                   /index.html              200
+# === Pre-rendered static pages ===
+/create-new-server                /create-new-server/index.html         200
+/design-system/icons              /design-system/icons/index.html       200
+/error/403                        /error/403/index.html                 200
+/error/404                        /error/404/index.html                 200
+/                                 /index.html                           200
+
+# === Pre-rendered game pages (dynamic slugs with splats) ===
+/game/*/resources                          /game/:splat/resources/index.html                          200
+/game/*/village                            /game/:splat/village/index.html                           200
+/game/*/map                                /game/:splat/map/index.html                               200
+/game/*/resources/*                        /game/:splat/resources/:splat/index.html                  200
+/game/*/village/*                          /game/:splat/village/:splat/index.html                    200
+/game/*/production-overview                /game/:splat/production-overview/index.html              200
+/game/*/hero                               /game/:splat/hero/index.html                              200
+/game/*/preferences                        /game/:splat/preferences/index.html                       200
+/game/*/statistics                         /game/:splat/statistics/index.html                        200
+/game/*/overview                           /game/:splat/overview/index.html                          200
+/game/*/quests                             /game/:splat/quests/index.html                            200
+/game/*/reports                            /game/:splat/reports/index.html                           200
+/game/*/reports/*                          /game/:splat/reports/:splat/index.html                    200
+
+# === Dynamic fallback for game routes not statically pre-rendered ===
+/game/*                                    /__spa-fallback.html                                      200
+
+# === Catch-all for SPA fallback
+/*                                         /index.html                                               200
