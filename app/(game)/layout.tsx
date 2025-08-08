@@ -162,6 +162,9 @@ const Layout = ({ params }: Route.ComponentProps) => {
 
   const { sessionId } = useLoaderData<typeof clientLoader>();
 
+  // biome-ignore lint/suspicious/noConsole: Needed to show results
+  console.log('layout', { serverSlug }, { sessionId });
+
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
       defaultOptions: {
