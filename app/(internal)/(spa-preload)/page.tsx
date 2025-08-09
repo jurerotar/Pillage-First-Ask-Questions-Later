@@ -1,6 +1,6 @@
 import { PrefetchPageLinks } from 'react-router';
 
-const PAGES_TO_PREFETCH = [
+const PAGES_TO_INCLUDE_PRELOADS_ON = [
   '/game/server-slug/village-slug/resources',
   '/game/server-slug/village-slug/resources/building-field-id',
   '/game/server-slug/village-slug/village',
@@ -15,10 +15,10 @@ const PAGES_TO_PREFETCH = [
   '/game/server-slug/village-slug/reports/report-id',
 ];
 
-export default function PrefetchLinksWithTags() {
+const SPAPreloadPage = () => {
   return (
     <>
-      {PAGES_TO_PREFETCH.map((page) => (
+      {PAGES_TO_INCLUDE_PRELOADS_ON.map((page) => (
         <PrefetchPageLinks
           data-prefetch-page={page}
           key={page}
@@ -27,4 +27,6 @@ export default function PrefetchLinksWithTags() {
       ))}
     </>
   );
-}
+};
+
+export default SPAPreloadPage;

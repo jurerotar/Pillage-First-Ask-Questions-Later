@@ -1,6 +1,6 @@
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
-import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
+import type { ManifestOptions } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
 import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
@@ -15,7 +15,7 @@ const graphicsVersion =
 const isInTestMode = process.env.VITEST === 'true';
 const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
 
-const manifest: Partial<ManifestOptions> = {
+const _manifest: Partial<ManifestOptions> = {
   name: 'Pillage First! (Ask Questions Later)',
   short_name: 'Pillage First!',
   description:
@@ -57,17 +57,17 @@ const viteConfig = defineViteConfig({
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
-    !isInTestMode &&
-      VitePWA({
-        registerType: 'autoUpdate',
-        manifest,
-        outDir: 'build/client',
-        injectManifest: {
-          swSrc: 'app/sw.ts',
-          swDest: 'sw.js',
-          globIgnores: ['**/*.html'],
-        },
-      }),
+    // !isInTestMode &&
+    //   VitePWA({
+    //     registerType: 'autoUpdate',
+    //     manifest,
+    //     outDir: 'build/client',
+    //     injectManifest: {
+    //       swSrc: 'app/sw.ts',
+    //       swDest: 'sw.js',
+    //       globIgnores: ['**/*.html'],
+    //     },
+    //   }),
     // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
     // replacing the dependency. Remove once/if this gets resolved.
     // https://github.com/juliencrn/usehooks-ts/discussions/669#discussioncomment-11922434
@@ -92,6 +92,7 @@ const viteConfig = defineViteConfig({
   },
   build: {
     target: 'esnext',
+    manifest: true,
     rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
       external: [/^\/graphic-packs/],
