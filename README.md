@@ -24,7 +24,7 @@ Remember: pillage first, ask questions later! ⚔️🔥
 <p align="center">
   <img src="/.github/assets/mobile-map-view.png" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-building-view.png" width="30%">
+  <img src="/.github/assets/mobile-building-construction-list.png" width="30%">
   &nbsp;
   <img src="/.github/assets/mobile-resources-view.png" width="30%">
 </p>
