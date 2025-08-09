@@ -28,8 +28,6 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   };
 };
 
-clientLoader.hydrate = true;
-
 // Check whether server even exists && whether server is already opened in another tab
 const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
   async ({ context, params }) => {
@@ -141,8 +139,7 @@ const LayoutFallback = () => {
 const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
 
-  const loaderData = useLoaderData<typeof clientLoader>();
-  const sessionId = loaderData?.sessionId ?? null;
+  const { sessionId } = useLoaderData<typeof clientLoader>();
 
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
@@ -158,10 +155,6 @@ const Layout = ({ params }: Route.ComponentProps) => {
   );
 
   useEffect(() => {
-    if (sessionId === null) {
-      return;
-    }
-
     const { promise, resolve } = Promise.withResolvers();
 
     navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
