@@ -17,7 +17,6 @@ jobs:
   build:
     name: Continuous Integration
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
