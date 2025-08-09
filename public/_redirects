@@ -1,3 +1,27 @@
-/game/*              /__spa-fallback.html     200
-/create-new-server   /create-new-server/index.html 200
-/*                   /index.html              200
+# === Pre-rendered static pages ===
+/create-new-server                /create-new-server/index.html         200
+/design-system/icons              /design-system/icons/index.html       200
+/error/403                        /error/403/index.html                 200
+/error/404                        /error/404/index.html                 200
+/                                 /index.html                           200
+
+# === Pre-rendered game pages (dynamic slugs with splats) ===
+/game/:splat/:splat/resources                        /game/server-slug/village-slug/resources/index.html                         200
+/game/:splat/:splat/village                         /game/server-slug/village-slug/village/index.html                          200
+/game/:splat/:splat/map                             /game/server-slug/village-slug/map/index.html                              200
+/game/:splat/:splat/resources/:splat                /game/server-slug/village-slug/resources/building-field-id/index.html      200
+/game/:splat/:splat/village/:splat                  /game/server-slug/village-slug/village/building-field-id/index.html        200
+/game/:splat/:splat/production-overview             /game/server-slug/village-slug/production-overview/index.html              200
+/game/:splat/:splat/hero                            /game/server-slug/village-slug/hero/index.html                             200
+/game/:splat/:splat/preferences                     /game/server-slug/village-slug/preferences/index.html                      200
+/game/:splat/:splat/statistics                      /game/server-slug/village-slug/statistics/index.html                       200
+/game/:splat/:splat/overview                        /game/server-slug/village-slug/overview/index.html                         200
+/game/:splat/:splat/quests                          /game/server-slug/village-slug/quests/index.html                           200
+/game/:splat/:splat/reports                         /game/server-slug/village-slug/reports/index.html                          200
+/game/:splat/:splat/reports/:splat                  /game/server-slug/village-slug/reports/report-id/index.html                200
+
+# === Dynamic fallback for game routes not statically pre-rendered ===
+/game/*                                    /__spa-fallback.html                                      200
+
+# === Catch-all for SPA fallback
+/*                                         /index.html                                               200
