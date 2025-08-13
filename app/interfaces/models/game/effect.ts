@@ -53,8 +53,6 @@ export type Effect = {
   id: EffectId;
   // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
   scope: 'global' | 'village' | 'server';
-  // Important rule! If value is integer, it's going to be counted as baseEffectValue. If value is float, it's going to be counter as
-  // a bonus value. Rule goes base * bonus!
   value: number;
   source:
     | 'hero'
@@ -64,6 +62,7 @@ export type Effect = {
     | 'tribe'
     | 'server'
     | 'troops';
+  type: 'base' | 'bonus' | 'bonus-booster';
 };
 
 export type ServerEffect = Omit<Effect, 'scope'> & {
@@ -79,14 +78,14 @@ export type TribalEffect = Omit<GlobalEffect, 'source'> & {
   source: 'tribe';
 };
 
-export type HeroEffect = Omit<GlobalEffect, 'source'> & {
-  source: 'hero';
+export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
+  scope: 'village';
+  source: 'building' | 'oasis' | 'server' | 'troops' | 'hero';
   villageId: Village['id'];
 };
 
-export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
-  scope: 'village';
-  source: 'building' | 'oasis' | 'server' | 'troops';
+export type HeroEffect = Omit<VillageEffect, 'source'> & {
+  source: 'hero';
   villageId: Village['id'];
 };
 
@@ -104,4 +103,9 @@ export type ArtifactEffect = Omit<VillageEffect, 'source'> & {
 export type OasisEffect = Omit<VillageEffect, 'source'> & {
   source: 'oasis';
   oasisId: Tile['id'];
+};
+
+export type BonusBoosterEffect = Omit<Effect, 'type'> & {
+  type: 'bonus-booster';
+  boostedCategory: Extract<Effect['source'], 'oasis'>;
 };

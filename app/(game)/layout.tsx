@@ -13,6 +13,8 @@ import {
 } from 'react-router';
 import { Notifier } from 'app/(game)/components/notifier';
 import { Skeleton } from 'app/components/ui/skeleton';
+import { Toaster, type ToasterProps } from 'sonner';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -140,6 +142,7 @@ const Layout = ({ params }: Route.ComponentProps) => {
   const { serverSlug } = params;
 
   const { sessionId } = useLoaderData<typeof clientLoader>();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const [queryClient] = useState<QueryClient>(
     new QueryClient({
@@ -153,6 +156,10 @@ const Layout = ({ params }: Route.ComponentProps) => {
       },
     }),
   );
+
+  const toasterPosition: ToasterProps['position'] = isWiderThanLg
+    ? 'bottom-right'
+    : 'top-right';
 
   useEffect(() => {
     const { promise, resolve } = Promise.withResolvers();
@@ -172,6 +179,10 @@ const Layout = ({ params }: Route.ComponentProps) => {
           <Notifier />
         </ApiProvider>
       </Suspense>
+      <Toaster
+        position={toasterPosition}
+        closeButton
+      />
       <ReactQueryDevtools
         client={queryClient}
         initialIsOpen={false}

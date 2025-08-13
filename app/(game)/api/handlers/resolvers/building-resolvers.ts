@@ -99,13 +99,14 @@ export const buildingLevelChangeResolver: Resolver<
 
     return [
       ...buildingEffectsWithoutCurrentBuildingEffects,
-      ...buildingEffects.map(({ effectId, valuesPerLevel }) => {
+      ...buildingEffects.map(({ effectId, valuesPerLevel, type }) => {
         return newBuildingEffectFactory({
           villageId,
           id: effectId,
           value: valuesPerLevel[level],
           buildingFieldId,
           buildingId,
+          type,
         });
       }),
     ];
@@ -126,13 +127,14 @@ export const buildingConstructionResolver: Resolver<
   const { effects } = getBuildingData(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
-    const newEffects = effects.map(({ effectId, valuesPerLevel }) => {
+    const newEffects = effects.map(({ effectId, valuesPerLevel, type }) => {
       return newBuildingEffectFactory({
         id: effectId,
         villageId,
         value: valuesPerLevel[0],
         buildingFieldId,
         buildingId,
+        type,
       });
     });
     return [...prevData!, ...newEffects];

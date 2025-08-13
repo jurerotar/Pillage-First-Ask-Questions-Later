@@ -22,42 +22,74 @@ import type {
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 
-const heroEffectsFactory = (villageId: Village['id'], hero: Hero): Effect[] => {
+const heroEffectsFactory = (
+  villageId: Village['id'],
+  hero: Hero,
+): HeroEffect[] => {
   const { selectableAttributes, tribe } = hero;
 
   const baseResourceProduction = 9;
-  const baseHeroProduction =
-    tribe === 'egyptians' ? baseResourceProduction * 2 : baseResourceProduction;
 
-  const heroEffects: Pick<HeroEffect, 'id' | 'value'>[] = [
+  const heroEffects: Pick<HeroEffect, 'id' | 'value' | 'type'>[] = [
     {
       id: 'attack',
-      value: 1.001 * selectableAttributes.attackBonus * 0.2,
+      value: selectableAttributes.attackBonus * 0.2,
+      type: 'bonus',
     },
     {
       id: 'infantryDefence',
-      value: 1.001 * selectableAttributes.defenceBonus * 0.2,
+      value: selectableAttributes.defenceBonus * 0.2,
+      type: 'bonus',
     },
     {
       id: 'cavalryDefence',
-      value: 1.001 * selectableAttributes.defenceBonus * 0.2,
+      value: selectableAttributes.defenceBonus * 0.2,
+      type: 'bonus',
     },
     {
       id: 'woodProduction',
-      value: baseHeroProduction * selectableAttributes.resourceProduction,
+      value: baseResourceProduction * selectableAttributes.resourceProduction,
+      type: 'base',
     },
     {
       id: 'clayProduction',
-      value: baseHeroProduction * selectableAttributes.resourceProduction,
+      value: baseResourceProduction * selectableAttributes.resourceProduction,
+      type: 'base',
     },
     {
       id: 'ironProduction',
-      value: baseHeroProduction * selectableAttributes.resourceProduction,
+      value: baseResourceProduction * selectableAttributes.resourceProduction,
+      type: 'base',
     },
     {
       id: 'wheatProduction',
-      value: baseHeroProduction * selectableAttributes.resourceProduction,
+      value: baseResourceProduction * selectableAttributes.resourceProduction,
+      type: 'base',
     },
+    ...(tribe === 'egyptians'
+      ? ([
+          {
+            id: 'woodProduction',
+            value: 2,
+            type: 'bonus',
+          },
+          {
+            id: 'clayProduction',
+            value: 2,
+            type: 'bonus',
+          },
+          {
+            id: 'ironProduction',
+            value: 2,
+            type: 'bonus',
+          },
+          {
+            id: 'wheatProduction',
+            value: 2,
+            type: 'bonus',
+          },
+        ] satisfies Pick<HeroEffect, 'id' | 'value' | 'type'>[])
+      : []),
   ];
 
   return heroEffects.map((effect) => ({
@@ -81,6 +113,7 @@ export const oasisEffectsFactory = (
       value: bonus === '25%' ? 1.25 : 1.5,
       villageId,
       oasisId,
+      type: 'bonus',
     } satisfies OasisEffect;
   });
 };
@@ -91,6 +124,7 @@ type NewBuildingEffectFactoryArgs = {
   value: number;
   buildingFieldId: BuildingField['id'];
   buildingId: Building['id'];
+  type: Effect['type'];
 };
 
 export const newBuildingEffectFactory = (
@@ -110,20 +144,24 @@ const newVillageBuildingFieldsEffectsFactory = (
     ({ buildingId, id, level }: BuildingField) => {
       const building = getBuildingData(buildingId);
       return building.effects.map(
-        ({ effectId, valuesPerLevel }: BuildingEffect) =>
+        ({ effectId, valuesPerLevel, type }: BuildingEffect) =>
           newBuildingEffectFactory({
             id: effectId,
             villageId: village.id,
             value: valuesPerLevel[level],
             buildingFieldId: id,
             buildingId,
+            type,
           }),
       );
     },
   );
 };
 
-export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
+export const newVillageEffectsFactory = (
+  village: Village,
+  isFirstVillage = false,
+): VillageEffect[] => {
   return [
     ...newVillageBuildingFieldsEffectsFactory(village),
     {
@@ -134,6 +172,7 @@ export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
       villageId: village.id,
       buildingId: 'WAREHOUSE',
       buildingFieldId: 'hidden',
+      type: 'base',
     } satisfies VillageBuildingEffect,
     {
       id: 'granaryCapacity',
@@ -143,13 +182,15 @@ export const newVillageEffectsFactory = (village: Village): VillageEffect[] => {
       villageId: village.id,
       buildingId: 'GRANARY',
       buildingFieldId: 'hidden',
+      type: 'base',
     } satisfies VillageBuildingEffect,
     {
       id: 'wheatProduction',
       scope: 'village',
       source: 'troops',
-      value: 0,
+      value: isFirstVillage ? 3 : 0,
       villageId: village.id,
+      type: 'base',
     },
   ];
 };
@@ -166,11 +207,13 @@ const globalEffectsFactory = (server: Server): GlobalEffect[] => {
       id: 'merchantCapacity',
       value: tribeMerchant.merchantCapacity,
       source: 'tribe',
+      type: 'base',
     },
     {
       id: 'merchantSpeed',
       value: tribeMerchant.merchantSpeed,
       source: 'tribe',
+      type: 'base',
     },
   ];
 
@@ -219,6 +262,7 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
       value,
       source: 'server',
       scope: 'server',
+      type: 'bonus',
     };
   });
 };
@@ -230,7 +274,7 @@ export const generateEffects = (
 ): Effect[] => {
   const serverEffects = serverEffectsFactory(server);
   const globalEffects = globalEffectsFactory(server);
-  const villageEffects = newVillageEffectsFactory(village);
+  const villageEffects = newVillageEffectsFactory(village, true);
   const heroEffects = heroEffectsFactory(village.id, hero);
 
   return [

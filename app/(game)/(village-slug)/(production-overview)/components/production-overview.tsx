@@ -1,20 +1,6 @@
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import type {
-  ArtifactEffect,
-  HeroEffect,
-  OasisEffect,
-  ResourceProductionEffectId,
-  VillageBuildingEffect,
-} from 'app/interfaces/models/game/effect';
+import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
 import type React from 'react';
-import {
-  isArtifactEffect,
-  isBuildingEffect,
-  isHeroEffect,
-  isOasisBoosterEffect,
-  isOasisEffect,
-  isServerEffect,
-} from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -25,7 +11,6 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { useTranslation } from 'react-i18next';
-import { normalizeForcedFloatValue, partition } from 'app/utils/common';
 import {
   Section,
   SectionContent,
@@ -33,9 +18,17 @@ import {
 import { Link } from 'react-router';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
+import {
+  isArtifactEffect,
+  isBuildingEffect,
+  isHeroEffect,
+  isOasisBoosterEffect,
+  isOasisEffect,
+  isServerEffect,
+} from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 
 const formatBonus = (number: number): number => {
-  return Math.trunc(normalizeForcedFloatValue(number) * 10000) / 100;
+  return Math.trunc(number * 10000) / 100;
 };
 
 type ResourceBoosterBenefitsProps = {
@@ -50,23 +43,20 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
   const { effects } = useEffects();
   const { mapPath } = useGameNavigation();
 
-  // TODO: There's 10 array loops in a row here. It's not really an issue, because we usually loop through only a couple of objects, but you still might want to clean this up sometime
-
+  // Keep the same “relevant effects” logic
   const relevantEffects = effects.filter(
     ({ id }) => id === effectId || id === `${effectId}OasisBonus`,
   );
 
   const serverEffectValue = relevantEffects.find(isServerEffect)?.value ?? 1;
 
-  // Waterworks needs to be excluded, because it does not provide a value by itself, but rather enhances oasis
-  // We're also excluding negative effects, because that's handled by the balance overview
+  // Waterworks must not appear as a row (it only boosts oasis), and negative base from buildings is excluded here
   const buildingEffects = relevantEffects
     .filter(isBuildingEffect)
-    .filter(({ buildingId, value }) => {
-      if (value <= 0) {
+    .filter(({ buildingId, type, value }) => {
+      if (type === 'base' && value <= 0) {
         return false;
       }
-
       return buildingId !== 'WATERWORKS';
     });
 
@@ -75,36 +65,25 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
   const oasisEffects = relevantEffects.filter(isOasisEffect);
   const oasisBoosterEffects = relevantEffects.filter(isOasisBoosterEffect);
 
-  const [baseBuildingEffects, bonusBuildingEffects] =
-    partition<VillageBuildingEffect>(buildingEffects, ({ value }) =>
-      Number.isInteger(value),
-    );
-
-  const baseBuildingEffectsWithServerModifier = baseBuildingEffects.map(
-    (effect) => {
-      return {
-        ...effect,
-        value: effect.value * serverEffectValue,
-      };
-    },
+  const baseBuildingEffects = buildingEffects.filter(
+    ({ type }) => type === 'base',
+  );
+  const bonusBuildingEffects = buildingEffects.filter(
+    ({ type }) => type === 'bonus',
   );
 
-  const [baseHeroEffects, bonusHeroEffects] = partition<HeroEffect>(
-    heroEffects,
-    ({ value }) => Number.isInteger(value),
+  const baseHeroEffects = heroEffects.filter(({ type }) => type === 'base');
+  const bonusHeroEffects = heroEffects.filter(({ type }) => type === 'bonus');
+
+  const baseArtifactEffects = artifactEffects.filter(
+    ({ type }) => type === 'base',
   );
-  const [baseArtifactEffects, bonusArtifactEffects] = partition<ArtifactEffect>(
-    artifactEffects,
-    ({ value }) => Number.isInteger(value),
+  const bonusArtifactEffects = artifactEffects.filter(
+    ({ type }) => type === 'bonus',
   );
-  const [baseOasisEffects, bonusOasisEffects] = partition<OasisEffect>(
-    oasisEffects,
-    ({ value }) => Number.isInteger(value),
-  );
-  const [, bonusOasisBoosterEffects] = partition<VillageBuildingEffect>(
-    oasisBoosterEffects,
-    ({ value }) => Number.isInteger(value),
-  );
+
+  const baseOasisEffects = oasisEffects.filter(({ type }) => type === 'base');
+  const bonusOasisEffects = oasisEffects.filter(({ type }) => type === 'bonus');
 
   const hasBonuses =
     bonusBuildingEffects.length > 0 ||
@@ -118,38 +97,47 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
     baseArtifactEffects.length > 0 ||
     baseOasisEffects.length > 0;
 
-  const summedBonusOasisBoosterEffectValue = bonusOasisBoosterEffects.reduce(
-    (acc, { value }) => acc + normalizeForcedFloatValue(value),
-    0,
+  // Apply server modifier only to base building effects (exactly like before)
+  const baseBuildingEffectsWithServerModifier = baseBuildingEffects.map(
+    (effect) => ({
+      ...effect,
+      value: effect.value * serverEffectValue,
+    }),
   );
 
-  const boostedOasisEffects = bonusOasisEffects.map((effect) => {
-    return {
-      ...effect,
-      value: (effect.value - 1) * (summedBonusOasisBoosterEffectValue + 1),
-    };
-  });
+  // Oasis boosters multiply the oasis bonus percentage
+  const summedBonusOasisBoosterEffectValue =
+    oasisBoosterEffects.reduce((acc, { value }) => acc + value, 0) || 1;
 
-  const summedBaseEffectValue = [
-    ...baseBuildingEffectsWithServerModifier,
-    ...baseHeroEffects,
-    ...baseArtifactEffects,
-    ...baseOasisEffects,
-  ].reduce((acc, { value }) => acc + value, 0);
+  const boostedOasisEffects = bonusOasisEffects.map((effect) => ({
+    ...effect,
+    // keep the same semantics as before: multiply only the (value - 1) part
+    value: (effect.value - 1) * summedBonusOasisBoosterEffectValue,
+  }));
 
-  const summedBonusEffectValue = [
-    ...bonusBuildingEffects,
-    ...bonusHeroEffects,
-    ...bonusArtifactEffects,
-    ...boostedOasisEffects,
-  ].reduce((acc, { value }) => acc + (value % 1), 0);
+  // Sum base values (same sources, with server applied to building base)
+  const summedBaseEffectValue =
+    baseBuildingEffectsWithServerModifier.reduce(
+      (acc, { value }) => acc + value,
+      0,
+    ) +
+    baseHeroEffects.reduce((acc, { value }) => acc + value, 0) +
+    baseArtifactEffects.reduce((acc, { value }) => acc + value, 0) +
+    baseOasisEffects.reduce((acc, { value }) => acc + value, 0);
 
+  // Sum the decimal “bonus” parts exactly like before (using % 1), but with boosted oasis
+  const summedBonusEffectValue =
+    bonusBuildingEffects.reduce((acc, { value }) => acc + (value % 1), 0) +
+    bonusHeroEffects.reduce((acc, { value }) => acc + (value % 1), 0) +
+    bonusArtifactEffects.reduce((acc, { value }) => acc + (value % 1), 0) +
+    boostedOasisEffects.reduce((acc, { value }) => acc + (value % 1), 0);
+
+  // Bonus that applies on top of base building values
   const summedBaseBuildingEffectWithBonusValue =
     baseBuildingEffectsWithServerModifier.reduce(
       (acc, { value }) => acc + Math.trunc(value * summedBonusEffectValue),
       0,
     );
-
   return (
     <Section>
       <SectionContent>

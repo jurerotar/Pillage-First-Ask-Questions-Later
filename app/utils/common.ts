@@ -124,11 +124,6 @@ export const timeExecution = async (
 };
 
 export const formatPercentage = (number: number): string => {
-  // We can't differentiate between ints and floats in JS, so every x.0 number is written as 1.001. We check for this number
-  // here and just return 100% if
-  if (`${number}`.endsWith('.001')) {
-    return `${Math.trunc(number)}00%`;
-  }
   // Extract the fractional part by subtracting the integer part
   const fractionalPart = number - Math.floor(number);
 
@@ -150,12 +145,4 @@ export const formatValue = (value: number) => {
   return Number.isInteger(value) && !value.toString().includes('.')
     ? value
     : formatPercentage(value);
-};
-
-export const normalizeForcedFloatValue = (value: number) => {
-  if (`${value}`.endsWith('.001')) {
-    return Math.trunc(value);
-  }
-
-  return value;
 };
