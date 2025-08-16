@@ -11,7 +11,6 @@ import type {
 } from 'app/interfaces/models/game/building';
 import type {
   Effect,
-  OasisResourceProductionBonusEffectId,
   ResourceProductionEffectId,
   TroopTrainingDurationEffectId,
 } from 'app/interfaces/models/game/effect';
@@ -106,7 +105,7 @@ const createResourceProductionEffect = (
 };
 
 const createResourceBoosterEffect = (
-  effectId: ResourceProductionEffectId | OasisResourceProductionBonusEffectId,
+  effectId: ResourceProductionEffectId,
   limit = 6,
 ): BuildingEffect => {
   return {
@@ -120,7 +119,7 @@ const createResourceBoosterEffect = (
 };
 
 const createOasisBonusBoosterEffect = (
-  effectId: OasisResourceProductionBonusEffectId,
+  effectId: ResourceProductionEffectId,
 ): BuildingEffect => {
   return {
     effectId,
@@ -466,10 +465,10 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     effects: [
       createNegativeWheatProductionEffect('A'),
-      createOasisBonusBoosterEffect('woodProductionOasisBonus'),
-      createOasisBonusBoosterEffect('clayProductionOasisBonus'),
-      createOasisBonusBoosterEffect('ironProductionOasisBonus'),
-      createOasisBonusBoosterEffect('wheatProductionOasisBonus'),
+      createOasisBonusBoosterEffect('woodProduction'),
+      createOasisBonusBoosterEffect('clayProduction'),
+      createOasisBonusBoosterEffect('ironProduction'),
+      createOasisBonusBoosterEffect('wheatProduction'),
     ],
     buildingRequirements: [
       {

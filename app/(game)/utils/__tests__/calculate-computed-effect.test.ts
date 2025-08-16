@@ -45,7 +45,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(125); // 100 * 1.25
+      expect(result.total).toBe(125);
     });
 
     test('base + bonus + booster – should return 150', () => {
@@ -59,7 +59,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(150); // 100 * (1 + 0.25 * 2) = 100 * 1.5
+      expect(result.total).toBe(150);
     });
 
     test('base + bonus + booster + server – should return 300', () => {
@@ -74,7 +74,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(300); // 100 * 1.5 * 2 = 300
+      expect(result.total).toBe(300);
     });
 
     test('base + bonus + booster + hero base – should return 160', () => {
@@ -89,10 +89,10 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(150 + 10); // 100 * 1.5 + 10
+      expect(result.total).toBe(160);
     });
 
-    test('base + bonus + booster + hero base + hero bonus – should return 180', () => {
+    test('base + bonus + booster + hero base + hero bonus – should return 260', () => {
       const effects = [
         woodProductionBaseEffectMock,
         woodProductionBonusEffectMock,
@@ -105,10 +105,10 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(250 + 10);
+      expect(result.total).toBe(260);
     });
 
-    test('all sources + server – should return 360', () => {
+    test('all sources + server – should return 520', () => {
       const effects = [
         woodProductionBaseEffectMock,
         woodProductionBonusEffectMock,
@@ -122,7 +122,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(250 * 2 + 10);
+      expect(result.total).toBe(520);
     });
 
     test('base + server - should return 200', () => {
@@ -151,67 +151,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(225); // (100 + 50) * (1 + 0.25 * 2) = 150 * 1.5 = 225
-    });
-
-    test('base + population (negative building base) – total=50, population=50, limit=0', () => {
-      const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
-
-      const effects = [wheatProductionBaseEffectMock, populationEffect];
-      const result = calculateComputedEffect(
-        'wheatProduction',
-        effects,
-        villageId,
-      );
-
-      expect(result.total).toBe(50); // 100 (base) - 50 (population)
-      expect(result.population).toBe(50); // -(-50)
-      expect(result.buildingWheatLimit).toBe(0); // total + summedNegative = 50 + (-50)
-    });
-
-    test('base + population + bonus + booster – total=100, population=50, limit=50', () => {
-      const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
-
-      const effects = [
-        wheatProductionBaseEffectMock, // +100
-        populationEffect, // -50
-        wheatProductionBonusEffectMock, // +25% bonus
-        wheatProductionBonusBoosterEffectMock, // x2 booster -> 1 + 0.25*2 = 1.5
-      ];
-
-      const result = calculateComputedEffect(
-        'wheatProduction',
-        effects,
-        villageId,
-      );
-
-      // positive base (100) * 1.5 = 150; then add population (-50) => total = 100
-      expect(result.total).toBe(100);
-      expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(50); // 100 + (-50)
-    });
-
-    test('base + population + bonus + booster + server – total=250, population=50, limit=200', () => {
-      const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
-
-      const effects = [
-        wheatProductionBaseEffectMock, // +100
-        populationEffect, // -50
-        wheatProductionBonusEffectMock, // +25%
-        wheatProductionBonusBoosterEffectMock, // booster 2 -> 1.5 combined
-        wheatProductionServerEffectMock, // server multiplier 2
-      ];
-
-      const result = calculateComputedEffect(
-        'wheatProduction',
-        effects,
-        villageId,
-      );
-
-      // positive base: 100 * 1.5 * 2 = 300; total = 300 - 50 = 250
-      expect(result.total).toBe(250);
-      expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(200); // 250 + (-50)
+      expect(result.total).toBe(225);
     });
   });
 
@@ -236,21 +176,21 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(125); // 100 * 1.25
+      expect(result.total).toBe(125);
     });
 
     test('base + bonus + booster – should return 150', () => {
       const effects = [
         wheatProductionBaseEffectMock,
         wheatProductionBonusEffectMock,
-        wheatProductionBonusBoosterEffectMock, // Using wood booster mock if no wheat-specific one exists
+        wheatProductionBonusBoosterEffectMock,
       ];
       const result = calculateComputedEffect(
         'wheatProduction',
         effects,
         villageId,
       );
-      expect(result.total).toBe(150); // 100 * (1 + 0.25 * 2) = 100 * 1.5
+      expect(result.total).toBe(150);
     });
 
     test('base + bonus + booster + server – should return 300', () => {
@@ -265,7 +205,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(300); // 100 * 1.5 * 2
+      expect(result.total).toBe(300);
     });
 
     test('base + bonus + booster + hero base – should return 160', () => {
@@ -280,10 +220,10 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(150 + 10); // 100 * 1.5 + 10
+      expect(result.total).toBe(160);
     });
 
-    test('base + bonus + booster + hero base + hero bonus – should return 180', () => {
+    test('base + bonus + booster + hero base + hero bonus – should return 260', () => {
       const effects = [
         wheatProductionBaseEffectMock,
         wheatProductionBonusEffectMock,
@@ -299,7 +239,7 @@ describe('calculateComputedEffect – woodProduction', () => {
       expect(result.total).toBe(260);
     });
 
-    test('all sources + server – should return 360', () => {
+    test('all sources + server – should return 520', () => {
       const effects = [
         wheatProductionBaseEffectMock,
         wheatProductionBonusEffectMock,
@@ -313,7 +253,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(250 * 2 + 10); // (100 * 1.5 * 2) + 10 = 300 + 10 = 310
+      expect(result.total).toBe(520);
     });
 
     test('base + server - should return 200', () => {
@@ -326,7 +266,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(200); // 100 * 2
+      expect(result.total).toBe(200);
     });
 
     test('multiple base effects – sum before applying bonus', () => {
@@ -342,7 +282,65 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         villageId,
       );
-      expect(result.total).toBe(225); // (100 + 50) * (1 + 0.25 * 2) = 150 * 1.5 = 225
+      expect(result.total).toBe(225);
+    });
+
+    test('base + population (negative building base) – total=50, population=50, limit=0', () => {
+      const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
+
+      const effects = [wheatProductionBaseEffectMock, populationEffect];
+      const result = calculateComputedEffect(
+        'wheatProduction',
+        effects,
+        villageId,
+      );
+
+      expect(result.total).toBe(50);
+      expect(result.population).toBe(50);
+      expect(result.buildingWheatLimit).toBe(0);
+    });
+
+    test('base + population + bonus + booster – total=100, population=50, limit=50', () => {
+      const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
+
+      const effects = [
+        wheatProductionBaseEffectMock,
+        populationEffect,
+        wheatProductionBonusEffectMock,
+        wheatProductionBonusBoosterEffectMock,
+      ];
+
+      const result = calculateComputedEffect(
+        'wheatProduction',
+        effects,
+        villageId,
+      );
+
+      expect(result.total).toBe(100);
+      expect(result.population).toBe(50);
+      expect(result.buildingWheatLimit).toBe(50);
+    });
+
+    test('base + population + bonus + booster + server – total=250, population=50, limit=200', () => {
+      const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
+
+      const effects = [
+        wheatProductionBaseEffectMock,
+        populationEffect,
+        wheatProductionBonusEffectMock,
+        wheatProductionBonusBoosterEffectMock,
+        wheatProductionServerEffectMock,
+      ];
+
+      const result = calculateComputedEffect(
+        'wheatProduction',
+        effects,
+        villageId,
+      );
+
+      expect(result.total).toBe(250);
+      expect(result.population).toBe(50);
+      expect(result.buildingWheatLimit).toBe(200);
     });
   });
 

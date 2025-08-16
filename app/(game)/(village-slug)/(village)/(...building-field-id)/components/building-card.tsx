@@ -22,7 +22,7 @@ import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-
 import { formatTime } from 'app/utils/time';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Icon } from 'app/components/icon';
-import { formatValue } from 'app/utils/common';
+import { formatNumber, formatPercentage } from 'app/utils/common';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
@@ -186,16 +186,15 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
     effect.effectId,
   );
 
+  const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
+
   const type =
     effect.effectId === 'wheatProduction' && effect.currentLevelValue <= 0
       ? 'population'
       : effect.effectId;
 
   const effectModifier =
-    type !== 'population' &&
-    Number.isInteger(effect.currentLevelValue) &&
-    Number.isInteger(effect.nextLevelValue) &&
-    hasEffect
+    type !== 'population' && effect.type === 'base' && hasEffect
       ? serverEffectValue
       : 1;
 
@@ -216,23 +215,20 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
       <span>
         {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
           <>
-            {formatValue(
-              Math.abs(
-                !Number.isInteger(effect.currentLevelValue) &&
-                  effect.currentLevelValue - effect.nextLevelValue < 0
-                  ? (effect.currentLevelValue - 1) * effectModifier
-                  : effect.currentLevelValue * effectModifier,
-              ),
+            {formattingFn(
+              Math.abs(effect.currentLevelValue),
+              effect.areEffectValuesRising,
             )}
             <span className="mx-0.5">&rarr;</span>
           </>
         )}
-        {formatValue(
+        {formattingFn(
           Math.abs(
             isMaxLevel
               ? effect.currentLevelValue * effectModifier
               : effect.nextLevelValue * effectModifier,
           ),
+          effect.areEffectValuesRising,
         )}
       </span>
     </span>

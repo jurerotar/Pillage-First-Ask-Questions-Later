@@ -20,12 +20,6 @@ export type ResourceProductionEffectId =
   | 'ironProduction'
   | 'wheatProduction';
 
-export type OasisResourceProductionBonusEffectId =
-  | 'woodProductionOasisBonus'
-  | 'clayProductionOasisBonus'
-  | 'ironProductionOasisBonus'
-  | 'wheatProductionOasisBonus';
-
 export type EffectId =
   | 'attack'
   | 'defence'
@@ -45,7 +39,6 @@ export type EffectId =
   | 'crannyCapacity'
   | 'trapperCapacity'
   | 'revealedIncomingTroopsAmount'
-  | OasisResourceProductionBonusEffectId
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 
@@ -90,7 +83,7 @@ export type HeroEffect = Omit<VillageEffect, 'source'> & {
 };
 
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
-  source: 'building';
+  source: 'building' | 'oasis';
   buildingFieldId: BuildingField['id'] | 'hidden';
   buildingId: Building['id'];
 };

@@ -26,9 +26,10 @@ const heroEffectsFactory = (
   villageId: Village['id'],
   hero: Hero,
 ): HeroEffect[] => {
-  const { selectableAttributes, tribe } = hero;
+  const { selectableAttributes, tribe, resourceToProduce } = hero;
 
-  const baseResourceProduction = 9;
+  const baseResourceProduction = resourceToProduce === 'shared' ? 9 : 10;
+  const tribalModifier = tribe === 'egyptians' ? 2 : 1;
 
   const heroEffects: Pick<HeroEffect, 'id' | 'value' | 'type'>[] = [
     {
@@ -46,50 +47,54 @@ const heroEffectsFactory = (
       value: selectableAttributes.defenceBonus * 0.2,
       type: 'bonus',
     },
-    {
-      id: 'woodProduction',
-      value: baseResourceProduction * selectableAttributes.resourceProduction,
-      type: 'base',
-    },
-    {
-      id: 'clayProduction',
-      value: baseResourceProduction * selectableAttributes.resourceProduction,
-      type: 'base',
-    },
-    {
-      id: 'ironProduction',
-      value: baseResourceProduction * selectableAttributes.resourceProduction,
-      type: 'base',
-    },
-    {
-      id: 'wheatProduction',
-      value: baseResourceProduction * selectableAttributes.resourceProduction,
-      type: 'base',
-    },
-    ...(tribe === 'egyptians'
-      ? ([
+    ...((resourceToProduce === 'shared' || resourceToProduce === 'wood'
+      ? [
           {
             id: 'woodProduction',
-            value: 2,
-            type: 'bonus',
+            value:
+              baseResourceProduction *
+              tribalModifier *
+              selectableAttributes.resourceProduction,
+            type: 'base',
           },
+        ]
+      : []) satisfies Pick<HeroEffect, 'id' | 'value' | 'type'>[]),
+    ...((resourceToProduce === 'shared' || resourceToProduce === 'wood'
+      ? [
           {
             id: 'clayProduction',
-            value: 2,
-            type: 'bonus',
+            value:
+              baseResourceProduction *
+              tribalModifier *
+              selectableAttributes.resourceProduction,
+            type: 'base',
           },
+        ]
+      : []) satisfies Pick<HeroEffect, 'id' | 'value' | 'type'>[]),
+    ...((resourceToProduce === 'shared' || resourceToProduce === 'wood'
+      ? [
           {
             id: 'ironProduction',
-            value: 2,
-            type: 'bonus',
+            value:
+              baseResourceProduction *
+              tribalModifier *
+              selectableAttributes.resourceProduction,
+            type: 'base',
           },
+        ]
+      : []) satisfies Pick<HeroEffect, 'id' | 'value' | 'type'>[]),
+    ...((resourceToProduce === 'shared' || resourceToProduce === 'wood'
+      ? [
           {
             id: 'wheatProduction',
-            value: 2,
-            type: 'bonus',
+            value:
+              baseResourceProduction *
+              tribalModifier *
+              selectableAttributes.resourceProduction,
+            type: 'base',
           },
-        ] satisfies Pick<HeroEffect, 'id' | 'value' | 'type'>[])
-      : []),
+        ]
+      : []) satisfies Pick<HeroEffect, 'id' | 'value' | 'type'>[]),
   ];
 
   return heroEffects.map((effect) => ({

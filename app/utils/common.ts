@@ -123,26 +123,17 @@ export const timeExecution = async (
   performance.measure(name, `${name} - start`, `${name} - end`);
 };
 
-export const formatPercentage = (number: number): string => {
-  // Extract the fractional part by subtracting the integer part
-  const fractionalPart = number - Math.floor(number);
+export const formatPercentage = (num: number, isIncreasing = true): string => {
+  if (num === 1) {
+    return isIncreasing ? '0%' : '100%';
+  }
 
-  // Convert to percentage
+  // Normal case: strip off the integer part (so 1.25 -> 0.25)
+  const fractionalPart = num - Math.floor(num);
   const percentage = fractionalPart * 100;
-
-  // Round the result to the nearest whole number
-  const roundedPercentage = Math.round(percentage);
-
-  return `${roundedPercentage}%`;
+  return `${Math.round(percentage)}%`;
 };
 
 export const formatNumber = (number: number): string => {
   return number.toLocaleString();
-};
-
-// Formats number as either an integer or as a percentage
-export const formatValue = (value: number) => {
-  return Number.isInteger(value) && !value.toString().includes('.')
-    ? value
-    : formatPercentage(value);
 };
