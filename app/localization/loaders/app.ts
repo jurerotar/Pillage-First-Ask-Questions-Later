@@ -1,9 +1,7 @@
 import i18n from 'i18next';
-import { getCookie } from 'app/utils/device';
+import type { AvailableLocale } from 'app/interfaces/models/locale';
 
-export const loadAppTranslations = async () => {
-  const locale = getCookie('locale') || 'en-US';
-
+export const loadAppTranslations = async (locale: AvailableLocale) => {
   if (!i18n.hasResourceBundle(locale, 'app')) {
     const [{ default: appResources }, { default: assetResources }] =
       await Promise.all([

@@ -1,6 +1,9 @@
 import { buildingMap } from 'app/(game)/(village-slug)/assets/buildings';
 import { presetIdToPresetMap } from 'app/(game)/(village-slug)/assets/npc-village-presets';
-import type { Building } from 'app/interfaces/models/game/building';
+import type {
+  Building,
+  BuildingEffect,
+} from 'app/interfaces/models/game/building';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type {
   BuildingField,
@@ -112,6 +115,7 @@ export type CalculatedCumulativeEffect = {
   currentLevelValue: number;
   nextLevelValue: number;
   areEffectValuesRising: boolean;
+  type: BuildingEffect['type'];
 };
 
 export const calculateBuildingEffectValues = (
@@ -136,6 +140,7 @@ export const calculateBuildingEffectValues = (
       currentLevelValue,
       nextLevelValue,
       areEffectValuesRising,
+      type: effect.type,
     });
   }
 

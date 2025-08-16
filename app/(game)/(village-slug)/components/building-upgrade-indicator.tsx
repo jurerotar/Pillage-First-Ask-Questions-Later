@@ -7,7 +7,6 @@ import {
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import type React from 'react';
 import { useState } from 'react';
-import { MdUpgrade } from 'react-icons/md';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
@@ -71,7 +70,7 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({
         variant={variant}
       >
         {shouldShowUpgradeButton && (
-          <MdUpgrade className="size-3/4 rounded-full text-gray-400" />
+          <i className="icon icon-[md-upgrade] size-3/4 rounded-full text-gray-400" />
         )}
         {!shouldShowUpgradeButton && level}
       </BorderIndicator>

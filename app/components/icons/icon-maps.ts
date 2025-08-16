@@ -1,7 +1,4 @@
-import type {
-  Effect,
-  OasisResourceProductionBonusEffectId,
-} from 'app/interfaces/models/game/effect';
+import type { Effect } from 'app/interfaces/models/game/effect';
 import type {
   EgyptianUnitId,
   GaulUnitId,
@@ -316,34 +313,6 @@ const IconRevealedIncomingTroopsAmount = lazy(async () => ({
       'app/components/icons/effects/icon-revealed-incoming-troops-amount'
     )
   ).IconRevealedIncomingTroopsAmount,
-}));
-const IconWoodProductionOasisBonus = lazy(async () => ({
-  default: (
-    await import(
-      'app/components/icons/effects/icon-wood-production-oasis-bonus'
-    )
-  ).IconWoodProductionOasisBonus,
-}));
-const IconClayProductionOasisBonus = lazy(async () => ({
-  default: (
-    await import(
-      'app/components/icons/effects/icon-clay-production-oasis-bonus'
-    )
-  ).IconClayProductionOasisBonus,
-}));
-const IconIronProductionOasisBonus = lazy(async () => ({
-  default: (
-    await import(
-      'app/components/icons/effects/icon-iron-production-oasis-bonus'
-    )
-  ).IconIronProductionOasisBonus,
-}));
-const IconWheatProductionOasisBonus = lazy(async () => ({
-  default: (
-    await import(
-      'app/components/icons/effects/icon-wheat-production-oasis-bonus'
-    )
-  ).IconWheatProductionOasisBonus,
 }));
 const IconUnitSpeedAfter20Fields = lazy(async () => ({
   default: (
@@ -753,10 +722,9 @@ export type IconType =
   | MapAdventureIconType
   | OtherIconType
   | TroopMovementType
-  | OasisResourceProductionBonusEffectId
   | Effect['id'];
 
-// @ts-ignore - TODO: Add missing icons
+// @ts-expect-error - TODO: Add missing icons
 export const typeToIconMap: Record<
   IconType,
   React.LazyExoticComponent<() => React.JSX.Element>
@@ -832,10 +800,6 @@ export const typeToIconMap: Record<
   wheatProduction: IconResourceWheat,
   crannyCapacity: IconCrannyCapacity,
   revealedIncomingTroopsAmount: IconRevealedIncomingTroopsAmount,
-  woodProductionOasisBonus: IconWoodProductionOasisBonus,
-  clayProductionOasisBonus: IconClayProductionOasisBonus,
-  ironProductionOasisBonus: IconIronProductionOasisBonus,
-  wheatProductionOasisBonus: IconWheatProductionOasisBonus,
   unitSpeedAfter20Fields: IconUnitSpeedAfter20Fields,
 
   // Special troops

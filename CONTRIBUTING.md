@@ -72,7 +72,7 @@ Please refer to [directory naming convention](./docs/DIRECTORY_NAMING_CONVENTION
 
 Before starting, please read through the [architecture documentation](./docs/ARCHITECTURE.md) to gain an understanding on how the app works.
 
-**Pillage First, Ask Questions Later** requires [Node.js version 22.17.0 (LTS)](https://nodejs.org/en/download) or later.
+**Pillage First, Ask Questions Later** requires [Node.js version 22.18.0 (LTS)](https://nodejs.org/en/download) or later.
 
 1. Fork the project
 2. Clone the forked project

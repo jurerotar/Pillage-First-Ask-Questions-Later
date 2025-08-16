@@ -20,7 +20,9 @@ export const requestNotificationPermission = async () => {
   const newPermission = await window.Notification.requestPermission();
   if (newPermission !== permission) {
     permission = newPermission;
-    listeners.forEach((cb) => cb());
+    for (const cb of listeners) {
+      cb();
+    }
   }
   return newPermission;
 };

@@ -25,6 +25,15 @@ export const calculateCurrentAmount = ({
     new Date(lastUpdatedAt),
   );
 
+  if (hourlyProduction === 0) {
+    return {
+      timeSinceLastUpdateInSeconds,
+      secondsForResourceGeneration: Number.POSITIVE_INFINITY,
+      currentAmount: resourceAmount,
+      lastEffectiveUpdate: lastUpdatedAt,
+    };
+  }
+
   const hasNegativeProduction = hourlyProduction < 0;
   const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
   const producedResources = Math.floor(

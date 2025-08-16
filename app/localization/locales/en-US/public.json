@@ -2,7 +2,6 @@
   "Seed is required": "Seed is required",
   "Server name is required": "Server name is required",
   "Player name is required": "Player name is required",
-  "Server successfully created! Redirecting...": "Server successfully created! Redirecting...",
   "Server": "Server",
   "Player": "Player",
   "Server Seed": "Server Seed",
@@ -30,6 +29,5 @@
   "Enter server": "Enter server",
   "Create a new game world": "Create a new game world",
   "Existing game worlds": "Existing game worlds",
-  "Create a new game world or enter a previously created one": "Create a new game world or enter a previously created one",
-  "Server was deleted successfully.": "Server was deleted successfully."
+  "Create a new game world or enter a previously created one": "Create a new game world or enter a previously created one"
 }

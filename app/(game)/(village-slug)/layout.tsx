@@ -5,26 +5,14 @@ import clsx from 'clsx';
 import type React from 'react';
 import { Suspense } from 'react';
 import { Fragment, memo, useEffect, useRef } from 'react';
-import { GiWheat } from 'react-icons/gi';
-import { LuScrollText } from 'react-icons/lu';
-import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { FaBookBookmark, FaDiscord, FaGithub } from 'react-icons/fa6';
-import { GoGraph } from 'react-icons/go';
-import { PiPathBold } from 'react-icons/pi';
-import { TbMap2, TbShoe } from 'react-icons/tb';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router';
-import { CiCircleList } from 'react-icons/ci';
-import { RxExit } from 'react-icons/rx';
-import { RiAuctionLine } from 'react-icons/ri';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { FaHome } from 'react-icons/fa';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
-import { HiStar } from 'react-icons/hi';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
@@ -47,6 +35,7 @@ import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { useTextDirection } from 'app/hooks/use-text-direction';
 
 type CounterProps = {
   counter?: number;
@@ -87,10 +76,11 @@ const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(
       <button
         type="button"
         className="
-        flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
-        bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
-        lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
-      "
+          flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
+          bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
+          transition-transform active:scale-95 active:shadow-inner
+          lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
+        "
         {...rest}
       >
         <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
@@ -110,7 +100,7 @@ const DiscordLink = () => {
       rel="noopener"
     >
       <span className="flex items-center justify-center">
-        <FaDiscord className="text-2xl text-[#7289da]" />
+        <i className="icon icon-[fa-discord] text-2xl text-[#7289da]" />
       </span>
     </a>
   );
@@ -142,16 +132,20 @@ const HeroNavigationItem = () => {
       title={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
-        <MdFace className="text-2xl" />
+        <i className="icon icon-[md-face] text-2xl" />
       </span>
       {isLevelUpAvailable && (
         <span className="absolute text-center size-4 bg-background top-0 -right-1.5 rounded-full border border-border shadow-md">
-          <HiStar className="text-yellow-300 text-sm" />
+          <i className="icon icon-[hi-star] text-yellow-300 text-sm" />
         </span>
       )}
       <span className="absolute size-4 bg-background bottom-0 -right-1.5 rounded-full border border-border shadow-md inline-flex justify-center items-center">
-        {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
-        {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+        {isHeroHome && (
+          <i className="icon icon-[fa-home] text-gray-500 text-xs" />
+        )}
+        {!isHeroHome && (
+          <i className="icon icon-[tb-shoe] text-gray-500 text-xs" />
+        )}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
         <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">
@@ -194,52 +188,53 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren<React.ComponentProps<'button'>> =
-  memo(({ children, ...rest }) => {
-    return (
-      <button
-        type="button"
-        className="px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card flex items-center justify-center"
-        {...rest}
-      >
-        {children}
-      </button>
-    );
-  });
+const DesktopTopRowItem: React.FCWithChildren<
+  React.ComponentProps<'button'>
+> = ({ children, ...rest }) => {
+  return (
+    <button
+      type="button"
+      className="
+        px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card
+        flex items-center justify-center
+        transition-transform active:scale-95 active:shadow-inner
+      "
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+};
 
 type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
-  counter?: number;
   className?: string;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = memo(
-  ({ children, counter = 0, ...rest }) => {
-    const { isActive, ...htmlProps } = rest;
+const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({
+  children,
+  ...rest
+}) => {
+  const { isActive, ...htmlProps } = rest;
 
-    return (
-      <button
-        type="button"
-        className={clsx(
-          isActive
-            ? 'from-[#7da100] to-[#c7e94f]'
-            : 'from-[#b8b2a9] to-[#f1f0ee]',
-          'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-        )}
-        {...htmlProps}
-      >
-        <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
-          {children}
-        </span>
-        {counter > 0 && (
-          <span className="absolute size-5 lg:size-6 text-sm font-medium bg-background top-0 -right-3 rounded-full border lg:border-2 border-border shadow-md inline-flex justify-center items-center">
-            {counter}
-          </span>
-        )}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      type="button"
+      className={clsx(
+        isActive
+          ? 'from-[#7da100] to-[#c7e94f]'
+          : 'from-[#b8b2a9] to-[#f1f0ee]',
+        'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+        'transition-transform transform-gpu active:scale-95 lg:active:scale-100',
+      )}
+      {...htmlProps}
+    >
+      <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
+        {children}
+      </span>
+    </button>
+  );
+};
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
@@ -254,7 +249,7 @@ const QuestsNavigationItem = () => {
         <Suspense fallback={null}>
           <QuestsCounter />
         </Suspense>
-        <FaBookBookmark className="text-2xl" />
+        <i className="icon icon-[lu-book-marked] text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -273,7 +268,7 @@ const AdventuresNavigationItem = () => {
         <Suspense fallback={null}>
           <AdventurePointsCounter />
         </Suspense>
-        <PiPathBold className="text-2xl" />
+        <i className="icon icon-[pi-path-bold] text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -292,7 +287,7 @@ const ReportsNavigationItem = () => {
         <Suspense fallback={null}>
           <ReportsCounter />
         </Suspense>
-        <LuScrollText className="text-2xl" />
+        <i className="icon icon-[lu-scroll-text] text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -313,7 +308,7 @@ const ResourcesNavigationItem = () => {
         title={t('Resources')}
         isActive={isResourcesPageOpen}
       >
-        <GiWheat className="text-3xl" />
+        <i className="icon icon-[gi-wheat] text-3xl" />
       </NavigationMainItem>
     </Link>
   );
@@ -334,7 +329,7 @@ const VillageNavigationItem = () => {
         title={t('Village')}
         isActive={isVillagePageOpen}
       >
-        <MdOutlineHolidayVillage className="text-3xl" />
+        <i className="icon icon-[md-outline-holiday-village] text-3xl" />
       </NavigationMainItem>
     </Link>
   );
@@ -355,7 +350,7 @@ const MapNavigationItem = () => {
         title={t('Map')}
         isActive={isMapPageOpen}
       >
-        <TbMap2 className="text-3xl" />
+        <i className="icon icon-[tb-map-2] text-3xl" />
       </NavigationMainItem>
     </NavLink>
   );
@@ -432,7 +427,7 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <FaGithub className="text-xl text-[#24292e]" />
+                        <i className="icon icon-[fa-github] text-xl text-[#24292e]" />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">
                           GitHub
                         </span>
@@ -448,7 +443,7 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <FaDiscord className="text-xl text-[#7289da]" />
+                        <i className="icon icon-[fa-discord] text-xl text-[#7289da]" />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">
                           Discord
                         </span>
@@ -462,7 +457,7 @@ const TopNavigation = () => {
                       aria-label={t('Preferences')}
                       title={t('Preferences')}
                     >
-                      <MdSettings className="text-xl" />
+                      <i className="icon icon-[md-settings] text-xl" />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
@@ -472,7 +467,7 @@ const TopNavigation = () => {
                       aria-label={t('Logout')}
                       title={t('Logout')}
                     >
-                      <RxExit className="text-xl text-red-500" />
+                      <i className="icon icon-[rx-exit] text-xl text-red-500" />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
@@ -493,7 +488,7 @@ const TopNavigation = () => {
                       aria-label={t('Statistics')}
                       title={t('Statistics')}
                     >
-                      <GoGraph className="text-xl" />
+                      <i className="icon icon-[go-graph] text-xl" />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -506,7 +501,7 @@ const TopNavigation = () => {
                       aria-label={t('Overview')}
                       title={t('Overview')}
                     >
-                      <CiCircleList className="text-xl" />
+                      <i className="icon icon-[ci-circle-list] text-xl" />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -535,7 +530,7 @@ const TopNavigation = () => {
                       aria-label={t('Auctions')}
                       title={t('Auctions')}
                     >
-                      <RiAuctionLine className="text-xl" />
+                      <i className="icon icon-[ri-auction-line] text-xl" />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -589,7 +584,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Statistics')}
                 title={t('Statistics')}
               >
-                <GoGraph className="text-2xl" />
+                <i className="icon icon-[go-graph] text-2xl" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -605,7 +600,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Overview')}
                 title={t('Overview')}
               >
-                <CiCircleList className="text-2xl" />
+                <i className="icon icon-[ci-circle-list] text-2xl" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -631,7 +626,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Preferences')}
                 title={t('Preferences')}
               >
-                <MdSettings className="text-2xl" />
+                <i className="icon icon-[md-settings] text-2xl" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -641,7 +636,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Logout')}
                 title={t('Logout')}
               >
-                <RxExit className="text-2xl text-red-500" />
+                <i className="icon icon-[rx-exit] text-2xl text-red-500" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -667,7 +662,9 @@ const GameLayout = () => {
   const { preferences } = usePreferences();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { timeOfDay, skinVariant, colorScheme } = preferences;
+  const { timeOfDay, skinVariant, colorScheme, locale } = preferences;
+
+  const { direction } = useTextDirection(locale);
 
   useEffect(() => {
     const body = document.querySelector('body')!;
@@ -685,6 +682,7 @@ const GameLayout = () => {
     }
     const html = document.documentElement;
 
+    html.setAttribute('dir', direction);
     html.classList.add(
       colorScheme,
       `skin-variant-${skinVariant}`,
@@ -692,13 +690,14 @@ const GameLayout = () => {
     );
 
     return () => {
+      html.removeAttribute('dir');
       html.classList.remove(
         colorScheme,
         `skin-variant-${skinVariant}`,
         `time-of-day-${timeOfDay}`,
       );
     };
-  }, [skinVariant, timeOfDay, colorScheme]);
+  }, [skinVariant, timeOfDay, colorScheme, direction]);
 
   return (
     <CurrentVillageStateProvider>

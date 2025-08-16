@@ -4,7 +4,6 @@ import type { Village } from 'app/interfaces/models/game/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type React from 'react';
 import type { IconType } from 'app/components/icons/icon-maps';
-import type { PickLiteral } from 'app/utils/typescript';
 import { Icon } from 'app/components/icon';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Separator } from 'app/components/ui/separator';
@@ -12,7 +11,7 @@ import clsx from 'clsx';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 type TroopMovementProps = {
-  type: PickLiteral<
+  type: Extract<
     IconType,
     | 'deploymentOutgoing'
     | 'deploymentIncoming'

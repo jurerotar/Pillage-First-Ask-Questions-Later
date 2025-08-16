@@ -13,3 +13,7 @@ environment = { BRANCH_ENV = "master" }
 [context.branch-deploy]
 command = "npm run build:dev"
 environment = { BRANCH_ENV = "develop" }
+
+[context.deploy-preview]
+command = "npm run build:dev"
+environment = { BRANCH_ENV = "develop" }

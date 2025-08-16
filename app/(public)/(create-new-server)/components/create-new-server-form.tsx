@@ -28,7 +28,6 @@ import { serverFactory } from 'app/factories/server-factory';
 import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
 import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
 import { workerFactory } from 'app/utils/workers';
-import { toast } from 'sonner';
 
 const formSchema = z.object({
   seed: z.string().min(1, { error: t('Seed is required') }),
@@ -78,7 +77,6 @@ export const CreateNewServerForm = () => {
     onSuccess: (_, { server }) => {
       addServer({ server });
       navigate(`/game/${server.slug}/v-1/resources`);
-      toast.success(t('Server successfully created! Redirecting...'));
     },
     onError: (_, { server }) => deleteServer({ server }),
   });

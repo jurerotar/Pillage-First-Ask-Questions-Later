@@ -48,6 +48,7 @@ export type BuildingId =
 export type BuildingEffect = {
   effectId: Effect['id'];
   valuesPerLevel: number[];
+  type: Effect['type'];
 };
 
 export type BuildingLevelBuildingRequirement = {
