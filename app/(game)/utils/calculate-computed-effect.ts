@@ -190,11 +190,14 @@ export function calculateComputedEffect(
   const artifactEffectValues = effectBreakdown.artifactEffectValues;
   const oasisEffectValues = effectBreakdown.oasisEffectValues;
 
+  // Some effects act only as modifiers to hardcoded values.
+  // Examples of these effects are things like building duration and training duration.
+  // In these cases, we need only to return the modifier value to apply to our base.
   const isBaseBuildingValueABaseValue = buildingEffectValues.base.length > 0;
 
   if (!isBaseBuildingValueABaseValue) {
     return {
-      total: effectBreakdown.combinedBonusEffectValue,
+      total: effectBreakdown.combinedBonusEffectValue * serverEffectValue,
     };
   }
 
