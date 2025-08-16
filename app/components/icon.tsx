@@ -48,7 +48,6 @@ export const Icon: React.FC<IconProps> = (props) => {
 
   const { t: assetsT } = useTranslation();
 
-  // @ts-ignore - TODO: Add missing icons
   const ComputedIcon = typeToIconMap[type] ?? typeToIconMap.missingIcon;
 
   const hasVariantIcon = !!variant;

@@ -50,7 +50,7 @@ const HorseColorPicker = () => {
           type="paladin"
           className={styles.horse}
           style={{
-            // @ts-ignore
+            // @ts-expect-error
             '--base-color': colors.base,
             '--eye-color': colors.eye_1_,
             '--neck-front-color': colors['neck-front_1_'],

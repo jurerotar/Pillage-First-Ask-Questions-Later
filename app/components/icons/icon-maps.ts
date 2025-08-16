@@ -724,7 +724,7 @@ export type IconType =
   | TroopMovementType
   | Effect['id'];
 
-// @ts-ignore - TODO: Add missing icons
+// @ts-expect-error - TODO: Add missing icons
 export const typeToIconMap: Record<
   IconType,
   React.LazyExoticComponent<() => React.JSX.Element>
