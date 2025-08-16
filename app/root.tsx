@@ -2,8 +2,6 @@ import { Links, Outlet, Scripts } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
 import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from 'app/faro';
-import { Toaster, type ToasterProps } from 'sonner';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import 'app/localization/i18n';
 import 'app/styles/app.css';
 
@@ -22,12 +20,6 @@ const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
 export const unstable_clientMiddleware = [clientSessionMiddleware];
 
 export const Layout = () => {
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-
-  const toasterPosition: ToasterProps['position'] = isWiderThanLg
-    ? 'bottom-right'
-    : 'top-right';
-
   return (
     <html lang="en-US">
       <head>
@@ -89,10 +81,6 @@ export const Layout = () => {
         <StateProvider>
           <Outlet />
         </StateProvider>
-        <Toaster
-          position={toasterPosition}
-          closeButton
-        />
         <Scripts />
       </body>
     </html>
