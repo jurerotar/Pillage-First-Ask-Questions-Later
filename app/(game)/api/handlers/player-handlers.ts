@@ -17,8 +17,11 @@ export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
   args,
 ) => {
   const {
-    params: { playerId },
+    params: { playerId: playerIdParam },
   } = args;
+
+  const playerId = Number.parseInt(playerIdParam);
+
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
 
   return players.find(({ id }) => id === playerId)!;
@@ -29,8 +32,10 @@ export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
   args,
 ) => {
   const {
-    params: { playerId },
+    params: { playerId: playerIdParam },
   } = args;
+
+  const playerId = Number.parseInt(playerIdParam);
 
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
 

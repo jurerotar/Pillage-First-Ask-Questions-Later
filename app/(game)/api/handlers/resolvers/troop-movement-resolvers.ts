@@ -29,6 +29,7 @@ import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
+import { PLAYER_ID } from 'app/constants/player';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
@@ -83,7 +84,7 @@ const findNewVillageMovementResolver: Resolver<
   ])!;
 
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const player = players.find(({ id }) => id === 'player')!;
+  const player = players.find(({ id }) => id === PLAYER_ID)!;
 
   const slug = `v-${playerVillages.length + 1}`;
 
@@ -111,7 +112,7 @@ const findNewVillageMovementResolver: Resolver<
     const tileToOccupy = tiles!.find(
       ({ id }) => id === targetId,
     )! as OccupiedOccupiableTile;
-    tileToOccupy.ownedBy = 'player';
+    tileToOccupy.ownedBy = PLAYER_ID;
     return tiles;
   });
 

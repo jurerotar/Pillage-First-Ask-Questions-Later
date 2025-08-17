@@ -15,6 +15,7 @@ import type { VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
+import { PLAYER_ID } from 'app/constants/player';
 
 type GenerateTroopsArgs = {
   server: Server;
@@ -336,7 +337,7 @@ export const generateTroops = ({
       const villageSize = 'xs';
 
       // Player starting units are handled separately
-      if (ownedBy === 'player') {
+      if (ownedBy === PLAYER_ID) {
         return [];
       }
 
@@ -359,9 +360,9 @@ export const generateTroops = ({
 
   const npcTroops = [...oasisTroops, ...npcPlayersTroops];
 
-  const { tribe } = playerMap.get('player')!;
+  const { tribe } = playerMap.get(PLAYER_ID)!;
   const { id: tileId } = occupiedOccupiableTiles.find(
-    ({ ownedBy }) => ownedBy === 'player',
+    ({ ownedBy }) => ownedBy === PLAYER_ID,
   )!;
   const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
 

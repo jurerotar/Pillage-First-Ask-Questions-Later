@@ -1,6 +1,6 @@
 import {
   generateNpcPlayers,
-  userPlayerFactory,
+  playerFactory,
 } from 'app/factories/player-factory';
 import {
   generateVillages,
@@ -47,11 +47,11 @@ import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Quest } from 'app/interfaces/models/game/quest';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { bookmarkFactory } from 'app/factories/bookmark-factory';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 import { mapFactory } from 'app/factories/map-factory';
@@ -68,7 +68,7 @@ export const initializeServer = async (
 ): Promise<QueryClient> => {
   const prng = prngMulberry32(server.seed);
 
-  const player = userPlayerFactory(server);
+  const player = playerFactory(server);
   const npcPlayers = generateNpcPlayers(server);
 
   const players = [player, ...npcPlayers];

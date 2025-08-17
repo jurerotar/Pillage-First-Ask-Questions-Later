@@ -36,6 +36,7 @@ import {
   packTileId,
   parseCoordinatesFromTileId,
 } from 'app/utils/map';
+import { PLAYER_ID } from 'app/constants/player';
 
 type Shape = { group: number; shape: number[] };
 
@@ -232,7 +233,7 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
         id: packTileId(x, y),
         type: 0,
         RFC: '4446',
-        ownedBy: 'player',
+        ownedBy: PLAYER_ID,
       } satisfies OccupiedOccupiableTile;
       continue;
     }
@@ -335,7 +336,7 @@ const assignOasisToNpcVillages = (server: Server, tiles: Tile[]): Tile[] => {
   const oasisTiles = tiles.filter(isOccupiableOasisTile);
 
   const npcVillagesEligibleForOasis = tiles.filter((tile: Tile) => {
-    if (!isOccupiedOccupiableTile(tile) || tile.ownedBy === 'player') {
+    if (!isOccupiedOccupiableTile(tile) || tile.ownedBy === PLAYER_ID) {
       return false;
     }
 

@@ -20,6 +20,7 @@ import {
   npcVillageNameNouns,
 } from 'app/assets/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
+import { PLAYER_ID } from 'app/constants/player';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
@@ -121,7 +122,7 @@ export const playerVillageFactory = ({
     slug,
     buildingFields,
     buildingFieldsPresets: [],
-    playerId: 'player',
+    playerId: PLAYER_ID,
     isCapital: false,
     lastUpdatedAt: Date.now(),
     RFC,
@@ -192,7 +193,7 @@ export const generateVillages = ({
   const playerMap = new Map(npcPlayers.map((p) => [p.id, p]));
 
   const villages: Village[] = occupiedOccupiableTiles
-    .filter(({ ownedBy }) => ownedBy !== 'player')
+    .filter(({ ownedBy }) => ownedBy !== PLAYER_ID)
     .map((tile) => {
       const player = playerMap.get(tile.ownedBy)!;
       return npcVillageFactory({ prng, player, tile, server });

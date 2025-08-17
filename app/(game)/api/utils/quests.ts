@@ -15,6 +15,7 @@ import {
   isTroopCountQuestRequirement,
   isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
+import { PLAYER_ID } from 'app/constants/player';
 
 export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
@@ -22,7 +23,7 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const hero = queryClient.getQueryData<Hero>([heroCacheKey])!;
 
   const playerVillages = villages.filter(
-    ({ playerId }) => playerId === 'player',
+    ({ playerId }) => playerId === PLAYER_ID,
   );
   const playerVillagesIds = playerVillages.map(({ id }) => id);
 

@@ -13,8 +13,8 @@ export type PlayerFaction =
   | 'npc8';
 
 export type Player = {
-  id: 'player' | number;
-  name: string | number;
+  id: number;
+  name: string;
   tribe: PlayableTribe;
   faction: PlayerFaction;
 };

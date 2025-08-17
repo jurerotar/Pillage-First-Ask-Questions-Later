@@ -1,4 +1,5 @@
 import { compiledApiRoutes } from 'app/(game)/api/api-routes';
+import { PLAYER_ID } from 'app/constants/player';
 
 export const matchRoute = (url: string, method: string) => {
   for (const route of compiledApiRoutes) {
@@ -9,7 +10,7 @@ export const matchRoute = (url: string, method: string) => {
     let path = url;
 
     if (path.startsWith('/me')) {
-      path = path.replace('/me', '/players/player');
+      path = path.replace('/me', `/players/${PLAYER_ID}`);
     }
 
     const result = route.matcher(path);
