@@ -28,7 +28,8 @@
     "test": "vitest",
     "prepare": "husky",
     "analyze-graph": "npx skott --trackThirdPartyDependencies --trackBuiltinDependencies --trackTypeOnlyDependencies --ignorePattern='{app/**/icon-*.tsx,app/**/*.test.ts,app/**/*.test.tsx}'",
-    "postinstall": "node --experimental-strip-types scripts/postinstall.ts"
+    "postinstall": "node scripts/postinstall.ts && node scripts/create-dev-db.ts",
+    "create-dev-db": "node scripts/create-dev-db.ts"
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "1.19.0",
@@ -36,7 +37,7 @@
     "@pillage-first/graphics": "0.0.6",
     "@react-router/node": "7.8.1",
     "@react-router/serve": "7.8.1",
-    "@sqlite.org/sqlite-wasm": "^3.50.4-build1",
+    "@sqlite.org/sqlite-wasm": "3.50.4-build1",
     "@tailwindcss/vite": "4.1.12",
     "@tanstack/react-query": "5.85.3",
     "@tanstack/react-query-devtools": "5.85.3",
