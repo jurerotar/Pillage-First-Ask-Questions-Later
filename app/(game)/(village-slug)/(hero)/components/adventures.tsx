@@ -31,7 +31,7 @@ export const Adventures = () => {
         <Text as="h2">{t('Adventures')}</Text>
         <Text>
           {t(
-            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
+            'Your hero is always keen to explore, and will be happy to share his findings with you if you give him the order to go on an adventure.',
           )}
         </Text>
       </SectionContent>
