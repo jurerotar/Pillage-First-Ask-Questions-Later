@@ -68,21 +68,6 @@ const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
   ['egyptians', 'STONE_WALL'],
 ]);
 
-const generateVillageNameId = (prng: PRNGFunction): number => {
-  const adjectiveIndex = seededRandomIntFromInterval(
-    prng,
-    0,
-    npcVillageNameAdjectives.length - 1,
-  );
-  const nounIndex = seededRandomIntFromInterval(
-    prng,
-    0,
-    npcVillageNameNouns.length - 1,
-  );
-
-  return adjectiveIndex * npcVillageNameNouns.length + nounIndex;
-};
-
 const createWallBuildingField = (
   tribe: PlayableTribe,
   villageSize: VillageSize | 'player',
@@ -161,9 +146,23 @@ const npcVillageFactory = ({
   const villageBuildingFieldPresetId: VillagePresetId = `village-${villageSize}`;
   const resourcesBuildingFieldPresetId: VillagePresetId = `resources-${villageSize}`;
 
+  const adjectiveIndex = seededRandomIntFromInterval(
+    prng,
+    0,
+    npcVillageNameAdjectives.length - 1,
+  );
+  const nounIndex = seededRandomIntFromInterval(
+    prng,
+    0,
+    npcVillageNameNouns.length - 1,
+  );
+
+  const adjective = npcVillageNameAdjectives[adjectiveIndex];
+  const noun = npcVillageNameNouns[nounIndex];
+
   return {
     id,
-    name: generateVillageNameId(prng),
+    name: `${adjective}${noun}`,
     buildingFields,
     buildingFieldsPresets: [
       resourcesBuildingFieldPresetId,

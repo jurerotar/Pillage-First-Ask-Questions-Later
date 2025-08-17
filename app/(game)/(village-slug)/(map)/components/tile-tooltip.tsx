@@ -26,7 +26,6 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';
 import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-world-item';
 import { Skeleton } from 'app/components/ui/skeleton';
-import { getVillageName } from 'app/(game)/(village-slug)/utils/village';
 
 type TileTooltipProps = {
   tile: Tile;
@@ -209,7 +208,7 @@ const OccupiedOccupiableTileTooltip: React.FC<
   const { worldItem } = useTileWorldItem(tile.id);
 
   const village = getVillageById(tile.id)!;
-  const title = getVillageName(village.name);
+  const title = village.name;
 
   return (
     <>
