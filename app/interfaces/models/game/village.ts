@@ -93,7 +93,7 @@ export type VillageSize =
 type BaseVillage = {
   id: Tile['id'];
   playerId: Player['id'];
-  name: string | number;
+  name: string;
   lastUpdatedAt: number;
   resources: Resources;
   // This property is only hydrated in user villages or on npc villages that differ from a preset!

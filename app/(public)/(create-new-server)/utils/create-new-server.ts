@@ -1,6 +1,6 @@
 import {
   generateNpcPlayers,
-  userPlayerFactory,
+  playerFactory,
 } from 'app/factories/player-factory';
 import {
   generateVillages,
@@ -56,7 +56,7 @@ export const initializeServer = async (
 ): Promise<QueryClient> => {
   const prng = prngMulberry32(server.seed);
 
-  const player = userPlayerFactory(server);
+  const player = playerFactory(server);
   const npcPlayers = generateNpcPlayers(server);
 
   const players = [player, ...npcPlayers];

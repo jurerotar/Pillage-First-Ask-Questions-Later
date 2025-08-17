@@ -39,9 +39,8 @@ import {
   playerTroopsCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 import { useNavigate } from 'react-router';
-import { getVillageName } from 'app/(game)/(village-slug)/utils/village';
+import { PLAYER_ID } from 'app/constants/player';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -87,7 +86,7 @@ const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
   return (
     <div className="flex flex-col gap-2">
       <span>
-        {t('Player')} - {getPlayerName(name)}
+        {t('Player')} - {name}
       </span>
       {faction !== 'player' && (
         <>
@@ -158,14 +157,14 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
           <>
             {isOccupied && (
               <>
-                {ownedBy === 'player' &&
+                {ownedBy === PLAYER_ID &&
                   t(
                     'This oasis is occupied by you and is producing resources for village {{villageName}}.',
                     {
                       villageName: occupiedByVillage!.name,
                     },
                   )}
-                {ownedBy !== 'player' &&
+                {ownedBy !== PLAYER_ID &&
                   t(
                     'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
                   )}
@@ -291,7 +290,7 @@ const OccupiedOccupiableTileModal: React.FC<
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{getVillageName(village.name)}</DialogTitle>
+        <DialogTitle>{village.name}</DialogTitle>
         <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>

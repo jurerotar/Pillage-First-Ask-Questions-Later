@@ -25,7 +25,6 @@ import { Link } from 'react-router';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Button } from 'app/components/ui/button';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
-import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 
 type OccupiedOasisRowProps = {
@@ -130,7 +129,7 @@ const OccupiableOasisRowActions: React.FC<OccupiableOasisRowActionsProps> = ({
       source === currentVillage.id,
   );
 
-  const isOccupiedByPlayer = player !== null && player.id === 'player';
+  const isOccupiedByPlayer = player !== null && player.id === 0;
 
   if (isOccupiedByPlayer) {
     return <Text>{t('You already occupy this oasis')}</Text>;
@@ -171,7 +170,7 @@ const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
   return (
     <TableRow key={oasis.id}>
       <TableCell>
-        <Text>{player !== null ? getPlayerName(player.name) : '/'}</Text>
+        <Text>{player !== null ? player.name : '/'}</Text>
       </TableCell>
       <TableCell>
         <Text>

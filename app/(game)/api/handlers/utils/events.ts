@@ -44,6 +44,7 @@ import {
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
 import type { Database } from 'app/interfaces/models/common';
+import { PLAYER_ID } from 'app/constants/player';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -268,7 +269,7 @@ export const getEventStartTime = (
     const { buildingFieldId, villageId } = event;
 
     const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-    const { tribe } = players.find(({ id }) => id === 'player')!;
+    const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
 
     const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 

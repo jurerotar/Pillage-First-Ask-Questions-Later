@@ -9,18 +9,7 @@ import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { npcFactions } from 'app/factories/reputation-factory';
 import { usernameRoots } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
-
-const generateNameId = (prng: PRNGFunction): number => {
-  const id = seededRandomIntFromInterval(prng, 1, 1000);
-  const rootIndex = seededRandomIntFromInterval(
-    prng,
-    0,
-    usernameRoots.length - 1,
-  );
-
-  // Pack into a single number: rootIndex * 10000 + id
-  return rootIndex * 10000 + id;
-};
+import { PLAYER_ID } from 'app/constants/player';
 
 type PlayerFactoryProps = {
   faction: PlayerFaction;
@@ -28,7 +17,22 @@ type PlayerFactoryProps = {
   id: number;
 };
 
-const playerFactory = ({ faction, prng, id }: PlayerFactoryProps): Player => {
+const npcPlayerFactory = ({
+  faction,
+  prng,
+  id,
+}: PlayerFactoryProps): Player => {
+  const rootIndex = seededRandomIntFromInterval(
+    prng,
+    0,
+    usernameRoots.length - 1,
+  );
+
+  const discriminator = seededRandomIntFromInterval(prng, 1, 1000);
+  const paddedDiscriminator = `${discriminator % 10000}`.padStart(4, '0');
+
+  const nameRoot = usernameRoots[rootIndex];
+
   const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
     'romans',
     'gauls',
@@ -39,18 +43,18 @@ const playerFactory = ({ faction, prng, id }: PlayerFactoryProps): Player => {
 
   return {
     id,
-    name: generateNameId(prng),
+    name: `${nameRoot}#${paddedDiscriminator}`,
     tribe,
     faction,
   };
 };
 
-export const userPlayerFactory = (server: Server): Player => {
+export const playerFactory = (server: Server): Player => {
   const {
     playerConfiguration: { name, tribe },
   } = server;
   return {
-    id: 'player',
+    id: PLAYER_ID,
     name,
     tribe,
     faction: 'player',
@@ -71,6 +75,6 @@ export const generateNpcPlayers = (server: Server) => {
 
   return [...Array(playerCount)].map((_, index) => {
     const faction = seededRandomArrayElement<PlayerFaction>(prng, npcFactions);
-    return playerFactory({ faction, prng, id: index });
+    return npcPlayerFactory({ faction, prng, id: index + 1 });
   });
 };
