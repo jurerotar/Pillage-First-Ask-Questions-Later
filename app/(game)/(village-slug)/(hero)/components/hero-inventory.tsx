@@ -15,7 +15,7 @@ export const HeroInventory = () => {
         <Text as="h2">{t('Inventory')}</Text>
         <Text>
           {t(
-            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
+            "Your hero's equipment will give you advantages that will help you outperform your opponents. You may change your hero’s equipment whenever your hero is not travelling. Items that affect villages or buildings apply to the village the hero is currently assigned to.",
           )}
         </Text>
       </SectionContent>

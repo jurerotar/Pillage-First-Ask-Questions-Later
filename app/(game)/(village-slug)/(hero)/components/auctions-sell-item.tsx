@@ -12,10 +12,10 @@ export const AuctionsSellItem = () => {
   return (
     <Section>
       <SectionContent>
-        <Text as="h2">{t('Sell item')}</Text>
+        <Text as="h2">{t('Sell items')}</Text>
         <Text>
           {t(
-            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus animi aperiam consequatur distinctio dolor dolorum, et ex fugiat ipsum labore maiores nam nihil nostrum quibusdam quis sint tempora vel veniam!',
+            'List your hero items for others to bid on. Turn unused gear or consumables into silver.',
           )}
         </Text>
       </SectionContent>
