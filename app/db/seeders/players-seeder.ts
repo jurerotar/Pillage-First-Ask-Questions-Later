@@ -1,6 +1,5 @@
 import type { Database } from 'app/interfaces/models/common';
 import type { Player } from 'app/interfaces/models/game/player';
-import { getPlayerName } from 'app/(game)/(village-slug)/utils/player';
 
 const sql = `
   INSERT INTO players (name, slug, tribe, faction_id)
@@ -17,7 +16,7 @@ const slugifyPlayerName = (name: string): string => {
 
 export const playersSeeder = (database: Database, players: Player[]): void => {
   for (const player of players) {
-    const name = getPlayerName(player.name);
+    const name = player.name;
     const slug = slugifyPlayerName(name);
 
     database.exec({

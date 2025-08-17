@@ -21,7 +21,7 @@ import { factionReputationSeeder } from 'app/db/seeders/faction-reputation-seede
 import { prngMulberry32 } from 'ts-seedrandom';
 import {
   generateNpcPlayers,
-  userPlayerFactory,
+  playerFactory,
 } from 'app/factories/player-factory';
 import { playersSeeder } from 'app/db/seeders/players-seeder';
 
@@ -47,7 +47,7 @@ self.addEventListener(
     const _prng = prngMulberry32(server.seed);
 
     // TODO: When migration to SQLite is done, move this to seeder
-    const player = userPlayerFactory(server);
+    const player = playerFactory(server);
     const npcPlayers = generateNpcPlayers(server);
 
     database.transaction((db) => {
