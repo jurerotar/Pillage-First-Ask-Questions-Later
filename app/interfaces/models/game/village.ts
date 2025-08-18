@@ -101,14 +101,12 @@ type BaseVillage = {
   // To reduce the amount of data we need to write, we point to a special preset array that represents "buildingFields" of npc villages,
   // in which case buildingFields only contain the building fields unique to that village
   buildingFieldsPresets: VillagePresetId[];
-  isCapital: boolean;
   RFC: ResourceFieldComposition;
 };
 
 export type PlayerVillage = BaseVillage & {
   slug: string;
   artifactId: ArtifactId | null;
-  expansionSlots: Tile['id'][];
 };
 
 export type Village = BaseVillage | PlayerVillage;
