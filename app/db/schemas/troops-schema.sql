@@ -1,0 +1,10 @@
+CREATE TABLE troops
+(
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  unit_id  TEXT    NOT NULL,
+  amount   INTEGER NOT NULL CHECK (amount > 0),
+
+  tile_id  INTEGER NOT NULL REFERENCES tiles(id) ON DELETE CASCADE,
+  source   INTEGER NOT NULL REFERENCES tiles(id) ON DELETE CASCADE
+);

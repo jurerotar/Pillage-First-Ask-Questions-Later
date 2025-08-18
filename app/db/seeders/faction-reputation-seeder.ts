@@ -33,7 +33,11 @@ export const factionReputationSeeder = (database: Database): void => {
     ['npc8', 'player', 0],
   ];
 
+  const stmt = database.prepare(sql);
+
   for (const [source, target, reputation] of relations) {
-    database.exec({ sql, bind: [source, target, reputation] });
+    stmt.bind([source, target, reputation]).stepReset();
   }
+
+  stmt.finalize();
 };

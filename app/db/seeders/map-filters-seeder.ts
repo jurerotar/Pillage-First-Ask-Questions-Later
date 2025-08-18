@@ -18,10 +18,11 @@ export const mapFiltersSeeder = (database: Database): void => {
     'shouldShowTreasureIcons',
   ];
 
+  const stmt = database.prepare(sql);
+
   for (const mapFilter of mapFilters) {
-    database.exec({
-      sql,
-      bind: [mapFilter, true],
-    });
+    stmt.bind([mapFilter, true]).stepReset();
   }
+
+  stmt.finalize();
 };

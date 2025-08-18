@@ -5,5 +5,3 @@ CREATE TABLE players (
    tribe TEXT NOT NULL,
    faction_id TEXT NOT NULL REFERENCES factions(id)
 );
-
-CREATE INDEX idx_players_slug ON players(slug);

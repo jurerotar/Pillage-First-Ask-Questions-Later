@@ -1,10 +1,6 @@
 import type { Database } from 'app/interfaces/models/common';
 import type { Player } from 'app/interfaces/models/game/player';
-
-const sql = `
-  INSERT INTO players (name, slug, tribe, faction_id)
-  VALUES (?, ?, ?, ?);
-`;
+import { batchInsert } from 'app/db/utils/batch-insert';
 
 const slugifyPlayerName = (name: string): string => {
   return name
@@ -15,13 +11,16 @@ const slugifyPlayerName = (name: string): string => {
 };
 
 export const playersSeeder = (database: Database, players: Player[]): void => {
-  for (const player of players) {
-    const name = player.name;
-    const slug = slugifyPlayerName(name);
-
-    database.exec({
-      sql,
-      bind: [name, slug, player.tribe, player.faction],
-    });
-  }
+  batchInsert(
+    database,
+    'players',
+    ['name', 'slug', 'tribe', 'faction_id'],
+    players,
+    (player) => [
+      player.name,
+      slugifyPlayerName(player.name),
+      player.tribe,
+      player.faction,
+    ],
+  );
 };

@@ -15,10 +15,11 @@ export const factionsSeeder = (database: Database): void => {
     ['npc8', 'NPC8'],
   ];
 
+  const stmt = database.prepare(sql);
+
   for (const [id, name] of factions) {
-    database.exec({
-      sql,
-      bind: [id, name],
-    });
+    stmt.bind([id, name]).stepReset();
   }
+
+  stmt.finalize();
 };

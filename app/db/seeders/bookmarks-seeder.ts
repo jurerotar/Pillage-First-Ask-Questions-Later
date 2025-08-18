@@ -12,10 +12,11 @@ export const bookmarksSeeder = (database: Database): void => {
     tabName: 'default',
   }));
 
+  const stmt = database.prepare(sql);
+
   for (const { buildingId, tabName } of values) {
-    database.exec({
-      sql,
-      bind: [buildingId, tabName],
-    });
+    stmt.bind([buildingId, tabName]).stepReset();
   }
+
+  stmt.finalize();
 };

@@ -59,10 +59,11 @@ export const preferencesSeeder = (database: Database): void => {
     ],
   ];
 
+  const stmt = database.prepare(sql);
+
   for (const [id, text, bool] of entries) {
-    database.exec({
-      sql,
-      bind: [id, text, bool],
-    });
+    stmt.bind([id, text, bool]).stepReset();
   }
+
+  stmt.finalize();
 };
