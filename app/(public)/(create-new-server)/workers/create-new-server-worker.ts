@@ -133,6 +133,12 @@ self.addEventListener(
 
       // Unit research
       // db.exec(createUnitResearchTable);
+
+      // Villages
+      // db.exec(createVillagesTable);
+
+      // Building fields
+      // db.exec(createBuildingFieldsTable);
     });
 
     database.exec('PRAGMA foreign_keys=ON;');
