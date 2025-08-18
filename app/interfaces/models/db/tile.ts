@@ -4,7 +4,7 @@ export type DbTile = {
   id: number;
   x: number;
   y: number;
-  type: 'free-tile' | 'oasis-tile';
+  type: 'free' | 'oasis' | 'wilderness';
   resource_field_composition: ResourceFieldComposition | null;
   oasis_graphics: number | null;
 };

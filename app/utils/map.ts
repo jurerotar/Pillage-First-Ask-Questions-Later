@@ -61,7 +61,7 @@ export const encodeGraphicsProperty = (
 
 export const decodeGraphicsProperty = (encoded: number) => {
   const oasisResourceId = (encoded >> 8) & 0b11;
-  const oasisResource = idToResource.get(oasisResourceId);
+  const oasisResource = idToResource.get(oasisResourceId)!;
   const oasisGroup = (encoded >> 5) & 0b111;
   const oasisGroupPositionX = (encoded >> 3) & 0b11;
   const oasisGroupPositionY = encoded & 0b111;

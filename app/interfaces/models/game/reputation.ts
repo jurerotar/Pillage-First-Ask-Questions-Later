@@ -5,6 +5,7 @@ export type ReputationLevel =
   | 'player'
   // Trade is possible. Trade ratio is set at 1:1. Faction may reinforce the player in defensive battles. Faction may offer quests.
   | 'ecstatic'
+  | 'honored'
   // Trade is possible. Trade ratio is set at 2:1. Faction may offer quests.
   | 'respected'
   // Trade is possible. Trade ratio is set at 3:1. Faction may offer quests.
@@ -14,7 +15,8 @@ export type ReputationLevel =
   // Trade is not possible. Faction will not be sending attacks and raids.
   | 'unfriendly'
   // Trade is not possible. Faction will be sending attacks and raids.
-  | 'hostile';
+  | 'hostile'
+  | 'hated';
 
 export type Reputation = {
   faction: PlayerFaction;

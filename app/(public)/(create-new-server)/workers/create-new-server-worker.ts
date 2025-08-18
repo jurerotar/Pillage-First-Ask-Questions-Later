@@ -32,14 +32,10 @@ import { adventurePointsSeeder } from 'app/db/seeders/adventure-points-seeder';
 import { serverSeeder } from 'app/db/seeders/server-seeder';
 import { factionsSeeder } from 'app/db/seeders/factions-seeder';
 import { factionReputationSeeder } from 'app/db/seeders/faction-reputation-seeder';
-import { prngMulberry32 } from 'ts-seedrandom';
-import {
-  generateNpcPlayers,
-  playerFactory,
-} from 'app/factories/player-factory';
 import { playersSeeder } from 'app/db/seeders/players-seeder';
 import { heroSeeder } from 'app/db/seeders/hero-seeder';
 import { tilesSeeder } from 'app/db/seeders/tiles-seeder';
+import { oasisBonusesSeeder } from 'app/db/seeders/oasis-bonuses-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -59,12 +55,6 @@ self.addEventListener(
       `/pillage-first-ask-questions-later/${server.slug}.sqlite3`,
       'c',
     );
-
-    const _prng = prngMulberry32(server.seed);
-
-    // TODO: When migration to SQLite is done, move this to seeder
-    const player = playerFactory(server);
-    const npcPlayers = generateNpcPlayers(server);
 
     database.exec('PRAGMA foreign_keys=OFF;');
     database.exec('PRAGMA journal_mode=OFF;');
@@ -116,7 +106,7 @@ self.addEventListener(
 
       // Players
       db.exec(createPlayersTable);
-      playersSeeder(db, [player, ...npcPlayers]);
+      playersSeeder(db, server);
       db.exec(playersIndexes);
 
       // Tiles
@@ -126,6 +116,7 @@ self.addEventListener(
 
       // Oasis bonuses
       db.exec(createOasisBonusesTable);
+      oasisBonusesSeeder(db, server);
       db.exec(oasisBonusesIndexes);
 
       // Tile ownerships

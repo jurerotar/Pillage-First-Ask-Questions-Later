@@ -16,13 +16,7 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
-type PartialDbTile = Omit<
-  DbTile,
-  'type' | 'oasis_graphics' | 'resource_field_composition'
-> & {
-  oasis_graphics: null;
-  resource_field_composition: null;
-};
+type PartialDbTile = Omit<DbTile, 'type'>;
 
 type MaybeAssignedDbTile = DbTile | PartialDbTile;
 
@@ -60,7 +54,7 @@ const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
         id: tileId,
         x,
         y,
-        type: 'oasis-tile',
+        type: 'wilderness',
         resource_field_composition: null,
         oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0),
       } satisfies DbTile;
@@ -73,7 +67,7 @@ const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
         id: tileId,
         x,
         y,
-        type: 'free-tile',
+        type: 'free',
         resource_field_composition: '4446',
         oasis_graphics: null,
       } satisfies DbTile;
@@ -135,7 +129,7 @@ const generateOasisTile = ({
 
   return {
     ...tile,
-    type: 'oasis-tile',
+    type: 'oasis',
     oasis_graphics: encodedGraphics,
   } satisfies DbTile;
 };
@@ -293,13 +287,11 @@ const assignOasisAndFreeTileComposition = (
     // If it's not an oasis, generate a resource composition
     const resourceFieldComposition = generateOccupiableTileType(prng);
 
-    const tileData = {
+    return {
       ...tile,
-      type: 'free-tile',
+      type: 'free',
       resource_field_composition: resourceFieldComposition,
     } satisfies DbTile;
-
-    return tileData;
   });
 };
 

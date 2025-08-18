@@ -4,7 +4,7 @@ CREATE TABLE tiles
   x                          INTEGER NOT NULL,
   y                          INTEGER NOT NULL,
 
-  type                       TEXT    NOT NULL CHECK (type IN ('free-tile', 'oasis-tile')),
+  type                       TEXT    NOT NULL CHECK (type IN ('free', 'oasis', 'wilderness')),
 
   resource_field_composition TEXT
     CHECK (resource_field_composition IN

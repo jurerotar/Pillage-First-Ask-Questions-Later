@@ -7,11 +7,11 @@ export const getPreferences: ApiHandler<Preferences> = async (
 ) => {
   return Object.fromEntries(
     database.selectArrays(`
-    SELECT preference_key,
-           coalesce(bool_value, text_value) AS value
-    FROM preferences;
-  `),
-  );
+      SELECT preference_key,
+             coalesce(bool_value, text_value) AS value
+      FROM preferences;
+    `),
+  ) satisfies Preferences;
 };
 
 type UpdatePreferenceBody = {

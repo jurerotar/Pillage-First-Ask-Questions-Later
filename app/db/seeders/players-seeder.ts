@@ -1,6 +1,10 @@
 import type { Database } from 'app/interfaces/models/common';
-import type { Player } from 'app/interfaces/models/game/player';
 import { batchInsert } from 'app/db/utils/batch-insert';
+import {
+  generateNpcPlayers,
+  playerFactory,
+} from 'app/factories/player-factory';
+import type { Server } from 'app/interfaces/models/game/server';
 
 const slugifyPlayerName = (name: string): string => {
   return name
@@ -10,7 +14,12 @@ const slugifyPlayerName = (name: string): string => {
     .replace(/^-+|-+$/g, ''); // trim leading/trailing dashes
 };
 
-export const playersSeeder = (database: Database, players: Player[]): void => {
+export const playersSeeder = (database: Database, server: Server): void => {
+  const player = playerFactory(server);
+  const npcPlayers = generateNpcPlayers(server);
+
+  const players = [player, ...npcPlayers];
+
   batchInsert(
     database,
     'players',
