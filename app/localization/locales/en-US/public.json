@@ -20,14 +20,12 @@
   "Create Server": "Create Server",
   "Create new server": "Create new server",
   "Creating a new server will generate a game state and store it in your browser's persistent memory. You can safely close the tab or browser at any time, your server will still be there when you return. A link to your new server will appear in the server list on the homepage, and you'll be automatically redirected to it after creation.": "Creating a new server will generate a game state and store it in your browser's persistent memory. You can safely close the tab or browser at any time, your server will still be there when you return. A link to your new server will appear in the server list on the homepage, and you'll be automatically redirected to it after creation.",
-  "Seed": "Seed",
   "Age": "Age",
-  "Player name": "Player name",
-  "World size": "World size",
   "Speed": "Speed",
+  "World": "World",
   "Version": "Version",
   "Enter server": "Enter server",
-  "Create a new game world": "Create a new game world",
   "Existing game worlds": "Existing game worlds",
-  "Create a new game world or enter a previously created one": "Create a new game world or enter a previously created one"
+  "No game worlds found. Create your first world to get started!": "No game worlds found. Create your first world to get started!",
+  "Select from your existing worlds": "Select from your existing worlds"
 }

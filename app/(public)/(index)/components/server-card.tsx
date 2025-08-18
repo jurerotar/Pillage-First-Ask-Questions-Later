@@ -29,67 +29,93 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
   return (
     <div
       key={server.id}
-      className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
+      className="relative flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
     >
-      <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
-        <Button
-          data-tooltip-id="public-tooltip"
-          data-tooltip-content="Export server"
-          variant="outline"
-          onClick={() => exportServer({ server })}
-        >
-          <FaDownload className="text-gray-400" />
-        </Button>
-        <Button
-          data-tooltip-id="public-tooltip"
-          data-tooltip-content="Delete server"
-          variant="outline"
-          onClick={() => deleteServer({ server })}
-        >
-          <FaTrash className="text-red-500" />
-        </Button>
+      <div className="flex justify-between items-start gap-2">
+        <h4 className="text-sm sm:text-base font-semibold text-gray-900 truncate flex-1">
+          {server.name}
+        </h4>
+        <div className="flex gap-1 flex-shrink-0">
+          <Button
+            data-tooltip-id="public-tooltip"
+            data-tooltip-content="Export server"
+            variant="ghost"
+            size="sm"
+            onClick={() => exportServer({ server })}
+            className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-gray-400 hover:text-gray-600"
+          >
+            <FaDownload className="h-3 w-3" />
+          </Button>
+          <Button
+            data-tooltip-id="public-tooltip"
+            data-tooltip-content="Delete server"
+            variant="ghost"
+            size="sm"
+            onClick={() => deleteServer({ server })}
+            className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-red-400 hover:text-red-600"
+          >
+            <FaTrash className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
-      <span className="text-2xl font-medium">{server.name}</span>
-      <div className="flex gap-2 flex-wrap">
-        <span className="flex gap-2">
-          <span className="font-medium">{t('Seed')}:</span>
-          <span>{server.seed}</span>
-        </span>
-        <span className="flex gap-2">
-          <span className="font-medium">{t('Age')}:</span>
-          <span>{timeSinceCreation}</span>
-        </span>
-        <span className="flex gap-2">
-          <span className="font-medium">{t('Player name')}:</span>
-          <span>{server.playerConfiguration.name}</span>
-        </span>
-        <span className="flex gap-2">
-          <span className="font-medium">{t('Tribe')}:</span>
-          <span>{server.playerConfiguration.tribe}</span>
-        </span>
-        <span className="flex gap-2">
-          <span className="font-medium">{t('World size')}:</span>
-          <span>
+
+      <div className="grid grid-cols-2 gap-x-2 gap-y-2 text-xs">
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-gray-600 text-xs">
+            {t('Player')}
+          </span>
+          <span className="text-gray-800 truncate text-xs">
+            {server.playerConfiguration.name}
+          </span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-gray-600 text-xs">
+            {t('Tribe')}
+          </span>
+          <span className="text-gray-800 truncate text-xs">
+            {server.playerConfiguration.tribe}
+          </span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-gray-600 text-xs">{t('Age')}</span>
+          <span className="text-gray-800 truncate text-xs">
+            {timeSinceCreation}
+          </span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-gray-600 text-xs">
+            {t('Speed')}
+          </span>
+          <span className="text-gray-800 text-xs">
+            {server.configuration.speed}x
+          </span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-gray-600 text-xs">
+            {t('World')}
+          </span>
+          <span className="text-gray-800 text-xs">
             {server.configuration.mapSize}x{server.configuration.mapSize}
           </span>
-        </span>
-        <span className="flex gap-2">
-          <span className="font-medium">{t('Speed')}:</span>
-          <span>{server.configuration.speed}x</span>
-        </span>
-        <span className="flex gap-2">
-          <span className="font-medium">{t('Version')}:</span>
-          <span>{serverVersion}</span>
-        </span>
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="font-medium text-gray-600 text-xs">
+            {t('Version')}
+          </span>
+          <span className="text-gray-800 text-xs">{serverVersion}</span>
+        </div>
       </div>
+
       {serverVersion !== appVersion && (
-        <Alert variant="warning">
-          Your server version is outdated. It may not work with current version
-          of the app. In case of error, delete and recreate server.
-        </Alert>
+        <div className="text-xs">
+          <Alert variant="warning">
+            Server version outdated. May not work with current app version.
+          </Alert>
+        </div>
       )}
+
       <Link
-        className="text-green-600 underline font-semibold"
+        className="inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-medium rounded-md transition-colors duration-200"
         to={`/game/${server.slug}/v-1/resources`}
       >
         {t('Enter server')}
