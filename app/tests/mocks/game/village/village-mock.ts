@@ -13,9 +13,7 @@ export const villageMock: PlayerVillage = {
   buildingFieldsPresets: [],
   RFC: '4446',
   playerId,
-  isCapital: true,
   lastUpdatedAt: Date.now(),
-  expansionSlots: [],
   resources: {
     wood: 750,
     clay: 750,
