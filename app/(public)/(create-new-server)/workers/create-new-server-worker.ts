@@ -19,12 +19,17 @@ import createHeroInventoriesTable from 'app/db/schemas/hero-inventories-schema.s
 import createHeroEquippedItemsTable from 'app/db/schemas/hero-equipped-items-schema.sql?raw';
 import createWorldItemsTable from 'app/db/schemas/world-items-schema.sql?raw';
 import createTroopsTable from 'app/db/schemas/troops-schema.sql?raw';
-import oasisBonusesIndexes from 'app/db/indexes/oasis-bonuses-indexes.sql?raw';
-import playersIndexes from 'app/db/indexes/players-indexes.sql?raw';
-import tileOwnershipsIndexes from 'app/db/indexes/tile-ownerships-indexes.sql?raw';
-import tilesIndexes from 'app/db/indexes/tiles-indexes.sql?raw';
-import troopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
-import worldItemsIndexes from 'app/db/indexes/world-items-indexes.sql?raw';
+import createVillagesTable from 'app/db/schemas/villages-schema.sql?raw';
+import createUnitResearchTable from 'app/db/schemas/unit-research-schema.sql?raw';
+import createBuildingFieldsTable from 'app/db/schemas/building-fields-schema.sql?raw';
+import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?raw';
+import createOasisBonusesIndexes from 'app/db/indexes/oasis-bonuses-indexes.sql?raw';
+import createPlayersIndexes from 'app/db/indexes/players-indexes.sql?raw';
+import createTileOwnershipsIndexes from 'app/db/indexes/tile-ownerships-indexes.sql?raw';
+import createTilesIndexes from 'app/db/indexes/tiles-indexes.sql?raw';
+import createTroopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
+import createWorldItemsIndexes from 'app/db/indexes/world-items-indexes.sql?raw';
+import createVillagesIndexes from 'app/db/indexes/villages-indexes.sql?raw';
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
 import { bookmarksSeeder } from 'app/db/seeders/bookmarks-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
@@ -107,38 +112,42 @@ self.addEventListener(
       // Players
       db.exec(createPlayersTable);
       playersSeeder(db, server);
-      db.exec(playersIndexes);
+      db.exec(createPlayersIndexes);
 
       // Tiles
       db.exec(createTilesTable);
       tilesSeeder(db, server);
-      db.exec(tilesIndexes);
+      db.exec(createTilesIndexes);
+
+      // Resource sites
+      db.exec(createResourceSitesTable);
 
       // Oasis bonuses
       db.exec(createOasisBonusesTable);
       oasisBonusesSeeder(db, server);
-      db.exec(oasisBonusesIndexes);
+      db.exec(createOasisBonusesIndexes);
+
+      // Villages
+      db.exec(createVillagesTable);
+      db.exec(createVillagesIndexes);
 
       // Tile ownerships
       db.exec(createTileOwnershipsTable);
-      db.exec(tileOwnershipsIndexes);
+      db.exec(createTileOwnershipsIndexes);
 
       // World items
       db.exec(createWorldItemsTable);
-      db.exec(worldItemsIndexes);
+      db.exec(createWorldItemsIndexes);
 
       // Troops
       db.exec(createTroopsTable);
-      db.exec(troopsIndexes);
+      db.exec(createTroopsIndexes);
 
       // Unit research
-      // db.exec(createUnitResearchTable);
-
-      // Villages
-      // db.exec(createVillagesTable);
+      db.exec(createUnitResearchTable);
 
       // Building fields
-      // db.exec(createBuildingFieldsTable);
+      db.exec(createBuildingFieldsTable);
     });
 
     database.exec('PRAGMA foreign_keys=ON;');

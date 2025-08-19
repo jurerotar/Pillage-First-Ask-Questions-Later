@@ -1,0 +1,10 @@
+CREATE TABLE villages
+(
+  id      INTEGER PRIMARY KEY,
+  name    TEXT    NOT NULL,
+  slug    TEXT UNIQUE,
+  tile_id INTEGER NOT NULL,
+
+  FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
