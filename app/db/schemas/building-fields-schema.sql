@@ -1,4 +1,4 @@
-CREATE TABLE village_buildings
+CREATE TABLE building_fields
 (
   village_id  INTEGER NOT NULL,
   field_id    INTEGER NOT NULL,
