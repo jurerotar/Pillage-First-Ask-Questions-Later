@@ -1,7 +1,12 @@
-CREATE TABLE faction_reputation (
+CREATE TABLE faction_reputation
+(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  source_faction TEXT NOT NULL REFERENCES factions(id),
-  target_faction TEXT NOT NULL REFERENCES factions(id),
+  source_faction TEXT NOT NULL,
+  target_faction TEXT NOT NULL,
   reputation INTEGER NOT NULL DEFAULT 0,
-  UNIQUE(source_faction, target_faction)
+
+  UNIQUE (source_faction, target_faction),
+
+  FOREIGN KEY (source_faction) REFERENCES factions (id),
+  FOREIGN KEY (target_faction) REFERENCES factions (id)
 );

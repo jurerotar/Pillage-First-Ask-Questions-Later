@@ -1,7 +1,10 @@
-CREATE TABLE players (
-   id INTEGER PRIMARY KEY AUTOINCREMENT,
-   name TEXT NOT NULL,
-   slug TEXT NOT NULL,
-   tribe TEXT NOT NULL,
-   faction_id TEXT NOT NULL REFERENCES factions(id)
+CREATE TABLE players
+(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  tribe TEXT NOT NULL,
+  faction_id TEXT NOT NULL,
+
+  FOREIGN KEY (faction_id) REFERENCES factions (id)
 );
