@@ -9,7 +9,6 @@ import {
 import { heroFactory } from 'app/factories/hero-factory';
 import { generateEffects } from 'app/factories/effect-factory';
 import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
-import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
 import { generateEvents } from 'app/factories/event-factory';
 import { generateReputations } from 'app/factories/reputation-factory';
 import { generateNewServerQuests } from 'app/factories/quest-factory';
@@ -23,9 +22,7 @@ import {
   playersCacheKey,
   questsCacheKey,
   reputationsCacheKey,
-  serverCacheKey,
   troopsCacheKey,
-  unitImprovementCacheKey,
   unitResearchCacheKey,
   villagesCacheKey,
   worldItemsCacheKey,
@@ -38,7 +35,6 @@ import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Quest } from 'app/interfaces/models/game/quest';
@@ -102,7 +98,6 @@ export const initializeServer = async (
     playerStartingVillage.id,
     player.tribe,
   );
-  const unitImprovement = unitImprovementFactory(player.tribe);
   const events = generateEvents(server);
   const reputations = generateReputations();
   const quests = generateNewServerQuests(
@@ -112,7 +107,6 @@ export const initializeServer = async (
 
   const queryClient = new QueryClient();
 
-  queryClient.setQueryData<Server>([serverCacheKey], server);
   queryClient.setQueryData<Player[]>([playersCacheKey], players);
   queryClient.setQueryData<Reputation[]>([reputationsCacheKey], reputations);
   queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
@@ -129,10 +123,6 @@ export const initializeServer = async (
   queryClient.setQueryData<UnitResearch[]>(
     [unitResearchCacheKey],
     unitResearch,
-  );
-  queryClient.setQueryData<UnitImprovement[]>(
-    [unitImprovementCacheKey],
-    unitImprovement,
   );
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);

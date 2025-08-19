@@ -1,14 +1,17 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
+import type {
+  UnitImprovement,
+  UnitImprovementModel,
+} from 'app/interfaces/models/game/unit-improvement';
+import { unitImprovementApiResource } from 'app/(game)/api/api-resources/unit-improvement-api-resource';
 
 export const getUnitImprovements: ApiHandler<UnitImprovement[]> = async (
-  queryClient,
-  _database,
+  _queryClient,
+  database,
 ) => {
-  const unitImprovements = queryClient.getQueryData<UnitImprovement[]>([
-    unitImprovementCacheKey,
-  ])!;
+  const unitImprovementModel = database.selectObjects(
+    'SELECT * FROM unit_improvements;',
+  ) as UnitImprovementModel[];
 
-  return unitImprovements;
+  return unitImprovementModel.map(unitImprovementApiResource);
 };

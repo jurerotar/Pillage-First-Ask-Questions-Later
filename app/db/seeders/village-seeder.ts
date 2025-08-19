@@ -49,7 +49,7 @@ export const villageSeeder = (database: Database, server: Server): void => {
 
   // Player village
   const playerStartingTileId = database.selectValue(
-    'SELECT id, x, y FROM tiles WHERE x = 0 AND y = 0;',
+    'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
   )!;
 
   database.exec({

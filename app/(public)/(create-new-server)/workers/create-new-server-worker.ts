@@ -20,6 +20,7 @@ import createWorldItemsTable from 'app/db/schemas/world-items-schema.sql?raw';
 import createTroopsTable from 'app/db/schemas/troops-schema.sql?raw';
 import createVillagesTable from 'app/db/schemas/villages-schema.sql?raw';
 import createUnitResearchTable from 'app/db/schemas/unit-research-schema.sql?raw';
+import createUnitImprovementTable from 'app/db/schemas/unit-improvements-schema.sql?raw';
 import createBuildingFieldsTable from 'app/db/schemas/building-fields-schema.sql?raw';
 import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?raw';
 import createOasisBonusesIndexes from 'app/db/indexes/oasis-bonuses-indexes.sql?raw';
@@ -40,6 +41,9 @@ import { tilesSeeder } from 'app/db/seeders/tiles-seeder';
 import { oasisSeeder } from 'app/db/seeders/oasis-seeder';
 import { villageSeeder } from 'app/db/seeders/village-seeder';
 import { occupiedOasisSeeder } from 'app/db/seeders/occupied-oasis-seeder';
+import { resourceSitesSeeder } from 'app/db/seeders/resource-sites-seeder';
+import { unitImprovementSeeder } from 'app/db/seeders/unit-improvement-seeder';
+import { unitResearchSeeder } from 'app/db/seeders/unit-research-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -118,9 +122,6 @@ self.addEventListener(
       tilesSeeder(db, server);
       db.exec(createTilesIndexes);
 
-      // Resource sites
-      db.exec(createResourceSitesTable);
-
       // Oasis bonuses
       db.exec(createOasisBonusesTable);
       oasisSeeder(db, server);
@@ -130,6 +131,13 @@ self.addEventListener(
       db.exec(createVillagesTable);
       villageSeeder(db, server);
       occupiedOasisSeeder(db, server);
+
+      // Building fields
+      db.exec(createBuildingFieldsTable);
+
+      // Resource sites
+      db.exec(createResourceSitesTable);
+      resourceSitesSeeder(db, server);
 
       // World items
       db.exec(createWorldItemsTable);
@@ -141,9 +149,11 @@ self.addEventListener(
 
       // Unit research
       db.exec(createUnitResearchTable);
+      unitResearchSeeder(database, server);
 
-      // Building fields
-      db.exec(createBuildingFieldsTable);
+      // Unit improvement
+      db.exec(createUnitImprovementTable);
+      unitImprovementSeeder(db, server);
     });
 
     database.exec('PRAGMA foreign_keys=ON;');
