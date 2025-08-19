@@ -1,13 +1,10 @@
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import {
-  seededRandomArrayElement,
-  seededRandomIntFromInterval,
-} from 'app/utils/common';
+import { seededRandomArrayElement } from 'app/utils/common';
 import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { npcFactions } from 'app/factories/reputation-factory';
-import { usernameRoots } from 'app/assets/player';
+import { usernameAdjectives, usernameNouns } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
 import { PLAYER_ID } from 'app/constants/player';
 
@@ -22,10 +19,10 @@ const npcPlayerFactory = ({
   prng,
   id,
 }: PlayerFactoryProps): Player => {
-  const nameRoot = seededRandomArrayElement(prng, usernameRoots);
+  const adjective = seededRandomArrayElement(prng, usernameAdjectives);
+  const noun = seededRandomArrayElement(prng, usernameNouns);
 
-  const discriminator = seededRandomIntFromInterval(prng, 1, 1000);
-  const paddedDiscriminator = `${discriminator % 10000}`.padStart(4, '0');
+  const paddedDiscriminator = `${id % 10000}`.padStart(4, '0');
 
   const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
     'romans',
@@ -37,7 +34,7 @@ const npcPlayerFactory = ({
 
   return {
     id,
-    name: `${nameRoot}#${paddedDiscriminator}`,
+    name: `${adjective}${noun}#${paddedDiscriminator}`,
     tribe,
     faction,
   };
