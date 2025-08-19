@@ -11,8 +11,7 @@ import createServersTable from 'app/db/schemas/servers-schema.sql?raw';
 import createPlayersTable from 'app/db/schemas/players-schema.sql?raw';
 import createFactionsTable from 'app/db/schemas/factions-schema.sql?raw';
 import createTilesTable from 'app/db/schemas/tiles-schema.sql?raw';
-import createOasisBonusesTable from 'app/db/schemas/oasis-bonuses-schema.sql?raw';
-import createTileOwnershipsTable from 'app/db/schemas/tile-ownerships-schema.sql?raw';
+import createOasisBonusesTable from 'app/db/schemas/oasis-schema.sql?raw';
 import createFactionReputationTable from 'app/db/schemas/faction-reputation-schema.sql?raw';
 import createHeroesTable from 'app/db/schemas/heroes-schema.sql?raw';
 import createHeroInventoriesTable from 'app/db/schemas/hero-inventories-schema.sql?raw';
@@ -25,11 +24,9 @@ import createBuildingFieldsTable from 'app/db/schemas/building-fields-schema.sql
 import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?raw';
 import createOasisBonusesIndexes from 'app/db/indexes/oasis-bonuses-indexes.sql?raw';
 import createPlayersIndexes from 'app/db/indexes/players-indexes.sql?raw';
-import createTileOwnershipsIndexes from 'app/db/indexes/tile-ownerships-indexes.sql?raw';
 import createTilesIndexes from 'app/db/indexes/tiles-indexes.sql?raw';
 import createTroopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from 'app/db/indexes/world-items-indexes.sql?raw';
-import createVillagesIndexes from 'app/db/indexes/villages-indexes.sql?raw';
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
 import { bookmarksSeeder } from 'app/db/seeders/bookmarks-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
@@ -40,7 +37,9 @@ import { factionReputationSeeder } from 'app/db/seeders/faction-reputation-seede
 import { playersSeeder } from 'app/db/seeders/players-seeder';
 import { heroSeeder } from 'app/db/seeders/hero-seeder';
 import { tilesSeeder } from 'app/db/seeders/tiles-seeder';
-import { oasisBonusesSeeder } from 'app/db/seeders/oasis-bonuses-seeder';
+import { oasisSeeder } from 'app/db/seeders/oasis-seeder';
+import { villageSeeder } from 'app/db/seeders/village-seeder';
+import { occupiedOasisSeeder } from 'app/db/seeders/occupied-oasis-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -124,16 +123,13 @@ self.addEventListener(
 
       // Oasis bonuses
       db.exec(createOasisBonusesTable);
-      oasisBonusesSeeder(db, server);
+      oasisSeeder(db, server);
       db.exec(createOasisBonusesIndexes);
 
       // Villages
       db.exec(createVillagesTable);
-      db.exec(createVillagesIndexes);
-
-      // Tile ownerships
-      db.exec(createTileOwnershipsTable);
-      db.exec(createTileOwnershipsIndexes);
+      villageSeeder(db, server);
+      occupiedOasisSeeder(db, server);
 
       // World items
       db.exec(createWorldItemsTable);

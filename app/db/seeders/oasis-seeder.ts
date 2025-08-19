@@ -12,10 +12,7 @@ type SelectReturn = {
   oasis_graphics: DbTile['oasis_graphics'];
 };
 
-export const oasisBonusesSeeder = (
-  database: Database,
-  server: Server,
-): void => {
+export const oasisSeeder = (database: Database, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const oasisTiles = database.selectObjects(
@@ -63,9 +60,10 @@ export const oasisBonusesSeeder = (
 
   batchInsert(
     database,
-    'oasis_bonuses',
-    ['tile_id', 'resource', 'bonus'],
+    'oasis',
+    ['tile_id', 'resource', 'bonus', 'village_id'],
     oasisBonuses,
-    (oasisBonus) => oasisBonus,
+    // Village id can remain null because it's assigned in occupied-oasis-seeder
+    (oasisBonus) => [...oasisBonus, null],
   );
 };

@@ -22,16 +22,10 @@ const npcPlayerFactory = ({
   prng,
   id,
 }: PlayerFactoryProps): Player => {
-  const rootIndex = seededRandomIntFromInterval(
-    prng,
-    0,
-    usernameRoots.length - 1,
-  );
+  const nameRoot = seededRandomArrayElement(prng, usernameRoots);
 
   const discriminator = seededRandomIntFromInterval(prng, 1, 1000);
   const paddedDiscriminator = `${discriminator % 10000}`.padStart(4, '0');
-
-  const nameRoot = usernameRoots[rootIndex];
 
   const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
     'romans',
