@@ -19,12 +19,9 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   args,
 ) => {
   const {
-    params: { oasisId: oasisIdParam, villageId: villageIdParam },
+    params: { oasisId, villageId },
   } = args;
   // TODO: Add Hero's mansion level & empty oasis slot check
-
-  const oasisId = Number.parseInt(oasisIdParam);
-  const villageId = Number.parseInt(villageIdParam);
 
   updateVillageResourcesAt(queryClient, villageId, Date.now());
 
@@ -60,11 +57,8 @@ export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   args,
 ) => {
   const {
-    params: { oasisId: oasisIdParam, villageId: villageIdParam },
+    params: { oasisId, villageId },
   } = args;
-
-  const oasisId = Number.parseInt(oasisIdParam);
-  const villageId = Number.parseInt(villageIdParam);
 
   updateVillageResourcesAt(queryClient, villageId, Date.now());
 
