@@ -32,8 +32,7 @@ export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
   _database,
   { params },
 ) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId } = params;
 
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
@@ -50,8 +49,7 @@ export const getVillageEventsByType: ApiHandler<
   GameEvent[],
   'villageId' | 'eventType'
 > = async (queryClient, _database, { params }) => {
-  const { villageId: villageIdParam, eventType } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId, eventType } = params;
 
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 

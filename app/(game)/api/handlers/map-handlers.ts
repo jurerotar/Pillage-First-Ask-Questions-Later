@@ -37,8 +37,7 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
   _database,
   { params },
 ) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
@@ -89,8 +88,7 @@ export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
   _database,
   { params },
 ) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
 
@@ -102,8 +100,7 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
   _database,
   { params },
 ) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const worldItems = queryClient.getQueryData<WorldItem[]>([
     worldItemsCacheKey,
@@ -116,8 +113,7 @@ export const getTileOccupiableOasis: ApiHandler<
   OccupiableOasisInRangeDTO[],
   'tileId'
 > = async (queryClient, _database, { params }) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
@@ -185,8 +181,7 @@ export const getContextualMap: ApiHandler<
   ContextualTile[],
   'villageId'
 > = async (queryClient, _database, { params }) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const reputations = queryClient.getQueryData<Reputation[]>([

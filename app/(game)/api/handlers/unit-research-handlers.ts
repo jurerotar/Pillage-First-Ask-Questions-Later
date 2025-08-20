@@ -9,8 +9,7 @@ export const getResearchedUnits: ApiHandler<
   UnitResearch[],
   'villageId'
 > = async (_queryClient, database, { params }) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId } = params;
 
   const unitResearchModels = database.selectObjects(
     'SELECT unit_id, village_id FROM unit_research WHERE village_id = ?;',

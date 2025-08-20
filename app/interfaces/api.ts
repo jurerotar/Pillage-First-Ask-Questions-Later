@@ -11,9 +11,19 @@ export type Resolver<T extends GameEvent> = (
   args: T,
 ) => Promise<void>;
 
+type ParamType<T extends string> = T extends
+  | 'villageId'
+  | 'playerId'
+  | 'tileId'
+  | 'oasisId'
+  ? number
+  : string;
+
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
-  params: Record<TParams, string>;
+  params: {
+    [K in TParams]: ParamType<K>;
+  };
 };
 
 export type ApiHandler<

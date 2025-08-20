@@ -12,8 +12,7 @@ export const getVillageEffects: ApiHandler<Effect[], 'villageId'> = async (
   _database,
   { params },
 ) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId } = params;
 
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
