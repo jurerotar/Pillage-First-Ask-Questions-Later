@@ -62,8 +62,10 @@ export const villageSeeder = (database: Database, server: Server): void => {
     'SELECT id FROM players WHERE id != ?',
     [PLAYER_ID],
   ) as Player['id'][];
+
+  // Field [0, 0] is already occupied by the player
   const occupiableFields = database.selectObjects(
-    'SELECT id, x, y FROM tiles WHERE type = ? AND resource_field_composition = ?;',
+    'SELECT id, x, y FROM tiles WHERE type = ? AND resource_field_composition = ? AND x != 0 AND y != 0;',
     ['free', '4446'],
   ) as OccupiableField[];
 
@@ -132,11 +134,11 @@ export const villageSeeder = (database: Database, server: Server): void => {
         }
 
         const key: `${DbTile['x']}-${DbTile['y']}` = `${startingTile.x}-${startingTile.y}`;
-        if (!occupiableFieldMap.has(key)) {
+        const candidateTile = occupiableFieldMap.get(key)!;
+        if (!candidateTile) {
           continue;
         }
 
-        const candidateTile = occupiableFieldMap.get(key)!;
         playerToOccupiedFields.push([playerId, candidateTile]);
 
         occupiableFieldMap.delete(key);
