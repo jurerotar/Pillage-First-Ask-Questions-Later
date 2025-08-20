@@ -4,7 +4,6 @@ import {
   eventsCacheKey,
   mapCacheKey,
   playersCacheKey,
-  reportsCacheKey,
   reputationsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
@@ -22,7 +21,6 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
-import type { Report } from 'app/interfaces/models/game/report';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
 import { parseCoordinatesFromTileId } from 'app/utils/map';
@@ -71,32 +69,6 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
     village,
     population,
   };
-};
-
-export const getTileReports: ApiHandler<Report[], 'tileId'> = async (
-  queryClient,
-  { params },
-) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
-
-  const reports = queryClient.getQueryData<Report[]>([reportsCacheKey])!;
-
-  const reportsToReturn: Report[] = [];
-  let reportToReturnCount = 0;
-
-  for (const report of reports) {
-    if (report.villageId === tileId) {
-      reportsToReturn.push(report);
-      reportToReturnCount += 1;
-
-      if (reportToReturnCount === 3) {
-        break;
-      }
-    }
-  }
-
-  return reportsToReturn;
 };
 
 export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
