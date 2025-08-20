@@ -62,7 +62,7 @@ export const initializeServer = async (
   const occupiedOccupiableTiles = tiles.filter(isOccupiedOccupiableTile);
 
   const playerStartingTile = occupiedOccupiableTiles.find(
-    ({ id }) => id === 0,
+    ({ coordinates }) => coordinates.x === 0 && coordinates.y === 0,
   )!;
 
   const playerStartingVillage = playerVillageFactory({

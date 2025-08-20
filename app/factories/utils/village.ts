@@ -1,6 +1,5 @@
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 
 const buildVillageSizeLookup = (): VillageSize[] => {
   const bands: VillageSize[] = [
@@ -30,9 +29,9 @@ const villageSizeLookup = buildVillageSizeLookup();
 
 export const getVillageSize = (
   mapSize: number,
-  tileId: Tile['id'],
+  coordinates: Tile['coordinates'],
 ): VillageSize => {
-  const { x, y } = parseCoordinatesFromTileId(tileId);
+  const { x, y } = coordinates;
   const relativeDistance = Math.floor(
     (Math.sqrt(x ** 2 + y ** 2) / mapSize) * 100,
   );
