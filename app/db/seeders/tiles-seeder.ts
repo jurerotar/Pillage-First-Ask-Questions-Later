@@ -1,4 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateGridLayout, encodeGraphicsProperty } from 'app/utils/map';
 import type { DbTile } from 'app/interfaces/models/db/tile';
@@ -290,7 +290,7 @@ const assignOasisAndFreeTileComposition = (
   });
 };
 
-export const tilesSeeder = (database: Database, server: Server): void => {
+export const tilesSeeder: Seeder = (database, server): void => {
   const emptyTiles = generateGrid(server);
   const tilesWithShapedOasisFields = generateShapedOasisFields(
     server,

@@ -1,5 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
-import type { Server } from 'app/interfaces/models/game/server';
+import type { Seeder } from 'app/interfaces/db';
 import { prngMulberry32 } from 'ts-seedrandom';
 import type { DbTile } from 'app/interfaces/models/db/tile';
 import { seededRandomIntFromInterval } from 'app/utils/common';
@@ -12,7 +11,7 @@ type SelectReturn = {
   oasis_graphics: DbTile['oasis_graphics'];
 };
 
-export const oasisSeeder = (database: Database, server: Server): void => {
+export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const oasisTiles = database.selectObjects(

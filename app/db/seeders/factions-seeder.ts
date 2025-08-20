@@ -1,8 +1,7 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
+import { batchInsert } from 'app/db/utils/batch-insert';
 
-const sql = 'INSERT INTO factions (id, name) VALUES (?, ?);';
-
-export const factionsSeeder = (database: Database): void => {
+export const factionsSeeder: Seeder = (database): void => {
   const factions: [string, string][] = [
     ['player', 'Player'],
     ['npc1', 'NPC1'],
@@ -15,11 +14,5 @@ export const factionsSeeder = (database: Database): void => {
     ['npc8', 'NPC8'],
   ];
 
-  const stmt = database.prepare(sql);
-
-  for (const [id, name] of factions) {
-    stmt.bind([id, name]).stepReset();
-  }
-
-  stmt.finalize();
+  batchInsert(database, 'factions', ['id', 'name'], factions, (row) => row);
 };

@@ -5,7 +5,7 @@ import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import type { Database } from 'app/interfaces/models/common';
+import type { Database } from 'app/interfaces/db';
 
 let scheduledTimeout: number | null = null;
 

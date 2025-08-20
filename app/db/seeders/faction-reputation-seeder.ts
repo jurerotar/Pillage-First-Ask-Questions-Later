@@ -1,13 +1,9 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import type { PlayerFaction } from 'app/interfaces/models/game/player';
 import { reputationLevels } from 'app/assets/reputation';
+import { batchInsert } from 'app/db/utils/batch-insert';
 
-const sql = `
-  INSERT INTO faction_reputation (source_faction, target_faction, reputation)
-  VALUES (?, ?, ?);
-`;
-
-export const factionReputationSeeder = (database: Database): void => {
+export const factionReputationSeeder: Seeder = (database): void => {
   const relations: [PlayerFaction, PlayerFaction, number][] = [
     ['player', 'npc1', reputationLevels.get('ecstatic')!],
     ['player', 'npc2', reputationLevels.get('honored')!],
@@ -19,11 +15,11 @@ export const factionReputationSeeder = (database: Database): void => {
     ['player', 'npc8', reputationLevels.get('hated')!],
   ];
 
-  const stmt = database.prepare(sql);
-
-  for (const [source, target, reputation] of relations) {
-    stmt.bind([source, target, reputation]).stepReset();
-  }
-
-  stmt.finalize();
+  batchInsert(
+    database,
+    'faction_reputation',
+    ['source_faction', 'target_faction', 'reputation'],
+    relations,
+    (row) => row,
+  );
 };

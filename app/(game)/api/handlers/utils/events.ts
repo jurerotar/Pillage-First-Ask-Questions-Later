@@ -43,7 +43,7 @@ import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
-import type { Database } from 'app/interfaces/models/common';
+import type { Database } from 'app/interfaces/db';
 import { PLAYER_ID } from 'app/constants/player';
 
 // TODO: Implement this

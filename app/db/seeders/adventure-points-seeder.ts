@@ -1,12 +1,8 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 
-const sql = `INSERT INTO adventure_points (
-  amount
-) VALUES (?);`;
-
-export const adventurePointsSeeder = (database: Database): void => {
+export const adventurePointsSeeder: Seeder = (database): void => {
   database.exec({
-    sql,
+    sql: 'INSERT INTO adventure_points (amount) VALUES (?);',
     bind: [3],
   });
 };

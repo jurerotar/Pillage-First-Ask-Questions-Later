@@ -1,5 +1,4 @@
 import type { Resource } from 'app/interfaces/models/game/resource';
-import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe, Tribe } from 'app/interfaces/models/game/tribe';
 import type {
   NatureUnitId,
@@ -11,7 +10,7 @@ import { seededRandomIntFromInterval } from 'app/utils/common';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
 import { PLAYER_ID } from 'app/constants/player';
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import type { DbTile } from 'app/interfaces/models/db/tile';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
@@ -282,7 +281,7 @@ type OasisSelectRow = {
   bonus: number;
 };
 
-export const troopSeeder = (database: Database, server: Server): void => {
+export const troopSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const results: [Unit['id'], number, DbTile['id'], DbTile['id']][] = [];

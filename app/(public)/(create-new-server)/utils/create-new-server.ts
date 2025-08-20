@@ -8,7 +8,6 @@ import {
 } from 'app/factories/village-factory';
 import { heroFactory } from 'app/factories/hero-factory';
 import { generateEffects } from 'app/factories/effect-factory';
-import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 import { generateEvents } from 'app/factories/event-factory';
 import { generateReputations } from 'app/factories/reputation-factory';
 import { generateNewServerQuests } from 'app/factories/quest-factory';
@@ -23,7 +22,6 @@ import {
   questsCacheKey,
   reputationsCacheKey,
   troopsCacheKey,
-  unitResearchCacheKey,
   villagesCacheKey,
   worldItemsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -34,7 +32,6 @@ import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Quest } from 'app/interfaces/models/game/quest';
@@ -94,10 +91,6 @@ export const initializeServer = async (
   });
 
   const effects = generateEffects(server, playerStartingVillage, hero);
-  const unitResearch = newVillageUnitResearchFactory(
-    playerStartingVillage.id,
-    player.tribe,
-  );
   const events = generateEvents(server);
   const reputations = generateReputations();
   const quests = generateNewServerQuests(
@@ -119,10 +112,6 @@ export const initializeServer = async (
   queryClient.setQueryData<Troop[]>(
     [troopsCacheKey],
     [...playerTroops, ...npcTroops],
-  );
-  queryClient.setQueryData<UnitResearch[]>(
-    [unitResearchCacheKey],
-    unitResearch,
   );
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);

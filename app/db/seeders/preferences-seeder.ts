@@ -1,10 +1,10 @@
 import type { Preferences } from 'app/interfaces/models/game/preferences';
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 
 const sql =
   'INSERT INTO preferences (preference_key, text_value, bool_value) VALUES (?, ?, ?);';
 
-export const preferencesSeeder = (database: Database): void => {
+export const preferencesSeeder: Seeder = (database): void => {
   const preferences: Preferences = {
     colorScheme: 'light',
     locale: 'en-US',

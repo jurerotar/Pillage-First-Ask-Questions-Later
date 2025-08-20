@@ -1,5 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
-import type { Server } from 'app/interfaces/models/game/server';
+import type { Seeder } from 'app/interfaces/db';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { getVillageSize } from 'app/db/utils/village-size';
 import { batchInsert } from 'app/db/utils/batch-insert';
@@ -28,10 +27,7 @@ const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
   ['4xl', 160_000],
 ]);
 
-export const resourceSitesSeeder = (
-  database: Database,
-  server: Server,
-): void => {
+export const resourceSitesSeeder: Seeder = (database, server): void => {
   const results: [number, number, number, number, number, number][] = [];
 
   const updatedAt = Date.now();

@@ -3,7 +3,13 @@ import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
-import type { Database } from 'app/interfaces/models/common';
+import type { Database } from 'app/interfaces/db';
+
+export type Resolver<T extends GameEvent> = (
+  queryClient: QueryClient,
+  database: Database,
+  args: T,
+) => Promise<void>;
 
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;

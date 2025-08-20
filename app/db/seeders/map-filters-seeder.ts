@@ -1,4 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
 const sql = `INSERT INTO map_filters
@@ -8,7 +8,7 @@ const sql = `INSERT INTO map_filters
   )
 VALUES (?, ?);`;
 
-export const mapFiltersSeeder = (database: Database): void => {
+export const mapFiltersSeeder: Seeder = (database): void => {
   const mapFilters: (keyof MapFilters)[] = [
     'shouldShowFactionReputation',
     'shouldShowOasisIcons',

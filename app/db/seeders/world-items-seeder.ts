@@ -1,5 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
-import type { Server } from 'app/interfaces/models/game/server';
+import type { Seeder } from 'app/interfaces/db';
 import { prngMulberry32 } from 'ts-seedrandom';
 import {
   partition,
@@ -25,7 +24,7 @@ type RowWithSize = Row & {
   size: VillageSize;
 };
 
-export const worldItemsSeeder = (database: Database, server: Server): void => {
+export const worldItemsSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const results: [

@@ -1,6 +1,5 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import type { DbTile } from 'app/interfaces/models/db/tile';
-import type { Server } from 'app/interfaces/models/game/server';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { seededRandomIntFromInterval } from 'app/utils/common';
@@ -20,10 +19,7 @@ const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
   ['4xl', 3],
 ]);
 
-export const occupiedOasisSeeder = (
-  database: Database,
-  server: Server,
-): void => {
+export const occupiedOasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const villageFields = database.selectObjects(

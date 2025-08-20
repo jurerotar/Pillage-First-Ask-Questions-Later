@@ -1,4 +1,4 @@
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import {

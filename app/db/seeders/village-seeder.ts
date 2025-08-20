@@ -1,6 +1,5 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import type { DbTile } from 'app/interfaces/models/db/tile';
-import type { Server } from 'app/interfaces/models/game/server';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { PLAYER_ID } from 'app/constants/player';
 import { prngMulberry32 } from 'ts-seedrandom';
@@ -44,7 +43,7 @@ const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
   ],
 );
 
-export const villageSeeder = (database: Database, server: Server): void => {
+export const villageSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   // Player village

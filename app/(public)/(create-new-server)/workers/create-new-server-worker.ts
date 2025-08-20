@@ -75,22 +75,22 @@ self.addEventListener(
     database.transaction((db) => {
       // Preferences
       db.exec(createPreferencesTable);
-      preferencesSeeder(db);
+      preferencesSeeder(db, server);
 
       // Map filters
       db.exec(createMapFiltersTable);
-      mapFiltersSeeder(db);
+      mapFiltersSeeder(db, server);
 
       // Map markers
       db.exec(createMapMarkersTable);
 
       // Bookmarks
       db.exec(createBookmarksTable);
-      bookmarksSeeder(db);
+      bookmarksSeeder(db, server);
 
       // Adventure points
       db.exec(createAdventurePointsTable);
-      adventurePointsSeeder(db);
+      adventurePointsSeeder(db, server);
 
       // Server
       db.exec(createServersTable);
@@ -98,15 +98,15 @@ self.addEventListener(
 
       // Factions
       db.exec(createFactionsTable);
-      factionsSeeder(db);
+      factionsSeeder(db, server);
 
       // Faction reputations
       db.exec(createFactionReputationTable);
-      factionReputationSeeder(db);
+      factionReputationSeeder(db, server);
 
       // Heroes
       db.exec(createHeroesTable);
-      heroSeeder(db);
+      heroSeeder(db, server);
 
       // Hero equipped items
       db.exec(createHeroEquippedItemsTable);
@@ -153,7 +153,7 @@ self.addEventListener(
 
       // Unit research
       db.exec(createUnitResearchTable);
-      unitResearchSeeder(database, server);
+      unitResearchSeeder(db, server);
 
       // Unit improvement
       db.exec(createUnitImprovementTable);

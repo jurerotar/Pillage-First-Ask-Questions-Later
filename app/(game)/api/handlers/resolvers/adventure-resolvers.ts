@@ -1,4 +1,4 @@
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { adventurePointsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';

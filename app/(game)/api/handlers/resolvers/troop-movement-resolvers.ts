@@ -1,5 +1,5 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import {
   effectsCacheKey,

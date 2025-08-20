@@ -1,25 +1,23 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
-import type { Server } from 'app/interfaces/models/game/server';
+import type { Village } from 'app/interfaces/models/game/village';
 
-const sql = `
-  INSERT INTO unit_research (village_id, unit_id)
-  VALUES (?, ?);
-`;
-
-export const unitResearchSeeder = (
-  database: Database,
-  server: Server,
-): void => {
+export const unitResearchSeeder: Seeder = (database, server): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
   const tier1Unit = unitsByTribe.find(({ tier }) => tier === 'tier-1')!;
 
-  const playerStartingTileId = database.selectValue(
-    'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
-  )! as number;
+  const playerStartingVillageId = database.selectValue(
+    `
+      SELECT villages.id
+      FROM villages
+             JOIN tiles ON villages.tile_id = tiles.id
+      WHERE tiles.x = 0
+        AND tiles.y = 0;
+    `,
+  )! as Village['id'];
 
   database.exec({
-    sql,
-    bind: [playerStartingTileId, tier1Unit.id],
+    sql: 'INSERT INTO unit_research (village_id, unit_id) VALUES (?, ?);',
+    bind: [playerStartingVillageId, tier1Unit.id],
   });
 };

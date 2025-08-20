@@ -1,21 +1,20 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Seeder } from 'app/interfaces/db';
 
-const sql = `
-  INSERT INTO heroes (
-    experience,
-    health,
-    attack_power,
-    resource_production,
-    attack_bonus,
-    defence_bonus,
-    resource_to_produce,
-    adventure_count
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-`;
-
-export const heroSeeder = (database: Database): void => {
+export const heroSeeder: Seeder = (database): void => {
   database.exec({
-    sql,
+    sql: `
+      INSERT INTO heroes (
+        experience,
+        health,
+        attack_power,
+        resource_production,
+        attack_bonus,
+        defence_bonus,
+        resource_to_produce,
+        adventure_count
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    `,
     bind: [
       0, // experience
       100, // health

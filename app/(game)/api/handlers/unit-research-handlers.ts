@@ -1,19 +1,21 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
+import type {
+  UnitResearch,
+  UnitResearchModel,
+} from 'app/interfaces/models/game/unit-research';
+import { unitResearchApiResource } from 'app/(game)/api/api-resources/unit-research-api-resource';
 
 export const getResearchedUnits: ApiHandler<
   UnitResearch[],
   'villageId'
-> = async (queryClient, _database, { params }) => {
+> = async (_queryClient, database, { params }) => {
   const { villageId: villageIdParam } = params;
   const villageId = Number.parseInt(villageIdParam);
 
-  const researchedUnits = queryClient.getQueryData<UnitResearch[]>([
-    unitResearchCacheKey,
-  ])!;
+  const unitResearchModels = database.selectObjects(
+    'SELECT unit_id, village_id FROM unit_research WHERE village_id = ?;',
+    [villageId],
+  ) as UnitResearchModel[];
 
-  return researchedUnits.filter((researchedUnits) => {
-    return researchedUnits.villageId === villageId;
-  });
+  return unitResearchModels.map(unitResearchApiResource);
 };

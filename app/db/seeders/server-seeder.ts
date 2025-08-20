@@ -1,5 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
-import type { Server } from 'app/interfaces/models/game/server';
+import type { Seeder } from 'app/interfaces/db';
 
 const sql = `INSERT INTO servers (
   id,
@@ -14,7 +13,7 @@ const sql = `INSERT INTO servers (
   player_tribe
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-export const serverSeeder = (database: Database, server: Server): void => {
+export const serverSeeder: Seeder = (database, server): void => {
   const {
     id,
     seed,

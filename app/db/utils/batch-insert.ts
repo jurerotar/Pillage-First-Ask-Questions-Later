@@ -1,4 +1,4 @@
-import type { Database } from 'app/interfaces/models/common';
+import type { Database } from 'app/interfaces/db';
 
 type SqlValue = string | number | bigint | Uint8Array | null;
 

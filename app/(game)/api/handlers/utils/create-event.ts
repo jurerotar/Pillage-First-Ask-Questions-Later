@@ -12,7 +12,7 @@ import {
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import type { Database } from 'app/interfaces/models/common';
+import type { Database } from 'app/interfaces/db';
 
 export const validateAndInsertEvents = async (
   queryClient: QueryClient,

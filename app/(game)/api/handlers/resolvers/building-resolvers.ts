@@ -3,7 +3,7 @@ import {
   specialFieldIds,
 } from 'app/(game)/(village-slug)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
 import {
