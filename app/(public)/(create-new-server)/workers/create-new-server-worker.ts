@@ -44,6 +44,8 @@ import { occupiedOasisSeeder } from 'app/db/seeders/occupied-oasis-seeder';
 import { resourceSitesSeeder } from 'app/db/seeders/resource-sites-seeder';
 import { unitImprovementSeeder } from 'app/db/seeders/unit-improvement-seeder';
 import { unitResearchSeeder } from 'app/db/seeders/unit-research-seeder';
+import { troopSeeder } from 'app/db/seeders/troop-seeder';
+import { worldItemsSeeder } from 'app/db/seeders/world-items-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -141,10 +143,12 @@ self.addEventListener(
 
       // World items
       db.exec(createWorldItemsTable);
+      worldItemsSeeder(db, server);
       db.exec(createWorldItemsIndexes);
 
       // Troops
       db.exec(createTroopsTable);
+      troopSeeder(db, server);
       db.exec(createTroopsIndexes);
 
       // Unit research
