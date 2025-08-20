@@ -1,11 +1,6 @@
 import type { Database } from 'app/interfaces/models/common';
 import type { Server } from 'app/interfaces/models/game/server';
-import {
-  calculateGridLayout,
-  encodeGraphicsProperty,
-  packTileId,
-  parseCoordinatesFromTileId,
-} from 'app/utils/map';
+import { calculateGridLayout, encodeGraphicsProperty } from 'app/utils/map';
 import type { DbTile } from 'app/interfaces/models/db/tile';
 import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import {
@@ -169,9 +164,9 @@ const generateShapedOasisFields = (
   };
 
   const tilesByCoordinates = new Map<
-    MaybeAssignedDbTile['id'],
+    `${DbTile['x']}-${DbTile['y']}`,
     MaybeAssignedDbTile
-  >(tiles.map((tile) => [tile.id, tile]));
+  >(tiles.map((tile) => [`${tile.x}-${tile.y}`, tile]));
 
   tileLoop: for (let i = 0; i < tiles.length; i += 1) {
     const currentTile = tiles[i];
@@ -187,7 +182,7 @@ const generateShapedOasisFields = (
       continue;
     }
 
-    const { x, y } = parseCoordinatesFromTileId(currentTile.id);
+    const { x, y } = currentTile;
     const resourceType: Resource = seededRandomArrayElement<Resource>(prng, [
       'wheat',
       'iron',
@@ -205,8 +200,8 @@ const generateShapedOasisFields = (
     for (let k = 0; k < oasisShape.length; k += 1) {
       const amountOfTiles = oasisShape[k];
       for (let j = 0; j < amountOfTiles; j += 1) {
-        const targetId = packTileId(x + j, y - k);
-        const tile = tilesByCoordinates.get(targetId);
+        const key: `${DbTile['x']}-${DbTile['y']}` = `${x + j}-${y - k}`;
+        const tile = tilesByCoordinates.get(key);
 
         if (!tile || Object.hasOwn(tile, 'type')) {
           continue tileLoop;
