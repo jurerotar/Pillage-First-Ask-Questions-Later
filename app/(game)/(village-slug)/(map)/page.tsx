@@ -183,18 +183,15 @@ const MapPage = () => {
       if (bottomMapRulerRef.current) {
         bottomMapRulerRef.current.scrollTo(scrollLeft);
       }
-
       if (leftMapRulerRef.current) {
         leftMapRulerRef.current.scrollTo(scrollTop);
       }
 
-      // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-      currentCenterTile.current.x =
-        Math.floor(
-          (scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2,
-        ) + 1;
-      currentCenterTile.current.y = Math.ceil(
-        (scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2,
+      currentCenterTile.current.x = Math.round(
+        (scrollLeft + width / 2) / tileSize - gridSize / 2,
+      );
+      currentCenterTile.current.y = Math.round(
+        gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
       );
     },
     [tileSize, gridSize, width, mapHeight],
