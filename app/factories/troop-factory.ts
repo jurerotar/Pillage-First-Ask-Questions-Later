@@ -364,6 +364,7 @@ export const generateTroops = ({
   const { id: tileId } = occupiedOccupiableTiles.find(
     ({ ownedBy }) => ownedBy === PLAYER_ID,
   )!;
+
   const tier1UnitIt = getUnitByTribeAndTier(tribe, 'tier-1');
 
   // Player always starts with 3 tier-1 units and a hero

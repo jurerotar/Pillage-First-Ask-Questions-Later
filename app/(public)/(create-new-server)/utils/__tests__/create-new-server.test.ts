@@ -26,11 +26,7 @@ import type { Server } from 'app/interfaces/models/game/server';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
-import {
-  calculateGridLayout,
-  decodeGraphicsProperty,
-  parseCoordinatesFromTileId,
-} from 'app/utils/map';
+import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
 import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 
 const queryClient = await initializeServer(serverMock);
@@ -64,8 +60,8 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       expect(
-        tiles.every(({ id }) => {
-          const { x, y } = parseCoordinatesFromTileId(id);
+        tiles.every(({ coordinates }) => {
+          const { x, y } = coordinates;
           return (
             x >= -halfSize && x <= halfSize && y >= -halfSize && y <= halfSize
           );
@@ -139,7 +135,8 @@ describe('Server initialization', () => {
 
       const extraSmallVillageTileIds = occupiedOccupiableTiles
         .filter(
-          ({ id }) => getVillageSize(server.configuration.mapSize, id) === 'sm',
+          ({ coordinates }) =>
+            getVillageSize(server.configuration.mapSize, coordinates) === 'sm',
         )
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(
@@ -163,7 +160,8 @@ describe('Server initialization', () => {
 
       const smallVillageTileIds = occupiedOccupiableTiles
         .filter(
-          ({ id }) => getVillageSize(server.configuration.mapSize, id) === 'sm',
+          ({ coordinates }) =>
+            getVillageSize(server.configuration.mapSize, coordinates) === 'sm',
         )
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(
@@ -186,7 +184,8 @@ describe('Server initialization', () => {
 
       const mediumVillageTileIds = occupiedOccupiableTiles
         .filter(
-          ({ id }) => getVillageSize(server.configuration.mapSize, id) === 'md',
+          ({ coordinates }) =>
+            getVillageSize(server.configuration.mapSize, coordinates) === 'md',
         )
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(
@@ -209,7 +208,8 @@ describe('Server initialization', () => {
 
       const largeVillageTileIds = occupiedOccupiableTiles
         .filter(
-          ({ id }) => getVillageSize(server.configuration.mapSize, id) === 'md',
+          ({ coordinates }) =>
+            getVillageSize(server.configuration.mapSize, coordinates) === 'md',
         )
         .map(({ id }) => id);
       const occupiedOasisVillageIds = occupiedOasisTiles.map(
@@ -228,12 +228,12 @@ describe('Server initialization', () => {
       const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
 
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
-      const tile1 = tiles.find(({ id }) => {
-        const { x, y } = parseCoordinatesFromTileId(id);
+      const tile1 = tiles.find(({ coordinates }) => {
+        const { x, y } = coordinates;
         return x === -2 && y === 2;
       })! as OccupiedOasisTile;
-      const tile2 = tiles.find(({ id }) => {
-        const { x, y } = parseCoordinatesFromTileId(id);
+      const tile2 = tiles.find(({ coordinates }) => {
+        const { x, y } = coordinates;
         return x === -3 && y === 2;
       })! as OccupiedOasisTile;
 
@@ -259,8 +259,8 @@ describe('Server initialization', () => {
         borderWidth;
       const limit = totalSize / 2;
 
-      const borderTiles = tiles.filter(({ id }) => {
-        const { x, y } = parseCoordinatesFromTileId(id);
+      const borderTiles = tiles.filter(({ coordinates }) => {
+        const { x, y } = coordinates;
         return Math.sqrt(x ** 2 + y ** 2) >= limit - borderWidth / 2;
       });
 

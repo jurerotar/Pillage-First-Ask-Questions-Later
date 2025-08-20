@@ -24,7 +24,7 @@ import type {
   Tile,
 } from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
-import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map';
+import { parseRFCFromTile } from 'app/utils/map';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
@@ -65,8 +65,8 @@ type TileModalProps = {
 const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { getDistanceFromCurrentVillage } = useCurrentVillage();
-  const distance = getDistanceFromCurrentVillage(tile.id);
-  const { x, y } = parseCoordinatesFromTileId(tile.id);
+  const distance = getDistanceFromCurrentVillage(tile.coordinates);
+  const { x, y } = tile.coordinates;
 
   return (
     <span className="text-xs text-gray-500">
@@ -255,7 +255,7 @@ const OccupiedOccupiableTileModal: React.FC<
 > = ({ tile }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { getVillageById } = useVillages();
+  const { getVillageByCoordinates } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { getNewVillageUrl } = useGameNavigation();
   const { playerTroops, sendTroops } = usePlayerTroops();
@@ -269,7 +269,7 @@ const OccupiedOccupiableTileModal: React.FC<
     ({ unitId }) => unitId === 'HERO',
   );
 
-  const village = getVillageById(tile.id)!;
+  const village = getVillageByCoordinates(tile.coordinates)!;
   const isOwnedByPlayer = isPlayerVillage(village);
 
   const onSendHero = () => {

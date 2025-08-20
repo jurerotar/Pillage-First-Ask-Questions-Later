@@ -1,6 +1,5 @@
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import {
   calculateDistanceBetweenPoints,
   roundTo2DecimalPoints,
@@ -24,9 +23,10 @@ export const useCurrentVillage = () => {
     staleTime: 20_000,
   });
 
-  const getDistanceFromCurrentVillage = (tileId: Tile['id']): number => {
-    const villageCoordinates = parseCoordinatesFromTileId(currentVillage!.id);
-    const tileCoordinates = parseCoordinatesFromTileId(tileId);
+  const getDistanceFromCurrentVillage = (
+    tileCoordinates: Tile['coordinates'],
+  ): number => {
+    const villageCoordinates = currentVillage!.coordinates;
     return roundTo2DecimalPoints(
       calculateDistanceBetweenPoints(villageCoordinates, tileCoordinates),
     );

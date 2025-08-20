@@ -50,7 +50,7 @@ export const worldItemsFactory = ({
   const tilesWithSize: TileWithSize[] = eligibleTiles.map((tile) => {
     return {
       ...tile,
-      size: getVillageSize(server.configuration.mapSize, tile.id),
+      size: getVillageSize(server.configuration.mapSize, tile.coordinates),
     };
   });
 

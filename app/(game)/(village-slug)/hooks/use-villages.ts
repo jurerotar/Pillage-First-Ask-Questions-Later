@@ -21,8 +21,16 @@ export const useVillages = () => {
 
   const villages: Village[] = [...playerVillages, ...npcVillages];
 
-  const getVillageById = (tileId: Tile['id']): Village | null => {
-    return villages.find(({ id }) => id === tileId) ?? null;
+  const getVillageByCoordinates = (
+    coordinates: Tile['coordinates'],
+  ): Village | null => {
+    return (
+      villages.find(
+        ({ coordinates: villageCoordinates }) =>
+          coordinates.x === villageCoordinates.x &&
+          coordinates.y === villageCoordinates.y,
+      ) ?? null
+    );
   };
 
   const getVillageByOasis = ({ villageId }: OccupiedOasisTile): Village => {
@@ -35,7 +43,7 @@ export const useVillages = () => {
 
   return {
     villages,
-    getVillageById,
+    getVillageByCoordinates,
     getVillageByOasis,
     getPlayerByOasis,
   };

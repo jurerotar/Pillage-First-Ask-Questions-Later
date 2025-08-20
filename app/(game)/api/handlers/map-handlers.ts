@@ -23,7 +23,6 @@ import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 
 type GetTilePlayerReturn = {
@@ -49,9 +48,22 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
 
   const tile = tiles.find((tile) => tile.id === tileId)!;
 
-  const village = isOccupiedOasisTile(tile)
-    ? villages.find((village) => village.id === tile.villageId)!
-    : villages.find((village) => village.id === tileId)!;
+  const village = (() => {
+    if (isOccupiedOasisTile(tile)) {
+      const owningTile = tiles.find((t) => t.id === tile.villageId)!;
+      return villages.find(
+        ({ coordinates }) =>
+          owningTile.coordinates.x === coordinates.x &&
+          owningTile.coordinates.y === coordinates.y,
+      )!;
+    }
+
+    return villages.find(
+      ({ coordinates }) =>
+        tile.coordinates.x === coordinates.x &&
+        tile.coordinates.y === coordinates.y,
+    )!;
+  })();
 
   const player = players.find((player) => village.playerId === player.id)!;
   const reputation = reputations.find(
@@ -108,19 +120,19 @@ export const getTileOccupiableOasis: ApiHandler<
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
 
-  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
+  const tile = tiles.find(({ id }) => id === tileId)!;
 
-  const tileCoordinates = parseCoordinatesFromTileId(tileId);
+  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
 
   const oasisEligibilityRadius = 3;
 
   const validXRange = [
-    tileCoordinates.x - oasisEligibilityRadius,
-    tileCoordinates.x + oasisEligibilityRadius,
+    tile.coordinates.x - oasisEligibilityRadius,
+    tile.coordinates.x + oasisEligibilityRadius,
   ];
   const validYRange = [
-    tileCoordinates.y - oasisEligibilityRadius,
-    tileCoordinates.y + oasisEligibilityRadius,
+    tile.coordinates.y - oasisEligibilityRadius,
+    tile.coordinates.y + oasisEligibilityRadius,
   ];
 
   for (const tile of tiles) {
@@ -128,8 +140,7 @@ export const getTileOccupiableOasis: ApiHandler<
       continue;
     }
 
-    const { x: oasisXCoordinate, y: oasisYCoordinate } =
-      parseCoordinatesFromTileId(tile.id);
+    const { x: oasisXCoordinate, y: oasisYCoordinate } = tile.coordinates;
 
     if (
       !(

@@ -26,7 +26,7 @@ export const TroopList = () => {
   }
 
   const currentVillagePlayerTroops = playerTroops.filter(
-    ({ tileId }) => tileId === currentVillage.id,
+    ({ tileId }) => tileId === currentVillage.tileId,
   );
 
   const [ownTroops, reinforcements] = partition<Troop>(

@@ -91,8 +91,13 @@ export type VillageSize =
   | '4xl';
 
 type BaseVillage = {
-  id: Tile['id'];
+  id: number;
+  tileId: Tile['id'];
   playerId: Player['id'];
+  coordinates: {
+    x: number;
+    y: number;
+  };
   name: string;
   lastUpdatedAt: number;
   resources: Resources;

@@ -26,7 +26,6 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
@@ -50,7 +49,7 @@ const MapPage = () => {
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
 
-  const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
+  const { x, y } = currentVillage.coordinates;
 
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
