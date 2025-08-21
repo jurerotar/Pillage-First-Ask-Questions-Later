@@ -14,7 +14,7 @@ import {
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import type { Database } from 'app/interfaces/db';
 
-export const validateAndInsertEvents = async (
+const validateAndInsertEvents = async (
   queryClient: QueryClient,
   database: Database,
   events: GameEvent[],

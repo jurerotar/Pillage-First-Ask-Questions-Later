@@ -1,5 +1,4 @@
 import { OccupiableOasisIcon } from 'app/(game)/(village-slug)/(map)/components/occupiable-oasis-icon';
-import { WheatFieldIcon } from 'app/(game)/(village-slug)/(map)/components/wheat-field-icon';
 import {
   isContextualOccupiedOccupiableTile,
   isOasisTile,
@@ -23,6 +22,7 @@ import { decodeGraphicsProperty } from 'app/utils/map';
 import { Icon } from 'app/components/icon';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import cellStyles from './cell.module.scss';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 
 type CellBaseProps = {
   contextualMap: ContextualTile[];
@@ -79,16 +79,27 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
     shouldShowWheatFields &&
     wheatFields.includes(tile.RFC)
   ) {
-    return <WheatFieldIcon className={classes} />;
+    return (
+      <BorderIndicator
+        className={classes}
+        variant="yellow"
+      >
+        <Icon
+          type="wheat"
+          shouldShowTooltip={false}
+        />
+      </BorderIndicator>
+    );
   }
 
   if (shouldShowOasisIcons && isOccupiableOasisTile(tile)) {
     return (
-      <OccupiableOasisIcon
+      <BorderIndicator
         className={classes}
-        oasisResourceBonus={tile.ORB}
-        borderVariant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
-      />
+        variant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
+      >
+        <OccupiableOasisIcon oasisResourceBonus={tile.ORB} />
+      </BorderIndicator>
     );
   }
 
