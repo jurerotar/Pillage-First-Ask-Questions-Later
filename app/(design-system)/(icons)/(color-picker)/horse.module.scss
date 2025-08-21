@@ -1,0 +1,18 @@
+.horse :global(#base) {
+  fill: var(--base-color) !important;
+}
+.horse :global(#eye_1_) {
+  fill: var(--eye-color) !important;
+}
+.horse :global(#neck-front_1_) {
+  fill: var(--neck-front-color) !important;
+}
+.horse :global(#muzzle_1_){
+  fill: var(--muzzle-color) !important;
+}
+.horse :global(#mane-front_1_) {
+  fill: var(--mane-front-color) !important;
+}
+.horse :global(#mane-back_1_) {
+  fill: var(--mane-back-color) !important;
+}

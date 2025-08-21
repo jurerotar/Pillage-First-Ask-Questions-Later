@@ -1,35 +1,29 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["dom", "dom.iterable", "dom.asynciterable", "esnext", "webworker"],
-    "types": ["vite/client", "vite-plugin-svgr/client", "vitest/globals"],
-    "typeRoots": ["node_modules/@types", "node_modules", "src/interfaces/libs"],
+    "lib": ["DOM", "ESNext", "WebWorker"],
+    "types": ["vite/client", "vitest"],
+    "rootDirs": [".", "./.react-router/types"],
     "baseUrl": "./",
-    "allowJs": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "importsNotUsedAsValues": "remove",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
-    "strictPropertyInitialization": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "erasableSyntaxOnly": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "noEmit": true,
     "strict": true,
-    "module": "esnext",
+    "module": "ESNext",
     "paths": {
-      "app/*": ["src/app/*"],
-      "interfaces/*": ["src/interfaces/*"],
-      "assets/*": ["src/assets/*"],
-      "test-utils": ["src/test-utils"],
-      "mocks/*": ["__mocks__/*"],
-      "packages/*": ["packages/*"]
+      "app/*": ["app/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "coverage", "public"],
-  "include": ["src", "vite.config.ts", "__mocks__", "vitest-setup.ts"]
+  "include": ["app/**/*", "*.config.ts", ".react-router/types/**/*"]
 }

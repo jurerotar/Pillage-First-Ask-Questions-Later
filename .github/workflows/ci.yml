@@ -1,0 +1,53 @@
+name: ci
+
+permissions:
+  contents: read
+  pull-requests: read
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: npm
+
+      - name: Install modules
+        run: npm install
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint check
+        run: npm run lint:check
+
+      - name: React compiler compatibility check
+        run: npm run react-compiler:check
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Localization check
+        run: npm run localize:ci
+
+      # Reintegrate this once support for RR7 is added
+      #      - name: Unused exports and dependencies check
+      #        run: npm run knip:ci
+
+      - name: Run tests
+        run: npm test

@@ -25,3 +25,11 @@ yarn-error.log*
 
 /.vscode
 /.idea
+
+/public/graphic-packs
+
+.react-router
+stats.html
+
+.env
+

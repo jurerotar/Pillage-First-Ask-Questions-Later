@@ -1,32 +1,57 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
-  "formatter": {
+  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "vcs": {
     "enabled": true,
-    "formatWithErrors": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineEnding": "lf",
-    "lineWidth": 140,
-    "attributePosition": "multiline",
-    "ignore": ["./build", "./coverage", "./dist", "./out", "./public", "./.husky", "./.github", "./docs"]
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "develop"
   },
-  "organizeImports": { "enabled": true },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/build",
+      "!**/app/**/__mocks__/**/*",
+      "!**/app/asset-preload-paths",
+      "!*.md"
+    ]
+  },
+  "assist": { "actions": { "source": { "organizeImports": "off" } } },
+  "formatter": {
+    "useEditorconfig": true,
+    "formatWithErrors": true,
+    "attributePosition": "multiline"
+  },
   "linter": {
-    "enabled": true,
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noConsoleLog": "error"
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error"]
+          }
+        }
       },
       "correctness": {
         "noUnusedVariables": "error",
         "noUnusedImports": "error"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useBlockStatements": "error",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
       }
-    },
-    "ignore": ["node_modules/"]
+    }
   },
   "javascript": {
     "formatter": {
@@ -37,8 +62,12 @@
       "bracketSpacing": true,
       "bracketSameLine": false,
       "quoteStyle": "single",
-      "attributePosition": "multiline",
       "trailingCommas": "all"
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true
     }
   }
 }
