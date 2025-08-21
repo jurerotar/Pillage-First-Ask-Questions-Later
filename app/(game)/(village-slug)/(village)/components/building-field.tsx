@@ -1,6 +1,9 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField as BuildingFieldType,
+  ResourceFieldComposition,
+} from 'app/interfaces/models/game/village';
 import clsx from 'clsx';
 import type React from 'react';
 import { OccupiedBuildingField } from 'app/(game)/(village-slug)/(village)/components/occupied-building-field';
@@ -51,10 +54,12 @@ const buildingFieldIdToStyleMap = new Map<BuildingFieldType['id'], string>([
 
 type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
+  resourceFieldComposition: ResourceFieldComposition;
 };
 
 export const BuildingField: React.FC<BuildingFieldProps> = ({
   buildingFieldId,
+  resourceFieldComposition,
 }) => {
   const { currentVillage } = useCurrentVillage();
 
@@ -75,7 +80,10 @@ export const BuildingField: React.FC<BuildingFieldProps> = ({
       {buildingField === null ? (
         <EmptyBuildingField buildingFieldId={buildingFieldId} />
       ) : (
-        <OccupiedBuildingField buildingField={buildingField} />
+        <OccupiedBuildingField
+          resourceFieldComposition={resourceFieldComposition}
+          buildingField={buildingField}
+        />
       )}
     </div>
   );
