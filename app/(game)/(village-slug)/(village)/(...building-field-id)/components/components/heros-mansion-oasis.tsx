@@ -17,7 +17,6 @@ import {
 } from 'app/components/ui/table';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import type { OasisTile } from 'app/interfaces/models/game/tile';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import clsx from 'clsx';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -39,24 +38,22 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
   heroMansionLevelRequirement,
 }) => {
   const { t } = useTranslation();
-  const { mapPath } = useGameNavigation();
   const { abandonOasis } = useOasis();
 
   const hasOccupiedOasis = !!occupiedOasis;
 
   if (hasOccupiedOasis) {
-    const { x, y } = parseCoordinatesFromTileId(occupiedOasis.id);
-
     return (
       <TableRow>
         <TableCell>
           <Text>
-            <Link
-              className="underline"
-              to={`${mapPath}?x=${x}&y=${y}`}
-            >
-              {x}, {y}
-            </Link>
+            {/*// TODO: Re-enable this when SQLite migration is finished */}
+            {/*<Link*/}
+            {/*  className="underline"*/}
+            {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
+            {/*>*/}
+            {/*  {x}, {y}*/}
+            {/*</Link>*/}/
           </Text>
         </TableCell>
         <TableCell className="whitespace-nowrap">
@@ -163,9 +160,8 @@ const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
 
   const { mapPath } = useGameNavigation();
 
-  const oasisCoordinates = parseCoordinatesFromTileId(oasis.id);
-  const villageCoordinates =
-    village === null ? null : parseCoordinatesFromTileId(village.id);
+  const oasisCoordinates = oasis.coordinates;
+  const villageCoordinates = village === null ? null : village.coordinates;
 
   return (
     <TableRow key={oasis.id}>

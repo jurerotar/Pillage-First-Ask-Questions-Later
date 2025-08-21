@@ -2,7 +2,6 @@ import {
   getContextualMap,
   getTileOccupiableOasis,
   getTilePlayer,
-  getTileReports,
   getTileTroops,
   getTileWorldItem,
 } from 'app/(game)/api/handlers/map-handlers';
@@ -15,16 +14,6 @@ import {
   getAdventurePoints,
   getHero,
 } from 'app/(game)/api/handlers/hero-handlers';
-import {
-  deleteMultipleReports,
-  deleteReport,
-  getArchivedReports,
-  getReportById,
-  getReports,
-  getReportsByVillage,
-  patchMultipleReports,
-  patchReport,
-} from 'app/(game)/api/handlers/report-handlers';
 import {
   getPlayerById,
   getPlayers,
@@ -123,49 +112,6 @@ const unitImprovementRoutes = [
   },
 ];
 
-const reportRoutes = [
-  {
-    method: 'GET',
-    path: '/players/:playerId/reports',
-    handler: getReports,
-  },
-  {
-    method: 'GET',
-    path: '/players/:playerId/reports/archived',
-    handler: getArchivedReports,
-  },
-  {
-    method: 'GET',
-    path: '/players/:playerId/reports/:villageId',
-    handler: getReportsByVillage,
-  },
-  {
-    method: 'GET',
-    path: '/reports/:reportId',
-    handler: getReportById,
-  },
-  {
-    method: 'PATCH',
-    path: '/reports/:reportId',
-    handler: patchReport,
-  },
-  {
-    method: 'PATCH',
-    path: '/reports/bulk-tag',
-    handler: patchMultipleReports,
-  },
-  {
-    method: 'DELETE',
-    path: '/reports/:reportId',
-    handler: deleteReport,
-  },
-  {
-    method: 'DELETE',
-    path: '/reports/bulk-delete',
-    handler: deleteMultipleReports,
-  },
-];
-
 const questRoutes = [
   {
     method: 'GET',
@@ -189,11 +135,6 @@ const mapRoutes = [
     method: 'GET',
     path: '/map/:villageId/contextual',
     handler: getContextualMap,
-  },
-  {
-    method: 'GET',
-    path: '/tiles/:tileId/reports',
-    handler: getTileReports,
   },
   {
     method: 'GET',
@@ -354,7 +295,6 @@ const bookmarkRoutes = [
 const apiRoutes = [
   ...serverRoutes,
   ...heroRoutes,
-  ...reportRoutes,
   ...questRoutes,
   ...mapRoutes,
   ...playerRoutes,

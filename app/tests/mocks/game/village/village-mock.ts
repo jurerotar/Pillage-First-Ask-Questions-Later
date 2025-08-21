@@ -7,6 +7,11 @@ const { id: playerId } = playerMock;
 
 export const villageMock: PlayerVillage = {
   id: 0,
+  tileId: 0,
+  coordinates: {
+    x: 0,
+    y: 0,
+  },
   name: 'player',
   slug: 'v-1',
   buildingFields: [...resourceFields4446Mock, ...newVillageBuildingFieldsMock],

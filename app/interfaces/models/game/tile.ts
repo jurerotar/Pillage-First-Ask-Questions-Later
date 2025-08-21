@@ -11,8 +11,11 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
 
 export type BaseTile = {
-  // id is bit-packed to save space, see `parseCoordinatesFromTileId`
   id: number;
+  coordinates: {
+    x: number;
+    y: number;
+  };
 };
 
 export type OasisResourceBonus = {

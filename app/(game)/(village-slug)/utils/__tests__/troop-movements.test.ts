@@ -5,16 +5,28 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { ComputedEffectReturn } from 'app/(game)/utils/calculate-computed-effect';
 
 describe('calculateTravelDuration', () => {
-  const mockVillageId = 0x00010001; // (1, 1)
-  const mockTargetIdNear = 0x00020002; // (2, 2) ≈ 1.41 distance
-  const mockTargetIdFar = 0x00190001; // (25, 1) ≈ 24 distance
+  const mockOriginVillageId = 0x00010001; // (1, 1)
+  const mockOriginVillageCoordinates = {
+    x: 1,
+    y: 1,
+  };
+
+  const mockTargetVillageCoordinatesNearby = {
+    x: 2,
+    y: 2,
+  };
+
+  const mockTargetVillageCoordinatesFarAway = {
+    x: 25,
+    y: 1,
+  };
 
   test('returns correct duration when distance is ≤ 20', () => {
     const troops: Troop[] = [
       {
         unitId: 'LEGIONNAIRE',
-        tileId: mockVillageId,
-        source: mockVillageId,
+        tileId: mockOriginVillageId,
+        source: mockOriginVillageId,
         amount: 1,
       },
     ];
@@ -24,8 +36,9 @@ describe('calculateTravelDuration', () => {
       .mockReturnValueOnce({ total: 1.2 } as ComputedEffectReturn);
 
     const duration = calculateTravelDuration({
-      villageId: mockVillageId,
-      targetId: mockTargetIdNear,
+      originVillageId: mockOriginVillageId,
+      originCoordinates: mockOriginVillageCoordinates,
+      targetCoordinates: mockTargetVillageCoordinatesNearby,
       troops,
       effects: [],
     });
@@ -42,8 +55,8 @@ describe('calculateTravelDuration', () => {
     const troops: Troop[] = [
       {
         unitId: 'LEGIONNAIRE',
-        tileId: mockVillageId,
-        source: mockVillageId,
+        tileId: mockOriginVillageId,
+        source: mockOriginVillageId,
         amount: 1,
       },
     ];
@@ -54,8 +67,9 @@ describe('calculateTravelDuration', () => {
       .mockReturnValueOnce({ total: 2 } as ComputedEffectReturn); // unitSpeedAfter20Fields bonus
 
     const duration = calculateTravelDuration({
-      villageId: mockVillageId,
-      targetId: mockTargetIdFar,
+      originVillageId: mockOriginVillageId,
+      originCoordinates: mockOriginVillageCoordinates,
+      targetCoordinates: mockTargetVillageCoordinatesFarAway,
       troops,
       effects: [],
     });
@@ -73,8 +87,8 @@ describe('calculateTravelDuration', () => {
     const troops: Troop[] = [
       {
         unitId: 'LEGIONNAIRE',
-        tileId: mockVillageId,
-        source: mockVillageId,
+        tileId: mockOriginVillageId,
+        source: mockOriginVillageId,
         amount: 1,
       },
     ];
@@ -85,8 +99,9 @@ describe('calculateTravelDuration', () => {
       .mockReturnValueOnce({ total: 2 } as ComputedEffectReturn); // should be ignored
 
     const duration = calculateTravelDuration({
-      villageId: mockVillageId,
-      targetId: mockTargetIdNear, // ≈ distance 1.41
+      originVillageId: mockOriginVillageId,
+      originCoordinates: mockOriginVillageCoordinates,
+      targetCoordinates: mockTargetVillageCoordinatesNearby, // ≈ distance 1.41
       troops,
       effects: [],
     });

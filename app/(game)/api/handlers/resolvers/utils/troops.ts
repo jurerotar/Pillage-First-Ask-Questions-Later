@@ -1,7 +1,4 @@
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { QueryClient } from '@tanstack/react-query';
-import type { Report } from 'app/interfaces/models/game/report';
-import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 type UnitMapKey = `${Troop['unitId']}-${Troop['tileId']}-${Troop['source']}`;
 
@@ -58,35 +55,4 @@ export const modifyTroops = (
   }
 
   return Array.from(troopMap.values());
-};
-
-export const setReport = (queryClient: QueryClient, report: Report): void => {
-  queryClient.setQueryData<Report[]>(
-    [reportsCacheKey],
-    (existingReports = []) => {
-      // Insert new report at the top
-      const updatedReports = [report, ...existingReports];
-
-      // Count non-archived reports
-      let nonArchivedCount = 0;
-
-      // Filter reports while keeping original order and respecting max limit
-      const filteredReports = [];
-      for (const r of updatedReports) {
-        const isArchived = r.tags.includes('archived');
-        if (!isArchived) {
-          if (nonArchivedCount < 1000) {
-            filteredReports.push(r);
-            nonArchivedCount++;
-          }
-          continue;
-        }
-
-        // Always keep archived reports
-        filteredReports.push(r);
-      }
-
-      return filteredReports;
-    },
-  );
 };
