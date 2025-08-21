@@ -13,6 +13,9 @@ import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-activ
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import pageStyles from './page.module.scss';
+import { clsx } from 'clsx';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 
 const resourceViewBuildingFieldIds = [...Array(18)].map(
   (_, i) => i + 1,
@@ -27,6 +30,7 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { villagePath } = useGameNavigation();
   const { isResourcesPageOpen, isVillagePageOpen } = useActiveRoute();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { currentVillage } = useCurrentVillage();
 
   const buildingFieldIdsToDisplay = isResourcesPageOpen
     ? resourceViewBuildingFieldIds
@@ -73,7 +77,12 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
         render={renderTooltip}
       />
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
-        <div className="relative aspect-[16/10] scrollbar-hidden min-w-[460px] max-w-5xl w-full">
+        <div
+          className={clsx(
+            'relative aspect-[4/3] scrollbar-hidden max-w-5xl w-full bg-no-repeat bg-center bg-size-[95%]',
+            pageStyles[`rfc-${currentVillage.RFC}`],
+          )}
+        >
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField
               key={buildingFieldId}

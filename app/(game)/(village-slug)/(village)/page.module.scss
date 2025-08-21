@@ -1,0 +1,6 @@
+@each $rfc in $resourceCompositions {
+  .rfc-#{$rfc} {
+    //background-image: url('/#{$rfc}.png');
+  }
+}
+
