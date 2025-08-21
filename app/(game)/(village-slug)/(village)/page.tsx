@@ -79,7 +79,7 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
         <div
           className={clsx(
-            'relative aspect-[4/3] scrollbar-hidden max-w-5xl w-full bg-no-repeat bg-center bg-size-[95%]',
+            'relative aspect-[4/3] scrollbar-hidden max-w-4xl w-full bg-no-repeat bg-center bg-size-[95%]',
             pageStyles[`rfc-${currentVillage.RFC}`],
           )}
         >
