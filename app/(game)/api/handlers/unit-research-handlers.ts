@@ -6,8 +6,7 @@ export const getResearchedUnits: ApiHandler<
   UnitResearch[],
   'villageId'
 > = async (queryClient, { params }) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId } = params;
 
   const researchedUnits = queryClient.getQueryData<UnitResearch[]>([
     unitResearchCacheKey,

@@ -4,9 +4,19 @@ import type {
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
 
+type ParamType<T extends string> = T extends
+  | 'villageId'
+  | 'playerId'
+  | 'tileId'
+  | 'oasisId'
+  ? number
+  : string;
+
 type ApiHandlerArgs<TBody, TParams extends string> = {
   body: TBody;
-  params: Record<TParams, string>;
+  params: {
+    [K in TParams]: ParamType<K>;
+  };
 };
 
 export type ApiHandler<

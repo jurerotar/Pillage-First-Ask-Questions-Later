@@ -22,9 +22,6 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Link } from 'react-router';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import {
   isArtifactEffect,
   isBuildingEffect,
@@ -75,7 +72,6 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { effects } = useEffects();
-  const { mapPath } = useGameNavigation();
 
   const relevantEffects = effects.filter(({ id }) => id === effectId);
 
@@ -290,8 +286,6 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                   </TableRow>
                 ))}
                 {boostedOasisBonusEffects.map(({ oasisId, value }) => {
-                  const { x, y } = parseCoordinatesFromTileId(oasisId);
-
                   return (
                     <TableRow key={oasisId}>
                       <TableCell>
@@ -299,12 +293,12 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       </TableCell>
                       <TableCell>
                         <Text>
-                          <Link
-                            className="underline"
-                            to={`${mapPath}?x=${x}&y=${y}`}
-                          >
-                            {x}, {y}
-                          </Link>
+                          {/*<Link*/}
+                          {/*  className="underline"*/}
+                          {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
+                          {/*>*/}
+                          {/*  {x}, {y}*/}
+                          {/*</Link>*/}/
                         </Text>
                       </TableCell>
                       <TableCell>
@@ -399,8 +393,6 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                 )}
                 {baseOasisEffectsWithServerModifier.map(
                   ({ value, oasisId }) => {
-                    const { x, y } = parseCoordinatesFromTileId(oasisId);
-
                     return (
                       <TableRow key={oasisId}>
                         <TableCell>
@@ -408,12 +400,12 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         </TableCell>
                         <TableCell>
                           <Text>
-                            <Link
-                              className="underline"
-                              to={`${mapPath}?x=${x}&y=${y}`}
-                            >
-                              {x}, {y}
-                            </Link>
+                            {/*<Link*/}
+                            {/*  className="underline"*/}
+                            {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
+                            {/*>*/}
+                            {/*  {x}, {y}*/}
+                            {/*</Link>*/}/
                           </Text>
                         </TableCell>
                         <TableCell>

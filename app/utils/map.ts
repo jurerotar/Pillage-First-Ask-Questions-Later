@@ -1,19 +1,5 @@
-import type { OccupiableTile, Tile } from 'app/interfaces/models/game/tile';
-import type { Point } from 'app/interfaces/models/common';
+import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Resource } from 'app/interfaces/models/game/resource';
-
-export const packTileId = (x: number, y: number): Tile['id'] => {
-  return (x << 16) | (y & 0xffff);
-};
-
-export const parseCoordinatesFromTileId = (tileId: Tile['id']): Point => {
-  const x = tileId >> 16;
-  const y = (tileId << 16) >> 16;
-  return {
-    x,
-    y,
-  };
-};
 
 export function parseRFCFromTile(
   RFC: OccupiableTile['RFC'],

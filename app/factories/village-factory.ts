@@ -90,7 +90,7 @@ export const playerVillageFactory = ({
   player,
   slug,
 }: PlayerVillageFactoryProps): PlayerVillage => {
-  const { id, RFC } = tile;
+  const { id: tileId, RFC, coordinates } = tile;
 
   const { tribe } = player;
 
@@ -101,18 +101,18 @@ export const playerVillageFactory = ({
   ];
 
   return {
-    id,
+    id: 0,
+    tileId,
     // TODO: Figure out how to translate this, dumping t() around it makes it undefined
     name: 'New village',
+    coordinates,
     slug,
     buildingFields,
     buildingFieldsPresets: [],
     playerId: PLAYER_ID,
-    isCapital: false,
     lastUpdatedAt: Date.now(),
     RFC,
     artifactId: null,
-    expansionSlots: [],
     resources: {
       wood: 750,
       clay: 750,
@@ -127,6 +127,7 @@ type NpcVillageFactoryProps = {
   server: Server;
   tile: OccupiedOccupiableTile;
   player: Player;
+  id: number;
 };
 
 const npcVillageFactory = ({
@@ -134,12 +135,16 @@ const npcVillageFactory = ({
   tile,
   player,
   server,
+  id,
 }: NpcVillageFactoryProps): Village => {
-  const { RFC, id } = tile;
+  const { id: tileId, RFC, coordinates } = tile;
 
   const { id: playerId, tribe } = player;
 
-  const villageSize = getVillageSize(server.configuration.mapSize, tile.id);
+  const villageSize = getVillageSize(
+    server.configuration.mapSize,
+    tile.coordinates,
+  );
 
   const buildingFields = [createWallBuildingField(tribe, villageSize)];
 
@@ -162,6 +167,8 @@ const npcVillageFactory = ({
 
   return {
     id,
+    tileId,
+    coordinates,
     name: `${adjective}${noun}`,
     buildingFields,
     buildingFieldsPresets: [
@@ -169,7 +176,6 @@ const npcVillageFactory = ({
       villageBuildingFieldPresetId,
     ],
     playerId,
-    isCapital: false,
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
     RFC,
@@ -193,9 +199,9 @@ export const generateVillages = ({
 
   const villages: Village[] = occupiedOccupiableTiles
     .filter(({ ownedBy }) => ownedBy !== PLAYER_ID)
-    .map((tile) => {
+    .map((tile, index) => {
       const player = playerMap.get(tile.ownedBy)!;
-      return npcVillageFactory({ prng, player, tile, server });
+      return npcVillageFactory({ prng, player, tile, server, id: index + 2 });
     });
 
   return villages;
