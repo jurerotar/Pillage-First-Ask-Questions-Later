@@ -23,7 +23,7 @@ export const updateBookmark: ApiHandler<
   const { tab } = body;
 
   database.exec({
-    sql: 'UPDATE bookmarks SET tab_id = ? WHERE building_id = ?',
+    sql: 'UPDATE bookmarks SET tab_name = ? WHERE building_id = ?',
     bind: [tab, buildingId],
   });
 };

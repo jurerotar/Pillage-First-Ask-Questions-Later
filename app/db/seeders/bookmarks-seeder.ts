@@ -8,7 +8,7 @@ export const bookmarksSeeder: Seeder = (database): void => {
   batchInsert(
     database,
     'bookmarks',
-    ['building_id', 'tab_id'],
+    ['building_id', 'tab_name'],
     rows,
     (row) => row,
   );
