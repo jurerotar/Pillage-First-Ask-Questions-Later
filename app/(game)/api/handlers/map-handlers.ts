@@ -4,7 +4,6 @@ import {
   eventsCacheKey,
   mapCacheKey,
   playersCacheKey,
-  reportsCacheKey,
   reputationsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
@@ -22,10 +21,8 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { TroopMovementType } from 'app/components/icons/icon-maps';
-import type { Report } from 'app/interfaces/models/game/report';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 
 type GetTilePlayerReturn = {
@@ -39,8 +36,7 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
   queryClient,
   { params },
 ) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
@@ -51,9 +47,22 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
 
   const tile = tiles.find((tile) => tile.id === tileId)!;
 
-  const village = isOccupiedOasisTile(tile)
-    ? villages.find((village) => village.id === tile.villageId)!
-    : villages.find((village) => village.id === tileId)!;
+  const village = (() => {
+    if (isOccupiedOasisTile(tile)) {
+      const owningTile = tiles.find((t) => t.id === tile.villageId)!;
+      return villages.find(
+        ({ coordinates }) =>
+          owningTile.coordinates.x === coordinates.x &&
+          owningTile.coordinates.y === coordinates.y,
+      )!;
+    }
+
+    return villages.find(
+      ({ coordinates }) =>
+        tile.coordinates.x === coordinates.x &&
+        tile.coordinates.y === coordinates.y,
+    )!;
+  })();
 
   const player = players.find((player) => village.playerId === player.id)!;
   const reputation = reputations.find(
@@ -73,38 +82,11 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
   };
 };
 
-export const getTileReports: ApiHandler<Report[], 'tileId'> = async (
-  queryClient,
-  { params },
-) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
-
-  const reports = queryClient.getQueryData<Report[]>([reportsCacheKey])!;
-
-  const reportsToReturn: Report[] = [];
-  let reportToReturnCount = 0;
-
-  for (const report of reports) {
-    if (report.villageId === tileId) {
-      reportsToReturn.push(report);
-      reportToReturnCount += 1;
-
-      if (reportToReturnCount === 3) {
-        break;
-      }
-    }
-  }
-
-  return reportsToReturn;
-};
-
 export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
   queryClient,
   { params },
 ) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
 
@@ -115,8 +97,7 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
   queryClient,
   { params },
 ) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const worldItems = queryClient.getQueryData<WorldItem[]>([
     worldItemsCacheKey,
@@ -129,26 +110,25 @@ export const getTileOccupiableOasis: ApiHandler<
   OccupiableOasisInRangeDTO[],
   'tileId'
 > = async (queryClient, { params }) => {
-  const { tileId: tileIdParam } = params;
-  const tileId = Number.parseInt(tileIdParam);
+  const { tileId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
 
-  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
+  const tile = tiles.find(({ id }) => id === tileId)!;
 
-  const tileCoordinates = parseCoordinatesFromTileId(tileId);
+  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
 
   const oasisEligibilityRadius = 3;
 
   const validXRange = [
-    tileCoordinates.x - oasisEligibilityRadius,
-    tileCoordinates.x + oasisEligibilityRadius,
+    tile.coordinates.x - oasisEligibilityRadius,
+    tile.coordinates.x + oasisEligibilityRadius,
   ];
   const validYRange = [
-    tileCoordinates.y - oasisEligibilityRadius,
-    tileCoordinates.y + oasisEligibilityRadius,
+    tile.coordinates.y - oasisEligibilityRadius,
+    tile.coordinates.y + oasisEligibilityRadius,
   ];
 
   for (const tile of tiles) {
@@ -156,8 +136,7 @@ export const getTileOccupiableOasis: ApiHandler<
       continue;
     }
 
-    const { x: oasisXCoordinate, y: oasisYCoordinate } =
-      parseCoordinatesFromTileId(tile.id);
+    const { x: oasisXCoordinate, y: oasisYCoordinate } = tile.coordinates;
 
     if (
       !(
@@ -199,8 +178,7 @@ export const getContextualMap: ApiHandler<
   ContextualTile[],
   'villageId'
 > = async (queryClient, { params }) => {
-  const { villageId: villageIdParam } = params;
-  const villageId = Number.parseInt(villageIdParam);
+  const { villageId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const reputations = queryClient.getQueryData<Reputation[]>([

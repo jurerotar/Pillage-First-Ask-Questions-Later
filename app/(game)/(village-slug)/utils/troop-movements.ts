@@ -1,26 +1,30 @@
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { calculateDistanceBetweenPoints } from 'app/utils/common';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
 type CalculateTravelDurationArgs = {
-  villageId: Village['id'];
-  targetId: Village['id'];
+  originVillageId: Village['id'];
+  originCoordinates: Village['coordinates'];
+  targetCoordinates: Village['coordinates'];
   troops: Troop[];
   effects: Effect[];
 };
 
 export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
-  const { villageId, targetId, troops, effects } = args;
+  const {
+    originVillageId,
+    originCoordinates,
+    targetCoordinates,
+    troops,
+    effects,
+  } = args;
 
-  const originatingVillageCoordinates = parseCoordinatesFromTileId(villageId);
-  const targetVillageCoordinates = parseCoordinatesFromTileId(targetId);
   const distance = calculateDistanceBetweenPoints(
-    originatingVillageCoordinates,
-    targetVillageCoordinates,
+    originCoordinates,
+    targetCoordinates,
   );
 
   const unitSpeeds = troops.map(({ unitId }) => {
@@ -34,7 +38,7 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const { total: unitSpeedBonus } = calculateComputedEffect(
     'unitSpeed',
     effects,
-    villageId,
+    originVillageId,
   );
 
   const computedSpeed = speedOfSlowestUnit * unitSpeedBonus;
@@ -50,7 +54,7 @@ export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const { total: unitSpeedAfter20FieldsBonus } = calculateComputedEffect(
     'unitSpeedAfter20Fields',
     effects,
-    villageId,
+    originVillageId,
   );
 
   const timeToCrossRemainingFields =

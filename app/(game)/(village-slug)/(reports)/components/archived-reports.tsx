@@ -6,17 +6,11 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Alert } from 'app/components/ui/alert';
 
 export const ArchivedReports = () => {
   const { t } = useTranslation();
   const { reportFilters, onReportFiltersChange } = useReportFilters();
-  const { reports } = useReports();
-
-  const _reportsToDisplay = reports.filter(({ type }) => {
-    return reportFilters.includes(type);
-  });
 
   return (
     <Section>

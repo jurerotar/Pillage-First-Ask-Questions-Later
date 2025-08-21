@@ -20,7 +20,7 @@ import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { formatNumber } from 'app/utils/common';
-import { parseCoordinatesFromTileId, parseRFCFromTile } from 'app/utils/map';
+import { parseRFCFromTile } from 'app/utils/map';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';
@@ -34,8 +34,8 @@ type TileTooltipProps = {
 const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
   const { getDistanceFromCurrentVillage } = useCurrentVillage();
-  const distance = getDistanceFromCurrentVillage(tile.id);
-  const { x, y } = parseCoordinatesFromTileId(tile.id);
+  const distance = getDistanceFromCurrentVillage(tile.coordinates);
+  const { x, y } = tile.coordinates;
 
   return (
     <span className="text-xs text-gray-300">
@@ -204,10 +204,10 @@ type OccupiedOccupiableTileTooltipProps = {
 const OccupiedOccupiableTileTooltip: React.FC<
   OccupiedOccupiableTileTooltipProps
 > = ({ tile }) => {
-  const { getVillageById } = useVillages();
+  const { getVillageByCoordinates } = useVillages();
   const { worldItem } = useTileWorldItem(tile.id);
 
-  const village = getVillageById(tile.id)!;
+  const village = getVillageByCoordinates(tile.coordinates)!;
   const title = village.name;
 
   return (

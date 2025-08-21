@@ -31,7 +31,6 @@ import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import layoutStyles from './layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -391,8 +390,8 @@ const VillageSelect = memo(() => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(({ slug, name, id }) => {
-          const { x, y } = parseCoordinatesFromTileId(id);
+        {playerVillages.map(({ slug, name, id, coordinates }) => {
+          const { x, y } = coordinates;
           const formattedId = `${x}|${y}`;
           return (
             <SelectItem

@@ -5,7 +5,6 @@ import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import type React from 'react';
-import { useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -14,11 +13,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
-import { Link } from 'react-router';
 import {
   Section,
   SectionContent,
@@ -33,18 +28,16 @@ const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({
   item,
 }) => {
   const { t: assetsT } = useTranslation();
-  const { mapPath } = useGameNavigation();
-
-  const coordinates = parseCoordinatesFromTileId(item.tileId);
 
   return (
     <TableRow>
       <TableCell>{assetsT(`ITEMS.${item.id}.TITLE`)}</TableCell>
       <TableCell>{assetsT(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
       <TableCell>
-        <Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>
-          {coordinates.x}, {coordinates.y}
-        </Link>
+        {/*// TODO: Re-enable this when SQLite migration is finished */}
+        {/*<Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>*/}
+        {/*  {coordinates.x}, {coordinates.y}*/}
+        {/*</Link>*/}/
       </TableCell>
     </TableRow>
   );
@@ -60,7 +53,6 @@ export const TreasuryArtifacts = () => {
     assignedArtifacts,
   } = useArtifacts();
   const { worldItems } = useWorldItems();
-  const { getDistanceFromCurrentVillage } = useCurrentVillage();
 
   const availableArtifacts = hero.inventory.filter(
     ({ category }) => category === 'artifact',
@@ -77,14 +69,15 @@ export const TreasuryArtifacts = () => {
     );
   });
 
-  const sortedByDistanceArtifactWorldItems = useMemo<WorldItem[]>(() => {
-    return unclaimedArtifactWorldItems.toSorted((prev, next) => {
-      return (
-        getDistanceFromCurrentVillage(prev.tileId) -
-        getDistanceFromCurrentVillage(next.tileId)
-      );
-    });
-  }, [unclaimedArtifactWorldItems, getDistanceFromCurrentVillage]);
+  // TODO: Re-enable this when SQLite migration is finished
+  // const sortedByDistanceArtifactWorldItems = useMemo<WorldItem[]>(() => {
+  //   return unclaimedArtifactWorldItems.toSorted((prev, next) => {
+  //     return (
+  //       getDistanceFromCurrentVillage(prev.tileId) -
+  //       getDistanceFromCurrentVillage(next.tileId)
+  //     );
+  //   });
+  // }, [unclaimedArtifactWorldItems, getDistanceFromCurrentVillage]);
 
   const _assignArtifactToCurrentVillage = (_artifactId: ArtifactId) => {};
 
@@ -160,7 +153,7 @@ export const TreasuryArtifacts = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedByDistanceArtifactWorldItems.length === 0 && (
+            {unclaimedArtifactWorldItems.length === 0 && (
               <TableRow>
                 <TableCell
                   className="text-left"
@@ -170,8 +163,8 @@ export const TreasuryArtifacts = () => {
                 </TableCell>
               </TableRow>
             )}
-            {sortedByDistanceArtifactWorldItems.length > 0 &&
-              sortedByDistanceArtifactWorldItems.map((item) => (
+            {unclaimedArtifactWorldItems.length > 0 &&
+              unclaimedArtifactWorldItems.map((item) => (
                 <UnoccupiedArtifactRow
                   key={item.tileId}
                   item={item}

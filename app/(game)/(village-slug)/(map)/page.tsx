@@ -26,7 +26,6 @@ import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { parseCoordinatesFromTileId } from 'app/utils/map';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
@@ -50,7 +49,7 @@ const MapPage = () => {
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
 
-  const { x, y } = parseCoordinatesFromTileId(currentVillage.id);
+  const { x, y } = currentVillage.coordinates;
 
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
@@ -184,18 +183,15 @@ const MapPage = () => {
       if (bottomMapRulerRef.current) {
         bottomMapRulerRef.current.scrollTo(scrollLeft);
       }
-
       if (leftMapRulerRef.current) {
         leftMapRulerRef.current.scrollTo(scrollTop);
       }
 
-      // Zoom completely breaks the centering, so we use this to manually keep track of the center tile and manually scroll to it on zoom
-      currentCenterTile.current.x =
-        Math.floor(
-          (scrollLeft + (width - tileSize) / 2) / tileSize - gridSize / 2,
-        ) + 1;
-      currentCenterTile.current.y = Math.ceil(
-        (scrollTop + (mapHeight - tileSize) / 2) / tileSize - gridSize / 2,
+      currentCenterTile.current.x = Math.round(
+        (scrollLeft + width / 2) / tileSize - gridSize / 2,
+      );
+      currentCenterTile.current.y = Math.round(
+        gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
       );
     },
     [tileSize, gridSize, width, mapHeight],
