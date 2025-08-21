@@ -13,7 +13,7 @@ export type BorderIndicatorBackgroundVariant = 'orange' | 'white';
 
 type BorderIndicatorProps = {
   variant?: BorderIndicatorBorderVariant;
-  backgroundVariant: BorderIndicatorBackgroundVariant;
+  backgroundVariant?: BorderIndicatorBackgroundVariant;
 } & React.HTMLProps<HTMLDivElement>;
 
 const borderVariantToClassNameMap: Record<
@@ -42,7 +42,7 @@ export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (
 ) => {
   const {
     variant = 'gray',
-    backgroundVariant,
+    backgroundVariant = 'white',
     className,
     children,
     ...rest

@@ -13,7 +13,7 @@ import {
 } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 
-export const validateAndInsertEvents = async (
+const validateAndInsertEvents = async (
   queryClient: QueryClient,
   events: GameEvent[],
 ) => {

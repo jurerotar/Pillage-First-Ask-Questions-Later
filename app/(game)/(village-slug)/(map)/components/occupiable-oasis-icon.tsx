@@ -10,10 +10,7 @@ import type {
 import { capitalize } from 'moderndash';
 import type React from 'react';
 
-type OccupiableOasisIconProps = Omit<
-  React.ComponentProps<typeof Icon>,
-  'type'
-> & {
+type OccupiableOasisIconProps = {
   oasisResourceBonus: OasisTile['ORB'];
 };
 
@@ -35,14 +32,12 @@ const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconType => {
 export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (
   props,
 ) => {
-  const { oasisResourceBonus, className, ...rest } = props;
+  const { oasisResourceBonus } = props;
 
   const iconType = getIconType(oasisResourceBonus);
 
   return (
     <Icon
-      {...rest}
-      wrapperClassName={className}
       type={iconType}
       shouldShowTooltip={false}
     />

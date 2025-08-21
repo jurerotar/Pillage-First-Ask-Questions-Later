@@ -47,7 +47,7 @@ export type ResourceFieldId =
   | 18;
 
 // Player may construct any building on any of these fields
-export type VillageFieldId =
+type VillageFieldId =
   | 19
   | 20
   | 21
@@ -70,7 +70,7 @@ export type VillageFieldId =
   | 38;
 
 // Rally point and wall are always on the same spot, these spots can't be taken by other buildings, nor can a player build anything else here
-export type ReservedFieldId = 39 | 40;
+type ReservedFieldId = 39 | 40;
 
 export type BuildingField = {
   id: ResourceFieldId | VillageFieldId | ReservedFieldId;

@@ -14,7 +14,7 @@ type HeroSelectableAttributes = {
   defenceBonus: number;
 };
 
-export type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
+type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
 type HeroItemCategory =
   | 'consumable'

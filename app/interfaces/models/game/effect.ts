@@ -97,8 +97,3 @@ export type OasisEffect = Omit<VillageEffect, 'source'> & {
   source: 'oasis';
   oasisId: Tile['id'];
 };
-
-export type BonusBoosterEffect = Omit<Effect, 'type'> & {
-  type: 'bonus-booster';
-  boostedCategory: Extract<Effect['source'], 'oasis'>;
-};
