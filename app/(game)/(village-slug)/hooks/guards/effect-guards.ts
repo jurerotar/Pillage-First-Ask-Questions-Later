@@ -38,9 +38,3 @@ export const isHeroEffect = (effect: Effect): effect is HeroEffect => {
 export const isOasisEffect = (effect: Effect): effect is OasisEffect => {
   return effect.source === 'oasis';
 };
-
-export const isOasisBoosterEffect = (
-  effect: Effect,
-): effect is VillageBuildingEffect => {
-  return isBuildingEffect(effect) && effect.id.endsWith('OasisBonus');
-};

@@ -5,7 +5,7 @@ import type {
 import type { Village } from 'app/interfaces/models/game/village';
 import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
 
-export type AssessedResearchRequirement = UnitResearchRequirement & {
+type AssessedResearchRequirement = UnitResearchRequirement & {
   fulfilled: boolean;
 };
 

@@ -1,5 +1,3 @@
-import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
-import { ConditionalWrapper } from 'app/components/conditional-wrapper';
 import clsx from 'clsx';
 import type React from 'react';
 import { lazy, Suspense } from 'react';
@@ -29,22 +27,12 @@ type IconProps = IconBaseProps &
   React.HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
     variant?: 'positive-change' | 'negative-change';
-    borderVariant?: React.ComponentProps<typeof BorderIndicator>['variant'];
-    wrapperClassName?: string;
     shouldShowTooltip?: boolean;
   };
 
 // TODO: Replace library icons by custom icons
 export const Icon: React.FC<IconProps> = (props) => {
-  const {
-    type,
-    variant,
-    borderVariant,
-    className,
-    wrapperClassName,
-    shouldShowTooltip = true,
-    ...rest
-  } = props;
+  const { type, variant, className, shouldShowTooltip = true, ...rest } = props;
 
   const { t: assetsT } = useTranslation();
 
@@ -53,36 +41,23 @@ export const Icon: React.FC<IconProps> = (props) => {
   const hasVariantIcon = !!variant;
 
   return (
-    <ConditionalWrapper
-      condition={!!borderVariant}
-      wrapper={(children) => (
-        <BorderIndicator
-          className={wrapperClassName}
-          variant={borderVariant}
-          backgroundVariant="white"
-        >
-          {children}
-        </BorderIndicator>
-      )}
-    >
-      <Suspense fallback={<IconPlaceholder className={className} />}>
-        <span
-          className={clsx(hasVariantIcon && 'relative', className)}
-          {...(shouldShowTooltip && {
-            'data-tooltip-id': 'general-tooltip',
-            'data-tooltip-content': assetsT(`EFFECTS.${type}`),
-          })}
-          {...rest}
-        >
-          <ComputedIcon />
-          {hasVariantIcon && (
-            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-background">
-              {variant === 'positive-change' && <IconPositiveChangeVariant />}
-              {variant === 'negative-change' && <IconNegativeChangeVariant />}
-            </span>
-          )}
-        </span>
-      </Suspense>
-    </ConditionalWrapper>
+    <Suspense fallback={<IconPlaceholder className={className} />}>
+      <span
+        className={clsx(hasVariantIcon && 'relative', className)}
+        {...(shouldShowTooltip && {
+          'data-tooltip-id': 'general-tooltip',
+          'data-tooltip-content': assetsT(`EFFECTS.${type}`),
+        })}
+        {...rest}
+      >
+        <ComputedIcon />
+        {hasVariantIcon && (
+          <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-background">
+            {variant === 'positive-change' && <IconPositiveChangeVariant />}
+            {variant === 'negative-change' && <IconNegativeChangeVariant />}
+          </span>
+        )}
+      </span>
+    </Suspense>
   );
 };
