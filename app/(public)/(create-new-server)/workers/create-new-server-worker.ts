@@ -46,6 +46,7 @@ import { unitImprovementSeeder } from 'app/db/seeders/unit-improvement-seeder';
 import { unitResearchSeeder } from 'app/db/seeders/unit-research-seeder';
 import { troopSeeder } from 'app/db/seeders/troop-seeder';
 import { worldItemsSeeder } from 'app/db/seeders/world-items-seeder';
+import { buildingFieldsSeeder } from 'app/db/seeders/building-fields-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -136,6 +137,7 @@ self.addEventListener(
 
       // Building fields
       db.exec(createBuildingFieldsTable);
+      buildingFieldsSeeder(db, server);
 
       // Resource sites
       db.exec(createResourceSitesTable);
