@@ -74,7 +74,10 @@ const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
           ))}
         </TableCell>
         <TableCell>
-          <Button onClick={() => abandonOasis({ oasisId: occupiedOasis.id })}>
+          <Button
+            size="fit"
+            onClick={() => abandonOasis({ oasisId: occupiedOasis.id })}
+          >
             {t('Abandon oasis')}
           </Button>
         </TableCell>
@@ -122,8 +125,8 @@ const OccupiableOasisRowActions: React.FC<OccupiableOasisRowActionsProps> = ({
   const isHeroAvailable = !!playerTroops.find(
     ({ unitId, tileId, source }) =>
       unitId === 'HERO' &&
-      tileId === currentVillage.id &&
-      source === currentVillage.id,
+      tileId === currentVillage.tileId &&
+      source === currentVillage.tileId,
   );
 
   const isOccupiedByPlayer = player !== null && player.id === 0;
@@ -141,7 +144,10 @@ const OccupiableOasisRowActions: React.FC<OccupiableOasisRowActionsProps> = ({
   }
 
   return (
-    <Button onClick={() => occupyOasis({ oasisId: oasis.id })}>
+    <Button
+      size="fit"
+      onClick={() => occupyOasis({ oasisId: oasis.id })}
+    >
       {t('Occupy')}
     </Button>
   );

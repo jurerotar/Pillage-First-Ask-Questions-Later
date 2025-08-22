@@ -766,7 +766,7 @@
     },
     "ONE-OF": {
       "TITLE": "{{buildingName}} to level {{level}}",
-      "DESCRIPTION": "Upgrade the {{buildingName}} to level {{level}}",
+      "DESCRIPTION": "Upgrade the {{buildingName}} to level {{level}}.",
       "GROUP": "{{buildingName}}"
     },
     "EVERY": {

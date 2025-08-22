@@ -279,6 +279,7 @@ export const UnitResearch = () => {
           <Button
             onClick={researchUnit}
             variant="default"
+            size="fit"
             disabled={!canStartResearch}
           >
             {hasResearchEventsOngoing && t('Research is already taking place')}
@@ -384,6 +385,7 @@ export const UnitImprovement = () => {
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Available actions')}</Text>
         <Button
+          size="fit"
           variant="default"
           disabled={!canUpgrade}
           onClick={upgradeUnit}
@@ -605,6 +607,7 @@ export const UnitRecruitment = () => {
           </div>
         </div>
         <Button
+          size="fit"
           type="submit"
           disabled={maxUnits === 0 || amount === 0}
         >

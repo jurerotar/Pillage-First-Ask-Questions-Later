@@ -85,7 +85,12 @@ const HorseColorPicker = () => {
             onChange={handleColorChange}
           />
         </label>
-        <Button onClick={copyColors}>Copy color selection</Button>
+        <Button
+          size="fit"
+          onClick={copyColors}
+        >
+          Copy color selection
+        </Button>
       </div>
     </div>
   );

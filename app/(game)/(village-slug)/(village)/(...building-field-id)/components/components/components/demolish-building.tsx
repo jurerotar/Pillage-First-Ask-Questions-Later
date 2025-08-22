@@ -107,6 +107,7 @@ export const DemolishBuilding = () => {
       <div className="flex gap-2">
         {buildingFieldToDemolish.level > 1 && (
           <Button
+            size="fit"
             disabled={
               !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
             }
@@ -118,6 +119,7 @@ export const DemolishBuilding = () => {
           </Button>
         )}
         <Button
+          size="fit"
           disabled={
             !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
           }

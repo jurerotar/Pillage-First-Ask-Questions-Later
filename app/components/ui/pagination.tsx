@@ -11,7 +11,7 @@ export const Pagination = ({
     <nav
       aria-label="pagination"
       data-slot="pagination"
-      className={clsx('mx-auto flex w-full justify-center', className)}
+      className={clsx(className)}
       {...props}
     />
   );
@@ -79,7 +79,6 @@ export const PaginationPrevious = ({
       {...props}
     >
       <LuChevronLeft />
-      <span className="hidden sm:block">Previous</span>
     </PaginationLink>
   );
 };
@@ -95,7 +94,6 @@ export const PaginationNext = ({
       className={clsx('gap-1 px-2.5 sm:pr-2.5', className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
       <LuChevronRight />
     </PaginationLink>
   );

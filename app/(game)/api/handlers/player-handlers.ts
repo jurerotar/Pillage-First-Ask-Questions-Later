@@ -1,6 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import {
-  mapCacheKey,
   playersCacheKey,
   troopsCacheKey,
   villagesCacheKey,
@@ -8,7 +7,6 @@ import {
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { Tile } from 'app/interfaces/models/game/tile';
 
 export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;
@@ -42,24 +40,15 @@ export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
 
 export const getTroopsByVillage: ApiHandler<
   Troop[],
-  'playerId' | 'villageId'
+  'playerId' | 'tileId'
 > = async (queryClient, args) => {
   const {
-    params: { villageId },
+    params: { tileId },
   } = args;
 
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const village = villages.find(({ id }) => id === villageId)!;
-
-  const { id } = tiles.find(
-    ({ coordinates }) =>
-      coordinates.x === village.coordinates.x &&
-      coordinates.y === village.coordinates.y,
-  )!;
-
   const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey]) ?? [];
-  return troops.filter(({ tileId }) => tileId === id);
+
+  return troops.filter(({ tileId: troopTileId }) => troopTileId === tileId);
 };
 
 type RenameVillageBody = {

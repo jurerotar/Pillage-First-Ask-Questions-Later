@@ -20,7 +20,7 @@ const ErrorPage = () => {
 
       <div className="flex justify-center gap-4">
         <Link to="/">
-          <Button>Back to homepage</Button>
+          <Button size="fit">Back to homepage</Button>
         </Link>
       </div>
     </>
