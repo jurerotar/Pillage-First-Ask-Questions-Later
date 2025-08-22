@@ -1,6 +1,6 @@
 {
   "name": "pillage-first-ask-questions-later",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "private": true,
   "type": "module",
   "author": "Jure Rotar <hello@jurerotar.com>",
@@ -33,7 +33,7 @@
   "dependencies": {
     "@grafana/faro-web-sdk": "1.19.0",
     "@hookform/resolvers": "5.2.1",
-    "@pillage-first/graphics": "0.0.6",
+    "@pillage-first/graphics": "0.0.8",
     "@react-router/node": "7.8.1",
     "@react-router/serve": "7.8.1",
     "@tailwindcss/vite": "4.1.12",
