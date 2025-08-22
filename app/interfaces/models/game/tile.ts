@@ -64,12 +64,11 @@ type ContextualBaseTile = BaseTile & {
   troopMovementIcon: TroopMovementType | null;
 };
 
-export type ContextualOasisTile = ContextualBaseTile & OasisTile;
+type ContextualOasisTile = ContextualBaseTile & OasisTile;
 
-export type ContextualOccupiedOasisTile = ContextualBaseTile &
-  OccupiedOasisTile;
+type ContextualOccupiedOasisTile = ContextualBaseTile & OccupiedOasisTile;
 
-export type ContextualOccupiableTile = ContextualBaseTile & OccupiableTile;
+type ContextualOccupiableTile = ContextualBaseTile & OccupiableTile;
 
 export type ContextualOccupiedOccupiableTile = ContextualBaseTile &
   OccupiedOccupiableTile & {
