@@ -2,10 +2,14 @@ import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/bu
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Tooltip } from 'app/components/tooltip';
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField as BuildingFieldType,
+  ResourceFieldComposition,
+} from 'app/interfaces/models/game/village';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type React from 'react';
+import { useState } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
@@ -21,6 +25,22 @@ const villageViewBuildingFieldIds = [...Array(22)].map(
   (_, i) => i + 19,
 ) as BuildingFieldType['id'][];
 
+const resourceFieldCompositions: ResourceFieldComposition[] = [
+  '00018',
+  '11115',
+  '3339',
+  '4437',
+  '4347',
+  '3447',
+  '3456',
+  '4356',
+  '3546',
+  '4536',
+  '5346',
+  '5436',
+  '4446',
+];
+
 const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
   const { t } = useTranslation();
@@ -31,6 +51,9 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
   const buildingFieldIdsToDisplay = isResourcesPageOpen
     ? resourceViewBuildingFieldIds
     : villageViewBuildingFieldIds;
+
+  const [resourceFieldComposition, setResourceFieldComposition] =
+    useState<ResourceFieldComposition>('4446');
 
   const renderTooltip = useCallback(
     ({
@@ -74,10 +97,31 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
       />
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
         <div className="relative aspect-[16/10] scrollbar-hidden min-w-[460px] max-w-5xl w-full">
+          {isResourcesPageOpen && (
+            <select
+              className="absolute top-0 left-0"
+              onChange={(e) =>
+                setResourceFieldComposition(
+                  e.target.value as ResourceFieldComposition,
+                )
+              }
+              defaultValue={'4446'}
+            >
+              {resourceFieldCompositions.map((e) => (
+                <option
+                  key={e}
+                  value={e}
+                >
+                  {e}
+                </option>
+              ))}
+            </select>
+          )}
           {buildingFieldIdsToDisplay.map((buildingFieldId) => (
             <BuildingField
               key={buildingFieldId}
               buildingFieldId={buildingFieldId}
+              resourceFieldComposition={resourceFieldComposition}
             />
           ))}
           {isResourcesPageOpen && (

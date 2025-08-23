@@ -9,7 +9,6 @@ import type { Building } from 'app/interfaces/models/game/building';
 import clsx from 'clsx';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
 import { useTranslation } from 'react-i18next';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
@@ -120,13 +119,14 @@ const dynamicCellClasses = ({
 
 type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
+  resourceFieldComposition: ResourceFieldComposition;
 };
 
 export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
   buildingField,
+  resourceFieldComposition,
 }) => {
   const { t: assetsT } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
@@ -164,7 +164,7 @@ export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
         buildingFieldId <= 18 &&
           dynamicCellClasses({
             buildingField,
-            resourceFieldComposition: currentVillage.RFC,
+            resourceFieldComposition: resourceFieldComposition,
           }),
         buildingFieldId > 18 && 'border border-red-500',
         'relative size-10 lg:size-16 rounded-full',
