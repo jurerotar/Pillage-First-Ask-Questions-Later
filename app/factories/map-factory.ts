@@ -48,16 +48,16 @@ const shapes: Shape[] = [
     group: 3,
     shape: [1, 1, 1],
   },
+  {
+    group: 4,
+    shape: [3],
+  },
 ];
 
 const shapesByResource: Record<Resource, Shape[]> = {
-  wood: [...shapes, { group: 4, shape: [3] }],
+  wood: shapes,
   clay: shapes,
-  // Iron doesn't have shape 3
-  iron: [
-    ...shapes.filter(({ group }) => group !== 3),
-    { group: 4, shape: [3] },
-  ],
+  iron: shapes,
   wheat: shapes,
 };
 

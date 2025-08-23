@@ -121,26 +121,16 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
   return null;
 };
 
-type GetTypePropertiesReturn = {
-  classes: React.ComponentProps<'button'>['className'];
-  style: React.ComponentProps<'button'>['style'];
-};
-
-const getTileProperties = (
+const getTileClassNames = (
   tile: ContextualTile,
-  skinVariant: Preferences['skinVariant'],
   magnification: number,
   shouldShowFactionReputation: boolean,
-): GetTypePropertiesReturn => {
+): string => {
   let classes = '';
-  const style: React.ComponentProps<'button'>['style'] = {};
-
-  const baseUrl = `/graphic-packs/${skinVariant}/map`;
 
   if (isUnoccupiedOccupiableTile(tile)) {
     const { RFC } = tile;
-    classes = cellStyles.tile;
-    style.backgroundImage = `url(${baseUrl}/unoccupied-tiles/${RFC}.avif?v=${import.meta.env.GRAPHICS_VERSION})`;
+    classes = clsx(cellStyles.tile, cellStyles[`unoccupied-tile-${RFC}`]);
   } else if (isContextualOccupiedOccupiableTile(tile)) {
     const { reputationLevel } = tile;
 
@@ -154,35 +144,29 @@ const getTileProperties = (
   } else if (isOasisTile(tile)) {
     const { oasisResource, oasisGroup, oasisGroupPositions, variant } =
       decodeGraphicsProperty(tile.graphics);
-    style.backgroundImage = `url(${baseUrl}/oasis/${oasisResource}/${oasisGroup}-${oasisGroupPositions}-${variant}.avif?v=${import.meta.env.GRAPHICS_VERSION})`;
-    classes = cellStyles.tile;
+    classes = clsx(
+      cellStyles.tile,
+      cellStyles[
+        `oasis-tile-${oasisResource}-${oasisGroup}-${oasisGroupPositions}-${variant}`
+      ],
+    );
   }
 
-  return {
-    classes,
-    style,
-  };
+  return classes;
 };
 
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(
   ({ data, style, rowIndex, columnIndex }) => {
-    const {
-      contextualMap,
-      gridSize,
-      mapFilters,
-      magnification,
-      onClick,
-      preferences,
-    } = data;
+    const { contextualMap, gridSize, mapFilters, magnification, onClick } =
+      data;
 
     const tile: ContextualTile =
       contextualMap[gridSize * rowIndex + columnIndex];
 
-    const { classes, style: tileStyles } = getTileProperties(
+    const className = getTileClassNames(
       tile,
-      preferences.skinVariant,
       magnification,
       mapFilters.shouldShowFactionReputation,
     );
@@ -191,8 +175,8 @@ export const Cell = memo<CellProps>(
       <button
         onClick={() => onClick(tile)}
         type="button"
-        className={classes}
-        style={{ ...style, ...tileStyles }}
+        className={className}
+        style={style}
         data-tile-id={tile.id}
       >
         <CellIcons

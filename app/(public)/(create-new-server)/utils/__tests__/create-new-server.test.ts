@@ -230,11 +230,11 @@ describe('Server initialization', () => {
       // Doesn't really matter which 2 we pick, since the chance of these 2 being the same and seeding not working is basically 0
       const tile1 = tiles.find(({ coordinates }) => {
         const { x, y } = coordinates;
-        return x === -2 && y === 2;
+        return x === 4 && y === 4;
       })! as OccupiedOasisTile;
       const tile2 = tiles.find(({ coordinates }) => {
         const { x, y } = coordinates;
-        return x === -3 && y === 2;
+        return x === 3 && y === 2;
       })! as OccupiedOasisTile;
 
       const { oasisResource: tile1OasisResource } = decodeGraphicsProperty(
