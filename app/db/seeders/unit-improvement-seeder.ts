@@ -1,7 +1,7 @@
+import type { Seeder } from 'app/interfaces/db';
 import type { UnitTier } from 'app/interfaces/models/game/unit';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
-import type { Tribe } from 'app/interfaces/models/game/tribe';
+import { batchInsert } from 'app/db/utils/batch-insert';
 
 const upgradableTiers: UnitTier[] = [
   'tier-1',
@@ -14,17 +14,18 @@ const upgradableTiers: UnitTier[] = [
   'siege-catapult',
 ];
 
-export const unitImprovementFactory = (tribe: Tribe): UnitImprovement[] => {
-  const unitsByTribe = getUnitsByTribe(tribe);
+export const unitImprovementSeeder: Seeder = (database, server): void => {
+  const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
 
   const upgradableUnits = unitsByTribe.filter(({ tier }) => {
     return upgradableTiers.includes(tier);
   });
 
-  return upgradableUnits.map(({ id }) => {
-    return {
-      unitId: id,
-      level: 0,
-    };
-  });
+  batchInsert(
+    database,
+    'unit_improvements',
+    ['unit_id', 'level'],
+    upgradableUnits,
+    ({ id: unitId }) => [unitId, 0],
+  );
 };

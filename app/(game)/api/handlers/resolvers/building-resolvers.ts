@@ -3,7 +3,7 @@ import {
   specialFieldIds,
 } from 'app/(game)/(village-slug)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
 import {
@@ -81,7 +81,7 @@ export const removeBuildingField = (
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { buildingFieldId, level, buildingId, villageId } = args;
 
   const { effects: buildingEffects } = getBuildingData(buildingId);
@@ -121,7 +121,7 @@ export const buildingLevelChangeResolver: Resolver<
 
 export const buildingConstructionResolver: Resolver<
   GameEvent<'buildingConstruction'>
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const { villageId, buildingFieldId, buildingId } = args;
 
   const { effects } = getBuildingData(buildingId);
@@ -144,7 +144,7 @@ export const buildingConstructionResolver: Resolver<
     return addBuildingField(villages!, args);
   });
 
-  await createEvent<'buildingLevelChange'>(queryClient, {
+  await createEvent<'buildingLevelChange'>(queryClient, database, {
     ...args,
     type: 'buildingLevelChange',
   });
@@ -152,11 +152,14 @@ export const buildingConstructionResolver: Resolver<
 
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { buildingFieldId, villageId } = args;
 
   if (specialFieldIds.includes(buildingFieldId)) {
-    await buildingLevelChangeResolver(queryClient, { ...args, level: 0 });
+    await buildingLevelChangeResolver(queryClient, _database, {
+      ...args,
+      level: 0,
+    });
     return;
   }
 
@@ -178,8 +181,8 @@ export const buildingDestructionResolver: Resolver<
 
 export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
-> = async (queryClient, args) => {
-  await createEvent<'buildingLevelChange'>(queryClient, {
+> = async (queryClient, database, args) => {
+  await createEvent<'buildingLevelChange'>(queryClient, database, {
     ...args,
     type: 'buildingLevelChange',
   });

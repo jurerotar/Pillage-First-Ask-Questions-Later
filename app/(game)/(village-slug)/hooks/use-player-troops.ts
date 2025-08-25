@@ -34,7 +34,7 @@ export const usePlayerTroops = () => {
     queryKey: [playerTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await fetcher<Troop[]>(
-        `/villages/${currentVillage.tileId}/troops`,
+        `/villages/${currentVillage.id}/troops`,
       );
       return data;
     },

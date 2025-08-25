@@ -3,6 +3,7 @@ import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
+import type { BuildingFieldModel } from 'app/interfaces/models/game/building-field';
 
 export type ResourceFieldComposition =
   | '4446'
@@ -25,55 +26,8 @@ type VillagePresetResourcesPrefix = 'resources';
 export type VillagePresetId =
   `${VillagePresetVillagePrefix | VillagePresetResourcesPrefix}-${VillageSize}`;
 
-// Resource fields only, these are predetermined on village creation and cannot be changed
-export type ResourceFieldId =
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11
-  | 12
-  | 13
-  | 14
-  | 15
-  | 16
-  | 17
-  | 18;
-
-// Player may construct any building on any of these fields
-type VillageFieldId =
-  | 19
-  | 20
-  | 21
-  | 22
-  | 23
-  | 24
-  | 25
-  | 26
-  | 27
-  | 28
-  | 29
-  | 30
-  | 31
-  | 32
-  | 33
-  | 34
-  | 35
-  | 36
-  | 37
-  | 38;
-
-// Rally point and wall are always on the same spot, these spots can't be taken by other buildings, nor can a player build anything else here
-type ReservedFieldId = 39 | 40;
-
 export type BuildingField = {
-  id: ResourceFieldId | VillageFieldId | ReservedFieldId;
+  id: BuildingFieldModel['field_id'];
   buildingId: Building['id'];
   level: number;
 };

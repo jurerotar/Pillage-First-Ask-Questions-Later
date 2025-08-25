@@ -1,4 +1,4 @@
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import {
@@ -13,7 +13,7 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
-> = async (queryClient, args) => {
+> = async (queryClient, _database, args) => {
   const { unitId, villageId, duration, startsAt } = args;
 
   const { unitWheatConsumption } = getUnitData(unitId);

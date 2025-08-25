@@ -3,9 +3,9 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type {
   BuildingField,
   ResourceFieldComposition,
-  ResourceFieldId,
   VillageSize,
 } from 'app/interfaces/models/game/village';
+import type { ResourceFieldId } from 'app/interfaces/models/game/building-field';
 
 type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
 

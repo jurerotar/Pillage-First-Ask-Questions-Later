@@ -101,7 +101,7 @@ export const playerVillageFactory = ({
   ];
 
   return {
-    id: 0,
+    id: 1,
     tileId,
     // TODO: Figure out how to translate this, dumping t() around it makes it undefined
     name: 'New village',

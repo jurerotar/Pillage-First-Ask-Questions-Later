@@ -215,7 +215,7 @@ const villageRoutes = [
   },
   {
     method: 'GET',
-    path: '/villages/:tileId/troops',
+    path: '/villages/:villageId/troops',
     handler: getTroopsByVillage,
   },
   {

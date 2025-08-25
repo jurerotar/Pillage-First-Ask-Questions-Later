@@ -1,13 +1,13 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
-export const getMapFilters: ApiHandler<MapFilters> = async (queryClient) => {
-  const mapFilters = queryClient.getQueryData<MapFilters>([
-    mapFiltersCacheKey,
-  ])!;
-
-  return mapFilters;
+export const getMapFilters: ApiHandler<MapFilters> = async (
+  _queryClient,
+  database,
+) => {
+  return Object.fromEntries(
+    database.selectArrays('SELECT filter_key, value FROM map_filters'),
+  );
 };
 
 type UpdateMapFilterBody = {
@@ -18,14 +18,12 @@ export const updateMapFilter: ApiHandler<
   void,
   'filterName',
   UpdateMapFilterBody
-> = async (queryClient, { params, body }) => {
+> = async (_queryClient, database, { params, body }) => {
   const { filterName } = params;
   const { value } = body;
 
-  queryClient.setQueryData<MapFilters>([mapFiltersCacheKey], (mapFilters) => {
-    return {
-      ...mapFilters!,
-      [filterName]: value,
-    };
+  database.exec({
+    sql: 'UPDATE map_filters SET value = ? WHERE filter_key = ?;',
+    bind: [value, filterName],
   });
 };

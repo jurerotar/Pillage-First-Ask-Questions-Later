@@ -19,7 +19,6 @@ import {
   effectsCacheKey,
   eventsCacheKey,
   playersCacheKey,
-  preferencesCacheKey,
   serverCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
@@ -40,11 +39,11 @@ import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
+import type { Database } from 'app/interfaces/db';
 import { PLAYER_ID } from 'app/constants/player';
 
 // TODO: Implement this
@@ -61,11 +60,13 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 
 export const checkAndSubtractVillageResources = (
   queryClient: QueryClient,
+  database: Database,
   events: GameEvent[],
 ): boolean => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    'SELECT bool_value FROM preferences WHERE preference_key = ?;',
+    ['isDeveloperModeEnabled'],
+  );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
   const event = events[0];
@@ -153,11 +154,13 @@ export const getEventCost = (event: GameEvent): number[] => {
 
 export const getEventDuration = (
   queryClient: QueryClient,
+  database: Database,
   event: GameEvent,
 ): number => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    'SELECT bool_value FROM preferences WHERE preference_key = ?;',
+    ['isDeveloperModeEnabled'],
+  );
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     if (isDeveloperModeEnabled) {
@@ -232,6 +235,7 @@ export const getEventDuration = (
 
 export const getEventStartTime = (
   queryClient: QueryClient,
+  _database: Database,
   event: GameEvent,
 ): number => {
   if (isTroopTrainingEvent(event)) {

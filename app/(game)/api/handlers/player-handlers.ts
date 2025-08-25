@@ -1,12 +1,12 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import {
   playersCacheKey,
-  troopsCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Troop, TroopModel } from 'app/interfaces/models/game/troop';
+import { troopApiResource } from 'app/(game)/api/api-resources/troop-api-resource';
 
 export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;
@@ -14,6 +14,7 @@ export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
 
 export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const {
@@ -27,6 +28,7 @@ export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
 
 export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
   queryClient,
+  _database,
   args,
 ) => {
   const {
@@ -40,15 +42,31 @@ export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
 
 export const getTroopsByVillage: ApiHandler<
   Troop[],
-  'playerId' | 'tileId'
-> = async (queryClient, args) => {
+  'playerId' | 'villageId'
+> = async (_queryClient, database, args) => {
   const {
-    params: { tileId },
+    params: { villageId },
   } = args;
 
-  const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey]) ?? [];
+  const troopModels = database.selectObjects(
+    `
+    SELECT
+      unit_id,
+      amount,
+      tile_id,
+      source
+    FROM troops
+    WHERE troops.tile_id = (
+      SELECT
+        villages.tile_id
+      FROM villages
+      WHERE villages.id = ?
+    );
+  `,
+    [villageId],
+  ) as TroopModel[];
 
-  return troops.filter(({ tileId: troopTileId }) => troopTileId === tileId);
+  return troopModels.map(troopApiResource);
 };
 
 type RenameVillageBody = {
@@ -59,7 +77,7 @@ export const renameVillage: ApiHandler<
   void,
   'playerId' | 'villageId',
   RenameVillageBody
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const {
     params: { villageId },
     body: { name },
@@ -73,5 +91,14 @@ export const renameVillage: ApiHandler<
 
   queryClient.setQueryData([villagesCacheKey], () => {
     return villages;
+  });
+
+  database.exec({
+    sql: `
+      UPDATE villages
+      SET name = ?
+      WHERE id = ?
+    `,
+    bind: [name, villageId],
   });
 };
