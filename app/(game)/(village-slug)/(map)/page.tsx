@@ -21,7 +21,7 @@ import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
-import { Grid, List, useListRef } from 'react-window';
+import { Grid, useGridCallbackRef } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { isStandaloneDisplayMode } from 'app/utils/device';
@@ -55,14 +55,9 @@ const MapPage = () => {
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
 
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  const setMapRef = useCallback((node: HTMLDivElement | null) => {
-    mapRef.current = node;
-  }, []);
-
-  const leftMapRulerRef = useListRef(null);
-  const bottomMapRulerRef = useListRef(null);
+  const [leftMapRulerRef, setLeftMapRulerRef] = useGridCallbackRef(null);
+  const [bottomMapRulerRef, setBottomMapRulerRef] = useGridCallbackRef(null);
+  const [mapRef, setMapRef] = useGridCallbackRef(null);
 
   const isPwa = isStandaloneDisplayMode();
 
@@ -113,7 +108,7 @@ const MapPage = () => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {
-    const node = mapRef.current;
+    const node = mapRef?.element;
     if (!node) {
       return;
     }
@@ -141,27 +136,40 @@ const MapPage = () => {
     return () => {
       controller.abort();
     };
-  }, [mapRef.current, tileSize]);
+  }, [mapRef, tileSize]);
 
   useEventListener(
     'mousemove',
-    ({ clientX, clientY }) => {
-      if (!isScrolling.current || !mapRef.current) {
+    (e: MouseEvent) => {
+      if (!isScrolling.current || !mapRef) {
         return;
       }
+
+      const { clientX, clientY } = e;
 
       const deltaX = clientX - mouseDownPosition.current.x;
       const deltaY = clientY - mouseDownPosition.current.y;
 
-      const currentX = mapRef.current.scrollLeft;
-      const currentY = mapRef.current.scrollTop;
+      mouseDownPosition.current = { x: clientX, y: clientY };
 
-      mouseDownPosition.current = {
-        x: clientX,
-        y: clientY,
-      };
+      const el = mapRef.element;
+      if (!el) {
+        return;
+      }
 
-      mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+      const currentColumn = Math.round(el.scrollLeft / tileSize);
+      const currentRow = Math.round(el.scrollTop / tileSize);
+
+      const deltaColumns = Math.round(deltaX / tileSize);
+      const deltaRows = Math.round(deltaY / tileSize);
+
+      mapRef.scrollToCell({
+        columnIndex: currentColumn - deltaColumns,
+        rowIndex: currentRow - deltaRows,
+        columnAlign: 'start',
+        rowAlign: 'start',
+        behavior: 'instant',
+      });
     },
     // @ts-expect-error - remove once usehooks-ts is R19 compliant
     window,
@@ -176,35 +184,20 @@ const MapPage = () => {
     window,
   );
 
-  const scrollLeft = (tileX: number) => {
-    return tileSize * (tileX + gridSize / 2) - width / 2;
-  };
+  const columnIndexForTile = (tileX: number) =>
+    Math.round(tileX + gridSize / 2 - width / (2 * tileSize));
 
-  const scrollTop = (tileY: number) => {
-    return tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
-  };
+  const rowIndexForTile = (tileY: number) =>
+    Math.round(-tileY + gridSize / 2 - mapHeight / (2 * tileSize));
 
-  const offsetX = scrollLeft(currentCenterTile.current.x);
-  const offsetY = scrollTop(currentCenterTile.current.y);
+  const scrollLeftPx = (tileX: number) =>
+    tileSize * (tileX + gridSize / 2) - width / 2;
 
-  // const onScroll = useCallback(
-  //   ({ scrollTop, scrollLeft }: GridProps<any>) => {
-  //     if (bottomMapRulerRef.current) {
-  //       bottomMapRulerRef.current.scrollTo(scrollLeft);
-  //     }
-  //     if (leftMapRulerRef.current) {
-  //       leftMapRulerRef.current.scrollTo(scrollTop);
-  //     }
-  //
-  //     currentCenterTile.current.x = Math.round(
-  //       (scrollLeft + width / 2) / tileSize - gridSize / 2,
-  //     );
-  //     currentCenterTile.current.y = Math.round(
-  //       gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
-  //     );
-  //   },
-  //   [tileSize, gridSize, width, mapHeight],
-  // );
+  const scrollTopPx = (tileY: number) =>
+    tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
+
+  const _initialColumnIndex = columnIndexForTile(currentCenterTile.current.x);
+  const _initialRowIndex = rowIndexForTile(currentCenterTile.current.y);
 
   const isInitialRender = useRef<boolean>(true);
 
@@ -215,24 +208,37 @@ const MapPage = () => {
       return;
     }
 
-    const scrollX = scrollLeft(startingX);
-    const scrollY = scrollTop(startingY);
+    const scrollX = scrollLeftPx(startingX);
+    const scrollY = scrollTopPx(startingY);
 
-    if (mapRef.current) {
-      mapRef.current.scrollTo({
-        left: scrollX,
-        top: scrollY,
+    const colIndex = Math.round(scrollX / tileSize);
+    const rowIndex = Math.round(scrollY / tileSize);
+
+    if (mapRef) {
+      mapRef.scrollToCell({
+        columnIndex: colIndex,
+        rowIndex,
+        columnAlign: 'start',
+        rowAlign: 'start',
         behavior: 'smooth',
       });
     }
 
-    // if (leftMapRulerRef.current) {
-    //   leftMapRulerRef.current.scrollTo(scrollY);
-    // }
-    //
-    // if (bottomMapRulerRef.current) {
-    //   bottomMapRulerRef.current.scrollTo(scrollX);
-    // }
+    if (leftMapRulerRef) {
+      leftMapRulerRef.scrollToRow({
+        index: rowIndex,
+        align: 'start',
+        behavior: 'smooth',
+      });
+    }
+
+    if (bottomMapRulerRef) {
+      bottomMapRulerRef.scrollToColumn({
+        index: colIndex,
+        align: 'start',
+        behavior: 'smooth',
+      });
+    }
 
     currentCenterTile.current = { x: startingX, y: startingY };
   }, [location.key]);
@@ -278,43 +284,43 @@ const MapPage = () => {
       <Grid<CellProps>
         key={tileSize}
         className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        outerRef={setMapRef}
+        gridRef={setMapRef}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={mapHeight}
-        width={width}
-        initialScrollLeft={offsetX}
-        initialScrollTop={offsetY}
         // @ts-ignore
         cellProps={fixedGridData}
         cellComponent={Cell}
       />
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 select-none pointer-events-none">
-        <List<MapRulerCellProps>
+        <Grid<MapRulerCellProps>
           className="scrollbar-hidden w-[20px]"
-          listRef={leftMapRulerRef}
-          rowHeight={tileSize}
+          gridRef={setLeftMapRulerRef}
+          columnCount={1}
+          columnWidth={20}
           rowCount={gridSize}
-          rowProps={{
-            layout: 'horizontal',
+          rowHeight={tileSize}
+          cellProps={{
+            layout: 'vertical',
           }}
-          rowComponent={MapRulerCell}
+          cellComponent={MapRulerCell}
         />
       </div>
       {/* X-axis ruler */}
       <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-        <List<MapRulerCellProps>
+        <Grid<MapRulerCellProps>
           className="scrollbar-hidden"
-          listRef={bottomMapRulerRef}
-          rowHeight={tileSize}
-          rowCount={gridSize}
-          rowProps={{
+          gridRef={setBottomMapRulerRef}
+          columnCount={gridSize}
+          columnWidth={tileSize}
+          rowCount={1}
+          rowHeight={20}
+          cellProps={{
             layout: 'horizontal',
           }}
-          rowComponent={MapRulerCell}
+          cellComponent={MapRulerCell}
         />
       </div>
       <MapControls />

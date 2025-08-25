@@ -1,5 +1,5 @@
 import { use } from 'react';
-import type { RowComponentProps } from 'react-window';
+import type { CellComponentProps } from 'react-window';
 import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 
 export type MapRulerCellProps = {
@@ -7,11 +7,14 @@ export type MapRulerCellProps = {
 };
 
 export const MapRulerCell = ({
-  index,
   style,
   layout,
-}: RowComponentProps<MapRulerCellProps>) => {
+  columnIndex,
+  rowIndex,
+}: CellComponentProps<MapRulerCellProps>) => {
   const { gridSize } = use(MapContext);
+
+  const index = layout === 'vertical' ? rowIndex : columnIndex;
 
   const modifier = (gridSize - 1) / 2 + 1;
 

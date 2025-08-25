@@ -15,7 +15,6 @@ import type {
 } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
 import type React from 'react';
-import { memo } from 'react';
 import type { CellComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
@@ -157,45 +156,42 @@ const getTileClassNames = (
 
 export type CellProps = CellComponentProps<CellBaseProps>;
 
-export const Cell = memo<CellProps>(
-  ({
-    contextualMap,
-    gridSize,
+export const Cell = ({
+  contextualMap,
+  gridSize,
+  magnification,
+  mapFilters,
+  onClick,
+  style,
+  rowIndex,
+  columnIndex,
+}: CellProps) => {
+  const tile: ContextualTile = contextualMap[gridSize * rowIndex + columnIndex];
+
+  const className = getTileClassNames(
+    tile,
     magnification,
-    mapFilters,
-    onClick,
-    style,
-    rowIndex,
-    columnIndex,
-  }) => {
-    const tile: ContextualTile =
-      contextualMap[gridSize * rowIndex + columnIndex];
+    mapFilters.shouldShowFactionReputation,
+  );
 
-    const className = getTileClassNames(
-      tile,
-      magnification,
-      mapFilters.shouldShowFactionReputation,
-    );
-
-    return (
-      <button
-        onClick={() => onClick(tile)}
-        type="button"
-        className={className}
-        style={style}
-        data-tile-id={tile.id}
-      >
-        {/*<CellIcons*/}
-        {/*  tile={tile}*/}
-        {/*  {...data}*/}
-        {/*/>*/}
-        {tile.troopMovementIcon !== null && (
-          <TroopMovements
-            magnification={magnification}
-            troopMovementIcon={tile.troopMovementIcon}
-          />
-        )}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      onClick={() => onClick(tile)}
+      type="button"
+      className={className}
+      style={style}
+      data-tile-id={tile.id}
+    >
+      {/*<CellIcons*/}
+      {/*  tile={tile}*/}
+      {/*  {...data}*/}
+      {/*/>*/}
+      {tile.troopMovementIcon !== null && (
+        <TroopMovements
+          magnification={magnification}
+          troopMovementIcon={tile.troopMovementIcon}
+        />
+      )}
+    </button>
+  );
+};
