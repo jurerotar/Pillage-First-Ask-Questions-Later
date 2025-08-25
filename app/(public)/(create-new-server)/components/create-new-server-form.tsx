@@ -266,6 +266,7 @@ export const CreateNewServerForm = () => {
         </div>
         <div className="flex justify-end">
           <Button
+            size="fit"
             disabled={isPending || isSuccess}
             type="submit"
           >

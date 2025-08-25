@@ -1,27 +1,12 @@
 import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
-export function parseRFCFromTile(
-  RFC: OccupiableTile['RFC'],
-  as: 'number',
-): number[];
-export function parseRFCFromTile(
-  RFC: OccupiableTile['RFC'],
-  as?: 'string',
-): string[];
-export function parseRFCFromTile(
-  RFC: OccupiableTile['RFC'],
-  as: 'string' | 'number' = 'string',
-) {
+export const parseRFCFromTile = (RFC: OccupiableTile['RFC']) => {
   const [wood, clay, iron, ...wheat] = RFC.split('');
   const values = [wood, clay, iron, wheat.join('')];
 
-  if (as === 'number') {
-    return values.map((value) => Number.parseInt(value));
-  }
-
-  return values;
-}
+  return values.map((value) => Number.parseInt(value));
+};
 
 // Should only be used for bit-packing bellow
 const resourceToId = new Map<Resource, number>([
@@ -37,26 +22,31 @@ const idToResource = new Map(
 
 export const encodeGraphicsProperty = (
   resource: Resource,
-  group: number,
-  x: number,
-  y: number,
+  group: number, // 0–7 (3 bits)
+  x: number, // 0–3 (2 bits)
+  y: number, // 0–7 (3 bits)
+  variant: number, // 0–9 (needs 4 bits, but we allow 0–15)
 ): number => {
   const resId = resourceToId.get(resource)!; // 2 bits
-  return (resId << 8) | (group << 5) | (x << 3) | y;
+
+  return (resId << 12) | (group << 9) | (x << 7) | (y << 4) | variant;
 };
 
 export const decodeGraphicsProperty = (encoded: number) => {
-  const oasisResourceId = (encoded >> 8) & 0b11;
+  const variant = encoded & 0b1111; // 4 bits
+  const oasisGroupPositionY = (encoded >> 4) & 0b111; // 3 bits
+  const oasisGroupPositionX = (encoded >> 7) & 0b11; // 2 bits
+  const oasisGroup = (encoded >> 9) & 0b111; // 3 bits
+  const oasisResourceId = (encoded >> 12) & 0b11; // 2 bits
+
   const oasisResource = idToResource.get(oasisResourceId)!;
-  const oasisGroup = (encoded >> 5) & 0b111;
-  const oasisGroupPositionX = (encoded >> 3) & 0b11;
-  const oasisGroupPositionY = encoded & 0b111;
   const oasisGroupPositions = `${oasisGroupPositionX}-${oasisGroupPositionY}`;
 
   return {
     oasisResource,
     oasisGroup,
     oasisGroupPositions,
+    variant,
   };
 };
 

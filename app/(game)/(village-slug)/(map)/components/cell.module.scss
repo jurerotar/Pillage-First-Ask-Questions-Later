@@ -1,8 +1,5 @@
-@mixin oasisBackgroundImage($base, $resourceBase, $group, $position) {
-  &-position-#{$position} {
-    background-image: url('#{$resourceBase}/#{$group}-#{$position}.avif?v=#{$graphics-version}');
-  }
-}
+@use "sass:map";
+@use "sass:list";
 
 .tile {
   background-repeat: no-repeat;
@@ -13,7 +10,7 @@
 
 // Occupied occupiable tiles
 .occupied-tile {
-  --reputation-color: white;
+  --reputation-color: transparent;
 
   // Faction reputation
   &::after {
@@ -37,28 +34,6 @@
       --reputation-color: #{$color};
     }
   }
-
-  &-reputation-disabled {
-    --reputation-color: transparent;
-  }
-
-  //@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
-  //  html[data-skin-variant="#{$skinVariantSelector}"] {
-  //    // Villages
-  //    $base: '/#{$imagesPath}/map/occupied-tiles';
-  //    @each $tribe in $tribes {
-  //      $tribeBase: '/#{$base}/#{$tribe}';
-  //
-  //      &-#{$tribe} {
-  //        @each $villageSize in $villageSizes {
-  //          &-#{$villageSize} {
-  //            background-image: url('#{$tribeBase}/#{$villageSize}.png');
-  //          }
-  //        }
-  //      }
-  //    }
-  //  }
-  //}
 }
 
 // Unoccupied occupiable tiles
@@ -76,42 +51,88 @@
   }
 }
 
-// Oasis tiles
+// IMPORTANT: If this gets changed, make sure to implement the same change in map-factory as well!
+$shapes-by-group: (
+  0: (1),
+  1: (2), // rows: [2]      -> positions: 0-0, 0-1
+  2: (2, 2), // rows: [2,2]    -> 0-0, 0-1, 1-0, 1-1
+  3: (1, 1, 1), // rows: [1,1,1]  -> 0-0, 1-0, 2-0
+  4: (3), // rows: [3]      -> 0-0, 0-1, 0-2
+);
+
+// IMPORTANT: If this gets changed, make sure to implement the same change in map-factory as well!
+$variants-by-resource-and-group: (
+  "wood": (
+    0: (0, 1, 2, 3, 4),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+  "clay": (
+    0: (0),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+  "iron": (
+    0: (0),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+  "wheat": (
+    0: (0),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+);
+
+
+// Build a list of "y-x" position strings for a shape rows list.
+// Example: (2,2) -> ("0-0","0-1","1-0","1-1")
+@function positions-for-group($rows) {
+  $out: ();
+  @for $rowIndex from 1 through list.length($rows) {
+    $cols: list.nth($rows, $rowIndex);
+    $y: $rowIndex - 1; // zero-based
+    @for $colIndex from 1 through $cols {
+      $x: $colIndex - 1; // zero-based
+      $out: list.append($out, "#{$y}-#{$x}", comma);
+    }
+  }
+  @return $out;
+}
+
+@mixin oasisBackgroundImage($base, $resourceBase, $group, $position, $variant) {
+  &-#{$position}-#{$variant} {
+    background-image: url('#{$resourceBase}/#{$group}-#{$position}-#{$variant}.avif');
+  }
+}
+
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
   :global(html.skin-variant-#{$skinVariantSelector}) {
     $base: '#{$imagesPath}/map/oasis';
 
     .oasis-tile {
-      @each $resource in $resources {
+      @each $resource, $groupVariants in $variants-by-resource-and-group {
         &-#{$resource} {
           $resourceBase: "#{$base}/#{$resource}";
 
-          &-group-0 {
-            @include oasisBackgroundImage($base, $resourceBase, '0', '0-0');
-          }
-
-          &-group-1 {
-            @include oasisBackgroundImage($base, $resourceBase, '1', '0-0');
-            @include oasisBackgroundImage($base, $resourceBase, '1', '0-1');
-          }
-
-          &-group-2 {
-            @include oasisBackgroundImage($base, $resourceBase, '2', '0-0');
-            @include oasisBackgroundImage($base, $resourceBase, '2', '0-1');
-            @include oasisBackgroundImage($base, $resourceBase, '2', '1-0');
-            @include oasisBackgroundImage($base, $resourceBase, '2', '1-1');
-          }
-
-          &-group-3 {
-            @include oasisBackgroundImage($base, $resourceBase, '3', '0-0');
-            @include oasisBackgroundImage($base, $resourceBase, '3', '1-0');
-            @include oasisBackgroundImage($base, $resourceBase, '3', '2-0');
-          }
-
-          &-group-4 {
-            @include oasisBackgroundImage($base, $resourceBase, '4', '0-0');
-            @include oasisBackgroundImage($base, $resourceBase, '4', '0-1');
-            @include oasisBackgroundImage($base, $resourceBase, '4', '0-2');
+          @each $group, $rows in $shapes-by-group {
+            &-#{$group} {
+              $positions: positions-for-group($rows);
+              $variants: map.get($groupVariants, $group);
+              @each $pos in $positions {
+                @each $variant in $variants {
+                  @include oasisBackgroundImage($base, $resourceBase, $group, $pos, $variant);
+                }
+              }
+            }
           }
         }
       }

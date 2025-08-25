@@ -70,6 +70,7 @@ const BuildingCardActionsConstruction: React.FC<
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
+        size="fit"
         onClick={onBuildingConstruction}
         disabled={errors.length > 0}
       >
@@ -105,6 +106,7 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"
+        size="fit"
         onClick={onBuildingUpgrade}
         disabled={errors.length > 0}
       >

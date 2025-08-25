@@ -10,21 +10,16 @@ describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
       for (let group = 0; group < 4; group++) {
         for (let x = 0; x < 4; x++) {
           for (let y = 0; y < 4; y++) {
-            const encoded = encodeGraphicsProperty(resource, group, x, y);
+            const encoded = encodeGraphicsProperty(resource, group, x, y, 0);
             const decoded = decodeGraphicsProperty(encoded);
 
             expect(decoded.oasisResource).toBe(resource);
             expect(decoded.oasisGroup).toBe(group);
             expect(decoded.oasisGroupPositions).toBe(`${x}-${y}`);
+            expect(decoded.variant).toBe(0);
           }
         }
       }
     }
-  });
-
-  test('encoded values are within 0-255 range', () => {
-    const encoded = encodeGraphicsProperty('wood', 3, 3, 3);
-    expect(encoded).toBeGreaterThanOrEqual(0);
-    expect(encoded).toBeLessThanOrEqual(255);
   });
 });

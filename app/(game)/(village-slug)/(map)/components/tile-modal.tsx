@@ -47,7 +47,7 @@ type TileModalResourcesProps = {
 };
 
 const TileModalResources: React.FC<TileModalResourcesProps> = ({ tile }) => {
-  const resources = parseRFCFromTile(tile.RFC, 'number');
+  const resources = parseRFCFromTile(tile.RFC);
   return (
     <div className="flex justify-start text-sm">
       <Resources

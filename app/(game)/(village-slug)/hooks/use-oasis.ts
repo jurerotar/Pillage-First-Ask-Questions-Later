@@ -24,10 +24,10 @@ export const useOasis = () => {
   const { data: occupiableOasisInRange } = useSuspenseQuery<
     OccupiableOasisInRangeDTO[]
   >({
-    queryKey: [occupiableOasisInRangeCacheKey, currentVillage.id],
+    queryKey: [occupiableOasisInRangeCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await fetcher<OccupiableOasisInRangeDTO[]>(
-        `/tiles/${currentVillage.id}/occupiable-oasis`,
+        `/tiles/${currentVillage.tileId}/occupiable-oasis`,
       );
       return data;
     },

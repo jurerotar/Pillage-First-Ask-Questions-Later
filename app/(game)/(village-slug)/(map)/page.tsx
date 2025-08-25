@@ -29,6 +29,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -48,6 +49,7 @@ const MapPage = () => {
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
+  const { preferences } = usePreferences();
 
   const { x, y } = currentVillage.coordinates;
 
@@ -96,11 +98,19 @@ const MapPage = () => {
       gridSize,
       mapFilters,
       magnification,
+      preferences,
       onClick: (tile: TileType) => {
         openModal(tile);
       },
     };
-  }, [contextualMap, mapFilters, gridSize, magnification, openModal]);
+  }, [
+    contextualMap,
+    mapFilters,
+    gridSize,
+    magnification,
+    openModal,
+    preferences,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {

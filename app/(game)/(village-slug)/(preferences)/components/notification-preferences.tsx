@@ -64,7 +64,10 @@ export const NotificationPreferences = () => {
               </span>
             </Text>
             <div className="flex flex-1 justify-start md:justify-end items-center">
-              <Button onClick={requestNotificationPermission}>
+              <Button
+                size="fit"
+                onClick={requestNotificationPermission}
+              >
                 {t('Enable notifications')}
               </Button>
             </div>

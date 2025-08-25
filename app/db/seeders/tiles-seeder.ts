@@ -18,6 +18,8 @@ type MaybeAssignedDbTile = DbTile | PartialDbTile;
 const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
   const { configuration } = server;
 
+  const prng = prngMulberry32(server.seed);
+
   const { halfSize, borderWidth, totalTiles } = calculateGridLayout(
     configuration.mapSize,
   );
@@ -45,13 +47,16 @@ const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
 
     // This needs to be in a separate if statement so that satisfies works correctly
     if (distanceSquared >= thresholdSquared) {
+      const oasisBorderVariants = [1, 2, 3, 4];
+      const variant = seededRandomArrayElement(prng, oasisBorderVariants);
+
       tiles[i] = {
         id: tileId,
         x,
         y,
         type: 'wilderness',
         resource_field_composition: null,
-        oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0),
+        oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0, variant),
       } satisfies DbTile;
       continue;
     }
@@ -115,11 +120,16 @@ const generateOasisTile = ({
 
   const [row, column] = oasisGroupPosition;
 
+  // const oasisVariants = variantsByResourceAndShape[oasisResource][oasisGroup];
+  // const variant = seededRandomArrayElement(prng, oasisVariants);
+  const variant = 0;
+
   const encodedGraphics = encodeGraphicsProperty(
     oasisResource,
     oasisGroup,
     row,
     column,
+    variant,
   );
 
   return {
@@ -150,16 +160,16 @@ const generateShapedOasisFields = (
       group: 3,
       shape: [1, 1, 1],
     },
+    {
+      group: 4,
+      shape: [3],
+    },
   ];
 
   const shapesByResource: Record<Resource, Shape[]> = {
-    wood: [...shapes, { group: 4, shape: [3] }],
+    wood: shapes,
     clay: shapes,
-    // Iron doesn't have shape 3
-    iron: [
-      ...shapes.filter(({ group }) => group !== 3),
-      { group: 4, shape: [3] },
-    ],
+    iron: shapes,
     wheat: shapes,
   };
 

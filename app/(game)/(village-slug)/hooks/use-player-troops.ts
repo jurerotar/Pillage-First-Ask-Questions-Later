@@ -31,7 +31,7 @@ export const usePlayerTroops = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: playerTroops } = useSuspenseQuery<Troop[]>({
-    queryKey: [playerTroopsCacheKey, currentVillage.id],
+    queryKey: [playerTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await fetcher<Troop[]>(
         `/villages/${currentVillage.id}/troops`,

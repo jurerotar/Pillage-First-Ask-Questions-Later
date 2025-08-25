@@ -92,7 +92,12 @@ export const RenameVillage = () => {
               </FormItem>
             )}
           />
-          <Button type="submit">{t('Update village name')}</Button>
+          <Button
+            size="fit"
+            type="submit"
+          >
+            {t('Update village name')}
+          </Button>
         </form>
       </Form>
     </section>

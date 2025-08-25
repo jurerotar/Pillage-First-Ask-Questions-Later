@@ -48,17 +48,50 @@ const shapes: Shape[] = [
     group: 3,
     shape: [1, 1, 1],
   },
+  {
+    group: 4,
+    shape: [3],
+  },
 ];
 
 const shapesByResource: Record<Resource, Shape[]> = {
-  wood: [...shapes, { group: 4, shape: [3] }],
+  wood: shapes,
   clay: shapes,
-  // Iron doesn't have shape 3
-  iron: [
-    ...shapes.filter(({ group }) => group !== 3),
-    { group: 4, shape: [3] },
-  ],
+  iron: shapes,
   wheat: shapes,
+};
+
+const oasisBorderVariants = [1, 2, 3, 4];
+
+type Variant = Record<Shape['group'], number[]>;
+
+// TODO: Enable this whenever a need for oasis variants arises
+const _variantsByResourceAndShape: Record<Resource, Variant> = {
+  wood: {
+    0: [0],
+    1: [0],
+    2: [0],
+    3: [0],
+    4: [0],
+  },
+  clay: {
+    0: [0],
+    1: [0],
+    2: [0],
+    3: [0],
+  },
+  iron: {
+    0: [0],
+    1: [0],
+    2: [0],
+    4: [0],
+  },
+  wheat: {
+    0: [0],
+    1: [0],
+    2: [0],
+    3: [0],
+  },
 };
 
 const weightedResourceFieldComposition: [number, ResourceFieldComposition][] = [
@@ -169,11 +202,16 @@ const generateOasisTile = ({
 
   const [row, column] = oasisGroupPosition;
 
+  // const oasisVariants = variantsByResourceAndShape[oasisResource][oasisGroup];
+  // const variant = seededRandomArrayElement(prng, oasisVariants);
+  const variant = 0;
+
   const encodedGraphics = encodeGraphicsProperty(
     oasisResource,
     oasisGroup,
     row,
     column,
+    variant,
   );
 
   return {
@@ -187,6 +225,8 @@ const generateOasisTile = ({
 
 const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
   const { configuration } = server;
+
+  const prng = prngMulberry32(server.seed);
 
   const { halfSize, borderWidth, totalTiles } = calculateGridLayout(
     configuration.mapSize,
@@ -215,6 +255,8 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
 
     // This needs to be in a separate if statement so that satisfies works correctly
     if (distanceSquared >= thresholdSquared) {
+      const variant = seededRandomArrayElement(prng, oasisBorderVariants);
+
       tiles[i] = {
         id,
         coordinates: {
@@ -223,7 +265,7 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
         },
         type: 1,
         ORB: [],
-        graphics: encodeGraphicsProperty('wood', 0, 0, 0),
+        graphics: encodeGraphicsProperty('wood', 0, 0, 0, variant),
         villageId: null,
       } satisfies OasisTile;
       continue;
@@ -436,13 +478,11 @@ const assignOasisAndFreeTileComposition = (
     // If it's not an oasis, generate a resource composition
     const resourceFieldComposition = generateOccupiableTileType(prng);
 
-    const tileData = {
+    return {
       ...tile,
       type: 0,
       RFC: resourceFieldComposition,
     } satisfies OccupiableTile;
-
-    return tileData;
   });
 };
 
