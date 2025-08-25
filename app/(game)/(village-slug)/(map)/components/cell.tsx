@@ -16,7 +16,7 @@ import type {
 import clsx from 'clsx';
 import type React from 'react';
 import { memo } from 'react';
-import { areEqual, type GridChildComponentProps } from 'react-window';
+import type { CellComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import { Icon } from 'app/components/icon';
@@ -63,7 +63,7 @@ type CellIconsProps = CellBaseProps & {
   tile: ContextualTile;
 };
 
-const CellIcons: React.FC<CellIconsProps> = (props) => {
+const _CellIcons: React.FC<CellIconsProps> = (props) => {
   const { tile, mapFilters, magnification } = props;
   const {
     shouldShowTreasureIcons,
@@ -155,13 +155,19 @@ const getTileClassNames = (
   return classes;
 };
 
-type CellProps = GridChildComponentProps<CellBaseProps>;
+export type CellProps = CellComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(
-  ({ data, style, rowIndex, columnIndex }) => {
-    const { contextualMap, gridSize, mapFilters, magnification, onClick } =
-      data;
-
+  ({
+    contextualMap,
+    gridSize,
+    magnification,
+    mapFilters,
+    onClick,
+    style,
+    rowIndex,
+    columnIndex,
+  }) => {
     const tile: ContextualTile =
       contextualMap[gridSize * rowIndex + columnIndex];
 
@@ -179,10 +185,10 @@ export const Cell = memo<CellProps>(
         style={style}
         data-tile-id={tile.id}
       >
-        <CellIcons
-          tile={tile}
-          {...data}
-        />
+        {/*<CellIcons*/}
+        {/*  tile={tile}*/}
+        {/*  {...data}*/}
+        {/*/>*/}
         {tile.troopMovementIcon !== null && (
           <TroopMovements
             magnification={magnification}
@@ -192,5 +198,4 @@ export const Cell = memo<CellProps>(
       </button>
     );
   },
-  areEqual,
 );

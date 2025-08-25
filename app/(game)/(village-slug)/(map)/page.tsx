@@ -1,6 +1,12 @@
-import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
+import {
+  Cell,
+  type CellProps,
+} from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
-import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
+import {
+  MapRulerCell,
+  type MapRulerCellProps,
+} from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
@@ -15,11 +21,7 @@ import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
-import {
-  FixedSizeGrid,
-  FixedSizeList,
-  type GridOnScrollProps,
-} from 'react-window';
+import { Grid, List, useListRef } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { isStandaloneDisplayMode } from 'app/utils/device';
@@ -30,9 +32,6 @@ import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-
-// Height/width of ruler on the left-bottom.
-const RULER_SIZE = 20;
 
 const MapPage = () => {
   const [searchParams] = useSearchParams();
@@ -62,8 +61,8 @@ const MapPage = () => {
     mapRef.current = node;
   }, []);
 
-  const leftMapRulerRef = useRef<FixedSizeList>(null);
-  const bottomMapRulerRef = useRef<FixedSizeList>(null);
+  const leftMapRulerRef = useListRef(null);
+  const bottomMapRulerRef = useListRef(null);
 
   const isPwa = isStandaloneDisplayMode();
 
@@ -188,24 +187,24 @@ const MapPage = () => {
   const offsetX = scrollLeft(currentCenterTile.current.x);
   const offsetY = scrollTop(currentCenterTile.current.y);
 
-  const onScroll = useCallback(
-    ({ scrollTop, scrollLeft }: GridOnScrollProps) => {
-      if (bottomMapRulerRef.current) {
-        bottomMapRulerRef.current.scrollTo(scrollLeft);
-      }
-      if (leftMapRulerRef.current) {
-        leftMapRulerRef.current.scrollTo(scrollTop);
-      }
-
-      currentCenterTile.current.x = Math.round(
-        (scrollLeft + width / 2) / tileSize - gridSize / 2,
-      );
-      currentCenterTile.current.y = Math.round(
-        gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
-      );
-    },
-    [tileSize, gridSize, width, mapHeight],
-  );
+  // const onScroll = useCallback(
+  //   ({ scrollTop, scrollLeft }: GridProps<any>) => {
+  //     if (bottomMapRulerRef.current) {
+  //       bottomMapRulerRef.current.scrollTo(scrollLeft);
+  //     }
+  //     if (leftMapRulerRef.current) {
+  //       leftMapRulerRef.current.scrollTo(scrollTop);
+  //     }
+  //
+  //     currentCenterTile.current.x = Math.round(
+  //       (scrollLeft + width / 2) / tileSize - gridSize / 2,
+  //     );
+  //     currentCenterTile.current.y = Math.round(
+  //       gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
+  //     );
+  //   },
+  //   [tileSize, gridSize, width, mapHeight],
+  // );
 
   const isInitialRender = useRef<boolean>(true);
 
@@ -227,13 +226,13 @@ const MapPage = () => {
       });
     }
 
-    if (leftMapRulerRef.current) {
-      leftMapRulerRef.current.scrollTo(scrollY);
-    }
-
-    if (bottomMapRulerRef.current) {
-      bottomMapRulerRef.current.scrollTo(scrollX);
-    }
+    // if (leftMapRulerRef.current) {
+    //   leftMapRulerRef.current.scrollTo(scrollY);
+    // }
+    //
+    // if (bottomMapRulerRef.current) {
+    //   bottomMapRulerRef.current.scrollTo(scrollX);
+    // }
 
     currentCenterTile.current = { x: startingX, y: startingY };
   }, [location.key]);
@@ -276,7 +275,7 @@ const MapPage = () => {
         }
         render={renderTooltip}
       />
-      <FixedSizeGrid
+      <Grid<CellProps>
         key={tileSize}
         className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
         outerRef={setMapRef}
@@ -286,48 +285,37 @@ const MapPage = () => {
         rowHeight={tileSize}
         height={mapHeight}
         width={width}
-        itemData={fixedGridData}
         initialScrollLeft={offsetX}
         initialScrollTop={offsetY}
-        onScroll={onScroll}
-      >
-        {Cell}
-      </FixedSizeGrid>
+        // @ts-ignore
+        cellProps={fixedGridData}
+        cellComponent={Cell}
+      />
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 select-none pointer-events-none">
-        <FixedSizeList
-          className="scrollbar-hidden will-change-scroll"
-          ref={leftMapRulerRef}
-          itemSize={tileSize}
-          height={mapHeight}
-          itemCount={gridSize}
-          width={RULER_SIZE}
-          initialScrollOffset={offsetY}
-          layout="vertical"
-          itemData={{
-            layout: 'vertical',
+        <List<MapRulerCellProps>
+          className="scrollbar-hidden w-[20px]"
+          listRef={leftMapRulerRef}
+          rowHeight={tileSize}
+          rowCount={gridSize}
+          rowProps={{
+            layout: 'horizontal',
           }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          rowComponent={MapRulerCell}
+        />
       </div>
       {/* X-axis ruler */}
       <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-        <FixedSizeList
-          className="scrollbar-hidden will-change-scroll"
-          ref={bottomMapRulerRef}
-          itemSize={tileSize}
-          height={RULER_SIZE}
-          itemCount={gridSize}
-          width={width - RULER_SIZE}
-          initialScrollOffset={offsetX}
-          layout="horizontal"
-          itemData={{
+        <List<MapRulerCellProps>
+          className="scrollbar-hidden"
+          listRef={bottomMapRulerRef}
+          rowHeight={tileSize}
+          rowCount={gridSize}
+          rowProps={{
             layout: 'horizontal',
           }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          rowComponent={MapRulerCell}
+        />
       </div>
       <MapControls />
     </main>
