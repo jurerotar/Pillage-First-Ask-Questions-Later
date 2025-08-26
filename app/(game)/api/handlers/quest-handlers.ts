@@ -44,7 +44,7 @@ export const collectQuest: ApiHandler<
   const villageId =
     quest.scope === 'global'
       ? villageIdParam
-      : Number.parseInt(villageIdString);
+      : Number.parseInt(villageIdString, 10);
 
   quest.collectedAt = Date.now();
 

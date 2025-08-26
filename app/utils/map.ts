@@ -5,7 +5,7 @@ export const parseRFCFromTile = (RFC: OccupiableTile['RFC']) => {
   const [wood, clay, iron, ...wheat] = RFC.split('');
   const values = [wood, clay, iron, wheat.join('')];
 
-  return values.map((value) => Number.parseInt(value));
+  return values.map((value) => Number.parseInt(value, 10));
 };
 
 // Should only be used for bit-packing bellow

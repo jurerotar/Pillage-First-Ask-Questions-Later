@@ -90,7 +90,7 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
 
   if (id.includes('adventureCount')) {
     const [, amount] = id.split('-');
-    const count = Number.parseInt(amount);
+    const count = Number.parseInt(amount, 10);
 
     return {
       title: assetsT('QUESTS.ADVENTURE-COUNT.TITLE', { count }),
