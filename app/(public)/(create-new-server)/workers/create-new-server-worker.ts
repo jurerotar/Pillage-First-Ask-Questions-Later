@@ -2,6 +2,10 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle, writeFileContents } from 'app/utils/opfs';
 import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
 import { dehydrate } from '@tanstack/react-query';
+import createTribesTable from 'app/db/schemas/tribes-schema.sql?raw';
+import createBuildingsTable from 'app/db/schemas/buildings-schema.sql?raw';
+import createResourceFieldCompositionsTable from 'app/db/schemas/resource-fields-compositions-schema.sql?raw';
+import createUnitsTable from 'app/db/schemas/units-schema.sql?raw';
 import createPreferencesTable from 'app/db/schemas/preferences-schema.sql?raw';
 import createBookmarksTable from 'app/db/schemas/bookmarks-schema.sql?raw';
 import createMapMarkersTable from 'app/db/schemas/map-markers-schema.sql?raw';
@@ -47,6 +51,10 @@ import { unitResearchSeeder } from 'app/db/seeders/unit-research-seeder';
 import { troopSeeder } from 'app/db/seeders/troop-seeder';
 import { worldItemsSeeder } from 'app/db/seeders/world-items-seeder';
 import { buildingFieldsSeeder } from 'app/db/seeders/building-fields-seeder';
+import { tribesSeeder } from 'app/db/seeders/tribes-seeder';
+import { buildingsSeeder } from 'app/db/seeders/buildings-seeder';
+import { resourceFieldCompositionsSeeder } from 'app/db/seeders/resource-field-compositions-seeder';
+import { unitsSeeder } from 'app/db/seeders/units-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -74,6 +82,22 @@ self.addEventListener(
     database.exec('PRAGMA cache_size=-20000;');
 
     database.transaction((db) => {
+      // Tribes
+      db.exec(createTribesTable);
+      tribesSeeder(db, server);
+
+      // Buildings
+      db.exec(createBuildingsTable);
+      buildingsSeeder(db, server);
+
+      // Resource field compositions
+      db.exec(createResourceFieldCompositionsTable);
+      resourceFieldCompositionsSeeder(db, server);
+
+      // Units
+      db.exec(createUnitsTable);
+      unitsSeeder(db, server);
+
       // Preferences
       db.exec(createPreferencesTable);
       preferencesSeeder(db, server);
