@@ -701,6 +701,7 @@ const GameLayout = () => {
   return (
     <CurrentVillageStateProvider>
       <CurrentVillageBuildingQueueContextProvider>
+        {/* biome-ignore lint/correctness/useUniqueElementIds: We need a stable id here, because it's referenced in other components */}
         <Tooltip id="general-tooltip" />
         <TopNavigation />
         <Suspense fallback={null}>

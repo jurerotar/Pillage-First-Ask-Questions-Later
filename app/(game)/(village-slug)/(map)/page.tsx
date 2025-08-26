@@ -53,8 +53,8 @@ const MapPage = () => {
 
   const { x, y } = currentVillage.coordinates;
 
-  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
-  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
+  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
+  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
 
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -248,7 +248,7 @@ const MapPage = () => {
         return null;
       }
 
-      const tile = getTileByTileId(Number.parseInt(tileId));
+      const tile = getTileByTileId(Number.parseInt(tileId, 10));
       return <TileTooltip tile={tile} />;
     },
     [getTileByTileId],
