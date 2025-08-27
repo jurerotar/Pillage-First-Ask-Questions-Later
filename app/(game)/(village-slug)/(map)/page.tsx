@@ -37,9 +37,9 @@ const MapPage = () => {
   const [searchParams] = useSearchParams();
   const {
     isOpen: isTileModalOpened,
-    openModal,
     toggleModal,
     modalArgs,
+    openModal,
   } = useDialog<TileType | null>();
   const { contextualMap, getTileByTileId } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
@@ -51,157 +51,145 @@ const MapPage = () => {
   const { preferences } = usePreferences();
 
   const { x, y } = currentVillage.coordinates;
-
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
 
-  const [leftMapRulerRef, setLeftMapRulerRef] = useGridCallbackRef(null);
-  const [bottomMapRulerRef, setBottomMapRulerRef] = useGridCallbackRef(null);
+  const [yAxisRulerRef, setYAxisRulerRef] = useGridCallbackRef(null);
+  const [xAxisRulerRef, setXAxisRulerRef] = useGridCallbackRef(null);
   const [mapRef, setMapRef] = useGridCallbackRef(null);
 
   const isPwa = isStandaloneDisplayMode();
-
-  /**
-   * List of individual contributions
-   * Desktop:
-   *  - Header is 76px tall
-   * Mobile:
-   *  - Top navigation is 128px tall
-   *   - Navigation section is 63px tall
-   *   - Resource section is 57px tall
-   *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
-   *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
-   */
   const mapHeight = isWiderThanLg
     ? height - 76
     : height - 218 - (isPwa ? 48 : 0);
 
-  const isScrolling = useRef<boolean>(false);
-  const currentCenterTile = useRef<Point>({
-    x: startingX,
-    y: startingY,
-  });
-  const mouseDownPosition = useRef<Point>({
-    x: 0,
-    y: 0,
+  const isDragging = useRef<boolean>(false);
+  const startMouse = useRef<Point>({ x: 0, y: 0 });
+  const startScroll = useRef<{ left: number; top: number }>({
+    left: 0,
+    top: 0,
   });
 
-  const fixedGridData = useMemo(() => {
-    return {
+  const currentCenterTile = useRef<Point>({ x: startingX, y: startingY });
+
+  const fixedGridData = useMemo(
+    () => ({
       contextualMap,
       gridSize,
       mapFilters,
       magnification,
       preferences,
-      onClick: (tile: TileType) => {
-        openModal(tile);
-      },
-    };
-  }, [
-    contextualMap,
-    mapFilters,
-    gridSize,
-    magnification,
-    openModal,
-    preferences,
-  ]);
+      onClick: (tile: TileType) => openModal(tile),
+    }),
+    [
+      contextualMap,
+      mapFilters,
+      gridSize,
+      magnification,
+      openModal,
+      preferences,
+    ],
+  );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
+  // Attach mousedown to the map grid's outer element
   useEffect(() => {
-    const node = mapRef?.element;
-    if (!node) {
+    const el = mapRef?.element;
+    if (!el) {
       return;
     }
 
-    const controller = new AbortController();
-
-    const handleMouseDown = (event: MouseEvent) => {
-      event.preventDefault();
-
-      const { clientX, clientY } = event;
-
-      mouseDownPosition.current = {
-        x: clientX,
-        y: clientY,
-      };
-
-      isScrolling.current = true;
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) {
+        return;
+      }
+      e.preventDefault();
+      isDragging.current = true;
+      startMouse.current = { x: e.clientX, y: e.clientY };
+      startScroll.current = { left: el.scrollLeft, top: el.scrollTop };
     };
 
-    node.addEventListener('mousedown', handleMouseDown, {
-      signal: controller.signal,
-      passive: false,
-    });
-
+    el.addEventListener('mousedown', onMouseDown, { passive: false });
     return () => {
-      controller.abort();
+      el.removeEventListener('mousedown', onMouseDown);
     };
   }, [mapRef, tileSize]);
 
+  // Drag move on window for robustness
   useEventListener(
     'mousemove',
     (e: MouseEvent) => {
-      if (!isScrolling.current || !mapRef) {
+      const map = mapRef?.element;
+
+      if (!isDragging.current || !map) {
         return;
       }
 
-      const { clientX, clientY } = e;
+      const dx = e.clientX - startMouse.current.x;
+      const dy = e.clientY - startMouse.current.y;
 
-      const deltaX = clientX - mouseDownPosition.current.x;
-      const deltaY = clientY - mouseDownPosition.current.y;
+      const maxLeft = map.scrollWidth - map.clientWidth;
+      const maxTop = map.scrollHeight - map.clientHeight;
+      const nextLeft = Math.max(
+        0,
+        Math.min(startScroll.current.left - dx, maxLeft),
+      );
+      const nextTop = Math.max(
+        0,
+        Math.min(startScroll.current.top - dy, maxTop),
+      );
 
-      mouseDownPosition.current = { x: clientX, y: clientY };
+      // scroll map
+      // eslint-disable-next-line react-compiler/react-compiler
+      map.scrollLeft = nextLeft;
+      map.scrollTop = nextTop;
 
-      const el = mapRef.element;
-      if (!el) {
-        return;
+      // mirror to rulers
+      const xEl = xAxisRulerRef?.element;
+      const yEl = yAxisRulerRef?.element;
+      if (xEl) {
+        xEl.scrollLeft = nextLeft;
       }
-
-      const currentColumn = Math.round(el.scrollLeft / tileSize);
-      const currentRow = Math.round(el.scrollTop / tileSize);
-
-      const deltaColumns = Math.round(deltaX / tileSize);
-      const deltaRows = Math.round(deltaY / tileSize);
-
-      mapRef.scrollToCell({
-        columnIndex: currentColumn - deltaColumns,
-        rowIndex: currentRow - deltaRows,
-        columnAlign: 'start',
-        rowAlign: 'start',
-        behavior: 'instant',
-      });
+      if (yEl) {
+        yEl.scrollTop = nextTop;
+      }
     },
     // @ts-expect-error - remove once usehooks-ts is R19 compliant
     window,
   );
 
+  // End drag
   useEventListener(
     'mouseup',
     () => {
-      isScrolling.current = false;
+      if (!isDragging.current) {
+        return;
+      }
+      isDragging.current = false;
+      const el = mapRef?.element;
+      if (el) {
+        el.style.cursor = '';
+      }
     },
     // @ts-expect-error - remove once usehooks-ts is R19 compliant
     window,
   );
 
+  // Helpers for initial scroll positions
   const columnIndexForTile = (tileX: number) =>
     Math.round(tileX + gridSize / 2 - width / (2 * tileSize));
-
   const rowIndexForTile = (tileY: number) =>
     Math.round(-tileY + gridSize / 2 - mapHeight / (2 * tileSize));
-
   const scrollLeftPx = (tileX: number) =>
     tileSize * (tileX + gridSize / 2) - width / 2;
-
   const scrollTopPx = (tileY: number) =>
     tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
 
   const _initialColumnIndex = columnIndexForTile(currentCenterTile.current.x);
   const _initialRowIndex = rowIndexForTile(currentCenterTile.current.y);
 
-  const isInitialRender = useRef<boolean>(true);
+  const isInitialRender = useRef(true);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We intentionally only want to react on location.key and nothing else
+  // React to URL changes (smooth center)
   useEffect(() => {
     if (isInitialRender.current) {
       isInitialRender.current = false;
@@ -210,49 +198,44 @@ const MapPage = () => {
 
     const scrollX = scrollLeftPx(startingX);
     const scrollY = scrollTopPx(startingY);
-
     const colIndex = Math.round(scrollX / tileSize);
     const rowIndex = Math.round(scrollY / tileSize);
 
-    if (mapRef) {
-      mapRef.scrollToCell({
-        columnIndex: colIndex,
-        rowIndex,
-        columnAlign: 'start',
-        rowAlign: 'start',
-        behavior: 'smooth',
-      });
-    }
-
-    if (leftMapRulerRef) {
-      leftMapRulerRef.scrollToRow({
-        index: rowIndex,
-        align: 'start',
-        behavior: 'smooth',
-      });
-    }
-
-    if (bottomMapRulerRef) {
-      bottomMapRulerRef.scrollToColumn({
-        index: colIndex,
-        align: 'start',
-        behavior: 'smooth',
-      });
-    }
+    mapRef?.scrollToCell({
+      columnIndex: colIndex,
+      rowIndex,
+      columnAlign: 'start',
+      rowAlign: 'start',
+      behavior: 'smooth',
+    });
+    yAxisRulerRef?.scrollToRow({
+      index: rowIndex,
+      align: 'start',
+      behavior: 'smooth',
+    });
+    xAxisRulerRef?.scrollToColumn({
+      index: colIndex,
+      align: 'start',
+      behavior: 'smooth',
+    });
 
     currentCenterTile.current = { x: startingX, y: startingY };
-  }, [location.key]);
+  }, [
+    location.key,
+    mapRef,
+    xAxisRulerRef,
+    yAxisRulerRef,
+    startingX,
+    startingY,
+    tileSize,
+  ]);
 
   const renderTooltip = useCallback(
     ({
       activeAnchor,
     }: Parameters<NonNullable<ReactTooltipProps['render']>>[0]) => {
       const tileId = activeAnchor?.getAttribute('data-tile-id');
-
-      if (!tileId) {
-        return null;
-      }
-
+      if (!tileId) return null;
       const tile = getTileByTileId(Number.parseInt(tileId, 10));
       return <TileTooltip tile={tile} />;
     },
@@ -260,7 +243,7 @@ const MapPage = () => {
   );
 
   return (
-    <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
+    <main className="relative">
       <Dialog
         open={isTileModalOpened}
         onOpenChange={toggleModal}
@@ -281,48 +264,63 @@ const MapPage = () => {
         }
         render={renderTooltip}
       />
-      <Grid<CellProps>
-        key={tileSize}
-        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        gridRef={setMapRef}
-        columnCount={gridSize}
-        columnWidth={tileSize}
-        rowCount={gridSize}
-        rowHeight={tileSize}
-        // @ts-expect-error
-        cellProps={fixedGridData}
-        cellComponent={Cell}
-      />
-      {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0 select-none pointer-events-none">
+      <div
+        className="bg-[#8EBF64] relative"
+        style={{ height: `${mapHeight}px`, width: `${width}px` }}
+      >
+        <Grid<CellProps>
+          key={tileSize}
+          className="scrollbar-hidden cursor-grab"
+          gridRef={setMapRef}
+          columnCount={gridSize}
+          columnWidth={tileSize}
+          rowCount={gridSize}
+          rowHeight={tileSize}
+          overscanCount={0}
+          // @ts-expect-error
+          cellProps={fixedGridData}
+          cellComponent={Cell}
+        />
+
+        {/* Y-axis ruler */}
         <Grid<MapRulerCellProps>
-          className="scrollbar-hidden w-[20px]"
-          gridRef={setLeftMapRulerRef}
+          className="scrollbar-hidden w-[20px] absolute left-0 top-0 select-none pointer-events-none"
+          gridRef={setYAxisRulerRef}
           columnCount={1}
           columnWidth={20}
           rowCount={gridSize}
           rowHeight={tileSize}
-          cellProps={{
-            layout: 'vertical',
-          }}
+          cellProps={{ layout: 'vertical' }}
           cellComponent={MapRulerCell}
+          onResize={() => {
+            yAxisRulerRef?.scrollToCell({
+              rowIndex: _initialRowIndex,
+              columnIndex: 0,
+              behavior: 'instant',
+            });
+          }}
         />
-      </div>
-      {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0 select-none pointer-events-none">
+
+        {/* X-axis ruler */}
         <Grid<MapRulerCellProps>
-          className="scrollbar-hidden"
-          gridRef={setBottomMapRulerRef}
+          className="scrollbar-hidden absolute bottom-0 left-0 select-none pointer-events-none"
+          gridRef={setXAxisRulerRef}
           columnCount={gridSize}
           columnWidth={tileSize}
           rowCount={1}
           rowHeight={20}
-          cellProps={{
-            layout: 'horizontal',
-          }}
+          cellProps={{ layout: 'horizontal' }}
           cellComponent={MapRulerCell}
+          onResize={() => {
+            xAxisRulerRef?.scrollToCell({
+              rowIndex: 0,
+              columnIndex: _initialColumnIndex,
+              behavior: 'instant',
+            });
+          }}
         />
       </div>
+
       <MapControls />
     </main>
   );
@@ -330,9 +328,7 @@ const MapPage = () => {
 
 export default ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
-
   const { t } = useTranslation();
-
   const title = `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
