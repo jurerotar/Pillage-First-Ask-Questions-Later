@@ -50,7 +50,7 @@ export const DemolishBuilding = () => {
   const onValueChange = (value: string) => {
     const buildingField = getBuildingFieldByBuildingFieldId(
       currentVillage,
-      Number.parseInt(value) as BuildingField['id'],
+      Number.parseInt(value, 10) as BuildingField['id'],
     )!;
     setBuildingFieldToDemolish(buildingField);
   };

@@ -52,8 +52,8 @@ const MapPage = () => {
 
   const { x, y } = currentVillage.coordinates;
 
-  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
-  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
+  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
+  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
 
   const [leftMapRulerRef, setLeftMapRulerRef] = useGridCallbackRef(null);
   const [bottomMapRulerRef, setBottomMapRulerRef] = useGridCallbackRef(null);
@@ -253,7 +253,7 @@ const MapPage = () => {
         return null;
       }
 
-      const tile = getTileByTileId(Number.parseInt(tileId));
+      const tile = getTileByTileId(Number.parseInt(tileId, 10));
       return <TileTooltip tile={tile} />;
     },
     [getTileByTileId],
@@ -289,7 +289,7 @@ const MapPage = () => {
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        // @ts-ignore
+        // @ts-expect-error
         cellProps={fixedGridData}
         cellComponent={Cell}
       />

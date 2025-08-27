@@ -30,7 +30,7 @@ export const matchRoute = (url: string, method: string) => {
 
     for (const key of Object.keys(result.params)) {
       if (numericParams.has(key)) {
-        const value = Number.parseInt(result.params[key]);
+        const value = Number.parseInt(result.params[key], 10);
         if (!Number.isNaN(value)) {
           paramsWithCasting[key] = value;
         }

@@ -39,6 +39,7 @@ const PublicLayout = () => {
           </div>
         </div>
       </header>
+      {/* biome-ignore lint/correctness/useUniqueElementIds: We need a stable id here, because it's referenced in other components */}
       <Tooltip id="public-tooltip" />
       <Outlet />
     </>

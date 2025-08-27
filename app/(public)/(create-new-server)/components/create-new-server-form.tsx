@@ -37,11 +37,11 @@ const formSchema = z.object({
       .enum(['1', '2', '3', '5', '10'])
       // @ts-expect-error: I don't know how to solve this one, speed is expected to be number, but if I use z.literal to use exact numbers
       // fom completely breaks
-      .overwrite((val) => Number.parseInt(val)),
+      .overwrite((val) => Number.parseInt(val, 10)),
     mapSize: z
       .enum(['100', '200', '300'])
       // @ts-expect-error
-      .overwrite((val) => Number.parseInt(val)),
+      .overwrite((val) => Number.parseInt(val, 10)),
   }),
   playerConfiguration: z.object({
     name: z.string().min(1, { error: t('Player name is required') }),

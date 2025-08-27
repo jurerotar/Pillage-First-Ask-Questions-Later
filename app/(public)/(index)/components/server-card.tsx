@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { FaDownload, FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
+import { Text } from 'app/components/text';
 
 type ServerCardProps = {
   server: Server;
@@ -49,37 +50,37 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           <FaTrash className="text-red-500" />
         </Button>
       </div>
-      <span className="text-2xl font-medium">{server.name}</span>
+      <Text as="h2">{server.name}</Text>
       <div className="flex gap-2 flex-wrap">
         <span className="flex gap-2">
-          <span className="font-medium">{t('Seed')}:</span>
-          <span>{server.seed}</span>
+          <Text className="font-medium">{t('Seed')}:</Text>
+          <Text>{server.seed}</Text>
         </span>
         <span className="flex gap-2">
-          <span className="font-medium">{t('Age')}:</span>
-          <span>{timeSinceCreation}</span>
+          <Text className="font-medium">{t('Age')}:</Text>
+          <Text>{timeSinceCreation}</Text>
         </span>
         <span className="flex gap-2">
-          <span className="font-medium">{t('Player name')}:</span>
-          <span>{server.playerConfiguration.name}</span>
+          <Text className="font-medium">{t('Player name')}:</Text>
+          <Text>{server.playerConfiguration.name}</Text>
         </span>
         <span className="flex gap-2">
-          <span className="font-medium">{t('Tribe')}:</span>
-          <span>{server.playerConfiguration.tribe}</span>
+          <Text className="font-medium">{t('Tribe')}:</Text>
+          <Text>{server.playerConfiguration.tribe}</Text>
         </span>
         <span className="flex gap-2">
-          <span className="font-medium">{t('World size')}:</span>
-          <span>
+          <Text className="font-medium">{t('World size')}:</Text>
+          <Text>
             {server.configuration.mapSize}x{server.configuration.mapSize}
-          </span>
+          </Text>
         </span>
         <span className="flex gap-2">
-          <span className="font-medium">{t('Speed')}:</span>
-          <span>{server.configuration.speed}x</span>
+          <Text className="font-medium">{t('Speed')}:</Text>
+          <Text>{server.configuration.speed}x</Text>
         </span>
         <span className="flex gap-2">
-          <span className="font-medium">{t('Version')}:</span>
-          <span>{serverVersion}</span>
+          <Text className="font-medium">{t('Version')}:</Text>
+          <Text>{serverVersion}</Text>
         </span>
       </div>
       {serverVersion !== appVersion && (
