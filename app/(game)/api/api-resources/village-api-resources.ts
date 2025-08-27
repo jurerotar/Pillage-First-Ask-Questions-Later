@@ -15,7 +15,7 @@ export const villageApiResource = (villageModel: VillageModel): Village => {
     name: villageModel.name,
     slug: villageModel.slug,
     buildingFields: buildingFields.map(buildingFieldApiResource),
-    lastUpdatedAt: 0,
+    lastUpdatedAt: villageModel.last_updated_at,
     resourceFieldComposition: villageModel.resource_field_composition,
     resources: {
       wood: villageModel.wood,
