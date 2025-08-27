@@ -8,16 +8,23 @@ export const unitResearchSeeder: Seeder = (database, server): void => {
 
   const playerStartingVillageId = database.selectValue(
     `
-      SELECT villages.id
-      FROM villages
-             JOIN tiles ON villages.tile_id = tiles.id
-      WHERE tiles.x = 0
-        AND tiles.y = 0;
-    `,
-  )! as Village['id'];
+    SELECT villages.id
+    FROM villages
+           JOIN tiles ON villages.tile_id = tiles.id
+    WHERE tiles.x = $x
+      AND tiles.y = $y;
+  `,
+    { $x: 0, $y: 0 },
+  ) as Village['id'];
 
   database.exec({
-    sql: 'INSERT INTO unit_research (village_id, unit_id) VALUES (?, ?);',
-    bind: [playerStartingVillageId, tier1Unit.id],
+    sql: `
+    INSERT INTO unit_research (village_id, unit_id)
+    VALUES ($village_id, $unit_id);
+  `,
+    bind: {
+      $village_id: playerStartingVillageId,
+      $unit_id: tier1Unit.id,
+    },
   });
 };

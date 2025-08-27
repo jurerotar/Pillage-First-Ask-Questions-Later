@@ -1,18 +1,10 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import {
-  playersCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Player } from 'app/interfaces/models/game/player';
+import { villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop, TroopModel } from 'app/interfaces/models/game/troop';
 import { troopApiResource } from 'app/(game)/api/api-resources/troop-api-resource';
 
-export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
-  return queryClient.getQueryData<Player[]>([playersCacheKey])!;
-};
-
-export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
+export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
   queryClient,
   _database,
   args,
@@ -21,12 +13,12 @@ export const getPlayerById: ApiHandler<Player, 'playerId'> = async (
     params: { playerId },
   } = args;
 
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
+  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
 
-  return players.find(({ id }) => id === playerId)!;
+  return villages.filter(({ playerId: ownedBy }) => ownedBy === playerId)!;
 };
 
-export const getVillagesByPlayer: ApiHandler<Village[], 'playerId'> = async (
+export const getVillageListByPlayer: ApiHandler<Village[], 'playerId'> = async (
   queryClient,
   _database,
   args,
@@ -60,10 +52,10 @@ export const getTroopsByVillage: ApiHandler<
       SELECT
         villages.tile_id
       FROM villages
-      WHERE villages.id = ?
+      WHERE villages.id = $village_id
     );
   `,
-    [villageId],
+    { $village_id: villageId },
   ) as TroopModel[];
 
   return troopModels.map(troopApiResource);
@@ -77,28 +69,18 @@ export const renameVillage: ApiHandler<
   void,
   'playerId' | 'villageId',
   RenameVillageBody
-> = async (queryClient, database, args) => {
+> = async (_queryClient, database, args) => {
   const {
     params: { villageId },
     body: { name },
   } = args;
 
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-
-  const villageToRename = villages.find(({ id }) => id === villageId)!;
-
-  villageToRename.name = name;
-
-  queryClient.setQueryData([villagesCacheKey], () => {
-    return villages;
-  });
-
   database.exec({
     sql: `
       UPDATE villages
-      SET name = ?
-      WHERE id = ?
+      SET name = $name
+      WHERE id = $village_id
     `,
-    bind: [name, villageId],
+    bind: { $name: name, $village_id: villageId },
   });
 };

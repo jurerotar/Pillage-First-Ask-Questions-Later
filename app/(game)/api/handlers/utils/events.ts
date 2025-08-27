@@ -64,8 +64,12 @@ export const checkAndSubtractVillageResources = (
   events: GameEvent[],
 ): boolean => {
   const isDeveloperModeEnabled = database.selectValue(
-    'SELECT bool_value FROM preferences WHERE preference_key = ?;',
-    ['isDeveloperModeEnabled'],
+    `
+    SELECT bool_value
+    FROM preferences
+    WHERE preference_key = $preference_key;
+  `,
+    { $preference_key: 'isDeveloperModeEnabled' },
   );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
@@ -77,7 +81,7 @@ export const checkAndSubtractVillageResources = (
     const { villageId, startsAt } = event;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(queryClient, villageId, startsAt);
+      calculateVillageResourcesAt(queryClient, database, villageId, startsAt);
 
     if (
       woodCost > currentWood ||
@@ -88,7 +92,13 @@ export const checkAndSubtractVillageResources = (
       return false;
     }
 
-    subtractVillageResourcesAt(queryClient, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(
+      queryClient,
+      database,
+      villageId,
+      startsAt,
+      eventCost,
+    );
   }
 
   return true;
@@ -158,8 +168,12 @@ export const getEventDuration = (
   event: GameEvent,
 ): number => {
   const isDeveloperModeEnabled = database.selectValue(
-    'SELECT bool_value FROM preferences WHERE preference_key = ?;',
-    ['isDeveloperModeEnabled'],
+    `
+    SELECT bool_value
+    FROM preferences
+    WHERE preference_key = $preference_key;
+  `,
+    { $preference_key: 'isDeveloperModeEnabled' },
   );
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {

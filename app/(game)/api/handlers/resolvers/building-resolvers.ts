@@ -81,8 +81,24 @@ export const removeBuildingField = (
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
-> = async (queryClient, _database, args) => {
+> = async (queryClient, database, args) => {
   const { buildingFieldId, level, buildingId, villageId } = args;
+
+  database.exec({
+    sql: `
+      UPDATE building_fields
+      SET level = $level
+      WHERE village_id = $village_id
+      AND field_id = $field_id
+      AND building_id = $building_id;
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: buildingFieldId,
+      $building_id: buildingId,
+      $level: level,
+    },
+  });
 
   const { effects: buildingEffects } = getBuildingData(buildingId);
 
@@ -124,6 +140,18 @@ export const buildingConstructionResolver: Resolver<
 > = async (queryClient, database, args) => {
   const { villageId, buildingFieldId, buildingId } = args;
 
+  database.exec({
+    sql: `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      VALUES ($village_id, $field_id, $building_id, 0)
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: buildingFieldId,
+      $building_id: buildingId,
+    },
+  });
+
   const { effects } = getBuildingData(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
@@ -152,11 +180,31 @@ export const buildingConstructionResolver: Resolver<
 
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
-> = async (queryClient, _database, args) => {
+> = async (queryClient, database, args) => {
   const { buildingFieldId, villageId } = args;
 
+  database.exec({
+    sql: `
+      UPDATE building_fields
+      SET level = 0
+      WHERE village_id = $village_id
+        AND field_id   = $building_field_id
+        AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
+
+      -- normal fields → delete
+      DELETE FROM building_fields
+      WHERE village_id = $village_id
+        AND field_id   = $building_field_id
+        AND field_id BETWEEN 19 AND 38;
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: buildingFieldId,
+    },
+  });
+
   if (specialFieldIds.includes(buildingFieldId)) {
-    await buildingLevelChangeResolver(queryClient, _database, {
+    await buildingLevelChangeResolver(queryClient, database, {
       ...args,
       level: 0,
     });

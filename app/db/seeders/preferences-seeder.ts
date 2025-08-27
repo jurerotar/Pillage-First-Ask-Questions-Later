@@ -1,9 +1,6 @@
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { Seeder } from 'app/interfaces/db';
 
-const sql =
-  'INSERT INTO preferences (preference_key, text_value, bool_value) VALUES (?, ?, ?);';
-
 export const preferencesSeeder: Seeder = (database): void => {
   const preferences: Preferences = {
     colorScheme: 'light',
@@ -59,10 +56,19 @@ export const preferencesSeeder: Seeder = (database): void => {
     ],
   ];
 
-  const stmt = database.prepare(sql);
+  const stmt = database.prepare(`
+    INSERT INTO preferences (preference_key, text_value, bool_value)
+    VALUES ($preference_key, $text_value, $bool_value);
+  `);
 
   for (const [id, text, bool] of entries) {
-    stmt.bind([id, text, bool]).stepReset();
+    stmt
+      .bind({
+        $preference_key: id,
+        $text_value: text,
+        $bool_value: bool,
+      })
+      .stepReset();
   }
 
   stmt.finalize();

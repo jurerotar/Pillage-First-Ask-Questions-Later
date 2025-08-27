@@ -15,8 +15,6 @@ import {
   getHero,
 } from 'app/(game)/api/handlers/hero-handlers';
 import {
-  getPlayerById,
-  getPlayers,
   getTroopsByVillage,
   getVillagesByPlayer,
   renameVillage,
@@ -185,16 +183,6 @@ const eventRoutes = [
 ];
 
 const playerRoutes = [
-  {
-    method: 'GET',
-    path: '/players',
-    handler: getPlayers,
-  },
-  {
-    method: 'GET',
-    path: '/players/:playerId',
-    handler: getPlayerById,
-  },
   {
     method: 'GET',
     path: '/players/:playerId/villages',

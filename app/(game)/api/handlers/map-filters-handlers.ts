@@ -23,7 +23,10 @@ export const updateMapFilter: ApiHandler<
   const { value } = body;
 
   database.exec({
-    sql: 'UPDATE map_filters SET value = ? WHERE filter_key = ?;',
-    bind: [value, filterName],
+    sql: 'UPDATE map_filters SET value = $value WHERE filter_key = $filter_key;',
+    bind: {
+      $value: value,
+      $filter_key: filterName,
+    },
   });
 };

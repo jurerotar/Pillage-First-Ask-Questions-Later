@@ -72,12 +72,12 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
   }
 
   const stmt = database.prepare(
-    'UPDATE oasis SET village_id = ? WHERE id = ?;',
+    'UPDATE oasis SET village_id = $village_id WHERE id = $oasis_id;',
   );
 
   for (const resultSet of oasisByVillages) {
     const [villageId, oasisId] = resultSet;
-    stmt.bind([villageId, oasisId]).stepReset();
+    stmt.bind({ $village_id: villageId, $oasis_id: oasisId }).stepReset();
   }
 
   stmt.finalize();

@@ -52,20 +52,39 @@ export const villageSeeder: Seeder = (database, server): void => {
   )!;
 
   database.exec({
-    sql: 'INSERT INTO villages (name, slug, tile_id, player_id) VALUES (?, ?, ?, ?);',
-    bind: ['New village', 'v-1', playerStartingTileId, PLAYER_ID],
+    sql: `
+    INSERT INTO villages (name, slug, tile_id, player_id)
+    VALUES ($name, $slug, $tile_id, $player_id);
+  `,
+    bind: {
+      $name: 'New village',
+      $slug: 'v-1',
+      $tile_id: playerStartingTileId,
+      $player_id: PLAYER_ID,
+    },
   });
 
   // NPC villages
   const players = database.selectValues(
-    'SELECT id FROM players WHERE id != ?',
-    [PLAYER_ID],
+    `
+    SELECT id
+    FROM players
+    WHERE id != $player_id
+  `,
+    { $player_id: PLAYER_ID },
   ) as Player['id'][];
 
   // Field [0, 0] is already occupied by the player
   const occupiableFields = database.selectObjects(
-    'SELECT id, x, y FROM tiles WHERE type = ? AND resource_field_composition = ? AND x != 0 AND y != 0;',
-    ['free', '4446'],
+    `
+    SELECT id, x, y
+    FROM tiles
+    WHERE type = $type
+      AND resource_field_composition = $composition
+      AND x != 0
+      AND y != 0;
+  `,
+    { $type: 'free', $composition: '4446' },
   ) as OccupiableField[];
 
   const occupiableFieldMap = new Map<

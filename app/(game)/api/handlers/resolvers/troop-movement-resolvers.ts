@@ -1,6 +1,5 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Resolver } from 'app/interfaces/api';
-import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import {
   effectsCacheKey,
   mapCacheKey,
@@ -12,7 +11,6 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
 import type {
@@ -153,41 +151,65 @@ const oasisOccupationMovementResolver: Resolver<
 
 const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovement'>
-> = async (queryClient, _database, args) => {
+> = async (_queryClient, database, args) => {
   const { targetId, troops: incomingTroops } = args;
 
-  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
-    const troopsWithSourceAndTile = incomingTroops.map((troop) => ({
-      ...troop,
-      tileId: targetId,
-    }));
-    return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
-  });
+  database.transaction((db) => {
+    const stmt = db.prepare(`
+    INSERT INTO troops (unit_id, amount, tile_id, source)
+    VALUES ($unit_id, $amount, $tile_id, $source)
+    ON CONFLICT(unit_id, tile_id, source)
+      DO UPDATE SET amount = amount + excluded.amount;
+  `);
 
-  // const relocationReport = generateTroopMovementReport({
-  //   villageId,
-  //   targetId,
-  //   movementType,
-  //   troops: incomingTroops,
-  // });
-  //
-  // setReport(queryClient, relocationReport);
+    for (const { unitId, amount, source } of incomingTroops) {
+      stmt
+        .bind({
+          $unit_id: unitId,
+          $amount: amount,
+          $tile_id: targetId,
+          $source: source,
+        })
+        .stepReset();
+    }
+
+    stmt.finalize();
+  });
 };
 
 const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
-  queryClient,
-  _database,
+  _queryClient,
+  database,
   args,
 ) => {
   const { troops: incomingTroops } = args;
-  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
-    return modifyTroops(troops!, incomingTroops, 'add');
+
+  database.transaction((db) => {
+    const stmt = db.prepare(`
+    INSERT INTO troops (unit_id, amount, tile_id, source)
+    VALUES ($unit_id, $amount, $tile_id, $source)
+    ON CONFLICT(unit_id, tile_id, source)
+      DO UPDATE SET amount = amount + excluded.amount;
+  `);
+
+    for (const { unitId, amount, source, tileId } of incomingTroops) {
+      stmt
+        .bind({
+          $unit_id: unitId,
+          $amount: amount,
+          $tile_id: tileId,
+          $source: source,
+        })
+        .stepReset();
+    }
+
+    stmt.finalize();
   });
 };
 
 const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
-  _database,
+  database,
   args,
 ) => {
   const {
@@ -198,13 +220,26 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     duration,
   } = args;
 
-  queryClient.setQueryData<Troop[]>([playerTroopsCacheKey], (troops) => {
-    const troopsWithSourceAndTile = incomingTroops.map((troop) => ({
-      ...troop,
-      source: targetId,
-      tileId: targetId,
-    }));
-    return modifyTroops(troops!, troopsWithSourceAndTile, 'add');
+  database.transaction((db) => {
+    const stmt = db.prepare(`
+    INSERT INTO troops (unit_id, amount, tile_id, source)
+    VALUES ($unit_id, $amount, $tile_id, $source)
+    ON CONFLICT(unit_id, tile_id, source)
+      DO UPDATE SET amount = amount + excluded.amount;
+  `);
+
+    for (const { unitId, amount } of incomingTroops) {
+      stmt
+        .bind({
+          $unit_id: unitId,
+          $amount: amount,
+          $tile_id: targetId,
+          $source: targetId,
+        })
+        .stepReset();
+    }
+
+    stmt.finalize();
   });
 
   const isHeroBeingRelocated = incomingTroops.some(
@@ -212,8 +247,18 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   );
 
   if (isHeroBeingRelocated) {
-    updateVillageResourcesAt(queryClient, villageId, startsAt + duration);
-    updateVillageResourcesAt(queryClient, targetId, startsAt + duration);
+    updateVillageResourcesAt(
+      queryClient,
+      database,
+      villageId,
+      startsAt + duration,
+    );
+    updateVillageResourcesAt(
+      queryClient,
+      database,
+      targetId,
+      startsAt + duration,
+    );
 
     queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
       return effects!.map((effect) => {
@@ -228,15 +273,6 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
       });
     });
   }
-
-  // const relocationReport = generateTroopMovementReport({
-  //   villageId,
-  //   targetId,
-  //   movementType,
-  //   troops: incomingTroops,
-  // });
-
-  // setReport(queryClient, relocationReport);
 };
 
 export const troopMovementResolver: Resolver<

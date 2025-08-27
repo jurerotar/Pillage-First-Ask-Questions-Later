@@ -15,12 +15,12 @@ export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const oasisTiles = database.selectObjects(
-    'SELECT id, oasis_graphics FROM tiles WHERE type = ?;',
-    ['oasis'],
+    'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
+    { $type: 'oasis' },
   ) as SelectReturn[];
 
   const wildernessUpdateStatement = database.prepare(
-    'UPDATE tiles SET type = ? WHERE id = ?',
+    'UPDATE tiles SET type = $type WHERE id = $id',
   );
 
   const oasisBonuses: [number, Resource, number][] = [];
@@ -30,7 +30,9 @@ export const oasisSeeder: Seeder = (database, server): void => {
 
     // If oasis does not have a bonus, mark it as wilderness
     if (!shouldOasisHaveBonus) {
-      wildernessUpdateStatement.bind(['wilderness', id]).stepReset();
+      wildernessUpdateStatement
+        .bind({ $type: 'wilderness', $id: id })
+        .stepReset();
       continue;
     }
 

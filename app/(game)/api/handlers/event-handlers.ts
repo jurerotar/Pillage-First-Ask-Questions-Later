@@ -168,6 +168,7 @@ export const cancelConstructionEvent: ApiHandler<
 
     addVillageResourcesAt(
       queryClient,
+      database,
       villageId,
       Date.now(),
       resourcesToRefund,

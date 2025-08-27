@@ -59,9 +59,11 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
     FROM villages
            JOIN players ON villages.player_id = players.id
            JOIN tiles ON villages.tile_id = tiles.id
-    WHERE players.id != ?;
+    WHERE players.id != $player_id;
   `,
-    [PLAYER_ID],
+    {
+      $player_id: PLAYER_ID,
+    },
   ) as Row[];
 
   const rowsWithSize: RowWithSize[] = rows.map((row) => {

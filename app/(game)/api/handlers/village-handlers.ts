@@ -12,6 +12,29 @@ export const getVillages: ApiHandler<Village[]> = async (
   return villages;
 };
 
+`
+{
+  "id": 1,
+  "tile_id": 42,
+  "player_id": 7,
+  "coordinates_x": 10,
+  "coordinates_y": -15,
+  "name": "MyVillage",
+  "slug": "myvillage",
+  "last_updated_at": 1699988888,
+  "wood": 100,
+  "clay": 120,
+  "iron": 90,
+  "wheat": 80,
+  "RFC": "4446",
+  "building_fields": [
+    { "field_id": 1, "building_id": "WOODCUTTER", "level": 5 },
+    { "field_id": 2, "building_id": "CLAY_PIT",   "level": 3 },
+    { "field_id": 39, "building_id": "RALLY_POINT", "level": 1 }
+  ]
+}
+`;
+
 export const getVillagesBySlug: ApiHandler<Village, 'villageSlug'> = async (
   queryClient,
   _database,

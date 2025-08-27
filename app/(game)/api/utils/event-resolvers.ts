@@ -22,6 +22,7 @@ const resolveEvent = async (
   if (isEventWithResourceCost(event)) {
     updateVillageResourcesAt(
       queryClient,
+      database,
       event.villageId,
       event.startsAt + event.duration,
     );

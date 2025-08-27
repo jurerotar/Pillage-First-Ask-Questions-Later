@@ -1,18 +1,5 @@
 import type { Seeder } from 'app/interfaces/db';
 
-const sql = `INSERT INTO servers (
-  id,
-  version,
-  name,
-  slug,
-  created_at,
-  seed,
-  speed,
-  map_size,
-  player_name,
-  player_tribe
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-
 export const serverSeeder: Seeder = (database, server): void => {
   const {
     id,
@@ -28,18 +15,45 @@ export const serverSeeder: Seeder = (database, server): void => {
   const { name: playerName, tribe } = playerConfiguration;
 
   database.exec({
-    sql,
-    bind: [
-      id,
-      version,
-      name,
-      slug,
-      createdAt,
-      seed,
-      speed,
-      mapSize,
-      playerName,
-      tribe,
-    ],
+    sql: `
+      INSERT INTO servers
+      (
+       id,
+       version,
+       name,
+       slug,
+       created_at,
+       seed,
+       speed,
+       map_size,
+       player_name,
+       player_tribe
+      )
+      VALUES
+      (
+        $id,
+        $version,
+        $name,
+        $slug,
+        $created_at,
+        $seed,
+        $speed,
+        $map_size,
+        $player_name,
+        $player_tribe
+       );
+    `,
+    bind: {
+      $id: id,
+      $version: version,
+      $name: name,
+      $slug: slug,
+      $created_at: createdAt,
+      $seed: seed,
+      $speed: speed,
+      $map_size: mapSize,
+      $player_name: playerName,
+      $player_tribe: tribe,
+    },
   });
 };

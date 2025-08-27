@@ -1,4 +1,4 @@
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   playerTroopsCacheKey,
   playerVillagesCacheKey,
@@ -7,13 +7,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  canSendTroops,
-  modifyTroops,
-} from 'app/(game)/api/handlers/resolvers/utils/troops';
 import type { Village } from 'app/interfaces/models/game/village';
-import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
@@ -24,8 +18,6 @@ type SendTroopsArgs = Pick<
 
 export const usePlayerTroops = () => {
   const { fetcher } = use(ApiContext);
-  const queryClient = useQueryClient();
-  const { t } = useTranslation();
   const { createEvent: createTroopMovementEvent } =
     useCreateEvent('troopMovement');
   const { currentVillage } = useCurrentVillage();
@@ -47,20 +39,6 @@ export const usePlayerTroops = () => {
   };
 
   const sendTroops = ({ targetId, movementType, troops }: SendTroopsArgs) => {
-    const deployableTroops = getDeployableTroops(currentVillage.id);
-
-    if (!canSendTroops(deployableTroops, troops)) {
-      toast(t('Unable to send that many troops.'));
-      return;
-    }
-
-    queryClient.setQueryData<Troop[]>(
-      [playerTroopsCacheKey],
-      (playerTroops) => {
-        return modifyTroops(playerTroops!, troops, 'subtract');
-      },
-    );
-
     createTroopMovementEvent({
       movementType,
       targetId,

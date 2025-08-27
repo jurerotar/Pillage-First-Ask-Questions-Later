@@ -7,7 +7,13 @@ export const unitImprovementResolver: Resolver<
   const { unitId } = args;
 
   database.exec({
-    sql: 'UPDATE unit_improvements SET level = level + 1 WHERE unit_id = ?;',
-    bind: [unitId],
+    sql: `
+    UPDATE unit_improvements
+    SET level = level + 1
+    WHERE unit_id = $unit_id;
+  `,
+    bind: {
+      $unit_id: unitId,
+    },
   });
 };

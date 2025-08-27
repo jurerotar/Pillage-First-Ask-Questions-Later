@@ -27,19 +27,21 @@ export const updatePreference: ApiHandler<
   const { preferenceName } = params;
   const { value } = body;
 
-  const sql = `
-    UPDATE preferences
-    SET text_value = ?,
-        bool_value = ?
-    WHERE preference_key = ?;
-  `;
-
   const isBoolean = typeof value === 'boolean';
   const textValue = isBoolean ? null : value;
   const boolValue = isBoolean ? value : null;
 
   database.exec({
-    sql,
-    bind: [textValue, boolValue, preferenceName],
+    sql: `
+      UPDATE preferences
+      SET text_value = $text_value,
+          bool_value = $bool_value
+      WHERE preference_key = $preference_key;
+    `,
+    bind: {
+      $text_value: textValue,
+      $bool_value: boolValue,
+      $preference_key: preferenceName,
+    },
   });
 };

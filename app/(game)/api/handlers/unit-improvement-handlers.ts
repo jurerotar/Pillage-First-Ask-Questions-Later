@@ -10,7 +10,7 @@ export const getUnitImprovements: ApiHandler<UnitImprovement[]> = async (
   database,
 ) => {
   const unitImprovementModel = database.selectObjects(
-    'SELECT * FROM unit_improvements;',
+    'SELECT unit_id, level FROM unit_improvements;',
   ) as UnitImprovementModel[];
 
   return unitImprovementModel.map(unitImprovementApiResource);

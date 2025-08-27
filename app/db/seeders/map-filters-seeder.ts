@@ -1,13 +1,6 @@
 import type { Seeder } from 'app/interfaces/db';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
-const sql = `INSERT INTO map_filters
-  (
-    filter_key,
-    value
-  )
-VALUES (?, ?);`;
-
 export const mapFiltersSeeder: Seeder = (database): void => {
   const mapFilters: (keyof MapFilters)[] = [
     'shouldShowFactionReputation',
@@ -18,10 +11,20 @@ export const mapFiltersSeeder: Seeder = (database): void => {
     'shouldShowTreasureIcons',
   ];
 
-  const stmt = database.prepare(sql);
+  const stmt = database.prepare(`
+    INSERT INTO map_filters (
+      filter_key,
+      value
+    ) VALUES ($filter_key, $value);
+  `);
 
   for (const mapFilter of mapFilters) {
-    stmt.bind([mapFilter, true]).stepReset();
+    stmt
+      .bind({
+        $filter_key: mapFilter,
+        $value: true,
+      })
+      .stepReset();
   }
 
   stmt.finalize();

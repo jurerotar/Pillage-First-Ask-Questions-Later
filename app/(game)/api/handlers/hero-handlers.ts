@@ -3,7 +3,9 @@ import { heroCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
 
-export const getHero: ApiHandler<Hero> = async (queryClient, _database) => {
+export const getHero: ApiHandler<Hero> = async (queryClient, database) => {
+  const _hero = database.selectObject('SELECT * from heroes');
+
   return queryClient.getQueryData<Hero>([heroCacheKey])!;
 };
 

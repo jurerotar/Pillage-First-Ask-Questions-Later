@@ -11,21 +11,6 @@ const createTroopMap = (troops: Troop[]): Map<UnitMapKey, Troop> => {
   );
 };
 
-export const canSendTroops = (troops: Troop[], toSend: Troop[]): boolean => {
-  const troopMap = createTroopMap(troops);
-
-  for (const troopChange of toSend) {
-    const key =
-      `${troopChange.unitId}-${troopChange.tileId}-${troopChange.source}` satisfies UnitMapKey;
-    const troop = troopMap.get(key)!;
-    if (troopChange.amount > troop.amount) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
 export const modifyTroops = (
   troops: Troop[],
   change: Troop[],
