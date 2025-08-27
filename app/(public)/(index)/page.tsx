@@ -75,34 +75,26 @@ const FAQ = () => {
           There are a few key reasons I chose to focus on single-player:
           <br />
           <br />
-          <ul>
-            <li>
-              <b>Moderation cost & complexity</b> - multiplayer comes with a
-              whole layer of moderation challenges — things like chat filters,
-              reporting tools, cheat prevention, and account systems. They’re
-              not just one-time features either; they need constant upkeep and
-              care. For a solo developer, that’s a massive investment of time
-              and energy that could easily overshadow the actual game
-              development. With single-player, I can skip all of that and stay
-              focused on building the experience itself.
-              <br />
-              <br />
-            </li>
-            <li>
-              <b>Offline-first accessibility</b> - by skipping networking, the
-              game becomes fully playable offline. This makes it more accessible
-              to players with limited or unreliable internet access, and ensures
-              the experience is consistent regardless of connection quality.
-              <br />
-              <br />
-            </li>
-            <li>
-              <b>Frontend challenge</b> - building a rich, complex app entirely
-              in the browser is a rare and rewarding challenge. It pushes me to
-              solve problems like state management, simulation, and performance,
-              all within the constraints of a browser environment.
-            </li>
-          </ul>
+          <b>Moderation cost & complexity</b> - multiplayer comes with a whole
+          layer of moderation challenges — things like chat filters, reporting
+          tools, cheat prevention, and account systems. They’re not just
+          one-time features either; they need constant upkeep and care. For a
+          solo developer, that’s a massive investment of time and energy that
+          could easily overshadow the actual game development. With
+          single-player, I can skip all of that and stay focused on building the
+          experience itself.
+          <br />
+          <br />
+          <b>Offline-first accessibility</b> - by skipping networking, the game
+          becomes fully playable offline. This makes it more accessible to
+          players with limited or unreliable internet access, and ensures the
+          experience is consistent regardless of connection quality.
+          <br />
+          <br />
+          <b>Frontend challenge</b> - building a rich, complex app entirely in
+          the browser is a rare and rewarding challenge. It pushes me to solve
+          problems like state management, simulation, and performance, all
+          within the constraints of a browser environment.
         </Text>
       </div>
       <div className="flex flex-col gap-2">
