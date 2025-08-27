@@ -46,11 +46,17 @@ type VillageFieldId =
   | 38;
 
 // Rally point and wall are always on the same spot, these spots can't be taken by other buildings, nor can a player build anything else here
-export type ReservedFieldId = 39 | 40;
+type ReservedFieldId = 39 | 40;
 
 export type BuildingFieldModel = {
   village_id: Village['id'];
   field_id: ResourceFieldId | VillageFieldId | ReservedFieldId;
   building_id: Building['id'];
+  level: number;
+};
+
+export type BuildingField = {
+  id: BuildingFieldModel['field_id'];
+  buildingId: Building['id'];
   level: number;
 };

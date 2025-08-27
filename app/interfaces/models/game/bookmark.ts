@@ -1,6 +1,6 @@
 import type { Building } from 'app/interfaces/models/game/building';
 
-export type BookmarkSchema = {
+export type BookmarkModel = {
   building_id: Building['id'];
   tab_name: string;
 };

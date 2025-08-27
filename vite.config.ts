@@ -6,7 +6,7 @@ import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import packageJson from './package.json' with { type: 'json' };
 import devtoolsJson from 'vite-plugin-devtools-json';
-import babel from 'vite-plugin-babel';
+// import babel from 'vite-plugin-babel';
 // import { visualizer } from "rollup-plugin-visualizer";
 
 const graphicsVersion =
@@ -46,14 +46,14 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
-    !isInTestMode &&
-      babel({
-        filter: /\.tsx?$/,
-        babelConfig: {
-          presets: ['@babel/preset-typescript'],
-          plugins: [['babel-plugin-react-compiler']],
-        },
-      }),
+    // !isInTestMode &&
+    //   babel({
+    //     filter: /\.tsx?$/,
+    //     babelConfig: {
+    //       presets: ['@babel/preset-typescript'],
+    //       plugins: [['babel-plugin-react-compiler']],
+    //     },
+    //   }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),

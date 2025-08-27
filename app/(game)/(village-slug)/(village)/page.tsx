@@ -2,7 +2,7 @@ import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/bu
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Tooltip } from 'app/components/tooltip';
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
+import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type React from 'react';

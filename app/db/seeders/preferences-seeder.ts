@@ -17,59 +17,54 @@ export const preferencesSeeder: Seeder = (database): void => {
     shouldShowNotificationsOnAcademyResearchCompletion: false,
   };
 
-  const entries: [string, string | null, boolean | null][] = [
-    ['colorScheme', preferences.colorScheme, null],
-    ['locale', preferences.locale, null],
-    ['timeOfDay', preferences.timeOfDay, null],
-    ['skinVariant', preferences.skinVariant, null],
-    [
-      'isAccessibilityModeEnabled',
-      null,
-      preferences.isAccessibilityModeEnabled,
-    ],
-    [
-      'isReducedMotionModeEnabled',
-      null,
-      preferences.isReducedMotionModeEnabled,
-    ],
-    ['shouldShowBuildingNames', null, preferences.shouldShowBuildingNames],
-    [
-      'isAutomaticNavigationAfterBuildingLevelChangeEnabled',
-      null,
-      preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled,
-    ],
-    ['isDeveloperModeEnabled', null, preferences.isDeveloperModeEnabled],
-    [
-      'shouldShowNotificationsOnBuildingUpgradeCompletion',
-      null,
-      preferences.shouldShowNotificationsOnBuildingUpgradeCompletion,
-    ],
-    [
-      'shouldShowNotificationsOnUnitUpgradeCompletion',
-      null,
-      preferences.shouldShowNotificationsOnUnitUpgradeCompletion,
-    ],
-    [
-      'shouldShowNotificationsOnAcademyResearchCompletion',
-      null,
-      preferences.shouldShowNotificationsOnAcademyResearchCompletion,
-    ],
-  ];
-
-  const stmt = database.prepare(`
-    INSERT INTO preferences (preference_key, text_value, bool_value)
-    VALUES ($preference_key, $text_value, $bool_value);
-  `);
-
-  for (const [id, text, bool] of entries) {
-    stmt
-      .bind({
-        $preference_key: id,
-        $text_value: text,
-        $bool_value: bool,
-      })
-      .stepReset();
-  }
-
-  stmt.finalize();
+  database.exec({
+    sql: `
+      INSERT INTO preferences (
+        color_scheme,
+        locale,
+        time_of_day,
+        skin_variant,
+        is_accessibility_mode_enabled,
+        is_reduced_motion_mode_enabled,
+        should_show_building_names,
+        is_automatic_navigation_after_building_level_change_enabled,
+        is_developer_mode_enabled,
+        should_show_notifications_on_building_upgrade_completion,
+        should_show_notifications_on_unit_upgrade_completion,
+        should_show_notifications_on_academy_research_completion
+      )
+      VALUES (
+        $color_scheme,
+        $locale,
+        $time_of_day,
+        $skin_variant,
+        $is_accessibility_mode_enabled,
+        $is_reduced_motion_mode_enabled,
+        $should_show_building_names,
+        $is_automatic_navigation_after_building_level_change_enabled,
+        $is_developer_mode_enabled,
+        $should_show_notifications_on_building_upgrade_completion,
+        $should_show_notifications_on_unit_upgrade_completion,
+        $should_show_notifications_on_academy_research_completion
+      )
+    `,
+    bind: {
+      $color_scheme: preferences.colorScheme,
+      $locale: preferences.locale,
+      $time_of_day: preferences.timeOfDay,
+      $skin_variant: preferences.skinVariant,
+      $is_accessibility_mode_enabled: preferences.isAccessibilityModeEnabled,
+      $is_reduced_motion_mode_enabled: preferences.isReducedMotionModeEnabled,
+      $should_show_building_names: preferences.shouldShowBuildingNames,
+      $is_automatic_navigation_after_building_level_change_enabled:
+        preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled,
+      $is_developer_mode_enabled: preferences.isDeveloperModeEnabled,
+      $should_show_notifications_on_building_upgrade_completion:
+        preferences.shouldShowNotificationsOnBuildingUpgradeCompletion,
+      $should_show_notifications_on_unit_upgrade_completion:
+        preferences.shouldShowNotificationsOnUnitUpgradeCompletion,
+      $should_show_notifications_on_academy_research_completion:
+        preferences.shouldShowNotificationsOnAcademyResearchCompletion,
+    },
+  });
 };

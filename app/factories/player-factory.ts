@@ -1,4 +1,4 @@
-import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
+import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { seededRandomArrayElement } from 'app/utils/common';
@@ -7,9 +7,10 @@ import { npcFactions } from 'app/factories/reputation-factory';
 import { usernameAdjectives, usernameNouns } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
 import { PLAYER_ID } from 'app/constants/player';
+import type { FactionName } from 'app/interfaces/models/game/faction';
 
 type PlayerFactoryProps = {
-  faction: PlayerFaction;
+  faction: FactionName;
   prng: PRNGFunction;
   id: number;
 };
@@ -65,7 +66,7 @@ export const generateNpcPlayers = (server: Server) => {
   const playerCount = Math.round((playerDensity * totalTiles) / 100) * 100;
 
   return [...Array(playerCount)].map((_, index) => {
-    const faction = seededRandomArrayElement<PlayerFaction>(prng, npcFactions);
+    const faction = seededRandomArrayElement<FactionName>(prng, npcFactions);
     return npcPlayerFactory({ faction, prng, id: index + 1 });
   });
 };

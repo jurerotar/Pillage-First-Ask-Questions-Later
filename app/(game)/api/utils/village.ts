@@ -19,37 +19,36 @@ export const calculateVillageResourcesAt = (
 
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const village = villages.find(({ id }) => id === villageId)!;
-  const { id } = village;
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
     effects,
-    id,
+    villageId,
   );
   const { total: granaryCapacity } = calculateComputedEffect(
     'granaryCapacity',
     effects,
-    id,
+    villageId,
   );
   const { total: woodProduction } = calculateComputedEffect(
     'woodProduction',
     effects,
-    id,
+    villageId,
   );
   const { total: clayProduction } = calculateComputedEffect(
     'clayProduction',
     effects,
-    id,
+    villageId,
   );
   const { total: ironProduction } = calculateComputedEffect(
     'ironProduction',
     effects,
-    id,
+    villageId,
   );
   const { total: wheatProduction } = calculateComputedEffect(
     'wheatProduction',
     effects,
-    id,
+    villageId,
   );
 
   const {

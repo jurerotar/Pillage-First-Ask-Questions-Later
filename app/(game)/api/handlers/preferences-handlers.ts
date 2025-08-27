@@ -1,17 +1,35 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
+import type {
+  Preferences,
+  PreferencesModel,
+} from 'app/interfaces/models/game/preferences';
+import { preferencesApiResource } from 'app/(game)/api/api-resources/preferences-api-resources';
+import { snakeCase } from 'moderndash';
 
 export const getPreferences: ApiHandler<Preferences> = async (
   _queryClient,
   database,
 ) => {
-  return Object.fromEntries(
-    database.selectArrays(`
-      SELECT preference_key,
-             coalesce(bool_value, text_value) AS value
-      FROM preferences;
-    `),
-  ) satisfies Preferences;
+  const row = database.selectObject(
+    `
+      SELECT
+        color_scheme,
+        locale,
+        time_of_day,
+        skin_variant,
+        is_accessibility_mode_enabled,
+        is_reduced_motion_mode_enabled,
+        should_show_building_names,
+        is_automatic_navigation_after_building_level_change_enabled,
+        is_developer_mode_enabled,
+        should_show_notifications_on_building_upgrade_completion,
+        should_show_notifications_on_unit_upgrade_completion,
+        should_show_notifications_on_academy_research_completion
+      FROM preferences
+    `,
+  ) as unknown as PreferencesModel;
+
+  return preferencesApiResource(row);
 };
 
 type UpdatePreferenceBody = {
@@ -27,21 +45,15 @@ export const updatePreference: ApiHandler<
   const { preferenceName } = params;
   const { value } = body;
 
-  const isBoolean = typeof value === 'boolean';
-  const textValue = isBoolean ? null : value;
-  const boolValue = isBoolean ? value : null;
+  const column = snakeCase(preferenceName);
 
   database.exec({
     sql: `
       UPDATE preferences
-      SET text_value = $text_value,
-          bool_value = $bool_value
-      WHERE preference_key = $preference_key;
+      SET ${column} = $value
     `,
     bind: {
-      $text_value: textValue,
-      $bool_value: boolValue,
-      $preference_key: preferenceName,
+      $value: value,
     },
   });
 };

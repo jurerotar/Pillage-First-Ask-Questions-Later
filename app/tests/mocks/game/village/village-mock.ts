@@ -1,11 +1,11 @@
-import type { PlayerVillage } from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
 import { playerMock } from '../player-mock';
 import { newVillageBuildingFieldsMock } from './building-fields-mock';
 import { resourceFields4446Mock } from './resource-fields-mock';
 
 const { id: playerId } = playerMock;
 
-export const villageMock: PlayerVillage = {
+export const villageMock: Village = {
   id: 0,
   tileId: 0,
   coordinates: {
@@ -15,8 +15,7 @@ export const villageMock: PlayerVillage = {
   name: 'player',
   slug: 'v-1',
   buildingFields: [...resourceFields4446Mock, ...newVillageBuildingFieldsMock],
-  buildingFieldsPresets: [],
-  RFC: '4446',
+  resourceFieldComposition: '4446',
   playerId,
   lastUpdatedAt: Date.now(),
   resources: {
@@ -25,5 +24,4 @@ export const villageMock: PlayerVillage = {
     iron: 750,
     wheat: 750,
   },
-  artifactId: null,
 };

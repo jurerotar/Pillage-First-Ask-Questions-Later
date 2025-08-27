@@ -4,7 +4,7 @@ import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { partition } from 'app/utils/common';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type CurrentVillageBuildingQueueContextReturn = {
   currentVillageBuildingEvents: GameEvent<'buildingLevelChange'>[];

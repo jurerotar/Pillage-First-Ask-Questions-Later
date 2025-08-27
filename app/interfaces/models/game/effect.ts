@@ -1,10 +1,8 @@
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
 import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Tile } from 'app/interfaces/models/game/tile';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'

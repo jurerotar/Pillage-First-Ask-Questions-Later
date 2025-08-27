@@ -11,7 +11,7 @@ import { prngMulberry32 } from 'ts-seedrandom';
 import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
 import { PLAYER_ID } from 'app/constants/player';
 import type { Seeder } from 'app/interfaces/db';
-import type { DbTile } from 'app/interfaces/models/db/tile';
+import type { TileModel } from 'app/interfaces/models/game/tile';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
 const oasisTroopCombinations = new Map<
@@ -284,7 +284,7 @@ type OasisSelectRow = {
 export const troopSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
-  const results: [Unit['id'], number, DbTile['id'], DbTile['id']][] = [];
+  const results: [Unit['id'], number, TileModel['id'], TileModel['id']][] = [];
 
   const villages = database.selectObjects(`
     SELECT players.id as player_id,

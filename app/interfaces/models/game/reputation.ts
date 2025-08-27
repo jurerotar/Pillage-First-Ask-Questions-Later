@@ -1,4 +1,12 @@
-import type { PlayerFaction } from 'app/interfaces/models/game/player';
+import type { FactionName } from 'app/interfaces/models/game/faction';
+import type { FactionModel } from 'app/interfaces/models/game/faction';
+
+export type FactionReputationModel = {
+  id: number;
+  source_faction: FactionModel['name'];
+  target_faction: FactionModel['name'];
+  reputation: number;
+};
 
 export type ReputationLevel =
   // Essentially a 'helper' reputation, this makes sure we don't have to have a bunch of hacks throughout the codebase
@@ -19,7 +27,7 @@ export type ReputationLevel =
   | 'hated';
 
 export type Reputation = {
-  faction: PlayerFaction;
+  faction: FactionName;
   percentage: number;
   reputationLevel: ReputationLevel;
 };

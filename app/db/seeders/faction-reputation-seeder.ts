@@ -1,10 +1,10 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { PlayerFaction } from 'app/interfaces/models/game/player';
+import type { FactionName } from 'app/interfaces/models/game/faction';
 import { reputationLevels } from 'app/assets/reputation';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
 export const factionReputationSeeder: Seeder = (database): void => {
-  const relations: [PlayerFaction, PlayerFaction, number][] = [
+  const relations: [FactionName, FactionName, number][] = [
     ['player', 'npc1', reputationLevels.get('ecstatic')!],
     ['player', 'npc2', reputationLevels.get('honored')!],
     ['player', 'npc3', reputationLevels.get('respected')!],

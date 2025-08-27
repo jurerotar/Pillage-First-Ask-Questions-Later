@@ -1,7 +1,7 @@
 import type { Seeder } from 'app/interfaces/db';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateGridLayout, encodeGraphicsProperty } from 'app/utils/map';
-import type { DbTile } from 'app/interfaces/models/db/tile';
+import type { TileModel } from 'app/interfaces/models/game/tile';
 import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import {
   seededRandomArrayElement,
@@ -11,11 +11,11 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
-type PartialDbTile = Omit<DbTile, 'type'>;
+type PartialTileModel = Omit<TileModel, 'type'>;
 
-type MaybeAssignedDbTile = DbTile | PartialDbTile;
+type MaybeAssignedTileModel = TileModel | PartialTileModel;
 
-const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
+const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
   const { configuration } = server;
 
   const prng = prngMulberry32(server.seed);
@@ -57,7 +57,7 @@ const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
         type: 'wilderness',
         resource_field_composition: null,
         oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0, variant),
-      } satisfies DbTile;
+      } satisfies TileModel;
       continue;
     }
 
@@ -70,7 +70,7 @@ const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
         type: 'free',
         resource_field_composition: '4446',
         oasis_graphics: null,
-      } satisfies DbTile;
+      } satisfies TileModel;
       continue;
     }
 
@@ -80,14 +80,14 @@ const generateGrid = (server: Server): MaybeAssignedDbTile[] => {
       y,
       resource_field_composition: null,
       oasis_graphics: null,
-    } satisfies PartialDbTile;
+    } satisfies PartialTileModel;
   }
 
   return tiles;
 };
 
 type GenerateOasisTileArgs = {
-  tile: MaybeAssignedDbTile;
+  tile: MaybeAssignedTileModel;
   oasisGroup: number;
   oasisGroupPosition: number[];
   preGeneratedResourceType?: Resource;
@@ -100,7 +100,7 @@ const generateOasisTile = ({
   oasisGroupPosition,
   prng,
   preGeneratedResourceType,
-}: GenerateOasisTileArgs): DbTile => {
+}: GenerateOasisTileArgs): TileModel => {
   const oasisResource = (() => {
     if (preGeneratedResourceType) {
       return preGeneratedResourceType;
@@ -136,15 +136,15 @@ const generateOasisTile = ({
     ...tile,
     type: 'oasis',
     oasis_graphics: encodedGraphics,
-  } satisfies DbTile;
+  } satisfies TileModel;
 };
 
 type Shape = { group: number; shape: number[] };
 
 const generateShapedOasisFields = (
   server: Server,
-  tiles: MaybeAssignedDbTile[],
-): MaybeAssignedDbTile[] => {
+  tiles: MaybeAssignedTileModel[],
+): MaybeAssignedTileModel[] => {
   const prng = prngMulberry32(server.seed);
 
   const shapes: Shape[] = [
@@ -174,8 +174,8 @@ const generateShapedOasisFields = (
   };
 
   const tilesByCoordinates = new Map<
-    `${DbTile['x']}-${DbTile['y']}`,
-    MaybeAssignedDbTile
+    `${TileModel['x']}-${TileModel['y']}`,
+    MaybeAssignedTileModel
   >(tiles.map((tile) => [`${tile.x}-${tile.y}`, tile]));
 
   tileLoop: for (let i = 0; i < tiles.length; i += 1) {
@@ -204,13 +204,13 @@ const generateShapedOasisFields = (
       shapesByResource[resourceType],
     );
 
-    const tilesToUpdate: MaybeAssignedDbTile[] = [];
+    const tilesToUpdate: MaybeAssignedTileModel[] = [];
     const oasisGroupPositions: number[][] = [];
 
     for (let k = 0; k < oasisShape.length; k += 1) {
       const amountOfTiles = oasisShape[k];
       for (let j = 0; j < amountOfTiles; j += 1) {
-        const key: `${DbTile['x']}-${DbTile['y']}` = `${x + j}-${y - k}`;
+        const key: `${TileModel['x']}-${TileModel['y']}` = `${x + j}-${y - k}`;
         const tile = tilesByCoordinates.get(key);
 
         if (!tile || Object.hasOwn(tile, 'type')) {
@@ -269,14 +269,14 @@ const generateOccupiableTileType = (
 
 const assignOasisAndFreeTileComposition = (
   server: Server,
-  tiles: MaybeAssignedDbTile[],
-): DbTile[] => {
+  tiles: MaybeAssignedTileModel[],
+): TileModel[] => {
   const prng = prngMulberry32(server.seed);
 
-  return tiles.map((tile): DbTile => {
+  return tiles.map((tile): TileModel => {
     // 1. If it already has a type from previous steps, just return
     if (Object.hasOwn(tile, 'type')) {
-      return tile as DbTile;
+      return tile as TileModel;
     }
 
     const willBeOasis = seededRandomIntFromInterval(prng, 1, 20) === 1;
@@ -296,7 +296,7 @@ const assignOasisAndFreeTileComposition = (
       ...tile,
       type: 'free',
       resource_field_composition: resourceFieldComposition,
-    } satisfies DbTile;
+    } satisfies TileModel;
   });
 };
 

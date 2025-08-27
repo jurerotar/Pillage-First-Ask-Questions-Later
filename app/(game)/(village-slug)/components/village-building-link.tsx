@@ -1,7 +1,7 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';

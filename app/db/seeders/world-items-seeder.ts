@@ -7,7 +7,7 @@ import {
 } from 'app/utils/common';
 import { items } from 'app/(game)/(village-slug)/assets/items';
 import type { HeroItem } from 'app/interfaces/models/game/hero';
-import type { DbTile } from 'app/interfaces/models/db/tile';
+import type { TileModel } from 'app/interfaces/models/game/tile';
 import { PLAYER_ID } from 'app/constants/player';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { getVillageSize } from 'app/db/utils/village-size';
@@ -15,9 +15,9 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
 type Row = {
-  tile_id: DbTile['id'];
-  x: DbTile['x'];
-  y: DbTile['y'];
+  tile_id: TileModel['id'];
+  x: TileModel['x'];
+  y: TileModel['y'];
 };
 
 type RowWithSize = Row & {
@@ -30,7 +30,7 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   const results: [
     HeroItem['id'],
     number,
-    DbTile['id'],
+    TileModel['id'],
     HeroItem['category'],
   ][] = [];
 

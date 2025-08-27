@@ -1,4 +1,4 @@
-import type { PlayerVillage } from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
 import { useCallback, useMemo } from 'react';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 
@@ -27,7 +27,7 @@ export const useGameNavigation = () => {
   );
 
   const getNewVillageUrl = useCallback(
-    (slug: PlayerVillage['slug']) => {
+    (slug: Village['slug']) => {
       return `/game/${serverSlug}/${slug}/resources`;
     },
     [serverSlug],

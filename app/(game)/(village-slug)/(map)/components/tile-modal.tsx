@@ -34,7 +34,6 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
-import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
 import {
   playerTroopsCacheKey,
   playerVillagesCacheKey,
@@ -47,7 +46,7 @@ type TileModalResourcesProps = {
 };
 
 const TileModalResources: React.FC<TileModalResourcesProps> = ({ tile }) => {
-  const resources = parseRFCFromTile(tile.RFC);
+  const resources = parseRFCFromTile(tile.resourceFieldComposition);
   return (
     <div className="flex justify-start text-sm">
       <Resources
@@ -270,7 +269,7 @@ const OccupiedOccupiableTileModal: React.FC<
   );
 
   const village = getVillageByCoordinates(tile.coordinates)!;
-  const isOwnedByPlayer = isPlayerVillage(village);
+  const isOwnedByPlayer = village.playerId === PLAYER_ID;
 
   const onSendHero = () => {
     sendTroops({

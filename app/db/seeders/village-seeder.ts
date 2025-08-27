@@ -1,5 +1,5 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { DbTile } from 'app/interfaces/models/db/tile';
+import type { TileModel } from 'app/interfaces/models/game/tile';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { PLAYER_ID } from 'app/constants/player';
 import { prngMulberry32 } from 'ts-seedrandom';
@@ -15,7 +15,7 @@ import {
   npcVillageNameNouns,
 } from 'app/assets/village';
 
-type OccupiableField = Pick<DbTile, 'id' | 'x' | 'y'>;
+type OccupiableField = Pick<TileModel, 'id' | 'x' | 'y'>;
 
 const villageSizeToVillageGroupRadiusMap = new Map<VillageSize, number>([
   ['xxs', 0],
@@ -88,7 +88,7 @@ export const villageSeeder: Seeder = (database, server): void => {
   ) as OccupiableField[];
 
   const occupiableFieldMap = new Map<
-    `${DbTile['x']}-${DbTile['y']}`,
+    `${TileModel['x']}-${TileModel['y']}`,
     OccupiableField
   >(
     occupiableFields.map((occupiableField) => [
@@ -100,7 +100,7 @@ export const villageSeeder: Seeder = (database, server): void => {
   const playerToOccupiedFields: [Player['id'], OccupiableField][] = [];
 
   const getNthMapValue = (
-    map: Map<`${DbTile['x']}-${DbTile['y']}`, OccupiableField>,
+    map: Map<`${TileModel['x']}-${TileModel['y']}`, OccupiableField>,
     n: number,
   ): OccupiableField => {
     let i = 0;
@@ -151,7 +151,7 @@ export const villageSeeder: Seeder = (database, server): void => {
           continue;
         }
 
-        const key: `${DbTile['x']}-${DbTile['y']}` = `${startingTile.x}-${startingTile.y}`;
+        const key: `${TileModel['x']}-${TileModel['y']}` = `${startingTile.x}-${startingTile.y}`;
         const candidateTile = occupiableFieldMap.get(key)!;
         if (!candidateTile) {
           continue;

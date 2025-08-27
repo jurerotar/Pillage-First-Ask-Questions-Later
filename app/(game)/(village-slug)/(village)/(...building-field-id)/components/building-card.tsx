@@ -23,7 +23,7 @@ import { formatTime } from 'app/utils/time';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Icon } from 'app/components/icon';
 import { formatNumber, formatPercentage } from 'app/utils/common';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 

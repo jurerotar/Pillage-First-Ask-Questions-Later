@@ -7,13 +7,7 @@ import type { Resources } from 'app/interfaces/models/game/resource';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { OccupiedOccupiableTile } from 'app/interfaces/models/game/tile';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import type {
-  BuildingField,
-  PlayerVillage,
-  Village,
-  VillagePresetId,
-  VillageSize,
-} from 'app/interfaces/models/game/village';
+import type { Village, VillageSize } from 'app/interfaces/models/game/village';
 import type { PRNGFunction } from 'ts-seedrandom';
 import {
   npcVillageNameAdjectives,
@@ -21,6 +15,7 @@ import {
 } from 'app/assets/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { PLAYER_ID } from 'app/constants/player';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
@@ -82,20 +77,20 @@ const createWallBuildingField = (
 type PlayerVillageFactoryProps = {
   tile: OccupiedOccupiableTile;
   player: Player;
-  slug: PlayerVillage['slug'];
+  slug: Village['slug'];
 };
 
 export const playerVillageFactory = ({
   tile,
   player,
   slug,
-}: PlayerVillageFactoryProps): PlayerVillage => {
-  const { id: tileId, RFC, coordinates } = tile;
+}: PlayerVillageFactoryProps): Village => {
+  const { id: tileId, resourceFieldComposition, coordinates } = tile;
 
   const { tribe } = player;
 
   const buildingFields = [
-    ...createVillageResourceFields(RFC, 'player'),
+    ...createVillageResourceFields(resourceFieldComposition, 'player'),
     ...playerVillageBuildingFieldsPreset,
     createWallBuildingField(tribe, 'player'),
   ];
@@ -108,11 +103,9 @@ export const playerVillageFactory = ({
     coordinates,
     slug,
     buildingFields,
-    buildingFieldsPresets: [],
     playerId: PLAYER_ID,
     lastUpdatedAt: Date.now(),
-    RFC,
-    artifactId: null,
+    resourceFieldComposition,
     resources: {
       wood: 750,
       clay: 750,
@@ -137,7 +130,7 @@ const npcVillageFactory = ({
   server,
   id,
 }: NpcVillageFactoryProps): Village => {
-  const { id: tileId, RFC, coordinates } = tile;
+  const { id: tileId, resourceFieldComposition, coordinates } = tile;
 
   const { id: playerId, tribe } = player;
 
@@ -147,9 +140,6 @@ const npcVillageFactory = ({
   );
 
   const buildingFields = [createWallBuildingField(tribe, villageSize)];
-
-  const villageBuildingFieldPresetId: VillagePresetId = `village-${villageSize}`;
-  const resourcesBuildingFieldPresetId: VillagePresetId = `resources-${villageSize}`;
 
   const adjectiveIndex = seededRandomIntFromInterval(
     prng,
@@ -170,15 +160,12 @@ const npcVillageFactory = ({
     tileId,
     coordinates,
     name: `${adjective}${noun}`,
+    slug: '',
     buildingFields,
-    buildingFieldsPresets: [
-      resourcesBuildingFieldPresetId,
-      villageBuildingFieldPresetId,
-    ],
     playerId,
     lastUpdatedAt: Date.now(),
     resources: createVillageResources(villageSize),
-    RFC,
+    resourceFieldComposition,
   };
 };
 

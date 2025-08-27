@@ -13,7 +13,7 @@ import {
 import { Button } from 'app/components/ui/button';
 import { useState } from 'react';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { useBuildingDowngradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import { useNavigate } from 'react-router';

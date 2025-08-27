@@ -4,7 +4,7 @@ import {
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import type React from 'react';
 import { useState } from 'react';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';

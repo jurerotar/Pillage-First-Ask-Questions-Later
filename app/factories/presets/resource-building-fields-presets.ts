@@ -1,10 +1,10 @@
 import type { BuildingId } from 'app/interfaces/models/game/building';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type {
-  BuildingField,
   ResourceFieldComposition,
   VillageSize,
 } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import type { ResourceFieldId } from 'app/interfaces/models/game/building-field';
 
 type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
@@ -202,40 +202,3 @@ export const createVillageResourceFields = (
     resourceFieldsLevel,
   );
 };
-
-export const xxsVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  'xs',
-);
-export const xsVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  'xs',
-);
-export const smVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  'sm',
-);
-export const mdVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  'md',
-);
-export const lgVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  'lg',
-);
-export const xlVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  'xl',
-);
-export const xxlVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  '2xl',
-);
-export const xxxlVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  '3xl',
-);
-export const xxxxlVillageResourceFieldsPreset = createVillageResourceFields(
-  '4446',
-  '4xl',
-);

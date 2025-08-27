@@ -15,12 +15,10 @@ import type {
   VillageEffect,
 } from 'app/interfaces/models/game/effect';
 import type { Server } from 'app/interfaces/models/game/server';
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 const heroEffectsFactory = (
   villageId: Village['id'],

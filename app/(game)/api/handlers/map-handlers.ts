@@ -72,7 +72,6 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
 
   const population = calculatePopulationFromBuildingFields(
     village.buildingFields,
-    village.buildingFieldsPresets,
   );
 
   return {

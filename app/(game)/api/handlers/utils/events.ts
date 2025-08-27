@@ -64,12 +64,7 @@ export const checkAndSubtractVillageResources = (
   events: GameEvent[],
 ): boolean => {
   const isDeveloperModeEnabled = database.selectValue(
-    `
-    SELECT bool_value
-    FROM preferences
-    WHERE preference_key = $preference_key;
-  `,
-    { $preference_key: 'isDeveloperModeEnabled' },
+    ' SELECT is_developer_mode_enabled FROM preferences;',
   );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
@@ -168,12 +163,7 @@ export const getEventDuration = (
   event: GameEvent,
 ): number => {
   const isDeveloperModeEnabled = database.selectValue(
-    `
-    SELECT bool_value
-    FROM preferences
-    WHERE preference_key = $preference_key;
-  `,
-    { $preference_key: 'isDeveloperModeEnabled' },
+    ' SELECT is_developer_mode_enabled FROM preferences;',
   );
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {

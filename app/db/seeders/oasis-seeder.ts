@@ -1,14 +1,14 @@
 import type { Seeder } from 'app/interfaces/db';
 import { prngMulberry32 } from 'ts-seedrandom';
-import type { DbTile } from 'app/interfaces/models/db/tile';
+import type { TileModel } from 'app/interfaces/models/game/tile';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import { batchInsert } from 'app/db/utils/batch-insert';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
 type SelectReturn = {
-  id: DbTile['id'];
-  oasis_graphics: DbTile['oasis_graphics'];
+  id: TileModel['id'];
+  oasis_graphics: TileModel['oasis_graphics'];
 };
 
 export const oasisSeeder: Seeder = (database, server): void => {
