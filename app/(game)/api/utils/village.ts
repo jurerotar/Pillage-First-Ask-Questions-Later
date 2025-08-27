@@ -18,7 +18,9 @@ export const calculateVillageResourcesAt = (
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
 
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const village = villages.find(({ id }) => id === villageId)!;
+  const { lastUpdatedAt, resources } = villages.find(
+    ({ id }) => id === villageId,
+  )!;
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
@@ -55,8 +57,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentWood,
     lastEffectiveUpdate: lastEffectiveWoodUpdate,
   } = calculateCurrentAmount({
-    village,
-    resource: 'wood',
+    lastKnownResourceAmount: resources.wood,
+    lastUpdatedAt,
     hourlyProduction: woodProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
@@ -65,8 +67,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentClay,
     lastEffectiveUpdate: lastEffectiveClayUpdate,
   } = calculateCurrentAmount({
-    village,
-    resource: 'clay',
+    lastKnownResourceAmount: resources.clay,
+    lastUpdatedAt,
     hourlyProduction: clayProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
@@ -75,8 +77,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentIron,
     lastEffectiveUpdate: lastEffectiveIronUpdate,
   } = calculateCurrentAmount({
-    village,
-    resource: 'iron',
+    lastKnownResourceAmount: resources.iron,
+    lastUpdatedAt,
     hourlyProduction: ironProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
@@ -85,8 +87,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentWheat,
     lastEffectiveUpdate: lastEffectiveWheatUpdate,
   } = calculateCurrentAmount({
-    village,
-    resource: 'wheat',
+    lastKnownResourceAmount: resources.wheat,
+    lastUpdatedAt,
     hourlyProduction: wheatProduction,
     storageCapacity: granaryCapacity,
     timestamp,

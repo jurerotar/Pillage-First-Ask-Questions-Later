@@ -25,6 +25,8 @@ export const useCalculatedResource = (
     resourceToResourceEffectMap.get(resource)!,
   );
 
+  const lastKnownResourceAmount = currentVillage.resources[resource];
+
   const timeoutId = useRef<number | null>(null);
   const intervalId = useRef<number | null>(null);
 
@@ -33,8 +35,8 @@ export const useCalculatedResource = (
     secondsForResourceGeneration,
     currentAmount,
   } = calculateCurrentAmount({
-    village: currentVillage,
-    resource,
+    lastKnownResourceAmount,
+    lastUpdatedAt: currentVillage.lastUpdatedAt,
     storageCapacity,
     hourlyProduction,
   });
