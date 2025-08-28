@@ -1,31 +1,35 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
 export const mapFiltersSeeder: Seeder = (database): void => {
-  const mapFilters: (keyof MapFilters)[] = [
-    'shouldShowFactionReputation',
-    'shouldShowOasisIcons',
-    'shouldShowTroopMovements',
-    'shouldShowWheatFields',
-    'shouldShowTileTooltips',
-    'shouldShowTreasureIcons',
-  ];
-
   const stmt = database.prepare(`
     INSERT INTO map_filters (
-      filter_key,
-      value
-    ) VALUES ($filter_key, $value);
+      should_show_faction_reputation,
+      should_show_oasis_icons,
+      should_show_troop_movements,
+      should_show_wheat_fields,
+      should_show_tile_tooltips,
+      should_show_treasure_icons
+    ) VALUES (
+      1,
+      $should_show_faction_reputation,
+      $should_show_oasis_icons,
+      $should_show_troop_movements,
+      $should_show_wheat_fields,
+      $should_show_tile_tooltips,
+      $should_show_treasure_icons
+    )
   `);
 
-  for (const mapFilter of mapFilters) {
-    stmt
-      .bind({
-        $filter_key: mapFilter,
-        $value: true,
-      })
-      .stepReset();
-  }
+  stmt
+    .bind({
+      $should_show_faction_reputation: 1,
+      $should_show_oasis_icons: 1,
+      $should_show_troop_movements: 1,
+      $should_show_wheat_fields: 1,
+      $should_show_tile_tooltips: 1,
+      $should_show_treasure_icons: 1,
+    })
+    .stepReset();
 
   stmt.finalize();
 };

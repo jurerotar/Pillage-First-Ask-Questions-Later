@@ -10,3 +10,5 @@ CREATE TABLE faction_reputation
   FOREIGN KEY (source_faction) REFERENCES factions (id),
   FOREIGN KEY (target_faction) REFERENCES factions (id)
 );
+
+CREATE INDEX idx_faction_reputation_target_faction ON faction_reputation (target_faction);

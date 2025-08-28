@@ -23,9 +23,8 @@ import createUnitResearchTable from 'app/db/schemas/unit-research-schema.sql?raw
 import createUnitImprovementTable from 'app/db/schemas/unit-improvements-schema.sql?raw';
 import createBuildingFieldsTable from 'app/db/schemas/building-fields-schema.sql?raw';
 import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?raw';
-import createOasisBonusesIndexes from 'app/db/indexes/oasis-bonuses-indexes.sql?raw';
+import createOasisBonusesIndexes from 'app/db/indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from 'app/db/indexes/players-indexes.sql?raw';
-import createTilesIndexes from 'app/db/indexes/tiles-indexes.sql?raw';
 import createTroopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from 'app/db/indexes/world-items-indexes.sql?raw';
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
@@ -123,7 +122,6 @@ self.addEventListener(
       // Tiles
       db.exec(createTilesTable);
       tilesSeeder(db, server);
-      db.exec(createTilesIndexes);
 
       // Oasis bonuses
       db.exec(createOasisBonusesTable);

@@ -6,6 +6,8 @@ CREATE TABLE villages
   tile_id INTEGER NOT NULL,
   player_id INTEGER NOT NULL,
 
+  UNIQUE (tile_id),
+
   FOREIGN KEY (tile_id) REFERENCES tiles (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE,

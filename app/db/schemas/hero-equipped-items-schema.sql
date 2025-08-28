@@ -17,10 +17,9 @@ CREATE TABLE hero_equipped_items
   item_id TEXT,
   amount INTEGER,
 
+  CHECK ((item_id IS NULL AND amount IS NULL) OR (item_id IS NOT NULL AND amount > 0)),
+
   UNIQUE (hero_id, slot),
 
   FOREIGN KEY (hero_id) REFERENCES heroes (id) ON DELETE CASCADE
 );
-
-CREATE INDEX idx_hero_equipped_items_hero_id
-  ON hero_equipped_items (hero_id);
