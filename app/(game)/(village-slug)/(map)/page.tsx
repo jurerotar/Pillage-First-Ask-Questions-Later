@@ -15,11 +15,7 @@ import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
-import {
-  FixedSizeGrid,
-  FixedSizeList,
-  type GridOnScrollProps,
-} from 'react-window';
+import { Grid, List, useListRef, useGridRef } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { isStandaloneDisplayMode } from 'app/utils/device';
@@ -58,12 +54,9 @@ const MapPage = () => {
 
   const mapRef = useRef<HTMLDivElement>(null);
 
-  const setMapRef = useCallback((node: HTMLDivElement | null) => {
-    mapRef.current = node;
-  }, []);
-
-  const leftMapRulerRef = useRef<FixedSizeList>(null);
-  const bottomMapRulerRef = useRef<FixedSizeList>(null);
+  const leftMapRulerRef = useListRef(null);
+  const bottomMapRulerRef = useListRef(null);
+  const gridRef = useGridRef(null);
 
   const isPwa = isStandaloneDisplayMode();
 
@@ -146,7 +139,8 @@ const MapPage = () => {
 
   useEventListener(
     'mousemove',
-    ({ clientX, clientY }) => {
+    (event: MouseEvent) => {
+      const { clientX, clientY } = event;
       if (!isScrolling.current || !mapRef.current) {
         return;
       }
@@ -185,16 +179,14 @@ const MapPage = () => {
     return tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
   };
 
-  const offsetX = scrollLeft(currentCenterTile.current.x);
-  const offsetY = scrollTop(currentCenterTile.current.y);
-
   const onScroll = useCallback(
-    ({ scrollTop, scrollLeft }: GridOnScrollProps) => {
-      if (bottomMapRulerRef.current) {
-        bottomMapRulerRef.current.scrollTo(scrollLeft);
+    ({ target }: React.UIEvent<HTMLDivElement>) => {
+      const { scrollTop, scrollLeft } = target as HTMLDivElement;
+      if (bottomMapRulerRef.current?.element) {
+        bottomMapRulerRef.current.element.scrollTo({ left: scrollLeft });
       }
-      if (leftMapRulerRef.current) {
-        leftMapRulerRef.current.scrollTo(scrollTop);
+      if (leftMapRulerRef.current?.element) {
+        leftMapRulerRef.current.element.scrollTo({ top: scrollTop });
       }
 
       currentCenterTile.current.x = Math.round(
@@ -204,7 +196,7 @@ const MapPage = () => {
         gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
       );
     },
-    [tileSize, gridSize, width, mapHeight],
+    [tileSize, gridSize, width, mapHeight, bottomMapRulerRef, leftMapRulerRef],
   );
 
   const isInitialRender = useRef<boolean>(true);
@@ -219,20 +211,20 @@ const MapPage = () => {
     const scrollX = scrollLeft(startingX);
     const scrollY = scrollTop(startingY);
 
-    if (mapRef.current) {
-      mapRef.current.scrollTo({
+    if (gridRef.current?.element) {
+      gridRef.current.element.scrollTo({
         left: scrollX,
         top: scrollY,
         behavior: 'smooth',
       });
     }
 
-    if (leftMapRulerRef.current) {
-      leftMapRulerRef.current.scrollTo(scrollY);
+    if (leftMapRulerRef.current?.element) {
+      leftMapRulerRef.current.element.scrollTo({ top: scrollY });
     }
 
-    if (bottomMapRulerRef.current) {
-      bottomMapRulerRef.current.scrollTo(scrollX);
+    if (bottomMapRulerRef.current?.element) {
+      bottomMapRulerRef.current.element.scrollTo({ left: scrollX });
     }
 
     currentCenterTile.current = { x: startingX, y: startingY };
@@ -276,58 +268,46 @@ const MapPage = () => {
         }
         render={renderTooltip}
       />
-      <FixedSizeGrid
+      <Grid
         key={tileSize}
         className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        outerRef={setMapRef}
+        gridRef={gridRef}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={mapHeight}
-        width={width}
-        itemData={fixedGridData}
-        initialScrollLeft={offsetX}
-        initialScrollTop={offsetY}
+        style={{ height: mapHeight, width }}
+        cellProps={fixedGridData}
         onScroll={onScroll}
-      >
-        {Cell}
-      </FixedSizeGrid>
+        cellComponent={Cell}
+      />
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 select-none pointer-events-none">
-        <FixedSizeList
+        <List
           className="scrollbar-hidden will-change-scroll"
-          ref={leftMapRulerRef}
-          itemSize={tileSize}
-          height={mapHeight}
-          itemCount={gridSize}
-          width={RULER_SIZE}
-          initialScrollOffset={offsetY}
-          layout="vertical"
-          itemData={{
+          listRef={leftMapRulerRef}
+          rowHeight={tileSize}
+          style={{ height: mapHeight, width: RULER_SIZE }}
+          rowCount={gridSize}
+          rowProps={{
             layout: 'vertical',
           }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          rowComponent={MapRulerCell}
+        />
       </div>
       {/* X-axis ruler */}
       <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-        <FixedSizeList
+        <List
           className="scrollbar-hidden will-change-scroll"
-          ref={bottomMapRulerRef}
-          itemSize={tileSize}
-          height={RULER_SIZE}
-          itemCount={gridSize}
-          width={width - RULER_SIZE}
-          initialScrollOffset={offsetX}
-          layout="horizontal"
-          itemData={{
+          listRef={bottomMapRulerRef}
+          rowHeight={tileSize}
+          style={{ height: RULER_SIZE, width: width - RULER_SIZE }}
+          rowCount={gridSize}
+          rowProps={{
             layout: 'horizontal',
           }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          rowComponent={MapRulerCell}
+        />
       </div>
       <MapControls />
     </main>
