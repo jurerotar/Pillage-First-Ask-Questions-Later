@@ -13,6 +13,7 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
+import type React from 'react';
 import { useSearchParams } from 'react-router';
 import { Grid, useGridRef } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
@@ -360,14 +361,8 @@ const MapPage = () => {
           columnWidth={RULER_SIZE}
           rowHeight={tileSize}
           style={{ height: mapHeight, width: RULER_SIZE }}
-          cellComponent={(props) => (
-            <MapRulerCell
-              {...props}
-              index={props.rowIndex}
-              layout="vertical"
-            />
-          )}
-          cellProps={{}}
+          cellComponent={MapRulerCell}
+          cellProps={{ layout: 'vertical' }}
         />
       </div>
       {/* X-axis ruler */}
@@ -379,15 +374,9 @@ const MapPage = () => {
           columnWidth={tileSize}
           rowCount={1}
           rowHeight={RULER_SIZE}
-          style={{ height: RULER_SIZE, width: width - RULER_SIZE }}
-          cellComponent={(props) => (
-            <MapRulerCell
-              {...props}
-              index={props.columnIndex}
-              layout="horizontal"
-            />
-          )}
-          cellProps={{}}
+          style={{ height: RULER_SIZE, width }}
+          cellComponent={MapRulerCell}
+          cellProps={{ layout: 'horizontal' }}
         />
       </div>
       <MapControls />
