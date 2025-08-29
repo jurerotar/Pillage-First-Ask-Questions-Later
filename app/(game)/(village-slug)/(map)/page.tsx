@@ -13,13 +13,8 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router';
 import { useSearchParams } from 'react-router';
-import {
-  FixedSizeGrid,
-  FixedSizeList,
-  type GridOnScrollProps,
-} from 'react-window';
+import { Grid, useGridRef } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { isStandaloneDisplayMode } from 'app/utils/device';
@@ -48,7 +43,6 @@ const MapPage = () => {
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
-  const location = useLocation();
   const { preferences } = usePreferences();
 
   const { x, y } = currentVillage.coordinates;
@@ -56,14 +50,9 @@ const MapPage = () => {
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
 
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  const setMapRef = useCallback((node: HTMLDivElement | null) => {
-    mapRef.current = node;
-  }, []);
-
-  const leftMapRulerRef = useRef<FixedSizeList>(null);
-  const bottomMapRulerRef = useRef<FixedSizeList>(null);
+  const leftMapRulerRef = useGridRef(null);
+  const bottomMapRulerRef = useGridRef(null);
+  const gridRef = useGridRef(null);
 
   const isPwa = isStandaloneDisplayMode();
 
@@ -112,57 +101,69 @@ const MapPage = () => {
     preferences,
   ]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
+  // Event listeners need to be reattached when Grid remounts (which happens when the Grid DOM element changes)
   useEffect(() => {
-    const node = mapRef.current;
-    if (!node) {
-      return;
-    }
+    const attachEventListeners = () => {
+      const gridElement = gridRef.current?.element;
 
-    const controller = new AbortController();
+      if (!gridElement) {
+        // If element is not ready yet, try again on next frame
+        requestAnimationFrame(attachEventListeners);
+        return;
+      }
 
-    const handleMouseDown = (event: MouseEvent) => {
-      event.preventDefault();
+      const controller = new AbortController();
 
-      const { clientX, clientY } = event;
+      const handleMouseDown = (event: MouseEvent) => {
+        event.preventDefault();
 
-      mouseDownPosition.current = {
-        x: clientX,
-        y: clientY,
+        const { clientX, clientY } = event;
+
+        mouseDownPosition.current = {
+          x: clientX,
+          y: clientY,
+        };
+
+        isScrolling.current = true;
       };
 
-      isScrolling.current = true;
+      gridElement.addEventListener('mousedown', handleMouseDown, {
+        signal: controller.signal,
+        passive: false,
+      });
+
+      return () => {
+        controller.abort();
+      };
     };
 
-    node.addEventListener('mousedown', handleMouseDown, {
-      signal: controller.signal,
-      passive: false,
-    });
-
-    return () => {
-      controller.abort();
-    };
-  }, [mapRef.current, tileSize]);
+    return attachEventListeners();
+  }, [gridRef.current?.element]);
 
   useEventListener(
     'mousemove',
-    ({ clientX, clientY }) => {
-      if (!isScrolling.current || !mapRef.current) {
+    (event: MouseEvent) => {
+      const { clientX, clientY } = event;
+      if (!isScrolling.current || !gridRef.current?.element) {
         return;
       }
 
       const deltaX = clientX - mouseDownPosition.current.x;
       const deltaY = clientY - mouseDownPosition.current.y;
 
-      const currentX = mapRef.current.scrollLeft;
-      const currentY = mapRef.current.scrollTop;
+      const currentX = gridRef.current.element.scrollLeft;
+      const currentY = gridRef.current.element.scrollTop;
 
       mouseDownPosition.current = {
         x: clientX,
         y: clientY,
       };
 
-      mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+      gridRef.current.element.scrollTo({
+        left: currentX - deltaX,
+        top: currentY - deltaY,
+        behavior: 'auto',
+      });
     },
     // @ts-expect-error - remove once usehooks-ts is R19 compliant
     window,
@@ -177,24 +178,70 @@ const MapPage = () => {
     window,
   );
 
-  const scrollLeft = (tileX: number) => {
-    return tileSize * (tileX + gridSize / 2) - width / 2;
-  };
+  const scrollLeft = useCallback(
+    (tileX: number) => {
+      return tileSize * (tileX + gridSize / 2) - width / 2;
+    },
+    [tileSize, gridSize, width],
+  );
 
-  const scrollTop = (tileY: number) => {
-    return tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
-  };
+  const scrollTop = useCallback(
+    (tileY: number) => {
+      return tileSize * (-tileY + gridSize / 2) - mapHeight / 2;
+    },
+    [tileSize, gridSize, mapHeight],
+  );
 
-  const offsetX = scrollLeft(currentCenterTile.current.x);
-  const offsetY = scrollTop(currentCenterTile.current.y);
+  const scrollToPosition = useCallback(
+    (scrollX: number, scrollY: number) => {
+      if (gridRef.current?.element) {
+        gridRef.current.element.scrollTo({
+          left: scrollX,
+          top: scrollY,
+          behavior: 'auto',
+        });
+      }
+
+      if (leftMapRulerRef.current?.element) {
+        leftMapRulerRef.current.element.scrollTo({ top: scrollY });
+      }
+
+      if (bottomMapRulerRef.current?.element) {
+        bottomMapRulerRef.current.element.scrollTo({ left: scrollX });
+      }
+    },
+    [gridRef, leftMapRulerRef, bottomMapRulerRef],
+  );
+
+  const scrollToPositionSmooth = useCallback(
+    (scrollX: number, scrollY: number) => {
+      if (gridRef.current?.element) {
+        gridRef.current.element.scrollTo({
+          left: scrollX,
+          top: scrollY,
+          behavior: 'smooth',
+        });
+      }
+
+      if (leftMapRulerRef.current?.element) {
+        leftMapRulerRef.current.element.scrollTo({ top: scrollY });
+      }
+
+      if (bottomMapRulerRef.current?.element) {
+        bottomMapRulerRef.current.element.scrollTo({ left: scrollX });
+      }
+    },
+    [gridRef, leftMapRulerRef, bottomMapRulerRef],
+  );
 
   const onScroll = useCallback(
-    ({ scrollTop, scrollLeft }: GridOnScrollProps) => {
-      if (bottomMapRulerRef.current) {
-        bottomMapRulerRef.current.scrollTo(scrollLeft);
+    ({ target }: React.UIEvent<HTMLDivElement>) => {
+      const { scrollTop, scrollLeft } = target as HTMLDivElement;
+      if (bottomMapRulerRef.current?.element) {
+        bottomMapRulerRef.current.element.scrollTo({ left: scrollLeft });
       }
-      if (leftMapRulerRef.current) {
-        leftMapRulerRef.current.scrollTo(scrollTop);
+      if (leftMapRulerRef.current?.element) {
+        leftMapRulerRef.current.element.scrollTo({ top: scrollTop });
       }
 
       currentCenterTile.current.x = Math.round(
@@ -204,12 +251,40 @@ const MapPage = () => {
         gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
       );
     },
-    [tileSize, gridSize, width, mapHeight],
+    [tileSize, gridSize, width, mapHeight, bottomMapRulerRef, leftMapRulerRef],
   );
 
   const isInitialRender = useRef<boolean>(true);
+  const previousTileSize = useRef<number>(tileSize);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We intentionally only want to react on location.key and nothing else
+  useEffect(() => {
+    if (isInitialRender.current || previousTileSize.current === tileSize) {
+      return;
+    }
+
+    const scrollX = scrollLeft(currentCenterTile.current.x);
+    const scrollY = scrollTop(currentCenterTile.current.y);
+
+    requestAnimationFrame(() => {
+      scrollToPosition(scrollX, scrollY);
+    });
+
+    previousTileSize.current = tileSize;
+  }, [tileSize, scrollLeft, scrollTop, scrollToPosition]);
+
+  useEffect(() => {
+    if (!isInitialRender.current) {
+      return;
+    }
+
+    const scrollX = scrollLeft(currentCenterTile.current.x);
+    const scrollY = scrollTop(currentCenterTile.current.y);
+
+    requestAnimationFrame(() => {
+      scrollToPosition(scrollX, scrollY);
+    });
+  }, [scrollLeft, scrollTop, scrollToPosition]);
+
   useEffect(() => {
     if (isInitialRender.current) {
       isInitialRender.current = false;
@@ -219,24 +294,10 @@ const MapPage = () => {
     const scrollX = scrollLeft(startingX);
     const scrollY = scrollTop(startingY);
 
-    if (mapRef.current) {
-      mapRef.current.scrollTo({
-        left: scrollX,
-        top: scrollY,
-        behavior: 'smooth',
-      });
-    }
-
-    if (leftMapRulerRef.current) {
-      leftMapRulerRef.current.scrollTo(scrollY);
-    }
-
-    if (bottomMapRulerRef.current) {
-      bottomMapRulerRef.current.scrollTo(scrollX);
-    }
+    scrollToPositionSmooth(scrollX, scrollY);
 
     currentCenterTile.current = { x: startingX, y: startingY };
-  }, [location.key]);
+  }, [scrollLeft, scrollTop, startingX, startingY, scrollToPositionSmooth]);
 
   const renderTooltip = useCallback(
     ({
@@ -276,58 +337,58 @@ const MapPage = () => {
         }
         render={renderTooltip}
       />
-      <FixedSizeGrid
+      <Grid
         key={tileSize}
         className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        outerRef={setMapRef}
+        gridRef={gridRef}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={mapHeight}
-        width={width}
-        itemData={fixedGridData}
-        initialScrollLeft={offsetX}
-        initialScrollTop={offsetY}
+        style={{ height: mapHeight, width }}
+        cellProps={fixedGridData}
         onScroll={onScroll}
-      >
-        {Cell}
-      </FixedSizeGrid>
+        cellComponent={Cell}
+      />
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 select-none pointer-events-none">
-        <FixedSizeList
+        <Grid
           className="scrollbar-hidden will-change-scroll"
-          ref={leftMapRulerRef}
-          itemSize={tileSize}
-          height={mapHeight}
-          itemCount={gridSize}
-          width={RULER_SIZE}
-          initialScrollOffset={offsetY}
-          layout="vertical"
-          itemData={{
-            layout: 'vertical',
-          }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          gridRef={leftMapRulerRef}
+          columnCount={1}
+          rowCount={gridSize}
+          columnWidth={RULER_SIZE}
+          rowHeight={tileSize}
+          style={{ height: mapHeight, width: RULER_SIZE }}
+          cellComponent={(props) => (
+            <MapRulerCell
+              {...props}
+              index={props.rowIndex}
+              layout="vertical"
+            />
+          )}
+          cellProps={{}}
+        />
       </div>
       {/* X-axis ruler */}
       <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-        <FixedSizeList
+        <Grid
           className="scrollbar-hidden will-change-scroll"
-          ref={bottomMapRulerRef}
-          itemSize={tileSize}
-          height={RULER_SIZE}
-          itemCount={gridSize}
-          width={width - RULER_SIZE}
-          initialScrollOffset={offsetX}
-          layout="horizontal"
-          itemData={{
-            layout: 'horizontal',
-          }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          gridRef={bottomMapRulerRef}
+          columnCount={gridSize}
+          columnWidth={tileSize}
+          rowCount={1}
+          rowHeight={RULER_SIZE}
+          style={{ height: RULER_SIZE, width: width - RULER_SIZE }}
+          cellComponent={(props) => (
+            <MapRulerCell
+              {...props}
+              index={props.columnIndex}
+              layout="horizontal"
+            />
+          )}
+          cellProps={{}}
+        />
       </div>
       <MapControls />
     </main>
