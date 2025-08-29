@@ -4,16 +4,15 @@ import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-contex
 
 type MapRulerCellProps = {
   layout: 'vertical' | 'horizontal';
+  index: number;
+  style: React.CSSProperties;
 };
 
 export const MapRulerCell = ({
-  index,
   style,
   layout,
-}: {
-  index: number;
-  style: React.CSSProperties;
-} & MapRulerCellProps): React.ReactNode => {
+  index,
+}: MapRulerCellProps): React.ReactNode => {
   const { gridSize } = use(MapContext);
 
   const modifier = (gridSize - 1) / 2 + 1;

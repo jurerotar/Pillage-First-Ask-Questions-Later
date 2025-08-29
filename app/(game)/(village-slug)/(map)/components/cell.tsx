@@ -22,6 +22,7 @@ import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import cellStyles from './cell.module.scss';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import type { CellComponentProps } from 'react-window';
 
 type CellBaseProps = {
   contextualMap: ContextualTile[];
@@ -153,12 +154,6 @@ const getTileClassNames = (
   return classes;
 };
 
-type CellProps = {
-  rowIndex: number;
-  columnIndex: number;
-  style: React.CSSProperties;
-} & CellBaseProps;
-
 export const Cell = ({
   contextualMap,
   gridSize,
@@ -169,7 +164,7 @@ export const Cell = ({
   style,
   rowIndex,
   columnIndex,
-}: CellProps): React.ReactNode => {
+}: CellComponentProps<CellBaseProps>): React.ReactNode => {
   const tile: ContextualTile = contextualMap[gridSize * rowIndex + columnIndex];
 
   const className = getTileClassNames(
