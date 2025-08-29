@@ -1,32 +1,11 @@
 import { buildingMap } from 'app/(game)/(village-slug)/assets/buildings';
-import { presetIdToPresetMap } from 'app/(game)/(village-slug)/assets/npc-village-presets';
 import type {
   Building,
   BuildingEffect,
 } from 'app/interfaces/models/game/building';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
-
-const mergeBuildingFields = (
-  buildingFieldsFromPreset: BuildingField[],
-  buildingFields: BuildingField[],
-): BuildingField[] => {
-  // Create a map from the second array using the 'id' as the key
-  const map = new Map(buildingFields.map((field) => [field.id, field]));
-
-  // Iterate over the first array and add its fields to the map only if not already present
-  for (const field of buildingFieldsFromPreset) {
-    if (!map.has(field.id)) {
-      map.set(field.id, field);
-    }
-  }
-
-  // Return the combined result as an array
-  return Array.from(map.values());
-};
+import type { Village } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 // Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
 export const specialFieldIds: BuildingField['id'][] = [
@@ -35,14 +14,6 @@ export const specialFieldIds: BuildingField['id'][] = [
 
 export const getBuildingData = (buildingId: Building['id']) => {
   return buildingMap.get(buildingId)!;
-};
-
-const getBuildingFieldPresetData = (
-  buildingFieldsPresets: Village['buildingFieldsPresets'],
-): BuildingField[] => {
-  return buildingFieldsPresets.flatMap(
-    (presetId) => presetIdToPresetMap.get(presetId)!,
-  );
 };
 
 export const getBuildingDataForLevel = (
@@ -86,17 +57,10 @@ export const getBuildingFieldByBuildingFieldId = (
 
 export const calculatePopulationFromBuildingFields = (
   buildingFields: BuildingField[],
-  buildingFieldsPresets: Village['buildingFieldsPresets'],
 ): number => {
-  const presetsFields = getBuildingFieldPresetData(buildingFieldsPresets);
-  const mergedBuildingFields = mergeBuildingFields(
-    presetsFields,
-    buildingFields,
-  );
-
   let sum = 0;
 
-  for (const { buildingId, level } of mergedBuildingFields) {
+  for (const { buildingId, level } of buildingFields) {
     if (buildingId === null) {
       continue;
     }

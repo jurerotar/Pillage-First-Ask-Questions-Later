@@ -113,6 +113,33 @@ export type InventoryItem = HeroItem & {
   amount: number;
 };
 
+export type HeroEquippedItemsModel = {
+  id: number;
+  hero_id: HeroModel['id'];
+  slot: Exclude<HeroItemSlot, 'non-equipable'>;
+  item_id: HeroItem['id'];
+  amount: number;
+};
+
+export type HeroInventoryModel = {
+  id: number;
+  hero_id: HeroModel['id'];
+  item_id: HeroItem['id'];
+  amount: number;
+};
+
+export type HeroModel = {
+  id: number;
+  experience: number;
+  health: number;
+  attack_power: number;
+  resource_production: number;
+  attack_bonus: number;
+  defence_bonus: number;
+  resource_to_produce: Resource | 'shared';
+  adventure_count: number;
+};
+
 export type Hero = {
   stats: HeroStats;
   // Attributes, selectable on every level

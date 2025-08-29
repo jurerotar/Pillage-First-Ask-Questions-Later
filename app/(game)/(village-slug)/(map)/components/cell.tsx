@@ -79,7 +79,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
   if (
     isOccupiableTile(tile) &&
     shouldShowWheatFields &&
-    wheatFields.includes(tile.RFC)
+    wheatFields.includes(tile.resourceFieldComposition)
   ) {
     return (
       <BorderIndicator
@@ -129,8 +129,11 @@ const getTileClassNames = (
   let classes = '';
 
   if (isUnoccupiedOccupiableTile(tile)) {
-    const { RFC } = tile;
-    classes = clsx(cellStyles.tile, cellStyles[`unoccupied-tile-${RFC}`]);
+    const { resourceFieldComposition } = tile;
+    classes = clsx(
+      cellStyles.tile,
+      cellStyles[`unoccupied-tile-${resourceFieldComposition}`],
+    );
   } else if (isContextualOccupiedOccupiableTile(tile)) {
     const { reputationLevel } = tile;
 

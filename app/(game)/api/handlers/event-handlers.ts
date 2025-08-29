@@ -29,6 +29,7 @@ import { PLAYER_ID } from 'app/constants/player';
 
 export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { villageId } = params;
@@ -47,7 +48,7 @@ export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
 export const getVillageEventsByType: ApiHandler<
   GameEvent[],
   'villageId' | 'eventType'
-> = async (queryClient, { params }) => {
+> = async (queryClient, _database, { params }) => {
   const { villageId, eventType } = params;
 
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
@@ -63,17 +64,17 @@ export const createNewEvents: ApiHandler<
   void,
   '',
   CreateNewEventsBody
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const { body } = args;
 
-  await createClientEvents(queryClient, body);
+  await createClientEvents(queryClient, database, body);
 };
 
 export const cancelConstructionEvent: ApiHandler<
   void,
   'eventId',
   void
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const {
     params: { eventId },
   } = args;
@@ -167,6 +168,7 @@ export const cancelConstructionEvent: ApiHandler<
 
     addVillageResourcesAt(
       queryClient,
+      database,
       villageId,
       Date.now(),
       resourcesToRefund,
@@ -175,5 +177,5 @@ export const cancelConstructionEvent: ApiHandler<
     return eventsToKeep;
   });
 
-  await scheduleNextEvent(queryClient);
+  await scheduleNextEvent(queryClient, database);
 };

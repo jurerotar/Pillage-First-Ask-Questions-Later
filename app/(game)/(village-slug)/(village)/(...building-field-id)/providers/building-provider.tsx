@@ -1,6 +1,6 @@
 import type React from 'react';
 import { createContext } from 'react';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type BuildingContextProps = {
   buildingField: BuildingField;

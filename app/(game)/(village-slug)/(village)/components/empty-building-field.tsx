@@ -1,4 +1,4 @@
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
+import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import type React from 'react';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Link } from 'react-router';
