@@ -1,14 +1,16 @@
 import { describe, expect, test } from 'vitest';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
+import type { Village } from 'app/interfaces/models/game/village';
 
 describe('calculateCurrentAmount', () => {
   const oneHour = 3_600_000; // ms
   const baseTime = Date.now();
-  const resource = 'wood';
   const storageCapacity = 1000;
 
-  const getMockVillage = (override: Partial<typeof villageMock> = {}) => ({
+  const getMockVillage = (
+    override: Partial<typeof villageMock> = {},
+  ): Village => ({
     ...villageMock,
     lastUpdatedAt: baseTime,
     ...override,
@@ -19,8 +21,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + oneHour;
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: 60,
       storageCapacity,
       timestamp,
@@ -38,8 +40,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + oneHour;
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: 60,
       storageCapacity,
       timestamp,
@@ -53,8 +55,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + oneHour;
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: -60,
       storageCapacity,
       timestamp,
@@ -70,8 +72,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + 5 * oneHour; // try to subtract 300
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: -60,
       storageCapacity,
       timestamp,
@@ -85,8 +87,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + oneHour;
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: 0,
       storageCapacity,
       timestamp,
@@ -101,8 +103,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + 30 * 1000; // 30 seconds later
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: 60, // 1 per minute
       storageCapacity,
       timestamp,
@@ -116,8 +118,8 @@ describe('calculateCurrentAmount', () => {
     const timestamp = baseTime + 125 * 1000; // 125 seconds later
 
     const result = calculateCurrentAmount({
-      village,
-      resource,
+      lastKnownResourceAmount: village.resources.wood,
+      lastUpdatedAt: village.lastUpdatedAt,
       hourlyProduction: 60, // 1 per minute
       storageCapacity,
       timestamp,
