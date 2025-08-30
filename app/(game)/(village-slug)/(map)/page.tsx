@@ -73,6 +73,8 @@ const MapPage = () => {
     : height - 218 - (isPwa ? 48 : 0);
 
   const isScrolling = useRef<boolean>(false);
+  // When dragging the map, we don't want clicks to open the tile modal.
+  const hasDragged = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
     x: startingX,
     y: startingY,
@@ -81,6 +83,13 @@ const MapPage = () => {
     x: 0,
     y: 0,
   });
+  // Preserve the initial mouse down position to compute total movement distance
+  const mouseDownStartPosition = useRef<Point>({
+    x: 0,
+    y: 0,
+  });
+
+  const DRAG_THRESHOLD_PX = 8;
 
   const fixedGridData = useMemo(() => {
     return {
@@ -90,6 +99,10 @@ const MapPage = () => {
       magnification,
       preferences,
       onClick: (tile: TileType) => {
+        // Ignore clicks that were preceded by a drag gesture
+        if (hasDragged.current) {
+          return;
+        }
         openModal(tile);
       },
     };
@@ -124,7 +137,12 @@ const MapPage = () => {
           x: clientX,
           y: clientY,
         };
+        mouseDownStartPosition.current = {
+          x: clientX,
+          y: clientY,
+        };
 
+        hasDragged.current = false;
         isScrolling.current = true;
       };
 
@@ -151,6 +169,17 @@ const MapPage = () => {
 
       const deltaX = clientX - mouseDownPosition.current.x;
       const deltaY = clientY - mouseDownPosition.current.y;
+
+      // Compute total movement since the interaction started
+      const totalDeltaX = clientX - mouseDownStartPosition.current.x;
+      const totalDeltaY = clientY - mouseDownStartPosition.current.y;
+      if (
+        !hasDragged.current &&
+        (Math.abs(totalDeltaX) > DRAG_THRESHOLD_PX ||
+          Math.abs(totalDeltaY) > DRAG_THRESHOLD_PX)
+      ) {
+        hasDragged.current = true;
+      }
 
       const currentX = gridRef.current.element.scrollLeft;
       const currentY = gridRef.current.element.scrollTop;
