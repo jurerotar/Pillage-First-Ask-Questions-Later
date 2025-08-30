@@ -14,7 +14,7 @@ import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
 import type React from 'react';
-import { useSearchParams } from 'react-router';
+import { useLocation, useSearchParams } from 'react-router';
 import { Grid, useGridRef } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
@@ -50,6 +50,9 @@ const MapPage = () => {
 
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
+  const location = useLocation();
+  const isFirstLocationKey = useRef<boolean>(true);
+  const lastNavKey = useRef<string | null>(null);
 
   const leftMapRulerRef = useGridRef(null);
   const bottomMapRulerRef = useGridRef(null);
@@ -286,6 +289,11 @@ const MapPage = () => {
 
   const isInitialRender = useRef<boolean>(true);
   const previousTileSize = useRef<number>(tileSize);
+  // Track previous starting coordinates to avoid re-centering on resize-only changes
+  const previousStarting = useRef<{ x: number; y: number }>({
+    x: startingX,
+    y: startingY,
+  });
 
   useEffect(() => {
     if (isInitialRender.current || previousTileSize.current === tileSize) {
@@ -318,8 +326,20 @@ const MapPage = () => {
   useEffect(() => {
     if (isInitialRender.current) {
       isInitialRender.current = false;
+      // initialize previous starting
+      previousStarting.current = { x: startingX, y: startingY };
       return;
     }
+
+    // Only recenter if starting coordinates actually changed (not just resize)
+    if (
+      previousStarting.current.x === startingX &&
+      previousStarting.current.y === startingY
+    ) {
+      return;
+    }
+
+    previousStarting.current = { x: startingX, y: startingY };
 
     const scrollX = scrollLeft(startingX);
     const scrollY = scrollTop(startingY);
@@ -328,6 +348,50 @@ const MapPage = () => {
 
     currentCenterTile.current = { x: startingX, y: startingY };
   }, [scrollLeft, scrollTop, startingX, startingY, scrollToPositionSmooth]);
+
+  // When the map viewport changes size, keep the current center tile centered
+  useEffect(() => {
+    if (isInitialRender.current) {
+      return;
+    }
+
+    const scrollX = scrollLeft(currentCenterTile.current.x);
+    const scrollY = scrollTop(currentCenterTile.current.y);
+
+    requestAnimationFrame(() => {
+      scrollToPosition(scrollX, scrollY);
+    });
+    // Only react to viewport (width/height-derived) changes here
+  }, [scrollLeft, scrollTop, scrollToPosition]);
+
+  // Recenter when user navigates to this map route again (same path, new navigation)
+  useEffect(() => {
+    if (isFirstLocationKey.current) {
+      isFirstLocationKey.current = false;
+      lastNavKey.current = location.key;
+      return;
+    }
+
+    // If somehow the effect re-ran without a new nav key, do nothing
+    if (lastNavKey.current === location.key) {
+      return;
+    }
+    lastNavKey.current = location.key;
+
+    const scrollX = scrollLeft(startingX);
+    const scrollY = scrollTop(startingY);
+
+    scrollToPositionSmooth(scrollX, scrollY);
+
+    currentCenterTile.current = { x: startingX, y: startingY };
+  }, [
+    location.key,
+    scrollLeft,
+    scrollTop,
+    scrollToPositionSmooth,
+    startingX,
+    startingY,
+  ]);
 
   const renderTooltip = useCallback(
     ({
