@@ -1,16 +1,21 @@
 import type React from 'react';
 import { use } from 'react';
-import type { ListChildComponentProps } from 'react-window';
 import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import type { CellComponentProps } from 'react-window';
 
-type MapRulerCellProps = {
+type MapRulerCellProps = CellComponentProps & {
   layout: 'vertical' | 'horizontal';
 };
 
-export const MapRulerCell: React.FC<
-  ListChildComponentProps<MapRulerCellProps>
-> = ({ index, style, data: { layout } }) => {
+export const MapRulerCell = ({
+  style,
+  layout,
+  rowIndex,
+  columnIndex,
+}: MapRulerCellProps): React.ReactNode => {
   const { gridSize } = use(MapContext);
+
+  const index = layout === 'vertical' ? rowIndex : columnIndex;
 
   const modifier = (gridSize - 1) / 2 + 1;
 

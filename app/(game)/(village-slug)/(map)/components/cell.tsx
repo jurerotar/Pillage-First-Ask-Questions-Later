@@ -15,8 +15,6 @@ import type {
 } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
 import type React from 'react';
-import { memo } from 'react';
-import { areEqual, type GridChildComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import { Icon } from 'app/components/icon';
@@ -24,6 +22,7 @@ import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import cellStyles from './cell.module.scss';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import type { CellComponentProps } from 'react-window';
 
 type CellBaseProps = {
   contextualMap: ContextualTile[];
@@ -155,42 +154,48 @@ const getTileClassNames = (
   return classes;
 };
 
-type CellProps = GridChildComponentProps<CellBaseProps>;
+export const Cell = ({
+  contextualMap,
+  gridSize,
+  mapFilters,
+  magnification,
+  onClick,
+  preferences,
+  style,
+  rowIndex,
+  columnIndex,
+}: CellComponentProps<CellBaseProps>): React.ReactNode => {
+  const tile: ContextualTile = contextualMap[gridSize * rowIndex + columnIndex];
 
-export const Cell = memo<CellProps>(
-  ({ data, style, rowIndex, columnIndex }) => {
-    const { contextualMap, gridSize, mapFilters, magnification, onClick } =
-      data;
+  const className = getTileClassNames(
+    tile,
+    magnification,
+    mapFilters.shouldShowFactionReputation,
+  );
 
-    const tile: ContextualTile =
-      contextualMap[gridSize * rowIndex + columnIndex];
-
-    const className = getTileClassNames(
-      tile,
-      magnification,
-      mapFilters.shouldShowFactionReputation,
-    );
-
-    return (
-      <button
-        onClick={() => onClick(tile)}
-        type="button"
-        className={className}
-        style={style}
-        data-tile-id={tile.id}
-      >
-        <CellIcons
-          tile={tile}
-          {...data}
+  return (
+    <button
+      onClick={() => onClick(tile)}
+      type="button"
+      className={className}
+      style={style}
+      data-tile-id={tile.id}
+    >
+      <CellIcons
+        tile={tile}
+        contextualMap={contextualMap}
+        gridSize={gridSize}
+        mapFilters={mapFilters}
+        magnification={magnification}
+        onClick={onClick}
+        preferences={preferences}
+      />
+      {tile.troopMovementIcon !== null && (
+        <TroopMovements
+          magnification={magnification}
+          troopMovementIcon={tile.troopMovementIcon}
         />
-        {tile.troopMovementIcon !== null && (
-          <TroopMovements
-            magnification={magnification}
-            troopMovementIcon={tile.troopMovementIcon}
-          />
-        )}
-      </button>
-    );
-  },
-  areEqual,
-);
+      )}
+    </button>
+  );
+};
