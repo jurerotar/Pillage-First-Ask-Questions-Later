@@ -4,6 +4,12 @@ import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
+import { Icon } from 'react-icons-sprite';
+import { LuScale, LuSword } from 'react-icons/lu';
+import { PiPathBold } from 'react-icons/pi';
+import { GiSpyglass } from 'react-icons/gi';
+import { BsShieldFill } from 'react-icons/bs';
+import { CiBag1 } from 'react-icons/ci';
 
 type ReportFiltersProps = {
   reportFilters: ReportType[];
@@ -31,49 +37,70 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
           data-tooltip-content={t('Toggle attack reports')}
           value="attack"
         >
-          <i className="icon icon-[lu-swords] size-4" />
+          <Icon
+            icon={LuSword}
+            className="size-4"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle raid reports')}
           value="raid"
         >
-          <i className="icon icon-[ci-bag1] size-4" />
+          <Icon
+            icon={CiBag1}
+            className="size-4"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle defence reports')}
           value="defence"
         >
-          <i className="icon icon-[bs-shield-fill] size-4" />
+          <Icon
+            icon={BsShieldFill}
+            className="size-4"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle scouting reports')}
           value="scout-attack"
         >
-          <i className="icon icon-[gi-spyglass] size-4" />
+          <Icon
+            icon={GiSpyglass}
+            className="size-4"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle scouting defence reports')}
           value="scout-defence"
         >
-          <i className="icon icon-[gi-spyglass] size-4" />
+          <Icon
+            icon={GiSpyglass}
+            className="size-4"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle adventure reports')}
           value="adventure"
         >
-          <i className="icon icon-[pi-path-bold] size-4" />
+          <Icon
+            icon={PiPathBold}
+            className="size-4"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle trade reports')}
           value="trade"
         >
-          <i className="icon icon-[lu-scale] size-4" />
+          <Icon
+            icon={LuScale}
+            className="size-4"
+          />
         </ToggleGroupItem>
       </ToggleGroup>
     </SectionContent>

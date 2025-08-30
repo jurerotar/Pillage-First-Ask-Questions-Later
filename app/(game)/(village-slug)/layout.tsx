@@ -35,6 +35,19 @@ import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { useTextDirection } from 'app/hooks/use-text-direction';
+import { Icon } from 'react-icons-sprite';
+import { TbMap2, TbShoe } from 'react-icons/tb';
+import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import { GiWheat } from 'react-icons/gi';
+import { LuBookMarked, LuScrollText } from 'react-icons/lu';
+import { PiPathBold } from 'react-icons/pi';
+import { FaHome } from 'react-icons/fa';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { RxExit } from 'react-icons/rx';
+import { GoGraph } from 'react-icons/go';
+import { CiCircleList } from 'react-icons/ci';
+import { RiAuctionLine } from 'react-icons/ri';
+import { HiStar } from 'react-icons/hi2';
 
 type CounterProps = {
   counter?: number;
@@ -99,7 +112,10 @@ const DiscordLink = () => {
       rel="noopener"
     >
       <span className="flex items-center justify-center">
-        <i className="icon icon-[fa-discord] text-2xl text-[#7289da]" />
+        <Icon
+          icon={FaDiscord}
+          className="text-2xl text-[#7289da]"
+        />
       </span>
     </a>
   );
@@ -131,19 +147,31 @@ const HeroNavigationItem = () => {
       title={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
-        <i className="icon icon-[md-face] text-2xl" />
+        <Icon
+          icon={MdFace}
+          className="text-2xl"
+        />
       </span>
       {isLevelUpAvailable && (
         <span className="absolute text-center size-4 bg-background top-0 -right-1.5 rounded-full border border-border shadow-md">
-          <i className="icon icon-[hi-star] text-yellow-300 text-sm" />
+          <Icon
+            icon={HiStar}
+            className="text-yellow-300 text-sm"
+          />
         </span>
       )}
       <span className="absolute size-4 bg-background bottom-0 -right-1.5 rounded-full border border-border shadow-md inline-flex justify-center items-center">
         {isHeroHome && (
-          <i className="icon icon-[fa-home] text-gray-500 text-xs" />
+          <Icon
+            icon={FaHome}
+            className="text-gray-500 text-xs"
+          />
         )}
         {!isHeroHome && (
-          <i className="icon icon-[tb-shoe] text-gray-500 text-xs" />
+          <Icon
+            icon={TbShoe}
+            className="text-gray-500 text-xs"
+          />
         )}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
@@ -248,7 +276,10 @@ const QuestsNavigationItem = () => {
         <Suspense fallback={null}>
           <QuestsCounter />
         </Suspense>
-        <i className="icon icon-[lu-book-marked] text-2xl" />
+        <Icon
+          icon={LuBookMarked}
+          className="text-2xl"
+        />
       </NavigationSideItem>
     </Link>
   );
@@ -267,7 +298,10 @@ const AdventuresNavigationItem = () => {
         <Suspense fallback={null}>
           <AdventurePointsCounter />
         </Suspense>
-        <i className="icon icon-[pi-path-bold] text-2xl" />
+        <Icon
+          icon={PiPathBold}
+          className="text-2xl"
+        />
       </NavigationSideItem>
     </Link>
   );
@@ -286,7 +320,10 @@ const ReportsNavigationItem = () => {
         <Suspense fallback={null}>
           <ReportsCounter />
         </Suspense>
-        <i className="icon icon-[lu-scroll-text] text-2xl" />
+        <Icon
+          icon={LuScrollText}
+          className="text-2xl"
+        />
       </NavigationSideItem>
     </Link>
   );
@@ -307,7 +344,10 @@ const ResourcesNavigationItem = () => {
         title={t('Resources')}
         isActive={isResourcesPageOpen}
       >
-        <i className="icon icon-[gi-wheat] text-3xl" />
+        <Icon
+          icon={GiWheat}
+          className="text-3xl"
+        />
       </NavigationMainItem>
     </Link>
   );
@@ -328,7 +368,10 @@ const VillageNavigationItem = () => {
         title={t('Village')}
         isActive={isVillagePageOpen}
       >
-        <i className="icon icon-[md-outline-holiday-village] text-3xl" />
+        <Icon
+          icon={MdOutlineHolidayVillage}
+          className="text-3xl"
+        />
       </NavigationMainItem>
     </Link>
   );
@@ -349,7 +392,10 @@ const MapNavigationItem = () => {
         title={t('Map')}
         isActive={isMapPageOpen}
       >
-        <i className="icon icon-[tb-map-2] text-3xl" />
+        <Icon
+          icon={TbMap2}
+          className="text-3xl"
+        />
       </NavigationMainItem>
     </NavLink>
   );
@@ -426,7 +472,10 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <i className="icon icon-[fa-github] text-xl text-[#24292e]" />
+                        <Icon
+                          icon={FaGithub}
+                          className="text-xl text-[#24292e]"
+                        />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">
                           GitHub
                         </span>
@@ -442,7 +491,10 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <i className="icon icon-[fa-discord] text-xl text-[#7289da]" />
+                        <Icon
+                          icon={FaDiscord}
+                          className="text-xl text-[#7289da]"
+                        />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">
                           Discord
                         </span>
@@ -456,7 +508,10 @@ const TopNavigation = () => {
                       aria-label={t('Preferences')}
                       title={t('Preferences')}
                     >
-                      <i className="icon icon-[md-settings] text-xl" />
+                      <Icon
+                        icon={MdSettings}
+                        className="text-xl"
+                      />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
@@ -466,7 +521,10 @@ const TopNavigation = () => {
                       aria-label={t('Logout')}
                       title={t('Logout')}
                     >
-                      <i className="icon icon-[rx-exit] text-xl text-red-500" />
+                      <Icon
+                        icon={RxExit}
+                        className="text-xl text-red-500"
+                      />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
@@ -487,7 +545,10 @@ const TopNavigation = () => {
                       aria-label={t('Statistics')}
                       title={t('Statistics')}
                     >
-                      <i className="icon icon-[go-graph] text-xl" />
+                      <Icon
+                        icon={GoGraph}
+                        className="text-xl"
+                      />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -500,7 +561,10 @@ const TopNavigation = () => {
                       aria-label={t('Overview')}
                       title={t('Overview')}
                     >
-                      <i className="icon icon-[ci-circle-list] text-xl" />
+                      <Icon
+                        icon={CiCircleList}
+                        className="text-xl"
+                      />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -529,7 +593,10 @@ const TopNavigation = () => {
                       aria-label={t('Auctions')}
                       title={t('Auctions')}
                     >
-                      <i className="icon icon-[ri-auction-line] text-xl" />
+                      <Icon
+                        icon={RiAuctionLine}
+                        className="text-xl"
+                      />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -583,7 +650,10 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Statistics')}
                 title={t('Statistics')}
               >
-                <i className="icon icon-[go-graph] text-2xl" />
+                <Icon
+                  icon={GoGraph}
+                  className="text-2l"
+                />
               </NavigationSideItem>
             </Link>
           </li>
@@ -599,7 +669,10 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Overview')}
                 title={t('Overview')}
               >
-                <i className="icon icon-[ci-circle-list] text-2xl" />
+                <Icon
+                  icon={CiCircleList}
+                  className="text-2xl"
+                />
               </NavigationSideItem>
             </Link>
           </li>
@@ -625,7 +698,10 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Preferences')}
                 title={t('Preferences')}
               >
-                <i className="icon icon-[md-settings] text-2xl" />
+                <Icon
+                  icon={MdSettings}
+                  className="text-2xl"
+                />
               </NavigationSideItem>
             </Link>
           </li>
@@ -635,7 +711,10 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Logout')}
                 title={t('Logout')}
               >
-                <i className="icon icon-[rx-exit] text-2xl text-red-500" />
+                <Icon
+                  icon={RxExit}
+                  className="text-2xl text-red-500"
+                />
               </NavigationSideItem>
             </Link>
           </li>

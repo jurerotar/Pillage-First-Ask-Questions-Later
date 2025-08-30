@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { FaDownload, FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
+import { Icon } from 'react-icons-sprite';
 
 type ServerCardProps = {
   server: Server;
@@ -39,7 +40,10 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           variant="outline"
           onClick={() => exportServer({ server })}
         >
-          <FaDownload className="text-gray-400" />
+          <Icon
+            icon={FaDownload}
+            className="text-gray-400"
+          />
         </Button>
         <Button
           data-tooltip-id="public-tooltip"
@@ -47,7 +51,10 @@ export const ServerCard: React.FC<ServerCardProps> = (props) => {
           variant="outline"
           onClick={() => deleteServer({ server })}
         >
-          <FaTrash className="text-red-500" />
+          <Icon
+            icon={FaTrash}
+            className="text-red-500"
+          />
         </Button>
       </div>
       <Text as="h2">{server.name}</Text>
