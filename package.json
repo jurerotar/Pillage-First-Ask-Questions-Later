@@ -87,7 +87,7 @@
     "i18next-parser": "9.3.0",
     "knip": "5.63.0",
     "opfs-mock": "2.3.0",
-    "react-icons-tailwindcss": "1.2.0",
+    "react-icons-sprite": "0.1.0",
     "rolldown-vite": "7.1.5",
     "rollup-plugin-visualizer": "6.0.3",
     "sass-embedded": "1.91.0",
