@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { LuWheat } from 'react-icons/lu';
-import { Icon } from 'react-icons-sprite';
 import { GiMetalBar, GiStoneBlock, GiWoodPile } from 'react-icons/gi';
 
 export const MarketplaceTrade = () => {
@@ -66,10 +65,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="attack"
               >
-                <Icon
-                  icon={GiWoodPile}
-                  className="size-4"
-                />
+                <GiWoodPile className="size-4" />
               </ToggleGroupItem>
 
               <ToggleGroupItem
@@ -80,10 +76,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="raid"
               >
-                <Icon
-                  icon={GiStoneBlock}
-                  className="size-4"
-                />
+                <GiStoneBlock className="size-4" />
               </ToggleGroupItem>
 
               <ToggleGroupItem
@@ -94,10 +87,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="defence"
               >
-                <Icon
-                  icon={GiMetalBar}
-                  className="size-4"
-                />
+                <GiMetalBar className="size-4" />
               </ToggleGroupItem>
 
               <ToggleGroupItem
@@ -108,10 +98,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="scout-attack"
               >
-                <Icon
-                  icon={LuWheat}
-                  className="size-4"
-                />
+                <LuWheat className="size-4" />
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -132,10 +119,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="attack"
               >
-                <Icon
-                  icon={GiWoodPile}
-                  className="size-4"
-                />
+                <GiWoodPile className="size-4" />
               </ToggleGroupItem>
 
               <ToggleGroupItem
@@ -146,10 +130,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="raid"
               >
-                <Icon
-                  icon={GiStoneBlock}
-                  className="size-4"
-                />
+                <GiStoneBlock className="size-4" />
               </ToggleGroupItem>
 
               <ToggleGroupItem
@@ -160,10 +141,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="defence"
               >
-                <Icon
-                  icon={GiMetalBar}
-                  className="size-4"
-                />
+                <GiMetalBar className="size-4" />
               </ToggleGroupItem>
 
               <ToggleGroupItem
@@ -174,10 +152,7 @@ export const MarketplaceTrade = () => {
                 )}
                 value="scout-attack"
               >
-                <Icon
-                  icon={LuWheat}
-                  className="size-4"
-                />
+                <LuWheat className="size-4" />
               </ToggleGroupItem>
             </ToggleGroup>
           </div>

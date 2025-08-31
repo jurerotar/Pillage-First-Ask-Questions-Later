@@ -35,7 +35,6 @@ import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { useTextDirection } from 'app/hooks/use-text-direction';
-import { Icon } from 'react-icons-sprite';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { GiWheat } from 'react-icons/gi';
@@ -112,10 +111,7 @@ const DiscordLink = () => {
       rel="noopener"
     >
       <span className="flex items-center justify-center">
-        <Icon
-          icon={FaDiscord}
-          className="text-2xl text-[#7289da]"
-        />
+        <FaDiscord className="text-2xl text-[#7289da]" />
       </span>
     </a>
   );
@@ -147,32 +143,16 @@ const HeroNavigationItem = () => {
       title={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
-        <Icon
-          icon={MdFace}
-          className="text-2xl"
-        />
+        <MdFace className="text-2xl" />
       </span>
       {isLevelUpAvailable && (
         <span className="absolute text-center size-4 bg-background top-0 -right-1.5 rounded-full border border-border shadow-md">
-          <Icon
-            icon={HiStar}
-            className="text-yellow-300 text-sm"
-          />
+          <HiStar className="text-yellow-300 text-sm" />
         </span>
       )}
       <span className="absolute size-4 bg-background bottom-0 -right-1.5 rounded-full border border-border shadow-md inline-flex justify-center items-center">
-        {isHeroHome && (
-          <Icon
-            icon={FaHome}
-            className="text-gray-500 text-xs"
-          />
-        )}
-        {!isHeroHome && (
-          <Icon
-            icon={TbShoe}
-            className="text-gray-500 text-xs"
-          />
-        )}
+        {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
+        {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
         <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">
@@ -276,10 +256,7 @@ const QuestsNavigationItem = () => {
         <Suspense fallback={null}>
           <QuestsCounter />
         </Suspense>
-        <Icon
-          icon={LuBookMarked}
-          className="text-2xl"
-        />
+        <LuBookMarked className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -298,10 +275,7 @@ const AdventuresNavigationItem = () => {
         <Suspense fallback={null}>
           <AdventurePointsCounter />
         </Suspense>
-        <Icon
-          icon={PiPathBold}
-          className="text-2xl"
-        />
+        <PiPathBold className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -320,10 +294,7 @@ const ReportsNavigationItem = () => {
         <Suspense fallback={null}>
           <ReportsCounter />
         </Suspense>
-        <Icon
-          icon={LuScrollText}
-          className="text-2xl"
-        />
+        <LuScrollText className="text-2xl" />
       </NavigationSideItem>
     </Link>
   );
@@ -344,10 +315,7 @@ const ResourcesNavigationItem = () => {
         title={t('Resources')}
         isActive={isResourcesPageOpen}
       >
-        <Icon
-          icon={GiWheat}
-          className="text-3xl"
-        />
+        <GiWheat className="text-3xl" />
       </NavigationMainItem>
     </Link>
   );
@@ -368,10 +336,7 @@ const VillageNavigationItem = () => {
         title={t('Village')}
         isActive={isVillagePageOpen}
       >
-        <Icon
-          icon={MdOutlineHolidayVillage}
-          className="text-3xl"
-        />
+        <MdOutlineHolidayVillage className="text-3xl" />
       </NavigationMainItem>
     </Link>
   );
@@ -392,10 +357,7 @@ const MapNavigationItem = () => {
         title={t('Map')}
         isActive={isMapPageOpen}
       >
-        <Icon
-          icon={TbMap2}
-          className="text-3xl"
-        />
+        <TbMap2 className="text-3xl" />
       </NavigationMainItem>
     </NavLink>
   );
@@ -472,10 +434,7 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <Icon
-                          icon={FaGithub}
-                          className="text-xl text-[#24292e]"
-                        />
+                        <FaGithub className="text-xl text-[#24292e]" />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">
                           GitHub
                         </span>
@@ -491,10 +450,7 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <Icon
-                          icon={FaDiscord}
-                          className="text-xl text-[#7289da]"
-                        />
+                        <FaDiscord className="text-xl text-[#7289da]" />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">
                           Discord
                         </span>
@@ -508,10 +464,7 @@ const TopNavigation = () => {
                       aria-label={t('Preferences')}
                       title={t('Preferences')}
                     >
-                      <Icon
-                        icon={MdSettings}
-                        className="text-xl"
-                      />
+                      <MdSettings className="text-xl" />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
@@ -521,10 +474,7 @@ const TopNavigation = () => {
                       aria-label={t('Logout')}
                       title={t('Logout')}
                     >
-                      <Icon
-                        icon={RxExit}
-                        className="text-xl text-red-500"
-                      />
+                      <RxExit className="text-xl text-red-500" />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
@@ -545,10 +495,7 @@ const TopNavigation = () => {
                       aria-label={t('Statistics')}
                       title={t('Statistics')}
                     >
-                      <Icon
-                        icon={GoGraph}
-                        className="text-xl"
-                      />
+                      <GoGraph className="text-xl" />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -561,10 +508,7 @@ const TopNavigation = () => {
                       aria-label={t('Overview')}
                       title={t('Overview')}
                     >
-                      <Icon
-                        icon={CiCircleList}
-                        className="text-xl"
-                      />
+                      <CiCircleList className="text-xl" />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -593,10 +537,7 @@ const TopNavigation = () => {
                       aria-label={t('Auctions')}
                       title={t('Auctions')}
                     >
-                      <Icon
-                        icon={RiAuctionLine}
-                        className="text-xl"
-                      />
+                      <RiAuctionLine className="text-xl" />
                     </NavigationSideItem>
                   </Link>
                 </li>
@@ -650,10 +591,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Statistics')}
                 title={t('Statistics')}
               >
-                <Icon
-                  icon={GoGraph}
-                  className="text-2l"
-                />
+                <GoGraph className="text-2l" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -669,10 +607,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Overview')}
                 title={t('Overview')}
               >
-                <Icon
-                  icon={CiCircleList}
-                  className="text-2xl"
-                />
+                <CiCircleList className="text-2xl" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -698,10 +633,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Preferences')}
                 title={t('Preferences')}
               >
-                <Icon
-                  icon={MdSettings}
-                  className="text-2xl"
-                />
+                <MdSettings className="text-2xl" />
               </NavigationSideItem>
             </Link>
           </li>
@@ -711,10 +643,7 @@ const MobileBottomNavigation = () => {
                 aria-label={t('Logout')}
                 title={t('Logout')}
               >
-                <Icon
-                  icon={RxExit}
-                  className="text-2xl text-red-500"
-                />
+                <RxExit className="text-2xl text-red-500" />
               </NavigationSideItem>
             </Link>
           </li>

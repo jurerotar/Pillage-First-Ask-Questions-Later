@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { Suspense } from 'react';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
-import { Icon } from 'react-icons-sprite';
 
 const FAQ = () => {
   return (
@@ -201,10 +200,7 @@ const HomePage = () => {
                 rel="noopener"
                 className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] w-fit shadow-md p-2 px-4"
               >
-                <Icon
-                  icon={FaDiscord}
-                  className="text-2xl md:text-3xl text-white"
-                />
+                <FaDiscord className="text-2xl md:text-3xl text-white" />
                 <span className="flex font-semibold text-white">
                   Join the Discord server
                 </span>
@@ -213,10 +209,7 @@ const HomePage = () => {
                 href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                 className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] w-fit shadow-md p-2 px-4"
               >
-                <Icon
-                  icon={FaGithub}
-                  className="text-2xl md:text-3xl text-white"
-                />
+                <FaGithub className="text-2xl md:text-3xl text-white" />
                 <span className="flex font-semibold text-white">
                   Star on GitHub
                 </span>

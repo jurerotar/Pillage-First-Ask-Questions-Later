@@ -6,9 +6,8 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { HeroItem } from 'app/interfaces/models/game/hero';
-import { Icon } from 'react-icons-sprite';
 import {
   GiBoots,
   GiBroadsword,
@@ -53,10 +52,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Head')}
             value="head"
           >
-            <Icon
-              icon={GiVikingHelmet}
-              className="size-4"
-            />
+            <GiVikingHelmet className="size-4" />
           </ToggleGroupItem>
 
           <ToggleGroupItem
@@ -64,10 +60,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Torso')}
             value="torso"
           >
-            <Icon
-              icon={GiChestArmor}
-              className="size-4"
-            />
+            <GiChestArmor className="size-4" />
           </ToggleGroupItem>
 
           <ToggleGroupItem
@@ -75,10 +68,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Legs')}
             value="legs"
           >
-            <Icon
-              icon={PiPantsBold}
-              className="size-4"
-            />
+            <PiPantsBold className="size-4" />
           </ToggleGroupItem>
 
           <ToggleGroupItem
@@ -86,10 +76,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Boots')}
             value="boots"
           >
-            <Icon
-              icon={GiBoots}
-              className="size-4"
-            />
+            <GiBoots className="size-4" />
           </ToggleGroupItem>
 
           <ToggleGroupItem
@@ -97,10 +84,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Right Hand')}
             value="right-hand"
           >
-            <Icon
-              icon={GiBroadsword}
-              className="size-4"
-            />
+            <GiBroadsword className="size-4" />
           </ToggleGroupItem>
 
           <ToggleGroupItem
@@ -108,10 +92,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Left Hand')}
             value="left-hand"
           >
-            <Icon
-              icon={GiShield}
-              className="size-4"
-            />
+            <GiShield className="size-4" />
           </ToggleGroupItem>
 
           <ToggleGroupItem
@@ -119,10 +100,7 @@ export const AuctionsBuyItem = () => {
             data-tooltip-content={t('Consumable')}
             value="consumable"
           >
-            <Icon
-              icon={GiHealthPotion}
-              className="size-4"
-            />
+            <GiHealthPotion className="size-4" />
           </ToggleGroupItem>
         </ToggleGroup>
       </SectionContent>
