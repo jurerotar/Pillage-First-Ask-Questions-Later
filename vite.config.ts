@@ -6,8 +6,8 @@ import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import packageJson from './package.json' with { type: 'json' };
 import devtoolsJson from 'vite-plugin-devtools-json';
-import babel from 'vite-plugin-babel';
 // import { visualizer } from "rollup-plugin-visualizer";
+import { reactIconsSprite } from 'react-icons-sprite/vite';
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -46,14 +46,15 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
-    !isInTestMode &&
-      babel({
-        filter: /\.tsx?$/,
-        babelConfig: {
-          presets: ['@babel/preset-typescript'],
-          plugins: [['babel-plugin-react-compiler']],
-        },
-      }),
+    reactIconsSprite({ spriteUrlVersion: graphicsVersion }),
+    // !isInTestMode &&
+    //   babel({
+    //     filter: /\.tsx?$/,
+    //     babelConfig: {
+    //       presets: ['@babel/preset-typescript'],
+    //       plugins: [['babel-plugin-react-compiler']],
+    //     },
+    //   }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
@@ -88,7 +89,7 @@ const viteConfig = defineViteConfig({
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {
-    open: true,
+    open: false,
   },
   build: {
     target: 'esnext',
