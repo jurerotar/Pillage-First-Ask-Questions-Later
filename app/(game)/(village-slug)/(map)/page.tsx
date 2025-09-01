@@ -30,6 +30,8 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
+const DRAG_THRESHOLD_PX = 8;
+
 const MapPage = () => {
   const [searchParams] = useSearchParams();
   const {
@@ -45,14 +47,12 @@ const MapPage = () => {
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
+  const location = useLocation();
 
   const { x, y } = currentVillage.coordinates;
 
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
-  const location = useLocation();
-  const isFirstLocationKey = useRef<boolean>(true);
-  const lastNavKey = useRef<string | null>(null);
 
   const leftMapRulerRef = useGridRef(null);
   const bottomMapRulerRef = useGridRef(null);
@@ -92,8 +92,6 @@ const MapPage = () => {
     y: 0,
   });
 
-  const DRAG_THRESHOLD_PX = 8;
-
   const fixedGridData = useMemo(() => {
     return {
       contextualMap,
@@ -119,6 +117,7 @@ const MapPage = () => {
   ]);
 
   // Event listeners need to be reattached when Grid remounts (which happens when the Grid DOM element changes)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We need tileSize, because it's tied to grid key
   useEffect(() => {
     const attachEventListeners = () => {
       const gridElement = gridRef.current?.element;
@@ -160,7 +159,7 @@ const MapPage = () => {
     };
 
     return attachEventListeners();
-  }, [gridRef.current?.element]);
+  }, [gridRef.current?.element, tileSize]);
 
   useEventListener(
     'mousemove',
@@ -226,33 +225,12 @@ const MapPage = () => {
   );
 
   const scrollToPosition = useCallback(
-    (scrollX: number, scrollY: number) => {
+    (scrollX: number, scrollY: number, behavior: 'auto' | 'smooth') => {
       if (gridRef.current?.element) {
         gridRef.current.element.scrollTo({
           left: scrollX,
           top: scrollY,
-          behavior: 'auto',
-        });
-      }
-
-      if (leftMapRulerRef.current?.element) {
-        leftMapRulerRef.current.element.scrollTo({ top: scrollY });
-      }
-
-      if (bottomMapRulerRef.current?.element) {
-        bottomMapRulerRef.current.element.scrollTo({ left: scrollX });
-      }
-    },
-    [gridRef, leftMapRulerRef, bottomMapRulerRef],
-  );
-
-  const scrollToPositionSmooth = useCallback(
-    (scrollX: number, scrollY: number) => {
-      if (gridRef.current?.element) {
-        gridRef.current.element.scrollTo({
-          left: scrollX,
-          top: scrollY,
-          behavior: 'smooth',
+          behavior,
         });
       }
 
@@ -288,40 +266,11 @@ const MapPage = () => {
   );
 
   const isInitialRender = useRef<boolean>(true);
-  const previousTileSize = useRef<number>(tileSize);
   // Track previous starting coordinates to avoid re-centering on resize-only changes
   const previousStarting = useRef<{ x: number; y: number }>({
     x: startingX,
     y: startingY,
   });
-
-  useEffect(() => {
-    if (isInitialRender.current || previousTileSize.current === tileSize) {
-      return;
-    }
-
-    const scrollX = scrollLeft(currentCenterTile.current.x);
-    const scrollY = scrollTop(currentCenterTile.current.y);
-
-    requestAnimationFrame(() => {
-      scrollToPosition(scrollX, scrollY);
-    });
-
-    previousTileSize.current = tileSize;
-  }, [tileSize, scrollLeft, scrollTop, scrollToPosition]);
-
-  useEffect(() => {
-    if (!isInitialRender.current) {
-      return;
-    }
-
-    const scrollX = scrollLeft(currentCenterTile.current.x);
-    const scrollY = scrollTop(currentCenterTile.current.y);
-
-    requestAnimationFrame(() => {
-      scrollToPosition(scrollX, scrollY);
-    });
-  }, [scrollLeft, scrollTop, scrollToPosition]);
 
   useEffect(() => {
     if (isInitialRender.current) {
@@ -344,10 +293,10 @@ const MapPage = () => {
     const scrollX = scrollLeft(startingX);
     const scrollY = scrollTop(startingY);
 
-    scrollToPositionSmooth(scrollX, scrollY);
+    scrollToPosition(scrollX, scrollY, 'smooth');
 
     currentCenterTile.current = { x: startingX, y: startingY };
-  }, [scrollLeft, scrollTop, startingX, startingY, scrollToPositionSmooth]);
+  }, [scrollLeft, scrollTop, startingX, startingY, scrollToPosition]);
 
   // When the map viewport changes size, keep the current center tile centered
   useEffect(() => {
@@ -359,39 +308,21 @@ const MapPage = () => {
     const scrollY = scrollTop(currentCenterTile.current.y);
 
     requestAnimationFrame(() => {
-      scrollToPosition(scrollX, scrollY);
+      scrollToPosition(scrollX, scrollY, 'auto');
     });
     // Only react to viewport (width/height-derived) changes here
   }, [scrollLeft, scrollTop, scrollToPosition]);
 
   // Recenter when user navigates to this map route again (same path, new navigation)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We need location.key specifically
   useEffect(() => {
-    if (isFirstLocationKey.current) {
-      isFirstLocationKey.current = false;
-      lastNavKey.current = location.key;
-      return;
-    }
-
-    // If somehow the effect re-ran without a new nav key, do nothing
-    if (lastNavKey.current === location.key) {
-      return;
-    }
-    lastNavKey.current = location.key;
-
     const scrollX = scrollLeft(startingX);
     const scrollY = scrollTop(startingY);
 
-    scrollToPositionSmooth(scrollX, scrollY);
+    scrollToPosition(scrollX, scrollY, 'smooth');
 
     currentCenterTile.current = { x: startingX, y: startingY };
-  }, [
-    location.key,
-    scrollLeft,
-    scrollTop,
-    scrollToPositionSmooth,
-    startingX,
-    startingY,
-  ]);
+  }, [location.key, scrollLeft, scrollTop, startingX, startingY]);
 
   const renderTooltip = useCallback(
     ({
