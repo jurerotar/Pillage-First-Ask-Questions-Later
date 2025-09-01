@@ -1,6 +1,6 @@
 CREATE TABLE tiles
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   x INTEGER NOT NULL,
   y INTEGER NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('free', 'oasis', 'wilderness')),

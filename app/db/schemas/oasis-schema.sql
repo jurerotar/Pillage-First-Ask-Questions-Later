@@ -1,6 +1,6 @@
 CREATE TABLE oasis
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   tile_id INTEGER NOT NULL,
   village_id INTEGER,
   resource TEXT NOT NULL CHECK (resource IN ('wood', 'clay', 'iron', 'wheat')),

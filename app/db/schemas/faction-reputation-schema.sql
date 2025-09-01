@@ -1,6 +1,6 @@
 CREATE TABLE faction_reputation
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   source_faction TEXT NOT NULL,
   target_faction TEXT NOT NULL,
   reputation INTEGER NOT NULL DEFAULT 0,

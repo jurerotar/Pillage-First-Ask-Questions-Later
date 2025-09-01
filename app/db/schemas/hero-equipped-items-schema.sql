@@ -1,6 +1,6 @@
 CREATE TABLE hero_equipped_items
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   hero_id INTEGER NOT NULL,
   slot TEXT NOT NULL CHECK (
     slot IN

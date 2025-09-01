@@ -1,6 +1,6 @@
 CREATE TABLE players
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   tribe TEXT NOT NULL CHECK (tribe IN ('romans','gauls','teutons','huns','egyptians')),

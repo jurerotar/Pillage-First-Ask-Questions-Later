@@ -10,7 +10,6 @@ export const mapFiltersSeeder: Seeder = (database): void => {
       should_show_tile_tooltips,
       should_show_treasure_icons
     ) VALUES (
-      1,
       $should_show_faction_reputation,
       $should_show_oasis_icons,
       $should_show_troop_movements,
