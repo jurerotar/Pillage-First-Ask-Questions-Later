@@ -57,8 +57,6 @@ jobs:
                 'node_modules',
                 '.react-router',
                 'dist',
-                '.next',
-                '.turbo'
               ],
             },
 
