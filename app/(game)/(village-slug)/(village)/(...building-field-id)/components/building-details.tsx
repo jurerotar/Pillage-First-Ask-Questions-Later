@@ -85,6 +85,15 @@ const TreasuryArtifacts = lazy(async () => ({
   default: (await import('./components/treasury-artifacts')).TreasuryArtifacts,
 }));
 
+const EmbassyRelations = lazy(async () => ({
+  default: (await import('./components/embassy-relations')).EmbassyRelations,
+}));
+
+const TownHallCelebrations = lazy(async () => ({
+  default: (await import('./components/town-hall-celebrations'))
+    .TownHallCelebrations,
+}));
+
 const MarketplaceBuy = lazy(async () => ({
   default: (await import('./components/marketplace-trade')).MarketplaceTrade,
 }));
@@ -169,6 +178,8 @@ const buildingDetailsTabMap = new Map<
     ]),
   ],
   ['TREASURY', new Map([['artifacts', TreasuryArtifacts]])],
+  ['EMBASSY', new Map([['artifacts', EmbassyRelations]])],
+  ['TOWN_HALL', new Map([['artifacts', TownHallCelebrations]])],
   [
     'MARKETPLACE',
     new Map([
@@ -204,6 +215,8 @@ const buildingDetailsTabMap = new Map<
 // t('unit-improvement')
 // t('oasis')
 // t('celebration')
+// t('celebrations')
+// t('relations')
 // t('train')
 
 export const BuildingDetails = () => {

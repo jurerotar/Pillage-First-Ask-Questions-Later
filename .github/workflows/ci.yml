@@ -36,8 +36,50 @@ jobs:
       - name: Lint check
         run: npm run lint:check
 
+      - name: Write React Compiler ESLint config
+        shell: bash
+        run: |
+          cat > .eslint.react-compiler.mjs <<'ESLINTRC'
+          import reactCompiler from 'eslint-plugin-react-compiler';
+          import { parser } from 'typescript-eslint';
+
+          // Generated in CI for React Compiler compatibility check
+          export default [
+            // React Compiler recommended rules
+            reactCompiler.configs.recommended,
+
+            // Global ignores to speed up scanning and avoid noise
+            {
+              ignores: [
+                'build',
+                '*.config.ts',
+                'scripts',
+                'node_modules',
+                '.react-router',
+                'dist',
+              ],
+            },
+
+            // Only check app TSX files (tweak as needed)
+            {
+              files: ['app/**/*.tsx'],
+              languageOptions: {
+                parser,
+              },
+            },
+          ];
+          ESLINTRC
+
+      - name: Install React Compiler ESLint deps
+        run: |
+          npm install --no-save \
+            eslint \
+            eslint-plugin-react-compiler \
+            @typescript-eslint/parser \
+            typescript-eslint
+
       - name: React compiler compatibility check
-        run: npm run react-compiler:check
+        run: npx eslint --config .eslint.react-compiler.mjs --max-warnings=0 .
 
       - name: Format check
         run: npm run format:check
