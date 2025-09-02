@@ -500,6 +500,14 @@
       "NAME": "Clay pit",
       "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
     },
+    "EMBASSY": {
+      "NAME": "Embassy",
+      "DESCRIPTION": "The Embassy is the place for diplomatic relations. Here you can view the information about other factions, how they view you and work on improving your standing."
+    },
+    "TOWN_HALL": {
+      "NAME": "Town hall",
+      "DESCRIPTION": "The Town Hall is the cultural centre for your village. In it you can organise celebrations which will increase the number of your culture points, depending on the size of the celebration."
+    },
     "WHEAT_FIELD": {
       "NAME": "Wheat field",
       "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat field can be extended to level 20. Wheat production can additionally be increased by occupying wheat oasis."

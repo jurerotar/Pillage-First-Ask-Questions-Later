@@ -1392,6 +1392,60 @@ export const buildings: Building[] = [
     buildingDurationModifier: 4875,
     buildingDurationReduction: 1875,
   },
+  {
+    id: 'EMBASSY',
+    category: 'infrastructure',
+    effects: [createNegativeWheatProductionEffect('C')],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 1,
+      },
+    ],
+    baseBuildingCost: [1400, 1330, 1200, 400],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 3875,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'TOWN_HALL',
+    category: 'infrastructure',
+    effects: [createNegativeWheatProductionEffect('B')],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'ACADEMY',
+        level: 10,
+      },
+    ],
+    baseBuildingCost: [1250, 1110, 1260, 600],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 14375,
+    buildingDurationReduction: 1875,
+  },
 ];
 
 // Use this for faster lookups
