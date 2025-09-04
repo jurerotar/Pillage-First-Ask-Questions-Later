@@ -12,7 +12,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import {
@@ -224,10 +223,7 @@ export const BuildingDetails = () => {
   const { t: assetsT } = useTranslation();
   const { t: dynamicT } = useTranslation();
   const { buildingId, id: buildingFieldId } = use(BuildingContext);
-  const { villagePath, resourcesPath } = useGameNavigation();
   const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
-
-  const parentLink = buildingFieldId! > 18 ? villagePath : resourcesPath;
 
   const tabs = Array.from([
     'default',
@@ -248,7 +244,7 @@ export const BuildingDetails = () => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={parentLink}>
+            <BreadcrumbLink to="..">
               {buildingFieldId! > 18 ? t('Village') : t('Resources')}
             </BreadcrumbLink>
           </BreadcrumbItem>

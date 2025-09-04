@@ -120,7 +120,6 @@ const DiscordLink = () => {
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
   const { hero, health, experience } = useHero();
-  const { heroPath } = useGameNavigation();
   const { playerTroops } = usePlayerTroops();
 
   const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
@@ -137,7 +136,7 @@ const HeroNavigationItem = () => {
 
   return (
     <Link
-      to={heroPath}
+      to="hero"
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
       aria-label={t('Hero')}
       title={t('Hero')}
@@ -245,10 +244,9 @@ const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
-  const { questsPath } = useGameNavigation();
 
   return (
-    <Link to={questsPath}>
+    <Link to="quests">
       <NavigationSideItem
         aria-label={t('Quests')}
         title={t('Quests')}
@@ -264,10 +262,9 @@ const QuestsNavigationItem = () => {
 
 const AdventuresNavigationItem = () => {
   const { t } = useTranslation();
-  const { adventuresPath } = useGameNavigation();
 
   return (
-    <Link to={adventuresPath}>
+    <Link to="hero?tab=adventures">
       <NavigationSideItem
         aria-label={t('Adventures')}
         title={t('Adventures')}
@@ -283,10 +280,9 @@ const AdventuresNavigationItem = () => {
 
 const ReportsNavigationItem = () => {
   const { t } = useTranslation();
-  const { reportsPath } = useGameNavigation();
 
   return (
-    <Link to={reportsPath}>
+    <Link to="reports">
       <NavigationSideItem
         aria-label={t('Reports')}
         title={t('Reports')}
@@ -302,12 +298,11 @@ const ReportsNavigationItem = () => {
 
 const ResourcesNavigationItem = () => {
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
   const { isResourcesPageOpen } = useActiveRoute();
 
   return (
     <Link
-      to={resourcesPath}
+      to="resources"
       prefetch="render"
     >
       <NavigationMainItem
@@ -323,12 +318,11 @@ const ResourcesNavigationItem = () => {
 
 const VillageNavigationItem = () => {
   const { t } = useTranslation();
-  const { villagePath } = useGameNavigation();
   const { isVillagePageOpen } = useActiveRoute();
 
   return (
     <Link
-      to={villagePath}
+      to="village"
       prefetch="render"
     >
       <NavigationMainItem
@@ -344,12 +338,11 @@ const VillageNavigationItem = () => {
 
 const MapNavigationItem = () => {
   const { t } = useTranslation();
-  const { mapPath } = useGameNavigation();
   const { isMapPageOpen } = useActiveRoute();
 
   return (
     <NavLink
-      to={mapPath}
+      to="map"
       prefetch="render"
     >
       <NavigationMainItem
@@ -378,7 +371,7 @@ const ResourceCounters = () => {
   );
 };
 
-const VillageSelect = memo(() => {
+const VillageSelect = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { getNewVillageUrl } = useGameNavigation();
@@ -413,11 +406,10 @@ const VillageSelect = memo(() => {
       </SelectContent>
     </Select>
   );
-});
+};
 
 const TopNavigation = () => {
   const { t } = useTranslation();
-  const gameNavigation = useGameNavigation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   return (
@@ -459,7 +451,7 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to={gameNavigation.preferencesPath}>
+                  <Link to="preferences">
                     <DesktopTopRowItem
                       aria-label={t('Preferences')}
                       title={t('Preferences')}
@@ -490,7 +482,7 @@ const TopNavigation = () => {
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
                 <li>
-                  <Link to={gameNavigation.statisticsPath}>
+                  <Link to="statistics">
                     <NavigationSideItem
                       aria-label={t('Statistics')}
                       title={t('Statistics')}
@@ -503,7 +495,7 @@ const TopNavigation = () => {
                   <QuestsNavigationItem />
                 </li>
                 <li>
-                  <Link to={gameNavigation.overviewPath}>
+                  <Link to="overview">
                     <NavigationSideItem
                       aria-label={t('Overview')}
                       title={t('Overview')}
@@ -532,7 +524,7 @@ const TopNavigation = () => {
                   <AdventuresNavigationItem />
                 </li>
                 <li>
-                  <Link to={gameNavigation.auctionsPath}>
+                  <Link to="hero?tab=auctions">
                     <NavigationSideItem
                       aria-label={t('Auctions')}
                       title={t('Auctions')}
@@ -567,7 +559,6 @@ const TopNavigation = () => {
 
 const MobileBottomNavigation = () => {
   const { t } = useTranslation();
-  const gameNavigation = useGameNavigation();
 
   const container = useRef<HTMLDivElement>(null);
   const centeredElement = useRef<HTMLLIElement>(null);
@@ -586,7 +577,7 @@ const MobileBottomNavigation = () => {
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
-            <Link to={gameNavigation.statisticsPath}>
+            <Link to="statistics">
               <NavigationSideItem
                 aria-label={t('Statistics')}
                 title={t('Statistics')}
@@ -602,7 +593,7 @@ const MobileBottomNavigation = () => {
             <QuestsNavigationItem />
           </li>
           <li>
-            <Link to={gameNavigation.overviewPath}>
+            <Link to="overview">
               <NavigationSideItem
                 aria-label={t('Overview')}
                 title={t('Overview')}
@@ -628,7 +619,7 @@ const MobileBottomNavigation = () => {
             <ReportsNavigationItem />
           </li>
           <li>
-            <Link to={gameNavigation.preferencesPath}>
+            <Link to="preferences">
               <NavigationSideItem
                 aria-label={t('Preferences')}
                 title={t('Preferences')}

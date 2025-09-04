@@ -8,7 +8,6 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
@@ -24,7 +23,6 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
 
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
 
@@ -54,7 +52,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Village overview')}</BreadcrumbItem>

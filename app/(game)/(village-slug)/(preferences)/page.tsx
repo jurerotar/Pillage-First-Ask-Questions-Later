@@ -1,6 +1,5 @@
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,7 +18,6 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
 
   const tabs = ['default', 'notifications'];
 
@@ -33,7 +31,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Preferences')}</BreadcrumbItem>

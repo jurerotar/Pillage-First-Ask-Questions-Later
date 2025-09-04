@@ -41,6 +41,10 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useNavigate } from 'react-router';
 import { PLAYER_ID } from 'app/constants/player';
+import {
+  calculateDistanceBetweenPoints,
+  roundToNDecimalPoints,
+} from 'app/utils/common';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -64,8 +68,14 @@ type TileModalProps = {
 
 const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
   const { t } = useTranslation();
-  const { getDistanceFromCurrentVillage } = useCurrentVillage();
-  const distance = getDistanceFromCurrentVillage(tile.coordinates);
+  const { currentVillage } = useCurrentVillage();
+
+  const distance = roundToNDecimalPoints(
+    calculateDistanceBetweenPoints(
+      currentVillage.coordinates,
+      tile.coordinates,
+    ),
+  );
   const { x, y } = tile.coordinates;
 
   return (

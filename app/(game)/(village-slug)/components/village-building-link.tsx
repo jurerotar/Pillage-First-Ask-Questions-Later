@@ -2,7 +2,6 @@ import type { Building } from 'app/interfaces/models/game/building';
 import type React from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
@@ -17,7 +16,6 @@ export const VillageBuildingLink: React.FC<VillageBuildingLinkProps> = ({
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { resourcesPath, villagePath } = useGameNavigation();
   const buildingFields = currentVillage.buildingFields;
 
   const buildingName = assetsT(`BUILDINGS.${buildingId}.NAME`);
@@ -32,11 +30,7 @@ export const VillageBuildingLink: React.FC<VillageBuildingLinkProps> = ({
         as="span"
         variant="link"
       >
-        <Link
-          to={`${matchingBuildingField.id <= 18 ? resourcesPath : villagePath}/${matchingBuildingField.id}`}
-        >
-          {buildingName}
-        </Link>
+        <Link to={`${matchingBuildingField.id}`}>{buildingName}</Link>
       </Text>
     );
   }

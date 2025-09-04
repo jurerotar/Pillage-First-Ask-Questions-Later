@@ -19,7 +19,11 @@ import type React from 'react';
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { formatNumber } from 'app/utils/common';
+import {
+  calculateDistanceBetweenPoints,
+  formatNumber,
+  roundToNDecimalPoints,
+} from 'app/utils/common';
 import { parseRFCFromTile } from 'app/utils/map';
 import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
@@ -33,8 +37,13 @@ type TileTooltipProps = {
 
 const TileTooltipLocation: React.FC<TileTooltipProps> = ({ tile }) => {
   const { t } = useTranslation();
-  const { getDistanceFromCurrentVillage } = useCurrentVillage();
-  const distance = getDistanceFromCurrentVillage(tile.coordinates);
+  const { currentVillage } = useCurrentVillage();
+  const distance = roundToNDecimalPoints(
+    calculateDistanceBetweenPoints(
+      currentVillage.coordinates,
+      tile.coordinates,
+    ),
+  );
   const { x, y } = tile.coordinates;
 
   return (
