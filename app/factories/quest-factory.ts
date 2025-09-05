@@ -2,7 +2,7 @@ import {
   createBuildingQuest,
   generateVillageQuests,
   globalQuests,
-} from 'app/(game)/(village-slug)/assets/quests';
+} from 'app/assets/quests';
 import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';

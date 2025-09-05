@@ -2,7 +2,7 @@ import { Icon } from 'app/components/icon';
 import type {
   IconType,
   ResourceCombinationIconType,
-} from 'app/components/icons/icon-maps';
+} from 'app/components/icons/icons';
 import type {
   OasisResourceBonus,
   OasisTile,

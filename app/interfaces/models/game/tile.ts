@@ -8,7 +8,7 @@ import type {
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import type { TroopMovementType } from 'app/components/icons/icon-maps';
+import type { TroopMovementType } from 'app/components/icons/icons';
 
 export type BaseTile = {
   id: number;

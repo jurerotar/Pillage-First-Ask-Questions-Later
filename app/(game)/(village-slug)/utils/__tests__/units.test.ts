@@ -17,7 +17,7 @@ import {
   romanUnits,
   spartanUnits,
   teutonUnits,
-} from 'app/(game)/(village-slug)/assets/units';
+} from 'app/assets/units';
 import { describe, expect, test } from 'vitest';
 
 describe('units', () => {

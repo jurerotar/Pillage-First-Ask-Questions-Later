@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { units } from 'app/(game)/(village-slug)/assets/units';
+import { units } from 'app/assets/units';
 
 const getBuildingIds = (unit: (typeof units)[number]) =>
   unit.researchRequirements.map((r) => r.buildingId);

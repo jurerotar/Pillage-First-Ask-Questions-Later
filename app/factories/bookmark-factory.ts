@@ -1,4 +1,4 @@
-import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
+import { buildings } from 'app/assets/buildings';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
 export const bookmarkFactory = (): Bookmarks => {

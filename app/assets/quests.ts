@@ -249,11 +249,11 @@ export const generateVillageQuests = (
   createBuildingQuest(villageId, 'ACADEMY', 15),
   createBuildingQuest(villageId, 'ACADEMY', 20),
   // Smithy
-  // createBuildingQuest(villageId, 'SMITHY', 1),
-  // createBuildingQuest(villageId, 'SMITHY', 5),
-  // createBuildingQuest(villageId, 'SMITHY', 10),
-  // createBuildingQuest(villageId, 'SMITHY', 15),
-  // createBuildingQuest(villageId, 'SMITHY', 20),
+  createBuildingQuest(villageId, 'SMITHY', 1),
+  createBuildingQuest(villageId, 'SMITHY', 5),
+  createBuildingQuest(villageId, 'SMITHY', 10),
+  createBuildingQuest(villageId, 'SMITHY', 15),
+  createBuildingQuest(villageId, 'SMITHY', 20),
   // Hero's mansion
   createBuildingQuest(villageId, 'HEROS_MANSION', 10),
   createBuildingQuest(villageId, 'HEROS_MANSION', 15),

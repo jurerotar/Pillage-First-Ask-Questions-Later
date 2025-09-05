@@ -1,5 +1,5 @@
-import { buildingMap } from 'app/(game)/(village-slug)/assets/buildings';
-import { presetIdToPresetMap } from 'app/(game)/(village-slug)/assets/npc-village-presets';
+import { buildingMap } from 'app/assets/buildings';
+import { presetIdToPresetMap } from 'app/assets/npc-village-presets';
 import type {
   Building,
   BuildingEffect,

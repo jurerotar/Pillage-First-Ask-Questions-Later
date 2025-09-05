@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
+import { buildings } from 'app/assets/buildings';
 
 describe('Building assets', () => {
   test('Each building has a wheatProduction effect at index 0 of building.effects', () => {

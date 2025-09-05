@@ -564,7 +564,7 @@ export const UnitRecruitment = () => {
         <div className="flex gap-1 items-center">
           <Icon
             className="size-5"
-            variant="negative-change"
+            subIcon="negativeChange"
             type="unitWheatConsumption"
           />
           {unitWheatConsumption * amount}

@@ -206,10 +206,10 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
       <Icon
         type={type}
         className="size-6"
-        variant={
+        subIcon={
           effect.areEffectValuesRising || type === 'population'
-            ? 'positive-change'
-            : 'negative-change'
+            ? 'positiveChange'
+            : 'negativeChange'
         }
       />
       <span>

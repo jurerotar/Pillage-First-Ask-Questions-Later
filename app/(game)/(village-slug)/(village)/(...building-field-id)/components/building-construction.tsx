@@ -8,7 +8,7 @@ import {
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
+import { buildings } from 'app/assets/buildings';
 import type {
   Building,
   BuildingCategory,

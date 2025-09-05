@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import enUSAssets from '../en-US/assets.json' with { type: 'json' };
-import { typeToIconMap } from 'app/components/icons/icon-maps';
+import { icons } from 'app/components/icons/icons';
 
 const locales = [{ locale: 'en-US', data: enUSAssets }];
 
@@ -76,15 +76,15 @@ describe('Localization completeness check for assets.json', () => {
         }
       });
 
-      test('EFFECTS should have a localization for all icons in typeToIconMap', () => {
-        const effectLocalizations = data.EFFECTS;
+      test('ICONS should have a localization for all icons in typeToIconMap', () => {
+        const effectLocalizations = data.ICONS;
 
-        for (const iconKey of Object.keys(typeToIconMap)) {
+        for (const iconKey of Object.keys(icons)) {
           // @ts-expect-error: Not sure if we care about this one
           const value = effectLocalizations?.[iconKey];
 
-          expect(value, `Missing EFFECTS key: ${iconKey}`).toBeDefined();
-          expect(value, `EFFECTS.${iconKey} is empty`).not.toEqual('');
+          expect(value, `Missing ICONS key: ${iconKey}`).toBeDefined();
+          expect(value, `ICONS.${iconKey} is empty`).not.toEqual('');
         }
       });
     });

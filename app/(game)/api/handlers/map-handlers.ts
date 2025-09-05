@@ -20,7 +20,7 @@ import {
   isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import type { TroopMovementType } from 'app/components/icons/icon-maps';
+import type { TroopMovementType } from 'app/components/icons/icons';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';

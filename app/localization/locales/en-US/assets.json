@@ -817,7 +817,7 @@
     "IRON": "Iron",
     "WHEAT": "Wheat"
   },
-  "EFFECTS": {
+  "ICONS": {
     "missingIcon": "Missing icon",
     "wood": "Wood",
     "clay": "Clay",
@@ -956,6 +956,9 @@
     "offensiveMovementOutgoing": "Offensive movement (outgoing)",
     "offensiveMovementIncoming": "Offensive movement (incoming)",
     "adventure": "Adventure",
+    "positiveChange": "Increase",
+    "negativeChange": "Decrease",
+    "merchantSpeed": "Merchant speed",
     "findNewVillage": "Find new village",
     "cancel": "Cancel"
   }
