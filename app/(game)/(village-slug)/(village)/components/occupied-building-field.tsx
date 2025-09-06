@@ -10,76 +10,11 @@ import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
 import { Link } from 'react-router';
 import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-
-// The trick here is that resource buildings have different graphics based on their position, but don't change through the levels.
-// Village buildings are exactly the opposite.
-// const _buildingToBuildingSvgOutlineMap = new Map<
-//   Building['id'],
-//   Map<number, React.JSX.Element>
-// >([
-//   [
-//     'WOODCUTTER',
-//     new Map([
-//       [1, <path d="" />],
-//       [3, <path d="" />],
-//       [5, <path d="" />],
-//       [10, <path d="" />],
-//       [14, <path d="" />],
-//       [17, <path d="" />],
-//     ]),
-//   ],
-//   [
-//     'CLAY_PIT',
-//     new Map([
-//       [1, <path d="" />],
-//       [5, <path d="" />],
-//       [6, <path d="" />],
-//       [10, <path d="" />],
-//       [16, <path d="" />],
-//       [18, <path d="" />],
-//     ]),
-//   ],
-//   [
-//     'IRON_MINE',
-//     new Map([
-//       [1, <path d="" />],
-//       [4, <path d="" />],
-//       [5, <path d="" />],
-//       [7, <path d="" />],
-//       [10, <path d="" />],
-//       [11, <path d="" />],
-//     ]),
-//   ],
-//   [
-//     'WHEAT_FIELD',
-//     new Map([
-//       [1, <path d="" />],
-//       [2, <path d="" />],
-//       [3, <path d="" />],
-//       [4, <path d="" />],
-//       [5, <path d="" />],
-//       [6, <path d="" />],
-//       [7, <path d="" />],
-//       [8, <path d="" />],
-//       [9, <path d="" />],
-//       [10, <path d="" />],
-//       [11, <path d="" />],
-//       [12, <path d="" />],
-//       [13, <path d="" />],
-//       [14, <path d="" />],
-//       [15, <path d="" />],
-//       [16, <path d="" />],
-//       [17, <path d="" />],
-//       [18, <path d="" />],
-//     ]),
-//   ],
-// ]);
 
 const transformBuildingIdIntoCssClass = (
   buildingId: Building['id'],
@@ -130,7 +65,6 @@ export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
     CurrentVillageBuildingQueueContext,
   );
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { resourcesPath, villagePath } = useGameNavigation();
   const { bookmarks } = useBookmarks();
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -147,11 +81,12 @@ export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
 
   const hasEvent = !!currentBuildingFieldBuildingEvent;
 
-  const linkPrefix = buildingFieldId > 18 ? villagePath : resourcesPath;
-
   return (
     <Link
-      to={`${linkPrefix}/${buildingFieldId}?tab=${tab}`}
+      to={{
+        pathname: `${buildingFieldId}`,
+        search: `tab=${tab}`,
+      }}
       aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
       data-building-field-id={buildingFieldId}
       {...(isWiderThanLg && {

@@ -1,9 +1,4 @@
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
-import type { Tile } from 'app/interfaces/models/game/tile';
-import {
-  calculateDistanceBetweenPoints,
-  roundTo2DecimalPoints,
-} from 'app/utils/common';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import type { Village } from 'app/interfaces/models/game/village';
 import { use } from 'react';
@@ -23,17 +18,7 @@ export const useCurrentVillage = () => {
     staleTime: 20_000,
   });
 
-  const getDistanceFromCurrentVillage = (
-    tileCoordinates: Tile['coordinates'],
-  ): number => {
-    const villageCoordinates = currentVillage!.coordinates;
-    return roundTo2DecimalPoints(
-      calculateDistanceBetweenPoints(villageCoordinates, tileCoordinates),
-    );
-  };
-
   return {
     currentVillage,
-    getDistanceFromCurrentVillage,
   };
 };

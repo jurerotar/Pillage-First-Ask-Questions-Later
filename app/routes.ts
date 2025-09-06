@@ -27,9 +27,10 @@ export default [
     ]),
   ]),
   // Game routes
-  ...prefix('game/:serverSlug', [
-    layout('(game)/layout.tsx', [
-      ...prefix('/:villageSlug', [
+  ...prefix('game', [
+    // We need this route for relative navigation to work, it's otherwise completely empty
+    route(':serverSlug/:villageSlug', '(game)/page.tsx', [
+      layout('(game)/layout.tsx', [
         layout('(game)/(village-slug)/layout.tsx', [
           route('resources', '(game)/(village-slug)/(village)/page.tsx', {
             id: 'resources-page',

@@ -7,7 +7,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { Text } from 'app/components/text';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -25,7 +24,6 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { currentVillage } = useCurrentVillage();
   const { t } = useTranslation();
   const { quests } = useQuests();
-  const { resourcesPath } = useGameNavigation();
 
   const tabs = ['default', 'global'];
 
@@ -44,7 +42,7 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Quests')}</BreadcrumbItem>

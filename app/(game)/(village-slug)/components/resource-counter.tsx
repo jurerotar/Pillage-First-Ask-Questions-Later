@@ -6,7 +6,6 @@ import { formatNumberWithCommas, truncateToShortForm } from 'app/utils/common';
 import { Icon } from 'app/components/icon';
 import clsx from 'clsx';
 import { Link } from 'react-router';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
@@ -18,7 +17,6 @@ export const ResourceCounter: React.FC<ResourceCounterProps> = ({
   resource,
 }) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { productionOverviewPath } = useGameNavigation();
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
     use(CurrentVillageStateContext);
   const storage =
@@ -47,7 +45,7 @@ export const ResourceCounter: React.FC<ResourceCounterProps> = ({
 
   return (
     <Link
-      to={{ pathname: productionOverviewPath, search: `?tab=${resource}` }}
+      to={{ pathname: 'production-overview', search: `?tab=${resource}` }}
       className="flex w-full flex-col gap-1"
     >
       <div className="flex w-full items-center justify-between">

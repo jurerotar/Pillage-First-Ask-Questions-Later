@@ -20,7 +20,7 @@ import { areEqual, type GridChildComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import { Icon } from 'app/components/icon';
-import type { TroopMovementType } from 'app/components/icons/icon-maps';
+import type { TroopMovementType } from 'app/components/icons/icons';
 import cellStyles from './cell.module.scss';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { Preferences } from 'app/interfaces/models/game/preferences';

@@ -3,7 +3,6 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useOasis } from 'app/(game)/(village-slug)/hooks/use-oasis';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -164,8 +163,6 @@ const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
 }) => {
   const { oasis, village, player } = occupiableOasisDTO;
 
-  const { mapPath } = useGameNavigation();
-
   const oasisCoordinates = oasis.coordinates;
   const villageCoordinates = village === null ? null : village.coordinates;
 
@@ -179,7 +176,7 @@ const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
           {village !== null && (
             <Link
               className="underline"
-              to={`${mapPath}?x=${villageCoordinates!.x}&y=${villageCoordinates!.y}`}
+              to={`../map?x=${villageCoordinates!.x}&y=${villageCoordinates!.y}`}
             >
               {village.name} ({villageCoordinates!.x}, {villageCoordinates!.y})
             </Link>
@@ -191,7 +188,7 @@ const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
         <Text>
           <Link
             className="underline"
-            to={`${mapPath}?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
+            to={`../map?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
           >
             {oasisCoordinates.x}, {oasisCoordinates.y}
           </Link>

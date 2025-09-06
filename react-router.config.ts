@@ -30,7 +30,7 @@ export default {
   future: {
     unstable_middleware: true,
     unstable_optimizeDeps: true,
-    unstable_subResourceIntegrity: true,
+    unstable_subResourceIntegrity: false,
     unstable_viteEnvironmentApi: true,
     unstable_splitRouteModules: 'enforce',
   },

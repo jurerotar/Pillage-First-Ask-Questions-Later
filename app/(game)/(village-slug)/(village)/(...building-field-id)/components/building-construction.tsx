@@ -8,7 +8,7 @@ import {
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
+import { buildings } from 'app/assets/buildings';
 import type {
   Building,
   BuildingCategory,
@@ -27,7 +27,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
@@ -139,14 +138,13 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
 
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
-  const { villagePath } = useGameNavigation();
 
   return (
     <>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={villagePath}>{t('Village')}</BreadcrumbLink>
+            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>

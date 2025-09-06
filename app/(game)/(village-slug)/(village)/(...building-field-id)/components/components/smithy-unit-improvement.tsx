@@ -5,7 +5,7 @@ import {
   UnitImprovement,
   UnitOverview,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
-import { units } from 'app/(game)/(village-slug)/assets/units';
+import { units } from 'app/assets/units';
 import {
   Section,
   SectionContent,

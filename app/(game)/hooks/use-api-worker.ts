@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import ApiWorker from 'app/(game)/api/workers/api-worker?worker&url';
 import type { WorkerInitializationErrorEvent } from 'app/interfaces/api';
 import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
+import type { Server } from 'app/interfaces/models/game/server';
 
 const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
   return new Promise((resolve, reject) => {
@@ -38,9 +38,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
   });
 };
 
-export const useApiWorker = () => {
-  const { serverSlug } = useRouteSegments();
-
+export const useApiWorker = (serverSlug: Server['slug']) => {
   const { data: apiWorker } = useSuspenseQuery<Worker>({
     queryKey: ['api-worker', serverSlug],
     queryFn: () => createWorkerWithReadySignal(serverSlug),

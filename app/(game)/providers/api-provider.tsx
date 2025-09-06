@@ -9,6 +9,11 @@ import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
+import type { Server } from 'app/interfaces/models/game/server';
+
+type ApiProviderProps = {
+  serverSlug: Server['slug'];
+};
 
 type ApiContextReturn = {
   fetcher: Fetcher;
@@ -18,9 +23,12 @@ export const ApiContext = createContext<ApiContextReturn>(
   {} as ApiContextReturn,
 );
 
-export const ApiProvider: React.FCWithChildren = ({ children }) => {
+export const ApiProvider: React.FCWithChildren<ApiProviderProps> = ({
+  children,
+  serverSlug,
+}) => {
   const queryClient = useQueryClient();
-  const { apiWorker } = useApiWorker();
+  const { apiWorker } = useApiWorker(serverSlug);
 
   useEffect(() => {
     if (!apiWorker) {

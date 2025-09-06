@@ -1,5 +1,5 @@
 import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
-import { merchants } from 'app/(game)/(village-slug)/assets/merchants';
+import { merchants } from 'app/assets/merchants';
 import type {
   Building,
   BuildingEffect,

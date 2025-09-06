@@ -1,4 +1,4 @@
-import { buildingMap } from 'app/(game)/(village-slug)/assets/buildings';
+import { buildingMap } from 'app/assets/buildings';
 import type {
   Building,
   BuildingEffect,
