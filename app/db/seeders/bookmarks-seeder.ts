@@ -1,4 +1,4 @@
-import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
+import { buildings } from 'app/assets/buildings';
 import type { Seeder } from 'app/interfaces/db';
 import { batchInsert } from 'app/db/utils/batch-insert';
 

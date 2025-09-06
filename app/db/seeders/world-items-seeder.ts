@@ -5,7 +5,7 @@ import {
   seededRandomArrayElement,
   seededRandomArrayElements,
 } from 'app/utils/common';
-import { items } from 'app/(game)/(village-slug)/assets/items';
+import { items } from 'app/assets/items';
 import type { HeroItem } from 'app/interfaces/models/game/hero';
 import type { TileModel } from 'app/interfaces/models/game/tile';
 import { PLAYER_ID } from 'app/constants/player';
