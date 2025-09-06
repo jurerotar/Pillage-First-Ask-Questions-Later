@@ -1,4 +1,5 @@
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
+import type React from 'react';
 import { useEffect } from 'react';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import {
@@ -109,8 +110,12 @@ const eventCreatedNotificationFactory: NotificationFactory = (
   return undefined;
 };
 
-export const Notifier = () => {
-  const { apiWorker } = useApiWorker();
+type NotifierProps = {
+  serverSlug: Server['slug'];
+};
+
+export const Notifier: React.FC<NotifierProps> = ({ serverSlug }) => {
+  const { apiWorker } = useApiWorker(serverSlug);
   const { preferences } = usePreferences();
   const { t } = useTranslation();
   const notificationPermission = useNotificationPermission();

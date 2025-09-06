@@ -3,12 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import { Suspense, useEffect, useState } from 'react';
+import { memo, Suspense, useEffect, useState } from 'react';
 import {
   Link,
   Outlet,
   redirect,
-  useLoaderData,
+  type ShouldRevalidateFunction,
   useRouteError,
 } from 'react-router';
 import { Notifier } from 'app/(game)/components/notifier';
@@ -28,6 +28,13 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   return {
     sessionId,
   };
+};
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentParams,
+  nextParams,
+}) => {
+  return currentParams.serverSlug !== nextParams.serverSlug;
 };
 
 // Check whether server even exists && whether server is already opened in another tab
@@ -138,57 +145,62 @@ const LayoutFallback = () => {
   );
 };
 
-const Layout = ({ params }: Route.ComponentProps) => {
-  const { serverSlug } = params;
+const Layout = memo<Route.ComponentProps>(
+  ({ params, loaderData }) => {
+    const { serverSlug } = params;
+    const { sessionId } = loaderData;
 
-  const { sessionId } = useLoaderData<typeof clientLoader>();
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+    const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const [queryClient] = useState<QueryClient>(
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          networkMode: 'always',
+    const [queryClient] = useState<QueryClient>(
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            networkMode: 'always',
+          },
+          mutations: {
+            networkMode: 'always',
+          },
         },
-        mutations: {
-          networkMode: 'always',
-        },
-      },
-    }),
-  );
+      }),
+    );
 
-  const toasterPosition: ToasterProps['position'] = isWiderThanLg
-    ? 'bottom-right'
-    : 'top-right';
+    const toasterPosition: ToasterProps['position'] = isWiderThanLg
+      ? 'bottom-right'
+      : 'top-right';
 
-  useEffect(() => {
-    const { promise, resolve } = Promise.withResolvers();
+    useEffect(() => {
+      const { promise, resolve } = Promise.withResolvers();
 
-    navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
+      navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
 
-    return () => {
-      resolve(null);
-    };
-  }, [serverSlug, sessionId]);
+      return () => {
+        resolve(null);
+      };
+    }, [serverSlug, sessionId]);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<LayoutFallback />}>
-        <ApiProvider>
-          <Outlet />
-          <Notifier />
-        </ApiProvider>
-      </Suspense>
-      <Toaster
-        position={toasterPosition}
-        closeButton
-      />
-      <ReactQueryDevtools
-        client={queryClient}
-        initialIsOpen={false}
-      />
-    </QueryClientProvider>
-  );
-};
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={<LayoutFallback />}>
+          <ApiProvider serverSlug={serverSlug}>
+            <Outlet />
+            <Notifier serverSlug={serverSlug} />
+          </ApiProvider>
+        </Suspense>
+        <Toaster
+          position={toasterPosition}
+          closeButton
+        />
+        <ReactQueryDevtools
+          client={queryClient}
+          initialIsOpen={false}
+        />
+      </QueryClientProvider>
+    );
+  },
+  (prev, next) => {
+    return prev.params.serverSlug === next.params.serverSlug;
+  },
+);
 
 export default Layout;

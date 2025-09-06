@@ -4,9 +4,8 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
 import type React from 'react';
 import { Suspense } from 'react';
-import { Fragment, memo, useEffect, useRef } from 'react';
+import { Fragment, memo, useRef } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
@@ -29,12 +28,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import layoutStyles from './layout.module.scss';
 import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { useTextDirection } from 'app/hooks/use-text-direction';
 import { TbMap2, TbShoe } from 'react-icons/tb';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { GiWheat } from 'react-icons/gi';
@@ -47,6 +44,8 @@ import { GoGraph } from 'react-icons/go';
 import { CiCircleList } from 'react-icons/ci';
 import { RiAuctionLine } from 'react-icons/ri';
 import { HiStar } from 'react-icons/hi2';
+import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
 
 type CounterProps = {
   counter?: number;
@@ -644,10 +643,6 @@ const MobileBottomNavigation = () => {
   );
 };
 
-export const ErrorBoundary = () => {
-  return <p>Layout error</p>;
-};
-
 const PageFallback = () => {
   return (
     <div className="flex items-center justify-center h-[calc(100vh-12rem)] lg:h-[calc(100vh-4.75rem)]">
@@ -656,69 +651,37 @@ const PageFallback = () => {
   );
 };
 
-const GameLayout = () => {
-  const { preferences } = usePreferences();
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+const GameLayout = memo<Route.ComponentProps>(
+  () => {
+    const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { timeOfDay, skinVariant, colorScheme, locale } = preferences;
-
-  const { direction } = useTextDirection(locale);
-
-  useEffect(() => {
-    const body = document.querySelector('body')!;
-
-    body.classList.add(layoutStyles['background-image']);
-
-    return () => {
-      body.classList.remove(clsx(layoutStyles['background-image']));
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!(colorScheme && skinVariant && timeOfDay)) {
-      return;
-    }
-    const html = document.documentElement;
-
-    html.setAttribute('dir', direction);
-    html.classList.add(
-      colorScheme,
-      `skin-variant-${skinVariant}`,
-      `time-of-day-${timeOfDay}`,
+    return (
+      <CurrentVillageStateProvider>
+        <CurrentVillageBuildingQueueContextProvider>
+          {/* biome-ignore lint/correctness/useUniqueElementIds: We need a stable id here, because it's referenced in other components */}
+          <Tooltip id="general-tooltip" />
+          <TopNavigation />
+          <Suspense fallback={null}>
+            <TroopMovements />
+          </Suspense>
+          <Suspense fallback={<PageFallback />}>
+            <Outlet />
+          </Suspense>
+          <Suspense fallback={null}>
+            <ConstructionQueue />
+          </Suspense>
+          <Suspense fallback={null}>
+            <TroopList />
+          </Suspense>
+          {!isWiderThanLg && <MobileBottomNavigation />}
+          <PreferencesUpdater />
+        </CurrentVillageBuildingQueueContextProvider>
+      </CurrentVillageStateProvider>
     );
-
-    return () => {
-      html.removeAttribute('dir');
-      html.classList.remove(
-        colorScheme,
-        `skin-variant-${skinVariant}`,
-        `time-of-day-${timeOfDay}`,
-      );
-    };
-  }, [skinVariant, timeOfDay, colorScheme, direction]);
-
-  return (
-    <CurrentVillageStateProvider>
-      <CurrentVillageBuildingQueueContextProvider>
-        {/* biome-ignore lint/correctness/useUniqueElementIds: We need a stable id here, because it's referenced in other components */}
-        <Tooltip id="general-tooltip" />
-        <TopNavigation />
-        <Suspense fallback={null}>
-          <TroopMovements />
-        </Suspense>
-        <Suspense fallback={<PageFallback />}>
-          <Outlet />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ConstructionQueue />
-        </Suspense>
-        <Suspense fallback={null}>
-          <TroopList />
-        </Suspense>
-        {!isWiderThanLg && <MobileBottomNavigation />}
-      </CurrentVillageBuildingQueueContextProvider>
-    </CurrentVillageStateProvider>
-  );
-};
+  },
+  (prev, next) => {
+    return prev.params.villageSlug === next.params.villageSlug;
+  },
+);
 
 export default GameLayout;
