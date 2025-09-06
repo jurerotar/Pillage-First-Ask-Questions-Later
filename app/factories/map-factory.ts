@@ -280,7 +280,7 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
           y,
         },
         type: 0,
-        RFC: '4446',
+        resourceFieldComposition: '4446',
         ownedBy: PLAYER_ID,
       } satisfies OccupiedOccupiableTile;
       continue;
@@ -481,7 +481,7 @@ const assignOasisAndFreeTileComposition = (
     return {
       ...tile,
       type: 0,
-      RFC: resourceFieldComposition,
+      resourceFieldComposition: resourceFieldComposition,
     } satisfies OccupiableTile;
   });
 };
@@ -522,7 +522,10 @@ const assignNpcPlayers = (
   ]);
 
   const npcOccupiableTiles = tiles.filter((tile) => {
-    return isUnoccupiedOccupiableTile(tile) && tile.RFC === '4446';
+    return (
+      isUnoccupiedOccupiableTile(tile) &&
+      tile.resourceFieldComposition === '4446'
+    );
   });
 
   const npcOccupiableTilesMap = new Map<

@@ -25,5 +25,5 @@
       "app/*": ["app/*"]
     }
   },
-  "include": ["app/**/*", "*.config.ts", ".react-router/types/**/*"]
+  "include": ["app/**/*", "*.config.ts", ".react-router/types/**/*", "scripts"]
 }

@@ -1,25 +1,36 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
-export const getBookmarks: ApiHandler<Bookmarks> = async (queryClient) => {
-  const bookmarks = queryClient.getQueryData<Bookmarks>([bookmarksCacheKey])!;
+export const getBookmarks: ApiHandler<Bookmarks> = async (
+  _queryClient,
+  database,
+) => {
+  const result = database.selectObjects(
+    'SELECT building_id, tab_name FROM bookmarks',
+  );
 
-  return bookmarks;
+  return Object.fromEntries(
+    result.map(({ building_id, tab_name }) => [building_id, tab_name]),
+  );
 };
 
 export const updateBookmark: ApiHandler<
   void,
   'buildingId',
   { tab: string }
-> = async (queryClient, { params, body }) => {
+> = async (_queryClient, database, { params, body }) => {
   const { buildingId } = params;
   const { tab } = body;
 
-  queryClient.setQueryData<Bookmarks>([bookmarksCacheKey], (bookmarks) => {
-    return {
-      ...bookmarks!,
-      [buildingId]: tab,
-    };
+  database.exec({
+    sql: `
+    UPDATE bookmarks
+    SET tab_name = $tab_name
+    WHERE building_id = $building_id;
+  `,
+    bind: {
+      $tab_name: tab,
+      $building_id: buildingId,
+    },
   });
 };

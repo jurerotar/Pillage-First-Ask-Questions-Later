@@ -6,7 +6,7 @@ import {
   getBuildingFieldByBuildingFieldId,
 } from 'app/(game)/(village-slug)/utils/building';
 import { Icon } from 'app/components/icon';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { formatTime } from 'app/utils/time';
 import type React from 'react';
 import { use } from 'react';

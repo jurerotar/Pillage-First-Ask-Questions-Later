@@ -16,7 +16,6 @@ import {
 } from 'app/(game)/api/handlers/hero-handlers';
 import {
   getPlayerById,
-  getPlayers,
   getTroopsByVillage,
   getVillagesByPlayer,
   renameVillage,
@@ -39,7 +38,7 @@ import {
 } from 'app/(game)/api/handlers/map-filters-handlers';
 import {
   getVillages,
-  getVillagesBySlug,
+  getVillageBySlug,
 } from 'app/(game)/api/handlers/village-handlers';
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
@@ -187,11 +186,6 @@ const eventRoutes = [
 const playerRoutes = [
   {
     method: 'GET',
-    path: '/players',
-    handler: getPlayers,
-  },
-  {
-    method: 'GET',
     path: '/players/:playerId',
     handler: getPlayerById,
   },
@@ -211,11 +205,11 @@ const villageRoutes = [
   {
     method: 'GET',
     path: '/villages/:villageSlug',
-    handler: getVillagesBySlug,
+    handler: getVillageBySlug,
   },
   {
     method: 'GET',
-    path: '/villages/:tileId/troops',
+    path: '/villages/:villageId/troops',
     handler: getTroopsByVillage,
   },
   {

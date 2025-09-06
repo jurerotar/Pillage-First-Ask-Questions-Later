@@ -6,6 +6,7 @@ import { reactRouter } from '@react-router/dev/vite';
 import tailwindcss from '@tailwindcss/vite';
 import packageJson from './package.json' with { type: 'json' };
 import devtoolsJson from 'vite-plugin-devtools-json';
+// import babel from 'vite-plugin-babel';
 // import { visualizer } from "rollup-plugin-visualizer";
 import { reactIconsSprite } from 'react-icons-sprite/vite';
 
@@ -86,6 +87,17 @@ const viteConfig = defineViteConfig({
         );
       },
     },
+    // TODO: This should be set in server.headers, but for some reason, it does not work for html requests when set there
+    {
+      name: 'html-coop-coep-headers',
+      configureServer(server) {
+        server.middlewares.use((_, res, next) => {
+          res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+          next();
+        });
+      },
+    },
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {
@@ -100,6 +112,7 @@ const viteConfig = defineViteConfig({
   },
   optimizeDeps: {
     entries: ['app/**/*.{ts,tsx}'],
+    exclude: ['@sqlite.org/sqlite-wasm'],
   },
   resolve: {
     alias: {
