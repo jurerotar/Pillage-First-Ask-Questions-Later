@@ -1,7 +1,6 @@
 import { Button } from 'app/components/ui/button';
 import { Icon } from 'app/components/icon';
-import type React from 'react';
-import { useState } from 'react';
+import { type JSX, type SetStateAction, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import styles from './horse.module.scss';
 
@@ -23,7 +22,7 @@ const HorseColorPicker = () => {
 
   // Handle changes in the dropdown
   const handleIdChange = (event: {
-    target: { value: React.SetStateAction<string> };
+    target: { value: SetStateAction<string> };
   }) => {
     setSelectedId(event.target.value);
   };
@@ -98,7 +97,7 @@ const HorseColorPicker = () => {
 
 type Param = 'pathfinder';
 
-type ParamToComponentMap = Record<Param, () => React.JSX.Element>;
+type ParamToComponentMap = Record<Param, () => JSX.Element>;
 
 const paramToComponentMap: ParamToComponentMap = {
   pathfinder: HorseColorPicker,

@@ -1,12 +1,7 @@
-import type React from 'react';
 import clsx from 'clsx';
+import type { ReactNode } from 'react';
 
 type AlertVariant = 'warning' | 'error' | 'info' | 'success';
-
-type AlertProps = {
-  variant?: AlertVariant;
-  children: React.ReactNode;
-};
 
 const variantStyles: Record<AlertVariant, { bg: string; text: string }> = {
   warning: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
@@ -33,10 +28,12 @@ const AlertIcon = () => (
   </svg>
 );
 
-export const Alert: React.FC<AlertProps> = ({
-  variant = 'warning',
-  children,
-}) => {
+type AlertProps = {
+  variant?: AlertVariant;
+  children: ReactNode;
+};
+
+export const Alert = ({ variant = 'warning', children }: AlertProps) => {
   const { bg, text } = variantStyles[variant];
 
   return (

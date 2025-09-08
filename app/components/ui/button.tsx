@@ -1,6 +1,6 @@
-import type React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import clsx from 'clsx';
+import type { ComponentProps } from 'react';
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
@@ -34,9 +34,10 @@ export const buttonVariants = cva(
   },
 );
 
-export const Button: React.FC<
-  React.ComponentProps<'button'> & VariantProps<typeof buttonVariants>
-> = ({ className, variant, size, ...props }) => {
+type ButtonProps = ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants>;
+
+export const Button = ({ className, variant, size, ...props }: ButtonProps) => {
   return (
     <button
       data-slot="button"

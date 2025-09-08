@@ -2,7 +2,11 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
-import type React from 'react';
+import type {
+  PropsWithChildren,
+  ComponentProps,
+  ButtonHTMLAttributes,
+} from 'react';
 import { Suspense } from 'react';
 import { Fragment, memo, useRef } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -51,7 +55,7 @@ type CounterProps = {
   counter?: number;
 };
 
-const Counter: React.FC<CounterProps> = ({ counter }) => {
+const Counter = ({ counter }: CounterProps) => {
   if (!counter) {
     return null;
   }
@@ -78,10 +82,10 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+type NavigationSideItemProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
-const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(
-  ({ children, ...rest }) => {
+const NavigationSideItem = memo(
+  ({ children, ...rest }: PropsWithChildren<NavigationSideItemProps>) => {
     return (
       <button
         type="button"
@@ -193,9 +197,10 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren<
-  React.ComponentProps<'button'>
-> = ({ children, ...rest }) => {
+const DesktopTopRowItem = ({
+  children,
+  ...rest
+}: PropsWithChildren<ComponentProps<'button'>>) => {
   return (
     <button
       type="button"
@@ -211,15 +216,15 @@ const DesktopTopRowItem: React.FCWithChildren<
   );
 };
 
-type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type NavigationMainItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   isActive: boolean;
   className?: string;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({
+const NavigationMainItem = ({
   children,
   ...rest
-}) => {
+}: PropsWithChildren<NavigationMainItemProps>) => {
   const { isActive, ...htmlProps } = rest;
 
   return (

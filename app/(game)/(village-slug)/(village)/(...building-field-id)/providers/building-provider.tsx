@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { createContext } from 'react';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
@@ -12,10 +12,10 @@ export const BuildingContext = createContext<BuildingContextReturn>(
   {} as never,
 );
 
-export const BuildingProvider: React.FCWithChildren<BuildingContextProps> = ({
+export const BuildingProvider = ({
   children,
   buildingField,
-}) => {
+}: PropsWithChildren<BuildingContextProps>) => {
   return (
     <BuildingContext value={{ ...buildingField }}>{children}</BuildingContext>
   );

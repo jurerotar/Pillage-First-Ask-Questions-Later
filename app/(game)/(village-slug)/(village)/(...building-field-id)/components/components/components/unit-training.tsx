@@ -21,7 +21,6 @@ import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
-import type React from 'react';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
@@ -41,7 +40,7 @@ type UnitTrainingProps = {
   buildingId: TroopTrainingBuildingId;
 };
 
-export const UnitTraining: React.FC<UnitTrainingProps> = ({ buildingId }) => {
+export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();

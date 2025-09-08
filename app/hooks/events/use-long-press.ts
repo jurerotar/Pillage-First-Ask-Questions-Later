@@ -1,22 +1,25 @@
-import type React from 'react';
-import { useRef } from 'react';
+import {
+  useRef,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+} from 'react';
 
 type UseLongPressEvent = {
-  onMouseDown: (e: React.MouseEvent | React.TouchEvent) => void;
-  onMouseUp: (e: React.MouseEvent | React.TouchEvent) => void;
-  onTouchStart: (e: React.TouchEvent) => void;
-  onTouchEnd: (e: React.TouchEvent) => void;
+  onMouseDown: (e: ReactMouseEvent | ReactTouchEvent) => void;
+  onMouseUp: (e: ReactMouseEvent | ReactTouchEvent) => void;
+  onTouchStart: (e: ReactTouchEvent) => void;
+  onTouchEnd: (e: ReactTouchEvent) => void;
 };
 
-const useLongPress = (
-  callback: (e: React.MouseEvent | React.TouchEvent) => void,
+export const useLongPress = (
+  callback: (e: ReactMouseEvent | ReactTouchEvent) => void,
   ms = 1500,
 ): UseLongPressEvent => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startRef = useRef<number | null>(null);
   const isCallbackExecuted = useRef(false);
 
-  const start = (e: React.MouseEvent | React.TouchEvent) => {
+  const start = (e: ReactMouseEvent | ReactTouchEvent) => {
     // Prevent further execution if the callback has already run
     if (isCallbackExecuted.current) {
       return;
@@ -37,13 +40,13 @@ const useLongPress = (
     isCallbackExecuted.current = false;
   };
 
-  const onMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+  const onMouseDown = (e: ReactMouseEvent | ReactTouchEvent) => {
     if (e.type === 'mousedown' || e.type === 'touchstart') {
       start(e);
     }
   };
 
-  const onTouchStart = (e: React.TouchEvent) => {
+  const onTouchStart = (e: ReactTouchEvent) => {
     if (e.cancelable) {
       e.preventDefault();
     }
@@ -57,5 +60,3 @@ const useLongPress = (
     onTouchEnd: stop,
   };
 };
-
-export default useLongPress;

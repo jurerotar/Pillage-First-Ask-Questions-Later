@@ -1,5 +1,5 @@
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
@@ -10,9 +10,9 @@ type TroopTrainingQueueProps = {
   buildingId: TroopTrainingBuildingId;
 };
 
-export const TroopTrainingQueue: React.FCWithChildren<
-  TroopTrainingQueueProps
-> = ({ buildingId }) => {
+export const TroopTrainingQueue = ({
+  buildingId,
+}: PropsWithChildren<TroopTrainingQueueProps>) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();

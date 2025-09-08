@@ -8,11 +8,6 @@ import type {
   OasisTile,
 } from 'app/interfaces/models/game/tile';
 import { capitalize } from 'moderndash';
-import type React from 'react';
-
-type OccupiableOasisIconProps = {
-  oasisResourceBonus: OasisTile['ORB'];
-};
 
 // Honestly, would be better to just type out every combination and skip the hardcoded assertions
 const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconType => {
@@ -29,9 +24,11 @@ const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconType => {
   ) as ResourceCombinationIconType;
 };
 
-export const OccupiableOasisIcon: React.FC<OccupiableOasisIconProps> = (
-  props,
-) => {
+type OccupiableOasisIconProps = {
+  oasisResourceBonus: OasisTile['ORB'];
+};
+
+export const OccupiableOasisIcon = (props: OccupiableOasisIconProps) => {
   const { oasisResourceBonus } = props;
 
   const iconType = getIconType(oasisResourceBonus);

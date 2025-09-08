@@ -1,17 +1,17 @@
 import { formatFutureTimestamp, formatTime } from 'app/utils/time';
-import type React from 'react';
 import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
+import type { HTMLAttributes } from 'react';
 
 type CountdownProps = {
   endsAt: number;
   showCompletionDate?: boolean;
-} & React.HTMLAttributes<HTMLElement>;
+} & HTMLAttributes<HTMLElement>;
 
-export const Countdown: React.FC<CountdownProps> = ({
+export const Countdown = ({
   endsAt,
   showCompletionDate = false,
   ...rest
-}) => {
+}: CountdownProps) => {
   const currentTime = useCountdown();
 
   const remainingTime = Math.max(0, endsAt - currentTime);

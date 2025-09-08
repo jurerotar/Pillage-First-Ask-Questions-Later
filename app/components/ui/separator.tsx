@@ -1,10 +1,13 @@
-import type React from 'react';
 import { Separator as SeparatorPrimitive } from 'radix-ui';
 import clsx from 'clsx';
+import type { ComponentProps } from 'react';
 
-export const Separator: React.FC<
-  React.ComponentProps<typeof SeparatorPrimitive.Root>
-> = ({ className, orientation = 'vertical', decorative = true, ...props }) => {
+export const Separator = ({
+  className,
+  orientation = 'vertical',
+  decorative = true,
+  ...props
+}: ComponentProps<typeof SeparatorPrimitive.Root>) => {
   return (
     <SeparatorPrimitive.Root
       data-slot="separator-root"

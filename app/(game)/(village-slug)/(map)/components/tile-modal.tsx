@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
-import type React from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
@@ -44,12 +43,13 @@ import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
 } from 'app/utils/common';
+import type { ComponentProps } from 'react';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
 };
 
-const TileModalResources: React.FC<TileModalResourcesProps> = ({ tile }) => {
+const TileModalResources = ({ tile }: TileModalResourcesProps) => {
   const resources = parseRFCFromTile(tile.resourceFieldComposition);
   return (
     <div className="flex justify-start text-sm">
@@ -65,7 +65,7 @@ type TileModalProps = {
   tile: Tile;
 };
 
-const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
+const TileModalLocation = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
 
@@ -84,7 +84,7 @@ const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
   );
 };
 
-const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
+const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
@@ -122,7 +122,7 @@ type OasisTileModalProps = {
   tile: OasisTile;
 };
 
-const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
+const OasisTileModal = ({ tile }: OasisTileModalProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { getVillageByOasis } = useVillages();
@@ -197,7 +197,7 @@ type OccupiableTileModalProps = {
   tile: OccupiableTile;
 };
 
-const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
+const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
 
@@ -259,9 +259,9 @@ type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
 };
 
-const OccupiedOccupiableTileModal: React.FC<
-  OccupiedOccupiableTileModalProps
-> = ({ tile }) => {
+const OccupiedOccupiableTileModal = ({
+  tile,
+}: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { getVillageByCoordinates } = useVillages();
@@ -338,11 +338,11 @@ const OccupiedOccupiableTileModal: React.FC<
   );
 };
 
-type TileDialogProps = React.ComponentProps<typeof Dialog> & {
+type TileDialogProps = ComponentProps<typeof Dialog> & {
   tile: Tile | null;
 };
 
-export const TileDialog: React.FC<TileDialogProps> = ({ tile }) => {
+export const TileDialog = ({ tile }: TileDialogProps) => {
   if (!tile) {
     return null;
   }

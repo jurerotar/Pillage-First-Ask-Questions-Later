@@ -5,8 +5,11 @@ import {
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import type React from 'react';
-import { useState } from 'react';
+import {
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+} from 'react';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { MdUpgrade } from 'react-icons/md';
@@ -17,11 +20,11 @@ type StaticButtonProps = {
   variant: BorderIndicatorBorderVariant;
 };
 
-const StaticButton: React.FC<StaticButtonProps> = ({
+const StaticButton = ({
   buildingField,
   backgroundVariant,
   variant,
-}) => {
+}: StaticButtonProps) => {
   const { level } = buildingField;
   return (
     <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
@@ -41,18 +44,18 @@ type UpgradeButtonProps = {
   variant: BorderIndicatorBorderVariant;
 };
 
-const UpgradeButton: React.FC<UpgradeButtonProps> = ({
+const UpgradeButton = ({
   buildingField,
   backgroundVariant,
   variant,
-}) => {
+}: UpgradeButtonProps) => {
   const { buildingId, id, level } = buildingField;
   const { upgradeBuilding } = useBuildingActions(buildingId, id);
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] =
     useState<boolean>(false);
 
-  const onUpgradeButtonClick = (event: React.MouseEvent | React.TouchEvent) => {
+  const onUpgradeButtonClick = (event: ReactMouseEvent | ReactTouchEvent) => {
     upgradeBuilding();
     event.stopPropagation();
     event.preventDefault();
@@ -85,9 +88,11 @@ type BuildingUpgradeIndicatorProps = {
   buildingEvent: GameEvent<'buildingConstruction'> | undefined;
 };
 
-export const BuildingUpgradeIndicator: React.FC<
-  BuildingUpgradeIndicatorProps
-> = ({ buildingField, isHovered, buildingEvent }) => {
+export const BuildingUpgradeIndicator = ({
+  buildingField,
+  isHovered,
+  buildingEvent,
+}: BuildingUpgradeIndicatorProps) => {
   const { variant, errors } = useBuildingUpgradeStatus(buildingField);
 
   const canUpgrade: boolean = errors.length === 0;

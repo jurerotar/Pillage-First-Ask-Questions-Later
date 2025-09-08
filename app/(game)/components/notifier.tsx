@@ -1,5 +1,4 @@
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
-import type React from 'react';
 import { useEffect } from 'react';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import {
@@ -114,7 +113,7 @@ type NotifierProps = {
   serverSlug: Server['slug'];
 };
 
-export const Notifier: React.FC<NotifierProps> = ({ serverSlug }) => {
+export const Notifier = ({ serverSlug }: NotifierProps) => {
   const { apiWorker } = useApiWorker(serverSlug);
   const { preferences } = usePreferences();
   const { t } = useTranslation();

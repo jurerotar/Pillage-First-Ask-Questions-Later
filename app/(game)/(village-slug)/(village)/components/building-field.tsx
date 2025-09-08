@@ -2,7 +2,6 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import clsx from 'clsx';
-import type React from 'react';
 import { OccupiedBuildingField } from 'app/(game)/(village-slug)/(village)/components/occupied-building-field';
 import { EmptyBuildingField } from 'app/(game)/(village-slug)/(village)/components/empty-building-field';
 
@@ -53,9 +52,7 @@ type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-export const BuildingField: React.FC<BuildingFieldProps> = ({
-  buildingFieldId,
-}) => {
+export const BuildingField = ({ buildingFieldId }: BuildingFieldProps) => {
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(

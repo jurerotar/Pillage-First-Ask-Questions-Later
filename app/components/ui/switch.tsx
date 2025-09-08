@@ -1,10 +1,11 @@
-import type React from 'react';
 import { Switch as SwitchPrimitive } from 'radix-ui';
 import clsx from 'clsx';
+import type { ComponentProps } from 'react';
 
-export const Switch: React.FC<
-  React.ComponentProps<typeof SwitchPrimitive.Root>
-> = ({ className, ...props }) => {
+export const Switch = ({
+  className,
+  ...props
+}: ComponentProps<typeof SwitchPrimitive.Root>) => {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"

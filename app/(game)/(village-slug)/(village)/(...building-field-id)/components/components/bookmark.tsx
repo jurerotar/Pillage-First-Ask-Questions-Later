@@ -1,4 +1,3 @@
-import type React from 'react';
 import { use } from 'react';
 import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
@@ -9,7 +8,7 @@ type BookmarkProps = {
   tab: string;
 };
 
-export const Bookmark: React.FC<BookmarkProps> = ({ tab }) => {
+export const Bookmark = ({ tab }: BookmarkProps) => {
   const { buildingId } = use(BuildingContext);
   const { bookmarks, updateBookmark } = useBookmarks();
 

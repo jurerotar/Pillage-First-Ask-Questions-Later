@@ -1,11 +1,12 @@
-import type React from 'react';
 import { Checkbox as CheckboxPrimitive } from 'radix-ui';
 import { LuCheck } from 'react-icons/lu';
 import clsx from 'clsx';
+import type { ComponentProps } from 'react';
 
-export const Checkbox: React.FC<
-  React.ComponentProps<typeof CheckboxPrimitive.Root>
-> = ({ className, ...props }) => {
+export const Checkbox = ({
+  className,
+  ...props
+}: ComponentProps<typeof CheckboxPrimitive.Root>) => {
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"

@@ -1,5 +1,5 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
@@ -30,9 +30,10 @@ type ConstructionQueueBuildingProps = {
   tooltipPosition: PlacesType;
 };
 
-const ConstructionQueueBuilding: React.FCWithChildren<
-  ConstructionQueueBuildingProps
-> = ({ buildingEvent, tooltipPosition }) => {
+const ConstructionQueueBuilding = ({
+  buildingEvent,
+  tooltipPosition,
+}: PropsWithChildren<ConstructionQueueBuildingProps>) => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
@@ -133,9 +134,9 @@ type ConstructionQueueEmptySlotProps = {
   type: 'free' | 'locked';
 };
 
-const ConstructionQueueEmptySlot: React.FCWithChildren<
-  ConstructionQueueEmptySlotProps
-> = ({ type }) => {
+const ConstructionQueueEmptySlot = ({
+  type,
+}: PropsWithChildren<ConstructionQueueEmptySlotProps>) => {
   if (type === 'free') {
     return <ImHammer className={iconClassName} />;
   }

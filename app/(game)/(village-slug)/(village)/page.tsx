@@ -4,7 +4,6 @@ import { Tooltip } from 'app/components/tooltip';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type React from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
@@ -19,7 +18,9 @@ const villageViewBuildingFieldIds = [...Array(22)].map(
   (_, i) => i + 19,
 ) as BuildingFieldType['id'][];
 
-const VillagePage: React.FC<Route.ComponentProps> = ({ params, matches }) => {
+const VillagePage = (props: Route.ComponentProps) => {
+  const { params, matches } = props;
+
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();

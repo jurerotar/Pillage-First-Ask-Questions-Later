@@ -2,7 +2,6 @@ import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-lay
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type React from 'react';
 import type { IconType } from 'app/components/icons/icons';
 import { Icon } from 'app/components/icon';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
@@ -23,7 +22,7 @@ type TroopMovementProps = {
   events: GameEvent<'troopMovement'>[];
 };
 
-const TroopMovement: React.FC<TroopMovementProps> = ({ type, events }) => {
+const TroopMovement = ({ type, events }: TroopMovementProps) => {
   if (events.length === 0) {
     return null;
   }

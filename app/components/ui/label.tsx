@@ -1,10 +1,11 @@
-import type React from 'react';
 import { Label as LabelPrimitive } from 'radix-ui';
 import clsx from 'clsx';
+import type { ComponentProps } from 'react';
 
-export const Label: React.FC<
-  React.ComponentProps<typeof LabelPrimitive.Root>
-> = ({ className, ...props }) => {
+export const Label = ({
+  className,
+  ...props
+}: ComponentProps<typeof LabelPrimitive.Root>) => {
   return (
     <LabelPrimitive.Root
       data-slot="label"

@@ -1,6 +1,5 @@
 import type { Building } from 'app/interfaces/models/game/building';
-import type React from 'react';
-import { use } from 'react';
+import { type JSX, type LazyExoticComponent, use } from 'react';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
@@ -151,10 +150,7 @@ const HospitalTroopTraining = lazy(async () => ({
     .HospitalTroopTraining,
 }));
 
-const palaceTabs = new Map<
-  string,
-  React.LazyExoticComponent<() => React.JSX.Element>
->([
+const palaceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([
   ['train-settlers', PalaceTrainSettler],
   ['loyalty', PalaceLoyalty],
   ['expansion', PalaceExpansion],
@@ -162,7 +158,7 @@ const palaceTabs = new Map<
 
 const buildingDetailsTabMap = new Map<
   Building['id'],
-  Map<string, React.LazyExoticComponent<() => React.JSX.Element>>
+  Map<string, LazyExoticComponent<() => JSX.Element>>
 >([
   [
     'MAIN_BUILDING',

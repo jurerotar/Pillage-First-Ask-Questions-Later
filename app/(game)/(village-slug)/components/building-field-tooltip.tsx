@@ -8,7 +8,6 @@ import {
 import { Icon } from 'app/components/icon';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { formatTime } from 'app/utils/time';
-import type React from 'react';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -17,9 +16,9 @@ type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingField['id'];
 };
 
-export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({
+export const BuildingFieldTooltip = ({
   buildingFieldId,
-}) => {
+}: BuildingFieldTooltipProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();

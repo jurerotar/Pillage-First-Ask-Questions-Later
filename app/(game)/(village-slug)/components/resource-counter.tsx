@@ -1,5 +1,4 @@
 import type { Resource } from 'app/interfaces/models/game/resource';
-import type React from 'react';
 import { use } from 'react';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
 import { formatNumberWithCommas, truncateToShortForm } from 'app/utils/common';
@@ -13,9 +12,7 @@ type ResourceCounterProps = {
   resource: Resource;
 };
 
-export const ResourceCounter: React.FC<ResourceCounterProps> = ({
-  resource,
-}) => {
+export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
     use(CurrentVillageStateContext);

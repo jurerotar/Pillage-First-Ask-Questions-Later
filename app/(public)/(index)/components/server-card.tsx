@@ -1,7 +1,6 @@
 import { Button } from 'app/components/ui/button';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
-import type React from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +12,7 @@ type ServerCardProps = {
   server: Server;
 };
 
-export const ServerCard: React.FC<ServerCardProps> = (props) => {
+export const ServerCard = (props: ServerCardProps) => {
   const { server } = props;
 
   const { t } = useTranslation('public');

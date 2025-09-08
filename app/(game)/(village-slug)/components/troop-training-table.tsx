@@ -1,4 +1,3 @@
-import type React from 'react';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import {
@@ -18,9 +17,7 @@ type TroopTrainingTableProps = {
   buildingId: TroopTrainingBuildingId;
 };
 
-export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
-  buildingId,
-}) => {
+export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { eventsByType } = useEventsByType('troopTraining');

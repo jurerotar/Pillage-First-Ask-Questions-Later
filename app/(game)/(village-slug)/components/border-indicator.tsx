@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import type React from 'react';
+import type { HTMLProps, PropsWithChildren } from 'react';
 
 export type BorderIndicatorBorderVariant =
   | 'green'
@@ -9,12 +9,13 @@ export type BorderIndicatorBorderVariant =
   | 'yellow'
   | 'purple'
   | 'orange';
+
 export type BorderIndicatorBackgroundVariant = 'orange' | 'white';
 
 type BorderIndicatorProps = {
   variant?: BorderIndicatorBorderVariant;
   backgroundVariant?: BorderIndicatorBackgroundVariant;
-} & React.HTMLProps<HTMLDivElement>;
+} & HTMLProps<HTMLDivElement>;
 
 const borderVariantToClassNameMap: Record<
   BorderIndicatorBorderVariant,
@@ -37,8 +38,8 @@ const backgroundVariantToClassNameMap: Record<
   white: 'bg-background',
 };
 
-export const BorderIndicator: React.FCWithChildren<BorderIndicatorProps> = (
-  props,
+export const BorderIndicator = (
+  props: PropsWithChildren<BorderIndicatorProps>,
 ) => {
   const {
     variant = 'gray',

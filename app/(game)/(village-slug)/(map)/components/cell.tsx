@@ -14,7 +14,6 @@ import type {
   Tile as TileType,
 } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
-import type React from 'react';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
@@ -39,10 +38,10 @@ type TroopMovementsProps = {
   magnification: number;
 };
 
-const TroopMovements: React.FC<TroopMovementsProps> = ({
+const TroopMovements = ({
   troopMovementIcon,
   magnification,
-}) => {
+}: TroopMovementsProps) => {
   const classes = clsx(
     cellStyles['troop-movements'],
     cellStyles[`troop-movements-magnification-${magnification}`],
@@ -63,7 +62,7 @@ type CellIconsProps = CellBaseProps & {
   tile: ContextualTile;
 };
 
-const CellIcons: React.FC<CellIconsProps> = (props) => {
+const CellIcons = (props: CellIconsProps) => {
   const { tile, mapFilters, magnification } = props;
   const {
     shouldShowTreasureIcons,

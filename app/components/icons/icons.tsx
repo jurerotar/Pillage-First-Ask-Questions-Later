@@ -53,7 +53,6 @@ import {
   PillageFirstCatapult,
   PillageFirstHorse,
 } from '@pillage-first/graphics';
-import type React from 'react';
 import type { UpperCaseToCamelCase } from 'app/utils/typescript';
 import type {
   EgyptianUnitId,
@@ -66,6 +65,7 @@ import type {
 } from 'app/interfaces/models/game/unit';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import styles from './icons.module.scss';
+import type { JSX } from 'react';
 
 type UncategorizedIconType =
   | 'missingIcon'
@@ -163,7 +163,7 @@ export type IconType =
   | TroopMovementType
   | Effect['id'];
 
-export const icons: Record<IconType, () => React.JSX.Element> = {
+export const icons: Record<IconType, () => JSX.Element> = {
   missingIcon: () => <GrDocumentMissing className="size-full" />,
   cancel: () => <RxCross2 className="text-red-500" />,
   positiveChange: () => (

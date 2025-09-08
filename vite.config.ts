@@ -150,7 +150,6 @@ const vitestConfig = defineVitestConfig({
   test: {
     root: './',
     watch: false,
-    globals: true,
     environment: 'happy-dom',
     setupFiles: './app/tests/vitest-setup.ts',
     reporters: ['default'],

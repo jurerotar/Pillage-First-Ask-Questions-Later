@@ -1,14 +1,13 @@
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
-import type React from 'react';
 import { Link } from 'react-router';
 
 type EmptyBuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-export const EmptyBuildingField: React.FC<EmptyBuildingFieldProps> = ({
+export const EmptyBuildingField = ({
   buildingFieldId,
-}) => {
+}: EmptyBuildingFieldProps) => {
   return (
     <Link
       to={`${buildingFieldId}`}

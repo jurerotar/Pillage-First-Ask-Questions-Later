@@ -1,4 +1,4 @@
-import React from 'react';
+import { createElement, type HTMLAttributes, type ReactNode } from 'react';
 import { clsx } from 'clsx';
 
 type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
@@ -24,20 +24,20 @@ const variantStyles: Record<TextVariant, string> = {
   muted: 'text-muted-foreground',
 };
 
-type TextProps = React.HTMLAttributes<HTMLElement> & {
+type TextProps = HTMLAttributes<HTMLElement> & {
   as?: TextElement;
   variant?: TextVariant;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
-export const Text: React.FC<TextProps> = ({
+export const Text = ({
   as = 'p',
   variant = 'body',
   className,
   children,
   ...props
-}) => {
-  return React.createElement(
+}: TextProps) => {
+  return createElement(
     as,
     {
       className: clsx(

@@ -11,7 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
 import clsx from 'clsx';
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { createContext, use } from 'react';
 import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -46,11 +46,11 @@ type BuildingCardProps = {
   >;
 };
 
-export const BuildingCard: React.FCWithChildren<BuildingCardProps> = ({
+export const BuildingCard = ({
   buildingId,
   buildingConstructionReadinessAssessment,
   children,
-}) => {
+}: PropsWithChildren<BuildingCardProps>) => {
   const building = getBuildingData(buildingId);
 
   return (
@@ -177,10 +177,7 @@ type BuildingBenefitProps = {
   buildingFieldId: BuildingField['id'];
 };
 
-const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
-  effect,
-  isMaxLevel,
-}) => {
+const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
   // TODO: Resource production, warehouse & granary values need to be increased by server effect value
   const { hasEffect, serverEffectValue } = useEffectServerValue(
     effect.effectId,

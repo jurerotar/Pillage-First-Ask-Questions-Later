@@ -7,7 +7,6 @@ import type {
   ResourceProductionEffectId,
   VillageBuildingEffect,
 } from 'app/interfaces/models/game/effect';
-import type React from 'react';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -66,9 +65,9 @@ type ResourceBoosterBenefitsProps = {
   effectId: ResourceProductionEffectId;
 };
 
-export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
+export const ProductionOverview = ({
   effectId,
-}) => {
+}: ResourceBoosterBenefitsProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { effects } = useEffects();
