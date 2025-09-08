@@ -1,17 +1,25 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type {
-  UnitImprovement,
-  UnitImprovementModel,
-} from 'app/interfaces/models/game/unit-improvement';
-import { unitImprovementApiResource } from 'app/(game)/api/api-resources/unit-improvement-api-resource';
+import { z } from 'zod';
 
-export const getUnitImprovements: ApiHandler<UnitImprovement[]> = async (
+const getUnitImprovementsResponseSchema = z
+  .strictObject({
+    unit_id: z.string(),
+    level: z.number(),
+  })
+  .transform((t) => {
+    return {
+      unitId: t.unit_id,
+      level: t.level,
+    };
+  });
+
+export const getUnitImprovements: ApiHandler<z.infer<typeof getUnitImprovementsResponseSchema>[]> = async (
   _queryClient,
   database,
 ) => {
-  const unitImprovementModel = database.selectObjects(
-    'SELECT unit_id, level FROM unit_improvements;',
-  ) as UnitImprovementModel[];
+  const unitImprovementModel = database.selectObjects('SELECT unit_id, level FROM unit_improvements;');
 
-  return unitImprovementModel.map(unitImprovementApiResource);
+  const listSchema = z.array(getUnitImprovementsResponseSchema);
+
+  return listSchema.parse(unitImprovementModel);
 };

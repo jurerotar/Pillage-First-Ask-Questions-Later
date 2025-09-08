@@ -1,7 +1,17 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
+import { z } from 'zod';
 
-export const getBookmarks: ApiHandler<Bookmarks> = async (
+const getBookmarksResponseSchema = z
+  .strictObject({
+
+  })
+  .transform((t) => {
+    return {
+
+    };
+  });
+
+export const getBookmarks: ApiHandler<z.infer<typeof getBookmarksResponseSchema>> = async (
   _queryClient,
   database,
 ) => {

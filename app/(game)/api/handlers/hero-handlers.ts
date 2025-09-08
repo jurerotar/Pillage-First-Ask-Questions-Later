@@ -1,19 +1,34 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { heroCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Hero } from 'app/interfaces/models/game/hero';
-import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
+import { z } from 'zod';
 
-export const getHero: ApiHandler<Hero> = async (queryClient, database) => {
+const getHeroResponseSchema = z
+  .strictObject({
+
+  })
+  .transform((t) => {
+    return {
+
+    };
+  });
+
+export const getHero: ApiHandler<z.infer<typeof getHeroResponseSchema>> = async (queryClient, database) => {
   const _hero = database.selectObject('SELECT * from heroes');
 
   return queryClient.getQueryData<Hero>([heroCacheKey])!;
 };
 
-export const getAdventurePoints: ApiHandler<AdventurePoints> = async (
+const getAdventurePointsResponseSchema = z
+  .strictObject({
+    amount: z.number(),
+  });
+
+export const getAdventurePoints: ApiHandler<z.infer<typeof getAdventurePointsResponseSchema>> = async (
   _queryClient,
   database,
 ) => {
-  return database.selectObject(
-    'SELECT amount FROM adventure_points;',
-  ) as AdventurePoints;
+  const row = database.selectObject('SELECT amount FROM adventure_points;');
+
+  return getAdventurePointsResponseSchema.parse(row);
 };

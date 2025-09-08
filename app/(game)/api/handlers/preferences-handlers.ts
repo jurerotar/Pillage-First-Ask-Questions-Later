@@ -1,12 +1,47 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import type {
   Preferences,
-  PreferencesModel,
 } from 'app/interfaces/models/game/preferences';
-import { preferencesApiResource } from 'app/(game)/api/api-resources/preferences-api-resources';
 import { snakeCase } from 'moderndash';
+import { z } from 'zod';
 
-export const getPreferences: ApiHandler<Preferences> = async (
+const getPreferencesResponseSchema = z
+  .strictObject({
+    color_scheme: z.string(),
+    locale: z.string(),
+    time_of_day: z.string(),
+    skin_variant: z.string(),
+    is_accessibility_mode_enabled: z.boolean(),
+    is_reduced_motion_mode_enabled: z.boolean(),
+    should_show_building_names: z.boolean(),
+    is_automatic_navigation_after_building_level_change_enabled: z.boolean(),
+    is_developer_mode_enabled: z.boolean(),
+    should_show_notifications_on_building_upgrade_completion: z.boolean(),
+    should_show_notifications_on_unit_upgrade_completion: z.boolean(),
+    should_show_notifications_on_academy_research_completion: z.boolean(),
+  })
+  .transform((t) => {
+    return {
+      colorScheme: t.color_scheme,
+      locale: t.locale,
+      timeOfDay: t.time_of_day,
+      skinVariant: t.skin_variant,
+      isAccessibilityModeEnabled: t.is_accessibility_mode_enabled,
+      isReducedMotionModeEnabled: t.is_reduced_motion_mode_enabled,
+      shouldShowBuildingNames: t.should_show_building_names,
+      isAutomaticNavigationAfterBuildingLevelChangeEnabled:
+      t.is_automatic_navigation_after_building_level_change_enabled,
+      isDeveloperModeEnabled: t.is_developer_mode_enabled,
+      shouldShowNotificationsOnBuildingUpgradeCompletion:
+      t.should_show_notifications_on_building_upgrade_completion,
+      shouldShowNotificationsOnUnitUpgradeCompletion:
+      t.should_show_notifications_on_unit_upgrade_completion,
+      shouldShowNotificationsOnAcademyResearchCompletion:
+      t.should_show_notifications_on_academy_research_completion,
+    };
+  });
+
+export const getPreferences: ApiHandler<z.infer<typeof getPreferencesResponseSchema>> = async (
   _queryClient,
   database,
 ) => {
@@ -27,9 +62,9 @@ export const getPreferences: ApiHandler<Preferences> = async (
         should_show_notifications_on_academy_research_completion
       FROM preferences
     `,
-  ) as unknown as PreferencesModel;
+  );
 
-  return preferencesApiResource(row);
+  return getPreferencesResponseSchema.parse(row);
 };
 
 type UpdatePreferenceBody = {

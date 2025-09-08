@@ -1,12 +1,28 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type {
-  MapFilters,
-  MapFiltersModel,
-} from 'app/interfaces/models/game/map-filters';
 import { snakeCase } from 'moderndash';
-import { mapFiltersApiResource } from 'app/(game)/api/api-resources/map-filters-api-resources';
+import { z } from 'zod';
 
-export const getMapFilters: ApiHandler<MapFilters> = async (
+const getMapFiltersResponseSchema = z
+  .strictObject({
+    should_show_faction_reputation: z.boolean(),
+    should_show_oasis_icons: z.boolean(),
+    should_show_troop_movements: z.boolean(),
+    should_show_wheat_fields: z.boolean(),
+    should_show_tile_tooltips: z.boolean(),
+    should_show_treasure_icons: z.boolean(),
+  })
+  .transform((t) => {
+    return {
+      shouldShowFactionReputation: t.should_show_faction_reputation,
+      shouldShowOasisIcons: t.should_show_oasis_icons,
+      shouldShowTileTooltips: t.should_show_tile_tooltips,
+      shouldShowTreasureIcons: t.should_show_treasure_icons,
+      shouldShowTroopMovements: t.should_show_troop_movements,
+      shouldShowWheatFields: t.should_show_wheat_fields,
+    };
+  });
+
+export const getMapFilters: ApiHandler<z.infer<typeof getMapFiltersResponseSchema>> = async (
   _queryClient,
   database,
 ) => {
@@ -20,9 +36,9 @@ export const getMapFilters: ApiHandler<MapFilters> = async (
       should_show_tile_tooltips,
       should_show_treasure_icons
     FROM map_filters`,
-  ) as unknown as MapFiltersModel;
+  );
 
-  return mapFiltersApiResource(row);
+  return getMapFiltersResponseSchema.parse(row);
 };
 
 type UpdateMapFilterBody = {

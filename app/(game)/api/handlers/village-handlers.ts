@@ -2,6 +2,7 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Village, VillageModel } from 'app/interfaces/models/game/village';
 import { villageApiResource } from 'app/(game)/api/api-resources/village-api-resources';
+import { z } from 'zod';
 
 export const getVillages: ApiHandler<Village[]> = async (
   queryClient,
@@ -12,7 +13,17 @@ export const getVillages: ApiHandler<Village[]> = async (
   return villages;
 };
 
-export const getVillageBySlug: ApiHandler<Village, 'villageSlug'> = async (
+const getVillageBySlugResponseSchema = z
+  .strictObject({
+
+  })
+  .transform((t) => {
+    return {
+
+    };
+  });
+
+export const getVillageBySlug: ApiHandler<z.infer<typeof getVillageBySlugResponseSchema>, 'villageSlug'> = async (
   _queryClient,
   database,
   { params },

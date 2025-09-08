@@ -1,12 +1,20 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type {
-  UnitResearch,
-  UnitResearchModel,
-} from 'app/interfaces/models/game/unit-research';
-import { unitResearchApiResource } from 'app/(game)/api/api-resources/unit-research-api-resource';
+import { z } from 'zod';
+
+const getResearchedUnitsResponseSchema = z
+  .strictObject({
+    unit_id: z.string(),
+    village_id: z.number(),
+  })
+  .transform((t) => {
+    return {
+      unitId: t.unit_id,
+      villageId: t.village_id,
+    };
+  });
 
 export const getResearchedUnits: ApiHandler<
-  UnitResearch[],
+  z.infer<typeof getResearchedUnitsResponseSchema>[],
   'villageId'
 > = async (_queryClient, database, { params }) => {
   const { villageId } = params;
@@ -18,7 +26,9 @@ export const getResearchedUnits: ApiHandler<
     WHERE village_id = $village_id;
   `,
     { $village_id: villageId },
-  ) as UnitResearchModel[];
+  );
 
-  return unitResearchModels.map(unitResearchApiResource);
+  const listSchema = z.array(getResearchedUnitsResponseSchema);
+
+  return listSchema.parse(unitResearchModels);
 };
