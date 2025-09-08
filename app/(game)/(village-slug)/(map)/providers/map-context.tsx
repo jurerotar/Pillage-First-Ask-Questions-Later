@@ -1,5 +1,5 @@
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { createContext, useState } from 'react';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { calculateGridLayout } from 'app/utils/map';
@@ -19,7 +19,7 @@ export const MapContext = createContext<MapProviderValues>(
 export const MAX_MAGNIFICATION = 5;
 export const MIN_MAGNIFICATION = 2;
 
-export const MapProvider: React.FCWithChildren = ({ children }) => {
+export const MapProvider = ({ children }: PropsWithChildren) => {
   const { mapSize } = useServer();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 

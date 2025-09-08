@@ -17,7 +17,6 @@ import {
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import type { OasisTile } from 'app/interfaces/models/game/tile';
 import clsx from 'clsx';
-import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -31,11 +30,11 @@ type OccupiedOasisRowProps = {
   heroMansionLevelRequirement: number;
 };
 
-const OccupiedOasisRow: React.FC<OccupiedOasisRowProps> = ({
+const OccupiedOasisRow = ({
   occupiedOasis,
   heroMansionLevel,
   heroMansionLevelRequirement,
-}) => {
+}: OccupiedOasisRowProps) => {
   const { t } = useTranslation();
   const { abandonOasis } = useOasis();
 
@@ -110,10 +109,10 @@ type OccupiableOasisRowActionsProps = {
   freeSlots: number;
 };
 
-const OccupiableOasisRowActions: React.FC<OccupiableOasisRowActionsProps> = ({
+const OccupiableOasisRowActions = ({
   occupiableOasisDTO,
   freeSlots,
-}) => {
+}: OccupiableOasisRowActionsProps) => {
   const { oasis, player } = occupiableOasisDTO;
 
   const { t } = useTranslation();
@@ -157,10 +156,10 @@ type OccupiableOasisRowProps = {
   freeSlots: number;
 };
 
-const OccupiableOasisRow: React.FC<OccupiableOasisRowProps> = ({
+const OccupiableOasisRow = ({
   occupiableOasisDTO,
   freeSlots,
-}) => {
+}: OccupiableOasisRowProps) => {
   const { oasis, village, player } = occupiableOasisDTO;
 
   const oasisCoordinates = oasis.coordinates;

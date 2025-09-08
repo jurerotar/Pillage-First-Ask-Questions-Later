@@ -5,10 +5,14 @@ const listeners = new Set<() => void>();
 
 const subscribe = (callback: () => void) => {
   listeners.add(callback);
-  return () => listeners.delete(callback);
+  return () => {
+    listeners.delete(callback);
+  };
 };
 
-const getSnapshot = () => currentTime;
+const getSnapshot = () => {
+  return currentTime;
+};
 
 setInterval(() => {
   currentTime = Date.now();
@@ -17,4 +21,6 @@ setInterval(() => {
   }
 }, 1000);
 
-export const useCountdown = () => useSyncExternalStore(subscribe, getSnapshot);
+export const useCountdown = () => {
+  return useSyncExternalStore(subscribe, getSnapshot);
+};

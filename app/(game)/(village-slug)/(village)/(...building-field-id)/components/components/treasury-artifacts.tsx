@@ -4,7 +4,6 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import type React from 'react';
 import {
   Table,
   TableBody,
@@ -24,9 +23,7 @@ type UnoccupiedArtifactRowProps = {
   item: WorldItem;
 };
 
-const UnoccupiedArtifactRow: React.FC<UnoccupiedArtifactRowProps> = ({
-  item,
-}) => {
+const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
   const { t: assetsT } = useTranslation();
 
   return (

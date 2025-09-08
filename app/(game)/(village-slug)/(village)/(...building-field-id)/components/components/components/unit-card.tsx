@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { Fragment } from 'react';
 import { createContext } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -59,7 +59,7 @@ type UnitCardProps = {
   showOuterBorder?: boolean;
 };
 
-export const UnitCard: React.FCWithChildren<UnitCardProps> = (props) => {
+export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
   const {
     unitId,
     buildingId,

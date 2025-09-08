@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { PropsWithChildren } from 'react';
 import { createContext, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -23,10 +23,10 @@ export const ApiContext = createContext<ApiContextReturn>(
   {} as ApiContextReturn,
 );
 
-export const ApiProvider: React.FCWithChildren<ApiProviderProps> = ({
+export const ApiProvider = ({
   children,
   serverSlug,
-}) => {
+}: PropsWithChildren<ApiProviderProps>) => {
   const queryClient = useQueryClient();
   const { apiWorker } = useApiWorker(serverSlug);
 

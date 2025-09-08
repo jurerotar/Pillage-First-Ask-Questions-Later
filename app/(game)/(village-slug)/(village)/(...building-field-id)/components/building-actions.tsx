@@ -10,7 +10,6 @@ import {
 } from 'app/(game)/(village-slug)/utils/building';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
-import type React from 'react';
 import { use } from 'react';
 import { startTransition } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +29,7 @@ type ErrorBagProps = {
   errorBag: string[];
 };
 
-const ErrorBag: React.FC<ErrorBagProps> = ({ errorBag }) => {
+const ErrorBag = ({ errorBag }: ErrorBagProps) => {
   if (errorBag.length === 0) {
     return null;
   }
@@ -54,9 +53,10 @@ type BuildingCardActionsSectionProps = {
   onBuildingConstruction: () => void;
 };
 
-const BuildingCardActionsConstruction: React.FC<
-  BuildingCardActionsSectionProps
-> = ({ buildingId, onBuildingConstruction }) => {
+const BuildingCardActionsConstruction = ({
+  buildingId,
+  onBuildingConstruction,
+}: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { errors } = useBuildingConstructionStatus(
@@ -85,10 +85,10 @@ type BuildingCardActionsUpgradeProps = {
   buildingLevel: number;
 };
 
-const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
+const BuildingCardActionsUpgrade = ({
   onBuildingUpgrade,
   buildingLevel,
-}) => {
+}: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = useRouteSegments();
   const { currentVillage } = useCurrentVillage();

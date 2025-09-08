@@ -1,6 +1,6 @@
-import type React from 'react';
 import clsx from 'clsx';
 import { cva, type VariantProps } from 'class-variance-authority';
+import type { ComponentProps } from 'react';
 
 const skeletonVariants = cva('animate-pulse rounded-md', {
   variants: {
@@ -14,14 +14,10 @@ const skeletonVariants = cva('animate-pulse rounded-md', {
   },
 });
 
-type SkeletonProps = React.ComponentProps<'div'> &
+type SkeletonProps = ComponentProps<'div'> &
   VariantProps<typeof skeletonVariants>;
 
-export const Skeleton: React.FC<SkeletonProps> = ({
-  className,
-  variant,
-  ...props
-}) => {
+export const Skeleton = ({ className, variant, ...props }: SkeletonProps) => {
   return (
     <div
       data-slot="skeleton"

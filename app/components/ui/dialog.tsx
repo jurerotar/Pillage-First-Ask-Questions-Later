@@ -1,11 +1,11 @@
-import type React from 'react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
 import clsx from 'clsx';
 import { LuX } from 'react-icons/lu';
+import type { ComponentProps } from 'react';
 
-export const Dialog: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Root>
-> = ({ ...props }) => {
+export const Dialog = ({
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Root>) => {
   return (
     <DialogPrimitive.Root
       data-slot="dialog"
@@ -14,9 +14,9 @@ export const Dialog: React.FC<
   );
 };
 
-export const DialogTrigger: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Trigger>
-> = ({ ...props }) => {
+export const DialogTrigger = ({
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Trigger>) => {
   return (
     <DialogPrimitive.Trigger
       data-slot="dialog-trigger"
@@ -25,9 +25,9 @@ export const DialogTrigger: React.FC<
   );
 };
 
-export const DialogPortal: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Portal>
-> = ({ ...props }) => {
+export const DialogPortal = ({
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Portal>) => {
   return (
     <DialogPrimitive.Portal
       data-slot="dialog-portal"
@@ -36,9 +36,9 @@ export const DialogPortal: React.FC<
   );
 };
 
-export const DialogClose: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Close>
-> = ({ ...props }) => {
+export const DialogClose = ({
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Close>) => {
   return (
     <DialogPrimitive.Close
       data-slot="dialog-close"
@@ -49,9 +49,10 @@ export const DialogClose: React.FC<
   );
 };
 
-export const DialogOverlay: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Overlay>
-> = ({ className, ...props }) => {
+export const DialogOverlay = ({
+  className,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Overlay>) => {
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
@@ -64,9 +65,11 @@ export const DialogOverlay: React.FC<
   );
 };
 
-export const DialogContent: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Content>
-> = ({ className, children, ...props }) => {
+export const DialogContent = ({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Content>) => {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -88,10 +91,10 @@ export const DialogContent: React.FC<
   );
 };
 
-export const DialogHeader: React.FC<React.ComponentProps<'div'>> = ({
+export const DialogHeader = ({
   className,
   ...props
-}) => {
+}: ComponentProps<'div'>) => {
   return (
     <div
       data-slot="dialog-header"
@@ -101,10 +104,10 @@ export const DialogHeader: React.FC<React.ComponentProps<'div'>> = ({
   );
 };
 
-export const DialogFooter: React.FC<React.ComponentProps<'div'>> = ({
+export const DialogFooter = ({
   className,
   ...props
-}) => {
+}: ComponentProps<'div'>) => {
   return (
     <div
       data-slot="dialog-footer"
@@ -117,9 +120,10 @@ export const DialogFooter: React.FC<React.ComponentProps<'div'>> = ({
   );
 };
 
-export const DialogTitle: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Title>
-> = ({ className, ...props }) => {
+export const DialogTitle = ({
+  className,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Title>) => {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
@@ -129,9 +133,10 @@ export const DialogTitle: React.FC<
   );
 };
 
-export const DialogDescription: React.FC<
-  React.ComponentProps<typeof DialogPrimitive.Description>
-> = ({ className, ...props }) => {
+export const DialogDescription = ({
+  className,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Description>) => {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"

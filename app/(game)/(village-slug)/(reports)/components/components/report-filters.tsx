@@ -1,6 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import type { ReportType } from 'app/interfaces/models/game/report';
-import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
@@ -15,10 +14,10 @@ type ReportFiltersProps = {
   onChange: (reportFilters: ReportType[]) => void;
 };
 
-export const ReportFilters: React.FC<ReportFiltersProps> = ({
+export const ReportFilters = ({
   reportFilters,
   onChange,
-}) => {
+}: ReportFiltersProps) => {
   const { t } = useTranslation();
 
   return (

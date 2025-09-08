@@ -15,10 +15,9 @@ import { partition } from 'app/utils/common';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 
-const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const QuestsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { currentVillage } = useCurrentVillage();

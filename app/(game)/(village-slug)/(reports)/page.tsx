@@ -11,10 +11,9 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
 import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/archived-reports';
 import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
-import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/+types/page';
 
-const ReportsPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const ReportsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();

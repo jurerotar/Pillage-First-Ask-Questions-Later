@@ -1,25 +1,22 @@
 import clsx from 'clsx';
-import type React from 'react';
-import { Suspense } from 'react';
+import { type HTMLAttributes, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
 import { type IconType, icons } from 'app/components/icons/icons';
 import { useTranslation } from 'react-i18next';
 
-type IconPlaceholderProps = React.HTMLAttributes<HTMLSpanElement>;
-
-const IconPlaceholder: React.FC<IconPlaceholderProps> = ({ className }) => {
+const IconPlaceholder = ({ className }: HTMLAttributes<HTMLSpanElement>) => {
   return <span className={clsx(className, 'min-h-4 min-w-4')} />;
 };
 
 type IconProps = IconBaseProps &
-  React.HTMLAttributes<HTMLSpanElement> & {
+  HTMLAttributes<HTMLSpanElement> & {
     type: IconType;
     subIcon?: IconType;
     shouldShowTooltip?: boolean;
   };
 
 // TODO: Replace library icons by custom icons
-export const Icon: React.FC<IconProps> = (props) => {
+export const Icon = (props: IconProps) => {
   const { type, subIcon, className, shouldShowTooltip = true, ...rest } = props;
 
   const { t: assetsT } = useTranslation();

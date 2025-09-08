@@ -13,7 +13,7 @@ import type {
   Building,
   BuildingCategory,
 } from 'app/interfaces/models/game/building';
-import type React from 'react';
+
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -38,9 +38,9 @@ type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
 };
 
-const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
+const BuildingCategoryPanel = ({
   buildingCategory,
-}) => {
+}: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();

@@ -14,11 +14,10 @@ import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/acade
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
 import { Separator } from 'app/components/ui/separator';
 
-const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const OverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();

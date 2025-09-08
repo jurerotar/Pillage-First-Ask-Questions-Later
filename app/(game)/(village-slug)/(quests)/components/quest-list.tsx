@@ -6,7 +6,6 @@ import {
   wasQuestCollected,
 } from 'app/(game)/guards/quest-guards';
 import { Button } from 'app/components/ui/button';
-import type React from 'react';
 import type {
   Quest,
   QuestReward as QuestRewardType,
@@ -34,7 +33,7 @@ type QuestRewardProps = {
   reward: QuestRewardType;
 };
 
-const QuestReward: React.FC<QuestRewardProps> = ({ reward }) => {
+const QuestReward = ({ reward }: QuestRewardProps) => {
   if (isResourceQuestReward(reward)) {
     const { amount } = reward;
     return <Resources resources={[amount, amount, amount, amount]} />;
@@ -54,7 +53,7 @@ type QuestListProps = {
 
 const PAGE_SIZE = 10;
 
-export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
+export const QuestList = ({ quests }: QuestListProps) => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { completeQuest } = useQuests();

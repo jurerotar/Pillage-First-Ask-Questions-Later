@@ -10,10 +10,9 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
-import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
 
-const StatisticsPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();

@@ -1,11 +1,9 @@
-import type React from 'react';
+import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 import { Link } from 'react-router';
 import { LuChevronRight } from 'react-icons/lu';
 
-export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({
-  ...props
-}) => {
+export const Breadcrumb = (props: ComponentProps<'nav'>) => {
   return (
     <nav
       aria-label="breadcrumb"
@@ -15,10 +13,10 @@ export const Breadcrumb: React.FC<React.ComponentProps<'nav'>> = ({
   );
 };
 
-export const BreadcrumbList: React.FC<React.ComponentProps<'ol'>> = ({
+export const BreadcrumbList = ({
   className,
   ...props
-}) => {
+}: ComponentProps<'ol'>) => {
   return (
     <ol
       data-slot="breadcrumb-list"
@@ -31,10 +29,10 @@ export const BreadcrumbList: React.FC<React.ComponentProps<'ol'>> = ({
   );
 };
 
-export const BreadcrumbItem: React.FC<React.ComponentProps<'li'>> = ({
+export const BreadcrumbItem = ({
   className,
   ...props
-}) => {
+}: ComponentProps<'li'>) => {
   return (
     <li
       data-slot="breadcrumb-item"
@@ -44,10 +42,10 @@ export const BreadcrumbItem: React.FC<React.ComponentProps<'li'>> = ({
   );
 };
 
-export const BreadcrumbLink: React.FC<React.ComponentProps<typeof Link>> = ({
+export const BreadcrumbLink = ({
   className,
   ...props
-}) => {
+}: ComponentProps<typeof Link>) => {
   return (
     <Link
       data-slot="breadcrumb-link"
@@ -60,11 +58,11 @@ export const BreadcrumbLink: React.FC<React.ComponentProps<typeof Link>> = ({
   );
 };
 
-export const BreadcrumbSeparator: React.FC<React.ComponentProps<'li'>> = ({
+export const BreadcrumbSeparator = ({
   children,
   className,
   ...props
-}) => {
+}: ComponentProps<'li'>) => {
   return (
     <li
       data-slot="breadcrumb-separator"

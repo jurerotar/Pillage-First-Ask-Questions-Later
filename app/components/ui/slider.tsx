@@ -1,13 +1,12 @@
-import type React from 'react';
-import { useMemo } from 'react';
+import { type ComponentProps, useMemo } from 'react';
 import { Slider as SliderPrimitive } from 'radix-ui';
 import clsx from 'clsx';
 
-type SliderProps = React.ComponentProps<typeof SliderPrimitive.Root> & {
+type SliderProps = ComponentProps<typeof SliderPrimitive.Root> & {
   marks?: (string | number)[];
 };
 
-export const Slider: React.FC<SliderProps> = (props) => {
+export const Slider = (props: SliderProps) => {
   const {
     className,
     defaultValue,

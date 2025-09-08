@@ -2,7 +2,6 @@ import type {
   BuildingField as BuildingFieldType,
   ResourceFieldComposition,
 } from 'app/interfaces/models/game/village';
-import type React from 'react';
 import { use } from 'react';
 import { useState } from 'react';
 import type { Building } from 'app/interfaces/models/game/building';
@@ -57,9 +56,9 @@ type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
 };
 
-export const OccupiedBuildingField: React.FC<OccupiedBuildingFieldProps> = ({
+export const OccupiedBuildingField = ({
   buildingField,
-}) => {
+}: OccupiedBuildingFieldProps) => {
   const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();

@@ -16,10 +16,9 @@ import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
 import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
 import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
-import type React from 'react';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 
-const HeroPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const HeroPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();

@@ -1,15 +1,15 @@
 import { Icon } from 'app/components/icon';
-import type React from 'react';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
+import type { ComponentProps } from 'react';
 
-type TreasureIconProps = Omit<React.ComponentProps<typeof Icon>, 'type'> & {
+type TreasureIconProps = Omit<ComponentProps<typeof Icon>, 'type'> & {
   item: WorldItem;
 };
 
 const itemTypeToIconTypeMap = new Map<
   WorldItem['type'],
-  React.ComponentProps<typeof Icon>['type']
+  ComponentProps<typeof Icon>['type']
 >([
   ['artifact', 'treasureTileArtifact'],
   ['wearable', 'treasureTileItem'],
@@ -17,10 +17,7 @@ const itemTypeToIconTypeMap = new Map<
   ['resource', 'treasureTileResources'],
 ]);
 
-export const TreasureIcon: React.FC<TreasureIconProps> = ({
-  item,
-  className,
-}) => {
+export const TreasureIcon = ({ item, className }: TreasureIconProps) => {
   const iconType =
     itemTypeToIconTypeMap.get(item.type) ?? 'treasureTileMiscellaneous';
 
