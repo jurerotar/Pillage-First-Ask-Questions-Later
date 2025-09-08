@@ -666,18 +666,12 @@ const GameLayout = memo<Route.ComponentProps>(
           {/* biome-ignore lint/correctness/useUniqueElementIds: We need a stable id here, because it's referenced in other components */}
           <Tooltip id="general-tooltip" />
           <TopNavigation />
-          <Suspense fallback={null}>
-            <TroopMovements />
-          </Suspense>
+          <TroopMovements />
           <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
-          <Suspense fallback={null}>
-            <ConstructionQueue />
-          </Suspense>
-          <Suspense fallback={null}>
-            <TroopList />
-          </Suspense>
+          <ConstructionQueue />
+          <TroopList />
           {!isWiderThanLg && <MobileBottomNavigation />}
           <PreferencesUpdater />
         </CurrentVillageBuildingQueueContextProvider>

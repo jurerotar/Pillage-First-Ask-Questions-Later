@@ -1,5 +1,5 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import type { PropsWithChildren } from 'react';
+import { type PropsWithChildren, Suspense } from 'react';
 import { use } from 'react';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
@@ -144,7 +144,7 @@ const ConstructionQueueEmptySlot = ({
   return <FaLock className={iconClassName} />;
 };
 
-export const ConstructionQueue = () => {
+export const ConstructionQueueContent = () => {
   const tribe = useTribe();
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillageBuildingEvents } = use(
@@ -186,5 +186,13 @@ export const ConstructionQueue = () => {
         </li>
       ))}
     </ul>
+  );
+};
+
+export const ConstructionQueue = () => {
+  return (
+    <Suspense fallback={null}>
+      <ConstructionQueueContent />
+    </Suspense>
   );
 };

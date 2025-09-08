@@ -4,15 +4,12 @@ import type {
   ResourceFieldComposition,
   VillageSize,
 } from 'app/interfaces/models/game/village';
-import type {
-  BuildingFieldModel,
-  ResourceFieldId,
-} from 'app/interfaces/models/game/building-field';
+import type { BuildingFieldModel } from 'app/interfaces/models/game/building-field';
 
-type ResourceFieldMap = Map<ResourceFieldId, Building['id']>;
+type ResourceFieldMap = Map<number, Building['id']>;
 
 // Wheat that never changes
-const staticWheatFields = new Map<ResourceFieldId, Building['id']>([
+const staticWheatFields = new Map<number, Building['id']>([
   [2, 'WHEAT_FIELD'],
   [8, 'WHEAT_FIELD'],
   [9, 'WHEAT_FIELD'],
@@ -22,7 +19,7 @@ const staticWheatFields = new Map<ResourceFieldId, Building['id']>([
 ]);
 
 // Fixed non-wheat positions on all RFCs except "00018"
-const staticResourcesLayout = new Map<ResourceFieldId, Building['id']>([
+const staticResourcesLayout = new Map<number, Building['id']>([
   [3, 'WOODCUTTER'],
   [4, 'IRON_MINE'],
   [6, 'CLAY_PIT'],
@@ -35,10 +32,8 @@ const staticResourcesLayout = new Map<ResourceFieldId, Building['id']>([
 ]);
 
 // Build a new map from static layouts + overrides
-const base = (
-  overrides: [ResourceFieldId, Building['id']][],
-): ResourceFieldMap => {
-  return new Map<ResourceFieldId, Building['id']>([
+const base = (overrides: [number, Building['id']][]): ResourceFieldMap => {
+  return new Map<number, Building['id']>([
     ...staticWheatFields,
     ...staticResourcesLayout,
     ...overrides,
@@ -73,7 +68,7 @@ const resourceFieldsLayouts: Record<
   3339: at('WHEAT_FIELD', 'WHEAT_FIELD', 'WHEAT_FIELD'),
 
   // “mostly wheat” exceptions, build them directly
-  11115: new Map<ResourceFieldId, Building['id']>([
+  11115: new Map<number, Building['id']>([
     [1, 'WHEAT_FIELD'],
     [2, 'WHEAT_FIELD'],
     [3, 'WOODCUTTER'],
@@ -94,7 +89,7 @@ const resourceFieldsLayouts: Record<
     [18, 'WHEAT_FIELD'],
   ]),
 
-  '00018': new Map<ResourceFieldId, Building['id']>([
+  '00018': new Map<number, Building['id']>([
     [1, 'WHEAT_FIELD'],
     [2, 'WHEAT_FIELD'],
     [3, 'WHEAT_FIELD'],

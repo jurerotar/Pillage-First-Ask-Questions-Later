@@ -5,13 +5,12 @@ import type {
   VillageSize,
 } from 'app/interfaces/models/game/village';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import type { ResourceFieldId } from 'app/interfaces/models/game/building-field';
 
-type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
+type ResourceFieldLayout = Record<number, Resource>;
 
 // There's a couple of resource fields that never change, namely: 2, 8, 9, 12, 13, 15
 // These resources are the same on every map
-const staticWheatFields: Pick<ResourceFieldLayout, 2 | 8 | 9 | 12 | 13 | 15> = {
+const staticWheatFields: ResourceFieldLayout = {
   2: 'wheat',
   8: 'wheat',
   9: 'wheat',
@@ -21,10 +20,7 @@ const staticWheatFields: Pick<ResourceFieldLayout, 2 | 8 | 9 | 12 | 13 | 15> = {
 };
 
 // These resources are on the same position on every layout, expect 00018
-const staticResourcesLayout: Pick<
-  ResourceFieldLayout,
-  3 | 4 | 6 | 7 | 11 | 14 | 16 | 17 | 18
-> = {
+const staticResourcesLayout: ResourceFieldLayout = {
   3: 'wood',
   4: 'iron',
   6: 'clay',
@@ -180,10 +176,10 @@ const convertResourceFieldLayoutToResourceField = (
   level: number,
 ): BuildingField[] => {
   return Object.keys(resourceFieldLayout).map((fieldId) => {
-    const buildingFieldId = Number(fieldId) as ResourceFieldId;
+    const buildingFieldId = Number(fieldId);
     const type = resourceFieldLayout[buildingFieldId];
     return {
-      id: Number(buildingFieldId) as ResourceFieldId,
+      id: Number(buildingFieldId),
       level,
       buildingId: resourceTypeToResourceBuildingIdMap.get(type)!,
     };
