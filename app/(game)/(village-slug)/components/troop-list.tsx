@@ -10,9 +10,9 @@ import { Tooltip } from 'react-tooltip';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import { Text } from 'app/components/text';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useId } from 'react';
+import { Suspense, useId } from 'react';
 
-export const TroopList = () => {
+const TroopListContent = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { shouldShowSidebars } = useGameLayoutState();
@@ -107,5 +107,13 @@ export const TroopList = () => {
         </div>
       </Tooltip>
     </div>
+  );
+};
+
+export const TroopList = () => {
+  return (
+    <Suspense fallback={null}>
+      <TroopListContent />
+    </Suspense>
   );
 };

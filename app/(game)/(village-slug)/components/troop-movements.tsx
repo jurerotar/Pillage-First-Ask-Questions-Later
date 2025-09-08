@@ -8,6 +8,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Separator } from 'app/components/ui/separator';
 import clsx from 'clsx';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Suspense } from 'react';
 
 type TroopMovementProps = {
   type: Extract<
@@ -109,7 +110,7 @@ const partitionTroopMovementEvents = (
   };
 };
 
-export const TroopMovements = () => {
+const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
   const { shouldShowSidebars } = useGameLayoutState();
   const { eventsByType: troopMovementEvents } =
@@ -155,5 +156,13 @@ export const TroopMovements = () => {
         events={incomingOffensiveMovementEvents}
       />
     </div>
+  );
+};
+
+export const TroopMovements = () => {
+  return (
+    <Suspense fallback={null}>
+      <TroopMovementsContent />
+    </Suspense>
   );
 };

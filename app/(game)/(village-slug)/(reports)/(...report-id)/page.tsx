@@ -1,9 +1,9 @@
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 
-const ReportPage = () => {
-  const { reportId: _reportId } = useRouteSegments();
+const ReportPage = ({ params }: Route.ComponentProps) => {
+  const { reportId: _reportId } = params;
   const { t } = useTranslation();
 
   return (
