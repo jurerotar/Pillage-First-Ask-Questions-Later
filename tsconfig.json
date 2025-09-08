@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "ESNext", "WebWorker"],
-    "types": ["vite/client", "vitest"],
+    "types": ["vite/client"],
     "rootDirs": [".", "./.react-router/types"],
     "baseUrl": "./",
     "skipLibCheck": true,
