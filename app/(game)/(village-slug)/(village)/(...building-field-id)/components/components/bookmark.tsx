@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
 import { Button } from 'app/components/ui/button';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa6';
@@ -9,7 +9,7 @@ type BookmarkProps = {
 };
 
 export const Bookmark = ({ tab }: BookmarkProps) => {
-  const { buildingId } = use(BuildingContext);
+  const { buildingId } = use(BuildingFieldContext);
   const { bookmarks, updateBookmark } = useBookmarks();
 
   const isSelected = bookmarks[buildingId] === tab;

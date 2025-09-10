@@ -8,15 +8,17 @@ type BuildingContextProps = {
 
 type BuildingContextReturn = BuildingField;
 
-export const BuildingContext = createContext<BuildingContextReturn>(
+export const BuildingFieldContext = createContext<BuildingContextReturn>(
   {} as never,
 );
 
-export const BuildingProvider = ({
+export const BuildingFieldProvider = ({
   children,
   buildingField,
 }: PropsWithChildren<BuildingContextProps>) => {
   return (
-    <BuildingContext value={{ ...buildingField }}>{children}</BuildingContext>
+    <BuildingFieldContext value={buildingField}>
+      {children}
+    </BuildingFieldContext>
   );
 };

@@ -18,7 +18,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Skeleton } from 'app/components/ui/skeleton';
-import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   BuildingBenefits,
@@ -218,7 +218,7 @@ export const BuildingDetails = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { t: dynamicT } = useTranslation();
-  const { buildingId, id: buildingFieldId } = use(BuildingContext);
+  const { buildingId, id: buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const tabs = Array.from([
