@@ -1,17 +1,16 @@
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
+import { useMatches } from 'react-router';
 
 export const useGameLayoutState = () => {
-  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
-  const { isVillagePageExact, isResourcesPageExact } = useActiveRoute();
+  const matches = useMatches();
 
-  const shouldShowSidebars = (() => {
-    if (isWiderThanMd) {
-      return true;
-    }
+  const isResourcesPageExact = matches.some(
+    (match) => match?.id === 'resources-page',
+  );
+  const isVillagePageExact = matches.some(
+    (match) => match?.id === 'village-page',
+  );
 
-    return isVillagePageExact || isResourcesPageExact;
-  })();
+  const shouldShowSidebars = isVillagePageExact || isResourcesPageExact;
 
   return {
     shouldShowSidebars,

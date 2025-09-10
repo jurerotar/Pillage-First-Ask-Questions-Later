@@ -16,7 +16,6 @@ import { createContext, use } from 'react';
 import { Fragment } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { formatTime } from 'app/utils/time';
@@ -26,6 +25,7 @@ import { formatNumber, formatPercentage } from 'app/utils/common';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -68,7 +68,7 @@ export const BuildingOverview = () => {
   const { t: assetsT } = useTranslation();
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel } = useBuildingVirtualLevel(
     buildingId,
     buildingFieldId!,
@@ -122,7 +122,7 @@ export const BuildingOverview = () => {
 
 export const BuildingCost = () => {
   const { t } = useTranslation();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { buildingId } = use(BuildingCardContext);
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
     buildingId,
@@ -235,7 +235,7 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
 export const BuildingBenefits = () => {
   const { t } = useTranslation();
   const { building, buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, doesBuildingExist } =
     useBuildingVirtualLevel(buildingId, buildingFieldId!);
 

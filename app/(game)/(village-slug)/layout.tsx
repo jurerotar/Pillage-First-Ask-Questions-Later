@@ -2,16 +2,18 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import clsx from 'clsx';
-import type {
-  PropsWithChildren,
-  ComponentProps,
-  ButtonHTMLAttributes,
-} from 'react';
+import type { PropsWithChildren, ComponentProps, ReactNode } from 'react';
 import { Suspense } from 'react';
 import { Fragment, memo, useRef } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router';
+import {
+  Link,
+  NavLink,
+  type NavLinkProps,
+  Outlet,
+  useNavigate,
+} from 'react-router';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
@@ -32,7 +34,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
 import { Tooltip } from 'app/components/tooltip';
 import { Spinner } from 'app/components/ui/spinner';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -50,6 +51,8 @@ import { RiAuctionLine } from 'react-icons/ri';
 import { HiStar } from 'react-icons/hi2';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
+import { parseRFCFromTile } from 'app/utils/map';
+import { Text } from 'app/components/text';
 
 type CounterProps = {
   counter?: number;
@@ -82,28 +85,30 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = ButtonHTMLAttributes<HTMLButtonElement>;
+type NavigationSideItemProps = Omit<NavLinkProps, 'children'> & {
+  children: ReactNode;
+};
 
-const NavigationSideItem = memo(
-  ({ children, ...rest }: PropsWithChildren<NavigationSideItemProps>) => {
-    return (
-      <button
-        type="button"
-        className="
-          flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
-          bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
-          transition-transform active:scale-95 active:shadow-inner
-          lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
-        "
-        {...rest}
-      >
-        <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-          {children}
-        </span>
-      </button>
-    );
-  },
-);
+const NavigationSideItem = ({
+  children,
+  ...rest
+}: PropsWithChildren<NavigationSideItemProps>) => {
+  return (
+    <NavLink
+      className={clsx(
+        'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
+        'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+      )}
+      {...rest}
+    >
+      <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+        {children}
+      </span>
+    </NavLink>
+  );
+};
 
 const DiscordLink = () => {
   return (
@@ -216,33 +221,29 @@ const DesktopTopRowItem = ({
   );
 };
 
-type NavigationMainItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  isActive: boolean;
-  className?: string;
+type NavigationMainItemProps = Omit<NavLinkProps, 'children'> & {
+  children: ReactNode;
 };
 
-const NavigationMainItem = ({
-  children,
-  ...rest
-}: PropsWithChildren<NavigationMainItemProps>) => {
-  const { isActive, ...htmlProps } = rest;
-
+const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
   return (
-    <button
+    <NavLink
       type="button"
-      className={clsx(
-        isActive
-          ? 'from-[#7da100] to-[#c7e94f]'
-          : 'from-[#b8b2a9] to-[#f1f0ee]',
-        'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-        'transition-transform transform-gpu active:scale-95 lg:active:scale-100',
-      )}
-      {...htmlProps}
+      className={({ isActive }) =>
+        clsx(
+          isActive
+            ? 'from-[#7da100] to-[#c7e94f]'
+            : 'from-[#b8b2a9] to-[#f1f0ee]',
+          'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+          'transition-transform transform-gpu active:scale-95 lg:active:scale-100',
+        )
+      }
+      {...rest}
     >
       <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
         {children}
       </span>
-    </button>
+    </NavLink>
   );
 };
 
@@ -250,17 +251,16 @@ const QuestsNavigationItem = () => {
   const { t } = useTranslation();
 
   return (
-    <Link to="quests">
-      <NavigationSideItem
-        aria-label={t('Quests')}
-        title={t('Quests')}
-      >
-        <Suspense fallback={null}>
-          <QuestsCounter />
-        </Suspense>
-        <LuBookMarked className="text-2xl" />
-      </NavigationSideItem>
-    </Link>
+    <NavigationSideItem
+      to="quests"
+      aria-label={t('Quests')}
+      title={t('Quests')}
+    >
+      <Suspense fallback={null}>
+        <QuestsCounter />
+      </Suspense>
+      <LuBookMarked className="text-2xl" />
+    </NavigationSideItem>
   );
 };
 
@@ -268,17 +268,16 @@ const AdventuresNavigationItem = () => {
   const { t } = useTranslation();
 
   return (
-    <Link to="hero?tab=adventures">
-      <NavigationSideItem
-        aria-label={t('Adventures')}
-        title={t('Adventures')}
-      >
-        <Suspense fallback={null}>
-          <AdventurePointsCounter />
-        </Suspense>
-        <PiPathBold className="text-2xl" />
-      </NavigationSideItem>
-    </Link>
+    <NavigationSideItem
+      to="hero?tab=adventures"
+      aria-label={t('Adventures')}
+      title={t('Adventures')}
+    >
+      <Suspense fallback={null}>
+        <AdventurePointsCounter />
+      </Suspense>
+      <PiPathBold className="text-2xl" />
+    </NavigationSideItem>
   );
 };
 
@@ -286,77 +285,61 @@ const ReportsNavigationItem = () => {
   const { t } = useTranslation();
 
   return (
-    <Link to="reports">
-      <NavigationSideItem
-        aria-label={t('Reports')}
-        title={t('Reports')}
-      >
-        <Suspense fallback={null}>
-          <ReportsCounter />
-        </Suspense>
-        <LuScrollText className="text-2xl" />
-      </NavigationSideItem>
-    </Link>
+    <NavigationSideItem
+      to="reports"
+      aria-label={t('Reports')}
+      title={t('Reports')}
+    >
+      <Suspense fallback={null}>
+        <ReportsCounter />
+      </Suspense>
+      <LuScrollText className="text-2xl" />
+    </NavigationSideItem>
   );
 };
 
 const ResourcesNavigationItem = () => {
   const { t } = useTranslation();
-  const { isResourcesPageOpen } = useActiveRoute();
 
   return (
-    <Link
+    <NavigationMainItem
+      aria-label={t('Resources')}
+      title={t('Resources')}
       to="resources"
       prefetch="render"
     >
-      <NavigationMainItem
-        aria-label={t('Resources')}
-        title={t('Resources')}
-        isActive={isResourcesPageOpen}
-      >
-        <GiWheat className="text-3xl" />
-      </NavigationMainItem>
-    </Link>
+      <GiWheat className="text-3xl" />
+    </NavigationMainItem>
   );
 };
 
 const VillageNavigationItem = () => {
   const { t } = useTranslation();
-  const { isVillagePageOpen } = useActiveRoute();
 
   return (
-    <Link
+    <NavigationMainItem
+      aria-label={t('Village')}
+      title={t('Village')}
       to="village"
       prefetch="render"
     >
-      <NavigationMainItem
-        aria-label={t('Village')}
-        title={t('Village')}
-        isActive={isVillagePageOpen}
-      >
-        <MdOutlineHolidayVillage className="text-3xl" />
-      </NavigationMainItem>
-    </Link>
+      <MdOutlineHolidayVillage className="text-3xl" />
+    </NavigationMainItem>
   );
 };
 
 const MapNavigationItem = () => {
   const { t } = useTranslation();
-  const { isMapPageOpen } = useActiveRoute();
 
   return (
-    <NavLink
+    <NavigationMainItem
+      aria-label={t('Map')}
+      title={t('Map')}
       to="map"
       prefetch="render"
     >
-      <NavigationMainItem
-        aria-label={t('Map')}
-        title={t('Map')}
-        isActive={isMapPageOpen}
-      >
-        <TbMap2 className="text-3xl" />
-      </NavigationMainItem>
-    </NavLink>
+      <TbMap2 className="text-3xl" />
+    </NavigationMainItem>
   );
 };
 
@@ -382,15 +365,19 @@ const VillageSelect = () => {
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
 
+  const resourceFieldComposition = parseRFCFromTile(currentVillage.RFC).join(
+    '-',
+  );
+
   return (
     <Select
       onValueChange={(value) => navigate(getNewVillageUrl(value))}
       value={currentVillage.slug}
     >
       <SelectTrigger
-        className="w-full"
         title={t('Village select')}
         aria-label={t('Village select')}
+        className="flex flex-1"
       >
         <SelectValue />
       </SelectTrigger>
@@ -403,7 +390,9 @@ const VillageSelect = () => {
               key={id}
               value={slug}
             >
-              {name} ({formattedId})
+              <Text className="text-xs sm:text-sm">
+                {name} ({formattedId}) | {resourceFieldComposition}
+              </Text>
             </SelectItem>
           );
         })}
@@ -486,27 +475,25 @@ const TopNavigation = () => {
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
                 <li>
-                  <Link to="statistics">
-                    <NavigationSideItem
-                      aria-label={t('Statistics')}
-                      title={t('Statistics')}
-                    >
-                      <GoGraph className="text-xl" />
-                    </NavigationSideItem>
-                  </Link>
+                  <NavigationSideItem
+                    to="statistics"
+                    aria-label={t('Statistics')}
+                    title={t('Statistics')}
+                  >
+                    <GoGraph className="text-xl" />
+                  </NavigationSideItem>
                 </li>
                 <li>
                   <QuestsNavigationItem />
                 </li>
                 <li>
-                  <Link to="overview">
-                    <NavigationSideItem
-                      aria-label={t('Overview')}
-                      title={t('Overview')}
-                    >
-                      <CiCircleList className="text-xl" />
-                    </NavigationSideItem>
-                  </Link>
+                  <NavigationSideItem
+                    to="overview"
+                    aria-label={t('Overview')}
+                    title={t('Overview')}
+                  >
+                    <CiCircleList className="text-xl" />
+                  </NavigationSideItem>
                 </li>
                 <li>
                   <ul className="flex gap-1 xl:gap-2 xl:mx-2">
@@ -528,14 +515,13 @@ const TopNavigation = () => {
                   <AdventuresNavigationItem />
                 </li>
                 <li>
-                  <Link to="hero?tab=auctions">
-                    <NavigationSideItem
-                      aria-label={t('Auctions')}
-                      title={t('Auctions')}
-                    >
-                      <RiAuctionLine className="text-xl" />
-                    </NavigationSideItem>
-                  </Link>
+                  <NavigationSideItem
+                    to="hero?tab=auctions"
+                    aria-label={t('Auctions')}
+                    title={t('Auctions')}
+                  >
+                    <RiAuctionLine className="text-xl" />
+                  </NavigationSideItem>
                 </li>
               </ul>
             </nav>
@@ -581,14 +567,13 @@ const MobileBottomNavigation = () => {
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
-            <Link to="statistics">
-              <NavigationSideItem
-                aria-label={t('Statistics')}
-                title={t('Statistics')}
-              >
-                <GoGraph className="text-2l" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              to="statistics"
+              aria-label={t('Statistics')}
+              title={t('Statistics')}
+            >
+              <GoGraph className="text-2xl" />
+            </NavigationSideItem>
           </li>
           <li>
             <AdventuresNavigationItem />
@@ -597,14 +582,13 @@ const MobileBottomNavigation = () => {
             <QuestsNavigationItem />
           </li>
           <li>
-            <Link to="overview">
-              <NavigationSideItem
-                aria-label={t('Overview')}
-                title={t('Overview')}
-              >
-                <CiCircleList className="text-2xl" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              to="overview"
+              aria-label={t('Overview')}
+              title={t('Overview')}
+            >
+              <CiCircleList className="text-2xl" />
+            </NavigationSideItem>
           </li>
           <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">
@@ -623,24 +607,22 @@ const MobileBottomNavigation = () => {
             <ReportsNavigationItem />
           </li>
           <li>
-            <Link to="preferences">
-              <NavigationSideItem
-                aria-label={t('Preferences')}
-                title={t('Preferences')}
-              >
-                <MdSettings className="text-2xl" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              to="preferences"
+              aria-label={t('Preferences')}
+              title={t('Preferences')}
+            >
+              <MdSettings className="text-2xl" />
+            </NavigationSideItem>
           </li>
           <li>
-            <Link to="/">
-              <NavigationSideItem
-                aria-label={t('Logout')}
-                title={t('Logout')}
-              >
-                <RxExit className="text-2xl text-red-500" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              to="/"
+              aria-label={t('Logout')}
+              title={t('Logout')}
+            >
+              <RxExit className="text-2xl text-red-500" />
+            </NavigationSideItem>
           </li>
         </ul>
       </nav>

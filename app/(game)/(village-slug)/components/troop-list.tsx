@@ -20,6 +20,7 @@ const TroopListContent = () => {
   const { playerTroops } = usePlayerTroops();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const tooltipId = useId();
+  const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
 
   if (!shouldShowSidebars) {
     return null;
@@ -44,6 +45,7 @@ const TroopListContent = () => {
       </div>
 
       <Tooltip
+        key={tooltipKey}
         id={tooltipId}
         className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !text-black border border-border"
         classNameArrow="border-r border-b border-border"
