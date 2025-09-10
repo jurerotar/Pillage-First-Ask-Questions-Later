@@ -58,6 +58,12 @@ const CreateNewServerPage = () => {
               </a>{' '}
               for more information .
             </Alert>
+            <Alert variant="error">
+              Since the game is still in development, game worlds may become
+              incompatible between updates. This means worlds will sometimes
+              need to be <b>deleted and recreated</b>. Please use the app for
+              testing purposes only until the full release.
+            </Alert>
             <CreateNewServerForm />
           </main>
         </div>

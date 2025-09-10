@@ -59,6 +59,9 @@ const ConstructionQueueBuilding = ({
   });
 
   const tooltipId = `tooltip-${buildingEvent.id}`;
+  const tooltipKey = isWiderThanMd
+    ? 'is-wider-than-md'
+    : 'is-not-wider-than-md';
 
   const isScheduledEvent = isScheduledBuildingEvent(buildingEvent);
 
@@ -76,6 +79,7 @@ const ConstructionQueueBuilding = ({
       </div>
 
       <Tooltip
+        key={tooltipKey}
         id={tooltipId}
         clickable
         className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !w-fit !text-black border border-border"

@@ -7,7 +7,6 @@ import { memo, Suspense, useEffect, useState } from 'react';
 import {
   Link,
   Outlet,
-  redirect,
   type ShouldRevalidateFunction,
   useRouteError,
 } from 'react-router';
@@ -15,6 +14,7 @@ import { Notifier } from 'app/(game)/components/notifier';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -30,52 +30,9 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   };
 };
 
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  currentParams,
-  nextParams,
-}) => {
-  return currentParams.serverSlug !== nextParams.serverSlug;
+export const shouldRevalidate: ShouldRevalidateFunction = () => {
+  return false;
 };
-
-// Check whether server even exists && whether server is already opened in another tab
-const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
-  async ({ context, params }) => {
-    const { sessionContext } = await import('app/context/session');
-
-    const { serverSlug } = params;
-
-    const { sessionId } = context.get(sessionContext);
-
-    const lockManager = await window.navigator.locks.query();
-
-    // Check if there exists a lock with server slug. If yes, we check if current sessionId matches.
-    // If it doesn't, it means the same server was opened in a different tab
-    const lock = lockManager.held!.find((lock) =>
-      lock?.name?.startsWith(serverSlug!),
-    );
-
-    if (lock) {
-      const [, lockSessionId] = lock.name!.split(':');
-
-      if (lockSessionId !== sessionId) {
-        throw redirect('/error/403');
-      }
-    }
-
-    const root = await navigator.storage.getDirectory();
-    const rootHandle = await root.getDirectoryHandle(
-      'pillage-first-ask-questions-later',
-      {
-        create: true,
-      },
-    );
-
-    try {
-      await rootHandle.getFileHandle(`${serverSlug}.json`);
-    } catch (_error) {
-      throw redirect('/error/404');
-    }
-  };
 
 export const unstable_clientMiddleware = [serverExistAndLockMiddleware];
 

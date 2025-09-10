@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import {
   calculateBuildingCostForLevel,
@@ -26,11 +25,13 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { use } from 'react';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 export const BuildingStats = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { total: buildingDurationModifier } =
     useComputedEffect('buildingDuration');
   const { buildingId, level } = getBuildingFieldByBuildingFieldId(

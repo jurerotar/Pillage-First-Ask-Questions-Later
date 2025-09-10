@@ -218,7 +218,10 @@ export const BuildingDetails = () => {
   const { t } = useTranslation();
   const { t: assetsT } = useTranslation();
   const { t: dynamicT } = useTranslation();
-  const { buildingId, id: buildingFieldId } = use(BuildingFieldContext);
+  const { buildingField, buildingFieldId } = use(BuildingFieldContext);
+
+  const buildingId = buildingField!.buildingId;
+
   const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const tabs = Array.from([

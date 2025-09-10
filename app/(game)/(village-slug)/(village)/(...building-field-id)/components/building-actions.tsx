@@ -1,7 +1,6 @@
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
@@ -24,6 +23,7 @@ import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-vi
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 type ErrorBagProps = {
   errorBag: string[];
@@ -58,7 +58,7 @@ const BuildingCardActionsConstruction = ({
   onBuildingConstruction,
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { errors } = useBuildingConstructionStatus(
     buildingId,
     buildingFieldId!,
@@ -90,7 +90,7 @@ const BuildingCardActionsUpgrade = ({
   buildingLevel,
 }: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(
@@ -124,7 +124,7 @@ export const BuildingActions = () => {
   const tribe = useTribe();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,

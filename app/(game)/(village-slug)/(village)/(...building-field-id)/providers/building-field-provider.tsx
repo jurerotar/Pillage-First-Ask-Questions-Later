@@ -3,10 +3,14 @@ import { createContext } from 'react';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 
 type BuildingContextProps = {
-  buildingField: BuildingField;
+  buildingFieldId: BuildingField['id'];
+  buildingField: BuildingField | null;
 };
 
-type BuildingContextReturn = BuildingField;
+type BuildingContextReturn = {
+  buildingFieldId: BuildingField['id'];
+  buildingField: BuildingField | null;
+};
 
 export const BuildingFieldContext = createContext<BuildingContextReturn>(
   {} as never,
@@ -15,9 +19,10 @@ export const BuildingFieldContext = createContext<BuildingContextReturn>(
 export const BuildingFieldProvider = ({
   children,
   buildingField,
+  buildingFieldId,
 }: PropsWithChildren<BuildingContextProps>) => {
   return (
-    <BuildingFieldContext value={buildingField}>
+    <BuildingFieldContext value={{ buildingFieldId, buildingField }}>
       {children}
     </BuildingFieldContext>
   );

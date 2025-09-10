@@ -9,8 +9,10 @@ type BookmarkProps = {
 };
 
 export const Bookmark = ({ tab }: BookmarkProps) => {
-  const { buildingId } = use(BuildingFieldContext);
+  const { buildingField } = use(BuildingFieldContext);
   const { bookmarks, updateBookmark } = useBookmarks();
+
+  const buildingId = buildingField!.buildingId;
 
   const isSelected = bookmarks[buildingId] === tab;
 
