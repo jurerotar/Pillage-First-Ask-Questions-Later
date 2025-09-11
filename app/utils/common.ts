@@ -135,5 +135,9 @@ export const formatPercentage = (num: number, isIncreasing = true): string => {
 };
 
 export const formatNumber = (number: number): string => {
+  if (!Number.isInteger(number)) {
+    return 'NaN';
+  }
+
   return number.toLocaleString();
 };
