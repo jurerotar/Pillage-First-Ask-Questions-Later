@@ -5,9 +5,7 @@
     "lib": ["DOM", "ESNext", "WebWorker"],
     "types": ["vite/client"],
     "rootDirs": [".", "./.react-router/types"],
-    "baseUrl": "./",
     "skipLibCheck": true,
-    "importsNotUsedAsValues": "remove",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -22,8 +20,14 @@
     "strict": true,
     "module": "ESNext",
     "paths": {
-      "app/*": ["app/*"]
+      "app/*": ["./app/*"],
+      ".react-router/*": ["./.react-router/*"]
     }
   },
-  "include": ["app/**/*", "*.config.ts", ".react-router/types/**/*"]
+  "include": [
+    "app/**/*",
+    "*.config.ts",
+    ".react-router/types/**/*",
+    "scripts/**/*"
+  ]
 }
