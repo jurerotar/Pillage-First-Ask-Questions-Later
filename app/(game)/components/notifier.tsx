@@ -164,7 +164,10 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       }
 
       if (isEventCreatedNotificationMessageEvent(event)) {
-        const toastArgs = eventCreatedNotificationFactory(event, { t, serverName: server.name });
+        const toastArgs = eventCreatedNotificationFactory(event, {
+          t,
+          serverName: server.name,
+        });
 
         if (toastArgs) {
           const { toastTitle, body } = toastArgs;
