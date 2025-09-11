@@ -670,10 +670,6 @@ export const buildings: Building[] = [
         buildingId: 'BARRACKS',
         level: 20,
       },
-      {
-        id: 4,
-        type: 'artifact',
-      },
     ],
     baseBuildingCost: [630, 420, 780, 360],
     buildingCostCoefficient: 1.28,
@@ -700,10 +696,6 @@ export const buildings: Building[] = [
         type: 'building',
         buildingId: 'STABLE',
         level: 20,
-      },
-      {
-        id: 4,
-        type: 'artifact',
       },
     ],
     baseBuildingCost: [780, 420, 660, 300],

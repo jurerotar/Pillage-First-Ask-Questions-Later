@@ -60,7 +60,6 @@ describe('building-requirements', () => {
           ...defaultArgs,
           tribe: 'natars',
           buildingId: 'TRAPPER',
-          isGreatBuildingsArtifactActive: true,
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
@@ -74,7 +73,6 @@ describe('building-requirements', () => {
           ...defaultArgs,
           tribe: 'natars',
           buildingId: 'BREWERY',
-          isGreatBuildingsArtifactActive: true,
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
@@ -88,7 +86,6 @@ describe('building-requirements', () => {
           ...defaultArgs,
           tribe: 'natars',
           buildingId: 'HORSE_DRINKING_TROUGH',
-          isGreatBuildingsArtifactActive: true,
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
@@ -102,7 +99,6 @@ describe('building-requirements', () => {
           ...defaultArgs,
           tribe: 'natars',
           buildingId: 'COMMAND_CENTER',
-          isGreatBuildingsArtifactActive: true,
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
@@ -116,7 +112,6 @@ describe('building-requirements', () => {
           ...defaultArgs,
           tribe: 'natars',
           buildingId: 'WATERWORKS',
-          isGreatBuildingsArtifactActive: true,
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
@@ -136,7 +131,6 @@ describe('building-requirements', () => {
         ...defaultArgs,
         tribe: 'gauls',
         buildingId: 'TRAPPER',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
@@ -150,7 +144,6 @@ describe('building-requirements', () => {
         ...defaultArgs,
         tribe: 'teutons',
         buildingId: 'BREWERY',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
@@ -164,7 +157,6 @@ describe('building-requirements', () => {
         ...defaultArgs,
         tribe: 'romans',
         buildingId: 'HORSE_DRINKING_TROUGH',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
@@ -178,7 +170,6 @@ describe('building-requirements', () => {
         ...defaultArgs,
         tribe: 'huns',
         buildingId: 'COMMAND_CENTER',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
@@ -192,7 +183,6 @@ describe('building-requirements', () => {
         ...defaultArgs,
         tribe: 'egyptians',
         buildingId: 'WATERWORKS',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
@@ -213,7 +203,6 @@ describe('building-requirements', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'GRANARY',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
@@ -226,7 +215,6 @@ describe('building-requirements', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'MAIN_BUILDING',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
@@ -243,7 +231,6 @@ describe('building-requirements', () => {
           buildingFields: [{ buildingId: 'MAIN_BUILDING', id: 1, level: 20 }],
         },
         buildingId: 'MAIN_BUILDING',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
@@ -260,7 +247,6 @@ describe('building-requirements', () => {
           buildingFields: [{ buildingId: 'CRANNY', id: 1, level: 10 }],
         },
         buildingId: 'CRANNY',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
@@ -280,7 +266,6 @@ describe('building-requirements', () => {
           ],
         },
         buildingId: 'CRANNY',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
@@ -294,7 +279,6 @@ describe('building-requirements', () => {
         ...defaultArgs,
         currentVillageBuildingEvents: [buildingConstructionEventMock],
         buildingId: 'CRANNY',
-        isGreatBuildingsArtifactActive: true,
       };
 
       const { fulfilled } = getAssessedRequirementByType(
@@ -313,7 +297,6 @@ describe('building-requirements', () => {
         },
         currentVillageBuildingEvents: [buildingConstructionEventMock],
         buildingId: 'CRANNY',
-        isGreatBuildingsArtifactActive: true,
       };
 
       const { fulfilled } = getAssessedRequirementByType(
@@ -329,7 +312,6 @@ describe('building-requirements', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'BARRACKS',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
@@ -346,7 +328,6 @@ describe('building-requirements', () => {
           buildingFields: villageWithBarracksRequirementsMetBuildingFieldsMock,
         },
         buildingId: 'BARRACKS',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
@@ -363,7 +344,6 @@ describe('building-requirements', () => {
           buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock,
         },
         buildingId: 'WORKSHOP',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
@@ -381,7 +361,6 @@ describe('building-requirements', () => {
           buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock,
         },
         buildingId: 'STABLE',
-        isGreatBuildingsArtifactActive: true,
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
@@ -398,47 +377,12 @@ describe('building-requirements', () => {
           buildingFields: [{ buildingId: 'CLAY_PIT', id: 1, level: 10 }],
         },
         buildingId: 'BRICKYARD',
-        isGreatBuildingsArtifactActive: true,
       };
       const canBuild = getAssessedRequirementsByType(
         'building',
         assessBuildingConstructionReadiness(args),
       ).every(({ fulfilled }) => fulfilled);
       expect(canBuild).toBe(false);
-    });
-  });
-
-  describe('Artifact building requirement', () => {
-    test("Great stable can't be built without artifact", () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
-        ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-        },
-        buildingId: 'GREAT_STABLE',
-        isGreatBuildingsArtifactActive: false,
-      };
-      const { fulfilled } = getAssessedRequirementByType(
-        'artifact',
-        assessBuildingConstructionReadiness(args),
-      );
-      expect(fulfilled).toBe(false);
-    });
-
-    test('Great stable can be built with artifact', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
-        ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-        },
-        buildingId: 'GREAT_STABLE',
-        isGreatBuildingsArtifactActive: true,
-      };
-      const { fulfilled } = getAssessedRequirementByType(
-        'artifact',
-        assessBuildingConstructionReadiness(args),
-      );
-      expect(fulfilled).toBe(true);
     });
   });
 });

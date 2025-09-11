@@ -6,7 +6,7 @@ import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 export const adventurePointIncreaseResolver: Resolver<
   GameEvent<'adventurePointIncrease'>
 > = async (queryClient, database, args) => {
-  database.exec('UPDATE adventure_points SET amount = amount + 1;');
+  database.exec('UPDATE hero_adventures SET available = available + 1;');
 
   await createEvent<'adventurePointIncrease'>(queryClient, database, {
     // Args need to be present, because next events depends on end of last

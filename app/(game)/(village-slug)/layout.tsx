@@ -15,7 +15,7 @@ import {
   useNavigate,
 } from 'react-router';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
+import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
@@ -76,8 +76,8 @@ const ReportsCounter = () => {
 };
 
 const AdventurePointsCounter = () => {
-  const { adventurePoints } = useAdventurePoints();
-  return <Counter counter={adventurePoints.amount} />;
+  const { available } = useHeroAdventures();
+  return <Counter counter={available} />;
 };
 
 const QuestsCounter = () => {

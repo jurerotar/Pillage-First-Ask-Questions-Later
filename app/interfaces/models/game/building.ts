@@ -72,13 +72,7 @@ export type AmountBuildingRequirement = {
   amount: number;
 };
 
-export type ArtifactBuildingRequirement = {
-  id: number;
-  type: 'artifact';
-};
-
 export type BuildingRequirement =
-  | ArtifactBuildingRequirement
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement
   | AmountBuildingRequirement;

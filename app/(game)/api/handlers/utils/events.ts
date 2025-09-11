@@ -18,7 +18,6 @@ import type { QueryClient } from '@tanstack/react-query';
 import {
   effectsCacheKey,
   eventsCacheKey,
-  playersCacheKey,
   serverCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
@@ -35,7 +34,6 @@ import {
 } from 'app/(game)/(village-slug)/utils/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
@@ -44,7 +42,7 @@ import {
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
 import type { Database } from 'app/interfaces/db';
-import { PLAYER_ID } from 'app/constants/player';
+import { getCurrentPlayer } from 'app/(game)/api/utils/player';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -239,7 +237,7 @@ export const getEventDuration = (
 
 export const getEventStartTime = (
   queryClient: QueryClient,
-  _database: Database,
+  database: Database,
   event: GameEvent,
 ): number => {
   if (isTroopTrainingEvent(event)) {
@@ -272,8 +270,7 @@ export const getEventStartTime = (
   if (isScheduledBuildingEvent(event)) {
     const { buildingFieldId, villageId } = event;
 
-    const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-    const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
+    const { tribe } = getCurrentPlayer(database);
 
     const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 

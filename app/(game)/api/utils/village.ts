@@ -6,6 +6,33 @@ import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resou
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 import type { Database } from 'app/interfaces/db';
 
+export const demolishBuilding = (
+  database: Database,
+  villageId: number,
+  buildingFieldId: number,
+): void => {
+  // If buildingFieldId is 1-18 (resource fields) or 39 (rally point) or 40 (wall),
+  // we just set it to level 1, since these buildings can't be destroyed
+  database.exec({
+    sql: `
+      UPDATE building_fields
+      SET level = 0
+      WHERE village_id = $village_id
+        AND field_id   = $building_field_id
+        AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
+
+      DELETE FROM building_fields
+      WHERE village_id = $village_id
+        AND field_id   = $building_field_id
+        AND field_id BETWEEN 19 AND 38;
+    `,
+    bind: {
+      $village_id: villageId,
+      $building_field_id: buildingFieldId,
+    },
+  });
+};
+
 export const calculateVillageResourcesAt = (
   queryClient: QueryClient,
   database: Database,

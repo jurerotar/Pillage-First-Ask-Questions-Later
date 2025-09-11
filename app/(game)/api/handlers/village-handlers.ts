@@ -1,7 +1,11 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { VillageModel } from 'app/interfaces/models/game/village';
-import { villageApiResource } from 'app/(game)/api/api-resources/village-api-resources';
 import { z } from 'zod';
+
+const buildingFieldRowSchema = z.object({
+  field_id: z.number(),
+  building_id: z.string(),
+  level: z.number(),
+});
 
 const getVillageBySlugSchema = z
   .strictObject({
@@ -13,19 +17,40 @@ const getVillageBySlugSchema = z
     name: z.string(),
     slug: z.string(),
     resource_field_composition: z.string(),
+    last_updated_at: z.number(),
+    wood: z.number(),
+    clay: z.number(),
+    iron: z.number(),
+    wheat: z.number(),
+    building_fields: z
+      .string()
+      .transform((s) => (s ? JSON.parse(s) : []))
+      .pipe(z.array(buildingFieldRowSchema)),
   })
   .transform((t) => {
     return {
       id: t.id,
       tileId: t.tile_id,
       playerId: t.player_id,
+      name: t.name,
+      slug: t.slug,
       coordinates: {
         x: t.coordinates_x,
         y: t.coordinates_y,
       },
-      name: t.name,
-      slug: t.slug,
+      lastUpdatedAt: t.last_updated_at,
+      resources: {
+        wood: t.wood,
+        clay: t.clay,
+        iron: t.iron,
+        wheat: t.wheat,
+      },
       resourceFieldComposition: t.resource_field_composition,
+      buildingFields: t.building_fields.map((bf) => ({
+        id: bf.field_id,
+        buildingId: bf.building_id,
+        level: bf.level,
+      })),
     };
   });
 
@@ -71,7 +96,7 @@ export const getVillageBySlug: ApiHandler<
       LIMIT 1;
     `,
     { $slug: villageSlug },
-  ) as VillageModel;
+  );
 
-  return villageApiResource(row);
+  return getVillageBySlugSchema.parse(row);
 };

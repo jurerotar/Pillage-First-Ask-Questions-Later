@@ -6,7 +6,7 @@ import createPreferencesTable from 'app/db/schemas/preferences-schema.sql?raw';
 import createBookmarksTable from 'app/db/schemas/bookmarks-schema.sql?raw';
 import createMapMarkersTable from 'app/db/schemas/map-markers-schema.sql?raw';
 import createMapFiltersTable from 'app/db/schemas/map-filters-schema.sql?raw';
-import createAdventurePointsTable from 'app/db/schemas/adventure-points-schema.sql?raw';
+import createAdventurePointsTable from 'app/db/schemas/hero-adventures-schema.sql?raw';
 import createServersTable from 'app/db/schemas/servers-schema.sql?raw';
 import createPlayersTable from 'app/db/schemas/players-schema.sql?raw';
 import createFactionsTable from 'app/db/schemas/factions-schema.sql?raw';
@@ -30,7 +30,7 @@ import createWorldItemsIndexes from 'app/db/indexes/world-items-indexes.sql?raw'
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
 import { bookmarksSeeder } from 'app/db/seeders/bookmarks-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
-import { adventurePointsSeeder } from 'app/db/seeders/adventure-points-seeder';
+import { heroAdventuresSeeder } from 'app/db/seeders/hero-adventures-seeder';
 import { serverSeeder } from 'app/db/seeders/server-seeder';
 import { factionsSeeder } from 'app/db/seeders/factions-seeder';
 import { factionReputationSeeder } from 'app/db/seeders/faction-reputation-seeder';
@@ -90,7 +90,7 @@ self.addEventListener(
 
       // Adventure points
       db.exec(createAdventurePointsTable);
-      adventurePointsSeeder(db, server);
+      heroAdventuresSeeder(db, server);
 
       // Server
       db.exec(createServersTable);

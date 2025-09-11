@@ -1,83 +1,13 @@
-import {
-  getBuildingData,
-  specialFieldIds,
-} from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/api';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Village } from 'app/interfaces/models/game/village';
-import {
-  effectsCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
-
-const updateBuildingFieldLevel = (
-  villages: Village[],
-  args: GameEvent<'buildingLevelChange'>,
-): Village[] => {
-  const { villageId, buildingFieldId, level } = args;
-
-  return villages.map((village) => {
-    if (village.id !== villageId) {
-      return village;
-    }
-    return {
-      ...village,
-      buildingFields: village.buildingFields.map((buildingField) => {
-        if (buildingField.id === buildingFieldId) {
-          return {
-            ...buildingField,
-            level,
-          };
-        }
-        return buildingField;
-      }),
-    };
-  });
-};
-
-const addBuildingField = (
-  villages: Village[],
-  args: GameEvent<'buildingConstruction'>,
-): Village[] => {
-  const { villageId, buildingFieldId, buildingId } = args;
-
-  return villages.map((village) => {
-    if (village.id === villageId) {
-      return {
-        ...village,
-        buildingFields: [
-          ...village.buildingFields,
-          { id: buildingFieldId, buildingId, level: 0 },
-        ],
-      };
-    }
-    return village;
-  });
-};
-
-export const removeBuildingField = (
-  villages: Village[],
-  args: GameEvent<'buildingDestruction'>,
-): Village[] => {
-  const { villageId, buildingFieldId } = args;
-
-  return villages.map((village) => {
-    if (village.id === villageId) {
-      return {
-        ...village,
-        buildingFields: village.buildingFields.filter(
-          ({ id }) => id !== buildingFieldId,
-        ),
-      };
-    }
-    return village;
-  });
-};
+import { demolishBuilding } from 'app/(game)/api/utils/village';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
@@ -89,12 +19,12 @@ export const buildingLevelChangeResolver: Resolver<
       UPDATE building_fields
       SET level = $level
       WHERE village_id = $village_id
-      AND field_id = $field_id
+      AND field_id = $building_field_id
       AND building_id = $building_id;
     `,
     bind: {
       $village_id: villageId,
-      $field_id: buildingFieldId,
+      $building_field_id: buildingFieldId,
       $building_id: buildingId,
       $level: level,
     },
@@ -126,10 +56,6 @@ export const buildingLevelChangeResolver: Resolver<
         });
       }),
     ];
-  });
-
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
-    return updateBuildingFieldLevel(villages!, args);
   });
 
   evaluateQuestCompletions(queryClient);
@@ -168,10 +94,6 @@ export const buildingConstructionResolver: Resolver<
     return [...prevData!, ...newEffects];
   });
 
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
-    return addBuildingField(villages!, args);
-  });
-
   await createEvent<'buildingLevelChange'>(queryClient, database, {
     ...args,
     type: 'buildingLevelChange',
@@ -183,33 +105,7 @@ export const buildingDestructionResolver: Resolver<
 > = async (queryClient, database, args) => {
   const { buildingFieldId, villageId } = args;
 
-  database.exec({
-    sql: `
-      UPDATE building_fields
-      SET level = 0
-      WHERE village_id = $village_id
-        AND field_id   = $building_field_id
-        AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
-
-      -- normal fields → delete
-      DELETE FROM building_fields
-      WHERE village_id = $village_id
-        AND field_id   = $building_field_id
-        AND field_id BETWEEN 19 AND 38;
-    `,
-    bind: {
-      $village_id: villageId,
-      $field_id: buildingFieldId,
-    },
-  });
-
-  if (specialFieldIds.includes(buildingFieldId)) {
-    await buildingLevelChangeResolver(queryClient, database, {
-      ...args,
-      level: 0,
-    });
-    return;
-  }
+  demolishBuilding(database, villageId, buildingFieldId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
     // Loop through all effects added by the building, find corresponding village effects and delete them
@@ -220,10 +116,6 @@ export const buildingDestructionResolver: Resolver<
         effect.buildingFieldId === buildingFieldId
       );
     });
-  });
-
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
-    return removeBuildingField(villages!, args);
   });
 };
 

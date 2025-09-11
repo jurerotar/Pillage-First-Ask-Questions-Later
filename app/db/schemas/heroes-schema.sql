@@ -12,6 +12,5 @@ CREATE TABLE heroes
   attack_bonus INTEGER NOT NULL DEFAULT 0 CHECK (attack_bonus >= 0),
   defence_bonus INTEGER NOT NULL DEFAULT 0 CHECK (defence_bonus >= 0),
 
-  resource_to_produce TEXT CHECK ( resource_to_produce IN ('shared', 'wood', 'clay', 'iron', 'wheat') ) NOT NULL,
-  adventure_count INTEGER NOT NULL DEFAULT 0 CHECK (adventure_count >= 0)
+  resource_to_produce TEXT CHECK ( resource_to_produce IN ('shared', 'wood', 'clay', 'iron', 'wheat') ) NOT NULL
 );

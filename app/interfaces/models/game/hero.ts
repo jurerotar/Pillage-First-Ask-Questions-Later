@@ -136,7 +136,6 @@ export type HeroModel = {
   attack_bonus: number;
   defence_bonus: number;
   resource_to_produce: Resource | 'shared';
-  adventure_count: number;
 };
 
 export type Hero = {

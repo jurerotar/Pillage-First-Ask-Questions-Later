@@ -11,8 +11,8 @@ import {
 } from 'app/(game)/api/handlers/preferences-handlers';
 import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import {
-  getAdventurePoints,
   getHero,
+  getHeroAdventures,
   getHeroEquippedItems,
   getHeroInventory,
 } from 'app/(game)/api/handlers/hero-handlers';
@@ -90,17 +90,12 @@ const heroRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/hero/adventures',
-    handler: () => {},
+    handler: getHeroAdventures,
   },
   {
     method: 'POST',
-    path: '/players/:playerId/hero/adventures/start',
+    path: '/players/:playerId/hero/adventures',
     handler: () => {},
-  },
-  {
-    method: 'GET',
-    path: '/players/:playerId/hero/adventures/count',
-    handler: getAdventurePoints,
   },
 ];
 

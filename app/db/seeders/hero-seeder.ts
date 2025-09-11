@@ -10,8 +10,7 @@ export const heroSeeder: Seeder = (database): void => {
         resource_production,
         attack_bonus,
         defence_bonus,
-        resource_to_produce,
-        adventure_count
+        resource_to_produce
       )
       VALUES (
         $experience,
@@ -20,8 +19,7 @@ export const heroSeeder: Seeder = (database): void => {
         $resource_production,
         $attack_bonus,
         $defence_bonus,
-        $resource_to_produce,
-        $adventure_count
+        $resource_to_produce
        );
     `,
     bind: {
@@ -32,7 +30,6 @@ export const heroSeeder: Seeder = (database): void => {
       $attack_bonus: 0,
       $defence_bonus: 0,
       $resource_to_produce: 'shared',
-      $adventure_count: 0,
     },
   });
 };

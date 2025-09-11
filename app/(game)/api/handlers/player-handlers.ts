@@ -2,27 +2,18 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 
-const getPlayerByIdSchema = z
-  .strictObject({
-    id: z.number(),
-    name: z.string(),
-    slug: z.string(),
-    tribe: z.enum([
-      'romans',
-      'teutons',
-      'gauls',
-      'huns',
-      'egyptians',
-    ] satisfies PlayableTribe[]),
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      name: t.name,
-      slug: t.slug,
-      tribe: t.tribe,
-    };
-  });
+const getPlayerByIdSchema = z.strictObject({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  tribe: z.enum([
+    'romans',
+    'teutons',
+    'gauls',
+    'huns',
+    'egyptians',
+  ] satisfies PlayableTribe[]),
+});
 
 export const getPlayerById: ApiHandler<
   z.infer<typeof getPlayerByIdSchema>,

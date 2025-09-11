@@ -12,6 +12,7 @@ export const troopsCacheKey = 'units';
 export const unitImprovementCacheKey = 'unit-improvement';
 export const unitResearchCacheKey = 'unit-research';
 export const villagesCacheKey = 'villages';
+export const villageListing = 'village-listing';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';

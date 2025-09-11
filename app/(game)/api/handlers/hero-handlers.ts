@@ -11,7 +11,6 @@ const getHeroSchema = z
     attack_bonus: z.number(),
     defence_bonus: z.number(),
     resource_to_produce: z.enum(['wood', 'clay', 'iron', 'wheat', 'shared']),
-    adventure_count: z.number(),
   })
   .transform((t) => {
     return {
@@ -25,7 +24,6 @@ const getHeroSchema = z
         attackBonus: t.attack_bonus,
         defenceBonus: t.defence_bonus,
       },
-      adventureCount: t.adventure_count,
     };
   });
 
@@ -34,15 +32,13 @@ export const getHero: ApiHandler<z.infer<typeof getHeroSchema>> = async (
   database,
 ) => {
   const hero = database.selectObject(`
-    SELECT h.id,
-           h.health,
+    SELECT h.health,
            h.experience,
            h.attack_power,
            h.resource_production,
            h.attack_bonus,
            h.defence_bonus,
-           h.resource_to_produce,
-           h.adventure_count
+           h.resource_to_produce
     FROM heroes h;
   `);
 
@@ -128,19 +124,22 @@ export const getHeroInventory: ApiHandler<
     `,
   );
 
-  const listSchema = z.array(getAdventurePointsSchema);
+  const listSchema = z.array(getHeroInventorySchema);
 
   return listSchema.parse(rows);
 };
 
-const getAdventurePointsSchema = z.strictObject({
-  amount: z.number(),
+const getHeroAdventuresSchema = z.strictObject({
+  available: z.number(),
+  completed: z.number(),
 });
 
-export const getAdventurePoints: ApiHandler<
-  z.infer<typeof getAdventurePointsSchema>
+export const getHeroAdventures: ApiHandler<
+  z.infer<typeof getHeroAdventuresSchema>
 > = async (_queryClient, database) => {
-  const row = database.selectObject('SELECT amount FROM adventure_points;');
+  const row = database.selectObject(
+    'SELECT available, completed FROM hero_adventures;',
+  );
 
-  return getAdventurePointsSchema.parse(row);
+  return getHeroAdventuresSchema.parse(row);
 };
