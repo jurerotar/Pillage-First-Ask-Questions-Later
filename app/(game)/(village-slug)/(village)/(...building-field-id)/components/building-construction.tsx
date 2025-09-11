@@ -33,6 +33,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: BuildingCategory;
@@ -138,13 +139,16 @@ const BuildingCategoryPanel = ({
 
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
+  const { buildingFieldId } = use(BuildingFieldContext);
+
+  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
 
   return (
     <>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
+            <BreadcrumbLink to={backlinkTarget}>{t('Village')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>

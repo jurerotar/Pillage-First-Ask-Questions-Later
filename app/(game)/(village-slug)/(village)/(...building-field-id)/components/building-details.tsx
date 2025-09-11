@@ -238,13 +238,15 @@ export const BuildingDetails = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
+  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
+
   return (
     <>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to="..">
-              {buildingFieldId! > 18 ? t('Village') : t('Resources')}
+            <BreadcrumbLink to={backlinkTarget}>
+              {buildingFieldId > 18 ? t('Village') : t('Resources')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
