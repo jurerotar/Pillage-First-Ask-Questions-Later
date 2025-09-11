@@ -90,7 +90,7 @@ const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['STABLE', 180],
   ['CRANNY', 90],
   ['MARKETPLACE', 110],
-  // ['SMITHY', 150],
+  ['SMITHY', 150],
   ['ACADEMY', 140],
   ['HEROS_MANSION', 150],
   ['RALLY_POINT', 120],
@@ -111,7 +111,14 @@ const calculateResourceReward = (
   level: number,
   matcher: 'oneOf' | 'every',
 ): number => {
-  const base = buildingIdToResourceRewardMap.get(buildingId)!;
+  const base = buildingIdToResourceRewardMap.get(buildingId);
+
+  if (!base) {
+    throw new Error(
+      `Base resource reward amount is missing for building "${buildingId}" quests.`,
+    );
+  }
+
   const effectiveLevel = level - 1;
   if (matcher === 'oneOf') {
     return Math.round(base * effectiveLevel) + base / 2;
