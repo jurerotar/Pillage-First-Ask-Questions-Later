@@ -21,10 +21,12 @@ import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 const heroEffectsFactory = (
+  server: Server,
   villageId: Village['id'],
   hero: Hero,
 ): HeroEffect[] => {
-  const { selectableAttributes, tribe, resourceToProduce } = hero;
+  const tribe = server.playerConfiguration.tribe;
+  const { selectableAttributes, resourceToProduce } = hero;
 
   const baseResourceProduction = resourceToProduce === 'shared' ? 9 : 10;
   const tribalModifier = tribe === 'egyptians' ? 2 : 1;
@@ -278,7 +280,7 @@ export const generateEffects = (
   const serverEffects = serverEffectsFactory(server);
   const globalEffects = globalEffectsFactory(server);
   const villageEffects = newVillageEffectsFactory(village, true);
-  const heroEffects = heroEffectsFactory(village.id, hero);
+  const heroEffects = heroEffectsFactory(server, village.id, hero);
 
   return [
     ...serverEffects,

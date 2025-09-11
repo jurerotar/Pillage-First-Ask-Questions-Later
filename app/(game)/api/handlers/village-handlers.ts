@@ -1,33 +1,38 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Village, VillageModel } from 'app/interfaces/models/game/village';
+import type { VillageModel } from 'app/interfaces/models/game/village';
 import { villageApiResource } from 'app/(game)/api/api-resources/village-api-resources';
 import { z } from 'zod';
 
-export const getVillages: ApiHandler<Village[]> = async (
-  queryClient,
-  _database,
-) => {
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-
-  return villages;
-};
-
-const getVillageBySlugResponseSchema = z
+const getVillageBySlugSchema = z
   .strictObject({
-
+    id: z.number(),
+    tile_id: z.number(),
+    player_id: z.number(),
+    coordinates_x: z.number(),
+    coordinates_y: z.number(),
+    name: z.string(),
+    slug: z.string(),
+    resource_field_composition: z.string(),
   })
   .transform((t) => {
     return {
-
+      id: t.id,
+      tileId: t.tile_id,
+      playerId: t.player_id,
+      coordinates: {
+        x: t.coordinates_x,
+        y: t.coordinates_y,
+      },
+      name: t.name,
+      slug: t.slug,
+      resourceFieldComposition: t.resource_field_composition,
     };
   });
 
-export const getVillageBySlug: ApiHandler<z.infer<typeof getVillageBySlugResponseSchema>, 'villageSlug'> = async (
-  _queryClient,
-  database,
-  { params },
-) => {
+export const getVillageBySlug: ApiHandler<
+  z.infer<typeof getVillageBySlugSchema>,
+  'villageSlug'
+> = async (_queryClient, database, { params }) => {
   const { villageSlug } = params;
 
   const row = database.selectObject(
@@ -45,7 +50,7 @@ export const getVillageBySlug: ApiHandler<z.infer<typeof getVillageBySlugRespons
         rs.clay AS clay,
         rs.iron AS iron,
         rs.wheat AS wheat,
-        t.resource_field_composition AS resource_field_composition,
+        t.resource_field_composition,
         (
           SELECT json_group_array(
                    json_object(

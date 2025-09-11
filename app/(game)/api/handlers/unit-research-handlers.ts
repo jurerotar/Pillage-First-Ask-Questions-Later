@@ -1,7 +1,7 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
 
-const getResearchedUnitsResponseSchema = z
+const getResearchedUnitsSchema = z
   .strictObject({
     unit_id: z.string(),
     village_id: z.number(),
@@ -14,7 +14,7 @@ const getResearchedUnitsResponseSchema = z
   });
 
 export const getResearchedUnits: ApiHandler<
-  z.infer<typeof getResearchedUnitsResponseSchema>[],
+  z.infer<typeof getResearchedUnitsSchema>[],
   'villageId'
 > = async (_queryClient, database, { params }) => {
   const { villageId } = params;
@@ -28,7 +28,7 @@ export const getResearchedUnits: ApiHandler<
     { $village_id: villageId },
   );
 
-  const listSchema = z.array(getResearchedUnitsResponseSchema);
+  const listSchema = z.array(getResearchedUnitsSchema);
 
   return listSchema.parse(unitResearchModels);
 };

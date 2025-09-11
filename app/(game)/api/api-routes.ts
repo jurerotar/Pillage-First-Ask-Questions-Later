@@ -13,11 +13,13 @@ import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import {
   getAdventurePoints,
   getHero,
+  getHeroEquippedItems,
+  getHeroInventory,
 } from 'app/(game)/api/handlers/hero-handlers';
 import {
   getPlayerById,
+  getPlayerVillageListing,
   getTroopsByVillage,
-  getVillagesByPlayer,
   renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
 import {
@@ -36,10 +38,7 @@ import {
   getMapFilters,
   updateMapFilter,
 } from 'app/(game)/api/handlers/map-filters-handlers';
-import {
-  getVillages,
-  getVillageBySlug,
-} from 'app/(game)/api/handlers/village-handlers';
+import { getVillageBySlug } from 'app/(game)/api/handlers/village-handlers';
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
@@ -77,6 +76,16 @@ const heroRoutes = [
     method: 'GET',
     path: '/players/:playerId/hero',
     handler: getHero,
+  },
+  {
+    method: 'GET',
+    path: '/players/:playerId/hero/equipped-items',
+    handler: getHeroEquippedItems,
+  },
+  {
+    method: 'GET',
+    path: '/players/:playerId/hero/inventory',
+    handler: getHeroInventory,
   },
   {
     method: 'GET',
@@ -192,16 +201,11 @@ const playerRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/villages',
-    handler: getVillagesByPlayer,
+    handler: getPlayerVillageListing,
   },
 ];
 
 const villageRoutes = [
-  {
-    method: 'GET',
-    path: '/villages',
-    handler: getVillages,
-  },
   {
     method: 'GET',
     path: '/villages/:villageSlug',

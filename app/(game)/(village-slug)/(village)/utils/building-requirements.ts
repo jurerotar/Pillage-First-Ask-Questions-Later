@@ -23,7 +23,6 @@ export type AssessBuildingConstructionReadinessReturn = {
 
 export type AssessBuildingConstructionReadinessArgs = {
   tribe: Tribe;
-  playerVillages: Village[];
   currentVillage: Village;
   currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[];
   buildingId: Building['id'];

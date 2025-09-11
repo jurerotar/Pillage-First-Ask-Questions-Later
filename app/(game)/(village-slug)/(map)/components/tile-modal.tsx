@@ -32,7 +32,7 @@ import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
   playerTroopsCacheKey,
   playerVillagesCacheKey,
@@ -267,9 +267,9 @@ const OccupiedOccupiableTileModal = ({
   const { getVillageByCoordinates } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { getNewVillageUrl } = useGameNavigation();
-  const { playerTroops, sendTroops } = usePlayerTroops();
+  const { villageTroops, sendTroops } = useVillageTroops();
 
-  const currentVillageMovableTroops = playerTroops.filter(
+  const currentVillageMovableTroops = villageTroops.filter(
     ({ tileId, source }) =>
       tileId === currentVillage.id && source === currentVillage.id,
   );

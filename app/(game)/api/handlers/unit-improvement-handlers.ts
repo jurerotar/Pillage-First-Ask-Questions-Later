@@ -1,7 +1,7 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
 
-const getUnitImprovementsResponseSchema = z
+const getUnitImprovementsSchema = z
   .strictObject({
     unit_id: z.string(),
     level: z.number(),
@@ -13,13 +13,14 @@ const getUnitImprovementsResponseSchema = z
     };
   });
 
-export const getUnitImprovements: ApiHandler<z.infer<typeof getUnitImprovementsResponseSchema>[]> = async (
-  _queryClient,
-  database,
-) => {
-  const unitImprovementModel = database.selectObjects('SELECT unit_id, level FROM unit_improvements;');
+export const getUnitImprovements: ApiHandler<
+  z.infer<typeof getUnitImprovementsSchema>[]
+> = async (_queryClient, database) => {
+  const unitImprovementModel = database.selectObjects(
+    'SELECT unit_id, level FROM unit_improvements;',
+  );
 
-  const listSchema = z.array(getUnitImprovementsResponseSchema);
+  const listSchema = z.array(getUnitImprovementsSchema);
 
   return listSchema.parse(unitImprovementModel);
 };

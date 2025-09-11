@@ -1,9 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type {
-  OasisTile,
-  OccupiedOasisTile,
-  Tile,
-} from 'app/interfaces/models/game/tile';
+import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 import {
   effectsCacheKey,
   mapCacheKey,
@@ -39,24 +35,11 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
     return [...effects!, ...oasisEffects];
   });
 
-  queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {
-    return tiles!.map((tile) => {
-      if (tile.id !== oasisId) {
-        return tile;
-      }
-
-      const cell = tile as OccupiedOasisTile;
-      cell.villageId = villageId;
-
-      return cell;
-    });
-  });
-
   database.exec({
     sql: `
       UPDATE oasis
       SET village_id = $village_id
-      WHERE tile_id   = $oasis_tile_id
+      WHERE tile_id  = $oasis_tile_id
         AND village_id IS NULL;
     `,
     bind: {
@@ -77,15 +60,6 @@ export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
 
   updateVillageResourcesAt(queryClient, database, villageId, Date.now());
 
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const targetOasisTile = tiles.find(
-    ({ id }) => id === oasisId,
-  )! as OccupiedOasisTile;
-
-  if (!targetOasisTile) {
-    return;
-  }
-
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
     return effects!.filter((effect) => {
       if (!isOasisEffect(effect)) {
@@ -93,19 +67,6 @@ export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
       }
 
       return !(effect.villageId === villageId && effect.oasisId === oasisId);
-    });
-  });
-
-  queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {
-    return tiles!.map((tile) => {
-      if (tile.id !== oasisId) {
-        return tile;
-      }
-
-      const cell = tile as OasisTile;
-      cell.villageId = null;
-
-      return cell;
     });
   });
 

@@ -1,6 +1,6 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
 import { Icon } from 'app/components/icon';
@@ -17,7 +17,7 @@ const TroopListContent = () => {
   const { t: assetsT } = useTranslation();
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
-  const { playerTroops } = usePlayerTroops();
+  const { villageTroops } = useVillageTroops();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const tooltipId = useId();
   const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
@@ -26,7 +26,7 @@ const TroopListContent = () => {
     return null;
   }
 
-  const currentVillagePlayerTroops = playerTroops.filter(
+  const currentVillagePlayerTroops = villageTroops.filter(
     ({ tileId }) => tileId === currentVillage.tileId,
   );
 

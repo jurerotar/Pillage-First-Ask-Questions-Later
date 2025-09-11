@@ -70,7 +70,6 @@ export type AmountBuildingRequirement = {
   id: number;
   type: 'amount';
   amount: number;
-  appliesGlobally?: true;
 };
 
 export type ArtifactBuildingRequirement = {

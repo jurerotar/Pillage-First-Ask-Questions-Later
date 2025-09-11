@@ -1,18 +1,19 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { playersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { VillageModel } from 'app/interfaces/models/game/village';
-import type { Player } from 'app/interfaces/models/game/player';
-import { villageApiResource } from 'app/(game)/api/api-resources/village-api-resources';
 import { z } from 'zod';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import { buildingFieldApiResource } from 'app/(game)/api/api-resources/building-field-api-resources';
 
-const getPlayerByIdResponseSchema = z
+const getPlayerByIdSchema = z
   .strictObject({
     id: z.number(),
     name: z.string(),
     slug: z.string(),
-    tribe: z.enum(['romans', 'teutons', 'gauls', 'huns', 'egyptians'] satisfies PlayableTribe[]),
+    tribe: z.enum([
+      'romans',
+      'teutons',
+      'gauls',
+      'huns',
+      'egyptians',
+    ] satisfies PlayableTribe[]),
   })
   .transform((t) => {
     return {
@@ -23,16 +24,15 @@ const getPlayerByIdResponseSchema = z
     };
   });
 
-export const getPlayerById: ApiHandler<z.infer<typeof getPlayerByIdResponseSchema>, 'playerId'> = async (
-  queryClient,
-  database,
-  args,
-) => {
+export const getPlayerById: ApiHandler<
+  z.infer<typeof getPlayerByIdSchema>,
+  'playerId'
+> = async (_queryClient, database, args) => {
   const {
     params: { playerId },
   } = args;
 
-  const _row = database.selectObject(
+  const row = database.selectObject(
     `
       SELECT
         p.id,
@@ -45,43 +45,37 @@ export const getPlayerById: ApiHandler<z.infer<typeof getPlayerByIdResponseSchem
     { $player_id: playerId },
   );
 
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-
-  return players.find(({ id }) => id === playerId)!;
+  return getPlayerByIdSchema.parse(row);
 };
 
-const getVillagesByPlayerResponseSchema = z
+const getVillagesByPlayerSchema = z
   .strictObject({
-
+    id: z.number(),
+    tile_id: z.number(),
+    coordinates_x: z.number(),
+    coordinates_y: z.number(),
+    name: z.string(),
+    slug: z.string(),
+    resource_field_composition: z.string(),
   })
   .transform((t) => {
     return {
       id: t.id,
       tileId: t.tile_id,
-      playerId: t.player_id,
       coordinates: {
         x: t.coordinates_x,
         y: t.coordinates_y,
       },
       name: t.name,
       slug: t.slug,
-      buildingFields: buildingFields.map(buildingFieldApiResource),
-      lastUpdatedAt: t.last_updated_at,
       resourceFieldComposition: t.resource_field_composition,
-      resources: {
-        wood: t.wood,
-        clay: t.clay,
-        iron: t.iron,
-        wheat: t.wheat,
-      },
     };
   });
 
-export const getVillagesByPlayer: ApiHandler<z.infer<typeof getVillagesByPlayerResponseSchema>[], 'playerId'> = async (
-  _queryClient,
-  database,
-  args,
-) => {
+export const getPlayerVillageListing: ApiHandler<
+  z.infer<typeof getVillagesByPlayerSchema>[],
+  'playerId'
+> = async (_queryClient, database, args) => {
   const {
     params: { playerId },
   } = args;
@@ -91,42 +85,25 @@ export const getVillagesByPlayer: ApiHandler<z.infer<typeof getVillagesByPlayerR
       SELECT
         v.id,
         v.tile_id,
-        v.player_id,
         t.x  AS coordinates_x,
         t.y  AS coordinates_y,
         v.name,
         v.slug,
-        rs.updated_at AS last_updated_at,
-        rs.wood AS wood,
-        rs.clay AS clay,
-        rs.iron AS iron,
-        rs.wheat AS wheat,
-        t.resource_field_composition AS resource_field_composition,
-       (
-          SELECT json_group_array(
-                   json_object(
-                     'field_id',    bf.field_id,
-                     'building_id', bf.building_id,
-                     'level',       bf.level
-                   )
-                 )
-          FROM building_fields bf
-          WHERE bf.village_id = v.id
-        ) AS building_fields
+        t.resource_field_composition
       FROM villages v
       JOIN tiles t
         ON t.id = v.tile_id
-      LEFT JOIN resource_sites rs
-        ON rs.tile_id = v.tile_id
       WHERE v.player_id = $player_id;
     `,
     { $player_id: playerId },
   );
 
-  return rows.map(villageApiResource);
+  const listSchema = z.array(getVillagesByPlayerSchema);
+
+  return listSchema.parse(rows);
 };
 
-const getTroopsByVillageResponseSchema = z
+const getTroopsByVillageSchema = z
   .strictObject({
     unit_id: z.string(),
     amount: z.number().min(1),
@@ -143,7 +120,7 @@ const getTroopsByVillageResponseSchema = z
   });
 
 export const getTroopsByVillage: ApiHandler<
-  z.infer<typeof getTroopsByVillageResponseSchema>[],
+  z.infer<typeof getTroopsByVillageSchema>[],
   'playerId' | 'villageId'
 > = async (_queryClient, database, args) => {
   const {
@@ -164,7 +141,7 @@ export const getTroopsByVillage: ApiHandler<
     { $village_id: villageId },
   );
 
-  const listSchema = z.array(getTroopsByVillageResponseSchema);
+  const listSchema = z.array(getTroopsByVillageSchema);
 
   return listSchema.parse(troopModels);
 };

@@ -2,7 +2,7 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 
-const getMapFiltersResponseSchema = z
+const getMapFiltersSchema = z
   .strictObject({
     should_show_faction_reputation: z.boolean(),
     should_show_oasis_icons: z.boolean(),
@@ -22,10 +22,9 @@ const getMapFiltersResponseSchema = z
     };
   });
 
-export const getMapFilters: ApiHandler<z.infer<typeof getMapFiltersResponseSchema>> = async (
-  _queryClient,
-  database,
-) => {
+export const getMapFilters: ApiHandler<
+  z.infer<typeof getMapFiltersSchema>
+> = async (_queryClient, database) => {
   const row = database.selectObject(
     `
     SELECT
@@ -38,7 +37,7 @@ export const getMapFilters: ApiHandler<z.infer<typeof getMapFiltersResponseSchem
     FROM map_filters`,
   );
 
-  return getMapFiltersResponseSchema.parse(row);
+  return getMapFiltersSchema.parse(row);
 };
 
 type UpdateMapFilterBody = {

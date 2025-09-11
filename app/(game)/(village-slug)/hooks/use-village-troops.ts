@@ -10,19 +10,27 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import type { Village } from 'app/interfaces/models/game/village';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { z } from 'zod';
 
 type SendTroopsArgs = Pick<
   GameEvent<'troopMovement'>,
   'troops' | 'targetId' | 'movementType'
 >;
 
-export const usePlayerTroops = () => {
+const _getVillageTroopsSchema = z.strictObject({
+  unitId: z.string(),
+  amount: z.number().min(1),
+  tileId: z.number(),
+  source: z.number(),
+});
+
+export const useVillageTroops = () => {
   const { fetcher } = use(ApiContext);
   const { createEvent: createTroopMovementEvent } =
     useCreateEvent('troopMovement');
   const { currentVillage } = useCurrentVillage();
 
-  const { data: playerTroops } = useSuspenseQuery<Troop[]>({
+  const { data: villageTroops } = useSuspenseQuery<Troop[]>({
     queryKey: [playerTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await fetcher<Troop[]>(
@@ -33,7 +41,7 @@ export const usePlayerTroops = () => {
   });
 
   const getDeployableTroops = (villageId: Village['id']) => {
-    return playerTroops.filter(
+    return villageTroops.filter(
       ({ tileId, source }) => tileId === villageId && source === villageId,
     );
   };
@@ -49,7 +57,7 @@ export const usePlayerTroops = () => {
   };
 
   return {
-    playerTroops,
+    villageTroops,
     sendTroops,
     getDeployableTroops,
   };

@@ -1,7 +1,8 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 
-const getServerResponseSchema = z
+const getServerSchema = z
   .strictObject({
     id: z.string(),
     version: z.string(),
@@ -12,32 +13,50 @@ const getServerResponseSchema = z
     map_size: z.number(),
     speed: z.number(),
     player_name: z.string(),
+    player_tribe: z.enum([
+      'romans',
+      'teutons',
+      'gauls',
+      'huns',
+      'egyptians',
+    ] satisfies PlayableTribe[]),
   })
-  .transform(
-    (t) => {
-      return {
-        id: t.id,
-        version: t.version,
-        name: t.name,
-        slug: t.slug,
-        createdAt: t.created_at,
-        seed: t.seed,
-        configuration: {
-          mapSize: t.map_size,
-          speed: t.speed,
-        },
-        playerConfiguration: {
-          name: t.player_name,
-        },
-      };
-    },
-  );
+  .transform((t) => {
+    return {
+      id: t.id,
+      version: t.version,
+      name: t.name,
+      slug: t.slug,
+      createdAt: t.created_at,
+      seed: t.seed,
+      configuration: {
+        mapSize: t.map_size,
+        speed: t.speed,
+      },
+      playerConfiguration: {
+        name: t.player_name,
+        tribe: t.player_tribe,
+      },
+    };
+  });
 
-export const getServer: ApiHandler<z.infer<typeof getServerResponseSchema>> = async (
+export const getServer: ApiHandler<z.infer<typeof getServerSchema>> = async (
   _queryClient,
   database,
 ) => {
-  const serverModel = database.selectObject('SELECT * from servers;');
+  const serverModel = database.selectObject(`
+    SELECT id,
+           version,
+           name,
+           slug,
+           created_at,
+           seed,
+           speed,
+           map_size,
+           player_name,
+           player_tribe
+    FROM servers;
+  `);
 
-  return getServerResponseSchema.parse(serverModel);
+  return getServerSchema.parse(serverModel);
 };

@@ -1,27 +1,27 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
-const getBookmarksResponseSchema = z
+const getBookmarksSchema = z
   .strictObject({
-
+    building_id: z.string(),
+    tab_name: z.string(),
   })
   .transform((t) => {
-    return {
-
-    };
+    return [t.building_id, t.tab_name];
   });
 
-export const getBookmarks: ApiHandler<z.infer<typeof getBookmarksResponseSchema>> = async (
+export const getBookmarks: ApiHandler<Bookmarks> = async (
   _queryClient,
   database,
 ) => {
-  const result = database.selectObjects(
+  const bookmarks = database.selectObjects(
     'SELECT building_id, tab_name FROM bookmarks',
   );
 
-  return Object.fromEntries(
-    result.map(({ building_id, tab_name }) => [building_id, tab_name]),
-  );
+  const listSchema = z.array(getBookmarksSchema);
+
+  return Object.fromEntries(listSchema.parse(bookmarks));
 };
 
 export const updateBookmark: ApiHandler<
