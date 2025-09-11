@@ -13,7 +13,6 @@ import { use } from 'react';
 import { startTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { Text } from 'app/components/text';
 import {
   useBuildingConstructionStatus,
@@ -129,7 +128,6 @@ export const BuildingActions = () => {
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
-  const { isGreatBuildingsArtifactActive } = useArtifacts();
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
     buildingFieldId!,
@@ -158,7 +156,6 @@ export const BuildingActions = () => {
       currentVillageBuildingEvents,
       playerVillages,
       currentVillage,
-      isGreatBuildingsArtifactActive,
     });
 
   const onBuildingConstruction = () => {

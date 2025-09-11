@@ -2,7 +2,6 @@ import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,
-  ArtifactBuildingRequirement,
   Building,
   BuildingLevelBuildingRequirement,
   BuildingRequirement,
@@ -29,7 +28,6 @@ export type AssessBuildingConstructionReadinessArgs = {
   currentVillage: Village;
   currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[];
   buildingId: Building['id'];
-  isGreatBuildingsArtifactActive: boolean;
 };
 
 type AssessFunctionArgs<T extends BuildingRequirement> =
@@ -92,13 +90,6 @@ const assessTribeRequirement = (
   return requirement.tribe === tribe;
 };
 
-const assessArtifactRequirement = (
-  args: AssessFunctionArgs<ArtifactBuildingRequirement>,
-): boolean => {
-  const { isGreatBuildingsArtifactActive } = args;
-  return isGreatBuildingsArtifactActive;
-};
-
 export const assessBuildingConstructionReadiness = (
   args: AssessBuildingConstructionReadinessArgs,
 ): AssessBuildingConstructionReadinessReturn => {
@@ -130,14 +121,6 @@ export const assessBuildingConstructionReadiness = (
         }
         case 'amount': {
           fulfilled = assessBuildingAmountRequirement({
-            ...args,
-            requirement,
-            building,
-          });
-          break;
-        }
-        case 'artifact': {
-          fulfilled = assessArtifactRequirement({
             ...args,
             requirement,
             building,

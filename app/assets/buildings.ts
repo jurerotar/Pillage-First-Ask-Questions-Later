@@ -160,13 +160,14 @@ const createTroopDurationEffect = (
 
 const createStorageCapacityEffect = (
   effectId: 'warehouseCapacity' | 'granaryCapacity',
+  modifier: 1 | 3,
 ): BuildingEffect => {
   return {
     effectId,
     valuesPerLevel: [
       0, 400, 900, 1500, 2300, 3200, 4300, 5600, 7200, 9000, 11300, 13900,
       17200, 21000, 25600, 31000, 37700, 45500, 55000, 66300, 80000,
-    ],
+    ].map((value) => value * modifier),
     type: 'base',
   };
 };
@@ -336,7 +337,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     effects: [
       createNegativeWheatProductionEffect('A'),
-      createStorageCapacityEffect('granaryCapacity'),
+      createStorageCapacityEffect('granaryCapacity', 1),
     ],
     buildingRequirements: [
       {
@@ -438,7 +439,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     effects: [
       createNegativeWheatProductionEffect('A'),
-      createStorageCapacityEffect('warehouseCapacity'),
+      createStorageCapacityEffect('warehouseCapacity', 1),
     ],
     buildingRequirements: [
       {
@@ -670,10 +671,6 @@ export const buildings: Building[] = [
         buildingId: 'BARRACKS',
         level: 20,
       },
-      {
-        id: 4,
-        type: 'artifact',
-      },
     ],
     baseBuildingCost: [630, 420, 780, 360],
     buildingCostCoefficient: 1.28,
@@ -700,10 +697,6 @@ export const buildings: Building[] = [
         type: 'building',
         buildingId: 'STABLE',
         level: 20,
-      },
-      {
-        id: 4,
-        type: 'artifact',
       },
     ],
     baseBuildingCost: [780, 420, 660, 300],
@@ -1444,6 +1437,72 @@ export const buildings: Building[] = [
     maxLevel: 20,
     buildingDurationBase: 1.16,
     buildingDurationModifier: 14375,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'GREAT_GRANARY',
+    category: 'infrastructure',
+    effects: [
+      createNegativeWheatProductionEffect('A'),
+      createStorageCapacityEffect('granaryCapacity', 3),
+    ],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: Number.POSITIVE_INFINITY,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'GRANARY',
+        level: 20,
+      },
+    ],
+    baseBuildingCost: [400, 500, 350, 100],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 8875,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'GREAT_WAREHOUSE',
+    category: 'infrastructure',
+    effects: [
+      createNegativeWheatProductionEffect('A'),
+      createStorageCapacityEffect('warehouseCapacity', 3),
+    ],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: Number.POSITIVE_INFINITY,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'WAREHOUSE',
+        level: 20,
+      },
+    ],
+    baseBuildingCost: [650, 800, 450, 200],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 10875,
     buildingDurationReduction: 1875,
   },
 ];

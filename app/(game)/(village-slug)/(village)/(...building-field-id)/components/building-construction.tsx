@@ -17,7 +17,6 @@ import type {
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { Text } from 'app/components/text';
 import {
@@ -49,7 +48,6 @@ const BuildingCategoryPanel = ({
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
-  const { isGreatBuildingsArtifactActive } = useArtifacts();
 
   const staticBuildingConstructionReadinessArgs: Omit<
     Parameters<typeof assessBuildingConstructionReadiness>[0],
@@ -59,7 +57,6 @@ const BuildingCategoryPanel = ({
     currentVillageBuildingEvents,
     playerVillages,
     currentVillage,
-    isGreatBuildingsArtifactActive,
   };
 
   const buildingsByCategory = buildings.filter(

@@ -19,9 +19,11 @@ export type BuildingId =
   | 'BRICKYARD'
   | 'GRAIN_MILL'
   | 'GRANARY'
+  | 'GREAT_GRANARY'
   | 'IRON_FOUNDRY'
   | 'SAWMILL'
   | 'WAREHOUSE'
+  | 'GREAT_WAREHOUSE'
   | 'WATERWORKS'
   | 'ACADEMY'
   | 'CITY_WALL'
@@ -70,16 +72,9 @@ export type AmountBuildingRequirement = {
   id: number;
   type: 'amount';
   amount: number;
-  appliesGlobally?: true;
-};
-
-export type ArtifactBuildingRequirement = {
-  id: number;
-  type: 'artifact';
 };
 
 export type BuildingRequirement =
-  | ArtifactBuildingRequirement
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement
   | AmountBuildingRequirement;
