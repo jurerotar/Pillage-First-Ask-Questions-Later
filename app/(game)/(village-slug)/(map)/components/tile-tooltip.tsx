@@ -43,6 +43,7 @@ const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
       tile.coordinates,
     ),
   );
+
   const { x, y } = tile.coordinates;
 
   return (
@@ -104,7 +105,7 @@ const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
 
   return (
     <span>
-      {formatNumber(item.amount)}x {assetsT(`ITEMS.${item.id}.TITLE`)}
+      {formatNumber(item.amount)}x {assetsT(`ITEMS.${item.name}.TITLE`)}
     </span>
   );
 };

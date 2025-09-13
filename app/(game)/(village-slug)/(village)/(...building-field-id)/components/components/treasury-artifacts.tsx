@@ -28,8 +28,8 @@ const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
 
   return (
     <TableRow>
-      <TableCell>{assetsT(`ITEMS.${item.id}.TITLE`)}</TableCell>
-      <TableCell>{assetsT(`ITEMS.${item.id}.DESCRIPTION`)}</TableCell>
+      <TableCell>{assetsT(`ITEMS.${item.name}.TITLE`)}</TableCell>
+      <TableCell>{assetsT(`ITEMS.${item.name}.DESCRIPTION`)}</TableCell>
       <TableCell>
         {/*// TODO: Re-enable this when SQLite migration is finished */}
         {/*<Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>*/}

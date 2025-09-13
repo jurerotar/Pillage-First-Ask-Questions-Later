@@ -60,7 +60,7 @@ export const calculateDistanceBetweenPoints = (
 };
 
 export const roundToNDecimalPoints = (number: number, n = 2): number => {
-  return Math.round(number * 10 ** n) / 100 ** n;
+  return Math.round(number * 10 ** n) / 10 ** n;
 };
 
 export const roundTo5 = (n: number) => {

@@ -76,7 +76,7 @@ describe('Building utils', () => {
       const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
       expect(isMaxLevel).toBe(false);
-      expect(nextLevelPopulation).toBe(1);
+      expect(nextLevelPopulation).toBe(3);
       expect(nextLevelResourceCost).toEqual([90, 55, 80, 30]);
     });
 

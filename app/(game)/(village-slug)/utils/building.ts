@@ -114,10 +114,8 @@ export const calculatePopulationFromBuildingFields = (
       continue;
     }
 
-    const fullBuildingData: Building = getBuildingData(buildingId)!;
-    const wheatConsumptionPerLevel =
-      fullBuildingData.effects[0]!.valuesPerLevel;
-    sum += wheatConsumptionPerLevel[level];
+    const population = calculateTotalPopulationForLevel(buildingId, level);
+    sum += population;
   }
 
   return Math.abs(sum);

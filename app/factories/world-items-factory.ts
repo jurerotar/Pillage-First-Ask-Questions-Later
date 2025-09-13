@@ -65,9 +65,10 @@ export const worldItemsFactory = ({
   );
   const epicHeroItemWorldItems: WorldItem[] = epicHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = epicHeroItems[index];
+      const { id, category, name } = epicHeroItems[index];
       return {
         id,
+        name,
         type: category,
         amount: 1,
         tileId: tile.id,
@@ -86,9 +87,10 @@ export const worldItemsFactory = ({
   );
   const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = rareHeroItems[index];
+      const { id, category, name } = rareHeroItems[index];
       return {
         id,
+        name,
         type: category,
         tileId: tile.id,
         amount: 1,
@@ -107,9 +109,10 @@ export const worldItemsFactory = ({
   );
   const uncommonHeroWorldItems: WorldItem[] = uncommonHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = uncommonHeroItems[index];
+      const { id, category, name } = uncommonHeroItems[index];
       return {
         id,
+        name,
         type: category,
         tileId: tile.id,
         amount: 1,
@@ -128,9 +131,10 @@ export const worldItemsFactory = ({
   );
   const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = commonHeroItems[index];
+      const { id, category, name } = commonHeroItems[index];
       return {
         id,
+        name,
         type: category,
         tileId: tile.id,
         amount: 1,
@@ -158,7 +162,7 @@ export const worldItemsFactory = ({
   );
   const consumableHeroWorldItems: WorldItem[] = consumableHeroItemTiles.map(
     (tile) => {
-      const { id, category } = seededRandomArrayElement(
+      const { id, category, name } = seededRandomArrayElement(
         prng,
         miscellaneousHeroItems,
       );
@@ -169,6 +173,7 @@ export const worldItemsFactory = ({
         // TODO: We're adding only a single resource world item, make sure all 4 resources are added to hero's inventory after battle!
         return {
           id,
+          name,
           type: 'resource',
           tileId: tile.id,
           amount: 1,
@@ -178,6 +183,7 @@ export const worldItemsFactory = ({
       if (category === 'currency') {
         return {
           id,
+          name,
           type: 'currency',
           tileId: tile.id,
           amount: 1,
@@ -186,6 +192,7 @@ export const worldItemsFactory = ({
 
       return {
         id,
+        name,
         type: 'consumable',
         tileId: tile.id,
         amount: 1,
