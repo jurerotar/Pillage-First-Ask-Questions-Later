@@ -27,6 +27,7 @@ import {
   GiBoar,
   GiCrocJaws,
   GiElephant,
+  GiGreekTemple,
   GiIBeam,
   GiLeatherBoot,
   GiMetalBar,
@@ -146,7 +147,7 @@ export type UnitIconType =
   | NatarTroopIconType
   | NatureTroopIconType;
 
-type OtherIconType = 'freeCrop' | 'population';
+type OtherIconType = 'freeCrop' | 'population' | 'culturePoints';
 
 export type IconType =
   | UncategorizedIconType
@@ -233,6 +234,7 @@ export const icons: Record<IconType, () => JSX.Element> = {
   ),
   cavalryDefence: () => <TbHorseshoe className="size-full text-gray-500" />,
   population: () => <FaPeopleGroup className="size-full text-gray-400" />,
+  culturePoints: () => <GiGreekTemple className="size-full text-gray-400" />,
   attack: () => <LuSwords className="size-full text-gray-500" />,
   defence: () => <BiShieldQuarter className="size-full text-gray-500" />,
   defenceBonus: () => <BiShieldQuarter className="size-full text-gray-500" />,

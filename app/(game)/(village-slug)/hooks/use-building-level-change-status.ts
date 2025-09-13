@@ -85,7 +85,7 @@ const useBuildingRequirements = (
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
 
-  const { isMaxLevel, nextLevelResourceCost, nextLevelWheatConsumption } =
+  const { isMaxLevel, nextLevelResourceCost, nextLevelPopulation } =
     getBuildingDataForLevel(buildingId, level);
 
   const resources = useMemo(() => {
@@ -114,7 +114,7 @@ const useBuildingRequirements = (
 
     const errors: string[] = [];
 
-    if (!getHasEnoughFreeCrop(nextLevelWheatConsumption, buildingWheatLimit)) {
+    if (!getHasEnoughFreeCrop(nextLevelPopulation, buildingWheatLimit)) {
       errors.push(t('Upgrade wheat fields first'));
     }
 
@@ -154,7 +154,7 @@ const useBuildingRequirements = (
   }, [
     isMaxLevel,
     isDeveloperModeEnabled,
-    nextLevelWheatConsumption,
+    nextLevelPopulation,
     buildingWheatLimit,
     warehouseCapacity,
     granaryCapacity,

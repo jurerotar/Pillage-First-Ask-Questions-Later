@@ -87,6 +87,8 @@ export type BuildingCategory =
 
 export type Building = {
   id: BuildingId;
+  populationCoefficient: number;
+  culturePointsCoefficient: number;
   buildingDurationBase: number;
   buildingDurationModifier: number;
   buildingDurationReduction: number;

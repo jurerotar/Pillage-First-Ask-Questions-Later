@@ -176,7 +176,7 @@ export const newVillageEffectsFactory = (
       value: 800,
       villageId: village.id,
       buildingId: 'WAREHOUSE',
-      buildingFieldId: 'hidden',
+      buildingFieldId: 0,
       type: 'base',
     } satisfies VillageBuildingEffect,
     {
@@ -186,7 +186,7 @@ export const newVillageEffectsFactory = (
       value: 800,
       villageId: village.id,
       buildingId: 'GRANARY',
-      buildingFieldId: 'hidden',
+      buildingFieldId: 0,
       type: 'base',
     } satisfies VillageBuildingEffect,
     {
@@ -197,6 +197,16 @@ export const newVillageEffectsFactory = (
       villageId: village.id,
       type: 'base',
     },
+    {
+      id: 'wheatProduction',
+      scope: 'village',
+      source: 'building',
+      value: 3,
+      villageId: village.id,
+      type: 'base',
+      buildingFieldId: 0,
+      buildingId: 'MAIN_BUILDING',
+    } satisfies VillageBuildingEffect,
   ];
 };
 

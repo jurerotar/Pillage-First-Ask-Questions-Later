@@ -23,6 +23,7 @@ type BaseBuildingEvent = WithVillageId<{
   buildingFieldId: BuildingField['id'];
   buildingId: Building['id'];
   level: number;
+  previousLevel: number;
 }>;
 
 type BuildingLevelChangeEvent = BaseBuildingEvent;

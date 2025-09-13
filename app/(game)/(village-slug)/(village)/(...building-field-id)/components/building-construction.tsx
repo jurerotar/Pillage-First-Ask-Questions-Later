@@ -13,7 +13,6 @@ import type {
   Building,
   BuildingCategory,
 } from 'app/interfaces/models/game/building';
-
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';

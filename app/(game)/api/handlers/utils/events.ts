@@ -6,6 +6,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 import {
   isAdventurePointIncreaseEvent,
   isBuildingConstructionEvent,
+  isBuildingDestructionEvent,
   isBuildingLevelUpEvent,
   isEventWithResourceCost,
   isScheduledBuildingEvent,
@@ -224,6 +225,10 @@ export const getEventDuration = (
     const server = queryClient.getQueryData<Server>([serverCacheKey])!;
 
     return calculateAdventurePointIncreaseEventDuration(server);
+  }
+
+  if (isBuildingDestructionEvent(event)) {
+    return 0;
   }
 
   console.error('Missing duration calculation for event', event);

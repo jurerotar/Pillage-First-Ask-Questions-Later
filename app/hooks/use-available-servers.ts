@@ -82,7 +82,7 @@ export const useAvailableServers = () => {
       const json = JSON.stringify(state);
       const blob = new Blob([json], { type: 'application/json' });
 
-      const filename = `${server.slug}-state.json`;
+      const filename = `${server.slug}.json`;
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

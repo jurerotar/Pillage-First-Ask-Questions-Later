@@ -38,7 +38,10 @@ export const Icon = (props: IconProps) => {
         <ComputedIcon />
         {hasSubIcon && (
           <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-background">
-            <Icon type={subIcon} />
+            <Icon
+              shouldShowTooltip={false}
+              type={subIcon}
+            />
           </span>
         )}
       </span>
