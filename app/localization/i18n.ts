@@ -2,12 +2,12 @@ import type { AvailableLocale } from 'app/interfaces/models/locale';
 import { use } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-export const supportedLngs: AvailableLocale[] = ['en-US'];
+export const supportedLngs: AvailableLocale[] = ['en-us'];
 
 await use(initReactI18next).init({
-  lng: 'en-US',
+  lng: 'en-us',
   debug: false,
-  fallbackLng: 'en-US',
+  fallbackLng: 'en-us',
   load: 'currentOnly',
   defaultNS: 'app',
   supportedLngs,

@@ -8,9 +8,11 @@ import {
 
 export default [
   // Public routes
-  layout('(public)/layout.tsx', [
-    index('(public)/(index)/page.tsx'),
-    route('create-new-server', '(public)/(create-new-server)/page.tsx'),
+  ...prefix(':lang?', [
+    layout('(public)/layout.tsx', [
+      index('(public)/(index)/page.tsx'),
+      route('create-new-server', '(public)/(create-new-server)/page.tsx'),
+    ]),
   ]),
   // Design system routes
   ...prefix('design-system', [

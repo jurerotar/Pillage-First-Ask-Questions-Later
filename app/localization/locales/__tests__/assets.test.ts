@@ -1,8 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import enUSAssets from '../en-US/assets.json' with { type: 'json' };
+import enUSAssets from 'app/localization/locales/en-us/assets.json' with {
+  type: 'json',
+};
 import { icons } from 'app/components/icons/icons';
 
-const locales = [{ locale: 'en-US', data: enUSAssets }];
+const locales = [{ locale: 'en-us', data: enUSAssets }];
 
 describe('Localization completeness check for assets.json', () => {
   locales.forEach(({ locale, data }) => {

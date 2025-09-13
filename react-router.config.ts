@@ -21,7 +21,8 @@ const PAGES_TO_INCLUDE_PRELOADS_ON = [
 export default {
   ssr: false,
   prerender: [
-    '/',
+    '/en-us/',
+    '/en-us/create-new-server',
     '/__spa-preload',
     '/design-system/icons',
     '/error/403',
@@ -37,7 +38,7 @@ export default {
   buildEnd: async () => {
     const clientDir = resolve('build/client');
 
-    const fallbackPath = join(clientDir, '__spa-fallback.html');
+    const fallbackPath = join(clientDir, 'index.html');
     const prefetchHtmlPath = join(clientDir, '__spa-preload', 'index.html');
 
     const [fallbackHtml, prefetchHtml] = await Promise.all([

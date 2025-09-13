@@ -2,15 +2,18 @@ import { Outlet } from 'react-router';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { loadPublicTranslations } from 'app/localization/loaders/public';
 import { Tooltip } from 'app/components/tooltip';
+import { useTranslation } from 'react-i18next';
+import type { Route } from '.react-router/types/app/(public)/+types/layout';
 
-export const clientLoader = async () => {
-  // const locale = await getCookie('locale', 'en-US');
-  const locale = 'en-US';
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  const { lang = 'en-us' } = params;
 
-  await loadPublicTranslations(locale);
+  await loadPublicTranslations(lang);
 };
 
 const PublicLayout = () => {
+  const { t } = useTranslation('public');
+
   return (
     <>
       <header className="">
@@ -42,6 +45,58 @@ const PublicLayout = () => {
       {/* biome-ignore lint/correctness/useUniqueElementIds: We need a stable id here, because it's referenced in other components */}
       <Tooltip id="public-tooltip" />
       <Outlet />
+      <footer className="border-t mt-4">
+        <div className="container mx-auto grid gap-4 md:gap-8 py-6 lg:py-10 md:grid-cols-4 px-2">
+          <div className="space-y-2">
+            <a
+              href="/"
+              className="font-semibold"
+            >
+              Pillage First! Ask Questions Later
+            </a>
+            <p className="text-sm text-muted-foreground">
+              {t(
+                'Pillage First! is an open-source, single-player strategy game inspired by Travian.',
+              )}
+            </p>
+          </div>
+
+          <nav className="text-sm space-y-2 hidden md:flex" />
+
+          <nav className="text-sm space-y-2 hidden md:flex" />
+
+          <nav className="text-sm space-y-2">
+            <div className="font-medium">{t('Social')}</div>
+            <div className="flex gap-2">
+              <a
+                href="https://discord.gg/Ep7NKVXUZA"
+                rel="noopener"
+                className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2 px-4"
+              >
+                <FaDiscord className="text-2xl md:text-3xl text-white" />
+                <span className="flex font-semibold text-white">Discord</span>
+              </a>
+              <a
+                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 px-4"
+              >
+                <FaGithub className="text-2xl md:text-3xl text-white" />
+                <span className="flex font-semibold text-white">GitHub</span>
+              </a>
+            </div>
+          </nav>
+        </div>
+
+        <div className="border-t">
+          <div className="container mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
+            <p className="text-xs text-muted-foreground">
+              {t(
+                'Not affiliated with Travian Games GmbH. “Travian” is a trademark of its owner.',
+              )}
+            </p>
+          </div>
+        </div>
+      </footer>
     </>
   );
 };

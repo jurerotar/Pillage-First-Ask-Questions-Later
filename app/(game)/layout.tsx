@@ -19,7 +19,7 @@ import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-alre
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
   // const locale = await getCookie('locale', 'en-US');
-  const locale = 'en-US';
+  const locale = 'en-us';
 
   await loadAppTranslations(locale);
 
