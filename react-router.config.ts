@@ -28,7 +28,7 @@ export default {
     '/error/404',
   ],
   future: {
-    unstable_middleware: true,
+    v8_middleware: true,
     unstable_optimizeDeps: true,
     unstable_subResourceIntegrity: false,
     unstable_viteEnvironmentApi: true,

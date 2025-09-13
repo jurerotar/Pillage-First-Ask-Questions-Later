@@ -7,7 +7,7 @@ import type { Route } from '.react-router/types/app/(game)/(village-slug)/(villa
 import { useTranslation } from 'react-i18next';
 import { buildingFieldIdIsInRangeMiddleware } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/middlewares/building-field-id-in-range-middleware';
 
-export const unstable_clientMiddleware = [buildingFieldIdIsInRangeMiddleware];
+export const clientMiddleware = [buildingFieldIdIsInRangeMiddleware];
 
 const BuildingPage = ({ params }: Route.ComponentProps) => {
   const {

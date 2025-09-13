@@ -34,7 +34,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
   return false;
 };
 
-export const unstable_clientMiddleware = [serverExistAndLockMiddleware];
+export const clientMiddleware = [serverExistAndLockMiddleware];
 
 export const ErrorBoundary = () => {
   const err = useRouteError();
