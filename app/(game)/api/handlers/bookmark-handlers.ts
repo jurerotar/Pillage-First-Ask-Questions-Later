@@ -1,25 +1,46 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { z } from 'zod';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
-export const getBookmarks: ApiHandler<Bookmarks> = async (queryClient) => {
-  const bookmarks = queryClient.getQueryData<Bookmarks>([bookmarksCacheKey])!;
+const getBookmarksSchema = z
+  .strictObject({
+    building_id: z.string(),
+    tab_name: z.string(),
+  })
+  .transform((t) => {
+    return [t.building_id, t.tab_name];
+  });
 
-  return bookmarks;
+export const getBookmarks: ApiHandler<Bookmarks> = async (
+  _queryClient,
+  database,
+) => {
+  const bookmarks = database.selectObjects(
+    'SELECT building_id, tab_name FROM bookmarks',
+  );
+
+  const listSchema = z.array(getBookmarksSchema);
+
+  return Object.fromEntries(listSchema.parse(bookmarks));
 };
 
 export const updateBookmark: ApiHandler<
   void,
   'buildingId',
   { tab: string }
-> = async (queryClient, { params, body }) => {
+> = async (_queryClient, database, { params, body }) => {
   const { buildingId } = params;
   const { tab } = body;
 
-  queryClient.setQueryData<Bookmarks>([bookmarksCacheKey], (bookmarks) => {
-    return {
-      ...bookmarks!,
-      [buildingId]: tab,
-    };
+  database.exec({
+    sql: `
+    UPDATE bookmarks
+    SET tab_name = $tab_name
+    WHERE building_id = $building_id;
+  `,
+    bind: {
+      $tab_name: tab,
+      $building_id: buildingId,
+    },
   });
 };

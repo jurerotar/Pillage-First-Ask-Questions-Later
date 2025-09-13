@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Button } from 'app/components/ui/button';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 
 type OccupiedOasisRowProps = {
   occupiedOasis: OasisTile | undefined;
@@ -117,10 +117,10 @@ const OccupiableOasisRowActions = ({
 
   const { t } = useTranslation();
   const { occupyOasis } = useOasis();
-  const { playerTroops } = usePlayerTroops();
+  const { villageTroops } = useVillageTroops();
   const { currentVillage } = useCurrentVillage();
 
-  const isHeroAvailable = !!playerTroops.find(
+  const isHeroAvailable = !!villageTroops.find(
     ({ unitId, tileId, source }) =>
       unitId === 'HERO' &&
       tileId === currentVillage.tileId &&

@@ -1,1 +1,1 @@
-export const PLAYER_ID = 0;
+export const PLAYER_ID = 1;

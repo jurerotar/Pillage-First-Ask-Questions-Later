@@ -16,7 +16,7 @@ import {
 } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { villageListing } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
@@ -55,7 +55,7 @@ export const RenameVillage = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [playerVillagesCacheKey],
+        queryKey: [villageListing],
       });
     },
   });

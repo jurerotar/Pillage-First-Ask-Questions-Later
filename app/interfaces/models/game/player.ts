@@ -1,20 +1,16 @@
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import type { FactionModel } from 'app/interfaces/models/game/faction';
 
-// Plan is to add multiple factions, where you'd have different relations with each
-export type PlayerFaction =
-  | 'player'
-  | 'npc1'
-  | 'npc2'
-  | 'npc3'
-  | 'npc4'
-  | 'npc5'
-  | 'npc6'
-  | 'npc7'
-  | 'npc8';
+export type PlayerModel = {
+  id: number;
+  name: string;
+  tribe: PlayableTribe;
+  faction_id: FactionModel['id'];
+};
 
 export type Player = {
   id: number;
   name: string;
   tribe: PlayableTribe;
-  faction: PlayerFaction;
+  faction: FactionModel['name'];
 };
