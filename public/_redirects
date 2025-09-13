@@ -1,5 +1,5 @@
 # === Pre-rendered static pages ===
-/                                 /en-us/index.html                     200
+/                                 /en-us/index.html                     200!
 /create-new-server                /en-us/create-new-server/index.html   200
 /design-system/icons              /design-system/icons/index.html       200
 /error/403                        /error/403/index.html                 200
