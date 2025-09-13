@@ -1,10 +1,3 @@
-/**
- * A couple of important things to keep in mind
- * building.effects:
- * - valuesPerLevel array length must always be building.maxLevel + 1. It needs to account for levels [0, ..., maxLevel]
- * - Each building must have a 'wheatProduction' effect at index 0. This is used for population count. First value must be 0 (lvl 0 building doesn't cost any wheat)
- */
-
 import type {
   Building,
   BuildingEffect,
@@ -31,64 +24,6 @@ const createInfantryAndCavalryDefenceEffects = (
       type,
     },
   ];
-};
-
-// Different building have different crop consumption. There doesn't seem to be a pattern to it (this should probably be changed), so for now,
-// they'll just be grouped together based on type.
-const createNegativeWheatProductionEffect = (
-  type: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = 'A',
-): BuildingEffect => {
-  let valuesPerLevel: number[];
-
-  switch (type) {
-    case 'F': {
-      valuesPerLevel = [
-        0, 0, 0, 0, 0, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -12, -14,
-        -16, -18, -20,
-      ];
-      break;
-    }
-    case 'E': {
-      valuesPerLevel = [
-        0, -5, -8, -11, -14, -17, -20, -23, -26, -29, -32, -36, -40, -44, -48,
-        -52, -56, -60, -64, -68, -72,
-      ];
-      break;
-    }
-    case 'D': {
-      valuesPerLevel = [
-        0, -2, -3, -4, -5, -6, -8, -10, -12, -14, -16, -18, -20, -22, -24, -26,
-        -29, -32, -35, -38, -41,
-      ];
-      break;
-    }
-    case 'C': {
-      valuesPerLevel = [
-        0, -3, -5, -7, -9, -11, -13, -15, -17, -19, -21, -24, -27, -30, -33,
-        -36, -39, -42, -45, -48, -51,
-      ];
-      break;
-    }
-    case 'B': {
-      valuesPerLevel = [
-        0, -4, -6, -8, -10, -12, -15, -18, -21, -24, -27, -30, -33, -36, -39,
-        -42, -46, -50, -54, -58, -62,
-      ];
-      break;
-    }
-    default: // 'A'
-      valuesPerLevel = [
-        0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -12, -14, -16, -18, -20,
-        -22, -24, -26, -28, -30,
-      ];
-      break;
-  }
-
-  return {
-    effectId: 'wheatProduction',
-    valuesPerLevel,
-    type: 'base',
-  };
 };
 
 const createResourceProductionEffect = (
@@ -131,19 +66,6 @@ const createOasisBonusBoosterEffect = (
   };
 };
 
-const createResourceBoosterBuildingEffect = (
-  effectId: ResourceProductionEffectId,
-): BuildingEffect[] => {
-  return [
-    {
-      effectId: 'wheatProduction',
-      valuesPerLevel: [0, -4, -6, -8, -10, -12],
-      type: 'base',
-    },
-    createResourceBoosterEffect(effectId),
-  ];
-};
-
 const createTroopDurationEffect = (
   effectId: TroopTrainingDurationEffectId,
 ): BuildingEffect => {
@@ -160,13 +82,14 @@ const createTroopDurationEffect = (
 
 const createStorageCapacityEffect = (
   effectId: 'warehouseCapacity' | 'granaryCapacity',
+  modifier: 1 | 3,
 ): BuildingEffect => {
   return {
     effectId,
     valuesPerLevel: [
       0, 400, 900, 1500, 2300, 3200, 4300, 5600, 7200, 9000, 11300, 13900,
       17200, 21000, 25600, 31000, 37700, 45500, 55000, 66300, 80000,
-    ],
+    ].map((value) => value * modifier),
     type: 'base',
   };
 };
@@ -214,7 +137,9 @@ export const buildings: Building[] = [
   {
     id: 'BAKERY',
     category: 'resource-booster',
-    effects: [...createResourceBoosterBuildingEffect('wheatProduction')],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 1,
+    effects: [createResourceBoosterEffect('wheatProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -250,7 +175,9 @@ export const buildings: Building[] = [
   {
     id: 'BRICKYARD',
     category: 'resource-booster',
-    effects: [...createResourceBoosterBuildingEffect('clayProduction')],
+    populationCoefficient: 3,
+    culturePointsCoefficient: 1,
+    effects: [createResourceBoosterEffect('clayProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -280,11 +207,10 @@ export const buildings: Building[] = [
   {
     id: 'CLAY_PIT',
     category: 'resource-production',
+    populationCoefficient: 2,
+    culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [
-      createNegativeWheatProductionEffect('D'),
-      createResourceProductionEffect('clayProduction'),
-    ],
+    effects: [createResourceProductionEffect('clayProduction')],
     baseBuildingCost: [80, 40, 80, 50],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -295,11 +221,10 @@ export const buildings: Building[] = [
   {
     id: 'WHEAT_FIELD',
     category: 'resource-production',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [
-      createNegativeWheatProductionEffect('F'),
-      createResourceProductionEffect('wheatProduction'),
-    ],
+    effects: [createResourceProductionEffect('wheatProduction')],
     baseBuildingCost: [70, 90, 70, 20],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -310,7 +235,9 @@ export const buildings: Building[] = [
   {
     id: 'GRAIN_MILL',
     category: 'resource-booster',
-    effects: [...createResourceBoosterBuildingEffect('wheatProduction')],
+    populationCoefficient: 3,
+    culturePointsCoefficient: 1,
+    effects: [createResourceBoosterEffect('wheatProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -334,10 +261,9 @@ export const buildings: Building[] = [
   {
     id: 'GRANARY',
     category: 'infrastructure',
-    effects: [
-      createNegativeWheatProductionEffect('A'),
-      createStorageCapacityEffect('granaryCapacity'),
-    ],
+    populationCoefficient: 1,
+    culturePointsCoefficient: 1,
+    effects: [createStorageCapacityEffect('granaryCapacity', 1)],
     buildingRequirements: [
       {
         id: 1,
@@ -361,7 +287,9 @@ export const buildings: Building[] = [
   {
     id: 'IRON_FOUNDRY',
     category: 'resource-booster',
-    effects: [...createResourceBoosterBuildingEffect('ironProduction')],
+    populationCoefficient: 6,
+    culturePointsCoefficient: 1,
+    effects: [createResourceBoosterEffect('ironProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -391,11 +319,10 @@ export const buildings: Building[] = [
   {
     id: 'IRON_MINE',
     category: 'resource-production',
+    populationCoefficient: 3,
+    culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [
-      createNegativeWheatProductionEffect('C'),
-      createResourceProductionEffect('ironProduction'),
-    ],
+    effects: [createResourceProductionEffect('ironProduction')],
     baseBuildingCost: [100, 80, 30, 60],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -406,7 +333,9 @@ export const buildings: Building[] = [
   {
     id: 'SAWMILL',
     category: 'resource-booster',
-    effects: [...createResourceBoosterBuildingEffect('woodProduction')],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 1,
+    effects: [createResourceBoosterEffect('woodProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -436,10 +365,9 @@ export const buildings: Building[] = [
   {
     id: 'WAREHOUSE',
     category: 'infrastructure',
-    effects: [
-      createNegativeWheatProductionEffect('A'),
-      createStorageCapacityEffect('warehouseCapacity'),
-    ],
+    populationCoefficient: 1,
+    culturePointsCoefficient: 1,
+    effects: [createStorageCapacityEffect('warehouseCapacity', 1)],
     buildingRequirements: [
       {
         id: 1,
@@ -463,8 +391,9 @@ export const buildings: Building[] = [
   {
     id: 'WATERWORKS',
     category: 'infrastructure',
+    populationCoefficient: 1,
+    culturePointsCoefficient: 2,
     effects: [
-      createNegativeWheatProductionEffect('A'),
       createOasisBonusBoosterEffect('woodProduction'),
       createOasisBonusBoosterEffect('clayProduction'),
       createOasisBonusBoosterEffect('ironProduction'),
@@ -498,11 +427,10 @@ export const buildings: Building[] = [
   {
     id: 'WOODCUTTER',
     category: 'resource-production',
+    populationCoefficient: 2,
+    culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [
-      createNegativeWheatProductionEffect('D'),
-      createResourceProductionEffect('woodProduction'),
-    ],
+    effects: [createResourceProductionEffect('woodProduction')],
     baseBuildingCost: [40, 100, 50, 60],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -513,7 +441,9 @@ export const buildings: Building[] = [
   {
     id: 'ACADEMY',
     category: 'military',
-    effects: [createNegativeWheatProductionEffect('B')],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 4,
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -543,10 +473,9 @@ export const buildings: Building[] = [
   {
     id: 'BARRACKS',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('B'),
-      createTroopDurationEffect('barracksTrainingDuration'),
-    ],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 1,
+    effects: [createTroopDurationEffect('barracksTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -576,8 +505,9 @@ export const buildings: Building[] = [
   {
     id: 'CITY_WALL',
     category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('F'),
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -615,8 +545,9 @@ export const buildings: Building[] = [
   {
     id: 'EARTH_WALL',
     category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('F'),
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -654,10 +585,9 @@ export const buildings: Building[] = [
   {
     id: 'GREAT_BARRACKS',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('B'),
-      createTroopDurationEffect('greatBarracksTrainingDuration'),
-    ],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 1,
+    effects: [createTroopDurationEffect('greatBarracksTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -681,10 +611,9 @@ export const buildings: Building[] = [
   {
     id: 'GREAT_STABLE',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('E'),
-      createTroopDurationEffect('greatStableTrainingDuration'),
-    ],
+    populationCoefficient: 5,
+    culturePointsCoefficient: 2,
+    effects: [createTroopDurationEffect('greatStableTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -708,7 +637,9 @@ export const buildings: Building[] = [
   {
     id: 'HEROS_MANSION',
     category: 'military',
-    effects: [createNegativeWheatProductionEffect('D')],
+    populationCoefficient: 2,
+    culturePointsCoefficient: 1,
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -738,10 +669,9 @@ export const buildings: Building[] = [
   {
     id: 'HOSPITAL',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('C'),
-      createTroopDurationEffect('hospitalTrainingDuration'),
-    ],
+    populationCoefficient: 3,
+    culturePointsCoefficient: 4,
+    effects: [createTroopDurationEffect('hospitalTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -771,8 +701,9 @@ export const buildings: Building[] = [
   {
     id: 'MAKESHIFT_WALL',
     category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('F'),
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -810,8 +741,9 @@ export const buildings: Building[] = [
   {
     id: 'PALISADE',
     category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('F'),
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -849,10 +781,9 @@ export const buildings: Building[] = [
   {
     id: 'RALLY_POINT',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('A'),
-      createLinearEffectValues('revealedIncomingTroopsAmount'),
-    ],
+    populationCoefficient: 1,
+    culturePointsCoefficient: 1,
+    effects: [createLinearEffectValues('revealedIncomingTroopsAmount')],
     buildingRequirements: [
       {
         id: 1,
@@ -870,10 +801,9 @@ export const buildings: Building[] = [
   {
     id: 'STABLE',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('E'),
-      createTroopDurationEffect('stableTrainingDuration'),
-    ],
+    populationCoefficient: 5,
+    culturePointsCoefficient: 2,
+    effects: [createTroopDurationEffect('stableTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -903,7 +833,9 @@ export const buildings: Building[] = [
   {
     id: 'SMITHY',
     category: 'military',
-    effects: [createNegativeWheatProductionEffect('B')],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 2,
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -933,8 +865,9 @@ export const buildings: Building[] = [
   {
     id: 'STONE_WALL',
     category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('F'),
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -972,8 +905,9 @@ export const buildings: Building[] = [
   {
     id: 'TRAPPER',
     category: 'military',
+    populationCoefficient: 4,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('B'),
       {
         effectId: 'trapperCapacity',
         valuesPerLevel: [
@@ -1011,10 +945,9 @@ export const buildings: Building[] = [
   {
     id: 'WORKSHOP',
     category: 'military',
-    effects: [
-      createNegativeWheatProductionEffect('C'),
-      createTroopDurationEffect('workshopTrainingDuration'),
-    ],
+    populationCoefficient: 3,
+    culturePointsCoefficient: 3,
+    effects: [createTroopDurationEffect('workshopTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -1044,15 +977,9 @@ export const buildings: Building[] = [
   {
     id: 'BREWERY',
     category: 'infrastructure',
+    populationCoefficient: 6,
+    culturePointsCoefficient: 4,
     effects: [
-      {
-        effectId: 'wheatProduction',
-        valuesPerLevel: [
-          0, -6, -3, -3, -3, -3, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -5, -5,
-          -5, -5, -5,
-        ],
-        type: 'base',
-      },
       {
         effectId: 'attack',
         valuesPerLevel: [
@@ -1096,10 +1023,9 @@ export const buildings: Building[] = [
   {
     id: 'COMMAND_CENTER',
     category: 'infrastructure',
-    effects: [
-      createNegativeWheatProductionEffect('A'),
-      ...createGovernmentBuildingDefenceEffects(),
-    ],
+    populationCoefficient: 1,
+    culturePointsCoefficient: 2,
+    effects: [...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1128,12 +1054,9 @@ export const buildings: Building[] = [
   {
     id: 'CRANNY',
     category: 'infrastructure',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
     effects: [
-      {
-        effectId: 'wheatProduction',
-        valuesPerLevel: [0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1],
-        type: 'base',
-      },
       {
         effectId: 'crannyCapacity',
         valuesPerLevel: [0, 100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
@@ -1157,10 +1080,9 @@ export const buildings: Building[] = [
   {
     id: 'HORSE_DRINKING_TROUGH',
     category: 'infrastructure',
-    effects: [
-      createNegativeWheatProductionEffect('E'),
-      ...createHorseDrinkingTroughEffects(),
-    ],
+    populationCoefficient: 5,
+    culturePointsCoefficient: 3,
+    effects: [...createHorseDrinkingTroughEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1195,8 +1117,9 @@ export const buildings: Building[] = [
   {
     id: 'MAIN_BUILDING',
     category: 'infrastructure',
+    populationCoefficient: 2,
+    culturePointsCoefficient: 2,
     effects: [
-      createNegativeWheatProductionEffect('D'),
       {
         effectId: 'buildingDuration',
         valuesPerLevel: [
@@ -1223,10 +1146,9 @@ export const buildings: Building[] = [
   {
     id: 'MARKETPLACE',
     category: 'infrastructure',
-    effects: [
-      createNegativeWheatProductionEffect('B'),
-      createLinearEffectValues('merchantAmount'),
-    ],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 3,
+    effects: [createLinearEffectValues('merchantAmount')],
     buildingRequirements: [
       {
         id: 1,
@@ -1262,10 +1184,9 @@ export const buildings: Building[] = [
   {
     id: 'RESIDENCE',
     category: 'infrastructure',
-    effects: [
-      createNegativeWheatProductionEffect('A'),
-      ...createGovernmentBuildingDefenceEffects(),
-    ],
+    populationCoefficient: 1,
+    culturePointsCoefficient: 2,
+    effects: [...createGovernmentBuildingDefenceEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1289,7 +1210,9 @@ export const buildings: Building[] = [
   {
     id: 'TREASURY',
     category: 'infrastructure',
-    effects: [createNegativeWheatProductionEffect('B')],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 6,
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -1313,8 +1236,9 @@ export const buildings: Building[] = [
   {
     id: 'TOURNAMENT_SQUARE',
     category: 'military',
+    populationCoefficient: 1,
+    culturePointsCoefficient: 1,
     effects: [
-      createNegativeWheatProductionEffect('A'),
       {
         effectId: 'unitSpeedAfter20Fields',
         valuesPerLevel: [
@@ -1347,8 +1271,9 @@ export const buildings: Building[] = [
   {
     id: 'TRADE_OFFICE',
     category: 'infrastructure',
+    populationCoefficient: 3,
+    culturePointsCoefficient: 3,
     effects: [
-      createNegativeWheatProductionEffect('C'),
       {
         effectId: 'merchantCapacity',
         valuesPerLevel: [
@@ -1387,7 +1312,9 @@ export const buildings: Building[] = [
   {
     id: 'EMBASSY',
     category: 'infrastructure',
-    effects: [createNegativeWheatProductionEffect('C')],
+    populationCoefficient: 3,
+    culturePointsCoefficient: 4,
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -1411,7 +1338,9 @@ export const buildings: Building[] = [
   {
     id: 'TOWN_HALL',
     category: 'infrastructure',
-    effects: [createNegativeWheatProductionEffect('B')],
+    populationCoefficient: 4,
+    culturePointsCoefficient: 5,
+    effects: [],
     buildingRequirements: [
       {
         id: 1,
@@ -1436,6 +1365,70 @@ export const buildings: Building[] = [
     maxLevel: 20,
     buildingDurationBase: 1.16,
     buildingDurationModifier: 14375,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'GREAT_GRANARY',
+    category: 'infrastructure',
+    populationCoefficient: 1,
+    culturePointsCoefficient: 1,
+    effects: [createStorageCapacityEffect('granaryCapacity', 3)],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: Number.POSITIVE_INFINITY,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'GRANARY',
+        level: 20,
+      },
+    ],
+    baseBuildingCost: [400, 500, 350, 100],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 8875,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'GREAT_WAREHOUSE',
+    category: 'infrastructure',
+    populationCoefficient: 1,
+    culturePointsCoefficient: 1,
+    effects: [createStorageCapacityEffect('warehouseCapacity', 3)],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: Number.POSITIVE_INFINITY,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 10,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'WAREHOUSE',
+        level: 20,
+      },
+    ],
+    baseBuildingCost: [650, 800, 450, 200],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 10875,
     buildingDurationReduction: 1875,
   },
 ];

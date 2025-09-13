@@ -19,9 +19,11 @@ export type BuildingId =
   | 'BRICKYARD'
   | 'GRAIN_MILL'
   | 'GRANARY'
+  | 'GREAT_GRANARY'
   | 'IRON_FOUNDRY'
   | 'SAWMILL'
   | 'WAREHOUSE'
+  | 'GREAT_WAREHOUSE'
   | 'WATERWORKS'
   | 'ACADEMY'
   | 'CITY_WALL'
@@ -85,6 +87,8 @@ export type BuildingCategory =
 
 export type Building = {
   id: BuildingId;
+  populationCoefficient: number;
+  culturePointsCoefficient: number;
   buildingDurationBase: number;
   buildingDurationModifier: number;
   buildingDurationReduction: number;

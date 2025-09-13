@@ -1,7 +1,7 @@
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
 import { redirect } from 'react-router';
 
-export const buildingFieldIdIsInRangeMiddleware: Route.unstable_ClientMiddlewareFunction =
+export const buildingFieldIdIsInRangeMiddleware: Route.ClientMiddlewareFunction =
   async ({ params }) => {
     const { buildingFieldId: buildingFieldIdParam } = params;
 

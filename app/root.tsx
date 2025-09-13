@@ -7,17 +7,18 @@ import 'app/styles/app.css';
 
 await initFaro();
 
-const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
-  async ({ context }) => {
-    const { sessionContext } = await import('app/context/session');
+const clientSessionMiddleware: Route.ClientMiddlewareFunction = async ({
+  context,
+}) => {
+  const { sessionContext } = await import('app/context/session');
 
-    const sessionCtx = context.get(sessionContext);
-    if (!sessionCtx.sessionId) {
-      sessionCtx.sessionId = window.crypto.randomUUID();
-    }
-  };
+  const sessionCtx = context.get(sessionContext);
+  if (!sessionCtx.sessionId) {
+    sessionCtx.sessionId = window.crypto.randomUUID();
+  }
+};
 
-export const unstable_clientMiddleware = [clientSessionMiddleware];
+export const clientMiddleware = [clientSessionMiddleware];
 
 export const Layout = () => {
   return (

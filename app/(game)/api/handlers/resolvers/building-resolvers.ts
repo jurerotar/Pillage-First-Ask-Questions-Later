@@ -1,4 +1,7 @@
-import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
+import {
+  getBuildingData,
+  getBuildingDataForLevel,
+} from 'app/(game)/(village-slug)/utils/building';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/api';
 import type { Effect } from 'app/interfaces/models/game/effect';
@@ -12,7 +15,7 @@ import { demolishBuilding } from 'app/(game)/api/utils/village';
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
 > = async (queryClient, database, args) => {
-  const { buildingFieldId, level, buildingId, villageId } = args;
+  const { buildingFieldId, level, buildingId, villageId, previousLevel } = args;
 
   database.exec({
     sql: `
@@ -42,6 +45,28 @@ export const buildingLevelChangeResolver: Resolver<
         );
       },
     );
+
+    const { population: currentPopulation } = getBuildingDataForLevel(
+      buildingId,
+      previousLevel,
+    );
+    const { population: nextPopulation } = getBuildingDataForLevel(
+      buildingId,
+      level,
+    );
+
+    const villagePopulationEffect =
+      buildingEffectsWithoutCurrentBuildingEffects.find((effect) => {
+        return (
+          isBuildingEffect(effect) &&
+          effect.villageId === villageId &&
+          effect.buildingFieldId === 0 &&
+          effect.id === 'wheatProduction'
+        );
+      })!;
+
+    villagePopulationEffect.value += currentPopulation;
+    villagePopulationEffect.value -= nextPopulation;
 
     return [
       ...buildingEffectsWithoutCurrentBuildingEffects,
@@ -79,6 +104,7 @@ export const buildingConstructionResolver: Resolver<
   });
 
   const { effects } = getBuildingData(buildingId);
+  const { population } = getBuildingDataForLevel(buildingId, 0);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
     const newEffects = effects.map(({ effectId, valuesPerLevel, type }) => {
@@ -91,6 +117,17 @@ export const buildingConstructionResolver: Resolver<
         type,
       });
     });
+
+    const villagePopulationEffect = prevData!.find((effect) => {
+      return (
+        isBuildingEffect(effect) &&
+        effect.villageId === villageId &&
+        effect.buildingFieldId === 0
+      );
+    })!;
+
+    villagePopulationEffect.value += population;
+
     return [...prevData!, ...newEffects];
   });
 
@@ -103,19 +140,33 @@ export const buildingConstructionResolver: Resolver<
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
 > = async (queryClient, database, args) => {
-  const { buildingFieldId, villageId } = args;
+  const { buildingFieldId, villageId, buildingId, previousLevel } = args;
 
   demolishBuilding(database, villageId, buildingFieldId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
     // Loop through all effects added by the building, find corresponding village effects and delete them
-    return prevData!.filter((effect) => {
+    const newFilters = prevData!.filter((effect) => {
       return !(
         isBuildingEffect(effect) &&
         effect.villageId === villageId &&
         effect.buildingFieldId === buildingFieldId
       );
     });
+
+    const villagePopulationEffect = prevData!.find((effect) => {
+      return (
+        isBuildingEffect(effect) &&
+        effect.villageId === villageId &&
+        effect.buildingFieldId === 0
+      );
+    })!;
+
+    const { population } = getBuildingDataForLevel(buildingId, previousLevel);
+
+    villagePopulationEffect.value -= population;
+
+    return newFilters;
   });
 };
 

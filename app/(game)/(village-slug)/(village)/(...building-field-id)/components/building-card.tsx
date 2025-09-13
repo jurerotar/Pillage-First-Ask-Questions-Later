@@ -185,15 +185,8 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
 
   const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
 
-  const type =
-    effect.effectId === 'wheatProduction' && effect.currentLevelValue <= 0
-      ? 'population'
-      : effect.effectId;
-
   const effectModifier =
-    type !== 'population' && effect.type === 'base' && hasEffect
-      ? serverEffectValue
-      : 1;
+    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
 
   return (
     <span
@@ -201,13 +194,13 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
       className="flex gap-2"
     >
       <Icon
-        type={type}
+        type={effect.effectId}
         className="size-6"
-        subIcon={
-          effect.areEffectValuesRising || type === 'population'
+        {...(!isMaxLevel && {
+          subIcon: effect.areEffectValuesRising
             ? 'positiveChange'
-            : 'negativeChange'
-        }
+            : 'negativeChange',
+        })}
       />
       <span>
         {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
@@ -239,25 +232,29 @@ export const BuildingBenefits = () => {
   const { actualLevel, virtualLevel, doesBuildingExist } =
     useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
+  const {
+    isMaxLevel,
+    population,
+    nextLevelPopulation,
+    culturePoints,
+    nextLevelCulturePoints,
+  } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const cumulativeEffects = calculateBuildingEffectValues(
     building,
     actualLevel,
   );
 
-  const [population, ...rest] = cumulativeEffects;
-
   // In case we have both infantry and cavalry defence, we show combined defence icon instead
   const shouldCombineEffects =
-    rest.length > 0 &&
-    rest.every(
+    cumulativeEffects.length > 0 &&
+    cumulativeEffects.every(
       ({ effectId }) =>
         effectId === 'infantryDefence' || effectId === 'cavalryDefence',
     );
   const effectsToShow = (() => {
     if (shouldCombineEffects) {
-      const [infantryDefenceEffect, , infantryBonusEffect] = rest;
+      const [infantryDefenceEffect, , infantryBonusEffect] = cumulativeEffects;
 
       const effects: CalculatedCumulativeEffect[] = [
         {
@@ -276,7 +273,7 @@ export const BuildingBenefits = () => {
       return effects;
     }
 
-    return rest;
+    return cumulativeEffects;
   })();
 
   return (
@@ -289,14 +286,52 @@ export const BuildingBenefits = () => {
             })}
       </Text>
       <div className="flex flex-wrap gap-2">
-        {(isMaxLevel ||
-          population.currentLevelValue !== population.nextLevelValue) && (
-          <BuildingBenefit
-            effect={population}
-            isMaxLevel={isMaxLevel}
-            buildingFieldId={buildingFieldId!}
+        <span className="flex gap-2">
+          <Icon
+            type="population"
+            className="size-6"
+            {...(!isMaxLevel && {
+              subIcon: 'positiveChange',
+            })}
           />
-        )}
+          <span>
+            {!isMaxLevel && (
+              <>
+                {population}
+                {population !== nextLevelPopulation && (
+                  <>
+                    <span className="mx-0.5">&rarr;</span>
+                    {nextLevelPopulation}
+                  </>
+                )}
+              </>
+            )}
+            {isMaxLevel && population}
+          </span>
+        </span>
+        <span className="flex gap-2">
+          <Icon
+            type="culturePoints"
+            className="size-6"
+            {...(!isMaxLevel && {
+              subIcon: 'positiveChange',
+            })}
+          />
+          <span>
+            {!isMaxLevel && (
+              <>
+                {culturePoints}
+                {culturePoints !== nextLevelCulturePoints && (
+                  <>
+                    <span className="mx-0.5">&rarr;</span>
+                    {nextLevelCulturePoints}
+                  </>
+                )}
+              </>
+            )}
+            {isMaxLevel && culturePoints}
+          </span>
+        </span>
         {effectsToShow.map((effect) => (
           <BuildingBenefit
             key={effect.effectId}

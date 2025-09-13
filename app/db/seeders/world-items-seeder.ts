@@ -85,9 +85,10 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
 
   const epicHeroItemWorldItems: WorldItem[] = epicHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = epicHeroItems[index];
+      const { id, category, name } = epicHeroItems[index];
       return {
         id,
+        name,
         type: category,
         amount: 1,
         tileId: tile.tile_id,
@@ -106,9 +107,10 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = rareHeroItems[index];
+      const { id, category, name } = rareHeroItems[index];
       return {
         id,
+        name,
         type: category,
         tileId: tile.tile_id,
         amount: 1,
@@ -127,9 +129,10 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const uncommonHeroWorldItems: WorldItem[] = uncommonHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = uncommonHeroItems[index];
+      const { id, category, name } = uncommonHeroItems[index];
       return {
         id,
+        name,
         type: category,
         tileId: tile.tile_id,
         amount: 1,
@@ -148,9 +151,10 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map(
     (tile, index) => {
-      const { id, category } = commonHeroItems[index];
+      const { id, category, name } = commonHeroItems[index];
       return {
         id,
+        name,
         type: category,
         tileId: tile.tile_id,
         amount: 1,
@@ -179,7 +183,7 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const consumableHeroWorldItems: WorldItem[] = consumableHeroItemTiles.map(
     (tile) => {
-      const { id, category } = seededRandomArrayElement(
+      const { id, category, name } = seededRandomArrayElement(
         prng,
         miscellaneousHeroItems,
       );
@@ -190,6 +194,7 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
         // TODO: We're adding only a single resource world item, make sure all 4 resources are added to hero's inventory after battle!
         return {
           id,
+          name,
           type: 'resource',
           tileId: tile.tile_id,
           amount: 1,
@@ -199,6 +204,7 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
       if (category === 'currency') {
         return {
           id,
+          name,
           type: 'currency',
           tileId: tile.tile_id,
           amount: 1,
@@ -207,6 +213,7 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
 
       return {
         id,
+        name,
         type: 'consumable',
         tileId: tile.tile_id,
         amount: 1,

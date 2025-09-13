@@ -17,6 +17,12 @@ export const isBuildingConstructionEvent = (
   return event.type === 'buildingConstruction';
 };
 
+export const isBuildingDestructionEvent = (
+  event: GameEvent,
+): event is GameEvent<'buildingDestruction'> => {
+  return event.type === 'buildingDestruction';
+};
+
 export const isBuildingLevelUpEvent = (
   event: GameEvent,
 ): event is GameEvent<'buildingLevelChange'> => {

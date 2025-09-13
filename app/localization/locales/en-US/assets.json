@@ -490,15 +490,15 @@
   "BUILDINGS": {
     "BAKERY": {
       "NAME": "Bakery",
-      "DESCRIPTION": "The bakery uses flour to make bread. In conjunction to the grain mill, the increase in crop production can go up to 50 percent in total."
+      "DESCRIPTION": "The Bakery uses flour to make bread. In conjunction to the Grain Mill, the increase in wheat production can go up to 50 percent in total."
     },
     "BRICKYARD": {
       "NAME": "Brickyard",
-      "DESCRIPTION": "The brickyard converts clay into bricks. Based on its level, your brickyard can increase your clay production by up to 25 percent."
+      "DESCRIPTION": "The Brickyard converts clay into bricks. Based on its level, your Brickyard can increase your clay production by up to 25 percent."
     },
     "CLAY_PIT": {
       "NAME": "Clay pit",
-      "DESCRIPTION": "Clay is produced here. By increasing its level you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
+      "DESCRIPTION": "Clay is produced here. By increasing its level, you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
     },
     "EMBASSY": {
       "NAME": "Embassy",
@@ -518,7 +518,11 @@
     },
     "GRANARY": {
       "NAME": "Granary",
-      "DESCRIPTION": "Crop produced by your croplands is stored in the granary. By increasing its level, you increase the granary's capacity. After upgrading one granary to level 20, additional granaries can be built."
+      "DESCRIPTION": "Wheat produced by your Wheat Fields is stored in the Granary. By increasing its level, you increase the Granary's capacity. After upgrading one Granary to level 20, additional Granaries, or Great Granaries can be built."
+    },
+    "GREAT_GRANARY": {
+      "NAME": "Great Granary",
+      "DESCRIPTION": "Wheat produced by your Wheat Fields is stored in the Granary. By increasing its level, you increase the Granary's capacity. Great Granary holds 3 times as much wheat as normal Granary."
     },
     "IRON_FOUNDRY": {
       "NAME": "Iron foundry",
@@ -530,11 +534,15 @@
     },
     "SAWMILL": {
       "NAME": "Sawmill",
-      "DESCRIPTION": "Lumber cut by your woodcutters is processed here. Based on its level, your sawmill can increase your lumber production by up to 25 percent."
+      "DESCRIPTION": "Lumber cut by your woodcutters is processed here. Based on its level, your Sawmill can increase your lumber production by up to 25 percent."
     },
     "WAREHOUSE": {
       "NAME": "Warehouse",
-      "DESCRIPTION": "Wood, clay and iron are stored in your warehouse. By increasing its level you increase your warehouse's capacity. After upgrading one warehouse to level 20, additional warehouses can be built."
+      "DESCRIPTION": "Wood, clay and iron are stored in your Warehouse. By increasing its level, you increase your Warehouse's capacity. After upgrading one Warehouse to level 20, additional Warehouses, or Great Warehouses can be built."
+    },
+    "GREAT_WAREHOUSE": {
+      "NAME": "Great Warehouse",
+      "DESCRIPTION": "Wood, clay and iron are stored in your Warehouse. By increasing its level, you increase your Warehouse's capacity. Great Warehouse holds 3 times as many resources as normal Warehouse."
     },
     "WATERWORKS": {
       "NAME": "Waterworks",
@@ -585,8 +593,8 @@
       "DESCRIPTION": "By building a palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic earth wall and the Roman city wall."
     },
     "RALLY_POINT": {
-      "NAME": "Rally point",
-      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages. The rally point can only be built on the green grassland below and to the right of your main building. If there are less attacking units than the level of the rally point, you can see the type of unit attacking."
+      "NAME": "Rally Point",
+      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages. The Rally Point can only be built on the green grassland below and to the right of your main building. If there are less attacking units than the level of the rally point, you can see the type of unit attacking."
     },
     "STABLE": {
       "NAME": "Stable",
@@ -598,7 +606,7 @@
     },
     "TRAPPER": {
       "NAME": "Trapper",
-      "DESCRIPTION": "The trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more. Troops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically. The trapper can only be constructed by Gauls."
+      "DESCRIPTION": "The Trapper protects your village with well hidden traps. This means that unwary enemies can be imprisoned and won't be able to harm your village any more. Troops cannot be freed with a raid. If the owner of the traps release the captives all of the traps will be repaired automatically. The Trapper can only be constructed by Gauls."
     },
     "WORKSHOP": {
       "NAME": "Workshop",
@@ -606,7 +614,7 @@
     },
     "BREWERY": {
       "NAME": "Brewery",
-      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations. These drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits. It can only be built by Teutons and only in their capital. It affects the whole empire."
+      "DESCRIPTION": "Tasty mead is brewed in the brewery and later quaffed by the soldiers during the celebrations. These drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits. It can only be built by Teutons. It affects the whole empire."
     },
     "COMMAND_CENTER": {
       "NAME": "Command center",
@@ -614,27 +622,27 @@
     },
     "CRANNY": {
       "NAME": "Cranny",
-      "DESCRIPTION": "The cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen. At level 1 the cranny can hold 200 of each resource. The capacity of Gallic crannies is 1.5 times larger. If a Teutonic hero attacks a village, crannies can hide only 80% of their normal capacity."
+      "DESCRIPTION": "The Cranny hides some of your resources in case the village gets attacked. These resources cannot get stolen. The capacity of Gallic crannies is 1.5 times larger. If a Teutonic hero attacks a village, Crannies can hide only 80% of their normal capacity."
     },
     "HORSE_DRINKING_TROUGH": {
-      "NAME": "Horse drinking trough",
-      "DESCRIPTION": "The horse drinking trough cares for the well-being of your horses and therefore increases the speed of their training. The horse drinking trough reduces the crop usage for the following soldiers: Equites Legati from level 10, Equites Imperatoris from level 15 and Equites Caesaris from level 20. The horse drinking trough can only be built by Romans."
+      "NAME": "Horse Drinking Trough",
+      "DESCRIPTION": "The Horse Drinking Trough cares for the well-being of your horses and therefore increases the speed of their training. The Horse Drinking Trough can only be built by Romans."
     },
     "MAIN_BUILDING": {
       "NAME": "Main building",
-      "DESCRIPTION": "The village's master builders live in the main building. The higher its level the faster your master builders complete the construction of new buildings."
+      "DESCRIPTION": "The village's master builders live in the main building. The higher its level, the faster your master builders complete the construction of new buildings."
     },
     "MARKETPLACE": {
       "NAME": "Marketplace",
-      "DESCRIPTION": "At the marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time."
+      "DESCRIPTION": "At the Marketplace, you can trade resources with other players. The higher its level, the more resources can be transported by your merchants at the same time."
     },
     "RESIDENCE": {
       "NAME": "Residence",
-      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one residence per village. Units that can found a new village or conquer existing villages can be trained here. Additionally, the residence provides an expansion slot at levels 10 and 20 each."
+      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one Residence per village. Units that can found a new village or conquer existing villages can be trained here. Additionally, the Residence provides an expansion slot at levels 10 and 20 each."
     },
     "TREASURY": {
       "NAME": "Treasury",
-      "DESCRIPTION": "The riches of your empire are kept in the treasury. A treasury can only store one artefact at a time. You need a treasury at level 10 for a small artefact, or level 20 for a great one."
+      "DESCRIPTION": "The riches of your empire are kept in the Treasury. A Treasury can only store one artefact at a time. You need a Treasury at level 10 for a small artefact, or level 20 for a great one."
     },
     "TOURNAMENT_SQUARE": {
       "NAME": "Tournament square",
@@ -642,11 +650,11 @@
     },
     "TRADE_OFFICE": {
       "NAME": "Trade office",
-      "DESCRIPTION": "In the trade office, the merchants' carts get improved and equipped with more powerful horses. The higher its level, the more your merchants are able to carry."
+      "DESCRIPTION": "In the Trade Office, the merchants' carts get improved and equipped with more powerful horses. The higher its level, the more your merchants are able to carry."
     },
     "SMITHY": {
       "NAME": "Smithy",
-      "DESCRIPTION": "The weapons and armor of your warriors are enhanced in the smithy's melting furnaces. By increasing its level, you can order the fabrication of even better weapons and armor."
+      "DESCRIPTION": "The weapons and armor of your warriors are enhanced in the Smithy's melting furnaces. By increasing its level, you can order the fabrication of even better weapons and armor."
     }
   },
   "ITEMS": {
@@ -850,6 +858,7 @@
     "defenderSomeLoss": "Defender (some loss)",
     "defenderFullLoss": "Defender (full loss)",
     "freeCrop": "Free crop",
+    "culturePoints": "Culture points",
     "populationCropConsumption": "Population crop consumption",
     "troopsCropConsumption": "Troops crop consumption",
     "warehouseCapacity": "Warehouse capacity",

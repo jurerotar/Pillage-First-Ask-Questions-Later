@@ -40,6 +40,7 @@ export const useBuildingActions = (
       buildingFieldId: buildingFieldId!,
       buildingId,
       level: 1,
+      previousLevel: 0,
       cachesToClearOnResolve: [
         playerVillagesCacheKey,
         effectsCacheKey,
@@ -55,6 +56,7 @@ export const useBuildingActions = (
       buildingFieldId: buildingFieldId!,
       buildingId,
       level: virtualLevel + 1,
+      previousLevel: virtualLevel,
       cachesToClearOnResolve: [
         playerVillagesCacheKey,
         effectsCacheKey,
@@ -76,6 +78,7 @@ export const useBuildingActions = (
     createBuildingLevelChangeEvent({
       buildingFieldId: buildingFieldId!,
       level: virtualLevel - 1,
+      previousLevel: virtualLevel,
       buildingId,
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
       cachesToClearImmediately: [],
@@ -86,6 +89,7 @@ export const useBuildingActions = (
     createBuildingDestructionEvent({
       buildingFieldId: buildingFieldId!,
       buildingId,
+      previousLevel: virtualLevel,
       cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
       cachesToClearImmediately: [],
     });

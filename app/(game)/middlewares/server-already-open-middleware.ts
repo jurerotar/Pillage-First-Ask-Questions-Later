@@ -2,7 +2,7 @@ import { redirect } from 'react-router';
 import type { Route } from '.react-router/types/app/(game)/+types/layout';
 
 // Check whether server even exists && whether server is already opened in another tab
-export const serverExistAndLockMiddleware: Route.unstable_ClientMiddlewareFunction =
+export const serverExistAndLockMiddleware: Route.ClientMiddlewareFunction =
   async ({ context, params }) => {
     const { sessionContext } = await import('app/context/session');
 

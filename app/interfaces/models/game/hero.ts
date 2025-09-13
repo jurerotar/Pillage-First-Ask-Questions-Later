@@ -98,7 +98,8 @@ type HeroItemId =
   | ArtifactId;
 
 export type HeroItem = {
-  id: HeroItemId;
+  id: number;
+  name: HeroItemId;
   slot: HeroItemSlot;
   rarity: HeroItemRarity;
   category: HeroItemCategory;

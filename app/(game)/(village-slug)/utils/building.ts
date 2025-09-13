@@ -21,11 +21,21 @@ export const getBuildingDataForLevel = (
   level: number,
 ) => {
   const building = getBuildingData(buildingId);
-  const wheatConsumptionPerLevel = building.effects[0]!.valuesPerLevel;
-  const isMaxLevel = building.maxLevel === level;
-  const nextLevelWheatConsumption = Math.abs(
-    wheatConsumptionPerLevel[level + 1],
+
+  const population = calculateTotalPopulationForLevel(buildingId, level);
+  const culturePoints = calculateTotalCulturePointsForLevel(buildingId, level);
+
+  const nextLevelPopulation = calculateTotalPopulationForLevel(
+    buildingId,
+    level + 1,
   );
+  const nextLevelCulturePoints = calculateTotalCulturePointsForLevel(
+    buildingId,
+    level + 1,
+  );
+
+  const isMaxLevel = building.maxLevel === level;
+
   const nextLevelResourceCost = calculateBuildingCostForLevel(
     buildingId,
     level + 1,
@@ -38,7 +48,10 @@ export const getBuildingDataForLevel = (
   return {
     building,
     isMaxLevel,
-    nextLevelWheatConsumption,
+    population,
+    culturePoints,
+    nextLevelPopulation,
+    nextLevelCulturePoints,
     nextLevelResourceCost,
     nextLevelBuildingDuration,
   };
@@ -65,10 +78,8 @@ export const calculatePopulationFromBuildingFields = (
       continue;
     }
 
-    const fullBuildingData: Building = getBuildingData(buildingId)!;
-    const wheatConsumptionPerLevel =
-      fullBuildingData.effects[0]!.valuesPerLevel;
-    sum += wheatConsumptionPerLevel[level];
+    const population = calculateTotalPopulationForLevel(buildingId, level);
+    sum += population;
   }
 
   return Math.abs(sum);
@@ -132,6 +143,61 @@ export const calculateBuildingCancellationRefundForLevel = (
 
   return buildingCost.map((cost) => Math.trunc(cost * 0.8));
 };
+
+export const calculateTotalCulturePointsForLevel = (
+  buildingId: Building['id'],
+  level: number,
+): number => {
+  const { culturePointsCoefficient } = getBuildingData(buildingId);
+
+  if (level === 0) {
+    return 0;
+  }
+
+  return Math.round(culturePointsCoefficient * 1.2 ** level);
+};
+
+export const calculateTotalPopulationForLevel = (
+  buildingId: Building['id'],
+  level: number,
+): number => {
+  const { populationCoefficient } = getBuildingData(buildingId);
+
+  if (level <= 0) {
+    return 0;
+  }
+
+  if (level === 1) {
+    return populationCoefficient;
+  }
+
+  const C = 5 * populationCoefficient + 4;
+  const q = Math.floor(C / 10);
+  const r = C % 10; // 0..9
+
+  const F = (n: number) => {
+    const K = Math.floor(n / 10);
+    const rem = n - 10 * K;
+    return 5 * K * (K - 1) + K * (rem + 1);
+  };
+
+  const S = F(r + level) - F(r + 1);
+
+  return populationCoefficient + (level - 1) * q + S;
+};
+
+// export const calculatePopulationDifferenceForLevel = (
+//   buildingId: Building['id'],
+//   level: number
+// ): number => {
+//   const { populationCoefficient } = getBuildingData(buildingId);
+//
+//   if (level === 1) {
+//     return populationCoefficient;
+//   }
+//
+//   return Math.round((5 * populationCoefficient + level - 1) / 10);
+// };
 
 export const calculateBuildingDurationForLevel = (
   buildingId: Building['id'],

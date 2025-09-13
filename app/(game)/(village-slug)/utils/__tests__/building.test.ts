@@ -73,10 +73,10 @@ describe('Building utils', () => {
 
   describe('getBuildingDataForLevel', () => {
     test('Main building level 1', () => {
-      const { isMaxLevel, nextLevelWheatConsumption, nextLevelResourceCost } =
+      const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
       expect(isMaxLevel).toBe(false);
-      expect(nextLevelWheatConsumption).toBe(3);
+      expect(nextLevelPopulation).toBe(3);
       expect(nextLevelResourceCost).toEqual([90, 55, 80, 30]);
     });
 

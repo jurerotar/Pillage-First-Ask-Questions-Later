@@ -22,6 +22,7 @@ export const createBuildingConstructionEventMock = ({
     buildingId,
     buildingFieldId,
     level,
+    previousLevel: level - 1,
     startsAt: Date.now(),
     duration: calculateBuildingDurationForLevel(buildingId, level),
     cachesToClearOnResolve: [],
