@@ -66,11 +66,14 @@ self.addEventListener(
       'c',
     );
 
-    database.exec('PRAGMA foreign_keys=OFF;');
-    database.exec('PRAGMA journal_mode=OFF;');
-    database.exec('PRAGMA synchronous=OFF;');
-    database.exec('PRAGMA temp_store=MEMORY;');
-    database.exec('PRAGMA cache_size=-20000;');
+    database.exec(`
+      PRAGMA locking_mode=EXCLUSIVE;
+      PRAGMA foreign_keys=OFF;
+      PRAGMA journal_mode=OFF;
+      PRAGMA synchronous=OFF;
+      PRAGMA temp_store=MEMORY;
+      PRAGMA cache_size=-20000;
+    `);
 
     database.transaction((db) => {
       // Preferences

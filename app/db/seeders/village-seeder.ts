@@ -53,9 +53,9 @@ export const villageSeeder: Seeder = (database, server): void => {
 
   database.exec({
     sql: `
-    INSERT INTO villages (name, slug, tile_id, player_id)
-    VALUES ($name, $slug, $tile_id, $player_id);
-  `,
+      INSERT INTO villages (name, slug, tile_id, player_id)
+      VALUES ($name, $slug, $tile_id, $player_id);
+    `,
     bind: {
       $name: 'New village',
       $slug: 'v-1',
@@ -67,23 +67,23 @@ export const villageSeeder: Seeder = (database, server): void => {
   // NPC villages
   const players = database.selectValues(
     `
-    SELECT id
-    FROM players
-    WHERE id != $player_id
-  `,
+      SELECT id
+      FROM players
+      WHERE id != $player_id
+    `,
     { $player_id: PLAYER_ID },
   ) as Player['id'][];
 
   // Field [0, 0] is already occupied by the player
   const occupiableFields = database.selectObjects(
     `
-    SELECT id, x, y
-    FROM tiles
-    WHERE type = $type
-      AND resource_field_composition = $composition
-      AND x != 0
-      AND y != 0;
-  `,
+      SELECT id, x, y
+      FROM tiles
+      WHERE type = $type
+        AND resource_field_composition = $composition
+        AND x != 0
+        AND y != 0;
+    `,
     { $type: 'free', $composition: '4446' },
   ) as OccupiableField[];
 
@@ -169,21 +169,19 @@ export const villageSeeder: Seeder = (database, server): void => {
     }
   }
 
+  const rows = playerToOccupiedFields.map(([playerId, { id: tileId }]) => {
+    const adjective = seededRandomArrayElement(prng, npcVillageNameAdjectives);
+    const noun = seededRandomArrayElement(prng, npcVillageNameNouns);
+
+    const name = `${adjective}${noun}`;
+
+    return [name, null, tileId, playerId];
+  });
+
   batchInsert(
     database,
     'villages',
     ['name', 'slug', 'tile_id', 'player_id'],
-    playerToOccupiedFields,
-    ([playerId, { id: tileId }]) => {
-      const adjective = seededRandomArrayElement(
-        prng,
-        npcVillageNameAdjectives,
-      );
-      const noun = seededRandomArrayElement(prng, npcVillageNameNouns);
-
-      const name = `${adjective}${noun}`;
-
-      return [name, null, tileId, playerId];
-    },
+    rows,
   );
 };

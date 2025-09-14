@@ -2,16 +2,13 @@ import type { Database } from 'app/interfaces/db';
 
 type SqlValue = string | number | bigint | Uint8Array | null;
 
-type BindingList = ReadonlyArray<SqlValue>;
-
 type PreparedStmt = ReturnType<Database['prepare']>;
 
-export const batchInsert = <T>(
+export const batchInsert = (
   database: Database,
   table: string,
   columns: readonly string[],
-  rows: readonly T[],
-  toParams: (row: T) => BindingList,
+  rows: ReadonlyArray<SqlValue>[],
 ): number => {
   if (!rows.length) {
     return 0;
@@ -53,13 +50,12 @@ export const batchInsert = <T>(
     // Flatten parameters for the whole chunk
     const params: SqlValue[] = [];
     for (const r of chunk) {
-      const p = toParams(r);
-      if (p.length !== colsPerRow) {
+      if (r.length !== colsPerRow) {
         throw new Error(
-          `toParams returned ${p.length} values, expected ${colsPerRow}`,
+          `toParams returned ${r.length} values, expected ${colsPerRow}`,
         );
       }
-      params.push(...p);
+      params.push(...r);
     }
 
     const stmt = getStmt(chunk.length);

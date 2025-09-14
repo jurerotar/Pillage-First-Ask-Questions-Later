@@ -23,7 +23,7 @@ export const oasisSeeder: Seeder = (database, server): void => {
     'UPDATE tiles SET type = $type WHERE id = $id',
   );
 
-  const oasisBonuses: [number, Resource, number][] = [];
+  const oasisBonuses: [number, Resource, number, null][] = [];
 
   for (const { id, oasis_graphics } of oasisTiles) {
     const shouldOasisHaveBonus = seededRandomIntFromInterval(prng, 1, 2) === 1;
@@ -43,7 +43,12 @@ export const oasisSeeder: Seeder = (database, server): void => {
     if (!canBeCompositeBonus) {
       const shouldHaveDoubleBonus =
         seededRandomIntFromInterval(prng, 1, 2) === 1;
-      oasisBonuses.push([id, oasisResource, shouldHaveDoubleBonus ? 50 : 25]);
+      oasisBonuses.push([
+        id,
+        oasisResource,
+        shouldHaveDoubleBonus ? 50 : 25,
+        null,
+      ]);
       continue;
     }
 
@@ -52,8 +57,8 @@ export const oasisSeeder: Seeder = (database, server): void => {
 
     // Push both clay-25 and wheat-25 for example
     if (shouldHaveCompositeBonus) {
-      oasisBonuses.push([id, oasisResource, 25]);
-      oasisBonuses.push([id, 'wheat', 25]);
+      oasisBonuses.push([id, oasisResource, 25, null]);
+      oasisBonuses.push([id, 'wheat', 25, null]);
     }
   }
 
@@ -64,7 +69,5 @@ export const oasisSeeder: Seeder = (database, server): void => {
     'oasis',
     ['tile_id', 'resource', 'bonus', 'village_id'],
     oasisBonuses,
-    // Village id can remain null because it's assigned in occupied-oasis-seeder
-    (oasisBonus) => [...oasisBonus, null],
   );
 };

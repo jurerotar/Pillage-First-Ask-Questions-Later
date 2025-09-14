@@ -20,6 +20,5 @@ export const factionReputationSeeder: Seeder = (database): void => {
     'faction_reputation',
     ['source_faction', 'target_faction', 'reputation'],
     relations,
-    (row) => row,
   );
 };

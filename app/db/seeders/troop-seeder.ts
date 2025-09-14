@@ -349,6 +349,5 @@ export const troopSeeder: Seeder = (database, server): void => {
     'troops',
     ['unit_id', 'amount', 'tile_id', 'source'],
     results,
-    (row) => row,
   );
 };

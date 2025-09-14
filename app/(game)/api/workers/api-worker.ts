@@ -49,7 +49,16 @@ try {
 
   await scheduleNextEvent(queryClient, database);
 
-  self.addEventListener('message', async ({ data, ports }: MessageEvent) => {
+  self.addEventListener('message', async (event: MessageEvent) => {
+    const { data, ports } = event;
+    const { type } = data;
+
+    if (type !== 'WORKER_MESSAGE') {
+      return;
+    }
+
+    event.stopImmediatePropagation();
+
     const [port] = ports;
     const { url, method, body } = data;
 
@@ -77,6 +86,20 @@ try {
       } satisfies EventApiNotificationEvent);
       return;
     }
+  });
+
+  self.addEventListener('message', async (event: MessageEvent) => {
+    const { data } = event;
+    const { type } = data;
+
+    if (type !== 'WORKER_CLOSE') {
+      return;
+    }
+
+    event.stopImmediatePropagation();
+
+    database.close();
+    self.close();
   });
 
   self.postMessage({

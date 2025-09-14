@@ -81,6 +81,5 @@ export const buildingFieldsSeeder: Seeder = (database, server): void => {
     'building_fields',
     ['village_id', 'field_id', 'building_id', 'level'],
     results,
-    (row) => row,
   );
 };

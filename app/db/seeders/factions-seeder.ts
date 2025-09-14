@@ -14,5 +14,5 @@ export const factionsSeeder: Seeder = (database): void => {
     ['npc8', 'NPC8'],
   ];
 
-  batchInsert(database, 'factions', ['id', 'name'], factions, (row) => row);
+  batchInsert(database, 'factions', ['id', 'name'], factions);
 };

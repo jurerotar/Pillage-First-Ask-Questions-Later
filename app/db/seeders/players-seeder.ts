@@ -19,16 +19,17 @@ export const playersSeeder: Seeder = (database, server): void => {
 
   const players = [player, ...npcPlayers];
 
+  const rows = players.map(({ name, tribe, faction }) => [
+    name,
+    slugifyPlayerName(name),
+    tribe,
+    faction,
+  ]);
+
   batchInsert(
     database,
     'players',
     ['name', 'slug', 'tribe', 'faction_id'],
-    players,
-    (player) => [
-      player.name,
-      slugifyPlayerName(player.name),
-      player.tribe,
-      player.faction,
-    ],
+    rows,
   );
 };

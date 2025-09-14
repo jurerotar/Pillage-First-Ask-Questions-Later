@@ -21,11 +21,7 @@ export const unitImprovementSeeder: Seeder = (database, server): void => {
     return upgradableTiers.includes(tier);
   });
 
-  batchInsert(
-    database,
-    'unit_improvements',
-    ['unit_id', 'level'],
-    upgradableUnits,
-    ({ id: unitId }) => [unitId, 0],
-  );
+  const rows = upgradableUnits.map(({ id: unitId }) => [unitId, 0]);
+
+  batchInsert(database, 'unit_improvements', ['unit_id', 'level'], rows);
 };

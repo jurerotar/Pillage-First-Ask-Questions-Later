@@ -309,17 +309,20 @@ export const tilesSeeder: Seeder = (database, server): void => {
   const tilesWithSingleOasisAndFreeTileTypes =
     assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
 
+  const rows = tilesWithSingleOasisAndFreeTileTypes.map(
+    ({ x, y, type, resource_field_composition, oasis_graphics }) => [
+      x,
+      y,
+      type,
+      resource_field_composition,
+      oasis_graphics,
+    ],
+  );
+
   batchInsert(
     database,
     'tiles',
     ['x', 'y', 'type', 'resource_field_composition', 'oasis_graphics'],
-    tilesWithSingleOasisAndFreeTileTypes,
-    (tile) => [
-      tile.x,
-      tile.y,
-      tile.type,
-      tile.resource_field_composition,
-      tile.oasis_graphics,
-    ],
+    rows,
   );
 };

@@ -238,6 +238,5 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
     'world_items',
     ['item_id', 'amount', 'tile_id', 'type'],
     results,
-    (row) => row,
   );
 };

@@ -80,6 +80,5 @@ export const resourceSitesSeeder: Seeder = (database, server): void => {
     'resource_sites',
     ['tile_id', 'wood', 'clay', 'iron', 'wheat', 'updated_at'],
     results,
-    (row) => row,
   );
 };

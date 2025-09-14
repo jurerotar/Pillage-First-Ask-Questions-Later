@@ -19,6 +19,7 @@ export const createWorkerFetcher = (worker: Worker) => {
         ...init,
         method: init?.method ?? 'GET',
         body: init?.body ?? null,
+        type: 'WORKER_MESSAGE',
       };
 
       worker.postMessage(message, [port2]);
