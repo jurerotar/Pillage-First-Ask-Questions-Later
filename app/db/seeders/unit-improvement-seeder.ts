@@ -2,6 +2,7 @@ import type { Seeder } from 'app/interfaces/db';
 import type { UnitTier } from 'app/interfaces/models/game/unit';
 import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 import { batchInsert } from 'app/db/utils/batch-insert';
+import { PLAYER_ID } from 'app/constants/player';
 
 const upgradableTiers: UnitTier[] = [
   'tier-1',
@@ -21,7 +22,12 @@ export const unitImprovementSeeder: Seeder = (database, server): void => {
     return upgradableTiers.includes(tier);
   });
 
-  const rows = upgradableUnits.map(({ id: unitId }) => [unitId, 0]);
+  const rows = upgradableUnits.map(({ id: unitId }) => [PLAYER_ID, unitId, 0]);
 
-  batchInsert(database, 'unit_improvements', ['unit_id', 'level'], rows);
+  batchInsert(
+    database,
+    'unit_improvements',
+    ['player_id', 'unit_id', 'level'],
+    rows,
+  );
 };

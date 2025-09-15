@@ -54,7 +54,7 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
         id: tileId,
         x,
         y,
-        type: 'wilderness',
+        type: 'oasis',
         resource_field_composition: null,
         oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0, variant),
       } satisfies TileModel;

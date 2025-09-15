@@ -14,7 +14,7 @@ export type TileModel = {
   id: number;
   x: number;
   y: number;
-  type: 'free' | 'oasis' | 'wilderness';
+  type: 'free' | 'oasis';
   resource_field_composition: ResourceFieldComposition | null;
   oasis_graphics: number | null;
 };

@@ -1,6 +1,7 @@
 import type { Seeder } from 'app/interfaces/db';
 import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
 import type { Village } from 'app/interfaces/models/game/village';
+import { PLAYER_ID } from 'app/constants/player';
 
 export const unitResearchSeeder: Seeder = (database, server): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
@@ -8,13 +9,11 @@ export const unitResearchSeeder: Seeder = (database, server): void => {
 
   const playerStartingVillageId = database.selectValue(
     `
-    SELECT villages.id
+    SELECT id
     FROM villages
-           JOIN tiles ON villages.tile_id = tiles.id
-    WHERE tiles.x = $x
-      AND tiles.y = $y;
+    WHERE player_id = $player_id;
   `,
-    { $x: 0, $y: 0 },
+    { $player_id: PLAYER_ID },
   ) as Village['id'];
 
   database.exec({

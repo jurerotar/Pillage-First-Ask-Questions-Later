@@ -6,7 +6,7 @@ import createPreferencesTable from 'app/db/schemas/preferences-schema.sql?raw';
 import createBookmarksTable from 'app/db/schemas/bookmarks-schema.sql?raw';
 import createMapMarkersTable from 'app/db/schemas/map-markers-schema.sql?raw';
 import createMapFiltersTable from 'app/db/schemas/map-filters-schema.sql?raw';
-import createAdventurePointsTable from 'app/db/schemas/hero-adventures-schema.sql?raw';
+import createHeroAdventuresTable from 'app/db/schemas/hero-adventures-schema.sql?raw';
 import createServersTable from 'app/db/schemas/servers-schema.sql?raw';
 import createPlayersTable from 'app/db/schemas/players-schema.sql?raw';
 import createFactionsTable from 'app/db/schemas/factions-schema.sql?raw';
@@ -26,7 +26,6 @@ import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?r
 import createOasisBonusesIndexes from 'app/db/indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from 'app/db/indexes/players-indexes.sql?raw';
 import createTroopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
-import createWorldItemsIndexes from 'app/db/indexes/world-items-indexes.sql?raw';
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
 import { bookmarksSeeder } from 'app/db/seeders/bookmarks-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
@@ -87,14 +86,6 @@ self.addEventListener(
       // Map markers
       db.exec(createMapMarkersTable);
 
-      // Bookmarks
-      db.exec(createBookmarksTable);
-      bookmarksSeeder(db, server);
-
-      // Adventure points
-      db.exec(createAdventurePointsTable);
-      heroAdventuresSeeder(db, server);
-
       // Server
       db.exec(createServersTable);
       serverSeeder(db, server);
@@ -110,6 +101,10 @@ self.addEventListener(
       // Heroes
       db.exec(createHeroesTable);
       heroSeeder(db, server);
+
+      // Hero adventures
+      db.exec(createHeroAdventuresTable);
+      heroAdventuresSeeder(db, server);
 
       // Hero equipped items
       db.exec(createHeroEquippedItemsTable);
@@ -136,6 +131,10 @@ self.addEventListener(
       villageSeeder(db, server);
       occupiedOasisSeeder(db, server);
 
+      // Bookmarks
+      db.exec(createBookmarksTable);
+      bookmarksSeeder(db, server);
+
       // Building fields
       db.exec(createBuildingFieldsTable);
       buildingFieldsSeeder(db, server);
@@ -147,7 +146,6 @@ self.addEventListener(
       // World items
       db.exec(createWorldItemsTable);
       worldItemsSeeder(db, server);
-      db.exec(createWorldItemsIndexes);
 
       // Troops
       db.exec(createTroopsTable);
@@ -163,8 +161,10 @@ self.addEventListener(
       unitImprovementSeeder(db, server);
     });
 
-    database.exec('PRAGMA foreign_keys=ON;');
-    database.exec('PRAGMA synchronous=NORMAL;');
+    database.exec(`
+      PRAGMA foreign_keys=ON;
+      PRAGMA synchronous=NORMAL;
+    `);
 
     database.close();
 

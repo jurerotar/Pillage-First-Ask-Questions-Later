@@ -347,7 +347,7 @@ export const troopSeeder: Seeder = (database, server): void => {
   batchInsert(
     database,
     'troops',
-    ['unit_id', 'amount', 'tile_id', 'source'],
+    ['unit_id', 'amount', 'tile_id', 'source_tile_id'],
     results,
   );
 };

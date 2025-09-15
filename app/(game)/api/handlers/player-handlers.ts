@@ -99,14 +99,14 @@ const getTroopsByVillageSchema = z
     unit_id: z.string(),
     amount: z.number().min(1),
     tile_id: z.number(),
-    source: z.number(),
+    source_tile_id: z.number(),
   })
   .transform((t) => {
     return {
       unitId: t.unit_id,
       amount: t.amount,
       tileId: t.tile_id,
-      source: t.source,
+      source: t.source_tile_id,
     };
   });
 
@@ -123,7 +123,7 @@ export const getTroopsByVillage: ApiHandler<
       SELECT unit_id,
              amount,
              tile_id,
-             source
+             source_tile_id
       FROM troops
       WHERE troops.tile_id = (SELECT villages.tile_id
                               FROM villages

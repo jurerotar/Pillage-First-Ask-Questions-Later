@@ -12,7 +12,6 @@ CREATE TABLE game_events
   FOREIGN KEY (village_id) REFERENCES villages (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) STRICT;
 
 CREATE INDEX idx_game_events_type ON game_events (type);
-CREATE INDEX idx_game_events_village_id ON game_events (village_id);

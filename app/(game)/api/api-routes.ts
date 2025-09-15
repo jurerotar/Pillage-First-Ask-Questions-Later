@@ -110,7 +110,7 @@ const unitResearchRoutes = [
 const unitImprovementRoutes = [
   {
     method: 'GET',
-    path: '/unit-improvements',
+    path: '/players/:playerId/unit-improvements',
     handler: getUnitImprovements,
   },
 ];

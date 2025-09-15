@@ -9,9 +9,9 @@ export const batchInsert = (
   table: string,
   columns: readonly string[],
   rows: ReadonlyArray<SqlValue>[],
-): number => {
+): void => {
   if (!rows.length) {
-    return 0;
+    return;
   }
 
   const colsPerRow = columns.length;
@@ -19,7 +19,8 @@ export const batchInsert = (
     throw new Error('columns must not be empty');
   }
 
-  const maxParams = 999;
+  // https://www.sqlite.org/limits.html
+  const maxParams = 32766;
   let rowsPerBatch = Math.floor(maxParams / colsPerRow);
 
   if (rowsPerBatch < 1) {
@@ -42,8 +43,6 @@ export const batchInsert = (
     return stmt;
   };
 
-  let inserted = 0;
-
   for (let i = 0; i < rows.length; i += rowsPerBatch) {
     const chunk = rows.slice(i, i + rowsPerBatch);
 
@@ -60,12 +59,9 @@ export const batchInsert = (
 
     const stmt = getStmt(chunk.length);
     stmt.bind(params).stepReset();
-    inserted += chunk.length;
   }
 
   for (const s of stmts.values()) {
     s.finalize();
   }
-
-  return inserted;
 };

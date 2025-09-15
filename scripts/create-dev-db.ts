@@ -1,7 +1,8 @@
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join, basename } from 'node:path';
+import { dirname, join, basename, resolve } from 'node:path';
 import { glob } from 'tinyglobby';
+import { pathToFileURL } from 'node:url';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
 // SQLite file
@@ -62,8 +63,6 @@ const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
     }
 
     db.exec('COMMIT;');
-    // biome-ignore lint/suspicious/noConsole: It's fine here
-    console.log(`✅ Created SQLite DB at: ${EXPORT_PATH}`);
 
     const ensureSemicolon = (stmt: string | null): string =>
       (stmt ?? '').trim().replace(/;?\s*$/u, ';');
@@ -107,6 +106,10 @@ const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
     const exportContent = [header(), body, footer()].join('\n');
 
     writeFileSync(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf-8');
+    const schemaUrl = pathToFileURL(resolve(DB_SCHEMA_EXPORT_PATH)).href;
+
+    // biome-ignore lint/suspicious/noConsole: It's fine here
+    console.log(`✅ Created SQLite DB at: ${schemaUrl}`);
   } catch (err) {
     console.error('[init] Unexpected error during schema creation:', err);
     try {

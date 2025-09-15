@@ -1,6 +1,5 @@
 CREATE TABLE world_items
 (
-  id INTEGER PRIMARY KEY,
   item_id TEXT NOT NULL,
   amount INTEGER NOT NULL CHECK (amount > 0),
   tile_id INTEGER NOT NULL,
@@ -8,5 +7,7 @@ CREATE TABLE world_items
     type IN ('consumable', 'currency', 'resource', 'wearable', 'artifact')
   ),
 
+  PRIMARY KEY (tile_id, item_id),
+
   FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE
-);
+) STRICT;

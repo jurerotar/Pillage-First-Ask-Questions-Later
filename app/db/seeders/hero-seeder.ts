@@ -1,9 +1,11 @@
 import type { Seeder } from 'app/interfaces/db';
+import { PLAYER_ID } from 'app/constants/player';
 
 export const heroSeeder: Seeder = (database): void => {
   database.exec({
     sql: `
       INSERT INTO heroes (
+        player_id,
         experience,
         health,
         attack_power,
@@ -13,6 +15,7 @@ export const heroSeeder: Seeder = (database): void => {
         resource_to_produce
       )
       VALUES (
+        $player_id,
         $experience,
         $health,
         $attack_power,
@@ -23,6 +26,7 @@ export const heroSeeder: Seeder = (database): void => {
        );
     `,
     bind: {
+      $player_id: PLAYER_ID,
       $experience: 0,
       $health: 100,
       $attack_power: 0,

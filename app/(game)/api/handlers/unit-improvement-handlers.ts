@@ -14,10 +14,16 @@ const getUnitImprovementsSchema = z
   });
 
 export const getUnitImprovements: ApiHandler<
-  z.infer<typeof getUnitImprovementsSchema>[]
-> = async (_queryClient, database) => {
+  z.infer<typeof getUnitImprovementsSchema>[],
+  'playerId'
+> = async (_queryClient, database, { params }) => {
+  const { playerId } = params;
+
   const unitImprovementModel = database.selectObjects(
-    'SELECT unit_id, level FROM unit_improvements;',
+    'SELECT unit_id, level FROM unit_improvements WHERE player_id = $player_id;',
+    {
+      $player_id: playerId,
+    },
   );
 
   const listSchema = z.array(getUnitImprovementsSchema);

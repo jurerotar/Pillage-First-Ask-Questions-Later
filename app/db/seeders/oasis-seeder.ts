@@ -19,20 +19,12 @@ export const oasisSeeder: Seeder = (database, server): void => {
     { $type: 'oasis' },
   ) as SelectReturn[];
 
-  const wildernessUpdateStatement = database.prepare(
-    'UPDATE tiles SET type = $type WHERE id = $id',
-  );
-
   const oasisBonuses: [number, Resource, number, null][] = [];
 
   for (const { id, oasis_graphics } of oasisTiles) {
     const shouldOasisHaveBonus = seededRandomIntFromInterval(prng, 1, 2) === 1;
 
-    // If oasis does not have a bonus, mark it as wilderness
     if (!shouldOasisHaveBonus) {
-      wildernessUpdateStatement
-        .bind({ $type: 'wilderness', $id: id })
-        .stepReset();
       continue;
     }
 
@@ -61,8 +53,6 @@ export const oasisSeeder: Seeder = (database, server): void => {
       oasisBonuses.push([id, 'wheat', 25, null]);
     }
   }
-
-  wildernessUpdateStatement.finalize();
 
   batchInsert(
     database,

@@ -8,4 +8,4 @@ CREATE TABLE oasis
 
   FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE,
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE
-);
+) STRICT;

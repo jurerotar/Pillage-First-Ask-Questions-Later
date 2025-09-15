@@ -10,4 +10,4 @@ CREATE TABLE servers
   map_size INTEGER CHECK (map_size IN (100, 200, 300)) NOT NULL,
   player_name TEXT NOT NULL,
   player_tribe TEXT CHECK (player_tribe IN ('romans', 'gauls', 'teutons', 'huns', 'egyptians')) NOT NULL
-);
+) STRICT;

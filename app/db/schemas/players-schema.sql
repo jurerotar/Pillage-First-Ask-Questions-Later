@@ -7,4 +7,4 @@ CREATE TABLE players
   faction_id TEXT NOT NULL,
 
   FOREIGN KEY (faction_id) REFERENCES factions (id)
-);
+) STRICT;
