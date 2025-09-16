@@ -99,7 +99,7 @@ const createLinearEffectValues = (
 ): BuildingEffect => {
   return {
     effectId,
-    valuesPerLevel: [...new Array(21).keys()],
+    valuesPerLevel: [...Array.from({ length: 21 }).keys()],
     type: 'base',
   };
 };

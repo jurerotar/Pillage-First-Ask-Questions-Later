@@ -1,7 +1,7 @@
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 
 export const createWorkerFetcher = (worker: Worker) => {
-  return async <TData = void, TArgs = unknown | null>(
+  return async <TData = void, TArgs = unknown>(
     url: string,
     init?: Omit<RequestInit, 'body'> & { body?: TArgs },
   ): Promise<{ data: TData }> => {

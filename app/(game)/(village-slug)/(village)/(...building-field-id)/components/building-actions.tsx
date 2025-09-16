@@ -144,8 +144,8 @@ export const BuildingActions = () => {
       ({ buildingId }) => buildingId === 'MAIN_BUILDING',
     )?.level ?? 0) >= 10;
 
-  const navigateBack = () => {
-    navigate('..', { relative: 'path' });
+  const navigateBack = async () => {
+    await navigate('..', { relative: 'path' });
   };
 
   const { canBuild } =
@@ -158,16 +158,16 @@ export const BuildingActions = () => {
       currentVillage,
     });
 
-  const onBuildingConstruction = () => {
-    navigateBack();
+  const onBuildingConstruction = async () => {
+    await navigateBack();
     startTransition(() => {
       constructBuilding();
     });
   };
 
-  const onBuildingUpgrade = () => {
+  const onBuildingUpgrade = async () => {
     if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
-      navigateBack();
+      await navigateBack();
     }
 
     startTransition(() => {
