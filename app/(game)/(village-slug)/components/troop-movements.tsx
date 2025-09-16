@@ -6,7 +6,7 @@ import type { IconType } from 'app/components/icons/icons';
 import { Icon } from 'app/components/icon';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Separator } from 'app/components/ui/separator';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { Suspense } from 'react';
 

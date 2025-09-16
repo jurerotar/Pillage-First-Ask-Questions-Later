@@ -10,7 +10,7 @@ import {
   useFormContext,
   useFormState,
 } from 'react-hook-form';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Label } from 'app/components/ui/label';
 
 export const Form = FormProvider;

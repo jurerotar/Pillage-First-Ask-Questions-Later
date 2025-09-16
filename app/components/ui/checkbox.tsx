@@ -1,6 +1,6 @@
 import { Checkbox as CheckboxPrimitive } from 'radix-ui';
 import { LuCheck } from 'react-icons/lu';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 
 export const Checkbox = ({

@@ -3,7 +3,7 @@ import { use } from 'react';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
 import { formatNumberWithCommas, truncateToShortForm } from 'app/utils/common';
 import { Icon } from 'app/components/icon';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Link } from 'react-router';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';

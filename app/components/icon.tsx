@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { type HTMLAttributes, Suspense } from 'react';
 import type { IconBaseProps } from 'react-icons';
 import { type IconType, icons } from 'app/components/icons/icons';

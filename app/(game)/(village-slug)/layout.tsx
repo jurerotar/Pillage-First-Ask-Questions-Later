@@ -1,7 +1,7 @@
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type { PropsWithChildren, ComponentProps, ReactNode } from 'react';
 import { Suspense } from 'react';
 import { Fragment, memo, useRef } from 'react';
