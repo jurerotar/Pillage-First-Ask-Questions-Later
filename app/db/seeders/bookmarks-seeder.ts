@@ -15,7 +15,6 @@ export const bookmarksSeeder: Seeder = (database): void => {
   ) as Village['id'];
 
   const rows = buildings.map(({ id: buildingId }) => [
-    PLAYER_ID,
     playerStartingVillageId,
     buildingId,
     'default',
@@ -24,7 +23,7 @@ export const bookmarksSeeder: Seeder = (database): void => {
   batchInsert(
     database,
     'bookmarks',
-    ['player_id', 'village_id', 'building_id', 'tab_name'],
+    ['village_id', 'building_id', 'tab_name'],
     rows,
   );
 };
