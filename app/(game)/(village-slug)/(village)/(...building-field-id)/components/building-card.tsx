@@ -10,7 +10,7 @@ import {
   getBuildingDataForLevel,
 } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type { PropsWithChildren } from 'react';
 import { createContext, use } from 'react';
 import { Fragment } from 'react';

@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { useEffect } from 'react';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTextDirection } from 'app/hooks/use-text-direction';

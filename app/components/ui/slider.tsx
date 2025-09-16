@@ -1,6 +1,6 @@
 import { type ComponentProps, useMemo } from 'react';
 import { Slider as SliderPrimitive } from 'radix-ui';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 
 type SliderProps = ComponentProps<typeof SliderPrimitive.Root> & {
   marks?: (string | number)[];

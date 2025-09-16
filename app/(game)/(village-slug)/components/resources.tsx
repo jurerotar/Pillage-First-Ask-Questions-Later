@@ -1,6 +1,6 @@
 import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type { HTMLAttributes } from 'react';
 
 type ResourcesProps = {

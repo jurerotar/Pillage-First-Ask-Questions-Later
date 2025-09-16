@@ -44,7 +44,7 @@ export const createClientEvents = async (
     const amount = args?.amount ?? 1;
 
     if (amount > 1) {
-      const events: GameEvent[] = new Array(amount);
+      const events: GameEvent[] = Array.from({ length: amount });
 
       for (let i = 0; i < amount; i++) {
         events[i] = eventFactory({

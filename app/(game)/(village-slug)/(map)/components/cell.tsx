@@ -13,7 +13,7 @@ import type {
   ContextualTile,
   Tile as TileType,
 } from 'app/interfaces/models/game/tile';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
