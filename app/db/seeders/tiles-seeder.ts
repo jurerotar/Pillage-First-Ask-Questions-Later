@@ -29,7 +29,7 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
 
   let tileId = 0;
 
-  const tiles = new Array(totalTiles);
+  const tiles: MaybeAssignedTileModel[] = Array.from({ length: totalTiles });
 
   for (let i = 0; i < totalTiles; i++) {
     tileId += 1;
