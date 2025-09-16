@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import {
   type ITooltip as ReactTooltipProps,
   Tooltip as ReactTooltip,

@@ -3,7 +3,7 @@ import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/g
 import { use } from 'react';
 import { useState } from 'react';
 import type { Building } from 'app/interfaces/models/game/building';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';

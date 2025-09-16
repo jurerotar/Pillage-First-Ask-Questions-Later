@@ -1,6 +1,6 @@
 import { Select as SelectPrimitive } from 'radix-ui';
 import { LuChevronDown, LuChevronUp, LuCheck } from 'react-icons/lu';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 
 export const Select = ({

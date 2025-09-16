@@ -55,17 +55,17 @@ export const DemolishBuilding = () => {
     setBuildingFieldToDemolish(buildingField);
   };
 
-  const onDowngrade = () => {
+  const onDowngrade = async () => {
     if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
       downgradeBuilding();
     }
 
-    navigate('..', { relative: 'path' });
+    await navigate('..', { relative: 'path' });
   };
 
-  const onDemolish = () => {
+  const onDemolish = async () => {
     demolishBuilding();
-    navigate('..', { relative: 'path' });
+    await navigate('..', { relative: 'path' });
   };
 
   return (

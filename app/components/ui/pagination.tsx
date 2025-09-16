@@ -1,6 +1,6 @@
 import { LuChevronLeft, LuChevronRight, LuEllipsis } from 'react-icons/lu';
 import { type Button, buttonVariants } from 'app/components/ui/button';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 
 export const Pagination = ({ className, ...props }: ComponentProps<'nav'>) => {

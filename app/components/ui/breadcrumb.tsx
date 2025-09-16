@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Link } from 'react-router';
 import { LuChevronRight } from 'react-icons/lu';
 

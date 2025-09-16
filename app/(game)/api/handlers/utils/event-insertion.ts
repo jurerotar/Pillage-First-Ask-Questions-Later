@@ -5,7 +5,9 @@ export const insertBulkEvent = (
   events: GameEvent[],
   newEvents: GameEvent[],
 ): GameEvent[] => {
-  const result = new Array(events.length + newEvents.length);
+  const result: GameEvent[] = Array.from({
+    length: events.length + newEvents.length,
+  });
 
   let i = 0; // Pointer for old events
   let j = 0; // Pointer for new events

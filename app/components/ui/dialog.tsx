@@ -1,5 +1,5 @@
 import { Dialog as DialogPrimitive } from 'radix-ui';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { LuX } from 'react-icons/lu';
 import type { ComponentProps } from 'react';
 

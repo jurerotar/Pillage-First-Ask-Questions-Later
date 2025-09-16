@@ -235,7 +235,9 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
   let xCoordinateCounter = -halfSize - 1;
   let yCoordinateCounter = halfSize;
 
-  const tiles = new Array(totalTiles);
+  const tiles: (BaseTile | OasisTile | OccupiedOccupiableTile)[] = Array.from({
+    length: totalTiles,
+  });
 
   let id = -1;
 

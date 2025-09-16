@@ -74,9 +74,9 @@ export const CreateNewServerForm = () => {
         server,
       });
     },
-    onSuccess: (_, { server }) => {
+    onSuccess: async (_, { server }) => {
       addServer({ server });
-      navigate(`/game/${server.slug}/v-1/resources`);
+      await navigate(`/game/${server.slug}/v-1/resources`);
     },
     onError: (_, { server }) => deleteServer({ server }),
   });
