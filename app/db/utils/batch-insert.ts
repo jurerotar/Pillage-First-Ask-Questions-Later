@@ -29,15 +29,16 @@ export const batchInsert = (
 
   const sqlBase = `INSERT INTO ${table} (${columns.join(', ')}) VALUES `;
 
-  // Cache prepared statements by batch size to avoid re-preparing
   const stmts = new Map<number, PreparedStmt>();
+  const tuple = `(${new Array(colsPerRow).fill('?').join(',')})`;
+
   const getStmt = (count: number): PreparedStmt => {
     const existing = stmts.get(count);
     if (existing) {
       return existing;
     }
-    const tuple = `(${Array(colsPerRow).fill('?').join(',')})`;
-    const valuesClause = Array.from({ length: count }, () => tuple).join(',');
+
+    const valuesClause = new Array(count).fill(tuple).join(',');
     const stmt = database.prepare(`${sqlBase}${valuesClause};`);
     stmts.set(count, stmt);
     return stmt;
@@ -45,17 +46,7 @@ export const batchInsert = (
 
   for (let i = 0; i < rows.length; i += rowsPerBatch) {
     const chunk = rows.slice(i, i + rowsPerBatch);
-
-    // Flatten parameters for the whole chunk
-    const params: SqlValue[] = [];
-    for (const r of chunk) {
-      if (r.length !== colsPerRow) {
-        throw new Error(
-          `toParams returned ${r.length} values, expected ${colsPerRow}`,
-        );
-      }
-      params.push(...r);
-    }
+    const params: SqlValue[] = chunk.flat(); // flatten rows -> params
 
     const stmt = getStmt(chunk.length);
     stmt.bind(params).stepReset();
