@@ -24,7 +24,7 @@ export const createSPAPagesWithPreloads: NonNullable<
 
   const clientDir = resolve('build/client');
 
-  const fallbackPath = join(clientDir, 'index.html');
+  const fallbackPath = join(clientDir, '__spa-fallback.html');
   const prefetchHtmlPath = join(clientDir, '__spa-preload', 'index.html');
 
   const [fallbackHtml, prefetchHtml] = await Promise.all([

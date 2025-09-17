@@ -18,7 +18,7 @@ const FAQ = () => {
           Motivation
         </Text>
         <Text>
-          I've always been a huge fan of Travian and similar browser-based
+          I have always been a huge fan of Travian and similar browser-based
           strategy games. The slow, methodical village-building, resource
           management, and real-time progression made those games special.
           <br />
@@ -60,8 +60,8 @@ const FAQ = () => {
           scratch.
           <br />
           <br />
-          If you’re passionate about backend development and want to help bring
-          multiplayer to life — feel free to reach out!
+          If you are passionate about backend development and want to help bring
+          multiplayer to life, feel free to reach out!
         </Text>
       </div>
       <div className="flex flex-col gap-2">
@@ -76,10 +76,10 @@ const FAQ = () => {
           <br />
           <br />
           <b>Moderation cost & complexity</b> - multiplayer comes with a whole
-          layer of moderation challenges — things like chat filters, reporting
-          tools, cheat prevention, and account systems. They’re not just
+          layer of moderation challenges, things like chat filters, reporting
+          tools, cheat prevention, and account systems. They are not just
           one-time features either; they need constant upkeep and care. For a
-          solo developer, that’s a massive investment of time and energy that
+          solo developer, that is a massive investment of time and energy that
           could easily overshadow the actual game development. With
           single-player, I can skip all of that and stay focused on building the
           experience itself.
@@ -105,7 +105,7 @@ const FAQ = () => {
           Are there game design differences between Travian and Pillage First!?
         </Text>
         <Text>
-          <b>Yes, there's a couple</b>. Main ones are new buildings, more
+          <b>Yes, there are a couple</b>. Main ones are new buildings, more
           playable tribes, removal of capital village mechanic and new hero
           items.
           <br />
@@ -119,7 +119,7 @@ const FAQ = () => {
           >
             our Discord server
           </a>
-          , so feel free to join if you'd like to join the conversation and
+          , so feel free to join if you would like to join the conversation and
           share your opinion!
         </Text>
       </div>
@@ -131,10 +131,10 @@ const FAQ = () => {
           Why not stick with the original?
         </Text>
         <Text>
-          While I love Travian, I (and many more like me) just don't have the
+          While I love Travian, I (and many more like me) just do not have the
           time to commit to it anymore. Pulling all-nighters, finding duals from
           across the world and making sure account is covered 24/7 was fun in
-          middle school, but it's not something I want to (or even can?) engage
+          middle school, but it is not something I want to (or even can?) engage
           in now. I want to be able to take a break, whenever life gets in the
           way, and for the game to respect that.
           <br />

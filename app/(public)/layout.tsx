@@ -90,9 +90,7 @@ const PublicLayout = () => {
         <div className="border-t">
           <div className="container mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
             <p className="text-xs text-muted-foreground">
-              {t(
-                'Not affiliated with Travian Games GmbH. “Travian” is a trademark of its owner.',
-              )}
+              {t('Not affiliated with Travian Games GmbH.')}
             </p>
           </div>
         </div>
