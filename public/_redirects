@@ -1,9 +1,6 @@
 # === Pre-rendered static pages ===
-/create-new-server                /create-new-server/index.html         200
-/design-system/icons              /design-system/icons/index.html       200
-/error/403                        /error/403/index.html                 200
-/error/404                        /error/404/index.html                 200
 /                                 /index.html                           200
+/create-new-server                /create-new-server/index.html         200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/:splat/resources                        /game/server-slug/village-slug/resources/index.html                         200

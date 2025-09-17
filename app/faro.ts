@@ -23,6 +23,7 @@ export const initFaro = async () => {
       name: 'pillage-first',
       version: import.meta.env.VERSION,
       environment: import.meta.env.BRANCH_ENV,
+      release: import.meta.env.COMMIT_REF,
     },
     instrumentations: getWebInstrumentations({ captureConsole: true }),
     sessionTracking: {
