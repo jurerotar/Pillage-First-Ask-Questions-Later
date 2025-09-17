@@ -6,14 +6,7 @@ import {
 
 export default {
   ssr: false,
-  prerender: [
-    '/en-us/',
-    '/en-us/create-new-server',
-    '/__spa-preload',
-    '/design-system/icons',
-    '/error/403',
-    '/error/404',
-  ],
+  prerender: ['/en-us/', '/en-us/create-new-server', '/__spa-preload'],
   future: {
     v8_middleware: true,
     unstable_optimizeDeps: true,
