@@ -12,4 +12,7 @@ export const loadAppTranslations = async (locale: AvailableLocale) => {
     i18n.addResourceBundle(locale, 'app', appResources, true);
     i18n.addResourceBundle(locale, 'app', assetResources, true);
   }
+
+  // biome-ignore lint/suspicious/noConsole: a
+  console.log(i18n);
 };

@@ -24,7 +24,7 @@ const CreateNewServerPage = () => {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink to="/">Home</BreadcrumbLink>
+                  <BreadcrumbLink to="..">{t('Home')}</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>{t('Create new server')}</BreadcrumbItem>
