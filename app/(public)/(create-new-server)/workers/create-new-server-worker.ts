@@ -23,9 +23,11 @@ import createUnitResearchTable from 'app/db/schemas/unit-research-schema.sql?raw
 import createUnitImprovementTable from 'app/db/schemas/unit-improvements-schema.sql?raw';
 import createBuildingFieldsTable from 'app/db/schemas/building-fields-schema.sql?raw';
 import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?raw';
+import createEffectsTable from 'app/db/schemas/effects-schema.sql?raw';
 import createOasisBonusesIndexes from 'app/db/indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from 'app/db/indexes/players-indexes.sql?raw';
 import createTroopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
+import createEffectsIndexes from 'app/db/indexes/effects-indexes.sql?raw';
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
 import { bookmarksSeeder } from 'app/db/seeders/bookmarks-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
@@ -45,6 +47,7 @@ import { unitResearchSeeder } from 'app/db/seeders/unit-research-seeder';
 import { troopSeeder } from 'app/db/seeders/troop-seeder';
 import { worldItemsSeeder } from 'app/db/seeders/world-items-seeder';
 import { buildingFieldsSeeder } from 'app/db/seeders/building-fields-seeder';
+import { effectsSeeder } from 'app/db/seeders/effects-seeder';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -139,6 +142,16 @@ self.addEventListener(
       db.exec(createBuildingFieldsTable);
       buildingFieldsSeeder(db, server);
 
+      // Troops
+      db.exec(createTroopsTable);
+      troopSeeder(db, server);
+      db.exec(createTroopsIndexes);
+
+      // Effects
+      db.exec(createEffectsTable);
+      effectsSeeder(db, server);
+      db.exec(createEffectsIndexes);
+
       // Resource sites
       db.exec(createResourceSitesTable);
       resourceSitesSeeder(db, server);
@@ -146,11 +159,6 @@ self.addEventListener(
       // World items
       db.exec(createWorldItemsTable);
       worldItemsSeeder(db, server);
-
-      // Troops
-      db.exec(createTroopsTable);
-      troopSeeder(db, server);
-      db.exec(createTroopsIndexes);
 
       // Unit research
       db.exec(createUnitResearchTable);
