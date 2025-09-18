@@ -125,7 +125,7 @@ export const wheatProductionArtifactEffectMock: ArtifactEffect = {
   source: 'artifact',
   value: 1.5,
   villageId: villageMock.id,
-  artifactId: 'EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
+  artifactId: 1,
   type: 'bonus',
 };
 
