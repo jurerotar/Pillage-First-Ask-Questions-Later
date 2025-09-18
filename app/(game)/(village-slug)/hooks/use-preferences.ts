@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { use } from 'react';
@@ -19,7 +15,6 @@ type UpdatePreferenceArgs = {
 export const usePreferences = () => {
   const { fetcher } = use(ApiContext);
   const { i18n } = useTranslation();
-  const queryClient = useQueryClient();
 
   const { data: preferences } = useSuspenseQuery<Preferences>({
     queryKey: [preferencesCacheKey],
@@ -44,8 +39,15 @@ export const usePreferences = () => {
         },
       });
     },
-    onSuccess: async (_, { preferenceName, value }) => {
-      await queryClient.invalidateQueries({ queryKey: [preferencesCacheKey] });
+    onSuccess: async (
+      _,
+      { preferenceName, value },
+      _onMutateResult,
+      context,
+    ) => {
+      await context.client.invalidateQueries({
+        queryKey: [preferencesCacheKey],
+      });
       if (preferenceName === 'locale') {
         const locale = value as AvailableLocale;
 

@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 import { use } from 'react';
@@ -15,7 +11,6 @@ type UpdateBookmarksArgs = {
 
 export const useBookmarks = () => {
   const { fetcher } = use(ApiContext);
-  const queryClient = useQueryClient();
 
   const { data: bookmarks } = useSuspenseQuery<Bookmarks>({
     queryKey: [bookmarksCacheKey],
@@ -39,8 +34,8 @@ export const useBookmarks = () => {
         },
       });
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [bookmarksCacheKey] });
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({ queryKey: [bookmarksCacheKey] });
     },
   });
 
