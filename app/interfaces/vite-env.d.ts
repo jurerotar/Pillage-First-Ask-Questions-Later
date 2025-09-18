@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_FARO_INGEST_ENDPOINT: string;
   // Injected by Netlify, not available during dev
   readonly COMMIT_REF: string;
+  readonly HEAD: string;
 }
 
 interface ImportMeta {

@@ -55,7 +55,7 @@ export default {
   // Namespace separator used in your translation keys
   // If you want to use plain English keys, separators such as `.` and `:` will conflict.
   // You might want to set `keySeparator: false` and `namespaceSeparator: false`.
-  namespaceSeparator: ':',
+  namespaceSeparator: false,
 
   // Supports $LOCALE and $NAMESPACE injection
   // Supports JSON (.json) and YAML (.yml) file formats
