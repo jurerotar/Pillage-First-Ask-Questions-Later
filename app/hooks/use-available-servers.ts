@@ -2,7 +2,6 @@ import {
   type DehydratedState,
   useMutation,
   useQuery,
-  useQueryClient,
 } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
@@ -35,8 +34,6 @@ const deleteServerData = async (server: Server) => {
 };
 
 export const useAvailableServers = () => {
-  const queryClient = useQueryClient();
-
   const { data: availableServers } = useQuery<Server[]>({
     queryKey: [availableServerCacheKey],
     queryFn: async () => {
@@ -57,8 +54,8 @@ export const useAvailableServers = () => {
         JSON.stringify([...servers, server]),
       );
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
     },
@@ -70,8 +67,8 @@ export const useAvailableServers = () => {
     { server: Server }
   >({
     mutationFn: ({ server }) => deleteServerData(server),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({
         queryKey: [availableServerCacheKey],
       });
     },

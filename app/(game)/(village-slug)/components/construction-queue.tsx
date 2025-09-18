@@ -12,7 +12,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { MdCancel } from 'react-icons/md';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import {
   eventsCacheKey,
   playerVillagesCacheKey,
@@ -38,7 +38,6 @@ const ConstructionQueueBuilding = ({
   const { t } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
-  const queryClient = useQueryClient();
 
   const { mutate: cancelConstruction } = useMutation<
     void,
@@ -50,9 +49,9 @@ const ConstructionQueueBuilding = ({
         method: 'DELETE',
       });
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
-      await queryClient.invalidateQueries({
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await context.client.invalidateQueries({
         queryKey: [playerVillagesCacheKey],
       });
     },

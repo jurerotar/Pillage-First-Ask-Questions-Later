@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import {
   collectableQuestCountCacheKey,
@@ -16,7 +12,6 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 
 export const useQuests = () => {
   const { fetcher } = use(ApiContext);
-  const queryClient = useQueryClient();
   const { currentVillage } = useCurrentVillage();
 
   const { data: quests } = useSuspenseQuery<Quest[]>({
@@ -50,15 +45,15 @@ export const useQuests = () => {
         },
       });
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [questsCacheKey] });
-      await queryClient.invalidateQueries({
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({ queryKey: [questsCacheKey] });
+      await context.client.invalidateQueries({
         queryKey: [collectableQuestCountCacheKey],
       });
-      await queryClient.invalidateQueries({
+      await context.client.invalidateQueries({
         queryKey: [playerVillagesCacheKey],
       });
-      await queryClient.invalidateQueries({ queryKey: [heroCacheKey] });
+      await context.client.invalidateQueries({ queryKey: [heroCacheKey] });
     },
   });
 

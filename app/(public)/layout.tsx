@@ -92,6 +92,23 @@ const PublicLayout = () => {
             <p className="text-xs text-muted-foreground">
               {t('Not affiliated with Travian Games GmbH.')}
             </p>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-muted-foreground">
+                {t('App version: {{appVersion}}', {
+                  appVersion: import.meta.env.VERSION,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t('Commit ref: {{commitRef}}', {
+                  commitRef: import.meta.env.COMMIT_REF,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t('Branch: {{branch}}', {
+                  branch: import.meta.env.HEAD,
+                })}
+              </p>
+            </div>
           </div>
         </div>
       </footer>

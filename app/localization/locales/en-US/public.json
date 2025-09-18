@@ -32,5 +32,8 @@
   "Create a new game world or enter a previously created one": "Create a new game world or enter a previously created one",
   "Pillage First! is an open-source, single-player strategy game inspired by Travian.": "Pillage First! is an open-source, single-player strategy game inspired by Travian.",
   "Social": "Social",
-  "Not affiliated with Travian Games GmbH.": "Not affiliated with Travian Games GmbH."
+  "Not affiliated with Travian Games GmbH.": "Not affiliated with Travian Games GmbH.",
+  "App version: {{appVersion}}": "App version: {{appVersion}}",
+  "Commit ref: {{commitRef}}": "Commit ref: {{commitRef}}",
+  "Branch: {{branch}}": "Branch: {{branch}}"
 }

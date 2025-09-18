@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type {
   GameEvent,
@@ -19,7 +19,6 @@ type SendEventArgs<T extends GameEventType> = CreateEventArgs<T> & {
 } & Pick<GameEvent, 'cachesToClearOnResolve'>;
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
-  const queryClient = useQueryClient();
   const { currentVillage } = useCurrentVillage();
   const { fetcher } = use(ApiContext);
 
@@ -36,11 +35,16 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
         },
       });
     },
-    onSuccess: async (_, { cachesToClearImmediately }) => {
+    onSuccess: async (
+      _,
+      { cachesToClearImmediately },
+      _onMutateResult,
+      context,
+    ) => {
       for (const queryKey of cachesToClearImmediately) {
-        await queryClient.invalidateQueries({ queryKey: [queryKey] });
+        await context.client.invalidateQueries({ queryKey: [queryKey] });
       }
-      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
     },
   });
 
