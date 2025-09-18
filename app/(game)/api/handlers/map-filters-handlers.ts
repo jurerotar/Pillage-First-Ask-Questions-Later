@@ -4,21 +4,21 @@ import { z } from 'zod';
 
 const getMapFiltersSchema = z
   .strictObject({
-    should_show_faction_reputation: z.boolean(),
-    should_show_oasis_icons: z.boolean(),
-    should_show_troop_movements: z.boolean(),
-    should_show_wheat_fields: z.boolean(),
-    should_show_tile_tooltips: z.boolean(),
-    should_show_treasure_icons: z.boolean(),
+    should_show_faction_reputation: z.number(),
+    should_show_oasis_icons: z.number(),
+    should_show_troop_movements: z.number(),
+    should_show_wheat_fields: z.number(),
+    should_show_tile_tooltips: z.number(),
+    should_show_treasure_icons: z.number(),
   })
   .transform((t) => {
     return {
-      shouldShowFactionReputation: t.should_show_faction_reputation,
-      shouldShowOasisIcons: t.should_show_oasis_icons,
-      shouldShowTileTooltips: t.should_show_tile_tooltips,
-      shouldShowTreasureIcons: t.should_show_treasure_icons,
-      shouldShowTroopMovements: t.should_show_troop_movements,
-      shouldShowWheatFields: t.should_show_wheat_fields,
+      shouldShowFactionReputation: Boolean(t.should_show_faction_reputation),
+      shouldShowOasisIcons: Boolean(t.should_show_oasis_icons),
+      shouldShowTileTooltips: Boolean(t.should_show_tile_tooltips),
+      shouldShowTreasureIcons: Boolean(t.should_show_treasure_icons),
+      shouldShowTroopMovements: Boolean(t.should_show_troop_movements),
+      shouldShowWheatFields: Boolean(t.should_show_wheat_fields),
     };
   });
 
