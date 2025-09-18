@@ -129,6 +129,8 @@ const viteConfig = defineViteConfig({
     'import.meta.env.BRANCH_ENV': JSON.stringify(
       isDeployingToMaster ? 'master' : 'develop',
     ),
+    'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
+    'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
   },
 });
 
