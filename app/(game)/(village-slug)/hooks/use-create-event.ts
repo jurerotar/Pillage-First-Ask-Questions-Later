@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type {
-  GameEvent,
   GameEventType,
   GameEventTypeToEventArgsMap,
 } from 'app/interfaces/models/game/game-event';
@@ -16,7 +15,7 @@ type CreateEventArgs<T extends GameEventType> = Omit<
 
 type SendEventArgs<T extends GameEventType> = CreateEventArgs<T> & {
   cachesToClearImmediately: string[];
-} & Pick<GameEvent, 'cachesToClearOnResolve'>;
+};
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
   const { currentVillage } = useCurrentVillage();

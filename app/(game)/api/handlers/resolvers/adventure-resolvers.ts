@@ -20,6 +20,5 @@ export const adventurePointIncreaseResolver: Resolver<
     // Args need to be present, because next events depends on end of last
     ...args,
     type: 'adventurePointIncrease',
-    cachesToClearOnResolve: [adventurePointsCacheKey],
   });
 };

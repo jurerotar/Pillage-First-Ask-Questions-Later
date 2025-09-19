@@ -6,7 +6,6 @@ import {
   mapCacheKey,
   playersCacheKey,
   playerTroopsCacheKey,
-  playerVillagesCacheKey,
   questsCacheKey,
   serverCacheKey,
   unitResearchCacheKey,
@@ -45,7 +44,6 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -63,7 +61,6 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -141,11 +138,6 @@ const oasisOccupationMovementResolver: Resolver<
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    cachesToClearOnResolve: [
-      playerVillagesCacheKey,
-      playerTroopsCacheKey,
-      effectsCacheKey,
-    ],
   });
 };
 

@@ -1,8 +1,5 @@
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
-import {
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
@@ -65,7 +62,6 @@ export const usePlayerTroops = () => {
       movementType,
       targetId,
       troops,
-      cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
       cachesToClearImmediately: [playerTroopsCacheKey],
     });
   };

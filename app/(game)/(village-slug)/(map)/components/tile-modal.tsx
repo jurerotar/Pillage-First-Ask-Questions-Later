@@ -34,10 +34,7 @@ import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
-import {
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useNavigate } from 'react-router';
 import { PLAYER_ID } from 'app/constants/player';
 import {
@@ -218,7 +215,6 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
       movementType: 'find-new-village',
       targetId: tile.id,
       troops: [],
-      cachesToClearOnResolve: [playerVillagesCacheKey],
       cachesToClearImmediately: [playerTroopsCacheKey],
     });
   };

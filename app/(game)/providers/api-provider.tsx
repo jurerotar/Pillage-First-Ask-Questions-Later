@@ -10,6 +10,7 @@ import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import type { Server } from 'app/interfaces/models/game/server';
+import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -42,9 +43,11 @@ export const ApiProvider = ({
         return;
       }
 
-      const { cachesToClearOnResolve } = event.data;
+      const { type } = event.data;
 
-      for (const queryKey of cachesToClearOnResolve) {
+      const cachesToClear = cachesToClearOnResolve.get(type)!;
+
+      for (const queryKey of cachesToClear) {
         await queryClient.invalidateQueries({ queryKey: [queryKey] });
       }
       await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });

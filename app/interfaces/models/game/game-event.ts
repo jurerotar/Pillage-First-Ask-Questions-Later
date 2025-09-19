@@ -16,7 +16,6 @@ type BaseGameEvent = {
   type: GameEventType;
   startsAt: number;
   duration: number;
-  cachesToClearOnResolve: string[];
 };
 
 type BaseBuildingEvent = WithVillageId<{
