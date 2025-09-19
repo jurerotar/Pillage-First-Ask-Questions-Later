@@ -1,8 +1,10 @@
 import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
-export const parseRFCFromTile = (RFC: OccupiableTile['RFC']) => {
-  const [wood, clay, iron, ...wheat] = RFC.split('');
+export const parseRFCFromTile = (
+  resourceFieldComposition: OccupiableTile['resourceFieldComposition'],
+) => {
+  const [wood, clay, iron, ...wheat] = resourceFieldComposition.split('');
   const values = [wood, clay, iron, wheat.join('')];
 
   return values.map((value) => Number.parseInt(value, 10));
@@ -39,7 +41,7 @@ export const decodeGraphicsProperty = (encoded: number) => {
   const oasisGroup = (encoded >> 9) & 0b111; // 3 bits
   const oasisResourceId = (encoded >> 12) & 0b11; // 2 bits
 
-  const oasisResource = idToResource.get(oasisResourceId);
+  const oasisResource = idToResource.get(oasisResourceId)!;
   const oasisGroupPositions = `${oasisGroupPositionX}-${oasisGroupPositionY}`;
 
   return {

@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { PlayerFaction } from 'app/interfaces/models/game/player';
+import type { FactionName } from 'app/interfaces/models/game/faction';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import { reputationsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
@@ -20,7 +20,7 @@ export const useReputations = () => {
     new Map(reputations.map((reputation) => [reputation.faction, reputation]));
 
   const { data: reputationsMap } = useSuspenseQuery<
-    Map<PlayerFaction, Reputation>
+    Map<FactionName, Reputation>
   >({
     queryKey: [reputations],
     queryFn: getReputationsMap,
