@@ -31,13 +31,7 @@ import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import {
-  effectsCacheKey,
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
-  unitImprovementCacheKey,
-  unitResearchCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
@@ -238,7 +232,6 @@ export const UnitResearch = () => {
     createUnitResearchEvent({
       unitId,
       cachesToClearImmediately: [playerVillagesCacheKey],
-      cachesToClearOnResolve: [unitResearchCacheKey],
     });
   };
 
@@ -345,7 +338,6 @@ export const UnitImprovement = () => {
     createUnitImprovementEvent({
       level: unitVirtualLevel + 1,
       unitId,
-      cachesToClearOnResolve: [unitImprovementCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
@@ -544,7 +536,6 @@ export const UnitRecruitment = () => {
       amount,
       unitId,
       durationEffectId: durationEffect!,
-      cachesToClearOnResolve: [playerTroopsCacheKey, effectsCacheKey],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };

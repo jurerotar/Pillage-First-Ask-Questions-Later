@@ -4,8 +4,6 @@ import {
   effectsCacheKey,
   mapCacheKey,
   playersCacheKey,
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
   questsCacheKey,
   serverCacheKey,
   unitResearchCacheKey,
@@ -44,7 +42,6 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -63,7 +60,6 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    cachesToClearOnResolve: [playerVillagesCacheKey, playerTroopsCacheKey],
   });
 };
 
@@ -141,11 +137,6 @@ const oasisOccupationMovementResolver: Resolver<
     troops,
     movementType: 'return',
     type: 'troopMovement',
-    cachesToClearOnResolve: [
-      playerVillagesCacheKey,
-      playerTroopsCacheKey,
-      effectsCacheKey,
-    ],
   });
 };
 
@@ -156,9 +147,9 @@ const reinforcementMovementResolver: Resolver<
 
   database.transaction((db) => {
     const stmt = db.prepare(`
-    INSERT INTO troops (unit_id, amount, tile_id, source)
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
     VALUES ($unit_id, $amount, $tile_id, $source)
-    ON CONFLICT(unit_id, tile_id, source)
+    ON CONFLICT(unit_id, tile_id, source_tile_id)
       DO UPDATE SET amount = amount + excluded.amount;
   `);
 
@@ -186,9 +177,9 @@ const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
   database.transaction((db) => {
     const stmt = db.prepare(`
-    INSERT INTO troops (unit_id, amount, tile_id, source)
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
     VALUES ($unit_id, $amount, $tile_id, $source)
-    ON CONFLICT(unit_id, tile_id, source)
+    ON CONFLICT(unit_id, tile_id, source_tile_id)
       DO UPDATE SET amount = amount + excluded.amount;
   `);
 
@@ -222,9 +213,9 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
   database.transaction((db) => {
     const stmt = db.prepare(`
-    INSERT INTO troops (unit_id, amount, tile_id, source)
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
     VALUES ($unit_id, $amount, $tile_id, $source)
-    ON CONFLICT(unit_id, tile_id, source)
+    ON CONFLICT(unit_id, tile_id, source_tile_id)
       DO UPDATE SET amount = amount + excluded.amount;
   `);
 

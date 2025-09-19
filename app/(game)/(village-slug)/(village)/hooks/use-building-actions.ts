@@ -2,12 +2,7 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import {
-  collectableQuestCountCacheKey,
-  effectsCacheKey,
-  playerVillagesCacheKey,
-  questsCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
@@ -41,12 +36,6 @@ export const useBuildingActions = (
       buildingId,
       level: 1,
       previousLevel: 0,
-      cachesToClearOnResolve: [
-        playerVillagesCacheKey,
-        effectsCacheKey,
-        questsCacheKey,
-        collectableQuestCountCacheKey,
-      ],
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
@@ -57,12 +46,6 @@ export const useBuildingActions = (
       buildingId,
       level: virtualLevel + 1,
       previousLevel: virtualLevel,
-      cachesToClearOnResolve: [
-        playerVillagesCacheKey,
-        effectsCacheKey,
-        questsCacheKey,
-        collectableQuestCountCacheKey,
-      ],
       cachesToClearImmediately: [playerVillagesCacheKey],
     };
 
@@ -80,7 +63,6 @@ export const useBuildingActions = (
       level: virtualLevel - 1,
       previousLevel: virtualLevel,
       buildingId,
-      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
       cachesToClearImmediately: [],
     });
   };
@@ -90,7 +72,6 @@ export const useBuildingActions = (
       buildingFieldId: buildingFieldId!,
       buildingId,
       previousLevel: virtualLevel,
-      cachesToClearOnResolve: [playerVillagesCacheKey, effectsCacheKey],
       cachesToClearImmediately: [],
     });
   };
