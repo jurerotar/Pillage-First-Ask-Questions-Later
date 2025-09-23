@@ -14,7 +14,7 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
 > = async (queryClient, database, args) => {
-  const { unitId, villageId, duration, startsAt } = args;
+  const { unitId, villageId, tileId, duration, startsAt } = args;
 
   database.exec({
     sql: `
@@ -37,8 +37,8 @@ export const troopTrainingEventResolver: Resolver<
 
   const troopsToAdd: Troop[] = [
     {
-      tileId: villageId,
-      source: villageId,
+      tileId,
+      source: tileId,
       unitId,
       amount: 1,
     },

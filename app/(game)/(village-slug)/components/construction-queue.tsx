@@ -34,8 +34,7 @@ const ConstructionQueueBuilding = ({
   buildingEvent,
   tooltipPosition,
 }: PropsWithChildren<ConstructionQueueBuildingProps>) => {
-  const { t: assetsT } = useTranslation();
-  const { t } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
 

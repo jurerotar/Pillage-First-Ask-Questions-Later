@@ -19,8 +19,7 @@ type BuildingFieldTooltipProps = {
 export const BuildingFieldTooltip = ({
   buildingFieldId,
 }: BuildingFieldTooltipProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const buildingField = getBuildingFieldByBuildingFieldId(
     currentVillage,

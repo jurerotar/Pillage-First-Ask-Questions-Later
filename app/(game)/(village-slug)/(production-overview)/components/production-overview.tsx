@@ -68,8 +68,7 @@ type ResourceBoosterBenefitsProps = {
 export const ProductionOverview = ({
   effectId,
 }: ResourceBoosterBenefitsProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { effects } = useEffects();
 
   const relevantEffects = effects.filter(({ id }) => id === effectId);

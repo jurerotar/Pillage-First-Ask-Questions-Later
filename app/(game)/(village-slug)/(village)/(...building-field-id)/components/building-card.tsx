@@ -65,8 +65,7 @@ export const BuildingCard = ({
 };
 
 export const BuildingOverview = () => {
-  const { t: assetsT } = useTranslation();
-  const { t } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel } = useBuildingVirtualLevel(

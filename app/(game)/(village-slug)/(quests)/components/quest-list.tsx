@@ -54,8 +54,7 @@ type QuestListProps = {
 const PAGE_SIZE = 10;
 
 export const QuestList = ({ quests }: QuestListProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { completeQuest } = useQuests();
 
   const grouped = groupQuestsById(quests);

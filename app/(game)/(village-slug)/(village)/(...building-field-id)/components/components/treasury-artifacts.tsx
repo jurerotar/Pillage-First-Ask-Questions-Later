@@ -41,8 +41,7 @@ const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
 };
 
 export const TreasuryArtifacts = () => {
-  const { t: assetsT } = useTranslation();
-  const { t } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { hero } = useHero();
   const {
     currentVillageArtifactId,

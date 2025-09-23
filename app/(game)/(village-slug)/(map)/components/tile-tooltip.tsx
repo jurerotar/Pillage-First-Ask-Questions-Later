@@ -54,8 +54,7 @@ const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
 };
 
 const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
@@ -92,8 +91,7 @@ type TileTooltipWorldItemProps = {
 };
 
 const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
-  const { t } = useTranslation();
-  const assetsT = t;
+  const { t, t: assetsT } = useTranslation();
 
   if (item.type === 'resource') {
     return (
