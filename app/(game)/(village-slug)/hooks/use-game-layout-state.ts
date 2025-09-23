@@ -1,7 +1,9 @@
 import { useMatches } from 'react-router';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 
 export const useGameLayoutState = () => {
   const matches = useMatches();
+  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
 
   const isResourcesPageExact = matches.some(
     (match) => match?.id === 'resources-page',
@@ -10,7 +12,8 @@ export const useGameLayoutState = () => {
     (match) => match?.id === 'village-page',
   );
 
-  const shouldShowSidebars = isVillagePageExact || isResourcesPageExact;
+  const shouldShowSidebars =
+    isWiderThanMd || isVillagePageExact || isResourcesPageExact;
 
   return {
     shouldShowSidebars,

@@ -215,9 +215,7 @@ const buildingDetailsTabMap = new Map<
 // t('train')
 
 export const BuildingDetails = () => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
-  const { t: dynamicT } = useTranslation();
+  const { t, t: assetsT, t: dynamicT } = useTranslation();
   const { buildingField, buildingFieldId } = use(BuildingFieldContext);
 
   const buildingId = buildingField!.buildingId;

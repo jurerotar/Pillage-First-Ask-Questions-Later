@@ -41,8 +41,7 @@ type UnitTrainingProps = {
 };
 
 export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();
   const { isUnitResearched } = useUnitResearch();
 

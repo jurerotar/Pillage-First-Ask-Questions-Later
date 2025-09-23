@@ -13,8 +13,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { Suspense, useId } from 'react';
 
 const TroopListContent = () => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { playerTroops } = usePlayerTroops();

@@ -12,8 +12,7 @@ type VillageBuildingLinkProps = {
 export const VillageBuildingLink = ({
   buildingId,
 }: VillageBuildingLinkProps) => {
-  const { t } = useTranslation();
-  const assetsT = t;
+  const { t, t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const buildingFields = currentVillage.buildingFields;
 

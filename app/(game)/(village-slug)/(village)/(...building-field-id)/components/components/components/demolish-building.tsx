@@ -21,8 +21,7 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 
 export const DemolishBuilding = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
 

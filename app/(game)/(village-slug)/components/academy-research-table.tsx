@@ -11,8 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 export const AcademyResearchTable = () => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const {
     eventsByType: currentVillageUnitResearchEvents,
     hasEvents: hasResearchEventsOngoing,

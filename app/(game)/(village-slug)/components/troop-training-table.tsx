@@ -18,8 +18,7 @@ type TroopTrainingTableProps = {
 };
 
 export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { eventsByType } = useEventsByType('troopTraining');
 
   const relevantTrainingEvents = eventsByType.filter((event) => {

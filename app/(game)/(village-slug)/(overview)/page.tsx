@@ -20,8 +20,7 @@ import { Separator } from 'app/components/ui/separator';
 const OverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
 

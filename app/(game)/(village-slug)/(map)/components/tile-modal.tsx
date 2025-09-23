@@ -83,8 +83,7 @@ const TileModalLocation = ({ tile }: TileModalProps) => {
 };
 
 const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
@@ -121,8 +120,7 @@ type OasisTileModalProps = {
 };
 
 const OasisTileModal = ({ tile }: OasisTileModalProps) => {
-  const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
+  const { t, t: assetsT } = useTranslation();
   const { getVillageByOasis } = useVillages();
 
   const isOccupiable = isOccupiableOasisTile(tile);
