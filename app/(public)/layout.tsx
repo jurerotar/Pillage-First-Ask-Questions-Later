@@ -3,6 +3,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { loadPublicTranslations } from 'app/localization/loaders/public';
 import { Tooltip } from 'app/components/tooltip';
 import { useTranslation } from 'react-i18next';
+import { env } from 'app/env';
 
 export const clientLoader = async () => {
   // const locale = await getCookie('locale', 'en-US');
@@ -95,17 +96,17 @@ const PublicLayout = () => {
             <div className="flex flex-col gap-2">
               <p className="text-xs text-muted-foreground">
                 {t('App version: {{appVersion}}', {
-                  appVersion: import.meta.env.VERSION,
+                  appVersion: env.VERSION,
                 })}
               </p>
               <p className="text-xs text-muted-foreground">
                 {t('Commit ref: {{commitRef}}', {
-                  commitRef: import.meta.env.COMMIT_REF,
+                  commitRef: env.COMMIT_REF,
                 })}
               </p>
               <p className="text-xs text-muted-foreground">
                 {t('Branch: {{branch}}', {
-                  branch: import.meta.env.HEAD,
+                  branch: env.HEAD,
                 })}
               </p>
             </div>

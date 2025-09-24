@@ -1,4 +1,5 @@
 import type { Server } from 'app/interfaces/models/game/server';
+import { env } from 'app/env';
 
 type ServerFactoryProps = Pick<
   Server,
@@ -16,7 +17,7 @@ export const serverFactory = ({
 
   return {
     id,
-    version: import.meta.env.VERSION,
+    version: env.VERSION,
     name,
     seed,
     slug,
