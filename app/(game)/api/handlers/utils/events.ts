@@ -42,8 +42,8 @@ import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
-import type { Database } from 'app/interfaces/db';
 import { getCurrentPlayer } from 'app/(game)/api/utils/player';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -59,7 +59,7 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 
 export const checkAndSubtractVillageResources = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   events: GameEvent[],
 ): boolean => {
   const isDeveloperModeEnabled = database.selectValue(
@@ -158,7 +158,7 @@ export const getEventCost = (event: GameEvent): number[] => {
 
 export const getEventDuration = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
   const isDeveloperModeEnabled = database.selectValue(
@@ -242,7 +242,7 @@ export const getEventDuration = (
 
 export const getEventStartTime = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
   if (isTroopTrainingEvent(event)) {

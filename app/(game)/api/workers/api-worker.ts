@@ -17,6 +17,7 @@ import type {
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
+import { createDbFacade } from 'app/(game)/api/database-facade';
 
 const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
 
@@ -25,10 +26,18 @@ try {
   const serverSlug = urlParams.get('server-slug')!;
 
   const sqlite3 = await sqlite3InitModule();
-  const database = new sqlite3.oo1.OpfsDb(
+  const opfsDb = new sqlite3.oo1.OpfsDb(
     `/pillage-first-ask-questions-later/${serverSlug}.sqlite3`,
     'w',
   );
+
+  opfsDb.exec(`
+    PRAGMA locking_mode=EXCLUSIVE;
+    PRAGMA journal_mode=WAL;
+    PRAGMA cache_size=-20000;
+  `);
+
+  const database = createDbFacade(opfsDb);
 
   const queryClient = new QueryClient();
   const rootHandle = await getRootHandle();
@@ -98,7 +107,7 @@ try {
 
     event.stopImmediatePropagation();
 
-    database.close();
+    opfsDb.close();
     self.close();
   });
 

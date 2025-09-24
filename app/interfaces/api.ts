@@ -3,11 +3,11 @@ import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
-import type { Database } from 'app/interfaces/db';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 export type Resolver<T extends GameEvent> = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   args: T,
 ) => Promise<void>;
 
@@ -32,7 +32,7 @@ export type ApiHandler<
   TBody = Record<string, unknown>,
 > = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   args: ApiHandlerArgs<TBody, TParams>,
 ) => Promise<TReturn>;
 

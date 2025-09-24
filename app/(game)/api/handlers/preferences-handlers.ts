@@ -83,13 +83,13 @@ export const updatePreference: ApiHandler<
 
   const column = snakeCase(preferenceName);
 
-  database.exec({
-    sql: `
-      UPDATE preferences
+  database.exec(
+    `
+    UPDATE preferences
       SET ${column} = $value
     `,
-    bind: {
+    {
       $value: value,
     },
-  });
+  );
 };

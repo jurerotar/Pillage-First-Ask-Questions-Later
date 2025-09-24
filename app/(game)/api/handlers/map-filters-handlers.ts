@@ -54,13 +54,13 @@ export const updateMapFilter: ApiHandler<
 
   const column = snakeCase(filterName);
 
-  database.exec({
-    sql: `
-      UPDATE map_filters
+  database.exec(
+    `
+    UPDATE map_filters
       SET ${column} = $value
     `,
-    bind: {
+    {
       $value: value,
     },
-  });
+  );
 };

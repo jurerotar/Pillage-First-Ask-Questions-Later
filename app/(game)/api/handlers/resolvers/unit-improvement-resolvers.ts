@@ -6,14 +6,14 @@ export const unitImprovementResolver: Resolver<
 > = async (_queryClient, database, args) => {
   const { unitId } = args;
 
-  database.exec({
-    sql: `
+  database.exec(
+    `
     UPDATE unit_improvements
-    SET level = level + 1
-    WHERE unit_id = $unit_id;
+      SET level = level + 1
+      WHERE unit_id = $unit_id;
   `,
-    bind: {
+    {
       $unit_id: unitId,
     },
-  });
+  );
 };

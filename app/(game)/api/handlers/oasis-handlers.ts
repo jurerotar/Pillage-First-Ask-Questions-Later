@@ -35,18 +35,18 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
     return [...effects!, ...oasisEffects];
   });
 
-  database.exec({
-    sql: `
-      UPDATE oasis
+  database.exec(
+    `
+    UPDATE oasis
       SET village_id = $village_id
       WHERE tile_id  = $oasis_tile_id
         AND village_id IS NULL;
     `,
-    bind: {
+    {
       $oasis_tile_id: oasisId,
       $village_id: villageId,
     },
-  });
+  );
 };
 
 export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
@@ -70,16 +70,16 @@ export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
     });
   });
 
-  database.exec({
-    sql: `
-      UPDATE oasis
+  database.exec(
+    `
+    UPDATE oasis
       SET village_id = NULL
       WHERE tile_id   = $oasis_tile_id
         AND village_id = $village_id;
     `,
-    bind: {
+    {
       $oasis_tile_id: oasisId,
       $village_id: villageId,
     },
-  });
+  );
 };

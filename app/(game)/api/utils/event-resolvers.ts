@@ -5,13 +5,13 @@ import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import type { Database } from 'app/interfaces/db';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 let scheduledTimeout: number | null = null;
 
 const resolveEvent = async (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   eventId: GameEvent['id'],
 ) => {
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
@@ -54,7 +54,7 @@ const resolveEvent = async (
 // TODO: This code is probably bugged, make sure to refactor and double-check when possible
 export const scheduleNextEvent = async (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
 ) => {
   if (scheduledTimeout !== null) {
     self.clearTimeout(scheduledTimeout);

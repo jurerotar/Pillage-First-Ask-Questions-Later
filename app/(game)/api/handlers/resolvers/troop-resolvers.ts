@@ -16,22 +16,22 @@ export const troopTrainingEventResolver: Resolver<
 > = async (queryClient, database, args) => {
   const { unitId, villageId, tileId, duration, startsAt } = args;
 
-  database.exec({
-    sql: `
-      INSERT INTO troops (unit_id, amount, tile_id, source)
+  database.exec(
+    `
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
       VALUES ($unit_id,
               $amount,
               (SELECT tile_id FROM villages WHERE id = $village_id),
               (SELECT tile_id FROM villages WHERE id = $village_id))
-      ON CONFLICT(unit_id, tile_id, source)
+      ON CONFLICT(unit_id, tile_id, source_tile_id)
         DO UPDATE SET amount = amount + excluded.amount;
     `,
-    bind: {
+    {
       $unit_id: unitId,
       $amount: 1,
       $village_id: villageId,
     },
-  });
+  );
 
   const { unitWheatConsumption } = getUnitData(unitId);
 

@@ -38,17 +38,17 @@ export const updateBookmark: ApiHandler<
   const { villageId, buildingId } = params;
   const { tab } = body;
 
-  database.exec({
-    sql: `
+  database.exec(
+    `
     UPDATE bookmarks
-    SET tab_name = $tab_name
-    WHERE building_id = $building_id
-    AND village_id = $village_id;
+      SET tab_name = $tab_name
+      WHERE building_id = $building_id
+        AND village_id = $village_id;
   `,
-    bind: {
+    {
       $tab_name: tab,
       $village_id: villageId,
       $building_id: buildingId,
     },
-  });
+  );
 };

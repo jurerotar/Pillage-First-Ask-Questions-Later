@@ -169,11 +169,6 @@ self.addEventListener(
       unitImprovementSeeder(db, server);
     });
 
-    database.exec(`
-      PRAGMA foreign_keys=ON;
-      PRAGMA synchronous=NORMAL;
-    `);
-
     database.close();
 
     const serverState = await initializeServer(server);

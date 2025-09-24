@@ -4,18 +4,18 @@ import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys'
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import type { Database } from 'app/interfaces/db';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 export const demolishBuilding = (
-  database: Database,
+  database: DbFacade,
   villageId: number,
   buildingFieldId: number,
 ): void => {
   // If buildingFieldId is 1-18 (resource fields) or 39 (rally point) or 40 (wall),
   // we just set it to level 1, since these buildings can't be destroyed
-  database.exec({
-    sql: `
-      UPDATE building_fields
+  database.exec(
+    `
+    UPDATE building_fields
       SET level = 0
       WHERE village_id = $village_id
         AND field_id   = $building_field_id
@@ -26,16 +26,16 @@ export const demolishBuilding = (
         AND field_id   = $building_field_id
         AND field_id BETWEEN 19 AND 38;
     `,
-    bind: {
+    {
       $village_id: villageId,
       $building_field_id: buildingFieldId,
     },
-  });
+  );
 };
 
 export const calculateVillageResourcesAt = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
 ) => {
@@ -151,7 +151,7 @@ export const calculateVillageResourcesAt = (
 
 export const updateVillageResourcesAt = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
 ) => {
@@ -173,9 +173,9 @@ export const updateVillageResourcesAt = (
     lastEffectiveWheatUpdate,
   );
 
-  database.exec({
-    sql: `
-      UPDATE resource_sites
+  database.exec(
+    `
+    UPDATE resource_sites
       SET wood       = $wood,
           clay       = $clay,
           iron       = $iron,
@@ -183,7 +183,7 @@ export const updateVillageResourcesAt = (
           updated_at = $updated_at
       WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);
     `,
-    bind: {
+    {
       $village_id: villageId,
       $wood: currentWood,
       $clay: currentClay,
@@ -191,12 +191,12 @@ export const updateVillageResourcesAt = (
       $wheat: currentWheat,
       $updated_at: latestTick,
     },
-  });
+  );
 };
 
 export const addVillageResourcesAt = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
   resourcesToAdd: number[],
@@ -217,9 +217,9 @@ export const addVillageResourcesAt = (
   const newIron = Math.min(currentIron + addIron, warehouseCapacity);
   const newWheat = Math.min(currentWheat + addWheat, granaryCapacity);
 
-  database.exec({
-    sql: `
-      UPDATE resource_sites
+  database.exec(
+    `
+    UPDATE resource_sites
       SET wood = $wood,
           clay = $clay,
           iron = $iron,
@@ -229,7 +229,7 @@ export const addVillageResourcesAt = (
         SELECT tile_id FROM villages WHERE id = $village_id
       );
     `,
-    bind: {
+    {
       $village_id: villageId,
       $wood: newWood,
       $clay: newClay,
@@ -237,12 +237,12 @@ export const addVillageResourcesAt = (
       $wheat: newWheat,
       $ts: timestamp,
     },
-  });
+  );
 };
 
 export const subtractVillageResourcesAt = (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
   resourcesToSubtract: number[],
@@ -257,9 +257,9 @@ export const subtractVillageResourcesAt = (
   const newIron = Math.max(currentIron - subIron, 0);
   const newWheat = Math.max(currentWheat - subWheat, 0);
 
-  database.exec({
-    sql: `
-      UPDATE resource_sites
+  database.exec(
+    `
+    UPDATE resource_sites
       SET wood = $wood,
           clay = $clay,
           iron = $iron,
@@ -269,7 +269,7 @@ export const subtractVillageResourcesAt = (
         SELECT tile_id FROM villages WHERE id = $village_id
       );
     `,
-    bind: {
+    {
       $village_id: villageId,
       $wood: newWood,
       $clay: newClay,
@@ -277,5 +277,5 @@ export const subtractVillageResourcesAt = (
       $wheat: newWheat,
       $ts: timestamp,
     },
-  });
+  );
 };

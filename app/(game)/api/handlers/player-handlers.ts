@@ -151,12 +151,12 @@ export const renameVillage: ApiHandler<
     body: { name },
   } = args;
 
-  database.exec({
-    sql: `
-      UPDATE villages
+  database.exec(
+    `
+    UPDATE villages
       SET name = $name
       WHERE id = $village_id
     `,
-    bind: { $name: name, $village_id: villageId },
-  });
+    { $name: name, $village_id: villageId },
+  );
 };

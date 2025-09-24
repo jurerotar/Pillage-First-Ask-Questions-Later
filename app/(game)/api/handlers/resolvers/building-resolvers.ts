@@ -17,21 +17,21 @@ export const buildingLevelChangeResolver: Resolver<
 > = async (queryClient, database, args) => {
   const { buildingFieldId, level, buildingId, villageId, previousLevel } = args;
 
-  database.exec({
-    sql: `
-      UPDATE building_fields
+  database.exec(
+    `
+    UPDATE building_fields
       SET level = $level
       WHERE village_id = $village_id
-      AND field_id = $building_field_id
-      AND building_id = $building_id;
+        AND field_id = $building_field_id
+        AND building_id = $building_id;
     `,
-    bind: {
+    {
       $village_id: villageId,
       $building_field_id: buildingFieldId,
       $building_id: buildingId,
       $level: level,
     },
-  });
+  );
 
   const { effects: buildingEffects } = getBuildingData(buildingId);
 
@@ -91,17 +91,17 @@ export const buildingConstructionResolver: Resolver<
 > = async (queryClient, database, args) => {
   const { villageId, buildingFieldId, buildingId } = args;
 
-  database.exec({
-    sql: `
-      INSERT INTO building_fields (village_id, field_id, building_id, level)
+  database.exec(
+    `
+    INSERT INTO building_fields (village_id, field_id, building_id, level)
       VALUES ($village_id, $field_id, $building_id, 0)
     `,
-    bind: {
+    {
       $village_id: villageId,
       $field_id: buildingFieldId,
       $building_id: buildingId,
     },
-  });
+  );
 
   const { effects } = getBuildingData(buildingId);
   const { population } = getBuildingDataForLevel(buildingId, 0);

@@ -12,11 +12,11 @@ import {
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import type { Database } from 'app/interfaces/db';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 const validateAndInsertEvents = async (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   events: GameEvent[],
 ) => {
   const hasSuccessfullyValidatedAndSubtractedResources =
@@ -36,7 +36,7 @@ type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
 
 export const createClientEvents = async (
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   args: CreateNewEventsBody,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
@@ -78,7 +78,7 @@ export const createClientEvents = async (
 // This function is used for events created on the server. "createClientEvents" is used for client-sent events.
 export const createEvent = async <T extends GameEventType>(
   queryClient: QueryClient,
-  database: Database,
+  database: DbFacade,
   args: Omit<GameEvent<T>, 'id' | 'startsAt' | 'duration'>,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
