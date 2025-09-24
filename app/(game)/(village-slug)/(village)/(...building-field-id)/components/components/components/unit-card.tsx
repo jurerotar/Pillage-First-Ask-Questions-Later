@@ -479,7 +479,6 @@ export const UnitRecruitment = () => {
   const { unitId, durationEffect, buildingId } = use(UnitCardContext);
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const currentResources = use(CurrentVillageStateContext);
-  const { currentVillage } = useCurrentVillage();
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitData(unitId);
   const { total } = useComputedEffect(durationEffect!);
@@ -532,7 +531,6 @@ export const UnitRecruitment = () => {
       buildingId,
       amount,
       unitId,
-      tileId: currentVillage.tileId,
       durationEffectId: durationEffect!,
       cachesToClearImmediately: [playerVillagesCacheKey],
     });

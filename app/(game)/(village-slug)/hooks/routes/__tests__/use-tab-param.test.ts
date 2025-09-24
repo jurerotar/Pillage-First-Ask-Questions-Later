@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { renderHook, act } from '@testing-library/react';
 import { useTabParam } from '../use-tab-param';
 import { useSearchParams } from 'react-router';

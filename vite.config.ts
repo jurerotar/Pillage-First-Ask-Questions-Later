@@ -152,12 +152,11 @@ const vitestConfig = defineVitestConfig({
   test: {
     root: './',
     watch: false,
-    environment: 'happy-dom',
     setupFiles: './app/tests/vitest-setup.ts',
     reporters: ['default'],
     coverage: {
       include: ['app/**/*.{ts,tsx}'],
-      exclude: ['**/*-mock.ts', '**/icon-*.tsx', '**/interfaces/**/*.ts'],
+      exclude: ['**/*-mock.ts', '**/interfaces/**/*.ts'],
     },
   },
 });

@@ -41,7 +41,6 @@ type BaseUnitTrainingEvent = WithVillageId<{
   batchId: string;
   amount: number;
   unitId: Unit['id'];
-  tileId: number;
   durationEffectId: TroopTrainingDurationEffectId;
   buildingId: Building['id'];
 }>;

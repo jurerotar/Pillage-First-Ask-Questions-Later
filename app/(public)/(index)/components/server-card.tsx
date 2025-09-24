@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { FaDownload, FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
+import { env } from 'app/env';
 
 type ServerCardProps = {
   server: Server;
@@ -18,7 +19,7 @@ export const ServerCard = (props: ServerCardProps) => {
   const { t } = useTranslation('public');
   const { deleteServer, exportServer } = useAvailableServers();
 
-  const appVersion = import.meta.env.VERSION;
+  const appVersion = env.VERSION;
 
   const timeSinceCreation = formatDistanceToNow(new Date(server.createdAt), {
     addSuffix: false,
