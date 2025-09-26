@@ -1,4 +1,4 @@
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import {
@@ -15,11 +15,28 @@ import type { Village } from 'app/interfaces/models/game/village';
 
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const { unitId, villageId, duration, startsAt } = args;
 
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const { tileId } = villages.find(({ id }) => id === villageId)!;
+
+  database.exec(
+    `
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+      VALUES ($unit_id,
+              $amount,
+              (SELECT tile_id FROM villages WHERE id = $village_id),
+              (SELECT tile_id FROM villages WHERE id = $village_id))
+      ON CONFLICT(unit_id, tile_id, source_tile_id)
+        DO UPDATE SET amount = amount + excluded.amount;
+    `,
+    {
+      $unit_id: unitId,
+      $amount: 1,
+      $village_id: villageId,
+    },
+  );
 
   const { unitWheatConsumption } = getUnitData(unitId);
 
@@ -47,5 +64,10 @@ export const troopTrainingEventResolver: Resolver<
     return effects;
   });
 
-  updateVillageResourcesAt(queryClient, villageId, startsAt + duration);
+  updateVillageResourcesAt(
+    queryClient,
+    database,
+    villageId,
+    startsAt + duration,
+  );
 };

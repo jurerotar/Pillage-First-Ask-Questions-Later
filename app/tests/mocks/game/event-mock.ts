@@ -1,6 +1,6 @@
 import { calculateBuildingDurationForLevel } from 'app/(game)/(village-slug)/utils/building';
 import type { Building } from 'app/interfaces/models/game/building';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 

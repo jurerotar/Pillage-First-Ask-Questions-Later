@@ -1,9 +1,7 @@
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Server } from 'app/interfaces/models/game/server';
 
-export const heroFactory = (server: Server): Hero => {
-  const { tribe } = server.playerConfiguration;
-
+export const heroFactory = (_server: Server): Hero => {
   return {
     stats: {
       experience: 0,
@@ -19,7 +17,6 @@ export const heroFactory = (server: Server): Hero => {
     unitType: 'infantry',
     inventory: [],
     adventureCount: 0,
-    tribe,
     equippedItems: {
       head: null,
       torso: null,

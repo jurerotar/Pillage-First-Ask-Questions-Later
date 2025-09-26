@@ -1,9 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type {
-  OasisTile,
-  OccupiedOasisTile,
-  Tile,
-} from 'app/interfaces/models/game/tile';
+import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 import {
   effectsCacheKey,
   mapCacheKey,
@@ -16,6 +12,7 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 // TODO: Move this to an util function that's called after combat, once combat is added
 export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   queryClient,
+  database,
   args,
 ) => {
   const {
@@ -23,7 +20,7 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   } = args;
   // TODO: Add Hero's mansion level & empty oasis slot check
 
-  updateVillageResourcesAt(queryClient, villageId, Date.now());
+  updateVillageResourcesAt(queryClient, database, villageId, Date.now());
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const targetOasisTile = tiles.find(({ id }) => id === oasisId)! as OasisTile;
@@ -38,38 +35,30 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
     return [...effects!, ...oasisEffects];
   });
 
-  queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {
-    return tiles!.map((tile) => {
-      if (tile.id !== oasisId) {
-        return tile;
-      }
-
-      const cell = tile as OccupiedOasisTile;
-      cell.villageId = villageId;
-
-      return cell;
-    });
-  });
+  database.exec(
+    `
+    UPDATE oasis
+      SET village_id = $village_id
+      WHERE tile_id  = $oasis_tile_id
+        AND village_id IS NULL;
+    `,
+    {
+      $oasis_tile_id: oasisId,
+      $village_id: villageId,
+    },
+  );
 };
 
 export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   queryClient,
+  database,
   args,
 ) => {
   const {
     params: { oasisId, villageId },
   } = args;
 
-  updateVillageResourcesAt(queryClient, villageId, Date.now());
-
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const targetOasisTile = tiles.find(
-    ({ id }) => id === oasisId,
-  )! as OccupiedOasisTile;
-
-  if (!targetOasisTile) {
-    return;
-  }
+  updateVillageResourcesAt(queryClient, database, villageId, Date.now());
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
     return effects!.filter((effect) => {
@@ -81,16 +70,16 @@ export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
     });
   });
 
-  queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {
-    return tiles!.map((tile) => {
-      if (tile.id !== oasisId) {
-        return tile;
-      }
-
-      const cell = tile as OasisTile;
-      cell.villageId = null;
-
-      return cell;
-    });
-  });
+  database.exec(
+    `
+    UPDATE oasis
+      SET village_id = NULL
+      WHERE tile_id   = $oasis_tile_id
+        AND village_id = $village_id;
+    `,
+    {
+      $oasis_tile_id: oasisId,
+      $village_id: villageId,
+    },
+  );
 };

@@ -1,24 +1,45 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { Village } from 'app/interfaces/models/game/village';
-import {
-  effectsCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import type { Village, VillageModel } from 'app/interfaces/models/game/village';
+import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
+import type { DbFacade } from 'app/(game)/api/database-facade';
+
+export const demolishBuilding = (
+  database: DbFacade,
+  villageId: number,
+  buildingFieldId: number,
+): void => {
+  // If buildingFieldId is 1-18 (resource fields) or 39 (rally point) or 40 (wall),
+  // we just set it to level 1, since these buildings can't be destroyed
+  database.exec(
+    `
+    UPDATE building_fields
+      SET level = 0
+      WHERE village_id = $village_id
+        AND field_id   = $building_field_id
+        AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
+
+      DELETE FROM building_fields
+      WHERE village_id = $village_id
+        AND field_id   = $building_field_id
+        AND field_id BETWEEN 19 AND 38;
+    `,
+    {
+      $village_id: villageId,
+      $building_field_id: buildingFieldId,
+    },
+  );
+};
 
 export const calculateVillageResourcesAt = (
   queryClient: QueryClient,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
 ) => {
   const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
-
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const { lastUpdatedAt, resources } = villages.find(
-    ({ id }) => id === villageId,
-  )!;
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
@@ -51,12 +72,33 @@ export const calculateVillageResourcesAt = (
     villageId,
   );
 
+  const { wood, clay, iron, wheat, last_updated_at } = database.selectObject(
+    `
+      SELECT
+        rs.updated_at AS last_updated_at,
+        rs.wood AS wood,
+        rs.clay AS clay,
+        rs.iron AS iron,
+        rs.wheat AS wheat
+      FROM villages v
+      JOIN tiles t
+        ON t.id = v.tile_id
+      LEFT JOIN resource_sites rs
+        ON rs.tile_id = v.tile_id
+      WHERE v.id = $village_id;
+    `,
+    { $village_id: villageId },
+  ) as Pick<
+    VillageModel,
+    'wood' | 'clay' | 'iron' | 'wheat' | 'last_updated_at'
+  >;
+
   const {
     currentAmount: currentWood,
     lastEffectiveUpdate: lastEffectiveWoodUpdate,
   } = calculateCurrentAmount({
-    lastKnownResourceAmount: resources.wood,
-    lastUpdatedAt,
+    lastKnownResourceAmount: wood,
+    lastUpdatedAt: last_updated_at,
     hourlyProduction: woodProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
@@ -65,8 +107,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentClay,
     lastEffectiveUpdate: lastEffectiveClayUpdate,
   } = calculateCurrentAmount({
-    lastKnownResourceAmount: resources.clay,
-    lastUpdatedAt,
+    lastKnownResourceAmount: clay,
+    lastUpdatedAt: last_updated_at,
     hourlyProduction: clayProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
@@ -75,8 +117,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentIron,
     lastEffectiveUpdate: lastEffectiveIronUpdate,
   } = calculateCurrentAmount({
-    lastKnownResourceAmount: resources.iron,
-    lastUpdatedAt,
+    lastKnownResourceAmount: iron,
+    lastUpdatedAt: last_updated_at,
     hourlyProduction: ironProduction,
     storageCapacity: warehouseCapacity,
     timestamp,
@@ -85,8 +127,8 @@ export const calculateVillageResourcesAt = (
     currentAmount: currentWheat,
     lastEffectiveUpdate: lastEffectiveWheatUpdate,
   } = calculateCurrentAmount({
-    lastKnownResourceAmount: resources.wheat,
-    lastUpdatedAt,
+    lastKnownResourceAmount: wheat,
+    lastUpdatedAt: last_updated_at,
     hourlyProduction: wheatProduction,
     storageCapacity: granaryCapacity,
     timestamp,
@@ -109,6 +151,7 @@ export const calculateVillageResourcesAt = (
 
 export const updateVillageResourcesAt = (
   queryClient: QueryClient,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
 ) => {
@@ -121,7 +164,7 @@ export const updateVillageResourcesAt = (
     lastEffectiveClayUpdate,
     lastEffectiveIronUpdate,
     lastEffectiveWheatUpdate,
-  } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
+  } = calculateVillageResourcesAt(queryClient, database, villageId, timestamp);
 
   const latestTick = Math.max(
     lastEffectiveWoodUpdate,
@@ -130,28 +173,30 @@ export const updateVillageResourcesAt = (
     lastEffectiveWheatUpdate,
   );
 
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
-    return prevVillages!.map((village) => {
-      if (village.id !== villageId) {
-        return village;
-      }
-
-      return {
-        ...village,
-        lastUpdatedAt: latestTick,
-        resources: {
-          wood: currentWood,
-          clay: currentClay,
-          iron: currentIron,
-          wheat: currentWheat,
-        },
-      };
-    });
-  });
+  database.exec(
+    `
+    UPDATE resource_sites
+      SET wood       = $wood,
+          clay       = $clay,
+          iron       = $iron,
+          wheat      = $wheat,
+          updated_at = $updated_at
+      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);
+    `,
+    {
+      $village_id: villageId,
+      $wood: currentWood,
+      $clay: currentClay,
+      $iron: currentIron,
+      $wheat: currentWheat,
+      $updated_at: latestTick,
+    },
+  );
 };
 
 export const addVillageResourcesAt = (
   queryClient: QueryClient,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
   resourcesToAdd: number[],
@@ -163,57 +208,74 @@ export const addVillageResourcesAt = (
     currentWheat,
     warehouseCapacity,
     granaryCapacity,
-  } = calculateVillageResourcesAt(queryClient, villageId, timestamp);
+  } = calculateVillageResourcesAt(queryClient, database, villageId, timestamp);
 
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
-    return prevVillages!.map((village) => {
-      if (village.id !== villageId) {
-        return village;
-      }
+  const [addWood, addClay, addIron, addWheat] = resourcesToAdd;
 
-      const [wood, clay, iron, wheat] = resourcesToAdd;
+  const newWood = Math.min(currentWood + addWood, warehouseCapacity);
+  const newClay = Math.min(currentClay + addClay, warehouseCapacity);
+  const newIron = Math.min(currentIron + addIron, warehouseCapacity);
+  const newWheat = Math.min(currentWheat + addWheat, granaryCapacity);
 
-      return {
-        ...village,
-        lastUpdatedAt: timestamp,
-        resources: {
-          wood: Math.min(currentWood + wood, warehouseCapacity),
-          clay: Math.min(currentClay + clay, warehouseCapacity),
-          iron: Math.min(currentIron + iron, warehouseCapacity),
-          wheat: Math.min(currentWheat + wheat, granaryCapacity),
-        },
-      };
-    });
-  });
+  database.exec(
+    `
+    UPDATE resource_sites
+      SET wood = $wood,
+          clay = $clay,
+          iron = $iron,
+          wheat = $wheat,
+          updated_at = $ts
+      WHERE tile_id = (
+        SELECT tile_id FROM villages WHERE id = $village_id
+      );
+    `,
+    {
+      $village_id: villageId,
+      $wood: newWood,
+      $clay: newClay,
+      $iron: newIron,
+      $wheat: newWheat,
+      $ts: timestamp,
+    },
+  );
 };
 
 export const subtractVillageResourcesAt = (
   queryClient: QueryClient,
+  database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
   resourcesToSubtract: number[],
 ) => {
   const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateVillageResourcesAt(queryClient, villageId, timestamp);
+    calculateVillageResourcesAt(queryClient, database, villageId, timestamp);
 
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (prevVillages) => {
-    return prevVillages!.map((village) => {
-      if (village.id !== villageId) {
-        return village;
-      }
+  const [subWood, subClay, subIron, subWheat] = resourcesToSubtract;
 
-      const [wood, clay, iron, wheat] = resourcesToSubtract;
+  const newWood = Math.max(currentWood - subWood, 0);
+  const newClay = Math.max(currentClay - subClay, 0);
+  const newIron = Math.max(currentIron - subIron, 0);
+  const newWheat = Math.max(currentWheat - subWheat, 0);
 
-      return {
-        ...village,
-        lastUpdatedAt: timestamp,
-        resources: {
-          wood: Math.max(currentWood - wood, 0),
-          clay: Math.max(currentClay - clay, 0),
-          iron: Math.max(currentIron - iron, 0),
-          wheat: Math.max(currentWheat - wheat, 0),
-        },
-      };
-    });
-  });
+  database.exec(
+    `
+    UPDATE resource_sites
+      SET wood = $wood,
+          clay = $clay,
+          iron = $iron,
+          wheat = $wheat,
+          updated_at = $ts
+      WHERE tile_id = (
+        SELECT tile_id FROM villages WHERE id = $village_id
+      );
+    `,
+    {
+      $village_id: villageId,
+      $wood: newWood,
+      $clay: newClay,
+      $iron: newIron,
+      $wheat: newWheat,
+      $ts: timestamp,
+    },
+  );
 };

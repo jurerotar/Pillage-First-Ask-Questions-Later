@@ -18,7 +18,6 @@ import {
   useBuildingConstructionStatus,
   useBuildingUpgradeStatus,
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -121,7 +120,6 @@ export const BuildingActions = () => {
     use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
-  const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
@@ -154,7 +152,6 @@ export const BuildingActions = () => {
       buildingId,
       tribe,
       currentVillageBuildingEvents,
-      playerVillages,
       currentVillage,
     });
 

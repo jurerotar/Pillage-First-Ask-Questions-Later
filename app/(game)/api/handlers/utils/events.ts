@@ -19,8 +19,6 @@ import type { QueryClient } from '@tanstack/react-query';
 import {
   effectsCacheKey,
   eventsCacheKey,
-  playersCacheKey,
-  preferencesCacheKey,
   serverCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
@@ -37,16 +35,15 @@ import {
 } from 'app/(game)/(village-slug)/utils/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
-import { PLAYER_ID } from 'app/constants/player';
+import { getCurrentPlayer } from 'app/(game)/api/utils/player';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -62,11 +59,12 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 
 export const checkAndSubtractVillageResources = (
   queryClient: QueryClient,
+  database: DbFacade,
   events: GameEvent[],
 ): boolean => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    ' SELECT is_developer_mode_enabled FROM preferences;',
+  );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
   const event = events[0];
@@ -77,7 +75,7 @@ export const checkAndSubtractVillageResources = (
     const { villageId, startsAt } = event;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(queryClient, villageId, startsAt);
+      calculateVillageResourcesAt(queryClient, database, villageId, startsAt);
 
     if (
       woodCost > currentWood ||
@@ -88,7 +86,13 @@ export const checkAndSubtractVillageResources = (
       return false;
     }
 
-    subtractVillageResourcesAt(queryClient, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(
+      queryClient,
+      database,
+      villageId,
+      startsAt,
+      eventCost,
+    );
   }
 
   return true;
@@ -154,11 +158,12 @@ export const getEventCost = (event: GameEvent): number[] => {
 
 export const getEventDuration = (
   queryClient: QueryClient,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    ' SELECT is_developer_mode_enabled FROM preferences;',
+  );
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     if (isDeveloperModeEnabled) {
@@ -237,6 +242,7 @@ export const getEventDuration = (
 
 export const getEventStartTime = (
   queryClient: QueryClient,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
   if (isTroopTrainingEvent(event)) {
@@ -269,8 +275,7 @@ export const getEventStartTime = (
   if (isScheduledBuildingEvent(event)) {
     const { buildingFieldId, villageId } = event;
 
-    const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-    const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
+    const { tribe } = getCurrentPlayer(database);
 
     const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
