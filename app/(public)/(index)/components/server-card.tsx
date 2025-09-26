@@ -2,7 +2,6 @@ import { Button } from 'app/components/ui/button';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
-import { useTranslation } from 'react-i18next';
 import { formatDistanceToNow } from 'date-fns';
 import { FaDownload, FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
@@ -16,7 +15,6 @@ type ServerCardProps = {
 export const ServerCard = (props: ServerCardProps) => {
   const { server } = props;
 
-  const { t } = useTranslation('public');
   const { deleteServer, exportServer } = useAvailableServers();
 
   const appVersion = env.VERSION;
@@ -53,33 +51,33 @@ export const ServerCard = (props: ServerCardProps) => {
       <Text as="h2">{server.name}</Text>
       <div className="flex gap-2 flex-wrap">
         <span className="flex gap-2">
-          <Text className="font-medium">{t('Seed')}:</Text>
+          <Text className="font-medium">Seed:</Text>
           <Text>{server.seed}</Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">{t('Age')}:</Text>
+          <Text className="font-medium">Age:</Text>
           <Text>{timeSinceCreation}</Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">{t('Player name')}:</Text>
+          <Text className="font-medium">Player name:</Text>
           <Text>{server.playerConfiguration.name}</Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">{t('Tribe')}:</Text>
+          <Text className="font-medium">Tribe:</Text>
           <Text>{server.playerConfiguration.tribe}</Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">{t('World size')}:</Text>
+          <Text className="font-medium">World size:</Text>
           <Text>
             {server.configuration.mapSize}x{server.configuration.mapSize}
           </Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">{t('Speed')}:</Text>
+          <Text className="font-medium">Speed:</Text>
           <Text>{server.configuration.speed}x</Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">{t('Version')}:</Text>
+          <Text className="font-medium">Version:</Text>
           <Text>{serverVersion}</Text>
         </span>
       </div>
@@ -93,7 +91,7 @@ export const ServerCard = (props: ServerCardProps) => {
         className="text-green-600 underline font-semibold"
         to={`/game/${server.slug}/v-1/resources`}
       >
-        {t('Enter server')}
+        Enter server
       </Link>
     </div>
   );

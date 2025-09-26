@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,9 +8,8 @@ import {
 import { Text } from 'app/components/text';
 
 const FrequentlyAskedQuestionsPage = () => {
-  const { t } = useTranslation('public');
-
-  const title = `${t('Frequently asked questions')} | Pillage First! (Ask Questions Later)`;
+  const title =
+    'Frequently asked questions | Pillage First! (Ask Questions Later)';
 
   return (
     <>
@@ -23,10 +21,10 @@ const FrequentlyAskedQuestionsPage = () => {
               <BreadcrumbLink to="/">Home</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>{t('Frequently asked questions')}</BreadcrumbItem>
+            <BreadcrumbItem>Frequently asked questions</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Text as="h1">{t('Frequently asked questions')}</Text>
+        <Text as="h1">Frequently asked questions</Text>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Text

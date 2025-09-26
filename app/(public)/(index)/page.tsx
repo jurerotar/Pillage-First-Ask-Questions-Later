@@ -2,13 +2,11 @@ import { ServerCard } from 'app/(public)/(index)/components/server-card';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
-import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { Suspense } from 'react';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 
 const ServerList = () => {
-  const { t } = useTranslation('public');
   const { availableServers } = useAvailableServers();
 
   return (
@@ -17,7 +15,7 @@ const ServerList = () => {
         to="/create-new-server"
         className="w-full h-20 border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center text-gray-700 hover:border-gray-600 hover:text-gray-700 transition"
       >
-        {t('Create a new game world')}
+        Create a new game world
       </Link>
       {availableServers.map((server: Server) => (
         <ServerCard
@@ -30,8 +28,6 @@ const ServerList = () => {
 };
 
 const HomePage = () => {
-  const { t } = useTranslation('public');
-
   return (
     <>
       <title>Pillage First! (Ask Questions Later)</title>
@@ -112,10 +108,10 @@ const HomePage = () => {
               as="h2"
               className="font-semibold"
             >
-              {t('Existing game worlds')}
+              Existing game worlds
             </Text>
             <Text>
-              {t('Create a new game world or enter a previously created one')}
+              Create a new game world or enter a previously created one
             </Text>
             <Suspense fallback={null}>
               <ServerList />

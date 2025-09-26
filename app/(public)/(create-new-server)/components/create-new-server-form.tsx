@@ -18,8 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { t } from 'i18next';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
@@ -30,8 +28,8 @@ import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-
 import { workerFactory } from 'app/utils/workers';
 
 const formSchema = z.object({
-  seed: z.string().min(1, { error: t('Seed is required') }),
-  name: z.string().min(1, { error: t('Server name is required') }),
+  seed: z.string().min(1, { error: 'Seed is required' }),
+  name: z.string().min(1, { error: 'Server name is required' }),
   configuration: z.object({
     speed: z
       .enum(['1', '2', '3', '5', '10'])
@@ -44,7 +42,7 @@ const formSchema = z.object({
       .overwrite((val) => Number.parseInt(val, 10)),
   }),
   playerConfiguration: z.object({
-    name: z.string().min(1, { error: t('Player name is required') }),
+    name: z.string().min(1, { error: 'Player name is required' }),
     tribe: z.enum(['romans', 'gauls', 'teutons', 'huns', 'egyptians']),
   }),
 });
@@ -58,7 +56,6 @@ type MutateArgs = {
 };
 
 export const CreateNewServerForm = () => {
-  const { t } = useTranslation('public');
   const navigate = useNavigate();
   const { addServer, deleteServer } = useAvailableServers();
 
@@ -85,13 +82,13 @@ export const CreateNewServerForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       seed: generateSeed(),
-      name: t('Server'),
+      name: 'Server',
       configuration: {
         speed: '1',
         mapSize: '100',
       },
       playerConfiguration: {
-        name: t('Player'),
+        name: 'Player',
         tribe: 'gauls',
       },
     },
@@ -128,7 +125,7 @@ export const CreateNewServerForm = () => {
               name="seed"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('Server Seed')}</FormLabel>
+                  <FormLabel>Server Seed</FormLabel>
                   <FormControl>
                     <Input
                       disabled={isPending || isSuccess}
@@ -147,10 +144,10 @@ export const CreateNewServerForm = () => {
               disabled={isPending || isSuccess}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('Server Name')}</FormLabel>
+                  <FormLabel>Server Name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t('New World')}
+                      placeholder={'New World'}
                       {...field}
                     />
                   </FormControl>
@@ -164,7 +161,7 @@ export const CreateNewServerForm = () => {
               name="configuration.mapSize"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('World Size')}</FormLabel>
+                  <FormLabel>World Size</FormLabel>
                   <Select
                     disabled={isPending || isSuccess}
                     onValueChange={field.onChange}
@@ -191,7 +188,7 @@ export const CreateNewServerForm = () => {
               name="configuration.speed"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('Game Speed')}</FormLabel>
+                  <FormLabel>Game Speed</FormLabel>
                   <Select
                     disabled={isPending || isSuccess}
                     onValueChange={field.onChange}
@@ -223,7 +220,7 @@ export const CreateNewServerForm = () => {
               disabled={isPending || isSuccess}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('Player Name')}</FormLabel>
+                  <FormLabel>Player Name</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -237,7 +234,7 @@ export const CreateNewServerForm = () => {
               name="playerConfiguration.tribe"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('Tribe')}</FormLabel>
+                  <FormLabel>Tribe</FormLabel>
                   <Select
                     disabled={isPending || isSuccess}
                     onValueChange={field.onChange}
@@ -245,17 +242,15 @@ export const CreateNewServerForm = () => {
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t('Select a tribe')} />
+                        <SelectValue placeholder={'Select a tribe'} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="romans">{t('Romans')}</SelectItem>
-                      <SelectItem value="gauls">{t('Gauls')}</SelectItem>
-                      <SelectItem value="teutons">{t('Teutons')}</SelectItem>
-                      <SelectItem value="huns">{t('Huns')}</SelectItem>
-                      <SelectItem value="egyptians">
-                        {t('Egyptians')}
-                      </SelectItem>
+                      <SelectItem value="romans">Romans</SelectItem>
+                      <SelectItem value="gauls">Gauls</SelectItem>
+                      <SelectItem value="teutons">Teutons</SelectItem>
+                      <SelectItem value="huns">Huns</SelectItem>
+                      <SelectItem value="egyptians">Egyptians</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -270,7 +265,7 @@ export const CreateNewServerForm = () => {
             disabled={isPending || isSuccess}
             type="submit"
           >
-            {t('Create Server')}
+            Create Server
           </Button>
         </div>
       </form>
