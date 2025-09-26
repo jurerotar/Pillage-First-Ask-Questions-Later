@@ -2,6 +2,7 @@ import type { Config } from '@react-router/dev/config';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,
+  replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
 
 export default {
@@ -21,6 +22,7 @@ export default {
   },
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);
+    await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
     await deleteSPAPreloadPage(args);
   },
 } satisfies Config;
