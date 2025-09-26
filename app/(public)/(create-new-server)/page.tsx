@@ -1,6 +1,5 @@
 import { CreateNewServerForm } from 'app/(public)/(create-new-server)/components/create-new-server-form';
 import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,9 +10,7 @@ import {
 import { Alert } from 'app/components/ui/alert';
 
 const CreateNewServerPage = () => {
-  const { t } = useTranslation('public');
-
-  const title = `${t('Create new server')} | Pillage First! (Ask Questions Later)`;
+  const title = 'Create new server | Pillage First! (Ask Questions Later)';
 
   return (
     <>
@@ -27,27 +24,22 @@ const CreateNewServerPage = () => {
                   <BreadcrumbLink to="/">Home</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem>{t('Create new server')}</BreadcrumbItem>
+                <BreadcrumbItem>Create new server</BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <Text as="h1">{t('Create new server')}</Text>
+            <Text as="h1">Create new server</Text>
             <Text>
-              {t(
-                "Creating a new server will generate a game state and store it in your browser's persistent memory. You can safely close the tab or browser at any time, your server will still be there when you return. A link to your new server will appear in the server list on the homepage, and you'll be automatically redirected to it after creation.",
-              )}
+              Creating a new server will generate a game state and store it in
+              your browser's persistent memory. You can safely close the tab or
+              browser at any time, your server will still be there when you
+              return. A link to your new server will appear in the server list
+              on the homepage, and you'll be automatically redirected to it
+              after creation.
             </Text>
             <Alert variant="warning">
               Game is still in development, some features are missing.
-              <br /> To see the current list of available features, see{' '}
-              <a
-                rel="noreferrer"
-                className="underline text-blue-600"
-                target="_blank"
-                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/master/docs/ROADMAP.md"
-              >
-                roadmap
-              </a>{' '}
-              or{' '}
+              <br />
+              To get the list of currently available features,{' '}
               <a
                 rel="noopener noreferrer"
                 className="text-blue-500 underline"
@@ -56,7 +48,7 @@ const CreateNewServerPage = () => {
               >
                 join our Discord server
               </a>{' '}
-              for more information .
+              .
             </Alert>
             <Alert variant="error">
               Since the game is still in development, game worlds may become

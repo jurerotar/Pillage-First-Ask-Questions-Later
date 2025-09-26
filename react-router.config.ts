@@ -2,11 +2,17 @@ import type { Config } from '@react-router/dev/config';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,
+  replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
 
 export default {
   ssr: false,
-  prerender: ['/', '/create-new-server', '/__spa-preload'],
+  prerender: [
+    '/',
+    '/create-new-server',
+    '/frequently-asked-questions',
+    '/__spa-preload',
+  ],
   future: {
     v8_middleware: true,
     unstable_optimizeDeps: true,
@@ -16,6 +22,7 @@ export default {
   },
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);
+    await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
     await deleteSPAPreloadPage(args);
   },
 } satisfies Config;
