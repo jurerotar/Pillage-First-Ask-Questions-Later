@@ -1,6 +1,7 @@
 # === Pre-rendered static pages ===
-/                                 /index.html                           200
-/create-new-server                /create-new-server/index.html         200
+/                                 /index.html                               200
+/create-new-server                /create-new-server/index.html             200
+/frequently-asked-questions       /frequently-asked-questions/index.html    200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/:splat/resources                        /game/server-slug/village-slug/resources/index.html                         200

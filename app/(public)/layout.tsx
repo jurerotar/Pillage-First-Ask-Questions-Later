@@ -1,9 +1,10 @@
-import { Outlet } from 'react-router';
+import { Link, Outlet } from 'react-router';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { loadPublicTranslations } from 'app/localization/loaders/public';
 import { Tooltip } from 'app/components/tooltip';
 import { useTranslation } from 'react-i18next';
 import { env } from 'app/env';
+import { Text } from 'app/components/text';
 
 export const clientLoader = async () => {
   // const locale = await getCookie('locale', 'en-US');
@@ -55,19 +56,37 @@ const PublicLayout = () => {
             >
               Pillage First! Ask Questions Later
             </a>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground">
               {t(
                 'Pillage First! is an open-source, single-player strategy game inspired by Travian.',
               )}
             </p>
           </div>
 
-          <nav className="text-sm space-y-2 hidden md:flex" />
+          <nav className="space-y-2 hidden md:flex" />
 
-          <nav className="text-sm space-y-2 hidden md:flex" />
+          <nav className="space-y-2">
+            <Text
+              as="h3"
+              className="font-medium"
+            >
+              {t('Resources')}
+            </Text>
+            <Link
+              className="underline"
+              to="frequently-asked-questions"
+            >
+              {t('Frequently asked questions')}
+            </Link>
+          </nav>
 
-          <nav className="text-sm space-y-2">
-            <div className="font-medium">{t('Social')}</div>
+          <nav className="space-y-2">
+            <Text
+              as="h3"
+              className="font-medium"
+            >
+              {t('Social')}
+            </Text>
             <div className="flex gap-2">
               <a
                 href="https://discord.gg/Ep7NKVXUZA"

@@ -11,6 +11,10 @@ export default [
   layout('(public)/layout.tsx', [
     index('(public)/(index)/page.tsx'),
     route('create-new-server', '(public)/(create-new-server)/page.tsx'),
+    route(
+      'frequently-asked-questions',
+      '(public)/(frequently-asked-questions)/page.tsx',
+    ),
   ]),
   // Design system routes
   ...prefix('design-system', [

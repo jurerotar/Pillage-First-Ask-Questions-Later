@@ -6,7 +6,12 @@ import {
 
 export default {
   ssr: false,
-  prerender: ['/', '/create-new-server', '/__spa-preload'],
+  prerender: [
+    '/',
+    '/create-new-server',
+    '/frequently-asked-questions',
+    '/__spa-preload',
+  ],
   future: {
     v8_middleware: true,
     unstable_optimizeDeps: true,

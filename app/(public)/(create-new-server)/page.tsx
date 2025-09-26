@@ -38,16 +38,8 @@ const CreateNewServerPage = () => {
             </Text>
             <Alert variant="warning">
               Game is still in development, some features are missing.
-              <br /> To see the current list of available features, see{' '}
-              <a
-                rel="noreferrer"
-                className="underline text-blue-600"
-                target="_blank"
-                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/master/docs/ROADMAP.md"
-              >
-                roadmap
-              </a>{' '}
-              or{' '}
+              <br />
+              To get the list of currently available features,{' '}
               <a
                 rel="noopener noreferrer"
                 className="text-blue-500 underline"
@@ -56,7 +48,7 @@ const CreateNewServerPage = () => {
               >
                 join our Discord server
               </a>{' '}
-              for more information .
+              .
             </Alert>
             <Alert variant="error">
               Since the game is still in development, game worlds may become

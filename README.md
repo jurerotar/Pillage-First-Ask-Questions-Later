@@ -47,6 +47,23 @@ the classic gameplay
 loop,
 reimagined for solo play.
 
+# Frequently asked questions
+
+### What's the state of the project?
+
+Project is pretty heavy in development! It's still missing a lot of major features. What's currently available is building construction, unit training, a couple of building interfaces, as well as secondary pages like production-overview, village-overview, preferences,...
+
+### Is there a roadmap?
+
+Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific timeline for any features. That being said, here's the general plan for upcoming development:
+
+- Engine rework (currently in development)
+- Combat mechanics
+- Trading mechanics
+- Hero adventures, inventory,...
+
+Bug fixing and other minor works will be made between these features.
+
 ### Can this project be converted to multiplayer?
 
 **Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential
@@ -65,27 +82,6 @@ scratch.
 
 If you’re passionate about backend development and want to help bring multiplayer to life — feel free to reach out!
 
-### Why single-player?
-
-There are a few key reasons I chose to focus on single-player:
-
-- **Moderation cost & complexity** - multiplayer comes with a whole layer of moderation challenges — things like chat
-  filters, reporting tools, cheat
-  prevention, and account systems. They’re not just one-time features either; they need constant upkeep and care. For a
-  solo developer, that’s a massive investment of time and energy that could easily overshadow the actual game
-  development. With single-player, I can skip all of that and stay focused on building the experience itself.
-
-
-- **Offline-first accessibility** - by skipping networking, the game becomes fully
-  playable offline. This makes it more
-  accessible to players with limited or unreliable internet access, and ensures the experience is consistent regardless
-  of connection quality.
-
-
-- **Frontend challenge** - building a rich, complex app entirely in the browser is a rare and rewarding challenge. It
-  pushes me to solve problems
-  like state management, simulation, and performance, all within the constraints of a browser environment.
-
 ### Are there game design differences between Travian and Pillage First!?
 
 Yes, there are a few! The main ones include new buildings, additional playable tribes, the removal of the capital
@@ -100,10 +96,6 @@ middle school, but it's not something I want to (or even can?) engage in now. I 
 whenever life gets in the way, and for the game to respect that.
 
 I want this game to be a more accessible, customizable and time-friendly version of Travian.
-
-# Roadmap
-
-See the [ROADMAP.md](/docs/ROADMAP.md) for a full list of supported & upcoming features.
 
 # Contributing
 
