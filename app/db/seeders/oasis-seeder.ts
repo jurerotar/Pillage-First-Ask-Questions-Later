@@ -35,6 +35,7 @@ export const oasisSeeder: Seeder = (database, server): void => {
     if (!canBeCompositeBonus) {
       const shouldHaveDoubleBonus =
         seededRandomIntFromInterval(prng, 1, 2) === 1;
+
       oasisBonuses.push([
         id,
         oasisResource,
