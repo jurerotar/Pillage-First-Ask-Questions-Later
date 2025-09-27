@@ -69,7 +69,7 @@ const ConstructionQueueBuilding = ({
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer"
       >
-        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2 pb-4 pt-0 box-content border border-border rounded-xs" />
+        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs" />
         <Countdown
           className="absolute bottom-0 left-0 text-xs w-full leading-none bg-background border border-border text-center"
           endsAt={buildingEvent.startsAt + buildingEvent.duration}

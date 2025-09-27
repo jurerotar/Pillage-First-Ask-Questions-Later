@@ -530,15 +530,11 @@ const TopNavigation = () => {
         </div>
       )}
       {!isWiderThanLg && (
-        <>
-          {/* Empty div to bring down the header on mobile devices */}
-          <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
-            <DiscordLink />
-            <VillageSelect />
-            <HeroNavigationItem />
-          </div>
-        </>
+        <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
+          <DiscordLink />
+          <VillageSelect />
+          <HeroNavigationItem />
+        </div>
       )}
       <div className="flex relative rounded-md lg:rounded-none lg:rounded-b-sm px-2 lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-20 shadow-lg">
         <ResourceCounters />

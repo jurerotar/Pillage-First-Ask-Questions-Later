@@ -3,9 +3,7 @@ import { format, formatDistanceToNow, isSameDay } from 'date-fns';
 export const formatTime = (milliseconds: number): string => {
   let time = '';
 
-  const hours = Math.floor(milliseconds / 1000 / 60 / 60)
-    .toString()
-    .padStart(2, '0');
+  const hours = Math.floor(milliseconds / 1000 / 60 / 60).toString();
   const minutes = Math.floor((milliseconds / 1000 / 60) % 60)
     .toString()
     .padStart(2, '0');
