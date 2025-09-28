@@ -16,6 +16,7 @@ import type { AvailableLocale } from 'app/interfaces/models/locale';
 import { Switch } from 'app/components/ui/switch';
 import { useTranslation } from 'react-i18next';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { Button } from 'app/components/ui/button';
 
 export const GeneralPreferences = () => {
   const { t } = useTranslation();
@@ -23,6 +24,44 @@ export const GeneralPreferences = () => {
 
   return (
     <Section>
+      <SectionContent>
+        <Text as="h2">{t('Gameplay')}</Text>
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">
+              {t('Offline attacks (in development)')}
+            </span>
+            <span>
+              {t(
+                "Select whether enemies can trigger attacks against you while you're offline.",
+              )}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Switch
+              disabled
+              checked={true}
+            />
+          </div>
+        </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">
+              {t('Vacation mode (in development)')}
+            </span>
+            <span>
+              {t(
+                'While in vacation mode, game pauses completely. You may enable vacation mode or resume gameplay at any time.',
+              )}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Button disabled>{t('Enable vacation mode')}</Button>
+          </div>
+        </div>
+      </SectionContent>
+      <Separator orientation="horizontal" />
       <SectionContent>
         <Text as="h2">{t('Appearance')}</Text>
         <div className="flex gap-2">
