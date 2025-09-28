@@ -222,7 +222,7 @@ export function calculateComputedEffect(
   let summedTroopEffectBaseValue = 0;
 
   for (const value of effectBreakdown.troopEffectValues.base) {
-    summedTroopEffectBaseValue += value * serverEffectValue;
+    summedTroopEffectBaseValue += value;
   }
 
   let summedBuildingEffectBasePositiveValue = 0;
