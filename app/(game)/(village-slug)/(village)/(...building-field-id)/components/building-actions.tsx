@@ -137,11 +137,6 @@ export const BuildingActions = () => {
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
 
-  const canDemolishBuildings =
-    (currentVillage.buildingFields.find(
-      ({ buildingId }) => buildingId === 'MAIN_BUILDING',
-    )?.level ?? 0) >= 10;
-
   const navigateBack = async () => {
     await navigate('..', { relative: 'path' });
   };
@@ -191,7 +186,7 @@ export const BuildingActions = () => {
     );
   }
 
-  if (isMaxLevel && !canDemolishBuildings) {
+  if (isMaxLevel) {
     return null;
   }
 
@@ -201,12 +196,10 @@ export const BuildingActions = () => {
       className="flex flex-col gap-2 pt-2 border-t border-border"
     >
       <Text as="h3">{t('Available actions')}</Text>
-      {!isMaxLevel && (
-        <BuildingCardActionsUpgrade
-          buildingLevel={virtualLevel}
-          onBuildingUpgrade={onBuildingUpgrade}
-        />
-      )}
+      <BuildingCardActionsUpgrade
+        buildingLevel={virtualLevel}
+        onBuildingUpgrade={onBuildingUpgrade}
+      />
     </section>
   );
 };

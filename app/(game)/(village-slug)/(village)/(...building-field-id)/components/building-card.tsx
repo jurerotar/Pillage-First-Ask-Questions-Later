@@ -205,7 +205,7 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
         {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
           <>
             {formattingFn(
-              Math.abs(effect.currentLevelValue),
+              Math.abs(effect.currentLevelValue * effectModifier),
               effect.areEffectValuesRising,
             )}
             <span className="mx-0.5">&rarr;</span>

@@ -22,7 +22,6 @@ import {
 } from 'react-window';
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { isStandaloneDisplayMode } from 'app/utils/device';
 import { Dialog } from 'app/components/ui/dialog';
 import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -65,8 +64,6 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  const isPwa = isStandaloneDisplayMode();
-
   /**
    * List of individual contributions
    * Desktop:
@@ -78,9 +75,7 @@ const MapPage = () => {
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
    *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
    */
-  const mapHeight = isWiderThanLg
-    ? height - 76
-    : height - 218 - (isPwa ? 48 : 0);
+  const mapHeight = isWiderThanLg ? height - 76 : height - 218;
 
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({

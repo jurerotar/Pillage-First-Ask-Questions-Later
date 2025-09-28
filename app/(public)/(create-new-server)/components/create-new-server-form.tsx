@@ -26,6 +26,8 @@ import { serverFactory } from 'app/factories/server-factory';
 import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
 import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
 import { workerFactory } from 'app/utils/workers';
+import { Text } from 'app/components/text';
+import { Switch } from 'app/components/ui/switch';
 
 const formSchema = z.object({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -44,6 +46,9 @@ const formSchema = z.object({
   playerConfiguration: z.object({
     name: z.string().min(1, { error: 'Player name is required' }),
     tribe: z.enum(['romans', 'gauls', 'teutons', 'huns', 'egyptians']),
+  }),
+  gameplay: z.object({
+    areOfflineNpcAttacksEnabled: z.boolean(),
   }),
 });
 
@@ -91,6 +96,9 @@ export const CreateNewServerForm = () => {
         name: 'Player',
         tribe: 'gauls',
       },
+      gameplay: {
+        areOfflineNpcAttacksEnabled: true,
+      },
     },
   });
 
@@ -118,145 +126,200 @@ export const CreateNewServerForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-4 p-2 shadow-xl rounded-md"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="seed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Server Seed</FormLabel>
-                  <FormControl>
-                    <Input
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-6">
+            <div className="space-y-4 shadow-lg p-2 rounded-md">
+              <div className="flex flex-col">
+                <Text
+                  className="text-lg"
+                  as="h3"
+                >
+                  Game world configuration
+                </Text>
+              </div>
+              <FormField
+                control={form.control}
+                name="seed"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seed</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isPending || isSuccess}
+                        placeholder="abc123"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="name"
+                disabled={isPending || isSuccess}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={'New World'}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="configuration.mapSize"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Size</FormLabel>
+                    <Select
                       disabled={isPending || isSuccess}
-                      placeholder="abc123"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="100">100x100</SelectItem>
+                        <SelectItem value="200">200x200</SelectItem>
+                        <SelectItem value="300">300x300</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="name"
-              disabled={isPending || isSuccess}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Server Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={'New World'}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="configuration.mapSize"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>World Size</FormLabel>
-                  <Select
-                    disabled={isPending || isSuccess}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="100">100x100</SelectItem>
-                      <SelectItem value="200">200x200</SelectItem>
-                      <SelectItem value="300">300x300</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="configuration.speed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Game Speed</FormLabel>
-                  <Select
-                    disabled={isPending || isSuccess}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">1x</SelectItem>
-                      <SelectItem value="2">2x</SelectItem>
-                      <SelectItem value="3">3x</SelectItem>
-                      <SelectItem value="5">5x</SelectItem>
-                      <SelectItem value="10">10x</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="configuration.speed"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Speed</FormLabel>
+                    <Select
+                      disabled={isPending || isSuccess}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1">1x</SelectItem>
+                        <SelectItem value="2">2x</SelectItem>
+                        <SelectItem value="3">3x</SelectItem>
+                        <SelectItem value="5">5x</SelectItem>
+                        <SelectItem value="10">10x</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="playerConfiguration.name"
-              disabled={isPending || isSuccess}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Player Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="playerConfiguration.tribe"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tribe</FormLabel>
-                  <Select
-                    disabled={isPending || isSuccess}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+          <div className="flex flex-col gap-6">
+            <div className="space-y-4 shadow-lg p-2 rounded-md">
+              <div className="flex flex-col">
+                <Text
+                  className="text-lg"
+                  as="h3"
+                >
+                  Player configuration
+                </Text>
+              </div>
+              <FormField
+                control={form.control}
+                name="playerConfiguration.name"
+                disabled={isPending || isSuccess}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={'Select a tribe'} />
-                      </SelectTrigger>
+                      <Input {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="romans">Romans</SelectItem>
-                      <SelectItem value="gauls">Gauls</SelectItem>
-                      <SelectItem value="teutons">Teutons</SelectItem>
-                      <SelectItem value="huns">Huns</SelectItem>
-                      <SelectItem value="egyptians">Egyptians</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="playerConfiguration.tribe"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tribe</FormLabel>
+                    <Select
+                      disabled={isPending || isSuccess}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder={'Select a tribe'} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="romans">Romans</SelectItem>
+                        <SelectItem value="gauls">Gauls</SelectItem>
+                        <SelectItem value="teutons">Teutons</SelectItem>
+                        <SelectItem value="huns">Huns</SelectItem>
+                        <SelectItem value="egyptians">Egyptians</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-4 shadow-lg p-2 rounded-md">
+              <div className="flex flex-col">
+                <Text
+                  className="text-lg"
+                  as="h3"
+                >
+                  Gameplay options
+                </Text>
+                <Text className="text-sm">
+                  These options can be updated in-game at any time.
+                </Text>
+              </div>
+              <FormField
+                control={form.control}
+                name="gameplay.areOfflineNpcAttacksEnabled"
+                disabled={true}
+                render={() => (
+                  <FormItem className="">
+                    <FormLabel>Offline attacks (in development)</FormLabel>
+                    <Text className="text-sm">
+                      By keeping this option enabled, enemies may send attacks
+                      while you're offline.
+                    </Text>
+                    <FormControl>
+                      <Switch
+                        disabled
+                        checked
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
         <div className="flex justify-end">
