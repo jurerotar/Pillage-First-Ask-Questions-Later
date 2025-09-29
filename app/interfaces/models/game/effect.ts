@@ -33,6 +33,8 @@ export type EffectId =
   | 'unitWheatConsumption'
   | 'unitCarryCapacity'
   | 'buildingDuration'
+  | 'unitResearchDuration'
+  | 'unitImprovementDuration'
   | 'merchantSpeed'
   | 'merchantCapacity'
   | 'merchantAmount'

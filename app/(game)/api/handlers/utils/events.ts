@@ -168,6 +168,7 @@ export const getEventDuration = (
     const { villageId, buildingId, level } = event;
 
     const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
     const { total } = calculateComputedEffect(
       'buildingDuration',
       effects,
@@ -190,8 +191,18 @@ export const getEventDuration = (
       return 0;
     }
 
+    const { villageId } = event;
+
+    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+    const { total: unitResearchDurationModifier } = calculateComputedEffect(
+      'unitResearchDuration',
+      effects,
+      villageId,
+    );
+
     const { unitId } = event;
-    return calculateUnitResearchDuration(unitId);
+    return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   }
 
   if (isUnitImprovementEvent(event)) {
@@ -199,8 +210,20 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { unitId, level } = event;
-    return calculateUnitUpgradeDurationForLevel(unitId, level);
+    const { villageId, unitId, level } = event;
+
+    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+    const { total: unitImprovementDurationModifier } = calculateComputedEffect(
+      'unitImprovementDuration',
+      effects,
+      villageId,
+    );
+
+    return (
+      unitImprovementDurationModifier *
+      calculateUnitUpgradeDurationForLevel(unitId, level)
+    );
   }
 
   if (isTroopTrainingEvent(event)) {

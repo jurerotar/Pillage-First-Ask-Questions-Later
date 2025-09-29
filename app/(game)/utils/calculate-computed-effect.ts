@@ -15,11 +15,11 @@ const assignEffectValue = (
       break;
     }
     case 'bonus': {
-      effectValuesRef.bonus += effect.value - 1;
+      effectValuesRef.bonus *= effect.value;
       break;
     }
     case 'bonus-booster': {
-      effectValuesRef.bonusBooster += effect.value - 1;
+      effectValuesRef.bonusBooster *= effect.value;
     }
   }
 };

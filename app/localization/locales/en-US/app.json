@@ -173,6 +173,7 @@
   "Cost to upgrade to level {{level}}": "Cost to upgrade to level {{level}}",
   "Building construction cost": "Building construction cost",
   "Construction duration for level {{level}}": "Construction duration for level {{level}}",
+  "Building is not fully implemented, some functionality may be missing.": "Building is not fully implemented, some functionality may be missing.",
   "Benefits": "Benefits",
   "Benefits at level {{level}}": "Benefits at level {{level}}",
   "Requirements": "Requirements",

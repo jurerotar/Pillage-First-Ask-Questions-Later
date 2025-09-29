@@ -26,6 +26,7 @@ import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { Alert } from 'app/components/ui/alert';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -170,6 +171,34 @@ export const BuildingCost = () => {
   );
 };
 
+export const BuildingUnfinishedNotice = () => {
+  const { t } = useTranslation();
+  const { buildingId } = use(BuildingCardContext);
+
+  const unfinishedBuildings: Building['id'][] = [
+    'HORSE_DRINKING_TROUGH',
+    'RESIDENCE',
+    'RALLY_POINT',
+    'TOWN_HALL',
+    'EMBASSY',
+    'COMMAND_CENTER',
+    'TRAPPER',
+    'MARKETPLACE',
+  ];
+
+  if (!unfinishedBuildings.includes(buildingId)) {
+    return null;
+  }
+
+  return (
+    <Alert variant="warning">
+      {t(
+        'Building is not fully implemented, some functionality may be missing.',
+      )}
+    </Alert>
+  );
+};
+
 type BuildingBenefitProps = {
   effect: CalculatedCumulativeEffect;
   isMaxLevel: boolean;
@@ -251,21 +280,33 @@ export const BuildingBenefits = () => {
       ({ effectId }) =>
         effectId === 'infantryDefence' || effectId === 'cavalryDefence',
     );
+
   const effectsToShow = (() => {
     if (shouldCombineEffects) {
-      const [infantryDefenceEffect, , infantryBonusEffect] = cumulativeEffects;
+      const staticDefenceEffect = cumulativeEffects.find(
+        ({ effectId, type }) =>
+          type === 'base' &&
+          (effectId === 'infantryDefence' || effectId === 'cavalryDefence'),
+      );
+      const staticDefenceBonusEffect = cumulativeEffects.find(
+        ({ effectId, type }) =>
+          type === 'bonus' &&
+          (effectId === 'infantryDefence' || effectId === 'cavalryDefence'),
+      );
 
-      const effects: CalculatedCumulativeEffect[] = [
-        {
-          ...infantryDefenceEffect,
-          effectId: 'defenceBonus',
-        } satisfies CalculatedCumulativeEffect,
-      ];
+      const effects: CalculatedCumulativeEffect[] = [];
 
-      if (infantryBonusEffect) {
+      if (staticDefenceEffect) {
         effects.push({
-          ...infantryBonusEffect,
+          ...staticDefenceEffect,
           effectId: 'defence',
+        } satisfies CalculatedCumulativeEffect);
+      }
+
+      if (staticDefenceBonusEffect) {
+        effects.push({
+          ...staticDefenceBonusEffect,
+          effectId: 'defenceBonus',
         } satisfies CalculatedCumulativeEffect);
       }
 

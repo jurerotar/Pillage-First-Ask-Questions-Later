@@ -25,6 +25,7 @@ import {
   BuildingCard,
   BuildingCost,
   BuildingOverview,
+  BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 
@@ -283,6 +284,7 @@ export const BuildingDetails = () => {
                 </Text>
                 <BuildingCard buildingId={buildingId}>
                   <BuildingOverview />
+                  <BuildingUnfinishedNotice />
                   <BuildingBenefits />
                   <BuildingCost />
                   <BuildingActions />

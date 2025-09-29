@@ -193,6 +193,9 @@ export const UnitResearch = () => {
   const { isUnitResearched } = useUnitResearch();
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
+  const { total: unitResearchDurationModifier } = useComputedEffect(
+    'unitResearchDuration',
+  );
   const hasResearched = isUnitResearched(unitId);
   const { createEvent: createUnitResearchEvent } =
     useCreateEvent('unitResearch');
@@ -205,7 +208,7 @@ export const UnitResearch = () => {
       return 0;
     }
 
-    return calculateUnitResearchDuration(unitId);
+    return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   })();
 
   const researchCost = (() => {
@@ -292,6 +295,9 @@ export const UnitImprovement = () => {
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { currentVillage } = useCurrentVillage();
+  const { total: unitImprovementDurationModifier } = useComputedEffect(
+    'unitImprovementDuration',
+  );
   const { createEvent: createUnitImprovementEvent } =
     useCreateEvent('unitImprovement');
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
@@ -303,7 +309,10 @@ export const UnitImprovement = () => {
       return 0;
     }
 
-    return calculateUnitUpgradeDurationForLevel(unitId, unitVirtualLevel);
+    return (
+      unitImprovementDurationModifier *
+      calculateUnitUpgradeDurationForLevel(unitId, unitVirtualLevel)
+    );
   })();
 
   const upgradeCost = (() => {
@@ -324,6 +333,7 @@ export const UnitImprovement = () => {
     currentVillage.buildingFields.find(
       ({ buildingId }) => buildingId === 'SMITHY',
     )?.level ?? 0;
+
   const isSmithyLevelHigherThanNextUpgradeLevel =
     academyLevel >= unitVirtualLevel + 1;
 
@@ -334,8 +344,8 @@ export const UnitImprovement = () => {
 
   const upgradeUnit = () => {
     createUnitImprovementEvent({
-      level: unitVirtualLevel + 1,
       unitId,
+      level: unitVirtualLevel,
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
