@@ -885,6 +885,8 @@
     "clayProduction": "Clay production",
     "ironProduction": "Iron production",
     "wheatProduction": "Wheat production",
+    "unitImprovementDuration": "Unit improvement duration",
+    "unitResearchDuration": "Unit research duration",
     "crannyCapacity": "Cranny capacity",
     "revealedIncomingTroopsAmount": "Revealed incoming troops",
     "merchantAmount": "Merchant amount",

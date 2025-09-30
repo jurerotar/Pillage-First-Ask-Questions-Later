@@ -254,6 +254,8 @@ export const icons: Record<IconType, () => JSX.Element> = {
   clayProduction: () => icons.clay(),
   ironProduction: () => icons.iron(),
   wheatProduction: () => icons.wheat(),
+  unitImprovementDuration: () => <LuClock className="size-full" />,
+  unitResearchDuration: () => <LuClock className="size-full" />,
   crannyCapacity: () => <PiKeyhole className="size-full" />,
   revealedIncomingTroopsAmount: () => <GiSpyglass className="size-full" />,
   unitSpeedAfter20Fields: () => (

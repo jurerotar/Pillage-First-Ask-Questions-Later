@@ -4,6 +4,7 @@ import {
   BuildingCost,
   BuildingOverview,
   BuildingRequirements,
+  BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -118,6 +119,7 @@ const BuildingCategoryPanel = ({
               }
             >
               <BuildingOverview />
+              <BuildingUnfinishedNotice />
               <BuildingBenefits />
               <BuildingCost />
               <BuildingActions />

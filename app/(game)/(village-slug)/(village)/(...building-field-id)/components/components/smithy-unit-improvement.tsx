@@ -14,6 +14,7 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();
@@ -37,7 +38,9 @@ export const SmithyUnitImprovement = () => {
           )}
         </Text>
       </SectionContent>
-      <SectionContent />
+      <SectionContent>
+        <SmithyImprovementTable />
+      </SectionContent>
       <SectionContent>
         {upgradableUnits.map(({ id }) => (
           <UnitCard
