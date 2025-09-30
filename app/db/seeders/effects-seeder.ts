@@ -122,6 +122,8 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
     'workshopTrainingDuration',
     'hospitalTrainingDuration',
     'buildingDuration',
+    'unitImprovementDuration',
+    'unitResearchDuration',
   ];
 
   const serverEffectIds: ServerEffect['id'][] = [
