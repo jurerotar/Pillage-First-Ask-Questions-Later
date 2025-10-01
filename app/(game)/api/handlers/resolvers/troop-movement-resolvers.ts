@@ -7,13 +7,11 @@ import {
   playersCacheKey,
   playerTroopsCacheKey,
   questsCacheKey,
-  serverCacheKey,
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Server } from 'app/interfaces/models/game/server';
 import type {
   OccupiedOccupiableTile,
   Tile,
@@ -69,8 +67,6 @@ const findNewVillageMovementResolver: Resolver<
 > = async (queryClient, args) => {
   const { targetId } = args;
 
-  const server = queryClient.getQueryData<Server>([serverCacheKey])!;
-
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const tileToOccupy = tiles.find(
     ({ id }) => id === targetId,
@@ -96,13 +92,7 @@ const findNewVillageMovementResolver: Resolver<
   });
 
   queryClient.setQueryData<Quest[]>([questsCacheKey], (quests) => {
-    return [
-      ...quests!,
-      ...newVillageQuestsFactory(
-        newVillage.id,
-        server.playerConfiguration.tribe,
-      ),
-    ];
+    return [...quests!, ...newVillageQuestsFactory(newVillage.id)];
   });
 
   queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {

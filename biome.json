@@ -4,17 +4,11 @@
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true,
-    "defaultBranch": "develop"
+    "defaultBranch": "master"
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "**",
-      "!**/build",
-      "!**/app/**/__mocks__/**/*",
-      "!**/app/asset-preload-paths",
-      "!*.md"
-    ]
+    "includes": ["**", "!**/build", "!**/.react-router", "!**/public"]
   },
   "assist": { "actions": { "source": { "organizeImports": "off" } } },
   "formatter": {
