@@ -1,6 +1,6 @@
 import type { Seeder } from 'app/interfaces/db';
 import type { UnitTier } from 'app/interfaces/models/game/unit';
-import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitsByTribe } from 'app/assets/utils/units';
 import { batchInsert } from 'app/db/utils/batch-insert';
 import { PLAYER_ID } from 'app/constants/player';
 

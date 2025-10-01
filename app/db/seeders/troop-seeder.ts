@@ -8,7 +8,7 @@ import type {
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { prngMulberry32 } from 'ts-seedrandom';
-import { getUnitByTribeAndTier } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitByTribeAndTier } from 'app/assets/utils/units';
 import { PLAYER_ID } from 'app/constants/player';
 import type { Seeder } from 'app/interfaces/db';
 import type { TileModel } from 'app/interfaces/models/game/tile';

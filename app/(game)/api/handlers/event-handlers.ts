@@ -11,7 +11,7 @@ import {
   isScheduledBuildingEvent,
   isVillageEvent,
 } from 'app/(game)/guards/event-guards';
-import { calculateBuildingCancellationRefundForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { calculateBuildingCancellationRefundForLevel } from 'app/assets/utils/buildings';
 import {
   addVillageResourcesAt,
   demolishBuilding,

@@ -11,9 +11,9 @@ import { merchants } from 'app/assets/merchants';
 import { PLAYER_ID } from 'app/constants/player';
 import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { z } from 'zod';
-import { calculateTotalPopulationForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { calculateTotalPopulationForLevel } from 'app/assets/utils/buildings';
 import type { BuildingId } from 'app/interfaces/models/game/building';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitData } from 'app/assets/utils/units';
 import type { Unit } from 'app/interfaces/models/game/unit';
 
 const heroEffectsFactory = (
