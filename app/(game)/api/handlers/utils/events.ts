@@ -44,6 +44,55 @@ import {
 } from 'app/(game)/api/utils/village';
 import { getCurrentPlayer } from 'app/(game)/api/utils/player';
 import type { DbFacade } from 'app/(game)/api/database-facade';
+import { z } from 'zod';
+
+const selectEffectsSqlStatement = `
+  SELECT effect_id,
+         value,
+         type,
+         scope,
+         source,
+         village_id,
+         source_specifier
+  FROM effects
+  WHERE effect_id = $effect_id
+    AND (
+    scope IN ('global', 'server')
+      OR (scope = 'village' AND village_id = $village_id)
+    );
+`;
+
+const effectsSchema = z
+  .object({
+    effect_id: z.string().brand<Effect['id']>(),
+    value: z.number(),
+    type: z.enum(['base', 'bonus', 'bonus-booster']),
+    scope: z.enum(['server', 'global', 'village']),
+    source: z.enum([
+      'building',
+      'artifact',
+      'hero',
+      'oasis',
+      'tribe',
+      'server',
+      'troops',
+    ]),
+    village_id: z.number().nullable(),
+    source_specifier: z.number().nullable(),
+  })
+  .transform((z) => {
+    return {
+      id: z.effect_id as Effect['id'],
+      value: z.value,
+      type: z.type,
+      scope: z.scope,
+      source: z.source,
+      villageId: z.village_id,
+      sourceSpecifier: z.source_specifier,
+    };
+  });
+
+const effectsListSchema = z.array(effectsSchema);
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -172,7 +221,12 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectEffectsSqlStatement, {
+      $effect_id: 'buildingDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       'buildingDuration',
@@ -196,9 +250,14 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { villageId } = event;
+    const { villageId, unitId } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectEffectsSqlStatement, {
+      $effect_id: 'unitResearchDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
       'unitResearchDuration',
@@ -206,7 +265,6 @@ export const getEventDuration = (
       villageId,
     );
 
-    const { unitId } = event;
     return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   }
 
@@ -217,7 +275,12 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectEffectsSqlStatement, {
+      $effect_id: 'unitImprovementDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
       'unitImprovementDuration',

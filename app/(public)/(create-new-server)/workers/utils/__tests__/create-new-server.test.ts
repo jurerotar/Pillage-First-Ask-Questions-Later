@@ -1,7 +1,8 @@
 import { describe, test, expect } from 'vitest';
 import { createNewServer } from 'app/(public)/(create-new-server)/workers/utils/create-new-server';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
-import { calculateGridLayout } from 'app/utils/map';
+import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
+import { PLAYER_ID } from 'app/constants/player';
 
 const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 const sqlite3 = await sqlite3InitModule();
@@ -79,6 +80,37 @@ describe('createNewServer', () => {
       );
 
       expect(areTypesCorrect).toBe(true);
+    });
+
+    test('oasis groups tile counts are multiples of expected shape sizes', () => {
+      const rows = database.selectObjects(
+        `SELECT id, oasis_graphics
+         FROM tiles
+         WHERE type = 'oasis';`,
+      ) as { id: number; oasis_graphics: number }[];
+
+      const counts = new Map<number, number>();
+
+      for (const { oasis_graphics } of rows) {
+        const { oasisGroup } = decodeGraphicsProperty(oasis_graphics);
+        counts.set(oasisGroup, (counts.get(oasisGroup) ?? 0) + 1);
+      }
+
+      const expectedTilesByGroup: Record<number, number> = {
+        1: 2,
+        2: 4,
+        3: 3,
+        4: 3,
+      };
+
+      for (const [groupStr, expectedTiles] of Object.entries(
+        expectedTilesByGroup,
+      )) {
+        const group = Number(groupStr);
+        const count = counts.get(group) ?? 0;
+        // If count is zero we still check divisibility (0 % n === 0) — adjust if you want to require >0
+        expect(count % expectedTiles).toBe(0);
+      }
     });
 
     test('no duplicate coordinates (x,y)', () => {
@@ -269,12 +301,39 @@ describe('createNewServer', () => {
 
       expect(count).toBeGreaterThan(0);
     });
+
     test('there is at least one oasis that has a 50% bonus', () => {
       const count = database.selectValue(
         'SELECT count(*) FROM oasis WHERE bonus = 50;',
       ) as number;
 
       expect(count).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Map filters', () => {
+    test('map_filters row exists for player', () => {
+      const countRow = database.selectObject(
+        `SELECT COUNT(*) as cnt
+         FROM map_filters
+         WHERE player_id = $player_id;`,
+        { $player_id: PLAYER_ID },
+      ) as { cnt: number };
+
+      expect(countRow.cnt).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Preferences', () => {
+    test('preferences row exists for player', () => {
+      const countRow = database.selectObject(
+        `SELECT COUNT(*) as cnt
+         FROM preferences
+         WHERE player_id = $player_id;`,
+        { $player_id: PLAYER_ID },
+      ) as { cnt: number };
+
+      expect(countRow.cnt).toBeGreaterThan(0);
     });
   });
 });

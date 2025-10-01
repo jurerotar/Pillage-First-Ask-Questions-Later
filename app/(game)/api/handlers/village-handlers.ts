@@ -1,9 +1,10 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { Building } from 'app/interfaces/models/game/building';
 
 const buildingFieldRowSchema = z.object({
   field_id: z.number(),
-  building_id: z.string(),
+  building_id: z.string().brand<Building['id']>(),
   level: z.number(),
 });
 

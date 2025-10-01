@@ -30,29 +30,30 @@ export const oasisSeeder: Seeder = (database, server): void => {
 
     const { oasisResource } = decodeGraphicsProperty(oasis_graphics!);
 
-    const canBeCompositeBonus = oasisResource !== 'wheat';
+    const shouldHaveDoubleBonus = seededRandomIntFromInterval(prng, 1, 2) === 1;
 
-    if (!canBeCompositeBonus) {
-      const shouldHaveDoubleBonus =
-        seededRandomIntFromInterval(prng, 1, 2) === 1;
+    if (shouldHaveDoubleBonus) {
+      oasisBonuses.push([id, oasisResource, 50, null]);
 
-      oasisBonuses.push([
-        id,
-        oasisResource,
-        shouldHaveDoubleBonus ? 50 : 25,
-        null,
-      ]);
+      continue;
+    }
+
+    // If oasis does not have 50% bonus, push 25% bonus instead.
+    oasisBonuses.push([id, oasisResource, 25, null]);
+
+    // If oasis is wheat, it can't have any other resource bonus
+    if (oasisResource === 'wheat') {
       continue;
     }
 
     const shouldHaveCompositeBonus =
       seededRandomIntFromInterval(prng, 1, 2) === 1;
 
-    // Push both clay-25 and wheat-25 for example
-    if (shouldHaveCompositeBonus) {
-      oasisBonuses.push([id, oasisResource, 25, null]);
-      oasisBonuses.push([id, 'wheat', 25, null]);
+    if (!shouldHaveCompositeBonus) {
+      continue;
     }
+
+    oasisBonuses.push([id, 'wheat', 25, null]);
   }
 
   batchInsert(

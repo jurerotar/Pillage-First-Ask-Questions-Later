@@ -21,7 +21,6 @@ import createUnitResearchTable from 'app/db/schemas/unit-research-schema.sql?raw
 import createUnitImprovementTable from 'app/db/schemas/unit-improvements-schema.sql?raw';
 import createBuildingFieldsTable from 'app/db/schemas/building-fields-schema.sql?raw';
 import createQuestsTable from 'app/db/schemas/quests-schema.sql?raw';
-import createQuestRewardsTable from 'app/db/schemas/quest-rewards-schema.sql?raw';
 import createResourceSitesTable from 'app/db/schemas/resource-sites-schema.sql?raw';
 import createEffectsTable from 'app/db/schemas/effects-schema.sql?raw';
 import createOasisBonusesIndexes from 'app/db/indexes/oasis-indexes.sql?raw';
@@ -144,7 +143,6 @@ export const createNewServer = (database: Database, server: Server): void => {
 
     // Quests
     db.exec(createQuestsTable);
-    db.exec(createQuestRewardsTable);
     questsSeeder(db, server);
   });
 };

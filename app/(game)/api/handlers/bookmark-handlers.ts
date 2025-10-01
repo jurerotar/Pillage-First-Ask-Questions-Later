@@ -1,10 +1,11 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
+import type { Building } from 'app/interfaces/models/game/building';
 
 const getBookmarksSchema = z
   .strictObject({
-    building_id: z.string(),
+    building_id: z.string().brand<Building['id']>(),
     tab_name: z.string(),
   })
   .transform((t) => {

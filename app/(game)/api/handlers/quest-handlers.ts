@@ -3,7 +3,6 @@ import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import {
   isHeroExperienceQuestReward,
-  isQuestCollectable,
   isResourceQuestReward,
   isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
@@ -22,11 +21,16 @@ type GetCollectableQuestCountReturn = {
 
 export const getCollectableQuestCount: ApiHandler<
   GetCollectableQuestCountReturn
-> = async (queryClient, _database) => {
-  const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
+> = async (_queryClient, database) => {
+  const collectableQuestCount = database.selectValue(
+    `SELECT COUNT(*) AS count
+     FROM quests
+     WHERE completed_at IS NOT NULL
+       AND collected_at IS NULL;`,
+  ) as number;
 
   return {
-    collectableQuestCount: quests.filter(isQuestCollectable).length,
+    collectableQuestCount,
   };
 };
 
@@ -72,7 +76,7 @@ export const collectQuest: ApiHandler<
     }
 
     if (isHeroExperienceQuestReward(reward)) {
-      addHeroExperience(queryClient, reward.amount);
+      addHeroExperience(database, reward.amount);
     }
   }
 
