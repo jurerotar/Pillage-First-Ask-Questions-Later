@@ -1,7 +1,7 @@
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getUnitsByTribe } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitsByTribe } from 'app/assets/utils/units';
 
 export const newVillageUnitResearchFactory = (
   villageId: Village['id'],

@@ -3,7 +3,7 @@ import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitData } from 'app/assets/utils/units';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
 const getImprovedUnitPower = (

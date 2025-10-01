@@ -1,7 +1,7 @@
 import { BuildingConstruction } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction';
 import { BuildingDetails } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-details';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
 import { BuildingFieldProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
 import { useTranslation } from 'react-i18next';

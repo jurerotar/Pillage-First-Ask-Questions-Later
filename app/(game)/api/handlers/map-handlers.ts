@@ -22,7 +22,7 @@ import {
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { TroopMovementType } from 'app/components/icons/icons';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { calculatePopulationFromBuildingFields } from 'app/(game)/(village-slug)/utils/building';
+import { calculatePopulationFromBuildingFields } from 'app/assets/utils/buildings';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 
 type GetTilePlayerReturn = {

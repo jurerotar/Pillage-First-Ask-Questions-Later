@@ -8,7 +8,7 @@ import {
   type CalculatedCumulativeEffect,
   getBuildingData,
   getBuildingDataForLevel,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
 import { clsx } from 'clsx';
 import type { PropsWithChildren } from 'react';

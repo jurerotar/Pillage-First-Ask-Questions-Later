@@ -1,7 +1,7 @@
 import {
   getBuildingData,
   getBuildingDataForLevel,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/api';
 import type { Effect } from 'app/interfaces/models/game/effect';

@@ -6,7 +6,7 @@ import {
   calculatePopulationFromBuildingFields,
   getBuildingData,
   getBuildingDataForLevel,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
 import { describe, expect, test } from 'vitest';
 

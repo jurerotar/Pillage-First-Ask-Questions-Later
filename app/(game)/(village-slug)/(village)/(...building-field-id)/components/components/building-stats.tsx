@@ -6,7 +6,7 @@ import {
   calculateBuildingDurationForLevel,
   getBuildingData,
   getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import { Text } from 'app/components/text';
 import {
   Table,

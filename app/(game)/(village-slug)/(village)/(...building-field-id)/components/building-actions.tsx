@@ -6,7 +6,7 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   getBuildingDataForLevel,
   getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
 import { use } from 'react';
