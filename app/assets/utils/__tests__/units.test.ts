@@ -7,7 +7,7 @@ import {
   calculateUnitUpgradeDurationForLevel,
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
-} from 'app/(game)/(village-slug)/utils/units';
+} from 'app/assets/utils/units';
 import {
   egyptianUnits,
   gaulUnits,

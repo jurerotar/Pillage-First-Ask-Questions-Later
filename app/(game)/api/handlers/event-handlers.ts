@@ -18,7 +18,7 @@ import {
 import {
   calculateBuildingCancellationRefundForLevel,
   specialFieldIds,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import type { Village } from 'app/interfaces/models/game/village';
 import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';

@@ -19,7 +19,7 @@ import {
   newBuildingEffectFactory,
   newVillageEffectsFactory,
 } from 'app/factories/effect-factory';
-import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingData } from 'app/assets/utils/buildings';
 
 const villageId = villageMock.id;
 

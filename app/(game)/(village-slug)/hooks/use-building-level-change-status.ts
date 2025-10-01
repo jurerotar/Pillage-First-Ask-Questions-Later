@@ -2,7 +2,7 @@ import type { BuildingField } from 'app/interfaces/models/game/village';
 import { use, useMemo } from 'react';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import { getBuildingDataForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingDataForLevel } from 'app/assets/utils/buildings';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { Resources } from 'app/interfaces/models/game/resource';
 import { useTranslation } from 'react-i18next';

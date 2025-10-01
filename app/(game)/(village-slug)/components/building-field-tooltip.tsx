@@ -4,7 +4,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import {
   getBuildingDataForLevel,
   getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import { Icon } from 'app/components/icon';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { formatTime } from 'app/utils/time';

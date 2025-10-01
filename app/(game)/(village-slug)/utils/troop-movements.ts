@@ -2,7 +2,7 @@ import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateDistanceBetweenPoints } from 'app/utils/common';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitData } from 'app/assets/utils/units';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
 type CalculateTravelDurationArgs = {

@@ -3,7 +3,7 @@ import type {
   UnitResearchRequirement,
 } from 'app/interfaces/models/game/unit';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
+import { getUnitData } from 'app/assets/utils/units';
 
 type AssessedResearchRequirement = UnitResearchRequirement & {
   fulfilled: boolean;

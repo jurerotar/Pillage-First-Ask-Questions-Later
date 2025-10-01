@@ -15,7 +15,7 @@ import {
   calculateUnitUpgradeCostForLevel,
   calculateUnitResearchDuration,
   calculateUnitUpgradeDurationForLevel,
-} from 'app/(game)/(village-slug)/utils/units';
+} from 'app/assets/utils/units';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';

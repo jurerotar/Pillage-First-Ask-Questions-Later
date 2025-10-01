@@ -1,4 +1,4 @@
-import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingData } from 'app/assets/utils/buildings';
 import { merchants } from 'app/assets/merchants';
 import type {
   Building,

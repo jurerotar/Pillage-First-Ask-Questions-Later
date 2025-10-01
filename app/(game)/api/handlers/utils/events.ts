@@ -27,14 +27,14 @@ import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
   getUnitData,
-} from 'app/(game)/(village-slug)/utils/units';
+} from 'app/assets/utils/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 import type { Player } from 'app/interfaces/models/game/player';

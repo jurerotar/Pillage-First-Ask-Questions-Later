@@ -1,4 +1,4 @@
-import { calculateBuildingDurationForLevel } from 'app/(game)/(village-slug)/utils/building';
+import { calculateBuildingDurationForLevel } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';

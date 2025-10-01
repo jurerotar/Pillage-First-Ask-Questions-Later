@@ -1,5 +1,5 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { clsx } from 'clsx';
 import { OccupiedBuildingField } from 'app/(game)/(village-slug)/(village)/components/occupied-building-field';

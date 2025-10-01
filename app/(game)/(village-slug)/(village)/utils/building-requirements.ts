@@ -1,4 +1,4 @@
-import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingData } from 'app/assets/utils/buildings';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,

@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useBuildingDowngradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { getBuildingFieldByBuildingFieldId } from 'app/(game)/(village-slug)/utils/building';
+import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
 import { useNavigate } from 'react-router';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 
