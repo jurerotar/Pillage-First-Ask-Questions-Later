@@ -1,14 +1,13 @@
 CREATE TABLE quests
 (
-  id            INTEGER PRIMARY KEY,
-  quest_id      TEXT NOT NULL UNIQUE,
-  type          TEXT NOT NULL,
-  scope         TEXT  GENERATED ALWAYS AS (
+  id INTEGER PRIMARY KEY,
+  quest_id TEXT NOT NULL,
+  completed_at INTEGER,
+  collected_at INTEGER,
+  village_id INTEGER,
+  scope TEXT GENERATED ALWAYS AS (
     CASE WHEN village_id IS NOT NULL THEN 'village' ELSE 'global' END
-    ) VIRTUAL,
-  collected_at  INTEGER,
-  completed_at  INTEGER,
-  village_id    INTEGER,
+  ) VIRTUAL,
 
   CONSTRAINT fk_quests_village FOREIGN KEY (village_id)
     REFERENCES villages (id) ON DELETE SET NULL

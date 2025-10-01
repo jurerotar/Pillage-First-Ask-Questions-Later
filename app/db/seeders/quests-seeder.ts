@@ -1,39 +1,49 @@
 import type { Seeder } from 'app/interfaces/db';
 import { PLAYER_ID } from 'app/constants/player';
 import type { Village } from 'app/interfaces/models/game/village';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import { globalQuests } from 'app/assets/quests';
+import { newVillageQuestsFactory } from 'app/db/factories/quest-factory';
+import { batchInsert } from 'app/db/utils/batch-insert';
 
 export const questsSeeder: Seeder = (database): void => {
-  const _playerStartingVillageId = database.selectValue(
+  const playerStartingVillageId = database.selectValue(
     `
-    SELECT id
-    FROM villages
-    WHERE player_id = $player_id;
-  `,
+      SELECT id
+      FROM villages
+      WHERE player_id = $player_id;
+    `,
     { $player_id: PLAYER_ID },
   ) as Village['id'];
 
-  // const quests = [];
-  // const questRewards = [];
-  // const questRequirements = [];
-  //
-  // batchInsert(
-  //   database,
-  //   'quests',
-  //   [],
-  //   quests,
-  // );
-  //
-  // batchInsert(
-  //   database,
-  //   'quest_rewards',
-  //   [],
-  //   questRewards,
-  // );
-  //
-  // batchInsert(
-  //   database,
-  //   'quests_requirements',
-  //   [],
-  //   questRequirements,
-  // );
+  const playerTribe = database.selectValue(
+    `
+      SELECT tribe
+      FROM players
+      WHERE id = $player_id;
+    `,
+    { $player_id: PLAYER_ID },
+  ) as PlayableTribe;
+
+  const questsToSeed = [];
+
+  const villageQuests = newVillageQuestsFactory(
+    playerStartingVillageId,
+    playerTribe,
+  );
+
+  for (const { id } of villageQuests) {
+    questsToSeed.push([id, null, null, playerStartingVillageId]);
+  }
+
+  for (const { id } of globalQuests) {
+    questsToSeed.push([id, null, null, null]);
+  }
+
+  batchInsert(
+    database,
+    'quests',
+    ['quest_id', 'completed_at', 'collected_at', 'village_id'],
+    questsToSeed,
+  );
 };
