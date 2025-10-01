@@ -28,6 +28,7 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from 'app/components/ui/pagination';
+import { getQuestRewards } from 'app/assets/utils/quests';
 
 type QuestRewardProps = {
   reward: QuestRewardType;
@@ -133,6 +134,8 @@ export const QuestList = ({ quests }: QuestListProps) => {
         const isCollected = wasQuestCollected(quest);
         const { title, description } = getQuestTexts(quest.id, assetsT);
 
+        const rewards = getQuestRewards(quest.id);
+
         return (
           <div
             key={quest.id}
@@ -150,7 +153,7 @@ export const QuestList = ({ quests }: QuestListProps) => {
                   <Text className="font-medium">{t('Reward')}:</Text>
 
                   <div className="flex flex-col gap-2">
-                    {quest.rewards.map((reward) => (
+                    {rewards.map((reward) => (
                       <QuestReward
                         key={reward.type}
                         reward={reward}

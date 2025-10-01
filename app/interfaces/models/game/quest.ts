@@ -49,23 +49,30 @@ export type QuestRequirement =
   | AdventureCountQuestRequirement
   | TroopCountQuestRequirement;
 
-type BaseQuest = {
-  completedAt: number | null;
-  collectedAt: number | null;
-  rewards: QuestReward[];
-};
-
-export type VillageQuest = BaseQuest & {
-  id: `${Village['id']}-${VillageQuestGroup}-${Matcher}-${number}`;
+export type VillageQuestDefinition = {
+  id: `${VillageQuestGroup}-${Matcher}-${number}`;
   scope: 'village';
-  villageId: Village['id'];
-  requirements: BuildingQuestRequirement[];
 };
 
-export type GlobalQuest = BaseQuest & {
+export type GlobalQuestDefinition = {
   id: `${GlobalQuestGroup}-${number}`;
   scope: 'global';
-  requirements: (AdventureCountQuestRequirement | TroopCountQuestRequirement)[];
+};
+
+type CollectableQuest = {
+  completedAt: number | null;
+  collectedAt: number | null;
+};
+
+export type VillageQuest = CollectableQuest & {
+  id: `${VillageQuestGroup}-${Matcher}-${number}`;
+  scope: 'village';
+  villageId: Village['id'];
+};
+
+export type GlobalQuest = CollectableQuest & {
+  id: `${GlobalQuestGroup}-${number}`;
+  scope: 'global';
 };
 
 export type Quest = VillageQuest | GlobalQuest;

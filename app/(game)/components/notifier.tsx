@@ -65,7 +65,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   }
 
   if (isUnitResearchEvent(data)) {
-    const unitName = assetsT(`UNITS.${data.unitId}.NAME`, { count: 1 });
+    const unitName = assetsT(`UNITS.${data.unitId}.NAME`);
 
     const toastTitle = t('{{unitName}} researched', {
       unitName,
@@ -80,7 +80,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   }
 
   if (isUnitImprovementEvent(data)) {
-    const unitName = assetsT(`UNITS.${data.unitId}.NAME`, { count: 1 });
+    const unitName = assetsT(`UNITS.${data.unitId}.NAME`);
     const level = data.level;
 
     const toastTitle = t('{{unitName}} upgraded', {

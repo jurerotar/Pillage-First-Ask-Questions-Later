@@ -128,7 +128,7 @@ export const CreateNewServerForm = () => {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-6">
-            <div className="space-y-4 shadow-lg p-2 rounded-md">
+            <div className="space-y-4">
               <div className="flex flex-col">
                 <Text
                   className="text-lg"
@@ -232,7 +232,7 @@ export const CreateNewServerForm = () => {
           </div>
 
           <div className="flex flex-col gap-6">
-            <div className="space-y-4 shadow-lg p-2 rounded-md">
+            <div className="space-y-4">
               <div className="flex flex-col">
                 <Text
                   className="text-lg"
@@ -285,43 +285,52 @@ export const CreateNewServerForm = () => {
                 )}
               />
             </div>
-
-            <div className="space-y-4 shadow-lg p-2 rounded-md">
-              <div className="flex flex-col">
-                <Text
-                  className="text-lg"
-                  as="h3"
-                >
-                  Gameplay options
-                </Text>
-                <Text className="text-sm">
-                  These options can be updated in-game at any time.
-                </Text>
-              </div>
-              <FormField
-                control={form.control}
-                name="gameplay.areOfflineNpcAttacksEnabled"
-                disabled={true}
-                render={() => (
-                  <FormItem className="">
-                    <FormLabel>Offline attacks (in development)</FormLabel>
-                    <Text className="text-sm">
-                      By keeping this option enabled, enemies may send attacks
-                      while you're offline.
-                    </Text>
-                    <FormControl>
-                      <Switch
-                        disabled
-                        checked
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
           </div>
         </div>
+        <details>
+          <summary className="py-2 underline hover:cursor-pointer">
+            Advanced options
+          </summary>
+          <div className="space-y-4 px-2">
+            <div className="flex flex-col">
+              <Text
+                className="text-lg"
+                as="h3"
+              >
+                Advanced gameplay options
+              </Text>
+              <Text>These options can be updated in-game at any time.</Text>
+            </div>
+            <FormField
+              control={form.control}
+              name="gameplay.areOfflineNpcAttacksEnabled"
+              disabled={true}
+              render={() => (
+                <FormItem>
+                  <div className="flex">
+                    <div className="flex flex-4 gap-1 flex-col">
+                      <FormLabel className="text-base">
+                        Offline attacks (in development)
+                      </FormLabel>
+                      <Text>
+                        By keeping this option enabled, enemies may send attacks
+                        while you're offline.
+                      </Text>
+                    </div>
+                    <div className="flex flex-1 justify-end items-center">
+                      <FormControl>
+                        <Switch
+                          disabled
+                          checked
+                        />
+                      </FormControl>
+                    </div>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+        </details>
         <div className="flex justify-end">
           <Button
             size="fit"

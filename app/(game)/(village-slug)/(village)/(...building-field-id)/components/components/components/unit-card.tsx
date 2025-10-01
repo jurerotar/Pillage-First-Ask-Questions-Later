@@ -83,7 +83,7 @@ export const UnitOverview = () => {
   return (
     <section>
       <div className="inline-flex gap-2 items-center font-semibold">
-        <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`, { count: 1 })}</Text>
+        <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`)}</Text>
       </div>
       <div className="flex justify-center items-center mr-1 mb-1 float-left size-10">
         <Icon
@@ -243,7 +243,7 @@ export const UnitResearch = () => {
         <Text as="h3">{t('Research')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} researched', {
-            unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
+            unit: assetsT(`UNITS.${unitId}.NAME`),
           })}
         </Text>
       </section>
@@ -280,7 +280,7 @@ export const UnitResearch = () => {
             {hasResearchEventsOngoing && t('Research is already taking place')}
             {!hasResearchEventsOngoing &&
               t('Research {{unit}}', {
-                unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
+                unit: assetsT(`UNITS.${unitId}.NAME`),
               })}
           </Button>
         </section>
@@ -356,7 +356,7 @@ export const UnitImprovement = () => {
         <Text as="h3">{t('Improvement')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} is fully upgraded', {
-            unit: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }),
+            unit: assetsT(`UNITS.${unitId}.NAME`),
           })}
         </Text>
       </section>
@@ -474,10 +474,9 @@ export const UnitRecruitmentNoResearch = () => {
       <Text as="h3">{t('Train units')}</Text>
       <Text variant="orange">
         <Trans>
-          You need to research{' '}
-          {{ unitName: assetsT(`UNITS.${unitId}.NAME`, { count: 1 }) }} at the{' '}
-          <VillageBuildingLink buildingId="ACADEMY" /> before you can begin
-          training
+          You need to research {{ unitName: assetsT(`UNITS.${unitId}.NAME`) }}{' '}
+          at the <VillageBuildingLink buildingId="ACADEMY" /> before you can
+          begin training
         </Trans>
       </Text>
     </section>

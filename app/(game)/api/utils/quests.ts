@@ -16,6 +16,7 @@ import {
   isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
 import { PLAYER_ID } from 'app/constants/player';
+import { getQuestRequirements } from 'app/assets/utils/quests';
 
 export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
@@ -25,11 +26,11 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const playerVillages = villages.filter(
     ({ playerId }) => playerId === PLAYER_ID,
   );
-  const playerVillagesIds = playerVillages.map(({ id }) => id);
+  const playerVillagesTileIds = playerVillages.map(({ tileId }) => tileId);
 
   // TODO: This does not count troops in transit
   const playerTroops = troops.filter(({ tileId }) =>
-    playerVillagesIds.includes(tileId),
+    playerVillagesTileIds.includes(tileId),
   );
 
   const playerVillagesMap = new Map<Village['id'], Village>(
@@ -49,8 +50,9 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
       }
 
       const requirementStatuses: boolean[] = [];
+      const questRequirements = getQuestRequirements(quest.id);
 
-      for (const requirement of quest.requirements) {
+      for (const requirement of questRequirements) {
         if (isVillageQuest(quest) && isBuildingQuestRequirement(requirement)) {
           const village = playerVillagesMap.get(quest.villageId)!;
           const { matcher, buildingId, level } = requirement;

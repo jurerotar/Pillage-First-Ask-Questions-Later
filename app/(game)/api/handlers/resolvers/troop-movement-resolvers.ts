@@ -10,7 +10,6 @@ import {
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Server } from 'app/interfaces/models/game/server';
 import type {
   OccupiedOccupiableTile,
   Tile,
@@ -26,6 +25,7 @@ import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 import { PLAYER_ID } from 'app/constants/player';
+import type { Server } from 'app/interfaces/models/game/server';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
