@@ -7,11 +7,11 @@ const locales = [{ locale: 'en-US', data: enUSAssets }];
 describe('Localization completeness check for assets.json', () => {
   locales.forEach(({ locale, data }) => {
     describe(`Locale: ${locale}`, () => {
-      test('UNITS should have NAME_one, NAME_other and DESCRIPTION set', () => {
+      test('UNITS should have NAME, NAME_other and DESCRIPTION set', () => {
         for (const [unitKey, unitData] of Object.entries(data.UNITS)) {
           expect(
-            Object.hasOwn(unitData, 'NAME_one'),
-            `Missing NAME_one in UNITS.${unitKey}`,
+            Object.hasOwn(unitData, 'NAME'),
+            `Missing NAME in UNITS.${unitKey}`,
           ).toBe(true);
           expect(
             Object.hasOwn(unitData, 'NAME_other'),
@@ -22,10 +22,7 @@ describe('Localization completeness check for assets.json', () => {
             `Missing DESCRIPTION in UNITS.${unitKey}`,
           ).toBe(true);
 
-          expect(
-            unitData.NAME_one,
-            `UNITS.${unitKey}.NAME_one is empty`,
-          ).not.toBe('');
+          expect(unitData.NAME, `UNITS.${unitKey}.NAME is empty`).not.toBe('');
           expect(
             unitData.NAME_other,
             `UNITS.${unitKey}.NAME_other is empty`,

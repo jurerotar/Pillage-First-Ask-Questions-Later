@@ -120,7 +120,10 @@ export const initializeServer = async (
   const adventurePoints = adventurePointsFactory();
   const events = generateEvents(server);
   const reputations = generateReputations();
-  const quests = generateNewServerQuests(playerStartingVillage.id);
+  const quests = generateNewServerQuests(
+    playerStartingVillage.id,
+    server.playerConfiguration.tribe,
+  );
   const bookmarks = bookmarkFactory();
 
   const queryClient = new QueryClient();

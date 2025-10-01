@@ -251,7 +251,7 @@
   "Improvement cost and duration for level {{level}}": "Improvement cost and duration for level {{level}}",
   "Cost and training duration": "Cost and training duration",
   "Train units": "Train units",
-  "You need to research {{unitName}} at the <5></5> before you can begin training": "You need to research {{unitName}} at the <5></5> before you can begin training",
+  "You need to research {{unitName}} at the <4></4> before you can begin training": "You need to research {{unitName}} at the <4></4> before you can begin training",
   "Not enough resources": "Not enough resources",
   "Select the amount of units to train": "Select the amount of units to train",
   "Train {{count}} {{unit}}_one": "Train {{count}} {{unit}}",

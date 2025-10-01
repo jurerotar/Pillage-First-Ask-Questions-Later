@@ -190,34 +190,4 @@ export const villageQuests: VillageQuestDefinition[] = [
   createBuildingQuest('BAKERY', 1),
   createBuildingQuest('BAKERY', 3),
   createBuildingQuest('BAKERY', 5),
-  // City wall
-  createBuildingQuest('CITY_WALL', 1),
-  createBuildingQuest('CITY_WALL', 5),
-  createBuildingQuest('CITY_WALL', 10),
-  createBuildingQuest('CITY_WALL', 15),
-  createBuildingQuest('CITY_WALL', 20),
-  // Palisade
-  createBuildingQuest('PALISADE', 1),
-  createBuildingQuest('PALISADE', 5),
-  createBuildingQuest('PALISADE', 10),
-  createBuildingQuest('PALISADE', 15),
-  createBuildingQuest('PALISADE', 20),
-  // Earth wall
-  createBuildingQuest('EARTH_WALL', 1),
-  createBuildingQuest('EARTH_WALL', 5),
-  createBuildingQuest('EARTH_WALL', 10),
-  createBuildingQuest('EARTH_WALL', 15),
-  createBuildingQuest('EARTH_WALL', 20),
-  // Makeshift wall
-  createBuildingQuest('MAKESHIFT_WALL', 1),
-  createBuildingQuest('MAKESHIFT_WALL', 5),
-  createBuildingQuest('MAKESHIFT_WALL', 10),
-  createBuildingQuest('MAKESHIFT_WALL', 15),
-  createBuildingQuest('MAKESHIFT_WALL', 20),
-  // Stone wall
-  createBuildingQuest('STONE_WALL', 1),
-  createBuildingQuest('STONE_WALL', 5),
-  createBuildingQuest('STONE_WALL', 10),
-  createBuildingQuest('STONE_WALL', 15),
-  createBuildingQuest('STONE_WALL', 20),
 ];

@@ -7,6 +7,7 @@ import {
   playersCacheKey,
   playerTroopsCacheKey,
   questsCacheKey,
+  serverCacheKey,
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -27,6 +28,7 @@ import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
 import { PLAYER_ID } from 'app/constants/player';
+import type { Server } from 'app/interfaces/models/game/server';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,
@@ -67,6 +69,8 @@ const findNewVillageMovementResolver: Resolver<
 > = async (queryClient, args) => {
   const { targetId } = args;
 
+  const server = queryClient.getQueryData<Server>([serverCacheKey])!;
+
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
   const tileToOccupy = tiles.find(
     ({ id }) => id === targetId,
@@ -92,7 +96,13 @@ const findNewVillageMovementResolver: Resolver<
   });
 
   queryClient.setQueryData<Quest[]>([questsCacheKey], (quests) => {
-    return [...quests!, ...newVillageQuestsFactory(newVillage.id)];
+    return [
+      ...quests!,
+      ...newVillageQuestsFactory(
+        newVillage.id,
+        server.playerConfiguration.tribe,
+      ),
+    ];
   });
 
   queryClient.setQueryData<Tile[]>([mapCacheKey], (tiles) => {

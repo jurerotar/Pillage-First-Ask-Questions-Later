@@ -74,7 +74,7 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
                     type={unitIdToUnitIconMapper(id)}
                     className="size-4"
                   />
-                  {assetsT(`UNITS.${id}.NAME`, { count: 1 })}
+                  {assetsT(`UNITS.${id}.NAME`)}
                 </div>
               </Tab>
             ))}
