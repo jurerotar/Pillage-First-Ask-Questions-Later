@@ -3,7 +3,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitData, getUnitsByTribe } from 'app/assets/utils/units';
+import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
@@ -42,7 +42,7 @@ export const useUnitResearch = () => {
     const researchedUnits = getResearchedUnits();
 
     return researchedUnits.filter(({ id }) => {
-      const unit = getUnitData(id);
+      const unit = getUnitDefinition(id);
       return unit.category === category;
     });
   };

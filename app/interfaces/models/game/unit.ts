@@ -96,7 +96,7 @@ export type UnitResearchRequirement = {
   level: number;
 };
 
-export type UnitTier =
+type UnitTier =
   | 'tier-1'
   | 'tier-2'
   | 'tier-3'

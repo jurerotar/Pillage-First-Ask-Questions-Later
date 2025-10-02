@@ -33,7 +33,7 @@ export const specialFieldIds: BuildingField['id'][] = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40,
 ];
 
-export const getBuildingData = (buildingId: Building['id']) => {
+export const getBuildingDefinition = (buildingId: Building['id']) => {
   return buildingMap.get(buildingId)!;
 };
 
@@ -49,7 +49,7 @@ export const getBuildingDataForLevel = (
   buildingId: Building['id'],
   level: number,
 ) => {
-  const building = getBuildingData(buildingId);
+  const building = getBuildingDefinition(buildingId);
 
   const population = calculateTotalPopulationForLevel(buildingId, level);
   const culturePoints = calculateTotalCulturePointsForLevel(buildingId, level);
@@ -163,7 +163,7 @@ export const calculateBuildingCostForLevel = (
   level: number,
 ): number[] => {
   const { buildingCostCoefficient, baseBuildingCost } =
-    getBuildingData(buildingId);
+    getBuildingDefinition(buildingId);
 
   return baseBuildingCost.map(
     (resource) =>
@@ -184,7 +184,7 @@ export const calculateTotalCulturePointsForLevel = (
   buildingId: Building['id'],
   level: number,
 ): number => {
-  const { culturePointsCoefficient } = getBuildingData(buildingId);
+  const { culturePointsCoefficient } = getBuildingDefinition(buildingId);
 
   if (level === 0) {
     return 0;
@@ -197,7 +197,7 @@ export const calculateTotalPopulationForLevel = (
   buildingId: Building['id'],
   level: number,
 ): number => {
-  const { populationCoefficient } = getBuildingData(buildingId);
+  const { populationCoefficient } = getBuildingDefinition(buildingId);
 
   if (level <= 0) {
     return 0;
@@ -243,7 +243,7 @@ export const calculateBuildingDurationForLevel = (
     buildingDurationBase,
     buildingDurationModifier,
     buildingDurationReduction,
-  } = getBuildingData(buildingId);
+  } = getBuildingDefinition(buildingId);
 
   return (
     Math.ceil(

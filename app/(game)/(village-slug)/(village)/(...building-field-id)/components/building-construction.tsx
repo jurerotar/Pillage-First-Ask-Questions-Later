@@ -10,10 +10,7 @@ import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { buildings } from 'app/assets/buildings';
-import type {
-  Building,
-  BuildingCategory,
-} from 'app/interfaces/models/game/building';
+import type { Building } from 'app/interfaces/models/game/building';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -35,7 +32,7 @@ import {
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 type BuildingCategoryPanelProps = {
-  buildingCategory: BuildingCategory;
+  buildingCategory: Building['category'];
 };
 
 const BuildingCategoryPanel = ({

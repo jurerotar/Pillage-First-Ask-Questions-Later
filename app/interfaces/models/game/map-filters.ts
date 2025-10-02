@@ -1,4 +1,4 @@
-export type MapFilterName =
+type MapFilterName =
   | 'shouldShowFactionReputation'
   | 'shouldShowOasisIcons'
   | 'shouldShowTroopMovements'

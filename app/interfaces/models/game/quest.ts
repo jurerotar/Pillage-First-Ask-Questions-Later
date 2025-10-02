@@ -70,7 +70,7 @@ export type VillageQuest = CollectableQuest & {
   villageId: Village['id'];
 };
 
-export type GlobalQuest = CollectableQuest & {
+type GlobalQuest = CollectableQuest & {
   id: `${GlobalQuestGroup}-${number}`;
   scope: 'global';
 };

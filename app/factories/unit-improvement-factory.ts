@@ -1,9 +1,9 @@
-import type { UnitTier } from 'app/interfaces/models/game/unit';
+import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 import { getUnitsByTribe } from 'app/assets/utils/units';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
-const upgradableTiers: UnitTier[] = [
+const upgradableTiers: Unit['tier'][] = [
   'tier-1',
   'tier-2',
   'tier-3',

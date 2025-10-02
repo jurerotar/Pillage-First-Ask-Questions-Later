@@ -1,10 +1,10 @@
-import type { BuildingId } from 'app/interfaces/models/game/building';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type {
   BuildingField,
   ResourceFieldComposition,
   VillageSize,
 } from 'app/interfaces/models/game/village';
+import type { Building } from 'app/interfaces/models/game/building';
 
 type ResourceFieldLayout = Record<number, Resource>;
 
@@ -167,7 +167,7 @@ const villageSizeToResourceFieldsLevelMap = new Map<
   ['4xl', 10],
 ]);
 
-const resourceTypeToResourceBuildingIdMap = new Map<Resource, BuildingId>([
+const resourceTypeToResourceBuildingIdMap = new Map<Resource, Building['id']>([
   ['wood', 'WOODCUTTER'],
   ['clay', 'CLAY_PIT'],
   ['iron', 'IRON_MINE'],

@@ -109,20 +109,6 @@ export const partition = <T>(
   );
 };
 
-export const clamp = (value: number, min: number, max: number): number => {
-  return Math.min(Math.max(value, min), max);
-};
-
-export const timeExecution = async (
-  callback: () => void | Promise<void>,
-  name = 'Performance mark',
-) => {
-  performance.mark(`${name} - start`);
-  await callback();
-  performance.mark(`${name} - end`);
-  performance.measure(name, `${name} - start`, `${name} - end`);
-};
-
 export const formatPercentage = (num: number, isIncreasing = true): string => {
   if (num === 1) {
     return isIncreasing ? '0%' : '100%';

@@ -13,7 +13,7 @@ import {
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
-export const getUnitData = (unitId: Unit['id']): Unit => {
+export const getUnitDefinition = (unitId: Unit['id']): Unit => {
   return unitsMap.get(unitId)!;
 };
 
@@ -73,7 +73,7 @@ export const calculateUnitUpgradeCostForLevel = (
   unitId: Unit['id'],
   level: number,
 ): number[] => {
-  const { baseRecruitmentCost } = getUnitData(unitId);
+  const { baseRecruitmentCost } = getUnitDefinition(unitId);
 
   const unitUpgradeCostModifier = 1.35;
 
@@ -88,7 +88,7 @@ export const calculateUnitUpgradeDurationForLevel = (
   unitId: Unit['id'],
   level: number,
 ): number => {
-  const { baseRecruitmentDuration } = getUnitData(unitId);
+  const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
   const unitUpgradeDurationModifier = 1.35;
 
@@ -101,7 +101,7 @@ export const calculateUnitUpgradeDurationForLevel = (
 };
 
 export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
-  const { baseRecruitmentCost, category, tier } = getUnitData(unitId);
+  const { baseRecruitmentCost, category, tier } = getUnitDefinition(unitId);
 
   const unitResearchCostModifier = (() => {
     if (tier === 'scout' || category === 'infantry') {
@@ -125,7 +125,7 @@ export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {
 };
 
 export const calculateUnitResearchDuration = (unitId: Unit['id']): number => {
-  const { baseRecruitmentDuration, tier, category } = getUnitData(unitId);
+  const { baseRecruitmentDuration, tier, category } = getUnitDefinition(unitId);
 
   const unitResearchDurationModifier = (() => {
     if (tier === 'scout' || category === 'infantry') {

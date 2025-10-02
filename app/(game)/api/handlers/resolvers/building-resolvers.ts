@@ -1,5 +1,5 @@
 import {
-  getBuildingData,
+  getBuildingDefinition,
   getBuildingDataForLevel,
   specialFieldIds,
 } from 'app/assets/utils/buildings';
@@ -85,7 +85,7 @@ export const buildingLevelChangeResolver: Resolver<
 > = async (queryClient, args) => {
   const { buildingFieldId, level, buildingId, villageId, previousLevel } = args;
 
-  const { effects: buildingEffects } = getBuildingData(buildingId);
+  const { effects: buildingEffects } = getBuildingDefinition(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
     const buildingEffectsWithoutCurrentBuildingEffects = prevData!.filter(
@@ -147,7 +147,7 @@ export const buildingConstructionResolver: Resolver<
 > = async (queryClient, args) => {
   const { villageId, buildingFieldId, buildingId } = args;
 
-  const { effects } = getBuildingData(buildingId);
+  const { effects } = getBuildingDefinition(buildingId);
   const { population } = getBuildingDataForLevel(buildingId, 0);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {

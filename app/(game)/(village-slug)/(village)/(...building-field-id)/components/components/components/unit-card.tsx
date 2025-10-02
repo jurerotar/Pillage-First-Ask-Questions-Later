@@ -9,7 +9,7 @@ import { Button } from 'app/components/ui/button';
 import { Input } from 'app/components/ui/input';
 import { Slider } from 'app/components/ui/slider';
 import {
-  getUnitData,
+  getUnitDefinition,
   calculateMaxUnits,
   calculateUnitResearchCost,
   calculateUnitUpgradeCostForLevel,
@@ -111,7 +111,7 @@ export const UnitAttributes = () => {
   const { t } = useTranslation();
   const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
 
-  const unit = getUnitData(unitId);
+  const unit = getUnitDefinition(unitId);
 
   const dynamicAttributes: Pick<
     UnitAttributes,
@@ -440,7 +440,8 @@ export const UnitRequirements = () => {
 export const UnitCost = () => {
   const { unitId, durationEffect } = use(UnitCardContext);
   const { t } = useTranslation();
-  const { baseRecruitmentDuration, baseRecruitmentCost } = getUnitData(unitId);
+  const { baseRecruitmentDuration, baseRecruitmentCost } =
+    getUnitDefinition(unitId);
   const { total: trainingDurationModifier } = useComputedEffect(
     durationEffect ?? 'barracksTrainingDuration',
   );
@@ -489,7 +490,7 @@ export const UnitRecruitment = () => {
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const currentResources = use(CurrentVillageStateContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
-    getUnitData(unitId);
+    getUnitDefinition(unitId);
   const { total } = useComputedEffect(durationEffect!);
   const { createEvent: createTroopTrainingEvent } =
     useCreateEvent('troopTraining');

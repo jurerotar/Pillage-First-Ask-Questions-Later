@@ -1,6 +1,6 @@
 import { differenceInSeconds } from 'date-fns';
 
-export type CalculateCurrentAmountArgs = {
+type CalculateCurrentAmountArgs = {
   lastKnownResourceAmount: number;
   lastUpdatedAt: number;
   hourlyProduction: number;

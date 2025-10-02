@@ -6,7 +6,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import {
   calculateBuildingEffectValues,
   type CalculatedCumulativeEffect,
-  getBuildingData,
+  getBuildingDefinition,
   getBuildingDataForLevel,
 } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
@@ -52,7 +52,7 @@ export const BuildingCard = ({
   buildingConstructionReadinessAssessment,
   children,
 }: PropsWithChildren<BuildingCardProps>) => {
-  const building = getBuildingData(buildingId);
+  const building = getBuildingDefinition(buildingId);
 
   return (
     <BuildingCardContext
@@ -398,7 +398,7 @@ export const BuildingRequirements = () => {
     return null;
   }
 
-  const { maxLevel } = getBuildingData(buildingId);
+  const { maxLevel } = getBuildingDefinition(buildingId);
 
   const sameBuildingInstances = currentVillage.buildingFields.filter(
     ({ buildingId: id }) => id === buildingId,
