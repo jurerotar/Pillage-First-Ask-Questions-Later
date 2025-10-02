@@ -838,7 +838,7 @@
   },
   "QUESTS": {
     "ADVENTURE-COUNT": {
-      "TITLE_one": "{{count}} adventure",
+      "NAME_one": "{{count}} adventure",
       "NAME_other": "{{count}} adventures",
       "DESCRIPTION_one": "Send your hero on {{count}} adventure.",
       "DESCRIPTION_other": "Send your hero on {{count}} adventures.",
@@ -855,9 +855,9 @@
       "GROUP": "{{buildingName}}"
     },
     "EVERY": {
-      "NAME": "All {{buildingName}}s level {{level}}",
-      "DESCRIPTION": "Upgrade all {{buildingName}}s to level {{level}}.",
-      "GROUP": "All {{buildingName}}s"
+      "NAME": "All {{buildingName}} level {{level}}",
+      "DESCRIPTION": "Upgrade all {{buildingName}} to level {{level}}.",
+      "GROUP": "All {{buildingName}}"
     }
   },
   "TRIBES": {

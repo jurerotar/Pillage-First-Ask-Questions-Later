@@ -57,16 +57,16 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   if (id.includes('every')) {
     const [buildingId, , level] = id.split('-');
     return {
-      title: assetsT('QUESTS.EVERY.TITLE', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+      title: assetsT('QUESTS.EVERY.NAME', {
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
         level,
       }),
       description: assetsT('QUESTS.EVERY.DESCRIPTION', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
         level,
       }),
       group: assetsT('QUESTS.EVERY.GROUP', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
       }),
     };
   }
@@ -74,7 +74,7 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   if (id.includes('oneOf')) {
     const [buildingId, , level] = id.split('-');
     return {
-      title: assetsT('QUESTS.ONE-OF.TITLE', {
+      title: assetsT('QUESTS.ONE-OF.NAME', {
         buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
         level,
       }),
@@ -93,7 +93,7 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
     const count = Number.parseInt(amount, 10);
 
     return {
-      title: assetsT('QUESTS.ADVENTURE-COUNT.TITLE', { count }),
+      title: assetsT('QUESTS.ADVENTURE-COUNT.NAME', { count }),
       description: assetsT('QUESTS.ADVENTURE-COUNT.DESCRIPTION', { count }),
       group: assetsT('QUESTS.ADVENTURE-COUNT.GROUP'),
     };
@@ -102,14 +102,14 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   if (id.includes('troopCount')) {
     const [, amount] = id.split('-');
     return {
-      title: assetsT('QUESTS.TROOP-COUNT.TITLE', { amount }),
+      title: assetsT('QUESTS.TROOP-COUNT.NAME', { amount }),
       description: assetsT('QUESTS.TROOP-COUNT.DESCRIPTION', { amount }),
       group: assetsT('QUESTS.TROOP-COUNT.GROUP'),
     };
   }
 
   return {
-    title: 'QUEST TITLE MISSING',
+    title: 'QUEST NAME MISSING',
     description: 'QUEST DESCRIPTION MISSING',
     group: 'QUEST GROUP MISSING',
   };
