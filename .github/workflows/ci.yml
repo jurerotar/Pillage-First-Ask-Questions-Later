@@ -39,16 +39,13 @@ jobs:
       - name: Write React Compiler ESLint config
         shell: bash
         run: |
-          cat > .eslint.react-compiler.mjs <<'ESLINTRC'
-          import reactCompiler from 'eslint-plugin-react-compiler';
+          cat > eslint.config.js <<'ESLINTRC'
+          import reactHooks from 'eslint-plugin-react-hooks';
+          import { defineConfig } from 'eslint/config';
           import { parser } from 'typescript-eslint';
 
-          // Generated in CI for React Compiler compatibility check
-          export default [
-            // React Compiler recommended rules
-            reactCompiler.configs.recommended,
-
-            // Global ignores to speed up scanning and avoid noise
+          export default defineConfig([
+            reactHooks.configs['flat/recommended'],
             {
               ignores: [
                 'build',
@@ -59,27 +56,24 @@ jobs:
                 'dist',
               ],
             },
-
-            // Only check app TSX files (tweak as needed)
             {
               files: ['app/**/*.tsx'],
+              plugins: {
+                'react-hooks': reactHooks,
+              },
               languageOptions: {
                 parser,
               },
             },
-          ];
+          ]);
           ESLINTRC
 
       - name: Install React Compiler ESLint deps
         run: |
-          npm install --no-save \
-            eslint \
-            eslint-plugin-react-compiler \
-            @typescript-eslint/parser \
-            typescript-eslint
+          npm install --no-save eslint eslint-plugin-react-hooks @typescript-eslint/parser typescript-eslint
 
       - name: React compiler compatibility check
-        run: npx eslint --config .eslint.react-compiler.mjs --max-warnings=0 .
+        run: npx eslint --config eslint.config.js --max-warnings=0 .
 
       - name: Format check
         run: npm run format:check
