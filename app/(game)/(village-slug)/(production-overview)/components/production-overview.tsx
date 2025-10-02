@@ -276,7 +276,7 @@ export const ProductionOverview = ({
                       <Text>{t('Artifact')}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
+                      <Text>{assetsT(`ITEMS.${artifactId}.NAME`)}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{formatBonus(value - 1)}%</Text>
@@ -378,7 +378,7 @@ export const ProductionOverview = ({
                         <Text>{t('Artifact')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
+                        <Text>{assetsT(`ITEMS.${artifactId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{value}</Text>
