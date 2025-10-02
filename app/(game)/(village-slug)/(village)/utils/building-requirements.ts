@@ -8,10 +8,8 @@ import type {
   TribeBuildingRequirement,
 } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;
@@ -24,7 +22,6 @@ export type AssessBuildingConstructionReadinessReturn = {
 
 export type AssessBuildingConstructionReadinessArgs = {
   tribe: Tribe;
-  playerVillages: Village[];
   currentVillage: Village;
   currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[];
   buildingId: Building['id'];

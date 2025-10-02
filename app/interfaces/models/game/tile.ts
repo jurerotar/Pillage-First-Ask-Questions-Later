@@ -10,6 +10,15 @@ import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { TroopMovementType } from 'app/components/icons/icons';
 
+export type TileModel = {
+  id: number;
+  x: number;
+  y: number;
+  type: 'free' | 'oasis';
+  resource_field_composition: ResourceFieldComposition | null;
+  oasis_graphics: number | null;
+};
+
 export type BaseTile = {
   id: number;
   coordinates: {
@@ -44,7 +53,7 @@ export type OccupiableTile = BaseTile & {
   type: 0;
   // In order to reduce the final game state object size, all long property names are shortened.
   // Stands for ResourceFieldComposition
-  RFC: ResourceFieldComposition;
+  resourceFieldComposition: ResourceFieldComposition;
 };
 
 export type OccupiedOccupiableTile = OccupiableTile & {

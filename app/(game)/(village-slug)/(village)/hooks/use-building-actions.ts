@@ -1,7 +1,7 @@
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import type { Building } from 'app/interfaces/models/game/building';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';

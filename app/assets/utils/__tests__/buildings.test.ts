@@ -16,7 +16,7 @@ describe('Buildings utils', () => {
   describe('calculatePopulationFromBuildingFields', () => {
     test('New village should have a population of 3', () => {
       expect(
-        calculatePopulationFromBuildingFields(newVillageBuildingFieldsMock, []),
+        calculatePopulationFromBuildingFields(newVillageBuildingFieldsMock),
       ).toBe(3);
     });
   });

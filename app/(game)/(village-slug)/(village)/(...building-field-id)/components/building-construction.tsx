@@ -17,7 +17,6 @@ import type {
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -42,7 +41,6 @@ const BuildingCategoryPanel = ({
   buildingCategory,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
-  const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
   const { currentVillageBuildingEvents } = use(
@@ -55,7 +53,6 @@ const BuildingCategoryPanel = ({
   > = {
     tribe,
     currentVillageBuildingEvents,
-    playerVillages,
     currentVillage,
   };
 

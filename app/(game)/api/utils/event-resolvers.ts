@@ -5,11 +5,13 @@ import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
+import type { DbFacade } from 'app/(game)/api/database-facade';
 
 let scheduledTimeout: number | null = null;
 
 const resolveEvent = async (
   queryClient: QueryClient,
+  database: DbFacade,
   eventId: GameEvent['id'],
 ) => {
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
@@ -20,6 +22,7 @@ const resolveEvent = async (
   if (isEventWithResourceCost(event)) {
     updateVillageResourcesAt(
       queryClient,
+      database,
       event.villageId,
       event.startsAt + event.duration,
     );
@@ -29,7 +32,7 @@ const resolveEvent = async (
     const resolver = getGameEventResolver(event.type)!;
 
     // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
-    await resolver(queryClient, event);
+    await resolver(queryClient, database, event);
 
     queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
       return events!.filter(({ id }) => id !== eventId);
@@ -49,7 +52,10 @@ const resolveEvent = async (
 };
 
 // TODO: This code is probably bugged, make sure to refactor and double-check when possible
-export const scheduleNextEvent = async (queryClient: QueryClient) => {
+export const scheduleNextEvent = async (
+  queryClient: QueryClient,
+  database: DbFacade,
+) => {
   if (scheduledTimeout !== null) {
     self.clearTimeout(scheduledTimeout);
   }
@@ -66,7 +72,7 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
       break;
     }
 
-    await resolveEvent(queryClient, event.id);
+    await resolveEvent(queryClient, database, event.id);
   }
 
   // At this point, all remaining events are future events
@@ -82,8 +88,8 @@ export const scheduleNextEvent = async (queryClient: QueryClient) => {
   scheduledTimeout = self.setTimeout(
     async () => {
       scheduledTimeout = null;
-      await resolveEvent(queryClient, nextEvent.id);
-      await scheduleNextEvent(queryClient);
+      await resolveEvent(queryClient, database, nextEvent.id);
+      await scheduleNextEvent(queryClient, database);
     },
     nextEvent.startsAt + nextEvent.duration - now,
   );
