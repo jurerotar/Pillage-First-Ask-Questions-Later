@@ -34,13 +34,17 @@ describe('Localization completeness check for assets.json', () => {
         }
       });
 
-      test('BUILDINGS should have NAME and DESCRIPTION set', () => {
+      test('BUILDINGS should have NAME, NAME_other and DESCRIPTION set', () => {
         for (const [buildingKey, buildingData] of Object.entries(
           data.BUILDINGS,
         )) {
           expect(
             Object.hasOwn(buildingData, 'NAME'),
             `Missing NAME in BUILDINGS.${buildingKey}`,
+          ).toBe(true);
+          expect(
+            Object.hasOwn(buildingData, 'NAME_other'),
+            `Missing NAME_other in BUILDINGS.${buildingKey}`,
           ).toBe(true);
           expect(
             Object.hasOwn(buildingData, 'DESCRIPTION'),
@@ -52,24 +56,39 @@ describe('Localization completeness check for assets.json', () => {
             `BUILDINGS.${buildingKey}.NAME is empty`,
           ).not.toEqual('');
           expect(
+            buildingData.NAME_other,
+            `BUILDINGS.${buildingKey}.NAME_other is empty`,
+          ).not.toEqual('');
+          expect(
             buildingData.DESCRIPTION,
             `BUILDINGS.${buildingKey}.DESCRIPTION is empty`,
           ).not.toEqual('');
         }
       });
 
-      test('ITEMS should have TITLE and DESCRIPTION set', () => {
-        // TODO: Fill in the DESCRIPTION fields
+      test('ITEMS should have NAME, NAME_other and DESCRIPTION set', () => {
         for (const [itemKey, itemData] of Object.entries(data.ITEMS)) {
           expect(
-            Object.hasOwn(itemData, 'TITLE'),
-            `Missing TITLE in ITEMS.${itemKey}`,
+            Object.hasOwn(itemData, 'NAME'),
+            `Missing NAME in ITEMS.${itemKey}`,
           ).toBe(true);
-          // expect(itemData.hasOwnProperty('DESCRIPTION'), `Missing DESCRIPTION in ITEMS.${itemKey}`).toBe(true);
-          expect(itemData.TITLE, `ITEMS.${itemKey}.TITLE is empty`).not.toEqual(
+          expect(
+            Object.hasOwn(itemData, 'NAME_other'),
+            `Missing NAME_other in ITEMS.${itemKey}`,
+          ).toBe(true);
+          expect(
+            Object.hasOwn(itemData, 'DESCRIPTION'),
+            `Missing DESCRIPTION in ITEMS.${itemKey}`,
+          ).toBe(true);
+          expect(itemData.NAME, `ITEMS.${itemKey}.NAME is empty`).not.toEqual(
             '',
           );
-          // expect(itemData.TITLE, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toEqual('');
+          expect(
+            itemData.NAME_other,
+            `ITEMS.${itemKey}.NAME_other is empty`,
+          ).not.toEqual('');
+          // TODO: Fill in the DESCRIPTION fields
+          // expect(itemData.NAME, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toEqual('');
         }
       });
 

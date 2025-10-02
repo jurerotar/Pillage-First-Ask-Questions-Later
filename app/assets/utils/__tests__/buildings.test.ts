@@ -4,13 +4,15 @@ import {
   calculateBuildingDurationForLevel,
   calculateBuildingEffectValues,
   calculatePopulationFromBuildingFields,
+  calculateTotalCulturePointsForLevel,
+  calculateTotalPopulationForLevel,
   getBuildingData,
   getBuildingDataForLevel,
 } from 'app/assets/utils/buildings';
 import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
 import { describe, expect, test } from 'vitest';
 
-describe('Building utils', () => {
+describe('Buildings utils', () => {
   describe('calculatePopulationFromBuildingFields', () => {
     test('New village should have a population of 3', () => {
       expect(
@@ -107,6 +109,46 @@ describe('Building utils', () => {
     test('Should calculate correct duration for level 1', () => {
       const duration = calculateBuildingDurationForLevel('MAIN_BUILDING', 1);
       expect(duration).toBe(2000000);
+    });
+  });
+
+  describe('calculateTotalCulturePointsForLevel', () => {
+    test('MAIN_BUILDING produces X culture points at level 20', () => {
+      const totalCulturePoints = calculateTotalCulturePointsForLevel(
+        'MAIN_BUILDING',
+        0,
+      );
+
+      expect(totalCulturePoints).toBe(0);
+    });
+
+    test('MAIN_BUILDING produces X culture points at level 20', () => {
+      const totalCulturePoints = calculateTotalCulturePointsForLevel(
+        'MAIN_BUILDING',
+        20,
+      );
+
+      expect(totalCulturePoints).toBe(77);
+    });
+  });
+
+  describe('calculateTotalPopulationForLevel', () => {
+    test('MAIN_BUILDING produces X population at level 20', () => {
+      const totalPopulation = calculateTotalPopulationForLevel(
+        'MAIN_BUILDING',
+        0,
+      );
+
+      expect(totalPopulation).toBe(0);
+    });
+
+    test('MAIN_BUILDING produces X population at level 20', () => {
+      const totalPopulation = calculateTotalPopulationForLevel(
+        'MAIN_BUILDING',
+        20,
+      );
+
+      expect(totalPopulation).toBe(41);
     });
   });
 });

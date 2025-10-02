@@ -28,7 +28,7 @@ const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
 
   return (
     <TableRow>
-      <TableCell>{assetsT(`ITEMS.${item.name}.TITLE`)}</TableCell>
+      <TableCell>{assetsT(`ITEMS.${item.name}.NAME`)}</TableCell>
       <TableCell>{assetsT(`ITEMS.${item.name}.DESCRIPTION`)}</TableCell>
       <TableCell>
         {/*// TODO: Re-enable this when SQLite migration is finished */}
@@ -106,7 +106,7 @@ export const TreasuryArtifacts = () => {
               {hasCurrentVillageArtifact && (
                 <>
                   <TableCell>
-                    {assetsT(`ITEMS.${currentVillageArtifactId}.TITLE`)}
+                    {assetsT(`ITEMS.${currentVillageArtifactId}.NAME`)}
                   </TableCell>
                   <TableCell>
                     {assetsT(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}

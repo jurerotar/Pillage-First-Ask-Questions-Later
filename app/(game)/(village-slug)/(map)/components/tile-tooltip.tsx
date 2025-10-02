@@ -103,7 +103,7 @@ const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
 
   return (
     <span>
-      {formatNumber(item.amount)}x {assetsT(`ITEMS.${item.name}.TITLE`)}
+      {formatNumber(item.amount)}x {assetsT(`ITEMS.${item.name}.NAME`)}
     </span>
   );
 };

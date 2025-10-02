@@ -701,161 +701,161 @@
   },
   "ITEMS": {
     "UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
-      "TITLE": "Weathered artifact of speed",
-      "TITLE_other": "Weathered artifacts of speed",
+      "NAME": "Weathered artifact of speed",
+      "NAME_other": "Weathered artifacts of speed",
       "DESCRIPTION": ""
     },
     "UNCOMMON_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
-      "TITLE": "Weathered artifact of carrying",
-      "TITLE_other": "Weathered artifacts of carrying",
+      "NAME": "Weathered artifact of carrying",
+      "NAME_other": "Weathered artifacts of carrying",
       "DESCRIPTION": ""
     },
     "UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
-      "TITLE": "Weathered artifact of training",
-      "TITLE_other": "Weathered artifacts of training",
+      "NAME": "Weathered artifact of training",
+      "NAME_other": "Weathered artifacts of training",
       "DESCRIPTION": ""
     },
     "UNCOMMON_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
-      "TITLE": "Weathered artifact of hunger",
-      "TITLE_other": "Weathered artifacts of hunger",
+      "NAME": "Weathered artifact of hunger",
+      "NAME_other": "Weathered artifacts of hunger",
       "DESCRIPTION": ""
     },
     "UNCOMMON_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
-      "TITLE": "Weathered artifact of building",
-      "TITLE_other": "Weathered artifacts of building",
+      "NAME": "Weathered artifact of building",
+      "NAME_other": "Weathered artifacts of building",
       "DESCRIPTION": ""
     },
     "UNCOMMON_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
-      "TITLE": "Weathered artifact of oasis",
-      "TITLE_other": "Weathered artifacts of oasis",
+      "NAME": "Weathered artifact of oasis",
+      "NAME_other": "Weathered artifacts of oasis",
       "DESCRIPTION": ""
     },
     "UNCOMMON_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
-      "TITLE": "Weathered artifact of resources",
-      "TITLE_other": "Weathered artifacts of resources",
+      "NAME": "Weathered artifact of resources",
+      "NAME_other": "Weathered artifacts of resources",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
-      "TITLE": "Honed artifact of speed",
-      "TITLE_other": "Honed artifacts of speed",
+      "NAME": "Honed artifact of speed",
+      "NAME_other": "Honed artifacts of speed",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
-      "TITLE": "Honed artifact of carrying",
-      "TITLE_other": "Honed artifacts of carrying",
+      "NAME": "Honed artifact of carrying",
+      "NAME_other": "Honed artifacts of carrying",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
-      "TITLE": "Honed artifact of training",
-      "TITLE_other": "Honed artifacts of training",
+      "NAME": "Honed artifact of training",
+      "NAME_other": "Honed artifacts of training",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
-      "TITLE": "Honed artifact of hunger",
-      "TITLE_other": "Honed artifacts of hunger",
+      "NAME": "Honed artifact of hunger",
+      "NAME_other": "Honed artifacts of hunger",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
-      "TITLE": "Honed artifact of building",
-      "TITLE_other": "Honed artifacts of building",
+      "NAME": "Honed artifact of building",
+      "NAME_other": "Honed artifacts of building",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
-      "TITLE": "Honed artifact of oasis",
-      "TITLE_other": "Honed artifacts of oasis",
+      "NAME": "Honed artifact of oasis",
+      "NAME_other": "Honed artifacts of oasis",
       "DESCRIPTION": ""
     },
     "RARE_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
-      "TITLE": "Honed artifact of resources",
-      "TITLE_other": "Honed artifacts of resources",
+      "NAME": "Honed artifact of resources",
+      "NAME_other": "Honed artifacts of resources",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
-      "TITLE": "Natarian artifact of speed",
-      "TITLE_other": "Natarian artifacts of speed",
+      "NAME": "Natarian artifact of speed",
+      "NAME_other": "Natarian artifacts of speed",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
-      "TITLE": "Natarian artifact of carrying",
-      "TITLE_other": "Natarian artifacts of carrying",
+      "NAME": "Natarian artifact of carrying",
+      "NAME_other": "Natarian artifacts of carrying",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
-      "TITLE": "Natarian artifact of training",
-      "TITLE_other": "Natarian artifacts of training",
+      "NAME": "Natarian artifact of training",
+      "NAME_other": "Natarian artifacts of training",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
-      "TITLE": "Natarian artifact of hunger",
-      "TITLE_other": "Natarian artifacts of hunger",
+      "NAME": "Natarian artifact of hunger",
+      "NAME_other": "Natarian artifacts of hunger",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
-      "TITLE": "Natarian artifact of building",
-      "TITLE_other": "Natarian artifacts of building",
+      "NAME": "Natarian artifact of building",
+      "NAME_other": "Natarian artifacts of building",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
-      "TITLE": "Natarian artifact of oasis",
-      "TITLE_other": "Natarian artifacts of oasis",
+      "NAME": "Natarian artifact of oasis",
+      "NAME_other": "Natarian artifacts of oasis",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
-      "TITLE": "Natarian artifact of resources",
-      "TITLE_other": "Natarian artifacts of resources",
+      "NAME": "Natarian artifact of resources",
+      "NAME_other": "Natarian artifacts of resources",
       "DESCRIPTION": ""
     },
     "EPIC_ARTIFACT_CIVIL_ENABLE_GREAT_BUILDINGS": {
-      "TITLE": "Natarian artifact of storage",
-      "TITLE_other": "Natarian artifacts of storage",
+      "NAME": "Natarian artifact of storage",
+      "NAME_other": "Natarian artifacts of storage",
       "DESCRIPTION": ""
     },
     "SILVER": {
-      "TITLE": "Silver",
-      "TITLE_other": "Silver",
+      "NAME": "Silver",
+      "NAME_other": "Silver",
       "DESCRIPTION": ""
     },
     "HEALING_POTION": {
-      "TITLE": "Healing potion",
-      "TITLE_other": "Healing potions",
+      "NAME": "Healing potion",
+      "NAME_other": "Healing potions",
       "DESCRIPTION": ""
     },
     "BOOK_OF_WISDOM": {
-      "TITLE": "Book of Wisdom",
-      "TITLE_other": "Books of Wisdom",
+      "NAME": "Book of Wisdom",
+      "NAME_other": "Books of Wisdom",
       "DESCRIPTION": ""
     },
     "ANIMAL_CAGE": {
-      "TITLE": "Animal cage",
-      "TITLE_other": "Animal cages",
+      "NAME": "Animal cage",
+      "NAME_other": "Animal cages",
       "DESCRIPTION": ""
     },
     "REVIVAL_POTION": {
-      "TITLE": "Revival potion",
-      "TITLE_other": "Revival potions",
+      "NAME": "Revival potion",
+      "NAME_other": "Revival potions",
       "DESCRIPTION": ""
     }
   },
   "QUESTS": {
     "ADVENTURE-COUNT": {
       "TITLE_one": "{{count}} adventure",
-      "TITLE_other": "{{count}} adventures",
+      "NAME_other": "{{count}} adventures",
       "DESCRIPTION_one": "Send your hero on {{count}} adventure.",
       "DESCRIPTION_other": "Send your hero on {{count}} adventures.",
       "GROUP": "Adventures"
     },
     "TROOP-COUNT": {
-      "TITLE": "{{amount}} units",
+      "NAME": "{{amount}} units",
       "DESCRIPTION": "Train additional units until you have at least {{amount}} units.",
       "GROUP": "Train units"
     },
     "ONE-OF": {
-      "TITLE": "{{buildingName}} to level {{level}}",
+      "NAME": "{{buildingName}} to level {{level}}",
       "DESCRIPTION": "Upgrade the {{buildingName}} to level {{level}}.",
       "GROUP": "{{buildingName}}"
     },
     "EVERY": {
-      "TITLE": "All {{buildingName}}s level {{level}}",
+      "NAME": "All {{buildingName}}s level {{level}}",
       "DESCRIPTION": "Upgrade all {{buildingName}}s to level {{level}}.",
       "GROUP": "All {{buildingName}}s"
     }
