@@ -137,7 +137,7 @@ const MapPage = () => {
     return () => {
       controller.abort();
     };
-  }, [mapRef.current, tileSize]);
+  }, [tileSize]);
 
   useEventListener(
     'mousemove',

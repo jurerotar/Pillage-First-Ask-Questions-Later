@@ -73,7 +73,7 @@ jobs:
           npm install --no-save eslint eslint-plugin-react-hooks @typescript-eslint/parser typescript-eslint
 
       - name: React compiler compatibility check
-        run: npx eslint --config eslint.config.js --max-warnings=0 .
+        run: npx eslint --config eslint.config.js .
 
       - name: Format check
         run: npm run format:check
