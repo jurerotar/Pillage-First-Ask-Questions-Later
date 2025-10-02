@@ -17,7 +17,9 @@ export const useQuests = () => {
   const { data: quests } = useSuspenseQuery<Quest[]>({
     queryKey: [questsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Quest[]>('/me/quests');
+      const { data } = await fetcher<Quest[]>(
+        `/villages/${currentVillage.id}/quests`,
+      );
       return data;
     },
   });
@@ -26,7 +28,7 @@ export const useQuests = () => {
     queryKey: [collectableQuestCountCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<{ collectableQuestCount: number }>(
-        '/me/quests/collectables/count',
+        `/villages/${currentVillage.id}/quests/collectables/count`,
       );
       return data.collectableQuestCount;
     },
@@ -38,12 +40,12 @@ export const useQuests = () => {
     { questId: Quest['id'] }
   >({
     mutationFn: async ({ questId }) => {
-      await fetcher(`/quests/${questId}/collect`, {
-        method: 'PATCH',
-        body: {
-          villageId: currentVillage.id,
+      await fetcher(
+        `/villages/${currentVillage.id}/quests/${questId}/collect`,
+        {
+          method: 'PATCH',
         },
-      });
+      );
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await context.client.invalidateQueries({ queryKey: [questsCacheKey] });

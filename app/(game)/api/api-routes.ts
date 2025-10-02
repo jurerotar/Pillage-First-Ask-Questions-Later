@@ -118,17 +118,17 @@ const unitImprovementRoutes = [
 const questRoutes = [
   {
     method: 'GET',
-    path: '/players/:playerId/quests',
+    path: '/villages/:villageId/quests',
     handler: getQuests,
   },
   {
     method: 'GET',
-    path: '/players/:playerId/quests/collectables/count',
+    path: '/villages/:villageId/quests/collectables/count',
     handler: getCollectableQuestCount,
   },
   {
     method: 'PATCH',
-    path: '/quests/:questId/collect',
+    path: '/villages/:villageId/quests/:questId/collect',
     handler: collectQuest,
   },
 ];

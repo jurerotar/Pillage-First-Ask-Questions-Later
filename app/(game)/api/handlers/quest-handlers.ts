@@ -1,18 +1,56 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
-  isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
 import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
-import type { Village } from 'app/interfaces/models/game/village';
 import { getQuestRewards } from 'app/assets/utils/quests';
+import { z } from 'zod';
 
-export const getQuests: ApiHandler<Quest[]> = async (queryClient) => {
-  return queryClient.getQueryData<Quest[]>([questsCacheKey])!;
+const getQuestsSchema = z
+  .strictObject({
+    quest_id: z.string().brand<Quest['id']>(),
+    scope: z.enum(['village', 'global']),
+    collected_at: z.number().nullable(),
+    completed_at: z.number().nullable(),
+    village_id: z.number().nullable(),
+  })
+  .transform((t) => {
+    return {
+      id: t.quest_id,
+      scope: t.scope,
+      collectedAt: t.collected_at,
+      completedAt: t.completed_at,
+      villageId: t.village_id,
+    };
+  });
+
+export const getQuests: ApiHandler<
+  z.infer<typeof getQuestsSchema>[],
+  'villageId'
+> = async (_queryClient, database, { params }) => {
+  const { villageId } = params;
+
+  const rows = database.selectObjects(
+    `
+      SELECT quest_id,
+             scope,
+             collected_at,
+             completed_at,
+             village_id
+      FROM quests
+      WHERE village_id IS NULL
+         OR village_id = $village_id
+      ORDER BY quest_id
+    `,
+    {
+      $village_id: villageId,
+    },
+  );
+
+  return z.array(getQuestsSchema).parse(rows);
 };
 
 type GetCollectableQuestCountReturn = {
@@ -23,10 +61,12 @@ export const getCollectableQuestCount: ApiHandler<
   GetCollectableQuestCountReturn
 > = async (_queryClient, database) => {
   const collectableQuestCount = database.selectValue(
-    `SELECT COUNT(*) AS count
-     FROM quests
-     WHERE completed_at IS NOT NULL
-       AND collected_at IS NULL;`,
+    `
+      SELECT COUNT(*) AS count
+      FROM quests
+      WHERE completed_at IS NOT NULL
+        AND collected_at IS NULL;
+    `,
   ) as number;
 
   return {
@@ -34,39 +74,48 @@ export const getCollectableQuestCount: ApiHandler<
   };
 };
 
-export const collectQuest: ApiHandler<
-  void,
-  'questId',
-  { villageId: Village['id'] }
-> = async (queryClient, database, args) => {
+export const collectQuest: ApiHandler<void, 'questId' | 'villageId'> = async (
+  _queryClient,
+  database,
+  args,
+) => {
   const {
-    params: { questId },
-    body: { villageId },
+    params: { questId, villageId },
   } = args;
 
-  const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
+  const questDbId = database.selectValue(
+    `
+      SELECT id
+      FROM quests
+      WHERE quest_id = $quest_id
+        AND (village_id = $village_id OR village_id IS NULL)
+      ORDER BY (village_id = $village_id) DESC, (village_id IS NULL) DESC
+      LIMIT 1;
+    `,
+    {
+      $quest_id: questId,
+    },
+  );
 
-  const quest = quests.find((quest) => {
-    if (quest.id !== questId) {
-      return false;
-    }
+  database.exec(
+    `
+      UPDATE quests
+      SET collected_at = $collected_at
+      WHERE id = $id;
+    `,
+    {
+      $collected_at: Date.now(),
+      $id: questDbId,
+    },
+  );
 
-    if (isVillageQuest(quest)) {
-      return quest.villageId === villageId;
-    }
-
-    return true;
-  })!;
-
-  quest.collectedAt = Date.now();
-
-  const questRewards = getQuestRewards(quest.id);
+  const questRewards = getQuestRewards(questId as Quest['id']);
 
   for (const reward of questRewards) {
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
 
-      addVillageResourcesAt(queryClient, database, villageId, Date.now(), [
+      addVillageResourcesAt(_queryClient, database, villageId, Date.now(), [
         amount,
         amount,
         amount,
@@ -79,8 +128,4 @@ export const collectQuest: ApiHandler<
       addHeroExperience(database, reward.amount);
     }
   }
-
-  queryClient.setQueryData<Quest[]>([questsCacheKey], () => {
-    return quests;
-  });
 };
