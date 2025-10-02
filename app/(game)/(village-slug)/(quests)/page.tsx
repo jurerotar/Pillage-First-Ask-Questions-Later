@@ -66,7 +66,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
         <TabPanel>
           <SectionContent>
             <Text as="h2">
-              {t('Quests for village {{villageName}}', {
+              {t('Quests for village "{{villageName}}"', {
                 villageName: currentVillage.name,
               })}
             </Text>

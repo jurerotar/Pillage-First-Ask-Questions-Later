@@ -141,7 +141,7 @@
   "This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.": "This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.",
   "Village": "Village",
   "Global": "Global",
-  "Quests for village {{villageName}}": "Quests for village {{villageName}}",
+  "Quests for village \"{{villageName}}\"": "Quests for village \"{{villageName}}\"",
   "These quests are tied to the current village and can only be progressed in current village.": "These quests are tied to the current village and can only be progressed in current village.",
   "Global quests": "Global quests",
   "These quests are not tied to any village and are progress in all villages.": "These quests are not tied to any village and are progress in all villages.",
