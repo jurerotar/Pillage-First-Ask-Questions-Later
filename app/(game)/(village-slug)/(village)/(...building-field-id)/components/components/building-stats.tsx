@@ -4,7 +4,7 @@ import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
-  getBuildingData,
+  getBuildingDefinition,
   getBuildingFieldByBuildingFieldId,
 } from 'app/assets/utils/buildings';
 import { Text } from 'app/components/text';
@@ -38,7 +38,7 @@ export const BuildingStats = () => {
     currentVillage,
     buildingFieldId!,
   )!;
-  const building = getBuildingData(buildingId);
+  const building = getBuildingDefinition(buildingId);
 
   return (
     <Section>

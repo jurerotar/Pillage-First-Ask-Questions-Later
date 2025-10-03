@@ -31,7 +31,7 @@ import {
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
-  getUnitData,
+  getUnitDefinition,
 } from 'app/assets/utils/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
@@ -194,7 +194,7 @@ export const getEventCost = (event: GameEvent): number[] => {
 
   if (isTroopTrainingEvent(event)) {
     const { unitId, buildingId, amount } = event;
-    const { baseRecruitmentCost } = getUnitData(unitId);
+    const { baseRecruitmentCost } = getUnitDefinition(unitId);
 
     const costModifier =
       buildingId === 'GREAT_BARRACKS' || buildingId === 'GREAT_STABLE' ? 3 : 1;
@@ -307,7 +307,7 @@ export const getEventDuration = (
       return 5_000 * total;
     }
 
-    const { baseRecruitmentDuration } = getUnitData(unitId);
+    const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
     return total * baseRecruitmentDuration;
   }

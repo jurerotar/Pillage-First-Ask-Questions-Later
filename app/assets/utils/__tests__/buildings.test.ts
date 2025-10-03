@@ -6,7 +6,7 @@ import {
   calculatePopulationFromBuildingFields,
   calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
-  getBuildingData,
+  getBuildingDefinition,
   getBuildingDataForLevel,
 } from 'app/assets/utils/buildings';
 import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
@@ -23,7 +23,7 @@ describe('Buildings utils', () => {
 
   describe('calculateBuildingEffectValues', () => {
     test('CITY_WALL effect values', () => {
-      const building = getBuildingData('CITY_WALL');
+      const building = getBuildingDefinition('CITY_WALL');
       const result = calculateBuildingEffectValues(building, 20);
       expect(
         result.some(
@@ -34,7 +34,7 @@ describe('Buildings utils', () => {
     });
 
     test('BAKERY wheat production bonus', () => {
-      const building = getBuildingData('BAKERY');
+      const building = getBuildingDefinition('BAKERY');
       const result = calculateBuildingEffectValues(building, 5);
       expect(
         result.some(
@@ -45,7 +45,7 @@ describe('Buildings utils', () => {
     });
 
     test('CLAY_PIT clay production', () => {
-      const building = getBuildingData('CLAY_PIT');
+      const building = getBuildingDefinition('CLAY_PIT');
       const result = calculateBuildingEffectValues(building, 20);
       expect(
         result.find((e) => e.effectId === 'clayProduction')!.currentLevelValue,
@@ -53,7 +53,7 @@ describe('Buildings utils', () => {
     });
 
     test('CITY_WALL values are increasing', () => {
-      const building = getBuildingData('CITY_WALL');
+      const building = getBuildingDefinition('CITY_WALL');
       const result = calculateBuildingEffectValues(building, 10);
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!
@@ -62,7 +62,7 @@ describe('Buildings utils', () => {
     });
 
     test('BAKERY wheat production bonus values are increasing', () => {
-      const building = getBuildingData('BAKERY');
+      const building = getBuildingDefinition('BAKERY');
       const result = calculateBuildingEffectValues(building, 3);
       expect(
         result.find(

@@ -1,5 +1,5 @@
 import {
-  getBuildingData,
+  getBuildingDefinition,
   getBuildingDataForLevel,
 } from 'app/assets/utils/buildings';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
@@ -33,7 +33,7 @@ export const buildingLevelChangeResolver: Resolver<
     },
   );
 
-  const { effects: buildingEffects } = getBuildingData(buildingId);
+  const { effects: buildingEffects } = getBuildingDefinition(buildingId);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
     const buildingEffectsWithoutCurrentBuildingEffects = prevData!.filter(
@@ -103,7 +103,7 @@ export const buildingConstructionResolver: Resolver<
     },
   );
 
-  const { effects } = getBuildingData(buildingId);
+  const { effects } = getBuildingDefinition(buildingId);
   const { population } = getBuildingDataForLevel(buildingId, 0);
 
   queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {

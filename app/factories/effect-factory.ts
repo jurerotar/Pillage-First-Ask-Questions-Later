@@ -1,4 +1,4 @@
-import { getBuildingData } from 'app/assets/utils/buildings';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
 import { merchants } from 'app/assets/merchants';
 import type {
   Building,
@@ -147,7 +147,7 @@ const newVillageBuildingFieldsEffectsFactory = (
 ): VillageBuildingEffect[] => {
   return village.buildingFields.flatMap(
     ({ buildingId, id, level }: BuildingField) => {
-      const building = getBuildingData(buildingId);
+      const building = getBuildingDefinition(buildingId);
       return building.effects.map(
         ({ effectId, valuesPerLevel, type }: BuildingEffect) =>
           newBuildingEffectFactory({

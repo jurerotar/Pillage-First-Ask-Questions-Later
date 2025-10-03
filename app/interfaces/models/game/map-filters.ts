@@ -7,7 +7,7 @@ export type MapFiltersModel = {
   should_show_treasure_icons: boolean;
 };
 
-export type MapFilterName =
+type MapFilterName =
   | 'shouldShowFactionReputation'
   | 'shouldShowOasisIcons'
   | 'shouldShowTroopMovements'

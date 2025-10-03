@@ -3,7 +3,7 @@ import type {
   UnitResearchRequirement,
 } from 'app/interfaces/models/game/unit';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getUnitData } from 'app/assets/utils/units';
+import { getUnitDefinition } from 'app/assets/utils/units';
 
 type AssessedResearchRequirement = UnitResearchRequirement & {
   fulfilled: boolean;
@@ -30,7 +30,7 @@ export const assessUnitResearchReadiness = (
   unitId: Unit['id'],
   village: Village,
 ): AssessUnitResearchReadinessReturn => {
-  const { researchRequirements } = getUnitData(unitId)!;
+  const { researchRequirements } = getUnitDefinition(unitId)!;
 
   const assessedRequirements: AssessedResearchRequirement[] =
     researchRequirements.map((requirement) => {

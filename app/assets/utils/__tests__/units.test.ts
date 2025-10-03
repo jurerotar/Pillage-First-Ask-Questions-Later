@@ -1,5 +1,5 @@
 import {
-  getUnitData,
+  getUnitDefinition,
   getUnitsByTribe,
   getUnitByTribeAndTier,
   calculateMaxUnits,
@@ -25,7 +25,7 @@ describe('units', () => {
   const mockUnit = romanUnits.find((u) => u.id === mockUnitId)!;
 
   test('getUnitData returns unit by id', () => {
-    expect(getUnitData(mockUnitId)).toEqual(mockUnit);
+    expect(getUnitDefinition(mockUnitId)).toEqual(mockUnit);
   });
 
   test('getUnitsByTribe returns correct units for each tribe', () => {

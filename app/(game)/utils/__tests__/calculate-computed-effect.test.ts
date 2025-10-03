@@ -19,7 +19,7 @@ import {
   newBuildingEffectFactory,
   newVillageEffectsFactory,
 } from 'app/factories/effect-factory';
-import { getBuildingData } from 'app/assets/utils/buildings';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
 
 const villageId = villageMock.id;
 
@@ -380,7 +380,7 @@ describe('calculateComputedEffect – woodProduction', () => {
   });
 
   test.skip('should have a building duration modifier of 1 on a new village', () => {
-    const { effects: buildingEffects } = getBuildingData('MAIN_BUILDING');
+    const { effects: buildingEffects } = getBuildingDefinition('MAIN_BUILDING');
     const level = 2;
 
     const effects = buildingEffects.map(

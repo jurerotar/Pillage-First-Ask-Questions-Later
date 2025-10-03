@@ -1,4 +1,4 @@
-import { getBuildingData } from 'app/assets/utils/buildings';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,
@@ -92,7 +92,7 @@ export const assessBuildingConstructionReadiness = (
 ): AssessBuildingConstructionReadinessReturn => {
   const { buildingId } = args;
 
-  const building = getBuildingData(buildingId);
+  const building = getBuildingDefinition(buildingId);
   const requirements = building.buildingRequirements;
 
   const assessedRequirements: AssessedBuildingRequirement[] = requirements.map(

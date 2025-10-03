@@ -6,7 +6,7 @@ import {
   troopsCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitData } from 'app/assets/utils/units';
+import { getUnitDefinition } from 'app/assets/utils/units';
 import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
@@ -38,7 +38,7 @@ export const troopTrainingEventResolver: Resolver<
     },
   );
 
-  const { unitWheatConsumption } = getUnitData(unitId);
+  const { unitWheatConsumption } = getUnitDefinition(unitId);
 
   const troopsToAdd: Troop[] = [
     {

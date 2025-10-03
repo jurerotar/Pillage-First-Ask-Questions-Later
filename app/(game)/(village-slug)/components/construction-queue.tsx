@@ -146,7 +146,7 @@ const ConstructionQueueEmptySlot = ({
   return <FaLock className={iconClassName} />;
 };
 
-export const ConstructionQueueContent = () => {
+const ConstructionQueueContent = () => {
   const tribe = useTribe();
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillageBuildingEvents } = use(

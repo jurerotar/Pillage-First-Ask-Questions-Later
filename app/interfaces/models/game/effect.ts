@@ -1,8 +1,5 @@
 import type { Village } from 'app/interfaces/models/game/village';
-import type { HeroItem } from 'app/interfaces/models/game/hero';
 import type { Building } from 'app/interfaces/models/game/building';
-import type { Tile } from 'app/interfaces/models/game/tile';
-import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
@@ -56,6 +53,7 @@ export type Effect = {
     | 'server'
     | 'troops';
   type: 'base' | 'bonus' | 'bonus-booster';
+  sourceSpecifier: number;
 };
 
 export type ServerEffect = Omit<Effect, 'scope'> & {
@@ -79,21 +77,17 @@ export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
 
 export type HeroEffect = Omit<VillageEffect, 'source'> & {
   source: 'hero';
-  villageId: Village['id'];
 };
 
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
   source: 'building' | 'oasis';
-  buildingFieldId: BuildingField['id'];
   buildingId: Building['id'];
 };
 
 export type ArtifactEffect = Omit<VillageEffect, 'source'> & {
   source: 'artifact';
-  artifactId: HeroItem['id'];
 };
 
 export type OasisEffect = Omit<VillageEffect, 'source'> & {
   source: 'oasis';
-  oasisId: Tile['id'];
 };

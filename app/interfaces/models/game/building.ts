@@ -9,7 +9,7 @@ export type TroopTrainingBuildingId =
   | 'WORKSHOP'
   | 'HOSPITAL';
 
-export type BuildingId =
+type BuildingId =
   | TroopTrainingBuildingId
   | 'CLAY_PIT'
   | 'WHEAT_FIELD'
@@ -79,7 +79,7 @@ export type BuildingRequirement =
   | TribeBuildingRequirement
   | AmountBuildingRequirement;
 
-export type BuildingCategory =
+type BuildingCategory =
   | 'infrastructure'
   | 'military'
   | 'resource-booster'
