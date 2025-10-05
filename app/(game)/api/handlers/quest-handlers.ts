@@ -115,7 +115,7 @@ export const collectQuest: ApiHandler<void, 'questId' | 'villageId'> = async (
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
 
-      addVillageResourcesAt(_queryClient, database, villageId, Date.now(), [
+      addVillageResourcesAt(database, villageId, Date.now(), [
         amount,
         amount,
         amount,

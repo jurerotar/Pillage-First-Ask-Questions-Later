@@ -1,6 +1,4 @@
-import type { QueryClient } from '@tanstack/react-query';
 import type { Village, VillageModel } from 'app/interfaces/models/game/village';
-import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
@@ -15,15 +13,16 @@ export const demolishBuilding = (
   // we just set it to level 1, since these buildings can't be destroyed
   database.exec(
     `
-    UPDATE building_fields
+      UPDATE building_fields
       SET level = 0
       WHERE village_id = $village_id
-        AND field_id   = $building_field_id
+        AND field_id = $building_field_id
         AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
 
-      DELETE FROM building_fields
+      DELETE
+      FROM building_fields
       WHERE village_id = $village_id
-        AND field_id   = $building_field_id
+        AND field_id = $building_field_id
         AND field_id BETWEEN 19 AND 38;
     `,
     {
@@ -34,12 +33,36 @@ export const demolishBuilding = (
 };
 
 export const calculateVillageResourcesAt = (
-  queryClient: QueryClient,
   database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
 ) => {
-  const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+  const effects = database.selectObjects(
+    `
+      SELECT e.effect_id  AS id,
+             e.value,
+             e.type,
+             e.scope,
+             e.source,
+             e.village_id AS villageId,
+             e.source_specifier,
+             CASE
+               WHEN e.source = 'building'
+                 AND e.source_specifier BETWEEN 1 AND 40
+                 THEN bf.building_id
+               END        AS buildingId
+      FROM effects AS e
+             LEFT JOIN building_fields AS bf
+                       ON e.scope = 'village'
+                         AND bf.village_id = e.village_id
+                         AND bf.field_id = e.source_specifier
+      WHERE e.scope IN ('global', 'server')
+         OR e.village_id = $village_id;
+    `,
+    {
+      $village_id: villageId,
+    },
+  ) as Effect[];
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
@@ -74,17 +97,16 @@ export const calculateVillageResourcesAt = (
 
   const { wood, clay, iron, wheat, last_updated_at } = database.selectObject(
     `
-      SELECT
-        rs.updated_at AS last_updated_at,
-        rs.wood AS wood,
-        rs.clay AS clay,
-        rs.iron AS iron,
-        rs.wheat AS wheat
+      SELECT rs.updated_at AS last_updated_at,
+             rs.wood       AS wood,
+             rs.clay       AS clay,
+             rs.iron       AS iron,
+             rs.wheat      AS wheat
       FROM villages v
-      JOIN tiles t
-        ON t.id = v.tile_id
-      LEFT JOIN resource_sites rs
-        ON rs.tile_id = v.tile_id
+             JOIN tiles t
+                  ON t.id = v.tile_id
+             LEFT JOIN resource_sites rs
+                       ON rs.tile_id = v.tile_id
       WHERE v.id = $village_id;
     `,
     { $village_id: villageId },
@@ -150,7 +172,6 @@ export const calculateVillageResourcesAt = (
 };
 
 export const updateVillageResourcesAt = (
-  queryClient: QueryClient,
   database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
@@ -164,7 +185,7 @@ export const updateVillageResourcesAt = (
     lastEffectiveClayUpdate,
     lastEffectiveIronUpdate,
     lastEffectiveWheatUpdate,
-  } = calculateVillageResourcesAt(queryClient, database, villageId, timestamp);
+  } = calculateVillageResourcesAt(database, villageId, timestamp);
 
   const latestTick = Math.max(
     lastEffectiveWoodUpdate,
@@ -175,11 +196,11 @@ export const updateVillageResourcesAt = (
 
   database.exec(
     `
-    UPDATE resource_sites
-      SET wood       = $wood,
-          clay       = $clay,
-          iron       = $iron,
-          wheat      = $wheat,
+      UPDATE resource_sites
+      SET wood = $wood,
+          clay = $clay,
+          iron = $iron,
+          wheat = $wheat,
           updated_at = $updated_at
       WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);
     `,
@@ -195,7 +216,6 @@ export const updateVillageResourcesAt = (
 };
 
 export const addVillageResourcesAt = (
-  queryClient: QueryClient,
   database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
@@ -208,7 +228,7 @@ export const addVillageResourcesAt = (
     currentWheat,
     warehouseCapacity,
     granaryCapacity,
-  } = calculateVillageResourcesAt(queryClient, database, villageId, timestamp);
+  } = calculateVillageResourcesAt(database, villageId, timestamp);
 
   const [addWood, addClay, addIron, addWheat] = resourcesToAdd;
 
@@ -219,15 +239,15 @@ export const addVillageResourcesAt = (
 
   database.exec(
     `
-    UPDATE resource_sites
+      UPDATE resource_sites
       SET wood = $wood,
           clay = $clay,
           iron = $iron,
           wheat = $wheat,
           updated_at = $ts
-      WHERE tile_id = (
-        SELECT tile_id FROM villages WHERE id = $village_id
-      );
+      WHERE tile_id = (SELECT tile_id
+                       FROM villages
+                       WHERE id = $village_id);
     `,
     {
       $village_id: villageId,
@@ -241,14 +261,13 @@ export const addVillageResourcesAt = (
 };
 
 export const subtractVillageResourcesAt = (
-  queryClient: QueryClient,
   database: DbFacade,
   villageId: Village['id'],
   timestamp: number,
   resourcesToSubtract: number[],
 ) => {
   const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateVillageResourcesAt(queryClient, database, villageId, timestamp);
+    calculateVillageResourcesAt(database, villageId, timestamp);
 
   const [subWood, subClay, subIron, subWheat] = resourcesToSubtract;
 
@@ -259,15 +278,15 @@ export const subtractVillageResourcesAt = (
 
   database.exec(
     `
-    UPDATE resource_sites
+      UPDATE resource_sites
       SET wood = $wood,
           clay = $clay,
           iron = $iron,
           wheat = $wheat,
           updated_at = $ts
-      WHERE tile_id = (
-        SELECT tile_id FROM villages WHERE id = $village_id
-      );
+      WHERE tile_id = (SELECT tile_id
+                       FROM villages
+                       WHERE id = $village_id);
     `,
     {
       $village_id: villageId,

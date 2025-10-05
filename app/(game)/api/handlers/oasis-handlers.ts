@@ -1,17 +1,10 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
-import {
-  effectsCacheKey,
-  mapCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import { isOasisEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
-import { oasisEffectsFactory } from 'app/factories/effect-factory';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import type { Resource } from 'app/interfaces/models/game/resource';
 
 // TODO: Move this to an util function that's called after combat, once combat is added
 export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
-  queryClient,
+  _queryClient,
   database,
   args,
 ) => {
@@ -20,37 +13,58 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   } = args;
   // TODO: Add Hero's mansion level & empty oasis slot check
 
-  updateVillageResourcesAt(queryClient, database, villageId, Date.now());
+  database.transaction((db) => {
+    updateVillageResourcesAt(db, villageId, Date.now());
 
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const targetOasisTile = tiles.find(({ id }) => id === oasisId)! as OasisTile;
+    const oasisFieldsRows = db.selectObjects(
+      `
+        SELECT resource,
+               bonus
+        FROM oasis
+        WHERE tile_id = $tile_id;
+      `,
+      {
+        $tile_id: oasisId,
+      },
+    ) as { resource: Resource; bonus: number }[];
 
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
-    const oasisEffects = oasisEffectsFactory(
-      villageId,
-      targetOasisTile.id,
-      targetOasisTile.ORB,
+    for (const { resource, bonus } of oasisFieldsRows) {
+      const effectId = `${resource}Production`;
+      const value = bonus === 25 ? 1.25 : 1.5;
+
+      db.exec(
+        `
+          INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+          VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier);
+        `,
+        {
+          $effect_id: effectId,
+          $value: value,
+          $type: 'bonus',
+          $scope: 'village',
+          $source: 'oasis',
+          $village_id: villageId,
+          $source_specifier: oasisId,
+        },
+      );
+    }
+
+    db.exec(
+      `
+        UPDATE oasis
+        SET village_id = $village_id
+        WHERE tile_id = $oasis_tile_id;
+      `,
+      {
+        $oasis_tile_id: oasisId,
+        $village_id: villageId,
+      },
     );
-
-    return [...effects!, ...oasisEffects];
   });
-
-  database.exec(
-    `
-    UPDATE oasis
-      SET village_id = $village_id
-      WHERE tile_id  = $oasis_tile_id
-        AND village_id IS NULL;
-    `,
-    {
-      $oasis_tile_id: oasisId,
-      $village_id: villageId,
-    },
-  );
 };
 
 export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
-  queryClient,
+  _queryClient,
   database,
   args,
 ) => {
@@ -58,28 +72,34 @@ export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
     params: { oasisId, villageId },
   } = args;
 
-  updateVillageResourcesAt(queryClient, database, villageId, Date.now());
+  database.transaction((db) => {
+    updateVillageResourcesAt(db, villageId, Date.now());
 
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], (effects) => {
-    return effects!.filter((effect) => {
-      if (!isOasisEffect(effect)) {
-        return true;
-      }
+    db.exec(
+      `
+        DELETE
+        FROM effects
+        WHERE source = 'oasis'
+          AND village_id = $village_id
+          AND source_specifier = $source_specifier;
+      `,
+      {
+        $village_id: villageId,
+        $source_specifier: oasisId,
+      },
+    );
 
-      return !(effect.villageId === villageId && effect.oasisId === oasisId);
-    });
+    db.exec(
+      `
+        UPDATE oasis
+        SET village_id = NULL
+        WHERE tile_id = $oasis_tile_id
+          AND village_id = $village_id;
+      `,
+      {
+        $oasis_tile_id: oasisId,
+        $village_id: villageId,
+      },
+    );
   });
-
-  database.exec(
-    `
-    UPDATE oasis
-      SET village_id = NULL
-      WHERE tile_id   = $oasis_tile_id
-        AND village_id = $village_id;
-    `,
-    {
-      $oasis_tile_id: oasisId,
-      $village_id: villageId,
-    },
-  );
 };

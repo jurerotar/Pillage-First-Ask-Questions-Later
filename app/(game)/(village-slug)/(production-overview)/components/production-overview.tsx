@@ -28,6 +28,7 @@ import {
   isOasisEffect,
   isServerEffect,
 } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { getItemDefinition } from 'app/assets/utils/items';
 
 const formatBonus = (number: number): number => {
   return Math.trunc(number * 10000) / 100;
@@ -270,22 +271,28 @@ export const ProductionOverview = ({
                     </TableCell>
                   </TableRow>
                 ))}
-                {boostedArtifactBonusEffects.map(({ value, artifactId }) => (
-                  <TableRow key={artifactId}>
-                    <TableCell>
-                      <Text>{t('Artifact')}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{assetsT(`ITEMS.${artifactId}.NAME`)}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{formatBonus(value - 1)}%</Text>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {boostedOasisBonusEffects.map(({ oasisId, value }) => {
+                {boostedArtifactBonusEffects.map(
+                  ({ value, sourceSpecifier }) => {
+                    const { name } = getItemDefinition(sourceSpecifier!);
+
+                    return (
+                      <TableRow key={sourceSpecifier}>
+                        <TableCell>
+                          <Text>{t('Artifact')}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{assetsT(`ITEMS.${name}.NAME`)}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{formatBonus(value - 1)}%</Text>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  },
+                )}
+                {boostedOasisBonusEffects.map(({ value, sourceSpecifier }) => {
                   return (
-                    <TableRow key={oasisId}>
+                    <TableRow key={sourceSpecifier}>
                       <TableCell>
                         <Text>{t('Oasis')}</Text>
                       </TableCell>
@@ -306,8 +313,8 @@ export const ProductionOverview = ({
                   );
                 })}
                 {boostedBuildingBonusEffects.map(
-                  ({ value, buildingFieldId, buildingId }) => (
-                    <TableRow key={buildingFieldId}>
+                  ({ value, sourceSpecifier, buildingId }) => (
+                    <TableRow key={sourceSpecifier}>
                       <TableCell>
                         <Text>{t('Building')}</Text>
                       </TableCell>
@@ -372,27 +379,31 @@ export const ProductionOverview = ({
                   </TableRow>
                 ))}
                 {baseArtifactsEffectsWithServerModifier.map(
-                  ({ value, artifactId }) => (
-                    <TableRow key={artifactId}>
-                      <TableCell>
-                        <Text>{t('Artifact')}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{assetsT(`ITEMS.${artifactId}.NAME`)}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{value}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>0</Text>
-                      </TableCell>
-                    </TableRow>
-                  ),
+                  ({ value, sourceSpecifier }) => {
+                    const { name } = getItemDefinition(sourceSpecifier!);
+
+                    return (
+                      <TableRow key={sourceSpecifier}>
+                        <TableCell>
+                          <Text>{t('Artifact')}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{assetsT(`ITEMS.${name}.NAME`)}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{value}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>0</Text>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  },
                 )}
                 {baseOasisEffectsWithServerModifier.map(
-                  ({ value, oasisId }) => {
+                  ({ value, sourceSpecifier }) => {
                     return (
-                      <TableRow key={oasisId}>
+                      <TableRow key={sourceSpecifier}>
                         <TableCell>
                           <Text>{t('Oasis')}</Text>
                         </TableCell>
@@ -417,8 +428,8 @@ export const ProductionOverview = ({
                   },
                 )}
                 {baseBuildingEffectsWithServerModifier.map(
-                  ({ value, buildingId, buildingFieldId }, index) => (
-                    <TableRow key={buildingFieldId}>
+                  ({ value, sourceSpecifier, buildingId }, index) => (
+                    <TableRow key={sourceSpecifier}>
                       <TableCell>
                         <Text>{t('Building')}</Text>
                       </TableCell>

@@ -11,9 +11,12 @@ import { merchants } from 'app/assets/merchants';
 import { PLAYER_ID } from 'app/constants/player';
 import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { z } from 'zod';
-import { calculateTotalPopulationForLevel } from 'app/assets/utils/buildings';
-import type { BuildingId } from 'app/interfaces/models/game/building';
-import { getUnitData } from 'app/assets/utils/units';
+import {
+  calculateTotalPopulationForLevel,
+  getBuildingDefinition,
+} from 'app/assets/utils/buildings';
+import type { Building } from 'app/interfaces/models/game/building';
+import { getUnitDefinition } from 'app/assets/utils/units';
 import type { Unit } from 'app/interfaces/models/game/unit';
 
 const heroEffectsFactory = (
@@ -68,6 +71,7 @@ const heroEffectsFactory = (
     scope: 'village',
     source: 'hero',
     villageId,
+    sourceSpecifier: null,
   }));
 };
 
@@ -78,7 +82,7 @@ const globalEffectsFactory = (server: Server): GlobalEffect[] => {
     ({ tribe: tribeToFind }) => tribeToFind === tribe,
   )!;
 
-  const merchantEffects: Omit<TribalEffect, 'scope'>[] = [
+  const merchantEffects: Omit<TribalEffect, 'scope' | 'sourceSpecifier'>[] = [
     {
       id: 'merchantCapacity',
       value: tribeMerchant.merchantCapacity,
@@ -96,6 +100,7 @@ const globalEffectsFactory = (server: Server): GlobalEffect[] => {
   return [...merchantEffects].map((partialEffect) => ({
     ...partialEffect,
     scope: 'global',
+    sourceSpecifier: null,
   }));
 };
 
@@ -131,26 +136,44 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
     ...decreasedValueEffectIds,
   ];
 
-  return serverEffectIds.map((effectId) => {
-    const value = increasedValueEffectIds.includes(effectId)
-      ? speed
-      : 1 / speed;
-    return {
-      id: effectId,
-      value,
-      source: 'server',
-      scope: 'server',
-      type: 'bonus',
-    };
-  });
+  const storageEffectIds: ServerEffect['id'][] = [
+    'warehouseCapacity',
+    'granaryCapacity',
+  ];
+
+  return [
+    ...storageEffectIds.map((effectId) => {
+      return {
+        id: effectId,
+        value: 800,
+        source: 'server',
+        scope: 'server',
+        type: 'base',
+        sourceSpecifier: null,
+      } satisfies ServerEffect;
+    }),
+    ...serverEffectIds.map((effectId) => {
+      const value = increasedValueEffectIds.includes(effectId)
+        ? speed
+        : 1 / speed;
+      return {
+        id: effectId,
+        value,
+        source: 'server',
+        scope: 'server',
+        type: 'bonus',
+        sourceSpecifier: null,
+      } satisfies ServerEffect;
+    }),
+  ];
 };
 
 export const effectsSeeder: Seeder = (database, server): void => {
   const initialPlayerVillageId = database.selectValue(
     `
-    SELECT id
-    FROM villages
-    WHERE player_id = $player_id;`,
+      SELECT id
+      FROM villages
+      WHERE player_id = $player_id;`,
     {
       $player_id: PLAYER_ID,
     },
@@ -212,11 +235,24 @@ export const effectsSeeder: Seeder = (database, server): void => {
   )) {
     let population = 0;
 
-    for (const { building_id, level } of villageBuildingFields!) {
-      population -= calculateTotalPopulationForLevel(
-        building_id as BuildingId,
-        level,
-      );
+    for (const { building_id, level, field_id } of villageBuildingFields!) {
+      const buildingId = building_id as Building['id'];
+
+      const building = getBuildingDefinition(buildingId);
+
+      for (const { effectId, type, valuesPerLevel } of building.effects) {
+        effectsToInsert.push([
+          effectId,
+          valuesPerLevel[level],
+          type,
+          'village',
+          'building',
+          villageId,
+          field_id,
+        ]);
+      }
+
+      population += calculateTotalPopulationForLevel(buildingId, level);
     }
 
     effectsToInsert.push([
@@ -237,18 +273,15 @@ export const effectsSeeder: Seeder = (database, server): void => {
     village_id: z.number(),
   });
 
-  const troopsListSchema = z.array(troopsSchema);
-
   const troopsRows = database.selectObjects(`
-    SELECT
-      tr.unit_id,
-      tr.amount,
-      v.id    AS village_id
-    FROM troops   AS tr
-           JOIN villages AS v  ON tr.tile_id = v.tile_id;
+    SELECT tr.unit_id,
+           tr.amount,
+           v.id AS village_id
+    FROM troops AS tr
+           JOIN villages AS v ON tr.tile_id = v.tile_id;
   `);
 
-  const troops = troopsListSchema.parse(troopsRows);
+  const troops = z.array(troopsSchema).parse(troopsRows);
 
   const groupedTroops = Object.groupBy(troops, ({ village_id }) => {
     return village_id;
@@ -258,7 +291,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     let troopWheatConsumption = 0;
 
     for (const { unit_id, amount } of villageTroops!) {
-      const { unitWheatConsumption } = getUnitData(unit_id as Unit['id']);
+      const { unitWheatConsumption } = getUnitDefinition(unit_id as Unit['id']);
       troopWheatConsumption -= unitWheatConsumption * amount;
     }
 
@@ -281,8 +314,6 @@ export const effectsSeeder: Seeder = (database, server): void => {
     bonus: z.number(),
   });
 
-  const oasisFieldsListSchema = z.array(oasisFieldsSchema);
-
   const oasisFieldsRows = database.selectObjects(`
     SELECT tile_id,
            village_id,
@@ -292,7 +323,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     WHERE village_id IS NOT NULL;
   `);
 
-  const oasisFields = oasisFieldsListSchema.parse(oasisFieldsRows);
+  const oasisFields = z.array(oasisFieldsSchema).parse(oasisFieldsRows);
 
   effectsToInsert.push(
     ...oasisFields.map((oasis) => {

@@ -1,10 +1,10 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { UnitTier } from 'app/interfaces/models/game/unit';
+import type { Unit } from 'app/interfaces/models/game/unit';
 import { getUnitsByTribe } from 'app/assets/utils/units';
 import { batchInsert } from 'app/db/utils/batch-insert';
 import { PLAYER_ID } from 'app/constants/player';
 
-const upgradableTiers: UnitTier[] = [
+const upgradableTiers: Unit['tier'][] = [
   'tier-1',
   'tier-2',
   'tier-3',

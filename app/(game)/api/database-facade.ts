@@ -54,7 +54,8 @@ export const createDbFacade = (database: Database): DbFacade => {
       if (bind) {
         statement.bind(bind);
       }
-      statement.reset();
+
+      statement.stepReset();
     },
 
     selectValue: (

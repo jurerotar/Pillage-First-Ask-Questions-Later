@@ -8,10 +8,10 @@ export const unitImprovementResolver: Resolver<
 
   database.exec(
     `
-    UPDATE unit_improvements
+      UPDATE unit_improvements
       SET level = level + 1
       WHERE unit_id = $unit_id;
-  `,
+    `,
     {
       $unit_id: unitId,
     },

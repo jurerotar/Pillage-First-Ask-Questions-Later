@@ -53,7 +53,7 @@ export type Effect = {
     | 'server'
     | 'troops';
   type: 'base' | 'bonus' | 'bonus-booster';
-  sourceSpecifier: number;
+  sourceSpecifier: number | null;
 };
 
 export type ServerEffect = Omit<Effect, 'scope'> & {

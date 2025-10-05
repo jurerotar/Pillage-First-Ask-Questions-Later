@@ -151,13 +151,7 @@ export const cancelConstructionEvent: ApiHandler<
       level,
     );
 
-    addVillageResourcesAt(
-      queryClient,
-      database,
-      villageId,
-      Date.now(),
-      resourcesToRefund,
-    );
+    addVillageResourcesAt(database, villageId, Date.now(), resourcesToRefund);
 
     return eventsToKeep;
   });

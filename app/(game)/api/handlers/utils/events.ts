@@ -16,11 +16,7 @@ import {
   isVillageEvent,
 } from 'app/(game)/guards/event-guards';
 import type { QueryClient } from '@tanstack/react-query';
-import {
-  effectsCacheKey,
-  eventsCacheKey,
-  serverCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import {
   calculateBuildingCostForLevel,
@@ -47,19 +43,26 @@ import type { DbFacade } from 'app/(game)/api/database-facade';
 import { z } from 'zod';
 
 const selectEffectsSqlStatement = `
-  SELECT effect_id,
-         value,
-         type,
-         scope,
-         source,
-         village_id,
-         source_specifier
-  FROM effects
-  WHERE effect_id = $effect_id
-    AND (
-    scope IN ('global', 'server')
-      OR (scope = 'village' AND village_id = $village_id)
-    );
+  SELECT e.effect_id  AS id,
+         e.value,
+         e.type,
+         e.scope,
+         e.source,
+         e.village_id AS villageId,
+         e.source_specifier,
+         CASE
+           WHEN e.source = 'building'
+             AND e.source_specifier BETWEEN 1 AND 40
+             THEN bf.building_id
+           END        AS buildingId
+  FROM effects AS e
+         LEFT JOIN building_fields AS bf
+                   ON e.scope = 'village'
+                     AND bf.village_id = e.village_id
+                     AND bf.field_id = e.source_specifier
+  WHERE e.effect_id = $effect_id
+    AND e.scope IN ('global', 'server')
+     OR e.village_id = $village_id;
 `;
 
 const effectsSchema = z
@@ -107,12 +110,11 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 };
 
 export const checkAndSubtractVillageResources = (
-  queryClient: QueryClient,
   database: DbFacade,
   events: GameEvent[],
 ): boolean => {
   const isDeveloperModeEnabled = database.selectValue(
-    ' SELECT is_developer_mode_enabled FROM preferences;',
+    'SELECT is_developer_mode_enabled FROM preferences;',
   );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
@@ -124,7 +126,7 @@ export const checkAndSubtractVillageResources = (
     const { villageId, startsAt } = event;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(queryClient, database, villageId, startsAt);
+      calculateVillageResourcesAt(database, villageId, startsAt);
 
     if (
       woodCost > currentWood ||
@@ -135,13 +137,7 @@ export const checkAndSubtractVillageResources = (
       return false;
     }
 
-    subtractVillageResourcesAt(
-      queryClient,
-      database,
-      villageId,
-      startsAt,
-      eventCost,
-    );
+    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
   }
 
   return true;
@@ -206,7 +202,6 @@ export const getEventCost = (event: GameEvent): number[] => {
 };
 
 export const getEventDuration = (
-  queryClient: QueryClient,
   database: DbFacade,
   event: GameEvent,
 ): number => {
@@ -295,8 +290,15 @@ export const getEventDuration = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     const { unitId, villageId, durationEffectId } = event;
+
+    const rows = database.selectObjects(selectEffectsSqlStatement, {
+      $effect_id: 'buildingDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
+
     const { total } = calculateComputedEffect(
       durationEffectId,
       effects,
@@ -313,9 +315,11 @@ export const getEventDuration = (
   }
 
   if (isAdventurePointIncreaseEvent(event)) {
-    const server = queryClient.getQueryData<Server>([serverCacheKey])!;
+    const [createdAt, speed] = database.selectValues(
+      'SELECT created_at, speed FROM servers LIMIT 1;',
+    ) as [Server['createdAt'], Server['configuration']['speed']];
 
-    return calculateAdventurePointIncreaseEventDuration(server);
+    return calculateAdventurePointIncreaseEventDuration(createdAt, speed);
   }
 
   if (isBuildingDestructionEvent(event)) {

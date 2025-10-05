@@ -6,20 +6,14 @@ import {
   generateVillages,
   playerVillageFactory,
 } from 'app/factories/village-factory';
-import { heroFactory } from 'app/factories/hero-factory';
-import { generateEffects } from 'app/factories/effect-factory';
 import { generateEvents } from 'app/factories/event-factory';
 import { generateReputations } from 'app/factories/reputation-factory';
-import { generateNewServerQuests } from 'app/factories/quest-factory';
 import { QueryClient } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import {
-  effectsCacheKey,
   eventsCacheKey,
-  heroCacheKey,
   mapCacheKey,
   playersCacheKey,
-  questsCacheKey,
   reputationsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
@@ -27,14 +21,11 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Quest } from 'app/interfaces/models/game/quest';
 import { mapFactory } from 'app/factories/map-factory';
 import {
   isOccupiedOccupiableTile,
@@ -68,8 +59,6 @@ export const initializeServer = async (
     slug: 'v-1',
   });
 
-  const hero = heroFactory(server);
-
   const { playerTroops, npcTroops } = generateTroops({
     server,
     occupiedOccupiableTiles,
@@ -90,20 +79,13 @@ export const initializeServer = async (
     occupiedOccupiableTiles,
   });
 
-  const effects = generateEffects(server, playerStartingVillage, hero);
   const events = generateEvents(server);
   const reputations = generateReputations();
-  const quests = generateNewServerQuests(
-    playerStartingVillage.id,
-    server.playerConfiguration.tribe,
-  );
 
   const queryClient = new QueryClient();
 
   queryClient.setQueryData<Player[]>([playersCacheKey], players);
   queryClient.setQueryData<Reputation[]>([reputationsCacheKey], reputations);
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], effects);
-  queryClient.setQueryData<Hero>([heroCacheKey], hero);
   queryClient.setQueryData<Tile[]>([mapCacheKey], tiles);
   queryClient.setQueryData<Village[]>(
     [villagesCacheKey],
@@ -115,7 +97,6 @@ export const initializeServer = async (
   );
   queryClient.setQueryData<WorldItem[]>([worldItemsCacheKey], worldItems);
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], events);
-  queryClient.setQueryData<Quest[]>([questsCacheKey], quests);
 
   return queryClient;
 };

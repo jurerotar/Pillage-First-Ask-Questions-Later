@@ -20,7 +20,7 @@ const validateAndInsertEvents = async (
   events: GameEvent[],
 ) => {
   const hasSuccessfullyValidatedAndSubtractedResources =
-    checkAndSubtractVillageResources(queryClient, database, events);
+    checkAndSubtractVillageResources(database, events);
 
   if (!hasSuccessfullyValidatedAndSubtractedResources) {
     notifyAboutEventCreationFailure(events);
@@ -45,11 +45,7 @@ export const createClientEvents = async (
     database,
     args as unknown as GameEvent,
   );
-  const duration = getEventDuration(
-    queryClient,
-    database,
-    args as unknown as GameEvent,
-  );
+  const duration = getEventDuration(database, args as unknown as GameEvent);
 
   const events: GameEvent[] = (() => {
     const amount = args?.amount ?? 1;
@@ -87,11 +83,7 @@ export const createEvent = async <T extends GameEventType>(
     database,
     args as unknown as GameEvent,
   );
-  const duration = getEventDuration(
-    queryClient,
-    database,
-    args as unknown as GameEvent,
-  );
+  const duration = getEventDuration(database, args as unknown as GameEvent);
 
   const eventFactoryArgs = {
     ...args,
