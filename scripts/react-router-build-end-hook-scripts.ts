@@ -1,8 +1,7 @@
 import type { Config } from '@react-router/dev/config';
 import { dirname, join, resolve } from 'node:path';
-import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rm, glob } from 'node:fs/promises';
 import { load } from 'cheerio';
-import { glob } from 'tinyglobby';
 
 export const createSPAPagesWithPreloads: NonNullable<
   Config['buildEnd']
@@ -83,24 +82,26 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   Config['buildEnd']
 > = async ({ reactRouterConfig }) => {
   const clientDir = resolve('build/client');
-  const [svgSpriteFile] = await glob(
+
+  for await (const svgSpriteFile of glob(
     './build/client/assets/react-icons-sprite.svg',
-  );
-  const svgSpriteName = svgSpriteFile.replace('build/client', '');
+  )) {
+    const svgSpriteName = svgSpriteFile.replace('build/client', '');
 
-  const preRenderedFileUrls = (reactRouterConfig.prerender as string[]).map(
-    (path) => {
-      return resolve(clientDir, `.${path}`, 'index.html');
-    },
-  );
-
-  for (const filePath of preRenderedFileUrls) {
-    const content = await readFile(filePath, 'utf-8');
-    const updatedContent = content.replaceAll(
-      '__SPRITE_URL_PLACEHOLDER__',
-      svgSpriteName,
+    const preRenderedFileUrls = (reactRouterConfig.prerender as string[]).map(
+      (path) => {
+        return resolve(clientDir, `.${path}`, 'index.html');
+      },
     );
 
-    await writeFile(filePath, updatedContent, 'utf-8');
+    for (const filePath of preRenderedFileUrls) {
+      const content = await readFile(filePath, 'utf-8');
+      const updatedContent = content.replaceAll(
+        '__SPRITE_URL_PLACEHOLDER__',
+        svgSpriteName,
+      );
+
+      await writeFile(filePath, updatedContent, 'utf-8');
+    }
   }
 };
