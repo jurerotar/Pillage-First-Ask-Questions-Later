@@ -44,24 +44,28 @@ export const buildingLevelChangeResolver: Resolver<
     const populationDifference = Math.abs(nextPopulation - currentPopulation);
     const isLevelIncreasing = previousLevel < level;
 
-    db.exec(
-      `
-        UPDATE effects
-        SET value = value + $value
-        WHERE effect_id = 'wheatProduction'
-          AND type = 'base'
-          AND scope = 'village'
-          AND source = 'building'
-          AND village_id = $village_id
-          AND source_specifier = 0;
-      `,
-      {
-        $village_id: villageId,
-        $value: isLevelIncreasing
-          ? populationDifference
-          : -populationDifference,
-      },
-    );
+    if (populationDifference > 0) {
+      db.exec(
+        `
+          UPDATE effects
+          SET value = value + $value
+          WHERE (SELECT id
+                 FROM effect_ids
+                 WHERE effect = 'wheatProduction')
+            AND type = 'base'
+            AND scope = 'village'
+            AND source = 'building'
+            AND village_id = $village_id
+            AND source_specifier = 0;
+        `,
+        {
+          $village_id: villageId,
+          $value: isLevelIncreasing
+            ? -populationDifference
+            : populationDifference,
+        },
+      );
+    }
 
     // Update effects
     const { effects } = getBuildingDefinition(buildingId);
@@ -71,12 +75,14 @@ export const buildingLevelChangeResolver: Resolver<
         `
           UPDATE effects
           SET value = $value
-          WHERE effect_id = $effect_id
+          WHERE effect_id = (SELECT id
+                             FROM effect_ids
+                             WHERE effect = $effect_id)
             AND village_id = $village_id
             AND type = 'base'
             AND scope = 'village'
             AND source = 'building'
-            AND source_specifier = $source_specifier
+            AND source_specifier = $source_specifier;
         `,
         {
           $effect_id: effectId,
@@ -119,7 +125,8 @@ export const buildingConstructionResolver: Resolver<
       db.exec(
         `
           INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-          VALUES ($effect_id, $value, $type, 'village', 'building', $village_id, $source_specifier);
+          VALUES ((SELECT id FROM effect_ids WHERE effect = $effect_id), $value, $type, 'village', 'building',
+                  $village_id, $source_specifier);
         `,
         {
           $effect_id: effectId,
@@ -138,7 +145,9 @@ export const buildingConstructionResolver: Resolver<
       `
         UPDATE effects
         SET value = value + $value
-        WHERE effect_id = 'wheatProduction'
+        WHERE effect_id = (SELECT id
+                           FROM effect_ids
+                           WHERE effect = 'wheatProduction')
           AND type = 'base'
           AND scope = 'village'
           AND source = 'building'
@@ -178,7 +187,7 @@ export const buildingDestructionResolver: Resolver<
           DELETE
           FROM effects
           WHERE village_id = $village_id
-            AND effect_id = $effect_id
+            AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
             AND source_specifier = $source_specifier;
         `,
         {
@@ -196,7 +205,9 @@ export const buildingDestructionResolver: Resolver<
       `
         UPDATE effects
         SET value = value - $value
-        WHERE effect_id = 'wheatProduction'
+        WHERE (SELECT id
+               FROM effect_ids
+               WHERE effect = 'wheatProduction')
           AND type = 'base'
           AND scope = 'village'
           AND source = 'building'

@@ -77,12 +77,14 @@ export const villageSeeder: Seeder = (database, server): void => {
   // Field [0, 0] is already occupied by the player
   const occupiableFields = database.selectObjects(
     `
-      SELECT id, x, y
-      FROM tiles
-      WHERE type = $type
-        AND resource_field_composition = $composition
-        AND x != 0
-        AND y != 0;
+      SELECT t.id, t.x, t.y
+      FROM tiles AS t
+             JOIN resource_field_compositions AS rfc
+                  ON t.resource_field_composition_id = rfc.id
+      WHERE t.type = $type
+        AND rfc.resource_field_composition = $composition
+        AND t.x != 0
+        AND t.y != 0;
     `,
     { $type: 'free', $composition: '4446' },
   ) as OccupiableField[];

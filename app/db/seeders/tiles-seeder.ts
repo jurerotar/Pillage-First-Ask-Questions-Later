@@ -309,20 +309,25 @@ export const tilesSeeder: Seeder = (database, server): void => {
   const tilesWithSingleOasisAndFreeTileTypes =
     assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
 
-  const rows = tilesWithSingleOasisAndFreeTileTypes.map(
-    ({ x, y, type, resource_field_composition, oasis_graphics }) => [
-      x,
-      y,
-      type,
-      resource_field_composition,
-      oasis_graphics,
-    ],
+  const rfcRows = database.selectArrays(
+    'SELECT resource_field_composition, id FROM resource_field_compositions;',
   );
+
+  const rfcs: Record<ResourceFieldComposition, number> =
+    Object.fromEntries(rfcRows);
+
+  const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
+    const { x, y, type, resource_field_composition, oasis_graphics } = tile;
+
+    const rfcId = type === 'free' ? rfcs[resource_field_composition!] : null;
+
+    return [x, y, type, rfcId, oasis_graphics];
+  });
 
   batchInsert(
     database,
     'tiles',
-    ['x', 'y', 'type', 'resource_field_composition', 'oasis_graphics'],
+    ['x', 'y', 'type', 'resource_field_composition_id', 'oasis_graphics'],
     rows,
   );
 };

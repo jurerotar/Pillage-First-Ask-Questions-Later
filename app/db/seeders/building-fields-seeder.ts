@@ -20,17 +20,16 @@ export const buildingFieldsSeeder: Seeder = (database, server): void => {
   const results = [];
 
   const villages = database.selectObjects(`
-    SELECT villages.id AS village_id,
-           tiles.x,
-           tiles.y,
-           tiles.resource_field_composition,
-           players.tribe,
-           players.id  AS player_id
-    FROM villages
-           JOIN tiles
-                ON villages.tile_id = tiles.id
-           JOIN players
-                ON villages.player_id = players.id;
+    SELECT v.id AS village_id,
+           t.x,
+           t.y,
+           rfc.resource_field_composition AS resource_field_composition,
+           p.tribe,
+           p.id AS player_id
+    FROM villages v
+           JOIN tiles t ON v.tile_id = t.id
+           LEFT JOIN resource_field_compositions rfc ON t.resource_field_composition_id = rfc.id
+           JOIN players p ON v.player_id = p.id;
   `) as QueryResultRow[];
 
   for (const {

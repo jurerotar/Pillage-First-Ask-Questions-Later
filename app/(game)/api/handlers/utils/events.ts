@@ -41,57 +41,38 @@ import {
 import { getCurrentPlayer } from 'app/(game)/api/utils/player';
 import type { DbFacade } from 'app/(game)/api/database-facade';
 import { z } from 'zod';
-
-const selectEffectsSqlStatement = `
-  SELECT e.effect_id  AS id,
-         e.value,
-         e.type,
-         e.scope,
-         e.source,
-         e.village_id AS villageId,
-         e.source_specifier,
-         CASE
-           WHEN e.source = 'building'
-             AND e.source_specifier BETWEEN 1 AND 40
-             THEN bf.building_id
-           END        AS buildingId
-  FROM effects AS e
-         LEFT JOIN building_fields AS bf
-                   ON e.scope = 'village'
-                     AND bf.village_id = e.village_id
-                     AND bf.field_id = e.source_specifier
-  WHERE e.effect_id = $effect_id
-    AND e.scope IN ('global', 'server')
-     OR e.village_id = $village_id;
-`;
+import { selectAllRelevantEffectsByIdQuery } from 'app/(game)/api/utils/queries/effects';
+import type { Building } from 'app/interfaces/models/game/building';
 
 const effectsSchema = z
-  .object({
-    effect_id: z.string().brand<Effect['id']>(),
+  .strictObject({
+    id: z.string().brand<Effect['id']>(),
     value: z.number(),
     type: z.enum(['base', 'bonus', 'bonus-booster']),
-    scope: z.enum(['server', 'global', 'village']),
+    scope: z.enum(['global', 'village', 'server']),
     source: z.enum([
-      'building',
-      'artifact',
       'hero',
       'oasis',
+      'artifact',
+      'building',
       'tribe',
       'server',
       'troops',
     ]),
-    village_id: z.number().nullable(),
+    villageId: z.number().nullable(),
     source_specifier: z.number().nullable(),
+    buildingId: z.string().brand<Building['id']>().optional().nullable(),
   })
-  .transform((z) => {
+  .transform((t) => {
     return {
-      id: z.effect_id as Effect['id'],
-      value: z.value,
-      type: z.type,
-      scope: z.scope,
-      source: z.source,
-      villageId: z.village_id,
-      sourceSpecifier: z.source_specifier,
+      id: t.id as Effect['id'],
+      value: t.value,
+      type: t.type,
+      scope: t.scope,
+      source: t.source,
+      sourceSpecifier: t.source_specifier,
+      ...(t.villageId ? { villageId: t.villageId } : {}),
+      ...(t.buildingId ? { buildingId: t.buildingId } : {}),
     };
   });
 
@@ -216,7 +197,7 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const rows = database.selectObjects(selectEffectsSqlStatement, {
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
       $effect_id: 'buildingDuration',
       $village_id: villageId,
     });
@@ -247,7 +228,7 @@ export const getEventDuration = (
 
     const { villageId, unitId } = event;
 
-    const rows = database.selectObjects(selectEffectsSqlStatement, {
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
       $effect_id: 'unitResearchDuration',
       $village_id: villageId,
     });
@@ -270,7 +251,7 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const rows = database.selectObjects(selectEffectsSqlStatement, {
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
       $effect_id: 'unitImprovementDuration',
       $village_id: villageId,
     });
@@ -292,7 +273,7 @@ export const getEventDuration = (
   if (isTroopTrainingEvent(event)) {
     const { unitId, villageId, durationEffectId } = event;
 
-    const rows = database.selectObjects(selectEffectsSqlStatement, {
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
       $effect_id: 'buildingDuration',
       $village_id: villageId,
     });

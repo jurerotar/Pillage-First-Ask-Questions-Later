@@ -3,6 +3,7 @@ import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 import type { DbFacade } from 'app/(game)/api/database-facade';
+import { selectAllRelevantEffectsQuery } from 'app/(game)/api/utils/queries/effects';
 
 export const demolishBuilding = (
   database: DbFacade,
@@ -18,7 +19,15 @@ export const demolishBuilding = (
       WHERE village_id = $village_id
         AND field_id = $building_field_id
         AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
+    `,
+    {
+      $village_id: villageId,
+      $building_field_id: buildingFieldId,
+    },
+  );
 
+  database.exec(
+    `
       DELETE
       FROM building_fields
       WHERE village_id = $village_id
@@ -37,32 +46,9 @@ export const calculateVillageResourcesAt = (
   villageId: Village['id'],
   timestamp: number,
 ) => {
-  const effects = database.selectObjects(
-    `
-      SELECT e.effect_id  AS id,
-             e.value,
-             e.type,
-             e.scope,
-             e.source,
-             e.village_id AS villageId,
-             e.source_specifier,
-             CASE
-               WHEN e.source = 'building'
-                 AND e.source_specifier BETWEEN 1 AND 40
-                 THEN bf.building_id
-               END        AS buildingId
-      FROM effects AS e
-             LEFT JOIN building_fields AS bf
-                       ON e.scope = 'village'
-                         AND bf.village_id = e.village_id
-                         AND bf.field_id = e.source_specifier
-      WHERE e.scope IN ('global', 'server')
-         OR e.village_id = $village_id;
-    `,
-    {
-      $village_id: villageId,
-    },
-  ) as Effect[];
+  const effects = database.selectObjects(selectAllRelevantEffectsQuery, {
+    $village_id: villageId,
+  }) as Effect[];
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',

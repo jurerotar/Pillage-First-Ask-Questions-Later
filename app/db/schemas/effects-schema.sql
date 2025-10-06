@@ -1,7 +1,7 @@
 CREATE TABLE effects
 (
   id INTEGER PRIMARY KEY,
-  effect_id TEXT NOT NULL,
+  effect_id INTEGER NOT NULL,
   value REAL NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('base', 'bonus', 'bonus-booster')),
   scope TEXT NOT NULL CHECK (scope IN ('global', 'village', 'server')),
@@ -9,6 +9,7 @@ CREATE TABLE effects
   village_id INTEGER,
   source_specifier INTEGER,
 
+  FOREIGN KEY (effect_id) REFERENCES effect_ids (id),
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

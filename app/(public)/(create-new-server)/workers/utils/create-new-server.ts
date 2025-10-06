@@ -1,6 +1,8 @@
 import type { Database } from 'app/interfaces/db';
 import type { Server } from 'app/interfaces/models/game/server';
 import createPreferencesTable from 'app/db/schemas/preferences-schema.sql?raw';
+import createResourceFieldCompositionsTable from 'app/db/schemas/resource-field-compositions-schema.sql?raw';
+import createEffectIdsTable from 'app/db/schemas/effect-ids-schema.sql?raw';
 import createBookmarksTable from 'app/db/schemas/bookmarks-schema.sql?raw';
 import createMapMarkersTable from 'app/db/schemas/map-markers-schema.sql?raw';
 import createMapFiltersTable from 'app/db/schemas/map-filters-schema.sql?raw';
@@ -48,6 +50,8 @@ import { worldItemsSeeder } from 'app/db/seeders/world-items-seeder';
 import { unitResearchSeeder } from 'app/db/seeders/unit-research-seeder';
 import { unitImprovementSeeder } from 'app/db/seeders/unit-improvement-seeder';
 import { questsSeeder } from 'app/db/seeders/quests-seeder';
+import { resourceFieldCompositionsSeeder } from 'app/db/seeders/resource-field-compositions-seeder';
+import { effectIdsSeeder } from 'app/db/seeders/effect-ids-seeder';
 
 export const createNewServer = (database: Database, server: Server): void => {
   database.transaction((db) => {
@@ -93,6 +97,10 @@ export const createNewServer = (database: Database, server: Server): void => {
     playersSeeder(db, server);
     db.exec(createPlayersIndexes);
 
+    // RFC reference table
+    db.exec(createResourceFieldCompositionsTable);
+    resourceFieldCompositionsSeeder(db, server);
+
     // Tiles
     db.exec(createTilesTable);
     tilesSeeder(db, server);
@@ -119,6 +127,10 @@ export const createNewServer = (database: Database, server: Server): void => {
     db.exec(createTroopsTable);
     troopSeeder(db, server);
     db.exec(createTroopsIndexes);
+
+    // Effect ids
+    db.exec(createEffectIdsTable);
+    effectIdsSeeder(db, server);
 
     // Effects
     db.exec(createEffectsTable);

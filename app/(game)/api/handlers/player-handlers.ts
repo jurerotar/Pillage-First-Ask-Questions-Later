@@ -25,11 +25,10 @@ export const getPlayerById: ApiHandler<
 
   const row = database.selectObject(
     `
-      SELECT
-        p.id,
-        p.name,
-        p.slug,
-        p.tribe
+      SELECT p.id,
+             p.name,
+             p.slug,
+             p.tribe
       FROM players p
       WHERE p.id = $player_id;
     `,
@@ -73,17 +72,18 @@ export const getPlayerVillageListing: ApiHandler<
 
   const rows = database.selectObjects(
     `
-      SELECT
-        v.id,
-        v.tile_id,
-        t.x  AS coordinates_x,
-        t.y  AS coordinates_y,
-        v.name,
-        v.slug,
-        t.resource_field_composition
+      SELECT v.id,
+             v.tile_id,
+             t.x AS coordinates_x,
+             t.y AS coordinates_y,
+             v.name,
+             v.slug,
+             rfc.resource_field_composition AS resource_field_composition
       FROM villages v
-      JOIN tiles t
-        ON t.id = v.tile_id
+             JOIN tiles t
+                  ON t.id = v.tile_id
+             LEFT JOIN resource_field_compositions rfc
+                       ON t.resource_field_composition_id = rfc.id
       WHERE v.player_id = $player_id;
     `,
     { $player_id: playerId },
@@ -153,7 +153,7 @@ export const renameVillage: ApiHandler<
 
   database.exec(
     `
-    UPDATE villages
+      UPDATE villages
       SET name = $name
       WHERE id = $village_id
     `,

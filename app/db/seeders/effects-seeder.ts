@@ -82,26 +82,45 @@ const globalEffectsFactory = (server: Server): GlobalEffect[] => {
     ({ tribe: tribeToFind }) => tribeToFind === tribe,
   )!;
 
-  const merchantEffects: Omit<TribalEffect, 'scope' | 'sourceSpecifier'>[] = [
+  const merchantEffects: Pick<TribalEffect, 'id' | 'value'>[] = [
     {
       id: 'merchantCapacity',
       value: tribeMerchant.merchantCapacity,
-      source: 'tribe',
-      type: 'base',
     },
     {
       id: 'merchantSpeed',
       value: tribeMerchant.merchantSpeed,
-      source: 'tribe',
-      type: 'base',
     },
   ];
 
-  return [...merchantEffects].map((partialEffect) => ({
-    ...partialEffect,
-    scope: 'global',
-    sourceSpecifier: null,
-  }));
+  const storageEffectIds: GlobalEffect['id'][] = [
+    'warehouseCapacity',
+    'granaryCapacity',
+  ];
+
+  return [
+    ...merchantEffects.map(
+      (partialEffect) =>
+        ({
+          ...partialEffect,
+          scope: 'global',
+          source: 'tribe',
+          type: 'base',
+          sourceSpecifier: null,
+        }) satisfies GlobalEffect,
+    ),
+    ...storageEffectIds.map(
+      (effectId) =>
+        ({
+          id: effectId,
+          value: 800,
+          source: 'building',
+          scope: 'global',
+          type: 'base',
+          sourceSpecifier: null,
+        }) satisfies GlobalEffect,
+    ),
+  ];
 };
 
 const serverEffectsFactory = (server: Server): ServerEffect[] => {
@@ -136,36 +155,19 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
     ...decreasedValueEffectIds,
   ];
 
-  const storageEffectIds: ServerEffect['id'][] = [
-    'warehouseCapacity',
-    'granaryCapacity',
-  ];
-
-  return [
-    ...storageEffectIds.map((effectId) => {
-      return {
-        id: effectId,
-        value: 800,
-        source: 'server',
-        scope: 'server',
-        type: 'base',
-        sourceSpecifier: null,
-      } satisfies ServerEffect;
-    }),
-    ...serverEffectIds.map((effectId) => {
-      const value = increasedValueEffectIds.includes(effectId)
-        ? speed
-        : 1 / speed;
-      return {
-        id: effectId,
-        value,
-        source: 'server',
-        scope: 'server',
-        type: 'bonus',
-        sourceSpecifier: null,
-      } satisfies ServerEffect;
-    }),
-  ];
+  return serverEffectIds.map((effectId) => {
+    const value = increasedValueEffectIds.includes(effectId)
+      ? speed
+      : 1 / speed;
+    return {
+      id: effectId,
+      value,
+      source: 'server',
+      scope: 'server',
+      type: 'bonus',
+      sourceSpecifier: null,
+    } satisfies ServerEffect;
+  });
 };
 
 export const effectsSeeder: Seeder = (database, server): void => {
@@ -342,6 +344,18 @@ export const effectsSeeder: Seeder = (database, server): void => {
     }),
   );
 
+  const effectIdRows = database.selectArrays(
+    'SELECT effect, id FROM effect_ids',
+  );
+
+  const effectIds = Object.fromEntries(effectIdRows);
+
+  const rows = effectsToInsert.map((effect) => {
+    const effectId = effectIds[effect[0]!];
+
+    return effect.with(0, effectId);
+  });
+
   batchInsert(
     database,
     'effects',
@@ -354,6 +368,6 @@ export const effectsSeeder: Seeder = (database, server): void => {
       'village_id',
       'source_specifier',
     ],
-    effectsToInsert,
+    rows,
   );
 };

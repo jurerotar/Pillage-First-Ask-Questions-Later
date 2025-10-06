@@ -30,7 +30,7 @@ describe('createNewServer', () => {
         serverMock.configuration.mapSize,
       );
       const rowCount = database.selectValue(
-        'SELECT count(id) as id FROM tiles;',
+        'SELECT COUNT(id) AS id FROM tiles;',
       );
 
       expect(rowCount).toBe(totalTiles);
@@ -46,9 +46,15 @@ describe('createNewServer', () => {
 
     test('every free tile should have resource_field_composition as not null and oasis_graphics as null', () => {
       const rows = database.selectObjects(
-        `SELECT id, resource_field_composition, oasis_graphics
-         FROM tiles
-         WHERE type = 'free';`,
+        `
+          SELECT t.id,
+                 rfc.resource_field_composition AS resource_field_composition,
+                 t.oasis_graphics
+          FROM tiles AS t
+                 JOIN resource_field_compositions AS rfc
+                      ON t.resource_field_composition_id = rfc.id
+          WHERE t.type = 'free';
+        `,
       ) as { resource_field_composition: string; oasis_graphics: null }[];
 
       const areTypesCorrect = rows.every(
@@ -65,9 +71,15 @@ describe('createNewServer', () => {
 
     test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', () => {
       const rows = database.selectObjects(
-        `SELECT id, resource_field_composition, oasis_graphics
-         FROM tiles
-         WHERE type = 'oasis';`,
+        `
+          SELECT t.id,
+                 rfc.resource_field_composition AS resource_field_composition,
+                 t.oasis_graphics
+          FROM tiles AS t
+                 LEFT JOIN resource_field_compositions AS rfc
+                           ON t.resource_field_composition_id = rfc.id
+          WHERE t.type = 'oasis';
+        `,
       ) as { resource_field_composition: null; oasis_graphics: number }[];
 
       const areTypesCorrect = rows.every(
@@ -115,7 +127,7 @@ describe('createNewServer', () => {
 
     test('no duplicate coordinates (x,y)', () => {
       const duplicates = database.selectObjects(
-        'SELECT x, y, COUNT(*) as c FROM tiles GROUP BY x, y HAVING c > 1;',
+        'SELECT x, y, COUNT(*) AS c FROM tiles GROUP BY x, y HAVING c > 1;',
       );
 
       expect(duplicates.length).toBe(0);
@@ -123,11 +135,21 @@ describe('createNewServer', () => {
 
     test('center tile (0,0) exists, is free and has composition "4446"', () => {
       const center = database.selectObject(
-        'SELECT id, type, resource_field_composition, oasis_graphics FROM tiles WHERE x = 0 AND y = 0;',
+        `
+          SELECT t.id,
+                 t.type,
+                 rfc.resource_field_composition AS resource_field_composition,
+                 t.oasis_graphics
+          FROM tiles t
+                 LEFT JOIN resource_field_compositions rfc
+                           ON t.resource_field_composition_id = rfc.id
+          WHERE t.x = 0
+            AND t.y = 0;
+        `,
       ) as {
         type: string;
-        resource_field_composition: string;
-        oasis_graphics: null;
+        resource_field_composition: string | null;
+        oasis_graphics: number | null;
       };
 
       expect(center).toBeTruthy();
@@ -136,9 +158,9 @@ describe('createNewServer', () => {
       expect(center.oasis_graphics).toBeNull();
     });
 
-    test('no tile has both resource_field_composition AND oasis_graphics non-null', () => {
+    test('no tile has both resource_field_composition_id AND oasis_graphics non-null', () => {
       const bothNonNull = database.selectValue(
-        'SELECT count(*) as c FROM tiles WHERE resource_field_composition IS NOT NULL AND oasis_graphics IS NOT NULL;',
+        'SELECT COUNT(*) AS c FROM tiles WHERE resource_field_composition_id IS NOT NULL AND oasis_graphics IS NOT NULL;',
       );
 
       expect(bothNonNull).toBe(0);
@@ -162,7 +184,13 @@ describe('createNewServer', () => {
       ]);
 
       const distinctComps = database.selectValues(
-        'SELECT DISTINCT resource_field_composition FROM tiles WHERE resource_field_composition IS NOT NULL;',
+        `
+          SELECT DISTINCT rfc.resource_field_composition
+          FROM tiles t
+                 JOIN resource_field_compositions rfc
+                      ON t.resource_field_composition_id = rfc.id
+          WHERE t.resource_field_composition_id IS NOT NULL;
+        `,
       ) as string[];
 
       const invalid = distinctComps.filter((c) => !allowed.has(c));
@@ -175,7 +203,7 @@ describe('createNewServer', () => {
       );
 
       const bounds = database.selectObject(
-        'SELECT min(x) as minX, max(x) as maxX, min(y) as minY, max(y) as maxY FROM tiles;',
+        'SELECT MIN(x) AS minX, MAX(x) AS maxX, MIN(y) AS minY, MAX(y) AS maxY FROM tiles;',
       ) as { minX: number; minY: number; maxX: number; maxY: number };
 
       expect(bounds.minX).toBeGreaterThanOrEqual(-halfSize);
@@ -218,7 +246,7 @@ describe('createNewServer', () => {
         'SELECT slug FROM players;',
       ) as string[];
       const distinctCount = database.selectValue(
-        'SELECT count(DISTINCT slug) as c FROM players;',
+        'SELECT COUNT(DISTINCT slug) AS c FROM players;',
       );
 
       expect(distinctCount).toBe(slugs.length);
@@ -243,7 +271,7 @@ describe('createNewServer', () => {
       const expectedTotalPlayers = expectedNpcCount + 1; // +1 human player
 
       const actualCount = database.selectValue(
-        'SELECT count(*) as c FROM players;',
+        'SELECT COUNT(*) AS c FROM players;',
       );
 
       // The generator uses that formula; assert equality so seeder didn't accidentally change counts.
@@ -254,7 +282,7 @@ describe('createNewServer', () => {
   describe('Oasis', () => {
     test('oasis rows only exist for tiles with type = "oasis"', () => {
       const countForNonOasis = database.selectValue(
-        `SELECT count(*) as c
+        `SELECT COUNT(*) AS c
          FROM oasis o
                 JOIN tiles t ON o.tile_id = t.id
          WHERE t.type != 'oasis';`,
@@ -304,7 +332,7 @@ describe('createNewServer', () => {
 
     test('there is at least one oasis that has a 50% bonus', () => {
       const count = database.selectValue(
-        'SELECT count(*) FROM oasis WHERE bonus = 50;',
+        'SELECT COUNT(*) FROM oasis WHERE bonus = 50;',
       ) as number;
 
       expect(count).toBeGreaterThan(0);
@@ -314,7 +342,7 @@ describe('createNewServer', () => {
   describe('Map filters', () => {
     test('map_filters row exists for player', () => {
       const countRow = database.selectObject(
-        `SELECT COUNT(*) as cnt
+        `SELECT COUNT(*) AS cnt
          FROM map_filters
          WHERE player_id = $player_id;`,
         { $player_id: PLAYER_ID },
@@ -327,7 +355,7 @@ describe('createNewServer', () => {
   describe('Preferences', () => {
     test('preferences row exists for player', () => {
       const countRow = database.selectObject(
-        `SELECT COUNT(*) as cnt
+        `SELECT COUNT(*) AS cnt
          FROM preferences
          WHERE player_id = $player_id;`,
         { $player_id: PLAYER_ID },

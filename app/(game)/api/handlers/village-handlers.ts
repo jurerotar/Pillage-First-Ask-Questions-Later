@@ -63,36 +63,35 @@ export const getVillageBySlug: ApiHandler<
 
   const row = database.selectObject(
     `
-      SELECT
-        v.id,
-        v.tile_id,
-        v.player_id,
-        t.x  AS coordinates_x,
-        t.y  AS coordinates_y,
-        v.name,
-        v.slug,
-        rs.updated_at AS last_updated_at,
-        rs.wood AS wood,
-        rs.clay AS clay,
-        rs.iron AS iron,
-        rs.wheat AS wheat,
-        t.resource_field_composition,
-        (
-          SELECT json_group_array(
-                   json_object(
-                     'field_id',    bf.field_id,
-                     'building_id', bf.building_id,
-                     'level',       bf.level
-                   )
-                 )
-          FROM building_fields bf
-          WHERE bf.village_id = v.id
-        ) AS building_fields
+      SELECT v.id,
+             v.tile_id,
+             v.player_id,
+             t.x AS coordinates_x,
+             t.y AS coordinates_y,
+             v.name,
+             v.slug,
+             rs.updated_at AS last_updated_at,
+             rs.wood AS wood,
+             rs.clay AS clay,
+             rs.iron AS iron,
+             rs.wheat AS wheat,
+             rfc.resource_field_composition AS resource_field_composition,
+             (SELECT JSON_GROUP_ARRAY(
+                       JSON_OBJECT(
+                         'field_id', bf.field_id,
+                         'building_id', bf.building_id,
+                         'level', bf.level
+                       )
+                     )
+              FROM building_fields bf
+              WHERE bf.village_id = v.id) AS building_fields
       FROM villages v
-      JOIN tiles t
-        ON t.id = v.tile_id
-      LEFT JOIN resource_sites rs
-        ON rs.tile_id = v.tile_id
+             JOIN tiles t
+                  ON t.id = v.tile_id
+             LEFT JOIN resource_sites rs
+                       ON rs.tile_id = v.tile_id
+             LEFT JOIN resource_field_compositions rfc
+                       ON t.resource_field_composition_id = rfc.id
       WHERE v.slug = $slug
       LIMIT 1;
     `,

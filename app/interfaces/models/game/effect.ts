@@ -62,7 +62,7 @@ export type ServerEffect = Omit<Effect, 'scope'> & {
 
 export type GlobalEffect = Omit<Effect, 'scope' | 'source'> & {
   scope: 'global';
-  source: 'hero' | 'tribe' | 'artifact';
+  source: 'hero' | 'tribe' | 'artifact' | 'building';
 };
 
 export type TribalEffect = Omit<GlobalEffect, 'source'> & {

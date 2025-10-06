@@ -40,6 +40,10 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
     const villageSize = getVillageSize(server.configuration.mapSize, x, y);
     const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
 
+    if (maxOasisAmount === 0) {
+      continue;
+    }
+
     let assignedOasisCounter = 0;
 
     outer: for (let dx = -3; dx <= 3; dx++) {

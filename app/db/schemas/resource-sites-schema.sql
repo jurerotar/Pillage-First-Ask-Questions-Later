@@ -5,7 +5,7 @@ CREATE TABLE resource_sites
   clay INTEGER NOT NULL,
   iron INTEGER NOT NULL,
   wheat INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL,
+  updated_at REAL NOT NULL,
 
   CHECK (wood >= 0 AND clay >= 0 AND iron >= 0 AND wheat >= 0),
 
