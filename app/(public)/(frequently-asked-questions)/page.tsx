@@ -90,8 +90,8 @@ const FrequentlyAskedQuestionsPage = () => {
             <Text>
               Yes, there are a few! The main ones include new buildings,
               additional playable tribes, the removal of the capital village
-              mechanic, and new hero items. Game design is an ongoing
-              conversation in{' '}
+              mechanic, new hero items, reputation system with NPC players and
+              plenty more! Game design is an ongoing conversation in{' '}
               <a
                 rel="noopener noreferrer"
                 className="text-blue-500 underline"
@@ -116,24 +116,52 @@ const FrequentlyAskedQuestionsPage = () => {
             <ul className="pl-4 list-disc my-2">
               <li>
                 <Text>
-                  <b>Moderation cost & complexity</b> - multiplayer comes with a
-                  whole layer of moderation challenges — things like chat
-                  filters, reporting tools, cheat prevention, and account
-                  systems. They’re not just one-time features either; they need
-                  constant upkeep and care. For a solo developer, that’s a
-                  massive investment of time and energy that could easily
-                  overshadow the actual game development. With single-player, I
-                  can skip all of that and stay focused on building the
-                  experience itself.
+                  <b>Customizable gameplay</b> - Each of us has a different
+                  expectation of the game. Some players prefer speedier game
+                  worlds, some prefer more difficult opponents, while others
+                  look for a more peaceful coexisting with their neighbors. This
+                  isn't something that we can offer in a multiplayer setting,
+                  where you have no control of other players' actions. Thus, one
+                  of the goals of this app is to give you the power to customize
+                  your gameplay as much as possible. You'll be able to choose
+                  speed, difficulty (NPC troop levels,...) and more at server
+                  creation form!
                 </Text>
               </li>
               <li>
                 <Text>
-                  <b>Offline-first accessibility</b> - by skipping networking,
-                  the game becomes fully playable offline. This makes it more
-                  accessible to players with limited or unreliable internet
-                  access, and ensures the experience is consistent regardless of
-                  connection quality.
+                  <b>Respecting your time</b> - Most of us are not in high
+                  school anymore. Waking up at 3am to send out attacks may have
+                  been a valid strategy 10 years ago, but its out of the
+                  question now. Because we realize real-life takes priority, we
+                  plan on adding multiple mechanism to help you balance game
+                  needs:
+                  <br />
+                  Unlimited vacation mode, available at any point for any reason
+                  <br />
+                  Ability to disable attacks while you're offline
+                </Text>
+              </li>
+              <li>
+                <Text>
+                  <b>Moderation cost & complexity</b> - multiplayer comes with a
+                  whole layer of moderation challenges, things like chat
+                  filters, reporting tools, cheat prevention, account and
+                  support systems. They’re not just one-time features either;
+                  they need constant upkeep and care. For a solo developer,
+                  that’s a massive investment of time and energy that could
+                  easily overshadow the development of the actual game.
+                  Single-player allows me to limit the scope of the project and
+                  deliver faster.
+                </Text>
+              </li>
+              <li>
+                <Text>
+                  <b>Offline-first</b> - One of the goals of this project is to
+                  allows players to load the app once and then have it work
+                  fully offline. This makes it more accessible to players with
+                  limited or unreliable internet access, and ensures the
+                  experience is consistent regardless of connection quality.
                 </Text>
               </li>
             </ul>
@@ -194,12 +222,13 @@ const FrequentlyAskedQuestionsPage = () => {
               time. These events would happened at some time in the past, but
               since app can't run without the browser being open, we resolve
               these events now. This means you can be attacked while offline,
-              since this attack would also have happened if you were online. The
-              major downside is that we can't know which events have happened
-              until we actually open the game world and simulate the timeline.
-              This means we can't let the player know if they're under attack,
-              because the only way for us to know whether an attack has been
-              triggered is to actually open the game.
+              since this attack would also have happened if you were online.
+              <br />
+              The major downside is that we can't know which events have
+              happened until we actually open the game world and simulate the
+              timeline. This means we can't let the player know if they're under
+              attack, because the only way for us to know whether an attack has
+              been triggered is to actually open the game.
             </Text>
           </div>
           <div className="flex flex-col gap-2">
@@ -215,9 +244,42 @@ const FrequentlyAskedQuestionsPage = () => {
               duals from across the world and making sure account is covered
               24/7 was fun in middle school, but it's not something I want to
               (or even can?) engage in now. I want to be able to take a break,
-              whenever life gets in the way, and for the game to respect that. I
-              want this game to be a more accessible, customizable and
+              whenever life gets in the way, and for the game to respect that.
+              <br />
+              <br />I want this game to be a more accessible, customizable and
               time-friendly version of Travian.
+            </Text>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Text
+              as="h2"
+              className="underline"
+            >
+              Are game worlds stable between new releases?
+            </Text>
+            <Text>
+              <b>Sometimes, but most often not.</b> Despite this project being
+              developed in my free-time only, we still have a relatively high
+              update cadency. Typically, we push out 3-5 (mostly minor) updates
+              per week. Most of these updates are completely safe and don't
+              affect the underlying data structures that the app requires, but
+              not always. Sometimes, even minor changes break the game world,
+              either completely, or partially.
+              <br />
+              <br />
+              <b>Until full release</b> - Until the full release of the game, I
+              don't intend to keep worlds compatible between changes. This means
+              game worlds should be expected to break relatively regularly and
+              should only be used for testing the game out. I can't afford to
+              spend time migrating old game states to new structures to keep
+              compatibility, due to this slowing down development quite a bit.
+              <br />
+              <br />
+              <b>After full release</b> - After the game is officially released,
+              I will commit to keeping game worlds stable between releases. This
+              means that with each a game change, I'll also provide a script to
+              migrate old game states to new ones. This process should be
+              completely transparent to users.
             </Text>
           </div>
         </div>
