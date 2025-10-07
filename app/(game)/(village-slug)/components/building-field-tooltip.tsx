@@ -19,7 +19,7 @@ type BuildingFieldTooltipProps = {
 export const BuildingFieldTooltip = ({
   buildingFieldId,
 }: BuildingFieldTooltipProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const buildingField = getBuildingFieldByBuildingFieldId(
     currentVillage,
@@ -56,7 +56,7 @@ export const BuildingFieldTooltip = ({
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, upgradingToLevel);
 
-  const title = `${assetsT(`BUILDINGS.${buildingId}.NAME`)} - ${t('level {{level}}', { level })}`;
+  const title = `${t(`BUILDINGS.${buildingId}.NAME`)} - ${t('level {{level}}', { level })}`;
   const formattedTime = formatTime(
     buildingDuration * nextLevelBuildingDuration,
   );
@@ -67,7 +67,7 @@ export const BuildingFieldTooltip = ({
       {isMaxLevel && (
         <span>
           {t('{{building}} is fully upgraded', {
-            building: assetsT(`BUILDINGS.${buildingId}.NAME`),
+            building: t(`BUILDINGS.${buildingId}.NAME`),
           })}
         </span>
       )}

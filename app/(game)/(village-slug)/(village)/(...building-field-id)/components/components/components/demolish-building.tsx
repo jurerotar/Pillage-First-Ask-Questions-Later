@@ -21,7 +21,7 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 
 export const DemolishBuilding = () => {
   const navigate = useNavigate();
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
 
@@ -74,7 +74,7 @@ export const DemolishBuilding = () => {
         {t(
           'With a level 10 {{mainBuilding}} you are able to downgrade or demolish a building. You cannot downgrade or demolish buildings which are currently being upgraded.',
           {
-            mainBuilding: assetsT('BUILDINGS.MAIN_BUILDING.NAME'),
+            mainBuilding: t('BUILDINGS.MAIN_BUILDING.NAME'),
           },
         )}
       </Text>
@@ -95,7 +95,7 @@ export const DemolishBuilding = () => {
                 key={buildingField.id}
                 value={`${buildingField.id}`}
               >
-                {assetsT(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
+                {t(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
                 {t('level {{level}}', { level: buildingField.level })}
               </SelectItem>
             ))}

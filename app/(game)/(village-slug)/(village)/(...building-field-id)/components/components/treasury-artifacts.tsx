@@ -24,12 +24,12 @@ type UnoccupiedArtifactRowProps = {
 };
 
 const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
-  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <TableRow>
-      <TableCell>{assetsT(`ITEMS.${item.name}.NAME`)}</TableCell>
-      <TableCell>{assetsT(`ITEMS.${item.name}.DESCRIPTION`)}</TableCell>
+      <TableCell>{t(`ITEMS.${item.name}.NAME`)}</TableCell>
+      <TableCell>{t(`ITEMS.${item.name}.DESCRIPTION`)}</TableCell>
       <TableCell>
         {/*// TODO: Re-enable this when SQLite migration is finished */}
         {/*<Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>*/}
@@ -41,7 +41,7 @@ const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
 };
 
 export const TreasuryArtifacts = () => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { hero } = useHero();
   const {
     currentVillageArtifactId,
@@ -106,10 +106,10 @@ export const TreasuryArtifacts = () => {
               {hasCurrentVillageArtifact && (
                 <>
                   <TableCell>
-                    {assetsT(`ITEMS.${currentVillageArtifactId}.NAME`)}
+                    {t(`ITEMS.${currentVillageArtifactId}.NAME`)}
                   </TableCell>
                   <TableCell>
-                    {assetsT(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}
+                    {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}
                   </TableCell>
                   <TableCell>/</TableCell>
                 </>

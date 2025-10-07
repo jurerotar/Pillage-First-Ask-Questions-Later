@@ -41,7 +41,7 @@ type UnitTrainingProps = {
 };
 
 export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();
   const { isUnitResearched } = useUnitResearch();
 
@@ -74,7 +74,7 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
                     type={unitIdToUnitIconMapper(id)}
                     className="size-4"
                   />
-                  {assetsT(`UNITS.${id}.NAME`)}
+                  {t(`UNITS.${id}.NAME`)}
                 </div>
               </Tab>
             ))}

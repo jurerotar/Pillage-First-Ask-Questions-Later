@@ -66,7 +66,7 @@ export const BuildingCard = ({
 };
 
 export const BuildingOverview = () => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel } = useBuildingVirtualLevel(
@@ -85,7 +85,7 @@ export const BuildingOverview = () => {
         as="h2"
         className="inline-flex"
       >
-        {assetsT(`BUILDINGS.${building.id}.NAME`)}
+        {t(`BUILDINGS.${building.id}.NAME`)}
       </Text>
       <div
         data-testid="building-overview-building-image"
@@ -94,14 +94,14 @@ export const BuildingOverview = () => {
         image
       </div>
       <Text data-testid="building-overview-building-description">
-        {assetsT(`BUILDINGS.${building.id}.DESCRIPTION`)}
+        {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
       </Text>
       {actualLevel !== virtualLevel && (
         <span
           data-testid="building-overview-currently-upgrading-span"
           className="inline-flex text-warning mt-2"
         >
-          {assetsT('Currently upgrading to level {{level}}', {
+          {t('Currently upgrading to level {{level}}', {
             level: virtualLevel,
           })}
         </span>
@@ -112,7 +112,7 @@ export const BuildingOverview = () => {
           className="inline-flex text-green-600 mt-2"
         >
           {t('{{building}} is fully upgraded', {
-            building: assetsT(`BUILDINGS.${building.id}.NAME`),
+            building: t(`BUILDINGS.${building.id}.NAME`),
           })}
         </span>
       )}

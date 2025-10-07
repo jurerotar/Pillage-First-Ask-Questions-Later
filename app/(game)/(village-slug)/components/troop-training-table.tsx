@@ -18,7 +18,7 @@ type TroopTrainingTableProps = {
 };
 
 export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { eventsByType } = useEventsByType('troopTraining');
 
   const relevantTrainingEvents = eventsByType.filter((event) => {
@@ -52,8 +52,7 @@ export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
 
   const remainingUnitSummary = Object.entries(unitCounts)
     .map(
-      ([unitId, count]) =>
-        `${count} ${assetsT(`UNITS.${unitId}.NAME`, { count })}`,
+      ([unitId, count]) => `${count} ${t(`UNITS.${unitId}.NAME`, { count })}`,
     )
     .join(', ');
 
@@ -84,7 +83,7 @@ export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
                       {/*  type={unitIdToUnitIconMapper(earliestEvent.unitId)}*/}
                       {/*  className="size-4 inline-flex"*/}
                       {/*/>*/}
-                      {assetsT(`UNITS.${earliestEvent.unitId}.NAME`, {
+                      {t(`UNITS.${earliestEvent.unitId}.NAME`, {
                         count: 1,
                       })}
                     </TableCell>

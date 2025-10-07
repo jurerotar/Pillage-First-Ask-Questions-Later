@@ -53,20 +53,20 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
   return result;
 };
 
-export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
+export const getQuestTexts = (id: Quest['id'] | string, t: TFunction) => {
   if (id.includes('every')) {
     const [buildingId, , level] = id.split('-');
     return {
-      title: assetsT('QUESTS.EVERY.NAME', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
+      title: t('QUESTS.EVERY.NAME', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
         level,
       }),
-      description: assetsT('QUESTS.EVERY.DESCRIPTION', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
+      description: t('QUESTS.EVERY.DESCRIPTION', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
         level,
       }),
-      group: assetsT('QUESTS.EVERY.GROUP', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
+      group: t('QUESTS.EVERY.GROUP', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
       }),
     };
   }
@@ -74,16 +74,16 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
   if (id.includes('oneOf')) {
     const [buildingId, , level] = id.split('-');
     return {
-      title: assetsT('QUESTS.ONE-OF.NAME', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+      title: t('QUESTS.ONE-OF.NAME', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
         level,
       }),
-      description: assetsT('QUESTS.ONE-OF.DESCRIPTION', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+      description: t('QUESTS.ONE-OF.DESCRIPTION', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
         level,
       }),
-      group: assetsT('QUESTS.ONE-OF.GROUP', {
-        buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+      group: t('QUESTS.ONE-OF.GROUP', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
       }),
     };
   }
@@ -93,18 +93,18 @@ export const getQuestTexts = (id: Quest['id'] | string, assetsT: TFunction) => {
     const count = Number.parseInt(amount, 10);
 
     return {
-      title: assetsT('QUESTS.ADVENTURE-COUNT.NAME', { count }),
-      description: assetsT('QUESTS.ADVENTURE-COUNT.DESCRIPTION', { count }),
-      group: assetsT('QUESTS.ADVENTURE-COUNT.GROUP'),
+      title: t('QUESTS.ADVENTURE-COUNT.NAME', { count }),
+      description: t('QUESTS.ADVENTURE-COUNT.DESCRIPTION', { count }),
+      group: t('QUESTS.ADVENTURE-COUNT.GROUP'),
     };
   }
 
   if (id.includes('troopCount')) {
     const [, amount] = id.split('-');
     return {
-      title: assetsT('QUESTS.TROOP-COUNT.NAME', { amount }),
-      description: assetsT('QUESTS.TROOP-COUNT.DESCRIPTION', { amount }),
-      group: assetsT('QUESTS.TROOP-COUNT.GROUP'),
+      title: t('QUESTS.TROOP-COUNT.NAME', { amount }),
+      description: t('QUESTS.TROOP-COUNT.DESCRIPTION', { amount }),
+      group: t('QUESTS.TROOP-COUNT.GROUP'),
     };
   }
 

@@ -82,7 +82,7 @@ const TileModalLocation = ({ tile }: TileModalProps) => {
 };
 
 const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
@@ -96,16 +96,16 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
       {faction !== 'player' && (
         <>
           <span>
-            {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
+            {t('Faction')} - {t(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
             {t('Reputation')} -{' '}
-            {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
       <span>
-        {t('Tribe')} - {assetsT(`TRIBES.${tribe.toUpperCase()}`)}
+        {t('Tribe')} - {t(`TRIBES.${tribe.toUpperCase()}`)}
       </span>
       <span>
         {t('Population')} - {population}
@@ -119,7 +119,7 @@ type OasisTileModalProps = {
 };
 
 const OasisTileModal = ({ tile }: OasisTileModalProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { getVillageByOasis } = useVillages();
 
   const isOccupiable = isOccupiableOasisTile(tile);
@@ -178,7 +178,7 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
               t(
                 'This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.',
                 {
-                  herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
+                  herosMansion: t('BUILDINGS.HEROS_MANSION.NAME'),
                 },
               )}
           </>

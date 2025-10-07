@@ -21,8 +21,8 @@
     "format:check": "npx @biomejs/biome format --no-errors-on-unmatched",
     "format": "npx @biomejs/biome format --write --no-errors-on-unmatched",
     "knip:ci": "npx knip --max-issues 29",
-    "localize": "npx i18next",
-    "localize:ci": "npx i18next --silent",
+    "localize": "npx i18next-cli extract",
+    "localize:ci": "npx i18next-cli extract --ci --dry-run",
     "type-check": "react-router typegen && tsc",
     "test": "vitest",
     "prepare": "husky",
@@ -61,7 +61,7 @@
     "sonner": "2.0.7",
     "ts-seedrandom": "1.1.0",
     "usehooks-ts": "3.1.1",
-    "zod": "4.1.11"
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
@@ -71,9 +71,9 @@
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
-    "@types/node": "24.6.2",
-    "@types/react": "19.2.0",
-    "@types/react-dom": "19.2.0",
+    "@types/node": "24.7.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.1",
     "@types/react-window": "1.8.8",
     "@vitest/coverage-v8": "3.2.4",
     "@vitest/web-worker": "3.2.4",
@@ -81,8 +81,8 @@
     "cheerio": "1.1.2",
     "happy-dom": "19.0.2",
     "husky": "9.1.7",
-    "i18next-parser": "9.3.0",
-    "knip": "5.64.1",
+    "i18next-cli": "1.10.1",
+    "knip": "5.64.2",
     "opfs-mock": "2.3.0",
     "rolldown-vite": "7.1.15",
     "rollup-plugin-visualizer": "6.0.4",
@@ -96,7 +96,7 @@
     "vitest": "3.2.4"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=22.20.0"
   },
   "browserslist": {
     "production": [

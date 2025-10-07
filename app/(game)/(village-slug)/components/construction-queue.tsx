@@ -34,7 +34,7 @@ const ConstructionQueueBuilding = ({
   buildingEvent,
   tooltipPosition,
 }: PropsWithChildren<ConstructionQueueBuildingProps>) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
 
@@ -101,7 +101,7 @@ const ConstructionQueueBuilding = ({
             </div>
             <div className="flex flex-col px-2 border-x border-border">
               <span className="inline-flex gap-1 whitespace-nowrap">
-                <b>{assetsT(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
+                <b>{t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
                 <span className="inline-flex items-center text-sm">
                   ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
                   {buildingEvent.level})

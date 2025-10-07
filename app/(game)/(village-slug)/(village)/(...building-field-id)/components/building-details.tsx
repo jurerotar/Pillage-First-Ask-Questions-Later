@@ -216,7 +216,7 @@ const buildingDetailsTabMap = new Map<
 // t('train')
 
 export const BuildingDetails = () => {
-  const { t, t: assetsT, t: dynamicT } = useTranslation();
+  const { t, t: dynamicT } = useTranslation();
   const { buildingField, buildingFieldId } = use(BuildingFieldContext);
 
   const buildingId = buildingField!.buildingId;
@@ -249,13 +249,11 @@ export const BuildingDetails = () => {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            {assetsT(`BUILDINGS.${buildingId}.NAME`)}
-          </BreadcrumbItem>
+          <BreadcrumbItem>{t(`BUILDINGS.${buildingId}.NAME`)}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">
-        {assetsT(`BUILDINGS.${buildingId}.NAME`)} -{' '}
+        {t(`BUILDINGS.${buildingId}.NAME`)} -{' '}
         {t('level {{level}}', { level: actualLevel })}
       </Text>
       <div className="flex flex-col gap-2">
@@ -279,7 +277,7 @@ export const BuildingDetails = () => {
                 <Bookmark tab="default" />
                 <Text as="h2">
                   {t('{{buildingName}} overview', {
-                    buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+                    buildingName: t(`BUILDINGS.${buildingId}.NAME`),
                   })}
                 </Text>
                 <BuildingCard buildingId={buildingId}>

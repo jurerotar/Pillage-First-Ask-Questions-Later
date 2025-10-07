@@ -12,11 +12,11 @@ type VillageBuildingLinkProps = {
 export const VillageBuildingLink = ({
   buildingId,
 }: VillageBuildingLinkProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const buildingFields = currentVillage.buildingFields;
 
-  const buildingName = assetsT(`BUILDINGS.${buildingId}.NAME`);
+  const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
 
   const matchingBuildingField: BuildingField | undefined = buildingFields.find(
     (buildingField) => buildingField.buildingId === buildingId,

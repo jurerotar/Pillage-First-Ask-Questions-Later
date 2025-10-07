@@ -69,7 +69,7 @@ type ResourceBoosterBenefitsProps = {
 export const ProductionOverview = ({
   effectId,
 }: ResourceBoosterBenefitsProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { effects } = useEffects();
 
   const relevantEffects = effects.filter(({ id }) => id === effectId);
@@ -281,7 +281,7 @@ export const ProductionOverview = ({
                           <Text>{t('Artifact')}</Text>
                         </TableCell>
                         <TableCell>
-                          <Text>{assetsT(`ITEMS.${name}.NAME`)}</Text>
+                          <Text>{t(`ITEMS.${name}.NAME`)}</Text>
                         </TableCell>
                         <TableCell>
                           <Text>{formatBonus(value - 1)}%</Text>
@@ -319,7 +319,7 @@ export const ProductionOverview = ({
                         <Text>{t('Building')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                        <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{formatBonus(value - 1)}%</Text>
@@ -388,7 +388,7 @@ export const ProductionOverview = ({
                           <Text>{t('Artifact')}</Text>
                         </TableCell>
                         <TableCell>
-                          <Text>{assetsT(`ITEMS.${name}.NAME`)}</Text>
+                          <Text>{t(`ITEMS.${name}.NAME`)}</Text>
                         </TableCell>
                         <TableCell>
                           <Text>{value}</Text>
@@ -434,7 +434,7 @@ export const ProductionOverview = ({
                         <Text>{t('Building')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                        <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{value}</Text>
