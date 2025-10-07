@@ -38,5 +38,6 @@ export default defineConfig({
     ],
     functions: ['t'],
     transComponents: ['Trans'],
+    removeUnusedKeys: true,
   },
 });
