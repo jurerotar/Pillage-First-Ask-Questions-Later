@@ -3,7 +3,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Switch } from 'app/components/ui/switch';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Separator } from 'app/components/ui/separator';
@@ -35,19 +35,26 @@ export const NotificationPreferences = () => {
             )}
             <ul className="flex flex-col gap-4 mt-4">
               <li>
-                <b>Chrome/Edge/Vivaldi/Brave</b>: Click the padlock icon in the
-                address bar {'>'} Site settings {'>'} Set Notifications to
-                "Allow", or manually visit:{' '}
+                <Trans>
+                  <b>Chrome/Edge/Vivaldi/Brave</b>: Click the padlock icon in
+                  the address bar {'>'} Site settings {'>'} Set Notifications to
+                  "Allow", or manually visit:{' '}
+                </Trans>
                 <code>chrome://settings/content/notifications</code>
               </li>
               <li>
-                <b>Firefox</b>: Click the padlock icon in the address bar {'>'}{' '}
-                Click the arrow {'>'} More Information {'>'} Permissions tab{' '}
-                {'>'} Set Send Notifications to "Allow" or manually visit:{' '}
+                <Trans>
+                  <b>Firefox</b>: Click the padlock icon in the address bar{' '}
+                  {'>'} Click the arrow {'>'} More Information {'>'} Permissions
+                  tab {'>'} Set Send Notifications to "Allow" or manually visit:{' '}
+                </Trans>
                 <code>about:preferences#privacy</code>
               </li>
               <li>
-                <b>Safari</b>: Safari {'>'} Settings/Preferences {'>'} Websites{' '}
+                <Trans>
+                  <b>Safari</b>: Safari {'>'} Settings/Preferences {'>'}{' '}
+                  Websites{' '}
+                </Trans>
                 {'>'} Notifications
               </li>
             </ul>

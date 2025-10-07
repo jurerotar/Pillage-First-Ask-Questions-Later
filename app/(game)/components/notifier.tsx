@@ -42,10 +42,9 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   args,
 ) => {
   const { t, server } = args;
-  const assetsT = t;
 
   if (isBuildingLevelUpEvent(data)) {
-    const buildingName = assetsT(`BUILDINGS.${data.buildingId}.NAME`);
+    const buildingName = t(`BUILDINGS.${data.buildingId}.NAME`);
     const level = data.level;
 
     const toastTitle = t('{{buildingName}} upgraded', {
@@ -65,7 +64,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   }
 
   if (isUnitResearchEvent(data)) {
-    const unitName = assetsT(`UNITS.${data.unitId}.NAME`);
+    const unitName = t(`UNITS.${data.unitId}.NAME`);
 
     const toastTitle = t('{{unitName}} researched', {
       unitName,
@@ -80,7 +79,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   }
 
   if (isUnitImprovementEvent(data)) {
-    const unitName = assetsT(`UNITS.${data.unitId}.NAME`);
+    const unitName = t(`UNITS.${data.unitId}.NAME`);
     const level = data.level;
 
     const toastTitle = t('{{unitName}} upgraded', {

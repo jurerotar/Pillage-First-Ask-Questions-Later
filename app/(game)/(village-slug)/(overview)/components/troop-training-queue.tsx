@@ -13,14 +13,14 @@ type TroopTrainingQueueProps = {
 export const TroopTrainingQueue = ({
   buildingId,
 }: PropsWithChildren<TroopTrainingQueueProps>) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
 
   const doesBuildingExists = currentVillage.buildingFields.some(
     ({ buildingId: id }) => buildingId === id,
   );
 
-  const buildingName = assetsT(`BUILDINGS.${buildingId}.NAME`);
+  const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
 
   return (
     <SectionContent>

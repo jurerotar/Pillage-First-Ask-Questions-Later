@@ -19,7 +19,7 @@ type IconProps = IconBaseProps &
 export const Icon = (props: IconProps) => {
   const { type, subIcon, className, shouldShowTooltip = true, ...rest } = props;
 
-  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation();
 
   const ComputedIcon = icons[type] ?? icons.missingIcon;
 
@@ -31,7 +31,7 @@ export const Icon = (props: IconProps) => {
         className={clsx(hasSubIcon && 'relative', className)}
         {...(shouldShowTooltip && {
           'data-tooltip-id': 'general-tooltip',
-          'data-tooltip-content': assetsT(`ICONS.${type}`),
+          'data-tooltip-content': t(`ICONS.${type}`),
         })}
         {...rest}
       >

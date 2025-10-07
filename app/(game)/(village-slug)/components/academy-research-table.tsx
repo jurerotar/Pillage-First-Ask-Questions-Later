@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 export const AcademyResearchTable = () => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const {
     eventsByType: currentVillageUnitResearchEvents,
     hasEvents: hasResearchEventsOngoing,
@@ -29,12 +29,9 @@ export const AcademyResearchTable = () => {
         {hasResearchEventsOngoing && (
           <TableRow>
             <TableCell>
-              {assetsT(
-                `UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`,
-                {
-                  count: 1,
-                },
-              )}
+              {t(`UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`, {
+                count: 1,
+              })}
             </TableCell>
             <TableCell>
               <Countdown

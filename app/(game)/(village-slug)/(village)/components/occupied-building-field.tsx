@@ -59,7 +59,7 @@ type OccupiedBuildingFieldProps = {
 export const OccupiedBuildingField = ({
   buildingField,
 }: OccupiedBuildingFieldProps) => {
-  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
   const { currentVillageBuildingEvents } = use(
@@ -88,7 +88,7 @@ export const OccupiedBuildingField = ({
         pathname: `${buildingFieldId}`,
         search: `tab=${tab}`,
       }}
-      aria-label={assetsT(`BUILDINGS.${buildingId}.NAME`)}
+      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       data-building-field-id={buildingFieldId}
       {...(isWiderThanLg && {
         onMouseEnter: () => setIsHovered(true),
@@ -121,7 +121,7 @@ export const OccupiedBuildingField = ({
               }
             />
           )}
-          {!hasEvent && assetsT(`BUILDINGS.${buildingId}.NAME`)}
+          {!hasEvent && t(`BUILDINGS.${buildingId}.NAME`)}
         </span>
       )}
     </Link>

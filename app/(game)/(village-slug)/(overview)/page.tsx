@@ -20,7 +20,7 @@ import { Separator } from 'app/components/ui/separator';
 const OverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
 
@@ -37,10 +37,10 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     ({ buildingId }) => buildingId === 'BREWERY',
   );
 
-  const academyName = assetsT('BUILDINGS.ACADEMY.NAME');
-  const smithyName = assetsT('BUILDINGS.SMITHY.NAME');
-  const marketplaceName = assetsT('BUILDINGS.MARKETPLACE.NAME');
-  const breweryName = assetsT('BUILDINGS.BREWERY.NAME');
+  const academyName = t('BUILDINGS.ACADEMY.NAME');
+  const smithyName = t('BUILDINGS.SMITHY.NAME');
+  const marketplaceName = t('BUILDINGS.MARKETPLACE.NAME');
+  const breweryName = t('BUILDINGS.BREWERY.NAME');
 
   const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
