@@ -212,7 +212,7 @@
     },
     "MARKSMAN": {
       "NAME": "Marksman",
-      "NAME_other": "Marksmans",
+      "NAME_other": "Marksmen",
       "DESCRIPTION": "The Marksman is a well-rounded cavalry unit. Their solid attacking power is overshadowed by the fact that they are the only proficient defensive soldier of the Huns.",
       "USAGE": ""
     },
@@ -338,7 +338,7 @@
     },
     "CORINTHIAN_CRUSHER": {
       "NAME": "Corinthian Crusher",
-      "NAME_other": "Corinthian Crusher",
+      "NAME_other": "Corinthian Crushers",
       "DESCRIPTION": "Corinthian Crushers are an elite attacking cavalry in the Spartan army. As strong and disciplined riders in bronze Corinthian helmets, they became a true legend. Those units need space to show what they are worth; therefore, they are better suited for attack than for defence. They might not be the fastest riders, but when they arrive at the battle, their enemies will tremble!",
       "USAGE": ""
     },
@@ -845,19 +845,34 @@
       "GROUP": "Adventures"
     },
     "TROOP-COUNT": {
-      "NAME": "{{amount}} units",
-      "DESCRIPTION": "Train additional units until you have at least {{amount}} units.",
+      "NAME": "Train {{count}} units of any kind",
+      "DESCRIPTION": "Begin training of {{count}} units of any kind.",
       "GROUP": "Train units"
     },
+    "UNIT-TROOP-COUNT": {
+      "NAME": "Train {{count}} {{specifier}}",
+      "DESCRIPTION": "Begin training of at least {{count}} {{specifier}} in total.",
+      "GROUP": "Train units"
+    },
+    "KILL-COUNT": {
+      "NAME": "Defeat {{count}} enemy units",
+      "DESCRIPTION": "Defeat a total of {{count}} enemy units in battle.",
+      "GROUP": "Defeat units"
+    },
+    "UNIT-KILL-COUNT": {
+      "NAME": "Defeat {{count}} {{specifier}}",
+      "DESCRIPTION": "Defeat a total of {{count}} enemy {{specifier}} in battle.",
+      "GROUP": "Defeat units"
+    },
     "ONE-OF": {
-      "NAME": "{{buildingName}} to level {{level}}",
-      "DESCRIPTION": "Upgrade the {{buildingName}} to level {{level}}.",
-      "GROUP": "{{buildingName}}"
+      "NAME": "{{specifier}} to level {{count}}",
+      "DESCRIPTION": "Upgrade the {{specifier}} to level {{count}}.",
+      "GROUP": "{{specifier}}"
     },
     "EVERY": {
-      "NAME": "All {{buildingName}} level {{level}}",
-      "DESCRIPTION": "Upgrade all {{buildingName}} to level {{level}}.",
-      "GROUP": "All {{buildingName}}"
+      "NAME": "All {{specifier}} level {{count}}",
+      "DESCRIPTION": "Upgrade all {{specifier}} to level {{count}}.",
+      "GROUP": "All {{specifier}}"
     }
   },
   "TRIBES": {

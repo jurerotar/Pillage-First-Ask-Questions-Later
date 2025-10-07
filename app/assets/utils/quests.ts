@@ -46,6 +46,18 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     ];
   }
 
+  if (questId.startsWith('unitTroopCount')) {
+    const [, , cnt] = questId.split('-');
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'resources',
+        amount: count * 100,
+      },
+    ];
+  }
+
   if (questId.startsWith('adventureCount')) {
     const [, cnt] = questId.split('-');
     const count = Number.parseInt(cnt, 10);
@@ -58,9 +70,33 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     ];
   }
 
-  const [buildingId, matcher, lvl] = questId.split('-') as [
-    Building['id'],
+  if (questId.startsWith('killCount')) {
+    const [, cnt] = questId.split('-');
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'resources',
+        amount: count * 10,
+      },
+    ];
+  }
+
+  if (questId.startsWith('unitKillCount')) {
+    const [, , cnt] = questId.split('-');
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'resources',
+        amount: count * 100,
+      },
+    ];
+  }
+
+  const [matcher, buildingId, lvl] = questId.split('-') as [
     'oneOf' | 'every',
+    Building['id'],
     string,
   ];
   const level = Number.parseInt(lvl, 10);
@@ -104,6 +140,18 @@ export const getQuestRequirements = (
     ];
   }
 
+  if (questId.startsWith('unitTroopCount')) {
+    const [, cnt] = questId.split('-');
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'unit-troop-count',
+        count,
+      },
+    ];
+  }
+
   if (questId.startsWith('adventureCount')) {
     const [, cnt] = questId.split('-');
     const count = Number.parseInt(cnt, 10);
@@ -111,6 +159,30 @@ export const getQuestRequirements = (
     return [
       {
         type: 'adventure-count',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('killCount')) {
+    const [, cnt] = questId.split('-');
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'kill-count',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('unitKillCount')) {
+    const [, cnt] = questId.split('-');
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'unit-kill-count',
         count,
       },
     ];

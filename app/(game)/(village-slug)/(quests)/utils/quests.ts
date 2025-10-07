@@ -1,5 +1,6 @@
 import type { Quest } from 'app/interfaces/models/game/quest';
 import type { TFunction } from 'i18next';
+import { kebabCase } from 'moderndash';
 
 type QuestGroup = {
   groupKey: string;
@@ -54,63 +55,27 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
 };
 
 export const getQuestTexts = (id: Quest['id'] | string, t: TFunction) => {
-  if (id.includes('every')) {
-    const [buildingId, , level] = id.split('-');
-    return {
-      title: t('QUESTS.EVERY.NAME', {
-        buildingName: t(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
-        level,
-      }),
-      description: t('QUESTS.EVERY.DESCRIPTION', {
-        buildingName: t(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
-        level,
-      }),
-      group: t('QUESTS.EVERY.GROUP', {
-        buildingName: t(`BUILDINGS.${buildingId}.NAME`, { count: 2 }),
-      }),
-    };
-  }
+  // Quests follow {questGroup}-${questSpecifier?}-{amount}
+  const [questGroupId, ...rest] = id.split('-');
+  const specifier = rest.at(-2);
+  const amount = rest.at(-1)!;
+  const count = Number.parseInt(amount, 10);
 
-  if (id.includes('oneOf')) {
-    const [buildingId, , level] = id.split('-');
-    return {
-      title: t('QUESTS.ONE-OF.NAME', {
-        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
-        level,
-      }),
-      description: t('QUESTS.ONE-OF.DESCRIPTION', {
-        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
-        level,
-      }),
-      group: t('QUESTS.ONE-OF.GROUP', {
-        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
-      }),
-    };
-  }
+  const capitalizedQuestGroupId = kebabCase(questGroupId).toUpperCase();
 
-  if (id.includes('adventureCount')) {
-    const [, amount] = id.split('-');
-    const count = Number.parseInt(amount, 10);
-
-    return {
-      title: t('QUESTS.ADVENTURE-COUNT.NAME', { count }),
-      description: t('QUESTS.ADVENTURE-COUNT.DESCRIPTION', { count }),
-      group: t('QUESTS.ADVENTURE-COUNT.GROUP'),
-    };
-  }
-
-  if (id.includes('troopCount')) {
-    const [, amount] = id.split('-');
-    return {
-      title: t('QUESTS.TROOP-COUNT.NAME', { amount }),
-      description: t('QUESTS.TROOP-COUNT.DESCRIPTION', { amount }),
-      group: t('QUESTS.TROOP-COUNT.GROUP'),
-    };
-  }
+  const asset = ['oneOf', 'every'].includes(questGroupId)
+    ? t(`BUILDINGS.${specifier}.NAME`, { count })
+    : t(`UNITS.${specifier}.NAME`, { count });
 
   return {
-    title: 'QUEST NAME MISSING',
-    description: 'QUEST DESCRIPTION MISSING',
-    group: 'QUEST GROUP MISSING',
+    title: t(`QUESTS.${capitalizedQuestGroupId}.NAME`, {
+      count,
+      specifier: asset,
+    }),
+    description: t(`QUESTS.${capitalizedQuestGroupId}.DESCRIPTION`, {
+      count,
+      specifier: asset,
+    }),
+    group: t(`QUESTS.${capitalizedQuestGroupId}.GROUP`, { specifier: asset }),
   };
 };

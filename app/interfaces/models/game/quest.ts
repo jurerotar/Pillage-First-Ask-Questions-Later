@@ -1,9 +1,6 @@
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Building } from 'app/interfaces/models/game/building';
-
-type GlobalQuestGroup = 'adventureCount' | 'troopCount';
-
-type VillageQuestGroup = Building['id'] | 'resourceFields';
+import type { Unit } from 'app/interfaces/models/game/unit';
 
 export type ResourceQuestReward = {
   type: 'resources';
@@ -44,18 +41,43 @@ export type TroopCountQuestRequirement = {
   count: number;
 };
 
+export type UnitTroopCountQuestRequirement = {
+  type: 'unit-troop-count';
+  count: number;
+};
+
+export type KillCountQuestRequirement = {
+  type: 'kill-count';
+  count: number;
+};
+
+export type UnitKillCountQuestRequirement = {
+  type: 'unit-kill-count';
+  count: number;
+};
+
 export type QuestRequirement =
   | BuildingQuestRequirement
   | AdventureCountQuestRequirement
-  | TroopCountQuestRequirement;
+  | KillCountQuestRequirement
+  | UnitKillCountQuestRequirement
+  | TroopCountQuestRequirement
+  | UnitTroopCountQuestRequirement;
 
 export type VillageQuestDefinition = {
-  id: `${VillageQuestGroup}-${Matcher}-${number}`;
+  id:
+    | `${Matcher}-${Building['id']}-${number}`
+    | `${Matcher}-resourceFields-${number}`;
   scope: 'village';
 };
 
 export type GlobalQuestDefinition = {
-  id: `${GlobalQuestGroup}-${number}`;
+  id:
+    | `adventureCount-${number}`
+    | `troopCount-${number}`
+    | `unitTroopCount-${Unit['id']}-${number}`
+    | `killCount-${number}`
+    | `unitKillCount-${Unit['id']}-${number}`;
   scope: 'global';
 };
 
@@ -64,15 +86,11 @@ type CollectableQuest = {
   collectedAt: number | null;
 };
 
-export type VillageQuest = CollectableQuest & {
-  id: `${VillageQuestGroup}-${Matcher}-${number}`;
-  scope: 'village';
-  villageId: Village['id'];
-};
+export type VillageQuest = VillageQuestDefinition &
+  CollectableQuest & {
+    villageId: Village['id'];
+  };
 
-type GlobalQuest = CollectableQuest & {
-  id: `${GlobalQuestGroup}-${number}`;
-  scope: 'global';
-};
+type GlobalQuest = GlobalQuestDefinition & CollectableQuest;
 
 export type Quest = VillageQuest | GlobalQuest;

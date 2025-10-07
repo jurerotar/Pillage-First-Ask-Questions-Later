@@ -2,7 +2,7 @@ import type { Seeder } from 'app/interfaces/db';
 import { PLAYER_ID } from 'app/constants/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import { globalQuests } from 'app/assets/quests';
+import { createUnitTroopCountQuests, globalQuests } from 'app/assets/quests';
 import { newVillageQuestsFactory } from 'app/db/factories/quest-factory';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
@@ -32,11 +32,15 @@ export const questsSeeder: Seeder = (database): void => {
     playerTribe,
   );
 
+  const tribeUnitTroopCountQuests = createUnitTroopCountQuests(playerTribe);
+
   for (const { id } of villageQuests) {
     questsToSeed.push([id, null, null, playerStartingVillageId]);
   }
 
-  for (const { id } of globalQuests) {
+  const seedableGlobalQuests = [...globalQuests, ...tribeUnitTroopCountQuests];
+
+  for (const { id } of seedableGlobalQuests) {
     questsToSeed.push([id, null, null, null]);
   }
 
