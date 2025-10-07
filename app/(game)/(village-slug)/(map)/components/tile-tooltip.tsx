@@ -54,7 +54,7 @@ const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
 };
 
 const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
@@ -68,16 +68,16 @@ const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
       {faction !== 'player' && (
         <>
           <span>
-            {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
+            {t('Faction')} - {t(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
             {t('Reputation')} -{' '}
-            {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
       <span>
-        {t('Tribe')} - {assetsT(`TRIBES.${tribe.toUpperCase()}`)}
+        {t('Tribe')} - {t(`TRIBES.${tribe.toUpperCase()}`)}
       </span>
       <span>
         {t('Population')} - {population}
@@ -91,7 +91,7 @@ type TileTooltipWorldItemProps = {
 };
 
 const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
 
   if (item.type === 'resource') {
     return (
@@ -103,7 +103,7 @@ const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
 
   return (
     <span>
-      {formatNumber(item.amount)}x {assetsT(`ITEMS.${item.name}.NAME`)}
+      {formatNumber(item.amount)}x {t(`ITEMS.${item.name}.NAME`)}
     </span>
   );
 };

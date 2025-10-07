@@ -78,12 +78,12 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
 
 export const UnitOverview = () => {
   const { unitId } = use(UnitCardContext);
-  const { t: assetsT } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <section>
       <div className="inline-flex gap-2 items-center font-semibold">
-        <Text as="h2">{assetsT(`UNITS.${unitId}.NAME`)}</Text>
+        <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
       </div>
       <div className="flex justify-center items-center mr-1 mb-1 float-left size-10">
         <Icon
@@ -91,7 +91,7 @@ export const UnitOverview = () => {
           type={unitIdToUnitIconMapper(unitId)}
         />
       </div>
-      <Text>{assetsT(`UNITS.${unitId}.DESCRIPTION`)}</Text>
+      <Text>{t(`UNITS.${unitId}.DESCRIPTION`)}</Text>
     </section>
   );
 };
@@ -189,7 +189,7 @@ export const UnitAttributes = () => {
 
 export const UnitResearch = () => {
   const { unitId } = use(UnitCardContext);
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
@@ -243,7 +243,7 @@ export const UnitResearch = () => {
         <Text as="h3">{t('Research')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} researched', {
-            unit: assetsT(`UNITS.${unitId}.NAME`),
+            unit: t(`UNITS.${unitId}.NAME`),
           })}
         </Text>
       </section>
@@ -280,7 +280,7 @@ export const UnitResearch = () => {
             {hasResearchEventsOngoing && t('Research is already taking place')}
             {!hasResearchEventsOngoing &&
               t('Research {{unit}}', {
-                unit: assetsT(`UNITS.${unitId}.NAME`),
+                unit: t(`UNITS.${unitId}.NAME`),
               })}
           </Button>
         </section>
@@ -291,7 +291,7 @@ export const UnitResearch = () => {
 
 export const UnitImprovement = () => {
   const { unitId } = use(UnitCardContext);
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { currentVillage } = useCurrentVillage();
@@ -356,7 +356,7 @@ export const UnitImprovement = () => {
         <Text as="h3">{t('Improvement')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} is fully upgraded', {
-            unit: assetsT(`UNITS.${unitId}.NAME`),
+            unit: t(`UNITS.${unitId}.NAME`),
           })}
         </Text>
       </section>
@@ -468,16 +468,16 @@ export const UnitCost = () => {
 
 export const UnitRecruitmentNoResearch = () => {
   const { unitId } = use(UnitCardContext);
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-border">
       <Text as="h3">{t('Train units')}</Text>
       <Text variant="orange">
         <Trans>
-          You need to research {{ unitName: assetsT(`UNITS.${unitId}.NAME`) }}{' '}
-          at the <VillageBuildingLink buildingId="ACADEMY" /> before you can
-          begin training
+          You need to research {{ unitName: t(`UNITS.${unitId}.NAME`) }} at the{' '}
+          <VillageBuildingLink buildingId="ACADEMY" /> before you can begin
+          training
         </Trans>
       </Text>
     </section>
@@ -485,7 +485,7 @@ export const UnitRecruitmentNoResearch = () => {
 };
 
 export const UnitRecruitment = () => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { unitId, durationEffect, buildingId } = use(UnitCardContext);
   const { isDeveloperModeEnabled } = useDeveloperMode();
   const currentResources = use(CurrentVillageStateContext);
@@ -615,7 +615,7 @@ export const UnitRecruitment = () => {
               {amount > 0 &&
                 t('Train {{count}} {{unit}}', {
                   count: amount,
-                  unit: assetsT(`UNITS.${unitId}.NAME`, { count: amount }),
+                  unit: t(`UNITS.${unitId}.NAME`, { count: amount }),
                 })}
             </>
           )}

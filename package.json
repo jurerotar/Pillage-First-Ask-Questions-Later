@@ -21,8 +21,8 @@
     "format:check": "npx @biomejs/biome format --no-errors-on-unmatched",
     "format": "npx @biomejs/biome format --write --no-errors-on-unmatched",
     "knip:ci": "npx knip --max-issues 29",
-    "localize": "npx i18next",
-    "localize:ci": "npx i18next --silent",
+    "localize": "npx i18next-cli extract",
+    "localize:ci": "npx i18next-cli extract --ci --dry-run",
     "type-check": "react-router typegen && tsc",
     "test": "vitest",
     "prepare": "husky",
@@ -79,7 +79,7 @@
     "cheerio": "1.1.2",
     "happy-dom": "19.0.2",
     "husky": "9.1.7",
-    "i18next-parser": "9.3.0",
+    "i18next-cli": "1.9.0",
     "knip": "5.64.1",
     "opfs-mock": "2.3.0",
     "rolldown-vite": "7.1.15",
@@ -94,7 +94,7 @@
     "vitest": "3.2.4"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=22.20.0"
   },
   "browserslist": {
     "production": [

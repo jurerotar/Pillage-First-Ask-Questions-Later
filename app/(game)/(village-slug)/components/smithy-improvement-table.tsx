@@ -11,7 +11,7 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 
 export const SmithyImprovementTable = () => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const {
     eventsByType: currentVillageUnitImprovementEvents,
     hasEvents: hasImprovementEventsOngoing,
@@ -30,7 +30,7 @@ export const SmithyImprovementTable = () => {
         {hasImprovementEventsOngoing && (
           <TableRow>
             <TableCell>
-              {assetsT(
+              {t(
                 `UNITS.${currentVillageUnitImprovementEvents[0].unitId}.NAME`,
                 {
                   count: 1,

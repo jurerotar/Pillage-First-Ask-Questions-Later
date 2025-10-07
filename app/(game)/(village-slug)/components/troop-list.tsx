@@ -13,7 +13,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { Suspense, useId } from 'react';
 
 const TroopListContent = () => {
-  const { t, t: assetsT } = useTranslation();
+  const { t } = useTranslation();
   const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { playerTroops } = usePlayerTroops();
@@ -72,7 +72,7 @@ const TroopListContent = () => {
 
                   <Text>
                     {formatNumber(troop.amount)}{' '}
-                    {assetsT(`UNITS.${troop.unitId}.NAME`, {
+                    {t(`UNITS.${troop.unitId}.NAME`, {
                       count: troop.amount,
                     })}
                   </Text>
@@ -96,7 +96,7 @@ const TroopListContent = () => {
 
                     <Text>
                       {formatNumber(troop.amount)}{' '}
-                      {assetsT(`UNITS.${troop.unitId}.NAME`, {
+                      {t(`UNITS.${troop.unitId}.NAME`, {
                         count: troop.amount,
                       })}
                     </Text>
