@@ -188,9 +188,9 @@ export const getQuestRequirements = (
     ];
   }
 
-  const [buildingId, matcher, lvl] = questId.split('-') as [
-    Building['id'],
+  const [matcher, buildingId, lvl] = questId.split('-') as [
     'oneOf' | 'every',
+    Building['id'],
     string,
   ];
   const level = Number.parseInt(lvl, 10);
