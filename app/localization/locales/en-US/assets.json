@@ -850,8 +850,8 @@
       "GROUP": "Train units"
     },
     "UNIT-TROOP-COUNT": {
-      "NAME": "Train {{count}} {{specifier}}",
-      "DESCRIPTION": "Begin training of at least {{count}} {{specifier}} in total.",
+      "NAME": "Train {{count}} {{asset}}",
+      "DESCRIPTION": "Begin training of at least {{count}} {{asset}} in total.",
       "GROUP": "Train units"
     },
     "KILL-COUNT": {
@@ -860,19 +860,19 @@
       "GROUP": "Defeat units"
     },
     "UNIT-KILL-COUNT": {
-      "NAME": "Defeat {{count}} {{specifier}}",
-      "DESCRIPTION": "Defeat a total of {{count}} enemy {{specifier}} in battle.",
+      "NAME": "Defeat {{count}} {{asset}}",
+      "DESCRIPTION": "Defeat a total of {{count}} enemy {{asset}} in battle.",
       "GROUP": "Defeat units"
     },
     "ONE-OF": {
-      "NAME": "{{specifier}} to level {{count}}",
-      "DESCRIPTION": "Upgrade the {{specifier}} to level {{count}}.",
-      "GROUP": "{{specifier}}"
+      "NAME": "{{asset}} to level {{count}}",
+      "DESCRIPTION": "Upgrade the {{asset}} to level {{count}}.",
+      "GROUP": "{{asset}}"
     },
     "EVERY": {
-      "NAME": "All {{specifier}} level {{count}}",
-      "DESCRIPTION": "Upgrade all {{specifier}} to level {{count}}.",
-      "GROUP": "All {{specifier}}"
+      "NAME": "All {{asset}} level {{count}}",
+      "DESCRIPTION": "Upgrade all {{asset}} to level {{count}}.",
+      "GROUP": "All {{asset}}"
     }
   },
   "TRIBES": {

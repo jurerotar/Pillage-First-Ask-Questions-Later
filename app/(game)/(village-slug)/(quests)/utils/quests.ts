@@ -70,12 +70,12 @@ export const getQuestTexts = (id: Quest['id'] | string, t: TFunction) => {
   return {
     title: t(`QUESTS.${capitalizedQuestGroupId}.NAME`, {
       count,
-      specifier: asset,
+      asset,
     }),
     description: t(`QUESTS.${capitalizedQuestGroupId}.DESCRIPTION`, {
       count,
-      specifier: asset,
+      asset,
     }),
-    group: t(`QUESTS.${capitalizedQuestGroupId}.GROUP`, { specifier: asset }),
+    group: t(`QUESTS.${capitalizedQuestGroupId}.GROUP`, { asset }),
   };
 };

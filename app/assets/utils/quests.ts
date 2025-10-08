@@ -141,7 +141,7 @@ export const getQuestRequirements = (
   }
 
   if (questId.startsWith('unitTroopCount')) {
-    const [, cnt] = questId.split('-');
+    const [, , cnt] = questId.split('-');
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -177,7 +177,7 @@ export const getQuestRequirements = (
   }
 
   if (questId.startsWith('unitKillCount')) {
-    const [, cnt] = questId.split('-');
+    const [, , cnt] = questId.split('-');
     const count = Number.parseInt(cnt, 10);
 
     return [
