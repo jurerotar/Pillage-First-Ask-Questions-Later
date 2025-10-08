@@ -52,6 +52,10 @@ import {
   abandonOasis,
   occupyOasis,
 } from 'app/(game)/api/handlers/oasis-handlers';
+import {
+  getPlayerStatistics,
+  getVillageStatistics,
+} from 'app/(game)/api/handlers/statistics-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -275,13 +279,26 @@ const reputationRoutes = [
 const bookmarkRoutes = [
   {
     method: 'GET',
-    path: '/players/:playerId/bookmarks',
+    path: '/villages/:villageId/bookmarks',
     handler: getBookmarks,
   },
   {
     method: 'PATCH',
-    path: '/players/:playerId/bookmarks/:buildingId',
+    path: '/villages/:villageId/bookmarks/:buildingId',
     handler: updateBookmark,
+  },
+];
+
+const statisticsRoutes = [
+  {
+    method: 'GET',
+    path: '/statistics/players',
+    handler: getPlayerStatistics,
+  },
+  {
+    method: 'PATCH',
+    path: '/statistics/villages',
+    handler: getVillageStatistics,
   },
 ];
 
@@ -301,6 +318,7 @@ const apiRoutes = [
   ...unitResearchRoutes,
   ...unitImprovementRoutes,
   ...bookmarkRoutes,
+  ...statisticsRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

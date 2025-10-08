@@ -2,7 +2,13 @@ import { compiledApiRoutes } from 'app/(game)/api/api-routes';
 import { PLAYER_ID } from 'app/constants/player';
 
 // These params are automatically cast as numbers
-const numericParams = new Set(['playerId', 'villageId', 'tileId', 'oasisId']);
+const numericParams = new Set([
+  'playerId',
+  'villageId',
+  'tileId',
+  'oasisId',
+  'page',
+]);
 
 export const matchRoute = (url: string, method: string) => {
   for (const route of compiledApiRoutes) {
