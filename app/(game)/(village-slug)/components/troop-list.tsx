@@ -35,7 +35,7 @@ const TroopListContent = () => {
   );
 
   return (
-    <div className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs">
+    <aside className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs">
       <div
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer"
@@ -107,7 +107,7 @@ const TroopListContent = () => {
           )}
         </div>
       </Tooltip>
-    </div>
+    </aside>
   );
 };
 

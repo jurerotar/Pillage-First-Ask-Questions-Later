@@ -171,23 +171,25 @@ const ConstructionQueueContent = () => {
   }
 
   return (
-    <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
-      {currentVillageBuildingEvents.map((event) => (
-        <li key={event.id}>
-          <ConstructionQueueBuilding
-            tooltipPosition="right-start"
-            buildingEvent={event}
-          />
-        </li>
-      ))}
+    <aside className="fixed left-0 bottom-26 lg:bottom-14">
+      <ul className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
+        {currentVillageBuildingEvents.map((event) => (
+          <li key={event.id}>
+            <ConstructionQueueBuilding
+              tooltipPosition="right-start"
+              buildingEvent={event}
+            />
+          </li>
+        ))}
 
-      {[...Array(emptySlots)].map((_, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: It's fine here
-        <li key={`empty-slot-${i}`}>
-          <ConstructionQueueEmptySlot type="free" />
-        </li>
-      ))}
-    </ul>
+        {[...Array(emptySlots)].map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: It's fine here
+          <li key={`empty-slot-${i}`}>
+            <ConstructionQueueEmptySlot type="free" />
+          </li>
+        ))}
+      </ul>
+    </aside>
   );
 };
 

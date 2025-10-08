@@ -216,7 +216,7 @@ const buildingDetailsTabMap = new Map<
 // t('train')
 
 export const BuildingDetails = () => {
-  const { t, t: dynamicT } = useTranslation();
+  const { t } = useTranslation();
   const { buildingField, buildingFieldId } = use(BuildingFieldContext);
 
   const buildingId = buildingField!.buildingId;
@@ -267,7 +267,7 @@ export const BuildingDetails = () => {
           <TabList>
             <Tab>{t('Overview')}</Tab>
             {buildingSpecificTabs.map((name: string) => (
-              <Tab key={name}>{dynamicT(name)}</Tab>
+              <Tab key={name}>{t(name)}</Tab>
             ))}
             <Tab>{t('Upgrade details')}</Tab>
           </TabList>

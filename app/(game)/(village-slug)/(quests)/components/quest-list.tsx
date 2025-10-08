@@ -18,17 +18,9 @@ import {
   groupQuestsById,
 } from 'app/(game)/(village-slug)/(quests)/utils/quests';
 import { Text } from 'app/components/text';
-import { useEffect, useState } from 'react';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from 'app/components/ui/pagination';
+import { Pagination } from 'app/components/ui/pagination';
 import { getQuestRewards } from 'app/assets/utils/quests';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 
 type QuestRewardProps = {
   reward: QuestRewardType;
@@ -51,8 +43,6 @@ const QuestReward = ({ reward }: QuestRewardProps) => {
 type QuestListProps = {
   quests: Quest[];
 };
-
-const PAGE_SIZE = 10;
 
 export const QuestList = ({ quests }: QuestListProps) => {
   const { t } = useTranslation();
@@ -93,43 +83,11 @@ export const QuestList = ({ quests }: QuestListProps) => {
     }
   }
 
-  const [page, setPage] = useState<number>(1);
-  const pageCount = Math.max(1, Math.ceil(questsToShow.length / PAGE_SIZE));
-
-  const start = (page - 1) * PAGE_SIZE;
-  const currentPageItems = questsToShow.slice(start, start + PAGE_SIZE);
-
-  const pagesToRender: (number | 'ellipsis-left' | 'ellipsis-right')[] = [];
-
-  if (pageCount <= 7) {
-    for (let i = 1; i <= pageCount; i++) {
-      pagesToRender.push(i);
-    }
-  } else {
-    pagesToRender.push(1);
-    if (page > 3) {
-      pagesToRender.push('ellipsis-left');
-    }
-    const midStart = Math.max(2, page - 1);
-    const midEnd = Math.min(pageCount - 1, page + 1);
-    for (let i = midStart; i <= midEnd; i++) {
-      pagesToRender.push(i);
-    }
-    if (page < pageCount - 2) {
-      pagesToRender.push('ellipsis-right');
-    }
-    pagesToRender.push(pageCount);
-  }
-
-  useEffect(() => {
-    if (page > pageCount) {
-      setPage(pageCount);
-    }
-  }, [page, pageCount]);
+  const pagination = usePagination<Quest>(questsToShow, 10);
 
   return (
     <>
-      {currentPageItems.map((quest) => {
+      {pagination.currentPageItems.map((quest) => {
         const isCollectable = isQuestCollectable(quest);
         const isCollected = wasQuestCollected(quest);
         const { title, description } = getQuestTexts(quest.id, t);
@@ -177,46 +135,9 @@ export const QuestList = ({ quests }: QuestListProps) => {
           </div>
         );
       })}
-
-      {pageCount > 1 && (
-        <div className="flex w-full justify-end">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  aria-label={t('Previous')}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                />
-              </PaginationItem>
-
-              {pagesToRender.map((p) =>
-                typeof p === 'number' ? (
-                  <PaginationItem key={p}>
-                    <PaginationLink
-                      isActive={p === page}
-                      onClick={() => setPage(p)}
-                      aria-label={t('Page {{n}}', { n: p })}
-                    >
-                      {p}
-                    </PaginationLink>
-                  </PaginationItem>
-                ) : (
-                  <PaginationItem key={p}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                ),
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  aria-label={t('Next')}
-                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+      <div className="flex w-full justify-end">
+        <Pagination {...pagination} />
+      </div>
     </>
   );
 };

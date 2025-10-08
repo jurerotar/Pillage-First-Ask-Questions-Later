@@ -1,7 +1,6 @@
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'app/components/ui/alert';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,13 +10,15 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
+import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
+import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
 
 const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
 
-  const tabs = ['default', 'villages', 'week-by-week'];
+  const tabs = ['default', 'villages'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
@@ -43,24 +44,14 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
         }}
       >
         <TabList>
-          <Tab>{t('Overview')}</Tab>
+          <Tab>{t('Population')}</Tab>
           <Tab>{t('Villages')}</Tab>
-          <Tab>{t('Week by week')}</Tab>
         </TabList>
         <TabPanel>
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
+          <PopulationRankings />
         </TabPanel>
         <TabPanel>
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
-        </TabPanel>
-        <TabPanel>
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
+          <VillageRankings />
         </TabPanel>
       </Tabs>
     </>
