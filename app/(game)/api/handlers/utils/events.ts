@@ -16,13 +16,7 @@ import {
   isVillageEvent,
 } from 'app/(game)/guards/event-guards';
 import type { QueryClient } from '@tanstack/react-query';
-import {
-  effectsCacheKey,
-  eventsCacheKey,
-  playersCacheKey,
-  preferencesCacheKey,
-  serverCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import {
   calculateBuildingCostForLevel,
@@ -37,16 +31,52 @@ import {
 } from 'app/assets/utils/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
-import { PLAYER_ID } from 'app/constants/player';
+import { getCurrentPlayer } from 'app/(game)/api/utils/player';
+import type { DbFacade } from 'app/(game)/api/database-facade';
+import { z } from 'zod';
+import { selectAllRelevantEffectsByIdQuery } from 'app/(game)/api/utils/queries/effects';
+import type { Building } from 'app/interfaces/models/game/building';
+
+const effectsSchema = z
+  .strictObject({
+    id: z.string().brand<Effect['id']>(),
+    value: z.number(),
+    type: z.enum(['base', 'bonus', 'bonus-booster']),
+    scope: z.enum(['global', 'village', 'server']),
+    source: z.enum([
+      'hero',
+      'oasis',
+      'artifact',
+      'building',
+      'tribe',
+      'server',
+      'troops',
+    ]),
+    villageId: z.number().nullable(),
+    source_specifier: z.number().nullable(),
+    buildingId: z.string().brand<Building['id']>().optional().nullable(),
+  })
+  .transform((t) => {
+    return {
+      id: t.id as Effect['id'],
+      value: t.value,
+      type: t.type,
+      scope: t.scope,
+      source: t.source,
+      sourceSpecifier: t.source_specifier,
+      ...(t.villageId ? { villageId: t.villageId } : {}),
+      ...(t.buildingId ? { buildingId: t.buildingId } : {}),
+    };
+  });
+
+const effectsListSchema = z.array(effectsSchema);
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -61,12 +91,12 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 };
 
 export const checkAndSubtractVillageResources = (
-  queryClient: QueryClient,
+  database: DbFacade,
   events: GameEvent[],
 ): boolean => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    'SELECT is_developer_mode_enabled FROM preferences;',
+  );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
   const event = events[0];
@@ -77,7 +107,7 @@ export const checkAndSubtractVillageResources = (
     const { villageId, startsAt } = event;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(queryClient, villageId, startsAt);
+      calculateVillageResourcesAt(database, villageId, startsAt);
 
     if (
       woodCost > currentWood ||
@@ -88,7 +118,7 @@ export const checkAndSubtractVillageResources = (
       return false;
     }
 
-    subtractVillageResourcesAt(queryClient, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
   }
 
   return true;
@@ -153,12 +183,12 @@ export const getEventCost = (event: GameEvent): number[] => {
 };
 
 export const getEventDuration = (
-  queryClient: QueryClient,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    ' SELECT is_developer_mode_enabled FROM preferences;',
+  );
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     if (isDeveloperModeEnabled) {
@@ -167,7 +197,12 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'buildingDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       'buildingDuration',
@@ -191,9 +226,14 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { villageId } = event;
+    const { villageId, unitId } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'unitResearchDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
       'unitResearchDuration',
@@ -201,7 +241,6 @@ export const getEventDuration = (
       villageId,
     );
 
-    const { unitId } = event;
     return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   }
 
@@ -212,7 +251,12 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'unitImprovementDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
       'unitImprovementDuration',
@@ -227,8 +271,15 @@ export const getEventDuration = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     const { unitId, villageId, durationEffectId } = event;
+
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'buildingDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
+
     const { total } = calculateComputedEffect(
       durationEffectId,
       effects,
@@ -245,9 +296,11 @@ export const getEventDuration = (
   }
 
   if (isAdventurePointIncreaseEvent(event)) {
-    const server = queryClient.getQueryData<Server>([serverCacheKey])!;
+    const [createdAt, speed] = database.selectValues(
+      'SELECT created_at, speed FROM servers LIMIT 1;',
+    ) as [Server['createdAt'], Server['configuration']['speed']];
 
-    return calculateAdventurePointIncreaseEventDuration(server);
+    return calculateAdventurePointIncreaseEventDuration(createdAt, speed);
   }
 
   if (isBuildingDestructionEvent(event)) {
@@ -260,6 +313,7 @@ export const getEventDuration = (
 
 export const getEventStartTime = (
   queryClient: QueryClient,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
   if (isTroopTrainingEvent(event)) {
@@ -292,8 +346,7 @@ export const getEventStartTime = (
   if (isScheduledBuildingEvent(event)) {
     const { buildingFieldId, villageId } = event;
 
-    const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-    const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
+    const { tribe } = getCurrentPlayer(database);
 
     const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 

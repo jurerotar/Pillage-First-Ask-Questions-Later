@@ -11,14 +11,15 @@ import {
 } from 'app/(game)/api/handlers/preferences-handlers';
 import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import {
-  getAdventurePoints,
   getHero,
+  getHeroAdventures,
+  getHeroEquippedItems,
+  getHeroInventory,
 } from 'app/(game)/api/handlers/hero-handlers';
 import {
   getPlayerById,
-  getPlayers,
+  getPlayerVillageListing,
   getTroopsByVillage,
-  getVillagesByPlayer,
   renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
 import {
@@ -37,10 +38,7 @@ import {
   getMapFilters,
   updateMapFilter,
 } from 'app/(game)/api/handlers/map-filters-handlers';
-import {
-  getVillages,
-  getVillagesBySlug,
-} from 'app/(game)/api/handlers/village-handlers';
+import { getVillageBySlug } from 'app/(game)/api/handlers/village-handlers';
 import { getReputations } from 'app/(game)/api/handlers/reputations-handlers';
 import { getWorldItems } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
@@ -54,6 +52,10 @@ import {
   abandonOasis,
   occupyOasis,
 } from 'app/(game)/api/handlers/oasis-handlers';
+import {
+  getPlayerStatistics,
+  getVillageStatistics,
+} from 'app/(game)/api/handlers/statistics-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -81,18 +83,23 @@ const heroRoutes = [
   },
   {
     method: 'GET',
-    path: '/players/:playerId/hero/adventures',
-    handler: () => {},
-  },
-  {
-    method: 'POST',
-    path: '/players/:playerId/hero/adventures/start',
-    handler: () => {},
+    path: '/players/:playerId/hero/equipped-items',
+    handler: getHeroEquippedItems,
   },
   {
     method: 'GET',
-    path: '/players/:playerId/hero/adventures/count',
-    handler: getAdventurePoints,
+    path: '/players/:playerId/hero/inventory',
+    handler: getHeroInventory,
+  },
+  {
+    method: 'GET',
+    path: '/players/:playerId/hero/adventures',
+    handler: getHeroAdventures,
+  },
+  {
+    method: 'POST',
+    path: '/players/:playerId/hero/adventures',
+    handler: () => {},
   },
 ];
 
@@ -107,7 +114,7 @@ const unitResearchRoutes = [
 const unitImprovementRoutes = [
   {
     method: 'GET',
-    path: '/unit-improvements',
+    path: '/players/:playerId/unit-improvements',
     handler: getUnitImprovements,
   },
 ];
@@ -115,17 +122,17 @@ const unitImprovementRoutes = [
 const questRoutes = [
   {
     method: 'GET',
-    path: '/players/:playerId/quests',
+    path: '/villages/:villageId/quests',
     handler: getQuests,
   },
   {
     method: 'GET',
-    path: '/players/:playerId/quests/collectables/count',
+    path: '/villages/:villageId/quests/collectables/count',
     handler: getCollectableQuestCount,
   },
   {
     method: 'PATCH',
-    path: '/quests/:questId/collect',
+    path: '/villages/:villageId/quests/:questId/collect',
     handler: collectQuest,
   },
 ];
@@ -187,35 +194,25 @@ const eventRoutes = [
 const playerRoutes = [
   {
     method: 'GET',
-    path: '/players',
-    handler: getPlayers,
-  },
-  {
-    method: 'GET',
     path: '/players/:playerId',
     handler: getPlayerById,
   },
   {
     method: 'GET',
     path: '/players/:playerId/villages',
-    handler: getVillagesByPlayer,
+    handler: getPlayerVillageListing,
   },
 ];
 
 const villageRoutes = [
   {
     method: 'GET',
-    path: '/villages',
-    handler: getVillages,
-  },
-  {
-    method: 'GET',
     path: '/villages/:villageSlug',
-    handler: getVillagesBySlug,
+    handler: getVillageBySlug,
   },
   {
     method: 'GET',
-    path: '/villages/:tileId/troops',
+    path: '/villages/:villageId/troops',
     handler: getTroopsByVillage,
   },
   {
@@ -282,13 +279,26 @@ const reputationRoutes = [
 const bookmarkRoutes = [
   {
     method: 'GET',
-    path: '/players/:playerId/bookmarks',
+    path: '/villages/:villageId/bookmarks',
     handler: getBookmarks,
   },
   {
     method: 'PATCH',
-    path: '/players/:playerId/bookmarks/:buildingId',
+    path: '/villages/:villageId/bookmarks/:buildingId',
     handler: updateBookmark,
+  },
+];
+
+const statisticsRoutes = [
+  {
+    method: 'GET',
+    path: '/statistics/players',
+    handler: getPlayerStatistics,
+  },
+  {
+    method: 'PATCH',
+    path: '/statistics/villages',
+    handler: getVillageStatistics,
   },
 ];
 
@@ -308,6 +318,7 @@ const apiRoutes = [
   ...unitResearchRoutes,
   ...unitImprovementRoutes,
   ...bookmarkRoutes,
+  ...statisticsRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

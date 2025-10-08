@@ -1,7 +1,5 @@
-import type {
-  BuildingField as BuildingFieldType,
-  ResourceFieldComposition,
-} from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
+import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import { use } from 'react';
 import { useState } from 'react';
 import type { Building } from 'app/interfaces/models/game/building';
@@ -98,7 +96,7 @@ export const OccupiedBuildingField = ({
         buildingFieldId <= 18 &&
           dynamicCellClasses({
             buildingField,
-            resourceFieldComposition: currentVillage.RFC,
+            resourceFieldComposition: currentVillage.resourceFieldComposition,
           }),
         buildingFieldId > 18 && 'border border-red-500',
         'relative size-10 lg:size-16 rounded-full',

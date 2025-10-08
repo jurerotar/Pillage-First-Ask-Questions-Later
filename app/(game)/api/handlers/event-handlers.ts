@@ -1,9 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import {
-  eventsCacheKey,
-  playersCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type {
   GameEvent,
   GameEventType,
@@ -15,20 +11,18 @@ import {
   isScheduledBuildingEvent,
   isVillageEvent,
 } from 'app/(game)/guards/event-guards';
+import { calculateBuildingCancellationRefundForLevel } from 'app/assets/utils/buildings';
 import {
-  calculateBuildingCancellationRefundForLevel,
-  specialFieldIds,
-} from 'app/assets/utils/buildings';
-import type { Village } from 'app/interfaces/models/game/village';
-import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
-import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
-import type { Player } from 'app/interfaces/models/game/player';
+  addVillageResourcesAt,
+  demolishBuilding,
+} from 'app/(game)/api/utils/village';
 import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
 import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
-import { PLAYER_ID } from 'app/constants/player';
+import { getCurrentPlayer } from 'app/(game)/api/utils/player';
 
 export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
   queryClient,
+  _database,
   { params },
 ) => {
   const { villageId } = params;
@@ -47,7 +41,7 @@ export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
 export const getVillageEventsByType: ApiHandler<
   GameEvent[],
   'villageId' | 'eventType'
-> = async (queryClient, { params }) => {
+> = async (queryClient, _database, { params }) => {
   const { villageId, eventType } = params;
 
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
@@ -63,23 +57,22 @@ export const createNewEvents: ApiHandler<
   void,
   '',
   CreateNewEventsBody
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const { body } = args;
 
-  await createClientEvents(queryClient, body);
+  await createClientEvents(queryClient, database, body);
 };
 
 export const cancelConstructionEvent: ApiHandler<
   void,
   'eventId',
   void
-> = async (queryClient, args) => {
+> = async (queryClient, database, args) => {
   const {
     params: { eventId },
   } = args;
 
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
+  const { tribe } = getCurrentPlayer(database);
 
   queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
     const cancelledEvent = prevEvents!.find(
@@ -132,14 +125,7 @@ export const cancelConstructionEvent: ApiHandler<
         : buildingEvents;
 
     // If we're building a new building, construction takes place immediately, in that case we need to remove the building
-    if (
-      !specialFieldIds.includes(cancelledEvent.buildingFieldId) &&
-      cancelledEvent.level === 1
-    ) {
-      queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
-        return removeBuildingField(prevData!, cancelledEvent);
-      });
-    }
+    demolishBuilding(database, villageId, buildingFieldId);
 
     // Event can either be scheduled or already in action
     if (isScheduledBuildingEvent(eventToRemove)) {
@@ -165,15 +151,10 @@ export const cancelConstructionEvent: ApiHandler<
       level,
     );
 
-    addVillageResourcesAt(
-      queryClient,
-      villageId,
-      Date.now(),
-      resourcesToRefund,
-    );
+    addVillageResourcesAt(database, villageId, Date.now(), resourcesToRefund);
 
     return eventsToKeep;
   });
 
-  await scheduleNextEvent(queryClient);
+  await scheduleNextEvent(queryClient, database);
 };

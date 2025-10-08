@@ -135,7 +135,7 @@ type TileTooltipResourcesProps = {
 };
 
 const TileTooltipResources = ({ tile }: TileTooltipResourcesProps) => {
-  const resources = parseRFCFromTile(tile.RFC);
+  const resources = parseRFCFromTile(tile.resourceFieldComposition);
   return (
     <Resources
       iconClassName="size-4"

@@ -1,18 +1,16 @@
-import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
+import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import {
-  seededRandomArrayElement,
-  seededRandomIntFromInterval,
-} from 'app/utils/common';
+import { seededRandomArrayElement } from 'app/utils/common';
 import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { npcFactions } from 'app/factories/reputation-factory';
-import { usernameRoots } from 'app/assets/player';
+import { usernameAdjectives, usernameNouns } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
 import { PLAYER_ID } from 'app/constants/player';
+import type { FactionName } from 'app/interfaces/models/game/faction';
 
 type PlayerFactoryProps = {
-  faction: PlayerFaction;
+  faction: FactionName;
   prng: PRNGFunction;
   id: number;
 };
@@ -22,16 +20,10 @@ const npcPlayerFactory = ({
   prng,
   id,
 }: PlayerFactoryProps): Player => {
-  const rootIndex = seededRandomIntFromInterval(
-    prng,
-    0,
-    usernameRoots.length - 1,
-  );
+  const adjective = seededRandomArrayElement(prng, usernameAdjectives);
+  const noun = seededRandomArrayElement(prng, usernameNouns);
 
-  const discriminator = seededRandomIntFromInterval(prng, 1, 1000);
-  const paddedDiscriminator = `${discriminator % 10000}`.padStart(4, '0');
-
-  const nameRoot = usernameRoots[rootIndex];
+  const paddedDiscriminator = `${id % 10000}`.padStart(4, '0');
 
   const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
     'romans',
@@ -43,7 +35,7 @@ const npcPlayerFactory = ({
 
   return {
     id,
-    name: `${nameRoot}#${paddedDiscriminator}`,
+    name: `${adjective}${noun}#${paddedDiscriminator}`,
     tribe,
     faction,
   };
@@ -74,7 +66,8 @@ export const generateNpcPlayers = (server: Server) => {
   const playerCount = Math.round((playerDensity * totalTiles) / 100) * 100;
 
   return [...Array(playerCount)].map((_, index) => {
-    const faction = seededRandomArrayElement<PlayerFaction>(prng, npcFactions);
-    return npcPlayerFactory({ faction, prng, id: index + 1 });
+    const faction = seededRandomArrayElement<FactionName>(prng, npcFactions);
+    // We do +2 because user's player always has the id of 1
+    return npcPlayerFactory({ faction, prng, id: index + 2 });
   });
 };

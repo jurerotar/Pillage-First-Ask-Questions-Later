@@ -20,7 +20,10 @@ export const generateEvents = (server: Server): GameEvent[] => {
   const adventurePointIncreaseEvent = eventFactory<'adventurePointIncrease'>({
     type: 'adventurePointIncrease',
     startsAt: server.createdAt,
-    duration: calculateAdventurePointIncreaseEventDuration(server),
+    duration: calculateAdventurePointIncreaseEventDuration(
+      server.createdAt,
+      server.configuration.speed,
+    ),
   });
 
   return [adventurePointIncreaseEvent];

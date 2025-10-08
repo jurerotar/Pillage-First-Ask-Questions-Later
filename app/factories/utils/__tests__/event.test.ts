@@ -10,9 +10,12 @@ describe('calculateAdventurePointIncreaseFrequency', () => {
       createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days old
     } satisfies Server;
 
-    expect(calculateAdventurePointIncreaseEventDuration(testServer)).toBe(
-      8 * 60 * 60 * 1000,
-    );
+    expect(
+      calculateAdventurePointIncreaseEventDuration(
+        testServer.createdAt,
+        testServer.configuration.speed,
+      ),
+    ).toBe(8 * 60 * 60 * 1000);
   });
 
   test('should return event duration of 16 hours for server younger than 1 month (1x speed)', () => {
@@ -21,9 +24,12 @@ describe('calculateAdventurePointIncreaseFrequency', () => {
       createdAt: Date.now() - 14 * 24 * 60 * 60 * 1000, // 14 days old
     } satisfies Server;
 
-    expect(calculateAdventurePointIncreaseEventDuration(testServer)).toBe(
-      16 * 60 * 60 * 1000,
-    );
+    expect(
+      calculateAdventurePointIncreaseEventDuration(
+        testServer.createdAt,
+        testServer.configuration.speed,
+      ),
+    ).toBe(16 * 60 * 60 * 1000);
   });
 
   test('should return event duration of 24 hours for server older than 1 month (1x speed)', () => {
@@ -32,9 +38,12 @@ describe('calculateAdventurePointIncreaseFrequency', () => {
       createdAt: Date.now() - 40 * 24 * 60 * 60 * 1000, // 40 days old
     } satisfies Server;
 
-    expect(calculateAdventurePointIncreaseEventDuration(testServer)).toBe(
-      24 * 60 * 60 * 1000,
-    );
+    expect(
+      calculateAdventurePointIncreaseEventDuration(
+        testServer.createdAt,
+        testServer.configuration.speed,
+      ),
+    ).toBe(24 * 60 * 60 * 1000);
   });
 
   test('should return event duration of 4 hours for server younger than 1 week (2x speed)', () => {
@@ -47,8 +56,11 @@ describe('calculateAdventurePointIncreaseFrequency', () => {
       },
     } satisfies Server;
 
-    expect(calculateAdventurePointIncreaseEventDuration(testServer)).toBe(
-      (8 / 2) * 60 * 60 * 1000,
-    );
+    expect(
+      calculateAdventurePointIncreaseEventDuration(
+        testServer.createdAt,
+        testServer.configuration.speed,
+      ),
+    ).toBe((8 / 2) * 60 * 60 * 1000);
   });
 });

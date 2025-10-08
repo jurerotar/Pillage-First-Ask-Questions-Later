@@ -3,12 +3,27 @@ import type {
   VillageQuestDefinition,
 } from 'app/interfaces/models/game/quest';
 import type { Building } from 'app/interfaces/models/game/building';
+import type { Unit } from 'app/interfaces/models/game/unit';
+import { units } from 'app/assets/units';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import { getUnitsByTribe } from 'app/assets/utils/units';
 
 const createTroopCountQuest = (count: number): GlobalQuestDefinition => {
   return {
     id: `troopCount-${count}`,
     scope: 'global',
   };
+};
+
+const createTroopCountQuests = (): GlobalQuestDefinition[] => {
+  const troopCounts = [
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+    150000, 200000, 300000, 500000, 750000, 1000000,
+  ];
+
+  return troopCounts.flatMap((troopCount) => {
+    return createTroopCountQuest(troopCount);
+  });
 };
 
 const createAdventureCountQuest = (count: number): GlobalQuestDefinition => {
@@ -18,46 +33,104 @@ const createAdventureCountQuest = (count: number): GlobalQuestDefinition => {
   };
 };
 
+const createAdventureCountQuests = (): GlobalQuestDefinition[] => {
+  const adventureCounts = [
+    1, 3, 5, 10, 15, 20, 30, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350,
+    400, 450, 500,
+  ];
+
+  return adventureCounts.flatMap((adventureCount) => {
+    return createAdventureCountQuest(adventureCount);
+  });
+};
+
+const createKillCountQuest = (count: number): GlobalQuestDefinition => {
+  return {
+    id: `killCount-${count}`,
+    scope: 'global',
+  };
+};
+
+const createKillCountQuests = (): GlobalQuestDefinition[] => {
+  const killCounts = [
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+    150000, 200000, 300000, 500000, 750000, 1000000,
+  ];
+
+  return killCounts.flatMap((killCount) => {
+    return createKillCountQuest(killCount);
+  });
+};
+
+const createUnitKillCountQuest = (
+  unitId: Unit['id'],
+  count: number,
+): GlobalQuestDefinition => {
+  return {
+    id: `unitKillCount-${unitId}-${count}`,
+    scope: 'global',
+  };
+};
+
+const createUnitKillCountQuests = (): GlobalQuestDefinition[] => {
+  const killCounts = [
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+  ];
+
+  return units
+    .filter(
+      ({ id }) =>
+        id !== 'HERO' && !id.includes('SETTLER') && !id.includes('CHIEF'),
+    )
+    .flatMap(({ id }) => {
+      return killCounts.flatMap((killCount) => {
+        return createUnitKillCountQuest(id, killCount);
+      });
+    });
+};
+
+const createUnitTroopCountQuest = (
+  unitId: Unit['id'],
+  count: number,
+): GlobalQuestDefinition => {
+  return {
+    id: `unitTroopCount-${unitId}-${count}`,
+    scope: 'global',
+  };
+};
+
+export const createUnitTroopCountQuests = (
+  tribe: PlayableTribe,
+): GlobalQuestDefinition[] => {
+  const troopCounts = [
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+  ];
+
+  const unitsByTribe = getUnitsByTribe(tribe);
+
+  return unitsByTribe.flatMap(({ id }) => {
+    return troopCounts.flatMap((troopCount) => {
+      return createUnitTroopCountQuest(id, troopCount);
+    });
+  });
+};
+
 export const createBuildingQuest = (
   buildingId: Building['id'],
   level: number,
   matcher: 'oneOf' | 'every' = 'oneOf',
 ): VillageQuestDefinition => {
   return {
-    id: `${buildingId}-${matcher}-${level}`,
+    id: `${matcher}-${buildingId}-${level}`,
     scope: 'village',
   };
 };
 
 export const globalQuests: GlobalQuestDefinition[] = [
-  createAdventureCountQuest(1),
-  createAdventureCountQuest(3),
-  createAdventureCountQuest(5),
-  createAdventureCountQuest(10),
-  createAdventureCountQuest(15),
-  createAdventureCountQuest(20),
-  createAdventureCountQuest(30),
-  createAdventureCountQuest(50),
-  createAdventureCountQuest(75),
-  createAdventureCountQuest(100),
-  createAdventureCountQuest(125),
-  createAdventureCountQuest(150),
-  createAdventureCountQuest(175),
-  createAdventureCountQuest(200),
-  createAdventureCountQuest(250),
-  createAdventureCountQuest(300),
-  createAdventureCountQuest(350),
-  createAdventureCountQuest(400),
-  createAdventureCountQuest(450),
-  createAdventureCountQuest(500),
-  createTroopCountQuest(5),
-  createTroopCountQuest(10),
-  createTroopCountQuest(25),
-  createTroopCountQuest(50),
-  createTroopCountQuest(100),
-  createTroopCountQuest(200),
-  createTroopCountQuest(350),
-  createTroopCountQuest(500),
+  ...createAdventureCountQuests(),
+  ...createTroopCountQuests(),
+  ...createUnitKillCountQuests(),
+  ...createKillCountQuests(),
 ];
 
 export const villageQuests: VillageQuestDefinition[] = [

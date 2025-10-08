@@ -22,7 +22,7 @@ describe('Quest utils', () => {
     });
 
     test('building requirement parsed correctly (oneOf)', () => {
-      const reqs = getQuestRequirements('WOODCUTTER-oneOf-4');
+      const reqs = getQuestRequirements('oneOf-WOODCUTTER-4');
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toEqual({
         type: 'building',
@@ -33,7 +33,7 @@ describe('Quest utils', () => {
     });
 
     test('building requirement parsed correctly (every)', () => {
-      const reqs = getQuestRequirements('CLAY_PIT-every-2');
+      const reqs = getQuestRequirements('every-CLAY_PIT-2');
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toEqual({
         type: 'building',
@@ -68,7 +68,7 @@ describe('Quest utils', () => {
       const level = 1;
       const effectiveLevel = level - 1;
       const expected = Math.round(base * effectiveLevel) + base / 2;
-      const rewards = getQuestRewards('WOODCUTTER-oneOf-1');
+      const rewards = getQuestRewards('oneOf-WOODCUTTER-1');
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toEqual({
         type: 'resources',
@@ -81,7 +81,7 @@ describe('Quest utils', () => {
       const level = 3;
       const effectiveLevel = level - 1; // 2
       const expected = Math.round(base * effectiveLevel) + base / 2;
-      const rewards = getQuestRewards('WOODCUTTER-oneOf-3');
+      const rewards = getQuestRewards('oneOf-WOODCUTTER-3');
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toEqual({
         type: 'resources',
@@ -94,7 +94,7 @@ describe('Quest utils', () => {
       const level = 5;
       const effectiveLevel = level - 1;
       const expected = Math.round(base * effectiveLevel ** 1.3) + base / 2;
-      const rewards = getQuestRewards('CLAY_PIT-every-5');
+      const rewards = getQuestRewards('every-CLAY_PIT-5');
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toEqual({
         type: 'resources',
