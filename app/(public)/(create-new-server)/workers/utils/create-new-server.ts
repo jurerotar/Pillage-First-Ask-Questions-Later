@@ -1,5 +1,8 @@
 import type { Database } from 'app/interfaces/db';
 import type { Server } from 'app/interfaces/models/game/server';
+import createUnitTrainingHistoryTable from 'app/db/schemas/statistics/unit-training-history-schema.sql?raw';
+import createBuildingLevelChangeHistoryTable from 'app/db/schemas/statistics/building-level-change-history-schema.sql?raw';
+import createResourcesHistoryTable from 'app/db/schemas/statistics/resources-history-schema.sql?raw';
 import createPreferencesTable from 'app/db/schemas/preferences-schema.sql?raw';
 import createResourceFieldCompositionsTable from 'app/db/schemas/resource-field-compositions-schema.sql?raw';
 import createEffectIdsTable from 'app/db/schemas/effect-ids-schema.sql?raw';
@@ -55,6 +58,11 @@ import { effectIdsSeeder } from 'app/db/seeders/effect-ids-seeder';
 
 export const createNewServer = (database: Database, server: Server): void => {
   database.transaction((db) => {
+    // Statistics
+    db.exec(createUnitTrainingHistoryTable);
+    db.exec(createBuildingLevelChangeHistoryTable);
+    db.exec(createResourcesHistoryTable);
+
     // Preferences
     db.exec(createPreferencesTable);
     preferencesSeeder(db, server);
