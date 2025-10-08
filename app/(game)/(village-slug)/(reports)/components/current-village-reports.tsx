@@ -7,10 +7,14 @@ import {
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { Pagination } from 'app/components/ui/pagination';
 
 export const CurrentVillageReports = () => {
   const { t } = useTranslation();
   const { reportFilters, onReportFiltersChange } = useReportFilters();
+
+  const pagination = usePagination([], 20);
 
   return (
     <Section>
@@ -29,6 +33,9 @@ export const CurrentVillageReports = () => {
       <Alert variant="warning">
         {t('This page is still under development')}
       </Alert>
+      <div className="flex w-full justify-end">
+        <Pagination {...pagination} />
+      </div>
     </Section>
   );
 };

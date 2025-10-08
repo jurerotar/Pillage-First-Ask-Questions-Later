@@ -3,10 +3,7 @@ import { defineConfig } from 'i18next-cli';
 export default defineConfig({
   locales: ['en-US'],
   extract: {
-    input: [
-      // Only game localizations are extracted for now, public localizations are hardcoded to English.
-      'app/(game)/**/*.{ts,tsx}',
-    ],
+    input: ['app/**/*.{ts,tsx}'],
     preservePatterns: [
       'UNITS.*',
       'BUILDINGS.*',

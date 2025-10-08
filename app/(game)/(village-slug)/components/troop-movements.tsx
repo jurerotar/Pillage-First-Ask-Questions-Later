@@ -130,7 +130,7 @@ const TroopMovementsContent = () => {
   } = partitionTroopMovementEvents(troopMovementEvents, currentVillage.id);
 
   return (
-    <div className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-29 lg:top-40 z-20">
+    <aside className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-29 lg:top-40 z-20">
       <TroopMovement
         type="findNewVillage"
         events={findNewVillageMovementEvents}
@@ -155,7 +155,7 @@ const TroopMovementsContent = () => {
         type="offensiveMovementIncoming"
         events={incomingOffensiveMovementEvents}
       />
-    </div>
+    </aside>
   );
 };
 
