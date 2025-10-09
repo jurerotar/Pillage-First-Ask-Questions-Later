@@ -1,7 +1,6 @@
 import {
   getBuildingDefinition,
   getBuildingDataForLevel,
-  calculateBuildingCostForLevel,
 } from 'app/assets/utils/buildings';
 import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
@@ -94,7 +93,7 @@ export const buildingLevelChangeResolver: Resolver<
       );
     }
 
-    const rowId = db.selectValue(
+    db.exec(
       `
         INSERT INTO building_level_change_history
         (village_id, field_id, building_id, previous_level, new_level, timestamp)
@@ -107,26 +106,6 @@ export const buildingLevelChangeResolver: Resolver<
         $building_id: buildingId,
         $level: level,
         $previous_level: previousLevel,
-      },
-    );
-
-    const [wood, clay, iron, wheat] = calculateBuildingCostForLevel(
-      buildingId,
-      level,
-    );
-
-    db.exec(
-      `
-        INSERT INTO resources_history (subject_type, subject_id, wood, clay, iron, wheat)
-        VALUES ($subject_type, $subject_id, $wood, $clay, $iron, $wheat);
-      `,
-      {
-        $subject_type: 'building-level-change',
-        $subject_id: rowId,
-        $wood: wood,
-        $clay: clay,
-        $iron: iron,
-        $wheat: wheat,
       },
     );
 
