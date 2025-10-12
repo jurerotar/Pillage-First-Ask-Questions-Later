@@ -1,114 +1,124 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import { partition } from 'app/utils/common';
-import {
-  isBuildingEvent,
-  isScheduledBuildingEvent,
-  isVillageEvent,
-} from 'app/(game)/guards/event-guards';
+import { isBuildingEvent } from 'app/(game)/guards/event-guards';
 import { calculateBuildingCancellationRefundForLevel } from 'app/assets/utils/buildings';
 import {
   addVillageResourcesAt,
   demolishBuilding,
 } from 'app/(game)/api/utils/village';
-import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
 import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
 import { getCurrentPlayer } from 'app/(game)/api/utils/player';
+import { eventSchema } from 'app/(game)/api/utils/zod/event-schemas';
+import { z } from 'zod';
+import {
+  selectAllVillageEventsByTypeQuery,
+  selectAllVillageEventsQuery,
+  selectVillageBuildingEventsQuery,
+} from 'app/(game)/api/utils/queries/event-queries';
 
-export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
-  queryClient,
-  _database,
-  { params },
-) => {
+const eventListSchema = z.array(eventSchema);
+
+export const getVillageEvents: ApiHandler<
+  z.infer<typeof eventSchema>[],
+  'villageId'
+> = (database, { params }) => {
   const { villageId } = params;
 
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
-
-  return events.filter((event) => {
-    if (!isVillageEvent(event)) {
-      return true;
-    }
-
-    return event.villageId === villageId;
+  const rows = database.selectObjects(selectAllVillageEventsQuery, {
+    $villageId: villageId,
   });
+
+  return eventListSchema.parse(rows);
 };
 
 export const getVillageEventsByType: ApiHandler<
-  GameEvent[],
+  z.infer<typeof eventSchema>[],
   'villageId' | 'eventType'
-> = async (queryClient, _database, { params }) => {
+> = (database, { params }) => {
   const { villageId, eventType } = params;
 
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
+  const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
+    $villageId: villageId,
+    $type: eventType,
+  });
 
-  return filterEventsByType(events, eventType as GameEventType, villageId);
+  return eventListSchema.parse(rows);
 };
 
 type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
-export const createNewEvents: ApiHandler<
-  void,
-  '',
-  CreateNewEventsBody
-> = async (queryClient, database, args) => {
+export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = (
+  database,
+  args,
+) => {
   const { body } = args;
 
-  await createClientEvents(queryClient, database, body);
+  createClientEvents(database, body);
 };
 
-export const cancelConstructionEvent: ApiHandler<
-  void,
-  'eventId',
-  void
-> = async (queryClient, database, args) => {
+export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
+  database,
+  args,
+) => {
   const {
     params: { eventId },
   } = args;
 
   const { tribe } = getCurrentPlayer(database);
 
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-    const cancelledEvent = prevEvents!.find(
-      ({ id }) => eventId === id,
+  database.transaction((db) => {
+    const cancelledRow = db.selectObject(
+      `
+        SELECT id, type, starts_at, duration, resolves_at, meta, village_id
+        FROM events
+        WHERE id = $eventId
+      `,
+      { $eventId: eventId },
+    );
+
+    if (!cancelledRow) {
+      return;
+    }
+
+    const cancelledEvent = eventSchema.parse(
+      cancelledRow,
     ) as GameEvent<'buildingConstruction'>;
 
-    // If there's other building upgrades of same building, we need to cancel them as well
-    const [eventsToRemove, eventsToKeep] = partition(prevEvents!, (event) => {
-      if (!isBuildingEvent(event)) {
-        return false;
-      }
-
-      return (
-        cancelledEvent.villageId === event.villageId &&
-        cancelledEvent.buildingFieldId === event.buildingFieldId &&
-        cancelledEvent.startsAt <= event.startsAt
-      );
+    const rows = db.selectObjects(selectVillageBuildingEventsQuery, {
+      $villageId: cancelledEvent.villageId,
     });
+    const allVillageEvents = z.array(eventSchema).parse(rows);
 
-    const totalTimeToSubtract = eventsToRemove.reduce((accumulator, event) => {
-      return accumulator + event.duration;
-    }, 0);
+    // If there's other building upgrades of same building, we need to cancel them as well
+    const [eventsToRemove, eventsToKeep] = partition(
+      allVillageEvents,
+      (event) => {
+        if (!isBuildingEvent(event)) {
+          return false;
+        }
+
+        return (
+          cancelledEvent.villageId === event.villageId &&
+          cancelledEvent.buildingFieldId === event.buildingFieldId &&
+          cancelledEvent.startsAt <= event.startsAt
+        );
+      },
+    );
+
+    if (eventsToRemove.length === 0) {
+      return; // Nothing to remove
+    }
 
     // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
     const eventToRemove = eventsToRemove.at(
       -1,
     ) as GameEvent<'buildingConstruction'>;
 
-    const {
-      buildingFieldId,
-      buildingId,
-      level,
-      villageId,
-      startsAt,
-      duration,
-    } = eventToRemove;
+    const { buildingFieldId, buildingId, level, villageId } = eventToRemove;
 
     const buildingEvents = eventsToKeep.filter(isBuildingEvent);
 
@@ -124,26 +134,46 @@ export const cancelConstructionEvent: ApiHandler<
           })
         : buildingEvents;
 
-    // If we're building a new building, construction takes place immediately, in that case we need to remove the building
-    demolishBuilding(database, villageId, buildingFieldId);
-
-    // Event can either be scheduled or already in action
-    if (isScheduledBuildingEvent(eventToRemove)) {
-      for (const event of eligibleEvents) {
-        if (event.startsAt + event.duration >= startsAt + duration) {
-          event.duration -= totalTimeToSubtract;
-        }
-      }
-
-      return eventsToKeep;
+    // If we're building a new building (level 0 -> 1), remove the building on cancel
+    if (level === 1) {
+      demolishBuilding(db, villageId, buildingFieldId);
     }
 
-    // Event already in motion
-    for (const event of eligibleEvents) {
-      if (event.startsAt + event.duration >= startsAt + duration) {
-        const difference = startsAt + totalTimeToSubtract - Date.now();
-        event.startsAt -= difference;
+    const now = Date.now();
+
+    // Remove all selected events (the cancelled one and chained upgrades for the same field)
+    {
+      const idsToRemove = eventsToRemove.map((e) => e.id);
+      if (idsToRemove.length > 0) {
+        const placeholders = idsToRemove.map((_, i) => `$id${i}`).join(',');
+        const bind = Object.fromEntries(
+          idsToRemove.map((v, i) => [`$id${i}`, v]),
+        );
+        db.exec(`DELETE FROM events WHERE id IN (${placeholders})`, bind);
       }
+    }
+
+    // Determine the base start time for scheduled events in the same (roman-aware) queue
+    const activeInQueue = eligibleEvents.find(
+      (e) => e.startsAt <= now && now < e.startsAt + e.duration,
+    );
+    let nextStart = activeInQueue
+      ? activeInQueue.startsAt + activeInQueue.duration
+      : now;
+
+    // Reschedule remaining scheduled events in this queue to start as soon as possible (contiguously)
+    const scheduledInQueue = eligibleEvents
+      .filter((e) => e.startsAt > now)
+      .sort((a, b) => a.startsAt - b.startsAt);
+
+    for (const e of scheduledInQueue) {
+      if (e.startsAt !== nextStart) {
+        db.exec('UPDATE events SET starts_at = $startsAt WHERE id = $id', {
+          $startsAt: nextStart,
+          $id: e.id,
+        });
+      }
+      nextStart += e.duration;
     }
 
     const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
@@ -151,10 +181,8 @@ export const cancelConstructionEvent: ApiHandler<
       level,
     );
 
-    addVillageResourcesAt(database, villageId, Date.now(), resourcesToRefund);
-
-    return eventsToKeep;
+    addVillageResourcesAt(db, villageId, Date.now(), resourcesToRefund);
   });
 
-  await scheduleNextEvent(queryClient, database);
+  scheduleNextEvent(database);
 };

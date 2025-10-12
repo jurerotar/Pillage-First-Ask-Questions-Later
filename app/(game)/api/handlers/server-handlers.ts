@@ -40,8 +40,7 @@ const getServerSchema = z
     };
   });
 
-export const getServer: ApiHandler<z.infer<typeof getServerSchema>> = async (
-  _queryClient,
+export const getServer: ApiHandler<z.infer<typeof getServerSchema>> = (
   database,
 ) => {
   const serverModel = database.selectObject(`

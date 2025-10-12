@@ -30,20 +30,21 @@ const getQuestsSchema = z
 export const getQuests: ApiHandler<
   z.infer<typeof getQuestsSchema>[],
   'villageId'
-> = async (_queryClient, database, { params }) => {
+> = (database, { params }) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(
     `
-      SELECT quest_id,
-             scope,
-             collected_at,
-             completed_at,
-             village_id
-      FROM quests
-      WHERE village_id IS NULL
-         OR village_id = $village_id
-      ORDER BY quest_id
+      SELECT *
+      FROM (SELECT quest_id, scope, collected_at, completed_at, village_id
+            FROM quests
+            WHERE village_id = $village_id
+
+            UNION ALL
+
+            SELECT quest_id, scope, collected_at, completed_at, village_id
+            FROM quests
+            WHERE village_id IS NULL) AS q
     `,
     {
       $village_id: villageId,
@@ -59,7 +60,7 @@ type GetCollectableQuestCountReturn = {
 
 export const getCollectableQuestCount: ApiHandler<
   GetCollectableQuestCountReturn
-> = async (_queryClient, database) => {
+> = (database) => {
   const collectableQuestCount = database.selectValue(
     `
       SELECT COUNT(*) AS count
@@ -74,8 +75,7 @@ export const getCollectableQuestCount: ApiHandler<
   };
 };
 
-export const collectQuest: ApiHandler<void, 'questId' | 'villageId'> = async (
-  _queryClient,
+export const collectQuest: ApiHandler<void, 'questId' | 'villageId'> = (
   database,
   args,
 ) => {

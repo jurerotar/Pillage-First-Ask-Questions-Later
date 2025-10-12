@@ -3,24 +3,14 @@ import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
   calculateBuildingEffectValues,
-  calculatePopulationFromBuildingFields,
   calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
   getBuildingDataForLevel,
 } from 'app/assets/utils/buildings';
-import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
 import { describe, expect, test } from 'vitest';
 
 describe('Buildings utils', () => {
-  describe('calculatePopulationFromBuildingFields', () => {
-    test('New village should have a population of 3', () => {
-      expect(
-        calculatePopulationFromBuildingFields(newVillageBuildingFieldsMock),
-      ).toBe(3);
-    });
-  });
-
   describe('calculateBuildingEffectValues', () => {
     test('CITY_WALL effect values', () => {
       const building = getBuildingDefinition('CITY_WALL');

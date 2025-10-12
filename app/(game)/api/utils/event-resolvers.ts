@@ -1,25 +1,30 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { QueryClient } from '@tanstack/react-query';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
-import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import type { DbFacade } from 'app/(game)/api/database-facade';
+import { eventSchema } from 'app/(game)/api/utils/zod/event-schemas';
+import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 
 let scheduledTimeout: number | null = null;
 
-const resolveEvent = async (
-  queryClient: QueryClient,
-  database: DbFacade,
-  eventId: GameEvent['id'],
-) => {
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
-  const event = events.find(({ id }) => id === eventId)!;
+export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
+  const row = database.selectObject(
+    `
+        SELECT id, type, starts_at, duration, village_id, resolves_at, meta
+        FROM events
+        WHERE id = $id;
+      `,
+    {
+      $id: eventId,
+    },
+  );
 
-  // If event updates any village property (new building, returning troops,...) we need to calculate the amount of resources before
-  // said update happens
-  if (isEventWithResourceCost(event)) {
+  const event = eventSchema.parse(row);
+
+  const eventCost = getEventCost(event);
+
+  if (eventCost.some((cost) => cost > 0)) {
     updateVillageResourcesAt(
       database,
       event.villageId,
@@ -28,14 +33,20 @@ const resolveEvent = async (
   }
 
   try {
-    const resolver = getGameEventResolver(event.type)!;
+    const resolver = getGameEventResolver(event.type);
 
-    // @ts-expect-error - This one can't be solved, resolver returns every possible GameEvent option
-    await resolver(queryClient, database, event);
+    resolver(database, event);
 
-    queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
-      return events!.filter(({ id }) => id !== eventId);
-    });
+    database.exec(
+      `
+        DELETE
+        FROM events
+        WHERE id = $id;
+      `,
+      {
+        $id: eventId,
+      },
+    );
 
     self.postMessage({
       eventKey: 'event:worker-event-resolve-success',
@@ -50,46 +61,58 @@ const resolveEvent = async (
   }
 };
 
-// TODO: This code is probably bugged, make sure to refactor and double-check when possible
-export const scheduleNextEvent = async (
-  queryClient: QueryClient,
-  database: DbFacade,
-) => {
+export const scheduleNextEvent = (database: DbFacade) => {
   if (scheduledTimeout !== null) {
     self.clearTimeout(scheduledTimeout);
+    scheduledTimeout = null;
   }
 
-  const pastOrFutureEvents =
-    queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
+  while (true) {
+    const pastEventIds = database.selectValues(
+      `
+        SELECT id
+        FROM events
+        WHERE resolves_at <= $now
+        ORDER BY resolves_at;
+      `,
+      {
+        $now: Date.now(),
+      },
+    ) as GameEvent['id'][];
 
-  const now = Date.now();
-
-  for (const event of pastOrFutureEvents) {
-    const endsAt = event.startsAt + event.duration;
-
-    if (endsAt > now) {
+    if (pastEventIds.length === 0) {
       break;
     }
 
-    await resolveEvent(queryClient, database, event.id);
+    database.transaction((db) => {
+      for (const id of pastEventIds) {
+        resolveEvent(db, id);
+      }
+    });
   }
 
-  // At this point, all remaining events are future events
-  const futureEvents =
-    queryClient.getQueryData<GameEvent[]>([eventsCacheKey]) ?? [];
+  const next = database.selectObject(
+    `
+      SELECT id, resolves_at as resolvesAt
+      FROM events
+      WHERE resolves_at > $now
+      ORDER BY resolves_at
+      LIMIT 1;
+    `,
+    {
+      $now: Date.now(),
+    },
+  ) as Pick<GameEvent, 'id' | 'resolvesAt'>;
 
-  if (futureEvents.length === 0) {
+  if (!next) {
     return;
   }
 
-  const nextEvent = futureEvents[0];
+  const delay = Math.max(0, next.resolvesAt - Date.now());
 
-  scheduledTimeout = self.setTimeout(
-    async () => {
-      scheduledTimeout = null;
-      await resolveEvent(queryClient, database, nextEvent.id);
-      await scheduleNextEvent(queryClient, database);
-    },
-    nextEvent.startsAt + nextEvent.duration - now,
-  );
+  scheduledTimeout = self.setTimeout(() => {
+    scheduledTimeout = null;
+    resolveEvent(database, next.id);
+    scheduleNextEvent(database);
+  }, delay);
 };

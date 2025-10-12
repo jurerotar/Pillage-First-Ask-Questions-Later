@@ -13,5 +13,8 @@ CREATE TABLE quests
     REFERENCES villages (id) ON DELETE SET NULL
 ) STRICT;
 
-CREATE INDEX idx_quests_village_id ON quests (village_id);
+CREATE INDEX idx_quests_village_id_notnull
+  ON quests(village_id)
+  WHERE village_id IS NOT NULL;
+
 CREATE INDEX idx_quests_quest_id ON quests (quest_id);

@@ -12,8 +12,7 @@ const getBookmarksSchema = z
     return [t.building_id, t.tab_name];
   });
 
-export const getBookmarks: ApiHandler<Bookmarks, 'villageId'> = async (
-  _queryClient,
+export const getBookmarks: ApiHandler<Bookmarks, 'villageId'> = (
   database,
   { params },
 ) => {
@@ -35,7 +34,7 @@ export const updateBookmark: ApiHandler<
   void,
   'villageId' | 'buildingId',
   { tab: string }
-> = async (_queryClient, database, { params, body }) => {
+> = (database, { params, body }) => {
   const { villageId, buildingId } = params;
   const { tab } = body;
 

@@ -125,9 +125,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       return;
     }
 
-    const handleMessage = async (
-      event: MessageEvent<EventApiNotificationEvent>,
-    ) => {
+    const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
       if (isEventResolvedNotificationMessageEvent(event)) {
         const toastArgs = eventResolvedNotificationFactory(event, {
           t,

@@ -1,8 +1,7 @@
 import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
-export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = async (
-  _queryClient,
+export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
   database,
   args,
 ) => {

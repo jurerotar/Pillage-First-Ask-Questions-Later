@@ -3,8 +3,7 @@ import type { Resolver } from 'app/interfaces/api';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
-const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
-  queryClient,
+const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
   database,
   args,
 ) => {
@@ -12,7 +11,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
   // TODO: Add combat calc
 
-  await createEvent<'troopMovement'>(queryClient, database, {
+  createEvent<'troopMovement'>(database, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -21,8 +20,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   });
 };
 
-const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
-  queryClient,
+const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
   database,
   args,
 ) => {
@@ -30,7 +28,7 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
 
   // TODO: Add combat calc
 
-  await createEvent<'troopMovement'>(queryClient, database, {
+  createEvent<'troopMovement'>(database, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -39,9 +37,10 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   });
 };
 
-const findNewVillageMovementResolver: Resolver<
-  GameEvent<'troopMovement'>
-> = async (_queryClient, _database, args) => {
+const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
+  _database,
+  args,
+) => {
   const { targetId: _targetId } = args;
 
   // const server = queryClient.getQueryData<Server>([serverCacheKey])!;
@@ -100,14 +99,15 @@ const findNewVillageMovementResolver: Resolver<
   // );
 };
 
-const oasisOccupationMovementResolver: Resolver<
-  GameEvent<'troopMovement'>
-> = async (queryClient, database, args) => {
+const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
+  database,
+  args,
+) => {
   const { villageId, targetId, troops } = args;
 
   // TODO: Add combat calc
 
-  await createEvent<'troopMovement'>(queryClient, database, {
+  createEvent<'troopMovement'>(database, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -116,66 +116,61 @@ const oasisOccupationMovementResolver: Resolver<
   });
 };
 
-const reinforcementMovementResolver: Resolver<
-  GameEvent<'troopMovement'>
-> = async (_queryClient, database, args) => {
+const reinforcementMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
+  database,
+  args,
+) => {
   const { targetId, troops: incomingTroops } = args;
 
-  database.transaction((db) => {
-    const stmt = db.prepare(`
-      INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-      VALUES ($unit_id, $amount, $tile_id, $source)
-      ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO UPDATE SET amount = amount + excluded.amount;
-    `);
+  const stmt = database.prepare(`
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+    VALUES ($unit_id, $amount, $tile_id, $source)
+    ON CONFLICT(unit_id, tile_id, source_tile_id)
+      DO UPDATE SET amount = amount + excluded.amount;
+  `);
 
-    for (const { unitId, amount, source } of incomingTroops) {
-      stmt
-        .bind({
-          $unit_id: unitId,
-          $amount: amount,
-          $tile_id: targetId,
-          $source: source,
-        })
-        .stepReset();
-    }
+  for (const { unitId, amount, source } of incomingTroops) {
+    stmt
+      .bind({
+        $unit_id: unitId,
+        $amount: amount,
+        $tile_id: targetId,
+        $source: source,
+      })
+      .stepReset();
+  }
 
-    stmt.finalize();
-  });
+  stmt.finalize();
 };
 
-const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
-  _queryClient,
+const returnMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
   database,
   args,
 ) => {
   const { troops: incomingTroops } = args;
 
-  database.transaction((db) => {
-    const stmt = db.prepare(`
-      INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-      VALUES ($unit_id, $amount, $tile_id, $source)
-      ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO UPDATE SET amount = amount + excluded.amount;
-    `);
+  const stmt = database.prepare(`
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+    VALUES ($unit_id, $amount, $tile_id, $source)
+    ON CONFLICT(unit_id, tile_id, source_tile_id)
+      DO UPDATE SET amount = amount + excluded.amount;
+  `);
 
-    for (const { unitId, amount, source, tileId } of incomingTroops) {
-      stmt
-        .bind({
-          $unit_id: unitId,
-          $amount: amount,
-          $tile_id: tileId,
-          $source: source,
-        })
-        .stepReset();
-    }
+  for (const { unitId, amount, source, tileId } of incomingTroops) {
+    stmt
+      .bind({
+        $unit_id: unitId,
+        $amount: amount,
+        $tile_id: tileId,
+        $source: source,
+      })
+      .stepReset();
+  }
 
-    stmt.finalize();
-  });
+  stmt.finalize();
 };
 
-const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
-  _queryClient,
+const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
   database,
   args,
 ) => {
@@ -187,27 +182,25 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
     duration,
   } = args;
 
-  database.transaction((db) => {
-    const stmt = db.prepare(`
-      INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-      VALUES ($unit_id, $amount, $tile_id, $source)
-      ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO UPDATE SET amount = amount + excluded.amount;
-    `);
+  const stmt = database.prepare(`
+    INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+    VALUES ($unit_id, $amount, $tile_id, $source)
+    ON CONFLICT(unit_id, tile_id, source_tile_id)
+      DO UPDATE SET amount = amount + excluded.amount;
+  `);
 
-    for (const { unitId, amount } of incomingTroops) {
-      stmt
-        .bind({
-          $unit_id: unitId,
-          $amount: amount,
-          $tile_id: targetId,
-          $source: targetId,
-        })
-        .stepReset();
-    }
+  for (const { unitId, amount } of incomingTroops) {
+    stmt
+      .bind({
+        $unit_id: unitId,
+        $amount: amount,
+        $tile_id: targetId,
+        $source: targetId,
+      })
+      .stepReset();
+  }
 
-    stmt.finalize();
-  });
+  stmt.finalize();
 
   const isHeroBeingRelocated = incomingTroops.some(
     ({ unitId }) => unitId === 'HERO',
@@ -232,38 +225,39 @@ const relocationMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   }
 };
 
-export const troopMovementResolver: Resolver<
-  GameEvent<'troopMovement'>
-> = async (queryClient, database, args) => {
+export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
+  database,
+  args,
+) => {
   const { movementType } = args;
 
   switch (movementType) {
     case 'attack': {
-      await attackMovementResolver(queryClient, database, args);
+      attackMovementResolver(database, args);
       break;
     }
     case 'find-new-village': {
-      await findNewVillageMovementResolver(queryClient, database, args);
+      findNewVillageMovementResolver(database, args);
       break;
     }
     case 'oasis-occupation': {
-      await oasisOccupationMovementResolver(queryClient, database, args);
+      oasisOccupationMovementResolver(database, args);
       break;
     }
     case 'raid': {
-      await raidMovementResolver(queryClient, database, args);
+      raidMovementResolver(database, args);
       break;
     }
     case 'reinforcements': {
-      await reinforcementMovementResolver(queryClient, database, args);
+      reinforcementMovementResolver(database, args);
       break;
     }
     case 'relocation': {
-      await relocationMovementResolver(queryClient, database, args);
+      relocationMovementResolver(database, args);
       break;
     }
     case 'return': {
-      await returnMovementResolver(queryClient, database, args);
+      returnMovementResolver(database, args);
       break;
     }
   }

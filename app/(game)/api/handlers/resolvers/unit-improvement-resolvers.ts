@@ -1,9 +1,10 @@
 import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
-export const unitImprovementResolver: Resolver<
-  GameEvent<'unitImprovement'>
-> = async (_queryClient, database, args) => {
+export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
+  database,
+  args,
+) => {
   const { unitId } = args;
 
   database.exec(

@@ -17,31 +17,8 @@ export const serverSeeder: Seeder = (database, server): void => {
   database.exec({
     sql: `
       INSERT INTO servers
-      (
-       id,
-       version,
-       name,
-       slug,
-       created_at,
-       seed,
-       speed,
-       map_size,
-       player_name,
-       player_tribe
-      )
-      VALUES
-      (
-        $id,
-        $version,
-        $name,
-        $slug,
-        $created_at,
-        $seed,
-        $speed,
-        $map_size,
-        $player_name,
-        $player_tribe
-       );
+      (id, version, name, slug, created_at, seed, speed, map_size, player_name, player_tribe)
+      VALUES ($id, $version, $name, $slug, $created_at, $seed, $speed, $map_size, $player_name, $player_tribe);
     `,
     bind: {
       $id: id,

@@ -1,15 +1,3 @@
-import {
-  dehydrate,
-  type DehydratedState,
-  hydrate,
-  QueryClient,
-} from '@tanstack/react-query';
-import {
-  enqueueWrite,
-  getParsedFileContents,
-  getRootHandle,
-  writeFileContents,
-} from 'app/utils/opfs';
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import type {
@@ -44,26 +32,9 @@ try {
 
   const database = createDbFacade(opfsDb);
 
-  const queryClient = new QueryClient();
-  const rootHandle = await getRootHandle();
-  const serverState = await getParsedFileContents<DehydratedState>(
-    rootHandle,
-    serverSlug!,
-  );
-  hydrate(queryClient, serverState);
+  scheduleNextEvent(database);
 
-  queryClient.getQueryCache().subscribe(({ type }) => {
-    if (type !== 'updated') {
-      return;
-    }
-    enqueueWrite(() =>
-      writeFileContents(rootHandle, serverSlug, dehydrate(queryClient)),
-    );
-  });
-
-  await scheduleNextEvent(queryClient, database);
-
-  self.addEventListener('message', async (event: MessageEvent) => {
+  self.addEventListener('message', (event: MessageEvent) => {
     const { data, ports } = event;
     const { type } = data;
 
@@ -79,7 +50,7 @@ try {
     try {
       const { handler, params } = matchRoute(url, method)!;
       // @ts-expect-error: Not sure about this one, fix when you can
-      const result = await handler(queryClient, database, { params, body });
+      const result = handler(database, { params, body });
 
       if (method !== 'GET') {
         self.postMessage({
@@ -102,7 +73,7 @@ try {
     }
   });
 
-  self.addEventListener('message', async (event: MessageEvent) => {
+  self.addEventListener('message', (event: MessageEvent) => {
     const { data } = event;
     const { type } = data;
 

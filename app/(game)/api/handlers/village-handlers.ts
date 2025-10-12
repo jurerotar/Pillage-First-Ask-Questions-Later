@@ -58,7 +58,7 @@ const getVillageBySlugSchema = z
 export const getVillageBySlug: ApiHandler<
   z.infer<typeof getVillageBySlugSchema>,
   'villageSlug'
-> = async (_queryClient, database, { params }) => {
+> = (database, { params }) => {
   const { villageSlug } = params;
 
   const row = database.selectObject(

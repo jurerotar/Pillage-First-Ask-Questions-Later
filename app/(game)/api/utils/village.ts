@@ -3,7 +3,7 @@ import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 import type { DbFacade } from 'app/(game)/api/database-facade';
-import { selectAllRelevantEffectsQuery } from 'app/(game)/api/utils/queries/effects';
+import { selectAllRelevantEffectsQuery } from 'app/(game)/api/utils/queries/effect-queries';
 
 export const demolishBuilding = (
   database: DbFacade,

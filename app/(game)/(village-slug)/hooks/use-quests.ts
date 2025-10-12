@@ -15,22 +15,12 @@ export const useQuests = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: quests } = useSuspenseQuery<Quest[]>({
-    queryKey: [questsCacheKey],
+    queryKey: [questsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<Quest[]>(
         `/villages/${currentVillage.id}/quests`,
       );
       return data;
-    },
-  });
-
-  const { data: collectableQuestCount } = useSuspenseQuery<number>({
-    queryKey: [collectableQuestCountCacheKey],
-    queryFn: async () => {
-      const { data } = await fetcher<{ collectableQuestCount: number }>(
-        `/villages/${currentVillage.id}/quests/collectables/count`,
-      );
-      return data.collectableQuestCount;
     },
   });
 
@@ -61,7 +51,6 @@ export const useQuests = () => {
 
   return {
     quests,
-    collectableQuestCount,
     completeQuest,
   };
 };

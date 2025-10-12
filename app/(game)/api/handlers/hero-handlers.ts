@@ -27,8 +27,7 @@ const getHeroSchema = z
     };
   });
 
-export const getHero: ApiHandler<z.infer<typeof getHeroSchema>> = async (
-  _queryClient,
+export const getHero: ApiHandler<z.infer<typeof getHeroSchema>> = (
   database,
 ) => {
   const hero = database.selectObject(`
@@ -59,8 +58,7 @@ const getHeroEquippedItemsSchema = z.strictObject({
   amount: z.number().min(1),
 });
 
-export const getHeroEquippedItems: ApiHandler<Hero['equippedItems']> = async (
-  _queryClient,
+export const getHeroEquippedItems: ApiHandler<Hero['equippedItems']> = (
   database,
 ) => {
   const rows = database.selectObjects(
@@ -112,7 +110,7 @@ const getHeroInventorySchema = z
 
 export const getHeroInventory: ApiHandler<
   z.infer<(typeof getHeroInventorySchema)[]>
-> = async (_queryClient, database) => {
+> = (database) => {
   const rows = database.selectObjects(
     `
       SELECT i.item_id, i.amount
@@ -136,7 +134,7 @@ const getHeroAdventuresSchema = z.strictObject({
 
 export const getHeroAdventures: ApiHandler<
   z.infer<typeof getHeroAdventuresSchema>
-> = async (_queryClient, database) => {
+> = (database) => {
   const row = database.selectObject(
     'SELECT available, completed FROM hero_adventures;',
   );

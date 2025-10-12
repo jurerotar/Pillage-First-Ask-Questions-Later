@@ -18,7 +18,6 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
-import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
@@ -53,6 +52,7 @@ import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types
 import { parseRFCFromTile } from 'app/utils/map';
 import { Text } from 'app/components/text';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
 
 type CounterProps = {
   counter?: number;
@@ -81,7 +81,7 @@ const AdventurePointsCounter = () => {
 };
 
 const QuestsCounter = () => {
-  const { collectableQuestCount } = useQuests();
+  const { collectableQuestCount } = useCollectableQuestCount();
   return <Counter counter={collectableQuestCount} />;
 };
 

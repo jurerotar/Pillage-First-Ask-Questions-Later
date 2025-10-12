@@ -57,6 +57,23 @@ export const getBuildingDataForLevel = (
   };
 };
 
+export const calculatePopulationDifference = (
+  buildingId: Building['id'],
+  currentLevel: number,
+  nextLevel: number,
+): number => {
+  const { population: currentPopulation } = getBuildingDataForLevel(
+    buildingId,
+    currentLevel,
+  );
+  const { population: nextPopulation } = getBuildingDataForLevel(
+    buildingId,
+    nextLevel,
+  );
+
+  return nextPopulation - currentPopulation;
+};
+
 export const getBuildingFieldByBuildingFieldId = (
   currentVillage: Village,
   buildingFieldId: BuildingField['id'],
@@ -66,23 +83,6 @@ export const getBuildingFieldByBuildingFieldId = (
       ({ id: fieldId }) => buildingFieldId === fieldId,
     ) ?? null
   );
-};
-
-export const calculatePopulationFromBuildingFields = (
-  buildingFields: BuildingField[],
-): number => {
-  let sum = 0;
-
-  for (const { buildingId, level } of buildingFields) {
-    if (buildingId === null) {
-      continue;
-    }
-
-    const population = calculateTotalPopulationForLevel(buildingId, level);
-    sum += population;
-  }
-
-  return Math.abs(sum);
 };
 
 export type CalculatedCumulativeEffect = {

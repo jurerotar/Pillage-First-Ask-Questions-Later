@@ -5,16 +5,14 @@ import { assessAdventureCountQuestCompletion } from 'app/(game)/api/utils/quests
 
 export const adventurePointIncreaseResolver: Resolver<
   GameEvent<'adventurePointIncrease'>
-> = async (_queryClient, database, args) => {
+> = (database, args) => {
   const { startsAt, duration } = args;
 
-  database.transaction((db) => {
-    db.exec('UPDATE hero_adventures SET available = available + 1;');
+  database.exec('UPDATE hero_adventures SET available = available + 1;');
 
-    assessAdventureCountQuestCompletion(db, startsAt + duration);
-  });
+  assessAdventureCountQuestCompletion(database, startsAt + duration);
 
-  await createEvent<'adventurePointIncrease'>(_queryClient, database, {
+  createEvent<'adventurePointIncrease'>(database, {
     // Args need to be present, because next event depends on end of last
     ...args,
     type: 'adventurePointIncrease',

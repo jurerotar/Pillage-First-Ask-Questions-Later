@@ -3,7 +3,7 @@ import { PLAYER_ID } from 'app/constants/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { createUnitTroopCountQuests, globalQuests } from 'app/assets/quests';
-import { newVillageQuestsFactory } from 'app/db/factories/quest-factory';
+import { newVillageQuestsFactory } from 'app/db/seeders/factories/quest-factory';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
 export const questsSeeder: Seeder = (database): void => {

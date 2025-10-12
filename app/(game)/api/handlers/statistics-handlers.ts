@@ -32,7 +32,7 @@ export const getPlayerStatistics: ApiHandler<
   z.infer<typeof getPlayerStatisticsSchema>[],
   '',
   GetPlayersStatisticsBody
-> = async (_queryClient, database, { body }) => {
+> = (database, { body }) => {
   const { lastPlayerId = null } = body;
 
   const rows = database.selectObjects(
@@ -119,7 +119,7 @@ export const getVillageStatistics: ApiHandler<
   z.infer<typeof getVillageStatisticsSchema>[],
   '',
   GetVillageStatisticsBody
-> = async (_queryClient, database, { body }) => {
+> = (database, { body }) => {
   const { lastVillageId = null } = body;
 
   const rows = database.selectObjects(

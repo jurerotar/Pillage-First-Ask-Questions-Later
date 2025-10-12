@@ -3,8 +3,7 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
 // TODO: Move this to an util function that's called after combat, once combat is added
-export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
-  _queryClient,
+export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = (
   database,
   args,
 ) => {
@@ -63,8 +62,7 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
   });
 };
 
-export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (
-  _queryClient,
+export const abandonOasis: ApiHandler<void, 'oasisId' | 'villageId'> = (
   database,
   args,
 ) => {

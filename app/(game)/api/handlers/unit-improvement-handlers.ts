@@ -16,7 +16,7 @@ const getUnitImprovementsSchema = z
 export const getUnitImprovements: ApiHandler<
   z.infer<typeof getUnitImprovementsSchema>[],
   'playerId'
-> = async (_queryClient, database, { params }) => {
+> = (database, { params }) => {
   const { playerId } = params;
 
   const unitImprovementModel = database.selectObjects(

@@ -44,3 +44,27 @@ export const selectAllRelevantEffectsByIdQuery = `
   WHERE (ei.effect = $effect_id)
     AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
 `;
+
+export const updatePopulationEffectQuery = `
+  UPDATE effects
+  SET value = value + $value
+  WHERE effect_id = (SELECT id
+         FROM effect_ids
+         WHERE effect = 'wheatProduction')
+    AND type = 'base'
+    AND scope = 'village'
+    AND source = 'building'
+    AND village_id = $village_id
+    AND source_specifier = 0;
+`;
+
+export const updateBuildingEffectQuery = `
+  UPDATE effects
+  SET value = $value
+  WHERE effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
+    AND village_id = $village_id
+    AND type = 'base'
+    AND scope = 'village'
+    AND source = 'building'
+    AND source_specifier = $source_specifier;
+`;

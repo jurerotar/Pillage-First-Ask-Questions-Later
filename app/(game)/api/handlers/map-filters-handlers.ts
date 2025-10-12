@@ -22,9 +22,9 @@ const getMapFiltersSchema = z
     };
   });
 
-export const getMapFilters: ApiHandler<
-  z.infer<typeof getMapFiltersSchema>
-> = async (_queryClient, database) => {
+export const getMapFilters: ApiHandler<z.infer<typeof getMapFiltersSchema>> = (
+  database,
+) => {
   const row = database.selectObject(
     `
     SELECT
@@ -48,7 +48,7 @@ export const updateMapFilter: ApiHandler<
   void,
   'filterName',
   UpdateMapFilterBody
-> = async (_queryClient, database, { params, body }) => {
+> = (database, { params, body }) => {
   const { filterName } = params;
   const { value } = body;
 

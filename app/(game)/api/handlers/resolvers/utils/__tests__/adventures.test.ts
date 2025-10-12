@@ -1,6 +1,6 @@
 import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { describe, expect, test } from 'vitest';
-import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
+import { calculateAdventurePointIncreaseEventDuration } from 'app/(game)/api/handlers/resolvers/utils/adventures';
 import type { Server } from 'app/interfaces/models/game/server';
 
 describe('calculateAdventurePointIncreaseFrequency', () => {

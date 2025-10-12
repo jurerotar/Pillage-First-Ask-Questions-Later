@@ -46,7 +46,7 @@ const getPreferencesSchema = z
 
 export const getPreferences: ApiHandler<
   z.infer<typeof getPreferencesSchema>
-> = async (_queryClient, database) => {
+> = (database) => {
   const row = database.selectObject(
     `
       SELECT
@@ -77,7 +77,7 @@ export const updatePreference: ApiHandler<
   void,
   'preferenceName',
   UpdatePreferenceBody
-> = async (_queryClient, database, { body, params }) => {
+> = (database, { body, params }) => {
   const { preferenceName } = params;
   const { value } = body;
 

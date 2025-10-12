@@ -16,7 +16,7 @@ const getResearchedUnitsSchema = z
 export const getResearchedUnits: ApiHandler<
   z.infer<typeof getResearchedUnitsSchema>[],
   'villageId'
-> = async (_queryClient, database, { params }) => {
+> = (database, { params }) => {
   const { villageId } = params;
 
   const unitResearchModels = database.selectObjects(

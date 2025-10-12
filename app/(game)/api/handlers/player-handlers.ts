@@ -18,7 +18,7 @@ const getPlayerByIdSchema = z.strictObject({
 export const getPlayerById: ApiHandler<
   z.infer<typeof getPlayerByIdSchema>,
   'playerId'
-> = async (_queryClient, database, args) => {
+> = (database, args) => {
   const {
     params: { playerId },
   } = args;
@@ -65,7 +65,7 @@ const getVillagesByPlayerSchema = z
 export const getPlayerVillageListing: ApiHandler<
   z.infer<typeof getVillagesByPlayerSchema>[],
   'playerId'
-> = async (_queryClient, database, args) => {
+> = (database, args) => {
   const {
     params: { playerId },
   } = args;
@@ -113,7 +113,7 @@ const getTroopsByVillageSchema = z
 export const getTroopsByVillage: ApiHandler<
   z.infer<typeof getTroopsByVillageSchema>[],
   'playerId' | 'villageId'
-> = async (_queryClient, database, args) => {
+> = (database, args) => {
   const {
     params: { villageId },
   } = args;
@@ -145,7 +145,7 @@ export const renameVillage: ApiHandler<
   void,
   'playerId' | 'villageId',
   RenameVillageBody
-> = async (_queryClient, database, args) => {
+> = (database, args) => {
   const {
     params: { villageId },
     body: { name },

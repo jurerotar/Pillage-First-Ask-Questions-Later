@@ -3,7 +3,6 @@ import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { seededRandomArrayElement } from 'app/utils/common';
 import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
-import { npcFactions } from 'app/factories/reputation-factory';
 import { usernameAdjectives, usernameNouns } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
 import { PLAYER_ID } from 'app/constants/player';
@@ -53,7 +52,10 @@ export const playerFactory = (server: Server): Player => {
   };
 };
 
-export const generateNpcPlayers = (server: Server) => {
+export const generateNpcPlayers = (
+  server: Server,
+  npcFactions: FactionName[],
+) => {
   const prng = prngMulberry32(server.seed);
 
   const { mapSize } = server.configuration;

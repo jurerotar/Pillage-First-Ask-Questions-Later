@@ -8,6 +8,7 @@ import createEffectIdsTable from 'app/db/schemas/effect-ids-schema.sql?raw';
 import createBookmarksTable from 'app/db/schemas/bookmarks-schema.sql?raw';
 import createMapMarkersTable from 'app/db/schemas/map-markers-schema.sql?raw';
 import createMapFiltersTable from 'app/db/schemas/map-filters-schema.sql?raw';
+import createEventsTable from 'app/db/schemas/events-schema.sql?raw';
 import createHeroAdventuresTable from 'app/db/schemas/hero-adventures-schema.sql?raw';
 import createServersTable from 'app/db/schemas/servers-schema.sql?raw';
 import createPlayersTable from 'app/db/schemas/players-schema.sql?raw';
@@ -54,6 +55,7 @@ import { unitImprovementSeeder } from 'app/db/seeders/unit-improvement-seeder';
 import { questsSeeder } from 'app/db/seeders/quests-seeder';
 import { resourceFieldCompositionsSeeder } from 'app/db/seeders/resource-field-compositions-seeder';
 import { effectIdsSeeder } from 'app/db/seeders/effect-ids-seeder';
+import { eventsSeeder } from 'app/db/seeders/events-seeder';
 
 export const createNewServer = (database: Database, server: Server): void => {
   database.transaction((db) => {
@@ -162,5 +164,9 @@ export const createNewServer = (database: Database, server: Server): void => {
     // Quests
     db.exec(createQuestsTable);
     questsSeeder(db, server);
+
+    // Events
+    db.exec(createEventsTable);
+    eventsSeeder(db, server);
   });
 };

@@ -3,7 +3,8 @@ import { batchInsert } from 'app/db/utils/batch-insert';
 import {
   generateNpcPlayers,
   playerFactory,
-} from 'app/factories/player-factory';
+} from 'app/db/seeders/factories/player-factory';
+import type { FactionName } from 'app/interfaces/models/game/faction';
 
 const slugifyPlayerName = (name: string): string => {
   return name
@@ -14,12 +15,16 @@ const slugifyPlayerName = (name: string): string => {
 };
 
 export const playersSeeder: Seeder = (database, server): void => {
+  const npcFactions = database.selectValues(
+    `SELECT id FROM factions WHERE id != 'player';`,
+  ) as FactionName[];
+
   const player = playerFactory(server);
-  const npcPlayers = generateNpcPlayers(server);
+  const npcPlayers = generateNpcPlayers(server, npcFactions);
 
   const players = [player, ...npcPlayers];
 
-  const rows = players.map(({ id, name, tribe, faction }) => [
+  const playersToInsert = players.map(({ id, name, tribe, faction }) => [
     id,
     name,
     slugifyPlayerName(name),
@@ -31,6 +36,6 @@ export const playersSeeder: Seeder = (database, server): void => {
     database,
     'players',
     ['id', 'name', 'slug', 'tribe', 'faction_id'],
-    rows,
+    playersToInsert,
   );
 };

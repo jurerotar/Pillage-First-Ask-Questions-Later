@@ -26,17 +26,17 @@ export const serverExistAndLockMiddleware: Route.ClientMiddlewareFunction =
       }
     }
 
-    const root = await navigator.storage.getDirectory();
-    const rootHandle = await root.getDirectoryHandle(
-      'pillage-first-ask-questions-later',
-      {
-        create: true,
-      },
-    );
+    // const root = await navigator.storage.getDirectory();
+    // const rootHandle = await root.getDirectoryHandle(
+    //   'pillage-first-ask-questions-later',
+    //   {
+    //     create: true,
+    //   },
+    // );
 
-    try {
-      await rootHandle.getFileHandle(`${serverSlug}.json`);
-    } catch (_error) {
-      throw redirect('/error/404');
-    }
+    // try {
+    //   await rootHandle.getFileHandle(`${serverSlug}.json`);
+    // } catch (_error) {
+    //   throw redirect('/error/404');
+    // }
   };

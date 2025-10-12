@@ -328,11 +328,11 @@ export const troopSeeder: Seeder = (database, server): void => {
   }
 
   const oasis = database.selectObjects(`
-    SELECT tiles.id AS tile_id,
-           oasis.resource
-    FROM oasis
-           INNER JOIN tiles ON oasis.tile_id = tiles.id
-    WHERE oasis.village_id IS NULL;
+    SELECT o.tile_id AS tile_id,
+           MAX(o.resource) AS resource
+    FROM oasis o
+    WHERE o.village_id IS NULL
+    GROUP BY o.tile_id;
   `) as OasisSelectRow[];
 
   for (const { tile_id, resource } of oasis) {
