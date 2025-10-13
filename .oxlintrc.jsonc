@@ -1,0 +1,52 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "import",
+    "vitest",
+    "react",
+    "react-perf",
+    "jsx-a11y",
+    "oxc",
+    "promise"
+  ],
+  "categories": {
+    "correctness": "off",
+    "pedantic": "off",
+    "perf": "error",
+    "style": "off",
+    "restriction": "off",
+    "suspicious": "off"
+  },
+  "rules": {
+    "eslint/*": "error",
+    "eslint/no-await-in-loop": "warn",
+    // typescript
+    "typescript/*": "error",
+    "typescript/no-unsafe-type-assertion": "off",
+    // unicorn
+    "unicorn/*": "error",
+    // import
+    "import/*": "error",
+    // vitest
+    "vitest/*": "error",
+    // react
+    "react/*": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/no-array-index-key": "warn",
+    // react-perf
+    "react-perf/*": "error",
+    "react-perf/jsx-no-new-function-as-prop": "warn",
+    "react-perf/jsx-no-new-object-as-prop": "warn",
+    "react-perf/jsx-no-jsx-as-prop": "warn",
+    "react-perf/jsx-no-new-array-as-prop": "warn",
+    // jsx-a11y
+    "jsx-a11y/*": "error",
+    // oxc
+    "oxc/*": "error",
+    // promise
+    "promise/*": "error"
+  }
+}
