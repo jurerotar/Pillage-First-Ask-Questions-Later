@@ -26,6 +26,10 @@
     "eslint/no-await-in-loop": "warn",
     "eslint/id-length": "off",
     "eslint/no-ternary": "off",
+    "eslint/prefer-string-slice": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-lines": "off",
+    "eslint/max-dependencies": "off",
     "eslint/no-unused-vars": [
       "error",
       {
