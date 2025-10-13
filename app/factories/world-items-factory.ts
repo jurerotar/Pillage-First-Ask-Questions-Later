@@ -149,9 +149,9 @@ export const worldItemsFactory = ({
     ...uncommonHeroWorldItems,
     ...commonHeroWorldItems,
   ];
-  const occupiedIds = tilesWithWorldItems.map(({ tileId }) => tileId);
+  const occupiedIds = new Set(tilesWithWorldItems.map(({ tileId }) => tileId));
   const consumableHeroItemCandidates = eligibleTiles.filter(({ id }) => {
-    return !occupiedIds.includes(id);
+    return !occupiedIds.has(id);
   });
   // Half of remaining villages should have non-wearable items
   const amountOfVillagesToPick = consumableHeroItemCandidates.length / 2;

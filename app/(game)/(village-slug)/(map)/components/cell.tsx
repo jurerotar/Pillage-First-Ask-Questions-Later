@@ -56,7 +56,7 @@ const TroopMovements = ({
   );
 };
 
-const wheatFields = ['00018', '11115', '3339'];
+const wheatFields = new Set(['00018', '11115', '3339']);
 
 type CellIconsProps = CellBaseProps & {
   tile: ContextualTile;
@@ -78,7 +78,7 @@ const CellIcons = (props: CellIconsProps) => {
   if (
     isOccupiableTile(tile) &&
     shouldShowWheatFields &&
-    wheatFields.includes(tile.RFC)
+    wheatFields.has(tile.RFC)
   ) {
     return (
       <BorderIndicator
