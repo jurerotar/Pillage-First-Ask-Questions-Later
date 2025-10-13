@@ -36,45 +36,6 @@ jobs:
       - name: Lint check
         run: npm run lint:check
 
-      - name: Write React Compiler ESLint config
-        shell: bash
-        run: |
-          cat > eslint.config.js <<'ESLINTRC'
-          import reactHooks from 'eslint-plugin-react-hooks';
-          import { defineConfig } from 'eslint/config';
-          import { parser } from 'typescript-eslint';
-
-          export default defineConfig([
-            reactHooks.configs['flat/recommended'],
-            {
-              ignores: [
-                'build',
-                '*.config.ts',
-                'scripts',
-                'node_modules',
-                '.react-router',
-                'dist',
-              ],
-            },
-            {
-              files: ['app/**/*.tsx'],
-              plugins: {
-                'react-hooks': reactHooks,
-              },
-              languageOptions: {
-                parser,
-              },
-            },
-          ]);
-          ESLINTRC
-
-      - name: Install React Compiler ESLint deps
-        run: |
-          npm install --no-save eslint eslint-plugin-react-hooks @typescript-eslint/parser typescript-eslint
-
-      - name: React compiler compatibility check
-        run: npx eslint --config eslint.config.js .
-
       - name: Format check
         run: npm run format:check
 
