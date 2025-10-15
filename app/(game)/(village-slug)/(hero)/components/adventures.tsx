@@ -9,21 +9,31 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 
 export const Adventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
   const { hero } = useHero();
+  const { adventurePoints } = useAdventurePoints();
+  const { eventsByType } = useEventsByType('adventurePointIncrease');
 
   const seed = server!.seed;
   const { adventureCount } = hero!;
 
-  // We need to do it this was, so that we preserve durations
   const adventurePrng = prngMulberry32(`${seed}${adventureCount}`);
 
   // Short adventure is between 8 & 12 minutes long
-  const _shortAdventureDuration =
+  const _adventureDuration =
     seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+
+  const nextAdventurePointIncreaseEvent = eventsByType.at(0)!;
+
+  const nextAdventurePointIncreaseTimestamp =
+    nextAdventurePointIncreaseEvent.startsAt +
+    nextAdventurePointIncreaseEvent.duration;
 
   return (
     <Section>
@@ -33,6 +43,18 @@ export const Adventures = () => {
           {t(
             'Your hero is always keen to explore, and will be happy to share his findings with you if you give him the order to go on an adventure.',
           )}
+        </Text>
+      </SectionContent>
+      <SectionContent>
+        <Text className="font-medium">
+          {t(
+            'Your hero has enough adventure points for {{count}} adventures.',
+            { count: adventurePoints.amount },
+          )}
+        </Text>
+        <Text className="font-medium">
+          {t('Next adventure point in: ')}
+          <Countdown endsAt={nextAdventurePointIncreaseTimestamp} />
         </Text>
       </SectionContent>
       <Alert variant="warning">
