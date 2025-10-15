@@ -74,9 +74,12 @@
     "jest/valid-title": "warn",
     // TODO: This rule must be re-enabled
     "jest/prefer-lowercase-title": "warn",
-    "jest/consistent-test-it": ["error", {
-      "fn": "test"
-    }],
+    "jest/consistent-test-it": [
+      "error",
+      {
+        "fn": "test"
+      }
+    ],
     // react
     "react/*": "error",
     "react/react-in-jsx-scope": "off",
