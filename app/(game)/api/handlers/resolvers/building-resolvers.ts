@@ -43,7 +43,7 @@ export const buildingLevelChangeResolver: Resolver<
     level,
   );
 
-  if (populationDifference > 0) {
+  if (populationDifference !== 0) {
     database.exec(updatePopulationEffectQuery, {
       $village_id: villageId,
       $value: populationDifference,

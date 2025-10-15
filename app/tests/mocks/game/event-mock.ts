@@ -15,6 +15,9 @@ export const createBuildingConstructionEventMock = ({
   buildingFieldId,
   level,
 }: CreateBuildingConstructionEventMockArgs): GameEvent<'buildingLevelChange'> => {
+  const startsAt = Date.now();
+  const duration = calculateBuildingDurationForLevel(buildingId, level);
+
   return {
     id: 'id',
     type: 'buildingLevelChange',
@@ -24,6 +27,7 @@ export const createBuildingConstructionEventMock = ({
     level,
     previousLevel: level - 1,
     startsAt: Date.now(),
-    duration: calculateBuildingDurationForLevel(buildingId, level),
+    duration: duration,
+    resolvesAt: startsAt + duration,
   };
 };

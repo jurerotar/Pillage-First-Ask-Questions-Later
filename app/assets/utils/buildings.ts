@@ -172,16 +172,20 @@ export const calculateTotalPopulationForLevel = (
   }
 
   const C = 5 * populationCoefficient + 4;
-  const q = Math.floor(C / 10);
-  const r = C % 10; // 0..9
+  const q = Math.trunc(C / 10);
+  const r = C - q * 10;
 
-  const F = (n: number) => {
-    const K = Math.floor(n / 10);
-    const rem = n - 10 * K;
-    return 5 * K * (K - 1) + K * (rem + 1);
-  };
+  const n1 = r + level;
+  const K1 = Math.trunc(n1 / 10);
+  const rem1 = n1 - K1 * 10;
+  const F1 = 5 * K1 * K1 - 4 * K1 + K1 * rem1;
 
-  const S = F(r + level) - F(r + 1);
+  const n0 = r + 1;
+  const K0 = Math.trunc(n0 / 10);
+  const rem0 = n0 - K0 * 10;
+  const F0 = 5 * K0 * K0 - 4 * K0 + K0 * rem0;
+
+  const S = F1 - F0;
 
   return populationCoefficient + (level - 1) * q + S;
 };

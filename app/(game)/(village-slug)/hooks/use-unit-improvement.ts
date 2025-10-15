@@ -10,7 +10,9 @@ export const useUnitImprovement = () => {
   const { data: unitImprovements } = useSuspenseQuery<UnitImprovement[]>({
     queryKey: [unitImprovementCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<UnitImprovement[]>('/unit-improvements');
+      const { data } = await fetcher<UnitImprovement[]>(
+        '/me/unit-improvements',
+      );
       return data;
     },
   });

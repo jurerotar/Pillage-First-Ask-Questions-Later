@@ -1,5 +1,3 @@
-import { differenceInSeconds } from 'date-fns';
-
 type CalculateCurrentAmountArgs = {
   lastKnownResourceAmount: number;
   lastUpdatedAt: number;
@@ -15,10 +13,8 @@ export const calculateCurrentAmount = ({
   storageCapacity,
   timestamp = Date.now(),
 }: CalculateCurrentAmountArgs) => {
-  const timeSinceLastUpdateInSeconds = differenceInSeconds(
-    new Date(timestamp),
-    new Date(lastUpdatedAt),
-  );
+  const deltaMs = Math.max(0, timestamp - lastUpdatedAt);
+  const timeSinceLastUpdateInSeconds = Math.floor(deltaMs / 1000);
 
   if (hourlyProduction === 0) {
     return {
@@ -29,19 +25,24 @@ export const calculateCurrentAmount = ({
     };
   }
 
-  const hasNegativeProduction = hourlyProduction < 0;
-  const secondsForResourceGeneration = 3600 / Math.abs(hourlyProduction);
-  const producedResources = Math.floor(
-    timeSinceLastUpdateInSeconds / secondsForResourceGeneration,
-  );
-  const delta = producedResources * (hasNegativeProduction ? -1 : 1);
+  const absHourly = Math.abs(hourlyProduction);
+  // Ms needed to produce 1 unit
+  const periodMs = 3_600_000 / absHourly;
+  const secondsForResourceGeneration = periodMs / 1000;
+
+  const producedResources = Math.floor((deltaMs * absHourly) / 3_600_000);
+
+  const sign = hourlyProduction < 0 ? -1 : 1;
+  const delta = producedResources * sign;
   const calculatedCurrentAmount = lastKnownResourceAmount + delta;
-  const currentAmount = hasNegativeProduction
-    ? Math.max(calculatedCurrentAmount, 0)
-    : Math.min(calculatedCurrentAmount, storageCapacity);
+
+  const currentAmount =
+    sign < 0
+      ? Math.max(calculatedCurrentAmount, 0)
+      : Math.min(calculatedCurrentAmount, storageCapacity);
 
   const lastEffectiveUpdate =
-    lastUpdatedAt + producedResources * secondsForResourceGeneration * 1000;
+    lastUpdatedAt + Math.floor(producedResources * periodMs);
 
   return {
     timeSinceLastUpdateInSeconds,

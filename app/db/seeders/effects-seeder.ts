@@ -294,7 +294,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
 
     for (const { unit_id, amount } of villageTroops!) {
       const { unitWheatConsumption } = getUnitDefinition(unit_id as Unit['id']);
-      troopWheatConsumption -= unitWheatConsumption * amount;
+      troopWheatConsumption += unitWheatConsumption * amount;
     }
 
     effectsToInsert.push([

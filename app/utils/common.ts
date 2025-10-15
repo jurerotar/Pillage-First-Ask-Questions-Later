@@ -98,15 +98,21 @@ export const truncateToShortForm = (value: number): string => {
 
 export const partition = <T>(
   array: T[],
-  callback: (element: T) => boolean,
+  predicate: (element: T) => boolean,
 ): [T[], T[]] => {
-  return array.reduce(
-    (result, element) => {
-      result[callback(element) ? 0 : 1].push(element);
-      return result;
-    },
-    [[] as T[], [] as T[]],
-  );
+  const truthy: T[] = [];
+  const falsy: T[] = [];
+
+  for (let i = 0, len = array.length; i < len; i++) {
+    const el = array[i];
+    if (predicate(el)) {
+      truthy.push(el);
+    } else {
+      falsy.push(el);
+    }
+  }
+
+  return [truthy, falsy];
 };
 
 export const formatPercentage = (num: number, isIncreasing = true): string => {

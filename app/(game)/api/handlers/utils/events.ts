@@ -90,27 +90,56 @@ export const checkAndSubtractVillageResources = (
 };
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]) => {
-  const cols = ['id', 'type', 'starts_at', 'duration', 'village_id', 'meta'];
-  const tuple = `(${cols.map(() => '?').join(',')})`;
-  const sql = `
-      INSERT INTO events (${cols.join(',')})
-      VALUES ${events.map(() => tuple).join(',')};
-    `;
+  const requiredEventProperties = new Set([
+    'id',
+    'type',
+    'startsAt',
+    'duration',
+    'villageId',
+  ]);
+  // We add + 1 for the `meta` column
+  const amountOfColumnsToInsert = requiredEventProperties.size + 1;
+
+  const sqlTemplate = `
+    INSERT INTO events (id, type, starts_at, duration, village_id, meta)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  const amountOfEvents = events.length;
+
+  const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
 
   const params: SQLOutputValue[] = Array.from({
-    length: events.length * cols.length,
+    length: events.length * amountOfColumnsToInsert,
   });
-  let p = 0;
 
-  for (const ev of events) {
-    const { id, type, startsAt, duration, villageId = null, ...metaObj } = ev;
+  // We intentionally skip object destructuring assignment in favor of this manual approach,
+  // due to this approach being ~ 1.5x faster, which adds when potentially creating thousands of events.
+  for (let i = 0; i < events.length; i++) {
+    const event = events[i];
+    const base = i * amountOfColumnsToInsert;
 
-    params[p++] = id;
-    params[p++] = type;
-    params[p++] = startsAt;
-    params[p++] = duration;
-    params[p++] = villageId;
-    params[p++] = metaObj ? JSON.stringify(metaObj) : null;
+    params[base] = event.id;
+    params[base + 1] = event.type;
+    params[base + 2] = event.startsAt;
+    params[base + 3] = event.duration;
+    params[base + 4] = event.villageId ?? null;
+
+    let metaObj: Record<string, SQLOutputValue> | undefined;
+    for (const property in event) {
+      if (requiredEventProperties.has(property)) {
+        continue;
+      }
+
+      // Lazy object initialization
+      if (!metaObj) {
+        metaObj = {};
+      }
+
+      metaObj[property] = event[property as keyof GameEvent];
+    }
+
+    params[base + 5] = metaObj ? JSON.stringify(metaObj) : null;
   }
 
   const stmt = database.prepare(sql);

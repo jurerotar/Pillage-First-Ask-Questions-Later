@@ -6,7 +6,7 @@ import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
 > = (database, args) => {
-  const { unitId, villageId, duration, startsAt } = args;
+  const { unitId, villageId, resolvesAt } = args;
 
   database.exec(
     `
@@ -17,6 +17,7 @@ export const troopTrainingEventResolver: Resolver<
       INTO troops (unit_id, amount, tile_id, source_tile_id)
       SELECT $unit_id, $amount, v.tile_id, v.tile_id
       FROM v
+      WHERE TRUE
       ON CONFLICT(unit_id, tile_id, source_tile_id)
         DO UPDATE SET amount = amount + excluded.amount;
     `,
@@ -32,8 +33,8 @@ export const troopTrainingEventResolver: Resolver<
   database.exec(
     `
       UPDATE effects
-      SET value = value + $increase
-      WHERE effect_id = 'wheatProduction'
+      SET value = value + $increase_amount
+      WHERE effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
         AND source = 'troops'
         AND village_id = $village_id;
     `,
@@ -43,5 +44,5 @@ export const troopTrainingEventResolver: Resolver<
     },
   );
 
-  updateVillageResourcesAt(database, villageId, startsAt + duration);
+  updateVillageResourcesAt(database, villageId, resolvesAt);
 };

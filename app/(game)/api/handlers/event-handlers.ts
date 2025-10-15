@@ -27,7 +27,7 @@ export const getVillageEvents: ApiHandler<
   const { villageId } = params;
 
   const rows = database.selectObjects(selectAllVillageEventsQuery, {
-    $villageId: villageId,
+    $village_id: villageId,
   });
 
   return eventListSchema.parse(rows);
@@ -40,7 +40,7 @@ export const getVillageEventsByType: ApiHandler<
   const { villageId, eventType } = params;
 
   const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
-    $villageId: villageId,
+    $village_id: villageId,
     $type: eventType,
   });
 
@@ -89,7 +89,7 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
     ) as GameEvent<'buildingConstruction'>;
 
     const rows = db.selectObjects(selectVillageBuildingEventsQuery, {
-      $villageId: cancelledEvent.villageId,
+      $village_id: cancelledEvent.villageId,
     });
     const allVillageEvents = z.array(eventSchema).parse(rows);
 
