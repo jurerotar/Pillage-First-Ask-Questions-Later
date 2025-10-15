@@ -64,7 +64,7 @@ export const checkAndSubtractVillageResources = (
   );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
-  const event = events[0];
+  const [event] = events;
 
   const eventCost = getEventCost(event);
 
@@ -280,7 +280,7 @@ export const getEventDuration = (
     );
 
     if (isDeveloperModeEnabled) {
-      return 5_000 * total;
+      return 5000 * total;
     }
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
@@ -353,7 +353,7 @@ export const getEventStartTime = (
 
     if (tribe === 'romans') {
       const relevantEvents = buildingEvents.filter((event) => {
-        if (buildingFieldId! <= 18) {
+        if (buildingFieldId <= 18) {
           return event.buildingFieldId <= 18;
         }
 

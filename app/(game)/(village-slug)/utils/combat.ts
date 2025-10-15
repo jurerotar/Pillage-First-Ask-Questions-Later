@@ -17,7 +17,7 @@ const getImprovedUnitPower = (
 };
 
 const getCombatantTileId = (units: Troop[]): Tile['id'] => {
-  const { source } = units[0];
+  const [{ source }] = units;
   return source;
 };
 
@@ -74,11 +74,11 @@ export const resolveBattle = ({
 
   const totalAttackerInfantryAttackPower = attackerUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitDefinition(unitId)!;
+      const { category } = getUnitDefinition(unitId);
       return category === 'infantry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
-      const { attack, unitWheatConsumption } = getUnitDefinition(unitId)!;
+      const { attack, unitWheatConsumption } = getUnitDefinition(unitId);
       return (
         totalAttack +
         getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount
@@ -87,11 +87,11 @@ export const resolveBattle = ({
 
   const totalAttackerCavalryAttackPower = attackerUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitDefinition(unitId)!;
+      const { category } = getUnitDefinition(unitId);
       return category === 'cavalry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
-      const { attack, unitWheatConsumption } = getUnitDefinition(unitId)!;
+      const { attack, unitWheatConsumption } = getUnitDefinition(unitId);
       return (
         totalAttack +
         getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount
@@ -107,12 +107,12 @@ export const resolveBattle = ({
 
   const totalDefenderInfantryDefencePower = defenderUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitDefinition(unitId)!;
+      const { category } = getUnitDefinition(unitId);
       return category === 'infantry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
       const { infantryDefence, unitWheatConsumption } =
-        getUnitDefinition(unitId)!;
+        getUnitDefinition(unitId);
       return (
         totalAttack +
         getImprovedUnitPower(infantryDefence, unitWheatConsumption, 1) * amount
@@ -121,12 +121,12 @@ export const resolveBattle = ({
 
   const totalDefenderCavalryDefencePower = defenderUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitDefinition(unitId)!;
+      const { category } = getUnitDefinition(unitId);
       return category === 'cavalry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
       const { cavalryDefence, unitWheatConsumption } =
-        getUnitDefinition(unitId)!;
+        getUnitDefinition(unitId);
       return (
         totalAttack +
         getImprovedUnitPower(cavalryDefence, unitWheatConsumption, 1) * amount

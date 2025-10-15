@@ -4,7 +4,7 @@ import { getUnitsByTribe } from 'app/assets/utils/units';
 import { batchInsert } from 'app/db/utils/batch-insert';
 import { PLAYER_ID } from 'app/constants/player';
 
-const upgradableTiers: Unit['tier'][] = [
+const upgradableTiers = new Set<Unit['tier']>([
   'tier-1',
   'tier-2',
   'tier-3',
@@ -13,13 +13,13 @@ const upgradableTiers: Unit['tier'][] = [
   'tier-5',
   'siege-ram',
   'siege-catapult',
-];
+]);
 
 export const unitImprovementSeeder: Seeder = (database, server): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
 
   const upgradableUnits = unitsByTribe.filter(({ tier }) => {
-    return upgradableTiers.includes(tier);
+    return upgradableTiers.has(tier);
   });
 
   const rows = upgradableUnits.map(({ id: unitId }) => [PLAYER_ID, unitId, 0]);

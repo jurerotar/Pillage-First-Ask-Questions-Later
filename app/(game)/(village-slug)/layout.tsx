@@ -2,9 +2,15 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { clsx } from 'clsx';
-import type { PropsWithChildren, ComponentProps, ReactNode } from 'react';
-import { Suspense } from 'react';
-import { Fragment, memo, useRef } from 'react';
+import {
+  type PropsWithChildren,
+  type ComponentProps,
+  type ReactNode,
+  Suspense,
+  Fragment,
+  memo,
+  useRef,
+} from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import {

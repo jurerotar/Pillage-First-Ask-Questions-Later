@@ -48,7 +48,7 @@ try {
     const { url, method, body } = data;
 
     try {
-      const { handler, params } = matchRoute(url, method)!;
+      const { handler, params } = matchRoute(url, method);
       // @ts-expect-error: Not sure about this one, fix when you can
       const result = handler(database, { params, body });
 

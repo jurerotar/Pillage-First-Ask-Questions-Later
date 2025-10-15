@@ -26,7 +26,7 @@ const BuildingPage = ({ params }: Route.ComponentProps) => {
   );
   const hasBuilding = !!buildingField;
 
-  const title = `${buildingFieldId! <= 18 ? t('Resources') : t('Village')} - ${buildingFieldId} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+  const title = `${buildingFieldId <= 18 ? t('Resources') : t('Village')} - ${buildingFieldId} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
     <>

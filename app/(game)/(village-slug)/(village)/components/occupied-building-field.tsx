@@ -1,7 +1,6 @@
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
-import { use } from 'react';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import type { Building } from 'app/interfaces/models/game/building';
 import { clsx } from 'clsx';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';

@@ -22,7 +22,7 @@ const npcPlayerFactory = ({
   const adjective = seededRandomArrayElement(prng, usernameAdjectives);
   const noun = seededRandomArrayElement(prng, usernameNouns);
 
-  const paddedDiscriminator = `${id % 10000}`.padStart(4, '0');
+  const paddedDiscriminator = `${id % 10_000}`.padStart(4, '0');
 
   const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
     'romans',

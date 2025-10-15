@@ -14,7 +14,7 @@ export const VillageBuildingLink = ({
 }: VillageBuildingLinkProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const buildingFields = currentVillage.buildingFields;
+  const { buildingFields } = currentVillage;
 
   const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
 

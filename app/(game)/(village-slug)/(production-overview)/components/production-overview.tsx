@@ -31,7 +31,7 @@ import {
 import { getItemDefinition } from 'app/assets/utils/items';
 
 const formatBonus = (number: number): number => {
-  return Math.trunc(number * 10000) / 100;
+  return Math.trunc(number * 10_000) / 100;
 };
 
 const partitionEffectsByType = <T extends Effect>(
@@ -43,15 +43,18 @@ const partitionEffectsByType = <T extends Effect>(
 
   for (const effect of effects) {
     switch (effect.type) {
-      case 'base':
+      case 'base': {
         base.push(effect);
         break;
-      case 'bonus':
+      }
+      case 'bonus': {
         bonus.push(effect);
         break;
-      case 'bonus-booster':
+      }
+      case 'bonus-booster': {
         booster.push(effect);
         break;
+      }
     }
   }
 

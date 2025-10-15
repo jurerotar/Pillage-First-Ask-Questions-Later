@@ -231,11 +231,13 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
     eventArray.push(event);
   }
 
-  const offensiveMovements: Set<GameEvent<'troopMovement'>['movementType']> =
-    new Set(['attack', 'raid']);
+  const offensiveMovements = new Set<
+    GameEvent<'troopMovement'>['movementType']
+  >(['attack', 'raid']);
 
-  const deploymentMovements: Set<GameEvent<'troopMovement'>['movementType']> =
-    new Set(['return', 'reinforcements', 'relocation']);
+  const deploymentMovements = new Set<
+    GameEvent<'troopMovement'>['movementType']
+  >(['return', 'reinforcements', 'relocation']);
 
   const contextualTiles: ContextualTile[] = Array(tiles.length);
 

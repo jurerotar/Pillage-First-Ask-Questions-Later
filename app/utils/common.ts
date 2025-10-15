@@ -84,8 +84,8 @@ export const truncateToShortForm = (value: number): string => {
     return `${sign}${showDecimal ? truncated : intPart}M`;
   }
 
-  if (absValue >= 1_000) {
-    const raw = absValue / 1_000;
+  if (absValue >= 1000) {
+    const raw = absValue / 1000;
     const truncated = Math.trunc(raw * 10) / 10;
     const intPart = Math.trunc(truncated);
     const showDecimal = intPart < 100;

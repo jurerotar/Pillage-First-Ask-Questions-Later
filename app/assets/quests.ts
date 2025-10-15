@@ -17,8 +17,8 @@ const createTroopCountQuest = (count: number): GlobalQuestDefinition => {
 
 const createTroopCountQuests = (): GlobalQuestDefinition[] => {
   const troopCounts = [
-    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
-    150000, 200000, 300000, 500000, 750000, 1000000,
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
+    150_000, 200_000, 300_000, 500_000, 750_000, 1_000_000,
   ];
 
   return troopCounts.flatMap((troopCount) => {
@@ -53,8 +53,8 @@ const createKillCountQuest = (count: number): GlobalQuestDefinition => {
 
 const createKillCountQuests = (): GlobalQuestDefinition[] => {
   const killCounts = [
-    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
-    150000, 200000, 300000, 500000, 750000, 1000000,
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
+    150_000, 200_000, 300_000, 500_000, 750_000, 1_000_000,
   ];
 
   return killCounts.flatMap((killCount) => {
@@ -74,7 +74,7 @@ const createUnitKillCountQuest = (
 
 const createUnitKillCountQuests = (): GlobalQuestDefinition[] => {
   const killCounts = [
-    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
   ];
 
   return units
@@ -103,7 +103,7 @@ export const createUnitTroopCountQuests = (
   tribe: PlayableTribe,
 ): GlobalQuestDefinition[] => {
   const troopCounts = [
-    10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000,
+    10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
   ];
 
   const unitsByTribe = getUnitsByTribe(tribe);

@@ -9,8 +9,7 @@ import {
 } from 'app/assets/utils/buildings';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
-import { use } from 'react';
-import { startTransition } from 'react';
+import { startTransition, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Text } from 'app/components/text';
@@ -57,10 +56,7 @@ const BuildingCardActionsConstruction = ({
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
-  const { errors } = useBuildingConstructionStatus(
-    buildingId,
-    buildingFieldId!,
-  );
+  const { errors } = useBuildingConstructionStatus(buildingId, buildingFieldId);
 
   return (
     <>
@@ -93,7 +89,7 @@ const BuildingCardActionsUpgrade = ({
 
   const buildingField = getBuildingFieldByBuildingFieldId(
     currentVillage,
-    buildingFieldId!,
+    buildingFieldId,
   );
 
   const { errors } = useBuildingUpgradeStatus(buildingField!);
@@ -128,11 +124,11 @@ export const BuildingActions = () => {
   );
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
-    buildingFieldId!,
+    buildingFieldId,
   );
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
     buildingId,
-    buildingFieldId!,
+    buildingFieldId,
   );
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);

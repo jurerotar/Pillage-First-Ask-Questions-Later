@@ -30,7 +30,7 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
 
   for (const [groupKey, questsWithOrder] of map.entries()) {
     const sorted = questsWithOrder
-      .sort((a, b) => a._order - b._order)
+      .toSorted((a, b) => a._order - b._order)
       .map(({ _order, ...q }) => q);
 
     const hasCollectible = sorted.some(
@@ -54,7 +54,7 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
   return result;
 };
 
-export const getQuestTexts = (id: Quest['id'] | string, t: TFunction) => {
+export const getQuestTexts = (id: Quest['id'], t: TFunction) => {
   // Quests follow {questGroup}-${questSpecifier?}-{amount}
   const [questGroupId, ...rest] = id.split('-');
   const specifier = rest.at(-2);

@@ -15,7 +15,7 @@ export const serverExistAndLockMiddleware: Route.ClientMiddlewareFunction =
     // Check if there exists a lock with server slug. If yes, we check if current sessionId matches.
     // If it doesn't, it means the same server was opened in a different tab
     const lock = lockManager.held!.find((lock) =>
-      lock?.name?.startsWith(serverSlug!),
+      lock?.name?.startsWith(serverSlug),
     );
 
     if (lock) {

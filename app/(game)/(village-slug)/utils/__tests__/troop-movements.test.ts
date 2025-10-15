@@ -5,7 +5,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { ComputedEffectReturn } from 'app/(game)/utils/calculate-computed-effect';
 
 describe('calculateTravelDuration', () => {
-  const mockOriginVillageId = 0x00010001; // (1, 1)
+  const mockOriginVillageId = 0x00_01_00_01; // (1, 1)
   const mockOriginVillageCoordinates = {
     x: 1,
     y: 1,

@@ -1,5 +1,4 @@
-import type { PropsWithChildren } from 'react';
-import { createContext } from 'react';
+import { createContext, type PropsWithChildren } from 'react';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type BuildingContextProps = {

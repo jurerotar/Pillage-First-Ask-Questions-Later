@@ -10,7 +10,7 @@ const DB_EXPORT_PATH = join(EXPORT_PATH, 'schema.sqlite');
 // Text export(s)
 const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
 
-(async (): Promise<void> => {
+await (async (): Promise<void> => {
   mkdirSync(dirname(DB_EXPORT_PATH), { recursive: true });
 
   try {
@@ -39,7 +39,7 @@ const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
     db.exec('BEGIN;');
 
     for (const fullPath of schemaFiles) {
-      const sql = readFileSync(fullPath, 'utf-8');
+      const sql = readFileSync(fullPath, 'utf8');
       try {
         db.exec(sql);
       } catch (err) {
@@ -51,7 +51,7 @@ const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
     }
 
     for (const fullPath of indexFiles) {
-      const sql = readFileSync(fullPath, 'utf-8');
+      const sql = readFileSync(fullPath, 'utf8');
       try {
         db.exec(sql);
       } catch (err) {
@@ -105,7 +105,7 @@ const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
     const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n');
     const exportContent = [header(), body, footer()].join('\n');
 
-    writeFileSync(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf-8');
+    writeFileSync(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
     const schemaUrl = pathToFileURL(resolve(DB_SCHEMA_EXPORT_PATH)).href;
 
     // biome-ignore lint/suspicious/noConsole: It's fine here

@@ -20,8 +20,8 @@ export const Adventures = () => {
   const { available } = useHeroAdventures();
   const { eventsByType } = useEventsByType('adventurePointIncrease');
 
-  const seed = server!.seed;
-  const { adventureCount } = hero!;
+  const { seed } = server;
+  const { adventureCount } = hero;
 
   const adventurePrng = prngMulberry32(`${seed}${adventureCount}`);
 

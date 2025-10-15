@@ -1,5 +1,7 @@
-import type { FactionName } from 'app/interfaces/models/game/faction';
-import type { FactionModel } from 'app/interfaces/models/game/faction';
+import type {
+  FactionName,
+  FactionModel,
+} from 'app/interfaces/models/game/faction';
 
 export type FactionReputationModel = {
   id: number;

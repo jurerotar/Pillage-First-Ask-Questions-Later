@@ -164,7 +164,7 @@ export const CreateNewServerForm = () => {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={'New World'}
+                        placeholder="New World"
                         {...field}
                       />
                     </FormControl>
@@ -269,7 +269,7 @@ export const CreateNewServerForm = () => {
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={'Select a tribe'} />
+                          <SelectValue placeholder="Select a tribe" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -304,7 +304,7 @@ export const CreateNewServerForm = () => {
             <FormField
               control={form.control}
               name="gameplay.areOfflineNpcAttacksEnabled"
-              disabled={true}
+              disabled
               render={() => (
                 <FormItem>
                   <div className="flex">

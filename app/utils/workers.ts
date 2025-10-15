@@ -7,7 +7,7 @@ export const workerFactory = async <TPayload, TReturn = void>(
     workerInstance.postMessage(payload);
     workerInstance.addEventListener(
       'message',
-      async (event: MessageEvent<TReturn>) => {
+      (event: MessageEvent<TReturn>) => {
         resolve(event.data);
       },
     );

@@ -126,7 +126,7 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
     const eligibleEvents =
       tribe === 'romans'
         ? buildingEvents.filter((event) => {
-            if (buildingFieldId! <= 18) {
+            if (buildingFieldId <= 18) {
               return event.buildingFieldId <= 18;
             }
 
@@ -164,7 +164,7 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
     // Reschedule remaining scheduled events in this queue to start as soon as possible (contiguously)
     const scheduledInQueue = eligibleEvents
       .filter((e) => e.startsAt > now)
-      .sort((a, b) => a.startsAt - b.startsAt);
+      .toSorted((a, b) => a.startsAt - b.startsAt);
 
     for (const e of scheduledInQueue) {
       if (e.startsAt !== nextStart) {

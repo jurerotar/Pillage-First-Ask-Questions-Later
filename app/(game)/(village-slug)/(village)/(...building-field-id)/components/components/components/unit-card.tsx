@@ -1,6 +1,4 @@
-import type { PropsWithChildren } from 'react';
-import { Fragment } from 'react';
-import { createContext } from 'react';
+import { createContext, Fragment, type PropsWithChildren, use } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -22,7 +20,6 @@ import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-uni
 import { useForm } from 'react-hook-form';
 import { formatTime } from 'app/utils/time';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { use } from 'react';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { clsx } from 'clsx';
 import type { Unit } from 'app/interfaces/models/game/unit';
@@ -222,10 +219,10 @@ export const UnitResearch = () => {
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const hasEnoughResourcesToResearch =
-    wood >= researchCost![0] &&
-    clay >= researchCost![1] &&
-    iron >= researchCost![2] &&
-    wheat >= researchCost![3];
+    wood >= researchCost[0] &&
+    clay >= researchCost[1] &&
+    iron >= researchCost[2] &&
+    wheat >= researchCost[3];
 
   const canStartResearch =
     hasEnoughResourcesToResearch && !hasResearchEventsOngoing && canResearch;
@@ -257,7 +254,7 @@ export const UnitResearch = () => {
         <div className="flex gap-2 items-center flex-wrap">
           <Resources
             className="flex-wrap"
-            resources={researchCost!}
+            resources={researchCost}
           />
           <div className="flex gap-1 items-center">
             <Icon
@@ -372,7 +369,7 @@ export const UnitImprovement = () => {
           })}
         </Text>
         <div className="flex gap-2 items-center flex-wrap">
-          <Resources resources={upgradeCost!} />
+          <Resources resources={upgradeCost} />
           <div className="flex items-center gap-1">
             <Icon
               className="size-5"
@@ -514,7 +511,7 @@ export const UnitRecruitment = () => {
 
   const individualUnitRecruitmentDuration = (() => {
     if (isDeveloperModeEnabled) {
-      return 5_000;
+      return 5000;
     }
 
     return baseRecruitmentDuration;
@@ -526,7 +523,7 @@ export const UnitRecruitment = () => {
 
   const form = useForm({ defaultValues: { amount: 0 } });
   const { register, handleSubmit, setValue, watch } = form;
-  const amount = watch('amount')!;
+  const amount = watch('amount');
   const duration = Math.trunc(total * individualUnitRecruitmentDuration);
 
   const formattedDuration = formatTime(duration * amount);

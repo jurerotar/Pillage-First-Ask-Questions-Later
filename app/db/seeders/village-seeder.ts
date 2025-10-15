@@ -43,6 +43,20 @@ const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
   ],
 );
 
+const getNthMapValue = (
+  map: Map<`${TileModel['x']}-${TileModel['y']}`, OccupiableField>,
+  n: number,
+): OccupiableField => {
+  let i = 0;
+  for (const value of map.values()) {
+    if (i === n) {
+      return value;
+    }
+    i++;
+  }
+  throw new Error('Index out of range');
+};
+
 export const villageSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
@@ -100,20 +114,6 @@ export const villageSeeder: Seeder = (database, server): void => {
   );
 
   const playerToOccupiedFields: [Player['id'], OccupiableField][] = [];
-
-  const getNthMapValue = (
-    map: Map<`${TileModel['x']}-${TileModel['y']}`, OccupiableField>,
-    n: number,
-  ): OccupiableField => {
-    let i = 0;
-    for (const value of map.values()) {
-      if (i === n) {
-        return value;
-      }
-      i++;
-    }
-    throw new Error('Index out of range');
-  };
 
   for (const playerId of players) {
     // Select a random tile for the main village
