@@ -71,9 +71,10 @@ describe('units', () => {
   test('Upgrade cost increases consistently with level', () => {
     const level2 = calculateUnitUpgradeCostForLevel(mockUnitId, 2);
     const level3 = calculateUnitUpgradeCostForLevel(mockUnitId, 3);
-    level3.forEach((val, i) => {
-      expect(val).toBeGreaterThan(level2[i]);
-    });
+
+    for (const [level, cost] of level3.entries()) {
+      expect(cost).toBeGreaterThan(level2[level]);
+    }
   });
 
   test('Upgrade duration increases with level', () => {

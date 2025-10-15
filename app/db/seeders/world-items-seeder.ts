@@ -170,9 +170,9 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
     ...commonHeroWorldItems,
   ];
 
-  const occupiedIds = tilesWithWorldItems.map(({ tileId }) => tileId);
+  const occupiedIds = new Set(tilesWithWorldItems.map(({ tileId }) => tileId));
   const consumableHeroItemCandidates = rowsWithSize.filter(({ tile_id }) => {
-    return !occupiedIds.includes(tile_id);
+    return !occupiedIds.has(tile_id);
   });
   // Half of remaining villages should have non-wearable items
   const amountOfVillagesToPick = consumableHeroItemCandidates.length / 2;

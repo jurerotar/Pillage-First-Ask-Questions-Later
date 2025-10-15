@@ -231,15 +231,11 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
     eventArray.push(event);
   }
 
-  const offensiveMovements: GameEvent<'troopMovement'>['movementType'][] = [
-    'attack',
-    'raid',
-  ];
-  const deploymentMovements: GameEvent<'troopMovement'>['movementType'][] = [
-    'return',
-    'reinforcements',
-    'relocation',
-  ];
+  const offensiveMovements: Set<GameEvent<'troopMovement'>['movementType']> =
+    new Set(['attack', 'raid']);
+
+  const deploymentMovements: Set<GameEvent<'troopMovement'>['movementType']> =
+    new Set(['return', 'reinforcements', 'relocation']);
 
   const contextualTiles: ContextualTile[] = Array(tiles.length);
 
@@ -253,7 +249,7 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
     if (troopMovementMap.has(tile.id)) {
       const troopMovements = troopMovementMap.get(tile.id)!;
       for (const troopMovement of troopMovements) {
-        if (offensiveMovements.includes(troopMovement.movementType)) {
+        if (offensiveMovements.has(troopMovement.movementType)) {
           if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
             troopMovementIcon = 'offensiveMovementIncoming';
             break;
@@ -263,7 +259,7 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
           break;
         }
 
-        if (deploymentMovements.includes(troopMovement.movementType)) {
+        if (deploymentMovements.has(troopMovement.movementType)) {
           if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
             troopMovementIcon = 'deploymentIncoming';
             break;
