@@ -53,7 +53,7 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
   return result;
 };
 
-export const getQuestTexts = (id: Quest['id'] | string, t: TFunction) => {
+export const getQuestTexts = (id: Quest['id'], t: TFunction) => {
   if (id.includes('every')) {
     const [buildingId, , level] = id.split('-');
     return {

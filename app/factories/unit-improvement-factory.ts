@@ -3,7 +3,7 @@ import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvemen
 import { getUnitsByTribe } from 'app/assets/utils/units';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
-const upgradableTiers: Unit['tier'][] = [
+const upgradableTiers: Set<Unit['tier']> = new Set([
   'tier-1',
   'tier-2',
   'tier-3',
@@ -12,13 +12,13 @@ const upgradableTiers: Unit['tier'][] = [
   'tier-5',
   'siege-ram',
   'siege-catapult',
-];
+]);
 
 export const unitImprovementFactory = (tribe: Tribe): UnitImprovement[] => {
   const unitsByTribe = getUnitsByTribe(tribe);
 
   const upgradableUnits = unitsByTribe.filter(({ tier }) => {
-    return upgradableTiers.includes(tier);
+    return upgradableTiers.has(tier);
   });
 
   return upgradableUnits.map(({ id }) => {

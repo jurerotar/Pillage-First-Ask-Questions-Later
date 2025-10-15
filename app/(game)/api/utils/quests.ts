@@ -26,11 +26,13 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const playerVillages = villages.filter(
     ({ playerId }) => playerId === PLAYER_ID,
   );
-  const playerVillagesTileIds = playerVillages.map(({ tileId }) => tileId);
 
+  const playerVillagesTileIds = new Set(
+    playerVillages.map(({ tileId }) => tileId),
+  );
   // TODO: This does not count troops in transit
   const playerTroops = troops.filter(({ tileId }) =>
-    playerVillagesTileIds.includes(tileId),
+    playerVillagesTileIds.has(tileId),
   );
 
   const playerVillagesMap = new Map<Village['id'], Village>(
