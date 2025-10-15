@@ -239,6 +239,7 @@ export const getContextualMap: ApiHandler<
 
   const offensiveMovements: Set<GameEvent<'troopMovement'>['movementType']> =
     new Set(['attack', 'raid']);
+
   const deploymentMovements: Set<GameEvent<'troopMovement'>['movementType']> =
     new Set(['return', 'reinforcements', 'relocation']);
 
