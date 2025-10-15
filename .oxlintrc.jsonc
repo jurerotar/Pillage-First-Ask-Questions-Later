@@ -19,7 +19,7 @@
     "perf": "error",
     "style": "off",
     "restriction": "off",
-    "suspicious": "off"
+    "suspicious": "error"
   },
   "rules": {
     "eslint/*": "error",
@@ -30,6 +30,13 @@
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
     "eslint/max-dependencies": "off",
+    "eslint/no-magic-numbers": "off",
+    "eslint/arrow-body-style": "off",
+    "eslint/sort-keys": "off",
+    "eslint/max-params": "off",
+    "eslint/no-continue": "off",
+    // TODO: This rule must be re-enabled
+    "eslint/sort-imports": "off",
     "eslint/no-unused-vars": [
       "error",
       {
@@ -43,17 +50,33 @@
     "typescript/*": "error",
     "typescript/no-unsafe-type-assertion": "warn",
     "typescript/promise-function-async": "warn",
+    "typescript/consistent-type-definitions": ["error", "type"],
     // unicorn
     "unicorn/*": "error",
+    "unicorn/no-null": "off",
+    "unicorn/prefer-global-this": "off",
+    "unicorn/no-await-expression-member": "off",
     // import
     "import/*": "error",
     "import/default": "off",
+    "import/prefer-default-export": "off",
+    "import/no-named-export": "off",
+    "import/group-exports": "off",
+    "import/exports-last": "off",
+    "import/max-dependencies": "off",
+    // TODO: Investigate this one further, it seems like Biome is properly handling "type {} / { type }" imports, but linter should still flag it
+    "import/consistent-type-specifier-style": "off",
     // vitest
     "vitest/*": "error",
     // jest
     "jest/*": "error",
     "jest/valid-expect": "off",
     "jest/valid-title": "warn",
+    // TODO: This rule must be re-enabled
+    "jest/prefer-lowercase-title": "warn",
+    "jest/consistent-test-it": ["error", {
+      "fn": "test"
+    }],
     // react
     "react/*": "error",
     "react/react-in-jsx-scope": "off",
