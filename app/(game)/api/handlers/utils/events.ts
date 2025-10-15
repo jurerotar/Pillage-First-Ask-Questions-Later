@@ -108,11 +108,11 @@ export const filterEventsByType = <T extends GameEventType>(
   const result: GameEvent<T>[] = [];
 
   for (const event of events) {
-    if (!isVillageEvent(event)) {
+    if (event.type !== type) {
       continue;
     }
 
-    if (event.type === type && event.villageId === villageId) {
+    if (!isVillageEvent(event) || event.villageId === villageId) {
       result.push(event as GameEvent<T>);
     }
   }
