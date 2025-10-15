@@ -97,30 +97,28 @@ export const BuildingStats = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {Array.from({ length: building.maxLevel })
-                      .keys()
-                      .map((_, index) => {
-                        const cost = calculateBuildingCostForLevel(
-                          building.id,
-                          index + 1,
-                        );
+                    {[...Array(building.maxLevel)].map((_, index) => {
+                      const cost = calculateBuildingCostForLevel(
+                        building.id,
+                        index + 1,
+                      );
 
-                        return (
-                          <TableRow
-                            // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                            key={index}
-                            {...(index + 1 === level && {
-                              className: 'bg-gray-100',
-                            })}
-                          >
-                            <TableHeaderCell>{index + 1}</TableHeaderCell>
-                            <TableCell>{formatNumber(cost[0])}</TableCell>
-                            <TableCell>{formatNumber(cost[1])}</TableCell>
-                            <TableCell>{formatNumber(cost[2])}</TableCell>
-                            <TableCell>{formatNumber(cost[3])}</TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      return (
+                        <TableRow
+                          // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+                          key={index}
+                          {...(index + 1 === level && {
+                            className: 'bg-gray-100',
+                          })}
+                        >
+                          <TableHeaderCell>{index + 1}</TableHeaderCell>
+                          <TableCell>{formatNumber(cost[0])}</TableCell>
+                          <TableCell>{formatNumber(cost[1])}</TableCell>
+                          <TableCell>{formatNumber(cost[2])}</TableCell>
+                          <TableCell>{formatNumber(cost[3])}</TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
