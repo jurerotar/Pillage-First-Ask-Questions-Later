@@ -237,15 +237,13 @@ const TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
         variant="dark"
         className="w-25 h-2.5 rounded-xs"
       />
-      {Array.from({ length: count })
-        .keys()
-        .map((el) => (
-          <Skeleton
-            key={el}
-            variant="dark"
-            className="w-20 h-2.5 rounded-xs"
-          />
-        ))}
+      {[...Array(count).keys()].map((el) => (
+        <Skeleton
+          key={el}
+          variant="dark"
+          className="w-20 h-2.5 rounded-xs"
+        />
+      ))}
     </div>
   );
 };
