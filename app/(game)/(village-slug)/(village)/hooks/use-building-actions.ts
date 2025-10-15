@@ -32,7 +32,7 @@ export const useBuildingActions = (
 
   const constructBuilding = () => {
     createBuildingConstructionEvent({
-      buildingFieldId: buildingFieldId!,
+      buildingFieldId,
       buildingId,
       level: 1,
       previousLevel: 0,
@@ -42,7 +42,7 @@ export const useBuildingActions = (
 
   const upgradeBuilding = () => {
     const args = {
-      buildingFieldId: buildingFieldId!,
+      buildingFieldId,
       buildingId,
       level: virtualLevel + 1,
       previousLevel: virtualLevel,
@@ -59,7 +59,7 @@ export const useBuildingActions = (
 
   const downgradeBuilding = () => {
     createBuildingLevelChangeEvent({
-      buildingFieldId: buildingFieldId!,
+      buildingFieldId,
       level: virtualLevel - 1,
       previousLevel: virtualLevel,
       buildingId,
@@ -69,7 +69,7 @@ export const useBuildingActions = (
 
   const demolishBuilding = () => {
     createBuildingDestructionEvent({
-      buildingFieldId: buildingFieldId!,
+      buildingFieldId,
       buildingId,
       previousLevel: virtualLevel,
       cachesToClearImmediately: [],

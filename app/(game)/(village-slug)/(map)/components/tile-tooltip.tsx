@@ -271,7 +271,7 @@ export const TileTooltip = ({ tile }: TileTooltipProps) => {
 
   return (
     <div className="flex flex-col gap-1">
-      <OccupiableTileTooltip tile={tile as OccupiableTile} />
+      <OccupiableTileTooltip tile={tile} />
     </div>
   );
 };

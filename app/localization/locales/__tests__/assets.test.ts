@@ -12,25 +12,25 @@ describe('Localization completeness check for assets.json', () => {
           expect(
             Object.hasOwn(unitData, 'NAME'),
             `Missing NAME in UNITS.${unitKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
           expect(
             Object.hasOwn(unitData, 'NAME_other'),
             `Missing NAME_other in UNITS.${unitKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
           expect(
             Object.hasOwn(unitData, 'DESCRIPTION'),
             `Missing DESCRIPTION in UNITS.${unitKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
 
           expect(unitData.NAME, `UNITS.${unitKey}.NAME is empty`).not.toBe('');
           expect(
             unitData.NAME_other,
             `UNITS.${unitKey}.NAME_other is empty`,
-          ).not.toEqual('');
+          ).not.toBe('');
           expect(
             unitData.DESCRIPTION,
             `UNITS.${unitKey}.DESCRIPTION is empty`,
-          ).not.toEqual('');
+          ).not.toBe('');
         }
       });
 
@@ -41,28 +41,28 @@ describe('Localization completeness check for assets.json', () => {
           expect(
             Object.hasOwn(buildingData, 'NAME'),
             `Missing NAME in BUILDINGS.${buildingKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
           expect(
             Object.hasOwn(buildingData, 'NAME_other'),
             `Missing NAME_other in BUILDINGS.${buildingKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
           expect(
             Object.hasOwn(buildingData, 'DESCRIPTION'),
             `Missing DESCRIPTION in BUILDINGS.${buildingKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
 
           expect(
             buildingData.NAME,
             `BUILDINGS.${buildingKey}.NAME is empty`,
-          ).not.toEqual('');
+          ).not.toBe('');
           expect(
             buildingData.NAME_other,
             `BUILDINGS.${buildingKey}.NAME_other is empty`,
-          ).not.toEqual('');
+          ).not.toBe('');
           expect(
             buildingData.DESCRIPTION,
             `BUILDINGS.${buildingKey}.DESCRIPTION is empty`,
-          ).not.toEqual('');
+          ).not.toBe('');
         }
       });
 
@@ -71,24 +71,22 @@ describe('Localization completeness check for assets.json', () => {
           expect(
             Object.hasOwn(itemData, 'NAME'),
             `Missing NAME in ITEMS.${itemKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
           expect(
             Object.hasOwn(itemData, 'NAME_other'),
             `Missing NAME_other in ITEMS.${itemKey}`,
-          ).toBe(true);
+          ).toBeTruthy();
           expect(
             Object.hasOwn(itemData, 'DESCRIPTION'),
             `Missing DESCRIPTION in ITEMS.${itemKey}`,
-          ).toBe(true);
-          expect(itemData.NAME, `ITEMS.${itemKey}.NAME is empty`).not.toEqual(
-            '',
-          );
+          ).toBeTruthy();
+          expect(itemData.NAME, `ITEMS.${itemKey}.NAME is empty`).not.toBe('');
           expect(
             itemData.NAME_other,
             `ITEMS.${itemKey}.NAME_other is empty`,
-          ).not.toEqual('');
+          ).not.toBe('');
           // TODO: Fill in the DESCRIPTION fields
-          // expect(itemData.NAME, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toEqual('');
+          // expect(itemData.NAME, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toBe('');
         }
       });
 
@@ -100,7 +98,7 @@ describe('Localization completeness check for assets.json', () => {
           const value = effectLocalizations?.[iconKey];
 
           expect(value, `Missing ICONS key: ${iconKey}`).toBeDefined();
-          expect(value, `ICONS.${iconKey} is empty`).not.toEqual('');
+          expect(value, `ICONS.${iconKey} is empty`).not.toBe('');
         }
       });
     });

@@ -184,11 +184,13 @@ export function calculateComputedEffect(
     currentVillageId,
   );
 
-  const serverEffectValue = effectBreakdown.serverEffectValue;
-  const buildingEffectValues = effectBreakdown.buildingEffectValues;
-  const heroEffectValues = effectBreakdown.heroEffectValues;
-  const artifactEffectValues = effectBreakdown.artifactEffectValues;
-  const oasisEffectValues = effectBreakdown.oasisEffectValues;
+  const {
+    serverEffectValue,
+    oasisEffectValues,
+    buildingEffectValues,
+    heroEffectValues,
+    artifactEffectValues,
+  } = effectBreakdown;
 
   // Some effects act only as modifiers to hardcoded values.
   // Examples of these effects are things like building duration and training duration.

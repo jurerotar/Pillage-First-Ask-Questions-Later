@@ -97,7 +97,7 @@ export const assessBuildingConstructionReadiness = (
 
   const assessedRequirements: AssessedBuildingRequirement[] = requirements.map(
     (requirement) => {
-      let fulfilled: boolean;
+      let fulfilled = false;
 
       switch (requirement.type) {
         case 'building': {
@@ -124,8 +124,6 @@ export const assessBuildingConstructionReadiness = (
           });
           break;
         }
-        default:
-          fulfilled = false;
       }
 
       return {

@@ -55,20 +55,20 @@ const resourceFieldsLayouts: Record<
   ResourceFieldComposition,
   ResourceFieldMap
 > = {
-  3456: at('IRON_MINE', 'CLAY_PIT', 'IRON_MINE'),
-  3546: at('CLAY_PIT', 'CLAY_PIT', 'IRON_MINE'),
-  4356: at('WOODCUTTER', 'IRON_MINE', 'IRON_MINE'),
-  4536: at('WOODCUTTER', 'CLAY_PIT', 'CLAY_PIT'),
-  5346: at('WOODCUTTER', 'WOODCUTTER', 'IRON_MINE'),
-  5436: at('WOODCUTTER', 'CLAY_PIT', 'WOODCUTTER'),
-  4446: at('WOODCUTTER', 'CLAY_PIT', 'IRON_MINE'),
-  4437: at('WOODCUTTER', 'CLAY_PIT', 'WHEAT_FIELD'),
-  4347: at('WOODCUTTER', 'WHEAT_FIELD', 'IRON_MINE'),
-  3447: at('WHEAT_FIELD', 'CLAY_PIT', 'IRON_MINE'),
-  3339: at('WHEAT_FIELD', 'WHEAT_FIELD', 'WHEAT_FIELD'),
+  '3456': at('IRON_MINE', 'CLAY_PIT', 'IRON_MINE'),
+  '3546': at('CLAY_PIT', 'CLAY_PIT', 'IRON_MINE'),
+  '4356': at('WOODCUTTER', 'IRON_MINE', 'IRON_MINE'),
+  '4536': at('WOODCUTTER', 'CLAY_PIT', 'CLAY_PIT'),
+  '5346': at('WOODCUTTER', 'WOODCUTTER', 'IRON_MINE'),
+  '5436': at('WOODCUTTER', 'CLAY_PIT', 'WOODCUTTER'),
+  '4446': at('WOODCUTTER', 'CLAY_PIT', 'IRON_MINE'),
+  '4437': at('WOODCUTTER', 'CLAY_PIT', 'WHEAT_FIELD'),
+  '4347': at('WOODCUTTER', 'WHEAT_FIELD', 'IRON_MINE'),
+  '3447': at('WHEAT_FIELD', 'CLAY_PIT', 'IRON_MINE'),
+  '3339': at('WHEAT_FIELD', 'WHEAT_FIELD', 'WHEAT_FIELD'),
 
   // “mostly wheat” exceptions, build them directly
-  11115: new Map<number, Building['id']>([
+  '11115': new Map<number, Building['id']>([
     [1, 'WHEAT_FIELD'],
     [2, 'WHEAT_FIELD'],
     [3, 'WOODCUTTER'],

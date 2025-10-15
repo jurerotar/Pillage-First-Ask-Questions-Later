@@ -45,7 +45,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
 
   if (isBuildingLevelUpEvent(data)) {
     const buildingName = t(`BUILDINGS.${data.buildingId}.NAME`);
-    const level = data.level;
+    const { level } = data;
 
     const toastTitle = t('{{buildingName}} upgraded', {
       buildingName,

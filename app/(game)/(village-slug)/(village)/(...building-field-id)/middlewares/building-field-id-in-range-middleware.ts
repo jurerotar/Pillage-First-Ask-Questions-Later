@@ -2,7 +2,7 @@ import type { Route } from '.react-router/types/app/(game)/(village-slug)/(villa
 import { redirect } from 'react-router';
 
 export const buildingFieldIdIsInRangeMiddleware: Route.ClientMiddlewareFunction =
-  async ({ params }) => {
+  ({ params }) => {
     const { buildingFieldId: buildingFieldIdParam } = params;
 
     const buildingFieldId = Number.parseInt(buildingFieldIdParam, 10);

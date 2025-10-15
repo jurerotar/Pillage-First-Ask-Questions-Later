@@ -35,7 +35,7 @@ export const RenameVillage = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: `${currentVillage.name}`,
+      name: currentVillage.name,
     },
   });
 
@@ -59,7 +59,7 @@ export const RenameVillage = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     renameVillage(values);
   };
 

@@ -49,22 +49,19 @@ export const createDbFacade = (
     return statement;
   };
 
-  const now = () =>
-    typeof performance !== 'undefined' ? performance.now() : Date.now();
-
   const facade: DbFacade = {
     exec: (
       sql: string,
       bind?: Parameters<Database['selectValue']>[1],
     ): void => {
-      const t0 = now();
+      const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
         statement.bind(bind);
       }
 
       statement.stepReset();
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(`DbFacade.exec — ${sql} took ${(t1 - t0).toFixed(3)} ms`);
       }
@@ -74,7 +71,7 @@ export const createDbFacade = (
       sql: string,
       bind?: Parameters<Database['selectValue']>[1],
     ): ReturnType<Database['selectValue']> => {
-      const t0 = now();
+      const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
         statement.bind(bind);
@@ -83,7 +80,7 @@ export const createDbFacade = (
       const row = statement.get([]);
       statement.reset();
 
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.selectValue — sql=${sql} took ${(t1 - t0).toFixed(
@@ -99,7 +96,7 @@ export const createDbFacade = (
       sql: string,
       bind?: Parameters<Database['selectValues']>[1],
     ): ReturnType<Database['selectValues']> => {
-      const t0 = now();
+      const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
         statement.bind(bind);
@@ -109,7 +106,7 @@ export const createDbFacade = (
       if (isDataAvailable) {
         const rows = statement.get([]);
         statement.reset();
-        const t1 = now();
+        const t1 = performance.now();
         if (debug) {
           console.log(
             `DbFacade.selectValues — sql=${sql} took ${(t1 - t0).toFixed(
@@ -122,7 +119,7 @@ export const createDbFacade = (
       }
 
       statement.reset();
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.selectValues — sql=${sql} took ${(t1 - t0).toFixed(
@@ -138,7 +135,7 @@ export const createDbFacade = (
       sql: string,
       bind?: Parameters<Database['selectObject']>[1],
     ): ReturnType<Database['selectObject']> => {
-      const t0 = now();
+      const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
         statement.bind(bind);
@@ -148,7 +145,7 @@ export const createDbFacade = (
       if (isDataAvailable) {
         const rows = statement.get({});
         statement.reset();
-        const t1 = now();
+        const t1 = performance.now();
         if (debug) {
           console.log(
             `DbFacade.selectObject — sql=${sql} took ${(t1 - t0).toFixed(
@@ -161,7 +158,7 @@ export const createDbFacade = (
       }
 
       statement.reset();
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.selectObject — sql=${sql} took ${(t1 - t0).toFixed(
@@ -177,7 +174,7 @@ export const createDbFacade = (
       sql: string,
       bind?: Parameters<Database['selectObjects']>[1],
     ): ReturnType<Database['selectObjects']> => {
-      const t0 = now();
+      const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
         statement.bind(bind);
@@ -187,7 +184,7 @@ export const createDbFacade = (
         rows.push(statement.get({}));
       }
       statement.reset();
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.selectObjects — sql=${sql} took ${(t1 - t0).toFixed(
@@ -200,9 +197,9 @@ export const createDbFacade = (
     },
 
     prepare: (sql: string): ReturnType<Database['prepare']> => {
-      const t0 = now();
+      const t0 = performance.now();
       const statement = getStatement(sql);
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.prepare — sql=${sql} took ${(t1 - t0).toFixed(3)} ms`,
@@ -212,11 +209,11 @@ export const createDbFacade = (
     },
 
     transaction: (callback: (db: DbFacade) => void): void => {
-      const t0 = now();
+      const t0 = performance.now();
       database.transaction(() => {
         callback(facade);
       });
-      const t1 = now();
+      const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.transaction — full callback took ${(t1 - t0).toFixed(3)} ms`,

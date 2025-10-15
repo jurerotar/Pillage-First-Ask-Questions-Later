@@ -16,8 +16,8 @@ type OasisSelectResultRow = {
 };
 
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
-  ['xxs', 6_300],
-  ['xs', 6_300],
+  ['xxs', 6300],
+  ['xs', 6300],
   ['sm', 31_300],
   ['md', 80_000],
   ['lg', 160_000],
@@ -65,7 +65,7 @@ export const resourceSitesSeeder: Seeder = (database, server): void => {
 
   for (const { id, bonus, count_per_tile } of oasis) {
     // If oasis has a 50% bonus or there's multiple bonuses, it has a higher resource limit
-    const resourceAmount = bonus === 50 || count_per_tile === 2 ? 2_000 : 1_000;
+    const resourceAmount = bonus === 50 || count_per_tile === 2 ? 2000 : 1000;
     const [wood, clay, iron, wheat] = [
       resourceAmount,
       resourceAmount,

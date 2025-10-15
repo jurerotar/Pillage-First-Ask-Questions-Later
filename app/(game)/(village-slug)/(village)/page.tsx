@@ -1,22 +1,16 @@
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
 import { Tooltip } from 'app/components/tooltip';
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { useCallback } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 
-const resourceViewBuildingFieldIds = [...Array(18)].map(
-  (_, i) => i + 1,
-) as BuildingFieldType['id'][];
-const villageViewBuildingFieldIds = [...Array(22)].map(
-  (_, i) => i + 19,
-) as BuildingFieldType['id'][];
+const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1);
+const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19);
 
 const VillagePage = (props: Route.ComponentProps) => {
   const { params, matches } = props;
@@ -46,11 +40,7 @@ const VillagePage = (props: Route.ComponentProps) => {
         return null;
       }
 
-      return (
-        <BuildingFieldTooltip
-          buildingFieldId={Number(id) as BuildingFieldType['id']}
-        />
-      );
+      return <BuildingFieldTooltip buildingFieldId={Number(id)} />;
     },
     [],
   );

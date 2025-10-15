@@ -111,9 +111,9 @@ const BuildingCategoryPanel = ({
             <BuildingCard
               key={building.id}
               buildingId={building.id}
-              buildingConstructionReadinessAssessment={
-                assessments.get(building.id)!
-              }
+              buildingConstructionReadinessAssessment={assessments.get(
+                building.id,
+              )}
             >
               <BuildingOverview />
               <BuildingUnfinishedNotice />

@@ -39,9 +39,9 @@ describe('createNewServer', () => {
     test('every tile should be of type free or oasis', () => {
       const types = database.selectValues('SELECT type FROM tiles;');
 
-      expect(types.every((type) => type === 'free' || type === 'oasis')).toBe(
-        true,
-      );
+      expect(
+        types.every((type) => type === 'free' || type === 'oasis'),
+      ).toBeTruthy();
     });
 
     test('every free tile should have resource_field_composition as not null and oasis_graphics as null', () => {
@@ -66,7 +66,7 @@ describe('createNewServer', () => {
         },
       );
 
-      expect(areTypesCorrect).toBe(true);
+      expect(areTypesCorrect).toBeTruthy();
     });
 
     test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', () => {
@@ -91,7 +91,7 @@ describe('createNewServer', () => {
         },
       );
 
-      expect(areTypesCorrect).toBe(true);
+      expect(areTypesCorrect).toBeTruthy();
     });
 
     test('oasis groups tile counts are multiples of expected shape sizes', () => {
@@ -236,7 +236,7 @@ describe('createNewServer', () => {
       for (const row of rows) {
         expect(typeof row.name).toBe('string');
         expect(typeof row.slug).toBe('string');
-        expect(allowedTribes.has(row.tribe as string)).toBe(true);
+        expect(allowedTribes.has(row.tribe)).toBeTruthy();
         expect(row.faction_id.length).toBeGreaterThan(0);
       }
     });
@@ -253,7 +253,7 @@ describe('createNewServer', () => {
 
       // slug format (lowercase, digits, dashes)
       for (const s of slugs) {
-        expect(/^[a-z0-9-]+$/.test(s)).toBe(true);
+        expect(/^[a-z0-9-]+$/.test(s)).toBeTruthy();
         // no leading or trailing dash
         expect(s).not.toMatch(/^-/);
         expect(s).not.toMatch(/-$/);
@@ -302,7 +302,7 @@ describe('createNewServer', () => {
         expect(typeof r.resource).toBe('string');
         expect(r.resource).toBe(r.resource?.toLowerCase());
         const bonusNum = Number(r.bonus);
-        expect([25, 50].includes(bonusNum)).toBe(true);
+        expect([25, 50].includes(bonusNum)).toBeTruthy();
       }
     });
 

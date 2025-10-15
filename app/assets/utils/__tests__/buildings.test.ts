@@ -20,7 +20,7 @@ describe('Buildings utils', () => {
           (e) =>
             e.effectId === 'infantryDefence' && e.currentLevelValue === 200,
         ),
-      ).toBe(true);
+      ).toBeTruthy();
     });
 
     test('BAKERY wheat production bonus', () => {
@@ -31,7 +31,7 @@ describe('Buildings utils', () => {
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.25,
         ),
-      ).toBe(true);
+      ).toBeTruthy();
     });
 
     test('CLAY_PIT clay production', () => {
@@ -48,7 +48,7 @@ describe('Buildings utils', () => {
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!
           .areEffectValuesRising,
-      ).toBe(true);
+      ).toBeTruthy();
     });
 
     test('BAKERY wheat production bonus values are increasing', () => {
@@ -59,7 +59,7 @@ describe('Buildings utils', () => {
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.15,
         )!.areEffectValuesRising,
-      ).toBe(true);
+      ).toBeTruthy();
     });
   });
 
@@ -67,14 +67,14 @@ describe('Buildings utils', () => {
     test('Main building level 1', () => {
       const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
-      expect(isMaxLevel).toBe(false);
+      expect(isMaxLevel).toBeFalsy();
       expect(nextLevelPopulation).toBe(3);
       expect(nextLevelResourceCost).toEqual([90, 55, 80, 30]);
     });
 
     test('Main building level 20', () => {
       const { isMaxLevel } = getBuildingDataForLevel('MAIN_BUILDING', 20);
-      expect(isMaxLevel).toBe(true);
+      expect(isMaxLevel).toBeTruthy();
     });
   });
 
@@ -98,12 +98,12 @@ describe('Buildings utils', () => {
   describe('calculateBuildingDurationForLevel', () => {
     test('Should calculate correct duration for level 1', () => {
       const duration = calculateBuildingDurationForLevel('MAIN_BUILDING', 1);
-      expect(duration).toBe(2000000);
+      expect(duration).toBe(2_000_000);
     });
   });
 
   describe('calculateTotalCulturePointsForLevel', () => {
-    test('MAIN_BUILDING produces X culture points at level 20', () => {
+    test('MAIN_BUILDING produces X culture points at level 0', () => {
       const totalCulturePoints = calculateTotalCulturePointsForLevel(
         'MAIN_BUILDING',
         0,

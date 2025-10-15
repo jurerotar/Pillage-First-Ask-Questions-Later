@@ -30,7 +30,7 @@ export const assessUnitResearchReadiness = (
   unitId: Unit['id'],
   village: Village,
 ): AssessUnitResearchReadinessReturn => {
-  const { researchRequirements } = getUnitDefinition(unitId)!;
+  const { researchRequirements } = getUnitDefinition(unitId);
 
   const assessedRequirements: AssessedResearchRequirement[] =
     researchRequirements.map((requirement) => {

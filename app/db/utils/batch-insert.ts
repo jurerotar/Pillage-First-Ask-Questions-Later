@@ -20,7 +20,7 @@ export const batchInsert = (
   }
 
   // https://www.sqlite.org/limits.html
-  const maxParams = 32766;
+  const maxParams = 32_766;
   let rowsPerBatch = Math.floor(maxParams / colsPerRow);
 
   if (rowsPerBatch < 1) {
@@ -30,7 +30,7 @@ export const batchInsert = (
   const sqlBase = `INSERT INTO ${table} (${columns.join(', ')}) VALUES `;
 
   const stmts = new Map<number, PreparedStmt>();
-  const tuple = `(${new Array(colsPerRow).fill('?').join(',')})`;
+  const tuple = `(${Array.from({ length: colsPerRow }).fill('?').join(',')})`;
 
   const getStmt = (count: number): PreparedStmt => {
     const existing = stmts.get(count);
@@ -38,7 +38,7 @@ export const batchInsert = (
       return existing;
     }
 
-    const valuesClause = new Array(count).fill(tuple).join(',');
+    const valuesClause = Array.from({ length: count }).fill(tuple).join(',');
     const stmt = database.prepare(`${sqlBase}${valuesClause};`);
     stmts.set(count, stmt);
     return stmt;

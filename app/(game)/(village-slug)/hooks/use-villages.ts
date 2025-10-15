@@ -38,7 +38,7 @@ export const useVillages = () => {
   };
 
   const getPlayerByOasis = (oasis: OccupiedOasisTile): Player['id'] => {
-    return getVillageByOasis(oasis)!.playerId;
+    return getVillageByOasis(oasis).playerId;
   };
 
   return {
