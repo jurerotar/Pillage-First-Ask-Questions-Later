@@ -103,6 +103,10 @@ type UnitAttributes = Record<
   number
 >;
 
+const calculateUpgradedValue = (value: number, level: number) => {
+  return Math.round(value * 1.015 ** level * 10) / 10;
+};
+
 export const UnitAttributes = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
@@ -126,10 +130,6 @@ export const UnitAttributes = () => {
     unitSpeed: unit.unitSpeed,
     unitCarryCapacity: unit.unitCarryCapacity,
     unitWheatConsumption: unit.unitWheatConsumption,
-  };
-
-  const calculateUpgradedValue = (value: number, level: number) => {
-    return Math.round(value * 1.015 ** level * 10) / 10;
   };
 
   return (

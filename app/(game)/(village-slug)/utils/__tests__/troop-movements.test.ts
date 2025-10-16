@@ -43,7 +43,7 @@ describe('calculateTravelDuration', () => {
       effects: [],
     });
 
-    const expectedDistance = Math.sqrt(1 ** 2 + 1 ** 2); // ≈ 1.41
+    const expectedDistance = Math.sqrt(2); // ≈ 1.41
     const slowestSpeed = 6;
     const speedWithBonus = slowestSpeed * 1.2; // 6
     const expectedTimeMs = (expectedDistance / speedWithBonus) * 3_600_000;
@@ -106,7 +106,7 @@ describe('calculateTravelDuration', () => {
       effects: [],
     });
 
-    const distance = Math.sqrt(1 ** 2 + 1 ** 2); // ≈ 1.41
+    const distance = Math.sqrt(2); // ≈ 1.41
     const slowestSpeed = 6;
     const computedSpeed = slowestSpeed * 1.1; // 5.5
 

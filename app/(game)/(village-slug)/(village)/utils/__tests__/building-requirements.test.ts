@@ -119,11 +119,6 @@ describe('building-requirements', () => {
         );
         expect(fulfilled).toBeFalsy();
       });
-
-      // test('Natars can not build asclepeion', () => {
-      //   const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness({...args, buildingId: 'TRAPPER'}));
-      //   expect(fulfilled).toBeFalsy();
-      // });
     });
 
     test('Gauls may build trapper', () => {
@@ -190,12 +185,6 @@ describe('building-requirements', () => {
       );
       expect(fulfilled).toBeTruthy();
     });
-
-    // test('Spartans may build asclepeion', () => {
-    //   const args: AssessBuildingConstructionReadinessArgs = {...defaultArgs, tribe: 'natars', buildingId: 'TRAPPER'};
-    //   const { fulfilled } = getAssessedRequirementByType('tribe', assessBuildingConstructionReadiness({...args}));
-    //   expect(fulfilled).toBeFalsy();
-    // });
   });
 
   describe('Amount requirement', () => {

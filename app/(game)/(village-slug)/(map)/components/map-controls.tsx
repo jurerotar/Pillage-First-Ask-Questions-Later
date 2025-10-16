@@ -1,10 +1,6 @@
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
-import {
-  MapContext,
-  MAX_MAGNIFICATION,
-  MIN_MAGNIFICATION,
-} from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { Icon } from 'app/components/icon';
 import { clsx } from 'clsx';
 import { use } from 'react';
@@ -16,8 +12,13 @@ const MagnificationButton = ({
   direction: 'increase' | 'decrease';
 }) => {
   const { t } = useTranslation();
-  const { magnification, increaseMagnification, decreaseMagnification } =
-    use(MapContext);
+  const {
+    magnification,
+    increaseMagnification,
+    decreaseMagnification,
+    MAX_MAGNIFICATION,
+    MIN_MAGNIFICATION,
+  } = use(MapContext);
 
   const onClick =
     direction === 'increase' ? increaseMagnification : decreaseMagnification;

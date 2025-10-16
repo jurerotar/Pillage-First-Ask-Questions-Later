@@ -31,7 +31,7 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
 
   const tiles: MaybeAssignedTileModel[] = Array.from({ length: totalTiles });
 
-  for (let i = 0; i < totalTiles; i++) {
+  for (let i = 0; i < totalTiles; i += 1) {
     tileId += 1;
     xCoordinateCounter += 1;
     const x = xCoordinateCounter;

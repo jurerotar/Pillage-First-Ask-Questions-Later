@@ -46,7 +46,6 @@ await (async (): Promise<void> => {
         console.error(`[init] Failed applying schema ${fullPath}:`, err);
         db.exec('ROLLBACK;');
         db.close();
-        process.exit(1);
       }
     }
 
@@ -58,7 +57,6 @@ await (async (): Promise<void> => {
         console.error(`[init] Failed applying index ${fullPath}:`, err);
         db.exec('ROLLBACK;');
         db.close();
-        process.exit(1);
       }
     }
 
@@ -118,7 +116,6 @@ await (async (): Promise<void> => {
       // ignore if transaction wasn’t started
     }
     db.close();
-    process.exit(1);
   }
 
   db.close();

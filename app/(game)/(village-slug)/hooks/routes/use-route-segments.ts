@@ -4,8 +4,8 @@ export const useRouteSegments = () => {
   const { serverSlug, villageSlug, buildingFieldId, reportId } = useParams();
 
   return {
-    serverSlug: serverSlug as string,
-    villageSlug: villageSlug as string,
+    serverSlug: serverSlug!,
+    villageSlug: villageSlug!,
     buildingFieldId: buildingFieldId
       ? Number.parseInt(buildingFieldId, 10)
       : null,

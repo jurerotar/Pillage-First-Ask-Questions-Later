@@ -53,7 +53,7 @@ export const createClientEvents = (
     if (amount > 1) {
       const events: GameEvent[] = Array.from({ length: amount });
 
-      for (let i = 0; i < amount; i++) {
+      for (let i = 0; i < amount; i += 1) {
         events[i] = eventFactory({
           ...args,
           startsAt: startsAt + i * duration,

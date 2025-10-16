@@ -16,7 +16,7 @@ const buildVillageSizeLookup = (): VillageSize[] => {
 
   const result: VillageSize[] = [];
 
-  for (let i = 0; i <= 100; i++) {
+  for (let i = 0; i <= 100; i += 1) {
     const bandIndex = Math.min(Math.floor(i / 10), bands.length - 1);
     result[i] = bands[bandIndex];
   }
@@ -33,7 +33,7 @@ const buildLookupTable = (mapSize: number, tableSize = 2048) => {
 
   // table maps index -> bucket (0..100)
   const table = new Uint8Array(tableSize);
-  for (let i = 0; i < tableSize; i++) {
+  for (let i = 0; i < tableSize; i += 1) {
     const d2 = (i + 0.5) * step;
     const rel = Math.floor((Math.sqrt(d2) / mapSize) * 100);
     table[i] = Math.min(100, Math.max(0, rel));

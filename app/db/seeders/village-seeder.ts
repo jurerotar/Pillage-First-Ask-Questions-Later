@@ -52,7 +52,7 @@ const getNthMapValue = (
     if (i === n) {
       return value;
     }
-    i++;
+    i += 1;
   }
   throw new Error('Index out of range');
 };
@@ -139,12 +139,12 @@ export const villageSeeder: Seeder = (database, server): void => {
       villageSizeToAmountOfSupportingVillagesMap.get(villageSize) ?? 0;
 
     let assigned = 0;
-    outer: for (let dx = -radius; dx <= radius; dx++) {
+    outer: for (let dx = -radius; dx <= radius; dx += 1) {
       if (assigned === extraVillageCount) {
         break;
       }
 
-      for (let dy = -radius; dy <= radius; dy++) {
+      for (let dy = -radius; dy <= radius; dy += 1) {
         if (assigned === extraVillageCount) {
           break outer;
         }
