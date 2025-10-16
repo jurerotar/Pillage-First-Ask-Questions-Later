@@ -37,6 +37,7 @@
     "eslint/no-continue": "off",
     "eslint/no-new": "off",
     "eslint/no-bitwise": "off",
+    "eslint/no-labels": "off",
     // TODO: This rule must be re-enabled
     "eslint/sort-imports": "off",
     "eslint/no-unused-vars": [
@@ -79,6 +80,8 @@
     "jest/*": "error",
     "jest/valid-expect": "off",
     "jest/valid-title": "warn",
+    "jest/require-hook": "off",
+    "jest/max-expects": "off",
     // TODO: This rule must be re-enabled
     "jest/prefer-lowercase-title": "warn",
     "jest/consistent-test-it": [
@@ -117,7 +120,9 @@
     "oxc/no-rest-spread-properties": "off",
     "oxc/no-optional-chaining": "off",
     // promise
-    "promise/*": "error"
+    "promise/*": "error",
+    "promise/avoid-new": "off",
+    "promise/prefer-await-to-callbacks": "off"
   },
   "overrides": [
     {
