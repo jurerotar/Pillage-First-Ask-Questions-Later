@@ -7,7 +7,7 @@ import {
   reputationsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
-  artifactLocationCacheKey,
+  artifactsInVicinityCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
@@ -94,7 +94,7 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = (
   const { tileId } = params;
 
   const worldItems = queryClient.getQueryData<WorldItem[]>([
-    artifactLocationCacheKey,
+    artifactsInVicinityCacheKey,
   ])!;
 
   return worldItems.find((worldItem) => worldItem.tileId === tileId) ?? null;
@@ -182,7 +182,7 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const worldItems = queryClient.getQueryData<WorldItem[]>([
-    artifactLocationCacheKey,
+    artifactsInVicinityCacheKey,
   ])!;
 
   const reputationMap = new Map<Player['faction'], Reputation>(

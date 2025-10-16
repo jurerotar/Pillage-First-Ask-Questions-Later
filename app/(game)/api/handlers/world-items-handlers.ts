@@ -1,8 +1,11 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import { calculateDistanceBetweenPoints } from 'app/utils/common';
+import {
+  calculateDistanceBetweenPoints,
+  roundToNDecimalPoints,
+} from 'app/utils/common';
 
-const getArtifactLocationSchema = z
+const getArtifactsAroundVillageSchema = z
   .strictObject({
     item_id: z.number(),
     x: z.number(),
@@ -17,15 +20,18 @@ const getArtifactLocationSchema = z
         x: t.x,
         y: t.y,
       },
-      distance: calculateDistanceBetweenPoints(
-        { x: t.x, y: t.y },
-        { x: t.vx, y: t.vy },
+      distance: roundToNDecimalPoints(
+        calculateDistanceBetweenPoints(
+          { x: t.x, y: t.y },
+          { x: t.vx, y: t.vy },
+        ),
+        2,
       ),
     };
   });
 
-export const getArtifactLocations: ApiHandler<
-  z.infer<typeof getArtifactLocationSchema>[],
+export const getArtifactsAroundVillage: ApiHandler<
+  z.infer<typeof getArtifactsAroundVillageSchema>[],
   'villageId'
 > = (database, { params }) => {
   const { villageId } = params;
@@ -46,6 +52,6 @@ export const getArtifactLocations: ApiHandler<
     { $village_id: villageId },
   );
 
-  const listSchema = z.array(getArtifactLocationSchema);
+  const listSchema = z.array(getArtifactsAroundVillageSchema);
   return listSchema.parse(rows);
 };
