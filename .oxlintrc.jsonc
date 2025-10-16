@@ -19,7 +19,7 @@
     "perf": "error",
     "style": "off",
     "restriction": "off",
-    "suspicious": "error"
+    "suspicious": "off"
   },
   "rules": {
     "eslint/*": "error",
@@ -35,6 +35,8 @@
     "eslint/sort-keys": "off",
     "eslint/max-params": "off",
     "eslint/no-continue": "off",
+    "eslint/no-new": "off",
+    "eslint/no-bitwise": "off",
     // TODO: This rule must be re-enabled
     "eslint/sort-imports": "off",
     "eslint/no-unused-vars": [
@@ -50,12 +52,16 @@
     "typescript/*": "error",
     "typescript/no-unsafe-type-assertion": "warn",
     "typescript/promise-function-async": "warn",
+    "typescript/explicit-function-return-type": "off",
+    "typescript/explicit-module-boundary-types": "off",
+    "typescript/no-non-null-assertion": "warn",
     "typescript/consistent-type-definitions": ["error", "type"],
     // unicorn
     "unicorn/*": "error",
     "unicorn/no-null": "off",
     "unicorn/prefer-global-this": "off",
     "unicorn/no-await-expression-member": "off",
+    "unicorn/require-post-message-target-origin": "off",
     // import
     "import/*": "error",
     "import/default": "off",
@@ -66,6 +72,7 @@
     "import/max-dependencies": "off",
     // TODO: Investigate this one further, it seems like Biome is properly handling "type {} / { type }" imports, but linter should still flag it
     "import/consistent-type-specifier-style": "off",
+    "import/no-unassigned-import": "off",
     // vitest
     "vitest/*": "error",
     // jest
@@ -85,6 +92,10 @@
     "react/react-in-jsx-scope": "off",
     "react/no-array-index-key": "warn",
     "react/exhaustive-deps": "warn",
+    "react/jsx-filename-extension": "off",
+    "react/only-export-components": ["error", {
+      "allowExportNames": ["clientMiddleware", "shouldRevalidate", "clientLoader"]
+    }],
     // react-perf
     "react-perf/*": "error",
     "react-perf/jsx-no-new-function-as-prop": "warn",
@@ -95,7 +106,24 @@
     "jsx-a11y/*": "error",
     // oxc
     "oxc/*": "error",
+    "oxc/no-async-await": "off",
+    "oxc/no-rest-spread-properties": "off",
+    "oxc/no-optional-chaining": "off",
     // promise
     "promise/*": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/page.tsx", "**/*layout.tsx", "app/root.tsx", "vite.config.ts", "react-router.config.ts", "i18next.config.ts", "app/routes.ts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
+    {
+      "files": ["scripts/*.ts", "app/game/api/database-facade.ts"],
+      "rules": {
+        "eslint/no-console": "off"
+      }
+    }
+  ]
 }
