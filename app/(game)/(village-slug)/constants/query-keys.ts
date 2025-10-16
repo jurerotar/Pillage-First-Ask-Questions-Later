@@ -1,6 +1,7 @@
 export const serverCacheKey = 'server';
 export const effectsCacheKey = 'effects';
 export const heroCacheKey = 'hero';
+export const heroInventoryCacheKey = 'hero-inventory';
 export const mapCacheKey = 'map';
 export const playersCacheKey = 'players';
 export const preferencesCacheKey = 'preferences';
@@ -16,7 +17,7 @@ export const villageListing = 'village-listing';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
-export const artifactLocationCacheKey = 'world-items';
+export const artifactsInVicinityCacheKey = 'artifacts-in-vicinity';
 export const adventurePointsCacheKey = 'adventure-points';
 export const bookmarksCacheKey = 'bookmarks';
 

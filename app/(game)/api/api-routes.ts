@@ -39,7 +39,7 @@ import {
   updateMapFilter,
 } from 'app/(game)/api/handlers/map-filters-handlers';
 import { getVillageBySlug } from 'app/(game)/api/handlers/village-handlers';
-import { getArtifactLocations } from 'app/(game)/api/handlers/world-items-handlers';
+import { getArtifactsAroundVillage } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
 import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
 import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
@@ -262,8 +262,8 @@ const mapFiltersRoutes = [
 const worldItemsRoutes = [
   {
     method: 'GET',
-    path: '/villages/:villageId/world-items',
-    handler: getArtifactLocations,
+    path: '/villages/:villageId/artifacts',
+    handler: getArtifactsAroundVillage,
   },
 ];
 

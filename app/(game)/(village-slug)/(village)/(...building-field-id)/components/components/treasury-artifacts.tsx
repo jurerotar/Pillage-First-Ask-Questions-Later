@@ -1,6 +1,4 @@
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
-import { useArtifactLocation } from 'app/(game)/(village-slug)/hooks/use-artifact-location';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { useArtifactsAroundCurrentVillage } from 'app/(game)/(village-slug)/hooks/use-artifacts-around-current-village';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,29 +15,27 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { getItemDefinition } from 'app/assets/utils/items';
-import type { Point } from 'app/interfaces/models/common';
 import { Link } from 'react-router';
 
 type UnoccupiedArtifactRowProps = {
-  itemId: number;
-  itemCoordinates: Point;
+  item: ReturnType<
+    typeof useArtifactsAroundCurrentVillage
+  >['artifactsAroundCurrentVillage'][0];
 };
 
-const UnoccupiedArtifactRow = ({
-  itemId,
-  itemCoordinates,
-}: UnoccupiedArtifactRowProps) => {
+const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
   const { t } = useTranslation();
 
-  const { name } = getItemDefinition(itemId);
+  const { name } = getItemDefinition(item.id);
 
   return (
     <TableRow>
       <TableCell>{t(`ITEMS.${name}.NAME`)}</TableCell>
       <TableCell>{t(`ITEMS.${name}.DESCRIPTION`)}</TableCell>
+      <TableCell>{item.distance}</TableCell>
       <TableCell>
-        <Link to={`../map?x=${itemCoordinates.x}&y=${itemCoordinates.y}`}>
-          {itemCoordinates.x}, {itemCoordinates.y}
+        <Link to={`../map?x=${item.coordinates.x}&y=${item.coordinates.y}`}>
+          {item.coordinates.x}, {item.coordinates.y}
         </Link>
       </TableCell>
     </TableRow>
@@ -48,30 +44,20 @@ const UnoccupiedArtifactRow = ({
 
 export const TreasuryArtifacts = () => {
   const { t } = useTranslation();
-  const { hero } = useHero();
-  const {
-    currentVillageArtifactId,
-    hasCurrentVillageArtifact,
-    assignedArtifacts,
-  } = useArtifacts();
-  const { artifacts } = useArtifactLocation();
+  const { artifactsAroundCurrentVillage } = useArtifactsAroundCurrentVillage();
 
-  const availableArtifacts = hero.inventory.filter(
-    ({ category }) => category === 'artifact',
-  );
-  const hasAvailableArtifacts = availableArtifacts.length > 0;
+  // const availableArtifacts = hero.inventory.filter(
+  //   ({ category }) => category === 'artifact',
+  // );
 
-  const unclaimedArtifactWorldItems = artifacts.filter(({ id }) => {
-    return (
-      // @ts-expect-error: TODO: Fix these type narrowing issues
-      !assignedArtifacts.includes(id) && !availableArtifacts.includes(id)
-    );
-  });
+  const hasCurrentVillageArtifact = false;
+
+  const hasAvailableArtifacts = false; //availableArtifacts.length > 0;
 
   return (
     <Section>
       <SectionContent>
-        <Bookmark tab="train" />
+        <Bookmark tab="artifacts" />
         <Text as="h2">{t('Artifacts')}</Text>
         <Text>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
@@ -92,17 +78,17 @@ export const TreasuryArtifacts = () => {
           </TableHeader>
           <TableBody>
             <TableRow>
-              {hasCurrentVillageArtifact && (
-                <>
-                  <TableCell>
-                    {t(`ITEMS.${currentVillageArtifactId}.NAME`)}
-                  </TableCell>
-                  <TableCell>
-                    {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}
-                  </TableCell>
-                  <TableCell>/</TableCell>
-                </>
-              )}
+              {/*{hasCurrentVillageArtifact && (*/}
+              {/*  <>*/}
+              {/*    <TableCell>*/}
+              {/*      {t(`ITEMS.${currentVillageArtifactId}.NAME`)}*/}
+              {/*    </TableCell>*/}
+              {/*    <TableCell>*/}
+              {/*      {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}*/}
+              {/*    </TableCell>*/}
+              {/*    <TableCell>/</TableCell>*/}
+              {/*  </>*/}
+              {/*)}*/}
               {!hasCurrentVillageArtifact && (
                 <>
                   <TableCell
@@ -134,11 +120,12 @@ export const TreasuryArtifacts = () => {
             <TableRow>
               <TableHeaderCell>{t('Name')}</TableHeaderCell>
               <TableHeaderCell>{t('Description')}</TableHeaderCell>
+              <TableHeaderCell>{t('Distance')}</TableHeaderCell>
               <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {unclaimedArtifactWorldItems.length === 0 && (
+            {artifactsAroundCurrentVillage.length === 0 && (
               <TableRow>
                 <TableCell
                   className="text-left"
@@ -148,12 +135,11 @@ export const TreasuryArtifacts = () => {
                 </TableCell>
               </TableRow>
             )}
-            {unclaimedArtifactWorldItems.length > 0 &&
-              unclaimedArtifactWorldItems.map((item) => (
+            {artifactsAroundCurrentVillage.length > 0 &&
+              artifactsAroundCurrentVillage.map((item) => (
                 <UnoccupiedArtifactRow
                   key={item.id}
-                  itemId={item.id}
-                  itemCoordinates={item.coordinates}
+                  item={item}
                 />
               ))}
           </TableBody>
