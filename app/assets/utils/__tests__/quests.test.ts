@@ -6,7 +6,7 @@ describe('Quest utils', () => {
     test('troopCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('troopCount-5');
       expect(reqs).toHaveLength(1);
-      expect(reqs[0]).toEqual({
+      expect(reqs[0]).toStrictEqual({
         type: 'troop-count',
         count: 5,
       });
@@ -15,7 +15,7 @@ describe('Quest utils', () => {
     test('adventureCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('adventureCount-3');
       expect(reqs).toHaveLength(1);
-      expect(reqs[0]).toEqual({
+      expect(reqs[0]).toStrictEqual({
         type: 'adventure-count',
         count: 3,
       });
@@ -24,7 +24,7 @@ describe('Quest utils', () => {
     test('building requirement parsed correctly (oneOf)', () => {
       const reqs = getQuestRequirements('oneOf-WOODCUTTER-4');
       expect(reqs).toHaveLength(1);
-      expect(reqs[0]).toEqual({
+      expect(reqs[0]).toStrictEqual({
         type: 'building',
         buildingId: 'WOODCUTTER',
         level: 4,
@@ -35,7 +35,7 @@ describe('Quest utils', () => {
     test('building requirement parsed correctly (every)', () => {
       const reqs = getQuestRequirements('every-CLAY_PIT-2');
       expect(reqs).toHaveLength(1);
-      expect(reqs[0]).toEqual({
+      expect(reqs[0]).toStrictEqual({
         type: 'building',
         buildingId: 'CLAY_PIT',
         level: 2,
@@ -48,7 +48,7 @@ describe('Quest utils', () => {
     test('troopCount rewards produce resources = count * 10', () => {
       const rewards = getQuestRewards('troopCount-5');
       expect(rewards).toHaveLength(1);
-      expect(rewards[0]).toEqual({
+      expect(rewards[0]).toStrictEqual({
         type: 'resources',
         amount: 5 * 10,
       });
@@ -57,7 +57,7 @@ describe('Quest utils', () => {
     test('adventureCount rewards produce hero-exp = count * 10', () => {
       const rewards = getQuestRewards('adventureCount-4');
       expect(rewards).toHaveLength(1);
-      expect(rewards[0]).toEqual({
+      expect(rewards[0]).toStrictEqual({
         type: 'hero-exp',
         amount: 4 * 10,
       });
@@ -70,7 +70,7 @@ describe('Quest utils', () => {
       const expected = Math.round(base * effectiveLevel) + base / 2;
       const rewards = getQuestRewards('oneOf-WOODCUTTER-1');
       expect(rewards).toHaveLength(1);
-      expect(rewards[0]).toEqual({
+      expect(rewards[0]).toStrictEqual({
         type: 'resources',
         amount: expected,
       });
@@ -83,7 +83,7 @@ describe('Quest utils', () => {
       const expected = Math.round(base * effectiveLevel) + base / 2;
       const rewards = getQuestRewards('oneOf-WOODCUTTER-3');
       expect(rewards).toHaveLength(1);
-      expect(rewards[0]).toEqual({
+      expect(rewards[0]).toStrictEqual({
         type: 'resources',
         amount: expected,
       });
@@ -96,7 +96,7 @@ describe('Quest utils', () => {
       const expected = Math.round(base * effectiveLevel ** 1.3) + base / 2;
       const rewards = getQuestRewards('every-CLAY_PIT-5');
       expect(rewards).toHaveLength(1);
-      expect(rewards[0]).toEqual({
+      expect(rewards[0]).toStrictEqual({
         type: 'resources',
         amount: expected,
       });

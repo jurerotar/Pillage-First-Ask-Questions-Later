@@ -32,8 +32,8 @@ const copyFolderSync = async (source: string, dest: string): Promise<void> => {
         await copyFile(sourcePath, destPath);
       }
     }
-  } catch (err) {
-    console.error(`Error while copying folder: ${err}`);
+  } catch (error) {
+    console.error(`Error while copying folder: ${error}`);
   }
 };
 

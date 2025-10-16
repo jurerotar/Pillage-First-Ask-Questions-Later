@@ -130,7 +130,7 @@ describe('createNewServer', () => {
         'SELECT x, y, COUNT(*) AS c FROM tiles GROUP BY x, y HAVING c > 1;',
       );
 
-      expect(duplicates.length).toBe(0);
+      expect(duplicates).toHaveLength(0);
     });
 
     test('center tile (0,0) exists, is free and has composition "4446"', () => {
@@ -194,7 +194,7 @@ describe('createNewServer', () => {
       ) as string[];
 
       const invalid = distinctComps.filter((c) => !allowed.has(c));
-      expect(invalid).toEqual([]);
+      expect(invalid).toStrictEqual([]);
     });
 
     test('all tile coordinates are within expected grid bounds', () => {

@@ -222,13 +222,13 @@ export const BuildingDetails = () => {
 
   const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
 
-  const tabs = Array.from([
+  const tabs = [
     'default',
     ...(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter(
       (tabName) => tabName !== 'default',
     ),
     'upgrade-cost',
-  ]);
+  ];
 
   const buildingSpecificTabs = tabs.filter(
     (tab: string) => !['default', 'upgrade-cost'].includes(tab),

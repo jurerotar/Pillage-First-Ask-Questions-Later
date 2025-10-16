@@ -178,9 +178,7 @@ const generateShapedOasisFields = (
     MaybeAssignedTileModel
   >(tiles.map((tile) => [`${tile.x}-${tile.y}`, tile]));
 
-  tileLoop: for (let i = 0; i < tiles.length; i += 1) {
-    const currentTile = tiles[i];
-
+  tileLoop: for (const currentTile of tiles) {
     if (Object.hasOwn(currentTile, 'type')) {
       continue; // Skip already occupied tiles
     }
