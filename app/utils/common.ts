@@ -30,7 +30,7 @@ export const seededRandomArrayElements = <T>(
   const indices = Array.from({ length: len }, (_, i) => i);
 
   // Partial Fisher-Yates shuffle
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i += 1) {
     const j = i + Math.floor(prng() * (len - i));
     [indices[i], indices[j]] = [indices[j], indices[i]];
     result.push(array[indices[i]]);
@@ -103,7 +103,7 @@ export const partition = <T>(
   const truthy: T[] = [];
   const falsy: T[] = [];
 
-  for (let i = 0, len = array.length; i < len; i++) {
+  for (let i = 0, len = array.length; i < len; i += 1) {
     const el = array[i];
     if (predicate(el)) {
       truthy.push(el);

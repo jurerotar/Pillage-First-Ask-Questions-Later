@@ -115,7 +115,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]) => {
 
   // We intentionally skip object destructuring assignment in favor of this manual approach,
   // due to this approach being ~ 1.5x faster, which adds when potentially creating thousands of events.
-  for (let i = 0; i < events.length; i++) {
+  for (let i = 0; i < events.length; i += 1) {
     const event = events[i];
     const base = i * amountOfColumnsToInsert;
 

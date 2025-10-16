@@ -46,8 +46,8 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
 
     let assignedOasisCounter = 0;
 
-    outer: for (let dx = -3; dx <= 3; dx++) {
-      for (let dy = -3; dy <= 3; dy++) {
+    outer: for (let dx = -3; dx <= 3; dx += 1) {
+      for (let dy = -3; dy <= 3; dy += 1) {
         const key: `${TileModel['x']}-${TileModel['y']}` = `${x + dx}-${y + dy}`;
 
         const candidateTile = occupiableOasisMap.get(key);

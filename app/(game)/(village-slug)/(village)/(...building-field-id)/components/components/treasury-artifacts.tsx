@@ -1,7 +1,6 @@
 import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
 import { useArtifactLocation } from 'app/(game)/(village-slug)/hooks/use-artifact-location';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import {
@@ -68,10 +67,6 @@ export const TreasuryArtifacts = () => {
       !assignedArtifacts.includes(id) && !availableArtifacts.includes(id)
     );
   });
-
-  const _assignArtifactToCurrentVillage = (_artifactId: ArtifactId) => {};
-
-  const _unassignArtifactFromCurrentVillage = () => {};
 
   return (
     <Section>
