@@ -24,12 +24,45 @@ defaults:
     shell: bash
 
 jobs:
+  # Define anchors in a job that never runs. This is only to define YAML anchors
+  # (so they are available to other jobs). The job has `if: false` so it won't run.
+  define-anchors:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - &checkout
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - &setup-node
+        name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - &install-modules
+        name: Install modules
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+  # small job to show a green check — anchors are already defined above so aliases work
+  anchors-health:
+    name: Anchors loaded
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sanity
+        run: echo "Anchors are defined in the workflow — nothing to run here"
+
   type-check:
     name: Type check
     runs-on: ubuntu-latest
     steps:
-      - name: Setup environment
-        uses: ./.github/actions/setup-node-checkout
+      - *checkout
+      - *setup-node
+      - *install-modules
 
       - name: Run type check
         run: npm run type-check
@@ -38,8 +71,9 @@ jobs:
     name: Lint check
     runs-on: ubuntu-latest
     steps:
-      - name: Setup environment
-        uses: ./.github/actions/setup-node-checkout
+      - *checkout
+      - *setup-node
+      - *install-modules
 
       - name: Run lint check
         run: npm run lint:check
@@ -48,8 +82,9 @@ jobs:
     name: Format check
     runs-on: ubuntu-latest
     steps:
-      - name: Setup environment
-        uses: ./.github/actions/setup-node-checkout
+      - *checkout
+      - *setup-node
+      - *install-modules
 
       - name: Run format check
         run: npm run format:check
@@ -58,8 +93,9 @@ jobs:
     name: Localization check
     runs-on: ubuntu-latest
     steps:
-      - name: Setup environment
-        uses: ./.github/actions/setup-node-checkout
+      - *checkout
+      - *setup-node
+      - *install-modules
 
       - name: Run localization check
         run: npm run localize:ci
@@ -68,8 +104,9 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - name: Setup environment
-        uses: ./.github/actions/setup-node-checkout
+      - *checkout
+      - *setup-node
+      - *install-modules
 
       - name: Run tests
         id: run-tests
@@ -79,7 +116,8 @@ jobs:
 #    name: Unused exports and dependencies check (knip)
 #    runs-on: ubuntu-latest
 #    steps:
-#      - name: Setup environment
-#        uses: ./.github/actions/setup-node-checkout
+#      - *checkout
+#      - *setup-node
+#      - *install-modules
 #      - name: Run knip
 #        run: npm run knip:ci
