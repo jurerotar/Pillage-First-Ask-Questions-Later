@@ -6,45 +6,104 @@ permissions:
 
 on:
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+      - develop
   push:
+    branches:
+      - master
+      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build:
-    name: Continuous Integration
+  type-check:
+    name: Type check
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - &checkout
+        name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Use Node.js LTS
+      - &setup-node
+        name: Use Node.js LTS
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Install modules
-        run: npm install
+      - &install-modules
+        name: Install modules
+        run: npm ci --prefer-offline --no-audit --no-fund
 
-      - name: Type check
+      - *checkout
+      - *setup-node
+      - *install-modules
+
+      - name: Run type check
         run: npm run type-check
 
-      - name: Lint check
+  lint:
+    name: Lint check
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *setup-node
+      - *install-modules
+
+      - name: Run linter
         run: npm run lint:check
 
-      - name: Format check
+  format:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *setup-node
+      - *install-modules
+
+      - name: Run format check
         run: npm run format:check
 
-      - name: Localization check
+  localize:
+    name: Localization check
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *setup-node
+      - *install-modules
+
+      - name: Run localization check
         run: npm run localize:ci
 
-      # Reintegrate this once support for RR7 is added
-      #      - name: Unused exports and dependencies check
-      #        run: npm run knip:ci
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+      - *setup-node
+      - *install-modules
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests and save output
+        id: run-tests
+        run: npm run test
+
+#  knip:
+#    name: Unused exports and dependencies check (knip)
+#    runs-on: ubuntu-latest
+#    steps:
+#      - *checkout
+#      - *setup-node
+#      - *install-modules
+#      - name: Run knip
+#        run: npm run knip:ci
