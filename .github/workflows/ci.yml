@@ -67,7 +67,7 @@ jobs:
       - *setup-node
       - *install-modules
 
-      - name: Run linter
+      - name: Run lint check
         run: npm run lint:check
 
   format:
@@ -100,7 +100,7 @@ jobs:
       - *setup-node
       - *install-modules
 
-      - name: Run tests and save output
+      - name: Run tests
         id: run-tests
         run: npm run test
 
