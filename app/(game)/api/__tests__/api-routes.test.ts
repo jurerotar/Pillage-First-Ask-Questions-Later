@@ -7,6 +7,6 @@ describe('API route definitions', () => {
       return !path.startsWith('/') || (path.length > 1 && path.endsWith('/'));
     });
 
-    expect(invalidRoutes).toEqual([]);
+    expect(invalidRoutes).toStrictEqual([]);
   });
 });

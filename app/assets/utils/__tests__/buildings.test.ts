@@ -69,7 +69,7 @@ describe('Buildings utils', () => {
         getBuildingDataForLevel('MAIN_BUILDING', 1);
       expect(isMaxLevel).toBeFalsy();
       expect(nextLevelPopulation).toBe(3);
-      expect(nextLevelResourceCost).toEqual([90, 55, 80, 30]);
+      expect(nextLevelResourceCost).toStrictEqual([90, 55, 80, 30]);
     });
 
     test('Main building level 20', () => {
@@ -81,7 +81,7 @@ describe('Buildings utils', () => {
   describe('calculateBuildingCostForLevel', () => {
     test('Should calculate correct building cost', () => {
       const cost = calculateBuildingCostForLevel('MAIN_BUILDING', 1);
-      expect(cost).toEqual([70, 40, 60, 20]);
+      expect(cost).toStrictEqual([70, 40, 60, 20]);
     });
   });
 
@@ -91,7 +91,7 @@ describe('Buildings utils', () => {
         'MAIN_BUILDING',
         1,
       );
-      expect(refund).toEqual([56, 32, 48, 16]);
+      expect(refund).toStrictEqual([56, 32, 48, 16]);
     });
   });
 
@@ -123,7 +123,7 @@ describe('Buildings utils', () => {
   });
 
   describe('calculateTotalPopulationForLevel', () => {
-    test('MAIN_BUILDING produces X population at level 20', () => {
+    test('MAIN_BUILDING produces X population at level 0', () => {
       const totalPopulation = calculateTotalPopulationForLevel(
         'MAIN_BUILDING',
         0,

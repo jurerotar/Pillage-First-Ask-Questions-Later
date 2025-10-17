@@ -42,8 +42,8 @@ await (async (): Promise<void> => {
       const sql = readFileSync(fullPath, 'utf8');
       try {
         db.exec(sql);
-      } catch (err) {
-        console.error(`[init] Failed applying schema ${fullPath}:`, err);
+      } catch (error) {
+        console.error(`[init] Failed applying schema ${fullPath}:`, error);
         db.exec('ROLLBACK;');
         db.close();
       }
@@ -53,8 +53,8 @@ await (async (): Promise<void> => {
       const sql = readFileSync(fullPath, 'utf8');
       try {
         db.exec(sql);
-      } catch (err) {
-        console.error(`[init] Failed applying index ${fullPath}:`, err);
+      } catch (error) {
+        console.error(`[init] Failed applying index ${fullPath}:`, error);
         db.exec('ROLLBACK;');
         db.close();
       }
@@ -98,7 +98,7 @@ await (async (): Promise<void> => {
         AND type IN ('table', 'view', 'index', 'trigger')
       ORDER BY ${orderCase}
     `);
-    const rows = stmt.all() as Array<{ sql: string }>;
+    const rows = stmt.all() as { sql: string }[];
 
     const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n');
     const exportContent = [header(), body, footer()].join('\n');
@@ -108,8 +108,8 @@ await (async (): Promise<void> => {
 
     // biome-ignore lint/suspicious/noConsole: It's fine here
     console.log(`✅ Created SQLite DB at: ${schemaUrl}`);
-  } catch (err) {
-    console.error('[init] Unexpected error during schema creation:', err);
+  } catch (error) {
+    console.error('[init] Unexpected error during schema creation:', error);
     try {
       db.exec('ROLLBACK;');
     } catch {

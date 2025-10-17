@@ -12,7 +12,7 @@ describe('modifyTroops', () => {
     ];
 
     const result = modifyTroops(base, incoming, 'add');
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       { unitId: 'PHALANX', amount: 150, tileId: 0, source: 0 },
     ]);
   });
@@ -43,7 +43,7 @@ describe('modifyTroops', () => {
     ];
 
     const result = modifyTroops(base, subtract, 'subtract');
-    expect(result).toEqual([
+    expect(result).toStrictEqual([
       { unitId: 'PHALANX', amount: 50, tileId: 0, source: 0 },
     ]);
   });
@@ -57,6 +57,6 @@ describe('modifyTroops', () => {
     ];
 
     const result = modifyTroops(base, subtract, 'subtract');
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
   });
 });
