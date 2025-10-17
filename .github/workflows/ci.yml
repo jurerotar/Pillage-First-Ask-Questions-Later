@@ -23,29 +23,29 @@ defaults:
   run:
     shell: bash
 
+x-checkout: &checkout
+  name: Checkout
+  uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+
+x-setup-node: &setup-node
+  name: Use Node.js LTS
+  uses: actions/setup-node@v4
+  with:
+    node-version: 'lts/*'
+    cache: npm
+    cache-dependency-path: package-lock.json
+
+x-install-modules: &install-modules
+  name: Install modules
+  run: npm ci --prefer-offline --no-audit --no-fund
+
 jobs:
   type-check:
     name: Type check
     runs-on: ubuntu-latest
     steps:
-      - &checkout
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - &setup-node
-        name: Use Node.js LTS
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - &install-modules
-        name: Install modules
-        run: npm ci --prefer-offline --no-audit --no-fund
-
       - *checkout
       - *setup-node
       - *install-modules
