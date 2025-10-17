@@ -47,7 +47,7 @@ const PublicLayout = () => {
             </a>
             <p className="text-muted-foreground">
               Pillage First! is an open-source, single-player strategy game
-              inspired by Travian.'
+              inspired by Travian.
             </p>
           </div>
 
