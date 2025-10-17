@@ -1,0 +1,13 @@
+runs:
+  using: "composite"
+  steps:
+    - name: Use Node.js LTS
+      uses: actions/setup-node@v4
+      with:
+        node-version: 'lts/*'
+        cache: npm
+        cache-dependency-path: package-lock.json
+
+    - name: Install modules
+      shell: bash
+      run: npm ci --prefer-offline --no-audit --no-fund
