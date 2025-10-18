@@ -13,8 +13,7 @@ import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useLocation } from 'react-router';
 import {
   FixedSizeGrid,
   FixedSizeList,
@@ -33,7 +32,7 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
-const MapPage = () => {
+const MapPageContents = () => {
   const [searchParams] = useSearchParams();
   const {
     isOpen: isTileModalOpened,
@@ -329,7 +328,7 @@ const MapPage = () => {
   );
 };
 
-export default ({ params }: Route.ComponentProps) => {
+const MapPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
@@ -340,8 +339,10 @@ export default ({ params }: Route.ComponentProps) => {
     <>
       <title>{title}</title>
       <MapProvider>
-        <MapPage />
+        <MapPageContents />
       </MapProvider>
     </>
   );
 };
+
+export default MapPage;

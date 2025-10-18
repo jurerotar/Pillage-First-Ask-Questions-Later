@@ -18,7 +18,7 @@ const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconType => {
   }
 
   // Single resource
-  const { resource, bonus } = oasisResourceBonus[0];
+  const [{ resource, bonus }] = oasisResourceBonus;
   return (
     bonus === '50%' ? `${resource}${capitalize(resource)}` : resource
   ) as ResourceCombinationIconType;

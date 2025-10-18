@@ -21,7 +21,7 @@ import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 
 type NotificationFactoryArgs = {
   t: TFunction;
-  server: Server;
+  serverName: string;
 };
 
 type NotificationFactoryReturn =
@@ -41,17 +41,17 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   { data },
   args,
 ) => {
-  const { t, server } = args;
+  const { t, serverName } = args;
 
   if (isBuildingLevelUpEvent(data)) {
     const buildingName = t(`BUILDINGS.${data.buildingId}.NAME`);
-    const level = data.level;
+    const { level } = data;
 
     const toastTitle = t('{{buildingName}} upgraded', {
       buildingName,
     });
 
-    const notificationTitle = `${toastTitle} | Pillage First! - ${server.slug}`;
+    const notificationTitle = `${toastTitle} | Pillage First! - ${serverName}`;
 
     return {
       toastTitle,
@@ -70,7 +70,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
       unitName,
     });
 
-    const notificationTitle = `${toastTitle} | Pillage First! - ${server.slug}`;
+    const notificationTitle = `${toastTitle} | Pillage First! - ${serverName}`;
 
     return {
       toastTitle,
@@ -86,7 +86,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
       unitName,
     });
 
-    const notificationTitle = `${toastTitle} | Pillage First! - ${server.slug}`;
+    const notificationTitle = `${toastTitle} | Pillage First! - ${serverName}`;
 
     return {
       toastTitle,
@@ -125,13 +125,11 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       return;
     }
 
-    const handleMessage = async (
-      event: MessageEvent<EventApiNotificationEvent>,
-    ) => {
+    const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
       if (isEventResolvedNotificationMessageEvent(event)) {
         const toastArgs = eventResolvedNotificationFactory(event, {
           t,
-          server,
+          serverName: server.name,
         });
 
         if (toastArgs) {
@@ -163,7 +161,10 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       }
 
       if (isEventCreatedNotificationMessageEvent(event)) {
-        const toastArgs = eventCreatedNotificationFactory(event, { t, server });
+        const toastArgs = eventCreatedNotificationFactory(event, {
+          t,
+          serverName: server.name,
+        });
 
         if (toastArgs) {
           const { toastTitle, body } = toastArgs;

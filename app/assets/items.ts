@@ -3,7 +3,7 @@ import type { HeroItem } from 'app/interfaces/models/game/hero';
 // All artifacts begin with the 100_ prefix
 const artifacts: HeroItem[] = [
   {
-    id: 100_1,
+    id: 1001,
     name: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -20,7 +20,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_2,
+    id: 1002,
     name: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -37,7 +37,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_3,
+    id: 1003,
     name: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -89,7 +89,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_4,
+    id: 1004,
     name: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -106,7 +106,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_5,
+    id: 1005,
     name: 'UNCOMMON_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -123,7 +123,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_6,
+    id: 1006,
     name: 'UNCOMMON_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -140,7 +140,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_7,
+    id: 1007,
     name: 'UNCOMMON_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS',
     slot: 'non-equipable',
     rarity: 'uncommon',
@@ -179,7 +179,7 @@ const artifacts: HeroItem[] = [
   },
   // Rare
   {
-    id: 100_8,
+    id: 1008,
     name: 'RARE_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -196,7 +196,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_9,
+    id: 1009,
     name: 'RARE_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -213,7 +213,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_10,
+    id: 10_010,
     name: 'RARE_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -265,7 +265,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_11,
+    id: 10_011,
     name: 'RARE_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -282,7 +282,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_12,
+    id: 10_012,
     name: 'RARE_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -299,7 +299,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_13,
+    id: 10_013,
     name: 'RARE_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -316,7 +316,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_14,
+    id: 10_014,
     name: 'RARE_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS',
     slot: 'non-equipable',
     rarity: 'rare',
@@ -355,7 +355,7 @@ const artifacts: HeroItem[] = [
   },
   // Epic
   {
-    id: 100_15,
+    id: 10_015,
     name: 'EPIC_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -372,7 +372,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_16,
+    id: 10_016,
     name: 'EPIC_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -389,7 +389,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_17,
+    id: 10_017,
     name: 'EPIC_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -441,7 +441,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_18,
+    id: 10_018,
     name: 'EPIC_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -458,7 +458,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_19,
+    id: 10_019,
     name: 'EPIC_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -475,7 +475,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_20,
+    id: 10_020,
     name: 'EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -492,7 +492,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_21,
+    id: 10_021,
     name: 'EPIC_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -530,7 +530,7 @@ const artifacts: HeroItem[] = [
     ],
   },
   {
-    id: 100_22,
+    id: 10_022,
     name: 'EPIC_ARTIFACT_CIVIL_ENABLE_GREAT_BUILDINGS',
     slot: 'non-equipable',
     rarity: 'epic',
@@ -543,7 +543,7 @@ const artifacts: HeroItem[] = [
 // All horses begin with the 101_ prefix
 const horses: HeroItem[] = [
   {
-    id: 101_1,
+    id: 1011,
     name: 'COMMON_HORSE',
     slot: 'horse',
     rarity: 'common',
@@ -557,7 +557,7 @@ const horses: HeroItem[] = [
     ],
   },
   {
-    id: 101_2,
+    id: 1012,
     name: 'UNCOMMON_HORSE',
     slot: 'horse',
     rarity: 'uncommon',
@@ -571,7 +571,7 @@ const horses: HeroItem[] = [
     ],
   },
   {
-    id: 101_3,
+    id: 1013,
     name: 'RARE_HORSE',
     slot: 'horse',
     rarity: 'rare',
@@ -585,7 +585,7 @@ const horses: HeroItem[] = [
     ],
   },
   {
-    id: 101_4,
+    id: 1014,
     name: 'EPIC_HORSE',
     slot: 'horse',
     rarity: 'epic',
@@ -603,7 +603,7 @@ const horses: HeroItem[] = [
 // All consumables begin with the 102_ prefix
 const consumables: HeroItem[] = [
   {
-    id: 102_1,
+    id: 1021,
     name: 'HEALING_POTION',
     slot: 'consumable',
     rarity: 'common',
@@ -611,7 +611,7 @@ const consumables: HeroItem[] = [
     basePrice: 5,
   },
   {
-    id: 102_2,
+    id: 1022,
     name: 'BOOK_OF_WISDOM',
     slot: 'consumable',
     rarity: 'common',
@@ -619,7 +619,7 @@ const consumables: HeroItem[] = [
     basePrice: 100,
   },
   {
-    id: 102_3,
+    id: 1023,
     name: 'ANIMAL_CAGE',
     slot: 'consumable',
     rarity: 'common',
@@ -627,7 +627,7 @@ const consumables: HeroItem[] = [
     basePrice: 20,
   },
   {
-    id: 102_4,
+    id: 1024,
     name: 'REVIVAL_POTION',
     slot: 'consumable',
     rarity: 'common',
@@ -635,7 +635,7 @@ const consumables: HeroItem[] = [
     basePrice: 20,
   },
   {
-    id: 102_5,
+    id: 1025,
     name: 'SILVER',
     slot: 'consumable',
     rarity: 'common',
@@ -643,7 +643,7 @@ const consumables: HeroItem[] = [
     basePrice: null,
   },
   {
-    id: 102_6,
+    id: 1026,
     name: 'WOOD',
     slot: 'consumable',
     rarity: 'common',
@@ -651,7 +651,7 @@ const consumables: HeroItem[] = [
     basePrice: null,
   },
   {
-    id: 102_7,
+    id: 1027,
     name: 'CLAY',
     slot: 'consumable',
     rarity: 'common',
@@ -659,7 +659,7 @@ const consumables: HeroItem[] = [
     basePrice: null,
   },
   {
-    id: 102_8,
+    id: 1028,
     name: 'IRON',
     slot: 'consumable',
     rarity: 'common',
@@ -667,7 +667,7 @@ const consumables: HeroItem[] = [
     basePrice: null,
   },
   {
-    id: 102_9,
+    id: 1029,
     name: 'WHEAT',
     slot: 'consumable',
     rarity: 'common',

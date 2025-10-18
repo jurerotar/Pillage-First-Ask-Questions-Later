@@ -4,7 +4,7 @@ import {
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import {
   useState,
   type MouseEvent as ReactMouseEvent,

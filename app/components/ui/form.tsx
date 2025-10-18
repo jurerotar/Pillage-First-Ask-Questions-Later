@@ -1,6 +1,5 @@
 import { createContext, use, type ComponentProps } from 'react';
-import type { Label as LabelPrimitive } from 'radix-ui';
-import { Slot } from 'radix-ui';
+import { type Label as LabelPrimitive, Slot } from 'radix-ui';
 import {
   Controller,
   type ControllerProps,
@@ -110,9 +109,7 @@ export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
       data-slot="form-control"
       id={formItemId}
       aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
+        !error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
       {...props}

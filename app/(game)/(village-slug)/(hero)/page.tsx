@@ -25,7 +25,7 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
   const { experience } = useHero();
   const { server } = useServer();
   const { level } = calculateHeroLevel(experience);
-  const { name } = server!.playerConfiguration!;
+  const { name } = server.playerConfiguration;
 
   const tabs = ['default', 'inventory', 'adventures', 'auctions'];
 

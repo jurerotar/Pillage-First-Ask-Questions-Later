@@ -1,6 +1,5 @@
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { type PropsWithChildren, Suspense } from 'react';
-import { use } from 'react';
+import { type PropsWithChildren, Suspense, use } from 'react';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { useTranslation } from 'react-i18next';

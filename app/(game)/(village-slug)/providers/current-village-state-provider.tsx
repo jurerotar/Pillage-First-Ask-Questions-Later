@@ -1,7 +1,6 @@
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
 import type { Resources } from 'app/interfaces/models/game/resource';
-import type { PropsWithChildren } from 'react';
-import { createContext } from 'react';
+import { type PropsWithChildren, createContext } from 'react';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import type {
   ComputedEffectReturn,

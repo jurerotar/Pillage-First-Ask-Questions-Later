@@ -1,13 +1,32 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
+import { z } from 'zod';
 
-export const getUnitImprovements: ApiHandler<UnitImprovement[]> = async (
-  queryClient,
-) => {
-  const unitImprovements = queryClient.getQueryData<UnitImprovement[]>([
-    unitImprovementCacheKey,
-  ])!;
+const getUnitImprovementsSchema = z
+  .strictObject({
+    unit_id: z.string(),
+    level: z.number(),
+  })
+  .transform((t) => {
+    return {
+      unitId: t.unit_id,
+      level: t.level,
+    };
+  });
 
-  return unitImprovements;
+export const getUnitImprovements: ApiHandler<
+  z.infer<typeof getUnitImprovementsSchema>[],
+  'playerId'
+> = (database, { params }) => {
+  const { playerId } = params;
+
+  const unitImprovementModel = database.selectObjects(
+    'SELECT unit_id, level FROM unit_improvements WHERE player_id = $player_id;',
+    {
+      $player_id: playerId,
+    },
+  );
+
+  const listSchema = z.array(getUnitImprovementsSchema);
+
+  return listSchema.parse(unitImprovementModel);
 };

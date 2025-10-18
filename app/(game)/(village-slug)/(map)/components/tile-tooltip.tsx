@@ -135,7 +135,7 @@ type TileTooltipResourcesProps = {
 };
 
 const TileTooltipResources = ({ tile }: TileTooltipResourcesProps) => {
-  const resources = parseRFCFromTile(tile.RFC);
+  const resources = parseRFCFromTile(tile.resourceFieldComposition);
   return (
     <Resources
       iconClassName="size-4"
@@ -271,7 +271,7 @@ export const TileTooltip = ({ tile }: TileTooltipProps) => {
 
   return (
     <div className="flex flex-col gap-1">
-      <OccupiableTileTooltip tile={tile as OccupiableTile} />
+      <OccupiableTileTooltip tile={tile} />
     </div>
   );
 };

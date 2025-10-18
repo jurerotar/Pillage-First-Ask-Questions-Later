@@ -1,5 +1,9 @@
-import type { PropsWithChildren } from 'react';
-import { createContext, useEffect, useMemo } from 'react';
+import {
+  createContext,
+  useEffect,
+  useMemo,
+  type PropsWithChildren,
+} from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   createWorkerFetcher,
@@ -17,6 +21,7 @@ type ApiProviderProps = {
 };
 
 type ApiContextReturn = {
+  apiWorker: Worker;
   fetcher: Fetcher;
 };
 
@@ -62,6 +67,7 @@ export const ApiProvider = ({
 
   const value: ApiContextReturn = useMemo(() => {
     return {
+      apiWorker,
       fetcher: createWorkerFetcher(apiWorker),
     };
   }, [apiWorker]);

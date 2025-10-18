@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, isSameDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 
 export const formatTime = (milliseconds: number): string => {
   let time = '';
@@ -20,10 +20,6 @@ export const formatTime = (milliseconds: number): string => {
   return time;
 };
 
-export const formatToRelativeTime = (timestamp: number): string => {
-  return formatDistanceToNow(timestamp, { addSuffix: true });
-};
-
 export const formatFutureTimestamp = (futureTimestamp: number): string => {
   const now = new Date();
   const futureTime = new Date(futureTimestamp);
@@ -31,21 +27,4 @@ export const formatFutureTimestamp = (futureTimestamp: number): string => {
   const isToday = isSameDay(now, futureTime);
 
   return isToday ? format(futureTime, 'H:mm') : format(futureTime, 'M.d, H:mm');
-};
-
-export const formatCountdown = (futureTimestamp: number): string => {
-  const now = new Date();
-  const diffMs = Math.max(futureTimestamp - now.getTime(), 0);
-
-  const hours = Math.floor(diffMs / 1000 / 60 / 60)
-    .toString()
-    .padStart(2, '0');
-  const minutes = Math.floor((diffMs / 1000 / 60) % 60)
-    .toString()
-    .padStart(2, '0');
-  const seconds = Math.floor((diffMs / 1000) % 60)
-    .toString()
-    .padStart(2, '0');
-
-  return `${hours}:${minutes}:${seconds}`;
 };

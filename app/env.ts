@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
+type ImportMetaEnv = {
   readonly BRANCH_ENV: 'master' | 'develop';
   readonly VERSION: string;
   readonly GRAPHICS_VERSION: string;
@@ -8,12 +8,12 @@ interface ImportMetaEnv {
   // Injected by Netlify, not available during dev
   readonly COMMIT_REF: string;
   readonly HEAD: string;
-}
+};
 
 // biome-ignore lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
-interface ImportMeta {
+type ImportMeta = {
   readonly env: ImportMetaEnv;
-}
+};
 
 export const env = {
   MODE: import.meta.env.MODE,

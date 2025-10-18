@@ -9,19 +9,19 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 
 export const Adventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
   const { hero } = useHero();
-  const { adventurePoints } = useAdventurePoints();
+  const { available } = useHeroAdventures();
   const { eventsByType } = useEventsByType('adventurePointIncrease');
 
-  const seed = server!.seed;
-  const { adventureCount } = hero!;
+  const { seed } = server;
+  const { adventureCount } = hero;
 
   const adventurePrng = prngMulberry32(`${seed}${adventureCount}`);
 
@@ -49,7 +49,7 @@ export const Adventures = () => {
         <Text className="font-medium">
           {t(
             'Your hero has enough adventure points for {{count}} adventures.',
-            { count: adventurePoints.amount },
+            { count: available },
           )}
         </Text>
         <Text className="font-medium">

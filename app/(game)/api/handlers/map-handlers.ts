@@ -7,7 +7,7 @@ import {
   reputationsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
-  worldItemsCacheKey,
+  artifactsInVicinityCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
@@ -22,7 +22,6 @@ import {
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import type { TroopMovementType } from 'app/components/icons/icons';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import { calculatePopulationFromBuildingFields } from 'app/assets/utils/buildings';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 
 type GetTilePlayerReturn = {
@@ -32,8 +31,8 @@ type GetTilePlayerReturn = {
   population: number;
 };
 
-export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
-  queryClient,
+export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = (
+  _database,
   { params },
 ) => {
   const { tileId } = params;
@@ -69,11 +68,6 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
     (reputation) => reputation.faction === player.faction,
   )!;
 
-  const population = calculatePopulationFromBuildingFields(
-    village.buildingFields,
-    village.buildingFieldsPresets,
-  );
-
   return {
     player,
     reputation,
@@ -82,8 +76,8 @@ export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
   };
 };
 
-export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
-  queryClient,
+export const getTileTroops: ApiHandler<Troop[], 'tileId'> = (
+  _database,
   { params },
 ) => {
   const { tileId } = params;
@@ -93,14 +87,14 @@ export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
   return troops.filter((troop) => troop.tileId === tileId);
 };
 
-export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
-  queryClient,
+export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = (
+  _database,
   { params },
 ) => {
   const { tileId } = params;
 
   const worldItems = queryClient.getQueryData<WorldItem[]>([
-    worldItemsCacheKey,
+    artifactsInVicinityCacheKey,
   ])!;
 
   return worldItems.find((worldItem) => worldItem.tileId === tileId) ?? null;
@@ -109,7 +103,7 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
 export const getTileOccupiableOasis: ApiHandler<
   OccupiableOasisInRangeDTO[],
   'tileId'
-> = async (queryClient, { params }) => {
+> = (_database, { params }) => {
   const { tileId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
@@ -174,10 +168,10 @@ export const getTileOccupiableOasis: ApiHandler<
   return occupiableOasisInRange;
 };
 
-export const getContextualMap: ApiHandler<
-  ContextualTile[],
-  'villageId'
-> = async (queryClient, { params }) => {
+export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
+  _database,
+  { params },
+) => {
   const { villageId } = params;
 
   const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
@@ -188,7 +182,7 @@ export const getContextualMap: ApiHandler<
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const worldItems = queryClient.getQueryData<WorldItem[]>([
-    worldItemsCacheKey,
+    artifactsInVicinityCacheKey,
   ])!;
 
   const reputationMap = new Map<Player['faction'], Reputation>(
@@ -237,11 +231,13 @@ export const getContextualMap: ApiHandler<
     eventArray.push(event);
   }
 
-  const offensiveMovements: Set<GameEvent<'troopMovement'>['movementType']> =
-    new Set(['attack', 'raid']);
+  const offensiveMovements = new Set<
+    GameEvent<'troopMovement'>['movementType']
+  >(['attack', 'raid']);
 
-  const deploymentMovements: Set<GameEvent<'troopMovement'>['movementType']> =
-    new Set(['return', 'reinforcements', 'relocation']);
+  const deploymentMovements = new Set<
+    GameEvent<'troopMovement'>['movementType']
+  >(['return', 'reinforcements', 'relocation']);
 
   const contextualTiles: ContextualTile[] = Array(tiles.length);
 

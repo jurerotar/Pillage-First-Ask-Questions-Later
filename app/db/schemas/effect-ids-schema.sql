@@ -1,0 +1,5 @@
+CREATE TABLE effect_ids
+(
+  id INTEGER PRIMARY KEY,
+  effect TEXT NOT NULL
+) STRICT;

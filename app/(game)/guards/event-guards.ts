@@ -1,15 +1,7 @@
 import type {
   GameEvent,
   GameEventType,
-  WithVillageIdEvent,
 } from 'app/interfaces/models/game/game-event';
-import { getEventCost } from 'app/(game)/api/handlers/utils/events';
-
-export const isVillageEvent = (
-  event: GameEvent,
-): event is WithVillageIdEvent => {
-  return Object.hasOwn(event, 'villageId');
-};
 
 export const isBuildingConstructionEvent = (
   event: GameEvent,
@@ -81,12 +73,4 @@ export const isAdventurePointIncreaseEvent = (
   event: GameEvent,
 ): event is GameEvent<'adventurePointIncrease'> => {
   return event.type === 'adventurePointIncrease';
-};
-
-export const isEventWithResourceCost = (
-  event: GameEvent,
-): event is WithVillageIdEvent => {
-  const eventCost = getEventCost(event);
-
-  return eventCost.some((cost) => cost > 0);
 };

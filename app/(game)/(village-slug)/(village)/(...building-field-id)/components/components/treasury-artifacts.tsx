@@ -1,7 +1,4 @@
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
-import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import type { ArtifactId } from 'app/interfaces/models/game/hero';
+import { useArtifactsAroundCurrentVillage } from 'app/(game)/(village-slug)/hooks/use-artifacts-around-current-village';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,29 +9,34 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { getItemDefinition } from 'app/assets/utils/items';
+import { Link } from 'react-router';
 
 type UnoccupiedArtifactRowProps = {
-  item: WorldItem;
+  item: ReturnType<
+    typeof useArtifactsAroundCurrentVillage
+  >['artifactsAroundCurrentVillage'][0];
 };
 
 const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
   const { t } = useTranslation();
 
+  const { name } = getItemDefinition(item.id);
+
   return (
     <TableRow>
-      <TableCell>{t(`ITEMS.${item.name}.NAME`)}</TableCell>
-      <TableCell>{t(`ITEMS.${item.name}.DESCRIPTION`)}</TableCell>
+      <TableCell>{t(`ITEMS.${name}.NAME`)}</TableCell>
+      <TableCell>{t(`ITEMS.${name}.DESCRIPTION`)}</TableCell>
+      <TableCell>{item.distance}</TableCell>
       <TableCell>
-        {/*// TODO: Re-enable this when SQLite migration is finished */}
-        {/*<Link to={`${mapPath}?x=${coordinates.x}&y=${coordinates.y}`}>*/}
-        {/*  {coordinates.x}, {coordinates.y}*/}
-        {/*</Link>*/}/
+        <Link to={`../map?x=${item.coordinates.x}&y=${item.coordinates.y}`}>
+          {item.coordinates.x}, {item.coordinates.y}
+        </Link>
       </TableCell>
     </TableRow>
   );
@@ -42,47 +44,20 @@ const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
 
 export const TreasuryArtifacts = () => {
   const { t } = useTranslation();
-  const { hero } = useHero();
-  const {
-    currentVillageArtifactId,
-    hasCurrentVillageArtifact,
-    assignedArtifacts,
-  } = useArtifacts();
-  const { worldItems } = useWorldItems();
+  const { artifactsAroundCurrentVillage } = useArtifactsAroundCurrentVillage();
 
-  const availableArtifacts = hero.inventory.filter(
-    ({ category }) => category === 'artifact',
-  );
-  const hasAvailableArtifacts = availableArtifacts.length > 0;
+  // const availableArtifacts = hero.inventory.filter(
+  //   ({ category }) => category === 'artifact',
+  // );
 
-  const unclaimedArtifactWorldItems = worldItems.filter(({ id, type }) => {
-    return (
-      type === 'artifact' &&
-      // @ts-expect-error: TODO: Fix these type narrowing issues
-      !assignedArtifacts.includes(id) &&
-      // @ts-expect-error: TODO: Fix these type narrowing issues
-      !availableArtifacts.includes(id)
-    );
-  });
+  const hasCurrentVillageArtifact = false;
 
-  // TODO: Re-enable this when SQLite migration is finished
-  // const sortedByDistanceArtifactWorldItems = useMemo<WorldItem[]>(() => {
-  //   return unclaimedArtifactWorldItems.toSorted((prev, next) => {
-  //     return (
-  //       getDistanceFromCurrentVillage(prev.tileId) -
-  //       getDistanceFromCurrentVillage(next.tileId)
-  //     );
-  //   });
-  // }, [unclaimedArtifactWorldItems, getDistanceFromCurrentVillage]);
-
-  const _assignArtifactToCurrentVillage = (_artifactId: ArtifactId) => {};
-
-  const _unassignArtifactFromCurrentVillage = () => {};
+  const hasAvailableArtifacts = false; //availableArtifacts.length > 0;
 
   return (
     <Section>
       <SectionContent>
-        <Bookmark tab="train" />
+        <Bookmark tab="artifacts" />
         <Text as="h2">{t('Artifacts')}</Text>
         <Text>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
@@ -103,17 +78,17 @@ export const TreasuryArtifacts = () => {
           </TableHeader>
           <TableBody>
             <TableRow>
-              {hasCurrentVillageArtifact && (
-                <>
-                  <TableCell>
-                    {t(`ITEMS.${currentVillageArtifactId}.NAME`)}
-                  </TableCell>
-                  <TableCell>
-                    {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}
-                  </TableCell>
-                  <TableCell>/</TableCell>
-                </>
-              )}
+              {/*{hasCurrentVillageArtifact && (*/}
+              {/*  <>*/}
+              {/*    <TableCell>*/}
+              {/*      {t(`ITEMS.${currentVillageArtifactId}.NAME`)}*/}
+              {/*    </TableCell>*/}
+              {/*    <TableCell>*/}
+              {/*      {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}*/}
+              {/*    </TableCell>*/}
+              {/*    <TableCell>/</TableCell>*/}
+              {/*  </>*/}
+              {/*)}*/}
               {!hasCurrentVillageArtifact && (
                 <>
                   <TableCell
@@ -145,11 +120,12 @@ export const TreasuryArtifacts = () => {
             <TableRow>
               <TableHeaderCell>{t('Name')}</TableHeaderCell>
               <TableHeaderCell>{t('Description')}</TableHeaderCell>
+              <TableHeaderCell>{t('Distance')}</TableHeaderCell>
               <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {unclaimedArtifactWorldItems.length === 0 && (
+            {artifactsAroundCurrentVillage.length === 0 && (
               <TableRow>
                 <TableCell
                   className="text-left"
@@ -159,10 +135,10 @@ export const TreasuryArtifacts = () => {
                 </TableCell>
               </TableRow>
             )}
-            {unclaimedArtifactWorldItems.length > 0 &&
-              unclaimedArtifactWorldItems.map((item) => (
+            {artifactsAroundCurrentVillage.length > 0 &&
+              artifactsAroundCurrentVillage.map((item) => (
                 <UnoccupiedArtifactRow
-                  key={item.tileId}
+                  key={item.id}
                   item={item}
                 />
               ))}

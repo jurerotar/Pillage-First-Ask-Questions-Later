@@ -1,6 +1,5 @@
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import type { PropsWithChildren } from 'react';
-import { createContext, useState } from 'react';
+import { createContext, useState, type PropsWithChildren } from 'react';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { calculateGridLayout } from 'app/utils/map';
 
@@ -10,14 +9,16 @@ type MapProviderValues = {
   decreaseMagnification: () => void;
   tileSize: number;
   gridSize: number;
+  MAX_MAGNIFICATION: number;
+  MIN_MAGNIFICATION: number;
 };
 
 export const MapContext = createContext<MapProviderValues>(
   {} as MapProviderValues,
 );
 
-export const MAX_MAGNIFICATION = 5;
-export const MIN_MAGNIFICATION = 2;
+const MAX_MAGNIFICATION = 5;
+const MIN_MAGNIFICATION = 2;
 
 export const MapProvider = ({ children }: PropsWithChildren) => {
   const { mapSize } = useServer();
@@ -51,6 +52,8 @@ export const MapProvider = ({ children }: PropsWithChildren) => {
     decreaseMagnification,
     tileSize,
     gridSize,
+    MAX_MAGNIFICATION,
+    MIN_MAGNIFICATION,
   };
 
   return <MapContext value={value}>{children}</MapContext>;

@@ -1,41 +1,61 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { serverCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Server } from 'app/interfaces/models/game/server';
+import { z } from 'zod';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 
-export const getServer: ApiHandler<Server> = async (queryClient) => {
-  return queryClient.getQueryData<Server>([serverCacheKey])!;
+const getServerSchema = z
+  .strictObject({
+    id: z.string(),
+    version: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    created_at: z.number(),
+    seed: z.string(),
+    map_size: z.number(),
+    speed: z.number(),
+    player_name: z.string(),
+    player_tribe: z.enum([
+      'romans',
+      'teutons',
+      'gauls',
+      'huns',
+      'egyptians',
+    ] satisfies PlayableTribe[]),
+  })
+  .transform((t) => {
+    return {
+      id: t.id,
+      version: t.version,
+      name: t.name,
+      slug: t.slug,
+      createdAt: t.created_at,
+      seed: t.seed,
+      configuration: {
+        mapSize: t.map_size,
+        speed: t.speed,
+      },
+      playerConfiguration: {
+        name: t.player_name,
+        tribe: t.player_tribe,
+      },
+    };
+  });
+
+export const getServer: ApiHandler<z.infer<typeof getServerSchema>> = (
+  database,
+) => {
+  const serverModel = database.selectObject(`
+    SELECT id,
+           version,
+           name,
+           slug,
+           created_at,
+           seed,
+           speed,
+           map_size,
+           player_name,
+           player_tribe
+    FROM servers;
+  `);
+
+  return getServerSchema.parse(serverModel);
 };
-
-// const togglePreference = (
-//   preference: keyof Pick<Preferences, 'isReducedMotionModeEnabled' | 'isAccessibilityModeEnabled' | 'shouldShowBuildingNames'>,
-// ) => {
-//   queryClient.setQueryData<Preferences>([preferencesCacheKey], (prevState) => {
-//     // This is a very hacky way of getting rid of this annoying prevState being undefined error
-//     if (!prevState) {
-//       return;
-//     }
-//
-//     return {
-//       ...prevState,
-//       [preference]: !prevState[preference],
-//     };
-//   });
-// };
-//
-// type UpdatePreferenceArgs = {
-//   preference: keyof Pick<Preferences, 'isReducedMotionModeEnabled' | 'isAccessibilityModeEnabled' | 'shouldShowBuildingNames'>;
-// };
-//
-// export const updatePreference: ApiHandler<void, void> = async (queryClient) => {
-//   queryClient.setQueryData<Preferences>([preferencesCacheKey], (prevState) => {
-//     // This is a very hacky way of getting rid of this annoying prevState being undefined error
-//     if (!prevState) {
-//       return;
-//     }
-//
-//     return {
-//       ...prevState,
-//       [preference]: !prevState[preference],
-//     };
-//   });
-// };

@@ -1,29 +1,14 @@
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
-import type { Village } from 'app/interfaces/models/game/village';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import {
   isAdventurePointIncreaseEvent,
   isBuildingConstructionEvent,
   isBuildingDestructionEvent,
   isBuildingLevelUpEvent,
-  isEventWithResourceCost,
   isScheduledBuildingEvent,
   isTroopTrainingEvent,
   isUnitImprovementEvent,
   isUnitResearchEvent,
-  isVillageEvent,
 } from 'app/(game)/guards/event-guards';
-import type { QueryClient } from '@tanstack/react-query';
-import {
-  effectsCacheKey,
-  eventsCacheKey,
-  playersCacheKey,
-  preferencesCacheKey,
-  serverCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
@@ -35,18 +20,28 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from 'app/assets/utils/units';
-import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
-import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
+import { calculateAdventurePointIncreaseEventDuration } from 'app/(game)/api/handlers/resolvers/utils/adventures';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
-import { PLAYER_ID } from 'app/constants/player';
+import { getCurrentPlayer } from 'app/(game)/api/utils/player';
+import type { DbFacade } from 'app/(game)/api/database-facade';
+import { selectAllRelevantEffectsByIdQuery } from 'app/(game)/api/utils/queries/effect-queries';
+import { effectSchema } from 'app/(game)/api/utils/zod/effect-schemas';
+import { z } from 'zod';
+import {
+  selectAllVillageEventsByTypeQuery,
+  selectVillageBuildingEventsQuery,
+} from 'app/(game)/api/utils/queries/event-queries';
+import { eventSchema } from 'app/(game)/api/utils/zod/event-schemas';
+import type { SQLOutputValue } from 'node:sqlite';
+
+const effectsListSchema = z.array(effectSchema);
+const eventsListSchema = z.array(eventSchema);
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -61,23 +56,23 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 };
 
 export const checkAndSubtractVillageResources = (
-  queryClient: QueryClient,
+  database: DbFacade,
   events: GameEvent[],
 ): boolean => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    'SELECT is_developer_mode_enabled FROM preferences;',
+  );
 
   // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
-  const event = events[0];
+  const [event] = events;
 
   const eventCost = getEventCost(event);
 
-  if (!isDeveloperModeEnabled && isEventWithResourceCost(event)) {
+  if (!isDeveloperModeEnabled && eventCost.some((cost) => cost > 0)) {
     const { villageId, startsAt } = event;
     const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
     const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(queryClient, villageId, startsAt);
+      calculateVillageResourcesAt(database, villageId, startsAt);
 
     if (
       woodCost > currentWood ||
@@ -88,55 +83,83 @@ export const checkAndSubtractVillageResources = (
       return false;
     }
 
-    subtractVillageResourcesAt(queryClient, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
   }
 
   return true;
 };
 
-export const insertEvents = (queryClient: QueryClient, events: GameEvent[]) => {
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-    return insertBulkEvent(prevEvents!, events);
+export const insertEvents = (database: DbFacade, events: GameEvent[]) => {
+  const requiredEventProperties = new Set([
+    'id',
+    'type',
+    'startsAt',
+    'duration',
+    'villageId',
+  ]);
+  // We add + 1 for the `meta` column
+  const amountOfColumnsToInsert = requiredEventProperties.size + 1;
+
+  const sqlTemplate = `
+    INSERT INTO events (id, type, starts_at, duration, village_id, meta)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  const amountOfEvents = events.length;
+
+  const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
+
+  const params: SQLOutputValue[] = Array.from({
+    length: events.length * amountOfColumnsToInsert,
   });
-};
 
-export const filterEventsByType = <T extends GameEventType>(
-  events: GameEvent[],
-  type: T,
-  villageId: Village['id'],
-): GameEvent<T>[] => {
-  const result: GameEvent<T>[] = [];
+  // We intentionally skip object destructuring assignment in favor of this manual approach,
+  // due to this approach being ~ 1.5x faster, which adds when potentially creating thousands of events.
+  for (let i = 0; i < events.length; i += 1) {
+    const event = events[i];
+    const base = i * amountOfColumnsToInsert;
 
-  for (const event of events) {
-    if (event.type !== type) {
-      continue;
+    params[base] = event.id;
+    params[base + 1] = event.type;
+    params[base + 2] = event.startsAt;
+    params[base + 3] = event.duration;
+    params[base + 4] = event.villageId ?? null;
+
+    let metaObj: Record<string, SQLOutputValue> | undefined;
+    for (const property in event) {
+      if (requiredEventProperties.has(property)) {
+        continue;
+      }
+
+      // Lazy object initialization
+      if (!metaObj) {
+        metaObj = {};
+      }
+
+      metaObj[property] = event[property as keyof GameEvent];
     }
 
-    if (!isVillageEvent(event) || event.villageId === villageId) {
-      result.push(event as GameEvent<T>);
-    }
+    params[base + 5] = metaObj ? JSON.stringify(metaObj) : null;
   }
 
-  return result;
+  const stmt = database.prepare(sql);
+  stmt.bind(params).stepReset();
 };
 
 export const getEventCost = (event: GameEvent): number[] => {
   if (isBuildingLevelUpEvent(event)) {
     const { buildingId, level } = event;
-    const cost = calculateBuildingCostForLevel(buildingId, level);
-    return cost;
+    return calculateBuildingCostForLevel(buildingId, level);
   }
 
   if (isUnitResearchEvent(event)) {
     const { unitId } = event;
-    const cost = calculateUnitResearchCost(unitId);
-    return cost;
+    return calculateUnitResearchCost(unitId);
   }
 
   if (isUnitImprovementEvent(event)) {
     const { unitId, level } = event;
-    const cost = calculateUnitUpgradeCostForLevel(unitId, level);
-    return cost;
+    return calculateUnitUpgradeCostForLevel(unitId, level);
   }
 
   if (isTroopTrainingEvent(event)) {
@@ -153,12 +176,12 @@ export const getEventCost = (event: GameEvent): number[] => {
 };
 
 export const getEventDuration = (
-  queryClient: QueryClient,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
-  const { isDeveloperModeEnabled } = queryClient.getQueryData<Preferences>([
-    preferencesCacheKey,
-  ])!;
+  const isDeveloperModeEnabled = database.selectValue(
+    ' SELECT is_developer_mode_enabled FROM preferences;',
+  );
 
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     if (isDeveloperModeEnabled) {
@@ -167,7 +190,12 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'buildingDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       'buildingDuration',
@@ -191,9 +219,14 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { villageId } = event;
+    const { villageId, unitId } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'unitResearchDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
       'unitResearchDuration',
@@ -201,7 +234,6 @@ export const getEventDuration = (
       villageId,
     );
 
-    const { unitId } = event;
     return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   }
 
@@ -212,7 +244,12 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'unitImprovementDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
       'unitImprovementDuration',
@@ -227,8 +264,15 @@ export const getEventDuration = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     const { unitId, villageId, durationEffectId } = event;
+
+    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
+      $effect_id: 'buildingDuration',
+      $village_id: villageId,
+    });
+
+    const effects = effectsListSchema.parse(rows);
+
     const { total } = calculateComputedEffect(
       durationEffectId,
       effects,
@@ -236,7 +280,7 @@ export const getEventDuration = (
     );
 
     if (isDeveloperModeEnabled) {
-      return 5_000 * total;
+      return 5000 * total;
     }
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
@@ -245,9 +289,11 @@ export const getEventDuration = (
   }
 
   if (isAdventurePointIncreaseEvent(event)) {
-    const server = queryClient.getQueryData<Server>([serverCacheKey])!;
+    const [createdAt, speed] = database.selectValues(
+      'SELECT created_at, speed FROM servers LIMIT 1;',
+    ) as [Server['createdAt'], Server['configuration']['speed']];
 
-    return calculateAdventurePointIncreaseEventDuration(server);
+    return calculateAdventurePointIncreaseEventDuration(createdAt, speed);
   }
 
   if (isBuildingDestructionEvent(event)) {
@@ -259,20 +305,20 @@ export const getEventDuration = (
 };
 
 export const getEventStartTime = (
-  queryClient: QueryClient,
+  database: DbFacade,
   event: GameEvent,
 ): number => {
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
-    const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
 
-    const trainingEvents = filterEventsByType(
-      events,
-      'troopTraining',
-      villageId,
-    );
+    const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
+      $village_id: villageId,
+      $type: 'troopTraining',
+    });
 
-    const relevantTrainingEvents = trainingEvents.filter((event) => {
+    const events = eventsListSchema.parse(rows) as GameEvent<'troopTraining'>[];
+
+    const relevantTrainingEvents = events.filter((event) => {
       return event.buildingId === buildingId;
     });
 
@@ -292,30 +338,22 @@ export const getEventStartTime = (
   if (isScheduledBuildingEvent(event)) {
     const { buildingFieldId, villageId } = event;
 
-    const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-    const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
+    const { tribe } = getCurrentPlayer(database);
 
-    const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
-
-    const buildingLevelChangeEvents = filterEventsByType(
-      events,
-      'buildingLevelChange',
-      villageId,
-    );
-    const buildingScheduledConstructionEvents = filterEventsByType(
-      events,
-      'buildingScheduledConstruction',
-      villageId,
+    const buildingEventRows = database.selectObjects(
+      selectVillageBuildingEventsQuery,
+      {
+        $village_id: villageId,
+      },
     );
 
-    const buildingEvents = [
-      ...buildingLevelChangeEvents,
-      ...buildingScheduledConstructionEvents,
-    ];
+    const buildingEvents = eventsListSchema.parse(
+      buildingEventRows,
+    ) as GameEvent<'buildingLevelChange'>[];
 
     if (tribe === 'romans') {
       const relevantEvents = buildingEvents.filter((event) => {
-        if (buildingFieldId! <= 18) {
+        if (buildingFieldId <= 18) {
           return event.buildingFieldId <= 18;
         }
 

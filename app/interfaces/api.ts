@@ -1,8 +1,13 @@
-import type { QueryClient } from '@tanstack/react-query';
 import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
+import type { DbFacade } from 'app/(game)/api/database-facade';
+
+export type Resolver<T extends GameEvent> = (
+  database: DbFacade,
+  args: T,
+) => void;
 
 type ParamType<T extends string> = T extends
   | 'villageId'
@@ -23,10 +28,7 @@ export type ApiHandler<
   TReturn = void,
   TParams extends string = '',
   TBody = Record<string, unknown>,
-> = (
-  queryClient: QueryClient,
-  args: ApiHandlerArgs<TBody, TParams>,
-) => Promise<TReturn>;
+> = (database: DbFacade, args: ApiHandlerArgs<TBody, TParams>) => TReturn;
 
 type EventKey =
   | 'event:worker-initialization-success'

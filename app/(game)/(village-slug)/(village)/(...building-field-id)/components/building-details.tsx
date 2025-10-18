@@ -1,6 +1,5 @@
 import type { Building } from 'app/interfaces/models/game/building';
-import { type JSX, type LazyExoticComponent, use } from 'react';
-import { lazy, Suspense } from 'react';
+import { type JSX, type LazyExoticComponent, use, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
@@ -219,17 +218,17 @@ export const BuildingDetails = () => {
   const { t } = useTranslation();
   const { buildingField, buildingFieldId } = use(BuildingFieldContext);
 
-  const buildingId = buildingField!.buildingId;
+  const { buildingId } = buildingField!;
 
-  const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
+  const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
 
-  const tabs = Array.from([
+  const tabs = [
     'default',
     ...(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter(
       (tabName) => tabName !== 'default',
     ),
     'upgrade-cost',
-  ]);
+  ];
 
   const buildingSpecificTabs = tabs.filter(
     (tab: string) => !['default', 'upgrade-cost'].includes(tab),

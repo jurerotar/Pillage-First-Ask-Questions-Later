@@ -1,6 +1,5 @@
-import type { PropsWithChildren } from 'react';
-import { createContext } from 'react';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import { createContext, type PropsWithChildren } from 'react';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type BuildingContextProps = {
   buildingFieldId: BuildingField['id'];

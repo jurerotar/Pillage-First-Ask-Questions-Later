@@ -41,10 +41,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     //   return troopMovementResolver;
     // }
     default: {
-      return console.error(
-        'No resolver function set for event type',
-        gameEventType,
-      );
+      console.error('No resolver function set for event type', gameEventType);
+
+      return () => {};
     }
   }
 };

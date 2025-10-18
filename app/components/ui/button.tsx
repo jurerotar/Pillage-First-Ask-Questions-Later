@@ -41,6 +41,7 @@ export const Button = ({ className, variant, size, ...props }: ButtonProps) => {
   return (
     <button
       data-slot="button"
+      type="button"
       className={clsx(buttonVariants({ variant, size, className }))}
       {...props}
     />

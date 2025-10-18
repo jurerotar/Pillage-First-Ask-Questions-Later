@@ -1,6 +1,5 @@
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Tribe } from 'app/interfaces/models/game/tribe';
 
 type HeroStats = {
   experience: number;
@@ -106,12 +105,39 @@ export type HeroItem = {
   category: HeroItemCategory;
   // Base price of null indicates item can't be bought or sold
   basePrice: number | null;
-  effects?: Effect[];
+  // Source specifier is item id
+  effects?: Omit<Effect, 'sourceSpecifier'>[];
   heroBonus?: HeroBonus[];
 };
 
 export type InventoryItem = HeroItem & {
   amount: number;
+};
+
+export type HeroEquippedItemsModel = {
+  id: number;
+  hero_id: HeroModel['id'];
+  slot: Exclude<HeroItemSlot, 'non-equipable'>;
+  item_id: HeroItem['id'];
+  amount: number;
+};
+
+export type HeroInventoryModel = {
+  id: number;
+  hero_id: HeroModel['id'];
+  item_id: HeroItem['id'];
+  amount: number;
+};
+
+export type HeroModel = {
+  id: number;
+  experience: number;
+  health: number;
+  attack_power: number;
+  resource_production: number;
+  attack_bonus: number;
+  defence_bonus: number;
+  resource_to_produce: Resource | 'shared';
 };
 
 export type Hero = {
@@ -134,5 +160,4 @@ export type Hero = {
   };
   inventory: InventoryItem[];
   adventureCount: number;
-  tribe: Tribe;
 };

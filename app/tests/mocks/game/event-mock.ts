@@ -1,6 +1,6 @@
 import { calculateBuildingDurationForLevel } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
@@ -15,6 +15,9 @@ export const createBuildingConstructionEventMock = ({
   buildingFieldId,
   level,
 }: CreateBuildingConstructionEventMockArgs): GameEvent<'buildingLevelChange'> => {
+  const startsAt = Date.now();
+  const duration = calculateBuildingDurationForLevel(buildingId, level);
+
   return {
     id: 'id',
     type: 'buildingLevelChange',
@@ -24,6 +27,7 @@ export const createBuildingConstructionEventMock = ({
     level,
     previousLevel: level - 1,
     startsAt: Date.now(),
-    duration: calculateBuildingDurationForLevel(buildingId, level),
+    duration: duration,
+    resolvesAt: startsAt + duration,
   };
 };

@@ -14,7 +14,7 @@ export const usePagination = <T>(items: T[], limit: number) => {
     [];
 
   if (pageCount <= 7) {
-    for (let i = 1; i <= pageCount; i++) {
+    for (let i = 1; i <= pageCount; i += 1) {
       paginationElements.push(i);
     }
   } else {
@@ -24,7 +24,7 @@ export const usePagination = <T>(items: T[], limit: number) => {
     }
     const midStart = Math.max(2, page - 1);
     const midEnd = Math.min(pageCount - 1, page + 1);
-    for (let i = midStart; i <= midEnd; i++) {
+    for (let i = midStart; i <= midEnd; i += 1) {
       paginationElements.push(i);
     }
     if (page < pageCount - 2) {

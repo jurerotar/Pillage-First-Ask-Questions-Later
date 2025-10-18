@@ -7,9 +7,9 @@ describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
     const resources: Resource[] = ['wood', 'clay', 'iron', 'wheat'];
 
     for (const resource of resources) {
-      for (let group = 0; group < 4; group++) {
-        for (let x = 0; x < 4; x++) {
-          for (let y = 0; y < 4; y++) {
+      for (let group = 0; group < 4; group += 1) {
+        for (let x = 0; x < 4; x += 1) {
+          for (let y = 0; y < 4; y += 1) {
             const encoded = encodeGraphicsProperty(resource, group, x, y, 0);
             const decoded = decodeGraphicsProperty(encoded);
 

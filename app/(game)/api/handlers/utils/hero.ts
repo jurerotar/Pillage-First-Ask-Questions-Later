@@ -1,20 +1,16 @@
-import type { QueryClient } from '@tanstack/react-query';
-import type { Hero } from 'app/interfaces/models/game/hero';
-import { heroCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { DbFacade } from 'app/(game)/api/database-facade';
+import { PLAYER_ID } from 'app/constants/player';
 
-export const addHeroExperience = (
-  queryClient: QueryClient,
-  experience: number,
-) => {
-  queryClient.setQueryData<Hero>([heroCacheKey], (hero) => {
-    hero!.stats.experience += experience;
-
-    return {
-      ...hero!,
-      stats: {
-        ...hero!.stats,
-        experience: hero!.stats.experience + experience,
-      },
-    } satisfies Hero;
-  });
+export const addHeroExperience = (database: DbFacade, experience: number) => {
+  database.exec(
+    `
+    UPDATE heroes
+    SET experience = experience + $experience
+    WHERE player_id = $player_id;
+  `,
+    {
+      $experience: experience,
+      $player_id: PLAYER_ID,
+    },
+  );
 };

@@ -1,185 +1,139 @@
 import {
   getBuildingDefinition,
   getBuildingDataForLevel,
+  calculatePopulationDifference,
   specialFieldIds,
 } from 'app/assets/utils/buildings';
-import { newBuildingEffectFactory } from 'app/factories/effect-factory';
-import type { Resolver } from 'app/interfaces/models/common';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Village } from 'app/interfaces/models/game/village';
-import {
-  effectsCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
-import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
-
-const updateBuildingFieldLevel = (
-  villages: Village[],
-  args: GameEvent<'buildingLevelChange'>,
-): Village[] => {
-  const { villageId, buildingFieldId, level } = args;
-
-  return villages.map((village) => {
-    if (village.id !== villageId) {
-      return village;
-    }
-    return {
-      ...village,
-      buildingFields: village.buildingFields.map((buildingField) => {
-        if (buildingField.id === buildingFieldId) {
-          return {
-            ...buildingField,
-            level,
-          };
-        }
-        return buildingField;
-      }),
-    };
-  });
-};
-
-const addBuildingField = (
-  villages: Village[],
-  args: GameEvent<'buildingConstruction'>,
-): Village[] => {
-  const { villageId, buildingFieldId, buildingId } = args;
-
-  return villages.map((village) => {
-    if (village.id === villageId) {
-      return {
-        ...village,
-        buildingFields: [
-          ...village.buildingFields,
-          { id: buildingFieldId, buildingId, level: 0 },
-        ],
-      };
-    }
-    return village;
-  });
-};
-
-export const removeBuildingField = (
-  villages: Village[],
-  args: GameEvent<'buildingDestruction'>,
-): Village[] => {
-  const { villageId, buildingFieldId } = args;
-
-  return villages.map((village) => {
-    if (village.id === villageId) {
-      return {
-        ...village,
-        buildingFields: village.buildingFields.filter(
-          ({ id }) => id !== buildingFieldId,
-        ),
-      };
-    }
-    return village;
-  });
-};
+import { demolishBuilding } from 'app/(game)/api/utils/village';
+import { assessBuildingQuestCompletion } from 'app/(game)/api/utils/quests';
+import {
+  updateBuildingEffectQuery,
+  updatePopulationEffectQuery,
+} from 'app/(game)/api/utils/queries/effect-queries';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
-> = async (queryClient, args) => {
+> = (database, args) => {
   const { buildingFieldId, level, buildingId, villageId, previousLevel } = args;
 
-  const { effects: buildingEffects } = getBuildingDefinition(buildingId);
+  // Update building level
+  database.exec(
+    `
+      UPDATE building_fields
+      SET level = $level
+      WHERE village_id = $village_id
+        AND field_id = $building_field_id
+        AND building_id = $building_id;
+    `,
+    {
+      $village_id: villageId,
+      $building_field_id: buildingFieldId,
+      $building_id: buildingId,
+      $level: level,
+    },
+  );
 
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
-    const buildingEffectsWithoutCurrentBuildingEffects = prevData!.filter(
-      (effect) => {
-        return !(
-          isBuildingEffect(effect) &&
-          effect.villageId === villageId &&
-          effect.buildingFieldId === buildingFieldId
-        );
-      },
-    );
+  // Update population effect
+  const populationDifference = calculatePopulationDifference(
+    buildingId,
+    previousLevel,
+    level,
+  );
 
-    const { population: currentPopulation } = getBuildingDataForLevel(
-      buildingId,
-      previousLevel,
-    );
-    const { population: nextPopulation } = getBuildingDataForLevel(
-      buildingId,
-      level,
-    );
+  if (populationDifference !== 0) {
+    database.exec(updatePopulationEffectQuery, {
+      $village_id: villageId,
+      $value: populationDifference,
+    });
+  }
 
-    const villagePopulationEffect =
-      buildingEffectsWithoutCurrentBuildingEffects.find((effect) => {
-        return (
-          isBuildingEffect(effect) &&
-          effect.villageId === villageId &&
-          effect.buildingFieldId === 0 &&
-          effect.id === 'wheatProduction'
-        );
-      })!;
+  // Update effects
+  const { effects } = getBuildingDefinition(buildingId);
 
-    villagePopulationEffect.value += currentPopulation;
-    villagePopulationEffect.value -= nextPopulation;
+  for (const { effectId, valuesPerLevel } of effects) {
+    database.exec(updateBuildingEffectQuery, {
+      $effect_id: effectId,
+      $value: valuesPerLevel[level],
+      $village_id: villageId,
+      $source_specifier: buildingFieldId,
+    });
+  }
 
-    return [
-      ...buildingEffectsWithoutCurrentBuildingEffects,
-      ...buildingEffects.map(({ effectId, valuesPerLevel, type }) => {
-        return newBuildingEffectFactory({
-          villageId,
-          id: effectId,
-          value: valuesPerLevel[level],
-          buildingFieldId,
-          buildingId,
-          type,
-        });
-      }),
-    ];
-  });
+  database.exec(
+    `
+      INSERT INTO building_level_change_history
+      (village_id, field_id, building_id, previous_level, new_level, timestamp)
+      VALUES ($village_id, $building_field_id, $building_id, $previous_level, $level, STRFTIME('%s', 'now'))
+      RETURNING id;
+    `,
+    {
+      $village_id: villageId,
+      $building_field_id: buildingFieldId,
+      $building_id: buildingId,
+      $level: level,
+      $previous_level: previousLevel,
+    },
+  );
 
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
-    return updateBuildingFieldLevel(villages!, args);
-  });
+  const isLevelIncreasing = previousLevel < level;
 
-  evaluateQuestCompletions(queryClient);
+  if (isLevelIncreasing) {
+    assessBuildingQuestCompletion(database);
+  }
 };
 
 export const buildingConstructionResolver: Resolver<
   GameEvent<'buildingConstruction'>
-> = async (queryClient, args) => {
+> = (database, args) => {
   const { villageId, buildingFieldId, buildingId } = args;
 
+  // Create building field
+  database.exec(
+    `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      VALUES ($village_id, $field_id, $building_id, 0)
+    `,
+    {
+      $village_id: villageId,
+      $field_id: buildingFieldId,
+      $building_id: buildingId,
+    },
+  );
+
+  // Create building effects
   const { effects } = getBuildingDefinition(buildingId);
+
+  for (const { effectId, valuesPerLevel, type } of effects) {
+    database.exec(
+      `
+        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+        VALUES ((SELECT id FROM effect_ids WHERE effect = $effect_id), $value, $type, 'village', 'building',
+                $village_id, $source_specifier);
+      `,
+      {
+        $effect_id: effectId,
+        $value: valuesPerLevel[0],
+        $type: type,
+        $village_id: villageId,
+        $source_specifier: buildingFieldId,
+      },
+    );
+  }
+
+  // Update population effect
   const { population } = getBuildingDataForLevel(buildingId, 0);
 
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
-    const newEffects = effects.map(({ effectId, valuesPerLevel, type }) => {
-      return newBuildingEffectFactory({
-        id: effectId,
-        villageId,
-        value: valuesPerLevel[0],
-        buildingFieldId,
-        buildingId,
-        type,
-      });
-    });
-
-    const villagePopulationEffect = prevData!.find((effect) => {
-      return (
-        isBuildingEffect(effect) &&
-        effect.villageId === villageId &&
-        effect.buildingFieldId === 0
-      );
-    })!;
-
-    villagePopulationEffect.value += population;
-
-    return [...prevData!, ...newEffects];
+  database.exec(updatePopulationEffectQuery, {
+    $village_id: villageId,
+    $value: population,
   });
 
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
-    return addBuildingField(villages!, args);
-  });
+  assessBuildingQuestCompletion(database);
 
-  await createEvent<'buildingLevelChange'>(queryClient, {
+  createEvent<'buildingLevelChange'>(database, {
     ...args,
     type: 'buildingLevelChange',
   });
@@ -187,48 +141,64 @@ export const buildingConstructionResolver: Resolver<
 
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
-> = async (queryClient, args) => {
+> = (database, args) => {
   const { buildingFieldId, villageId, buildingId, previousLevel } = args;
 
-  if (specialFieldIds.includes(buildingFieldId)) {
-    await buildingLevelChangeResolver(queryClient, { ...args, level: 0 });
-    return;
+  // Remove building field
+  demolishBuilding(database, villageId, buildingFieldId);
+
+  // Remove or reset building effects depending on whether the building can be fully destroyed
+  const { effects } = getBuildingDefinition(buildingId);
+
+  const isNonDestroyable = specialFieldIds.some((id) => id === buildingFieldId);
+
+  if (isNonDestroyable) {
+    // Building stays at level 0 → keep the effect rows but set their values to level 0
+    for (const { effectId, valuesPerLevel } of effects) {
+      database.exec(updateBuildingEffectQuery, {
+        $effect_id: effectId,
+        $value: valuesPerLevel[0],
+        $village_id: villageId,
+        $source_specifier: buildingFieldId,
+      });
+    }
+  } else {
+    // Fully destroyable building → remove its effect rows entirely
+    for (const { effectId } of effects) {
+      database.exec(
+        `
+        DELETE
+        FROM effects
+        WHERE village_id = $village_id
+          AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
+          AND source_specifier = $source_specifier;
+      `,
+        {
+          $village_id: villageId,
+          $effect_id: effectId,
+          $source_specifier: buildingFieldId,
+        },
+      );
+    }
   }
 
-  queryClient.setQueryData<Effect[]>([effectsCacheKey], (prevData) => {
-    // Loop through all effects added by the building, find corresponding village effects and delete them
-    const newFilters = prevData!.filter((effect) => {
-      return !(
-        isBuildingEffect(effect) &&
-        effect.villageId === villageId &&
-        effect.buildingFieldId === buildingFieldId
-      );
-    });
+  // Reduce population
+  const { population } = getBuildingDataForLevel(buildingId, previousLevel);
+  const { population: level0Population } = getBuildingDataForLevel(
+    buildingId,
+    0,
+  );
 
-    const villagePopulationEffect = prevData!.find((effect) => {
-      return (
-        isBuildingEffect(effect) &&
-        effect.villageId === villageId &&
-        effect.buildingFieldId === 0
-      );
-    })!;
-
-    const { population } = getBuildingDataForLevel(buildingId, previousLevel);
-
-    villagePopulationEffect.value -= population;
-
-    return newFilters;
-  });
-
-  queryClient.setQueryData<Village[]>([villagesCacheKey], (villages) => {
-    return removeBuildingField(villages!, args);
+  database.exec(updatePopulationEffectQuery, {
+    $village_id: villageId,
+    $value: -population + (isNonDestroyable ? level0Population : 0),
   });
 };
 
 export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
-> = async (queryClient, args) => {
-  await createEvent<'buildingLevelChange'>(queryClient, {
+> = (database, args) => {
+  createEvent<'buildingLevelChange'>(database, {
     ...args,
     type: 'buildingLevelChange',
   });

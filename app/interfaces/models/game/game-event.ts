@@ -1,56 +1,54 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
+import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
-
-type WithVillageId<T> = T & {
-  villageId: Village['id'];
-};
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type BaseGameEvent = {
   id: string;
   type: GameEventType;
   startsAt: number;
   duration: number;
+  resolvesAt: number;
+  // This type is essentially a lie. `villageId` can be either a number or null, but we have a ton of type issues if we type it as such.
+  // We just need to careful in global event resolvers to not use village id!
+  villageId: Village['id'];
 };
 
-type BaseBuildingEvent = WithVillageId<{
+type BaseBuildingEvent = {
   buildingFieldId: BuildingField['id'];
   buildingId: Building['id'];
   level: number;
   previousLevel: number;
-}>;
+};
 
 type BuildingLevelChangeEvent = BaseBuildingEvent;
 type BuildingScheduledConstructionEvent = BaseBuildingEvent;
 
 type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
 
-type UnitResearchEvent = WithVillageId<{
+type UnitResearchEvent = {
   unitId: Unit['id'];
-}>;
+};
 
-type UnitImprovementEvent = WithVillageId<{
+type UnitImprovementEvent = {
   unitId: Unit['id'];
   level: number;
-}>;
+};
 
-type BaseUnitTrainingEvent = WithVillageId<{
+type BaseUnitTrainingEvent = {
   batchId: string;
   amount: number;
   unitId: Unit['id'];
   durationEffectId: TroopTrainingDurationEffectId;
   buildingId: Building['id'];
-}>;
+};
 
-type BaseTroopMovementEvent = WithVillageId<{
+type BaseTroopMovementEvent = {
   troops: Troop[];
   targetId: Village['id'];
-}>;
+};
 
 type TroopMovementEvent = BaseTroopMovementEvent & {
   movementType:
@@ -92,5 +90,3 @@ export type GameEvent<T extends GameEventType | undefined = undefined> =
     ? BaseGameEvent
     : // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
       BaseGameEvent & GameEventTypeToEventArgsMap<T>;
-
-export type WithVillageIdEvent = WithVillageId<BaseGameEvent>;

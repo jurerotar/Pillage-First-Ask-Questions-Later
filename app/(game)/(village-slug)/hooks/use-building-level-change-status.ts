@@ -1,4 +1,4 @@
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { use, useMemo } from 'react';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
@@ -23,7 +23,7 @@ export const getHasEnoughWarehouseCapacity = (
   calculatedWarehouseCapacity: number,
   nextLevelResourceCost: number[],
 ): boolean => {
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i += 1) {
     if (nextLevelResourceCost[i] > calculatedWarehouseCapacity) {
       return false;
     }

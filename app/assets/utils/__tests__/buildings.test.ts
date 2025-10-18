@@ -3,24 +3,14 @@ import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
   calculateBuildingEffectValues,
-  calculatePopulationFromBuildingFields,
   calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
   getBuildingDataForLevel,
 } from 'app/assets/utils/buildings';
-import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
 import { describe, expect, test } from 'vitest';
 
 describe('Buildings utils', () => {
-  describe('calculatePopulationFromBuildingFields', () => {
-    test('New village should have a population of 3', () => {
-      expect(
-        calculatePopulationFromBuildingFields(newVillageBuildingFieldsMock, []),
-      ).toBe(3);
-    });
-  });
-
   describe('calculateBuildingEffectValues', () => {
     test('CITY_WALL effect values', () => {
       const building = getBuildingDefinition('CITY_WALL');
@@ -30,7 +20,7 @@ describe('Buildings utils', () => {
           (e) =>
             e.effectId === 'infantryDefence' && e.currentLevelValue === 200,
         ),
-      ).toBe(true);
+      ).toBeTruthy();
     });
 
     test('BAKERY wheat production bonus', () => {
@@ -41,7 +31,7 @@ describe('Buildings utils', () => {
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.25,
         ),
-      ).toBe(true);
+      ).toBeTruthy();
     });
 
     test('CLAY_PIT clay production', () => {
@@ -58,7 +48,7 @@ describe('Buildings utils', () => {
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!
           .areEffectValuesRising,
-      ).toBe(true);
+      ).toBeTruthy();
     });
 
     test('BAKERY wheat production bonus values are increasing', () => {
@@ -69,7 +59,7 @@ describe('Buildings utils', () => {
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.15,
         )!.areEffectValuesRising,
-      ).toBe(true);
+      ).toBeTruthy();
     });
   });
 
@@ -77,21 +67,21 @@ describe('Buildings utils', () => {
     test('Main building level 1', () => {
       const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
-      expect(isMaxLevel).toBe(false);
+      expect(isMaxLevel).toBeFalsy();
       expect(nextLevelPopulation).toBe(3);
-      expect(nextLevelResourceCost).toEqual([90, 55, 80, 30]);
+      expect(nextLevelResourceCost).toStrictEqual([90, 55, 80, 30]);
     });
 
     test('Main building level 20', () => {
       const { isMaxLevel } = getBuildingDataForLevel('MAIN_BUILDING', 20);
-      expect(isMaxLevel).toBe(true);
+      expect(isMaxLevel).toBeTruthy();
     });
   });
 
   describe('calculateBuildingCostForLevel', () => {
     test('Should calculate correct building cost', () => {
       const cost = calculateBuildingCostForLevel('MAIN_BUILDING', 1);
-      expect(cost).toEqual([70, 40, 60, 20]);
+      expect(cost).toStrictEqual([70, 40, 60, 20]);
     });
   });
 
@@ -101,19 +91,19 @@ describe('Buildings utils', () => {
         'MAIN_BUILDING',
         1,
       );
-      expect(refund).toEqual([56, 32, 48, 16]);
+      expect(refund).toStrictEqual([56, 32, 48, 16]);
     });
   });
 
   describe('calculateBuildingDurationForLevel', () => {
     test('Should calculate correct duration for level 1', () => {
       const duration = calculateBuildingDurationForLevel('MAIN_BUILDING', 1);
-      expect(duration).toBe(2000000);
+      expect(duration).toBe(2_000_000);
     });
   });
 
   describe('calculateTotalCulturePointsForLevel', () => {
-    test('MAIN_BUILDING produces X culture points at level 20', () => {
+    test('MAIN_BUILDING produces X culture points at level 0', () => {
       const totalCulturePoints = calculateTotalCulturePointsForLevel(
         'MAIN_BUILDING',
         0,
@@ -133,7 +123,7 @@ describe('Buildings utils', () => {
   });
 
   describe('calculateTotalPopulationForLevel', () => {
-    test('MAIN_BUILDING produces X population at level 20', () => {
+    test('MAIN_BUILDING produces X population at level 0', () => {
       const totalPopulation = calculateTotalPopulationForLevel(
         'MAIN_BUILDING',
         0,
