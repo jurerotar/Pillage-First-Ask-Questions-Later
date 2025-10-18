@@ -6,45 +6,111 @@ permissions:
 
 on:
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+      - develop
   push:
+    branches:
+      - master
+      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build:
-    name: Continuous Integration
+  type-check:
+    name: Type check
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js LTS
-        uses: actions/setup-node@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          node-version: 'lts/*'
-          cache: npm
+          fetch-depth: 0
 
-      - name: Install modules
-        run: npm install
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
 
-      - name: Type check
+      - name: Run type check
         run: npm run type-check
 
-      - name: Lint check
+  lint:
+    name: Lint check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Run lint check
         run: npm run lint:check
 
-      - name: Format check
+  format:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Run format check
         run: npm run format:check
 
-      - name: Localization check
+  localize:
+    name: Localization check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Run localization check
         run: npm run localize:ci
 
-      # Reintegrate this once support for RR7 is added
-      #      - name: Unused exports and dependencies check
-      #        run: npm run knip:ci
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
 
       - name: Run tests
-        run: npm test
+        id: run-tests
+        run: npm run test
+
+#  knip:
+#    name: Unused exports and dependencies check (knip)
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Setup environment (node + install)
+#        uses: ./.github/actions/node-setup
+#
+#      - name: Run knip
+#        run: npm run knip:ci

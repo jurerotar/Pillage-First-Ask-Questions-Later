@@ -21,6 +21,7 @@ type ApiProviderProps = {
 };
 
 type ApiContextReturn = {
+  apiWorker: Worker;
   fetcher: Fetcher;
 };
 
@@ -60,13 +61,13 @@ export const ApiProvider = ({
     apiWorker.addEventListener('message', handleMessage);
 
     return () => {
-      apiWorker.postMessage('WORKER_CLOSE');
       apiWorker.removeEventListener('message', handleMessage);
     };
   }, [apiWorker, queryClient]);
 
   const value: ApiContextReturn = useMemo(() => {
     return {
+      apiWorker,
       fetcher: createWorkerFetcher(apiWorker),
     };
   }, [apiWorker]);

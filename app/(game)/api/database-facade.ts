@@ -30,10 +30,7 @@ export type DbFacade = {
   transaction: (callback: (db: DbFacade) => void) => void;
 };
 
-export const createDbFacade = (
-  database: Database,
-  debug = import.meta.env.DEV,
-): DbFacade => {
+export const createDbFacade = (database: Database, debug = false): DbFacade => {
   const preparedStatementCache = createPreparedStatementCache();
 
   const getStatement = (sql: string): ReturnType<Database['prepare']> => {

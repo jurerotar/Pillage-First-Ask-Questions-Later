@@ -8,7 +8,7 @@ import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 
 let scheduledTimeout: number | null = null;
 
-export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
+const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
   const row = database.selectObject(
     `
         SELECT id, type, starts_at, duration, village_id, resolves_at, meta
