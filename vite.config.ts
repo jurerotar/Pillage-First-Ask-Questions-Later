@@ -159,7 +159,7 @@ const vitestConfig = defineVitestConfig({
     reporters: ['default'],
     coverage: {
       include: ['app/**/*.{ts,tsx}'],
-      exclude: ['**/*-mock.ts', '**/interfaces/**/*.ts'],
+      exclude: ['**/*-mock.ts'],
     },
   },
 });

@@ -1,7 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFile, rm, mkdir, writeFile, glob } from 'node:fs/promises';
 import { dirname, join, basename, resolve } from 'node:path';
-import { glob } from 'tinyglobby';
 import { pathToFileURL } from 'node:url';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
@@ -11,25 +10,13 @@ const DB_EXPORT_PATH = join(EXPORT_PATH, 'schema.sqlite');
 const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
 
 await (async (): Promise<void> => {
-  mkdirSync(dirname(DB_EXPORT_PATH), { recursive: true });
+  await mkdir(dirname(DB_EXPORT_PATH), { recursive: true });
 
   try {
-    rmSync(DB_EXPORT_PATH);
+    await rm(DB_EXPORT_PATH);
   } catch {
     // ignore if file not found
   }
-
-  const schemaFiles = await glob('app/db/schemas/**/*.sql', {
-    onlyFiles: true,
-    absolute: true,
-    dot: false,
-  });
-
-  const indexFiles = await glob('app/db/indexes/**/*.sql', {
-    onlyFiles: true,
-    absolute: true,
-    dot: false,
-  });
 
   const db = new DatabaseSync(DB_EXPORT_PATH);
 
@@ -38,8 +25,8 @@ await (async (): Promise<void> => {
 
     db.exec('BEGIN;');
 
-    for (const fullPath of schemaFiles) {
-      const sql = readFileSync(fullPath, 'utf8');
+    for await (const fullPath of glob('app/db/schemas/**/*.sql')) {
+      const sql = await readFile(fullPath, 'utf8');
       try {
         db.exec(sql);
       } catch (error) {
@@ -49,8 +36,8 @@ await (async (): Promise<void> => {
       }
     }
 
-    for (const fullPath of indexFiles) {
-      const sql = readFileSync(fullPath, 'utf8');
+    for await (const fullPath of glob('app/db/indexes/**/*.sql')) {
+      const sql = await readFile(fullPath, 'utf8');
       try {
         db.exec(sql);
       } catch (error) {
@@ -103,7 +90,7 @@ await (async (): Promise<void> => {
     const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n');
     const exportContent = [header(), body, footer()].join('\n');
 
-    writeFileSync(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
+    await writeFile(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
     const schemaUrl = pathToFileURL(resolve(DB_SCHEMA_EXPORT_PATH)).href;
 
     // biome-ignore lint/suspicious/noConsole: It's fine here
