@@ -1,4 +1,4 @@
-import { compiledApiRoutes } from 'app/(game)/api/api-routes';
+import { compiledApiRoutes } from 'app/(game)/api/routes/api-routes';
 import { describe, test, expect } from 'vitest';
 
 describe('API route definitions', () => {

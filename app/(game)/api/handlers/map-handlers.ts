@@ -15,14 +15,11 @@ import type { Player } from 'app/interfaces/models/game/player';
 import type { Village } from 'app/interfaces/models/game/village';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
-  isOccupiableOasisTile,
   isOccupiedOasisTile,
   isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import type { TroopMovementType } from 'app/components/icons/icons';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 
 type GetTilePlayerReturn = {
   player: Player;
@@ -100,74 +97,6 @@ export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = (
   return worldItems.find((worldItem) => worldItem.tileId === tileId) ?? null;
 };
 
-export const getTileOccupiableOasis: ApiHandler<
-  OccupiableOasisInRangeDTO[],
-  'tileId'
-> = (_database, { params }) => {
-  const { tileId } = params;
-
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-
-  const tile = tiles.find(({ id }) => id === tileId)!;
-
-  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
-
-  const oasisEligibilityRadius = 3;
-
-  const validXRange = [
-    tile.coordinates.x - oasisEligibilityRadius,
-    tile.coordinates.x + oasisEligibilityRadius,
-  ];
-  const validYRange = [
-    tile.coordinates.y - oasisEligibilityRadius,
-    tile.coordinates.y + oasisEligibilityRadius,
-  ];
-
-  for (const tile of tiles) {
-    if (!isOccupiableOasisTile(tile)) {
-      continue;
-    }
-
-    const { x: oasisXCoordinate, y: oasisYCoordinate } = tile.coordinates;
-
-    if (
-      !(
-        oasisXCoordinate >= validXRange[0] &&
-        oasisXCoordinate <= validXRange[1] &&
-        oasisYCoordinate >= validYRange[0] &&
-        oasisYCoordinate <= validYRange[1]
-      )
-    ) {
-      continue;
-    }
-
-    if (isOccupiedOasisTile(tile)) {
-      const villageId = tile.villageId;
-      const village = villages.find(({ id }) => id === villageId)!;
-      const playerId = village.playerId;
-      const player = players.find(({ id }) => id === playerId)!;
-
-      occupiableOasisInRange.push({
-        oasis: tile,
-        player: player,
-        village: village,
-      });
-
-      continue;
-    }
-
-    occupiableOasisInRange.push({
-      oasis: tile,
-      player: null,
-      village: null,
-    });
-  }
-
-  return occupiableOasisInRange;
-};
-
 export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
   _database,
   { params },
@@ -180,7 +109,7 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
   ])!;
   const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
   const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
+  const _villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
   const worldItems = queryClient.getQueryData<WorldItem[]>([
     artifactsInVicinityCacheKey,
   ])!;
@@ -194,12 +123,6 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
   const playerMap = new Map<Player['id'], Player>(
     players.map((player) => {
       return [player.id, player];
-    }),
-  );
-
-  const _villageMap = new Map<Village['id'], Village>(
-    villages.map((village) => {
-      return [village.id, village];
     }),
   );
 
@@ -231,53 +154,10 @@ export const getContextualMap: ApiHandler<ContextualTile[], 'villageId'> = (
     eventArray.push(event);
   }
 
-  const offensiveMovements = new Set<
-    GameEvent<'troopMovement'>['movementType']
-  >(['attack', 'raid']);
-
-  const deploymentMovements = new Set<
-    GameEvent<'troopMovement'>['movementType']
-  >(['return', 'reinforcements', 'relocation']);
-
   const contextualTiles: ContextualTile[] = Array(tiles.length);
 
   for (let i = 0; i < tiles.length; i += 1) {
     const tile = tiles[i] as ContextualTile;
-
-    const isCurrentVillageTile = villageId === tile.id;
-
-    let troopMovementIcon: TroopMovementType | null = null;
-
-    if (troopMovementMap.has(tile.id)) {
-      const troopMovements = troopMovementMap.get(tile.id)!;
-      for (const troopMovement of troopMovements) {
-        if (offensiveMovements.has(troopMovement.movementType)) {
-          if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
-            troopMovementIcon = 'offensiveMovementIncoming';
-            break;
-          }
-
-          troopMovementIcon = 'offensiveMovementOutgoing';
-          break;
-        }
-
-        if (deploymentMovements.has(troopMovement.movementType)) {
-          if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
-            troopMovementIcon = 'deploymentIncoming';
-            break;
-          }
-
-          troopMovementIcon = 'deploymentOutgoing';
-          break;
-        }
-
-        if (troopMovement.movementType === 'find-new-village') {
-          troopMovementIcon = 'findNewVillage';
-        }
-      }
-    }
-
-    tile.troopMovementIcon = troopMovementIcon;
 
     if (isOccupiedOccupiableTile(tile)) {
       const { faction, tribe } = playerMap.get(tile.ownedBy)!;

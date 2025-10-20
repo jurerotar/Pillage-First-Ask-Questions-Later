@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import ApiWorker from 'app/(game)/api/workers/api-worker?worker&url';
+import ApiWorker from 'app/(game)/api/api-worker?worker&url';
 import type { WorkerInitializationErrorEvent } from 'app/interfaces/api';
 import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import type { Server } from 'app/interfaces/models/game/server';
@@ -39,7 +39,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
 };
 
 export const useApiWorker = (serverSlug: Server['slug']) => {
-  const { data: apiWorker } = useSuspenseQuery<Worker>({
+  const { data: apiWorker } = useSuspenseQuery({
     queryKey: ['api-worker', serverSlug],
     queryFn: () => createWorkerWithReadySignal(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,

@@ -7,7 +7,7 @@ import type { WorldItem } from 'app/interfaces/models/game/world-item';
 export const useTileWorldItem = (tileId: Tile['id']) => {
   const { fetcher } = use(ApiContext);
 
-  const { data: worldItem } = useSuspenseQuery<WorldItem | null>({
+  const { data: worldItem } = useSuspenseQuery({
     queryKey: ['tile-world-item', tileId],
     queryFn: async () => {
       const { data } = await fetcher<WorldItem | null>(

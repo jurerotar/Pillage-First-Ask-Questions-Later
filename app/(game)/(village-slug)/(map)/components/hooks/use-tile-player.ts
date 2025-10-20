@@ -16,7 +16,7 @@ type UseTilePlayerReturn = {
 export const useTilePlayer = (tileId: Tile['id']) => {
   const { fetcher } = use(ApiContext);
 
-  const { data: tilePlayer } = useSuspenseQuery<UseTilePlayerReturn>({
+  const { data: tilePlayer } = useSuspenseQuery({
     queryKey: ['tile-player', tileId],
     queryFn: async () => {
       const { data } = await fetcher<UseTilePlayerReturn>(

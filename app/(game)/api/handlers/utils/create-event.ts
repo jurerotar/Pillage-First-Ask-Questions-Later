@@ -9,19 +9,8 @@ import {
   insertEvents,
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import type { DbFacade } from 'app/(game)/api/database-facade';
-
-const eventFactory = <T extends GameEventType>(
-  args: Omit<GameEvent<T>, 'id'>,
-): GameEvent<T> => {
-  const id = crypto.randomUUID();
-
-  return {
-    ...args,
-    id,
-  } as GameEvent<T>;
-};
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
+import { markNeedsRescan } from 'app/(game)/api/engine/scheduler-signal';
 
 const validateAndInsertEvents = (database: DbFacade, events: GameEvent[]) => {
   const hasSuccessfullyValidatedAndSubtractedResources =
@@ -35,58 +24,45 @@ const validateAndInsertEvents = (database: DbFacade, events: GameEvent[]) => {
   insertEvents(database, events);
 };
 
-type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
-  amount: number;
+type CreateNewEventsArgs<T extends GameEventType> = Omit<
+  GameEvent<T>,
+  'id' | 'startsAt' | 'duration' | 'resolvesAt'
+> & {
+  amount?: number;
 };
 
-export const createClientEvents = (
+export const createEvents = <T extends GameEventType>(
   database: DbFacade,
-  args: CreateNewEventsBody,
+  args: CreateNewEventsArgs<T>,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(database, args as unknown as GameEvent);
-  const duration = getEventDuration(database, args as unknown as GameEvent);
+  const startsAt = getEventStartTime(database, args as GameEvent<T>);
+  const duration = getEventDuration(database, args as GameEvent<T>);
 
-  const events: GameEvent[] = (() => {
-    const amount = args?.amount ?? 1;
+  const amount = args?.amount ?? 1;
+  const events: GameEvent<T>[] = Array.from({ length: amount });
 
-    if (amount > 1) {
-      const events: GameEvent[] = Array.from({ length: amount });
-
-      for (let i = 0; i < amount; i += 1) {
-        events[i] = eventFactory({
-          ...args,
-          startsAt: startsAt + i * duration,
-          duration,
-        });
-      }
-
-      return events;
-    }
-
-    return [eventFactory({ ...args, startsAt, duration })];
-  })();
+  for (let i = 0; i < amount; i += 1) {
+    events[i] = {
+      ...args,
+      id: crypto.randomUUID(),
+      startsAt: startsAt + i * duration,
+      duration,
+    } as GameEvent<T>;
+  }
 
   validateAndInsertEvents(database, events);
-  scheduleNextEvent(database);
-};
 
-// This function is used for events created on the server. "createClientEvents" is used for client-sent events.
-export const createEvent = <T extends GameEventType>(
-  database: DbFacade,
-  args: Omit<GameEvent<T>, 'id' | 'startsAt' | 'duration' | 'resolvesAt'>,
-) => {
-  // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(database, args as unknown as GameEvent);
-  const duration = getEventDuration(database, args as unknown as GameEvent);
+  // Return true if any inserted event should resolve immediately (<= now).
+  const now = Date.now();
+  const createdImmediate = events.some((e) => e.startsAt + e.duration <= now);
 
-  const eventFactoryArgs = {
-    ...args,
-    duration,
-    startsAt,
-  } as Omit<GameEvent<T>, 'id'>;
+  // Signal the scheduler that there are new immediate events. This is synchronous.
+  // The scheduler will pick this up either in its current run (if it's active)
+  // or on its next scan.
+  if (createdImmediate) {
+    markNeedsRescan();
+  }
 
-  const events = [eventFactory<T>(eventFactoryArgs)];
-
-  validateAndInsertEvents(database, events);
+  return createdImmediate;
 };

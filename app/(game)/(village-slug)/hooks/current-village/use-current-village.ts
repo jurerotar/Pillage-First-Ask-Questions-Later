@@ -37,7 +37,7 @@ export const useCurrentVillage = () => {
   const { fetcher } = use(ApiContext);
   const { villageSlug } = useRouteSegments();
 
-  const { data: currentVillage } = useSuspenseQuery<Village>({
+  const { data: currentVillage } = useSuspenseQuery({
     queryKey: [playerVillagesCacheKey, villageSlug],
     queryFn: async () => {
       const { data } = await fetcher<Village>(`/villages/${villageSlug}`);

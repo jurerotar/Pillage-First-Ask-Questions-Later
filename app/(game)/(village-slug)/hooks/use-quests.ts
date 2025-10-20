@@ -14,7 +14,7 @@ export const useQuests = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: quests } = useSuspenseQuery<Quest[]>({
+  const { data: quests } = useSuspenseQuery({
     queryKey: [questsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<Quest[]>(

@@ -20,7 +20,7 @@ const variantStyles: Record<TextVariant, string> = {
   body: 'text-foreground',
   orange: 'text-warning',
   green: 'text-success',
-  link: 'text-link font-medium w-fit',
+  link: 'text-link font-medium',
   muted: 'text-muted-foreground',
 };
 

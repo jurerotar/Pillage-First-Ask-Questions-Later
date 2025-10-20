@@ -22,7 +22,7 @@ const _getPlayerSchema = z.strictObject({
 export const usePlayer = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: player } = useSuspenseQuery<Player>({
+  const { data: player } = useSuspenseQuery({
     queryKey: [playersCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Player>('/me');

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { PLAYER_ID } from 'app/constants/player';
-import type { DbFacade } from 'app/(game)/api/database-facade';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 
 const getCurrentPlayerSchema = z.strictObject({
   id: z.number(),

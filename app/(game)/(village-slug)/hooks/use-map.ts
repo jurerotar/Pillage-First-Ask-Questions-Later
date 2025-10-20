@@ -9,7 +9,7 @@ export const useMap = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: contextualMap } = useSuspenseQuery<ContextualTile[]>({
+  const { data: contextualMap } = useSuspenseQuery({
     queryKey: ['contextual-map', eventsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<ContextualTile[]>(

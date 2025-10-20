@@ -121,7 +121,7 @@ graph TD
 
 ### Important files
 
-- [`api-worker.ts`](/app/(game)/api/workers/api-worker.ts)
+- [`api-worker.ts`](/app/(game)/api/api-worker.ts)
 - [`api-routes.ts`](/app/(game)/api/api-routes.ts)
 - [`api-provider.tsx`](/app/(game)/providers/api-provider.tsx)
 

@@ -27,7 +27,7 @@ export const useVillageTroops = () => {
     useCreateEvent('troopMovement');
   const { currentVillage } = useCurrentVillage();
 
-  const { data: villageTroops } = useSuspenseQuery<Troop[]>({
+  const { data: villageTroops } = useSuspenseQuery({
     queryKey: [playerTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await fetcher<Troop[]>(

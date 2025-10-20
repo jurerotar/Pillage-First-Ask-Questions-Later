@@ -15,7 +15,7 @@ export const useHeroAdventures = () => {
 
   const {
     data: { available, completed },
-  } = useSuspenseQuery<HeroAdventures>({
+  } = useSuspenseQuery({
     queryKey: [adventurePointsCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<HeroAdventures>('/me/hero/adventures');

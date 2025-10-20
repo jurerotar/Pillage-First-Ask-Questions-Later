@@ -6,7 +6,7 @@ import {
 } from 'app/assets/utils/buildings';
 import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
 import { demolishBuilding } from 'app/(game)/api/utils/village';
 import { assessBuildingQuestCompletion } from 'app/(game)/api/utils/quests';
 import {
@@ -133,7 +133,7 @@ export const buildingConstructionResolver: Resolver<
 
   assessBuildingQuestCompletion(database);
 
-  createEvent<'buildingLevelChange'>(database, {
+  createEvents<'buildingLevelChange'>(database, {
     ...args,
     type: 'buildingLevelChange',
   });
@@ -198,7 +198,7 @@ export const buildingDestructionResolver: Resolver<
 export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
 > = (database, args) => {
-  createEvent<'buildingLevelChange'>(database, {
+  createEvents<'buildingLevelChange'>(database, {
     ...args,
     type: 'buildingLevelChange',
   });

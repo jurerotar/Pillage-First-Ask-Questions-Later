@@ -1,6 +1,6 @@
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Resolver } from 'app/interfaces/api';
-import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
@@ -11,7 +11,7 @@ const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
 
   // TODO: Add combat calc
 
-  createEvent<'troopMovement'>(database, {
+  createEvents<'troopMovement'>(database, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -28,7 +28,7 @@ const raidMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
 
   // TODO: Add combat calc
 
-  createEvent<'troopMovement'>(database, {
+  createEvents<'troopMovement'>(database, {
     villageId: targetId,
     targetId: villageId,
     troops,
@@ -107,7 +107,7 @@ const oasisOccupationMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
 
   // TODO: Add combat calc
 
-  createEvent<'troopMovement'>(database, {
+  createEvents<'troopMovement'>(database, {
     villageId: targetId,
     targetId: villageId,
     troops,

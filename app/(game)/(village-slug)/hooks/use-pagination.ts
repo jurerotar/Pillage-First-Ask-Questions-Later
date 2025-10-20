@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
-export const usePagination = <T>(items: T[], limit: number) => {
-  const [page, setPage] = useState<number>(1);
+export const usePagination = <T>(
+  items: T[],
+  limit: number,
+  defaultPage = 1,
+) => {
+  const [page, setPage] = useState<number>(defaultPage);
   const pageCount = Math.max(1, Math.ceil(items.length / limit));
 
   const isPaginationPreviousEnabled = pageCount >= 2 && page !== 1;

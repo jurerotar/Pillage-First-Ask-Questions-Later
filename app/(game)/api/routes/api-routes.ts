@@ -1,6 +1,5 @@
 import {
   getContextualMap,
-  getTileOccupiableOasis,
   getTilePlayer,
   getTileTroops,
   getTileWorldItem,
@@ -38,7 +37,10 @@ import {
   getMapFilters,
   updateMapFilter,
 } from 'app/(game)/api/handlers/map-filters-handlers';
-import { getVillageBySlug } from 'app/(game)/api/handlers/village-handlers';
+import {
+  getOccupiableOasisInRange,
+  getVillageBySlug,
+} from 'app/(game)/api/handlers/village-handlers';
 import { getArtifactsAroundVillage } from 'app/(game)/api/handlers/world-items-handlers';
 import { match } from 'path-to-regexp';
 import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
@@ -52,8 +54,8 @@ import {
   occupyOasis,
 } from 'app/(game)/api/handlers/oasis-handlers';
 import {
-  getPlayerStatistics,
-  getVillageStatistics,
+  getPlayerRankings,
+  getVillageRankings,
 } from 'app/(game)/api/handlers/statistics-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
@@ -157,11 +159,6 @@ const mapRoutes = [
     path: '/tiles/:tileId/world-item',
     handler: getTileWorldItem,
   },
-  {
-    method: 'GET',
-    path: '/tiles/:tileId/occupiable-oasis',
-    handler: getTileOccupiableOasis,
-  },
 ];
 
 const preferencesRoutes = [
@@ -244,6 +241,11 @@ const villageRoutes = [
     path: '/villages/:villageId/oasis/:oasisId',
     handler: abandonOasis,
   },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/occupiable-oasis',
+    handler: getOccupiableOasisInRange,
+  },
 ];
 
 const mapFiltersRoutes = [
@@ -284,12 +286,12 @@ const statisticsRoutes = [
   {
     method: 'GET',
     path: '/statistics/players',
-    handler: getPlayerStatistics,
+    handler: getPlayerRankings,
   },
   {
-    method: 'PATCH',
+    method: 'GET',
     path: '/statistics/villages',
-    handler: getVillageStatistics,
+    handler: getVillageRankings,
   },
 ];
 

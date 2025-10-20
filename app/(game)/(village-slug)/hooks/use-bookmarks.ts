@@ -14,7 +14,7 @@ export const useBookmarks = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: bookmarks } = useSuspenseQuery<Bookmarks>({
+  const { data: bookmarks } = useSuspenseQuery({
     queryKey: [bookmarksCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Bookmarks>(

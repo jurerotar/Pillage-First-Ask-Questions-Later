@@ -8,7 +8,7 @@ export const useCollectableQuestCount = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: collectableQuestCount } = useSuspenseQuery<number>({
+  const { data: collectableQuestCount } = useSuspenseQuery({
     queryKey: [collectableQuestCountCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<{ collectableQuestCount: number }>(

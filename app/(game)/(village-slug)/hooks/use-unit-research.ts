@@ -18,7 +18,7 @@ export const useUnitResearch = () => {
     (unit) => !unit.id.includes('SETTLER'),
   );
 
-  const { data: unitResearch } = useSuspenseQuery<UnitResearch[]>({
+  const { data: unitResearch } = useSuspenseQuery({
     queryKey: [unitResearchCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<UnitResearch[]>(
