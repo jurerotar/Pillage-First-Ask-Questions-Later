@@ -3,7 +3,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useOasis } from 'app/(game)/(village-slug)/hooks/use-oasis';
+import { useOccupiableOasisInRange } from 'app/(game)/(village-slug)/hooks/use-occupiable-oasis-in-range';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import {
@@ -15,73 +15,23 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import type { OasisTile } from 'app/interfaces/models/game/tile';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Button } from 'app/components/ui/button';
-import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 
-type OccupiedOasisRowProps = {
-  occupiedOasis: OasisTile | undefined;
+type UnoccupiedOasisSlotProps = {
   heroMansionLevel: number;
   heroMansionLevelRequirement: number;
 };
 
-const OccupiedOasisRow = ({
-  occupiedOasis,
+const UnoccupiedOasisSlot = ({
   heroMansionLevel,
   heroMansionLevelRequirement,
-}: OccupiedOasisRowProps) => {
+}: UnoccupiedOasisSlotProps) => {
   const { t } = useTranslation();
-  const { abandonOasis } = useOasis();
-
-  const hasOccupiedOasis = !!occupiedOasis;
-
-  if (hasOccupiedOasis) {
-    return (
-      <TableRow>
-        <TableCell>
-          <Text>
-            {/*// TODO: Re-enable this when SQLite migration is finished */}
-            {/*<Link*/}
-            {/*  className="underline"*/}
-            {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
-            {/*>*/}
-            {/*  {x}, {y}*/}
-            {/*</Link>*/}/
-          </Text>
-        </TableCell>
-        <TableCell className="whitespace-nowrap">
-          {occupiedOasis.ORB.map(({ resource, bonus }, index) => (
-            <span
-              className={clsx(
-                'inline-flex items-center gap-1',
-                index > 0 && 'ml-2',
-              )}
-              key={resource}
-            >
-              <Icon
-                type={resource}
-                className="flex size-5"
-              />
-              {bonus}
-            </span>
-          ))}
-        </TableCell>
-        <TableCell>
-          <Button
-            size="fit"
-            onClick={() => abandonOasis({ oasisId: occupiedOasis.id })}
-          >
-            {t('Abandon oasis')}
-          </Button>
-        </TableCell>
-      </TableRow>
-    );
-  }
 
   return (
     <TableRow>
@@ -104,19 +54,71 @@ const OccupiedOasisRow = ({
   );
 };
 
-type OccupiableOasisRowActionsProps = {
-  occupiableOasisDTO: OccupiableOasisInRangeDTO;
+type OccupiedOasisSlotProps = {
+  occupiedOasis: ReturnType<
+    typeof useOccupiableOasisInRange
+  >['occupiableOasisInRange'][number];
+};
+
+const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
+  const { t } = useTranslation();
+  const { abandonOasis } = useOccupiableOasisInRange();
+
+  const { x, y } = occupiedOasis.oasis.coordinates;
+
+  return (
+    <TableRow>
+      <TableCell>
+        <Text variant="link">
+          <Link to={`../map?x=${x}&y=${y}`}>
+            {x}, {y}
+          </Link>
+        </Text>
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
+        {occupiedOasis.oasis.bonuses.map(({ resource, bonus }, index) => (
+          <span
+            className={clsx(
+              'inline-flex items-center gap-1',
+              index > 0 && 'ml-2',
+            )}
+            key={resource}
+          >
+            <Icon
+              type={resource}
+              className="flex size-5"
+            />
+            {bonus}%
+          </span>
+        ))}
+      </TableCell>
+      <TableCell>
+        <Button
+          size="fit"
+          onClick={() => abandonOasis({ oasisId: occupiedOasis.oasis.id })}
+        >
+          {t('Abandon oasis')}
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+type OccupiableOasisSlotActionsProps = {
+  occupiableOasis: ReturnType<
+    typeof useOccupiableOasisInRange
+  >['occupiableOasisInRange'][number];
   freeSlots: number;
 };
 
-const OccupiableOasisRowActions = ({
-  occupiableOasisDTO,
+const OccupiableOasisSlotActions = ({
+  occupiableOasis,
   freeSlots,
-}: OccupiableOasisRowActionsProps) => {
-  const { oasis, player } = occupiableOasisDTO;
+}: OccupiableOasisSlotActionsProps) => {
+  const { oasis, player } = occupiableOasis;
 
   const { t } = useTranslation();
-  const { occupyOasis } = useOasis();
+  const { occupyOasis } = useOccupiableOasisInRange();
   const { villageTroops } = useVillageTroops();
   const { currentVillage } = useCurrentVillage();
 
@@ -151,50 +153,50 @@ const OccupiableOasisRowActions = ({
   );
 };
 
-type OccupiableOasisRowProps = {
-  occupiableOasisDTO: OccupiableOasisInRangeDTO;
+type OccupiableOasisSlotProps = {
+  occupiableOasis: ReturnType<
+    typeof useOccupiableOasisInRange
+  >['occupiableOasisInRange'][number];
   freeSlots: number;
 };
 
-const OccupiableOasisRow = ({
-  occupiableOasisDTO,
+const OccupiableOasisSlot = ({
+  occupiableOasis,
   freeSlots,
-}: OccupiableOasisRowProps) => {
-  const { oasis, village, player } = occupiableOasisDTO;
-
-  const oasisCoordinates = oasis.coordinates;
-  const villageCoordinates = village === null ? null : village.coordinates;
+}: OccupiableOasisSlotProps) => {
+  const { oasis, village, player } = occupiableOasis;
 
   return (
     <TableRow key={oasis.id}>
       <TableCell>
-        <Text>{player !== null ? player.name : '/'}</Text>
+        {player === null && <Text>/</Text>}
+        {player !== null && (
+          <Text variant="link">
+            <Link to={`../profile/${player.slug}`}>{player.name}</Link>
+          </Text>
+        )}
       </TableCell>
       <TableCell>
-        <Text>
-          {village !== null && (
+        {village === null && <Text>/</Text>}
+        {village !== null && (
+          <Text variant="link">
             <Link
-              className="underline"
-              to={`../map?x=${villageCoordinates!.x}&y=${villageCoordinates!.y}`}
+              to={`../map?x=${village.coordinates.x}&y=${village.coordinates.y}`}
             >
-              {village.name} ({villageCoordinates!.x}, {villageCoordinates!.y})
+              {village.name} ({village.coordinates.x}, {village.coordinates.y})
             </Link>
-          )}
-          {village === null && '/'}
-        </Text>
+          </Text>
+        )}
       </TableCell>
       <TableCell>
-        <Text>
-          <Link
-            className="underline"
-            to={`../map?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
-          >
-            {oasisCoordinates.x}, {oasisCoordinates.y}
+        <Text variant="link">
+          <Link to={`../map?x=${oasis.coordinates.x}&y=${oasis.coordinates.y}`}>
+            {oasis.coordinates.x}, {oasis.coordinates.y}
           </Link>
         </Text>
       </TableCell>
       <TableCell className="whitespace-nowrap">
-        {oasis.ORB.map(({ resource, bonus }, index) => (
+        {oasis.bonuses.map(({ resource, bonus }, index) => (
           <span
             className={clsx(
               'inline-flex items-center gap-1',
@@ -206,13 +208,13 @@ const OccupiableOasisRow = ({
               type={resource}
               className="flex size-5"
             />
-            {bonus}
+            {bonus}%
           </span>
         ))}
       </TableCell>
       <TableCell>
-        <OccupiableOasisRowActions
-          occupiableOasisDTO={occupiableOasisDTO}
+        <OccupiableOasisSlotActions
+          occupiableOasis={occupiableOasis}
           freeSlots={freeSlots}
         />
       </TableCell>
@@ -222,7 +224,7 @@ const OccupiableOasisRow = ({
 
 export const HerosMansionOasis = () => {
   const { t } = useTranslation();
-  const { occupiableOasisInRange } = useOasis();
+  const { occupiableOasisInRange } = useOccupiableOasisInRange();
   const { currentVillage } = useCurrentVillage();
 
   const heroMansionLevel =
@@ -303,21 +305,33 @@ export const HerosMansionOasis = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <OccupiedOasisRow
-                    occupiedOasis={firstOccupiedOasis?.oasis}
-                    heroMansionLevel={heroMansionLevel}
-                    heroMansionLevelRequirement={10}
-                  />
-                  <OccupiedOasisRow
-                    occupiedOasis={secondOccupiedOasis?.oasis}
-                    heroMansionLevel={heroMansionLevel}
-                    heroMansionLevelRequirement={15}
-                  />
-                  <OccupiedOasisRow
-                    occupiedOasis={thirdOccupiedOasis?.oasis}
-                    heroMansionLevel={heroMansionLevel}
-                    heroMansionLevelRequirement={20}
-                  />
+                  {!!firstOccupiedOasis && (
+                    <OccupiedOasisSlot occupiedOasis={firstOccupiedOasis} />
+                  )}
+                  {!firstOccupiedOasis && (
+                    <UnoccupiedOasisSlot
+                      heroMansionLevel={heroMansionLevel}
+                      heroMansionLevelRequirement={10}
+                    />
+                  )}
+                  {!!secondOccupiedOasis && (
+                    <OccupiedOasisSlot occupiedOasis={secondOccupiedOasis} />
+                  )}
+                  {!secondOccupiedOasis && (
+                    <UnoccupiedOasisSlot
+                      heroMansionLevel={heroMansionLevel}
+                      heroMansionLevelRequirement={15}
+                    />
+                  )}
+                  {!!thirdOccupiedOasis && (
+                    <OccupiedOasisSlot occupiedOasis={thirdOccupiedOasis} />
+                  )}
+                  {!thirdOccupiedOasis && (
+                    <UnoccupiedOasisSlot
+                      heroMansionLevel={heroMansionLevel}
+                      heroMansionLevelRequirement={20}
+                    />
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -353,11 +367,11 @@ export const HerosMansionOasis = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {occupiableOasisInRange.map((occupiableOasisDTO) => (
-                    <OccupiableOasisRow
-                      key={occupiableOasisDTO.oasis.id}
+                  {occupiableOasisInRange.map((occupiableOasis) => (
+                    <OccupiableOasisSlot
+                      key={occupiableOasis.oasis.id}
                       freeSlots={freeSlots}
-                      occupiableOasisDTO={occupiableOasisDTO}
+                      occupiableOasis={occupiableOasis}
                     />
                   ))}
                 </TableBody>

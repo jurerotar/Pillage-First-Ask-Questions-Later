@@ -32,7 +32,7 @@ const _getServerSchema = z.strictObject({
 export const useServer = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: server } = useSuspenseQuery<Server>({
+  const { data: server } = useSuspenseQuery({
     queryKey: [serverCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Server>('/server');

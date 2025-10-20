@@ -300,7 +300,7 @@ export const ProductionOverview = ({
                         <Text>{t('Oasis')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>
+                        <Text variant="link">
                           {/*<Link*/}
                           {/*  className="underline"*/}
                           {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
@@ -411,7 +411,7 @@ export const ProductionOverview = ({
                           <Text>{t('Oasis')}</Text>
                         </TableCell>
                         <TableCell>
-                          <Text>
+                          <Text variant="link">
                             {/*<Link*/}
                             {/*  className="underline"*/}
                             {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}

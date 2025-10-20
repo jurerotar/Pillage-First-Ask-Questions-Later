@@ -65,9 +65,13 @@ export const generateNpcPlayers = (
 
   const { totalTiles } = calculateGridLayout(mapSize);
 
-  const playerCount = Math.round((playerDensity * totalTiles) / 100) * 100;
+  const totalPlayerCount =
+    Math.round((playerDensity * totalTiles + 1) / 100) * 100;
 
-  return [...Array(playerCount)].map((_, index) => {
+  // Subtract 1 player to account for player
+  const npcCount = totalPlayerCount - 1;
+
+  return [...Array(npcCount)].map((_, index) => {
     const faction = seededRandomArrayElement<FactionName>(prng, npcFactions);
     // We do +2 because user's player always has the id of 1
     return npcPlayerFactory({ faction, prng, id: index + 2 });

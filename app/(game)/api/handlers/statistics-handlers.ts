@@ -2,7 +2,7 @@ import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
 import type { Player } from 'app/interfaces/models/game/player';
 
-const getPlayerStatisticsSchema = z
+const getPlayerRankingsSchema = z
   .strictObject({
     faction_id: z.string().brand<Player['faction']>(),
     id: z.number(),
@@ -28,13 +28,14 @@ type GetPlayersStatisticsBody = {
   lastPlayerId: number | null;
 };
 
-export const getPlayerStatistics: ApiHandler<
-  z.infer<typeof getPlayerStatisticsSchema>[],
+export const getPlayerRankings: ApiHandler<
+  z.infer<typeof getPlayerRankingsSchema>[],
   '',
   GetPlayersStatisticsBody
 > = (database, { body }) => {
   const { lastPlayerId = null } = body;
 
+  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
   const rows = database.selectObjects(
     `
       WITH player_pop AS (SELECT p.id,
@@ -77,17 +78,16 @@ export const getPlayerStatistics: ApiHandler<
           )
         )
       ORDER BY total_population DESC, id
-      LIMIT 50;
     `,
     {
       $last_player_id: lastPlayerId,
     },
   );
 
-  return z.array(getPlayerStatisticsSchema).parse(rows);
+  return z.array(getPlayerRankingsSchema).parse(rows);
 };
 
-const getVillageStatisticsSchema = z
+const getVillageRankingsSchema = z
   .strictObject({
     village_id: z.number(),
     village_name: z.string(),
@@ -96,6 +96,7 @@ const getVillageStatisticsSchema = z
     population: z.number(),
     player_id: z.number(),
     player_name: z.string(),
+    player_slug: z.string(),
   })
   .transform((t) => {
     return {
@@ -108,6 +109,7 @@ const getVillageStatisticsSchema = z
       population: t.population,
       playerId: t.player_id,
       playerName: t.player_name,
+      playerSlug: t.player_slug,
     };
   });
 
@@ -115,13 +117,14 @@ type GetVillageStatisticsBody = {
   lastVillageId: number | null;
 };
 
-export const getVillageStatistics: ApiHandler<
-  z.infer<typeof getVillageStatisticsSchema>[],
+export const getVillageRankings: ApiHandler<
+  z.infer<typeof getVillageRankingsSchema>[],
   '',
   GetVillageStatisticsBody
 > = (database, { body }) => {
   const { lastVillageId = null } = body;
 
+  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
   const rows = database.selectObjects(
     `
       WITH village_pop AS (SELECT v.id AS village_id,
@@ -130,6 +133,7 @@ export const getVillageStatistics: ApiHandler<
                                   t.y AS coordinates_y,
                                   v.player_id,
                                   p.name AS player_name,
+                                  p.slug AS player_slug,
                                   -- integer population (sum of matching effect values)
                                   CAST(
                                     COALESCE(
@@ -155,13 +159,14 @@ export const getVillageStatistics: ApiHandler<
                           FROM village_pop
                           WHERE village_id = $last_village_id)
 
-      SELECT village_id AS id,
-             village_name AS name,
+      SELECT village_id,
+             village_name,
              coordinates_x,
              coordinates_y,
              population,
              player_id,
-             player_name
+             player_name,
+             player_slug
       FROM village_pop
       WHERE ($last_village_id IS NULL)
          OR (
@@ -172,12 +177,11 @@ export const getVillageStatistics: ApiHandler<
           )
         )
       ORDER BY population DESC, village_id
-      LIMIT 50;
     `,
     {
       $last_village_id: lastVillageId,
     },
   );
 
-  return z.array(getVillageStatisticsSchema).parse(rows);
+  return z.array(getVillageRankingsSchema).parse(rows);
 };

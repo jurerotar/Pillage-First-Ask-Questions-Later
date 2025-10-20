@@ -7,7 +7,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 export const useUnitImprovement = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: unitImprovements } = useSuspenseQuery<UnitImprovement[]>({
+  const { data: unitImprovements } = useSuspenseQuery({
     queryKey: [unitImprovementCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<UnitImprovement[]>(

@@ -1,4 +1,4 @@
-import type { DbFacade } from 'app/(game)/api/database-facade';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import { PLAYER_ID } from 'app/constants/player';
 
 export const addHeroExperience = (database: DbFacade, experience: number) => {

@@ -18,9 +18,7 @@ export const useArtifactsAroundCurrentVillage = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: artifactsAroundCurrentVillage } = useSuspenseQuery<
-    z.infer<typeof _getArtifactsAroundCurrentVillageSchema>[]
-  >({
+  const { data: artifactsAroundCurrentVillage } = useSuspenseQuery({
     queryKey: [artifactsInVicinityCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<

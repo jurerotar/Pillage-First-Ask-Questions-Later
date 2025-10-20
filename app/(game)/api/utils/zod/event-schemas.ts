@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 
 export const eventSchema = z
   .strictObject({
@@ -23,3 +26,11 @@ export const eventSchema = z
         ...(t.meta !== null ? JSON.parse(t.meta) : {}),
       }) as GameEvent,
   );
+
+export const parseEvent = <T extends GameEventType>(row: unknown) => {
+  return eventSchema.parse(row) as GameEvent<T>;
+};
+
+export const parseEvents = <T extends GameEventType>(row: unknown[]) => {
+  return z.array(eventSchema).parse(row) as GameEvent<T>[];
+};

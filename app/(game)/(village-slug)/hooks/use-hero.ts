@@ -23,7 +23,7 @@ const _getHeroSchema = z.strictObject({
 export const useHero = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: hero } = useSuspenseQuery<Hero>({
+  const { data: hero } = useSuspenseQuery({
     queryKey: [heroCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Hero>('/me/hero');

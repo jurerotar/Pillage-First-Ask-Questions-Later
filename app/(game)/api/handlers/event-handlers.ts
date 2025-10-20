@@ -1,22 +1,24 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import { partition } from 'app/utils/common';
-import { isBuildingEvent } from 'app/(game)/guards/event-guards';
+import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
+import {
+  eventSchema,
+  parseEvent,
+  parseEvents,
+} from 'app/(game)/api/utils/zod/event-schemas';
+import { z } from 'zod';
+import {
+  selectAllVillageEventsByTypeQuery,
+  selectAllVillageEventsQuery,
+  selectEventByIdQuery,
+} from 'app/(game)/api/utils/queries/event-queries';
+import { scheduleNextEvent } from 'app/(game)/api/engine/scheduler';
 import { calculateBuildingCancellationRefundForLevel } from 'app/assets/utils/buildings';
 import {
   addVillageResourcesAt,
   demolishBuilding,
 } from 'app/(game)/api/utils/village';
-import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
-import { getCurrentPlayer } from 'app/(game)/api/utils/player';
-import { eventSchema } from 'app/(game)/api/utils/zod/event-schemas';
-import { z } from 'zod';
-import {
-  selectAllVillageEventsByTypeQuery,
-  selectAllVillageEventsQuery,
-  selectVillageBuildingEventsQuery,
-} from 'app/(game)/api/utils/queries/event-queries';
+import { getEventStartTime } from 'app/(game)/api/handlers/utils/events';
 
 const eventListSchema = z.array(eventSchema);
 
@@ -57,7 +59,11 @@ export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = (
 ) => {
   const { body } = args;
 
-  createClientEvents(database, body);
+  const createdImmediate = createEvents(database, body);
+
+  if (createdImmediate) {
+    scheduleNextEvent(database);
+  }
 };
 
 export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
@@ -68,120 +74,82 @@ export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
     params: { eventId },
   } = args;
 
-  const { tribe } = getCurrentPlayer(database);
-
   database.transaction((db) => {
-    const cancelledRow = db.selectObject(
-      `
-        SELECT id, type, starts_at, duration, resolves_at, meta, village_id
-        FROM events
-        WHERE id = $eventId
-      `,
-      { $eventId: eventId },
-    );
+    const cancelledEventRow = db.selectObject(selectEventByIdQuery, {
+      $event_id: eventId,
+    });
 
-    if (!cancelledRow) {
-      return;
+    const cancelledEvent = parseEvent<'buildingLevelChange'>(cancelledEventRow);
+
+    const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
+      cancelledEvent;
+
+    // Delete this event and all future events on the same building fields
+    const cancelledScheduledEvents = db.selectObjects(
+      `
+        DELETE
+        FROM events
+        WHERE village_id = $village_id
+          AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
+          AND resolves_at >= $resolves_at
+        RETURNING
+          JSON_EXTRACT(events.meta, '$.buildingFieldId') AS buildingFieldId,
+          JSON_EXTRACT(events.meta, '$.level') AS level;
+        ;
+      `,
+      {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+        $resolves_at: resolvesAt,
+      },
+    ) as { buildingFieldId: number; level: number }[];
+
+    for (const { buildingFieldId, level } of cancelledScheduledEvents) {
+      // If building is currently upgrading to level 1, we need to demolish it
+      if (level === 1) {
+        demolishBuilding(db, villageId, buildingFieldId);
+      }
     }
 
-    const cancelledEvent = eventSchema.parse(
-      cancelledRow,
-    ) as GameEvent<'buildingConstruction'>;
-
-    const rows = db.selectObjects(selectVillageBuildingEventsQuery, {
-      $village_id: cancelledEvent.villageId,
-    });
-    const allVillageEvents = z.array(eventSchema).parse(rows);
-
-    // If there's other building upgrades of same building, we need to cancel them as well
-    const [eventsToRemove, eventsToKeep] = partition(
-      allVillageEvents,
-      (event) => {
-        if (!isBuildingEvent(event)) {
-          return false;
-        }
-
-        return (
-          cancelledEvent.villageId === event.villageId &&
-          cancelledEvent.buildingFieldId === event.buildingFieldId &&
-          cancelledEvent.startsAt <= event.startsAt
-        );
+    // Remaining building events now need to have their start times adjusted.
+    // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
+    const scheduledConstructionRows = db.selectObjects(
+      selectAllVillageEventsByTypeQuery,
+      {
+        $village_id: villageId,
+        $type: 'buildingScheduledConstruction',
       },
     );
 
-    if (eventsToRemove.length === 0) {
-      return; // Nothing to remove
-    }
-
-    // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
-    const eventToRemove = eventsToRemove.at(
-      -1,
-    ) as GameEvent<'buildingConstruction'>;
-
-    const { buildingFieldId, buildingId, level, villageId } = eventToRemove;
-
-    const buildingEvents = eventsToKeep.filter(isBuildingEvent);
-
-    // Romans effectively have 2 queues, so we only limit ourselves to the relevant one
-    const eligibleEvents =
-      tribe === 'romans'
-        ? buildingEvents.filter((event) => {
-            if (buildingFieldId <= 18) {
-              return event.buildingFieldId <= 18;
-            }
-
-            return event.buildingFieldId > 18;
-          })
-        : buildingEvents;
-
-    // If we're building a new building (level 0 -> 1), remove the building on cancel
-    if (level === 1) {
-      demolishBuilding(db, villageId, buildingFieldId);
-    }
-
-    const now = Date.now();
-
-    // Remove all selected events (the cancelled one and chained upgrades for the same field)
-    {
-      const idsToRemove = eventsToRemove.map((e) => e.id);
-      if (idsToRemove.length > 0) {
-        const placeholders = idsToRemove.map((_, i) => `$id${i}`).join(',');
-        const bind = Object.fromEntries(
-          idsToRemove.map((v, i) => [`$id${i}`, v]),
-        );
-        db.exec(`DELETE FROM events WHERE id IN (${placeholders})`, bind);
-      }
-    }
-
-    // Determine the base start time for scheduled events in the same (roman-aware) queue
-    const activeInQueue = eligibleEvents.find(
-      (e) => e.startsAt <= now && now < e.startsAt + e.duration,
-    );
-    let nextStart = activeInQueue
-      ? activeInQueue.startsAt + activeInQueue.duration
-      : now;
-
-    // Reschedule remaining scheduled events in this queue to start as soon as possible (contiguously)
-    const scheduledInQueue = eligibleEvents
-      .filter((e) => e.startsAt > now)
-      .toSorted((a, b) => a.startsAt - b.startsAt);
-
-    for (const e of scheduledInQueue) {
-      if (e.startsAt !== nextStart) {
-        db.exec('UPDATE events SET starts_at = $startsAt WHERE id = $id', {
-          $startsAt: nextStart,
-          $id: e.id,
-        });
-      }
-      nextStart += e.duration;
-    }
-
-    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
-      buildingId,
-      level,
+    const scheduledEvents = parseEvents<'buildingScheduledConstruction'>(
+      scheduledConstructionRows,
     );
 
-    addVillageResourcesAt(db, villageId, Date.now(), resourcesToRefund);
+    for (const event of scheduledEvents) {
+      const startsAt = getEventStartTime(db, event);
+
+      db.exec(
+        `
+          UPDATE events
+          SET starts_at = $starts_at
+          WHERE id = $event_id;
+        `,
+        {
+          $event_id: event.id,
+          $starts_at: startsAt,
+        },
+      );
+    }
+
+    // If event is already ongoing, refund resources
+    if (cancelledEvent.type === 'buildingLevelChange') {
+      const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
+        buildingId,
+        level,
+      );
+
+      addVillageResourcesAt(db, villageId, Date.now(), resourcesToRefund);
+    }
   });
 
   scheduleNextEvent(database);

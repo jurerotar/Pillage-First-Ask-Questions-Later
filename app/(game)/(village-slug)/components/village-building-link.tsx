@@ -28,7 +28,12 @@ export const VillageBuildingLink = ({
         as="span"
         variant="link"
       >
-        <Link to={`${matchingBuildingField.id}`}>{buildingName}</Link>
+        <Link
+          relative="path"
+          to={`../${matchingBuildingField.id}`}
+        >
+          {buildingName}
+        </Link>
       </Text>
     );
   }

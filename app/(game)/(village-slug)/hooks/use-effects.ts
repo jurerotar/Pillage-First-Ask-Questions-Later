@@ -9,7 +9,7 @@ export const useEffects = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: effects } = useSuspenseQuery<Effect[]>({
+  const { data: effects } = useSuspenseQuery({
     queryKey: [effectsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<Effect[]>(

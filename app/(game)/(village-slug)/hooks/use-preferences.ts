@@ -32,7 +32,7 @@ export const usePreferences = () => {
   const { fetcher } = use(ApiContext);
   const { i18n } = useTranslation();
 
-  const { data: preferences } = useSuspenseQuery<Preferences>({
+  const { data: preferences } = useSuspenseQuery({
     queryKey: [preferencesCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Preferences>('/me/preferences');

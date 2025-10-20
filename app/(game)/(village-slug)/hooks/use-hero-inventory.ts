@@ -12,9 +12,7 @@ const _getHeroInventorySchema = z.strictObject({
 export const useHeroInventory = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: heroInventory } = useSuspenseQuery<
-    z.infer<typeof _getHeroInventorySchema>[]
-  >({
+  const { data: heroInventory } = useSuspenseQuery({
     queryKey: [heroInventoryCacheKey],
     queryFn: async () => {
       const { data } =

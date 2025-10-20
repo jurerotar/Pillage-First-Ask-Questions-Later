@@ -2,7 +2,7 @@ import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
-import type { DbFacade } from 'app/(game)/api/database-facade';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 
 export type Resolver<T extends GameEvent> = (
   database: DbFacade,

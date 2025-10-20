@@ -11,7 +11,7 @@ export const useVillages = () => {
   const { fetcher } = use(ApiContext);
   const { playerVillages } = usePlayerVillages();
 
-  const { data: npcVillages } = useSuspenseQuery<Village[]>({
+  const { data: npcVillages } = useSuspenseQuery({
     queryKey: [villagesCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Village[]>('/villages');

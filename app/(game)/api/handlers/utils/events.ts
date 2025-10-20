@@ -28,15 +28,11 @@ import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from 'app/(game)/api/utils/village';
-import { getCurrentPlayer } from 'app/(game)/api/utils/player';
-import type { DbFacade } from 'app/(game)/api/database-facade';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import { selectAllRelevantEffectsByIdQuery } from 'app/(game)/api/utils/queries/effect-queries';
 import { effectSchema } from 'app/(game)/api/utils/zod/effect-schemas';
 import { z } from 'zod';
-import {
-  selectAllVillageEventsByTypeQuery,
-  selectVillageBuildingEventsQuery,
-} from 'app/(game)/api/utils/queries/event-queries';
+import { selectAllVillageEventsByTypeQuery } from 'app/(game)/api/utils/queries/event-queries';
 import { eventSchema } from 'app/(game)/api/utils/zod/event-schemas';
 import type { SQLOutputValue } from 'node:sqlite';
 
@@ -101,8 +97,10 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]) => {
   const amountOfColumnsToInsert = requiredEventProperties.size + 1;
 
   const sqlTemplate = `
-    INSERT INTO events (id, type, starts_at, duration, village_id, meta)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO
+      events (id, type, starts_at, duration, village_id, meta)
+    VALUES
+      (?, ?, ?, ?, ?, ?)
   `;
 
   const amountOfEvents = events.length;
@@ -336,54 +334,61 @@ export const getEventStartTime = (
   }
 
   if (isScheduledBuildingEvent(event)) {
-    const { buildingFieldId, villageId } = event;
+    const { villageId, buildingFieldId } = event;
 
-    const { tribe } = getCurrentPlayer(database);
-
-    const buildingEventRows = database.selectObjects(
-      selectVillageBuildingEventsQuery,
+    const resolvesAt = database.selectValue(
+      `
+        WITH
+          player_tribe AS (
+            SELECT p.tribe AS tribe
+            FROM
+              villages v
+                JOIN players p ON p.id = v.player_id
+            WHERE
+              v.id = $village_id
+            )
+        SELECT
+          COALESCE(
+            (
+              SELECT MAX(e.resolves_at)
+              FROM
+                events e,
+                player_tribe pt
+              WHERE
+                e.type = 'buildingLevelChange'
+                AND e.village_id = $village_id
+                AND (
+                  -- If player is not Romans, include all building events
+                  pt.tribe <> 'romans'
+                    -- If Romans, only include events from the same "half" (<=18 or >18)
+                    OR (
+                    (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18 AND $building_field_id <= 18)
+                      OR
+                    (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18 AND $building_field_id > 18)
+                    )
+                  )
+              ),
+            $now
+          ) AS resolves_at;
+      `,
       {
         $village_id: villageId,
+        $building_field_id: buildingFieldId,
+        $now: Date.now(),
       },
-    );
+    ) as number;
 
-    const buildingEvents = eventsListSchema.parse(
-      buildingEventRows,
-    ) as GameEvent<'buildingLevelChange'>[];
-
-    if (tribe === 'romans') {
-      const relevantEvents = buildingEvents.filter((event) => {
-        if (buildingFieldId <= 18) {
-          return event.buildingFieldId <= 18;
-        }
-
-        return event.buildingFieldId > 18;
-      });
-
-      if (relevantEvents.length > 0) {
-        const lastEvent = relevantEvents.at(-1)!;
-        return lastEvent.startsAt + lastEvent.duration;
-      }
-
-      return Date.now();
-    }
-
-    if (buildingEvents.length > 0) {
-      const lastEvent = buildingEvents.at(-1)!;
-      return lastEvent.startsAt;
-    }
-
-    return Date.now();
-  }
-
-  if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
-    return Date.now();
+    return resolvesAt;
   }
 
   if (isAdventurePointIncreaseEvent(event)) {
     const { startsAt, duration } = event;
 
     return startsAt + duration;
+  }
+
+  if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
+    return Date.now();
   }
 
   return Date.now();

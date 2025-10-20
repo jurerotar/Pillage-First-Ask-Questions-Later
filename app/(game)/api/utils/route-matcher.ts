@@ -1,4 +1,4 @@
-import { compiledApiRoutes } from 'app/(game)/api/api-routes';
+import { compiledApiRoutes } from 'app/(game)/api/routes/api-routes';
 import { PLAYER_ID } from 'app/constants/player';
 
 // These params are automatically cast as numbers

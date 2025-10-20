@@ -8,7 +8,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 export const useReputations = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: reputations } = useSuspenseQuery<Reputation[]>({
+  const { data: reputations } = useSuspenseQuery({
     queryKey: [reputationsCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Reputation[]>('/me/reputations');

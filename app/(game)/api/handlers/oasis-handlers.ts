@@ -34,7 +34,7 @@ export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = (
       db.exec(
         `
           INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-          VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier);
+          VALUES ((SELECT id FROM effect_ids WHERE effect = $effect_id), $value, $type, $scope, $source, $village_id, $source_specifier);
         `,
         {
           $effect_id: effectId,

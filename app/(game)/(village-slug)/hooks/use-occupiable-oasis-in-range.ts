@@ -3,27 +3,59 @@ import type { Tile } from 'app/interfaces/models/game/tile';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
 import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { z } from 'zod';
 
 type AbandonOasisArgs = {
   oasisId: Tile['id'];
 };
 
+const _getOccupiableOasisInRangeSchema = z.strictObject({
+  oasis: z.strictObject({
+    id: z.number(),
+    coordinates: z.strictObject({
+      x: z.number(),
+      y: z.number(),
+    }),
+    bonuses: z.array(
+      z.strictObject({
+        resource: z.enum(['wood', 'clay', 'iron', 'wheat']),
+        bonus: z.number(),
+      }),
+    ),
+  }),
+  village: z
+    .object({
+      id: z.number(),
+      coordinates: z.strictObject({
+        x: z.number(),
+        y: z.number(),
+      }),
+      name: z.string(),
+      slug: z.string(),
+    })
+    .nullable(),
+  player: z
+    .object({
+      id: z.number(),
+      name: z.string(),
+      slug: z.string(),
+    })
+    .nullable(),
+});
+
 const occupiableOasisInRangeCacheKey = 'occupiable-oasis-in-range';
 
-export const useOasis = () => {
+export const useOccupiableOasisInRange = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: occupiableOasisInRange } = useSuspenseQuery<
-    OccupiableOasisInRangeDTO[]
-  >({
-    queryKey: [occupiableOasisInRangeCacheKey, currentVillage.tileId],
+  const { data: occupiableOasisInRange } = useSuspenseQuery({
+    queryKey: [occupiableOasisInRangeCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<OccupiableOasisInRangeDTO[]>(
-        `/tiles/${currentVillage.tileId}/occupiable-oasis`,
-      );
+      const { data } = await fetcher<
+        z.infer<typeof _getOccupiableOasisInRangeSchema>[]
+      >(`/villages/${currentVillage.id}/occupiable-oasis`);
       return data;
     },
   });

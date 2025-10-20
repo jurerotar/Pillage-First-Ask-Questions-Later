@@ -1,11 +1,11 @@
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
-import { createDbFacade } from 'app/(game)/api/database-facade';
+import { createDbFacade } from 'app/(game)/api/facades/database-facade';
+import { scheduleNextEvent } from 'app/(game)/api/engine/scheduler';
 
 const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
 
@@ -30,7 +30,7 @@ try {
     PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
   `);
 
-  const database = createDbFacade(opfsDb);
+  const database = createDbFacade(opfsDb, false);
 
   scheduleNextEvent(database);
 

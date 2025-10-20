@@ -7,7 +7,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 export const usePlayerVillages = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: playerVillages } = useSuspenseQuery<Village[]>({
+  const { data: playerVillages } = useSuspenseQuery({
     queryKey: [playerVillagesCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<Village[]>('/me/villages');

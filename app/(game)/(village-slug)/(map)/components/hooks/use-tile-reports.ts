@@ -7,7 +7,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 export const useTileReports = (tileId: Tile['id']) => {
   const { fetcher } = use(ApiContext);
 
-  const { data: reports } = useSuspenseQuery<Report[]>({
+  const { data: reports } = useSuspenseQuery({
     queryKey: ['tile-reports', tileId],
     queryFn: async () => {
       const { data } = await fetcher<Report[]>(`/tiles/${tileId}/reports`);
