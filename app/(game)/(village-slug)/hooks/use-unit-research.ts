@@ -1,12 +1,17 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Unit } from 'app/interfaces/models/game/unit';
-import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
+import { type Unit, unitIdSchema } from 'app/interfaces/models/game/unit';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { z } from 'zod';
+
+const getResearchedUnitsSchema = z.strictObject({
+  unitId: unitIdSchema,
+  villageId: z.number(),
+});
 
 export const useUnitResearch = () => {
   const { fetcher } = use(ApiContext);
@@ -14,6 +19,7 @@ export const useUnitResearch = () => {
   const { currentVillage } = useCurrentVillage();
 
   const unitsByTribe = getUnitsByTribe(tribe);
+
   const researchableUnits = unitsByTribe.filter(
     (unit) => !unit.id.includes('SETTLER'),
   );
@@ -21,9 +27,9 @@ export const useUnitResearch = () => {
   const { data: unitResearch } = useSuspenseQuery({
     queryKey: [unitResearchCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<UnitResearch[]>(
-        `/researched-units/${currentVillage.id}`,
-      );
+      const { data } = await fetcher<
+        z.infer<typeof getResearchedUnitsSchema>[]
+      >(`/researched-units/${currentVillage.id}`);
       return data;
     },
   });

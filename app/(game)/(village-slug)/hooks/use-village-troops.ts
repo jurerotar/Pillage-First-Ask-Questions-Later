@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Troop } from 'app/interfaces/models/game/troop';
+import { troopSchema } from 'app/interfaces/models/game/troop';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -14,13 +14,6 @@ type SendTroopsArgs = Pick<
   'troops' | 'targetId' | 'movementType'
 >;
 
-const _getVillageTroopsSchema = z.strictObject({
-  unitId: z.string(),
-  amount: z.number().min(1),
-  tileId: z.number(),
-  source: z.number(),
-});
-
 export const useVillageTroops = () => {
   const { fetcher } = use(ApiContext);
   const { createEvent: createTroopMovementEvent } =
@@ -30,10 +23,9 @@ export const useVillageTroops = () => {
   const { data: villageTroops } = useSuspenseQuery({
     queryKey: [playerTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
-      const { data } = await fetcher<Troop[]>(
-        `/villages/${currentVillage.id}/troops`,
-      );
-      return data;
+      const { data } = await fetcher(`/villages/${currentVillage.id}/troops`);
+
+      return z.array(troopSchema).parse(data);
     },
   });
 

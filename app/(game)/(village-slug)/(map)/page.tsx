@@ -1,7 +1,6 @@
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
-import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
   MapContext,
@@ -11,7 +10,6 @@ import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
-import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useLocation } from 'react-router';
 import {
@@ -22,12 +20,13 @@ import {
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Dialog } from 'app/components/ui/dialog';
-import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
+import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -39,8 +38,8 @@ const MapPageContents = () => {
     openModal,
     toggleModal,
     modalArgs,
-  } = useDialog<TileType | null>();
-  const { contextualMap, getTileByTileId } = useMap();
+  } = useDialog<ReturnType<typeof useMap>['contextualMap'][0] | null>();
+  const { contextualMap } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
@@ -93,7 +92,7 @@ const MapPageContents = () => {
       mapFilters,
       magnification,
       preferences,
-      onClick: (tile: TileType) => {
+      onClick: (tile: ReturnType<typeof useMap>['contextualMap'][0]) => {
         openModal(tile);
       },
     };
@@ -236,16 +235,17 @@ const MapPageContents = () => {
     ({
       activeAnchor,
     }: Parameters<NonNullable<ReactTooltipProps['render']>>[0]) => {
-      const tileId = activeAnchor?.getAttribute('data-tile-id');
+      const tileIdAttr = activeAnchor?.getAttribute('data-tile-id');
 
-      if (!tileId) {
+      if (!tileIdAttr) {
         return null;
       }
 
-      const tile = getTileByTileId(Number.parseInt(tileId, 10));
-      return <TileTooltip tile={tile} />;
+      const tileId = Number.parseInt(tileIdAttr, 10);
+
+      return <TileTooltip tileId={tileId} />;
     },
-    [getTileByTileId],
+    [],
   );
 
   return (

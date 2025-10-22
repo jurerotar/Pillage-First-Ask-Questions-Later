@@ -22,9 +22,7 @@ const getMapFiltersSchema = z
     };
   });
 
-export const getMapFilters: ApiHandler<z.infer<typeof getMapFiltersSchema>> = (
-  database,
-) => {
+export const getMapFilters: ApiHandler = (database) => {
   const row = database.selectObject(
     `
     SELECT
@@ -44,11 +42,10 @@ type UpdateMapFilterBody = {
   value: boolean;
 };
 
-export const updateMapFilter: ApiHandler<
-  void,
-  'filterName',
-  UpdateMapFilterBody
-> = (database, { params, body }) => {
+export const updateMapFilter: ApiHandler<'filterName', UpdateMapFilterBody> = (
+  database,
+  { params, body },
+) => {
   const { filterName } = params;
   const { value } = body;
 

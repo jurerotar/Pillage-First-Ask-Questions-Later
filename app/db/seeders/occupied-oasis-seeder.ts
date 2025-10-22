@@ -1,11 +1,14 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { TileModel } from 'app/interfaces/models/game/tile';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { getVillageSize } from 'app/db/utils/village-size';
 
-type OccupiableField = Pick<TileModel, 'id' | 'x' | 'y'>;
+type OccupiableField = {
+  id: number;
+  x: number;
+  y: number;
+};
 
 const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
   ['xxs', 0],
@@ -29,10 +32,9 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
     'SELECT oasis.id, x, y FROM tiles INNER JOIN oasis ON tiles.id = oasis.tile_id;',
   ) as OccupiableField[];
 
-  const occupiableOasisMap = new Map<
-    `${TileModel['x']}-${TileModel['y']}`,
-    OccupiableField
-  >(occupiableOasis.map((oasis) => [`${oasis.x}-${oasis.y}`, oasis]));
+  const occupiableOasisMap = new Map<`${number}-${number}`, OccupiableField>(
+    occupiableOasis.map((oasis) => [`${oasis.x}-${oasis.y}`, oasis]),
+  );
 
   const oasisByVillages: [number, number][] = [];
 
@@ -48,7 +50,7 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
 
     outer: for (let dx = -3; dx <= 3; dx += 1) {
       for (let dy = -3; dy <= 3; dy += 1) {
-        const key: `${TileModel['x']}-${TileModel['y']}` = `${x + dx}-${y + dy}`;
+        const key: `${number}-${number}` = `${x + dx}-${y + dy}`;
 
         const candidateTile = occupiableOasisMap.get(key);
         if (!candidateTile) {

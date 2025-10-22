@@ -9,6 +9,15 @@ import {
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { z } from 'zod';
+
+const getQuestsSchema = z.strictObject({
+  id: z.string(),
+  scope: z.enum(['village', 'global']),
+  collectedAt: z.number().nullable(),
+  completedAt: z.number().nullable(),
+  villageId: z.number().optional(),
+});
 
 export const useQuests = () => {
   const { fetcher } = use(ApiContext);
@@ -17,10 +26,9 @@ export const useQuests = () => {
   const { data: quests } = useSuspenseQuery({
     queryKey: [questsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<Quest[]>(
-        `/villages/${currentVillage.id}/quests`,
-      );
-      return data;
+      const { data } = await fetcher(`/villages/${currentVillage.id}/quests`);
+
+      return z.array(getQuestsSchema).parse(data);
     },
   });
 

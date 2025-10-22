@@ -17,7 +17,8 @@ import {
 } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
 import { getUnitDefinition } from 'app/assets/utils/units';
-import type { Unit } from 'app/interfaces/models/game/unit';
+import { type Unit, unitIdSchema } from 'app/interfaces/models/game/unit';
+import { resourceSchema } from 'app/interfaces/models/game/resource';
 
 const heroEffectsFactory = (
   server: Server,
@@ -270,7 +271,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
 
   // Troop effects
   const troopsSchema = z.object({
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     amount: z.number(),
     village_id: z.number(),
   });
@@ -312,7 +313,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
   const oasisFieldsSchema = z.object({
     tile_id: z.number(),
     village_id: z.number(),
-    resource: z.enum(['wood', 'clay', 'iron', 'wheat']),
+    resource: resourceSchema,
     bonus: z.number(),
   });
 

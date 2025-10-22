@@ -1,4 +1,4 @@
-import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/building-field';
 import { useState, use } from 'react';
 import type { Building } from 'app/interfaces/models/game/building';

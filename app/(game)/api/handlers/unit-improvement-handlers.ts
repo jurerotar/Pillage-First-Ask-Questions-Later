@@ -1,9 +1,10 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
 
 const getUnitImprovementsSchema = z
   .strictObject({
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     level: z.number(),
   })
   .transform((t) => {
@@ -13,10 +14,10 @@ const getUnitImprovementsSchema = z
     };
   });
 
-export const getUnitImprovements: ApiHandler<
-  z.infer<typeof getUnitImprovementsSchema>[],
-  'playerId'
-> = (database, { params }) => {
+export const getUnitImprovements: ApiHandler<'playerId'> = (
+  database,
+  { params },
+) => {
   const { playerId } = params;
 
   const unitImprovementModel = database.selectObjects(
@@ -26,7 +27,5 @@ export const getUnitImprovements: ApiHandler<
     },
   );
 
-  const listSchema = z.array(getUnitImprovementsSchema);
-
-  return listSchema.parse(unitImprovementModel);
+  return z.array(getUnitImprovementsSchema).parse(unitImprovementModel);
 };

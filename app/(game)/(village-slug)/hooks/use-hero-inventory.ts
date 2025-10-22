@@ -3,11 +3,7 @@ import { heroInventoryCacheKey } from 'app/(game)/(village-slug)/constants/query
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { z } from 'zod';
-
-const _getHeroInventorySchema = z.strictObject({
-  id: z.string(),
-  amount: z.number(),
-});
+import { heroItemSchema } from 'app/interfaces/models/game/hero-item';
 
 export const useHeroInventory = () => {
   const { fetcher } = use(ApiContext);
@@ -15,11 +11,9 @@ export const useHeroInventory = () => {
   const { data: heroInventory } = useSuspenseQuery({
     queryKey: [heroInventoryCacheKey],
     queryFn: async () => {
-      const { data } =
-        await fetcher<z.infer<typeof _getHeroInventorySchema>[]>(
-          '/me/hero/inventory',
-        );
-      return data;
+      const { data } = await fetcher('/me/hero/inventory');
+
+      return z.array(heroItemSchema).parse(data);
     },
   });
 

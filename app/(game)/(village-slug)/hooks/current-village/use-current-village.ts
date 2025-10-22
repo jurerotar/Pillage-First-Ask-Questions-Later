@@ -1,37 +1,9 @@
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { Village } from 'app/interfaces/models/game/village';
+import { villageSchema } from 'app/interfaces/models/game/village';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { z } from 'zod';
-
-const buildingFieldRowSchema = z.object({
-  id: z.number(),
-  buildingId: z.string(),
-  level: z.number(),
-});
-
-const _getVillageBySlugSchema = z.strictObject({
-  id: z.number(),
-  tileId: z.number(),
-  playerId: z.number(),
-  name: z.string(),
-  slug: z.string(),
-  coordinates: {
-    x: z.number(),
-    y: z.number(),
-  },
-  lastUpdatedAt: z.number(),
-  resources: {
-    wood: z.number(),
-    clay: z.number(),
-    iron: z.number(),
-    wheat: z.number(),
-  },
-  resourceFieldComposition: z.string(),
-  buildingFields: z.array(buildingFieldRowSchema),
-});
 
 export const useCurrentVillage = () => {
   const { fetcher } = use(ApiContext);
@@ -40,8 +12,9 @@ export const useCurrentVillage = () => {
   const { data: currentVillage } = useSuspenseQuery({
     queryKey: [playerVillagesCacheKey, villageSlug],
     queryFn: async () => {
-      const { data } = await fetcher<Village>(`/villages/${villageSlug}`);
-      return data;
+      const { data } = await fetcher(`/villages/${villageSlug}`);
+
+      return villageSchema.parse(data);
     },
     staleTime: 20_000,
   });

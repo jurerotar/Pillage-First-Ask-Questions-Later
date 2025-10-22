@@ -1,9 +1,9 @@
-import type { Village, VillageModel } from 'app/interfaces/models/game/village';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import { selectAllRelevantEffectsQuery } from 'app/(game)/api/utils/queries/effect-queries';
+import type { Resource } from 'app/interfaces/models/game/resource';
 
 export const demolishBuilding = (
   database: DbFacade,
@@ -43,7 +43,7 @@ export const demolishBuilding = (
 
 export const calculateVillageResourcesAt = (
   database: DbFacade,
-  villageId: Village['id'],
+  villageId: number,
   timestamp: number,
 ) => {
   const effects = database.selectObjects(selectAllRelevantEffectsQuery, {
@@ -96,10 +96,7 @@ export const calculateVillageResourcesAt = (
       WHERE v.id = $village_id;
     `,
     { $village_id: villageId },
-  ) as Pick<
-    VillageModel,
-    'wood' | 'clay' | 'iron' | 'wheat' | 'last_updated_at'
-  >;
+  ) as Record<Resource | 'last_updated_at', number>;
 
   const {
     currentAmount: currentWood,
@@ -159,7 +156,7 @@ export const calculateVillageResourcesAt = (
 
 export const updateVillageResourcesAt = (
   database: DbFacade,
-  villageId: Village['id'],
+  villageId: number,
   timestamp: number,
 ) => {
   const {
@@ -203,7 +200,7 @@ export const updateVillageResourcesAt = (
 
 export const addVillageResourcesAt = (
   database: DbFacade,
-  villageId: Village['id'],
+  villageId: number,
   timestamp: number,
   resourcesToAdd: number[],
 ) => {
@@ -248,7 +245,7 @@ export const addVillageResourcesAt = (
 
 export const subtractVillageResourcesAt = (
   database: DbFacade,
-  villageId: Village['id'],
+  villageId: number,
   timestamp: number,
   resourcesToSubtract: number[],
 ) => {

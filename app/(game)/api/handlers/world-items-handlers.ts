@@ -30,10 +30,10 @@ const getArtifactsAroundVillageSchema = z
     };
   });
 
-export const getArtifactsAroundVillage: ApiHandler<
-  z.infer<typeof getArtifactsAroundVillageSchema>[],
-  'villageId'
-> = (database, { params }) => {
+export const getArtifactsAroundVillage: ApiHandler<'villageId'> = (
+  database,
+  { params },
+) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(
@@ -52,6 +52,5 @@ export const getArtifactsAroundVillage: ApiHandler<
     { $village_id: villageId },
   );
 
-  const listSchema = z.array(getArtifactsAroundVillageSchema);
-  return listSchema.parse(rows);
+  return z.array(getArtifactsAroundVillageSchema).parse(rows);
 };

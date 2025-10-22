@@ -1,5 +1,5 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { buildingFieldsFactory } from 'app/db/seeders/factories/building-fields-factory';
 import { PLAYER_ID } from 'app/constants/player';

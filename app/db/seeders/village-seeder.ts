@@ -1,5 +1,4 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { TileModel } from 'app/interfaces/models/game/tile';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import { PLAYER_ID } from 'app/constants/player';
 import { prngMulberry32 } from 'ts-seedrandom';
@@ -8,14 +7,17 @@ import {
   seededRandomIntFromInterval,
 } from 'app/utils/common';
 import { getVillageSize } from 'app/db/utils/village-size';
-import type { Player } from 'app/interfaces/models/game/player';
 import { batchInsert } from 'app/db/utils/batch-insert';
 import {
   npcVillageNameAdjectives,
   npcVillageNameNouns,
 } from 'app/assets/village';
 
-type OccupiableField = Pick<TileModel, 'id' | 'x' | 'y'>;
+type OccupiableField = {
+  id: number;
+  x: number;
+  y: number;
+};
 
 const villageSizeToVillageGroupRadiusMap = new Map<VillageSize, number>([
   ['xxs', 0],
@@ -44,7 +46,7 @@ const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
 );
 
 const getNthMapValue = (
-  map: Map<`${TileModel['x']}-${TileModel['y']}`, OccupiableField>,
+  map: Map<`${number}-${number}`, OccupiableField>,
   n: number,
 ): OccupiableField => {
   let i = 0;
@@ -79,14 +81,14 @@ export const villageSeeder: Seeder = (database, server): void => {
   });
 
   // NPC villages
-  const players = database.selectValues(
+  const playerIds = database.selectValues(
     `
       SELECT id
       FROM players
       WHERE id != $player_id
     `,
     { $player_id: PLAYER_ID },
-  ) as Player['id'][];
+  ) as number[];
 
   // Field [0, 0] is already occupied by the player
   const occupiableFields = database.selectObjects(
@@ -103,19 +105,16 @@ export const villageSeeder: Seeder = (database, server): void => {
     { $type: 'free', $composition: '4446' },
   ) as OccupiableField[];
 
-  const occupiableFieldMap = new Map<
-    `${TileModel['x']}-${TileModel['y']}`,
-    OccupiableField
-  >(
+  const occupiableFieldMap = new Map<`${number}-${number}`, OccupiableField>(
     occupiableFields.map((occupiableField) => [
       `${occupiableField.x}-${occupiableField.y}`,
       occupiableField,
     ]),
   );
 
-  const playerToOccupiedFields: [Player['id'], OccupiableField][] = [];
+  const playerToOccupiedFields: [number, OccupiableField][] = [];
 
-  for (const playerId of players) {
+  for (const playerId of playerIds) {
     // Select a random tile for the main village
     const startIndex = seededRandomIntFromInterval(
       prng,
@@ -153,7 +152,7 @@ export const villageSeeder: Seeder = (database, server): void => {
           continue;
         }
 
-        const key: `${TileModel['x']}-${TileModel['y']}` = `${startingTile.x}-${startingTile.y}`;
+        const key: `${number}-${number}` = `${startingTile.x}-${startingTile.y}`;
         const candidateTile = occupiableFieldMap.get(key)!;
         if (!candidateTile) {
           continue;

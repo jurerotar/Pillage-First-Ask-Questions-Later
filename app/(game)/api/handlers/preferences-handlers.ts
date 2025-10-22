@@ -1,15 +1,20 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
+import {
+  type Preferences,
+  preferencesColorSchemeSchema,
+  preferencesLocaleSchema,
+  preferencesSkinVariantSchema,
+  preferencesTimeOfDaySchema,
+} from 'app/interfaces/models/game/preferences';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
 
 const getPreferencesSchema = z
   .strictObject({
-    color_scheme: z.enum(['light', 'dark']),
-    locale: z.enum(['en-US'] satisfies AvailableLocale[]),
-    time_of_day: z.enum(['day', 'night'] satisfies Preferences['timeOfDay'][]),
-    skin_variant: z.enum(['default'] satisfies Preferences['skinVariant'][]),
+    color_scheme: preferencesColorSchemeSchema,
+    locale: preferencesLocaleSchema,
+    time_of_day: preferencesTimeOfDaySchema,
+    skin_variant: preferencesSkinVariantSchema,
     is_accessibility_mode_enabled: z.number(),
     is_reduced_motion_mode_enabled: z.number(),
     should_show_building_names: z.number(),
@@ -44,9 +49,7 @@ const getPreferencesSchema = z
     };
   });
 
-export const getPreferences: ApiHandler<
-  z.infer<typeof getPreferencesSchema>
-> = (database) => {
+export const getPreferences: ApiHandler = (database) => {
   const row = database.selectObject(
     `
       SELECT
@@ -74,7 +77,6 @@ type UpdatePreferenceBody = {
 };
 
 export const updatePreference: ApiHandler<
-  void,
   'preferenceName',
   UpdatePreferenceBody
 > = (database, { body, params }) => {

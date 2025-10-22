@@ -1,5 +1,4 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -13,7 +12,6 @@ import type {
   OasisTile,
   OccupiableTile,
   OccupiedOccupiableTile,
-  Tile,
 } from 'app/interfaces/models/game/tile';
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -31,10 +29,10 @@ import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/components/hoo
 import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileTooltipProps = {
-  tile: Tile;
+  tileId: number;
 };
 
-const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
+const TileTooltipLocation = ({ tileId }: TileTooltipProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const distance = roundToNDecimalPoints(
@@ -53,7 +51,7 @@ const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
   );
 };
 
-const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
+const TileTooltipPlayerInfo = ({ tileId }: TileTooltipProps) => {
   const { t } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
 
@@ -163,7 +161,7 @@ const OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
   return (
     <>
       <span className="font-semibold">{title}</span>
-      <TileTooltipLocation tile={tile} />
+      <TileTooltipLocation tileId={tileId} />
       {tile.ORB.map(({ resource, bonus }: OasisResourceBonus) => (
         <span
           key={resource}
@@ -176,8 +174,8 @@ const OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
           {bonus}
         </span>
       ))}
-      {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
-      {!isOccupied && <TileTooltipAnimals tile={tile} />}
+      {isOccupied && <TileTooltipPlayerInfo tileId={tileId} />}
+      {!isOccupied && <TileTooltipAnimals tileId={tileId} />}
     </>
   );
 };
@@ -186,14 +184,14 @@ type OccupiableTileTooltipProps = {
   tile: OccupiableTile;
 };
 
-const OccupiableTileTooltip = ({ tile }: OccupiableTileTooltipProps) => {
+const OccupiableTileTooltip = ({ tileId }: OccupiableTileTooltipProps) => {
   const { t } = useTranslation();
 
   return (
     <>
       <span className="font-semibold">{t('Abandoned valley')}</span>
-      <TileTooltipLocation tile={tile} />
-      <TileTooltipResources tile={tile} />
+      <TileTooltipLocation tileId={tileId} />
+      <TileTooltipResources tileId={tileId} />
     </>
   );
 };
@@ -205,7 +203,6 @@ type OccupiedOccupiableTileTooltipProps = {
 const OccupiedOccupiableTileTooltip = ({
   tile,
 }: OccupiedOccupiableTileTooltipProps) => {
-  const { getVillageByCoordinates } = useVillages();
   const { worldItem } = useTileWorldItem(tile.id);
 
   const village = getVillageByCoordinates(tile.coordinates)!;
@@ -214,9 +211,9 @@ const OccupiedOccupiableTileTooltip = ({
   return (
     <>
       <span className="font-semibold">{title}</span>
-      <TileTooltipLocation tile={tile} />
-      <TileTooltipResources tile={tile} />
-      <TileTooltipPlayerInfo tile={tile} />
+      <TileTooltipLocation tileId={tileId} />
+      <TileTooltipResources tileId={tileId} />
+      <TileTooltipPlayerInfo tileId={tileId} />
       {!!worldItem && (
         <div className="flex flex-col gap-1 border-t border-border py-1">
           <TileTooltipWorldItem item={worldItem} />
@@ -248,7 +245,7 @@ const TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
   );
 };
 
-export const TileTooltip = ({ tile }: TileTooltipProps) => {
+export const TileTooltip = ({ tileId }: TileTooltipProps) => {
   if (isOasisTile(tile)) {
     return (
       <div className="flex flex-col gap-1">

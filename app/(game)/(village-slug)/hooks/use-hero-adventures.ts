@@ -1,14 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { adventurePointsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { HeroAdventures } from 'app/interfaces/models/game/hero-adventures';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { z } from 'zod';
-
-const _getHeroAdventuresSchema = z.strictObject({
-  available: z.number(),
-  completed: z.number(),
-});
+import { heroAdventuresSchema } from 'app/interfaces/models/game/hero-adventures';
 
 export const useHeroAdventures = () => {
   const { fetcher } = use(ApiContext);
@@ -18,8 +12,9 @@ export const useHeroAdventures = () => {
   } = useSuspenseQuery({
     queryKey: [adventurePointsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<HeroAdventures>('/me/hero/adventures');
-      return data;
+      const { data } = await fetcher('/me/hero/adventures');
+
+      return heroAdventuresSchema.parse(data);
     },
   });
 

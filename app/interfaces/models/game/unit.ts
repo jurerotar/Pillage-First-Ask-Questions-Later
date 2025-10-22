@@ -1,5 +1,6 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import { z } from 'zod';
 
 type ComputedUnits<
   T extends
@@ -123,3 +124,5 @@ export type Unit = {
   tier: UnitTier;
   researchRequirements: UnitResearchRequirement[];
 };
+
+export const unitIdSchema = z.string() as z.ZodType<UnitId>;

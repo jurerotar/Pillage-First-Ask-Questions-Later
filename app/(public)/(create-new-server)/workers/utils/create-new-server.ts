@@ -168,5 +168,7 @@ export const createNewServer = (database: Database, server: Server): void => {
     // Events
     db.exec(createEventsTable);
     eventsSeeder(db, server);
+
+    db.exec('ANALYZE;');
   });
 };

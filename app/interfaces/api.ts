@@ -25,10 +25,9 @@ type ApiHandlerArgs<TBody, TParams extends string> = {
 };
 
 export type ApiHandler<
-  TReturn = void,
   TParams extends string = '',
   TBody = Record<string, unknown>,
-> = (database: DbFacade, args: ApiHandlerArgs<TBody, TParams>) => TReturn;
+> = (database: DbFacade, args: ApiHandlerArgs<TBody, TParams>) => unknown;
 
 type EventKey =
   | 'event:worker-initialization-success'

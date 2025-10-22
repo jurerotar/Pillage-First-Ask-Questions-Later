@@ -1,12 +1,13 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { Building } from 'app/interfaces/models/game/building';
+import { buildingIdSchema } from 'app/interfaces/models/game/building';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 
 const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),
-  building_id: z.string().brand<Building['id']>(),
+  building_id: buildingIdSchema,
   level: z.number(),
 });
 
@@ -19,7 +20,7 @@ const getVillageBySlugSchema = z
     coordinates_y: z.number(),
     name: z.string(),
     slug: z.string(),
-    resource_field_composition: z.string(),
+    resource_field_composition: resourceFieldCompositionSchema,
     last_updated_at: z.number(),
     wood: z.number(),
     clay: z.number(),
@@ -57,10 +58,10 @@ const getVillageBySlugSchema = z
     };
   });
 
-export const getVillageBySlug: ApiHandler<
-  z.infer<typeof getVillageBySlugSchema>,
-  'villageSlug'
-> = (database, { params }) => {
+export const getVillageBySlug: ApiHandler<'villageSlug'> = (
+  database,
+  { params },
+) => {
   const { villageSlug } = params;
 
   const row = database.selectObject(
@@ -182,10 +183,10 @@ const getOccupiableOasisInRangeSchema = z
     };
   });
 
-export const getOccupiableOasisInRange: ApiHandler<
-  z.infer<typeof getOccupiableOasisInRangeSchema>[],
-  'villageId'
-> = (database, { params }) => {
+export const getOccupiableOasisInRange: ApiHandler<'villageId'> = (
+  database,
+  { params },
+) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(

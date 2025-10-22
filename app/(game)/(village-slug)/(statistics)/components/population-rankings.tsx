@@ -75,7 +75,7 @@ export const PopulationRankings = () => {
                   name,
                   slug,
                   tribe,
-                  factionId,
+                  faction,
                   villageCount,
                   totalPopulation,
                 },
@@ -99,7 +99,7 @@ export const PopulationRankings = () => {
                     <Text>{t(`TRIBES.${tribe.toUpperCase()}`)}</Text>
                   </TableCell>
                   <TableCell>
-                    <Text>{t(`FACTIONS.${factionId.toUpperCase()}`)}</Text>
+                    <Text>{t(`FACTIONS.${faction.toUpperCase()}`)}</Text>
                   </TableCell>
                   <TableCell>
                     <Text>{villageCount}</Text>

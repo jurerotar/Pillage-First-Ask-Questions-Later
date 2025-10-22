@@ -1,29 +1,32 @@
 import { z } from 'zod';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Building } from 'app/interfaces/models/game/building';
+import {
+  type EffectId,
+  effectScopeSchema,
+  effectSourceSchema,
+  effectTypeSchema,
+} from 'app/interfaces/models/game/effect';
+import {
+  type Building,
+  buildingIdSchema,
+} from 'app/interfaces/models/game/building';
 
+// This schema should only be used in /api, due to its signature being different from what FE expects
 export const effectSchema = z
   .strictObject({
-    id: z.string().brand<Effect['id']>(),
+    id: z.string() as z.ZodType<EffectId>,
     value: z.number(),
-    type: z.enum(['base', 'bonus', 'bonus-booster']),
-    scope: z.enum(['global', 'village', 'server']),
-    source: z.enum([
-      'hero',
-      'oasis',
-      'artifact',
-      'building',
-      'tribe',
-      'server',
-      'troops',
-    ]),
+    type: effectTypeSchema,
+    scope: effectScopeSchema,
+    source: effectSourceSchema,
     villageId: z.number().nullable(),
     source_specifier: z.number().nullable(),
-    buildingId: z.string().brand<Building['id']>().optional().nullable(),
+    buildingId: buildingIdSchema.optional().nullable() as z.ZodType<
+      Building['id']
+    >,
   })
   .transform((t) => {
     return {
-      id: t.id as Effect['id'],
+      id: t.id,
       value: t.value,
       type: t.type,
       scope: t.scope,

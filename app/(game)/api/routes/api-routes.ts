@@ -12,7 +12,7 @@ import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import {
   getHero,
   getHeroAdventures,
-  getHeroEquippedItems,
+  getHeroLoadout,
   getHeroInventory,
 } from 'app/(game)/api/handlers/hero-handlers';
 import {
@@ -85,7 +85,7 @@ const heroRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/hero/equipped-items',
-    handler: getHeroEquippedItems,
+    handler: getHeroLoadout,
   },
   {
     method: 'GET',
@@ -101,14 +101,6 @@ const heroRoutes = [
     method: 'POST',
     path: '/players/:playerId/hero/adventures',
     handler: () => {},
-  },
-];
-
-const unitResearchRoutes = [
-  {
-    method: 'GET',
-    path: '/researched-units/:villageId',
-    handler: getResearchedUnits,
   },
 ];
 
@@ -246,6 +238,11 @@ const villageRoutes = [
     path: '/villages/:villageId/occupiable-oasis',
     handler: getOccupiableOasisInRange,
   },
+  {
+    method: 'GET',
+    path: '/villages/:villageId/researched-units',
+    handler: getResearchedUnits,
+  },
 ];
 
 const mapFiltersRoutes = [
@@ -307,7 +304,6 @@ const apiRoutes = [
   ...mapFiltersRoutes,
   ...worldItemsRoutes,
   ...auctionRoutes,
-  ...unitResearchRoutes,
   ...unitImprovementRoutes,
   ...bookmarkRoutes,
   ...statisticsRoutes,

@@ -1,10 +1,13 @@
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import type { Building } from 'app/interfaces/models/game/building';
-import type {
-  ResourceFieldComposition,
-  VillageSize,
-} from 'app/interfaces/models/game/village';
-import type { BuildingFieldModel } from 'app/interfaces/models/game/building-field';
+import type { VillageSize } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
+
+type BuildingField = {
+  field_id: number;
+  building_id: Building['id'];
+  level: number;
+};
 
 type ResourceFieldMap = Map<number, Building['id']>;
 
@@ -170,7 +173,7 @@ const getResourceBuildingsLevel = (
 
 const villageSizeToVillageBuildingFieldsMap = new Map<
   VillageSize | 'player',
-  Omit<BuildingFieldModel, 'village_id'>[]
+  BuildingField[]
 >([
   [
     'player',
@@ -246,7 +249,7 @@ const villageSizeToVillageBuildingFieldsMap = new Map<
 
 const getVillageBuildingFields = (
   villageSize: VillageSize | 'player',
-): Omit<BuildingFieldModel, 'village_id'>[] => {
+): BuildingField[] => {
   return villageSizeToVillageBuildingFieldsMap.get(villageSize)!;
 };
 
@@ -254,7 +257,7 @@ export const buildingFieldsFactory = (
   villageSize: VillageSize | 'player',
   tribe: PlayableTribe,
   resourceFieldComposition: ResourceFieldComposition,
-): Omit<BuildingFieldModel, 'village_id'>[] => {
+): BuildingField[] => {
   const wallBuildingLevel = getWallBuildingLevel(villageSize);
   const wallBuildingId = getWallBuildingId(tribe);
   const resourceBuildingsLevel = getResourceBuildingsLevel(villageSize);
@@ -268,7 +271,7 @@ export const buildingFieldsFactory = (
         building_id: buildingId,
         level: resourceBuildingsLevel,
         field_id: buildingFieldId,
-      } satisfies Omit<BuildingFieldModel, 'village_id'>;
+      } satisfies BuildingField;
     }),
     // Village fields
     ...villageBuildingFields,

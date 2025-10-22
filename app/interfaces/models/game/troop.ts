@@ -1,16 +1,11 @@
-import type { Tile } from 'app/interfaces/models/game/tile';
-import type { Unit } from 'app/interfaces/models/game/unit';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
+import { z } from 'zod';
 
-export type TroopModel = {
-  unit_id: Unit['id'];
-  amount: number;
-  tile_id: Tile['id'];
-  source: Tile['id'];
-};
+export const troopSchema = z.strictObject({
+  unitId: unitIdSchema,
+  amount: z.number().min(1),
+  tileId: z.number(),
+  source: z.number(),
+});
 
-export type Troop = {
-  unitId: Unit['id'];
-  amount: number;
-  tileId: Tile['id'];
-  source: Tile['id'];
-};
+export type Troop = z.infer<typeof troopSchema>;

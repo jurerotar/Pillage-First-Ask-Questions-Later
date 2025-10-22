@@ -1,6 +1,6 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
 
 const getServerSchema = z
   .strictObject({
@@ -13,13 +13,7 @@ const getServerSchema = z
     map_size: z.number(),
     speed: z.number(),
     player_name: z.string(),
-    player_tribe: z.enum([
-      'romans',
-      'teutons',
-      'gauls',
-      'huns',
-      'egyptians',
-    ] satisfies PlayableTribe[]),
+    player_tribe: tribeSchema,
   })
   .transform((t) => {
     return {
@@ -40,9 +34,7 @@ const getServerSchema = z
     };
   });
 
-export const getServer: ApiHandler<z.infer<typeof getServerSchema>> = (
-  database,
-) => {
+export const getServer: ApiHandler = (database) => {
   const serverModel = database.selectObject(`
     SELECT id,
            version,

@@ -11,3 +11,5 @@ CREATE TABLE world_items
 
   FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE
 ) STRICT;
+
+CREATE INDEX IF NOT EXISTS idx_world_items_tile_type ON world_items(tile_id, type);

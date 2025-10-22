@@ -4,7 +4,7 @@ import {
   generateNpcPlayers,
   playerFactory,
 } from 'app/db/seeders/factories/player-factory';
-import type { FactionName } from 'app/interfaces/models/game/faction';
+import type { Faction } from 'app/interfaces/models/game/faction';
 
 const slugifyPlayerName = (name: string): string => {
   return name
@@ -15,11 +15,15 @@ const slugifyPlayerName = (name: string): string => {
 };
 
 export const playersSeeder: Seeder = (database, server): void => {
-  const npcFactions = database.selectValues(
-    `SELECT id FROM factions WHERE id != 'player';`,
-  ) as FactionName[];
+  const playerFaction = database.selectValue(
+    `SELECT id FROM factions WHERE faction = 'player'`,
+  ) as Faction;
 
-  const player = playerFactory(server);
+  const npcFactions = database.selectValues(
+    `SELECT id FROM factions WHERE faction != 'player';`,
+  ) as Faction[];
+
+  const player = playerFactory(server, playerFaction);
   const npcPlayers = generateNpcPlayers(server, npcFactions);
 
   const players = [player, ...npcPlayers];

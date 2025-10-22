@@ -1,9 +1,10 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
 
 const getResearchedUnitsSchema = z
   .strictObject({
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     village_id: z.number(),
   })
   .transform((t) => {
@@ -13,10 +14,10 @@ const getResearchedUnitsSchema = z
     };
   });
 
-export const getResearchedUnits: ApiHandler<
-  z.infer<typeof getResearchedUnitsSchema>[],
-  'villageId'
-> = (database, { params }) => {
+export const getResearchedUnits: ApiHandler<'villageId'> = (
+  database,
+  { params },
+) => {
   const { villageId } = params;
 
   const unitResearchModels = database.selectObjects(
@@ -28,7 +29,5 @@ export const getResearchedUnits: ApiHandler<
     { $village_id: villageId },
   );
 
-  const listSchema = z.array(getResearchedUnitsSchema);
-
-  return listSchema.parse(unitResearchModels);
+  return z.array(getResearchedUnitsSchema).parse(unitResearchModels);
 };

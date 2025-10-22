@@ -1,21 +1,17 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
-import type { Building } from 'app/interfaces/models/game/building';
+import { buildingIdSchema } from 'app/interfaces/models/game/building';
 
 const getBookmarksSchema = z
   .strictObject({
-    building_id: z.string().brand<Building['id']>(),
+    building_id: buildingIdSchema,
     tab_name: z.string(),
   })
   .transform((t) => {
     return [t.building_id, t.tab_name];
   });
 
-export const getBookmarks: ApiHandler<Bookmarks, 'villageId'> = (
-  database,
-  { params },
-) => {
+export const getBookmarks: ApiHandler<'villageId'> = (database, { params }) => {
   const { villageId } = params;
 
   const bookmarks = database.selectObjects(
@@ -25,13 +21,10 @@ export const getBookmarks: ApiHandler<Bookmarks, 'villageId'> = (
     },
   );
 
-  const listSchema = z.array(getBookmarksSchema);
-
-  return Object.fromEntries(listSchema.parse(bookmarks));
+  return Object.fromEntries(z.array(getBookmarksSchema).parse(bookmarks));
 };
 
 export const updateBookmark: ApiHandler<
-  void,
   'villageId' | 'buildingId',
   { tab: string }
 > = (database, { params, body }) => {

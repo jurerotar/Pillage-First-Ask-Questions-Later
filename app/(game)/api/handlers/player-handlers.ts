@@ -1,41 +1,30 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
+import { playerSchema } from 'app/interfaces/models/game/player';
 
-const getPlayerByIdSchema = z.strictObject({
-  id: z.number(),
-  name: z.string(),
-  slug: z.string(),
-  tribe: z.enum([
-    'romans',
-    'teutons',
-    'gauls',
-    'huns',
-    'egyptians',
-  ] satisfies PlayableTribe[]),
-});
-
-export const getPlayerById: ApiHandler<
-  z.infer<typeof getPlayerByIdSchema>,
-  'playerId'
-> = (database, args) => {
+export const getPlayerById: ApiHandler<'playerId'> = (database, args) => {
   const {
     params: { playerId },
   } = args;
 
   const row = database.selectObject(
     `
-      SELECT p.id,
-             p.name,
-             p.slug,
-             p.tribe
+      SELECT
+        p.id,
+        p.name,
+        p.slug,
+        p.tribe,
+        f.faction AS faction
       FROM players p
+             LEFT JOIN factions f ON f.id = p.faction_id
       WHERE p.id = $player_id;
     `,
     { $player_id: playerId },
   );
 
-  return getPlayerByIdSchema.parse(row);
+  return playerSchema.parse(row);
 };
 
 const getVillagesByPlayerSchema = z
@@ -46,7 +35,7 @@ const getVillagesByPlayerSchema = z
     coordinates_y: z.number(),
     name: z.string(),
     slug: z.string(),
-    resource_field_composition: z.string(),
+    resource_field_composition: resourceFieldCompositionSchema,
   })
   .transform((t) => {
     return {
@@ -62,10 +51,10 @@ const getVillagesByPlayerSchema = z
     };
   });
 
-export const getPlayerVillageListing: ApiHandler<
-  z.infer<typeof getVillagesByPlayerSchema>[],
-  'playerId'
-> = (database, args) => {
+export const getPlayerVillageListing: ApiHandler<'playerId'> = (
+  database,
+  args,
+) => {
   const {
     params: { playerId },
   } = args;
@@ -89,14 +78,12 @@ export const getPlayerVillageListing: ApiHandler<
     { $player_id: playerId },
   );
 
-  const listSchema = z.array(getVillagesByPlayerSchema);
-
-  return listSchema.parse(rows);
+  return z.array(getVillagesByPlayerSchema).parse(rows);
 };
 
 const getTroopsByVillageSchema = z
   .strictObject({
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     amount: z.number().min(1),
     tile_id: z.number(),
     source_tile_id: z.number(),
@@ -110,10 +97,10 @@ const getTroopsByVillageSchema = z
     };
   });
 
-export const getTroopsByVillage: ApiHandler<
-  z.infer<typeof getTroopsByVillageSchema>[],
-  'playerId' | 'villageId'
-> = (database, args) => {
+export const getTroopsByVillage: ApiHandler<'playerId' | 'villageId'> = (
+  database,
+  args,
+) => {
   const {
     params: { villageId },
   } = args;
@@ -132,9 +119,7 @@ export const getTroopsByVillage: ApiHandler<
     { $village_id: villageId },
   );
 
-  const listSchema = z.array(getTroopsByVillageSchema);
-
-  return listSchema.parse(troopModels);
+  return z.array(getTroopsByVillageSchema).parse(troopModels);
 };
 
 type RenameVillageBody = {
@@ -142,7 +127,6 @@ type RenameVillageBody = {
 };
 
 export const renameVillage: ApiHandler<
-  void,
   'playerId' | 'villageId',
   RenameVillageBody
 > = (database, args) => {
