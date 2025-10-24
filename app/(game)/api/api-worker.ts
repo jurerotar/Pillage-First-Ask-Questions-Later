@@ -5,7 +5,10 @@ import type {
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
 import { createDbFacade } from 'app/(game)/api/facades/database-facade';
-import { scheduleNextEvent } from 'app/(game)/api/engine/scheduler';
+import {
+  cancelScheduling,
+  scheduleNextEvent,
+} from 'app/(game)/api/engine/scheduler';
 
 const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
 
@@ -83,6 +86,7 @@ try {
 
     event.stopImmediatePropagation();
 
+    cancelScheduling();
     opfsDb.close();
     self.close();
   });

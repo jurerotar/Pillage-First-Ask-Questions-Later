@@ -8,6 +8,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Alert } from 'app/components/ui/alert';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm?url';
 
 const CreateNewServerPage = () => {
   const title = 'Create new server | Pillage First! (Ask Questions Later)';
@@ -15,6 +16,10 @@ const CreateNewServerPage = () => {
   return (
     <>
       <title>{title}</title>
+      <link
+        rel="modulepreload"
+        href={sqliteWasmUrl}
+      />
       <div className="min-h-screen bg-background p-2">
         <div className="max-w-3xl mx-auto">
           <main className="flex flex-col gap-4">

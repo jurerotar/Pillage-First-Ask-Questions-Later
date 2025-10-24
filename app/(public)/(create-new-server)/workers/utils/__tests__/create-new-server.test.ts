@@ -26,14 +26,11 @@ createNewServer(database, serverMock);
 describe('createNewServer', () => {
   describe('Tiles', () => {
     test('should create correct amount of tiles', () => {
-      const { totalTiles } = calculateGridLayout(
-        serverMock.configuration.mapSize,
-      );
       const rowCount = database.selectValue(
         'SELECT COUNT(id) AS id FROM tiles;',
       );
 
-      expect(rowCount).toBe(totalTiles);
+      expect(rowCount).toBe(7825);
     });
 
     test('every tile should be of type free or oasis', () => {

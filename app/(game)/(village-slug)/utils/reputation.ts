@@ -6,7 +6,11 @@ const entries = Array.from(reputationLevels.entries()).toSorted(
   (a, b) => b[1] - a[1],
 );
 
-export const getReputationLevel = (value: number): ReputationLevel => {
+export const getReputationLevel = (value: number | null): ReputationLevel => {
+  if (value === null) {
+    return 'player';
+  }
+
   for (const [level, threshold] of entries) {
     if (value >= threshold) {
       return level;

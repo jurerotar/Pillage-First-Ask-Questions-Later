@@ -1,9 +1,4 @@
-import {
-  getContextualMap,
-  getTilePlayer,
-  getTileTroops,
-  getTileWorldItem,
-} from 'app/(game)/api/handlers/map-handlers';
+import { getTiles, getTile } from 'app/(game)/api/handlers/map-handlers';
 import {
   getPreferences,
   updatePreference,
@@ -133,23 +128,13 @@ const questRoutes = [
 const mapRoutes = [
   {
     method: 'GET',
-    path: '/map/:villageId/contextual',
-    handler: getContextualMap,
+    path: '/tiles',
+    handler: getTiles,
   },
   {
     method: 'GET',
-    path: '/tiles/:tileId/troops',
-    handler: getTileTroops,
-  },
-  {
-    method: 'GET',
-    path: '/tiles/:tileId/player',
-    handler: getTilePlayer,
-  },
-  {
-    method: 'GET',
-    path: '/tiles/:tileId/world-item',
-    handler: getTileWorldItem,
+    path: '/tiles/:tileId',
+    handler: getTile,
   },
 ];
 

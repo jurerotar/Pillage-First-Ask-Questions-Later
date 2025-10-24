@@ -1,10 +1,7 @@
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { Village } from 'app/interfaces/models/game/village';
-import {
-  type ResourceFieldComposition,
-  resourceFieldCompositionSchema,
-} from 'app/interfaces/models/game/resource-field-composition';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import { z } from 'zod';
 import { coordinatesSchema } from 'app/interfaces/models/common';
 
@@ -16,12 +13,7 @@ export const baseTileSchema = z.strictObject({
   type: tileTypeSchema,
 });
 
-export const tileSchema = z.strictObject({
-  resourceFieldComposition: resourceFieldCompositionSchema.nullable(),
-  oasisGraphics: z.number().nullable(),
-});
-
-export type BaseTile = {
+type BaseTile = {
   id: number;
   coordinates: {
     x: number;

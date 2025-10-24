@@ -7,7 +7,7 @@ CREATE TABLE bookmarks
   PRIMARY KEY (village_id, building_id),
 
   FOREIGN KEY (village_id) REFERENCES villages (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;
 
 CREATE INDEX idx_bookmarks_village_id ON bookmarks(village_id);
 

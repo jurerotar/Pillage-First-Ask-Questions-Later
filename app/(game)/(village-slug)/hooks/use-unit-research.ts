@@ -29,7 +29,7 @@ export const useUnitResearch = () => {
     queryFn: async () => {
       const { data } = await fetcher<
         z.infer<typeof getResearchedUnitsSchema>[]
-      >(`/researched-units/${currentVillage.id}`);
+      >(`/villages/${currentVillage.id}/researched-units`);
       return data;
     },
   });

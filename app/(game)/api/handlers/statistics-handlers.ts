@@ -1,22 +1,22 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { Player } from 'app/interfaces/models/game/player';
 import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { factionSchema } from 'app/interfaces/models/game/faction';
 
 const getPlayerRankingsSchema = z
   .strictObject({
-    faction_id: z.string().brand<Player['faction']>(),
     id: z.number(),
     name: z.string(),
     slug: z.string(),
-    total_population: z.number(),
     tribe: tribeSchema,
+    faction: factionSchema,
+    total_population: z.number(),
     village_count: z.number(),
   })
   .transform((t) => {
     return {
       id: t.id,
-      factionId: t.faction_id,
+      faction: t.faction,
       name: t.name,
       slug: t.slug,
       tribe: t.tribe,
@@ -44,7 +44,7 @@ export const getPlayerRankings: ApiHandler<'', GetPlayersStatisticsBody> = (
           p.name,
           p.slug,
           p.tribe,
-          f.faction AS faction,
+          (SELECT faction FROM factions WHERE id = p.faction_id) AS faction,
           CAST(
             COALESCE(
               SUM(

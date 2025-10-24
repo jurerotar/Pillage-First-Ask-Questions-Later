@@ -11,7 +11,7 @@ import {
 } from 'app/interfaces/models/game/building';
 
 // This schema should only be used in /api, due to its signature being different from what FE expects
-export const effectSchema = z
+export const apiEffectSchema = z
   .strictObject({
     id: z.string() as z.ZodType<EffectId>,
     value: z.number(),

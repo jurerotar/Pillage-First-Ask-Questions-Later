@@ -12,7 +12,6 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
 import { partition } from 'app/utils/common';
-import type { Quest } from 'app/interfaces/models/game/quest';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
@@ -28,7 +27,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
-  const [villageQuests, globalQuests] = partition<Quest>(
+  const [villageQuests, globalQuests] = partition(
     quests,
     (quest) => quest.scope === 'village',
   );

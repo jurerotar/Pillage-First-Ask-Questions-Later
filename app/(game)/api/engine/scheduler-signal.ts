@@ -12,7 +12,3 @@ export const takeNeedsRescan = (): boolean => {
   needsRescanFlag = false;
   return v;
 };
-
-export const peekNeedsRescan = (): boolean => {
-  return needsRescanFlag;
-};

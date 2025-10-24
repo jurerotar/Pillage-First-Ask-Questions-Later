@@ -25,8 +25,7 @@ import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
-import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
+import { TileOverlay } from 'app/(game)/(village-slug)/(map)/components/overlays/tile-overlay';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -38,8 +37,8 @@ const MapPageContents = () => {
     openModal,
     toggleModal,
     modalArgs,
-  } = useDialog<ReturnType<typeof useMap>['contextualMap'][0] | null>();
-  const { contextualMap } = useMap();
+  } = useDialog<number>();
+  const { map } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
@@ -87,23 +86,16 @@ const MapPageContents = () => {
 
   const fixedGridData = useMemo(() => {
     return {
-      contextualMap,
+      map,
       gridSize,
       mapFilters,
       magnification,
       preferences,
-      onClick: (tile: ReturnType<typeof useMap>['contextualMap'][0]) => {
-        openModal(tile);
+      onClick: (tileId: number) => {
+        openModal(tileId);
       },
     };
-  }, [
-    contextualMap,
-    mapFilters,
-    gridSize,
-    magnification,
-    openModal,
-    preferences,
-  ]);
+  }, [map, mapFilters, gridSize, magnification, openModal, preferences]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {
@@ -243,7 +235,12 @@ const MapPageContents = () => {
 
       const tileId = Number.parseInt(tileIdAttr, 10);
 
-      return <TileTooltip tileId={tileId} />;
+      return (
+        <Suspense fallback={null}>
+          <TileOverlay tileId={tileId}>/</TileOverlay>
+          {/*<TileTooltip tileId={tileId} />*/}
+        </Suspense>
+      );
     },
     [],
   );
@@ -255,7 +252,7 @@ const MapPageContents = () => {
         onOpenChange={toggleModal}
       >
         <Suspense fallback={null}>
-          <TileDialog tile={modalArgs.current} />
+          <TileOverlay tileId={modalArgs.current!} />
         </Suspense>
       </Dialog>
       <Tooltip

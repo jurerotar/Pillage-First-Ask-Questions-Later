@@ -1,12 +1,22 @@
 import type {
-  GlobalQuestDefinition,
-  VillageQuestDefinition,
+  GlobalQuest,
+  VillageQuest,
 } from 'app/interfaces/models/game/quest';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import { units } from 'app/assets/units';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { getUnitsByTribe } from 'app/assets/utils/units';
+
+type VillageQuestDefinition = {
+  id: VillageQuest['id'];
+  scope: 'village';
+};
+
+type GlobalQuestDefinition = {
+  id: GlobalQuest['id'];
+  scope: 'global';
+};
 
 const createTroopCountQuest = (count: number): GlobalQuestDefinition => {
   return {

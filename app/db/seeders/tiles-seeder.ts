@@ -10,7 +10,7 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
-export type TileModel = {
+type TileModel = {
   id: number;
   x: number;
   y: number;
@@ -25,8 +25,6 @@ type MaybeAssignedTileModel = TileModel | PartialTileModel;
 
 const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
   const { configuration } = server;
-
-  const prng = prngMulberry32(server.seed);
 
   const { halfSize, totalTiles, mapBorderThreshold } = calculateGridLayout(
     configuration.mapSize,
@@ -52,18 +50,8 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
 
     const distanceSquared = x ** 2 + y ** 2;
 
+    // We intentionally skip these tiles, since we'll generate them dynamically. This saves on db space and improves query performance
     if (distanceSquared >= mapBorderThreshold) {
-      const oasisBorderVariants = [1, 2, 3, 4];
-      const variant = seededRandomArrayElement(prng, oasisBorderVariants);
-
-      tiles[i] = {
-        id: tileId,
-        x,
-        y,
-        type: 'oasis',
-        resource_field_composition: null,
-        oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0, variant),
-      } satisfies TileModel;
       continue;
     }
 
@@ -89,7 +77,8 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
     } satisfies PartialTileModel;
   }
 
-  return tiles;
+  // Filter out all the missing border tiles
+  return tiles.filter(Boolean);
 };
 
 type GenerateOasisTileArgs = {
@@ -321,17 +310,17 @@ export const tilesSeeder: Seeder = (database, server): void => {
     Object.fromEntries(rfcRows);
 
   const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
-    const { x, y, type, resource_field_composition, oasis_graphics } = tile;
+    const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;
 
     const rfcId = type === 'free' ? rfcs[resource_field_composition!] : null;
 
-    return [x, y, type, rfcId, oasis_graphics];
+    return [id, x, y, type, rfcId, oasis_graphics];
   });
 
   batchInsert(
     database,
     'tiles',
-    ['x', 'y', 'type', 'resource_field_composition_id', 'oasis_graphics'],
+    ['id', 'x', 'y', 'type', 'resource_field_composition_id', 'oasis_graphics'],
     rows,
   );
 };

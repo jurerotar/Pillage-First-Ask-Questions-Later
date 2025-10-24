@@ -20,13 +20,14 @@ $tribes: 'romans', 'gauls', 'teutons', 'huns', 'egyptians', 'nature', 'natars', 
 $villageSizes: 'xs', 'sm', 'md', 'lg';
 
 $factionReputationColors: (
-  player: #4338ca,
-  ecstatic: #1d4ed8,
-  respected: #0891b2,
-  friendly: #22c55e,
-  neutral: #facc15,
-  unfriendly: #f97316,
-  hostile: #e11d48,
+  player:     #4338CA,
+  ecstatic:   #16A34A,
+  respected:  #34D399,
+  friendly:   #8CEBAF,
+  neutral:    #FBBF24,
+  unfriendly: #FB923C,
+  hostile:    #F04438,
+  hated:      #DC2626,
 );
 
 $buildings: "bakery",

@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from 'app/components/ui/dialog';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -24,7 +23,6 @@ import type {
 } from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
 import { parseRFCFromTile } from 'app/utils/map';
-import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';

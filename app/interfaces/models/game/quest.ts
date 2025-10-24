@@ -1,6 +1,6 @@
-import type { Village } from 'app/interfaces/models/game/village';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
+import { z } from 'zod';
 
 export type ResourceQuestReward = {
   type: 'resources';
@@ -64,33 +64,42 @@ export type QuestRequirement =
   | TroopCountQuestRequirement
   | UnitTroopCountQuestRequirement;
 
-export type VillageQuestDefinition = {
-  id:
-    | `${Matcher}-${Building['id']}-${number}`
-    | `${Matcher}-resourceFields-${number}`;
-  scope: 'village';
-};
+type VillageQuestId =
+  | `${Matcher}-${Building['id']}-${number}`
+  | `${Matcher}-resourceFields-${number}`;
 
-export type GlobalQuestDefinition = {
-  id:
-    | `adventureCount-${number}`
-    | `troopCount-${number}`
-    | `unitTroopCount-${Unit['id']}-${number}`
-    | `killCount-${number}`
-    | `unitKillCount-${Unit['id']}-${number}`;
-  scope: 'global';
-};
+type GlobalQuestId =
+  | `adventureCount-${number}`
+  | `troopCount-${number}`
+  | `unitTroopCount-${Unit['id']}-${number}`
+  | `killCount-${number}`
+  | `unitKillCount-${Unit['id']}-${number}`;
 
-type CollectableQuest = {
-  completedAt: number | null;
-  collectedAt: number | null;
-};
+const baseQuestSchema = z.strictObject({
+  id: z.string(),
+  scope: z.enum(['village', 'global']),
+  collectedAt: z.number().nullable(),
+  completedAt: z.number().nullable(),
+});
 
-export type VillageQuest = VillageQuestDefinition &
-  CollectableQuest & {
-    villageId: Village['id'];
-  };
+const villageQuestsSchema = baseQuestSchema.extend({
+  id: z.string() as z.ZodType<VillageQuestId>,
+  scope: z.literal('village'),
+  villageId: z.number(),
+});
 
-type GlobalQuest = GlobalQuestDefinition & CollectableQuest;
+export type VillageQuest = z.infer<typeof villageQuestsSchema>;
 
-export type Quest = VillageQuest | GlobalQuest;
+const globalQuestsSchema = baseQuestSchema.extend({
+  id: z.string() as z.ZodType<GlobalQuestId>,
+  scope: z.literal('global'),
+});
+
+export type GlobalQuest = z.infer<typeof globalQuestsSchema>;
+
+export const questSchema = z.discriminatedUnion('scope', [
+  villageQuestsSchema,
+  globalQuestsSchema,
+]);
+
+export type Quest = z.infer<typeof questSchema>;

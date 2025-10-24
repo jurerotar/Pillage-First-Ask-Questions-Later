@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { ApiHandler } from 'app/interfaces/api';
 import { selectAllRelevantEffectsQuery } from 'app/(game)/api/utils/queries/effect-queries';
-import { effectSchema } from 'app/(game)/api/utils/zod/effect-schemas';
+import { apiEffectSchema } from 'app/(game)/api/utils/zod/effect-schemas';
 
 export const getVillageEffects: ApiHandler<'villageId'> = (
   database,
@@ -13,5 +13,5 @@ export const getVillageEffects: ApiHandler<'villageId'> = (
     $village_id: villageId,
   });
 
-  return z.array(effectSchema).parse(rows);
+  return z.array(apiEffectSchema).parse(rows);
 };
