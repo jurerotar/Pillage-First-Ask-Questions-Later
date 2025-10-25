@@ -106,7 +106,7 @@ const BuildingCategoryPanel = ({
     <SectionContent>
       {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
       {!hasNoAvailableBuildings && (
-        <section className="flex flex-col gap-2 mb-2">
+        <section className="flex flex-col gap-2 *:border *:border-border *:p-2">
           {sortedAvailableBuildings.map((building: Building) => (
             <BuildingCard
               key={building.id}
