@@ -1,32 +1,19 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
+import {
+  type Preferences,
+  preferencesSchema,
+} from 'app/interfaces/models/game/preferences';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useTranslation } from 'react-i18next';
 import type { AvailableLocale } from 'app/interfaces/models/locale';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import { z } from 'zod';
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;
   value: Preferences[keyof Preferences];
 };
-
-const _getPreferencesSchema = z.strictObject({
-  color_scheme: z.enum(['light', 'dark']),
-  locale: z.enum(['en-US'] satisfies AvailableLocale[]),
-  timeOfDay: z.enum(['day', 'night'] satisfies Preferences['timeOfDay'][]),
-  skinVariant: z.enum(['default'] satisfies Preferences['skinVariant'][]),
-  isAccessibilityModeEnabled: z.number(),
-  isReducedMotionModeEnabled: z.number(),
-  shouldShowBuildingNames: z.number(),
-  isAutomaticNavigationAfterBuildingLevelChangeEnabled: z.number(),
-  isDeveloperModeEnabled: z.number(),
-  shouldShowNotificationsOnBuildingUpgradeCompletion: z.number(),
-  shouldShowNotificationsOnUnitUpgradeCompletion: z.number(),
-  shouldShowNotificationsOnAcademyResearchCompletion: z.number(),
-});
 
 export const usePreferences = () => {
   const { fetcher } = use(ApiContext);
@@ -35,8 +22,9 @@ export const usePreferences = () => {
   const { data: preferences } = useSuspenseQuery({
     queryKey: [preferencesCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Preferences>('/me/preferences');
-      return data;
+      const { data } = await fetcher('/me/preferences');
+
+      return preferencesSchema.parse(data);
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,

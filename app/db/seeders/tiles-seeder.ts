@@ -1,15 +1,23 @@
 import type { Seeder } from 'app/interfaces/db';
 import type { Server } from 'app/interfaces/models/game/server';
 import { calculateGridLayout, encodeGraphicsProperty } from 'app/utils/map';
-import type { TileModel } from 'app/interfaces/models/game/tile';
 import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from 'app/utils/common';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import { batchInsert } from 'app/db/utils/batch-insert';
+
+type TileModel = {
+  id: number;
+  x: number;
+  y: number;
+  type: 'free' | 'oasis';
+  resource_field_composition: ResourceFieldComposition | null;
+  oasis_graphics: number | null;
+};
 
 type PartialTileModel = Omit<TileModel, 'type'>;
 
@@ -18,9 +26,7 @@ type MaybeAssignedTileModel = TileModel | PartialTileModel;
 const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
   const { configuration } = server;
 
-  const prng = prngMulberry32(server.seed);
-
-  const { halfSize, borderWidth, totalTiles } = calculateGridLayout(
+  const { halfSize, totalTiles, mapBorderThreshold } = calculateGridLayout(
     configuration.mapSize,
   );
 
@@ -43,21 +49,9 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
     }
 
     const distanceSquared = x ** 2 + y ** 2;
-    const thresholdSquared = (halfSize - borderWidth / 2) ** 2;
 
-    // This needs to be in a separate if statement so that satisfies works correctly
-    if (distanceSquared >= thresholdSquared) {
-      const oasisBorderVariants = [1, 2, 3, 4];
-      const variant = seededRandomArrayElement(prng, oasisBorderVariants);
-
-      tiles[i] = {
-        id: tileId,
-        x,
-        y,
-        type: 'oasis',
-        resource_field_composition: null,
-        oasis_graphics: encodeGraphicsProperty('wood', 0, 0, 0, variant),
-      } satisfies TileModel;
+    // We intentionally skip these tiles, since we'll generate them dynamically. This saves on db space and improves query performance
+    if (distanceSquared >= mapBorderThreshold) {
       continue;
     }
 
@@ -83,7 +77,8 @@ const generateGrid = (server: Server): MaybeAssignedTileModel[] => {
     } satisfies PartialTileModel;
   }
 
-  return tiles;
+  // Filter out all the missing border tiles
+  return tiles.filter(Boolean);
 };
 
 type GenerateOasisTileArgs = {
@@ -174,7 +169,7 @@ const generateShapedOasisFields = (
   };
 
   const tilesByCoordinates = new Map<
-    `${TileModel['x']}-${TileModel['y']}`,
+    `${number}-${number}`,
     MaybeAssignedTileModel
   >(tiles.map((tile) => [`${tile.x}-${tile.y}`, tile]));
 
@@ -208,7 +203,7 @@ const generateShapedOasisFields = (
     for (let k = 0; k < oasisShape.length; k += 1) {
       const amountOfTiles = oasisShape[k];
       for (let j = 0; j < amountOfTiles; j += 1) {
-        const key: `${TileModel['x']}-${TileModel['y']}` = `${x + j}-${y - k}`;
+        const key: `${number}-${number}` = `${x + j}-${y - k}`;
         const tile = tilesByCoordinates.get(key);
 
         if (!tile || Object.hasOwn(tile, 'type')) {
@@ -315,17 +310,17 @@ export const tilesSeeder: Seeder = (database, server): void => {
     Object.fromEntries(rfcRows);
 
   const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
-    const { x, y, type, resource_field_composition, oasis_graphics } = tile;
+    const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;
 
     const rfcId = type === 'free' ? rfcs[resource_field_composition!] : null;
 
-    return [x, y, type, rfcId, oasis_graphics];
+    return [id, x, y, type, rfcId, oasis_graphics];
   });
 
   batchInsert(
     database,
     'tiles',
-    ['x', 'y', 'type', 'resource_field_composition_id', 'oasis_graphics'],
+    ['id', 'x', 'y', 'type', 'resource_field_composition_id', 'oasis_graphics'],
     rows,
   );
 };

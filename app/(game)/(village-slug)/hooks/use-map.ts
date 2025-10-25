@@ -1,33 +1,46 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
-import { use, useCallback } from 'react';
+import { baseTileSchema } from 'app/interfaces/models/game/tile';
+import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { z } from 'zod';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { resourceSchema } from 'app/interfaces/models/game/resource';
+
+const freeTileSchema = baseTileSchema.extend({
+  type: z.literal('free'),
+  resourceFieldComposition: resourceFieldCompositionSchema,
+  isOccupied: z.boolean(),
+  tribe: tribeSchema.nullable(),
+  population: z.number().nullable(),
+  reputation: z.number().nullable(),
+  itemId: z.number().nullable(),
+});
+
+const oasisTileSchema = baseTileSchema.extend({
+  type: z.literal('oasis'),
+  oasisGraphics: z.number(),
+  oasisResource: resourceSchema.nullable(),
+  isOccupied: z.boolean(),
+});
+
+export const tilesSchema = z
+  .discriminatedUnion('type', [freeTileSchema, oasisTileSchema])
+  .nullable();
 
 export const useMap = () => {
   const { fetcher } = use(ApiContext);
-  const { currentVillage } = useCurrentVillage();
 
-  const { data: contextualMap } = useSuspenseQuery({
-    queryKey: ['contextual-map', eventsCacheKey, currentVillage.id],
+  const { data: map } = useSuspenseQuery({
+    queryKey: ['tiles'],
     queryFn: async () => {
-      const { data } = await fetcher<ContextualTile[]>(
-        `/map/${currentVillage.id}/contextual`,
-      );
-      return data;
+      const { data } = await fetcher('/tiles');
+
+      return z.array(tilesSchema).parse(data);
     },
   });
 
-  const getTileByTileId = useCallback(
-    (tileId: Tile['id']): ContextualTile => {
-      return contextualMap.find(({ id }) => tileId === id)!;
-    },
-    [contextualMap],
-  );
-
   return {
-    contextualMap,
-    getTileByTileId,
+    map,
   };
 };

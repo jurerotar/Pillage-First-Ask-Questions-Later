@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "incremental": true,
+    "incremental": false,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "noUnusedParameters": true,

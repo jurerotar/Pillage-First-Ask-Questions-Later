@@ -6,10 +6,10 @@ import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { usernameAdjectives, usernameNouns } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
 import { PLAYER_ID } from 'app/constants/player';
-import type { FactionName } from 'app/interfaces/models/game/faction';
+import type { Faction } from 'app/interfaces/models/game/faction';
 
 type PlayerFactoryProps = {
-  faction: FactionName;
+  faction: Faction;
   prng: PRNGFunction;
   id: number;
 };
@@ -18,7 +18,7 @@ const npcPlayerFactory = ({
   faction,
   prng,
   id,
-}: PlayerFactoryProps): Player => {
+}: PlayerFactoryProps): Omit<Player, 'slug'> => {
   const adjective = seededRandomArrayElement(prng, usernameAdjectives);
   const noun = seededRandomArrayElement(prng, usernameNouns);
 
@@ -40,7 +40,10 @@ const npcPlayerFactory = ({
   };
 };
 
-export const playerFactory = (server: Server): Player => {
+export const playerFactory = (
+  server: Server,
+  faction: Faction,
+): Omit<Player, 'slug'> => {
   const {
     playerConfiguration: { name, tribe },
   } = server;
@@ -48,14 +51,11 @@ export const playerFactory = (server: Server): Player => {
     id: PLAYER_ID,
     name,
     tribe,
-    faction: 'player',
+    faction,
   };
 };
 
-export const generateNpcPlayers = (
-  server: Server,
-  npcFactions: FactionName[],
-) => {
+export const generateNpcPlayers = (server: Server, npcFactions: Faction[]) => {
   const prng = prngMulberry32(server.seed);
 
   const { mapSize } = server.configuration;
@@ -72,7 +72,7 @@ export const generateNpcPlayers = (
   const npcCount = totalPlayerCount - 1;
 
   return [...Array(npcCount)].map((_, index) => {
-    const faction = seededRandomArrayElement<FactionName>(prng, npcFactions);
+    const faction = seededRandomArrayElement<Faction>(prng, npcFactions);
     // We do +2 because user's player always has the id of 1
     return npcPlayerFactory({ faction, prng, id: index + 2 });
   });

@@ -61,6 +61,11 @@ const RallyPointSendTroops = lazy(async () => ({
     .RallyPointSendTroops,
 }));
 
+const RallyPointBonusFinder = lazy(async () => ({
+  default: (await import('./components/rally-point-bonus-finder'))
+    .RallyPointBonusFinder,
+}));
+
 const RallyPointSimulator = lazy(async () => ({
   default: (await import('./components/rally-point-simulator'))
     .RallyPointSimulator,
@@ -167,6 +172,7 @@ const buildingDetailsTabMap = new Map<
   [
     'RALLY_POINT',
     new Map([
+      ['bonus-finder', RallyPointBonusFinder],
       ['troop-movements', RallyPointTroopMovements],
       ['send-troops', RallyPointSendTroops],
       ['simulator', RallyPointSimulator],
@@ -202,6 +208,7 @@ const buildingDetailsTabMap = new Map<
 // t('village-management')
 // t('troop-movements')
 // t('send-troops')
+// t('bonus-finder')
 // t('simulator')
 // t('artifacts')
 // t('trade')

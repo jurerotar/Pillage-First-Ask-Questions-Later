@@ -5,24 +5,18 @@ import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import { deleteEventByIdQuery } from 'app/(game)/api/utils/queries/event-queries';
 
 export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
-  const row = database.selectObject(
+  const deletedRow = database.selectObject(
     `
-      SELECT id, type, starts_at, duration, village_id, resolves_at, meta
-      FROM events
-      WHERE id = $id;
+      DELETE FROM events
+      WHERE id = $id
+      RETURNING id, type, starts_at, duration, village_id, resolves_at, meta;
     `,
     { $id: eventId },
   );
 
-  if (!row) {
-    // event disappeared, probably resolved elsewhere — nothing to do
-    return;
-  }
-
-  const event = parseEvent(row);
+  const event = parseEvent(deletedRow);
 
   const eventCost = getEventCost(event);
   if (eventCost.some((cost) => cost > 0)) {
@@ -36,12 +30,7 @@ export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
   try {
     const resolver = getGameEventResolver(event.type);
 
-    // resolver may call createEvents(database, args, db) which in turn will markNeedsRescan()
-    resolver(database, event);
-
-    database.exec(deleteEventByIdQuery, {
-      $event_id: eventId,
-    });
+    resolver(database, event satisfies GameEvent);
 
     self.postMessage({
       eventKey: 'event:worker-event-resolve-success',

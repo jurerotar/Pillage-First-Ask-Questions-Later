@@ -1,23 +1,8 @@
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { Player } from 'app/interfaces/models/game/player';
 import { playersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { z } from 'zod';
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-
-const _getPlayerSchema = z.strictObject({
-  id: z.number(),
-  name: z.string(),
-  slug: z.string(),
-  tribe: z.enum([
-    'romans',
-    'teutons',
-    'gauls',
-    'huns',
-    'egyptians',
-  ] satisfies PlayableTribe[]),
-});
+import { playerSchema } from 'app/interfaces/models/game/player';
 
 export const usePlayer = () => {
   const { fetcher } = use(ApiContext);
@@ -25,8 +10,9 @@ export const usePlayer = () => {
   const { data: player } = useSuspenseQuery({
     queryKey: [playersCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Player>('/me');
-      return data;
+      const { data } = await fetcher('/me');
+
+      return playerSchema.parse(data);
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,

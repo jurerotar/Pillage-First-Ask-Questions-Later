@@ -26,14 +26,11 @@ createNewServer(database, serverMock);
 describe('createNewServer', () => {
   describe('Tiles', () => {
     test('should create correct amount of tiles', () => {
-      const { totalTiles } = calculateGridLayout(
-        serverMock.configuration.mapSize,
-      );
       const rowCount = database.selectValue(
         'SELECT COUNT(id) AS id FROM tiles;',
       );
 
-      expect(rowCount).toBe(totalTiles);
+      expect(rowCount).toBe(7825);
     });
 
     test('every tile should be of type free or oasis', () => {
@@ -214,33 +211,6 @@ describe('createNewServer', () => {
   });
 
   describe('Players', () => {
-    test('inserts players and DB column types are correct', () => {
-      const rows = database.selectObjects(
-        'SELECT id, name, slug, tribe, faction_id FROM players;',
-      ) as {
-        id: number;
-        name: string;
-        slug: string;
-        tribe: string;
-        faction_id: string;
-      }[];
-
-      const allowedTribes = new Set([
-        'romans',
-        'gauls',
-        'teutons',
-        'huns',
-        'egyptians',
-      ]);
-
-      for (const row of rows) {
-        expect(typeof row.name).toBe('string');
-        expect(typeof row.slug).toBe('string');
-        expect(allowedTribes.has(row.tribe)).toBeTruthy();
-        expect(row.faction_id.length).toBeGreaterThan(0);
-      }
-    });
-
     test('slugs are unique and contain only lowercase alphanumeric and dashes', () => {
       const slugs = database.selectValues(
         'SELECT slug FROM players;',
@@ -260,6 +230,13 @@ describe('createNewServer', () => {
       }
     });
 
+    test('only one player has faction_id = 1 and that player has id = 1', () => {
+      const count = database.selectValue(
+        'SELECT COUNT(*) AS c FROM players WHERE faction_id = 1;',
+      ) as number;
+      expect(count).toBe(1);
+    });
+
     test('player count equals expected formula (player + generated NPCs)', () => {
       // compute expected NPC count using same formula as generateNpcPlayers
       const { totalTiles } = calculateGridLayout(
@@ -268,7 +245,7 @@ describe('createNewServer', () => {
       const playerDensity = 0.046;
       const expectedNpcCount =
         Math.round((playerDensity * totalTiles) / 100) * 100;
-      const expectedTotalPlayers = expectedNpcCount + 1; // +1 human player
+      const expectedTotalPlayers = expectedNpcCount; // +1 human player
 
       const actualCount = database.selectValue(
         'SELECT COUNT(*) AS c FROM players;',

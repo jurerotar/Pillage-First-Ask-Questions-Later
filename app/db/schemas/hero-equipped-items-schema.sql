@@ -13,10 +13,8 @@ CREATE TABLE hero_equipped_items
      'consumable'
       )
     ),
-  item_id TEXT,
-  amount INTEGER,
-
-  CHECK ((item_id IS NULL AND amount IS NULL) OR (item_id IS NOT NULL AND amount > 0)),
+  item_id INTEGER NOT NULL,
+  amount INTEGER DEFAULT 1,
 
   PRIMARY KEY (hero_id, slot),
 

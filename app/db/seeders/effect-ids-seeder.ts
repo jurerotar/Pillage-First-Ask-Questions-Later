@@ -4,16 +4,17 @@ import type { Effect } from 'app/interfaces/models/game/effect';
 
 export const effectIdsSeeder: Seeder = (database): void => {
   const effectIds: Effect['id'][] = [
+    // !! wheatProduction must always remain at the top, because we use its id of 1 as a partial index in effects table !!
+    'wheatProduction',
+    'woodProduction',
+    'clayProduction',
+    'ironProduction',
     'barracksTrainingDuration',
     'greatBarracksTrainingDuration',
     'stableTrainingDuration',
     'greatStableTrainingDuration',
     'workshopTrainingDuration',
     'hospitalTrainingDuration',
-    'woodProduction',
-    'clayProduction',
-    'ironProduction',
-    'wheatProduction',
     'attack',
     'defence',
     'defenceBonus',

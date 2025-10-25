@@ -1,8 +1,9 @@
-import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
+import type { Point } from 'app/interfaces/models/common';
 
-export const parseRFCFromTile = (
-  resourceFieldComposition: OccupiableTile['resourceFieldComposition'],
+export const parseResourcesFromRFC = (
+  resourceFieldComposition: ResourceFieldComposition,
 ) => {
   const [wood, clay, iron, ...wheat] = resourceFieldComposition.split('');
   const values = [wood, clay, iron, wheat.join('')];
@@ -65,6 +66,9 @@ export const calculateGridLayout = (mapSize: number) => {
   const gridSize = totalSize + 1;
   const halfSize = Math.floor(totalSize / 2);
 
+  const usableTilesRadius = halfSize - borderWidth / 2;
+  const mapBorderThreshold = usableTilesRadius ** 2;
+
   const totalTiles = gridSize ** 2;
 
   return {
@@ -73,5 +77,22 @@ export const calculateGridLayout = (mapSize: number) => {
     halfSize,
     borderWidth,
     totalTiles,
+    mapBorderThreshold,
+  };
+};
+
+export const tileIdToCoordinates = (tileId: number, mapSize: number): Point => {
+  const { gridSize, halfSize } = calculateGridLayout(mapSize);
+
+  const i = tileId - 1;
+  const col = i % gridSize;
+  const row = Math.floor(i / gridSize);
+
+  const x = -halfSize + col;
+  const y = halfSize - row;
+
+  return {
+    x,
+    y,
   };
 };

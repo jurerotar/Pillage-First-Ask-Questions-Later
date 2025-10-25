@@ -1,25 +1,19 @@
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resource } from 'app/interfaces/models/game/resource';
-import type {
-  ResourceFieldComposition,
-  Village,
-  VillageSize,
-} from 'app/interfaces/models/game/village';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { Tribe } from 'app/interfaces/models/game/tribe';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import type { TroopMovementType } from 'app/components/icons/icons';
+import type { Village } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
+import { z } from 'zod';
+import { coordinatesSchema } from 'app/interfaces/models/common';
 
-export type TileModel = {
-  id: number;
-  x: number;
-  y: number;
-  type: 'free' | 'oasis';
-  resource_field_composition: ResourceFieldComposition | null;
-  oasis_graphics: number | null;
-};
+export const tileTypeSchema = z.enum(['free', 'oasis']);
 
-export type BaseTile = {
+export const baseTileSchema = z.strictObject({
+  id: z.number(),
+  coordinates: coordinatesSchema,
+  type: tileTypeSchema,
+});
+
+type BaseTile = {
   id: number;
   coordinates: {
     x: number;
@@ -65,30 +59,3 @@ export type Tile =
   | OccupiedOasisTile
   | OccupiableTile
   | OccupiedOccupiableTile;
-
-export type MaybeOccupiedBaseTile = BaseTile | OccupiedOccupiableTile;
-export type MaybeOccupiedOrOasisBaseTile = MaybeOccupiedBaseTile | OasisTile;
-
-type ContextualBaseTile = BaseTile & {
-  troopMovementIcon: TroopMovementType | null;
-};
-
-type ContextualOasisTile = ContextualBaseTile & OasisTile;
-
-type ContextualOccupiedOasisTile = ContextualBaseTile & OccupiedOasisTile;
-
-type ContextualOccupiableTile = ContextualBaseTile & OccupiableTile;
-
-export type ContextualOccupiedOccupiableTile = ContextualBaseTile &
-  OccupiedOccupiableTile & {
-    villageSize: VillageSize;
-    tribe: Tribe;
-    reputationLevel: Reputation['reputationLevel'];
-    worldItem: WorldItem | null;
-  };
-
-export type ContextualTile =
-  | ContextualOasisTile
-  | ContextualOccupiedOasisTile
-  | ContextualOccupiableTile
-  | ContextualOccupiedOccupiableTile;

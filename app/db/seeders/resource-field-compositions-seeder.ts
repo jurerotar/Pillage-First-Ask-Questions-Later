@@ -1,6 +1,6 @@
 import type { Seeder } from 'app/interfaces/db';
 import { batchInsert } from 'app/db/utils/batch-insert';
-import type { ResourceFieldComposition } from 'app/interfaces/models/game/village';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 
 export const resourceFieldCompositionsSeeder: Seeder = (database): void => {
   const rfc: ResourceFieldComposition[] = [

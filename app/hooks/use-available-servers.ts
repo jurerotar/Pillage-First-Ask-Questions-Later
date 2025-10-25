@@ -4,15 +4,11 @@ import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 
 const deleteServerData = async (server: Server) => {
-  try {
-    const rootHandle = await getRootHandle();
-    const sqliteFileName = `${server.slug}.sqlite3`;
+  const rootHandle = await getRootHandle();
+  const sqliteFileName = `${server.slug}.sqlite3`;
 
-    try {
-      await rootHandle.getFileHandle(sqliteFileName);
-      await rootHandle.removeEntry(sqliteFileName);
-    } catch (_) {}
-  } finally {
+  try {
+    await rootHandle.removeEntry(sqliteFileName);
     const servers: Server[] = JSON.parse(
       window.localStorage.getItem(availableServerCacheKey) ?? '[]',
     );
@@ -20,7 +16,7 @@ const deleteServerData = async (server: Server) => {
       availableServerCacheKey,
       JSON.stringify(servers.filter(({ id }) => id !== server.id)),
     );
-  }
+  } catch (_) {}
 };
 
 export const useAvailableServers = () => {

@@ -51,7 +51,7 @@
   }
 }
 
-// IMPORTANT: If this gets changed, make sure to implement the same change in map-factory as well!
+// IMPORTANT: If this gets changed, make sure to implement the same change in tiles-seeder as well!
 $shapes-by-group: (
   0: (1),
   1: (2), // rows: [2]      -> positions: 0-0, 0-1
@@ -60,7 +60,7 @@ $shapes-by-group: (
   4: (3), // rows: [3]      -> 0-0, 0-1, 0-2
 );
 
-// IMPORTANT: If this gets changed, make sure to implement the same change in map-factory as well!
+// IMPORTANT: If this gets changed, make sure to implement the same change in tiles-seeder as well!
 $variants-by-resource-and-group: (
   "wood": (
     0: (0, 1, 2, 3, 4),
@@ -135,6 +135,21 @@ $variants-by-resource-and-group: (
             }
           }
         }
+      }
+    }
+
+    .border-tile {
+      &-1 {
+        background-image: url("#{$base}/wood/0-0-0-1.avif");
+      }
+      &-2 {
+        background-image: url("#{$base}/wood/0-0-0-2.avif");
+      }
+      &-3 {
+        background-image: url("#{$base}/wood/0-0-0-3.avif");
+      }
+      &-4 {
+        background-image: url("#{$base}/wood/0-0-0-4.avif");
       }
     }
   }

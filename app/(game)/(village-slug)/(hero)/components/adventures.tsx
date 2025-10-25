@@ -1,4 +1,3 @@
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { seededRandomIntFromInterval } from 'app/utils/common';
@@ -16,14 +15,12 @@ import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adve
 export const Adventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
-  const { hero } = useHero();
-  const { available } = useHeroAdventures();
+  const { available, completed } = useHeroAdventures();
   const { eventsByType } = useEventsByType('adventurePointIncrease');
 
   const { seed } = server;
-  const { adventureCount } = hero;
 
-  const adventurePrng = prngMulberry32(`${seed}${adventureCount}`);
+  const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
   // Short adventure is between 8 & 12 minutes long
   const _adventureDuration =

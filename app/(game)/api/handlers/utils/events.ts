@@ -30,13 +30,13 @@ import {
 } from 'app/(game)/api/utils/village';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import { selectAllRelevantEffectsByIdQuery } from 'app/(game)/api/utils/queries/effect-queries';
-import { effectSchema } from 'app/(game)/api/utils/zod/effect-schemas';
+import { apiEffectSchema } from 'app/(game)/api/utils/zod/effect-schemas';
 import { z } from 'zod';
 import { selectAllVillageEventsByTypeQuery } from 'app/(game)/api/utils/queries/event-queries';
 import { eventSchema } from 'app/(game)/api/utils/zod/event-schemas';
 import type { SQLOutputValue } from 'node:sqlite';
 
-const effectsListSchema = z.array(effectSchema);
+const effectsListSchema = z.array(apiEffectSchema);
 const eventsListSchema = z.array(eventSchema);
 
 // TODO: Implement this

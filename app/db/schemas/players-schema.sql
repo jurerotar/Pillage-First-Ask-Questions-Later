@@ -4,7 +4,7 @@ CREATE TABLE players
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   tribe TEXT NOT NULL,
-  faction_id TEXT NOT NULL,
+  faction_id INTEGER NOT NULL,
 
   FOREIGN KEY (faction_id) REFERENCES factions (id)
 ) STRICT;

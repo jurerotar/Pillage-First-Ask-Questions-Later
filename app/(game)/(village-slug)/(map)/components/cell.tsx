@@ -1,36 +1,26 @@
-import { OccupiableOasisIcon } from 'app/(game)/(village-slug)/(map)/components/occupiable-oasis-icon';
-import {
-  isContextualOccupiedOccupiableTile,
-  isOasisTile,
-  isOccupiableOasisTile,
-  isOccupiableTile,
-  isOccupiedOasisTile,
-  isOccupiedOccupiableTile,
-  isUnoccupiedOccupiableTile,
-} from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
-import type {
-  ContextualTile,
-  Tile as TileType,
-} from 'app/interfaces/models/game/tile';
 import { clsx } from 'clsx';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
-import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import { Icon } from 'app/components/icon';
 import type { TroopMovementType } from 'app/components/icons/icons';
 import cellStyles from './cell.module.scss';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import type { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
+import { getReputationLevel } from 'app/(game)/(village-slug)/utils/reputation';
+import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
+
+type Tile = ReturnType<typeof useMap>['map'][0];
 
 type CellBaseProps = {
-  contextualMap: ContextualTile[];
+  map: Tile[];
   gridSize: number;
   mapFilters: MapFilters;
   magnification: number;
   preferences: Preferences;
-  onClick: (data: TileType) => void;
+  onClick: (tileId: number) => void;
 };
 
 type TroopMovementsProps = {
@@ -38,7 +28,7 @@ type TroopMovementsProps = {
   magnification: number;
 };
 
-const TroopMovements = ({
+const _TroopMovements = ({
   troopMovementIcon,
   magnification,
 }: TroopMovementsProps) => {
@@ -59,7 +49,7 @@ const TroopMovements = ({
 const wheatFields = new Set(['00018', '11115', '3339']);
 
 type CellIconsProps = CellBaseProps & {
-  tile: ContextualTile;
+  tile: NonNullable<Tile>;
 };
 
 const CellIcons = (props: CellIconsProps) => {
@@ -76,7 +66,7 @@ const CellIcons = (props: CellIconsProps) => {
   );
 
   if (
-    isOccupiableTile(tile) &&
+    tile.type === 'free' &&
     shouldShowWheatFields &&
     wheatFields.has(tile.resourceFieldComposition)
   ) {
@@ -93,26 +83,29 @@ const CellIcons = (props: CellIconsProps) => {
     );
   }
 
-  if (shouldShowOasisIcons && isOccupiableOasisTile(tile)) {
+  if (
+    shouldShowOasisIcons &&
+    tile.type === 'oasis' &&
+    tile.oasisResource !== null
+  ) {
     return (
       <BorderIndicator
         className={classes}
-        variant={isOccupiedOasisTile(tile) ? 'red' : 'green'}
+        variant={tile.isOccupied ? 'red' : 'green'}
       >
-        <OccupiableOasisIcon oasisResourceBonus={tile.ORB} />
+        <Icon
+          type={tile.oasisResource}
+          shouldShowTooltip={false}
+        />
       </BorderIndicator>
     );
   }
 
-  if (
-    shouldShowTreasureIcons &&
-    isOccupiedOccupiableTile(tile) &&
-    tile.worldItem !== null
-  ) {
+  if (shouldShowTreasureIcons && tile.type === 'free' && tile.itemId !== null) {
     return (
       <TreasureIcon
         className={classes}
-        item={tile.worldItem}
+        itemId={tile.itemId}
       />
     );
   }
@@ -121,20 +114,22 @@ const CellIcons = (props: CellIconsProps) => {
 };
 
 const getTileClassNames = (
-  tile: ContextualTile,
+  tile: NonNullable<Tile>,
   magnification: number,
   shouldShowFactionReputation: boolean,
 ): string => {
   let classes = '';
 
-  if (isUnoccupiedOccupiableTile(tile)) {
+  if (tile.type === 'free' && !tile.isOccupied) {
     const { resourceFieldComposition } = tile;
     classes = clsx(
       cellStyles.tile,
       cellStyles[`unoccupied-tile-${resourceFieldComposition}`],
     );
-  } else if (isContextualOccupiedOccupiableTile(tile)) {
-    const { reputationLevel } = tile;
+  } else if (tile.type === 'free' && tile.isOccupied) {
+    const { reputation } = tile;
+
+    const reputationLevel = getReputationLevel(reputation!);
 
     classes = clsx(
       cellStyles.tile,
@@ -143,9 +138,9 @@ const getTileClassNames = (
       shouldShowFactionReputation &&
         cellStyles[`occupied-tile-reputation-${reputationLevel}`],
     );
-  } else if (isOasisTile(tile)) {
+  } else if (tile.type === 'oasis') {
     const { oasisResource, oasisGroup, oasisGroupPositions, variant } =
-      decodeGraphicsProperty(tile.graphics);
+      decodeGraphicsProperty(tile.oasisGraphics);
     classes = clsx(
       cellStyles.tile,
       cellStyles[
@@ -161,34 +156,39 @@ type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(
   ({ data, style, rowIndex, columnIndex }) => {
-    const { contextualMap, gridSize, mapFilters, magnification, onClick } =
-      data;
+    const { map, gridSize, mapFilters, magnification, onClick } = data;
 
-    const tile: ContextualTile =
-      contextualMap[gridSize * rowIndex + columnIndex];
+    const tileIndex = gridSize * rowIndex + columnIndex;
+    const tileId = tileIndex + 1;
 
-    const className = getTileClassNames(
-      tile,
-      magnification,
-      mapFilters.shouldShowFactionReputation,
-    );
+    const tile = map[tileIndex];
+    const isBorderTile = tile === null;
 
     return (
       <button
-        onClick={() => onClick(tile)}
+        onClick={() => onClick(tileId)}
         type="button"
-        className={className}
         style={style}
-        data-tile-id={tile.id}
+        data-tile-id={tileId}
+        {...(isBorderTile && {
+          className: clsx(
+            cellStyles.tile,
+            // We have to do + 1, because 0 is reserved for 1x1 oasis icon
+            cellStyles[`border-tile-${(tileIndex % 4) + 1}`],
+          ),
+        })}
+        {...(!isBorderTile && {
+          className: getTileClassNames(
+            tile,
+            magnification,
+            mapFilters.shouldShowFactionReputation,
+          ),
+        })}
       >
-        <CellIcons
-          tile={tile}
-          {...data}
-        />
-        {tile.troopMovementIcon !== null && (
-          <TroopMovements
-            magnification={magnification}
-            troopMovementIcon={tile.troopMovementIcon}
+        {!isBorderTile && (
+          <CellIcons
+            tile={tile}
+            {...data}
           />
         )}
       </button>

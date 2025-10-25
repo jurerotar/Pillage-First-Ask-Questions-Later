@@ -100,7 +100,7 @@ type TreasureTileIconType =
   | 'treasureTileCurrency'
   | 'treasureTileMiscellaneous';
 
-export type ResourceCombinationIconType =
+type ResourceCombinationIconType =
   | 'woodWheat'
   | 'clayWheat'
   | 'ironWheat'

@@ -27,10 +27,7 @@ const getQuestsSchema = z
     };
   });
 
-export const getQuests: ApiHandler<
-  z.infer<typeof getQuestsSchema>[],
-  'villageId'
-> = (database, { params }) => {
+export const getQuests: ApiHandler<'villageId'> = (database, { params }) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(
@@ -54,13 +51,7 @@ export const getQuests: ApiHandler<
   return z.array(getQuestsSchema).parse(rows);
 };
 
-type GetCollectableQuestCountReturn = {
-  collectableQuestCount: number;
-};
-
-export const getCollectableQuestCount: ApiHandler<
-  GetCollectableQuestCountReturn
-> = (database) => {
+export const getCollectableQuestCount: ApiHandler = (database) => {
   const collectableQuestCount = database.selectValue(
     `
       SELECT COUNT(*) AS count
@@ -75,7 +66,7 @@ export const getCollectableQuestCount: ApiHandler<
   };
 };
 
-export const collectQuest: ApiHandler<void, 'questId' | 'villageId'> = (
+export const collectQuest: ApiHandler<'questId' | 'villageId'> = (
   database,
   args,
 ) => {

@@ -1,16 +1,13 @@
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import type { FactionModel } from 'app/interfaces/models/game/faction';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { z } from 'zod';
+import { factionSchema } from 'app/interfaces/models/game/faction';
 
-export type PlayerModel = {
-  id: number;
-  name: string;
-  tribe: PlayableTribe;
-  faction_id: FactionModel['id'];
-};
+export const playerSchema = z.strictObject({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  tribe: tribeSchema,
+  faction: factionSchema,
+});
 
-export type Player = {
-  id: number;
-  name: string;
-  tribe: PlayableTribe;
-  faction: FactionModel['name'];
-};
+export type Player = z.infer<typeof playerSchema>;

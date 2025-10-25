@@ -1,24 +1,33 @@
 import type { Seeder } from 'app/interfaces/db';
-import type { FactionName } from 'app/interfaces/models/game/faction';
+import type { Faction } from 'app/interfaces/models/game/faction';
 import { reputationLevels } from 'app/assets/reputation';
 import { batchInsert } from 'app/db/utils/batch-insert';
 
 export const factionReputationSeeder: Seeder = (database): void => {
-  const relations: [FactionName, FactionName, number][] = [
-    ['player', 'npc1', reputationLevels.get('ecstatic')!],
-    ['player', 'npc2', reputationLevels.get('honored')!],
-    ['player', 'npc3', reputationLevels.get('respected')!],
-    ['player', 'npc4', reputationLevels.get('friendly')!],
-    ['player', 'npc5', reputationLevels.get('neutral')!],
-    ['player', 'npc6', reputationLevels.get('unfriendly')!],
-    ['player', 'npc7', reputationLevels.get('hostile')!],
-    ['player', 'npc8', reputationLevels.get('hated')!],
+  const rows = database.selectArrays('SELECT faction, id FROM factions;') as [
+    Faction,
+    number,
+  ][];
+
+  const factionToIdMap = Object.fromEntries(rows);
+
+  const playerFactionId = factionToIdMap.player;
+
+  const relations: [number, number, number][] = [
+    [playerFactionId, factionToIdMap.npc1, reputationLevels.get('ecstatic')!],
+    [playerFactionId, factionToIdMap.npc2, reputationLevels.get('honored')!],
+    [playerFactionId, factionToIdMap.npc3, reputationLevels.get('respected')!],
+    [playerFactionId, factionToIdMap.npc4, reputationLevels.get('friendly')!],
+    [playerFactionId, factionToIdMap.npc5, reputationLevels.get('neutral')!],
+    [playerFactionId, factionToIdMap.npc6, reputationLevels.get('unfriendly')!],
+    [playerFactionId, factionToIdMap.npc7, reputationLevels.get('hostile')!],
+    [playerFactionId, factionToIdMap.npc8, reputationLevels.get('hated')!],
   ];
 
   batchInsert(
     database,
     'faction_reputation',
-    ['source_faction', 'target_faction', 'reputation'],
+    ['source_faction_id', 'target_faction_id', 'reputation'],
     relations,
   );
 };

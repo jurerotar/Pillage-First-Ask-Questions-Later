@@ -71,7 +71,7 @@ const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
       <TableCell>
         <Text variant="link">
           <Link to={`../map?x=${x}&y=${y}`}>
-            {x}, {y}
+            ({x} | {y})
           </Link>
         </Text>
       </TableCell>
@@ -183,7 +183,7 @@ const OccupiableOasisSlot = ({
             <Link
               to={`../map?x=${village.coordinates.x}&y=${village.coordinates.y}`}
             >
-              {village.name} ({village.coordinates.x}, {village.coordinates.y})
+              {village.name} ({village.coordinates.x} | {village.coordinates.y})
             </Link>
           </Text>
         )}
@@ -191,7 +191,7 @@ const OccupiableOasisSlot = ({
       <TableCell>
         <Text variant="link">
           <Link to={`../map?x=${oasis.coordinates.x}&y=${oasis.coordinates.y}`}>
-            {oasis.coordinates.x}, {oasis.coordinates.y}
+            ({oasis.coordinates.x} | {oasis.coordinates.y})
           </Link>
         </Text>
       </TableCell>

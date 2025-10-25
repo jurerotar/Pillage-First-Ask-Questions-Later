@@ -35,7 +35,7 @@ const UnoccupiedArtifactRow = ({ item }: UnoccupiedArtifactRowProps) => {
       <TableCell>{item.distance}</TableCell>
       <TableCell>
         <Link to={`../map?x=${item.coordinates.x}&y=${item.coordinates.y}`}>
-          {item.coordinates.x}, {item.coordinates.y}
+          ({item.coordinates.x} | {item.coordinates.y})
         </Link>
       </TableCell>
     </TableRow>

@@ -16,6 +16,7 @@ import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm?url';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -138,23 +139,29 @@ const Layout = memo<Route.ComponentProps>(
     }, [serverSlug, sessionId]);
 
     return (
-      <QueryClientProvider client={queryClient}>
-        <Suspense fallback={<LayoutFallback />}>
-          <ApiProvider serverSlug={serverSlug}>
-            <Outlet />
-            <Notifier serverSlug={serverSlug} />
-            <WorkerCleanupHandler serverSlug={serverSlug} />
-          </ApiProvider>
-        </Suspense>
-        <Toaster
-          position={toasterPosition}
-          closeButton
+      <>
+        <link
+          rel="modulepreload"
+          href={sqliteWasmUrl}
         />
-        <ReactQueryDevtools
-          client={queryClient}
-          initialIsOpen={false}
-        />
-      </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={<LayoutFallback />}>
+            <ApiProvider serverSlug={serverSlug}>
+              <Outlet />
+              <Notifier serverSlug={serverSlug} />
+              <WorkerCleanupHandler serverSlug={serverSlug} />
+            </ApiProvider>
+          </Suspense>
+          <Toaster
+            position={toasterPosition}
+            closeButton
+          />
+          <ReactQueryDevtools
+            client={queryClient}
+            initialIsOpen={false}
+          />
+        </QueryClientProvider>
+      </>
     );
   },
   (prev, next) => {

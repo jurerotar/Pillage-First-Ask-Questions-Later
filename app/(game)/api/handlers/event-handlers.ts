@@ -22,10 +22,10 @@ import { getEventStartTime } from 'app/(game)/api/handlers/utils/events';
 
 const eventListSchema = z.array(eventSchema);
 
-export const getVillageEvents: ApiHandler<
-  z.infer<typeof eventSchema>[],
-  'villageId'
-> = (database, { params }) => {
+export const getVillageEvents: ApiHandler<'villageId'> = (
+  database,
+  { params },
+) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(selectAllVillageEventsQuery, {
@@ -35,10 +35,10 @@ export const getVillageEvents: ApiHandler<
   return eventListSchema.parse(rows);
 };
 
-export const getVillageEventsByType: ApiHandler<
-  z.infer<typeof eventSchema>[],
-  'villageId' | 'eventType'
-> = (database, { params }) => {
+export const getVillageEventsByType: ApiHandler<'villageId' | 'eventType'> = (
+  database,
+  { params },
+) => {
   const { villageId, eventType } = params;
 
   const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
@@ -53,7 +53,7 @@ type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
-export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = (
+export const createNewEvents: ApiHandler<'', CreateNewEventsBody> = (
   database,
   args,
 ) => {
@@ -66,7 +66,7 @@ export const createNewEvents: ApiHandler<void, '', CreateNewEventsBody> = (
   }
 };
 
-export const cancelConstructionEvent: ApiHandler<void, 'eventId', void> = (
+export const cancelConstructionEvent: ApiHandler<'eventId', void> = (
   database,
   args,
 ) => {

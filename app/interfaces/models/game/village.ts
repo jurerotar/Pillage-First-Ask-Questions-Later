@@ -1,24 +1,9 @@
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Resources } from 'app/interfaces/models/game/resource';
-import type { Tile } from 'app/interfaces/models/game/tile';
-import type { BuildingField } from 'app/interfaces/models/game/building-field';
+import { buildingFieldSchema } from 'app/interfaces/models/game/building-field';
+import { z } from 'zod';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { coordinatesSchema } from 'app/interfaces/models/common';
 
-export type ResourceFieldComposition =
-  | '4446'
-  | '5436'
-  | '5346'
-  | '4536'
-  | '3546'
-  | '4356'
-  | '3456'
-  | '4437'
-  | '4347'
-  | '3447'
-  | '3339'
-  | '11115'
-  | '00018';
-
-// Used mostly for map and village factory
+// Used mostly in seeders
 export type VillageSize =
   | 'xxs'
   | 'xs'
@@ -30,36 +15,22 @@ export type VillageSize =
   | '3xl'
   | '4xl';
 
-export type VillageModel = {
-  id: number;
-  tile_id: Tile['id'];
-  player_id: Player['id'];
-  coordinates_x: number;
-  coordinates_y: number;
-  name: string;
-  slug: string;
-  last_updated_at: number;
-  wood: number;
-  clay: number;
-  iron: number;
-  wheat: number;
-  resource_field_composition: ResourceFieldComposition;
-  // Stringified Omit<BuildingFieldModel, 'village_id'>[]
-  building_fields: string;
-};
+export const villageSchema = z.strictObject({
+  id: z.number(),
+  tileId: z.number(),
+  playerId: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  coordinates: coordinatesSchema,
+  lastUpdatedAt: z.number(),
+  resources: z.strictObject({
+    wood: z.number(),
+    clay: z.number(),
+    iron: z.number(),
+    wheat: z.number(),
+  }),
+  resourceFieldComposition: resourceFieldCompositionSchema,
+  buildingFields: z.array(buildingFieldSchema),
+});
 
-export type Village = {
-  id: number;
-  tileId: Tile['id'];
-  playerId: Player['id'];
-  coordinates: {
-    x: number;
-    y: number;
-  };
-  name: string;
-  slug: string;
-  lastUpdatedAt: number;
-  resources: Resources;
-  buildingFields: BuildingField[];
-  resourceFieldComposition: ResourceFieldComposition;
-};
+export type Village = z.infer<typeof villageSchema>;

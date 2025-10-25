@@ -1,21 +1,22 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { Player } from 'app/interfaces/models/game/player';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { factionSchema } from 'app/interfaces/models/game/faction';
 
 const getPlayerRankingsSchema = z
   .strictObject({
-    faction_id: z.string().brand<Player['faction']>(),
     id: z.number(),
     name: z.string(),
     slug: z.string(),
+    tribe: tribeSchema,
+    faction: factionSchema,
     total_population: z.number(),
-    tribe: z.string().brand<Player['tribe']>(),
     village_count: z.number(),
   })
   .transform((t) => {
     return {
       id: t.id,
-      factionId: t.faction_id,
+      faction: t.faction,
       name: t.name,
       slug: t.slug,
       tribe: t.tribe,
@@ -28,56 +29,77 @@ type GetPlayersStatisticsBody = {
   lastPlayerId: number | null;
 };
 
-export const getPlayerRankings: ApiHandler<
-  z.infer<typeof getPlayerRankingsSchema>[],
-  '',
-  GetPlayersStatisticsBody
-> = (database, { body }) => {
+export const getPlayerRankings: ApiHandler<'', GetPlayersStatisticsBody> = (
+  database,
+  { body },
+) => {
   const { lastPlayerId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
   const rows = database.selectObjects(
     `
-      WITH player_pop AS (SELECT p.id,
-                                 p.name,
-                                 p.slug,
-                                 p.tribe,
-                                 p.faction_id,
-                                 CAST(
-                                   COALESCE(
-                                     SUM(
-                                       CASE WHEN ei.effect = 'wheatProduction' THEN e.value ELSE 0 END
-                                     ),
-                                     0
-                                   ) AS INTEGER
-                                 ) AS total_population,
-                                 COUNT(DISTINCT v.id) AS village_count
-                          FROM players p
-                                 LEFT JOIN villages v ON v.player_id = p.id
-                                 LEFT JOIN effects e
-                                           ON e.village_id = v.id
-                                             AND e.type = 'base'
-                                             AND e.scope = 'village'
-                                             AND e.source = 'building'
-                                             AND e.source_specifier = 0
-                                 LEFT JOIN effect_ids ei ON ei.id = e.effect_id
-                          GROUP BY p.id, p.name, p.slug, p.tribe, p.faction_id),
+      WITH player_pop AS (
+        SELECT
+          p.id,
+          p.name,
+          p.slug,
+          p.tribe,
+          (SELECT faction FROM factions WHERE id = p.faction_id) AS faction,
+          CAST(
+            COALESCE(
+              SUM(
+                CASE WHEN ei.effect = 'wheatProduction' THEN e.value ELSE 0 END
+              ),
+              0
+            ) AS INTEGER
+          ) AS total_population,
 
-           cursor_row AS (SELECT total_population, id
-                          FROM player_pop
-                          WHERE id = $last_player_id)
+          COUNT(DISTINCT v.id) AS village_count
+        FROM players p
+               LEFT JOIN villages v ON v.player_id = p.id
+               LEFT JOIN effects e
+                         ON e.village_id = v.id
+                           AND e.type = 'base'
+                           AND e.scope = 'village'
+                           AND e.source = 'building'
+                           AND e.source_specifier = 0
+               LEFT JOIN effect_ids ei ON ei.id = e.effect_id
 
-      SELECT id, name, slug, tribe, faction_id, total_population, village_count
+            -- join factions to get the human-readable faction string
+               LEFT JOIN factions f ON f.id = p.faction_id
+
+        GROUP BY
+          p.id,
+          p.name,
+          p.slug,
+          p.tribe,
+          f.faction
+        ),
+
+        cursor_row AS (
+          SELECT total_population, id
+          FROM player_pop
+          WHERE id = $last_player_id
+          )
+
+      SELECT
+        id,
+        name,
+        slug,
+        tribe,
+        faction,
+        total_population,
+        village_count
       FROM player_pop
       WHERE ($last_player_id IS NULL)
-         OR (
-        EXISTS(SELECT 1 FROM cursor_row)
-          AND (
-          (total_population < (SELECT total_population FROM cursor_row))
-            OR (total_population = (SELECT total_population FROM cursor_row) AND id > $last_player_id)
+        OR (
+          EXISTS(SELECT 1 FROM cursor_row)
+            AND (
+            (total_population < (SELECT total_population FROM cursor_row))
+              OR (total_population = (SELECT total_population FROM cursor_row) AND id > $last_player_id)
+            )
           )
-        )
-      ORDER BY total_population DESC, id
+      ORDER BY total_population DESC, id;
     `,
     {
       $last_player_id: lastPlayerId,
@@ -117,11 +139,10 @@ type GetVillageStatisticsBody = {
   lastVillageId: number | null;
 };
 
-export const getVillageRankings: ApiHandler<
-  z.infer<typeof getVillageRankingsSchema>[],
-  '',
-  GetVillageStatisticsBody
-> = (database, { body }) => {
+export const getVillageRankings: ApiHandler<'', GetVillageStatisticsBody> = (
+  database,
+  { body },
+) => {
   const { lastVillageId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!

@@ -1,4 +1,4 @@
-import type { HeroItem } from 'app/interfaces/models/game/hero';
+import type { HeroItem } from 'app/interfaces/models/game/hero-item';
 
 // All artifacts begin with the 100_ prefix
 const artifacts: HeroItem[] = [

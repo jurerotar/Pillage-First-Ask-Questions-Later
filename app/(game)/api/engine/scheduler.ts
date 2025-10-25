@@ -8,8 +8,25 @@ import { resolveEvent } from 'app/(game)/api/engine/resolver';
 
 let scheduledTimeout: number | null = null;
 let schedulingInProgress = false;
+const shutdownController = new AbortController();
+
+export const cancelScheduling = () => {
+  if (!shutdownController.signal.aborted) {
+    shutdownController.abort();
+  }
+
+  if (scheduledTimeout !== null) {
+    self.clearTimeout(scheduledTimeout);
+    scheduledTimeout = null;
+  }
+};
 
 export const scheduleNextEvent = (database: DbFacade) => {
+  // If we've been canceled, bail out immediately.
+  if (shutdownController.signal.aborted) {
+    return;
+  }
+
   if (scheduledTimeout !== null) {
     self.clearTimeout(scheduledTimeout);
     scheduledTimeout = null;
@@ -24,6 +41,11 @@ export const scheduleNextEvent = (database: DbFacade) => {
   schedulingInProgress = true;
   try {
     while (true) {
+      // If cancellation happened while we were looping, stop.
+      if (shutdownController.signal.aborted) {
+        break;
+      }
+
       // If someone requested a rescan before we started, consume-request and continue.
       takeNeedsRescan();
 
@@ -37,6 +59,11 @@ export const scheduleNextEvent = (database: DbFacade) => {
       }
 
       for (const id of pastEventIds) {
+        // Respect cancel signal between each event processing.
+        if (shutdownController.signal.aborted) {
+          break;
+        }
+
         // Clear any request before processing this id so new notifications can be detected.
         // If createEvents marks a request during the transaction, it will be observed below.
         // We don't need a local flag — use takeNeedsRescan() after processing.
@@ -50,6 +77,10 @@ export const scheduleNextEvent = (database: DbFacade) => {
           break;
         }
       }
+    }
+
+    if (shutdownController.signal.aborted) {
+      return;
     }
 
     const next = database.selectObject(
@@ -69,7 +100,14 @@ export const scheduleNextEvent = (database: DbFacade) => {
 
     const delay = Math.max(0, next.resolvesAt - Date.now());
     scheduledTimeout = self.setTimeout(() => {
+      // Timeout fired — clear reference first
       scheduledTimeout = null;
+
+      // Do nothing if we've been canceled in the meantime.
+      if (shutdownController.signal.aborted) {
+        return;
+      }
+
       resolveEvent(database, next.id);
       scheduleNextEvent(database);
     }, delay);
@@ -77,7 +115,7 @@ export const scheduleNextEvent = (database: DbFacade) => {
     schedulingInProgress = false;
 
     // If a request arrived while we were finishing, consume and restart.
-    if (takeNeedsRescan()) {
+    if (!shutdownController.signal.aborted && takeNeedsRescan()) {
       scheduleNextEvent(database);
     }
   }

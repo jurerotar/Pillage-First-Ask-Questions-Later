@@ -1,9 +1,6 @@
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import type {
-  ArtifactEffect,
   Effect,
-  HeroEffect,
-  OasisEffect,
   ResourceProductionEffectId,
   VillageBuildingEffect,
 } from 'app/interfaces/models/game/effect';
@@ -29,6 +26,9 @@ import {
   isServerEffect,
 } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { getItemDefinition } from 'app/assets/utils/items';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { tileIdToCoordinates } from 'app/utils/map';
+import { Link } from 'react-router';
 
 const formatBonus = (number: number): number => {
   return Math.trunc(number * 10_000) / 100;
@@ -73,6 +73,7 @@ export const ProductionOverview = ({
   effectId,
 }: ResourceBoosterBenefitsProps) => {
   const { t } = useTranslation();
+  const { mapSize } = useServer();
   const { effects } = useEffects();
 
   const relevantEffects = effects.filter(({ id }) => id === effectId);
@@ -97,14 +98,14 @@ export const ProductionOverview = ({
     buildingBonusBoosterEffects,
   ] = partitionEffectsByType<VillageBuildingEffect>(buildingEffects);
   const [heroBaseEffects, heroBonusEffects, heroBonusBoosterEffects] =
-    partitionEffectsByType<HeroEffect>(heroEffects);
+    partitionEffectsByType(heroEffects);
   const [
     artifactBaseEffects,
     artifactBonusEffects,
     artifactBonusBoosterEffects,
-  ] = partitionEffectsByType<ArtifactEffect>(artifactEffects);
+  ] = partitionEffectsByType(artifactEffects);
   const [oasisBaseEffects, oasisBonusEffects, oasisBonusBoosterEffects] =
-    partitionEffectsByType<OasisEffect>(oasisEffects);
+    partitionEffectsByType(oasisEffects);
 
   const summedBuildingBonusEffectValue = sumBonusEffects(buildingBonusEffects);
   const summedBuildingBonusBoosterEffectValue = sumBonusEffects(
@@ -137,31 +138,26 @@ export const ProductionOverview = ({
       };
     });
 
-  const boostedOasisBonusEffects: OasisEffect[] = oasisBonusEffects.map(
-    (effect) => {
-      return {
-        ...effect,
-        value: 1 + (effect.value - 1) * summedOasisBonusBoosterEffectValue,
-      };
-    },
-  );
+  const boostedOasisBonusEffects = oasisBonusEffects.map((effect) => {
+    return {
+      ...effect,
+      value: 1 + (effect.value - 1) * summedOasisBonusBoosterEffectValue,
+    };
+  });
 
-  const boostedArtifactBonusEffects: ArtifactEffect[] =
-    artifactBonusEffects.map((effect) => {
-      return {
-        ...effect,
-        value: 1 + (effect.value - 1) * summedArtifactBonusBoosterEffectValue,
-      };
-    });
+  const boostedArtifactBonusEffects = artifactBonusEffects.map((effect) => {
+    return {
+      ...effect,
+      value: 1 + (effect.value - 1) * summedArtifactBonusBoosterEffectValue,
+    };
+  });
 
-  const boostedHeroBonusEffects: HeroEffect[] = heroBonusEffects.map(
-    (effect) => {
-      return {
-        ...effect,
-        value: 1 + (effect.value - 1) * summedHeroBonusBoosterEffectValue,
-      };
-    },
-  );
+  const boostedHeroBonusEffects = heroBonusEffects.map((effect) => {
+    return {
+      ...effect,
+      value: 1 + (effect.value - 1) * summedHeroBonusBoosterEffectValue,
+    };
+  });
 
   const baseBuildingEffectsWithServerModifier = buildingBaseEffects.map(
     (effect) => ({
@@ -294,6 +290,10 @@ export const ProductionOverview = ({
                   },
                 )}
                 {boostedOasisBonusEffects.map(({ value, sourceSpecifier }) => {
+                  const { x, y } = tileIdToCoordinates(
+                    sourceSpecifier!,
+                    mapSize,
+                  );
                   return (
                     <TableRow key={sourceSpecifier}>
                       <TableCell>
@@ -301,12 +301,9 @@ export const ProductionOverview = ({
                       </TableCell>
                       <TableCell>
                         <Text variant="link">
-                          {/*<Link*/}
-                          {/*  className="underline"*/}
-                          {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
-                          {/*>*/}
-                          {/*  {x}, {y}*/}
-                          {/*</Link>*/}/
+                          <Link to={`../map?x=${x}&y=${y}`}>
+                            ({x} | {y})
+                          </Link>
                         </Text>
                       </TableCell>
                       <TableCell>
@@ -405,6 +402,12 @@ export const ProductionOverview = ({
                 )}
                 {baseOasisEffectsWithServerModifier.map(
                   ({ value, sourceSpecifier }) => {
+                    // Source specifier in oasis effects is actually id of the oasis. Ids are calculated from coordinates,
+                    // so we can reverse engineer coordinates without having to manually fetch them
+                    const { x, y } = tileIdToCoordinates(
+                      sourceSpecifier!,
+                      mapSize,
+                    );
                     return (
                       <TableRow key={sourceSpecifier}>
                         <TableCell>
@@ -412,12 +415,9 @@ export const ProductionOverview = ({
                         </TableCell>
                         <TableCell>
                           <Text variant="link">
-                            {/*<Link*/}
-                            {/*  className="underline"*/}
-                            {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
-                            {/*>*/}
-                            {/*  {x}, {y}*/}
-                            {/*</Link>*/}/
+                            <Link to={`../map?x=${x}&y=${y}`}>
+                              ({x} | {y})
+                            </Link>
                           </Text>
                         </TableCell>
                         <TableCell>

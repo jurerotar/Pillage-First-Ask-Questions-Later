@@ -2,14 +2,12 @@ import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { z } from 'zod';
+import { coordinatesSchema } from 'app/interfaces/models/common';
 
-const _getVillageRankingsSchema = z.strictObject({
+const getVillageRankingsSchema = z.strictObject({
   id: z.number(),
   name: z.string(),
-  coordinates: z.strictObject({
-    x: z.number(),
-    y: z.number(),
-  }),
+  coordinates: coordinatesSchema,
   population: z.number(),
   playerId: z.number(),
   playerName: z.string(),
@@ -22,14 +20,13 @@ export const useVillageRankings = () => {
   const { data: rankedVillages } = useSuspenseQuery({
     queryKey: ['player-villages'],
     queryFn: async () => {
-      const { data } = await fetcher<
-        z.infer<typeof _getVillageRankingsSchema>[]
-      >('/statistics/villages', {
+      const { data } = await fetcher('/statistics/villages', {
         body: {
           lastVillageId: null,
         },
       });
-      return data;
+
+      return z.array(getVillageRankingsSchema).parse(data);
     },
   });
 

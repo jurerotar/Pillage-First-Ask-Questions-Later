@@ -5,21 +5,20 @@ import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { z } from 'zod';
+import { resourceSchema } from 'app/interfaces/models/game/resource';
+import { coordinatesSchema } from 'app/interfaces/models/common';
 
 type AbandonOasisArgs = {
   oasisId: Tile['id'];
 };
 
-const _getOccupiableOasisInRangeSchema = z.strictObject({
+const getOccupiableOasisInRangeSchema = z.strictObject({
   oasis: z.strictObject({
     id: z.number(),
-    coordinates: z.strictObject({
-      x: z.number(),
-      y: z.number(),
-    }),
+    coordinates: coordinatesSchema,
     bonuses: z.array(
       z.strictObject({
-        resource: z.enum(['wood', 'clay', 'iron', 'wheat']),
+        resource: resourceSchema,
         bonus: z.number(),
       }),
     ),
@@ -27,10 +26,7 @@ const _getOccupiableOasisInRangeSchema = z.strictObject({
   village: z
     .object({
       id: z.number(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       name: z.string(),
       slug: z.string(),
     })
@@ -53,10 +49,11 @@ export const useOccupiableOasisInRange = () => {
   const { data: occupiableOasisInRange } = useSuspenseQuery({
     queryKey: [occupiableOasisInRangeCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<
-        z.infer<typeof _getOccupiableOasisInRangeSchema>[]
-      >(`/villages/${currentVillage.id}/occupiable-oasis`);
-      return data;
+      const { data } = await fetcher(
+        `/villages/${currentVillage.id}/occupiable-oasis`,
+      );
+
+      return z.array(getOccupiableOasisInRangeSchema).parse(data);
     },
   });
 

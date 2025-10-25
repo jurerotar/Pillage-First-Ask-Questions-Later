@@ -1,38 +1,27 @@
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { z } from 'zod';
 
-type ServerSpeed = 1 | 2 | 3 | 5 | 10;
-type ServerMapSize = 100 | 200 | 300;
+export const serverSchema = z.strictObject({
+  id: z.string(),
+  version: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  createdAt: z.number(),
+  seed: z.string(),
+  configuration: z.strictObject({
+    mapSize: z.union([z.literal(100), z.literal(200), z.literal(300)]),
+    speed: z.union([
+      z.literal(1),
+      z.literal(2),
+      z.literal(3),
+      z.literal(5),
+      z.literal(10),
+    ]),
+  }),
+  playerConfiguration: z.strictObject({
+    name: z.string(),
+    tribe: tribeSchema,
+  }),
+});
 
-export type ServerModel = {
-  id: string;
-  version: string;
-  name: string;
-  slug: string;
-  created_at: number;
-  seed: string;
-  speed: ServerSpeed;
-  map_size: ServerMapSize;
-  player_name: string;
-  player_tribe: PlayableTribe;
-};
-
-type ServerConfiguration = {
-  speed: ServerSpeed;
-  mapSize: ServerMapSize;
-};
-
-type PlayerConfiguration = {
-  name: string;
-  tribe: PlayableTribe;
-};
-
-export type Server = {
-  id: string;
-  version: string;
-  name: string;
-  slug: string;
-  createdAt: number;
-  seed: string;
-  configuration: ServerConfiguration;
-  playerConfiguration: PlayerConfiguration;
-};
+export type Server = z.infer<typeof serverSchema>;

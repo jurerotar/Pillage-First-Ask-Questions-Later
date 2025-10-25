@@ -7,4 +7,4 @@ CREATE TABLE unit_improvements
   PRIMARY KEY (player_id, unit_id),
 
   FOREIGN KEY (player_id) REFERENCES players (id)
-) STRICT;
+) STRICT, WITHOUT ROWID;

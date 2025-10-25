@@ -1,5 +1,6 @@
 import type { Village } from 'app/interfaces/models/game/village';
 import type { Building } from 'app/interfaces/models/game/building';
+import { z } from 'zod';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
@@ -39,22 +40,30 @@ export type EffectId =
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 
-export type Effect = {
-  id: EffectId;
-  // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
-  scope: 'global' | 'village' | 'server';
-  value: number;
-  source:
-    | 'hero'
-    | 'oasis'
-    | 'artifact'
-    | 'building'
-    | 'tribe'
-    | 'server'
-    | 'troops';
-  type: 'base' | 'bonus' | 'bonus-booster';
-  sourceSpecifier: number | null;
-};
+// 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
+export const effectScopeSchema = z.enum(['global', 'village', 'server']);
+export const effectSourceSchema = z.enum([
+  'hero',
+  'oasis',
+  'artifact',
+  'building',
+  'tribe',
+  'server',
+  'troops',
+]);
+export const effectTypeSchema = z.enum(['base', 'bonus', 'bonus-booster']);
+
+export const effectSchema = z.strictObject({
+  id: z.string() as z.ZodType<EffectId>,
+  value: z.number(),
+  type: effectTypeSchema,
+  scope: effectScopeSchema,
+  source: effectSourceSchema,
+  villageId: z.number().nullable().optional(),
+  sourceSpecifier: z.number().nullable(),
+});
+
+export type Effect = z.infer<typeof effectSchema>;
 
 export type ServerEffect = Omit<Effect, 'scope'> & {
   scope: 'server';

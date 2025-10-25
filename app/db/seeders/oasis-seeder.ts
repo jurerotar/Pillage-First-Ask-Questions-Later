@@ -1,15 +1,9 @@
 import type { Seeder } from 'app/interfaces/db';
 import { prngMulberry32 } from 'ts-seedrandom';
-import type { TileModel } from 'app/interfaces/models/game/tile';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import { batchInsert } from 'app/db/utils/batch-insert';
 import type { Resource } from 'app/interfaces/models/game/resource';
-
-type SelectReturn = {
-  id: TileModel['id'];
-  oasis_graphics: TileModel['oasis_graphics'];
-};
 
 export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
@@ -17,7 +11,10 @@ export const oasisSeeder: Seeder = (database, server): void => {
   const oasisTiles = database.selectObjects(
     'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
     { $type: 'oasis' },
-  ) as SelectReturn[];
+  ) as {
+    id: number;
+    oasis_graphics: number;
+  }[];
 
   const oasisBonuses: [number, Resource, number, null][] = [];
 
