@@ -281,7 +281,7 @@ export const BuildingDetails = () => {
                   })}
                 </Text>
                 <BuildingCard buildingId={buildingId}>
-                  <BuildingOverview />
+                  <BuildingOverview shouldShowTitle={false} />
                   <BuildingUnfinishedNotice />
                   <BuildingBenefits />
                   <BuildingCost />

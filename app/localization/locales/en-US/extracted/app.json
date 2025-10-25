@@ -346,7 +346,7 @@
   "You need to build the {{buildingName}} before you can organize celebrations.": "You need to build the {{buildingName}} before you can organize celebrations.",
   "You need to build the {{buildingName}} before you can start research.": "You need to build the {{buildingName}} before you can start research.",
   "You need to build the {{buildingName}} before you can train troops.": "You need to build the {{buildingName}} before you can train troops.",
-  "You need to research {{unitName}} at the <3></3> before you can begin training": "You need to research {{unitName}} at the <3></3> before you can begin training",
+  "You need to research {{unitName}} at the <4></4> before you can begin training": "You need to research {{unitName}} at the <4></4> before you can begin training",
   "You've blocked notifications for this site. To receive alerts, you'll need to re-enable them in your browser settings.": "You've blocked notifications for this site. To receive alerts, you'll need to re-enable them in your browser settings.",
   "You've not yet enabled notifications for this site. To receive alerts, you'll need to enable them by clicking on the \"Enable notifications\" button.": "You've not yet enabled notifications for this site. To receive alerts, you'll need to enable them by clicking on the \"Enable notifications\" button.",
   "Your hero has enough adventure points for {{count}} adventures._one": "Your hero has enough adventure points for {{count}} adventures.",
