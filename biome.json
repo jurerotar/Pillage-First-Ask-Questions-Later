@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.0/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -8,7 +8,13 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/build", "!**/.react-router", "!**/public"]
+    "includes": [
+      "**",
+      "!**/build",
+      "!**/.react-router",
+      "!**/public",
+      "!**/*.css"
+    ]
   },
   "assist": { "actions": { "source": { "organizeImports": "off" } } },
   "formatter": {
@@ -62,7 +68,8 @@
   },
   "css": {
     "parser": {
-      "cssModules": true
+      "cssModules": true,
+      "tailwindDirectives": true
     }
   }
 }
