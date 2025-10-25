@@ -311,7 +311,7 @@ export const RallyPointBonusFinder = () => {
               )}
             />
 
-            <div className="flex gap-2 flex-col md:flex-row md:w-full *:flex *:flex-1 *:flex-col">
+            <div className="flex gap-2 flex-wrap md:w-full *:flex *:flex-1 *:flex-col">
               <FormField
                 control={form.control}
                 name="firstOasisBonus"
@@ -376,7 +376,7 @@ export const RallyPointBonusFinder = () => {
                 )}
               />
             </div>
-            <div className="flex justify-end">
+            <div className="flex md:justify-end">
               <Button
                 size="fit"
                 disabled={isFetching}
