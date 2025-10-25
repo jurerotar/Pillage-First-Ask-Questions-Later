@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react';
 
 export const usePagination = <T>(
   items: T[],
-  limit: number,
+  resultsPerPage: number,
   defaultPage = 1,
 ) => {
   const [page, setPage] = useState<number>(defaultPage);
-  const pageCount = Math.max(1, Math.ceil(items.length / limit));
+  const pageCount = Math.max(1, Math.ceil(items.length / resultsPerPage));
 
   const isPaginationPreviousEnabled = pageCount >= 2 && page !== 1;
   const isPaginationNextEnabled = pageCount >= 2 && page < pageCount;
 
-  const start = (page - 1) * limit;
-  const currentPageItems = items.slice(start, start + limit);
+  const start = (page - 1) * resultsPerPage;
+  const currentPageItems = items.slice(start, start + resultsPerPage);
 
   const paginationElements: (number | 'ellipsis-left' | 'ellipsis-right')[] =
     [];
@@ -47,6 +47,7 @@ export const usePagination = <T>(
     page,
     setPage,
     pageCount,
+    resultsPerPage,
     paginationElements,
     currentPageItems,
     isPaginationPreviousEnabled,

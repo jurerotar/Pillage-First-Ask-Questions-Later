@@ -35,7 +35,7 @@ export const PopulationRankings = () => {
     RESULTS_PER_PAGE,
     startingPage,
   );
-  const { currentPageItems, page } = pagination;
+  const { currentPageItems, page, resultsPerPage } = pagination;
 
   return (
     <Section>
@@ -87,7 +87,7 @@ export const PopulationRankings = () => {
                 >
                   <TableCell>
                     <Text className="text-sm font-medium">
-                      {(page - 1) * RESULTS_PER_PAGE + index + 1}.
+                      {(page - 1) * resultsPerPage + index + 1}.
                     </Text>
                   </TableCell>
                   <TableCell>

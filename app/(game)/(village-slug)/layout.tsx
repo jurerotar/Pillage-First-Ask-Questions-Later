@@ -55,7 +55,7 @@ import { RiAuctionLine } from 'react-icons/ri';
 import { HiStar } from 'react-icons/hi2';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
-import { parseRFCFromTile } from 'app/utils/map';
+import { parseResourcesFromRFC } from 'app/utils/map';
 import { Text } from 'app/components/text';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
@@ -371,7 +371,7 @@ const VillageSelect = () => {
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
 
-  const resourceFieldComposition = parseRFCFromTile(
+  const resourceFieldComposition = parseResourcesFromRFC(
     currentVillage.resourceFieldComposition,
   ).join('-');
 

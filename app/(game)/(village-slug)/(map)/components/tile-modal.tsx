@@ -22,7 +22,7 @@ import type {
   Tile,
 } from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
-import { parseRFCFromTile } from 'app/utils/map';
+import { parseResourcesFromRFC } from 'app/utils/map';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
@@ -45,7 +45,7 @@ type TileModalResourcesProps = {
 };
 
 const TileModalResources = ({ tile }: TileModalResourcesProps) => {
-  const resources = parseRFCFromTile(tile.resourceFieldComposition);
+  const resources = parseResourcesFromRFC(tile.resourceFieldComposition);
   return (
     <div className="flex justify-start text-sm">
       <Resources

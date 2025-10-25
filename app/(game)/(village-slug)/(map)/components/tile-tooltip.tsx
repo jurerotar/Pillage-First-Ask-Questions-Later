@@ -17,7 +17,7 @@ import {
   formatNumber,
   roundToNDecimalPoints,
 } from 'app/utils/common';
-import { parseRFCFromTile } from 'app/utils/map';
+import { parseResourcesFromRFC } from 'app/utils/map';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Skeleton } from 'app/components/ui/skeleton';
 
@@ -117,7 +117,7 @@ const TileTooltipAnimals = () => {
 };
 
 const TileTooltipResources = () => {
-  const resources = parseRFCFromTile(tile.resourceFieldComposition);
+  const resources = parseResourcesFromRFC(tile.resourceFieldComposition);
   return (
     <Resources
       iconClassName="size-4"

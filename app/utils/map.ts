@@ -2,7 +2,7 @@ import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import type { Point } from 'app/interfaces/models/common';
 
-export const parseRFCFromTile = (
+export const parseResourcesFromRFC = (
   resourceFieldComposition: ResourceFieldComposition,
 ) => {
   const [wood, clay, iron, ...wheat] = resourceFieldComposition.split('');

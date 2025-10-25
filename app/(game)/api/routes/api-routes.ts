@@ -52,6 +52,7 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from 'app/(game)/api/handlers/statistics-handlers';
+import { getTilesWithBonuses } from 'app/(game)/api/handlers/bonus-finder-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -264,6 +265,14 @@ const bookmarkRoutes = [
   },
 ];
 
+const bonusFinderRoutes = [
+  {
+    method: 'GET',
+    path: '/villages/:villageId/bonus-finder',
+    handler: getTilesWithBonuses,
+  },
+];
+
 const statisticsRoutes = [
   {
     method: 'GET',
@@ -292,6 +301,7 @@ const apiRoutes = [
   ...unitImprovementRoutes,
   ...bookmarkRoutes,
   ...statisticsRoutes,
+  ...bonusFinderRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

@@ -15,6 +15,7 @@ import createPlayersTable from 'app/db/schemas/players-schema.sql?raw';
 import createFactionsTable from 'app/db/schemas/factions-schema.sql?raw';
 import createTilesTable from 'app/db/schemas/tiles-schema.sql?raw';
 import createOasisBonusesTable from 'app/db/schemas/oasis-schema.sql?raw';
+import createOasisOccupiableByTable from 'app/db/schemas/oasis-occupiable-by-schema.sql?raw';
 import createFactionReputationTable from 'app/db/schemas/faction-reputation-schema.sql?raw';
 import createHeroesTable from 'app/db/schemas/heroes-schema.sql?raw';
 import createHeroInventoriesTable from 'app/db/schemas/hero-inventories-schema.sql?raw';
@@ -32,6 +33,7 @@ import createOasisBonusesIndexes from 'app/db/indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from 'app/db/indexes/players-indexes.sql?raw';
 import createTroopsIndexes from 'app/db/indexes/troops-indexes.sql?raw';
 import createEffectsIndexes from 'app/db/indexes/effects-indexes.sql?raw';
+import createTilesIndexes from 'app/db/indexes/tiles-indexes.sql?raw';
 import { preferencesSeeder } from 'app/db/seeders/preferences-seeder';
 import { mapFiltersSeeder } from 'app/db/seeders/map-filters-seeder';
 import { serverSeeder } from 'app/db/seeders/server-seeder';
@@ -56,6 +58,7 @@ import { questsSeeder } from 'app/db/seeders/quests-seeder';
 import { resourceFieldCompositionsSeeder } from 'app/db/seeders/resource-field-compositions-seeder';
 import { effectIdsSeeder } from 'app/db/seeders/effect-ids-seeder';
 import { eventsSeeder } from 'app/db/seeders/events-seeder';
+import { oasisOccupiableBySeeder } from 'app/db/seeders/oasis-occupiable-by-seeder';
 
 export const createNewServer = (database: Database, server: Server): void => {
   database.transaction((db) => {
@@ -112,11 +115,16 @@ export const createNewServer = (database: Database, server: Server): void => {
     // Tiles
     db.exec(createTilesTable);
     tilesSeeder(db, server);
+    db.exec(createTilesIndexes);
 
     // Oasis bonuses
     db.exec(createOasisBonusesTable);
     oasisSeeder(db, server);
     db.exec(createOasisBonusesIndexes);
+
+    // Oasis-occupiable-by
+    db.exec(createOasisOccupiableByTable);
+    oasisOccupiableBySeeder(db, server);
 
     // Villages
     db.exec(createVillagesTable);
