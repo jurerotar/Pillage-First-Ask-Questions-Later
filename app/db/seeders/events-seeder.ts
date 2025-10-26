@@ -11,6 +11,15 @@ export const eventsSeeder: Seeder = (database, server): void => {
     string | null,
   ][] = [];
 
+  // Seed internal table after 5 seconds. We're pretty sure backend won't be occupied at that time
+  eventsToInsert.push([
+    '__internal__seedOasisOccupiableByTable',
+    server.createdAt,
+    5000,
+    null,
+    null,
+  ]);
+
   // Adventure points increase event. Initially, a point is added every 8h, divided by server speed
   const adventurePointsIncreaseEventDuration = Math.trunc(
     (8 / server.configuration.speed) * 60 * 60 * 1000,

@@ -9,6 +9,7 @@ import { troopTrainingEventResolver } from 'app/(game)/api/handlers/resolvers/tr
 import { adventurePointIncreaseResolver } from 'app/(game)/api/handlers/resolvers/adventure-resolvers';
 import { unitResearchResolver } from 'app/(game)/api/handlers/resolvers/unit-research-resolvers';
 import { unitImprovementResolver } from 'app/(game)/api/handlers/resolvers/unit-improvement-resolvers';
+import { internalSeedOasisOccupiableByTableResolver } from 'app/(game)/api/handlers/resolvers/internal-resolvers';
 // import { troopMovementResolver } from 'app/(game)/api/handlers/resolvers/troop-movement-resolvers';
 
 export const getGameEventResolver = (gameEventType: GameEventType) => {
@@ -36,6 +37,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'unitImprovement': {
       return unitImprovementResolver;
+    }
+    case '__internal__seedOasisOccupiableByTable': {
+      return internalSeedOasisOccupiableByTableResolver;
     }
     // case 'troopMovement': {
     //   return troopMovementResolver;
