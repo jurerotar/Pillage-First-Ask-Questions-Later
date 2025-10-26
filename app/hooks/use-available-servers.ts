@@ -2,19 +2,45 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { toast } from 'sonner';
 
 const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();
+
   const sqliteFileName = `${server.slug}.sqlite3`;
   const legacy_jsonFileName = `${server.slug}.json`;
 
+  let sawLockedError = false;
+
   try {
     await rootHandle.removeEntry(sqliteFileName);
-  } catch (_) {}
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      error.name === 'NoModificationAllowedError'
+    ) {
+      sawLockedError = true;
+    }
+  }
 
   try {
     await rootHandle.removeEntry(legacy_jsonFileName);
-  } catch (_) {}
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      error.name === 'NoModificationAllowedError'
+    ) {
+      sawLockedError = true;
+    }
+  }
+
+  if (sawLockedError) {
+    toast.error("Server couldn't be deleted", {
+      description:
+        'Database file was still locked by the browser. Try again in a few seconds!',
+    });
+    return;
+  }
 
   const servers: Server[] = JSON.parse(
     window.localStorage.getItem(availableServerCacheKey) ?? '[]',

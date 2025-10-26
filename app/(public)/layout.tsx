@@ -3,6 +3,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { Tooltip } from 'app/components/tooltip';
 import { env } from 'app/env';
 import { Text } from 'app/components/text';
+import { Toaster } from 'sonner';
 
 const PublicLayout = () => {
   return (
@@ -113,6 +114,7 @@ const PublicLayout = () => {
           </div>
         </div>
       </footer>
+      <Toaster position="bottom-right" />
     </>
   );
 };
