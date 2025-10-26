@@ -6,17 +6,23 @@ import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();
   const sqliteFileName = `${server.slug}.sqlite3`;
+  const legacy_jsonFileName = `${server.slug}.json`;
 
   try {
     await rootHandle.removeEntry(sqliteFileName);
-    const servers: Server[] = JSON.parse(
-      window.localStorage.getItem(availableServerCacheKey) ?? '[]',
-    );
-    window.localStorage.setItem(
-      availableServerCacheKey,
-      JSON.stringify(servers.filter(({ id }) => id !== server.id)),
-    );
   } catch (_) {}
+
+  try {
+    await rootHandle.removeEntry(legacy_jsonFileName);
+  } catch (_) {}
+
+  const servers: Server[] = JSON.parse(
+    window.localStorage.getItem(availableServerCacheKey) ?? '[]',
+  );
+  window.localStorage.setItem(
+    availableServerCacheKey,
+    JSON.stringify(servers.filter(({ id }) => id !== server.id)),
+  );
 };
 
 export const useAvailableServers = () => {
