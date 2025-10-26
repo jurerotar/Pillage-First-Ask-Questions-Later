@@ -20,54 +20,53 @@ await (async (): Promise<void> => {
 
   const db = new DatabaseSync(DB_EXPORT_PATH);
 
-  try {
-    db.exec('PRAGMA foreign_keys = ON;');
+  db.exec('PRAGMA foreign_keys = ON;');
 
-    db.exec('BEGIN;');
+  db.exec('BEGIN;');
 
-    for await (const fullPath of glob('app/db/schemas/**/*.sql')) {
-      const sql = await readFile(fullPath, 'utf8');
-      try {
-        db.exec(sql);
-      } catch (error) {
-        console.error(`[init] Failed applying schema ${fullPath}:`, error);
-        db.exec('ROLLBACK;');
-        db.close();
-      }
+  for await (const fullPath of glob('app/db/schemas/**/*.sql')) {
+    const sql = await readFile(fullPath, 'utf8');
+    try {
+      db.exec(sql);
+    } catch (error) {
+      console.error(`[init] Failed applying schema ${fullPath}:`, error);
+      db.exec('ROLLBACK;');
+      db.close();
     }
+  }
 
-    for await (const fullPath of glob('app/db/indexes/**/*.sql')) {
-      const sql = await readFile(fullPath, 'utf8');
-      try {
-        db.exec(sql);
-      } catch (error) {
-        console.error(`[init] Failed applying index ${fullPath}:`, error);
-        db.exec('ROLLBACK;');
-        db.close();
-      }
+  for await (const fullPath of glob('app/db/indexes/**/*.sql')) {
+    const sql = await readFile(fullPath, 'utf8');
+    try {
+      db.exec(sql);
+    } catch (error) {
+      console.error(`[init] Failed applying index ${fullPath}:`, error);
+      db.exec('ROLLBACK;');
+      db.close();
     }
+  }
 
-    db.exec('COMMIT;');
+  db.exec('COMMIT;');
 
-    const ensureSemicolon = (stmt: string | null): string =>
-      (stmt ?? '').trim().replace(/;?\s*$/u, ';');
+  const ensureSemicolon = (stmt: string | null): string =>
+    (stmt ?? '').trim().replace(/;?\s*$/u, ';');
 
-    const header = (): string => {
-      const now = new Date().toISOString();
-      return [
-        '-- SQLite schema export',
-        `-- Source: ${basename(DB_EXPORT_PATH)}`,
-        `-- Generated: ${now}`,
-        '',
-        'PRAGMA foreign_keys=OFF;',
-        'BEGIN TRANSACTION;',
-        '',
-      ].join('\n');
-    };
+  const header = (): string => {
+    const now = new Date().toISOString();
+    return [
+      '-- SQLite schema export',
+      `-- Source: ${basename(DB_EXPORT_PATH)}`,
+      `-- Generated: ${now}`,
+      '',
+      'PRAGMA foreign_keys=OFF;',
+      'BEGIN TRANSACTION;',
+      '',
+    ].join('\n');
+  };
 
-    const footer = (): string => ['', 'COMMIT;', ''].join('\n');
+  const footer = (): string => ['', 'COMMIT;', ''].join('\n');
 
-    const orderCase = `
+  const orderCase = `
       CASE type
         WHEN 'table' THEN 1
         WHEN 'view' THEN 2
@@ -77,33 +76,27 @@ await (async (): Promise<void> => {
       END, name
     `;
 
-    const stmt = db.prepare(`
-      SELECT sql
-      FROM sqlite_schema
-      WHERE sql IS NOT NULL
-        AND name NOT LIKE 'sqlite_%' -- exclude implicit auto-indexes
-        AND type IN ('table', 'view', 'index', 'trigger')
-      ORDER BY ${orderCase}
-    `);
-    const rows = stmt.all() as { sql: string }[];
+  const stmt = db.prepare(`
+    SELECT sql
+    FROM
+      sqlite_schema
+    WHERE
+      sql IS NOT NULL
+      AND name NOT LIKE 'sqlite_%' -- exclude implicit auto-indexes
+      AND type IN ('table', 'view', 'index', 'trigger')
+    ORDER BY
+      ${orderCase}
+  `);
+  const rows = stmt.all() as { sql: string }[];
 
-    const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n');
-    const exportContent = [header(), body, footer()].join('\n');
+  const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n');
+  const exportContent = [header(), body, footer()].join('\n');
 
-    await writeFile(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
-    const schemaUrl = pathToFileURL(resolve(DB_SCHEMA_EXPORT_PATH)).href;
+  await writeFile(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
+  const schemaUrl = pathToFileURL(resolve(DB_SCHEMA_EXPORT_PATH)).href;
 
-    // biome-ignore lint/suspicious/noConsole: It's fine here
-    console.log(`✅ Created SQLite DB at: ${schemaUrl}`);
-  } catch (error) {
-    console.error('[init] Unexpected error during schema creation:', error);
-    try {
-      db.exec('ROLLBACK;');
-    } catch {
-      // ignore if transaction wasn’t started
-    }
-    db.close();
-  }
+  // biome-ignore lint/suspicious/noConsole: It's fine here
+  console.log(`✅ Created SQLite DB at: ${schemaUrl}`);
 
   db.close();
 })();
