@@ -424,76 +424,83 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
             </Text>
           )}
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell />
-                <TableHeaderCell>
-                  <Text>{t('Resources')}</Text>
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Text>{t('Coordinates')}</Text>
-                </TableHeaderCell>
-                <TableHeaderCell>
-                  <Text>{t('Distance')}</Text>
-                </TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!isFetched && (
+          <div className="overflow-x-scroll scrollbar-hidden">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell
-                    className="text-left"
-                    colSpan={4}
-                  >
-                    <Text>{t('Define your criteria and click search.')}</Text>
-                  </TableCell>
+                  <TableHeaderCell />
+                  <TableHeaderCell>
+                    <Text>{t('Resources')}</Text>
+                  </TableHeaderCell>
+                  <TableHeaderCell>
+                    <Text>{t('Coordinates')}</Text>
+                  </TableHeaderCell>
+                  <TableHeaderCell>
+                    <Text>{t('Distance')}</Text>
+                  </TableHeaderCell>
                 </TableRow>
-              )}
-              {isFetched &&
-                currentPageItems.map(
-                  (
-                    { tileId, coordinates, resourceFieldComposition, distance },
-                    index,
-                  ) => {
-                    const resources = parseResourcesFromRFC(
-                      resourceFieldComposition,
-                    );
-
-                    return (
-                      <TableRow key={tileId}>
-                        <TableCell>
-                          <Text className="text-sm font-medium">
-                            {(page - 1) * resultsPerPage + index + 1}.
-                          </Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>
-                            <Resources
-                              className="justify-center"
-                              iconClassName="size-4"
-                              resources={resources}
-                            />
-                          </Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text variant="link">
-                            <Link
-                              to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
-                            >
-                              ({coordinates.x} | {coordinates.y})
-                            </Link>
-                          </Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{distance}</Text>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  },
+              </TableHeader>
+              <TableBody>
+                {!isFetched && (
+                  <TableRow>
+                    <TableCell
+                      className="text-left"
+                      colSpan={4}
+                    >
+                      <Text>{t('Define your criteria and click search.')}</Text>
+                    </TableCell>
+                  </TableRow>
                 )}
-            </TableBody>
-          </Table>
+                {isFetched &&
+                  currentPageItems.map(
+                    (
+                      {
+                        tileId,
+                        coordinates,
+                        resourceFieldComposition,
+                        distance,
+                      },
+                      index,
+                    ) => {
+                      const resources = parseResourcesFromRFC(
+                        resourceFieldComposition,
+                      );
+
+                      return (
+                        <TableRow key={tileId}>
+                          <TableCell>
+                            <Text className="text-sm font-medium">
+                              {(page - 1) * resultsPerPage + index + 1}.
+                            </Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>
+                              <Resources
+                                className="justify-center"
+                                iconClassName="size-4"
+                                resources={resources}
+                              />
+                            </Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text variant="link">
+                              <Link
+                                to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
+                              >
+                                ({coordinates.x} | {coordinates.y})
+                              </Link>
+                            </Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{distance}</Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
+                  )}
+              </TableBody>
+            </Table>
+          </div>
           <div className="flex w-full justify-end">
             <Pagination {...pagination} />
           </div>
