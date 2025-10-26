@@ -27,4 +27,4 @@ CREATE TABLE preferences
   should_show_notifications_on_academy_research_completion INTEGER NOT NULL CHECK (should_show_notifications_on_academy_research_completion IN (0,1)),
 
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
-) STRICT;
+) STRICT, WITHOUT ROWID;

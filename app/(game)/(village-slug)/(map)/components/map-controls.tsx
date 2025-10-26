@@ -5,6 +5,7 @@ import { Icon } from 'app/components/icon';
 import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
+import { OasisBonusFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-bonus-finder-link';
 
 const MagnificationButton = ({
   direction,
@@ -205,6 +206,9 @@ export const MapControls = () => {
       <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-background p-1 md:p-2">
         <MagnificationButton direction="increase" />
         <MagnificationButton direction="decrease" />
+      </div>
+      <div className="pointer-events-auto">
+        <OasisBonusFinderLink />
       </div>
     </div>
   );

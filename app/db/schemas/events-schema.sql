@@ -11,7 +11,7 @@ CREATE TABLE events
   FOREIGN KEY (village_id) REFERENCES villages (id)
     ON DELETE SET NULL
     ON UPDATE CASCADE
-) STRICT;
+) STRICT, WITHOUT ROWID;
 
 CREATE INDEX idx_events_resolves_at ON events (resolves_at);
 CREATE INDEX idx_events_type ON events (type);

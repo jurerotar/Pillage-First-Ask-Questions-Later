@@ -1,6 +1,6 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import type { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { roundToNDecimalPoints } from 'app/utils/common';
 
@@ -31,6 +31,7 @@ const getTilesWithBonusesSchema = z
     tile_id: z.number(),
     coordinates_x: z.number(),
     coordinates_y: z.number(),
+    resource_field_composition: resourceFieldCompositionSchema,
     distance_squared: z.number(),
   })
   .transform((t) => ({
@@ -39,6 +40,7 @@ const getTilesWithBonusesSchema = z
       x: t.coordinates_x,
       y: t.coordinates_y,
     },
+    resourceFieldComposition: t.resource_field_composition,
     distance: roundToNDecimalPoints(Math.sqrt(t.distance_squared), 2),
   }));
 
@@ -59,10 +61,10 @@ type GetTilesWithBonusesBody = {
 };
 
 export const getTilesWithBonuses: ApiHandler<
-  'villageId',
+  'x' | 'y',
   GetTilesWithBonusesBody
 > = (database, { params, body }) => {
-  const { villageId } = params;
+  const { x, y } = params;
   const { resourceFieldComposition, bonuses } = body ?? {};
   const { firstOasis, secondOasis, thirdOasis } = bonuses ?? {};
 
@@ -71,7 +73,8 @@ export const getTilesWithBonuses: ApiHandler<
   const s3 = createSqlBindings(thirdOasis);
 
   const sqlBindings: Record<string, number | string> = {
-    $village_id: villageId,
+    $tile_x: x,
+    $tile_y: y,
     $rfc_param: resourceFieldComposition,
   };
 
@@ -80,32 +83,26 @@ export const getTilesWithBonuses: ApiHandler<
   sqlParts.push(`
     WITH
       src_village AS (
-        SELECT t.x AS vx, t.y AS vy
-        FROM
-          villages v
-            JOIN tiles t ON t.id = v.tile_id
-        WHERE
-          v.id = $village_id
-        LIMIT 1
+        VALUES ($tile_x, $tile_y)
         ),
       candidates AS (
-        SELECT t.id, t.x, t.y
-        FROM
-          tiles t
-            LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
-        WHERE
-          t.type = 'free'
+        SELECT t.id, t.x, t.y, rfc.resource_field_composition
+        FROM tiles t
+               LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+        WHERE t.type = 'free'
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
             )
         )
     SELECT
-      c.id AS tile_id, c.x AS coordinates_x, c.y AS coordinates_y,
-      ((c.x - sv.vx) * (c.x - sv.vx) + (c.y - sv.vy) * (c.y - sv.vy)) AS distance_squared
-    FROM
-      candidates c
-        CROSS JOIN src_village sv
+      c.id AS tile_id,
+      c.x AS coordinates_x,
+      c.y AS coordinates_y,
+      c.resource_field_composition AS resource_field_composition,
+      ((c.x - sv.column1) * (c.x - sv.column1) + (c.y - sv.column2) * (c.y - sv.column2)) AS distance_squared
+    FROM candidates c
+           CROSS JOIN src_village sv
   `);
 
   const slots: {
@@ -196,7 +193,7 @@ export const getTilesWithBonuses: ApiHandler<
   }
 
   if (whereClauses.length > 0) {
-    sqlParts.push('WHERE ' + whereClauses.join('\n  AND '));
+    sqlParts.push(`WHERE ${whereClauses.join('\n  AND ')}`);
   }
 
   sqlParts.push(

@@ -15,12 +15,12 @@ self.addEventListener(
     const { server } = event.data;
 
     const sqlite3 = await sqlite3InitModule();
-    const database = new sqlite3.oo1.OpfsDb(
+    const opfsDb = new sqlite3.oo1.OpfsDb(
       `/pillage-first-ask-questions-later/${server.slug}.sqlite3`,
       'c',
     );
 
-    database.exec(`
+    opfsDb.exec(`
       PRAGMA locking_mode=EXCLUSIVE;
       PRAGMA foreign_keys=OFF;
       PRAGMA journal_mode=OFF;
@@ -29,9 +29,9 @@ self.addEventListener(
       PRAGMA cache_size=-20000;
     `);
 
-    createNewServer(database, server);
+    createNewServer(opfsDb, server);
 
-    database.close();
+    opfsDb.close();
 
     self.postMessage({ resolved: true });
     self.close();

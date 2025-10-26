@@ -77,6 +77,10 @@ export default [
                 '(game)/(village-slug)/(reports)/(...report-id)/page.tsx',
               ),
             ]),
+            route(
+              'oasis-bonus-finder',
+              '(game)/(village-slug)/(oasis-bonus-finder)/page.tsx',
+            ),
           ]),
         ]),
       ]),
