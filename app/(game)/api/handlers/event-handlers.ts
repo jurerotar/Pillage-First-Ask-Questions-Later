@@ -59,11 +59,7 @@ export const createNewEvents: ApiHandler<'', CreateNewEventsBody> = (
 ) => {
   const { body } = args;
 
-  const createdImmediate = createEvents(database, body);
-
-  if (createdImmediate) {
-    scheduleNextEvent(database);
-  }
+  createEvents(database, body);
 };
 
 export const cancelConstructionEvent: ApiHandler<'eventId', void> = (

@@ -6,7 +6,7 @@ import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/e
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type BaseGameEvent = {
-  id: string;
+  id: number;
   type: GameEventType;
   startsAt: number;
   duration: number;

@@ -4,7 +4,6 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export const eventsSeeder: Seeder = (database, server): void => {
   const eventsToInsert: [
-    string,
     GameEvent['type'],
     GameEvent['startsAt'],
     GameEvent['duration'],
@@ -18,7 +17,6 @@ export const eventsSeeder: Seeder = (database, server): void => {
   );
 
   eventsToInsert.push([
-    crypto.randomUUID(),
     'adventurePointIncrease',
     server.createdAt,
     adventurePointsIncreaseEventDuration,
@@ -29,7 +27,7 @@ export const eventsSeeder: Seeder = (database, server): void => {
   batchInsert(
     database,
     'events',
-    ['id', 'type', 'starts_at', 'duration', 'village_id', 'meta'],
+    ['type', 'starts_at', 'duration', 'village_id', 'meta'],
     eventsToInsert,
   );
 };

@@ -1,6 +1,6 @@
 CREATE TABLE events
 (
-  id TEXT PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
   type TEXT NOT NULL,
   starts_at INTEGER NOT NULL,
   duration INTEGER NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE events
   FOREIGN KEY (village_id) REFERENCES villages (id)
     ON DELETE SET NULL
     ON UPDATE CASCADE
-) STRICT, WITHOUT ROWID;
+) STRICT;
 
 CREATE INDEX idx_events_resolves_at ON events (resolves_at);
 CREATE INDEX idx_events_type ON events (type);

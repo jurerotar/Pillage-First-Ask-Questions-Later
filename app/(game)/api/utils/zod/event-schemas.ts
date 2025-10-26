@@ -6,8 +6,8 @@ import type {
 
 export const eventSchema = z
   .strictObject({
-    id: z.string(),
-    type: z.string().brand<GameEvent['type']>(),
+    id: z.number(),
+    type: z.string() as z.ZodType<GameEvent['type']>,
     starts_at: z.number(),
     duration: z.number(),
     resolves_at: z.number(),
