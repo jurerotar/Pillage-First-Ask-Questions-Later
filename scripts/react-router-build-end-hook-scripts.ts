@@ -19,6 +19,7 @@ export const createSPAPagesWithPreloads: NonNullable<
     '/game/server-slug/village-slug/quests',
     '/game/server-slug/village-slug/reports',
     '/game/server-slug/village-slug/reports/report-id',
+    '/game/server-slug/village-slug/oasis-bonus-finder',
   ];
 
   const clientDir = resolve('build/client');

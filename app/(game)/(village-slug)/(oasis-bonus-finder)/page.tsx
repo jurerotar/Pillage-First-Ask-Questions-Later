@@ -444,7 +444,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                 <TableRow>
                   <TableCell
                     className="text-left"
-                    colSpan={3}
+                    colSpan={4}
                   >
                     <Text>{t('Define your criteria and click search.')}</Text>
                   </TableCell>
