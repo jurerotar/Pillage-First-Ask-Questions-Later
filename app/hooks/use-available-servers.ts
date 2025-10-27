@@ -7,13 +7,12 @@ import { toast } from 'sonner';
 const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();
 
-  const sqliteFileName = `${server.slug}.sqlite3`;
-  const legacy_jsonFileName = `${server.slug}.json`;
-
   let sawLockedError = false;
 
   try {
-    await rootHandle.removeEntry(sqliteFileName);
+    await rootHandle.removeEntry(server.slug, {
+      recursive: true,
+    });
   } catch (error) {
     if (
       error instanceof DOMException &&
@@ -24,6 +23,7 @@ const deleteServerData = async (server: Server) => {
   }
 
   try {
+    const legacy_jsonFileName = `${server.slug}.json`;
     await rootHandle.removeEntry(legacy_jsonFileName);
   } catch (error) {
     if (

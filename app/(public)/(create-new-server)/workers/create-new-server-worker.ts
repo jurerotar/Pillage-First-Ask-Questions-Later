@@ -8,17 +8,16 @@ export type CreateServerWorkerPayload = {
 self.addEventListener(
   'message',
   async (event: MessageEvent<CreateServerWorkerPayload>) => {
-    const { default: sqlite3InitModule } = await import(
-      '@sqlite.org/sqlite-wasm'
-    );
+    const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
 
     const { server } = event.data;
 
     const sqlite3 = await sqlite3InitModule();
-    const opfsDb = new sqlite3.oo1.OpfsDb(
-      `/pillage-first-ask-questions-later/${server.slug}.sqlite3`,
-      'c',
-    );
+    const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+      directory: `/pillage-first-ask-questions-later/${server.slug}`,
+      name: `${server.slug}.sqlite3`,
+    });
+    const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`${server.slug}.sqlite3`);
 
     opfsDb.exec(`
       PRAGMA locking_mode=EXCLUSIVE;

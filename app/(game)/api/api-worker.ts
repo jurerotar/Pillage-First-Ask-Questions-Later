@@ -17,10 +17,10 @@ try {
   const serverSlug = urlParams.get('server-slug')!;
 
   const sqlite3 = await sqlite3InitModule();
-  const opfsDb = new sqlite3.oo1.OpfsDb(
-    `/pillage-first-ask-questions-later/${serverSlug}.sqlite3`,
-    'w',
-  );
+  const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+    directory: `/pillage-first-ask-questions-later/${serverSlug}`,
+  });
+  const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`${serverSlug}.sqlite3`);
 
   opfsDb.exec(`
     PRAGMA foreign_keys = ON;        -- keep referential integrity
