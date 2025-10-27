@@ -22,7 +22,7 @@ try {
     // @ts-expect-error
     forceReinitIfPreviouslyFailed: true,
   });
-  const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`${serverSlug}.sqlite3`);
+  const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
   opfsDb.exec(`
     PRAGMA foreign_keys = ON;        -- keep referential integrity
@@ -89,7 +89,9 @@ try {
     event.stopImmediatePropagation();
 
     cancelScheduling();
+    database.close();
     opfsDb.close();
+    opfsSahPool.pauseVfs();
     self.close();
   });
 

@@ -3,7 +3,7 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
-import { FaDownload, FaTrash } from 'react-icons/fa6';
+import { FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
 import { env } from 'app/env';
@@ -15,7 +15,7 @@ type ServerCardProps = {
 export const ServerCard = (props: ServerCardProps) => {
   const { server } = props;
 
-  const { deleteServer, exportServer } = useAvailableServers();
+  const { deleteServer } = useAvailableServers();
 
   const appVersion = env.VERSION;
 
@@ -31,14 +31,14 @@ export const ServerCard = (props: ServerCardProps) => {
       className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
     >
       <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
-        <Button
-          data-tooltip-id="public-tooltip"
-          data-tooltip-content="Export server"
-          variant="outline"
-          onClick={() => exportServer({ server })}
-        >
-          <FaDownload className="text-gray-400" />
-        </Button>
+        {/*<Button*/}
+        {/*  data-tooltip-id="public-tooltip"*/}
+        {/*  data-tooltip-content="Export server"*/}
+        {/*  variant="outline"*/}
+        {/*  onClick={() => exportServer({ server })}*/}
+        {/*>*/}
+        {/*  <FaDownload className="text-gray-400" />*/}
+        {/*</Button>*/}
         <Button
           data-tooltip-id="public-tooltip"
           data-tooltip-content="Delete server"

@@ -15,9 +15,8 @@ self.addEventListener(
     const sqlite3 = await sqlite3InitModule();
     const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
       directory: `/pillage-first-ask-questions-later/${server.slug}`,
-      name: `${server.slug}.sqlite3`,
     });
-    const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`${server.slug}.sqlite3`);
+    const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${server.slug}.sqlite3`);
 
     opfsDb.exec(`
       PRAGMA locking_mode=EXCLUSIVE;
