@@ -16,7 +16,7 @@ import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
-import sqliteWasmUrl from '@sqlite.org/sqlite-wasm?url';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');

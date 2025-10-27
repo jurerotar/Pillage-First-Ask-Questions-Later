@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Alert } from 'app/components/ui/alert';
-import sqliteWasmUrl from '@sqlite.org/sqlite-wasm?url';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
 const CreateNewServerPage = () => {
   const title = 'Create new server | Pillage First! (Ask Questions Later)';
