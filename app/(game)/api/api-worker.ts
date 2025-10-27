@@ -19,6 +19,8 @@ try {
   const sqlite3 = await sqlite3InitModule();
   const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
+    // @ts-expect-error
+    forceReinitIfPreviouslyFailed: true,
   });
   const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`${serverSlug}.sqlite3`);
 
