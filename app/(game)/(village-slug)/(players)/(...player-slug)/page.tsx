@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(players)/(...player-slug)/+types/page';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,11 +10,11 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 
-const ReportPage = ({ params }: Route.ComponentProps) => {
-  const { reportId, villageSlug, serverSlug } = params;
+const PlayerPage = ({ params }: Route.ComponentProps) => {
+  const { playerSlug, serverSlug, villageSlug } = params;
   const { t } = useTranslation();
 
-  const title = `${t('Report - {{playerSlug}}', { reportId })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+  const title = `${t('Player - {{playerSlug}}', { playerSlug })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
     <>
@@ -26,11 +26,11 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink to="../reports">{t('Reports')}</BreadcrumbLink>
+            <BreadcrumbLink to="../players">{t('Players')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            {t('Report - {{reportId}}', { reportId })}
+            {t('Player - {{playerSlug}}', { playerSlug })}
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -42,4 +42,4 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
   );
 };
 
-export default ReportPage;
+export default PlayerPage;
