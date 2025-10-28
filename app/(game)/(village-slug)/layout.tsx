@@ -460,15 +460,14 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  {/* TODO: Revert back to Link once this is resolved: https://bugs.webkit.org/show_bug.cgi?id=301520 */}
-                  <a href="/">
+                  <Link to="/">
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
                       title={t('Logout')}
                     >
                       <RxExit className="text-xl text-red-500" />
                     </DesktopTopRowItem>
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </nav>
@@ -619,22 +618,13 @@ const MobileBottomNavigation = () => {
             </NavigationSideItem>
           </li>
           <li>
-            {/* TODO: Revert back to NavigationSideItem once this is resolved: https://bugs.webkit.org/show_bug.cgi?id=301520 */}
-            <a
-              href="/"
-              className={clsx(
-                'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
-                'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
-                'transition-transform active:scale-95 active:shadow-inner',
-                'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
-              )}
+            <NavigationSideItem
+              to="/"
               aria-label={t('Logout')}
               title={t('Logout')}
             >
-              <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-                <RxExit className="text-2xl text-red-500" />
-              </span>
-            </a>
+              <RxExit className="text-2xl text-red-500" />
+            </NavigationSideItem>
           </li>
         </ul>
       </nav>
