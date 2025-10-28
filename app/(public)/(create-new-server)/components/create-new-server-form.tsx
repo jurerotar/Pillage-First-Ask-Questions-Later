@@ -27,6 +27,11 @@ import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-
 import { workerFactory } from 'app/utils/workers';
 import { Text } from 'app/components/text';
 import { Switch } from 'app/components/ui/switch';
+import {
+  npcVillageNameAdjectives,
+  npcVillageNameNouns,
+} from 'app/assets/village';
+import { randomInt } from 'moderndash';
 import { tribeSchema } from 'app/interfaces/models/game/tribe';
 import { env } from 'app/env';
 
@@ -84,11 +89,17 @@ export const CreateNewServerForm = () => {
     onError: (_, { server }) => deleteServer({ server }),
   });
 
+  const adjectiveIndex = randomInt(0, npcVillageNameAdjectives.length - 1);
+  const nounIndex = randomInt(0, npcVillageNameNouns.length - 1);
+
+  const adjective = npcVillageNameAdjectives[adjectiveIndex];
+  const noun = npcVillageNameNouns[nounIndex];
+
   const form = useForm<z.infer<typeof createServerFormSchema>>({
     resolver: zodResolver(createServerFormSchema),
     defaultValues: {
       seed: generateSeed(),
-      name: 'Server',
+      name: `${adjective}${noun}`,
       configuration: {
         speed: '1',
         mapSize: '100',
