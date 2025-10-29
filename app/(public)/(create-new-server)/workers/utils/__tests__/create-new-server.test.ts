@@ -314,6 +314,77 @@ describe('createNewServer', () => {
 
       expect(count).toBeGreaterThan(0);
     });
+
+    test('at least 4 tiles with RFC 00018 have >= 3 distinct 50% wheat oases', () => {
+      const count = database.selectValue(
+        `
+    SELECT COUNT(*) FROM (
+      SELECT t.id
+      FROM tiles t
+      JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+      JOIN oasis_occupiable_by ob ON ob.tile_id = t.id
+      JOIN oasis o ON o.tile_id = ob.oasis_id
+      WHERE rfc.resource_field_composition = '00018'
+        AND o.bonus = 50
+        AND o.resource = 'wheat'
+        AND t.type = 'free'
+      GROUP BY t.id
+      HAVING COUNT(DISTINCT o.tile_id) >= 3
+    );
+    `,
+      ) as number;
+
+      expect(count).toBeGreaterThanOrEqual(4);
+    });
+
+    test('at least 8 tiles with RFC 11115 have >= 3 distinct 50% wheat oases', () => {
+      const count = database.selectValue(
+        `
+    SELECT COUNT(*) FROM (
+      SELECT t.id
+      FROM tiles t
+      JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+      JOIN oasis_occupiable_by ob ON ob.tile_id = t.id
+      JOIN oasis o ON o.tile_id = ob.oasis_id
+      WHERE rfc.resource_field_composition = '11115'
+        AND o.bonus = 50
+        AND o.resource = 'wheat'
+        AND t.type = 'free'
+      GROUP BY t.id
+      HAVING COUNT(DISTINCT o.tile_id) >= 3
+    );
+    `,
+      ) as number;
+
+      expect(count).toBeGreaterThanOrEqual(8);
+    });
+
+    test('at least 20 tiles with RFC 3339 have >= 3 distinct 50% wheat oases', () => {
+      const count = database.selectValue(
+        `
+          SELECT COUNT(*)
+          FROM
+            (
+              SELECT t.id
+              FROM
+                tiles t
+                  JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+                  JOIN oasis_occupiable_by ob ON ob.tile_id = t.id
+                  JOIN oasis o ON o.tile_id = ob.oasis_id
+              WHERE
+                rfc.resource_field_composition = '3339'
+                AND o.bonus = 50
+                AND o.resource = 'wheat'
+                AND t.type = 'free'
+              GROUP BY t.id
+              HAVING
+                COUNT(DISTINCT o.tile_id) >= 3
+              );
+        `,
+      ) as number;
+
+      expect(count).toBeGreaterThanOrEqual(20);
+    });
   });
 
   describe('Map filters', () => {

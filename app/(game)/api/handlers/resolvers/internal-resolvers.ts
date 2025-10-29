@@ -4,6 +4,7 @@ import type { GameEvent } from 'app/interfaces/models/game/game-event';
 export const internalSeedOasisOccupiableByTableResolver: Resolver<
   GameEvent<'__internal__seedOasisOccupiableByTable'>
 > = (database) => {
+  // Create entries for non-50% oasis only, since those were already seeded during server creation
   database.exec(`
     INSERT OR IGNORE INTO
       oasis_occupiable_by (tile_id, oasis_id)
@@ -14,6 +15,9 @@ export const internalSeedOasisOccupiableByTableResolver: Resolver<
         FROM
           tiles ot
             JOIN oasis o ON o.tile_id = ot.id
+        WHERE
+          o.resource = 'wheat'
+          AND o.bonus <> 50
         GROUP BY ot.id, ot.x, ot.y
         ) AS ot
         JOIN tiles t
