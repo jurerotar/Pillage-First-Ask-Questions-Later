@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { Icon } from 'app/components/icon';
-import { parseResourcesFromRFC } from 'app/utils/map';
+import { calculateGridLayout, parseResourcesFromRFC } from 'app/utils/map';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { Button } from 'app/components/ui/button';
@@ -55,6 +55,8 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { Input } from 'app/components/ui/input';
 
 type OasisBonus =
   | `${25 | 50}-${Resource}`
@@ -112,13 +114,6 @@ const bonusSetSchema = z.enum(oasisBonuses).or(z.literal('no-oasis-bonus'));
 const extendedRFCSchema = resourceFieldCompositionSchema.or(
   z.literal('any-cropper'),
 );
-
-const bonusFinderFormSchema = z.strictObject({
-  resourceFieldComposition: extendedRFCSchema,
-  firstOasisBonus: bonusSetSchema,
-  secondOasisBonus: bonusSetSchema,
-  thirdOasisBonus: bonusSetSchema,
-});
 
 const resourceFieldCompositions: ResourceFieldComposition[] = [
   '4446',
@@ -193,7 +188,21 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   const { t } = useTranslation();
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
-  const [searchParams] = useSearchParams();
+  const { mapSize } = useServer();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { halfSize } = calculateGridLayout(mapSize);
+
+  const bonusFinderFormSchema = z.strictObject({
+    origin: z.strictObject({
+      x: z.number().min(-halfSize).max(halfSize),
+      y: z.number().min(-halfSize).max(halfSize),
+    }),
+    resourceFieldComposition: extendedRFCSchema,
+    firstOasisBonus: bonusSetSchema,
+    secondOasisBonus: bonusSetSchema,
+    thirdOasisBonus: bonusSetSchema,
+  });
 
   const title = `${t('Oasis bonus finder')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -201,21 +210,28 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
 
   const x = Number.parseInt(searchParams.get('x')!, 10) ?? coordinates.x;
   const y = Number.parseInt(searchParams.get('y')!, 10) ?? coordinates.y;
+  const resourceFieldComposition = (searchParams.get('rfc') ??
+    'any-cropper') as (typeof RFCFieldValues)[number];
+  const firstOasisBonus = (searchParams.get('first-bonus') ??
+    NO_OASIS_BONUS_KEY) as OasisBonus | typeof NO_OASIS_BONUS_KEY;
+  const secondOasisBonus = (searchParams.get('second-bonus') ??
+    NO_OASIS_BONUS_KEY) as OasisBonus | typeof NO_OASIS_BONUS_KEY;
+  const thirdOasisBonus = (searchParams.get('third-bonus') ??
+    NO_OASIS_BONUS_KEY) as OasisBonus | typeof NO_OASIS_BONUS_KEY;
 
   const form = useForm<z.infer<typeof bonusFinderFormSchema>>({
     resolver: zodResolver(bonusFinderFormSchema),
     defaultValues: {
-      resourceFieldComposition: 'any-cropper',
-      firstOasisBonus: NO_OASIS_BONUS_KEY,
-      secondOasisBonus: NO_OASIS_BONUS_KEY,
-      thirdOasisBonus: NO_OASIS_BONUS_KEY,
+      origin: {
+        x,
+        y,
+      },
+      resourceFieldComposition,
+      firstOasisBonus,
+      secondOasisBonus,
+      thirdOasisBonus,
     },
   });
-
-  const resourceFieldComposition = form.watch('resourceFieldComposition');
-  const firstOasisBonus = form.watch('firstOasisBonus');
-  const secondOasisBonus = form.watch('secondOasisBonus');
-  const thirdOasisBonus = form.watch('thirdOasisBonus');
 
   const {
     data = [],
@@ -278,62 +294,131 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
               onSubmit={form.handleSubmit(onSubmit)}
               className="flex gap-4 flex-col"
             >
-              <FormField
-                control={form.control}
-                name="resourceFieldComposition"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Resource field composition')}</FormLabel>
-                    <Select
-                      onValueChange={(v) =>
-                        field.onChange(v === NO_OASIS_BONUS_KEY ? '' : v)
-                      }
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t('Select resource composition')}
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex gap-4 items-end">
+                  <FormField
+                    name="origin.x"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('Start position (x)')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="max-w-[80px]"
+                            type="number"
+                            min={-halfSize}
+                            max={halfSize}
+                            {...form.register('origin.x', {
+                              valueAsNumber: true,
+                            })}
+                            onChange={(event) => {
+                              field.onChange(event);
+                              setSearchParams(
+                                (prev) => {
+                                  prev.set('x', event.target.value);
+                                  return prev;
+                                },
+                                { replace: true },
+                              );
+                            }}
                           />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {RFCFieldValues.map((rfc) => {
-                          if (rfc === 'any-cropper') {
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="origin.y"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('Start position (y)')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...form.register('origin.y', {
+                              valueAsNumber: true,
+                            })}
+                            onChange={(event) => {
+                              field.onChange(event);
+                              setSearchParams(
+                                (prev) => {
+                                  prev.set('y', event.target.value);
+                                  return prev;
+                                },
+                                { replace: true },
+                              );
+                            }}
+                            className="max-w-[80px]"
+                            type="number"
+                            min={-halfSize}
+                            max={halfSize}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="resourceFieldComposition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('Resource field composition')}</FormLabel>
+                      <Select
+                        onValueChange={(v) => {
+                          field.onChange(v);
+                          setSearchParams(
+                            (prev) => {
+                              prev.set('rfc', v);
+                              return prev;
+                            },
+                            { replace: true },
+                          );
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={t('Select resource composition')}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {RFCFieldValues.map((rfc) => {
+                            if (rfc === 'any-cropper') {
+                              return (
+                                <SelectItem
+                                  key={rfc}
+                                  value={rfc}
+                                >
+                                  <Icon
+                                    className="size-4"
+                                    type="wheat"
+                                  />
+                                  {t('Any cropper')}
+                                </SelectItem>
+                              );
+                            }
+
+                            const resources = parseResourcesFromRFC(rfc);
+
                             return (
                               <SelectItem
                                 key={rfc}
                                 value={rfc}
                               >
-                                <Icon
-                                  className="size-4"
-                                  type="wheat"
+                                <Resources
+                                  iconClassName="size-4"
+                                  resources={resources}
                                 />
-                                {t('Any cropper')}
                               </SelectItem>
                             );
-                          }
-
-                          const resources = parseResourcesFromRFC(rfc);
-
-                          return (
-                            <SelectItem
-                              key={rfc}
-                              value={rfc}
-                            >
-                              <Resources
-                                iconClassName="size-4"
-                                resources={resources}
-                              />
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="flex gap-2 flex-wrap md:w-full *:flex *:flex-1 *:flex-col">
                 <FormField
@@ -343,7 +428,16 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <FormItem>
                       <FormLabel>{t('First oasis bonus')}</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(v) => {
+                          field.onChange(v);
+                          setSearchParams(
+                            (prev) => {
+                              prev.set('first-bonus', v);
+                              return prev;
+                            },
+                            { replace: true },
+                          );
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -362,9 +456,18 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   name="secondOasisBonus"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('First oasis bonus')}</FormLabel>
+                      <FormLabel>{t('Second oasis bonus')}</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(v) => {
+                          field.onChange(v);
+                          setSearchParams(
+                            (prev) => {
+                              prev.set('second-bonus', v);
+                              return prev;
+                            },
+                            { replace: true },
+                          );
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -385,7 +488,16 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <FormItem>
                       <FormLabel>{t('Third oasis bonus')}</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(v) => {
+                          field.onChange(v);
+                          setSearchParams(
+                            (prev) => {
+                              prev.set('third-bonus', v);
+                              return prev;
+                            },
+                            { replace: true },
+                          );
+                        }}
                         defaultValue={field.value}
                       >
                         <FormControl>

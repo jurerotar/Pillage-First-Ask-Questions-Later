@@ -35,15 +35,22 @@ export const getQuests: ApiHandler<'villageId'> = (database, { params }) => {
   const rows = database.selectObjects(
     `
       SELECT *
-      FROM (SELECT quest_id, scope, collected_at, completed_at, village_id
-            FROM quests
-            WHERE village_id = $village_id
+      FROM
+        (
+          SELECT quest_id, scope, collected_at, completed_at, village_id
+          FROM
+            quests
+          WHERE
+            village_id = $village_id
 
-            UNION ALL
+          UNION ALL
 
-            SELECT quest_id, scope, collected_at, completed_at, village_id
-            FROM quests
-            WHERE village_id IS NULL) AS q
+          SELECT quest_id, scope, collected_at, completed_at, village_id
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+          ) AS q
     `,
     {
       $village_id: villageId,
@@ -57,8 +64,10 @@ export const getCollectableQuestCount: ApiHandler = (database) => {
   const collectableQuestCount = database.selectValue(
     `
       SELECT COUNT(*) AS count
-      FROM quests
-      WHERE completed_at IS NOT NULL
+      FROM
+        quests
+      WHERE
+        completed_at IS NOT NULL
         AND collected_at IS NULL;
     `,
   ) as number;
@@ -76,29 +85,27 @@ export const collectQuest: ApiHandler<'questId' | 'villageId'> = (
     params: { questId, villageId },
   } = args;
 
-  const questDbId = database.selectValue(
-    `
-      SELECT id
-      FROM quests
-      WHERE quest_id = $quest_id
-        AND (village_id = $village_id OR village_id IS NULL)
-      ORDER BY (village_id = $village_id) DESC, (village_id IS NULL) DESC
-      LIMIT 1;
-    `,
-    {
-      $quest_id: questId,
-    },
-  );
-
   database.exec(
     `
       UPDATE quests
-      SET collected_at = $collected_at
-      WHERE id = $id;
+      SET
+        collected_at = $collected_at
+      WHERE
+        id = (
+          SELECT id
+          FROM
+            quests
+          WHERE
+            quest_id = $quest_id
+            AND (village_id = $village_id OR village_id IS NULL)
+          ORDER BY (village_id = $village_id) DESC, (village_id IS NULL) DESC
+          LIMIT 1
+          );
     `,
     {
       $collected_at: Date.now(),
-      $id: questDbId,
+      $quest_id: questId,
+      $village_id: villageId,
     },
   );
 

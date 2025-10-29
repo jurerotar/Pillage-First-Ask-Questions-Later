@@ -91,7 +91,13 @@ export const buildingLevelChangeResolver: Resolver<
   const isLevelIncreasing = previousLevel < level;
 
   if (isLevelIncreasing) {
-    assessBuildingQuestCompletion(database);
+    assessBuildingQuestCompletion(
+      database,
+      villageId,
+      buildingId,
+      level,
+      resolvesAt,
+    );
   }
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
@@ -142,8 +148,6 @@ export const buildingConstructionResolver: Resolver<
     $village_id: villageId,
     $value: population,
   });
-
-  assessBuildingQuestCompletion(database);
 
   createEvents<'buildingLevelChange'>(database, {
     ...args,
