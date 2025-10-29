@@ -3,6 +3,8 @@ import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { toast } from 'sonner';
+import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
+import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
 
 const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();
@@ -98,22 +100,29 @@ export const useAvailableServers = () => {
     { server: Server }
   >({
     mutationFn: async ({ server }) => {
-      const rootHandle = await getRootHandle();
+      const { databaseBuffer } = await new Promise<ExportServerWorkerReturn>(
+        (resolve) => {
+          const url = new URL(ExportServerWorker, import.meta.url);
+          url.searchParams.set('server-slug', server.slug);
+          const worker = new Worker(url.toString(), { type: 'module' });
 
-      const sqliteFileName = `${server.slug}.sqlite3`;
-      const fileHandle = await rootHandle.getFileHandle(sqliteFileName, {
-        create: false,
-      });
+          worker.addEventListener(
+            'message',
+            (event: MessageEvent<ExportServerWorkerReturn>) => {
+              resolve(event.data);
+            },
+          );
+        },
+      );
 
-      const file = await fileHandle.getFile();
-      const blob = new Blob([await file.arrayBuffer()], {
+      const blob = new Blob([databaseBuffer], {
         type: 'application/x-sqlite3',
       });
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = sqliteFileName;
+      a.download = `${server.slug}.sqlite3`;
       a.rel = 'noopener';
       document.body.appendChild(a);
       a.click();
