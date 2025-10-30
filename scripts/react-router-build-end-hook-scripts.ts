@@ -89,11 +89,12 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   )) {
     const svgSpriteName = svgSpriteFile.replace('build/client', '');
 
-    const preRenderedFileUrls = (reactRouterConfig.prerender as string[]).map(
-      (path) => {
-        return resolve(clientDir, `.${path}`, 'index.html');
-      },
-    );
+    // @ts-expect-error: This type is dumb af
+    const preRenderedFileUrls = (
+      reactRouterConfig.prerender!.paths as string[]
+    ).map((path) => {
+      return resolve(clientDir, `.${path}`, 'index.html');
+    });
 
     for (const filePath of preRenderedFileUrls) {
       const content = await readFile(filePath, 'utf8');

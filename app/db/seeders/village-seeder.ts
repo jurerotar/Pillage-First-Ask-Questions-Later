@@ -19,10 +19,69 @@ type OccupiableField = {
   y: number;
 };
 
-/**
- * Base radii that are deliberately smaller than your original values.
- * We'll scale these a bit with mapSize to keep them sensible on 100/200/300 maps.
- */
+/** Fenwick / Binary Indexed Tree for prefix sums */
+class Fenwick {
+  n: number;
+  bit: Float64Array;
+  constructor(arrOrLen: number | number[]) {
+    if (typeof arrOrLen === 'number') {
+      this.n = arrOrLen;
+      this.bit = new Float64Array(this.n + 1);
+    } else {
+      this.n = arrOrLen.length;
+      this.bit = new Float64Array(this.n + 1);
+      for (let i = 0; i < this.n; i += 1) {
+        this.add(i, arrOrLen[i]);
+      }
+    }
+  }
+
+  // add val at index i
+  add(i: number, val: number) {
+    let idx = i + 1;
+    while (idx <= this.n) {
+      this.bit[idx] += val;
+      idx += idx & -idx;
+    }
+  }
+
+  // prefix sum [0..i]
+  sum(i: number) {
+    let idx = i + 1;
+    let s = 0;
+    while (idx > 0) {
+      s += this.bit[idx];
+      idx -= idx & -idx;
+    }
+    return s;
+  }
+
+  total() {
+    return this.sum(this.n - 1);
+  }
+
+  // find the smallest index such that prefix sum > value (value in [0, total) )
+  // returns index in [0, n-1]
+  findByPrefix(value: number) {
+    let idx = 0;
+    let bitMask = 1;
+    // compute the largest power of two <= n
+    while (bitMask << 1 <= this.n) {
+      bitMask <<= 1;
+    }
+    let t = value;
+    for (; bitMask !== 0; bitMask >>= 1) {
+      const next = idx + bitMask;
+      if (next <= this.n && this.bit[next] <= t) {
+        t -= this.bit[next];
+        idx = next;
+      }
+    }
+    // idx is index of largest prefix sum <= value, so result is idx (0-based)
+    return Math.min(this.n - 1, idx); // idx is already 0-based offset representation
+  }
+}
+
 const baseVillageRadius: Record<VillageSize, number> = {
   xxs: 0,
   xs: 1,
@@ -35,7 +94,6 @@ const baseVillageRadius: Record<VillageSize, number> = {
   '4xl': 7,
 };
 
-/** supporting villages (unchanged but you can tune) */
 const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
   [
     ['xxs', 0],
@@ -50,76 +108,15 @@ const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
   ],
 );
 
-/** seeded Fisher–Yates shuffle in-place; prng() returns float in [0,1) */
-const seededShuffle = <T>(arr: T[], prng: () => number) => {
-  for (let i = arr.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(prng() * (i + 1));
-    const tmp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = tmp;
-  }
-};
-
 export const villageSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const usableRadius = server.configuration.mapSize / 2;
-
-  // bias exponent: >1 favors center more strongly; 1 is linear, 2 quadratic, 3 cubic
   const CENTER_BIAS_EXPONENT = 1;
 
-  // helper: normalized distance 0..1 for tile
   const normalizedDistanceForTile = (tile: OccupiableField) => {
     const dist = Math.hypot(tile.x, tile.y);
     return Math.min(1, dist / usableRadius);
-  };
-
-  const pickWeightedAndRemove = (): OccupiableField | undefined => {
-    if (occupiableFieldsArr.length === 0) {
-      return undefined;
-    }
-
-    // build weights array (cheap enough; occupiableFieldsArr shrinks each pick)
-    let total = 0;
-    const weights: number[] = new Array(occupiableFieldsArr.length);
-    for (let i = 0; i < occupiableFieldsArr.length; i += 1) {
-      const t = occupiableFieldsArr[i];
-      const norm = normalizedDistanceForTile(t); // 0..1
-      // weight: prefer center (1 - norm), raise to exponent to control strength
-      const w = (1 - norm) ** CENTER_BIAS_EXPONENT;
-      weights[i] = w;
-      total += w;
-    }
-
-    // if all weights are zero (unlikely), fallback to uniform
-    if (total <= 0) {
-      const idx = seededRandomIntFromInterval(
-        prng,
-        0,
-        occupiableFieldsArr.length - 1,
-      );
-      const [item] = occupiableFieldsArr.splice(idx, 1);
-      occupiableFieldMap.delete(`${item.x}-${item.y}`);
-      return item;
-    }
-
-    // pick random threshold
-    const r = prng() * total;
-    // find index by cumulative sum
-    let acc = 0;
-    let chosenIndex = 0;
-    for (let i = 0; i < weights.length; i += 1) {
-      acc += weights[i];
-      if (r <= acc) {
-        chosenIndex = i;
-        break;
-      }
-    }
-
-    const [item] = occupiableFieldsArr.splice(chosenIndex, 1);
-    occupiableFieldMap.delete(`${item.x}-${item.y}`);
-
-    return item;
   };
 
   // Player village (fixed)
@@ -142,7 +139,6 @@ export const villageSeeder: Seeder = (database, server): void => {
     },
   });
 
-  // NPC players
   const playerIds = database.selectValues(
     `
       SELECT id
@@ -154,7 +150,6 @@ export const villageSeeder: Seeder = (database, server): void => {
     { $player_id: PLAYER_ID },
   ) as number[];
 
-  // All occupiable fields (exclude only the player center)
   const occupiableFields = database.selectObjects(
     `
       SELECT t.id, t.x, t.y
@@ -167,61 +162,162 @@ export const villageSeeder: Seeder = (database, server): void => {
     {},
   ) as OccupiableField[];
 
-  // Shuffle the global pool once (seeded) and build a coord->tile map
-  const occupiableFieldsArr = occupiableFields.slice();
-  seededShuffle(occupiableFieldsArr, prng);
-  const occupiableFieldMap = new Map<`${number}-${number}`, OccupiableField>(
-    occupiableFieldsArr.map((f) => [`${f.x}-${f.y}`, f]),
-  );
+  // keep arrays static for indexing
+  const n = occupiableFields.length;
+  const fields = occupiableFields.slice();
 
-  const playerToOccupiedFields: [number, OccupiableField][] = [];
+  // precompute weights (static per tile)
+  const weights = new Float64Array(n);
+  for (let i = 0; i < n; i += 1) {
+    const t = fields[i];
+    const norm = normalizedDistanceForTile(t);
+    const w = (1 - norm) ** CENTER_BIAS_EXPONENT;
+    weights[i] = w;
+  }
 
-  // helper: remove specific tile (coord) from array+map
-  const removeByCoords = (x: number, y: number) => {
-    const key = `${x}-${y}` as const;
-    if (!occupiableFieldMap.has(key)) {
+  // Fenwick for weighted sampling
+  const fenwick = new Fenwick(Array.from(weights));
+
+  // active indices array (for uniform picks) and index->pos map for O(1) removal
+  const activeIndices: number[] = Array.from({ length: n }, (_, i) => i);
+  seededRandomArrayElement(prng, [0]); // just to keep seededRandomArrayElement reference used (safe)
+  // shuffle activeIndices seeded
+  for (let i = activeIndices.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(prng() * (i + 1));
+    const tmp = activeIndices[i];
+    activeIndices[i] = activeIndices[j];
+    activeIndices[j] = tmp;
+  }
+
+  const indexToActivePos = new Int32Array(n).fill(-1);
+  for (let pos = 0; pos < activeIndices.length; pos += 1) {
+    indexToActivePos[activeIndices[pos]] = pos;
+  }
+
+  // coord -> index map
+  const coordToIndex = new Map<string, number>();
+  for (let i = 0; i < n; i += 1) {
+    coordToIndex.set(`${fields[i].x}-${fields[i].y}`, i);
+  }
+
+  const removeIndex = (index: number) => {
+    // If already removed, ignore
+    const pos = indexToActivePos[index];
+    if (pos === -1) {
       return false;
     }
-    occupiableFieldMap.delete(key);
-    const idx = occupiableFieldsArr.findIndex((f) => f.x === x && f.y === y);
-    if (idx >= 0) {
-      occupiableFieldsArr.splice(idx, 1);
+
+    // remove from activeIndices via swap-and-pop
+    const lastPos = activeIndices.length - 1;
+    const lastIndex = activeIndices[lastPos];
+
+    // swap only if not same
+    if (pos !== lastPos) {
+      activeIndices[pos] = lastIndex;
+      indexToActivePos[lastIndex] = pos;
     }
+    activeIndices.pop();
+    indexToActivePos[index] = -1;
+
+    // set fenwick weight to zero (subtract current weight)
+    const w = weights[index];
+    if (w !== 0) {
+      fenwick.add(index, -w);
+      weights[index] = 0;
+    }
+
+    // remove coord map too
+    coordToIndex.delete(`${fields[index].x}-${fields[index].y}`);
     return true;
   };
 
-  // small helper to compute a scaled radius using mapSize to avoid enormous radii on small maps
+  const pickRandomActiveIndexAndRemove = (): number | undefined => {
+    if (activeIndices.length === 0) {
+      return undefined;
+    }
+    const pos = seededRandomIntFromInterval(prng, 0, activeIndices.length - 1);
+    const idx = activeIndices[pos];
+    removeIndex(idx);
+    return idx;
+  };
+
+  const pickWeightedAndRemove = (): OccupiableField | undefined => {
+    if (activeIndices.length === 0) {
+      return undefined;
+    }
+
+    const total = fenwick.total();
+    if (!(total > 0)) {
+      // fallback uniform
+      const idx = pickRandomActiveIndexAndRemove();
+      return idx == null ? undefined : fields[idx];
+    }
+
+    const r = prng() * total;
+    // Fenwick.findByPrefix returns index of prefix <= r; small tweak:
+    // We need the first index with cumulative sum > r.
+    // Our findByPrefix returns the largest prefix sum <= r so use +1, and clamp.
+    let idx = fenwick.findByPrefix(r);
+    // if exact boundary we want idx (works). But if findByPrefix returns i where prefix<=r,
+    // we should use next index if prefix == r and r != 0. Safer to just scan a bit forward.
+    // Ensure idx is active; if not (edge cases) fallback to small linear probe.
+    // But most builds return an active index.
+    // If idx is removed, try next active via indexToActivePos checks.
+    if (indexToActivePos[idx] === -1) {
+      // linear probe forward (very small)
+      let probe = idx + 1;
+      while (probe < n && indexToActivePos[probe] === -1) {
+        probe += 1;
+      }
+      if (probe < n) {
+        idx = probe;
+      } else {
+        probe = idx - 1;
+        while (probe >= 0 && indexToActivePos[probe] === -1) {
+          probe -= 1;
+        }
+        if (probe >= 0) {
+          idx = probe;
+        } else {
+          // no active found (shouldn't happen because total > 0) -> uniform fallback
+          const uni = pickRandomActiveIndexAndRemove();
+          return uni == null ? undefined : fields[uni];
+        }
+      }
+    }
+
+    // Now remove chosen index
+    removeIndex(idx);
+    return fields[idx];
+  };
+
   const computeScaledRadius = (base: number, mapSize: number) => {
-    // scale factor: maps {100 -> 1, 200 -> 1, 300 -> 2}
     const scale = Math.max(1, Math.round(mapSize / 200));
     return Math.max(0, Math.round(base * scale));
   };
 
-  // We'll allocate fairly: compute a "fair cap" per player so early players don't take everything
+  const playerToOccupiedFields: [number, OccupiableField][] = [];
+
   for (let pIndex = 0; pIndex < playerIds.length; pIndex += 1) {
     const playerId = playerIds[pIndex];
 
-    if (occupiableFieldsArr.length === 0) {
+    if (activeIndices.length === 0) {
       break;
     }
 
     const remainingPlayers = Math.max(1, playerIds.length - pIndex);
-    const remainingTiles = occupiableFieldsArr.length;
+    const remainingTiles = activeIndices.length;
     const fairCap = Math.max(1, Math.floor(remainingTiles / remainingPlayers));
 
-    // choose how many villages this player gets (1..fairCap)
     const totalVillages = seededRandomIntFromInterval(prng, 1, fairCap);
 
     // pick main village
     const startingTile = pickWeightedAndRemove();
-
     if (!startingTile) {
       break;
     }
-
     playerToOccupiedFields.push([playerId, startingTile]);
 
-    // compute village size & scaled radius
     const villageSize = getVillageSize(
       server.configuration.mapSize,
       startingTile.x,
@@ -233,22 +329,20 @@ export const villageSeeder: Seeder = (database, server): void => {
       server.configuration.mapSize,
     );
 
-    // how many extra villages to try to assign (cap to available tiles and configured max)
     const maxConfigured =
       villageSizeToAmountOfSupportingVillagesMap.get(villageSize) ?? 0;
-    // random 0..maxConfigured (you can bias to lower values if desired)
     const desiredExtra =
       maxConfigured > 0
         ? seededRandomIntFromInterval(prng, 0, maxConfigured)
         : 0;
-    // final extra = min(desiredExtra, totalVillages-1, remainingTiles)
+
     let need = Math.min(
       desiredExtra,
       Math.max(0, totalVillages - 1),
-      occupiableFieldsArr.length,
+      activeIndices.length,
     );
 
-    // Try neighbours: create offsets then shuffle them to avoid axis bias
+    // neighbors: use coordToIndex + removeIndex for O(1) removal
     if (radius > 0 && need > 0) {
       const offsets: [number, number][] = [];
       for (let dx = -radius; dx <= radius; dx += 1) {
@@ -259,7 +353,13 @@ export const villageSeeder: Seeder = (database, server): void => {
           offsets.push([dx, dy]);
         }
       }
-      seededShuffle(offsets, prng);
+      // shuffle offsets seeded
+      for (let i = offsets.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(prng() * (i + 1));
+        const tmp = offsets[i];
+        offsets[i] = offsets[j];
+        offsets[j] = tmp;
+      }
 
       for (const [dx, dy] of offsets) {
         if (need === 0) {
@@ -267,55 +367,52 @@ export const villageSeeder: Seeder = (database, server): void => {
         }
         const nx = startingTile.x + dx;
         const ny = startingTile.y + dy;
-        const key = `${nx}-${ny}` as const;
-        if (!occupiableFieldMap.has(key)) {
+        const key = `${nx}-${ny}`;
+        if (!coordToIndex.has(key)) {
           continue;
         }
-
+        const idx = coordToIndex.get(key)!;
         // claim it
-        const tile = occupiableFieldMap.get(key)!;
-        removeByCoords(tile.x, tile.y);
-        playerToOccupiedFields.push([playerId, tile]);
+        removeIndex(idx);
+        playerToOccupiedFields.push([playerId, fields[idx]]);
         need -= 1;
       }
     }
 
-    // If still need more, take random tiles from global pool BUT prefer to avoid extremely local picks:
-    // prefer tiles whose distance from startingTile is > minDistance (so cluster doesn't hog entire region)
-    const minDistanceForFallback = Math.max(3, radius + 1); // tuneable
-    while (need > 0 && occupiableFieldsArr.length > 0) {
-      // find a candidate that satisfies minDistance (try up to some attempts)
-      let candidateIndex = -1;
-      const attempts = Math.min(5, occupiableFieldsArr.length);
+    const minDistanceForFallback = Math.max(3, radius + 1);
+    while (need > 0 && activeIndices.length > 0) {
+      // attempt to find a random distant candidate (up to attempts)
+      let candidateIdx = -1;
+      const attempts = Math.min(5, activeIndices.length);
       for (let a = 0; a < attempts; a += 1) {
-        const idx = seededRandomIntFromInterval(
+        const pos = seededRandomIntFromInterval(
           prng,
           0,
-          occupiableFieldsArr.length - 1,
+          activeIndices.length - 1,
         );
-        const c = occupiableFieldsArr[idx];
+        const idx = activeIndices[pos];
+        const c = fields[idx];
         const dx = c.x - startingTile.x;
         const dy = c.y - startingTile.y;
         const d2 = dx * dx + dy * dy;
         if (d2 >= minDistanceForFallback * minDistanceForFallback) {
-          candidateIndex = idx;
+          candidateIdx = idx;
           break;
         }
-        // otherwise keep candidateIndex = -1 and try again
       }
 
-      // fallback: if we couldn't find a remote candidate in a few tries, just pick random
-      if (candidateIndex === -1) {
-        candidateIndex = seededRandomIntFromInterval(
-          prng,
-          0,
-          occupiableFieldsArr.length - 1,
-        );
+      if (candidateIdx === -1) {
+        // fallback to uniform random
+        const idx = pickRandomActiveIndexAndRemove();
+        if (idx == null) {
+          break;
+        }
+        playerToOccupiedFields.push([playerId, fields[idx]]);
+      } else {
+        // claim candidate
+        removeIndex(candidateIdx);
+        playerToOccupiedFields.push([playerId, fields[candidateIdx]]);
       }
-
-      const [tile] = occupiableFieldsArr.splice(candidateIndex, 1);
-      occupiableFieldMap.delete(`${tile.x}-${tile.y}`);
-      playerToOccupiedFields.push([playerId, tile]);
       need -= 1;
     }
   }
