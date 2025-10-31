@@ -44,111 +44,135 @@ const BuildingTabFallback = () => {
 };
 
 const BuildingStats = lazy(async () => ({
-  default: (await import('./components/building-stats')).BuildingStats,
+  default: (await import('./components/building-stats/building-stats'))
+    .BuildingStats,
 }));
 
 const MainBuildingVillageManagement = lazy(async () => ({
-  default: (await import('./components/main-building-village-management'))
-    .MainBuildingVillageManagement,
+  default: (
+    await import('./components/main-building/main-building-village-management')
+  ).MainBuildingVillageManagement,
 }));
 
 const RallyPointTroopMovements = lazy(async () => ({
-  default: (await import('./components/rally-point-troop-movements'))
-    .RallyPointTroopMovements,
+  default: (
+    await import('./components/rally-point/rally-point-troop-movements')
+  ).RallyPointTroopMovements,
 }));
 
 const RallyPointSendTroops = lazy(async () => ({
-  default: (await import('./components/rally-point-send-troops'))
+  default: (await import('./components/rally-point/rally-point-send-troops'))
     .RallyPointSendTroops,
 }));
 
 const RallyPointSimulator = lazy(async () => ({
-  default: (await import('./components/rally-point-simulator'))
+  default: (await import('./components/rally-point/rally-point-simulator'))
     .RallyPointSimulator,
 }));
 
 const PalaceTrainSettler = lazy(async () => ({
-  default: (await import('./components/palace-settler-training'))
+  default: (await import('./components/palace/palace-settler-training'))
     .PalaceSettlerTraining,
 }));
 
 const PalaceLoyalty = lazy(async () => ({
-  default: (await import('./components/palace-loyalty')).PalaceLoyalty,
+  default: (await import('./components/palace/palace-loyalty')).PalaceLoyalty,
 }));
 
 const PalaceExpansion = lazy(async () => ({
-  default: (await import('./components/palace-expansion')).PalaceExpansion,
+  default: (await import('./components/palace/palace-expansion'))
+    .PalaceExpansion,
 }));
 
 const TreasuryArtifacts = lazy(async () => ({
-  default: (await import('./components/treasury-artifacts')).TreasuryArtifacts,
+  default: (await import('./components/treasury/treasury-artifacts'))
+    .TreasuryArtifacts,
 }));
 
 const EmbassyRelations = lazy(async () => ({
-  default: (await import('./components/embassy-relations')).EmbassyRelations,
+  default: (await import('./components/embassy/embassy-relations'))
+    .EmbassyRelations,
 }));
 
 const TownHallCelebrations = lazy(async () => ({
-  default: (await import('./components/town-hall-celebrations'))
+  default: (await import('./components/town-hall/town-hall-celebrations'))
     .TownHallCelebrations,
 }));
 
 const MarketplaceBuy = lazy(async () => ({
-  default: (await import('./components/marketplace-trade')).MarketplaceTrade,
+  default: (await import('./components/marketplace/marketplace-trade'))
+    .MarketplaceTrade,
 }));
 
 const MarketplaceTradeRoutes = lazy(async () => ({
-  default: (await import('./components/marketplace-trade-routes'))
+  default: (await import('./components/marketplace/marketplace-trade-routes'))
     .MarketplaceTradeRoutes,
 }));
 
 const AcademyUnitResearch = lazy(async () => ({
-  default: (await import('./components/academy-unit-research'))
+  default: (await import('./components/academy/academy-unit-research'))
     .AcademyUnitResearch,
 }));
 
 const SmithyUnitImprovement = lazy(async () => ({
-  default: (await import('./components/smithy-unit-improvement'))
+  default: (await import('./components/smithy/smithy-unit-improvement'))
     .SmithyUnitImprovement,
 }));
 
 const HerosMansionOasis = lazy(async () => ({
-  default: (await import('./components/heros-mansion-oasis')).HerosMansionOasis,
+  default: (await import('./components/heros-mansion/heros-mansion-oasis'))
+    .HerosMansionOasis,
 }));
 
 const BreweryCelebration = lazy(async () => ({
-  default: (await import('./components/brewery-celebrations'))
+  default: (await import('./components/brewery/brewery-celebrations'))
     .BreweryCelebration,
 }));
 
 const BarracksTroopTraining = lazy(async () => ({
-  default: (await import('./components/barracks-troop-training'))
-    .BarracksTroopTraining,
+  default: (
+    await import(
+      './components/unit-production-buildings/barracks-troop-training'
+    )
+  ).BarracksTroopTraining,
 }));
 
 const GreatBarracksTroopTraining = lazy(async () => ({
-  default: (await import('./components/great-barracks-troop-training'))
-    .GreatBarracksTroopTraining,
+  default: (
+    await import(
+      './components/unit-production-buildings/great-barracks-troop-training'
+    )
+  ).GreatBarracksTroopTraining,
 }));
 
 const StableTroopTraining = lazy(async () => ({
-  default: (await import('./components/stable-troop-training'))
-    .StableTroopTraining,
+  default: (
+    await import('./components/unit-production-buildings/stable-troop-training')
+  ).StableTroopTraining,
 }));
 
 const GreatStableTroopTraining = lazy(async () => ({
-  default: (await import('./components/great-stable-troop-training'))
-    .GreatStableTroopTraining,
+  default: (
+    await import(
+      './components/unit-production-buildings/great-stable-troop-training'
+    )
+  ).GreatStableTroopTraining,
 }));
 
 const WorkshopTroopTraining = lazy(async () => ({
-  default: (await import('./components/workshop-troop-training'))
-    .WorkshopTroopTraining,
+  default: (
+    await import(
+      './components/unit-production-buildings/workshop-troop-training'
+    )
+  ).WorkshopTroopTraining,
 }));
 
 const HospitalTroopTraining = lazy(async () => ({
-  default: (await import('./components/hospital-troop-training'))
-    .HospitalTroopTraining,
+  default: (
+    await import(
+      './components/unit-production-buildings/hospital-troop-training'
+    )
+  ).HospitalTroopTraining,
 }));
 
 const palaceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([

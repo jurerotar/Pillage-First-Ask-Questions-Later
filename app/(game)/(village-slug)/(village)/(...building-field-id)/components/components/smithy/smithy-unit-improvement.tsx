@@ -4,7 +4,7 @@ import {
   UnitCard,
   UnitImprovement,
   UnitOverview,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
 import { units } from 'app/assets/units';
 import {
   Section,

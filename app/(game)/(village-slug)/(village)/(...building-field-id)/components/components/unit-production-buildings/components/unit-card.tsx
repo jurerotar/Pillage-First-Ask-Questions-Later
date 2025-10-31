@@ -27,7 +27,7 @@ import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/
 import { clsx } from 'clsx';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import { unitIdToUnitIconMapper } from 'app/utils/icon';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';

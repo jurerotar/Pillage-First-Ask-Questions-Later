@@ -6,7 +6,7 @@ import {
   UnitRecruitment,
   UnitRecruitmentNoResearch,
   UnitRequirements,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -61,55 +61,51 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
           )}
         </Text>
       </SectionContent>
-      <SectionContent>
-        <TroopTrainingTable buildingId={buildingId} />
-      </SectionContent>
-      <SectionContent>
-        <Tabs>
-          <TabList>
-            {units.map(({ id }) => (
-              <Tab key={id}>
-                <div className="inline-flex items-center gap-2">
-                  <Icon
-                    type={unitIdToUnitIconMapper(id)}
-                    className="size-4"
-                  />
-                  {t(`UNITS.${id}.NAME`)}
-                </div>
-              </Tab>
-            ))}
-          </TabList>
-          {units.map(({ id }) => {
-            const hasResearchedUnit = isUnitResearched(id);
+      <TroopTrainingTable buildingId={buildingId} />
+      <Tabs>
+        <TabList>
+          {units.map(({ id }) => (
+            <Tab key={id}>
+              <div className="inline-flex items-center gap-2">
+                <Icon
+                  type={unitIdToUnitIconMapper(id)}
+                  className="size-4"
+                />
+                {t(`UNITS.${id}.NAME`)}
+              </div>
+            </Tab>
+          ))}
+        </TabList>
+        {units.map(({ id }) => {
+          const hasResearchedUnit = isUnitResearched(id);
 
-            return (
-              <TabPanel key={id}>
-                <UnitCard
-                  unitId={id}
-                  buildingId={buildingId}
-                  showOuterBorder={false}
-                  durationEffect={durationEffect}
-                >
-                  <UnitOverview />
-                  <UnitAttributes />
-                  {hasResearchedUnit && (
-                    <>
-                      <UnitCost />
-                      <UnitRecruitment />
-                    </>
-                  )}
-                  {!hasResearchedUnit && (
-                    <>
-                      <UnitRequirements />
-                      <UnitRecruitmentNoResearch />
-                    </>
-                  )}
-                </UnitCard>
-              </TabPanel>
-            );
-          })}
-        </Tabs>
-      </SectionContent>
+          return (
+            <TabPanel key={id}>
+              <UnitCard
+                unitId={id}
+                buildingId={buildingId}
+                showOuterBorder={false}
+                durationEffect={durationEffect}
+              >
+                <UnitOverview />
+                <UnitAttributes />
+                {hasResearchedUnit && (
+                  <>
+                    <UnitCost />
+                    <UnitRecruitment />
+                  </>
+                )}
+                {!hasResearchedUnit && (
+                  <>
+                    <UnitRequirements />
+                    <UnitRecruitmentNoResearch />
+                  </>
+                )}
+              </UnitCard>
+            </TabPanel>
+          );
+        })}
+      </Tabs>
     </Section>
   );
 };

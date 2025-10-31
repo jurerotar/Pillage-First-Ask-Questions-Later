@@ -20,7 +20,7 @@ import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/quer
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-const formSchema = z.object({
+const formSchema = z.strictObject({
   name: z
     .string()
     .min(1, { error: t('Village name is required') })

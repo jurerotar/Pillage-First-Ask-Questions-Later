@@ -5,8 +5,8 @@ import {
   UnitOverview,
   UnitRequirements,
   UnitResearch,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/components/unit-card';
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import {
   Section,
   SectionContent,
