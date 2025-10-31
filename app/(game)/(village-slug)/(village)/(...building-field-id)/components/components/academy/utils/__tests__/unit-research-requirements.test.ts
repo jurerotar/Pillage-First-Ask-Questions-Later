@@ -1,4 +1,4 @@
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/utils/unit-research-requirements';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import type { Village } from 'app/interfaces/models/game/village';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import { describe, expect, test } from 'vitest';
