@@ -9,13 +9,13 @@ import {
   Outlet,
   type ShouldRevalidateFunction,
   useRouteError,
-  isRouteErrorResponse,
 } from 'react-router';
 import { Notifier } from 'app/(game)/components/notifier';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
+import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -42,38 +42,8 @@ export const ErrorBoundary = () => {
 
   const now = new Date();
 
-  const isResponse = isRouteErrorResponse(routeErr as any);
   const error = ((): { title: string; message: string; details: string } => {
     try {
-      if (isResponse) {
-        const r = routeErr as ReturnType<typeof useRouteError> & {
-          status?: number;
-          statusText?: string;
-          data?: any;
-        };
-        const title = `Request failed${typeof r?.status === 'number' ? ` (${r.status})` : ''}`;
-        const statusText = (r as any)?.statusText ?? '';
-        const dataMsg =
-          typeof (r as any)?.data === 'string' ? (r as any).data : '';
-        const message = [statusText, dataMsg].filter(Boolean).join(' — ');
-        const details = JSON.stringify(
-          {
-            type: 'RouteErrorResponse',
-            status: (r as any)?.status,
-            statusText: (r as any)?.statusText,
-            data: (r as any)?.data,
-            time: now.toISOString(),
-          },
-          null,
-          2,
-        );
-        return {
-          title,
-          message: message || 'The server responded with an error.',
-          details,
-        };
-      }
-
       if (routeErr instanceof Error) {
         const stack = routeErr.stack ?? '';
         const details = JSON.stringify(
@@ -262,6 +232,7 @@ const Layout = memo<Route.ComponentProps>(
           <ApiProvider serverSlug={serverSlug}>
             <Outlet />
             <Notifier serverSlug={serverSlug} />
+            <WorkerCleanupHandler serverSlug={serverSlug} />
           </ApiProvider>
         </Suspense>
         <Toaster

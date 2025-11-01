@@ -87,8 +87,8 @@ const createStorageCapacityEffect = (
   return {
     effectId,
     valuesPerLevel: [
-      0, 400, 900, 1500, 2300, 3200, 4300, 5600, 7200, 9000, 11300, 13900,
-      17200, 21000, 25600, 31000, 37700, 45500, 55000, 66300, 80000,
+      0, 400, 900, 1500, 2300, 3200, 4300, 5600, 7200, 9000, 11_300, 13_900,
+      17_200, 21_000, 25_600, 31_000, 37_700, 45_500, 55_000, 66_300, 80_000,
     ].map((value) => value * modifier),
     type: 'base',
   };
@@ -1017,7 +1017,7 @@ export const buildings: Building[] = [
     buildingCostCoefficient: 1.4,
     maxLevel: 20,
     buildingDurationBase: 1.16,
-    buildingDurationModifier: 11750,
+    buildingDurationModifier: 11_750,
     buildingDurationReduction: 3750,
   },
   {
@@ -1364,7 +1364,7 @@ export const buildings: Building[] = [
     buildingCostCoefficient: 1.28,
     maxLevel: 20,
     buildingDurationBase: 1.16,
-    buildingDurationModifier: 14375,
+    buildingDurationModifier: 14_375,
     buildingDurationReduction: 1875,
   },
   {
@@ -1428,7 +1428,7 @@ export const buildings: Building[] = [
     buildingCostCoefficient: 1.28,
     maxLevel: 20,
     buildingDurationBase: 1.16,
-    buildingDurationModifier: 10875,
+    buildingDurationModifier: 10_875,
     buildingDurationReduction: 1875,
   },
 ];

@@ -12,7 +12,7 @@ export const useEventsByType = <T extends GameEventType>(eventType: T) => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: eventsByType } = useSuspenseQuery<GameEvent<T>[]>({
+  const { data: eventsByType } = useSuspenseQuery({
     queryKey: [eventsCacheKey, eventType, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher<GameEvent<T>[]>(

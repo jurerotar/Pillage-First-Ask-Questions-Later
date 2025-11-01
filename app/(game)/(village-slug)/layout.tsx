@@ -2,9 +2,15 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { clsx } from 'clsx';
-import type { PropsWithChildren, ComponentProps, ReactNode } from 'react';
-import { Suspense } from 'react';
-import { Fragment, memo, useRef } from 'react';
+import {
+  type PropsWithChildren,
+  type ComponentProps,
+  type ReactNode,
+  Suspense,
+  Fragment,
+  memo,
+  useRef,
+} from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import {
@@ -15,13 +21,11 @@ import {
   useNavigate,
 } from 'react-router';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
+import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
-import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 import {
@@ -51,8 +55,10 @@ import { RiAuctionLine } from 'react-icons/ri';
 import { HiStar } from 'react-icons/hi2';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
-import { parseRFCFromTile } from 'app/utils/map';
+import { parseResourcesFromRFC } from 'app/utils/map';
 import { Text } from 'app/components/text';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
 
 type CounterProps = {
   counter?: number;
@@ -76,12 +82,12 @@ const ReportsCounter = () => {
 };
 
 const AdventurePointsCounter = () => {
-  const { adventurePoints } = useAdventurePoints();
-  return <Counter counter={adventurePoints.amount} />;
+  const { available } = useHeroAdventures();
+  return <Counter counter={available} />;
 };
 
 const QuestsCounter = () => {
-  const { collectableQuestCount } = useQuests();
+  const { collectableQuestCount } = useCollectableQuestCount();
   return <Counter counter={collectableQuestCount} />;
 };
 
@@ -128,9 +134,9 @@ const DiscordLink = () => {
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
   const { hero, health, experience } = useHero();
-  const { playerTroops } = usePlayerTroops();
+  const { villageTroops } = useVillageTroops();
 
-  const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
+  const isHeroHome = !!villageTroops.find(({ unitId }) => unitId === 'HERO');
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -362,12 +368,12 @@ const VillageSelect = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { getNewVillageUrl } = useGameNavigation();
-  const { playerVillages } = usePlayerVillages();
+  const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
 
-  const resourceFieldComposition = parseRFCFromTile(currentVillage.RFC).join(
-    '-',
-  );
+  const resourceFieldComposition = parseResourcesFromRFC(
+    currentVillage.resourceFieldComposition,
+  ).join('-');
 
   return (
     <Select

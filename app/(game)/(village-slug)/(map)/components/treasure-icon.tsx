@@ -2,9 +2,11 @@ import { Icon } from 'app/components/icon';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { ComponentProps } from 'react';
+import type { HeroItem } from 'app/interfaces/models/game/hero-item';
+import { getItemDefinition } from 'app/assets/utils/items';
 
 type TreasureIconProps = Omit<ComponentProps<typeof Icon>, 'type'> & {
-  item: WorldItem;
+  itemId: HeroItem['id'];
 };
 
 const itemTypeToIconTypeMap = new Map<
@@ -17,9 +19,11 @@ const itemTypeToIconTypeMap = new Map<
   ['resource', 'treasureTileResources'],
 ]);
 
-export const TreasureIcon = ({ item, className }: TreasureIconProps) => {
+export const TreasureIcon = ({ itemId, className }: TreasureIconProps) => {
+  const item = getItemDefinition(itemId);
+
   const iconType =
-    itemTypeToIconTypeMap.get(item.type) ?? 'treasureTileMiscellaneous';
+    itemTypeToIconTypeMap.get(item.category) ?? 'treasureTileMiscellaneous';
 
   return (
     <BorderIndicator

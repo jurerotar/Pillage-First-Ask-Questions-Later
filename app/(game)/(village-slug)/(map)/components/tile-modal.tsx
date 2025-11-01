@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from 'app/components/ui/dialog';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -23,8 +22,7 @@ import type {
   Tile,
 } from 'app/interfaces/models/game/tile';
 import { useTranslation } from 'react-i18next';
-import { parseRFCFromTile } from 'app/utils/map';
-import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
+import { parseResourcesFromRFC } from 'app/utils/map';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Button } from 'app/components/ui/button';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
@@ -32,8 +30,7 @@ import { Text } from 'app/components/text';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
-import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useNavigate } from 'react-router';
 import { PLAYER_ID } from 'app/constants/player';
@@ -48,7 +45,7 @@ type TileModalResourcesProps = {
 };
 
 const TileModalResources = ({ tile }: TileModalResourcesProps) => {
-  const resources = parseRFCFromTile(tile.RFC);
+  const resources = parseResourcesFromRFC(tile.resourceFieldComposition);
   return (
     <div className="flex justify-start text-sm">
       <Resources
@@ -262,9 +259,9 @@ const OccupiedOccupiableTileModal = ({
   const { getVillageByCoordinates } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { getNewVillageUrl } = useGameNavigation();
-  const { playerTroops, sendTroops } = usePlayerTroops();
+  const { villageTroops, sendTroops } = useVillageTroops();
 
-  const currentVillageMovableTroops = playerTroops.filter(
+  const currentVillageMovableTroops = villageTroops.filter(
     ({ tileId, source }) =>
       tileId === currentVillage.id && source === currentVillage.id,
   );
@@ -274,7 +271,7 @@ const OccupiedOccupiableTileModal = ({
   );
 
   const village = getVillageByCoordinates(tile.coordinates)!;
-  const isOwnedByPlayer = isPlayerVillage(village);
+  const isOwnedByPlayer = village.playerId === PLAYER_ID;
 
   const onSendHero = () => {
     sendTroops({

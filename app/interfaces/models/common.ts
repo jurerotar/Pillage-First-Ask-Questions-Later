@@ -1,12 +1,8 @@
-import type { QueryClient } from '@tanstack/react-query';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { z } from 'zod';
 
-export type Resolver<T extends GameEvent> = (
-  queryClient: QueryClient,
-  args: T,
-) => Promise<void>;
+export const coordinatesSchema = z.strictObject({
+  x: z.number(),
+  y: z.number(),
+});
 
-export type Point = {
-  x: number;
-  y: number;
-};
+export type Point = z.infer<typeof coordinatesSchema>;

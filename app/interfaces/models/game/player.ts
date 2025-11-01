@@ -1,20 +1,13 @@
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { z } from 'zod';
+import { factionSchema } from 'app/interfaces/models/game/faction';
 
-// Plan is to add multiple factions, where you'd have different relations with each
-export type PlayerFaction =
-  | 'player'
-  | 'npc1'
-  | 'npc2'
-  | 'npc3'
-  | 'npc4'
-  | 'npc5'
-  | 'npc6'
-  | 'npc7'
-  | 'npc8';
+export const playerSchema = z.strictObject({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  tribe: tribeSchema,
+  faction: factionSchema,
+});
 
-export type Player = {
-  id: number;
-  name: string;
-  tribe: PlayableTribe;
-  faction: PlayerFaction;
-};
+export type Player = z.infer<typeof playerSchema>;

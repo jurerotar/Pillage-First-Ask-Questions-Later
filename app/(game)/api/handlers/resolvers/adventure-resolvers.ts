@@ -1,23 +1,19 @@
-import type { Resolver } from 'app/interfaces/models/common';
+import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { adventurePointsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
-import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
+import { assessAdventureCountQuestCompletion } from 'app/(game)/api/utils/quests';
 
 export const adventurePointIncreaseResolver: Resolver<
   GameEvent<'adventurePointIncrease'>
-> = async (queryClient, args) => {
-  queryClient.setQueryData<AdventurePoints>(
-    [adventurePointsCacheKey],
-    (prevState) => {
-      return {
-        amount: (prevState?.amount ?? 0) + 1,
-      };
-    },
-  );
+> = (database, args) => {
+  const { startsAt, duration } = args;
 
-  await createEvent<'adventurePointIncrease'>(queryClient, {
-    // Args need to be present, because next events depends on end of last
+  database.exec('UPDATE hero_adventures SET available = available + 1;');
+
+  assessAdventureCountQuestCompletion(database, startsAt + duration);
+
+  createEvents<'adventurePointIncrease'>(database, {
+    // Args need to be present, because next event depends on end of last
     ...args,
     type: 'adventurePointIncrease',
   });

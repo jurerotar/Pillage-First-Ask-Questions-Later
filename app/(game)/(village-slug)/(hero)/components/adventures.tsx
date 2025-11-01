@@ -1,4 +1,3 @@
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { seededRandomIntFromInterval } from 'app/utils/common';
@@ -9,21 +8,19 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 
 export const Adventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
-  const { hero } = useHero();
-  const { adventurePoints } = useAdventurePoints();
+  const { available, completed } = useHeroAdventures();
   const { eventsByType } = useEventsByType('adventurePointIncrease');
 
-  const seed = server!.seed;
-  const { adventureCount } = hero!;
+  const { seed } = server;
 
-  const adventurePrng = prngMulberry32(`${seed}${adventureCount}`);
+  const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
   // Short adventure is between 8 & 12 minutes long
   const _adventureDuration =
@@ -49,7 +46,7 @@ export const Adventures = () => {
         <Text className="font-medium">
           {t(
             'Your hero has enough adventure points for {{count}} adventures.',
-            { count: adventurePoints.amount },
+            { count: available },
           )}
         </Text>
         <Text className="font-medium">

@@ -25,18 +25,18 @@ describe('units', () => {
   const mockUnit = romanUnits.find((u) => u.id === mockUnitId)!;
 
   test('getUnitData returns unit by id', () => {
-    expect(getUnitDefinition(mockUnitId)).toEqual(mockUnit);
+    expect(getUnitDefinition(mockUnitId)).toStrictEqual(mockUnit);
   });
 
   test('getUnitsByTribe returns correct units for each tribe', () => {
-    expect(getUnitsByTribe('romans')).toEqual(romanUnits);
-    expect(getUnitsByTribe('gauls')).toEqual(gaulUnits);
-    expect(getUnitsByTribe('huns')).toEqual(hunUnits);
-    expect(getUnitsByTribe('teutons')).toEqual(teutonUnits);
-    expect(getUnitsByTribe('egyptians')).toEqual(egyptianUnits);
-    expect(getUnitsByTribe('natars')).toEqual(natarianUnits);
-    expect(getUnitsByTribe('nature')).toEqual(natureUnits);
-    expect(getUnitsByTribe('spartans')).toEqual(spartanUnits);
+    expect(getUnitsByTribe('romans')).toStrictEqual(romanUnits);
+    expect(getUnitsByTribe('gauls')).toStrictEqual(gaulUnits);
+    expect(getUnitsByTribe('huns')).toStrictEqual(hunUnits);
+    expect(getUnitsByTribe('teutons')).toStrictEqual(teutonUnits);
+    expect(getUnitsByTribe('egyptians')).toStrictEqual(egyptianUnits);
+    expect(getUnitsByTribe('natars')).toStrictEqual(natarianUnits);
+    expect(getUnitsByTribe('nature')).toStrictEqual(natureUnits);
+    expect(getUnitsByTribe('spartans')).toStrictEqual(spartanUnits);
   });
 
   test('getUnitByTribeAndTier returns correct unit', () => {
@@ -60,7 +60,7 @@ describe('units', () => {
 
   test('calculateUnitUpgradeCostForLevel returns correct cost at level 2', () => {
     const result = calculateUnitUpgradeCostForLevel(mockUnitId, 2);
-    expect(result).toEqual([675, 880, 1080, 475]);
+    expect(result).toStrictEqual([675, 880, 1080, 475]);
   });
 
   test('calculateUnitUpgradeDurationForLevel returns correct duration at level 2', () => {
@@ -85,7 +85,7 @@ describe('units', () => {
 
   test('calculateUnitResearchCost returns correct values', () => {
     const result = calculateUnitResearchCost(mockUnitId);
-    expect(result).toEqual([1000, 1300, 1600, 700]);
+    expect(result).toStrictEqual([1000, 1300, 1600, 700]);
   });
 
   test('calculateUnitResearchDuration returns correct value', () => {

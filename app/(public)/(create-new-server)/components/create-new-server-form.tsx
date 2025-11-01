@@ -19,10 +19,9 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
-import { serverFactory } from 'app/factories/server-factory';
 import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
 import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
 import { workerFactory } from 'app/utils/workers';
@@ -33,11 +32,13 @@ import {
   npcVillageNameNouns,
 } from 'app/assets/village';
 import { randomInt } from 'moderndash';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { env } from 'app/env';
 
-const formSchema = z.object({
+const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
   name: z.string().min(1, { error: 'Server name is required' }),
-  configuration: z.object({
+  configuration: z.strictObject({
     speed: z
       .enum(['1', '2', '3', '5', '10'])
       // @ts-expect-error: I don't know how to solve this one, speed is expected to be number, but if I use z.literal to use exact numbers
@@ -48,11 +49,11 @@ const formSchema = z.object({
       // @ts-expect-error
       .overwrite((val) => Number.parseInt(val, 10)),
   }),
-  playerConfiguration: z.object({
+  playerConfiguration: z.strictObject({
     name: z.string().min(1, { error: 'Player name is required' }),
-    tribe: z.enum(['romans', 'gauls', 'teutons', 'huns', 'egyptians']),
+    tribe: tribeSchema,
   }),
-  gameplay: z.object({
+  gameplay: z.strictObject({
     areOfflineNpcAttacksEnabled: z.boolean(),
   }),
 });
@@ -94,8 +95,8 @@ export const CreateNewServerForm = () => {
   const adjective = npcVillageNameAdjectives[adjectiveIndex];
   const noun = npcVillageNameNouns[nounIndex];
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof createServerFormSchema>>({
+    resolver: zodResolver(createServerFormSchema),
     defaultValues: {
       seed: generateSeed(),
       name: `${adjective}${noun}`,
@@ -113,9 +114,19 @@ export const CreateNewServerForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // @ts-expect-error: This is actually fine, it's just a typing issue described above
-    const server = serverFactory({ ...values });
+  const onSubmit = (values: z.infer<typeof createServerFormSchema>) => {
+    const id = crypto.randomUUID();
+    const slug = `s-${id.substring(0, 4)}`;
+
+    const server = {
+      id: window.crypto.randomUUID(),
+      slug,
+      version: env.VERSION,
+      createdAt: Date.now(),
+      ...values,
+    };
+
+    // @ts-expect-error - Not an error, values for speed and mapSize are already cast as numbers
     createServer({ server });
   };
 
@@ -175,7 +186,7 @@ export const CreateNewServerForm = () => {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={'New World'}
+                        placeholder="New World"
                         {...field}
                       />
                     </FormControl>
@@ -280,7 +291,7 @@ export const CreateNewServerForm = () => {
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={'Select a tribe'} />
+                          <SelectValue placeholder="Select a tribe" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -315,8 +326,7 @@ export const CreateNewServerForm = () => {
             <FormField
               control={form.control}
               name="gameplay.areOfflineNpcAttacksEnabled"
-              disabled={true}
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <div className="flex">
                     <div className="flex flex-4 gap-1 flex-col">
@@ -332,7 +342,8 @@ export const CreateNewServerForm = () => {
                       <FormControl>
                         <Switch
                           disabled
-                          checked
+                          checked={field.value}
+                          onCheckedChange={(v: boolean) => field.onChange(v)}
                         />
                       </FormControl>
                     </div>

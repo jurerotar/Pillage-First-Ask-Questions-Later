@@ -1,13 +1,14 @@
 import { Button } from 'app/components/ui/button';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
-import { FaDownload, FaTrash } from 'react-icons/fa6';
+import { FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
 import { env } from 'app/env';
 import { Badge } from 'app/components/ui/badge';
+import { FaDownload } from 'react-icons/fa';
 
 type ServerCardProps = {
   server: Server;

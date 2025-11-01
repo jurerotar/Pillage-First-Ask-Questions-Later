@@ -1,300 +1,448 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
 import {
-  eventsCacheKey,
-  mapCacheKey,
-  playersCacheKey,
-  reputationsCacheKey,
-  troopsCacheKey,
-  villagesCacheKey,
-  worldItemsCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import {
-  isOccupiableOasisTile,
-  isOccupiedOasisTile,
-  isOccupiedOccupiableTile,
-} from 'app/(game)/(village-slug)/utils/guards/map-guards';
-import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import type { TroopMovementType } from 'app/components/icons/icons';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import { calculatePopulationFromBuildingFields } from 'app/assets/utils/buildings';
-import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
+  baseTileSchema,
+  tileTypeSchema,
+} from 'app/interfaces/models/game/tile';
+import { z } from 'zod';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { resourceSchema } from 'app/interfaces/models/game/resource';
+import { calculateGridLayout } from 'app/utils/map';
+import { PLAYER_ID } from 'app/constants/player';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
+import { playerSchema } from 'app/interfaces/models/game/player';
 
-type GetTilePlayerReturn = {
-  player: Player;
-  reputation: Reputation;
-  village: Village;
-  population: number;
+const getFreeTileSchema = baseTileSchema.extend({
+  type: z.literal('free'),
+  tile: z.strictObject({
+    resourceFieldComposition: resourceFieldCompositionSchema,
+  }),
+  owner: playerSchema
+    .extend({
+      reputation: z.number().nullable(),
+    })
+    .nullable(),
+  owner_village: z
+    .strictObject({
+      id: z.number(),
+      name: z.string(),
+      population: z.number().nullable(),
+    })
+    .nullable(),
+});
+
+const getOasisTileSchema = baseTileSchema.extend({
+  type: z.literal('oasis'),
+  tile: z.strictObject({
+    oasis_graphics: z.number(),
+    oasis_resource: resourceSchema.nullable(),
+  }),
+  owner: playerSchema
+    .extend({
+      reputation: z.number().nullable(),
+    })
+    .nullable(),
+  owner_village: z
+    .strictObject({
+      id: z.number(),
+      name: z.string(),
+      population: z.number().nullable(),
+    })
+    .nullable(),
+  troops: z.array(
+    z.strictObject({
+      unit_id: unitIdSchema,
+      amount: z.number(),
+    }),
+  ),
+  bonuses: z.array(
+    z.strictObject({
+      resource: resourceSchema,
+      bonus: z.number(),
+    }),
+  ),
+});
+
+const _getTileSchema = z.discriminatedUnion('type', [
+  getFreeTileSchema,
+  getOasisTileSchema,
+]);
+
+// .transform((t) => ({
+//   id: t.id,
+//   coordinates: {
+//     x: t.coordinates_x,
+//     y: t.coordinates_y,
+//   },
+//   type: t.type,
+//   ...(t.type === 'free' && {
+//     resourceFieldComposition: t.rfc,
+//     isOccupied: !!t.village_id,
+//     tribe: t.player_tribe,
+//     population: t.population,
+//     reputation: t.reputation,
+//     itemType: t.item_type,
+//   }),
+//   ...(t.type === 'oasis' && {
+//     oasisGraphics: t.oasis_graphics,
+//     oasisResource: t.oasis_resource,
+//     isOccupied: !!t.oasis_occupied,
+//   }),
+// }));
+
+export const getTile: ApiHandler<'tileId'> = (_database, { params }) => {
+  const { tileId: _tileId } = params;
+
+  // const b = performance.now();
+  //
+  // const row = database.selectObject(
+  //   `
+  //     WITH
+  //       -- effect id for wheat production
+  //       wheat_id AS (
+  //         SELECT id AS wid
+  //         FROM
+  //           effect_ids
+  //         WHERE
+  //           effect = 'wheatProduction'
+  //         LIMIT 1
+  //         ),
+  //
+  //       -- use provided player id to derive source faction
+  //       src_faction AS (
+  //         SELECT faction_id AS fid
+  //         FROM
+  //           players
+  //         WHERE
+  //           id = $player_id
+  //         LIMIT 1
+  //         ),
+  //
+  //       -- reputation for that source faction toward targets
+  //       reputation_by_target AS (
+  //         SELECT fr.target_faction_id, fr.reputation
+  //         FROM
+  //           faction_reputation fr
+  //             JOIN src_faction s ON fr.source_faction_id = s.fid
+  //         ),
+  //
+  //       -- wheat production per village (if present)
+  //       effects_wheat AS (
+  //         SELECT e.village_id, e.value AS wheat_production_sum
+  //         FROM
+  //           effects e
+  //             JOIN wheat_id w ON e.effect_id = w.wid
+  //         WHERE
+  //           e.scope = 'village'
+  //           AND e.source_specifier = 0
+  //         ),
+  //
+  //       -- preferred non-wheat oasis per tile (seeded order = min(id))
+  //       oasis_nonwheat_min AS (
+  //         SELECT tile_id, MIN(id) AS min_nonwheat_id
+  //         FROM
+  //           oasis
+  //         WHERE
+  //           resource <> 'wheat'
+  //         GROUP BY tile_id
+  //         ),
+  //       oasis_pref AS (
+  //         SELECT o.tile_id, o.resource AS preferred_non_wheat
+  //         FROM
+  //           oasis o
+  //             JOIN oasis_nonwheat_min m ON m.tile_id = o.tile_id AND m.min_nonwheat_id = o.id
+  //         ),
+  //
+  //       -- aggregated oasis metrics (counts, occupied_count, fallback resource)
+  //       oasis_agg AS (
+  //         SELECT
+  //           o.tile_id,
+  //           COUNT(*) AS cnt,
+  //           SUM(CASE WHEN o.village_id IS NOT NULL THEN 1 ELSE 0 END) AS occupied_count,
+  //           MIN(o.resource) AS only_resource
+  //         FROM
+  //           oasis o
+  //         GROUP BY o.tile_id
+  //         ),
+  //
+  //       -- troops present on each tile (from your \`troops\` table)
+  //       troops_agg AS (
+  //         SELECT
+  //           tr.tile_id,
+  //           JSON_GROUP_ARRAY(
+  //             JSON_OBJECT(
+  //               'unit_id', tr.unit_id,
+  //               'amount', tr.amount
+  //             )
+  //           ) AS troops_json
+  //         FROM
+  //           troops tr
+  //         GROUP BY tr.tile_id
+  //         ),
+  //
+  //       -- bonuses per tile from oasis rows (resource + bonus)
+  //       bonuses_agg AS (
+  //         SELECT
+  //           o.tile_id,
+  //           JSON_GROUP_ARRAY(
+  //             JSON_OBJECT(
+  //               'resource', o.resource,
+  //               'bonus', o.bonus
+  //             )
+  //           ) AS bonuses_json
+  //         FROM
+  //           oasis o
+  //         GROUP BY o.tile_id
+  //         )
+  //
+  //     SELECT
+  //       t.id AS id,
+  //
+  //       -- coordinates object { x, y }
+  //       JSON_OBJECT('x', t.x, 'y', t.y) AS coordinates,
+  //       t.type AS type,
+  //
+  //       -- tile object differs by type
+  //       CASE
+  //         WHEN t.type = 'free' THEN
+  //           JSON_OBJECT(
+  //             'resourceFieldComposition',
+  //             rfc.resource_field_composition
+  //           )
+  //         WHEN t.type = 'oasis' THEN
+  //           JSON_OBJECT(
+  //             'oasis_graphics', t.oasis_graphics,
+  //             'oasis_resource',
+  //             CASE
+  //               WHEN oa.cnt IS NULL OR oa.cnt = 0 THEN NULL
+  //               WHEN oa.cnt = 1 THEN oa.only_resource
+  //               ELSE COALESCE(op.preferred_non_wheat, oa.only_resource)
+  //               END
+  //           )
+  //         ELSE NULL
+  //         END AS tile,
+  //
+  //       -- owner (player) with reputation from $player_id's faction perspective
+  //       CASE
+  //         WHEN v.id IS NOT NULL THEN
+  //           JSON_OBJECT(
+  //             'id', p.id,
+  //             'name', COALESCE(p.name, p.slug),
+  //             'tribe', p.tribe,
+  //             'reputation', rb.reputation
+  //           )
+  //         ELSE NULL
+  //         END AS owner,
+  //
+  //       -- owner_village if tile has village
+  //       CASE
+  //         WHEN v.id IS NOT NULL THEN
+  //           JSON_OBJECT(
+  //             'id', v.id,
+  //             'name', v.name,
+  //             'population', COALESCE(ew.wheat_production_sum, NULL)
+  //           )
+  //         ELSE NULL
+  //         END AS owner_village,
+  //
+  //       -- troops and bonuses arrays for this tile (JSON arrays)
+  //       COALESCE(ta.troops_json, '[]') AS troops,
+  //       COALESCE(ba.bonuses_json, '[]') AS bonuses
+  //
+  //     FROM
+  //       tiles t
+  //         LEFT JOIN villages v ON v.tile_id = t.id
+  //         LEFT JOIN players p ON p.id = v.player_id
+  //         LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+  //         LEFT JOIN effects_wheat ew ON ew.village_id = v.id
+  //         LEFT JOIN oasis_agg oa ON oa.tile_id = t.id
+  //         LEFT JOIN oasis_pref op ON op.tile_id = t.id
+  //         LEFT JOIN reputation_by_target rb ON rb.target_faction_id = p.faction_id
+  //         LEFT JOIN troops_agg ta ON ta.tile_id = t.id
+  //         LEFT JOIN bonuses_agg ba ON ba.tile_id = t.id
+  //     WHERE
+  //       t.id = $tile_id
+  //     LIMIT 1;
+  //   `,
+  //   {
+  //     $tile_id: tileId,
+  //     $player_id: PLAYER_ID,
+  //   }
+  // );
+  //
+  // console.log(performance.now() - b);
+  //
+  // const a = getTileSchema.parse(row);
+  //
+  // console.log(a);
+  return {};
 };
 
-export const getTilePlayer: ApiHandler<GetTilePlayerReturn, 'tileId'> = async (
-  queryClient,
-  { params },
-) => {
-  const { tileId } = params;
+const getTilesSchema = z
+  .strictObject({
+    id: z.number(),
+    coordinates_x: z.number(),
+    coordinates_y: z.number(),
+    type: tileTypeSchema,
+    rfc: resourceFieldCompositionSchema.nullable(),
+    oasis_graphics: z.number().nullable(),
+    player_tribe: tribeSchema.nullable(),
+    village_id: z.number().nullable(),
+    oasis_resource: resourceSchema.nullable(),
+    oasis_occupied: z.number().nullable(),
+    population: z.number().nullable(),
+    item_id: z.number().nullable(),
+    reputation: z.number().nullable(),
+  })
+  .transform((t) => ({
+    id: t.id,
+    coordinates: {
+      x: t.coordinates_x,
+      y: t.coordinates_y,
+    },
+    type: t.type,
+    ...(t.type === 'free' && {
+      resourceFieldComposition: t.rfc,
+      isOccupied: !!t.village_id,
+      tribe: t.player_tribe,
+      population: t.population,
+      reputation: t.reputation,
+      itemId: t.item_id,
+    }),
+    ...(t.type === 'oasis' && {
+      oasisGraphics: t.oasis_graphics,
+      oasisResource: t.oasis_resource,
+      isOccupied: !!t.oasis_occupied,
+    }),
+  }));
 
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const reputations = queryClient.getQueryData<Reputation[]>([
-    reputationsCacheKey,
-  ])!;
+export const getTiles: ApiHandler = (database) => {
+  const rows = database.selectObjects(
+    `
+      WITH
+        wheat_id AS (
+          SELECT id AS wid
+          FROM
+            effect_ids
+          WHERE
+            effect = 'wheatProduction'
+          LIMIT 1
+          ),
 
-  const tile = tiles.find((tile) => tile.id === tileId)!;
+        -- use player_id directly to get the source faction
+        src_faction AS (
+          SELECT faction_id AS fid
+          FROM players
+          WHERE id = $player_id
+          LIMIT 1
+          ),
 
-  const village = (() => {
-    if (isOccupiedOasisTile(tile)) {
-      const owningTile = tiles.find((t) => t.id === tile.villageId)!;
-      return villages.find(
-        ({ coordinates }) =>
-          owningTile.coordinates.x === coordinates.x &&
-          owningTile.coordinates.y === coordinates.y,
-      )!;
-    }
+        -- since exactly one wheat effect per village, pick the row directly
+        effects_wheat AS (
+          SELECT e.village_id, e.value AS wheat_production_sum
+          FROM
+            effects e
+              JOIN wheat_id w ON e.effect_id = w.wid
+          WHERE
+            e.scope = 'village'
+            AND e.source_specifier = 0
+          ),
 
-    return villages.find(
-      ({ coordinates }) =>
-        tile.coordinates.x === coordinates.x &&
-        tile.coordinates.y === coordinates.y,
-    )!;
-  })();
+        -- one item per tile
+        world_items_single AS (
+          SELECT tile_id, item_id
+          FROM
+            world_items
+          ),
 
-  const player = players.find((player) => village.playerId === player.id)!;
-  const reputation = reputations.find(
-    (reputation) => reputation.faction === player.faction,
-  )!;
+        -- preferred non-wheat oasis per tile (seeded order = min(id))
+        oasis_nonwheat_min AS (
+          SELECT tile_id, MIN(id) AS min_nonwheat_id
+          FROM
+            oasis
+          WHERE
+            resource <> 'wheat'
+          GROUP BY tile_id
+          ),
+        oasis_pref AS (
+          SELECT o.tile_id, o.resource AS preferred_non_wheat
+          FROM
+            oasis o
+              JOIN oasis_nonwheat_min m ON m.tile_id = o.tile_id AND m.min_nonwheat_id = o.id
+          ),
 
-  const population = calculatePopulationFromBuildingFields(
-    village.buildingFields,
-    village.buildingFieldsPresets,
+        -- aggregated oasis metrics (counts, occupied, only_resource fallback)
+        oasis_agg AS (
+          SELECT
+            o.tile_id,
+            COUNT(*) AS cnt,
+            SUM(CASE WHEN o.village_id IS NOT NULL THEN 1 ELSE 0 END) AS occupied_count,
+            MIN(o.resource) AS only_resource
+          FROM
+            oasis o
+          GROUP BY o.tile_id
+          ),
+
+        -- reputation for the source faction
+        reputation_by_target AS (
+          SELECT fr.target_faction_id, fr.reputation
+          FROM
+            faction_reputation fr
+              JOIN src_faction s ON fr.source_faction_id = s.fid
+          )
+
+      SELECT
+        t.id AS id,
+        t.x AS coordinates_x,
+        t.y AS coordinates_y,
+        t.type AS type,
+        rfc.resource_field_composition AS rfc,
+        t.oasis_graphics AS oasis_graphics,
+        v.id AS village_id,
+        p.tribe AS player_tribe,
+        CASE WHEN t.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0) END AS population,
+        CASE WHEN t.type = 'free' THEN wi.item_id END AS item_id,
+        CASE WHEN t.type = 'free' AND v.id IS NOT NULL THEN rb.reputation END AS reputation,
+
+        -- pick oasis resource: prefer precomputed non-wheat, else only_resource (when cnt=1) else NULL
+        CASE
+          WHEN oa.cnt IS NULL OR oa.cnt = 0 THEN NULL
+          WHEN oa.cnt = 1 THEN oa.only_resource
+          ELSE COALESCE(op.preferred_non_wheat, oa.only_resource)
+          END AS oasis_resource,
+        (oa.occupied_count > 0) AS oasis_occupied
+
+      FROM
+        tiles t
+          LEFT JOIN villages v ON v.tile_id = t.id
+          LEFT JOIN players p ON p.id = v.player_id
+          LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+          LEFT JOIN effects_wheat ew ON ew.village_id = v.id
+          LEFT JOIN world_items_single wi ON wi.tile_id = t.id
+          LEFT JOIN oasis_agg oa ON oa.tile_id = t.id
+          LEFT JOIN oasis_pref op ON op.tile_id = t.id
+          LEFT JOIN reputation_by_target rb ON rb.target_faction_id = p.faction_id
+      ORDER BY
+        t.id;
+    `,
+    {
+      $player_id: PLAYER_ID,
+    },
   );
 
-  return {
-    player,
-    reputation,
-    village,
-    population,
-  };
-};
+  const parsedTiles = z.array(getTilesSchema).parse(rows);
 
-export const getTileTroops: ApiHandler<Troop[], 'tileId'> = async (
-  queryClient,
-  { params },
-) => {
-  const { tileId } = params;
+  const mapSize = database.selectValue(
+    'SELECT map_size FROM servers LIMIT 1;',
+  ) as number;
 
-  const troops = queryClient.getQueryData<Troop[]>([troopsCacheKey])!;
+  const { totalTiles } = calculateGridLayout(mapSize);
 
-  return troops.filter((troop) => troop.tileId === tileId);
-};
+  const tiles = Array.from({ length: totalTiles }).fill(null);
 
-export const getTileWorldItem: ApiHandler<WorldItem | null, 'tileId'> = async (
-  queryClient,
-  { params },
-) => {
-  const { tileId } = params;
-
-  const worldItems = queryClient.getQueryData<WorldItem[]>([
-    worldItemsCacheKey,
-  ])!;
-
-  return worldItems.find((worldItem) => worldItem.tileId === tileId) ?? null;
-};
-
-export const getTileOccupiableOasis: ApiHandler<
-  OccupiableOasisInRangeDTO[],
-  'tileId'
-> = async (queryClient, { params }) => {
-  const { tileId } = params;
-
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-
-  const tile = tiles.find(({ id }) => id === tileId)!;
-
-  const occupiableOasisInRange: OccupiableOasisInRangeDTO[] = [];
-
-  const oasisEligibilityRadius = 3;
-
-  const validXRange = [
-    tile.coordinates.x - oasisEligibilityRadius,
-    tile.coordinates.x + oasisEligibilityRadius,
-  ];
-  const validYRange = [
-    tile.coordinates.y - oasisEligibilityRadius,
-    tile.coordinates.y + oasisEligibilityRadius,
-  ];
-
-  for (const tile of tiles) {
-    if (!isOccupiableOasisTile(tile)) {
-      continue;
-    }
-
-    const { x: oasisXCoordinate, y: oasisYCoordinate } = tile.coordinates;
-
-    if (
-      !(
-        oasisXCoordinate >= validXRange[0] &&
-        oasisXCoordinate <= validXRange[1] &&
-        oasisYCoordinate >= validYRange[0] &&
-        oasisYCoordinate <= validYRange[1]
-      )
-    ) {
-      continue;
-    }
-
-    if (isOccupiedOasisTile(tile)) {
-      const villageId = tile.villageId;
-      const village = villages.find(({ id }) => id === villageId)!;
-      const playerId = village.playerId;
-      const player = players.find(({ id }) => id === playerId)!;
-
-      occupiableOasisInRange.push({
-        oasis: tile,
-        player: player,
-        village: village,
-      });
-
-      continue;
-    }
-
-    occupiableOasisInRange.push({
-      oasis: tile,
-      player: null,
-      village: null,
-    });
+  for (const tile of parsedTiles) {
+    tiles[tile.id - 1] = tile;
   }
 
-  return occupiableOasisInRange;
-};
-
-export const getContextualMap: ApiHandler<
-  ContextualTile[],
-  'villageId'
-> = async (queryClient, { params }) => {
-  const { villageId } = params;
-
-  const tiles = queryClient.getQueryData<Tile[]>([mapCacheKey])!;
-  const reputations = queryClient.getQueryData<Reputation[]>([
-    reputationsCacheKey,
-  ])!;
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
-  const worldItems = queryClient.getQueryData<WorldItem[]>([
-    worldItemsCacheKey,
-  ])!;
-
-  const reputationMap = new Map<Player['faction'], Reputation>(
-    reputations.map((reputation) => {
-      return [reputation.faction, reputation];
-    }),
-  );
-
-  const playerMap = new Map<Player['id'], Player>(
-    players.map((player) => {
-      return [player.id, player];
-    }),
-  );
-
-  const _villageMap = new Map<Village['id'], Village>(
-    villages.map((village) => {
-      return [village.id, village];
-    }),
-  );
-
-  const worldItemsMap = new Map<Village['id'], WorldItem>(
-    worldItems.map((worldItem) => {
-      return [worldItem.tileId, worldItem];
-    }),
-  );
-
-  const troopMovementMap = new Map<Village['id'], GameEvent<'troopMovement'>[]>(
-    [],
-  );
-
-  for (const event of events) {
-    if (!isTroopMovementEvent(event)) {
-      continue;
-    }
-
-    // Show only events targeting or originating from current village
-    if (!(event.villageId === villageId || event.targetId === villageId)) {
-      continue;
-    }
-
-    if (!troopMovementMap.has(event.targetId)) {
-      troopMovementMap.set(event.targetId, []);
-    }
-
-    const eventArray = troopMovementMap.get(event.targetId)!;
-    eventArray.push(event);
-  }
-
-  const offensiveMovements: Set<GameEvent<'troopMovement'>['movementType']> =
-    new Set(['attack', 'raid']);
-
-  const deploymentMovements: Set<GameEvent<'troopMovement'>['movementType']> =
-    new Set(['return', 'reinforcements', 'relocation']);
-
-  const contextualTiles: ContextualTile[] = Array(tiles.length);
-
-  for (let i = 0; i < tiles.length; i += 1) {
-    const tile = tiles[i] as ContextualTile;
-
-    const isCurrentVillageTile = villageId === tile.id;
-
-    let troopMovementIcon: TroopMovementType | null = null;
-
-    if (troopMovementMap.has(tile.id)) {
-      const troopMovements = troopMovementMap.get(tile.id)!;
-      for (const troopMovement of troopMovements) {
-        if (offensiveMovements.has(troopMovement.movementType)) {
-          if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
-            troopMovementIcon = 'offensiveMovementIncoming';
-            break;
-          }
-
-          troopMovementIcon = 'offensiveMovementOutgoing';
-          break;
-        }
-
-        if (deploymentMovements.has(troopMovement.movementType)) {
-          if (isCurrentVillageTile && troopMovement.targetId === tile.id) {
-            troopMovementIcon = 'deploymentIncoming';
-            break;
-          }
-
-          troopMovementIcon = 'deploymentOutgoing';
-          break;
-        }
-
-        if (troopMovement.movementType === 'find-new-village') {
-          troopMovementIcon = 'findNewVillage';
-        }
-      }
-    }
-
-    tile.troopMovementIcon = troopMovementIcon;
-
-    if (isOccupiedOccupiableTile(tile)) {
-      const { faction, tribe } = playerMap.get(tile.ownedBy)!;
-
-      // TODO: Calculate village size
-      tile.villageSize = 'xs';
-      tile.tribe = tribe;
-      tile.worldItem = worldItemsMap.get(tile.id) ?? null;
-      tile.reputationLevel = reputationMap.get(faction)!.reputationLevel;
-    }
-
-    contextualTiles[i] = tile;
-  }
-
-  return contextualTiles;
+  return tiles;
 };

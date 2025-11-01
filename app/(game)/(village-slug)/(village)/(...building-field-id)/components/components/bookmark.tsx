@@ -12,7 +12,7 @@ export const Bookmark = ({ tab }: BookmarkProps) => {
   const { buildingField } = use(BuildingFieldContext);
   const { bookmarks, updateBookmark } = useBookmarks();
 
-  const buildingId = buildingField!.buildingId;
+  const { buildingId } = buildingField!;
 
   const isSelected = bookmarks[buildingId] === tab;
 

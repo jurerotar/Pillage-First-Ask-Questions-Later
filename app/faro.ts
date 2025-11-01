@@ -8,7 +8,6 @@ export const initFaro = async () => {
   if (
     typeof window === 'undefined' ||
     env.MODE === 'development' ||
-    env.VITE_FARO_INGEST_ENDPOINT === undefined ||
     env.BRANCH_ENV !== 'master' ||
     instance
   ) {

@@ -1,10 +1,8 @@
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import type {
-  ArtifactEffect,
   HeroEffect,
   ServerEffect,
   VillageBuildingEffect,
-  VillageEffect,
 } from 'app/interfaces/models/game/effect';
 
 const villageId = villageMock.id;
@@ -15,7 +13,7 @@ export const woodProductionBaseEffectMock: VillageBuildingEffect = {
   source: 'building',
   value: 100,
   id: 'woodProduction',
-  buildingFieldId: 1,
+  sourceSpecifier: 1,
   buildingId: 'WOODCUTTER',
   type: 'base',
 };
@@ -26,7 +24,7 @@ export const woodProductionBonusEffectMock: VillageBuildingEffect = {
   source: 'building',
   value: 1.25,
   id: 'woodProduction',
-  buildingFieldId: 30,
+  sourceSpecifier: 30,
   buildingId: 'SAWMILL',
   type: 'bonus',
 };
@@ -37,7 +35,7 @@ export const woodProductionBonusBoosterEffectMock: VillageBuildingEffect = {
   source: 'building',
   value: 2,
   id: 'woodProduction',
-  buildingFieldId: 30,
+  sourceSpecifier: 30,
   buildingId: 'SAWMILL',
   type: 'bonus-booster',
 };
@@ -48,6 +46,7 @@ export const woodProductionServerEffectMock: ServerEffect = {
   source: 'server',
   value: 2,
   type: 'base',
+  sourceSpecifier: null,
 };
 
 export const woodProductionHeroBaseEffectMock: HeroEffect = {
@@ -57,6 +56,7 @@ export const woodProductionHeroBaseEffectMock: HeroEffect = {
   source: 'hero',
   value: 10,
   type: 'base',
+  sourceSpecifier: null,
 };
 
 export const woodProductionHeroBonusEffectMock: HeroEffect = {
@@ -66,6 +66,7 @@ export const woodProductionHeroBonusEffectMock: HeroEffect = {
   source: 'hero',
   value: 2,
   type: 'bonus',
+  sourceSpecifier: null,
 };
 
 export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
@@ -74,7 +75,7 @@ export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
   source: 'building',
   value: 100,
   id: 'wheatProduction',
-  buildingFieldId: 1,
+  sourceSpecifier: 1,
   buildingId: 'WHEAT_FIELD',
   type: 'base',
 };
@@ -85,7 +86,7 @@ export const wheatProductionBonusEffectMock: VillageBuildingEffect = {
   source: 'building',
   value: 1.25,
   id: 'wheatProduction',
-  buildingFieldId: 30,
+  sourceSpecifier: 30,
   buildingId: 'GRAIN_MILL',
   type: 'bonus',
 };
@@ -96,7 +97,7 @@ export const wheatProductionBonusBoosterEffectMock: VillageBuildingEffect = {
   source: 'building',
   value: 2,
   id: 'wheatProduction',
-  buildingFieldId: 30,
+  sourceSpecifier: 30,
   buildingId: 'SAWMILL',
   type: 'bonus-booster',
 };
@@ -108,6 +109,7 @@ export const wheatProductionHeroBaseEffectMock: HeroEffect = {
   source: 'hero',
   value: 10,
   type: 'base',
+  sourceSpecifier: null,
 };
 
 export const wheatProductionHeroBonusEffectMock: HeroEffect = {
@@ -117,25 +119,7 @@ export const wheatProductionHeroBonusEffectMock: HeroEffect = {
   source: 'hero',
   value: 2,
   type: 'bonus',
-};
-
-export const wheatProductionArtifactEffectMock: ArtifactEffect = {
-  id: 'wheatProduction',
-  scope: 'village',
-  source: 'artifact',
-  value: 1.5,
-  villageId: villageMock.id,
-  artifactId: 'EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS',
-  type: 'bonus',
-};
-
-export const wheatConsumptionTroopEffectMock: VillageEffect = {
-  id: 'unitWheatConsumption',
-  scope: 'village',
-  source: 'troops',
-  villageId: villageMock.id,
-  value: 50,
-  type: 'base',
+  sourceSpecifier: null,
 };
 
 export const wheatProductionServerEffectMock: ServerEffect = {
@@ -144,15 +128,5 @@ export const wheatProductionServerEffectMock: ServerEffect = {
   source: 'server',
   value: 2,
   type: 'bonus',
-};
-
-export const wheatProductionNegativeBaseEffectMock: VillageBuildingEffect = {
-  villageId,
-  scope: 'village',
-  source: 'building',
-  value: -100,
-  id: 'wheatProduction',
-  buildingFieldId: 1,
-  buildingId: 'WHEAT_FIELD',
-  type: 'base',
+  sourceSpecifier: null,
 };

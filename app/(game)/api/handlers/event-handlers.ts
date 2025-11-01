@@ -1,179 +1,152 @@
 import type { ApiHandler } from 'app/interfaces/api';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
 import {
-  eventsCacheKey,
-  playersCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import { partition } from 'app/utils/common';
+  eventSchema,
+  parseEvent,
+  parseEvents,
+} from 'app/(game)/api/utils/zod/event-schemas';
+import { z } from 'zod';
 import {
-  isBuildingEvent,
-  isScheduledBuildingEvent,
-  isVillageEvent,
-} from 'app/(game)/guards/event-guards';
+  selectAllVillageEventsByTypeQuery,
+  selectAllVillageEventsQuery,
+  selectEventByIdQuery,
+} from 'app/(game)/api/utils/queries/event-queries';
+import { scheduleNextEvent } from 'app/(game)/api/engine/scheduler';
+import { calculateBuildingCancellationRefundForLevel } from 'app/assets/utils/buildings';
 import {
-  calculateBuildingCancellationRefundForLevel,
-  specialFieldIds,
-} from 'app/assets/utils/buildings';
-import type { Village } from 'app/interfaces/models/game/village';
-import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
-import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
-import type { Player } from 'app/interfaces/models/game/player';
-import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
-import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
-import { PLAYER_ID } from 'app/constants/player';
+  addVillageResourcesAt,
+  demolishBuilding,
+} from 'app/(game)/api/utils/village';
+import { getEventStartTime } from 'app/(game)/api/handlers/utils/events';
 
-export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
-  queryClient,
+const eventListSchema = z.array(eventSchema);
+
+export const getVillageEvents: ApiHandler<'villageId'> = (
+  database,
   { params },
 ) => {
   const { villageId } = params;
 
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
-
-  return events.filter((event) => {
-    if (!isVillageEvent(event)) {
-      return true;
-    }
-
-    return event.villageId === villageId;
+  const rows = database.selectObjects(selectAllVillageEventsQuery, {
+    $village_id: villageId,
   });
+
+  return eventListSchema.parse(rows);
 };
 
-export const getVillageEventsByType: ApiHandler<
-  GameEvent[],
-  'villageId' | 'eventType'
-> = async (queryClient, { params }) => {
+export const getVillageEventsByType: ApiHandler<'villageId' | 'eventType'> = (
+  database,
+  { params },
+) => {
   const { villageId, eventType } = params;
 
-  const events = queryClient.getQueryData<GameEvent[]>([eventsCacheKey])!;
+  const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
+    $village_id: villageId,
+    $type: eventType,
+  });
 
-  return filterEventsByType(events, eventType as GameEventType, villageId);
+  return eventListSchema.parse(rows);
 };
 
 type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
-export const createNewEvents: ApiHandler<
-  void,
-  '',
-  CreateNewEventsBody
-> = async (queryClient, args) => {
+export const createNewEvents: ApiHandler<'', CreateNewEventsBody> = (
+  database,
+  args,
+) => {
   const { body } = args;
 
-  await createClientEvents(queryClient, body);
+  createEvents(database, body);
 };
 
-export const cancelConstructionEvent: ApiHandler<
-  void,
-  'eventId',
-  void
-> = async (queryClient, args) => {
+export const cancelConstructionEvent: ApiHandler<'eventId', void> = (
+  database,
+  args,
+) => {
   const {
     params: { eventId },
   } = args;
 
-  const players = queryClient.getQueryData<Player[]>([playersCacheKey])!;
-  const { tribe } = players.find(({ id }) => id === PLAYER_ID)!;
-
-  queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (prevEvents) => {
-    const cancelledEvent = prevEvents!.find(
-      ({ id }) => eventId === id,
-    ) as GameEvent<'buildingConstruction'>;
-
-    // If there's other building upgrades of same building, we need to cancel them as well
-    const [eventsToRemove, eventsToKeep] = partition(prevEvents!, (event) => {
-      if (!isBuildingEvent(event)) {
-        return false;
-      }
-
-      return (
-        cancelledEvent.villageId === event.villageId &&
-        cancelledEvent.buildingFieldId === event.buildingFieldId &&
-        cancelledEvent.startsAt <= event.startsAt
-      );
+  database.transaction((db) => {
+    const cancelledEventRow = db.selectObject(selectEventByIdQuery, {
+      $event_id: eventId,
     });
 
-    const totalTimeToSubtract = eventsToRemove.reduce((accumulator, event) => {
-      return accumulator + event.duration;
-    }, 0);
+    const cancelledEvent = parseEvent<'buildingLevelChange'>(cancelledEventRow);
 
-    // There's always going to be at least one event, but if there's more, we take the last one, so that we can subtract the right amount
-    const eventToRemove = eventsToRemove.at(
-      -1,
-    ) as GameEvent<'buildingConstruction'>;
+    const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
+      cancelledEvent;
 
-    const {
-      buildingFieldId,
-      buildingId,
-      level,
-      villageId,
-      startsAt,
-      duration,
-    } = eventToRemove;
+    // Delete this event and all future events on the same building fields
+    const cancelledScheduledEvents = db.selectObjects(
+      `
+        DELETE
+        FROM events
+        WHERE village_id = $village_id
+          AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
+          AND resolves_at >= $resolves_at
+        RETURNING
+          JSON_EXTRACT(events.meta, '$.buildingFieldId') AS buildingFieldId,
+          JSON_EXTRACT(events.meta, '$.level') AS level;
+        ;
+      `,
+      {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+        $resolves_at: resolvesAt,
+      },
+    ) as { buildingFieldId: number; level: number }[];
 
-    const buildingEvents = eventsToKeep.filter(isBuildingEvent);
-
-    // Romans effectively have 2 queues, so we only limit ourselves to the relevant one
-    const eligibleEvents =
-      tribe === 'romans'
-        ? buildingEvents.filter((event) => {
-            if (buildingFieldId! <= 18) {
-              return event.buildingFieldId <= 18;
-            }
-
-            return event.buildingFieldId > 18;
-          })
-        : buildingEvents;
-
-    // If we're building a new building, construction takes place immediately, in that case we need to remove the building
-    if (
-      !specialFieldIds.includes(cancelledEvent.buildingFieldId) &&
-      cancelledEvent.level === 1
-    ) {
-      queryClient.setQueryData<Village[]>([villagesCacheKey], (prevData) => {
-        return removeBuildingField(prevData!, cancelledEvent);
-      });
-    }
-
-    // Event can either be scheduled or already in action
-    if (isScheduledBuildingEvent(eventToRemove)) {
-      for (const event of eligibleEvents) {
-        if (event.startsAt + event.duration >= startsAt + duration) {
-          event.duration -= totalTimeToSubtract;
-        }
-      }
-
-      return eventsToKeep;
-    }
-
-    // Event already in motion
-    for (const event of eligibleEvents) {
-      if (event.startsAt + event.duration >= startsAt + duration) {
-        const difference = startsAt + totalTimeToSubtract - Date.now();
-        event.startsAt -= difference;
+    for (const { buildingFieldId, level } of cancelledScheduledEvents) {
+      // If building is currently upgrading to level 1, we need to demolish it
+      if (level === 1) {
+        demolishBuilding(db, villageId, buildingFieldId);
       }
     }
 
-    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
-      buildingId,
-      level,
+    // Remaining building events now need to have their start times adjusted.
+    // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
+    const scheduledConstructionRows = db.selectObjects(
+      selectAllVillageEventsByTypeQuery,
+      {
+        $village_id: villageId,
+        $type: 'buildingScheduledConstruction',
+      },
     );
 
-    addVillageResourcesAt(
-      queryClient,
-      villageId,
-      Date.now(),
-      resourcesToRefund,
+    const scheduledEvents = parseEvents<'buildingScheduledConstruction'>(
+      scheduledConstructionRows,
     );
 
-    return eventsToKeep;
+    for (const event of scheduledEvents) {
+      const startsAt = getEventStartTime(db, event);
+
+      db.exec(
+        `
+          UPDATE events
+          SET starts_at = $starts_at
+          WHERE id = $event_id;
+        `,
+        {
+          $event_id: event.id,
+          $starts_at: startsAt,
+        },
+      );
+    }
+
+    // If event is already ongoing, refund resources
+    if (cancelledEvent.type === 'buildingLevelChange') {
+      const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
+        buildingId,
+        level,
+      );
+
+      addVillageResourcesAt(db, villageId, Date.now(), resourcesToRefund);
+    }
   });
 
-  await scheduleNextEvent(queryClient);
+  scheduleNextEvent(database);
 };

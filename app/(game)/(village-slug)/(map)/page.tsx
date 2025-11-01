@@ -1,7 +1,6 @@
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
-import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
   MapContext,
@@ -11,10 +10,8 @@ import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { Tooltip } from 'app/components/tooltip';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { Point } from 'app/interfaces/models/common';
-import type { Tile as TileType } from 'app/interfaces/models/game/tile';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useLocation } from 'react-router';
 import {
   FixedSizeGrid,
   FixedSizeList,
@@ -23,25 +20,25 @@ import {
 import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Dialog } from 'app/components/ui/dialog';
-import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { TileOverlay } from 'app/(game)/(village-slug)/(map)/components/overlays/tile-overlay';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 
-const MapPage = () => {
+const MapPageContents = () => {
   const [searchParams] = useSearchParams();
   const {
     isOpen: isTileModalOpened,
     openModal,
     toggleModal,
     modalArgs,
-  } = useDialog<TileType | null>();
-  const { contextualMap, getTileByTileId } = useMap();
+  } = useDialog<number>();
+  const { map } = useMap();
   const { height, width } = useWindowSize({ debounceDelay: 150 });
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
@@ -89,23 +86,16 @@ const MapPage = () => {
 
   const fixedGridData = useMemo(() => {
     return {
-      contextualMap,
+      map,
       gridSize,
       mapFilters,
       magnification,
       preferences,
-      onClick: (tile: TileType) => {
-        openModal(tile);
+      onClick: (tileId: number) => {
+        openModal(tileId);
       },
     };
-  }, [
-    contextualMap,
-    mapFilters,
-    gridSize,
-    magnification,
-    openModal,
-    preferences,
-  ]);
+  }, [map, mapFilters, gridSize, magnification, openModal, preferences]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {
@@ -237,16 +227,22 @@ const MapPage = () => {
     ({
       activeAnchor,
     }: Parameters<NonNullable<ReactTooltipProps['render']>>[0]) => {
-      const tileId = activeAnchor?.getAttribute('data-tile-id');
+      const tileIdAttr = activeAnchor?.getAttribute('data-tile-id');
 
-      if (!tileId) {
+      if (!tileIdAttr) {
         return null;
       }
 
-      const tile = getTileByTileId(Number.parseInt(tileId, 10));
-      return <TileTooltip tile={tile} />;
+      const tileId = Number.parseInt(tileIdAttr, 10);
+
+      return (
+        <Suspense fallback={null}>
+          <TileOverlay tileId={tileId}>/</TileOverlay>
+          {/*<TileTooltip tileId={tileId} />*/}
+        </Suspense>
+      );
     },
-    [getTileByTileId],
+    [],
   );
 
   return (
@@ -256,7 +252,7 @@ const MapPage = () => {
         onOpenChange={toggleModal}
       >
         <Suspense fallback={null}>
-          <TileDialog tile={modalArgs.current} />
+          <TileOverlay tileId={modalArgs.current!} />
         </Suspense>
       </Dialog>
       <Tooltip
@@ -329,7 +325,7 @@ const MapPage = () => {
   );
 };
 
-export default ({ params }: Route.ComponentProps) => {
+const MapPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
@@ -340,8 +336,10 @@ export default ({ params }: Route.ComponentProps) => {
     <>
       <title>{title}</title>
       <MapProvider>
-        <MapPage />
+        <MapPageContents />
       </MapProvider>
     </>
   );
 };
+
+export default MapPage;

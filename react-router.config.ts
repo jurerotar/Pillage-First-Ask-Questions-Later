@@ -7,12 +7,15 @@ import {
 
 export default {
   ssr: false,
-  prerender: [
-    '/',
-    '/create-new-server',
-    '/frequently-asked-questions',
-    '/__spa-preload',
-  ],
+  prerender: {
+    unstable_concurrency: 4,
+    paths: [
+      '/',
+      '/create-new-server',
+      '/frequently-asked-questions',
+      '/__spa-preload',
+    ],
+  },
   future: {
     v8_middleware: true,
     unstable_optimizeDeps: true,

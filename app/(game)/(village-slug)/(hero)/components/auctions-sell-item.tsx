@@ -5,9 +5,15 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { Pagination } from 'app/components/ui/pagination';
+import { useAuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-auction-filters';
+import { AuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/auction-filters';
 
 export const AuctionsSellItem = () => {
   const { t } = useTranslation();
+  const auctionFilters = useAuctionFilters();
+  const pagination = usePagination([], 20);
 
   return (
     <Section>
@@ -19,9 +25,13 @@ export const AuctionsSellItem = () => {
           )}
         </Text>
       </SectionContent>
+      <AuctionFilters {...auctionFilters} />
       <Alert variant="warning">
         {t('This page is still under development')}
       </Alert>
+      <div className="flex w-full justify-end">
+        <Pagination {...pagination} />
+      </div>
     </Section>
   );
 };

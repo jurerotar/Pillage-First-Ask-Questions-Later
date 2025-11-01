@@ -9,8 +9,7 @@ import {
 } from 'app/assets/utils/buildings';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
-import { use } from 'react';
-import { startTransition } from 'react';
+import { startTransition, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Text } from 'app/components/text';
@@ -18,7 +17,6 @@ import {
   useBuildingConstructionStatus,
   useBuildingUpgradeStatus,
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -58,10 +56,7 @@ const BuildingCardActionsConstruction = ({
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
-  const { errors } = useBuildingConstructionStatus(
-    buildingId,
-    buildingFieldId!,
-  );
+  const { errors } = useBuildingConstructionStatus(buildingId, buildingFieldId);
 
   return (
     <>
@@ -94,7 +89,7 @@ const BuildingCardActionsUpgrade = ({
 
   const buildingField = getBuildingFieldByBuildingFieldId(
     currentVillage,
-    buildingFieldId!,
+    buildingFieldId,
   );
 
   const { errors } = useBuildingUpgradeStatus(buildingField!);
@@ -121,7 +116,6 @@ export const BuildingActions = () => {
     use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
-  const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
@@ -130,11 +124,11 @@ export const BuildingActions = () => {
   );
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
-    buildingFieldId!,
+    buildingFieldId,
   );
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
     buildingId,
-    buildingFieldId!,
+    buildingFieldId,
   );
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
@@ -149,7 +143,6 @@ export const BuildingActions = () => {
       buildingId,
       tribe,
       currentVillageBuildingEvents,
-      playerVillages,
       currentVillage,
     });
 

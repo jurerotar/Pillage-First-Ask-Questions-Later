@@ -1,14 +1,11 @@
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
-import {
-  MapContext,
-  MAX_MAGNIFICATION,
-  MIN_MAGNIFICATION,
-} from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { Icon } from 'app/components/icon';
 import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
+import { OasisBonusFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-bonus-finder-link';
 
 const MagnificationButton = ({
   direction,
@@ -16,8 +13,13 @@ const MagnificationButton = ({
   direction: 'increase' | 'decrease';
 }) => {
   const { t } = useTranslation();
-  const { magnification, increaseMagnification, decreaseMagnification } =
-    use(MapContext);
+  const {
+    magnification,
+    increaseMagnification,
+    decreaseMagnification,
+    MAX_MAGNIFICATION,
+    MIN_MAGNIFICATION,
+  } = use(MapContext);
 
   const onClick =
     direction === 'increase' ? increaseMagnification : decreaseMagnification;
@@ -204,6 +206,9 @@ export const MapControls = () => {
       <div className="pointer-events-auto flex w-fit flex-col gap-1 sm:gap-2 rounded-md bg-background p-1 md:p-2">
         <MagnificationButton direction="increase" />
         <MagnificationButton direction="decrease" />
+      </div>
+      <div className="pointer-events-auto">
+        <OasisBonusFinderLink />
       </div>
     </div>
   );

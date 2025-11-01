@@ -1,6 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
+import {
+  type Preferences,
+  preferencesSchema,
+} from 'app/interfaces/models/game/preferences';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useTranslation } from 'react-i18next';
@@ -16,11 +19,12 @@ export const usePreferences = () => {
   const { fetcher } = use(ApiContext);
   const { i18n } = useTranslation();
 
-  const { data: preferences } = useSuspenseQuery<Preferences>({
+  const { data: preferences } = useSuspenseQuery({
     queryKey: [preferencesCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Preferences>('/me/preferences');
-      return data;
+      const { data } = await fetcher('/me/preferences');
+
+      return preferencesSchema.parse(data);
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,

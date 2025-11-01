@@ -1,9 +1,7 @@
-import type { QueryClient } from '@tanstack/react-query';
 import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
-import { eventFactory } from 'app/factories/event-factory';
 import {
   checkAndSubtractVillageResources,
   getEventDuration,
@@ -11,75 +9,75 @@ import {
   insertEvents,
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
+import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
 
-const validateAndInsertEvents = async (
-  queryClient: QueryClient,
-  events: GameEvent[],
-) => {
+const validateAndInsertEvents = (database: DbFacade, events: GameEvent[]) => {
   const hasSuccessfullyValidatedAndSubtractedResources =
-    checkAndSubtractVillageResources(queryClient, events);
+    checkAndSubtractVillageResources(database, events);
 
   if (!hasSuccessfullyValidatedAndSubtractedResources) {
     notifyAboutEventCreationFailure(events);
     return;
   }
 
-  insertEvents(queryClient, events);
+  insertEvents(database, events);
 };
 
-type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
-  amount: number;
+type CreateNewEventsArgs<T extends GameEventType> = Omit<
+  GameEvent<T>,
+  'id' | 'startsAt' | 'duration' | 'resolvesAt'
+> & {
+  amount?: number;
 };
 
-export const createClientEvents = async (
-  queryClient: QueryClient,
-  args: CreateNewEventsBody,
+export const createEvents = <T extends GameEventType>(
+  database: DbFacade,
+  args: CreateNewEventsArgs<T>,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
-  const duration = getEventDuration(queryClient, args as unknown as GameEvent);
+  const startsAt = getEventStartTime(database, args as GameEvent<T>);
+  const duration = getEventDuration(database, args as GameEvent<T>);
 
-  const events: GameEvent[] = (() => {
-    const amount = args?.amount ?? 1;
+  const amount = args?.amount ?? 1;
+  const events: GameEvent<T>[] = Array.from({ length: amount });
 
-    if (amount > 1) {
-      const events: GameEvent[] = Array.from({ length: amount });
+  for (let i = 0; i < amount; i += 1) {
+    events[i] = {
+      ...args,
+      startsAt: startsAt + i * duration,
+      duration,
+    } as GameEvent<T>;
+  }
 
-      for (let i = 0; i < amount; i++) {
-        events[i] = eventFactory({
-          ...args,
-          startsAt: startsAt + i * duration,
-          duration,
-        });
-      }
+  const now = Date.now();
+  const newResolvesAt = events.map((e) => e.startsAt + e.duration);
+  const earliestNewResolvesAt = events[0].startsAt + events[0].duration;
 
-      return events;
-    }
+  // read current next event BEFORE we insert, using the same "now" snapshot
+  const currentNext = database.selectObject(
+    `
+      SELECT id, resolves_at as resolvesAt
+      FROM events
+      WHERE resolves_at > $now
+      ORDER BY resolves_at
+      LIMIT 1;
+    `,
+    { $now: now },
+  ) as { id: string; resolvesAt: number } | undefined;
 
-    return [eventFactory({ ...args, startsAt, duration })];
-  })();
+  validateAndInsertEvents(database, events);
 
-  await validateAndInsertEvents(queryClient, events);
-  await scheduleNextEvent(queryClient);
-};
+  // Determine if any created events should already be resolved
+  const createdImmediate = newResolvesAt.some((r) => r <= now);
 
-// This function is used for events created on the server. "createClientEvents" is used for client-sent events.
-export const createEvent = async <T extends GameEventType>(
-  queryClient: QueryClient,
-  args: Omit<GameEvent<T>, 'id' | 'startsAt' | 'duration'>,
-) => {
-  // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(queryClient, args as unknown as GameEvent);
-  const duration = getEventDuration(queryClient, args as unknown as GameEvent);
+  if (createdImmediate) {
+    // immediate -> we want scheduler to process RIGHT AWAY
+    kickSchedulerNow(database);
+  }
 
-  const eventFactoryArgs = {
-    ...args,
-    duration,
-    startsAt,
-  } as Omit<GameEvent<T>, 'id'>;
-
-  const events = [eventFactory<T>(eventFactoryArgs)];
-
-  await validateAndInsertEvents(queryClient, events);
+  // if earliestNewResolvesAt < currentNext.resolvesAt -> kick now:
+  if (!currentNext || earliestNewResolvesAt < currentNext.resolvesAt) {
+    kickSchedulerNow(database);
+  }
 };

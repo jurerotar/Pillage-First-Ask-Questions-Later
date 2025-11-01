@@ -40,7 +40,7 @@ export const GeneralPreferences = () => {
           <div className="flex flex-1 justify-end items-center">
             <Switch
               disabled
-              checked={true}
+              checked
             />
           </div>
         </div>

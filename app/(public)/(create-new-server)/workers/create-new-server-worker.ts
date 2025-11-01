@@ -1,7 +1,5 @@
 import type { Server } from 'app/interfaces/models/game/server';
-import { getRootHandle, writeFileContents } from 'app/utils/opfs';
-import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
-import { dehydrate } from '@tanstack/react-query';
+import { createNewServer } from 'app/(public)/(create-new-server)/workers/utils/create-new-server';
 
 export type CreateServerWorkerPayload = {
   server: Server;
@@ -10,13 +8,28 @@ export type CreateServerWorkerPayload = {
 self.addEventListener(
   'message',
   async (event: MessageEvent<CreateServerWorkerPayload>) => {
+    const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
+
     const { server } = event.data;
 
-    const serverState = await initializeServer(server);
+    const sqlite3 = await sqlite3InitModule();
+    const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+      directory: `/pillage-first-ask-questions-later/${server.slug}`,
+    });
+    const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${server.slug}.sqlite3`);
 
-    const rootHandle = await getRootHandle();
+    opfsDb.exec(`
+      PRAGMA locking_mode=EXCLUSIVE;
+      PRAGMA foreign_keys=OFF;
+      PRAGMA journal_mode=OFF;
+      PRAGMA synchronous=OFF;
+      PRAGMA temp_store=MEMORY;
+      PRAGMA cache_size=-20000;
+    `);
 
-    await writeFileContents(rootHandle, server.slug, dehydrate(serverState));
+    createNewServer(opfsDb, server);
+
+    opfsDb.close();
 
     self.postMessage({ resolved: true });
     self.close();

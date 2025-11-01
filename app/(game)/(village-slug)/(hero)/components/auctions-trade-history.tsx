@@ -5,9 +5,12 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { Pagination } from 'app/components/ui/pagination';
 
 export const AuctionsTradeHistory = () => {
   const { t } = useTranslation();
+  const pagination = usePagination([], 20);
 
   return (
     <Section>
@@ -22,6 +25,9 @@ export const AuctionsTradeHistory = () => {
       <Alert variant="warning">
         {t('This page is still under development')}
       </Alert>
+      <div className="flex w-full justify-end">
+        <Pagination {...pagination} />
+      </div>
     </Section>
   );
 };

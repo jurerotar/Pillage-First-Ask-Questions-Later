@@ -12,7 +12,7 @@ type UpdateMapFiltersArgs = {
 export const useMapFilters = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: mapFilters } = useSuspenseQuery<MapFilters>({
+  const { data: mapFilters } = useSuspenseQuery({
     queryKey: [mapFiltersCacheKey],
     queryFn: async () => {
       const { data } = await fetcher<MapFilters>('/me/map-filters');

@@ -19,6 +19,7 @@ export const createSPAPagesWithPreloads: NonNullable<
     '/game/server-slug/village-slug/quests',
     '/game/server-slug/village-slug/reports',
     '/game/server-slug/village-slug/reports/report-id',
+    '/game/server-slug/village-slug/oasis-bonus-finder',
   ];
 
   const clientDir = resolve('build/client');
@@ -88,20 +89,20 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   )) {
     const svgSpriteName = svgSpriteFile.replace('build/client', '');
 
-    const preRenderedFileUrls = (reactRouterConfig.prerender as string[]).map(
-      (path) => {
+    const preRenderedFileUrls =
+      // @ts-expect-error: This type is dumb af
+      (reactRouterConfig.prerender!.paths as string[]).map((path) => {
         return resolve(clientDir, `.${path}`, 'index.html');
-      },
-    );
+      });
 
     for (const filePath of preRenderedFileUrls) {
-      const content = await readFile(filePath, 'utf-8');
+      const content = await readFile(filePath, 'utf8');
       const updatedContent = content.replaceAll(
         '__SPRITE_URL_PLACEHOLDER__',
         svgSpriteName,
       );
 
-      await writeFile(filePath, updatedContent, 'utf-8');
+      await writeFile(filePath, updatedContent, 'utf8');
     }
   }
 };

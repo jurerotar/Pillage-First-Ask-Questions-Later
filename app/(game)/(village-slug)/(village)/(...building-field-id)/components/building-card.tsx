@@ -11,9 +11,7 @@ import {
 } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
 import { clsx } from 'clsx';
-import type { PropsWithChildren } from 'react';
-import { createContext, use } from 'react';
-import { Fragment } from 'react';
+import { createContext, use, Fragment, type PropsWithChildren } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
@@ -22,7 +20,7 @@ import { formatTime } from 'app/utils/time';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { Icon } from 'app/components/icon';
 import { formatNumber, formatPercentage } from 'app/utils/common';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
@@ -75,7 +73,7 @@ export const BuildingOverview = ({
   const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel } = useBuildingVirtualLevel(
     buildingId,
-    buildingFieldId!,
+    buildingFieldId,
   );
 
   const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(
@@ -132,7 +130,7 @@ export const BuildingCost = () => {
   const { buildingId } = use(BuildingCardContext);
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
     buildingId,
-    buildingFieldId!,
+    buildingFieldId,
   );
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
@@ -264,7 +262,7 @@ export const BuildingBenefits = () => {
   const { building, buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingId, buildingFieldId!);
+    useBuildingVirtualLevel(buildingId, buildingFieldId);
 
   const {
     isMaxLevel,
@@ -383,7 +381,7 @@ export const BuildingBenefits = () => {
             key={effect.effectId}
             effect={effect}
             isMaxLevel={isMaxLevel}
-            buildingFieldId={buildingFieldId!}
+            buildingFieldId={buildingFieldId}
           />
         ))}
       </div>

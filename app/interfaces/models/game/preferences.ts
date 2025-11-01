@@ -1,20 +1,23 @@
-import type { AvailableLocale } from 'app/interfaces/models/locale';
+import { z } from 'zod';
 
-type TimeOfDay = 'day' | 'night';
+export const preferencesColorSchemeSchema = z.enum(['light', 'dark']);
+export const preferencesTimeOfDaySchema = z.enum(['day', 'night']);
+export const preferencesSkinVariantSchema = z.enum(['default']);
+export const preferencesLocaleSchema = z.enum(['en-US']);
 
-type SkinVariant = 'default' | 'snow';
+export const preferencesSchema = z.strictObject({
+  colorScheme: preferencesColorSchemeSchema,
+  locale: preferencesLocaleSchema,
+  timeOfDay: preferencesTimeOfDaySchema,
+  skinVariant: preferencesSkinVariantSchema,
+  isAccessibilityModeEnabled: z.boolean(),
+  isReducedMotionModeEnabled: z.boolean(),
+  shouldShowBuildingNames: z.boolean(),
+  isAutomaticNavigationAfterBuildingLevelChangeEnabled: z.boolean(),
+  isDeveloperModeEnabled: z.boolean(),
+  shouldShowNotificationsOnBuildingUpgradeCompletion: z.boolean(),
+  shouldShowNotificationsOnUnitUpgradeCompletion: z.boolean(),
+  shouldShowNotificationsOnAcademyResearchCompletion: z.boolean(),
+});
 
-export type Preferences = {
-  colorScheme: 'light' | 'dark';
-  locale: AvailableLocale;
-  timeOfDay: TimeOfDay;
-  skinVariant: SkinVariant;
-  isAccessibilityModeEnabled: boolean;
-  isReducedMotionModeEnabled: boolean;
-  shouldShowBuildingNames: boolean;
-  isAutomaticNavigationAfterBuildingLevelChangeEnabled: boolean;
-  isDeveloperModeEnabled: boolean;
-  shouldShowNotificationsOnBuildingUpgradeCompletion: boolean;
-  shouldShowNotificationsOnUnitUpgradeCompletion: boolean;
-  shouldShowNotificationsOnAcademyResearchCompletion: boolean;
-};
+export type Preferences = z.infer<typeof preferencesSchema>;

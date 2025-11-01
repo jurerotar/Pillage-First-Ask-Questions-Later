@@ -1,10 +1,6 @@
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
-import type { ArtifactId } from 'app/interfaces/models/game/hero';
+import type { Village } from 'app/interfaces/models/game/village';
 import type { Building } from 'app/interfaces/models/game/building';
-import type { Tile } from 'app/interfaces/models/game/tile';
+import { z } from 'zod';
 
 export type TroopTrainingDurationEffectId =
   | 'barracksTrainingDuration'
@@ -44,21 +40,30 @@ export type EffectId =
   | ResourceProductionEffectId
   | TroopTrainingDurationEffectId;
 
-export type Effect = {
-  id: EffectId;
-  // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
-  scope: 'global' | 'village' | 'server';
-  value: number;
-  source:
-    | 'hero'
-    | 'oasis'
-    | 'artifact'
-    | 'building'
-    | 'tribe'
-    | 'server'
-    | 'troops';
-  type: 'base' | 'bonus' | 'bonus-booster';
-};
+// 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
+export const effectScopeSchema = z.enum(['global', 'village', 'server']);
+export const effectSourceSchema = z.enum([
+  'hero',
+  'oasis',
+  'artifact',
+  'building',
+  'tribe',
+  'server',
+  'troops',
+]);
+export const effectTypeSchema = z.enum(['base', 'bonus', 'bonus-booster']);
+
+export const effectSchema = z.strictObject({
+  id: z.string() as z.ZodType<EffectId>,
+  value: z.number(),
+  type: effectTypeSchema,
+  scope: effectScopeSchema,
+  source: effectSourceSchema,
+  villageId: z.number().nullable().optional(),
+  sourceSpecifier: z.number().nullable(),
+});
+
+export type Effect = z.infer<typeof effectSchema>;
 
 export type ServerEffect = Omit<Effect, 'scope'> & {
   scope: 'server';
@@ -66,7 +71,7 @@ export type ServerEffect = Omit<Effect, 'scope'> & {
 
 export type GlobalEffect = Omit<Effect, 'scope' | 'source'> & {
   scope: 'global';
-  source: 'hero' | 'tribe' | 'artifact';
+  source: 'hero' | 'tribe' | 'artifact' | 'building';
 };
 
 export type TribalEffect = Omit<GlobalEffect, 'source'> & {
@@ -81,21 +86,17 @@ export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
 
 export type HeroEffect = Omit<VillageEffect, 'source'> & {
   source: 'hero';
-  villageId: Village['id'];
 };
 
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
   source: 'building' | 'oasis';
-  buildingFieldId: BuildingField['id'] | 'hidden';
   buildingId: Building['id'];
 };
 
 export type ArtifactEffect = Omit<VillageEffect, 'source'> & {
   source: 'artifact';
-  artifactId: ArtifactId;
 };
 
 export type OasisEffect = Omit<VillageEffect, 'source'> & {
   source: 'oasis';
-  oasisId: Tile['id'];
 };

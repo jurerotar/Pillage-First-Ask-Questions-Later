@@ -1,6 +1,6 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
@@ -14,7 +14,7 @@ export const VillageBuildingLink = ({
 }: VillageBuildingLinkProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const buildingFields = currentVillage.buildingFields;
+  const { buildingFields } = currentVillage;
 
   const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
 
@@ -28,7 +28,12 @@ export const VillageBuildingLink = ({
         as="span"
         variant="link"
       >
-        <Link to={`${matchingBuildingField.id}`}>{buildingName}</Link>
+        <Link
+          relative="path"
+          to={`../${matchingBuildingField.id}`}
+        >
+          {buildingName}
+        </Link>
       </Text>
     );
   }

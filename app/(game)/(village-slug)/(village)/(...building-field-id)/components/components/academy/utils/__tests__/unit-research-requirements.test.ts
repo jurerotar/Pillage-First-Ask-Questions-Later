@@ -10,7 +10,7 @@ describe('unit-research-requirements', () => {
       'SWORDSMAN',
       villageMock,
     );
-    expect(canResearch).toBe(false);
+    expect(canResearch).toBeFalsy();
   });
 
   test('You should be able to research swordsman with lvl. 3 academy', () => {
@@ -19,6 +19,6 @@ describe('unit-research-requirements', () => {
       buildingFields: [{ buildingId: 'ACADEMY', id: 1, level: 3 }],
     };
     const { canResearch } = assessUnitResearchReadiness('SWORDSMAN', village);
-    expect(canResearch).toBe(true);
+    expect(canResearch).toBeTruthy();
   });
 });

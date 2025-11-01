@@ -1,5 +1,7 @@
-export type Resource = 'wood' | 'clay' | 'iron' | 'wheat';
+import { z } from 'zod';
 
-export type ResourceCombination = 'wood-wheat' | 'clay-wheat' | 'iron-wheat';
+export const resourceSchema = z.enum(['wood', 'clay', 'iron', 'wheat']);
+
+export type Resource = z.infer<typeof resourceSchema>;
 
 export type Resources = Record<Resource, number>;

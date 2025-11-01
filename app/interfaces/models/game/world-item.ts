@@ -1,4 +1,4 @@
-import type { HeroItem } from 'app/interfaces/models/game/hero';
+import type { HeroItem } from 'app/interfaces/models/game/hero-item';
 import type { Tile } from 'app/interfaces/models/game/tile';
 
 export type WorldItem = {

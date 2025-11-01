@@ -30,23 +30,13 @@ export const seededRandomArrayElements = <T>(
   const indices = Array.from({ length: len }, (_, i) => i);
 
   // Partial Fisher-Yates shuffle
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; i += 1) {
     const j = i + Math.floor(prng() * (len - i));
     [indices[i], indices[j]] = [indices[j], indices[i]];
     result.push(array[indices[i]]);
   }
 
   return result;
-};
-
-export const seededShuffleArray = <T>(prng: PRNGFunction, array: T[]): T[] => {
-  const copy = [...array];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(prng() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-
-  return copy;
 };
 
 export const calculateDistanceBetweenPoints = (
@@ -84,8 +74,8 @@ export const truncateToShortForm = (value: number): string => {
     return `${sign}${showDecimal ? truncated : intPart}M`;
   }
 
-  if (absValue >= 1_000) {
-    const raw = absValue / 1_000;
+  if (absValue >= 1000) {
+    const raw = absValue / 1000;
     const truncated = Math.trunc(raw * 10) / 10;
     const intPart = Math.trunc(truncated);
     const showDecimal = intPart < 100;
@@ -98,15 +88,21 @@ export const truncateToShortForm = (value: number): string => {
 
 export const partition = <T>(
   array: T[],
-  callback: (element: T) => boolean,
+  predicate: (element: T) => boolean,
 ): [T[], T[]] => {
-  return array.reduce(
-    (result, element) => {
-      result[callback(element) ? 0 : 1].push(element);
-      return result;
-    },
-    [[] as T[], [] as T[]],
-  );
+  const truthy: T[] = [];
+  const falsy: T[] = [];
+
+  for (let i = 0, len = array.length; i < len; i += 1) {
+    const el = array[i];
+    if (predicate(el)) {
+      truthy.push(el);
+    } else {
+      falsy.push(el);
+    }
+  }
+
+  return [truthy, falsy];
 };
 
 export const formatPercentage = (num: number, isIncreasing = true): string => {

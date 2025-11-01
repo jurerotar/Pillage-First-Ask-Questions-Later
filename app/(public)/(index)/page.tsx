@@ -1,5 +1,5 @@
 import { ServerCard } from 'app/(public)/(index)/components/server-card';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { Text } from 'app/components/text';

@@ -7,9 +7,9 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 export const useReports = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data: reports } = useSuspenseQuery<Report[]>({
+  const { data: reports } = useSuspenseQuery({
     queryKey: [reportsCacheKey],
-    queryFn: async () => {
+    queryFn: () => {
       return [];
       // const { data } = await fetcher<Report[]>('/me/reports');
       // return data;

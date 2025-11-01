@@ -1,32 +1,11 @@
 import { buildingMap } from 'app/assets/buildings';
-import { presetIdToPresetMap } from 'app/assets/npc-village-presets';
 import type {
   Building,
   BuildingEffect,
 } from 'app/interfaces/models/game/building';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
-
-const mergeBuildingFields = (
-  buildingFieldsFromPreset: BuildingField[],
-  buildingFields: BuildingField[],
-): BuildingField[] => {
-  // Create a map from the second array using the 'id' as the key
-  const map = new Map(buildingFields.map((field) => [field.id, field]));
-
-  // Iterate over the first array and add its fields to the map only if not already present
-  for (const field of buildingFieldsFromPreset) {
-    if (!map.has(field.id)) {
-      map.set(field.id, field);
-    }
-  }
-
-  // Return the combined result as an array
-  return Array.from(map.values());
-};
+import type { Village } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 // Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
 export const specialFieldIds: BuildingField['id'][] = [
@@ -35,14 +14,6 @@ export const specialFieldIds: BuildingField['id'][] = [
 
 export const getBuildingDefinition = (buildingId: Building['id']) => {
   return buildingMap.get(buildingId)!;
-};
-
-const getBuildingFieldPresetData = (
-  buildingFieldsPresets: Village['buildingFieldsPresets'],
-): BuildingField[] => {
-  return buildingFieldsPresets.flatMap(
-    (presetId) => presetIdToPresetMap.get(presetId)!,
-  );
 };
 
 export const getBuildingDataForLevel = (
@@ -86,6 +57,23 @@ export const getBuildingDataForLevel = (
   };
 };
 
+export const calculatePopulationDifference = (
+  buildingId: Building['id'],
+  currentLevel: number,
+  nextLevel: number,
+): number => {
+  const { population: currentPopulation } = getBuildingDataForLevel(
+    buildingId,
+    currentLevel,
+  );
+  const { population: nextPopulation } = getBuildingDataForLevel(
+    buildingId,
+    nextLevel,
+  );
+
+  return nextPopulation - currentPopulation;
+};
+
 export const getBuildingFieldByBuildingFieldId = (
   currentVillage: Village,
   buildingFieldId: BuildingField['id'],
@@ -95,30 +83,6 @@ export const getBuildingFieldByBuildingFieldId = (
       ({ id: fieldId }) => buildingFieldId === fieldId,
     ) ?? null
   );
-};
-
-export const calculatePopulationFromBuildingFields = (
-  buildingFields: BuildingField[],
-  buildingFieldsPresets: Village['buildingFieldsPresets'],
-): number => {
-  const presetsFields = getBuildingFieldPresetData(buildingFieldsPresets);
-  const mergedBuildingFields = mergeBuildingFields(
-    presetsFields,
-    buildingFields,
-  );
-
-  let sum = 0;
-
-  for (const { buildingId, level } of mergedBuildingFields) {
-    if (buildingId === null) {
-      continue;
-    }
-
-    const population = calculateTotalPopulationForLevel(buildingId, level);
-    sum += population;
-  }
-
-  return Math.abs(sum);
 };
 
 export type CalculatedCumulativeEffect = {
@@ -208,16 +172,20 @@ export const calculateTotalPopulationForLevel = (
   }
 
   const C = 5 * populationCoefficient + 4;
-  const q = Math.floor(C / 10);
-  const r = C % 10; // 0..9
+  const q = Math.trunc(C / 10);
+  const r = C - q * 10;
 
-  const F = (n: number) => {
-    const K = Math.floor(n / 10);
-    const rem = n - 10 * K;
-    return 5 * K * (K - 1) + K * (rem + 1);
-  };
+  const n1 = r + level;
+  const K1 = Math.trunc(n1 / 10);
+  const rem1 = n1 - K1 * 10;
+  const F1 = 5 * K1 * K1 - 4 * K1 + K1 * rem1;
 
-  const S = F(r + level) - F(r + 1);
+  const n0 = r + 1;
+  const K0 = Math.trunc(n0 / 10);
+  const rem0 = n0 - K0 * 10;
+  const F0 = 5 * K0 * K0 - 4 * K0 + K0 * rem0;
+
+  const S = F1 - F0;
 
   return populationCoefficient + (level - 1) * q + S;
 };

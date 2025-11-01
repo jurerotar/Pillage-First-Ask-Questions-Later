@@ -1,9 +1,6 @@
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import type {
-  ArtifactEffect,
   Effect,
-  HeroEffect,
-  OasisEffect,
   ResourceProductionEffectId,
   VillageBuildingEffect,
 } from 'app/interfaces/models/game/effect';
@@ -28,9 +25,13 @@ import {
   isOasisEffect,
   isServerEffect,
 } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { getItemDefinition } from 'app/assets/utils/items';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { tileIdToCoordinates } from 'app/utils/map';
+import { Link } from 'react-router';
 
 const formatBonus = (number: number): number => {
-  return Math.trunc(number * 10000) / 100;
+  return Math.trunc(number * 10_000) / 100;
 };
 
 const partitionEffectsByType = <T extends Effect>(
@@ -42,15 +43,18 @@ const partitionEffectsByType = <T extends Effect>(
 
   for (const effect of effects) {
     switch (effect.type) {
-      case 'base':
+      case 'base': {
         base.push(effect);
         break;
-      case 'bonus':
+      }
+      case 'bonus': {
         bonus.push(effect);
         break;
-      case 'bonus-booster':
+      }
+      case 'bonus-booster': {
         booster.push(effect);
         break;
+      }
     }
   }
 
@@ -69,6 +73,7 @@ export const ProductionOverview = ({
   effectId,
 }: ResourceBoosterBenefitsProps) => {
   const { t } = useTranslation();
+  const { mapSize } = useServer();
   const { effects } = useEffects();
 
   const relevantEffects = effects.filter(({ id }) => id === effectId);
@@ -93,14 +98,14 @@ export const ProductionOverview = ({
     buildingBonusBoosterEffects,
   ] = partitionEffectsByType<VillageBuildingEffect>(buildingEffects);
   const [heroBaseEffects, heroBonusEffects, heroBonusBoosterEffects] =
-    partitionEffectsByType<HeroEffect>(heroEffects);
+    partitionEffectsByType(heroEffects);
   const [
     artifactBaseEffects,
     artifactBonusEffects,
     artifactBonusBoosterEffects,
-  ] = partitionEffectsByType<ArtifactEffect>(artifactEffects);
+  ] = partitionEffectsByType(artifactEffects);
   const [oasisBaseEffects, oasisBonusEffects, oasisBonusBoosterEffects] =
-    partitionEffectsByType<OasisEffect>(oasisEffects);
+    partitionEffectsByType(oasisEffects);
 
   const summedBuildingBonusEffectValue = sumBonusEffects(buildingBonusEffects);
   const summedBuildingBonusBoosterEffectValue = sumBonusEffects(
@@ -133,31 +138,26 @@ export const ProductionOverview = ({
       };
     });
 
-  const boostedOasisBonusEffects: OasisEffect[] = oasisBonusEffects.map(
-    (effect) => {
-      return {
-        ...effect,
-        value: 1 + (effect.value - 1) * summedOasisBonusBoosterEffectValue,
-      };
-    },
-  );
+  const boostedOasisBonusEffects = oasisBonusEffects.map((effect) => {
+    return {
+      ...effect,
+      value: 1 + (effect.value - 1) * summedOasisBonusBoosterEffectValue,
+    };
+  });
 
-  const boostedArtifactBonusEffects: ArtifactEffect[] =
-    artifactBonusEffects.map((effect) => {
-      return {
-        ...effect,
-        value: 1 + (effect.value - 1) * summedArtifactBonusBoosterEffectValue,
-      };
-    });
+  const boostedArtifactBonusEffects = artifactBonusEffects.map((effect) => {
+    return {
+      ...effect,
+      value: 1 + (effect.value - 1) * summedArtifactBonusBoosterEffectValue,
+    };
+  });
 
-  const boostedHeroBonusEffects: HeroEffect[] = heroBonusEffects.map(
-    (effect) => {
-      return {
-        ...effect,
-        value: 1 + (effect.value - 1) * summedHeroBonusBoosterEffectValue,
-      };
-    },
-  );
+  const boostedHeroBonusEffects = heroBonusEffects.map((effect) => {
+    return {
+      ...effect,
+      value: 1 + (effect.value - 1) * summedHeroBonusBoosterEffectValue,
+    };
+  });
 
   const baseBuildingEffectsWithServerModifier = buildingBaseEffects.map(
     (effect) => ({
@@ -270,33 +270,40 @@ export const ProductionOverview = ({
                     </TableCell>
                   </TableRow>
                 ))}
-                {boostedArtifactBonusEffects.map(({ value, artifactId }) => (
-                  <TableRow key={artifactId}>
-                    <TableCell>
-                      <Text>{t('Artifact')}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{t(`ITEMS.${artifactId}.NAME`)}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{formatBonus(value - 1)}%</Text>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {boostedOasisBonusEffects.map(({ oasisId, value }) => {
+                {boostedArtifactBonusEffects.map(
+                  ({ value, sourceSpecifier }) => {
+                    const { name } = getItemDefinition(sourceSpecifier!);
+
+                    return (
+                      <TableRow key={sourceSpecifier}>
+                        <TableCell>
+                          <Text>{t('Artifact')}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{t(`ITEMS.${name}.NAME`)}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{formatBonus(value - 1)}%</Text>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  },
+                )}
+                {boostedOasisBonusEffects.map(({ value, sourceSpecifier }) => {
+                  const { x, y } = tileIdToCoordinates(
+                    sourceSpecifier!,
+                    mapSize,
+                  );
                   return (
-                    <TableRow key={oasisId}>
+                    <TableRow key={sourceSpecifier}>
                       <TableCell>
                         <Text>{t('Oasis')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>
-                          {/*<Link*/}
-                          {/*  className="underline"*/}
-                          {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
-                          {/*>*/}
-                          {/*  {x}, {y}*/}
-                          {/*</Link>*/}/
+                        <Text variant="link">
+                          <Link to={`../map?x=${x}&y=${y}`}>
+                            ({x} | {y})
+                          </Link>
                         </Text>
                       </TableCell>
                       <TableCell>
@@ -306,8 +313,8 @@ export const ProductionOverview = ({
                   );
                 })}
                 {boostedBuildingBonusEffects.map(
-                  ({ value, buildingFieldId, buildingId }) => (
-                    <TableRow key={buildingFieldId}>
+                  ({ value, sourceSpecifier, buildingId }) => (
+                    <TableRow key={sourceSpecifier}>
                       <TableCell>
                         <Text>{t('Building')}</Text>
                       </TableCell>
@@ -372,38 +379,45 @@ export const ProductionOverview = ({
                   </TableRow>
                 ))}
                 {baseArtifactsEffectsWithServerModifier.map(
-                  ({ value, artifactId }) => (
-                    <TableRow key={artifactId}>
-                      <TableCell>
-                        <Text>{t('Artifact')}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{t(`ITEMS.${artifactId}.NAME`)}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{value}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>0</Text>
-                      </TableCell>
-                    </TableRow>
-                  ),
+                  ({ value, sourceSpecifier }) => {
+                    const { name } = getItemDefinition(sourceSpecifier!);
+
+                    return (
+                      <TableRow key={sourceSpecifier}>
+                        <TableCell>
+                          <Text>{t('Artifact')}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{t(`ITEMS.${name}.NAME`)}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{value}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>0</Text>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  },
                 )}
                 {baseOasisEffectsWithServerModifier.map(
-                  ({ value, oasisId }) => {
+                  ({ value, sourceSpecifier }) => {
+                    // Source specifier in oasis effects is actually id of the oasis. Ids are calculated from coordinates,
+                    // so we can reverse engineer coordinates without having to manually fetch them
+                    const { x, y } = tileIdToCoordinates(
+                      sourceSpecifier!,
+                      mapSize,
+                    );
                     return (
-                      <TableRow key={oasisId}>
+                      <TableRow key={sourceSpecifier}>
                         <TableCell>
                           <Text>{t('Oasis')}</Text>
                         </TableCell>
                         <TableCell>
-                          <Text>
-                            {/*<Link*/}
-                            {/*  className="underline"*/}
-                            {/*  to={`${mapPath}?x=${x}&y=${y}`}*/}
-                            {/*>*/}
-                            {/*  {x}, {y}*/}
-                            {/*</Link>*/}/
+                          <Text variant="link">
+                            <Link to={`../map?x=${x}&y=${y}`}>
+                              ({x} | {y})
+                            </Link>
                           </Text>
                         </TableCell>
                         <TableCell>
@@ -417,8 +431,8 @@ export const ProductionOverview = ({
                   },
                 )}
                 {baseBuildingEffectsWithServerModifier.map(
-                  ({ value, buildingId, buildingFieldId }, index) => (
-                    <TableRow key={buildingFieldId}>
+                  ({ value, sourceSpecifier, buildingId }, index) => (
+                    <TableRow key={sourceSpecifier}>
                       <TableCell>
                         <Text>{t('Building')}</Text>
                       </TableCell>

@@ -11,7 +11,7 @@ export const useCurrentVillageBuildingEvents = () => {
     return [
       ...currentVillageBuildingLevelChangeEvents,
       ...currentVillageBuildingScheduledConstructionEvents,
-    ].sort((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
+    ].toSorted((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
   }, [
     currentVillageBuildingLevelChangeEvents,
     currentVillageBuildingScheduledConstructionEvents,

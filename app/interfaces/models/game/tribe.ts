@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type Tribe =
   | 'gauls'
   | 'romans'
@@ -8,9 +10,12 @@ export type Tribe =
   | 'nature'
   | 'natars';
 
-export type PlayableTribe =
-  | 'gauls'
-  | 'romans'
-  | 'teutons'
-  | 'egyptians'
-  | 'huns';
+export const tribeSchema = z.enum([
+  'gauls',
+  'romans',
+  'teutons',
+  'egyptians',
+  'huns',
+]);
+
+export type PlayableTribe = z.infer<typeof tribeSchema>;
