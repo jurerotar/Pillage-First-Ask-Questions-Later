@@ -1,6 +1,15 @@
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 
-export const createWorkerFetcher = (worker: Worker) => {
+export type PostMessageTarget = MessagePort;
+
+type WorkerRequestMessage<TArgs> = {
+  type: 'WORKER_MESSAGE';
+  url: string;
+  method: string;
+  body: TArgs | null;
+};
+
+export const createWorkerFetcher = (target: PostMessageTarget) => {
   return async <TData = void, TArgs = unknown>(
     url: string,
     init?: Omit<RequestInit, 'body'> & { body?: TArgs },
@@ -10,19 +19,20 @@ export const createWorkerFetcher = (worker: Worker) => {
     return new Promise((resolve) => {
       port1.addEventListener('message', ({ data }) => {
         port1.close();
-        resolve(data);
+        resolve(data as { data: TData });
       });
       port1.start();
 
-      const message = {
+      const message: WorkerRequestMessage<TArgs> = {
         url,
-        ...init,
+        ...(init as Omit<RequestInit, 'body'>),
         method: init?.method ?? 'GET',
-        body: init?.body ?? null,
+        body: (init?.body as TArgs | undefined) ?? null,
         type: 'WORKER_MESSAGE',
       };
 
-      worker.postMessage(message, [port2]);
+      // Send the request to the shared worker via MessagePort
+      target.postMessage(message, [port2]);
     });
   };
 };

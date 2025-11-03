@@ -216,16 +216,6 @@ const Layout = memo<Route.ComponentProps>(
       ? 'bottom-right'
       : 'top-right';
 
-    useEffect(() => {
-      const { promise, resolve } = Promise.withResolvers();
-
-      navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
-
-      return () => {
-        resolve(null);
-      };
-    }, [serverSlug, sessionId]);
-
     return (
       <QueryClientProvider client={queryClient}>
         <Suspense fallback={<LayoutFallback />}>

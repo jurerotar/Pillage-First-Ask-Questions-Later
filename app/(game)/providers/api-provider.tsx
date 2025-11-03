@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   createWorkerFetcher,
   type Fetcher,
+  type PostMessageTarget,
 } from 'app/(game)/utils/worker-fetch';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -21,7 +22,7 @@ type ApiProviderProps = {
 };
 
 type ApiContextReturn = {
-  apiWorker: Worker;
+  apiWorker: PostMessageTarget;
   fetcher: Fetcher;
 };
 

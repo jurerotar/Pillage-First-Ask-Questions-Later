@@ -22,7 +22,11 @@ export const WorkerCleanupHandler = ({
     }
 
     if (!navigation.location.pathname.includes(serverSlug)) {
-      apiWorker.postMessage({ type: 'WORKER_CLOSE' });
+      apiWorker.postMessage({ type: 'WORKER_DISCONNECT' });
+
+      try {
+        apiWorker.close();
+      } catch {}
     }
   }, [apiWorker, navigation, serverSlug]);
 

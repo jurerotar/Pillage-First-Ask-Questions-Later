@@ -1,16 +1,21 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import ApiWorker from 'app/(game)/api/api-worker?worker&url';
+import ApiSharedWorker from 'app/(game)/api/api-shared-worker?sharedworker&url';
 import type { WorkerInitializationErrorEvent } from 'app/interfaces/api';
 import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import type { Server } from 'app/interfaces/models/game/server';
+import type { PostMessageTarget } from 'app/(game)/utils/worker-fetch';
 
-const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
+const createSharedWorkerTarget = (
+  serverSlug: string,
+): Promise<PostMessageTarget> => {
   return new Promise((resolve, reject) => {
-    const url = new URL(ApiWorker, import.meta.url);
-    url.searchParams.set('server-slug', serverSlug);
-    const worker = new Worker(url.toString(), { type: 'module' });
+    const sharedUrl = new URL(ApiSharedWorker, import.meta.url);
+    sharedUrl.searchParams.set('server-slug', serverSlug);
+    const shared = new SharedWorker(sharedUrl.toString(), { type: 'module' });
+    shared.port.start();
+    const target = shared.port as PostMessageTarget;
 
-    const handleWorkerInitializationMessage = (
+    const handleInit = (
       event: MessageEvent<WorkerInitializationErrorEvent>,
     ) => {
       if (!isNotificationMessageEvent(event)) {
@@ -18,30 +23,25 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
       }
 
       if (event.data.eventKey === 'event:worker-initialization-success') {
-        worker.removeEventListener(
-          'message',
-          handleWorkerInitializationMessage,
-        );
-        resolve(worker);
+        target.removeEventListener('message', handleInit);
+        resolve(target);
+        return;
       }
 
       if (event.data.eventKey === 'event:worker-initialization-error') {
-        worker.removeEventListener(
-          'message',
-          handleWorkerInitializationMessage,
-        );
+        target.removeEventListener('message', handleInit);
         reject(new Error(event.data.error.message));
       }
     };
 
-    worker.addEventListener('message', handleWorkerInitializationMessage);
+    target.addEventListener('message', handleInit);
   });
 };
 
 export const useApiWorker = (serverSlug: Server['slug']) => {
   const { data: apiWorker } = useSuspenseQuery({
     queryKey: ['api-worker', serverSlug],
-    queryFn: () => createWorkerWithReadySignal(serverSlug),
+    queryFn: () => createSharedWorkerTarget(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
     retry: false,

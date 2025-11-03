@@ -21,7 +21,7 @@ takes place only on client's device.
 The app consists of 3 separate logic layers:
 
 - SQLite WASM persisted database
-- API worker
+- API SharedWorker
 - Frontend
 
 ### SQLite WASM persisted database
@@ -34,7 +34,7 @@ indexes are defined separately and are executed after seeding to improve seeding
 ORM) SQL queries. Reason for this is that due to us having no control over which device this app is being run on, we
 have to limit any unnecessary wrappers.
 
-### API worker
+### API SharedWorker
 
 API worker is a worker that implements a RESTful-like API. Its purpose is to act as a typical RESTful API; receiving
 requests and sending responses.
@@ -71,28 +71,29 @@ this fetcher function would simply be browser's native `fetch`. In an offline ve
 ```ts
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 
-export const createWorkerFetcher = (worker: Worker) => {
-  return async <TData, TBody = unknown>(
+export const createWorkerFetcher = (port: MessagePort) => {
+  return async <TData = void, TArgs = unknown>(
     url: string,
-    args?: ApiWorkerMessage<TBody>,
+    init?: Omit<RequestInit, 'body'> & { body?: TArgs },
   ): Promise<{ data: TData }> => {
     const { port1, port2 } = new MessageChannel();
 
     return new Promise((resolve) => {
       port1.addEventListener('message', ({ data }) => {
         port1.close();
-        resolve(data);
+        resolve(data as { data: TData });
       });
       port1.start();
 
-      const message: PostMessage = {
-        url,
-        method: args?.method ?? 'GET',
-        body: args?.body ?? null,
-        params: args?.params ?? null,
-      };
-
-      worker.postMessage(message, [port2]);
+      port.postMessage(
+        {
+          type: 'WORKER_MESSAGE',
+          url,
+          method: init?.method ?? 'GET',
+          body: (init?.body as TArgs | undefined) ?? null,
+        },
+        [port2],
+      );
     });
   };
 };
@@ -130,7 +131,7 @@ source (e.g. actual backend for an online app), without having to touch rest of 
 
 ### Important files
 
-- [`api-worker.ts`](/app/(game)/api/api-worker.ts)
+- [`api-shared-worker.ts`](/app/(game)/api/api-shared-worker.ts)
 - [`api-routes.ts`](/app/(game)/api/api-routes.ts)
 - [`api-provider.tsx`](/app/(game)/providers/api-provider.tsx)
 
