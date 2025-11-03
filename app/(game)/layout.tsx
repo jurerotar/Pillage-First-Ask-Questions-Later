@@ -16,6 +16,7 @@ import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
+import { isSafariOrIOs } from 'app/utils/device';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -212,6 +213,8 @@ const Layout = memo<Route.ComponentProps>(
       }),
     );
 
+    const isUserUsingABrokenBrowser = isSafariOrIOs();
+
     const toasterPosition: ToasterProps['position'] = isWiderThanLg
       ? 'bottom-right'
       : 'top-right';
@@ -232,7 +235,9 @@ const Layout = memo<Route.ComponentProps>(
           <ApiProvider serverSlug={serverSlug}>
             <Outlet />
             <Notifier serverSlug={serverSlug} />
-            <WorkerCleanupHandler serverSlug={serverSlug} />
+            {!isUserUsingABrokenBrowser && (
+              <WorkerCleanupHandler serverSlug={serverSlug} />
+            )}
           </ApiProvider>
         </Suspense>
         <Toaster

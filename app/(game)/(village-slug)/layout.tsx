@@ -59,6 +59,7 @@ import { parseResourcesFromRFC } from 'app/utils/map';
 import { Text } from 'app/components/text';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
+import { isSafariOrIOs } from 'app/utils/device';
 
 type CounterProps = {
   counter?: number;
@@ -411,6 +412,8 @@ const TopNavigation = () => {
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
+  const isUserUsingABrokenBrowser = isSafariOrIOs();
+
   return (
     <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-gradient-to-r from-gray-200 via-white to-gray-200">
       {isWiderThanLg && (
@@ -460,14 +463,32 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/">
-                    <DesktopTopRowItem
-                      aria-label={t('Logout')}
-                      title={t('Logout')}
-                    >
-                      <RxExit className="text-xl text-red-500" />
-                    </DesktopTopRowItem>
-                  </Link>
+                  {isUserUsingABrokenBrowser && (
+                    <a href="/">
+                      <button
+                        type="button"
+                        className="
+                        px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card
+                        flex items-center justify-center
+                        transition-transform active:scale-95 active:shadow-inner
+                      "
+                        aria-label={t('Logout')}
+                        title={t('Logout')}
+                      >
+                        <RxExit className="text-xl text-red-500" />
+                      </button>
+                    </a>
+                  )}
+                  {!isUserUsingABrokenBrowser && (
+                    <Link to="/">
+                      <DesktopTopRowItem
+                        aria-label={t('Logout')}
+                        title={t('Logout')}
+                      >
+                        <RxExit className="text-xl text-red-500" />
+                      </DesktopTopRowItem>
+                    </Link>
+                  )}
                 </li>
               </ul>
             </nav>
@@ -557,6 +578,8 @@ const MobileBottomNavigation = () => {
 
   useCenterHorizontally(container, centeredElement);
 
+  const isUserUsingABrokenBrowser = isSafariOrIOs();
+
   // Basically, fixed header, overflow-x & translate-y do not work together at all.
   // There's always either non-working scroll or elements being cut. The way it works now is that technically, nothing is overflowing with translate,
   // we just have a transparent container and some very hacky gradient to make it look like it works.
@@ -618,13 +641,32 @@ const MobileBottomNavigation = () => {
             </NavigationSideItem>
           </li>
           <li>
-            <NavigationSideItem
-              to="/"
-              aria-label={t('Logout')}
-              title={t('Logout')}
-            >
-              <RxExit className="text-2xl text-red-500" />
-            </NavigationSideItem>
+            {isUserUsingABrokenBrowser && (
+              <a
+                href="/"
+                className={clsx(
+                  'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
+                  'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
+                  'transition-transform active:scale-95 active:shadow-inner',
+                  'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+                )}
+                aria-label={t('Logout')}
+                title={t('Logout')}
+              >
+                <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+                  <RxExit className="text-2xl text-red-500" />
+                </span>
+              </a>
+            )}
+            {!isUserUsingABrokenBrowser && (
+              <NavigationSideItem
+                to="/"
+                aria-label={t('Logout')}
+                title={t('Logout')}
+              >
+                <RxExit className="text-2xl text-red-500" />
+              </NavigationSideItem>
+            )}
           </li>
         </ul>
       </nav>
