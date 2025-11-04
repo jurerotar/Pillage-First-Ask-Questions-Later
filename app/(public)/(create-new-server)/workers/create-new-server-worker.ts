@@ -1,6 +1,8 @@
 import type { Server } from 'app/interfaces/models/game/server';
 import { createNewServer } from 'app/(public)/(create-new-server)/workers/utils/create-new-server';
 
+const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
+
 export type CreateServerWorkerPayload = {
   server: Server;
 };
@@ -8,8 +10,6 @@ export type CreateServerWorkerPayload = {
 self.addEventListener(
   'message',
   async (event: MessageEvent<CreateServerWorkerPayload>) => {
-    const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
-
     const { server } = event.data;
 
     const sqlite3 = await sqlite3InitModule();
