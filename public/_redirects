@@ -1,10 +1,15 @@
+# === Redirects ===
+/create-new-server                /create-new-game-world                    301
+
 # === Pre-rendered static pages ===
 /                                 /index.html                               200
-/create-new-server                /create-new-server/index.html             200
+/my-game-worlds                   /my-game-worlds/index.html                200
+/create-new-game-world            /create-new-game-world/index.html         200
+/get-involved                     /get-involved/index.html                  200
 /frequently-asked-questions       /frequently-asked-questions/index.html    200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
-/game/:splat/:splat/resources                        /game/server-slug/village-slug/resources/index.html                         200
+/game/:splat/:splat/resources                       /game/server-slug/village-slug/resources/index.html                        200
 /game/:splat/:splat/village                         /game/server-slug/village-slug/village/index.html                          200
 /game/:splat/:splat/map                             /game/server-slug/village-slug/map/index.html                              200
 /game/:splat/:splat/resources/:splat                /game/server-slug/village-slug/resources/building-field-id/index.html      200

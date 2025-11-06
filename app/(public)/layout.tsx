@@ -1,96 +1,298 @@
-import { Link, Outlet } from 'react-router';
+import { Link, Outlet, useLocation } from 'react-router';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { Tooltip } from 'app/components/tooltip';
 import { env } from 'app/env';
 import { Text } from 'app/components/text';
+import { HiOutlineMenu } from 'react-icons/hi';
+import { useDialog } from 'app/hooks/use-dialog';
+import { Activity, useEffect } from 'react';
+import { IoCloseOutline } from 'react-icons/io5';
+import { IoCreate } from 'react-icons/io5';
+import { IoIosChatbubbles } from 'react-icons/io';
+import { BiWorld } from 'react-icons/bi';
+import { GrHelpBook } from 'react-icons/gr';
+import { PiHandshakeBold } from 'react-icons/pi';
+import { Button } from 'app/components/ui/button';
+
+const DesktopHeader = () => {
+  return null;
+};
+
+const MobileHeader = () => {
+  const { key } = useLocation();
+  const { isOpen, openModal, closeModal } = useDialog();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Key is expected
+  useEffect(() => {
+    closeModal();
+  }, [key, closeModal]);
+
+  return (
+    <header className="block lg:hidden container mx-auto my-2">
+      <div className="mx-2 p-2 flex justify-between items-center shadow-2xl rounded-lg">
+        <Link to="/">
+          <img
+            alt="Pillage First! logo"
+            width="200"
+            src="/pillage-first-logo-horizontal.svg"
+          />
+        </Link>
+        <div className="flex items-center">
+          <button
+            className="p-2 bg-gray-100 rounded-md transition-transform active:scale-95 active:shadow-inner"
+            type="button"
+            aria-label="Menu"
+            onClick={openModal}
+          >
+            <HiOutlineMenu className="text-xl" />
+          </button>
+          <Activity mode={isOpen ? 'visible' : 'hidden'}>
+            <div className="fixed inset-0 z-50 bg-black/50">
+              <div className="m-2 bg-white rounded-lg h-[calc(100%-1rem)] p-4">
+                <div className="relative flex flex-col gap-2 w-full h-full">
+                  <button
+                    className="absolute -top-2 -right-2 p-2 bg-gray-100 rounded-md transition-transform active:scale-95 active:shadow-inner"
+                    type="button"
+                    aria-label="Menu"
+                    onClick={closeModal}
+                  >
+                    <IoCloseOutline className="text-xl" />
+                  </button>
+                  <Link to="/">
+                    <img
+                      alt="Pillage First! logo"
+                      width="220"
+                      src="/pillage-first-logo-horizontal.svg"
+                    />
+                  </Link>
+
+                  <div className="border border-dashed border-border w-full" />
+                  <div className="flex flex-col gap-2">
+                    <Text className="text-2xs font-semibold uppercase text-gray-400">
+                      Game
+                    </Text>
+                    <ul className="flex flex-col gap-2">
+                      <li>
+                        <Link
+                          className="inline-flex gap-2 items-center"
+                          to="/my-game-worlds"
+                        >
+                          <BiWorld className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            My game worlds
+                          </Text>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          className="inline-flex gap-2 items-center"
+                          to="/create-new-game-worlds"
+                        >
+                          <IoCreate className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            Create a new game world
+                          </Text>
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="border border-dashed border-border w-full" />
+                  <div className="flex flex-col gap-2">
+                    <Text className="text-2xs font-semibold uppercase text-gray-400">
+                      Resources
+                    </Text>
+                    <ul className="flex flex-col gap-2">
+                      <li>
+                        <Link
+                          className="inline-flex gap-2 items-center"
+                          to="/frequently-asked-questions"
+                        >
+                          <IoIosChatbubbles className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            Frequently asked questions
+                          </Text>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          className="inline-flex gap-2 items-center"
+                          to="/get-involved"
+                        >
+                          <PiHandshakeBold className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            Get involved
+                          </Text>
+                        </Link>
+                      </li>
+                      <li>
+                        <span className="inline-flex gap-2 items-center">
+                          <GrHelpBook className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            Wiki (coming soon)
+                          </Text>
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="border border-dashed border-border w-full" />
+                  <div className="flex flex-col gap-2">
+                    <Text className="text-2xs font-semibold uppercase text-gray-400">
+                      Social
+                    </Text>
+                    <ul className="flex flex-col gap-2">
+                      <li>
+                        <a
+                          href="https://discord.gg/Ep7NKVXUZA"
+                          rel="noopener"
+                          className="inline-flex gap-2 items-center"
+                        >
+                          <FaDiscord className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            Discord
+                          </Text>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                          className="inline-flex gap-2 items-center"
+                        >
+                          <FaGithub className="text-gray-400 text-lg" />
+                          <Text className="font-medium text-gray-800">
+                            GitHub
+                          </Text>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="flex flex-1" />
+                  <div className="border border-dashed border-border w-full" />
+                  <div className="flex justify-center gap-2">
+                    <Link to="/create-new-game-worlds">
+                      <Button>Try now</Button>
+                    </Link>
+                    <Link to="/my-game-worlds">
+                      <Button variant="outline">Existing game worlds</Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Activity>
+        </div>
+      </div>
+    </header>
+  );
+};
 
 const PublicLayout = () => {
   return (
     <>
-      <header className="">
-        <div className="container mx-auto p-2 flex justify-between">
-          <div className="" />
-          <div className="flex gap-2">
-            <a
-              href="https://discord.gg/Ep7NKVXUZA"
-              rel="noopener"
-              className="flex items-center justify-center size-10 md:size-auto gap-2 rounded-full bg-[#7289da] shadow-md p-2 md:px-4"
-            >
-              <FaDiscord className="text-2xl md:text-3xl text-white" />
-              <span className="hidden md:flex font-semibold text-white">
-                Discord
-              </span>
-            </a>
-            <a
-              href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              className="flex items-center justify-center size-10 md:size-auto gap-2 rounded-full bg-[#24292e] shadow-md p-2 md:px-4"
-            >
-              <FaGithub className="text-2xl md:text-3xl text-white" />
-              <span className="hidden md:flex font-semibold text-white">
-                GitHub
-              </span>
-            </a>
-          </div>
-        </div>
-      </header>
+      <DesktopHeader />
+      <MobileHeader />
       <Tooltip id="public-tooltip" />
       <Outlet />
       <footer className="border-t mt-4">
         <div className="container mx-auto grid gap-4 md:gap-8 py-6 lg:py-10 md:grid-cols-4 px-2">
-          <div className="space-y-2">
-            <a
-              href="/"
-              className="font-semibold"
-            >
-              Pillage First! Ask Questions Later
-            </a>
-            <p className="text-muted-foreground">
+          <div className="flex flex-col gap-2">
+            <Link to="/">
+              <img
+                alt="Pillage First! logo"
+                width="200"
+                src="/pillage-first-logo-horizontal.svg"
+              />
+            </Link>
+            <Text>
               Pillage First! is an open-source, single-player strategy game
-              inspired by Travian.
-            </p>
+              inspired by Travian. Build villages, manage resources, train
+              troops, and wage war in persistent, massive, offline-first game
+              worlds.
+            </Text>
           </div>
 
-          <nav className="space-y-2 hidden md:flex" />
-
-          <nav className="space-y-2">
+          <nav className="flex flex-col gap-2">
             <Text
               as="h3"
-              className="font-medium"
+              className="font-medium uppercase text-xs text-gray-500"
+            >
+              Game
+            </Text>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <Link to="/my-game-worlds">
+                  <Text className="font-medium text-gray-800">
+                    My game worlds
+                  </Text>
+                </Link>
+              </li>
+              <li>
+                <Link to="/create-new-game-world">
+                  <Text className="font-medium text-gray-800">
+                    Create new game world
+                  </Text>
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          <nav className="flex flex-col gap-2">
+            <Text
+              as="h3"
+              className="font-medium uppercase text-xs text-gray-500"
             >
               Resources
             </Text>
-            <Link
-              className="underline"
-              to="frequently-asked-questions"
-            >
-              Frequently asked questions
-            </Link>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <Link to="/frequently-asked-questions">
+                  <Text className="font-medium text-gray-800">
+                    Frequently asked questions
+                  </Text>
+                </Link>
+              </li>
+              <li>
+                <Link to="/get-involved">
+                  <Text className="font-medium text-gray-800">
+                    Get involved
+                  </Text>
+                </Link>
+              </li>
+              <li>
+                <Text className="font-medium text-gray-800">
+                  Wiki (coming soon)
+                </Text>
+              </li>
+            </ul>
           </nav>
 
-          <nav className="space-y-2">
+          <nav className="flex flex-col gap-2">
             <Text
               as="h3"
-              className="font-medium"
+              className="font-medium uppercase text-xs text-gray-500"
             >
               Social
             </Text>
-            <div className="flex gap-2">
-              <a
-                href="https://discord.gg/Ep7NKVXUZA"
-                rel="noopener"
-                className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2 px-4"
-              >
-                <FaDiscord className="text-2xl md:text-3xl text-white" />
-                <span className="flex font-semibold text-white">Discord</span>
-              </a>
-              <a
-                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 px-4"
-              >
-                <FaGithub className="text-2xl md:text-3xl text-white" />
-                <span className="flex font-semibold text-white">GitHub</span>
-              </a>
-            </div>
+            <ul className="flex gap-2">
+              <li>
+                <a
+                  href="https://discord.gg/Ep7NKVXUZA"
+                  rel="noopener"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2 px-4"
+                >
+                  <FaDiscord className="text-2xl md:text-3xl text-white" />
+                  <span className="flex font-semibold text-white">Discord</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 px-4"
+                >
+                  <FaGithub className="text-2xl md:text-3xl text-white" />
+                  <span className="flex font-semibold text-white">GitHub</span>
+                </a>
+              </li>
+            </ul>
           </nav>
         </div>
 

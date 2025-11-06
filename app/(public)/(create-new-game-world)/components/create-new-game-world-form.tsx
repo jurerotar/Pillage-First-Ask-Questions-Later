@@ -23,8 +23,8 @@ import { useAvailableServers } from 'app/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
-import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
-import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
+import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(create-new-game-world)/workers/create-new-game-world-worker';
+import CreateNewGameWorldWorker from 'app/(public)/(create-new-game-world)/workers/create-new-game-world-worker?worker&url';
 import { workerFactory } from 'app/utils/workers';
 import { Text } from 'app/components/text';
 import { Switch } from 'app/components/ui/switch';
@@ -65,7 +65,7 @@ type MutateArgs = {
   server: Server;
 };
 
-export const CreateNewServerForm = () => {
+export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
   const { addServer, deleteServer } = useAvailableServers();
 
@@ -77,9 +77,12 @@ export const CreateNewServerForm = () => {
     isSuccess,
   } = useMutation<void, Error, MutateArgs>({
     mutationFn: async ({ server }) => {
-      await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, {
-        server,
-      });
+      await workerFactory<CreateNewGameWorldWorkerPayload>(
+        CreateNewGameWorldWorker,
+        {
+          server,
+        },
+      );
     },
     onSuccess: async (_, { server }) => {
       addServer({ server });

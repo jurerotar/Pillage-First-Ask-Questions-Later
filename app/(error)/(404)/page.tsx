@@ -20,7 +20,7 @@ const ErrorPage = () => {
         <Link to="/">
           <Button size="fit">Back to homepage</Button>
         </Link>
-        <Link to="/create-new-server">
+        <Link to="/create-new-game-world">
           <Button size="fit">Create new server</Button>
         </Link>
       </div>

@@ -14,7 +14,7 @@ const FrequentlyAskedQuestionsPage = () => {
   return (
     <>
       <title>{title}</title>
-      <main className="flex flex-col gap-4 max-w-3xl mx-auto">
+      <main className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
