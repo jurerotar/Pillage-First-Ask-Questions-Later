@@ -10,7 +10,7 @@ import {
   scheduleNextEvent,
 } from 'app/(game)/api/engine/scheduler';
 
-const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
+const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 
 try {
   const urlParams = new URLSearchParams(self.location.search);

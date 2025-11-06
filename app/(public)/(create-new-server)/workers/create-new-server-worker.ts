@@ -8,7 +8,9 @@ export type CreateServerWorkerPayload = {
 self.addEventListener(
   'message',
   async (event: MessageEvent<CreateServerWorkerPayload>) => {
-    const sqlite3InitModule = (await import('@sqlite.org/sqlite-wasm')).default;
+    const { default: sqlite3InitModule } = await import(
+      '@sqlite.org/sqlite-wasm'
+    );
 
     const { server } = event.data;
 

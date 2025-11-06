@@ -1,4 +1,4 @@
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 
 export type ExportServerWorkerReturn = {
   databaseBuffer: ArrayBuffer;
