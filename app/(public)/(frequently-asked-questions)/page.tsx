@@ -27,12 +27,7 @@ const FrequentlyAskedQuestionsPage = () => {
         <Text as="h1">Frequently asked questions</Text>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              What's the state of the project?
-            </Text>
+            <Text as="h2">What's the state of the project?</Text>
             <Text>
               Project is still pretty heavy in development! It's still missing a
               lot of major features. What's currently available is building
@@ -48,12 +43,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              Is there a project roadmap available?
-            </Text>
+            <Text as="h2">Is there a project roadmap available?</Text>
             <Text>
               Due to the nature of this project (I get work on it only in my
               free time), I'm not willing to commit to any specific timeline for
@@ -80,10 +70,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
+            <Text as="h2">
               Are there game design differences between Travian and Pillage
               First!?
             </Text>
@@ -104,12 +91,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              Why single-player?
-            </Text>
+            <Text as="h2">Why single-player?</Text>
             <Text>
               There are a few key reasons I chose to focus on single-player:
             </Text>
@@ -167,12 +149,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </ul>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              Can this project be converted to multiplayer?
-            </Text>
+            <Text as="h2">Can this project be converted to multiplayer?</Text>
             <Text>
               <b>Yes!</b> This project was actually rebuilt from the ground up
               to make it as compatible as possible with a potential backend
@@ -196,12 +173,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              Does the game continue even if I close the app?
-            </Text>
+            <Text as="h2">Does the game continue even if I close the app?</Text>
             <Text>
               <b>Yes!</b> You're free to close the app at any time and the game
               will pick off right the next time you open it again! Units will
@@ -210,10 +182,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
+            <Text as="h2">
               How does the game continue running if the app is closed?
             </Text>
             <Text>
@@ -232,12 +201,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              Why not stick with the original?
-            </Text>
+            <Text as="h2">Why not stick with the original?</Text>
             <Text>
               While I love Travian, I (and many more like me) just don't have
               the time to commit to it anymore. Pulling all-nighters, finding
@@ -251,12 +215,7 @@ const FrequentlyAskedQuestionsPage = () => {
             </Text>
           </div>
           <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="underline"
-            >
-              Are game worlds stable between new releases?
-            </Text>
+            <Text as="h2">Are game worlds stable between new releases?</Text>
             <Text>
               <b>Sometimes, but most often not.</b> Despite this project being
               developed in my free-time only, we still have a relatively high

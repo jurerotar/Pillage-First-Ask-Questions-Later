@@ -28,7 +28,7 @@ const MobileHeader = () => {
   }, [key, closeModal]);
 
   return (
-    <header className="block lg:hidden container mx-auto my-2">
+    <header className="block lg:hidden container mx-auto mt-2 mb-4">
       <div className="mx-2 p-2 flex justify-between items-center shadow-2xl rounded-lg">
         <Link to="/">
           <img
