@@ -86,7 +86,7 @@ const MobileHeader = () => {
                       <li>
                         <Link
                           className="inline-flex gap-2 items-center"
-                          to="/create-new-game-worlds"
+                          to="/create-new-game-world"
                         >
                           <IoCreate className="text-gray-400 text-lg" />
                           <Text className="font-medium text-gray-800">
@@ -168,7 +168,7 @@ const MobileHeader = () => {
                   <div className="flex flex-1" />
                   <div className="border border-dashed border-border w-full" />
                   <div className="flex justify-center gap-2">
-                    <Link to="/create-new-game-worlds">
+                    <Link to="/create-new-game-world">
                       <Button>Try now</Button>
                     </Link>
                     <Link to="/my-game-worlds">
