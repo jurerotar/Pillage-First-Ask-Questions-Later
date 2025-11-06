@@ -19,7 +19,7 @@ export const createBuildingConstructionEventMock = ({
   const duration = calculateBuildingDurationForLevel(buildingId, level);
 
   return {
-    id: 'id',
+    id: 1,
     type: 'buildingLevelChange',
     villageId: villageMock.id,
     buildingId,

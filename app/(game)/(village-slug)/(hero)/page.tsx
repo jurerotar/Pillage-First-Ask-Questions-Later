@@ -39,7 +39,7 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Hero')}</BreadcrumbItem>

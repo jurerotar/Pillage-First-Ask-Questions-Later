@@ -19,58 +19,117 @@ type OccupiableField = {
   y: number;
 };
 
-const villageSizeToVillageGroupRadiusMap = new Map<VillageSize, number>([
-  ['xxs', 0],
-  ['xs', 0],
-  ['sm', 0],
-  ['md', 3],
-  ['lg', 4],
-  ['xl', 5],
-  ['2xl', 6],
-  ['3xl', 7],
-  ['4xl', 8],
-]);
+/** Fenwick / Binary Indexed Tree for prefix sums */
+class Fenwick {
+  n: number;
+  bit: Float64Array;
+  constructor(arrOrLen: number | number[]) {
+    if (typeof arrOrLen === 'number') {
+      this.n = arrOrLen;
+      this.bit = new Float64Array(this.n + 1);
+    } else {
+      this.n = arrOrLen.length;
+      this.bit = new Float64Array(this.n + 1);
+      for (let i = 0; i < this.n; i += 1) {
+        this.add(i, arrOrLen[i]);
+      }
+    }
+  }
+
+  // add val at index i
+  add(i: number, val: number) {
+    let idx = i + 1;
+    while (idx <= this.n) {
+      this.bit[idx] += val;
+      idx += idx & -idx;
+    }
+  }
+
+  // prefix sum [0..i]
+  sum(i: number) {
+    let idx = i + 1;
+    let s = 0;
+    while (idx > 0) {
+      s += this.bit[idx];
+      idx -= idx & -idx;
+    }
+    return s;
+  }
+
+  total() {
+    return this.sum(this.n - 1);
+  }
+
+  // find the smallest index such that prefix sum > value (value in [0, total) )
+  // returns index in [0, n-1]
+  findByPrefix(value: number) {
+    let idx = 0;
+    let bitMask = 1;
+    // compute the largest power of two <= n
+    while (bitMask << 1 <= this.n) {
+      bitMask <<= 1;
+    }
+    let t = value;
+    for (; bitMask !== 0; bitMask >>= 1) {
+      const next = idx + bitMask;
+      if (next <= this.n && this.bit[next] <= t) {
+        t -= this.bit[next];
+        idx = next;
+      }
+    }
+    // idx is index of largest prefix sum <= value, so result is idx (0-based)
+    return Math.min(this.n - 1, idx); // idx is already 0-based offset representation
+  }
+}
+
+const baseVillageRadius: Record<VillageSize, number> = {
+  xxs: 0,
+  xs: 1,
+  sm: 1,
+  md: 2,
+  lg: 3,
+  xl: 4,
+  '2xl': 5,
+  '3xl': 6,
+  '4xl': 7,
+};
 
 const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
   [
     ['xxs', 0],
     ['xs', 0],
-    ['sm', 0],
-    ['md', 1],
-    ['lg', 2],
-    ['xl', 4],
-    ['2xl', 7],
+    ['sm', 1],
+    ['md', 2],
+    ['lg', 4],
+    ['xl', 7],
+    ['2xl', 9],
     ['3xl', 10],
-    ['4xl', 15],
+    ['4xl', 13],
   ],
 );
-
-const getNthMapValue = (
-  map: Map<`${number}-${number}`, OccupiableField>,
-  n: number,
-): OccupiableField => {
-  let i = 0;
-  for (const value of map.values()) {
-    if (i === n) {
-      return value;
-    }
-    i += 1;
-  }
-  throw new Error('Index out of range');
-};
 
 export const villageSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
-  // Player village
+  const usableRadius = server.configuration.mapSize / 2;
+  const CENTER_BIAS_EXPONENT = 1;
+
+  const normalizedDistanceForTile = (tile: OccupiableField) => {
+    const dist = Math.hypot(tile.x, tile.y);
+    return Math.min(1, dist / usableRadius);
+  };
+
+  // Player village (fixed)
   const playerStartingTileId = database.selectValue(
     'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
   )!;
 
   database.exec({
     sql: `
-      INSERT INTO villages (name, slug, tile_id, player_id)
-      VALUES ($name, $slug, $tile_id, $player_id);
+      INSERT INTO
+        villages (name, slug, tile_id, player_id)
+      VALUES
+        ($name, $slug, $tile_id, $player_id);
     `,
     bind: {
       $name: 'New village',
@@ -80,102 +139,289 @@ export const villageSeeder: Seeder = (database, server): void => {
     },
   });
 
-  // NPC villages
   const playerIds = database.selectValues(
     `
       SELECT id
-      FROM players
-      WHERE id != $player_id
+      FROM
+        players
+      WHERE
+        id != $player_id
     `,
     { $player_id: PLAYER_ID },
   ) as number[];
 
-  // Field [0, 0] is already occupied by the player
   const occupiableFields = database.selectObjects(
     `
       SELECT t.id, t.x, t.y
-      FROM tiles AS t
-             JOIN resource_field_compositions AS rfc
-                  ON t.resource_field_composition_id = rfc.id
-      WHERE t.type = $type
-        AND rfc.resource_field_composition = $composition
-        AND t.x != 0
-        AND t.y != 0;
+      FROM
+        tiles AS t
+      WHERE
+        t.type = 'free'
+        AND NOT (t.x = 0 AND t.y = 0);
     `,
-    { $type: 'free', $composition: '4446' },
+    {},
   ) as OccupiableField[];
 
-  const occupiableFieldMap = new Map<`${number}-${number}`, OccupiableField>(
-    occupiableFields.map((occupiableField) => [
-      `${occupiableField.x}-${occupiableField.y}`,
-      occupiableField,
-    ]),
-  );
+  // keep arrays static for indexing
+  const n = occupiableFields.length;
+  const fields = occupiableFields.slice();
+
+  // precompute weights (static per tile)
+  const weights = new Float64Array(n);
+  for (let i = 0; i < n; i += 1) {
+    const t = fields[i];
+    const norm = normalizedDistanceForTile(t);
+    const w = (1 - norm) ** CENTER_BIAS_EXPONENT;
+    weights[i] = w;
+  }
+
+  // Fenwick for weighted sampling
+  const fenwick = new Fenwick(Array.from(weights));
+
+  // active indices array (for uniform picks) and index->pos map for O(1) removal
+  const activeIndices: number[] = Array.from({ length: n }, (_, i) => i);
+  seededRandomArrayElement(prng, [0]); // just to keep seededRandomArrayElement reference used (safe)
+  // shuffle activeIndices seeded
+  for (let i = activeIndices.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(prng() * (i + 1));
+    const tmp = activeIndices[i];
+    activeIndices[i] = activeIndices[j];
+    activeIndices[j] = tmp;
+  }
+
+  const indexToActivePos = new Int32Array(n).fill(-1);
+  for (let pos = 0; pos < activeIndices.length; pos += 1) {
+    indexToActivePos[activeIndices[pos]] = pos;
+  }
+
+  // coord -> index map
+  const coordToIndex = new Map<string, number>();
+  for (let i = 0; i < n; i += 1) {
+    coordToIndex.set(`${fields[i].x}-${fields[i].y}`, i);
+  }
+
+  const removeIndex = (index: number) => {
+    // If already removed, ignore
+    const pos = indexToActivePos[index];
+    if (pos === -1) {
+      return false;
+    }
+
+    // remove from activeIndices via swap-and-pop
+    const lastPos = activeIndices.length - 1;
+    const lastIndex = activeIndices[lastPos];
+
+    // swap only if not same
+    if (pos !== lastPos) {
+      activeIndices[pos] = lastIndex;
+      indexToActivePos[lastIndex] = pos;
+    }
+    activeIndices.pop();
+    indexToActivePos[index] = -1;
+
+    // set fenwick weight to zero (subtract current weight)
+    const w = weights[index];
+    if (w !== 0) {
+      fenwick.add(index, -w);
+      weights[index] = 0;
+    }
+
+    // remove coord map too
+    coordToIndex.delete(`${fields[index].x}-${fields[index].y}`);
+    return true;
+  };
+
+  const pickRandomActiveIndexAndRemove = (): number | undefined => {
+    if (activeIndices.length === 0) {
+      return undefined;
+    }
+    const pos = seededRandomIntFromInterval(prng, 0, activeIndices.length - 1);
+    const idx = activeIndices[pos];
+    removeIndex(idx);
+    return idx;
+  };
+
+  const pickWeightedAndRemove = (): OccupiableField | undefined => {
+    if (activeIndices.length === 0) {
+      return undefined;
+    }
+
+    const total = fenwick.total();
+    if (!(total > 0)) {
+      // fallback uniform
+      const idx = pickRandomActiveIndexAndRemove();
+      return idx == null ? undefined : fields[idx];
+    }
+
+    const r = prng() * total;
+    // Fenwick.findByPrefix returns index of prefix <= r; small tweak:
+    // We need the first index with cumulative sum > r.
+    // Our findByPrefix returns the largest prefix sum <= r so use +1, and clamp.
+    let idx = fenwick.findByPrefix(r);
+    // if exact boundary we want idx (works). But if findByPrefix returns i where prefix<=r,
+    // we should use next index if prefix == r and r != 0. Safer to just scan a bit forward.
+    // Ensure idx is active; if not (edge cases) fallback to small linear probe.
+    // But most builds return an active index.
+    // If idx is removed, try next active via indexToActivePos checks.
+    if (indexToActivePos[idx] === -1) {
+      // linear probe forward (very small)
+      let probe = idx + 1;
+      while (probe < n && indexToActivePos[probe] === -1) {
+        probe += 1;
+      }
+      if (probe < n) {
+        idx = probe;
+      } else {
+        probe = idx - 1;
+        while (probe >= 0 && indexToActivePos[probe] === -1) {
+          probe -= 1;
+        }
+        if (probe >= 0) {
+          idx = probe;
+        } else {
+          // no active found (shouldn't happen because total > 0) -> uniform fallback
+          const uni = pickRandomActiveIndexAndRemove();
+          return uni == null ? undefined : fields[uni];
+        }
+      }
+    }
+
+    // Now remove chosen index
+    removeIndex(idx);
+    return fields[idx];
+  };
+
+  const computeScaledRadius = (base: number, mapSize: number) => {
+    const scale = Math.max(1, Math.round(mapSize / 200));
+    return Math.max(0, Math.round(base * scale));
+  };
 
   const playerToOccupiedFields: [number, OccupiableField][] = [];
 
-  for (const playerId of playerIds) {
-    // Select a random tile for the main village
-    const startIndex = seededRandomIntFromInterval(
-      prng,
-      0,
-      occupiableFieldMap.size - 1,
-    );
-    const startingTile = getNthMapValue(occupiableFieldMap, startIndex);
+  for (let pIndex = 0; pIndex < playerIds.length; pIndex += 1) {
+    const playerId = playerIds[pIndex];
 
+    if (activeIndices.length === 0) {
+      break;
+    }
+
+    const remainingPlayers = Math.max(1, playerIds.length - pIndex);
+    const remainingTiles = activeIndices.length;
+    const fairCap = Math.max(1, Math.floor(remainingTiles / remainingPlayers));
+
+    const totalVillages = seededRandomIntFromInterval(prng, 1, fairCap);
+
+    // pick main village
+    const startingTile = pickWeightedAndRemove();
+    if (!startingTile) {
+      break;
+    }
     playerToOccupiedFields.push([playerId, startingTile]);
-
-    occupiableFieldMap.delete(`${startingTile.x}-${startingTile.y}`);
 
     const villageSize = getVillageSize(
       server.configuration.mapSize,
       startingTile.x,
       startingTile.y,
     );
+    const baseRadius = baseVillageRadius[villageSize];
+    const radius = computeScaledRadius(
+      baseRadius,
+      server.configuration.mapSize,
+    );
 
-    const radius = villageSizeToVillageGroupRadiusMap.get(villageSize) ?? 0;
-    const extraVillageCount =
+    const maxConfigured =
       villageSizeToAmountOfSupportingVillagesMap.get(villageSize) ?? 0;
+    const desiredExtra =
+      maxConfigured > 0
+        ? seededRandomIntFromInterval(prng, 0, maxConfigured)
+        : 0;
 
-    let assigned = 0;
-    outer: for (let dx = -radius; dx <= radius; dx += 1) {
-      if (assigned === extraVillageCount) {
-        break;
-      }
+    let need = Math.min(
+      desiredExtra,
+      Math.max(0, totalVillages - 1),
+      activeIndices.length,
+    );
 
-      for (let dy = -radius; dy <= radius; dy += 1) {
-        if (assigned === extraVillageCount) {
-          break outer;
-        }
-
-        if (dx === 0 && dy === 0) {
-          continue;
-        }
-
-        const key: `${number}-${number}` = `${startingTile.x}-${startingTile.y}`;
-        const candidateTile = occupiableFieldMap.get(key)!;
-        if (!candidateTile) {
-          continue;
-        }
-
-        playerToOccupiedFields.push([playerId, candidateTile]);
-
-        occupiableFieldMap.delete(key);
-        assigned += 1;
-
-        if (assigned === extraVillageCount) {
-          break outer;
+    // neighbors: use coordToIndex + removeIndex for O(1) removal
+    if (radius > 0 && need > 0) {
+      const offsets: [number, number][] = [];
+      for (let dx = -radius; dx <= radius; dx += 1) {
+        for (let dy = -radius; dy <= radius; dy += 1) {
+          if (dx === 0 && dy === 0) {
+            continue;
+          }
+          offsets.push([dx, dy]);
         }
       }
+      // shuffle offsets seeded
+      for (let i = offsets.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(prng() * (i + 1));
+        const tmp = offsets[i];
+        offsets[i] = offsets[j];
+        offsets[j] = tmp;
+      }
+
+      for (const [dx, dy] of offsets) {
+        if (need === 0) {
+          break;
+        }
+        const nx = startingTile.x + dx;
+        const ny = startingTile.y + dy;
+        const key = `${nx}-${ny}`;
+        if (!coordToIndex.has(key)) {
+          continue;
+        }
+        const idx = coordToIndex.get(key)!;
+        // claim it
+        removeIndex(idx);
+        playerToOccupiedFields.push([playerId, fields[idx]]);
+        need -= 1;
+      }
+    }
+
+    const minDistanceForFallback = Math.max(3, radius + 1);
+    while (need > 0 && activeIndices.length > 0) {
+      // attempt to find a random distant candidate (up to attempts)
+      let candidateIdx = -1;
+      const attempts = Math.min(5, activeIndices.length);
+      for (let a = 0; a < attempts; a += 1) {
+        const pos = seededRandomIntFromInterval(
+          prng,
+          0,
+          activeIndices.length - 1,
+        );
+        const idx = activeIndices[pos];
+        const c = fields[idx];
+        const dx = c.x - startingTile.x;
+        const dy = c.y - startingTile.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= minDistanceForFallback * minDistanceForFallback) {
+          candidateIdx = idx;
+          break;
+        }
+      }
+
+      if (candidateIdx === -1) {
+        // fallback to uniform random
+        const idx = pickRandomActiveIndexAndRemove();
+        if (idx == null) {
+          break;
+        }
+        playerToOccupiedFields.push([playerId, fields[idx]]);
+      } else {
+        // claim candidate
+        removeIndex(candidateIdx);
+        playerToOccupiedFields.push([playerId, fields[candidateIdx]]);
+      }
+      need -= 1;
     }
   }
 
+  // convert to rows & insert
   const rows = playerToOccupiedFields.map(([playerId, { id: tileId }]) => {
     const adjective = seededRandomArrayElement(prng, npcVillageNameAdjectives);
     const noun = seededRandomArrayElement(prng, npcVillageNameNouns);
-
     const name = `${adjective}${noun}`;
-
     return [name, null, tileId, playerId];
   });
 

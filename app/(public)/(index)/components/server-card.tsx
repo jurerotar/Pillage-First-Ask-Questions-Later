@@ -1,12 +1,14 @@
 import { Button } from 'app/components/ui/button';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
-import { FaDownload, FaTrash } from 'react-icons/fa6';
+import { FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
 import { env } from 'app/env';
+import { Badge } from 'app/components/ui/badge';
+import { FaDownload } from 'react-icons/fa';
 
 type ServerCardProps = {
   server: Server;
@@ -50,48 +52,33 @@ export const ServerCard = (props: ServerCardProps) => {
       </div>
       <Text as="h2">{server.name}</Text>
       <div className="flex gap-2 flex-wrap">
+        <Badge variant="successive">{server.configuration.speed}x</Badge>
+        <Badge variant="successive">{server.playerConfiguration.tribe}</Badge>
+        <Badge variant="successive">
+          {server.configuration.mapSize}x{server.configuration.mapSize}
+        </Badge>
+        <Badge variant="successive">v{serverVersion}</Badge>
+      </div>
+      <div className="flex gap-2 flex-wrap">
         <span className="flex gap-2">
           <Text className="font-medium">Seed:</Text>
-          <Text>{server.seed}</Text>
+          <Text>
+            <code>{server.seed}</code>
+          </Text>
         </span>
         <span className="flex gap-2">
           <Text className="font-medium">Age:</Text>
           <Text>{timeSinceCreation}</Text>
         </span>
-        <span className="flex gap-2">
-          <Text className="font-medium">Player name:</Text>
-          <Text>{server.playerConfiguration.name}</Text>
-        </span>
-        <span className="flex gap-2">
-          <Text className="font-medium">Tribe:</Text>
-          <Text>{server.playerConfiguration.tribe}</Text>
-        </span>
-        <span className="flex gap-2">
-          <Text className="font-medium">World size:</Text>
-          <Text>
-            {server.configuration.mapSize}x{server.configuration.mapSize}
-          </Text>
-        </span>
-        <span className="flex gap-2">
-          <Text className="font-medium">Speed:</Text>
-          <Text>{server.configuration.speed}x</Text>
-        </span>
-        <span className="flex gap-2">
-          <Text className="font-medium">Version:</Text>
-          <Text>{serverVersion}</Text>
-        </span>
       </div>
       {serverVersion !== appVersion && (
-        <Alert variant="warning">
+        <Alert variant="error">
           Your server version is outdated. It may not work with current version
           of the app. In case of error, delete and recreate server.
         </Alert>
       )}
-      <Link
-        className="text-green-600 underline font-semibold"
-        to={`/game/${server.slug}/v-1/resources`}
-      >
-        Enter server
+      <Link to={`/game/${server.slug}/v-1/resources`}>
+        <Button variant="default">Enter server</Button>
       </Link>
     </div>
   );

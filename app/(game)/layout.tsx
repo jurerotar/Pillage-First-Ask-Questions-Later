@@ -16,7 +16,6 @@ import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
-import sqliteWasmUrl from '@sqlite.org/sqlite-wasm?url';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -39,45 +38,134 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
 export const clientMiddleware = [serverExistAndLockMiddleware];
 
 export const ErrorBoundary = () => {
-  const err = useRouteError();
-  const error = err as Error;
+  const routeErr = useRouteError();
+
+  const now = new Date();
+
+  const error = ((): { title: string; message: string; details: string } => {
+    try {
+      if (routeErr instanceof Error) {
+        const stack = routeErr.stack ?? '';
+        const details = JSON.stringify(
+          {
+            type: routeErr.name || 'Error',
+            message: routeErr.message,
+            stack: stack,
+            time: now.toISOString(),
+          },
+          null,
+          2,
+        );
+        return {
+          title: routeErr.name || 'Unexpected Error',
+          message: routeErr.message,
+          details,
+        };
+      }
+
+      const details = JSON.stringify(
+        { value: routeErr, time: now.toISOString() },
+        null,
+        2,
+      );
+      return {
+        title: 'Unknown error',
+        message: 'An unexpected error occurred.',
+        details,
+      };
+    } catch {
+      return {
+        title: 'Error',
+        message: 'An unexpected error occurred.',
+        details: '',
+      };
+    }
+  })();
+
+  const copyDetails = async () => {
+    try {
+      await navigator.clipboard?.writeText(error.details ?? '');
+    } catch {}
+  };
 
   return (
-    <main className="container mx-auto max-w-lg p-2 flex flex-col gap-4">
-      <p>
-        An error has occurred while initializing the game world. The error was
-        logged. You can try to refresh this page. If the error persists after
-        refreshing, please export the game state of this world through the{' '}
-        <Link
-          className="underline"
-          to="/"
-        >
-          home page
-        </Link>{' '}
-        and report the issue in the{' '}
-        <a
-          className="underline"
-          href="https://discord.gg/Ep7NKVXUZA"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          #bugs channel on Discord
-        </a>{' '}
-        or raise a{' '}
-        <a
-          className="underline"
-          href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub issue
-        </a>
-        .
-      </p>
-      <div className="flex flex-col gap-2">
-        <p>Error description:</p>
-        <pre>{error.message}</pre>
+    <main className="container mx-auto max-w-2xl p-4 flex flex-col gap-4">
+      <div className="rounded-md border border-red-300 bg-red-50 p-3 text-red-900">
+        <h1 className="text-lg font-semibold">{error.title}</h1>
+        <p className="mt-1">
+          {error.message ||
+            'An error has occurred while initializing the game world.'}
+        </p>
       </div>
+
+      <p className="text-sm text-muted-foreground">Try these steps:</p>
+      <ul className="list-disc pl-6 space-y-1 text-sm">
+        <li>Refresh this page — transient issues often resolve on reload.</li>
+        <li>
+          If the error persists, export your game state from the{' '}
+          <Link
+            className="underline"
+            to="/"
+          >
+            home page
+          </Link>{' '}
+          and report the issue via:{' '}
+          <a
+            className="underline"
+            href="https://discord.gg/Ep7NKVXUZA"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            #bugs on Discord
+          </a>{' '}
+          or{' '}
+          <a
+            className="underline"
+            href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub Issues
+          </a>
+          .
+        </li>
+      </ul>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+        >
+          Refresh page
+        </button>
+        <Link
+          to="/"
+          className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+        >
+          Go to home
+        </Link>
+        <button
+          type="button"
+          onClick={copyDetails}
+          className="ml-auto inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+          title="Copy technical details to clipboard"
+        >
+          Copy details
+        </button>
+      </div>
+
+      <details
+        open
+        className="rounded-md border bg-white p-3 text-sm"
+      >
+        <summary className="cursor-pointer select-none font-medium">
+          Technical details
+        </summary>
+        <pre className="mt-2 overflow-auto rounded bg-gray-50 p-2 text-xs">
+          {error.details}
+        </pre>
+      </details>
     </main>
   );
 };
@@ -139,29 +227,23 @@ const Layout = memo<Route.ComponentProps>(
     }, [serverSlug, sessionId]);
 
     return (
-      <>
-        <link
-          rel="modulepreload"
-          href={sqliteWasmUrl}
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={<LayoutFallback />}>
+          <ApiProvider serverSlug={serverSlug}>
+            <Outlet />
+            <Notifier serverSlug={serverSlug} />
+            <WorkerCleanupHandler serverSlug={serverSlug} />
+          </ApiProvider>
+        </Suspense>
+        <Toaster
+          position={toasterPosition}
+          closeButton
         />
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={<LayoutFallback />}>
-            <ApiProvider serverSlug={serverSlug}>
-              <Outlet />
-              <Notifier serverSlug={serverSlug} />
-              <WorkerCleanupHandler serverSlug={serverSlug} />
-            </ApiProvider>
-          </Suspense>
-          <Toaster
-            position={toasterPosition}
-            closeButton
-          />
-          <ReactQueryDevtools
-            client={queryClient}
-            initialIsOpen={false}
-          />
-        </QueryClientProvider>
-      </>
+        <ReactQueryDevtools
+          client={queryClient}
+          initialIsOpen={false}
+        />
+      </QueryClientProvider>
     );
   },
   (prev, next) => {

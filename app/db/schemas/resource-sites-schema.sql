@@ -7,9 +7,7 @@ CREATE TABLE resource_sites
   wheat INTEGER NOT NULL,
   updated_at REAL NOT NULL,
 
-  CHECK (wood >= 0 AND clay >= 0 AND iron >= 0 AND wheat >= 0),
-
   FOREIGN KEY (tile_id) REFERENCES tiles (id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
-) STRICT;
+) STRICT, WITHOUT ROWID;

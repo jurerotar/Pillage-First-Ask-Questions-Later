@@ -28,6 +28,7 @@ export type DbFacade = {
   ) => ReturnType<Database['selectObjects']>;
   prepare: (sql: string) => ReturnType<Database['prepare']>;
   transaction: (callback: (db: DbFacade) => void) => void;
+  close: () => void;
 };
 
 export const createDbFacade = (database: Database, debug = false): DbFacade => {
@@ -215,6 +216,13 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
         console.log(
           `DbFacade.transaction — full callback took ${(t1 - t0).toFixed(3)} ms`,
         );
+      }
+    },
+
+    close: (): void => {
+      for (const [key, stmt] of preparedStatementCache) {
+        stmt.finalize();
+        preparedStatementCache.delete(key);
       }
     },
   };

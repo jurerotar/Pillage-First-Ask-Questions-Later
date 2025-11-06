@@ -50,7 +50,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Village overview')}</BreadcrumbItem>

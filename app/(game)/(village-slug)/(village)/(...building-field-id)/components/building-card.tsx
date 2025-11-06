@@ -56,14 +56,18 @@ export const BuildingCard = ({
     <BuildingCardContext
       value={{ buildingId, building, buildingConstructionReadinessAssessment }}
     >
-      <article className="flex flex-col gap-2 p-2 border border-border">
-        {children}
-      </article>
+      <article className="flex flex-col gap-2">{children}</article>
     </BuildingCardContext>
   );
 };
 
-export const BuildingOverview = () => {
+type BuildingOverviewProps = {
+  shouldShowTitle?: boolean;
+};
+
+export const BuildingOverview = ({
+  shouldShowTitle = true,
+}: BuildingOverviewProps) => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
@@ -79,12 +83,14 @@ export const BuildingOverview = () => {
 
   return (
     <section data-testid="building-overview-title-section">
-      <Text
-        as="h2"
-        className="inline-flex"
-      >
-        {t(`BUILDINGS.${building.id}.NAME`)}
-      </Text>
+      {shouldShowTitle && (
+        <Text
+          as="h2"
+          className="inline-flex"
+        >
+          {t(`BUILDINGS.${building.id}.NAME`)}
+        </Text>
+      )}
       <div
         data-testid="building-overview-building-image"
         className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"

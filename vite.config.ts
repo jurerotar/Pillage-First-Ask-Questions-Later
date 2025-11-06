@@ -47,10 +47,7 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
-    reactIconsSprite({
-      spriteUrlVersion: graphicsVersion,
-      fileName: 'assets/react-icons-sprite.svg',
-    }),
+    reactIconsSprite({ fileName: 'assets/react-icons-sprite.svg' }),
     // !isInTestMode &&
     //   babel({
     //     filter: /\.tsx?$/,
@@ -88,17 +85,6 @@ const viteConfig = defineViteConfig({
           `import debounce from 'lodash.debounce';`,
           `import { debounce } from 'moderndash';`,
         );
-      },
-    },
-    // TODO: This should be set in server.headers, but for some reason, it does not work for html requests when set there
-    {
-      name: 'html-coop-coep-headers',
-      configureServer(server) {
-        server.middlewares.use((_, res, next) => {
-          res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-          next();
-        });
       },
     },
     // visualizer({ open: true }) as PluginOption,

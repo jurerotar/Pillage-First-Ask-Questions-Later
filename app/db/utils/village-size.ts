@@ -2,23 +2,28 @@ import type { VillageSize } from 'app/interfaces/models/game/village';
 
 const buildVillageSizeLookup = (): VillageSize[] => {
   const bands: VillageSize[] = [
-    'xxs', // 0–9
-    'xs', // 10–19
-    'sm', // 20–29
-    'md', // 30–39
-    'lg', // 40–49
-    'xl', // 50–59
-    '2xl', // 60–69
-    '3xl', // 70–79
-    '4xl', // 80–89
-    '4xl', // 90–100 (larger outer band)
+    'xxs',
+    'xs',
+    'sm',
+    'md',
+    'lg',
+    'xl',
+    '2xl',
+    '3xl',
+    '4xl',
   ];
 
-  const result: VillageSize[] = [];
+  const widths = [16, 15, 14, 14, 14, 13, 6, 5, 4];
 
-  for (let i = 0; i <= 100; i += 1) {
-    const bandIndex = Math.min(Math.floor(i / 10), bands.length - 1);
-    result[i] = bands[bandIndex];
+  const result: VillageSize[] = Array.from({ length: 101 });
+
+  let idx = 0;
+  for (let bi = 0; bi < bands.length; bi += 1) {
+    const band = bands[bi];
+    const w = widths[bi];
+    for (let j = 0; j < w; j += 1) {
+      result[idx++] = band;
+    }
   }
 
   return result;
@@ -27,7 +32,7 @@ const buildVillageSizeLookup = (): VillageSize[] => {
 const villageSizeLookup = buildVillageSizeLookup();
 
 const buildLookupTable = (mapSize: number, tableSize = 2048) => {
-  const maxR = mapSize;
+  const maxR = mapSize / 2;
   const maxD2 = maxR * maxR;
   const step = maxD2 / tableSize;
 
@@ -35,7 +40,7 @@ const buildLookupTable = (mapSize: number, tableSize = 2048) => {
   const table = new Uint8Array(tableSize);
   for (let i = 0; i < tableSize; i += 1) {
     const d2 = (i + 0.5) * step;
-    const rel = Math.floor((Math.sqrt(d2) / mapSize) * 100);
+    const rel = Math.floor((Math.sqrt(d2) / maxR) * 100);
     table[i] = Math.min(100, Math.max(0, rel));
   }
   return {

@@ -894,6 +894,7 @@
     "HOSTILE": "Hostile"
   },
   "FACTIONS": {
+    "PLAYER": "/",
     "NPC1": "NPC faction 1",
     "NPC2": "NPC faction 2",
     "NPC3": "NPC faction 3",

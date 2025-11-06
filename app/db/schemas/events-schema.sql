@@ -1,6 +1,6 @@
 CREATE TABLE events
 (
-  id TEXT PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
   type TEXT NOT NULL,
   starts_at INTEGER NOT NULL,
   duration INTEGER NOT NULL,

@@ -11,6 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 
 export const cachesToClearOnResolve = new Map<GameEvent['type'], string[]>([
+  ['__internal__seedOasisOccupiableByTable', []],
   ['buildingDestruction', [playerVillagesCacheKey, effectsCacheKey]],
   [
     'buildingConstruction',

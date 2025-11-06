@@ -21,6 +21,37 @@ export const cancelScheduling = () => {
   }
 };
 
+export const kickSchedulerNow = (database: DbFacade) => {
+  // Always mark so scheduleNextEvent loop knows something changed.
+  markNeedsRescan();
+
+  // If we've been cancelled already, nothing to do.
+  if (shutdownController.signal.aborted) {
+    return;
+  }
+
+  // If a timeout is currently scheduled, clear it so we don't wait for the old firing.
+  if (scheduledTimeout !== null) {
+    try {
+      self.clearTimeout(scheduledTimeout);
+    } catch (_) {
+      // ignore (some runtimes might differ)
+    }
+    scheduledTimeout = null;
+  }
+
+  // Call scheduleNextEvent asynchronously to avoid reentrancy with the caller's DB transaction.
+  // Using setTimeout 0 gives the runtime a tick to let a committed transaction flush.
+  self.setTimeout(() => {
+    // Defensive: do nothing if shutdown happened meanwhile
+    if (shutdownController.signal.aborted) {
+      return;
+    }
+    // scheduleNextEvent has internal guards for schedulingInProgress
+    scheduleNextEvent(database);
+  }, 0);
+};
+
 export const scheduleNextEvent = (database: DbFacade) => {
   // If we've been canceled, bail out immediately.
   if (shutdownController.signal.aborted) {

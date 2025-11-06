@@ -116,7 +116,10 @@ export const createUnitTroopCountQuests = (
     10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
   ];
 
-  const unitsByTribe = getUnitsByTribe(tribe);
+  // Don't create quests for chiefs and settlers
+  const unitsByTribe = getUnitsByTribe(tribe).filter(
+    ({ id }) => !['SETTLER', 'CHIEF'].includes(id),
+  );
 
   return unitsByTribe.flatMap(({ id }) => {
     return troopCounts.flatMap((troopCount) => {

@@ -52,7 +52,7 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from 'app/(game)/api/handlers/statistics-handlers';
-import { getTilesWithBonuses } from 'app/(game)/api/handlers/bonus-finder-handlers';
+import { getTilesWithBonuses } from 'app/(game)/api/handlers/oasis-bonus-finder-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -268,7 +268,7 @@ const bookmarkRoutes = [
 const bonusFinderRoutes = [
   {
     method: 'GET',
-    path: '/villages/:villageId/bonus-finder',
+    path: '/oasis-bonus-finder\\?x=:x&y=:y',
     handler: getTilesWithBonuses,
   },
 ];

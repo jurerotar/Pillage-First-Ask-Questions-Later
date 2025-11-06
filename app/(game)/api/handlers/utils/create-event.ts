@@ -10,7 +10,7 @@ import {
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
-import { markNeedsRescan } from 'app/(game)/api/engine/scheduler-signal';
+import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
 
 const validateAndInsertEvents = (database: DbFacade, events: GameEvent[]) => {
   const hasSuccessfullyValidatedAndSubtractedResources =
@@ -45,24 +45,39 @@ export const createEvents = <T extends GameEventType>(
   for (let i = 0; i < amount; i += 1) {
     events[i] = {
       ...args,
-      id: crypto.randomUUID(),
       startsAt: startsAt + i * duration,
       duration,
     } as GameEvent<T>;
   }
 
+  const now = Date.now();
+  const newResolvesAt = events.map((e) => e.startsAt + e.duration);
+  const earliestNewResolvesAt = events[0].startsAt + events[0].duration;
+
+  // read current next event BEFORE we insert, using the same "now" snapshot
+  const currentNext = database.selectObject(
+    `
+      SELECT id, resolves_at as resolvesAt
+      FROM events
+      WHERE resolves_at > $now
+      ORDER BY resolves_at
+      LIMIT 1;
+    `,
+    { $now: now },
+  ) as { id: string; resolvesAt: number } | undefined;
+
   validateAndInsertEvents(database, events);
 
-  // Return true if any inserted event should resolve immediately (<= now).
-  const now = Date.now();
-  const createdImmediate = events.some((e) => e.startsAt + e.duration <= now);
+  // Determine if any created events should already be resolved
+  const createdImmediate = newResolvesAt.some((r) => r <= now);
 
-  // Signal the scheduler that there are new immediate events. This is synchronous.
-  // The scheduler will pick this up either in its current run (if it's active)
-  // or on its next scan.
   if (createdImmediate) {
-    markNeedsRescan();
+    // immediate -> we want scheduler to process RIGHT AWAY
+    kickSchedulerNow(database);
   }
 
-  return createdImmediate;
+  // if earliestNewResolvesAt < currentNext.resolvesAt -> kick now:
+  if (!currentNext || earliestNewResolvesAt < currentNext.resolvesAt) {
+    kickSchedulerNow(database);
+  }
 };

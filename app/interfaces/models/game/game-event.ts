@@ -6,7 +6,7 @@ import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/e
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type BaseGameEvent = {
-  id: string;
+  id: number;
   type: GameEventType;
   startsAt: number;
   duration: number;
@@ -63,6 +63,7 @@ type TroopMovementEvent = BaseTroopMovementEvent & {
 };
 
 export type GameEventType =
+  | '__internal__seedOasisOccupiableByTable'
   | 'buildingScheduledConstruction'
   | 'buildingConstruction'
   | 'buildingLevelChange'
@@ -74,6 +75,8 @@ export type GameEventType =
   | 'adventurePointIncrease';
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
+  // This is an internal-only event that seeds oasis_occupiable_by table, so we don't have to do it on server creation
+  __internal__seedOasisOccupiableByTable: BaseGameEvent;
   buildingScheduledConstruction: BuildingScheduledConstructionEvent;
   buildingConstruction: BaseBuildingEvent;
   buildingLevelChange: BuildingLevelChangeEvent;

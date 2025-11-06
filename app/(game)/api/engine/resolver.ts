@@ -1,8 +1,6 @@
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { parseEvent } from 'app/(game)/api/utils/zod/event-schemas';
-import { getEventCost } from 'app/(game)/api/handlers/utils/events';
-import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
 
@@ -18,19 +16,11 @@ export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
 
   const event = parseEvent(deletedRow);
 
-  const eventCost = getEventCost(event);
-  if (eventCost.some((cost) => cost > 0)) {
-    updateVillageResourcesAt(
-      database,
-      event.villageId,
-      event.startsAt + event.duration,
-    );
-  }
-
   try {
     const resolver = getGameEventResolver(event.type);
 
-    resolver(database, event satisfies GameEvent);
+    // @ts-expect-error - this is fine, we can't properly type all possible GameEvents
+    resolver(database, event);
 
     self.postMessage({
       eventKey: 'event:worker-event-resolve-success',

@@ -7,7 +7,10 @@ import {
 import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
-import { demolishBuilding } from 'app/(game)/api/utils/village';
+import {
+  demolishBuilding,
+  updateVillageResourcesAt,
+} from 'app/(game)/api/utils/village';
 import { assessBuildingQuestCompletion } from 'app/(game)/api/utils/quests';
 import {
   updateBuildingEffectQuery,
@@ -17,7 +20,14 @@ import {
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
 > = (database, args) => {
-  const { buildingFieldId, level, buildingId, villageId, previousLevel } = args;
+  const {
+    buildingFieldId,
+    level,
+    buildingId,
+    villageId,
+    previousLevel,
+    resolvesAt,
+  } = args;
 
   // Update building level
   database.exec(
@@ -81,8 +91,16 @@ export const buildingLevelChangeResolver: Resolver<
   const isLevelIncreasing = previousLevel < level;
 
   if (isLevelIncreasing) {
-    assessBuildingQuestCompletion(database);
+    assessBuildingQuestCompletion(
+      database,
+      villageId,
+      buildingId,
+      level,
+      resolvesAt,
+    );
   }
+
+  updateVillageResourcesAt(database, villageId, resolvesAt);
 };
 
 export const buildingConstructionResolver: Resolver<
@@ -130,8 +148,6 @@ export const buildingConstructionResolver: Resolver<
     $village_id: villageId,
     $value: population,
   });
-
-  assessBuildingQuestCompletion(database);
 
   createEvents<'buildingLevelChange'>(database, {
     ...args,

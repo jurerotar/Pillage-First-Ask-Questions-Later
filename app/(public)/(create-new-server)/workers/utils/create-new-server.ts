@@ -58,7 +58,7 @@ import { questsSeeder } from 'app/db/seeders/quests-seeder';
 import { resourceFieldCompositionsSeeder } from 'app/db/seeders/resource-field-compositions-seeder';
 import { effectIdsSeeder } from 'app/db/seeders/effect-ids-seeder';
 import { eventsSeeder } from 'app/db/seeders/events-seeder';
-import { oasisOccupiableBySeeder } from 'app/db/seeders/oasis-occupiable-by-seeder';
+import { guaranteedCroppersSeeder } from 'app/db/seeders/guaranteed-croppers-seeder';
 
 export const createNewServer = (database: Database, server: Server): void => {
   database.transaction((db) => {
@@ -124,7 +124,7 @@ export const createNewServer = (database: Database, server: Server): void => {
 
     // Oasis-occupiable-by
     db.exec(createOasisOccupiableByTable);
-    oasisOccupiableBySeeder(db, server);
+    guaranteedCroppersSeeder(database, server);
 
     // Villages
     db.exec(createVillagesTable);
