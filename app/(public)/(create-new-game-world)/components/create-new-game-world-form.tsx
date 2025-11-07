@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { useAvailableServers } from 'app/(public)/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
