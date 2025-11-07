@@ -28,8 +28,8 @@ const MobileHeader = () => {
   }, [key, closeModal]);
 
   return (
-    <header className="block lg:hidden container mx-auto mt-2 mb-4">
-      <div className="mx-2 p-2 flex justify-between items-center shadow-2xl rounded-lg">
+    <header className="block lg:hidden mt-2 mb-4">
+      <div className="mx-2 p-2 flex w-[calc(100%-1rem)] justify-between items-center shadow-2xl rounded-lg">
         <Link to="/">
           <img
             alt="Pillage First! logo"
@@ -47,7 +47,7 @@ const MobileHeader = () => {
             <HiOutlineMenu className="text-xl" />
           </button>
           <Activity mode={isOpen ? 'visible' : 'hidden'}>
-            <div className="fixed inset-0 z-50 bg-black/50">
+            <div className="fixed inset-0 z-50 bg-white/50 backdrop-blur-xs">
               <div className="m-2 bg-white rounded-lg h-[calc(100%-1rem)] p-4">
                 <div className="relative flex flex-col gap-2 w-full h-full">
                   <button
@@ -61,7 +61,7 @@ const MobileHeader = () => {
                   <Link to="/">
                     <img
                       alt="Pillage First! logo"
-                      width="220"
+                      width="200"
                       src="/pillage-first-logo-horizontal.svg"
                     />
                   </Link>
