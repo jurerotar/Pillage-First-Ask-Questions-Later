@@ -80,7 +80,7 @@ backend, enabling a multiplayer experience. Most of the frontend can be complete
 than starting from
 scratch.
 
-If you’re passionate about backend development and want to help bring multiplayer to life — feel free to reach out!
+If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!
 
 ### Are there game design differences between Travian and Pillage First!?
 

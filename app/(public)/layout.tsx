@@ -13,12 +13,16 @@ import { BiWorld } from 'react-icons/bi';
 import { GrHelpBook } from 'react-icons/gr';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Button } from 'app/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 const DesktopHeader = () => {
+  const { t: _t } = useTranslation('public');
+
   return null;
 };
 
 const MobileHeader = () => {
+  const { t } = useTranslation('public');
   const { key } = useLocation();
   const { isOpen, openModal, closeModal } = useDialog();
 
@@ -32,7 +36,7 @@ const MobileHeader = () => {
       <div className="mx-2 p-2 flex w-[calc(100%-1rem)] justify-between items-center shadow-2xl rounded-lg">
         <Link to="/">
           <img
-            alt="Pillage First! logo"
+            alt={t('Pillage First! logo')}
             width="200"
             src="/pillage-first-logo-horizontal.svg"
           />
@@ -60,7 +64,7 @@ const MobileHeader = () => {
                   </button>
                   <Link to="/">
                     <img
-                      alt="Pillage First! logo"
+                      alt={t('Pillage First! logo')}
                       width="200"
                       src="/pillage-first-logo-horizontal.svg"
                     />
@@ -69,7 +73,7 @@ const MobileHeader = () => {
                   <div className="border border-dashed border-border w-full" />
                   <div className="flex flex-col gap-2">
                     <Text className="text-2xs font-semibold uppercase text-gray-400">
-                      Game
+                      {t('Game')}
                     </Text>
                     <ul className="flex flex-col gap-2">
                       <li>
@@ -79,7 +83,7 @@ const MobileHeader = () => {
                         >
                           <BiWorld className="text-gray-400 text-lg" />
                           <Text className="font-medium text-gray-800">
-                            My game worlds
+                            {t('My game worlds')}
                           </Text>
                         </Link>
                       </li>
@@ -90,7 +94,7 @@ const MobileHeader = () => {
                         >
                           <IoCreate className="text-gray-400 text-lg" />
                           <Text className="font-medium text-gray-800">
-                            Create a new game world
+                            {t('Create a new game world')}
                           </Text>
                         </Link>
                       </li>
@@ -99,7 +103,7 @@ const MobileHeader = () => {
                   <div className="border border-dashed border-border w-full" />
                   <div className="flex flex-col gap-2">
                     <Text className="text-2xs font-semibold uppercase text-gray-400">
-                      Resources
+                      {t('Resources')}
                     </Text>
                     <ul className="flex flex-col gap-2">
                       <li>
@@ -109,7 +113,7 @@ const MobileHeader = () => {
                         >
                           <IoIosChatbubbles className="text-gray-400 text-lg" />
                           <Text className="font-medium text-gray-800">
-                            Frequently asked questions
+                            {t('Frequently asked questions')}
                           </Text>
                         </Link>
                       </li>
@@ -120,7 +124,7 @@ const MobileHeader = () => {
                         >
                           <PiHandshakeBold className="text-gray-400 text-lg" />
                           <Text className="font-medium text-gray-800">
-                            Get involved
+                            {t('Get involved')}
                           </Text>
                         </Link>
                       </li>
@@ -128,7 +132,7 @@ const MobileHeader = () => {
                         <span className="inline-flex gap-2 items-center">
                           <GrHelpBook className="text-gray-400 text-lg" />
                           <Text className="font-medium text-gray-800">
-                            Wiki (coming soon)
+                            {t('Wiki (coming soon)')}
                           </Text>
                         </span>
                       </li>
@@ -137,7 +141,7 @@ const MobileHeader = () => {
                   <div className="border border-dashed border-border w-full" />
                   <div className="flex flex-col gap-2">
                     <Text className="text-2xs font-semibold uppercase text-gray-400">
-                      Social
+                      {t('Social')}
                     </Text>
                     <ul className="flex flex-col gap-2">
                       <li>
@@ -169,10 +173,12 @@ const MobileHeader = () => {
                   <div className="border border-dashed border-border w-full" />
                   <div className="flex justify-center gap-2">
                     <Link to="/create-new-game-world">
-                      <Button>Try now</Button>
+                      <Button>{t('Try now')}</Button>
                     </Link>
                     <Link to="/my-game-worlds">
-                      <Button variant="outline">Existing game worlds</Button>
+                      <Button variant="outline">
+                        {t('Existing game worlds')}
+                      </Button>
                     </Link>
                   </div>
                 </div>
@@ -186,6 +192,8 @@ const MobileHeader = () => {
 };
 
 const PublicLayout = () => {
+  const { t } = useTranslation('public');
+
   return (
     <>
       <DesktopHeader />
@@ -203,10 +211,9 @@ const PublicLayout = () => {
               />
             </Link>
             <Text>
-              Pillage First! is an open-source, single-player strategy game
-              inspired by Travian. Build villages, manage resources, train
-              troops, and wage war in persistent, massive, offline-first game
-              worlds.
+              {t(
+                'Pillage First! is an open-source, single-player strategy game inspired by Travian. Build villages, manage resources, train troops, and wage war in persistent, massive, offline-first game worlds.',
+              )}
             </Text>
           </div>
 
@@ -215,20 +222,20 @@ const PublicLayout = () => {
               as="h3"
               className="font-medium uppercase text-xs text-gray-500"
             >
-              Game
+              {t('Game')}
             </Text>
             <ul className="flex flex-col gap-2">
               <li>
                 <Link to="/my-game-worlds">
                   <Text className="font-medium text-gray-800">
-                    My game worlds
+                    {t('My game worlds')}
                   </Text>
                 </Link>
               </li>
               <li>
                 <Link to="/create-new-game-world">
                   <Text className="font-medium text-gray-800">
-                    Create new game world
+                    {t('Create new game world')}
                   </Text>
                 </Link>
               </li>
@@ -240,26 +247,26 @@ const PublicLayout = () => {
               as="h3"
               className="font-medium uppercase text-xs text-gray-500"
             >
-              Resources
+              {t('Resources')}
             </Text>
             <ul className="flex flex-col gap-2">
               <li>
                 <Link to="/frequently-asked-questions">
                   <Text className="font-medium text-gray-800">
-                    Frequently asked questions
+                    {t('Frequently asked questions')}
                   </Text>
                 </Link>
               </li>
               <li>
                 <Link to="/get-involved">
                   <Text className="font-medium text-gray-800">
-                    Get involved
+                    {t('Get involved')}
                   </Text>
                 </Link>
               </li>
               <li>
                 <Text className="font-medium text-gray-800">
-                  Wiki (coming soon)
+                  {t('Wiki (coming soon)')}
                 </Text>
               </li>
             </ul>
@@ -270,7 +277,7 @@ const PublicLayout = () => {
               as="h3"
               className="font-medium uppercase text-xs text-gray-500"
             >
-              Social
+              {t('Social')}
             </Text>
             <ul className="flex gap-2">
               <li>
@@ -299,17 +306,17 @@ const PublicLayout = () => {
         <div className="border-t">
           <div className="container mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
             <p className="text-xs text-muted-foreground">
-              Not affiliated with Travian Games GmbH.
+              {t('Not affiliated with Travian Games GmbH.')}
             </p>
             <div className="flex flex-col gap-2">
               <p className="text-xs text-muted-foreground">
-                App version: {env.VERSION}
+                {t('App version')}: {env.VERSION}
               </p>
               <p className="text-xs text-muted-foreground">
-                Commit ref: {env.COMMIT_REF}
+                {t('Commit ref')}: {env.COMMIT_REF}
               </p>
               <p className="text-xs text-muted-foreground">
-                Branch: {env.HEAD}
+                {t('Branch')}: {env.HEAD}
               </p>
             </div>
           </div>
