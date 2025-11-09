@@ -102,7 +102,20 @@
         "allowExportNames": [
           "clientMiddleware",
           "shouldRevalidate",
-          "clientLoader"
+          "clientLoader",
+          "middleware",
+          "clientMiddleware",
+          "loader",
+          "clientLoader",
+          "action",
+          "clientAction",
+          "ErrorBoundary",
+          "HydrateFallback",
+          "headers",
+          "handle",
+          "links",
+          "meta",
+          "shouldRevalidate"
         ]
       }
     ],
