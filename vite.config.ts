@@ -47,7 +47,6 @@ const manifest: Partial<ManifestOptions> = {
 const viteConfig = defineViteConfig({
   plugins: [
     reactIconsSprite({
-      spriteUrlVersion: graphicsVersion,
       fileName: 'assets/react-icons-sprite.svg',
     }),
     // !isInTestMode &&
