@@ -8,7 +8,7 @@ describe('Building assets', () => {
         const expectedLength = building.maxLevel + 1;
         expect(
           effect.valuesPerLevel,
-          `Effect '${effect.effectId}' in ${building.id} has incorrect length (expected ${expectedLength}, got ${effect.valuesPerLevel})`,
+          `Effect '${effect.effectId}' in ${building.id} has incorrect length (expected ${expectedLength}, got ${effect.valuesPerLevel.toString()})`,
         ).toHaveLength(expectedLength);
       }
     }

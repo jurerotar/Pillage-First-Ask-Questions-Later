@@ -28,7 +28,7 @@ export const BuildingStatsUpgradeCost = () => {
 
   const { buildingId, level } = getBuildingFieldByBuildingFieldId(
     currentVillage,
-    buildingFieldId!,
+    buildingFieldId,
   )!;
   const building = getBuildingDefinition(buildingId);
 

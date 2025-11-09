@@ -8,7 +8,7 @@ export const batchInsert = (
   database: Database,
   table: string,
   columns: readonly string[],
-  rows: ReadonlyArray<SqlValue>[],
+  rows: readonly SqlValue[],
 ): void => {
   if (!rows.length) {
     return;

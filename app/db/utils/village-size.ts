@@ -22,7 +22,8 @@ const buildVillageSizeLookup = (): VillageSize[] => {
     const band = bands[bi];
     const w = widths[bi];
     for (let j = 0; j < w; j += 1) {
-      result[idx++] = band;
+      idx += 1;
+      result[idx] = band;
     }
   }
 

@@ -43,7 +43,7 @@ const eventsListSchema = z.array(eventSchema);
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
   console.error('Following events failed to create', events);
 
-  const event = events[0];
+  const [event] = events;
 
   self.postMessage({
     eventKey: 'event:worker-event-creation-error',

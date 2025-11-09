@@ -71,7 +71,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   }
 
   if (questId.startsWith('killCount')) {
-    const [, cnt] = questId.split('-');
+    const cnt = questId.split('-').at(1)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -83,7 +83,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   }
 
   if (questId.startsWith('unitKillCount')) {
-    const [, , cnt] = questId.split('-');
+    const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -141,7 +141,7 @@ export const getQuestRequirements = (
   }
 
   if (questId.startsWith('unitTroopCount')) {
-    const [, , cnt] = questId.split('-');
+    const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -177,7 +177,7 @@ export const getQuestRequirements = (
   }
 
   if (questId.startsWith('unitKillCount')) {
-    const [, , cnt] = questId.split('-');
+    const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
 
     return [

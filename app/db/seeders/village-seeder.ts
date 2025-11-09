@@ -108,6 +108,11 @@ const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
   ],
 );
 
+const computeScaledRadius = (base: number, mapSize: number) => {
+  const scale = Math.max(1, Math.round(mapSize / 200));
+  return Math.max(0, Math.round(base * scale));
+};
+
 export const villageSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
@@ -289,11 +294,6 @@ export const villageSeeder: Seeder = (database, server): void => {
     // Now remove chosen index
     removeIndex(idx);
     return fields[idx];
-  };
-
-  const computeScaledRadius = (base: number, mapSize: number) => {
-    const scale = Math.max(1, Math.round(mapSize / 200));
-    return Math.max(0, Math.round(base * scale));
   };
 
   const playerToOccupiedFields: [number, OccupiableField][] = [];

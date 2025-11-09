@@ -71,7 +71,7 @@ export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
           {hasEvents && (
             <>
               {batchedArray.slice(0, maxVisible).map(([batchId, events]) => {
-                const earliestEvent = events[0];
+                const [earliestEvent] = events;
                 const latestEvent = events.at(-1)!;
                 const totalDuration =
                   latestEvent.startsAt + latestEvent.duration;

@@ -19,8 +19,7 @@ export const useServer = () => {
   });
 
   const serverId = server.id;
-  const mapSize = server.configuration.mapSize;
-  const serverSpeed = server.configuration.speed;
+  const { mapSize, speed: serverSpeed } = server.configuration;
 
   return {
     server,

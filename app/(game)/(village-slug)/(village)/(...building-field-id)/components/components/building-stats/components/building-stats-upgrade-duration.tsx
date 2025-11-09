@@ -35,7 +35,7 @@ export const BuildingStatsUpgradeDuration = () => {
 
   const { buildingId, level } = getBuildingFieldByBuildingFieldId(
     currentVillage,
-    buildingFieldId!,
+    buildingFieldId,
   )!;
   const building = getBuildingDefinition(buildingId);
 
@@ -66,7 +66,7 @@ export const BuildingStatsUpgradeDuration = () => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {[...Array.from({ length: mainBuildingDefinition.maxLevel })].map(
+            {Array.from({ length: mainBuildingDefinition.maxLevel }).map(
               (_, index) => (
                 <SelectItem
                   // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
