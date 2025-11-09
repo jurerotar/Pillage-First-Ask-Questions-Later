@@ -34,7 +34,7 @@ export const kickSchedulerNow = (database: DbFacade) => {
   if (scheduledTimeout !== null) {
     try {
       self.clearTimeout(scheduledTimeout);
-    } catch (_) {
+    } catch {
       // ignore (some runtimes might differ)
     }
     scheduledTimeout = null;

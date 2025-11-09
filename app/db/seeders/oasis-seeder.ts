@@ -25,7 +25,7 @@ export const oasisSeeder: Seeder = (database, server): void => {
       continue;
     }
 
-    const { oasisResource } = decodeGraphicsProperty(oasis_graphics!);
+    const { oasisResource } = decodeGraphicsProperty(oasis_graphics);
 
     const shouldHaveDoubleBonus = seededRandomIntFromInterval(prng, 1, 2) === 1;
 

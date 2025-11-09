@@ -17,14 +17,14 @@ import {
 } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
 import { getUnitDefinition } from 'app/assets/utils/units';
-import { type Unit, unitIdSchema } from 'app/interfaces/models/game/unit';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
 import { resourceSchema } from 'app/interfaces/models/game/resource';
 
 const heroEffectsFactory = (
   server: Server,
   villageId: number,
 ): HeroEffect[] => {
-  const tribe = server.playerConfiguration.tribe;
+  const { tribe } = server.playerConfiguration;
   const baseResourceProduction = 9;
   const tribalModifier = tribe === 'egyptians' ? 2 : 1;
   const initialSkillPoints = 4;
@@ -294,7 +294,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     let troopWheatConsumption = 0;
 
     for (const { unit_id, amount } of villageTroops!) {
-      const { unitWheatConsumption } = getUnitDefinition(unit_id as Unit['id']);
+      const { unitWheatConsumption } = getUnitDefinition(unit_id);
       troopWheatConsumption += unitWheatConsumption * amount;
     }
 

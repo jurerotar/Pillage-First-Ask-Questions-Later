@@ -41,18 +41,18 @@ export const createSPAPagesWithPreloads: NonNullable<
       `link[data-prefetch-page="${page}"]`,
     ).toArray();
 
-    matchingLinks.forEach((el) => {
+    for (const el of matchingLinks) {
       const $link = $prefetch(el);
       const href = $link.attr('href');
 
       if (!href) {
-        return;
+        continue;
       }
 
       // Skip if a link with the same href already exists in the fallback
       const alreadyExists = $fallback(`link[href="${href}"]`).length > 0;
       if (alreadyExists) {
-        return;
+        continue;
       }
 
       $link.removeAttr('data-prefetch-page');
@@ -63,7 +63,7 @@ export const createSPAPagesWithPreloads: NonNullable<
       }
 
       $fallback('head').append($prefetch.html(el));
-    });
+    }
 
     const outputPath = join(clientDir, page.replace(/^\//, ''), 'index.html');
     await mkdir(dirname(outputPath), { recursive: true });

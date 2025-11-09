@@ -264,7 +264,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
     await refetch();
   };
 
-  const pagination = usePagination(data!, 20, 1);
+  const pagination = usePagination(data, 20, 1);
   const { currentPageItems, page, resultsPerPage } = pagination;
 
   return (
@@ -530,7 +530,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
               {t(
                 'Found a total of {{amount}} tiles that match your criteria.',
                 {
-                  amount: data!.length,
+                  amount: data.length,
                 },
               )}
             </Text>

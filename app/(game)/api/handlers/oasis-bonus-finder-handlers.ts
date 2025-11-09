@@ -178,11 +178,11 @@ export const getTilesWithBonuses: ApiHandler<
     }));
     // build FROM ... JOIN ... ON conditions with pairwise inequality
     let joinSql = `FROM ${derived[0].sql} AS ${derived[0].alias}\n`;
-    for (let i = 1; i < derived.length; i++) {
+    for (let i = 1; i < derived.length; i += 1) {
       const right = derived[i].alias;
       // pairwise inequality for the last alias against all previous ones
       const onConditions: string[] = [];
-      for (let j = 0; j < i; j++) {
+      for (let j = 0; j < i; j += 1) {
         onConditions.push(
           `${right}.oasis_tile <> ${derived[j].alias}.oasis_tile`,
         );

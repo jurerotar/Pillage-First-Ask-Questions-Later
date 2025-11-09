@@ -16,9 +16,8 @@ export const useHero = () => {
     },
   });
 
-  const isHeroAlive = hero.stats.health > 0;
-  const experience = hero.stats.experience;
-  const health = hero.stats.health;
+  const { health, experience } = hero.stats;
+  const isHeroAlive = health > 0;
 
   return {
     hero,

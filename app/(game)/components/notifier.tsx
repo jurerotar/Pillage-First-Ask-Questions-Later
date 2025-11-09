@@ -80,7 +80,7 @@ const eventResolvedNotificationFactory: NotificationFactory = (
 
   if (isUnitImprovementEvent(data)) {
     const unitName = t(`UNITS.${data.unitId}.NAME`);
-    const level = data.level;
+    const { level } = data;
 
     const toastTitle = t('{{unitName}} upgraded', {
       unitName,

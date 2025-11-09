@@ -22,8 +22,8 @@ const handleInstall = async (): Promise<void> => {
     if (isStandalone) {
       precacheAndRoute(self.__WB_MANIFEST);
     }
-  } catch (err) {
-    console.error('Service worker install handler failed:', err);
+  } catch (error) {
+    console.error('Service worker install handler failed:', error);
   }
 };
 

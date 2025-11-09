@@ -129,7 +129,7 @@ const getTileClassNames = (
   } else if (tile.type === 'free' && tile.isOccupied) {
     const { reputation } = tile;
 
-    const reputationLevel = getReputationLevel(reputation!);
+    const reputationLevel = getReputationLevel(reputation);
 
     classes = clsx(
       cellStyles.tile,
