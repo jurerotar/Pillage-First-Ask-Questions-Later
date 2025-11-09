@@ -7,9 +7,16 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
+import type { Server } from 'app/interfaces/models/game/server';
+import { ServerCard } from 'app/(public)/(index)/components/server-card';
+import { Button } from 'app/components/ui/button';
+import { Link } from 'react-router';
+import { Alert } from 'app/components/ui/alert';
 
 const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
+  const { availableServers } = useAvailableServers();
 
   const title = t('{{title}} | Pillage First!', { title: 'My game worlds' });
 
@@ -28,7 +35,38 @@ const MyGameWorldsPage = () => {
         </Breadcrumb>
         <main className="flex flex-col gap-4">
           <Text as="h1">{t('My game worlds')}</Text>
-          <div className="flex flex-col gap-4" />
+          <Text>
+            Want to create a new game world? You may create as many game worlds
+            as you wish. All game world states are saved to your device and are
+            currently not transferable between devices.
+          </Text>
+          <Link to="/create-new-game-world">
+            <Button>Create new game world</Button>
+          </Link>
+
+          <Text>
+            Your current game worlds are listed below. Each game world may only
+            be opened in a single browser window or tab simultaneously.
+          </Text>
+
+          <div className="flex flex-col gap-2">
+            {availableServers.length > 0 && (
+              <>
+                {availableServers.map((server: Server) => (
+                  <ServerCard
+                    key={server.id}
+                    server={server}
+                  />
+                ))}
+              </>
+            )}
+            {availableServers.length === 0 && (
+              <Alert variant="info">
+                You don't have any existing game worlds. You may create your
+                first one by clicking on the link above.
+              </Alert>
+            )}
+          </div>
         </main>
       </div>
     </>
