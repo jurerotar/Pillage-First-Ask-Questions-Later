@@ -1,5 +1,5 @@
 import { Button } from 'app/components/ui/button';
-import { useAvailableServers } from 'app/(public)/use-available-servers';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
