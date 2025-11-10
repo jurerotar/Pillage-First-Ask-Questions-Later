@@ -1,6 +1,6 @@
 import type { Database } from 'app/interfaces/db';
 
-type SqlValue = string | number | bigint | Uint8Array | null;
+type SqlValue = string | number | bigint | null;
 
 type PreparedStmt = ReturnType<Database['prepare']>;
 
@@ -8,13 +8,14 @@ export const batchInsert = (
   database: Database,
   table: string,
   columns: readonly string[],
-  rows: readonly SqlValue[],
+  rows: readonly SqlValue[][],
 ): void => {
   if (!rows.length) {
     return;
   }
 
   const colsPerRow = columns.length;
+
   if (colsPerRow === 0) {
     throw new Error('columns must not be empty');
   }
