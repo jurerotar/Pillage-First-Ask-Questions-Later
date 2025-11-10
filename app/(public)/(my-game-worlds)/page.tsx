@@ -45,21 +45,19 @@ const MyGameWorldsPage = () => {
           </Link>
 
           <Text>
-            Your current game worlds are listed below. Each game world may only
-            be opened in a single browser window or tab simultaneously.
+            Your current game worlds are listed below. To prevent data
+            corruptions, each game world may only be opened in a single browser
+            window or tab simultaneously.
           </Text>
 
           <div className="flex flex-col gap-2">
-            {availableServers.length > 0 && (
-              <>
-                {availableServers.map((server: Server) => (
-                  <ServerCard
-                    key={server.id}
-                    server={server}
-                  />
-                ))}
-              </>
-            )}
+            {availableServers.length > 0 &&
+              availableServers.map((server: Server) => (
+                <ServerCard
+                  key={server.id}
+                  server={server}
+                />
+              ))}
             {availableServers.length === 0 && (
               <Alert variant="info">
                 You don't have any existing game worlds. You may create your
