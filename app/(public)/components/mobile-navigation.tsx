@@ -42,7 +42,7 @@ export const MobileNavigation = () => {
         </button>
         <Activity mode={isOpen ? 'visible' : 'hidden'}>
           <div className="fixed inset-0 z-50 bg-white/50 backdrop-blur-xs">
-            <div className="m-2 bg-white rounded-lg h-[calc(100%-1rem)] p-4">
+            <div className="m-2 bg-white rounded-lg h-[calc(100%-1rem)] p-4 overflow-y-auto scrollbar-hidden">
               <div className="relative flex flex-col gap-2 w-full h-full">
                 <button
                   className="absolute -top-2 -right-2 p-2 bg-gray-100 rounded-md transition-transform active:scale-95 active:shadow-inner"
@@ -118,6 +118,15 @@ export const MobileNavigation = () => {
                         </Text>
                       </Link>
                     </li>
+                  </ul>
+                </div>
+
+                <div className="border border-dashed border-border w-full" />
+                <div className="flex flex-col gap-2">
+                  <Text className="text-2xs font-semibold uppercase text-gray-400">
+                    {t('Guides')}
+                  </Text>
+                  <ul className="flex flex-col gap-2">
                     <li>
                       <span className="inline-flex gap-2 items-center">
                         <GrHelpBook className="text-gray-400 text-lg" />

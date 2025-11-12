@@ -138,7 +138,7 @@ export const CreateNewGameWorldForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 p-2 shadow-xl rounded-md"
+        className="space-y-4 p-2 shadow-xl rounded-md border border-border"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-6">

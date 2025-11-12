@@ -9,7 +9,7 @@ export const Footer = () => {
 
   return (
     <footer className="border-t mt-4">
-      <div className="container mx-auto grid gap-4 md:gap-8 py-6 lg:py-10 md:grid-cols-4 px-2">
+      <div className="container max-w-7xl mx-auto grid gap-4 md:gap-8 py-6 lg:py-10 md:grid-cols-4 px-2">
         <div className="flex flex-col gap-2">
           <Link to="/">
             <img
@@ -87,24 +87,22 @@ export const Footer = () => {
           >
             {t('Social')}
           </Text>
-          <ul className="flex gap-2">
+          <ul className="flex flex-wrap gap-2">
             <li>
               <a
                 href="https://discord.gg/Ep7NKVXUZA"
                 rel="noopener"
-                className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2 px-4"
+                className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2"
               >
                 <FaDiscord className="text-2xl md:text-3xl text-white" />
-                <span className="flex font-semibold text-white">Discord</span>
               </a>
             </li>
             <li>
               <a
                 href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 px-4"
+                className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2"
               >
                 <FaGithub className="text-2xl md:text-3xl text-white" />
-                <span className="flex font-semibold text-white">GitHub</span>
               </a>
             </li>
           </ul>
@@ -112,7 +110,7 @@ export const Footer = () => {
       </div>
 
       <div className="border-t">
-        <div className="container mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
+        <div className="max-w-7xl mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
           <p className="text-xs text-muted-foreground">
             {t('Not affiliated with Travian Games GmbH.')}
           </p>
@@ -121,7 +119,7 @@ export const Footer = () => {
               {t('App version')}: {env.VERSION}
             </p>
             <p className="text-xs text-muted-foreground">
-              {t('Commit ref')}: {env.COMMIT_REF}
+              {t('Commit ref')}: {(env.COMMIT_REF ?? '').substring(0, 8)}
             </p>
             <p className="text-xs text-muted-foreground">
               {t('Branch')}: {env.HEAD}
