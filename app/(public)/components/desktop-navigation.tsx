@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { type PropsWithChildren, useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 import { Link, type LinkProps } from 'react-router';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
 
 const DropdownContent = ({
   isOpen,
@@ -77,90 +78,103 @@ const NavLink = (props: PropsWithChildren<LinkProps>) => {
 };
 
 export const DesktopNavigation = () => {
-  const { t: _t } = useTranslation('public');
+  const { t } = useTranslation('public');
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   return (
-    <nav className="hidden lg:block bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <div className="text-xl font-semibold text-slate-900">stripe</div>
+    <nav className="hidden lg:block max-w-7xl mx-auto px-6 bg-white my-4 border border-border rounded-md shadow-xl">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link to="/">
+            <img
+              alt={t('Pillage First! logo')}
+              width="200"
+              src="/pillage-first-logo-horizontal.svg"
+            />
+          </Link>
 
-            <div className="flex items-center gap-6">
-              <NavMenu
-                label="Products"
-                isOpen={activeDropdown === 'products'}
-                onMouseEnter={() => setActiveDropdown('products')}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <DropdownLink
-                  href="#payments"
-                  label="Payments"
-                  description="Online payments"
-                />
-                <DropdownLink
-                  href="#billing"
-                  label="Billing"
-                  description="Subscription management"
-                />
-                <DropdownLink
-                  href="#connect"
-                  label="Connect"
-                  description="Payments for platforms"
-                />
-              </NavMenu>
-
-              <NavMenu
-                label="Solutions"
-                isOpen={activeDropdown === 'solutions'}
-                onMouseEnter={() => setActiveDropdown('solutions')}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <DropdownLink
-                  href="#startups"
-                  label="Startups"
-                  description="Get started quickly"
-                />
-                <DropdownLink
-                  href="#enterprise"
-                  label="Enterprise"
-                  description="Scale securely"
-                />
-              </NavMenu>
-
-              <NavMenu
-                label="Developers"
-                isOpen={activeDropdown === 'developers'}
-                onMouseEnter={() => setActiveDropdown('developers')}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <DropdownLink
-                  href="#docs"
-                  label="Documentation"
-                  description="Start integrating"
-                />
-                <DropdownLink
-                  href="#api"
-                  label="API Reference"
-                  description="Complete API docs"
-                />
-              </NavMenu>
-
-              <NavLink to="">Pricing</NavLink>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <NavLink to="">Sign in</NavLink>
-            <button
-              type="button"
-              className="px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-full transition-colors my-2"
+          <div className="flex items-center gap-6">
+            <NavMenu
+              label="Products"
+              isOpen={activeDropdown === 'products'}
+              onMouseEnter={() => setActiveDropdown('products')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              Contact sales
-            </button>
+              <DropdownLink
+                href="#payments"
+                label="Payments"
+                description="Online payments"
+              />
+              <DropdownLink
+                href="#billing"
+                label="Billing"
+                description="Subscription management"
+              />
+              <DropdownLink
+                href="#connect"
+                label="Connect"
+                description="Payments for platforms"
+              />
+            </NavMenu>
+
+            <NavMenu
+              label="Solutions"
+              isOpen={activeDropdown === 'solutions'}
+              onMouseEnter={() => setActiveDropdown('solutions')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <DropdownLink
+                href="#startups"
+                label="Startups"
+                description="Get started quickly"
+              />
+              <DropdownLink
+                href="#enterprise"
+                label="Enterprise"
+                description="Scale securely"
+              />
+            </NavMenu>
+
+            <NavMenu
+              label="Developers"
+              isOpen={activeDropdown === 'developers'}
+              onMouseEnter={() => setActiveDropdown('developers')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <DropdownLink
+                href="#docs"
+                label="Documentation"
+                description="Start integrating"
+              />
+              <DropdownLink
+                href="#api"
+                label="API Reference"
+                description="Complete API docs"
+              />
+            </NavMenu>
+
+            <NavLink to="">Pricing</NavLink>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <a
+            href="https://discord.gg/Ep7NKVXUZA"
+            rel="noopener"
+            className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2 py-1.5"
+          >
+            <FaDiscord className="text-xl text-white" />
+            <span className="flex font-semibold text-white">Discord</span>
+          </a>
+
+          <a
+            href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+            className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 py-1.5"
+          >
+            <FaGithub className="text-xl text-white" />
+            <span className="flex font-semibold text-white">GitHub</span>
+          </a>
         </div>
       </div>
     </nav>
