@@ -54,10 +54,12 @@ const UnoccupiedOasisSlot = ({
   );
 };
 
+type OccupiableOasis = ReturnType<
+  typeof useOccupiableOasisInRange
+>['occupiableOasisInRange'][number];
+
 type OccupiedOasisSlotProps = {
-  occupiedOasis: ReturnType<
-    typeof useOccupiableOasisInRange
-  >['occupiableOasisInRange'][number];
+  occupiedOasis: OccupiableOasis;
 };
 
 const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
@@ -105,9 +107,7 @@ const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
 };
 
 type OccupiableOasisSlotActionsProps = {
-  occupiableOasis: ReturnType<
-    typeof useOccupiableOasisInRange
-  >['occupiableOasisInRange'][number];
+  occupiableOasis: OccupiableOasis;
   freeSlots: number;
 };
 
@@ -154,9 +154,7 @@ const OccupiableOasisSlotActions = ({
 };
 
 type OccupiableOasisSlotProps = {
-  occupiableOasis: ReturnType<
-    typeof useOccupiableOasisInRange
-  >['occupiableOasisInRange'][number];
+  occupiableOasis: OccupiableOasis;
   freeSlots: number;
 };
 
@@ -238,8 +236,10 @@ export const HerosMansionOasis = () => {
     },
   );
 
-  const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis] =
-    oasisOccupiedByCurrentVillage;
+  const [firstOccupiedOasis, secondOccupiedOasis, thirdOccupiedOasis]: (
+    | OccupiableOasis
+    | undefined
+  )[] = oasisOccupiedByCurrentVillage;
 
   const availableSlots = (() => {
     if (heroMansionLevel === 20) {

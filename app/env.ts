@@ -10,10 +10,19 @@ type ImportMetaEnv = {
   readonly HEAD: string;
 };
 
-// biome-ignore lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
+// biome-ignore-start lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
+// oxlint-disable-next-line eslint/no-unused-vars
 type ImportMeta = {
   readonly env: ImportMetaEnv;
 };
+
+// oxlint-disable-next-line eslint/no-unused-vars
+type ViteTypeOptions = {
+  // By adding this line, you can make the type of ImportMetaEnv strict
+  // to disallow unknown keys.
+  strictImportMetaEnv: unknown;
+};
+// biome-ignore-end lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
 
 export const env = {
   MODE: import.meta.env.MODE,
