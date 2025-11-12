@@ -59,9 +59,12 @@
     "typescript/no-non-null-assertion": "warn",
     "typescript/consistent-type-definitions": ["error", "type"],
     // TODO: This should be enabled, except for arrow fns
-    "typescript/no-confusing-void-expression": ["off", {
-      "ignoreArrowShorthand": true
-    }],
+    "typescript/no-confusing-void-expression": [
+      "off",
+      {
+        "ignoreArrowShorthand": true
+      }
+    ],
     // unicorn
     "unicorn/*": "error",
     "unicorn/no-null": "off",
