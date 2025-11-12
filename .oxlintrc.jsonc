@@ -38,6 +38,7 @@
     "eslint/no-new": "off",
     "eslint/no-bitwise": "off",
     "eslint/no-labels": "off",
+    "eslint/no-undefined": "off",
     // TODO: This rule must be re-enabled
     "eslint/sort-imports": "off",
     "eslint/no-unused-vars": [
@@ -57,6 +58,10 @@
     "typescript/explicit-module-boundary-types": "off",
     "typescript/no-non-null-assertion": "warn",
     "typescript/consistent-type-definitions": ["error", "type"],
+    // TODO: This should be enabled, except for arrow fns
+    "typescript/no-confusing-void-expression": ["off", {
+      "ignoreArrowShorthand": true
+    }],
     // unicorn
     "unicorn/*": "error",
     "unicorn/no-null": "off",
@@ -96,35 +101,13 @@
     "react/no-array-index-key": "warn",
     "react/exhaustive-deps": "warn",
     "react/jsx-filename-extension": "off",
-    "react/only-export-components": [
-      "error",
-      {
-        "allowExportNames": [
-          "clientMiddleware",
-          "shouldRevalidate",
-          "clientLoader",
-          "middleware",
-          "clientMiddleware",
-          "loader",
-          "clientLoader",
-          "action",
-          "clientAction",
-          "ErrorBoundary",
-          "HydrateFallback",
-          "headers",
-          "handle",
-          "links",
-          "meta",
-          "shouldRevalidate"
-        ]
-      }
-    ],
+    "react/only-export-components": "off",
     // react-perf
     "react-perf/*": "error",
-    "react-perf/jsx-no-new-function-as-prop": "warn",
-    "react-perf/jsx-no-new-object-as-prop": "warn",
-    "react-perf/jsx-no-jsx-as-prop": "warn",
-    "react-perf/jsx-no-new-array-as-prop": "warn",
+    "react-perf/jsx-no-new-function-as-prop": "off",
+    "react-perf/jsx-no-new-object-as-prop": "off",
+    "react-perf/jsx-no-jsx-as-prop": "off",
+    "react-perf/jsx-no-new-array-as-prop": "off",
     // jsx-a11y
     "jsx-a11y/*": "error",
     // oxc
