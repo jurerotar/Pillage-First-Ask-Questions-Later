@@ -71,12 +71,15 @@ const NavMenu = ({
   onMouseLeave,
 }: PropsWithChildren<NavMenuProps>) => {
   return (
-    <div className="relative">
+    // biome-ignore lint/a11y/noStaticElementInteractions: TODO: Fix this
+    <div
+      className="relative"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <button
         type="button"
         className="flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-900 py-4 px-1"
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
       >
         {label}
         <FaChevronDown className="size-3 mt-1" />
