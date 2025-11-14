@@ -12,7 +12,9 @@ great experience even on older devices. It is not a Travian clone per se, becaus
 introduces new
 features.
 
-You can see the current stable version at: [pillagefirst.netlify.app](https://pillagefirst.netlify.app)
+Stable version: [pillagefirst.com](https://pillagefirst.com)
+<br />
+Development version (contains latest features, but may be unstable): [develop--pillagefirst.netlify.app](https://develop--pillagefirst.netlify.app)
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
