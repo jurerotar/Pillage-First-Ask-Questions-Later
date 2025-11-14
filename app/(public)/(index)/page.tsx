@@ -6,7 +6,7 @@ const HomePage = () => {
   return (
     <>
       <title>Pillage First! (Ask Questions Later)</title>
-      <main className="max-w-7xl relative mx-auto flex min-h-[300px] flex-col lg:flex-row gap-2 px-2 justify-center items-center">
+      <main className="max-w-7xl mx-auto flex min-h-[300px] flex-col lg:flex-row gap-2 px-2 justify-center items-center">
         <section className="flex flex-col flex-1 gap-4 justify-center">
           <Text
             as="h1"

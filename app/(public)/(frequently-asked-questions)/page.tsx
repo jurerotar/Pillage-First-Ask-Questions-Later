@@ -265,11 +265,11 @@ const FrequentlyAskedQuestionsPage = () => {
                 Is there an in-game Wiki available?
               </Text>
               <Text>
-                Not yet, but I can (officially?) confirm there’s one in the
+                Not yet, but I can (officially?) confirm there's one in the
                 making!
                 <br />
                 <br />
-                It’s going to include units (cost, attack and defence upgrade
+                It's going to include units (cost, attack and defence upgrade
                 tables and durations), buildings (cost, upgrade durations), hero
                 (exp tables and revive cost) and some general advice and tips.
               </Text>
@@ -283,8 +283,8 @@ const FrequentlyAskedQuestionsPage = () => {
               </Text>
               <Text>
                 Yes. This might get revised upwards in the future. The limiting
-                factor here is players’ own devices. Since the app runs 100% on
-                your device, we can’t really guarantee good performance. Higher
+                factor here is players' own devices. Since the app runs 100% on
+                your device, we can't really guarantee good performance. Higher
                 speed game worlds require more device resources, and maxing
                 these out could cause lag, excessive battery drain and other
                 issues.

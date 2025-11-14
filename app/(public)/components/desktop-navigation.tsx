@@ -1,7 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { type PropsWithChildren, type ReactNode, useState } from 'react';
+import {
+  type PropsWithChildren,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 import { FaChevronDown } from 'react-icons/fa';
-import { Link, type LinkProps } from 'react-router';
+import { Link, type LinkProps, useLocation } from 'react-router';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { BiWorld } from 'react-icons/bi';
 import { IoCreate } from 'react-icons/io5';
@@ -9,14 +14,7 @@ import { IoIosChatbubbles } from 'react-icons/io';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Button } from 'app/components/ui/button';
 
-const DropdownContent = ({
-  isOpen,
-  children,
-}: PropsWithChildren<{ isOpen: boolean }>) => {
-  if (!isOpen) {
-    return null;
-  }
-
+const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
     <div className="absolute top-full left-0 mt-0 w-64 bg-white rounded-lg shadow-xl border border-border py-2 pt-4">
       <div className="absolute -top-2 left-12 w-4 h-4 bg-white border-t border-l border-border rotate-45" />
@@ -25,34 +23,25 @@ const DropdownContent = ({
   );
 };
 
-type DropdownLinkProps = {
-  href: string;
+type DropdownLinkContentProps = {
   label: string;
-  description?: string;
-  icon?: ReactNode;
+  description: string;
+  icon: ReactNode;
 };
 
-const DropdownLink = ({
-  href,
+const DropdownLinkContent = ({
   label,
   description,
   icon,
-}: DropdownLinkProps) => {
+}: DropdownLinkContentProps) => {
   return (
-    <a
-      href={href}
-      className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-    >
-      {icon ? (
-        <span className="mt-0.5 text-lg text-gray-400">{icon}</span>
-      ) : null}
+    <>
+      <span className="mt-0.5 text-lg text-gray-400">{icon}</span>
       <span className="flex flex-col">
         <span className="font-medium">{label}</span>
-        {description ? (
-          <span className="text-xs text-slate-500 mt-0.5">{description}</span>
-        ) : null}
+        <span className="text-xs text-slate-500 mt-0.5">{description}</span>
       </span>
-    </a>
+    </>
   );
 };
 
@@ -84,7 +73,7 @@ const NavMenu = ({
         {label}
         <FaChevronDown className="size-3 mt-1" />
       </button>
-      <DropdownContent isOpen={isOpen}>{children}</DropdownContent>
+      {isOpen && <DropdownContent>{children}</DropdownContent>}
     </div>
   );
 };
@@ -100,10 +89,16 @@ const _NavLink = (props: PropsWithChildren<LinkProps>) => {
 
 export const DesktopNavigation = () => {
   const { t } = useTranslation('public');
+  const { key } = useLocation();
 
   const [activeDropdown, setActiveDropdown] = useState<
     'game' | 'resources' | 'guides' | 'social' | null
   >(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Key is expected
+  useEffect(() => {
+    setActiveDropdown(null);
+  }, [key]);
 
   return (
     <nav className="hidden lg:flex max-w-7xl mx-auto px-4 w-[calc(100%-1rem)] bg-white justify-between my-4 mb-6 border border-border rounded-md shadow-xl z-20">
@@ -124,18 +119,26 @@ export const DesktopNavigation = () => {
               onMouseEnter={() => setActiveDropdown('game')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <DropdownLink
-                href="/my-game-worlds"
-                label={t('My game worlds')}
-                description={t('Manage your existing game worlds')}
-                icon={<BiWorld />}
-              />
-              <DropdownLink
-                href="/create-new-game-world"
-                label={t('Create new game world')}
-                description={t('Create and configure a new world')}
-                icon={<IoCreate />}
-              />
+              <Link
+                to="/my-game-worlds"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('My game worlds')}
+                  description={t('Manage your existing game worlds')}
+                  icon={<BiWorld />}
+                />
+              </Link>
+              <Link
+                to="/create-new-game-world"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Create new game world')}
+                  description={t('Create and configure a new world')}
+                  icon={<IoCreate />}
+                />
+              </Link>
             </NavMenu>
 
             <NavMenu
@@ -144,18 +147,26 @@ export const DesktopNavigation = () => {
               onMouseEnter={() => setActiveDropdown('resources')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <DropdownLink
-                href="/frequently-asked-questions"
-                label={t('Frequently asked questions')}
-                description={t('Answers to common questions')}
-                icon={<IoIosChatbubbles />}
-              />
-              <DropdownLink
-                href="/get-involved"
-                label={t('Get involved')}
-                description={t('Contribute or join the community')}
-                icon={<PiHandshakeBold />}
-              />
+              <Link
+                to="/frequently-asked-questions"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Frequently asked questions')}
+                  description={t('Answers to common questions')}
+                  icon={<IoIosChatbubbles />}
+                />
+              </Link>
+              <Link
+                to="/get-involved"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Get involved')}
+                  description={t('Contribute or join the community')}
+                  icon={<PiHandshakeBold />}
+                />
+              </Link>
             </NavMenu>
 
             <NavMenu
@@ -164,18 +175,30 @@ export const DesktopNavigation = () => {
               onMouseEnter={() => setActiveDropdown('social')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <DropdownLink
+              <a
                 href="https://discord.gg/Ep7NKVXUZA"
-                label={'Discord'}
-                description={t('Join the community')}
-                icon={<FaDiscord />}
-              />
-              <DropdownLink
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <DropdownLinkContent
+                  label={'Discord'}
+                  description={t('Join the community')}
+                  icon={<FaDiscord />}
+                />
+              </a>
+              <a
                 href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                label={'GitHub'}
-                description={t('Contribute or raise issues')}
-                icon={<FaGithub />}
-              />
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <DropdownLinkContent
+                  label={'GitHub'}
+                  description={t('Contribute or raise issues')}
+                  icon={<FaGithub />}
+                />
+              </a>
             </NavMenu>
 
             <span className="text-sm font-medium text-slate-700 hover:text-slate-900 py-4 px-1">
