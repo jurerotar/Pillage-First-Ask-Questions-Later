@@ -84,7 +84,6 @@
     "rolldown-vite": "7.2.5",
     "rollup-plugin-visualizer": "6.0.5",
     "sass": "1.94.0",
-    "sass-embedded": "1.93.3",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "npm:rolldown-vite@7.2.5",
