@@ -13,15 +13,15 @@ In Travian, every unit has some strength in attack and defense. Its offense poin
 
 E.g. praetorians (65/35 def) are better against infantry, just as spearmen (35/60 def) are better against cavalry.
 
-In combat, only the offense points of attacker and defense points of defenders are taken into account. Attacking with praetorians isn’t effective despite their high defense value. Similarly, clubswingers are worse on defense. So use your troops wisely, only for purposes they’re well-suited. Otherwise you’ll lose easily!
+In combat, only the offense points of attacker and defense points of defenders are taken into account. Attacking with praetorians isn't effective despite their high defense value. Similarly, clubswingers are worse on defense. So use your troops wisely, only for purposes they're well-suited. Otherwise you'll lose easily!
 
-Even with knowledge about units’ stats, you cannot easily predict combat result, because the combat system is neither simple nor trivial.
+Even with knowledge about units' stats, you cannot easily predict combat result, because the combat system is neither simple nor trivial.
 
 Players with can find a rather good combat simulator in their rally point. This extended version allows them taking into account almost all values affecting battle result.
 
 There are several free combat simulators online. One of the most famous free warsims is mine. It has an almost equal set of features as the full in-game warsim plus a few: convenient hero use, traps in Gallic village, battles with Natars, some artifacts and two targets for catapults.
 
-Also, my warsim has another useful feature: it tracks which units you have input in the URL. If you copy the URL from the address bar and send it to somebody, after opening this URL, they will go to the simulator’s page, where all troops are already set to the same values as you just done.
+Also, my warsim has another useful feature: it tracks which units you have input in the URL. If you copy the URL from the address bar and send it to somebody, after opening this URL, they will go to the simulator's page, where all troops are already set to the same values as you just done.
 
 ## Raid / normal attack
 
@@ -39,7 +39,7 @@ Let the defender have 150 phalanx. As all the attacking troops in our example ar
 
 Consider first a normal attack, combat will continue until one side is completely destroyed. We determine the loser by comparing total offense and defense points. In our example, 9000 (1) is more than 6000 (2), so the defender will lose.
 
-Winner’s casualties are determined by next formula:
+Winner's casualties are determined by next formula:
 
 100% · (loser_points / winner_points)^1.5 (3)
 since the defender loses this battle, loser_points = 6000 and winner_points = 9000.
@@ -53,7 +53,7 @@ For raids, the formula changes a bit, losses will be:
 
 100% · x / (100% + x) where x is determined by formula mentioned above (3).
 
-This calculates the losses of the winner. The loser’s casulaties will be (100% – winner’s losses).
+This calculates the losses of the winner. The loser's casulaties will be (100% – winner's losses).
 
 Consider another example: 100 imperians raiding 100 praetorians. Offense points (7000) are greater than defense points (6500), so the attacker wins again.
 
@@ -63,7 +63,7 @@ x = 100% · (6500 / 7000)^1.5 ≈ 89.479%
 
 So 47.22% from 100 or just 47 imperians will die. Defender will lose 100% – 47.22% = 52.78% of his/her army, i.e. 53 praetorians.
 
-The winner’s casualties formula is actually more complicated, but only applies when large armies take part in combat. The formula is a bit different and the winner takes more casualties.
+The winner's casualties formula is actually more complicated, but only applies when large armies take part in combat. The formula is a bit different and the winner takes more casualties.
 Instead of the standard formula (3), another one is used:
 
 100% · (loser_points / winner_points)^K (4)
@@ -80,7 +80,7 @@ E.g., 2000 haeduans attacks 1400 phalanx. N = 2000 + 1400 = 3400
 So the formula for losses (attacker wins obviously) will look like: 100% · (def_points / off_points)^1.459
 2000 haeduans have 2000·140 = 280,000 offense points
 
-1400 phalanx have 1400·50 = 70,000 offense points, since the attackers are cavalry troops, we will use phalanx’s defense against cavalry.
+1400 phalanx have 1400·50 = 70,000 offense points, since the attackers are cavalry troops, we will use phalanx's defense against cavalry.
 
 100% · (70,000 / 280,000)^1.459 = 100% · 0.25^1.459 ≈ 13.23%
 2000 · 13.23% ≈ 265, i.e. 265 haeduans die.
@@ -101,7 +101,7 @@ and do the same for infantry:
 3250 / 13250 ≈ 0.2453
 Therefore, 75.47% of offense points are cavalry offense points, and 24.53% infantry points (sum should be equal to 100%, if we are not mistaken).
 
-Then we «apply» this infantry/cavalry proportion to defender’s troops. Praetorian has 65 def.points against infantry and 35 def against cavalry, i.e. total army’s defense is:
+Then we «apply» this infantry/cavalry proportion to defender's troops. Praetorian has 65 def.points against infantry and 35 def against cavalry, i.e. total army's defense is:
 
 100 · 65 = 6500 (infantry)
 100 · 35 = 3500 (cavalry)
@@ -127,7 +127,7 @@ The wall gives the defender an extra percentage bonus, which depends on the trib
 1.020^L for the Spartan defensive wall.
 where L is level of corresponding building.
 
-E.g. a level 15 Roman city wall gives this bonus: 1.03^15 = 1.558 or 55.8%. At level 20 the bonus is a bit more than 80%. Therefore, the wall is a cornerstone in a village’s defense.
+E.g. a level 15 Roman city wall gives this bonus: 1.03^15 = 1.558 or 55.8%. At level 20 the bonus is a bit more than 80%. Therefore, the wall is a cornerstone in a village's defense.
 
 Consider 150 swordsmen attacking 100 praetorians and 25 legionnaires behind a level 15 city wall.
 Since swordsmen are infantry we will use only defense against infantry values.
@@ -137,7 +137,7 @@ But we have a wall, which could greatly increase defense points: 7375 · 1.558 �
 
 11490 is greater than 9750, so in this example the defender will win.
 casualties = 100% · (9750 / 11490) ^ 1.5 = 78.17% which result in 78 praetorians and 20 legionnaires lost.
-If there’s no wall, the attacker would win. You may check it with the combat simulator.
+If there's no wall, the attacker would win. You may check it with the combat simulator.
 
 *Watchtowers: In Annual Special scenario with the city feature there is possibility to enhance wall with the Watchtowers. Each level of watchtowers adds an additional 1% of defense bonus to all units defending the city. This is a flat bonus added separately from the wall bonus. This means that for example on level 10 it increases defensive units strength by exactly 10%.
 
@@ -153,27 +153,27 @@ But if we build in an empty (I mean no troops) roman village a 5th level wall, t
 defense become 10·1.03^5 or 12 points
 2 · (12/30)^1.5 ≈ 0.506 which will be rounded to 1 and will mean 1 dead phalanx.
 
-Also there’s one extra tricky aspect. There’s a known phenomenon that one unit will always die against even an empty village, unless it was a strong cavalry unit. It could be described by basic defense. However, why does one imperian with 70 offense points die and 2 phalanx with total 30 offense points don’t?
+Also there's one extra tricky aspect. There's a known phenomenon that one unit will always die against even an empty village, unless it was a strong cavalry unit. It could be described by basic defense. However, why does one imperian with 70 offense points die and 2 phalanx with total 30 offense points don't?
 
-That’s because there’s an extra check for every combat with a lone attacker.
-If unit’s offense points are less than 83, unit will die disregarding of defender’s losses. This check is applied for both attack types: normal attack/raid.
+That's because there's an extra check for every combat with a lone attacker.
+If unit's offense points are less than 83, unit will die disregarding of defender's losses. This check is applied for both attack types: normal attack/raid.
 
 ## Residence/Palace/Command Centre
 
-Residence/Palace (we will use just “Palace” hereinafter, since all 3 buildings are equal in their defending abilities) also help in combat, but its contribution isn’t much. The Palace doesn’t add percent-based bonus, but just adds some absolute defense value: e.g., on 20th level Palace will give only 800 defense points (both against infantry and cavalry). This addition is expressed by the following formula:
+Residence/Palace (we will use just “Palace” hereinafter, since all 3 buildings are equal in their defending abilities) also help in combat, but its contribution isn't much. The Palace doesn't add percent-based bonus, but just adds some absolute defense value: e.g., on 20th level Palace will give only 800 defense points (both against infantry and cavalry). This addition is expressed by the following formula:
 
 2 · n^2 (6) where n is the level of the palace.
 
 As we could see, first levels give you nearly nothing. E.g., 1st level Palace adds only 2 points, 2nd level — 8pts, 3rd level — 18pts, etc.
 
-Against large armies, even 800 points is a tiny value, but against small squadrons it may be useful. If 10 imperians attack a village with a 20th level palace, they all die! (700 < 800+10). Of course, it is not easy to obtain the benefits from these buildings, since even a level 5 residence isn’t very cheap. And when you have enough resources, armies are far stronger than 10 imperians.
+Against large armies, even 800 points is a tiny value, but against small squadrons it may be useful. If 10 imperians attack a village with a 20th level palace, they all die! (700 < 800+10). Of course, it is not easy to obtain the benefits from these buildings, since even a level 5 residence isn't very cheap. And when you have enough resources, armies are far stronger than 10 imperians.
 
 Hint: Defense given by palace and basic village defense is affected by the wall bonus just like troops.
 15 phalanx attacks village with 6th level residence and 6th level roman wall.
 offense is 15 · 15 = 225
 defense is (Residence + base defense) · Wall bonus = (2·6^2 + 10) · (1.03^6) ≈ 82 · 1.194 ≈ 98
 
-Attacker wins, but since the residence can’t be destroyed by regular troops, the attacker loses something while the defender loses nothing.
+Attacker wins, but since the residence can't be destroyed by regular troops, the attacker loses something while the defender loses nothing.
 100% · (98/225) ^ 1.5 ≈ 28.7% or 4 phalanx
 
 ## Smithy upgrade formula
@@ -200,9 +200,9 @@ losses will be 100% · (780,000 / 1,048,096) ^ 1.3816 = 66.486% or 13297 clubswi
 
 Apart from the smithy upgrades the game has various other bonuses and even one malus that might affect the game result. The formula of the total army strength is based on a simple multiplying.
 
-Total strength for a certain unit = (smithy’d base attack + weapon bonus) * amount of units
+Total strength for a certain unit = (smithy'd base attack + weapon bonus) * amount of units
 
-Total strength for an army = (total strength for each unit in this army + equipped hero strength) * hero attacking or defensive bonus * Natar horn bonus (if a Horn of Natars is present and it’s attack against Natars) * brewery attack bonus (if a player has a Teuton capital with an active brewery celebration) * alliance metallurgy bonus * 0.5 payment ban 50% penalty (if a player is banned for payment).
+Total strength for an army = (total strength for each unit in this army + equipped hero strength) * hero attacking or defensive bonus * Natar horn bonus (if a Horn of Natars is present and it's attack against Natars) * brewery attack bonus (if a player has a Teuton capital with an active brewery celebration) * alliance metallurgy bonus * 0.5 payment ban 50% penalty (if a player is banned for payment).
 
 ## Rams
 

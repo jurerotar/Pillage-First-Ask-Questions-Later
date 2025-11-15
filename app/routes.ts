@@ -10,7 +10,10 @@ export default [
   // Public routes
   layout('(public)/layout.tsx', [
     index('(public)/(index)/page.tsx'),
-    route('create-new-server', '(public)/(create-new-server)/page.tsx'),
+    route('my-game-worlds', '(public)/(my-game-worlds)/page.tsx'),
+    route('create-new-game-world', '(public)/(create-new-game-world)/page.tsx'),
+    route('import-game-world', '(public)/(import-game-world)/page.tsx'),
+    route('get-involved', '(public)/(get-involved)/page.tsx'),
     route(
       'frequently-asked-questions',
       '(public)/(frequently-asked-questions)/page.tsx',

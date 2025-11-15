@@ -37,7 +37,7 @@ describe('canSendTroops', () => {
     expect(canSendTroops(base, toSend)).toBe(true);
   });
 
-  test('returns false when key doesn’t exist in base', () => {
+  test("returns false when key doesn't exist in base", () => {
     const base: Troop[] = [
       { unitId: 'PHALANX', amount: 60, tileId: 0, source: 0 },
     ];

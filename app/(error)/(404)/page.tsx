@@ -11,7 +11,7 @@ const ErrorPage = () => {
       <div className="h-1 w-16 bg-gray-200 rounded-full" />
       <p className="text-lg text-gray-900 mb-2">This server does not exist.</p>
       <p className="text-gray-900 mb-6">
-        We couldn’t find any saved data for the server you're trying to access.
+        We couldn't find any saved data for the server you're trying to access.
         It may have been deleted or never initialized. You can select from a
         list of servers on homepage or create new server bellow.
       </p>
@@ -20,7 +20,7 @@ const ErrorPage = () => {
         <Link to="/">
           <Button size="fit">Back to homepage</Button>
         </Link>
-        <Link to="/create-new-server">
+        <Link to="/create-new-game-world">
           <Button size="fit">Create new server</Button>
         </Link>
       </div>

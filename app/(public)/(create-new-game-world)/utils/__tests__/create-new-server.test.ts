@@ -27,7 +27,7 @@ import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
-import { initializeServer } from 'app/(public)/(create-new-server)/utils/create-new-server';
+import { initializeServer } from 'app/(public)/(create-new-game-world)/utils/create-new-server';
 
 const queryClient = await initializeServer(serverMock);
 

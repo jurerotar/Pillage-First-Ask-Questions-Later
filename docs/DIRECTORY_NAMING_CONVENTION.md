@@ -6,11 +6,11 @@ Folder structure is following code colocation guidelines.
 typically you'll find `/components`, `/hooks`,... where the code in these folders is only used in this particular route group.
 
 * Example of a group: `(public)/page.tsx` -> `/`
-* Example of a nested route group: `(public)/(create-new-server)/page.tsx` -> `/create-new-server`
-* Example of a component folder inside a route group: `(public)/(create-new-server)/components` -> These components are only used inside of
-  `(create-new-server)` route group
+* Example of a nested route group: `(public)/(create-new-game-world)/page.tsx` -> `/create-new-game-world`
+* Example of a component folder inside a route group: `(public)/(create-new-game-world)/components` -> These components are only used inside of
+  `(create-new-game-world)` route group
 * Example of a component folder outside a route group: `(public)/components` -> These components are only used inside of `(public)` route
-  group, which means they can also be used in `(create-new-server)` route group
+  group, which means they can also be used in `(create-new-game-world)` route group
 
 `xxx` - Folder without any special markers are used for code that belongs to that specific group or pages. Typical folders here are
 `components`, `providers`, `hooks`,...

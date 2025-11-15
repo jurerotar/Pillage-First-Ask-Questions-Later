@@ -1,4 +1,4 @@
-import { Links, Outlet, Scripts } from 'react-router';
+import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
 import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from 'app/faro';
@@ -83,6 +83,7 @@ export const Layout = () => {
         <StateProvider>
           <Outlet />
         </StateProvider>
+        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
