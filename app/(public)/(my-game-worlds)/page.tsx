@@ -36,15 +36,6 @@ const MyGameWorldsPage = () => {
         <main className="flex flex-col gap-4">
           <Text as="h1">{t('My game worlds')}</Text>
           <Text>
-            Want to create a new game world? You may create as many game worlds
-            as you wish. All game world states are saved to your device and are
-            currently not transferable between devices.
-          </Text>
-          <Link to="/create-new-game-world">
-            <Button>Create new game world</Button>
-          </Link>
-
-          <Text>
             Your current game worlds are listed below. To prevent data
             corruptions, each game world may only be opened in a single browser
             window or tab simultaneously.
@@ -65,6 +56,15 @@ const MyGameWorldsPage = () => {
               </Alert>
             )}
           </div>
+
+          <Text>
+            Want to create a new game world instead? You may create as many game
+            worlds as you wish. All game world states are saved to your device
+            and are currently not transferable between devices.
+          </Text>
+          <Link to="/create-new-game-world">
+            <Button>Create new game world</Button>
+          </Link>
         </main>
       </div>
     </>

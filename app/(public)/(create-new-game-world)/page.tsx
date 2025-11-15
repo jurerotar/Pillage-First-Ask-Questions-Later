@@ -9,6 +9,8 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Alert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { Button } from 'app/components/ui/button';
 
 const CreateNewGameWorldPage = () => {
   const { t } = useTranslation('public');
@@ -47,6 +49,19 @@ const CreateNewGameWorldPage = () => {
             purposes only until the full release.
           </Alert>
           <CreateNewGameWorldForm />
+
+          <Text>
+            Want to continue playing on your current game worlds, or want to
+            import an existing game state?
+          </Text>
+          <div className="flex gap-2">
+            <Link to="/my-game-worlds">
+              <Button>My game worlds</Button>
+            </Link>
+            <Link to="/import-game-world">
+              <Button variant="outline">Import existing game state</Button>
+            </Link>
+          </div>
         </main>
       </div>
     </>

@@ -17,7 +17,7 @@ import { CiImport } from 'react-icons/ci';
 
 const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
-    <div className="absolute top-full left-0 mt-0 w-64 bg-white rounded-lg shadow-xl border border-border py-2 pt-4">
+    <div className="absolute top-full left-0 mt-0 w-64 bg-white rounded-lg shadow-xl border border-border py-2 pt-4 z-20">
       <div className="absolute -top-2 left-12 w-4 h-4 bg-white border-t border-l border-border rotate-45" />
       {children}
     </div>
