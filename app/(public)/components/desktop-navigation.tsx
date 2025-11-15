@@ -13,6 +13,7 @@ import { IoCreate } from 'react-icons/io5';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Button } from 'app/components/ui/button';
+import { CiImport } from 'react-icons/ci';
 
 const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
@@ -137,6 +138,16 @@ export const DesktopNavigation = () => {
                   label={t('Create new game world')}
                   description={t('Create and configure a new world')}
                   icon={<IoCreate />}
+                />
+              </Link>
+              <Link
+                to="/import-game-world"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Import game world')}
+                  description={t('Import existing game world')}
+                  icon={<CiImport />}
                 />
               </Link>
             </NavMenu>

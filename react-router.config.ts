@@ -11,6 +11,7 @@ export default {
     '/',
     '/my-game-worlds',
     '/create-new-game-world',
+    '/import-game-world',
     '/frequently-asked-questions',
     '/get-involved',
     '/__spa-preload',

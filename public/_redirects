@@ -1,10 +1,11 @@
 # === Redirects ===
 /create-new-server                /create-new-game-world                    301
 
-# === Pre-rendered static pages ===
+# === Pre-rendered public pages ===
 /                                 /index.html                               200
 /my-game-worlds                   /my-game-worlds/index.html                200
 /create-new-game-world            /create-new-game-world/index.html         200
+/import-game-world                /import-game-world/index.html             200
 /get-involved                     /get-involved/index.html                  200
 /frequently-asked-questions       /frequently-asked-questions/index.html    200
 

@@ -12,6 +12,7 @@ export default [
     index('(public)/(index)/page.tsx'),
     route('my-game-worlds', '(public)/(my-game-worlds)/page.tsx'),
     route('create-new-game-world', '(public)/(create-new-game-world)/page.tsx'),
+    route('import-game-world', '(public)/(import-game-world)/page.tsx'),
     route('get-involved', '(public)/(get-involved)/page.tsx'),
     route(
       'frequently-asked-questions',

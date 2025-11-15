@@ -11,6 +11,7 @@ import { IoIosChatbubbles } from 'react-icons/io';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { GrHelpBook } from 'react-icons/gr';
 import { Button } from 'app/components/ui/button';
+import { CiImport } from 'react-icons/ci';
 
 export const MobileNavigation = () => {
   const { t } = useTranslation('public');
@@ -85,6 +86,17 @@ export const MobileNavigation = () => {
                         <IoCreate className="text-gray-400 text-lg" />
                         <Text className="font-medium text-gray-800">
                           {t('Create a new game world')}
+                        </Text>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="inline-flex gap-2 items-center"
+                        to="/import-game-world"
+                      >
+                        <CiImport className="text-gray-400 text-lg" />
+                        <Text className="font-medium text-gray-800">
+                          {t('Import game world')}
                         </Text>
                       </Link>
                     </li>
