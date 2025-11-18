@@ -152,7 +152,7 @@ export const MobileNavigation = () => {
                 <div className="border border-dashed border-border w-full" />
                 <div className="flex flex-col gap-2">
                   <Text className="text-2xs font-semibold uppercase text-gray-400">
-                    {t('Social')}
+                    {t('Community')}
                   </Text>
                   <ul className="flex flex-col gap-2">
                     <li>

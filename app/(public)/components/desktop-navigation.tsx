@@ -181,7 +181,7 @@ export const DesktopNavigation = () => {
             </NavMenu>
 
             <NavMenu
-              label={t('Social')}
+              label={t('Community')}
               isOpen={activeDropdown === 'social'}
               onMouseEnter={() => setActiveDropdown('social')}
               onMouseLeave={() => setActiveDropdown(null)}
@@ -194,7 +194,7 @@ export const DesktopNavigation = () => {
               >
                 <DropdownLinkContent
                   label={'Discord'}
-                  description={t('Join the community')}
+                  description={t('Join the discussion')}
                   icon={<FaDiscord />}
                 />
               </a>

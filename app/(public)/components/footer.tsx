@@ -92,7 +92,7 @@ export const Footer = () => {
             as="h3"
             className="font-medium uppercase text-xs text-gray-500"
           >
-            {t('Social')}
+            {t('Community')}
           </Text>
           <ul className="flex flex-wrap gap-2">
             <li>
