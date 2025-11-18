@@ -19,12 +19,12 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/hooks/use-available-servers';
+import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
-import type { CreateServerWorkerPayload } from 'app/(public)/(create-new-server)/workers/create-new-server-worker';
-import CreateServerWorker from 'app/(public)/(create-new-server)/workers/create-new-server-worker?worker&url';
+import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
+import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { workerFactory } from 'app/utils/workers';
 import { Text } from 'app/components/text';
 import { Switch } from 'app/components/ui/switch';
@@ -65,7 +65,7 @@ type MutateArgs = {
   server: Server;
 };
 
-export const CreateNewServerForm = () => {
+export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
   const { addServer, deleteServer } = useAvailableServers();
 
@@ -77,9 +77,12 @@ export const CreateNewServerForm = () => {
     isSuccess,
   } = useMutation<void, Error, MutateArgs>({
     mutationFn: async ({ server }) => {
-      await workerFactory<CreateServerWorkerPayload>(CreateServerWorker, {
-        server,
-      });
+      await workerFactory<CreateNewGameWorldWorkerPayload>(
+        CreateNewGameWorldWorker,
+        {
+          server,
+        },
+      );
     },
     onSuccess: async (_, { server }) => {
       addServer({ server });
@@ -135,7 +138,7 @@ export const CreateNewServerForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 p-2 shadow-xl rounded-md"
+        className="space-y-4 p-2 shadow-xl rounded-md border border-border"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-6">

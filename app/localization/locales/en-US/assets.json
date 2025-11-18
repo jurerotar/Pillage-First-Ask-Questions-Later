@@ -225,7 +225,7 @@
     "HUN_RAM": {
       "NAME": "Hun Ram",
       "NAME_other": "Hun Rams",
-      "DESCRIPTION": "The Ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy the enemy walls and therefore increase your troops’ chances of overcoming the enemy's fortifications.",
+      "DESCRIPTION": "The Ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy the enemy walls and therefore increase your troops' chances of overcoming the enemy's fortifications.",
       "USAGE": ""
     },
     "HUN_CATAPULT": {
@@ -285,7 +285,7 @@
     "EGYPTIAN_RAM": {
       "NAME": "Egyptian Ram",
       "NAME_other": "Egyptian Rams",
-      "DESCRIPTION": "The Ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy the enemy walls and therefore increase your troops’ chances of overcoming the enemy's fortifications.",
+      "DESCRIPTION": "The Ram is a heavy support weapon for your infantry and cavalry. Its task is to destroy the enemy walls and therefore increase your troops' chances of overcoming the enemy's fortifications.",
       "USAGE": ""
     },
     "EGYPTIAN_CATAPULT": {
@@ -646,7 +646,7 @@
     "BREWERY": {
       "NAME": "Brewery",
       "NAME_other": "Breweries",
-      "DESCRIPTION": "Tasty mead is brewed in the Brewery and later quaffed by the soldiers during the celebrations. These drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs’ power of persuasion is decreased and catapults can only do random hits. It can only be built by Teutons."
+      "DESCRIPTION": "Tasty mead is brewed in the Brewery and later quaffed by the soldiers during the celebrations. These drinks make your soldiers braver and stronger when attacking others (1% per level). Unfortunately, the chiefs' power of persuasion is decreased and catapults can only do random hits. It can only be built by Teutons."
     },
     "COMMAND_CENTER": {
       "NAME": "Command Center",

@@ -9,8 +9,11 @@ export default {
   ssr: false,
   prerender: [
     '/',
-    '/create-new-server',
+    '/game-worlds',
+    '/game-worlds/create',
+    '/game-worlds/import',
     '/frequently-asked-questions',
+    '/get-involved',
     '/__spa-preload',
   ],
   future: {
