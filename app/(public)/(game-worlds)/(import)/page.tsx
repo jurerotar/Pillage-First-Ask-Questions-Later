@@ -10,13 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
 import { useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
-import ImportGameWorldWorker from 'app/(public)/(import-game-world)/workers/import-game-world-worker?worker&url';
+import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
-} from 'app/(public)/(import-game-world)/workers/import-game-world-worker';
+} from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import { workerFactory } from 'app/utils/workers';
 
 const ImportGameWorld = () => {
@@ -41,7 +41,13 @@ const ImportGameWorld = () => {
               <BreadcrumbLink to="/">{t('Home')}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>{t('Import existing game world')}</BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink to="/game-worlds">
+                {t('Game worlds')}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>{t('Import')}</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
@@ -119,6 +125,13 @@ const ImportGameWorld = () => {
                 }
               }}
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Text>Want to create a new game world instead?</Text>
+
+            <Link to="/game-worlds/create">
+              <Button variant="outline">Create a new game world</Button>
+            </Link>
           </div>
         </main>
       </div>

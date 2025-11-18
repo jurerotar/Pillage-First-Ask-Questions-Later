@@ -70,7 +70,7 @@ export const MobileNavigation = () => {
                     <li>
                       <Link
                         className="inline-flex gap-2 items-center"
-                        to="/my-game-worlds"
+                        to="/game-worlds"
                       >
                         <BiWorld className="text-gray-400 text-lg" />
                         <Text className="font-medium text-gray-800">
@@ -81,7 +81,7 @@ export const MobileNavigation = () => {
                     <li>
                       <Link
                         className="inline-flex gap-2 items-center"
-                        to="/create-new-game-world"
+                        to="/game-worlds/create"
                       >
                         <IoCreate className="text-gray-400 text-lg" />
                         <Text className="font-medium text-gray-800">
@@ -92,7 +92,7 @@ export const MobileNavigation = () => {
                     <li>
                       <Link
                         className="inline-flex gap-2 items-center"
-                        to="/import-game-world"
+                        to="/game-worlds/import"
                       >
                         <CiImport className="text-gray-400 text-lg" />
                         <Text className="font-medium text-gray-800">
@@ -183,10 +183,10 @@ export const MobileNavigation = () => {
                 <div className="flex flex-1" />
                 <div className="border border-dashed border-border w-full" />
                 <div className="flex justify-center gap-2">
-                  <Link to="/create-new-game-world">
+                  <Link to="/game-worlds/create">
                     <Button>{t('Try now')}</Button>
                   </Link>
-                  <Link to="/my-game-worlds">
+                  <Link to="/game-worlds">
                     <Button variant="outline">
                       {t('Existing game worlds')}
                     </Button>

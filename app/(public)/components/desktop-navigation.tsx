@@ -121,7 +121,7 @@ export const DesktopNavigation = () => {
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <Link
-                to="/my-game-worlds"
+                to="/game-worlds"
                 className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 <DropdownLinkContent
@@ -131,17 +131,17 @@ export const DesktopNavigation = () => {
                 />
               </Link>
               <Link
-                to="/create-new-game-world"
+                to="/game-worlds/create"
                 className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 <DropdownLinkContent
-                  label={t('Create new game world')}
+                  label={t('Create a new game world')}
                   description={t('Create and configure a new world')}
                   icon={<IoCreate />}
                 />
               </Link>
               <Link
-                to="/import-game-world"
+                to="/game-worlds/import"
                 className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
               >
                 <DropdownLinkContent
@@ -219,10 +219,10 @@ export const DesktopNavigation = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link to="/create-new-game-world">
+          <Link to="/game-worlds/create">
             <Button>{t('Try now')}</Button>
           </Link>
-          <Link to="/my-game-worlds">
+          <Link to="/game-worlds">
             <Button variant="outline">{t('Existing game worlds')}</Button>
           </Link>
         </div>

@@ -1,4 +1,4 @@
-import { CreateNewGameWorldForm } from 'app/(public)/(create-new-game-world)/components/create-new-game-world-form';
+import { CreateNewGameWorldForm } from 'app/(public)/(game-worlds)/(create)/components/create-new-game-world-form';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -16,7 +16,7 @@ const CreateNewGameWorldPage = () => {
   const { t } = useTranslation('public');
 
   const title = t('{{title}} | Pillage First!', {
-    title: 'Create new game world',
+    title: 'Create a new game world',
   });
 
   return (
@@ -29,11 +29,17 @@ const CreateNewGameWorldPage = () => {
               <BreadcrumbLink to="/">{t('Home')}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>{t('Create new game world')}</BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink to="/game-worlds">
+                {t('Game worlds')}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>{t('Create')}</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('Create new game world')}</Text>
+          <Text as="h1">{t('Create a new game world')}</Text>
           <Text>
             Creating a new game world will generate a game state and store it in
             your browser's persistent memory. You can safely close the tab or
@@ -50,17 +56,19 @@ const CreateNewGameWorldPage = () => {
           </Alert>
           <CreateNewGameWorldForm />
 
-          <Text>
-            Want to continue playing on your current game worlds, or want to
-            import an existing game state?
-          </Text>
-          <div className="flex gap-2">
-            <Link to="/my-game-worlds">
-              <Button>My game worlds</Button>
-            </Link>
-            <Link to="/import-game-world">
-              <Button variant="outline">Import existing game state</Button>
-            </Link>
+          <div className="flex flex-col gap-2">
+            <Text>
+              Want to continue playing on your current game worlds, or want to
+              import an existing game state?
+            </Text>
+            <div className="flex gap-2">
+              <Link to="/game-worlds">
+                <Button>My game worlds</Button>
+              </Link>
+              <Link to="/game-worlds/import">
+                <Button variant="outline">Import existing game state</Button>
+              </Link>
+            </div>
           </div>
         </main>
       </div>

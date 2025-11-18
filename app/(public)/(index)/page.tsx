@@ -25,10 +25,10 @@ const HomePage = () => {
           </Text>
 
           <div className="flex gap-2">
-            <Link to="/create-new-game-world">
+            <Link to="/game-worlds/create">
               <Button>Try now</Button>
             </Link>
-            <Link to="/my-game-worlds">
+            <Link to="/game-worlds">
               <Button variant="outline">Existing game worlds</Button>
             </Link>
           </div>

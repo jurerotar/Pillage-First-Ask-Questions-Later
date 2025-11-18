@@ -30,7 +30,7 @@ const MyGameWorldsPage = () => {
               <BreadcrumbLink to="/">{t('Home')}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>{t('My game worlds')}</BreadcrumbItem>
+            <BreadcrumbItem>{t('Game worlds')}</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
@@ -57,14 +57,12 @@ const MyGameWorldsPage = () => {
             )}
           </div>
 
-          <Text>
-            Want to create a new game world instead? You may create as many game
-            worlds as you wish. All game world states are saved to your device
-            and are currently not transferable between devices.
-          </Text>
-          <Link to="/create-new-game-world">
-            <Button>Create new game world</Button>
-          </Link>
+          <div className="flex flex-col gap-2">
+            <Text>Want to create a new game world instead?</Text>
+            <Link to="/game-worlds/create">
+              <Button variant="outline">Create a new game world</Button>
+            </Link>
+          </div>
         </main>
       </div>
     </>

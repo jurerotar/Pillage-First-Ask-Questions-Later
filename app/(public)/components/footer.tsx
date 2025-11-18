@@ -34,16 +34,23 @@ export const Footer = () => {
           </Text>
           <ul className="flex flex-col gap-2">
             <li>
-              <Link to="/my-game-worlds">
+              <Link to="/game-worlds">
                 <Text className="font-medium text-gray-800">
                   {t('My game worlds')}
                 </Text>
               </Link>
             </li>
             <li>
-              <Link to="/create-new-game-world">
+              <Link to="/game-worlds/create">
                 <Text className="font-medium text-gray-800">
-                  {t('Create new game world')}
+                  {t('Create a new game world')}
+                </Text>
+              </Link>
+            </li>
+            <li>
+              <Link to="/game-worlds/import">
+                <Text className="font-medium text-gray-800">
+                  {t('Import game world')}
                 </Text>
               </Link>
             </li>

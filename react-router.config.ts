@@ -9,9 +9,9 @@ export default {
   ssr: false,
   prerender: [
     '/',
-    '/my-game-worlds',
-    '/create-new-game-world',
-    '/import-game-world',
+    '/game-worlds',
+    '/game-worlds/create',
+    '/game-worlds/import',
     '/frequently-asked-questions',
     '/get-involved',
     '/__spa-preload',
