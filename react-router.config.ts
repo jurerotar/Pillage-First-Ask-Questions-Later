@@ -11,8 +11,11 @@ export default {
     unstable_concurrency: 4,
     paths: [
       '/',
-      '/create-new-server',
+      '/game-worlds',
+      '/game-worlds/create',
+      '/game-worlds/import',
       '/frequently-asked-questions',
+      '/get-involved',
       '/__spa-preload',
     ],
   },

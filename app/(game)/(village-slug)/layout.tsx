@@ -460,7 +460,7 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/">
+                  <Link to="/game-worlds">
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
                       title={t('Logout')}
@@ -619,7 +619,7 @@ const MobileBottomNavigation = () => {
           </li>
           <li>
             <NavigationSideItem
-              to="/"
+              to="/game-worlds"
               aria-label={t('Logout')}
               title={t('Logout')}
             >

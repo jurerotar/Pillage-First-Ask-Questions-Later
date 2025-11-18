@@ -38,36 +38,6 @@ hooks, providers,... and tests.
 
 Please refer to [directory naming convention](./docs/DIRECTORY_NAMING_CONVENTION.md) for naming convention.
 
-```
-├── .github                 # GitHub-specific configurations and workflows
-├── .husky                  # Git hooks for enforcing code quality
-├── app                     # Main application source code
-│   ├── (design-system)     # Temporary route group allowing you to see a list of icons app uses (/design-system/icons)
-│   ├── (game)              # Game-specific routes and assets
-│   │   ├── (xxx)           # Game routes (/resources, /map,...)
-│   │   ├── providers       # Game engine, game-state,... providers
-│   │   ├── api             # Local-api
-│   │   ├── assets          # Buildings, units, items, ... data
-│   │   ├── layout.ts       # Game-only layout
-│   │   ├── ...
-│   ├── (public)            # Public pages (/, /create-new-server)
-│   │   ├── layout.ts       # Public-pages only layout
-│   │   ├── ...
-│   ├── interfaces          # TypeScript interfaces and types
-│   ├── localization        # Localization files
-│   ├── styles              # Tailwind configuration and global stylesheets
-│   ├── tests               # Unit test environments and mocks
-│   ├── ...
-│   ├── faro.ts             # Grafana Faro configuration file
-│   ├── sw.ts               # Service worker entry file
-│   ├── root.tsx            # Root entry point for the application
-│   ├── routes.ts           # Application route definitions
-│   ├── ...
-├── docs                    # Project documentation
-├── public                  # Static files served by the app (e.g., index.html)
-├── scripts                 # Custom scripts for development and build automation
-```
-
 ## 4. Contribution guide
 
 Before starting, please read through the [architecture documentation](./docs/ARCHITECTURE.md) to gain an understanding on how the app works.

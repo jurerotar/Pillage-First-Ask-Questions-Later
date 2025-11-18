@@ -42,7 +42,7 @@ export const MarketplaceTrade = () => {
         <Text as="h2">{t('Trade')}</Text>
         <Text>
           {t(
-            'Buy resources from nearby players and filter offers to match your needs. Select the resource you’re searching for by clicking its button. The same applies when choosing what you want to offer.',
+            "Buy resources from nearby players and filter offers to match your needs. Select the resource you're searching for by clicking its button. The same applies when choosing what you want to offer.",
           )}
         </Text>
       </SectionContent>
