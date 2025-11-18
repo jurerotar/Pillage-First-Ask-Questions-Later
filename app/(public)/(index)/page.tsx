@@ -65,13 +65,13 @@ const HomePage = () => {
     <>
       <title>Pillage First! (Ask Questions Later)</title>
       <main>
-        <div className="max-w-7xl mx-auto flex min-h-[400px] lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
+        <div className="max-w-7xl mx-auto flex min-h-[450px] lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
-              className="font-semibold"
+              className="text-xl sm:text-2xl"
             >
-              Pillage First!
+              <b>Pillage First! (Ask Questions Later)</b>
             </Text>
             <Text>
               <b>Pillage First!</b> is an <b>open-source</b>,{' '}
