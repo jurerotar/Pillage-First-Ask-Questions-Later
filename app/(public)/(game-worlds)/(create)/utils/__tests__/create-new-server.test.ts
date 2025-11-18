@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { createNewServer } from 'app/(public)/(create-new-server)/workers/utils/create-new-server';
+import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
 import {

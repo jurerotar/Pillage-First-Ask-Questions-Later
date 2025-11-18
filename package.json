@@ -75,7 +75,7 @@
     "@types/react-dom": "19.2.3",
     "@types/react-window": "1.8.8",
     "@vitest/coverage-v8": "4.0.10",
-    "@typescript/native-preview": "7.0.0-dev.20251113.1",
+    "@typescript/native-preview": "7.0.0-dev.20251118.1",
     "cheerio": "1.1.2",
     "happy-dom": "20.0.10",
     "husky": "9.1.7",

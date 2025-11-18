@@ -1,5 +1,5 @@
 import type { Server } from 'app/interfaces/models/game/server';
-import { createNewServer } from 'app/(public)/(game-worlds)/(create)/workers/utils/create-new-server';
+import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;
