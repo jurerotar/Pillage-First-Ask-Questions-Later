@@ -9,7 +9,8 @@ import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router';
 import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
@@ -19,13 +20,45 @@ import type {
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import { workerFactory } from 'app/utils/workers';
 
+type ImportGameWorldSuccess = Extract<
+  ImportGameWorldWorkerResponse,
+  { resolved: true }
+>;
+
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
   const navigate = useNavigate();
   const { addServer } = useAvailableServers();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isImporting, setIsImporting] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const {
+    mutateAsync: importGameWorld,
+    isPending: isImporting,
+    error,
+  } = useMutation<ImportGameWorldSuccess, Error, File>({
+    mutationFn: async (file) => {
+      const buffer = await file.arrayBuffer();
+      const payload: ImportGameWorldWorkerPayload = {
+        databaseBuffer: buffer,
+      };
+
+      const result = await workerFactory<
+        ImportGameWorldWorkerPayload,
+        ImportGameWorldWorkerResponse
+      >(ImportGameWorldWorker, payload);
+
+      if (!result.resolved) {
+        throw new Error(result.error || 'Failed to import game world.');
+      }
+
+      return result;
+    },
+    onSuccess: async ({ server }) => {
+      addServer({ server });
+
+      await navigate(`/game/${server.slug}/v-1/resources`);
+    },
+  });
 
   const title = t('{{title}} | Pillage First!', {
     title: 'Import existing game world',
@@ -61,67 +94,42 @@ const ImportGameWorld = () => {
             Game world importing functionality is experimental. If you encounter
             issues, please report them in the Discord!
           </Alert>
-          {error && <Alert variant="error">{error}</Alert>}
+          {error && <Alert variant="error">{error.toString()}</Alert>}
           <div className="flex items-center gap-3">
             <Button
               onClick={() => {
-                setError(null);
                 fileInputRef.current?.click();
               }}
               disabled={isImporting}
             >
               {isImporting
                 ? t('Importing...')
-                : t('Select .json file to import')}
+                : t('Select .sqlite3 file to import')}
             </Button>
             <input
               ref={fileInputRef}
               type="file"
-              accept="application/json,.json"
+              accept=".sqlite3"
               className="hidden"
               onChange={async (e) => {
-                setError(null);
                 const file = e.target.files?.[0];
                 if (!file) {
                   return;
                 }
 
-                if (!file.name.endsWith('.json')) {
-                  setError('Please select a .json file');
-                  e.currentTarget.value = '';
+                if (!file.name.endsWith('.sqlite3')) {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
                   return;
                 }
 
                 try {
-                  setIsImporting(true);
-                  const text = await file.text();
-                  const payload: ImportGameWorldWorkerPayload = {
-                    fileText: text,
-                  };
-                  const result = await workerFactory<
-                    ImportGameWorldWorkerPayload,
-                    ImportGameWorldWorkerResponse
-                  >(ImportGameWorldWorker, payload);
-
-                  if (!result.resolved) {
-                    setError(result.error || 'Failed to import game world.');
-                    return;
-                  }
-
-                  // Add to available servers (localStorage list)
-                  addServer({ server: result.server });
-
-                  // Navigate to imported world
-                  await navigate(`/game/${result.serverSlug}/v-1/resources`);
-                } catch (err) {
-                  console.error(err);
-                  setError(
-                    'Failed to import game world. Ensure the file is valid.',
-                  );
+                  await importGameWorld(file);
                 } finally {
-                  setIsImporting(false);
-                  // Reset the input so selecting the same file again triggers change
-                  e.currentTarget.value = '';
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
                 }
               }}
             />

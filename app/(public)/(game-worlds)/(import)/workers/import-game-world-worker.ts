@@ -1,21 +1,12 @@
-import {
-  QueryClient,
-  hydrate,
-  dehydrate,
-  type DehydratedState,
-} from '@tanstack/react-query';
-import type { Server } from 'app/interfaces/models/game/server';
-import { getRootHandle, writeFileContents } from 'app/utils/opfs';
-import { serverCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { type Server, serverDbSchema } from 'app/interfaces/models/game/server';
 
 export type ImportGameWorldWorkerPayload = {
-  fileText: string;
+  databaseBuffer: ArrayBuffer;
 };
 
 export type ImportGameWorldWorkerResponse =
   | {
       resolved: true;
-      serverSlug: Server['slug'];
       server: Server;
     }
   | {
@@ -26,55 +17,57 @@ export type ImportGameWorldWorkerResponse =
 self.addEventListener(
   'message',
   async (event: MessageEvent<ImportGameWorldWorkerPayload>) => {
-    const { fileText } = event.data;
+    const { default: sqlite3InitModule } = await import(
+      '@sqlite.org/sqlite-wasm'
+    );
 
-    let dehydratedState: DehydratedState;
-    const queryClient = new QueryClient();
+    const { databaseBuffer } = event.data;
 
     try {
-      // Parse uploaded JSON into DehydratedState and hydrate a QueryClient
-      dehydratedState = JSON.parse(fileText) satisfies DehydratedState;
-      hydrate(queryClient, dehydratedState);
-    } catch {
-      self.postMessage({
-        resolved: false,
-        error: 'Corrupted or incompatible file. Failed to load game state.',
-      } satisfies ImportGameWorldWorkerResponse);
-      self.close();
-      return;
-    }
+      const sqlite3 = await sqlite3InitModule();
 
-    const server = queryClient.getQueryData<Server>([serverCacheKey]);
-
-    if (!server) {
-      self.postMessage({
-        resolved: false,
-        error: 'Invalid import file: missing server state',
-      } satisfies ImportGameWorldWorkerResponse);
-      self.close();
-      return;
-    }
-
-    queryClient.setQueryData<Server>([serverCacheKey], (server) => {
       const id = crypto.randomUUID();
       const slug = `s-${id.substring(0, 4)}`;
 
-      server!.id = id;
-      server!.slug = slug;
+      const destDir = `/pillage-first-ask-questions-later/${slug}`;
+      const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+        directory: destDir,
+      });
+      const mainDbPath = `/${slug}.sqlite3`;
 
-      return server;
-    });
+      await opfsSahPool.importDb(mainDbPath, new Uint8Array(databaseBuffer));
 
-    // Write imported state to OPFS under (possibly updated) server slug
-    const rootHandle = await getRootHandle();
-    await writeFileContents(rootHandle, server.slug, dehydrate(queryClient));
+      const opfsDb = new opfsSahPool.OpfsSAHPoolDb(mainDbPath);
 
-    self.postMessage({
-      resolved: true,
-      serverSlug: server.slug,
-      server,
-    } satisfies ImportGameWorldWorkerResponse);
+      opfsDb.exec({
+        sql: 'UPDATE servers SET id = $id, slug = $slug;',
+        bind: {
+          $id: id,
+          $slug: slug,
+        },
+      });
 
-    self.close();
+      const serverRow = opfsDb.selectObject('SELECT * FROM servers;');
+
+      const server = serverDbSchema.parse(serverRow);
+
+      opfsDb.close();
+      opfsSahPool.pauseVfs();
+
+      self.postMessage({
+        resolved: true,
+        server,
+      } satisfies ImportGameWorldWorkerResponse);
+
+      self.close();
+    } catch (error) {
+      console.error(error);
+      self.postMessage({
+        resolved: false,
+        error:
+          'Failed to import game world database. The file may be corrupted or incompatible.',
+      } satisfies ImportGameWorldWorkerResponse);
+      self.close();
+    }
   },
 );
