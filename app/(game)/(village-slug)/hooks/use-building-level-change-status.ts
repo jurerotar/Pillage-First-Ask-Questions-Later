@@ -10,13 +10,13 @@ import type { Building } from 'app/interfaces/models/game/building';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 export const getHasEnoughFreeCrop = (
-  nextLevelWheatConsumption: number,
+  populationDifference: number,
   buildingWheatLimit: number,
 ): boolean => {
-  if (nextLevelWheatConsumption === 0) {
+  if (populationDifference === 0) {
     return true;
   }
-  return buildingWheatLimit >= nextLevelWheatConsumption;
+  return buildingWheatLimit >= populationDifference;
 };
 
 export const getHasEnoughWarehouseCapacity = (
@@ -85,8 +85,10 @@ const useBuildingRequirements = (
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
 
-  const { isMaxLevel, nextLevelResourceCost, nextLevelPopulation } =
+  const { isMaxLevel, nextLevelResourceCost, nextLevelPopulation, population } =
     getBuildingDataForLevel(buildingId, level);
+
+  const populationDifference = nextLevelPopulation - population;
 
   const resources = useMemo(() => {
     return {
@@ -114,7 +116,7 @@ const useBuildingRequirements = (
 
     const errors: string[] = [];
 
-    if (!getHasEnoughFreeCrop(nextLevelPopulation, buildingWheatLimit)) {
+    if (!getHasEnoughFreeCrop(populationDifference, buildingWheatLimit)) {
       errors.push(t('Upgrade wheat fields first'));
     }
 
@@ -154,7 +156,7 @@ const useBuildingRequirements = (
   }, [
     isMaxLevel,
     isDeveloperModeEnabled,
-    nextLevelPopulation,
+    populationDifference,
     buildingWheatLimit,
     warehouseCapacity,
     granaryCapacity,
