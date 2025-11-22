@@ -45,7 +45,7 @@ import { TbMap2, TbShoe } from 'react-icons/tb';
 import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { GiWheat } from 'react-icons/gi';
 import { LuBookMarked, LuScrollText } from 'react-icons/lu';
-import { PiPathBold } from 'react-icons/pi';
+import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { FaHome } from 'react-icons/fa';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { RxExit } from 'react-icons/rx';
@@ -59,6 +59,9 @@ import { parseResourcesFromRFC } from 'app/utils/map';
 import { Text } from 'app/components/text';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { Icon } from 'app/components/icon';
+import { formatNumber } from 'app/utils/common';
 
 type CounterProps = {
   counter?: number;
@@ -116,18 +119,40 @@ const NavigationSideItem = ({
   );
 };
 
-const DiscordLink = () => {
+const VillageOverviewLink = () => {
+  const { t } = useTranslation();
+  const { population, buildingWheatLimit } =
+    useComputedEffect('wheatProduction');
+
   return (
-    <a
-      href="https://discord.com/invite/Ep7NKVXUZA"
+    <Link
+      to="overview"
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background"
-      title="Discord"
-      rel="noopener"
+      aria-label={t('Village overview')}
+      title={t('Village overview')}
     >
       <span className="flex items-center justify-center">
-        <FaDiscord className="text-2xl text-[#7289da]" />
+        <PiListChecks className="text-2xl" />
       </span>
-    </a>
+      <span className="inline-flex items-center justify-between bg-background px-0.5 absolute top-0 left-8 h-4 w-9 rounded-full border border-border shadow-md">
+        <Icon
+          type="population"
+          className="text-xs"
+        />
+        <span className="text-foreground text-2xs">
+          {formatNumber(population)}
+        </span>
+      </span>
+      <span className="inline-flex items-center justify-between bg-background px-0.5 absolute bottom-0 left-8 h-4 w-9 rounded-full border border-border shadow-md">
+        <Icon
+          type="freeCrop"
+          className="text-2xs"
+        />
+        <span className="text-foreground text-2xs">
+          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </span>
+    </Link>
   );
 };
 
@@ -479,7 +504,7 @@ const TopNavigation = () => {
               </Suspense>
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
-              <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
+              <ul className="hidden lg:flex gap-1 lg:gap-2 xl:gap-4 justify-center items-center">
                 <li>
                   <NavigationSideItem
                     to="statistics"
@@ -502,7 +527,7 @@ const TopNavigation = () => {
                   </NavigationSideItem>
                 </li>
                 <li>
-                  <ul className="flex gap-1 xl:gap-2 xl:mx-2">
+                  <ul className="flex gap-1 lg:gap-2 xl:mx-2">
                     <li>
                       <ResourcesNavigationItem />
                     </li>
@@ -536,8 +561,8 @@ const TopNavigation = () => {
         </div>
       )}
       {!isWiderThanLg && (
-        <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
-          <DiscordLink />
+        <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-8">
+          <VillageOverviewLink />
           <VillageSelect />
           <HeroNavigationItem />
         </div>
@@ -582,15 +607,6 @@ const MobileBottomNavigation = () => {
           </li>
           <li>
             <QuestsNavigationItem />
-          </li>
-          <li>
-            <NavigationSideItem
-              to="overview"
-              aria-label={t('Overview')}
-              title={t('Overview')}
-            >
-              <CiCircleList className="text-2xl" />
-            </NavigationSideItem>
           </li>
           <li>
             <ul className="flex gap-2 -translate-y-3 mx-2">

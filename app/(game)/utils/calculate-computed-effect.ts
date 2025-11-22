@@ -295,7 +295,9 @@ export function calculateComputedEffect(
     return {
       total,
       population: -summedBuildingEffectBaseNegativeValue,
-      buildingWheatLimit: total + summedBuildingEffectBaseNegativeValue,
+      buildingWheatLimit:
+        summedBuildingEffectBasePositiveValue +
+        summedBuildingEffectBaseNegativeValue,
     };
   }
 
