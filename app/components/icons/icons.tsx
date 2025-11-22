@@ -1,5 +1,12 @@
 import { RxCross2 } from 'react-icons/rx';
-import { LuClock, LuShield, LuSword, LuSwords, LuWheat } from 'react-icons/lu';
+import {
+  LuClock,
+  LuShield,
+  LuSword,
+  LuSwords,
+  LuWheat,
+  LuWheatOff,
+} from 'react-icons/lu';
 import { CgTimelapse } from 'react-icons/cg';
 import {
   TbBat,
@@ -11,12 +18,7 @@ import {
 } from 'react-icons/tb';
 import { PiKeyhole, PiPath, PiWarehouseBold } from 'react-icons/pi';
 import { BiShieldQuarter } from 'react-icons/bi';
-import {
-  FaHandshakeAngle,
-  FaPeopleGroup,
-  FaStar,
-  FaWheatAwnCircleExclamation,
-} from 'react-icons/fa6';
+import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
 import {
   BsFillPeopleFill,
   BsMinecartLoaded,
@@ -215,9 +217,7 @@ export const icons: Record<IconType, () => JSX.Element> = {
   defenderFullLoss: () => <LuShield className="size-full text-red-500" />,
 
   // Effects
-  freeCrop: () => (
-    <FaWheatAwnCircleExclamation className="size-full text-green-400" />
-  ),
+  freeCrop: () => <LuWheatOff className="size-full text-yellow-500" />,
   populationCropConsumption: () => (
     <BsFillPeopleFill className="size-full text-yellow-200" />
   ),

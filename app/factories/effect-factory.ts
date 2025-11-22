@@ -201,7 +201,7 @@ export const newVillageEffectsFactory = (
       id: 'wheatProduction',
       scope: 'village',
       source: 'building',
-      value: 3,
+      value: -3,
       villageId: village.id,
       type: 'base',
       buildingFieldId: 0,
