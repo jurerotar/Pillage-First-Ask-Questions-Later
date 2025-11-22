@@ -260,7 +260,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
 
     effectsToInsert.push([
       'wheatProduction',
-      population,
+      -population,
       'base',
       'village',
       'building',

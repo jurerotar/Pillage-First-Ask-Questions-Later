@@ -45,15 +45,7 @@ export const getPlayerRankings: ApiHandler<'', GetPlayersStatisticsBody> = (
           p.slug,
           p.tribe,
           (SELECT faction FROM factions WHERE id = p.faction_id) AS faction,
-          CAST(
-            COALESCE(
-              SUM(
-                CASE WHEN ei.effect = 'wheatProduction' THEN e.value ELSE 0 END
-              ),
-              0
-            ) AS INTEGER
-          ) AS total_population,
-
+          CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END AS total_population,
           COUNT(DISTINCT v.id) AS village_count
         FROM players p
                LEFT JOIN villages v ON v.player_id = p.id
@@ -155,15 +147,7 @@ export const getVillageRankings: ApiHandler<'', GetVillageStatisticsBody> = (
                                   v.player_id,
                                   p.name AS player_name,
                                   p.slug AS player_slug,
-                                  -- integer population (sum of matching effect values)
-                                  CAST(
-                                    COALESCE(
-                                      SUM(
-                                        CASE WHEN ei.effect = 'wheatProduction' THEN e.value ELSE 0 END
-                                      ),
-                                      0
-                                    ) AS INTEGER
-                                  ) AS population
+                                  CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END AS population
                            FROM villages v
                                   LEFT JOIN tiles t ON t.id = v.tile_id
                                   LEFT JOIN players p ON p.id = v.player_id

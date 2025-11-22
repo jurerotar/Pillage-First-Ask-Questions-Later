@@ -50,7 +50,7 @@ export const selectAllRelevantEffectsByIdQuery = `
 
 export const updatePopulationEffectQuery = `
   UPDATE effects
-  SET value = value + ($value)
+  SET value = value - ($value)
   WHERE effect_id = (SELECT id
          FROM effect_ids
          WHERE effect = 'wheatProduction')
