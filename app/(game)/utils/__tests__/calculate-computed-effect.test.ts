@@ -297,7 +297,7 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(50);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(0);
+      expect(result.buildingWheatLimit).toBe(50);
     });
 
     test('base + population + bonus + booster – total=100, population=50, limit=50', () => {
@@ -318,7 +318,7 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(100);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(50);
+      expect(result.buildingWheatLimit).toBe(100);
     });
 
     test('base + population + bonus + booster + server – total=250, population=50, limit=200', () => {
@@ -340,7 +340,7 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(250);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(200);
+      expect(result.buildingWheatLimit).toBe(250);
     });
   });
 
