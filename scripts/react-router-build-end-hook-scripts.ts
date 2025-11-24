@@ -84,9 +84,9 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   const clientDir = resolve('build/client');
 
   for await (const svgSpriteFile of glob(
-    './build/client/assets/react-icons-sprite.svg',
+    './build/client/react-icons-sprite-*.svg',
   )) {
-    const svgSpriteName = svgSpriteFile.replace('build/client', '');
+    const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
 
     const preRenderedFileUrls = (reactRouterConfig.prerender as string[]).map(
       (path) => {
