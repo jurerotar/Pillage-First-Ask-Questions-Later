@@ -8,6 +8,7 @@ import {
 } from 'app/interfaces/models/game/preferences';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
+import { markNeedsRescan } from 'app/(game)/api/engine/scheduler-signal';
 
 const getPreferencesSchema = z
   .strictObject({
@@ -65,7 +66,8 @@ export const getPreferences: ApiHandler = (database) => {
         should_show_notifications_on_building_upgrade_completion,
         should_show_notifications_on_unit_upgrade_completion,
         should_show_notifications_on_academy_research_completion
-      FROM preferences
+      FROM
+        preferences
     `,
   );
 
@@ -87,11 +89,30 @@ export const updatePreference: ApiHandler<
 
   database.exec(
     `
-    UPDATE preferences
-      SET ${column} = $value
+      UPDATE preferences
+      SET
+        ${column} = $value
     `,
     {
       $value: value,
     },
   );
+
+  if (column === 'isDeveloperModeEnabled' && value === true) {
+    database.exec(
+      `
+        UPDATE events
+        SET
+          starts_at = $now,
+          duration = 0
+        WHERE
+          type IN ('buildingLevelUpEvent', 'buildingScheduledEvent')
+      `,
+      {
+        $now: Date.now(),
+      },
+    );
+
+    markNeedsRescan();
+  }
 };
