@@ -85,9 +85,9 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   const clientDir = resolve('build/client');
 
   for await (const svgSpriteFile of glob(
-    './build/client/assets/react-icons-sprite.svg',
+    './build/client/react-icons-sprite-*.svg',
   )) {
-    const svgSpriteName = svgSpriteFile.replace('build/client', '');
+    const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
 
     const preRenderedFileUrls =
       // @ts-expect-error: This type is dumb af
