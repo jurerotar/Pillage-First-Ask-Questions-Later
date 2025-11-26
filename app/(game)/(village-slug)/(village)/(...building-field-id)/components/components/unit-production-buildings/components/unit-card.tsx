@@ -511,7 +511,7 @@ export const UnitRecruitment = () => {
 
   const individualUnitRecruitmentDuration = (() => {
     if (isDeveloperModeEnabled) {
-      return 5000;
+      return 0;
     }
 
     return baseRecruitmentDuration;

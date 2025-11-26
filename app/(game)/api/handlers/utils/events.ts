@@ -392,6 +392,10 @@ export const getEventDuration = (
     );
   }
   if (isTroopTrainingEvent(event)) {
+    if (isDeveloperModeEnabled) {
+      return 0;
+    }
+
     const { unitId, villageId, durationEffectId } = event;
 
     const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
@@ -406,10 +410,6 @@ export const getEventDuration = (
       effects,
       villageId,
     );
-
-    if (isDeveloperModeEnabled) {
-      return 5000 * total;
-    }
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
