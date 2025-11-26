@@ -8,7 +8,7 @@ import {
 } from 'app/interfaces/models/game/preferences';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import { markNeedsRescan } from 'app/(game)/api/engine/scheduler-signal';
+import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
 
 const getPreferencesSchema = z
   .strictObject({
@@ -98,7 +98,7 @@ export const updatePreference: ApiHandler<
     },
   );
 
-  if (column === 'isDeveloperModeEnabled' && value === true) {
+  if (preferenceName === 'isDeveloperModeEnabled' && value === true) {
     database.exec(
       `
         UPDATE events
@@ -113,6 +113,6 @@ export const updatePreference: ApiHandler<
       },
     );
 
-    markNeedsRescan();
+    kickSchedulerNow(database);
   }
 };
