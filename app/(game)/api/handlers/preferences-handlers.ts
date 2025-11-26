@@ -106,7 +106,7 @@ export const updatePreference: ApiHandler<
           starts_at = $now,
           duration = 0
         WHERE
-          type IN ('buildingLevelUpEvent', 'buildingScheduledEvent')
+          type IN ('buildingLevelChange', 'buildingScheduledConstruction', 'unitResearch', 'unitImprovement')
       `,
       {
         $now: Date.now(),
