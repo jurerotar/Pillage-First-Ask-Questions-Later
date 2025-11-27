@@ -196,6 +196,7 @@ export const villageQuests: VillageQuestDefinition[] = [
   createBuildingQuest('WHEAT_FIELD', 7, 'every'),
   createBuildingQuest('WHEAT_FIELD', 9, 'every'),
   // Main building
+  createBuildingQuest('MAIN_BUILDING', 1),
   createBuildingQuest('MAIN_BUILDING', 5),
   createBuildingQuest('MAIN_BUILDING', 10),
   createBuildingQuest('MAIN_BUILDING', 15),
