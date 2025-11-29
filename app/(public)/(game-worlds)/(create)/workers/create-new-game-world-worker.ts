@@ -1,5 +1,6 @@
 import type { Server } from 'app/interfaces/models/game/server';
 import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;
@@ -13,7 +14,9 @@ self.addEventListener(
     );
     const { server } = event.data;
 
-    const sqlite3 = await sqlite3InitModule();
+    const sqlite3 = await sqlite3InitModule({
+      locateFile: () => sqliteWasmUrl,
+    });
     const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
       directory: `/pillage-first-ask-questions-later/${server.slug}`,
     });

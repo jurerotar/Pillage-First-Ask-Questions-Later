@@ -1,4 +1,5 @@
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
@@ -16,7 +17,9 @@ try {
   const urlParams = new URLSearchParams(self.location.search);
   const serverSlug = urlParams.get('server-slug')!;
 
-  const sqlite3 = await sqlite3InitModule();
+  const sqlite3 = await sqlite3InitModule({
+    locateFile: () => sqliteWasmUrl,
+  });
   const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
     // @ts-expect-error

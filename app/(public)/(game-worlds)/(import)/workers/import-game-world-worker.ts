@@ -1,4 +1,5 @@
 import { type Server, serverDbSchema } from 'app/interfaces/models/game/server';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
 export type ImportGameWorldWorkerPayload = {
   databaseBuffer: ArrayBuffer;
@@ -24,7 +25,9 @@ self.addEventListener(
     const { databaseBuffer } = event.data;
 
     try {
-      const sqlite3 = await sqlite3InitModule();
+      const sqlite3 = await sqlite3InitModule({
+        locateFile: () => sqliteWasmUrl,
+      });
 
       const id = crypto.randomUUID();
       const slug = `s-${id.substring(0, 4)}`;
