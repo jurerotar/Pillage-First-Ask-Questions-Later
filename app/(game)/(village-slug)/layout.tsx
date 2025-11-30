@@ -104,6 +104,7 @@ const NavigationSideItem = ({
 }: PropsWithChildren<NavigationSideItemProps>) => {
   return (
     <NavLink
+      data-tooltip-id="general-tooltip"
       className={clsx(
         'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
         'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
@@ -129,7 +130,6 @@ const VillageOverviewLink = () => {
       to="overview"
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background"
       aria-label={t('Village overview')}
-      title={t('Village overview')}
     >
       <span className="flex items-center justify-center">
         <PiListChecks className="text-2xl" />
@@ -178,7 +178,6 @@ const HeroNavigationItem = () => {
       to="hero"
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
       aria-label={t('Hero')}
-      title={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
         <MdFace className="text-2xl" />
@@ -239,6 +238,7 @@ const DesktopTopRowItem = ({
 }: PropsWithChildren<ComponentProps<'button'>>) => {
   return (
     <button
+      data-tooltip-id="general-tooltip"
       type="button"
       className="
         px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card
@@ -260,6 +260,7 @@ const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
   return (
     <NavLink
       type="button"
+      data-tooltip-id="general-tooltip"
       className={({ isActive }) =>
         clsx(
           isActive
@@ -285,7 +286,7 @@ const QuestsNavigationItem = () => {
     <NavigationSideItem
       to="quests"
       aria-label={t('Quests')}
-      title={t('Quests')}
+      data-tooltip-content={t('Quests')}
     >
       <Suspense fallback={null}>
         <QuestsCounter />
@@ -302,7 +303,7 @@ const AdventuresNavigationItem = () => {
     <NavigationSideItem
       to="hero?tab=adventures"
       aria-label={t('Adventures')}
-      title={t('Adventures')}
+      data-tooltip-content={t('Adventures')}
     >
       <Suspense fallback={null}>
         <AdventurePointsCounter />
@@ -319,7 +320,7 @@ const ReportsNavigationItem = () => {
     <NavigationSideItem
       to="reports"
       aria-label={t('Reports')}
-      title={t('Reports')}
+      data-tooltip-content={t('Reports')}
     >
       <Suspense fallback={null}>
         <ReportsCounter />
@@ -335,7 +336,7 @@ const ResourcesNavigationItem = () => {
   return (
     <NavigationMainItem
       aria-label={t('Resources')}
-      title={t('Resources')}
+      data-tooltip-content={t('Resources')}
       to="resources"
       prefetch="render"
     >
@@ -350,7 +351,7 @@ const VillageNavigationItem = () => {
   return (
     <NavigationMainItem
       aria-label={t('Village')}
-      title={t('Village')}
+      data-tooltip-content={t('Village')}
       to="village"
       prefetch="render"
     >
@@ -365,7 +366,7 @@ const MapNavigationItem = () => {
   return (
     <NavigationMainItem
       aria-label={t('Map')}
-      title={t('Map')}
+      data-tooltip-content={t('Map')}
       to="map"
       prefetch="render"
     >
@@ -478,7 +479,7 @@ const TopNavigation = () => {
                   <Link to="preferences">
                     <DesktopTopRowItem
                       aria-label={t('Preferences')}
-                      title={t('Preferences')}
+                      data-tooltip-content={t('Preferences')}
                     >
                       <MdSettings className="text-xl" />
                     </DesktopTopRowItem>
@@ -488,7 +489,7 @@ const TopNavigation = () => {
                   <Link to="/game-worlds">
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
-                      title={t('Logout')}
+                      data-tooltip-content={t('Logout')}
                     >
                       <RxExit className="text-xl text-red-500" />
                     </DesktopTopRowItem>
@@ -509,7 +510,7 @@ const TopNavigation = () => {
                   <NavigationSideItem
                     to="statistics"
                     aria-label={t('Statistics')}
-                    title={t('Statistics')}
+                    data-tooltip-content={t('Statistics')}
                   >
                     <GoGraph className="text-xl" />
                   </NavigationSideItem>
@@ -521,7 +522,7 @@ const TopNavigation = () => {
                   <NavigationSideItem
                     to="overview"
                     aria-label={t('Overview')}
-                    title={t('Overview')}
+                    data-tooltip-content={t('Overview')}
                   >
                     <CiCircleList className="text-xl" />
                   </NavigationSideItem>
@@ -549,7 +550,7 @@ const TopNavigation = () => {
                   <NavigationSideItem
                     to="hero?tab=auctions"
                     aria-label={t('Auctions')}
-                    title={t('Auctions')}
+                    data-tooltip-content={t('Auctions')}
                   >
                     <RiAuctionLine className="text-xl" />
                   </NavigationSideItem>
@@ -567,7 +568,7 @@ const TopNavigation = () => {
           <HeroNavigationItem />
         </div>
       )}
-      <div className="flex relative rounded-md lg:rounded-none lg:rounded-b-sm px-2 lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-20 shadow-lg">
+      <div className="flex relative rounded-md lg:rounded-none lg:rounded-b-sm px-2 lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-10 shadow-lg">
         <ResourceCounters />
       </div>
     </header>
