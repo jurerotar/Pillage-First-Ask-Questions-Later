@@ -12,7 +12,7 @@ import {
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { isBuildingEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { isBuildingEffect } from 'app/(game)/guards/effect-guards';
 import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
 import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
 

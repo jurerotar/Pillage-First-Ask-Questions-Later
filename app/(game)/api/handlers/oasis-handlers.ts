@@ -9,7 +9,7 @@ import {
   mapCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import { isOasisEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { isOasisEffect } from 'app/(game)/guards/effect-guards';
 import { oasisEffectsFactory } from 'app/factories/effect-factory';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 

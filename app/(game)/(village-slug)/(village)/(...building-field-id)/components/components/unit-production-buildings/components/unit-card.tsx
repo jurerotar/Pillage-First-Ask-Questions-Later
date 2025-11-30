@@ -35,6 +35,9 @@ import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/quer
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
+import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
+import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 
 type UnitCardContextState = {
   unitId: Unit['id'];
@@ -192,7 +195,6 @@ export const UnitResearch = () => {
   const { t } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
   const { isDeveloperModeEnabled } = useDeveloperMode();
-  const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { total: unitResearchDurationModifier } = useComputedEffect(
     'unitResearchDuration',
   );
@@ -221,14 +223,24 @@ export const UnitResearch = () => {
 
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
-  const hasEnoughResourcesToResearch =
-    wood >= researchCost![0] &&
-    clay >= researchCost![1] &&
-    iron >= researchCost![2] &&
-    wheat >= researchCost![3];
+  const { errorBag: hasEnoughResourcesErrorBag } =
+    useHasEnoughResources(researchCost);
+  const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
+    useHasEnoughStorageCapacity('warehouseCapacity', researchCost);
+  const { errorBag: hasEnoughGranaryCapacityErrorBag } =
+    useHasEnoughStorageCapacity('granaryCapacity', researchCost);
 
-  const canStartResearch =
-    hasEnoughResourcesToResearch && !hasResearchEventsOngoing && canResearch;
+  const errorBag = [
+    ...hasEnoughResourcesErrorBag,
+    ...hasEnoughWarehouseCapacityErrorBag,
+    ...hasEnoughGranaryCapacityErrorBag,
+  ];
+
+  if (hasResearchEventsOngoing) {
+    errorBag.push(t('Academy is already busy researching a different unit.'));
+  }
+
+  const canStartResearch = errorBag.length === 0;
 
   const researchUnit = () => {
     createUnitResearchEvent({
@@ -271,6 +283,8 @@ export const UnitResearch = () => {
       {canResearch && (
         <section className="flex flex-col gap-2 pt-2 border-t border-border">
           <Text as="h3">{t('Available actions')}</Text>
+          <BuildingActionsErrorBag errorBag={errorBag} />
+
           <Button
             onClick={researchUnit}
             variant="default"
@@ -293,7 +307,6 @@ export const UnitImprovement = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { isDeveloperModeEnabled } = useDeveloperMode();
-  const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { currentVillage } = useCurrentVillage();
   const { total: unitImprovementDurationModifier } = useComputedEffect(
     'unitImprovementDuration',
@@ -323,24 +336,36 @@ export const UnitImprovement = () => {
     return calculateUnitUpgradeCostForLevel(unitId, unitVirtualLevel);
   })();
 
-  const hasEnoughResourcesToUpgrade =
-    wood >= upgradeCost[0] &&
-    clay >= upgradeCost[1] &&
-    iron >= upgradeCost[2] &&
-    wheat >= upgradeCost[3];
+  const { errorBag: hasEnoughResourcesErrorBag } =
+    useHasEnoughResources(upgradeCost);
+  const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
+    useHasEnoughStorageCapacity('warehouseCapacity', upgradeCost);
+  const { errorBag: hasEnoughGranaryCapacityErrorBag } =
+    useHasEnoughStorageCapacity('granaryCapacity', upgradeCost);
 
-  const academyLevel =
+  const smithyLevel =
     currentVillage.buildingFields.find(
       ({ buildingId }) => buildingId === 'SMITHY',
     )?.level ?? 0;
 
   const isSmithyLevelHigherThanNextUpgradeLevel =
-    academyLevel >= unitVirtualLevel + 1;
+    smithyLevel >= unitVirtualLevel + 1;
 
-  const canUpgrade =
-    hasEnoughResourcesToUpgrade &&
-    isSmithyLevelHigherThanNextUpgradeLevel &&
-    !hasImprovementEventsOngoing;
+  const errorBag = [
+    ...hasEnoughResourcesErrorBag,
+    ...hasEnoughWarehouseCapacityErrorBag,
+    ...hasEnoughGranaryCapacityErrorBag,
+  ];
+
+  if (!isSmithyLevelHigherThanNextUpgradeLevel) {
+    errorBag.push(t('Your Smithy level is too low to start next upgrade.'));
+  }
+
+  if (hasImprovementEventsOngoing) {
+    errorBag.push(t('Smithy is currently busy.'));
+  }
+
+  const canUpgrade = errorBag.length === 0;
 
   const upgradeUnit = () => {
     createUnitImprovementEvent({
@@ -384,6 +409,7 @@ export const UnitImprovement = () => {
       </section>
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Available actions')}</Text>
+        <BuildingActionsErrorBag errorBag={errorBag} />
         <Button
           size="fit"
           variant="default"
