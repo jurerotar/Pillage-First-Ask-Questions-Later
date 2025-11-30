@@ -1,4 +1,4 @@
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { getBuildingDataForLevel } from 'app/assets/utils/buildings';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useTranslation } from 'react-i18next';

@@ -9,7 +9,6 @@ import type {
 import type { Server } from 'app/interfaces/models/game/server';
 import { merchants } from 'app/assets/merchants';
 import { PLAYER_ID } from 'app/constants/player';
-import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
 import { z } from 'zod';
 import {
   calculateTotalPopulationForLevel,
@@ -19,6 +18,7 @@ import type { Building } from 'app/interfaces/models/game/building';
 import { getUnitDefinition } from 'app/assets/utils/units';
 import { unitIdSchema } from 'app/interfaces/models/game/unit';
 import { resourceSchema } from 'app/interfaces/models/game/resource';
+import { isVillageEffect } from 'app/(game)/guards/effect-guards';
 
 const heroEffectsFactory = (
   server: Server,

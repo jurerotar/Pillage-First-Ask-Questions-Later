@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { use } from 'react';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 export const useDemolishBuildingErrorBag = (
   buildingFieldId: BuildingField['id'],
