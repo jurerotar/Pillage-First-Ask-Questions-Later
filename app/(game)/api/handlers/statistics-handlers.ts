@@ -45,7 +45,7 @@ export const getPlayerRankings: ApiHandler<'', GetPlayersStatisticsBody> = (
           p.slug,
           p.tribe,
           (SELECT faction FROM factions WHERE id = p.faction_id) AS faction,
-          CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END AS total_population,
+          SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END) AS total_population,
           COUNT(DISTINCT v.id) AS village_count
         FROM players p
                LEFT JOIN villages v ON v.player_id = p.id

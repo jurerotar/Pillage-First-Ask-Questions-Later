@@ -1,4 +1,3 @@
-import { serverFactory } from 'app/factories/server-factory';
 import type { Server } from 'app/interfaces/models/game/server';
 
 const MOCK_SERVER_SEED = '23223ca711';
@@ -6,7 +5,7 @@ const MOCK_SERVER_NAME = 'test server';
 const id = crypto.randomUUID();
 const slug = `s-${id.substring(0, 4)}`;
 
-const mockServerConfig: Server = {
+export const serverMock: Server = {
   id,
   slug,
   name: MOCK_SERVER_NAME,
@@ -22,5 +21,3 @@ const mockServerConfig: Server = {
     speed: 1,
   },
 };
-
-export const serverMock: Server = serverFactory(mockServerConfig);
