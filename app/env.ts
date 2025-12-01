@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-type ImportMetaEnv = {
+interface ImportMetaEnv {
   readonly BRANCH_ENV: 'master' | 'develop';
   readonly VERSION: string;
   readonly GRAPHICS_VERSION: string;
@@ -8,21 +8,17 @@ type ImportMetaEnv = {
   // Injected by Netlify, not available during dev
   readonly COMMIT_REF: string;
   readonly HEAD: string;
-};
+}
 
-// biome-ignore-start lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
-// oxlint-disable-next-line eslint/no-unused-vars
-type ImportMeta = {
+export interface ImportMeta {
   readonly env: ImportMetaEnv;
-};
+}
 
-// oxlint-disable-next-line eslint/no-unused-vars
-type ViteTypeOptions = {
+export interface ViteTypeOptions {
   // By adding this line, you can make the type of ImportMetaEnv strict
   // to disallow unknown keys.
   strictImportMetaEnv: unknown;
-};
-// biome-ignore-end lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
+}
 
 export const env = {
   MODE: import.meta.env.MODE,
