@@ -148,14 +148,9 @@ const ConstructionQueueEmptySlot = ({
 
 const ConstructionQueueContent = () => {
   const tribe = useTribe();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const emptySlots =
     (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
@@ -194,6 +189,12 @@ const ConstructionQueueContent = () => {
 };
 
 export const ConstructionQueue = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
   return (
     <Suspense fallback={null}>
       <ConstructionQueueContent />

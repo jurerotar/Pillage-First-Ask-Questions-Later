@@ -112,13 +112,8 @@ const partitionTroopMovementEvents = (
 
 const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { eventsByType: troopMovementEvents } =
     useEventsByType('troopMovement');
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const {
     findNewVillageMovementEvents,
@@ -160,6 +155,12 @@ const TroopMovementsContent = () => {
 };
 
 export const TroopMovements = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
   return (
     <Suspense fallback={null}>
       <TroopMovementsContent />
