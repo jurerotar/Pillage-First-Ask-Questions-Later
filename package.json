@@ -81,6 +81,8 @@
     "husky": "9.1.7",
     "i18next-cli": "1.28.0",
     "knip": "5.70.2",
+    "oxlint": "1.28.0",
+    "oxlint-tsgolint": "0.5.1",
     "rolldown-vite": "7.2.8",
     "rollup-plugin-visualizer": "6.0.5",
     "sass": "1.94.2",
