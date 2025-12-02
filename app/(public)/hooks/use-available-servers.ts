@@ -1,10 +1,16 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
-import { getRootHandle } from 'app/utils/opfs';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { toast } from 'sonner';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
+
+const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
+  const root = await navigator.storage.getDirectory();
+  return root.getDirectoryHandle('pillage-first-ask-questions-later', {
+    create: true,
+  });
+};
 
 const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();

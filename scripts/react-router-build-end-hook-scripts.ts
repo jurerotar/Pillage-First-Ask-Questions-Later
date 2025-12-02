@@ -2,25 +2,12 @@ import type { Config } from '@react-router/dev/config';
 import { dirname, join, resolve } from 'node:path';
 import { mkdir, readFile, writeFile, rm, glob } from 'node:fs/promises';
 import { load } from 'cheerio';
+import { getGameRoutePaths } from 'app/utils/react-router';
 
 export const createSPAPagesWithPreloads: NonNullable<
   Config['buildEnd']
 > = async () => {
-  const PAGES_TO_INCLUDE_PRELOADS_ON = [
-    '/game/server-slug/village-slug/resources',
-    '/game/server-slug/village-slug/resources/building-field-id',
-    '/game/server-slug/village-slug/village',
-    '/game/server-slug/village-slug/village/building-field-id',
-    '/game/server-slug/village-slug/map',
-    '/game/server-slug/village-slug/hero',
-    '/game/server-slug/village-slug/preferences',
-    '/game/server-slug/village-slug/statistics',
-    '/game/server-slug/village-slug/overview',
-    '/game/server-slug/village-slug/quests',
-    '/game/server-slug/village-slug/reports',
-    '/game/server-slug/village-slug/reports/report-id',
-    '/game/server-slug/village-slug/oasis-bonus-finder',
-  ];
+  const gamePagesToPrerender = getGameRoutePaths();
 
   const clientDir = resolve('build/client');
 
@@ -34,7 +21,7 @@ export const createSPAPagesWithPreloads: NonNullable<
 
   const $prefetch = load(prefetchHtml);
 
-  for (const page of PAGES_TO_INCLUDE_PRELOADS_ON) {
+  for (const page of gamePagesToPrerender) {
     const $fallback = load(fallbackHtml);
 
     const matchingLinks = $prefetch(
@@ -85,9 +72,9 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   const clientDir = resolve('build/client');
 
   for await (const svgSpriteFile of glob(
-    './build/client/assets/react-icons-sprite.svg',
+    './build/client/react-icons-sprite-*.svg',
   )) {
-    const svgSpriteName = svgSpriteFile.replace('build/client', '');
+    const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
 
     const preRenderedFileUrls =
       // @ts-expect-error: This type is dumb af

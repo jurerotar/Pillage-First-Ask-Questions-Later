@@ -18,7 +18,7 @@ export const Auctions = () => {
         <Text as="h2">{t('Auctions')}</Text>
         <Text>
           {t(
-            'Auctions are used to buy and sell hero items with silver. They’re a reliable way to obtain useful equipment or consumables when you need them.',
+            "Auctions are used to buy and sell hero items with silver. They're a reliable way to obtain useful equipment or consumables when you need them.",
           )}
         </Text>
       </SectionContent>

@@ -24,7 +24,7 @@ import {
   isHeroEffect,
   isOasisEffect,
   isServerEffect,
-} from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+} from 'app/(game)/guards/effect-guards';
 import { getItemDefinition } from 'app/assets/utils/items';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { tileIdToCoordinates } from 'app/utils/map';

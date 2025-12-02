@@ -1,38 +1,5 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import { z } from 'zod';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
-
-const getServerSchema = z
-  .strictObject({
-    id: z.string(),
-    version: z.string(),
-    name: z.string(),
-    slug: z.string(),
-    created_at: z.number(),
-    seed: z.string(),
-    map_size: z.number(),
-    speed: z.number(),
-    player_name: z.string(),
-    player_tribe: tribeSchema,
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      version: t.version,
-      name: t.name,
-      slug: t.slug,
-      createdAt: t.created_at,
-      seed: t.seed,
-      configuration: {
-        mapSize: t.map_size,
-        speed: t.speed,
-      },
-      playerConfiguration: {
-        name: t.player_name,
-        tribe: t.player_tribe,
-      },
-    };
-  });
+import { serverDbSchema } from 'app/interfaces/models/game/server';
 
 export const getServer: ApiHandler = (database) => {
   const serverModel = database.selectObject(`
@@ -49,5 +16,5 @@ export const getServer: ApiHandler = (database) => {
     FROM servers;
   `);
 
-  return getServerSchema.parse(serverModel);
+  return serverDbSchema.parse(serverModel);
 };

@@ -1,20 +1,22 @@
 import type { Server } from 'app/interfaces/models/game/server';
-import { createNewServer } from 'app/(public)/(create-new-server)/workers/utils/create-new-server';
+import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
+import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
-export type CreateServerWorkerPayload = {
+export type CreateNewGameWorldWorkerPayload = {
   server: Server;
 };
 
 self.addEventListener(
   'message',
-  async (event: MessageEvent<CreateServerWorkerPayload>) => {
+  async (event: MessageEvent<CreateNewGameWorldWorkerPayload>) => {
     const { default: sqlite3InitModule } = await import(
       '@sqlite.org/sqlite-wasm'
     );
-
     const { server } = event.data;
 
-    const sqlite3 = await sqlite3InitModule();
+    const sqlite3 = await sqlite3InitModule({
+      locateFile: () => sqliteWasmUrl,
+    });
     const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
       directory: `/pillage-first-ask-questions-later/${server.slug}`,
     });

@@ -47,7 +47,7 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
-    reactIconsSprite({ fileName: 'assets/react-icons-sprite.svg' }),
+    reactIconsSprite(),
     // !isInTestMode &&
     //   babel({
     //     filter: /\.tsx?$/,

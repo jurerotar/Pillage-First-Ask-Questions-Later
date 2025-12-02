@@ -18,7 +18,7 @@ export const AuctionsTradeHistory = () => {
         <Text as="h2">{t('Trade history')}</Text>
         <Text>
           {t(
-            'Review your recent auctions — see what you’ve bought, sold, and how much silver was exchanged.',
+            "Review your recent auctions — see what you've bought, sold, and how much silver was exchanged.",
           )}
         </Text>
       </SectionContent>

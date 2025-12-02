@@ -10,8 +10,10 @@ export const questsSeeder: Seeder = (database): void => {
   const playerStartingVillageId = database.selectValue(
     `
       SELECT id
-      FROM villages
-      WHERE player_id = $player_id;
+      FROM
+        villages
+      WHERE
+        player_id = $player_id;
     `,
     { $player_id: PLAYER_ID },
   ) as Village['id'];
@@ -19,8 +21,10 @@ export const questsSeeder: Seeder = (database): void => {
   const playerTribe = database.selectValue(
     `
       SELECT tribe
-      FROM players
-      WHERE id = $player_id;
+      FROM
+        players
+      WHERE
+        id = $player_id;
     `,
     { $player_id: PLAYER_ID },
   ) as PlayableTribe;
@@ -50,4 +54,20 @@ export const questsSeeder: Seeder = (database): void => {
     ['quest_id', 'completed_at', 'collected_at', 'village_id'],
     questsToSeed,
   );
+
+  database.exec({
+    sql: `
+        UPDATE quests
+        SET
+          completed_at = $completed_at
+        WHERE
+          quest_id = $quest_id
+          AND village_id = $village_id;
+      `,
+    bind: {
+      $quest_id: 'oneOf-MAIN_BUILDING-1',
+      $village_id: playerStartingVillageId,
+      $completed_at: Date.now(),
+    },
+  });
 };
