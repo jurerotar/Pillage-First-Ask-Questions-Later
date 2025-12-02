@@ -56,6 +56,9 @@ import { Text } from 'app/components/text';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
+import { Separator } from 'app/components/ui/separator';
+
+const TOOLTIP_DELAY_SHOW = 500;
 
 type CounterProps = {
   counter?: number;
@@ -99,11 +102,14 @@ const NavigationSideItem = ({
   return (
     <NavLink
       data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-class-name="hidden lg:flex"
       className={clsx(
         'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
         'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
         'transition-transform active:scale-95 active:shadow-inner',
         'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+        'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
       )}
       {...rest}
     >
@@ -122,7 +128,7 @@ const VillageOverviewLink = () => {
   return (
     <Link
       to="overview"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background transition-transform active:scale-95"
       aria-label={t('Village overview')}
     >
       <span className="flex items-center justify-center">
@@ -170,7 +176,7 @@ const HeroNavigationItem = () => {
   return (
     <Link
       to="hero"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
       aria-label={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
@@ -233,11 +239,14 @@ const DesktopTopRowItem = ({
   return (
     <button
       data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-class-name="hidden lg:flex"
       type="button"
       className="
-        px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card
+        px-3 py-0.5 border-2 border-white rounded-sm bg-gradient-to-t bg-card
         flex items-center justify-center
         transition-transform active:scale-95 active:shadow-inner
+        lg:transition-colors lg:hover:bg-gray-50
       "
       {...rest}
     >
@@ -255,13 +264,16 @@ const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
     <NavLink
       type="button"
       data-tooltip-id="general-tooltip"
+      data-tooltip-class-name="hidden lg:flex"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       className={({ isActive }) =>
         clsx(
           isActive
-            ? 'from-[#7da100] to-[#c7e94f]'
-            : 'from-[#b8b2a9] to-[#f1f0ee]',
+            ? 'from-[#7da100] to-[#c7e94f] lg:hover:from-[#728f00] lg:hover:to-[#b8dc45]'
+            : 'from-[#b8b2a9] to-[#f1f0ee] lg:hover:from-[#aba5a0] lg:hover:to-[#e8e7e5]',
           'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-          'transition-transform transform-gpu active:scale-95 lg:active:scale-100',
+          'transition-transform transform-gpu active:scale-95',
+          'lg:transition-colors',
         )
       }
       {...rest}
@@ -330,6 +342,7 @@ const ResourcesNavigationItem = () => {
   return (
     <NavigationMainItem
       aria-label={t('Resources')}
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-content={t('Resources')}
       to="resources"
       prefetch="render"
@@ -345,6 +358,7 @@ const VillageNavigationItem = () => {
   return (
     <NavigationMainItem
       aria-label={t('Village')}
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-content={t('Village')}
       to="village"
       prefetch="render"
@@ -360,6 +374,7 @@ const MapNavigationItem = () => {
   return (
     <NavigationMainItem
       aria-label={t('Map')}
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-content={t('Map')}
       to="map"
       prefetch="render"
@@ -372,7 +387,7 @@ const MapNavigationItem = () => {
 const ResourceCounters = () => {
   return (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-1 lg:gap-2">
-      {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map(
+      {(['wood', 'clay', 'iron', 'wheat'] satisfies Resource[]).map(
         (resource: Resource, index) => (
           <Fragment key={resource}>
             <ResourceCounter resource={resource} />
@@ -436,7 +451,7 @@ const TopNavigation = () => {
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
-            <nav className="hidden lg:flex justify-end container mx-auto">
+            <nav className="hidden lg:flex justify-between container mx-auto">
               <ul className="flex gap-1">
                 <li>
                   <Link
@@ -469,6 +484,18 @@ const TopNavigation = () => {
                     </DesktopTopRowItem>
                   </Link>
                 </li>
+              </ul>
+              <ul className="flex gap-1">
+                <li>
+                  <Link to="statistics">
+                    <DesktopTopRowItem
+                      aria-label={t('Statistics')}
+                      data-tooltip-content={t('Statistics')}
+                    >
+                      <GoGraph className="text-xl" />
+                    </DesktopTopRowItem>
+                  </Link>
+                </li>
                 <li>
                   <Link to="preferences">
                     <DesktopTopRowItem
@@ -492,50 +519,48 @@ const TopNavigation = () => {
               </ul>
             </nav>
           </div>
-          <div className="flex justify-between container mx-auto">
-            <div className="flex flex-1 items-center">
+          <div className="flex justify-between container mx-2 xl:mx-auto">
+            <div className="flex flex-1 items-center gap-2">
               <Suspense fallback={null}>
                 <VillageSelect />
               </Suspense>
+              <NavLink
+                to="overview"
+                aria-label={t('Overview')}
+                data-tooltip-content={t('Overview')}
+                data-tooltip-id="general-tooltip"
+                data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+                className={clsx(
+                  'flex items-center justify-center shadow-md rounded-md p-2 border border-border relative',
+                  'transition-transform active:scale-95 active:shadow-inner',
+                  'lg:transition-colors',
+                )}
+              >
+                <span className=" lg:bg-background rounded-md flex items-center justify-center">
+                  <CiCircleList className="text-xl" />
+                </span>
+              </NavLink>
             </div>
-            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
-              <ul className="hidden lg:flex gap-1 lg:gap-2 xl:gap-4 justify-center items-center">
+            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
+              <ul className="hidden lg:flex gap-3 justify-center items-center">
                 <li>
-                  <NavigationSideItem
-                    to="statistics"
-                    aria-label={t('Statistics')}
-                    data-tooltip-content={t('Statistics')}
-                  >
-                    <GoGraph className="text-xl" />
-                  </NavigationSideItem>
+                  <ReportsNavigationItem />
                 </li>
                 <li>
                   <QuestsNavigationItem />
                 </li>
                 <li>
-                  <NavigationSideItem
-                    to="overview"
-                    aria-label={t('Overview')}
-                    data-tooltip-content={t('Overview')}
-                  >
-                    <CiCircleList className="text-xl" />
-                  </NavigationSideItem>
-                </li>
-                <li>
-                  <ul className="flex gap-1 lg:gap-2 xl:mx-2">
+                  <ul className="flex mx-1">
                     <li>
                       <ResourcesNavigationItem />
                     </li>
-                    <li>
+                    <li className="z-2 -mx-2">
                       <VillageNavigationItem />
                     </li>
                     <li>
                       <MapNavigationItem />
                     </li>
                   </ul>
-                </li>
-                <li>
-                  <ReportsNavigationItem />
                 </li>
                 <li>
                   <AdventuresNavigationItem />
@@ -562,7 +587,7 @@ const TopNavigation = () => {
           <HeroNavigationItem />
         </div>
       )}
-      <div className="flex relative rounded-md lg:rounded-none lg:rounded-b-sm px-2 lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-10 shadow-lg">
+      <div className="flex relative rounded-md px-2 lg:absolute top-full lg:-bottom-16 left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-5 shadow-lg">
         <ResourceCounters />
       </div>
     </header>
@@ -590,12 +615,26 @@ const MobileBottomNavigation = () => {
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
             <NavigationSideItem
-              to="statistics"
-              aria-label={t('Statistics')}
-              title={t('Statistics')}
+              target="_blank"
+              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+              aria-label="GitHub"
+              title="GitHub"
             >
-              <GoGraph className="text-2xl" />
+              <FaGithub className="text-2xl text-[#24292e]" />
             </NavigationSideItem>
+          </li>
+          <li>
+            <NavigationSideItem
+              target="_blank"
+              to="https://discord.com/invite/Ep7NKVXUZA"
+              aria-label="Discord"
+              title="Discord"
+            >
+              <FaDiscord className="text-2xl text-[#7289da]" />
+            </NavigationSideItem>
+          </li>
+          <li>
+            <Separator orientation="vertical" />
           </li>
           <li>
             <AdventuresNavigationItem />
@@ -604,11 +643,14 @@ const MobileBottomNavigation = () => {
             <QuestsNavigationItem />
           </li>
           <li>
-            <ul className="flex gap-2 -translate-y-3 mx-2">
+            <ul className="flex -translate-y-3 mx-1">
               <li>
                 <ResourcesNavigationItem />
               </li>
-              <li ref={centeredElement}>
+              <li
+                className="z-2 -mx-2"
+                ref={centeredElement}
+              >
                 <VillageNavigationItem />
               </li>
               <li>
@@ -621,12 +663,24 @@ const MobileBottomNavigation = () => {
           </li>
           <li>
             <NavigationSideItem
+              to="statistics"
+              aria-label={t('Statistics')}
+              title={t('Statistics')}
+            >
+              <GoGraph className="text-2xl" />
+            </NavigationSideItem>
+          </li>
+          <li>
+            <NavigationSideItem
               to="preferences"
               aria-label={t('Preferences')}
               title={t('Preferences')}
             >
               <MdSettings className="text-2xl" />
             </NavigationSideItem>
+          </li>
+          <li>
+            <Separator orientation="vertical" />
           </li>
           <li>
             <NavigationSideItem
