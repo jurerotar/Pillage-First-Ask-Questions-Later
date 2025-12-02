@@ -14,16 +14,11 @@ import { Suspense, useId } from 'react';
 
 const TroopListContent = () => {
   const { t } = useTranslation();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { villageTroops } = useVillageTroops();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const tooltipId = useId();
   const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const currentVillagePlayerTroops = villageTroops.filter(
     ({ tileId }) => tileId === currentVillage.tileId,
@@ -112,6 +107,12 @@ const TroopListContent = () => {
 };
 
 export const TroopList = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
   return (
     <Suspense fallback={null}>
       <TroopListContent />
