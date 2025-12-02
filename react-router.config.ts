@@ -23,8 +23,8 @@ export default {
     v8_middleware: true,
     unstable_optimizeDeps: true,
     unstable_subResourceIntegrity: false,
-    unstable_viteEnvironmentApi: true,
-    unstable_splitRouteModules: 'enforce',
+    v8_viteEnvironmentApi: true,
+    v8_splitRouteModules: 'enforce',
   },
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);
