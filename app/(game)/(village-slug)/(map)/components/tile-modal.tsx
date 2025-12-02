@@ -231,6 +231,7 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
+        <Text>{t('No actions available')}</Text>
         {hasOngoingVillageFindEventOnThisTile && (
           <span className="text-gray-500">
             {t('Settlers are already on route to this location')}
@@ -308,6 +309,7 @@ const OccupiedOccupiableTileModal = ({
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
+        {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
           <>
             <Button
