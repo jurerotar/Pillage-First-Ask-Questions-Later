@@ -2,24 +2,12 @@ import type { Config } from '@react-router/dev/config';
 import { dirname, join, resolve } from 'node:path';
 import { mkdir, readFile, writeFile, rm, glob } from 'node:fs/promises';
 import { load } from 'cheerio';
+import { getGameRoutePaths } from 'app/utils/react-router';
 
 export const createSPAPagesWithPreloads: NonNullable<
   Config['buildEnd']
 > = async () => {
-  const PAGES_TO_INCLUDE_PRELOADS_ON = [
-    '/game/server-slug/village-slug/resources',
-    '/game/server-slug/village-slug/resources/building-field-id',
-    '/game/server-slug/village-slug/village',
-    '/game/server-slug/village-slug/village/building-field-id',
-    '/game/server-slug/village-slug/map',
-    '/game/server-slug/village-slug/hero',
-    '/game/server-slug/village-slug/preferences',
-    '/game/server-slug/village-slug/statistics',
-    '/game/server-slug/village-slug/overview',
-    '/game/server-slug/village-slug/quests',
-    '/game/server-slug/village-slug/reports',
-    '/game/server-slug/village-slug/reports/report-id',
-  ];
+  const gamePagesToPrerender = getGameRoutePaths();
 
   const clientDir = resolve('build/client');
 
@@ -33,25 +21,25 @@ export const createSPAPagesWithPreloads: NonNullable<
 
   const $prefetch = load(prefetchHtml);
 
-  for (const page of PAGES_TO_INCLUDE_PRELOADS_ON) {
+  for (const page of gamePagesToPrerender) {
     const $fallback = load(fallbackHtml);
 
     const matchingLinks = $prefetch(
       `link[data-prefetch-page="${page}"]`,
     ).toArray();
 
-    matchingLinks.forEach((el) => {
+    for (const el of matchingLinks) {
       const $link = $prefetch(el);
       const href = $link.attr('href');
 
       if (!href) {
-        return;
+        continue;
       }
 
       // Skip if a link with the same href already exists in the fallback
       const alreadyExists = $fallback(`link[href="${href}"]`).length > 0;
       if (alreadyExists) {
-        return;
+        continue;
       }
 
       $link.removeAttr('data-prefetch-page');
@@ -62,7 +50,7 @@ export const createSPAPagesWithPreloads: NonNullable<
       }
 
       $fallback('head').append($prefetch.html(el));
-    });
+    }
 
     const outputPath = join(clientDir, page.replace(/^\//, ''), 'index.html');
     await mkdir(dirname(outputPath), { recursive: true });
@@ -88,20 +76,20 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
   )) {
     const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
 
-    const preRenderedFileUrls = (reactRouterConfig.prerender as string[]).map(
-      (path) => {
+    const preRenderedFileUrls =
+      // @ts-expect-error: This type is dumb af
+      (reactRouterConfig.prerender!.paths as string[]).map((path) => {
         return resolve(clientDir, `.${path}`, 'index.html');
-      },
-    );
+      });
 
     for (const filePath of preRenderedFileUrls) {
-      const content = await readFile(filePath, 'utf-8');
+      const content = await readFile(filePath, 'utf8');
       const updatedContent = content.replaceAll(
         '__SPRITE_URL_PLACEHOLDER__',
         svgSpriteName,
       );
 
-      await writeFile(filePath, updatedContent, 'utf-8');
+      await writeFile(filePath, updatedContent, 'utf8');
     }
   }
 };
