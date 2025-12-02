@@ -9,7 +9,10 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Text } from 'app/components/text';
 import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
-import { Section } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -63,7 +66,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
             'Village overview allows you to track active troop training, smithy and academy queues, monitor merchant availability and movements and track ongoing celebrations.',
           )}
         </Text>
-        <Section>
+        <SectionContent>
           <Text as="h2">{t('Troop training')}</Text>
           <TroopTrainingQueue buildingId="BARRACKS" />
           <Separator orientation="horizontal" />
@@ -74,9 +77,9 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           <TroopTrainingQueue buildingId="GREAT_BARRACKS" />
           <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="GREAT_STABLE" />
-        </Section>
+        </SectionContent>
         <Separator orientation="horizontal" />
-        <Section>
+        <SectionContent>
           <Text as="h2">{academyName}</Text>
           {!doesAcademyExist &&
             t(
@@ -84,9 +87,9 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
               { buildingName: academyName },
             )}
           {doesAcademyExist && <AcademyResearchTable />}
-        </Section>
+        </SectionContent>
         <Separator orientation="horizontal" />
-        <Section>
+        <SectionContent>
           <Text as="h2">{smithyName}</Text>
           {!doesSmithyExist &&
             t(
@@ -94,9 +97,9 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
               { buildingName: smithyName },
             )}
           {doesSmithyExist && <SmithyImprovementTable />}
-        </Section>
+        </SectionContent>
         <Separator orientation="horizontal" />
-        <Section>
+        <SectionContent>
           <Text as="h2">{marketplaceName}</Text>
           {!doesMarketplaceExist &&
             t(
@@ -106,7 +109,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           <Alert variant="warning">
             {t('This section is still under development')}
           </Alert>
-        </Section>
+        </SectionContent>
         {tribe === 'teutons' && (
           <>
             <Separator orientation="horizontal" />
