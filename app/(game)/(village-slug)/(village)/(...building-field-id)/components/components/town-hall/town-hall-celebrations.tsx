@@ -17,10 +17,9 @@ export const TownHallCelebrations = () => {
         <Bookmark tab="celebrations" />
         <Text as="h2">{t('Celebrations')}</Text>
         <Text>
-          The Town Hall allows you to hold celebrations, which instantly grant
-          Culture Points (CP). Upgrading the Town Hall reduces the cooldown time
-          between celebrations, allowing you to generate Culture Points more
-          frequently.
+          {t(
+            'The Town Hall allows you to hold celebrations, which instantly grant Culture Points. Upgrading the Town Hall reduces the cooldown time between celebrations, allowing you to generate Culture Points more frequently.',
+          )}
         </Text>
         <Text as="h2">{t('Types of Celebrations')}</Text>
         <Text className="font-medium">{t('Small Celebration')}:</Text>
@@ -68,24 +67,29 @@ export const TownHallCelebrations = () => {
             </ul>
           </li>
         </ul>
-        <text>
-          These loyalty effects apply to all battles that take place during the
-          celebration, regardless of when troops were sent.
-        </text>
+        <Text>
+          {t(
+            'These loyalty effects apply to all battles that take place during the celebration, regardless of when troops were sent.',
+          )}
+        </Text>
         <Text as="h2">{t('Celebration Limits')}</Text>
-        <text>
-          Each celebration type has a maximum number of CP it can generate.
-        </text>
-        <text>
-          The limit depends on gameworld speed and can be found in the Culture
-          Points table of the game versions overview.
-        </text>
-        <text>
-          Even if a village in the grey area produces 0 CP, its theoretical CP
-          production still counts toward celebration rewards.
-        </text>
+        <Text>
+          {t(
+            'Each celebration type has a maximum number of CP it can generate.',
+          )}
+        </Text>
+        <Text>
+          {t(
+            'The limit depends on gameworld speed and can be found in the Culture Points table of the game versions overview.',
+          )}
+        </Text>
+        <Text>
+          {t(
+            'Even if a village in the grey area produces 0 CP, its theoretical CP production still counts toward celebration rewards.',
+          )}
+        </Text>
         <Text as="h2">{t('Destroyed Town Hall')}</Text>
-        <text>If your Town Hall is destroyed:</text>
+        <Text>{t('If your Town Hall is destroyed:')}</Text>
         <ul className="list-disc pl-4">
           <li>
             <Text>{t('Ongoing celebrations continue normally.')}</Text>
@@ -106,13 +110,16 @@ export const TownHallCelebrations = () => {
           </li>
         </ul>
         <Text as="h2">{t('Celebration Duration')}</Text>
-        <text>
-          Each celebration triggers a cooldown before the next one can start.
-        </text>
-        <text>
-          The exact cooldown duration depends on the Town Hall level and server
-          speed.
-        </text>
+        <Text>
+          {t(
+            'Each celebration triggers a cooldown before the next one can start.',
+          )}
+        </Text>
+        <Text>
+          {t(
+            'The exact cooldown duration depends on the Town Hall level and server speed.',
+          )}
+        </Text>
       </SectionContent>
       <SectionContent>
         <Tabs>
