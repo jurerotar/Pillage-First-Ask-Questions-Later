@@ -537,7 +537,7 @@ const TopNavigation = () => {
                 data-tooltip-id="general-tooltip"
                 data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
                 className={clsx(
-                  'flex items-center justify-center shadow-md rounded-md p-2 border border-border relative',
+                  'flex items-center justify-center shadow-md rounded-md p-1.5 border border-border relative',
                   'transition-transform active:scale-95 active:shadow-inner',
                   'lg:transition-colors',
                 )}
