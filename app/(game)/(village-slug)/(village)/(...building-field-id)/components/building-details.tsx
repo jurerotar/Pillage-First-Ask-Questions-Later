@@ -200,7 +200,7 @@ const buildingDetailsTabMap = new Map<
   ],
   ['TREASURY', new Map([['artifacts', TreasuryArtifacts]])],
   ['EMBASSY', new Map([['artifacts', EmbassyRelations]])],
-  ['TOWN_HALL', new Map([['artifacts', TownHallCelebrations]])],
+  ['TOWN_HALL', new Map([['celebrations', TownHallCelebrations]])],
   [
     'MARKETPLACE',
     new Map([
