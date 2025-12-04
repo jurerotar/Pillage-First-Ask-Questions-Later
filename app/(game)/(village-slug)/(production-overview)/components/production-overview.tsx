@@ -27,7 +27,7 @@ import {
   isHeroEffect,
   isOasisEffect,
   isServerEffect,
-} from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+} from 'app/(game)/guards/effect-guards';
 
 const formatBonus = (number: number): number => {
   return Math.trunc(number * 10000) / 100;

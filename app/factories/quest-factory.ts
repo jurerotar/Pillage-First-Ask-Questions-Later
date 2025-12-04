@@ -55,5 +55,10 @@ export const generateNewServerQuests = (
 
   const collectableVillageQuests = newVillageQuestsFactory(villageId, tribe);
 
+  const mainBuildingLevel1Quest = collectableVillageQuests.find(
+    ({ id }) => id === 'MAIN_BUILDING-oneOf-1',
+  )!;
+  mainBuildingLevel1Quest.completedAt = Date.now();
+
   return [...collectableGlobalQuests, ...collectableVillageQuests];
 };

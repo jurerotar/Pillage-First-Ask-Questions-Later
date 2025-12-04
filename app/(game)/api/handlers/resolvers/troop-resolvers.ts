@@ -9,7 +9,7 @@ import {
 import { getUnitDefinition } from 'app/assets/utils/units';
 import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import { isVillageEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import { isVillageEffect } from 'app/(game)/guards/effect-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 import type { Village } from 'app/interfaces/models/game/village';
 

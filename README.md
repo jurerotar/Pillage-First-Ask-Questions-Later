@@ -12,11 +12,11 @@ great experience even on older devices. It is not a Travian clone per se, becaus
 introduces new
 features.
 
+Remember: pillage first, ask questions later! ⚔️🔥
+
 Stable version: [pillagefirst.com](https://pillagefirst.com)
 <br />
 Development version (contains latest features, but may be unstable): [develop--pillagefirst.netlify.app](https://develop--pillagefirst.netlify.app)
-
-Remember: pillage first, ask questions later! ⚔️🔥
 
 ![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Join%20our%20Discord%20server&labelColor=%235865F2)
 
@@ -24,11 +24,11 @@ Remember: pillage first, ask questions later! ⚔️🔥
 > Very much still work in progress.
 
 <p align="center">
-  <img src="/.github/assets/mobile-map-view.png" width="30%">
+  <img src="/.github/assets/mobile-map-view.jpg" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-building-construction-list.png" width="30%">
+  <img src="/.github/assets/mobile-main-building-view.jpg" width="30%">
   &nbsp;
-  <img src="/.github/assets/mobile-resources-view.png" width="30%">
+  <img src="/.github/assets/mobile-resources-view.jpg" width="30%">
 </p>
 
 # Motivation

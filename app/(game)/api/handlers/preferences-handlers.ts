@@ -1,6 +1,17 @@
 import type { ApiHandler } from 'app/interfaces/api';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  eventsCacheKey,
+  preferencesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import {
+  isBuildingLevelUpEvent,
+  isTroopTrainingEvent,
+  isUnitImprovementEvent,
+  isUnitResearchEvent,
+} from 'app/(game)/guards/event-guards';
+import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 
 export const getPreferences: ApiHandler<Preferences> = async (queryClient) => {
   return queryClient.getQueryData<Preferences>([preferencesCacheKey])!;
@@ -29,4 +40,24 @@ export const updatePreference: ApiHandler<
       };
     },
   );
+
+  if (preferenceName === 'isDeveloperModeEnabled' && value === true) {
+    queryClient.setQueryData<GameEvent[]>([eventsCacheKey], (events) => {
+      for (const event of events!) {
+        if (
+          isBuildingLevelUpEvent(event) ||
+          isTroopTrainingEvent(event) ||
+          isUnitResearchEvent(event) ||
+          isUnitImprovementEvent(event)
+        ) {
+          event.startsAt = Date.now();
+          event.duration = 0;
+        }
+      }
+
+      scheduleNextEvent(queryClient);
+
+      return events;
+    });
+  }
 };

@@ -10,9 +10,14 @@ interface ImportMetaEnv {
   readonly HEAD: string;
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: This is required for the types to work and Biome complaints about it
-interface ImportMeta {
+export interface ImportMeta {
   readonly env: ImportMetaEnv;
+}
+
+export interface ViteTypeOptions {
+  // By adding this line, you can make the type of ImportMetaEnv strict
+  // to disallow unknown keys.
+  strictImportMetaEnv: unknown;
 }
 
 export const env = {
