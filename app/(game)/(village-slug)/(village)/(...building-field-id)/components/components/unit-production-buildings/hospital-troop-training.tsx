@@ -19,26 +19,15 @@ export const HospitalTroopTraining = () => {
           {t(
             'The Hospital allows you to treat wounded troops so they can rejoin your army. This helps you recover faster after major battles. Healing troops is not cheaper than training new ones, the resource cost is the same, but healing takes half the time of normal training.',
           )}
-          <Text as="h3">{t('Wounded Troops')}</Text>
+        </Text>
+        <Text as="h3">{t('Wounded Troops')}</Text>
+        <Text>
           {t(
-            'When a village has a Hospital, 40% of its losses in any battle return as wounded troops. This applies when:',
+            'When a village has a Hospital, 40% of its losses in any battle return as wounded troops.',
           )}
         </Text>
         <ul className="list-disc pl-4">
-          <li>{t('Attacking')}</li>
-          <li>{t('Defending')}</li>
-          <li>{t('Reinforcing another village')}</li>
-        </ul>
-        <Text>{t('Important details:')}</Text>
-        <ul className="list-disc pl-4">
           <li>{t('Bandages do not affect how many troops become wounded.')}</li>
-          <ul>
-            <li>
-              {t(
-                'Example: If 100 troops die and your hero uses 33 bandages, 33 are saved and 40 return as wounded.',
-              )}
-            </li>
-          </ul>
           <li>
             {t(
               'Siege engines, settlers, administrators and heroes cannot become wounded.',
@@ -65,25 +54,20 @@ export const HospitalTroopTraining = () => {
         <ul className="list-disc pl-4">
           <li>{t('Healing costs the same resources as training the unit.')}</li>
           <li>{t('Both infantry and cavalry use the same queue.')}</li>
-          <li>{t('Healing speed is not affected by:')}</li>
-          <ul>
-            <li>{t('Artifacts')}</li>
-            <li>{t('Alliance Bonuses')}</li>
-            <li>{t('Hero Items')}</li>
-            <li>{t('Roman Horse Drinking Trough')}</li>
-          </ul>
           <li>{t('Healing time depends on the Hospital level')}</li>
           <li>
             {t(
               'The Hospital heals units twice as fast as training in Barracks or Stable of the same level.',
             )}
           </li>
-        </ul>
-        <Text as="h4">{t('Example')}</Text>
-        <ul className="list-disc pl-4">
-          <li>{t('Barracks level 20 trains an Ash Warden in 80 seconds.')}</li>
-          <li>
-            {t('Hospital level 20 heals a wounded Ash Warden in 40 seconds.')}
+          <li>{t('Healing speed is not affected by:')}</li>
+          <li className="list-none">
+            <ul className="list-inside">
+              <li>- {t('Artifacts')}</li>
+              <li>- {t('Alliance Bonuses')}</li>
+              <li>- {t('Hero Items')}</li>
+              <li>- {t('Roman Horse Drinking Trough')}</li>
+            </ul>
           </li>
         </ul>
         <Text as="h3">{t('Wounded Decay')}</Text>
