@@ -21,61 +21,10 @@ export const TownHallCelebrations = () => {
             'The Town Hall allows you to hold celebrations, which instantly grant Culture Points. Upgrading the Town Hall reduces the cooldown time between celebrations, allowing you to generate Culture Points more frequently.',
           )}
         </Text>
-        <Text as="h2">{t('Types of Celebrations')}</Text>
-        <Text className="font-medium">{t('Small Celebration')}:</Text>
-        <ul className="list-disc pl-4">
-          <li>
-            <Text>{t('Gives CP immediately.')}</Text>
-          </li>
-          <li>
-            <Text>
-              {t(
-                'CP gained equals the daily CP production of the village, up to the celebration limit.',
-              )}
-            </Text>
-          </li>
-        </ul>
-        <Text className="font-medium">{t('Large Celebration')}:</Text>
-        <ul className="list-disc pl-4">
-          <li>
-            <Text>{t('Gives CP immediately.')}</Text>
-          </li>
-          <li>
-            <Text>
-              {t(
-                'CP gained equals the daily CP production of all your villages, up to the limit.',
-              )}
-            </Text>
-          </li>
-          <li>
-            <Text>{t('During a Large Celebration:')}</Text>
-            <ul>
-              <li>
-                <Text>
-                  {t(
-                    'Your administrators reduce enemy village loyalty by up to 5% more.',
-                  )}
-                </Text>
-              </li>
-              <li>
-                <Text>
-                  {t(
-                    'Your own villages lose up to 5% less loyalty when you are attacked.',
-                  )}
-                </Text>
-              </li>
-            </ul>
-          </li>
-        </ul>
+        <Text as="h3">{t('Celebration Limits')}</Text>
         <Text>
           {t(
-            'These loyalty effects apply to all battles that take place during the celebration, regardless of when troops were sent.',
-          )}
-        </Text>
-        <Text as="h2">{t('Celebration Limits')}</Text>
-        <Text>
-          {t(
-            'Each celebration type has a maximum number of CP it can generate.',
+            'Each celebration type has a maximum number of Culture Points it can generate.',
           )}
         </Text>
         <Text>
@@ -83,13 +32,7 @@ export const TownHallCelebrations = () => {
             'The limit depends on gameworld speed and can be found in the Culture Points table of the game versions overview.',
           )}
         </Text>
-        <Text>
-          {t(
-            'Even if a village in the grey area produces 0 CP, its theoretical CP production still counts toward celebration rewards.',
-          )}
-        </Text>
-        <Text as="h2">{t('Destroyed Town Hall')}</Text>
-        <Text>{t('If your Town Hall is destroyed:')}</Text>
+        <Text as="h3">{t('Destroyed Town Hall')}</Text>
         <ul className="list-disc pl-4">
           <li>
             <Text>{t('Ongoing celebrations continue normally.')}</Text>
@@ -109,7 +52,7 @@ export const TownHallCelebrations = () => {
             </Text>
           </li>
         </ul>
-        <Text as="h2">{t('Celebration Duration')}</Text>
+        <Text as="h3">{t('Celebration Duration')}</Text>
         <Text>
           {t(
             'Each celebration triggers a cooldown before the next one can start.',
@@ -130,17 +73,63 @@ export const TownHallCelebrations = () => {
           <TabPanel>
             <SectionContent>
               <Text as="h2">{t('Small Celebration')}</Text>
+              <ul className="list-disc pl-4">
+                <li>
+                  <Text>{t('Gives Culture Points immediately.')}</Text>
+                </li>
+                <li>
+                  <Text>
+                    {t(
+                      'Culture Points gained equals the daily Culture Points production of the village, up to the celebration limit.',
+                    )}
+                  </Text>
+                </li>
+              </ul>
+              <Alert variant="warning">
+                {t('This page is still under development')}
+              </Alert>
             </SectionContent>
           </TabPanel>
           <TabPanel>
             <SectionContent>
               <Text as="h2">{t('Large Celebration')}</Text>
+              <ul className="list-disc pl-4">
+                <li>
+                  <Text>{t('Gives Culture Points immediately.')}</Text>
+                </li>
+                <li>
+                  <Text>
+                    {t(
+                      'Culture Points gained equals the daily Culture Points production of all your villages, up to the limit.',
+                    )}
+                  </Text>
+                </li>
+                <li>
+                  <Text>
+                    {t(
+                      'Your administrators reduce enemy village loyalty by up to 5% more.',
+                    )}
+                  </Text>
+                </li>
+                <li>
+                  <Text>
+                    {t(
+                      'Your own villages lose up to 5% less loyalty when you are attacked.',
+                    )}
+                  </Text>
+                </li>
+              </ul>
+              <Text>
+                {t(
+                  'These loyalty effects apply to all battles that take place during the celebration, regardless of when troops were sent.',
+                )}
+              </Text>
+              <Alert variant="warning">
+                {t('This page is still under development')}
+              </Alert>
             </SectionContent>
           </TabPanel>
         </Tabs>
-        <Alert variant="warning">
-          {t('This page is still under development')}
-        </Alert>
       </SectionContent>
     </Section>
   );
