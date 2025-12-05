@@ -23,29 +23,7 @@ import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...bui
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-
-type ErrorBagProps = {
-  errorBag: string[];
-};
-
-const ErrorBag = ({ errorBag }: ErrorBagProps) => {
-  if (errorBag.length === 0) {
-    return null;
-  }
-
-  return (
-    <ul className="flex flex-col ml-4 gap-1 list-disc">
-      {errorBag.map((error) => (
-        <li
-          className="text-red-500 text-sm font-medium"
-          key={error}
-        >
-          {error}
-        </li>
-      ))}
-    </ul>
-  );
-};
+import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 
 type BuildingCardActionsSectionProps = {
   buildingId: Building['id'];
@@ -65,7 +43,7 @@ const BuildingCardActionsConstruction = ({
 
   return (
     <>
-      <ErrorBag errorBag={errors} />
+      <BuildingActionsErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
@@ -101,7 +79,7 @@ const BuildingCardActionsUpgrade = ({
 
   return (
     <>
-      <ErrorBag errorBag={errors} />
+      <BuildingActionsErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"

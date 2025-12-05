@@ -5,7 +5,7 @@ import {
   isGlobalEffect,
   isServerEffect,
   isVillageEffect,
-} from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+} from 'app/(game)/guards/effect-guards';
 
 export const getVillageEffects: ApiHandler<Effect[], 'villageId'> = async (
   queryClient,

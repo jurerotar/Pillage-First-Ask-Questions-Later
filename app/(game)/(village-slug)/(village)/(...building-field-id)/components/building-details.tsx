@@ -1,6 +1,6 @@
 import type { Building } from 'app/interfaces/models/game/building';
 import { type JSX, type LazyExoticComponent, use } from 'react';
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
@@ -28,6 +28,7 @@ import {
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import { lazyWithRetry } from 'app/utils/imports';
 
 const BuildingTabFallback = () => {
   return (
@@ -43,93 +44,93 @@ const BuildingTabFallback = () => {
   );
 };
 
-const BuildingStats = lazy(async () => ({
+const BuildingStats = lazyWithRetry(async () => ({
   default: (await import('./components/building-stats/building-stats'))
     .BuildingStats,
 }));
 
-const MainBuildingVillageManagement = lazy(async () => ({
+const MainBuildingVillageManagement = lazyWithRetry(async () => ({
   default: (
     await import('./components/main-building/main-building-village-management')
   ).MainBuildingVillageManagement,
 }));
 
-const RallyPointTroopMovements = lazy(async () => ({
+const RallyPointTroopMovements = lazyWithRetry(async () => ({
   default: (
     await import('./components/rally-point/rally-point-troop-movements')
   ).RallyPointTroopMovements,
 }));
 
-const RallyPointSendTroops = lazy(async () => ({
+const RallyPointSendTroops = lazyWithRetry(async () => ({
   default: (await import('./components/rally-point/rally-point-send-troops'))
     .RallyPointSendTroops,
 }));
 
-const RallyPointSimulator = lazy(async () => ({
+const RallyPointSimulator = lazyWithRetry(async () => ({
   default: (await import('./components/rally-point/rally-point-simulator'))
     .RallyPointSimulator,
 }));
 
-const PalaceTrainSettler = lazy(async () => ({
+const PalaceTrainSettler = lazyWithRetry(async () => ({
   default: (await import('./components/palace/palace-settler-training'))
     .PalaceSettlerTraining,
 }));
 
-const PalaceLoyalty = lazy(async () => ({
+const PalaceLoyalty = lazyWithRetry(async () => ({
   default: (await import('./components/palace/palace-loyalty')).PalaceLoyalty,
 }));
 
-const PalaceExpansion = lazy(async () => ({
+const PalaceExpansion = lazyWithRetry(async () => ({
   default: (await import('./components/palace/palace-expansion'))
     .PalaceExpansion,
 }));
 
-const TreasuryArtifacts = lazy(async () => ({
+const TreasuryArtifacts = lazyWithRetry(async () => ({
   default: (await import('./components/treasury/treasury-artifacts'))
     .TreasuryArtifacts,
 }));
 
-const EmbassyRelations = lazy(async () => ({
+const EmbassyRelations = lazyWithRetry(async () => ({
   default: (await import('./components/embassy/embassy-relations'))
     .EmbassyRelations,
 }));
 
-const TownHallCelebrations = lazy(async () => ({
+const TownHallCelebrations = lazyWithRetry(async () => ({
   default: (await import('./components/town-hall/town-hall-celebrations'))
     .TownHallCelebrations,
 }));
 
-const MarketplaceBuy = lazy(async () => ({
+const MarketplaceBuy = lazyWithRetry(async () => ({
   default: (await import('./components/marketplace/marketplace-trade'))
     .MarketplaceTrade,
 }));
 
-const MarketplaceTradeRoutes = lazy(async () => ({
+const MarketplaceTradeRoutes = lazyWithRetry(async () => ({
   default: (await import('./components/marketplace/marketplace-trade-routes'))
     .MarketplaceTradeRoutes,
 }));
 
-const AcademyUnitResearch = lazy(async () => ({
+const AcademyUnitResearch = lazyWithRetry(async () => ({
   default: (await import('./components/academy/academy-unit-research'))
     .AcademyUnitResearch,
 }));
 
-const SmithyUnitImprovement = lazy(async () => ({
+const SmithyUnitImprovement = lazyWithRetry(async () => ({
   default: (await import('./components/smithy/smithy-unit-improvement'))
     .SmithyUnitImprovement,
 }));
 
-const HerosMansionOasis = lazy(async () => ({
+const HerosMansionOasis = lazyWithRetry(async () => ({
   default: (await import('./components/heros-mansion/heros-mansion-oasis'))
     .HerosMansionOasis,
 }));
 
-const BreweryCelebration = lazy(async () => ({
+const BreweryCelebration = lazyWithRetry(async () => ({
   default: (await import('./components/brewery/brewery-celebrations'))
     .BreweryCelebration,
 }));
 
-const BarracksTroopTraining = lazy(async () => ({
+const BarracksTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import(
       './components/unit-production-buildings/barracks-troop-training'
@@ -137,7 +138,7 @@ const BarracksTroopTraining = lazy(async () => ({
   ).BarracksTroopTraining,
 }));
 
-const GreatBarracksTroopTraining = lazy(async () => ({
+const GreatBarracksTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import(
       './components/unit-production-buildings/great-barracks-troop-training'
@@ -145,13 +146,13 @@ const GreatBarracksTroopTraining = lazy(async () => ({
   ).GreatBarracksTroopTraining,
 }));
 
-const StableTroopTraining = lazy(async () => ({
+const StableTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import('./components/unit-production-buildings/stable-troop-training')
   ).StableTroopTraining,
 }));
 
-const GreatStableTroopTraining = lazy(async () => ({
+const GreatStableTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import(
       './components/unit-production-buildings/great-stable-troop-training'
@@ -159,7 +160,7 @@ const GreatStableTroopTraining = lazy(async () => ({
   ).GreatStableTroopTraining,
 }));
 
-const WorkshopTroopTraining = lazy(async () => ({
+const WorkshopTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import(
       './components/unit-production-buildings/workshop-troop-training'
@@ -167,7 +168,7 @@ const WorkshopTroopTraining = lazy(async () => ({
   ).WorkshopTroopTraining,
 }));
 
-const HospitalTroopTraining = lazy(async () => ({
+const HospitalTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import(
       './components/unit-production-buildings/hospital-troop-training'

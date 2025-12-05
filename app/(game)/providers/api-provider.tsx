@@ -11,6 +11,7 @@ import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/gu
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import type { Server } from 'app/interfaces/models/game/server';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
+import { debounce } from 'moderndash';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -36,27 +37,70 @@ export const ApiProvider = ({
       return;
     }
 
-    const handleMessage = async (
-      event: MessageEvent<EventApiNotificationEvent>,
+    const DEBOUNCE_MS = 150;
+    const debouncedInvalidators = new Map<string, () => void>();
+
+    const makeDebouncedInvalidator = (
+      keyId: string,
+      resolvedKey: readonly unknown[],
     ) => {
+      const fn = async () => {
+        try {
+          await queryClient.invalidateQueries({
+            queryKey: Array.from(resolvedKey),
+          });
+        } catch (err) {
+          console.error('Failed to invalidate query', resolvedKey, err);
+        }
+      };
+
+      // create debounced wrapper and store it
+      const debounced = debounce(fn, DEBOUNCE_MS);
+      debouncedInvalidators.set(keyId, debounced);
+      return debounced;
+    };
+
+    const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
       if (!isEventResolvedNotificationMessageEvent(event)) {
         return;
       }
 
       const { type } = event.data;
-
       const cachesToClear = cachesToClearOnResolve.get(type)!;
 
       for (const queryKey of cachesToClear) {
-        await queryClient.invalidateQueries({ queryKey: [queryKey] });
+        const keyId = JSON.stringify(queryKey);
+
+        const resolvedKey = Array.isArray(queryKey) ? queryKey : [queryKey];
+        const debounced =
+          debouncedInvalidators.get(keyId) ??
+          makeDebouncedInvalidator(keyId, resolvedKey);
+        debounced();
       }
-      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
+
+      // also debounce invalidation of the global events cache key
+      const eventsKeyId = JSON.stringify(eventsCacheKey);
+
+      const evResolvedKey = [eventsCacheKey];
+      const evDebounced =
+        debouncedInvalidators.get(eventsKeyId) ??
+        makeDebouncedInvalidator(eventsKeyId, evResolvedKey);
+      evDebounced();
     };
 
     apiWorker.addEventListener('message', handleMessage);
 
     return () => {
       apiWorker.removeEventListener('message', handleMessage);
+      // attempt to cancel pending debounced calls if `debounce` returned a cancellable function
+      for (const debounced of debouncedInvalidators.values()) {
+        // many debounce implementations attach `.cancel()` — call it if present
+        const maybeCancelable = debounced as unknown as { cancel?: () => void };
+        if (typeof maybeCancelable.cancel === 'function') {
+          maybeCancelable.cancel();
+        }
+      }
+      debouncedInvalidators.clear();
     };
   }, [apiWorker, queryClient]);
 

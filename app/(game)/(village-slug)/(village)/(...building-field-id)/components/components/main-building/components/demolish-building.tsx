@@ -14,10 +14,10 @@ import { Button } from 'app/components/ui/button';
 import { useState } from 'react';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useBuildingDowngradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
 import { useNavigate } from 'react-router';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useDemolishBuildingErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-demolish-building-error-bag';
 
 export const DemolishBuilding = () => {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export const DemolishBuilding = () => {
     buildingFieldToDemolish.buildingId,
     buildingFieldToDemolish.id,
   );
-  const { getBuildingDowngradeErrorBag } = useBuildingDowngradeStatus(
+  const { getBuildingDowngradeErrorBag } = useDemolishBuildingErrorBag(
     buildingFieldToDemolish.id,
   );
   const buildingDowngradeErrorBag = getBuildingDowngradeErrorBag();

@@ -227,6 +227,10 @@ export const getEventDuration = (
   }
 
   if (isTroopTrainingEvent(event)) {
+    if (isDeveloperModeEnabled) {
+      return 0;
+    }
+
     const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     const { unitId, villageId, durationEffectId } = event;
     const { total } = calculateComputedEffect(
@@ -234,10 +238,6 @@ export const getEventDuration = (
       effects,
       villageId,
     );
-
-    if (isDeveloperModeEnabled) {
-      return 5_000 * total;
-    }
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
