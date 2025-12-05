@@ -16,11 +16,103 @@ export const HospitalTroopTraining = () => {
         <Bookmark tab="train" />
         <Text as="h2">{t('Train')}</Text>
         <Text>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
-          ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
-          et excepturi fugiat labore quidem sed sit tempore totam voluptas.
-          Iure!
+          {t(
+            'The Hospital allows you to treat wounded troops so they can rejoin your army. This helps you recover faster after major battles. Healing troops is not cheaper than training new ones, the resource cost is the same, but healing takes half the time of normal training.',
+          )}
+          <Text as="h3">{t('Wounded Troops')}</Text>
+          {t(
+            'When a village has a Hospital, 40% of its losses in any battle return as wounded troops. This applies when:',
+          )}
         </Text>
+        <ul className="list-disc pl-4">
+          <li>{t('Attacking')}</li>
+          <li>{t('Defending')}</li>
+          <li>{t('Reinforcing another village')}</li>
+        </ul>
+        <Text>{t('Important details:')}</Text>
+        <ul className="list-disc pl-4">
+          <li>{t('Bandages do not affect how many troops become wounded.')}</li>
+          <ul>
+            <li>
+              {t(
+                'Example: If 100 troops die and your hero uses 33 bandages, 33 are saved and 40 return as wounded.',
+              )}
+            </li>
+          </ul>
+          <li>
+            {t(
+              'Siege engines, settlers, administrators and heroes cannot become wounded.',
+            )}
+          </li>
+          <li>
+            {t(
+              'Troops that die while escaping from traps do not become wounded.',
+            )}
+          </li>
+          <li>
+            {t(
+              'Only units from villages that had a Hospital at the time of the battle can become wounded.',
+            )}
+          </li>
+          <li>{t('Wounded troops cannot fight and do not consume crop.')}</li>
+        </ul>
+        <Text as="h3">{t('Healing Troops')}</Text>
+        <Text>
+          {t(
+            'The Hospital has its own healing queue, similar to the Barracks or Stable.',
+          )}
+        </Text>
+        <ul className="list-disc pl-4">
+          <li>{t('Healing costs the same resources as training the unit.')}</li>
+          <li>{t('Both infantry and cavalry use the same queue.')}</li>
+          <li>{t('Healing speed is not affected by:')}</li>
+          <ul>
+            <li>{t('Artifacts')}</li>
+            <li>{t('Alliance Bonuses')}</li>
+            <li>{t('Hero Items')}</li>
+            <li>{t('Roman Horse Drinking Trough')}</li>
+          </ul>
+          <li>{t('Healing time depends on the Hospital level')}</li>
+          <li>
+            {t(
+              'The Hospital heals units twice as fast as training in Barracks or Stable of the same level.',
+            )}
+          </li>
+        </ul>
+        <Text as="h4">{t('Example')}</Text>
+        <ul className="list-disc pl-4">
+          <li>{t('Barracks level 20 trains an Ash Warden in 80 seconds.')}</li>
+          <li>
+            {t('Hospital level 20 heals a wounded Ash Warden in 40 seconds.')}
+          </li>
+        </ul>
+        <Text as="h3">{t('Wounded Decay')}</Text>
+        <Text>
+          {t(
+            'Wounded units that are not being healed die gradually at a rate of 10% per day. As soon as a wounded unit enters the healing queue, it stops decaying.',
+          )}
+        </Text>
+        <Text as="h3">{t('Hospital Deconstruction and Conquest')}</Text>
+        <ul className="list-disc pl-4">
+          <li>
+            {t(
+              'If the Hospital is destroyed, the healing queue continues normally.',
+            )}
+          </li>
+          <li>
+            {t('Wounded troops continue decaying at the usual 10% per day.')}
+          </li>
+          <li>
+            {t(
+              'If the Hospital is destroyed during a battle, wounded troops from that battle are still generated but remain inaccessible until the Hospital is rebuilt.',
+            )}
+          </li>
+          <li>
+            {t(
+              'If the village is conquered, all troops, including wounded, are destroyed.',
+            )}
+          </li>
+        </ul>
       </SectionContent>
       <SectionContent>
         <Alert variant="warning">
