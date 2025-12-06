@@ -24,7 +24,7 @@
     "knip:ci": "npx knip --max-issues 29",
     "localize": "npx i18next-cli extract",
     "localize:ci": "npx i18next-cli extract --ci --dry-run",
-    "type-check": "react-router typegen && tsc",
+    "type-check": "react-router typegen && tsgo",
     "test": "vitest",
     "prepare": "husky",
     "postinstall": "node scripts/postinstall.ts"
