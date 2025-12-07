@@ -27,21 +27,31 @@ export const HospitalTroopTraining = () => {
           )}
         </Text>
         <ul className="list-disc pl-4">
-          <li>{t('Bandages do not affect how many troops become wounded.')}</li>
           <li>
-            {t(
-              'Siege engines, settlers, administrators and heroes cannot become wounded.',
-            )}
+            <Text>
+              {t('Bandages do not affect how many troops become wounded.')}
+            </Text>
           </li>
           <li>
-            {t(
-              'Troops that die while escaping from traps do not become wounded.',
-            )}
+            <Text>
+              {t(
+                'Siege engines, settlers, administrators and heroes cannot become wounded.',
+              )}
+            </Text>
           </li>
           <li>
-            {t(
-              'Only units from villages that had a Hospital at the time of the battle can become wounded.',
-            )}
+            <Text>
+              {t(
+                'Troops that die while escaping from traps do not become wounded.',
+              )}
+            </Text>
+          </li>
+          <li>
+            <Text>
+              {t(
+                'Only units from villages that had a Hospital at the time of the battle can become wounded.',
+              )}
+            </Text>
           </li>
           <li>{t('Wounded troops cannot fight and do not consume crop.')}</li>
         </ul>
@@ -52,21 +62,41 @@ export const HospitalTroopTraining = () => {
           )}
         </Text>
         <ul className="list-disc pl-4">
-          <li>{t('Healing costs the same resources as training the unit.')}</li>
-          <li>{t('Both infantry and cavalry use the same queue.')}</li>
-          <li>{t('Healing time depends on the Hospital level')}</li>
           <li>
-            {t(
-              'The Hospital heals units twice as fast as training in Barracks or Stable of the same level.',
-            )}
+            <Text>
+              {t('Healing costs the same resources as training the unit.')}
+            </Text>
           </li>
-          <li>{t('Healing speed is not affected by:')}</li>
+          <li>
+            <Text>{t('Both infantry and cavalry use the same queue.')}</Text>
+          </li>
+          <li>
+            <Text>{t('Healing time depends on the Hospital level')}</Text>
+          </li>
+          <li>
+            <Text>
+              {t(
+                'The Hospital heals units twice as fast as training in Barracks or Stable of the same level.',
+              )}
+            </Text>
+          </li>
+          <li>
+            <Text>{t('Healing speed is not affected by:')}</Text>
+          </li>
           <li className="list-none">
             <ul className="list-inside">
-              <li>- {t('Artifacts')}</li>
-              <li>- {t('Alliance Bonuses')}</li>
-              <li>- {t('Hero Items')}</li>
-              <li>- {t('Roman Horse Drinking Trough')}</li>
+              <li>
+                <Text>- {t('Artifacts')}</Text>
+              </li>
+              <li>
+                <Text>- {t('Alliance Bonuses')}</Text>
+              </li>
+              <li>
+                <Text>- {t('Hero Items')}</Text>
+              </li>
+              <li>
+                <Text>- {t('Roman Horse Drinking Trough')}</Text>
+              </li>
             </ul>
           </li>
         </ul>
@@ -79,22 +109,30 @@ export const HospitalTroopTraining = () => {
         <Text as="h3">{t('Hospital Deconstruction and Conquest')}</Text>
         <ul className="list-disc pl-4">
           <li>
-            {t(
-              'If the Hospital is destroyed, the healing queue continues normally.',
-            )}
+            <Text>
+              {t(
+                'If the Hospital is destroyed, the healing queue continues normally.',
+              )}
+            </Text>
           </li>
           <li>
-            {t('Wounded troops continue decaying at the usual 10% per day.')}
+            <Text>
+              {t('Wounded troops continue decaying at the usual 10% per day.')}
+            </Text>
           </li>
           <li>
-            {t(
-              'If the Hospital is destroyed during a battle, wounded troops from that battle are still generated but remain inaccessible until the Hospital is rebuilt.',
-            )}
+            <Text>
+              {t(
+                'If the Hospital is destroyed during a battle, wounded troops from that battle are still generated but remain inaccessible until the Hospital is rebuilt.',
+              )}
+            </Text>
           </li>
           <li>
-            {t(
-              'If the village is conquered, all troops, including wounded, are destroyed.',
-            )}
+            <Text>
+              {t(
+                'If the village is conquered, all troops, including wounded, are destroyed.',
+              )}
+            </Text>
           </li>
         </ul>
       </SectionContent>
