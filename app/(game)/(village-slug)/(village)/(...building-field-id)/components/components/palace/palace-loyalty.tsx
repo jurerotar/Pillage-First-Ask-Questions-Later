@@ -23,32 +23,26 @@ export const PalaceLoyalty = () => {
         <Text as="h3">{t('How Loyalty Works')}</Text>
         <Text>
           {t(
-            "A village's loyalty cannot decrease as long as it has one of the following buildings:",
+            "A village's loyalty cannot decrease as long as the Residence exists in the village. If Residence does not exist, loyalty can be reduced by attacks with administrators. Once loyalty reaches 0%, the village is conquered.",
           )}
         </Text>
-        <ul className="list-disc pl-4">
-          <li>{t('Residence')}</li>
-          <li>{t('Palace')}</li>
-        </ul>
-        <Text>
-          {t(
-            'If none of these buildings are present, loyalty can be reduced by attacks with administrators.',
-          )}
-        </Text>
-        <Text>{t('Once loyalty reaches 0%, the village is conquered.')}</Text>
         <Text as="h3">{t('Increasing Loyalty')}</Text>
         <Text>
           {t(
-            'Loyalty automatically increases over time when a Residence or Palace exists in the village.',
+            'Loyalty automatically increases over time when a Residence exists in the village.',
           )}
         </Text>
         <ul className="list-disc pl-4">
           <li>
-            {t(
-              'Each builing level increases loyalty by 2 points every three hours, up to a maximum of 100%.',
-            )}
+            <Text>
+              {t(
+                'Each level of the Residence increases loyalty by 2% every three hours, up to a maximum of 100%.',
+              )}
+            </Text>
           </li>
-          <li>{t('Certain hero items may further increase loyalty.')}</li>
+          <li>
+            <Text>{t('Certain hero items may further increase loyalty.')}</Text>
+          </li>
         </ul>
       </SectionContent>
       <SectionContent>
