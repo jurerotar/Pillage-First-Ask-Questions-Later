@@ -166,7 +166,8 @@ export const buildingConstructionResolver: Resolver<
       return (
         isBuildingEffect(effect) &&
         effect.villageId === villageId &&
-        effect.buildingFieldId === 0
+        effect.buildingFieldId === 0 &&
+        effect.id === 'wheatProduction'
       );
     })!;
 
@@ -209,13 +210,14 @@ export const buildingDestructionResolver: Resolver<
       return (
         isBuildingEffect(effect) &&
         effect.villageId === villageId &&
-        effect.buildingFieldId === 0
+        effect.buildingFieldId === 0 &&
+        effect.id === 'wheatProduction'
       );
     })!;
 
     const { population } = getBuildingDataForLevel(buildingId, previousLevel);
 
-    villagePopulationEffect.value -= population;
+    villagePopulationEffect.value += population;
 
     return newFilters;
   });

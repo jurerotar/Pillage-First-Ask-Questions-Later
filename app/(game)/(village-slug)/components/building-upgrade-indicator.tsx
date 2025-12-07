@@ -56,9 +56,9 @@ const UpgradeButton = ({
     useState<boolean>(false);
 
   const onUpgradeButtonClick = (event: ReactMouseEvent | ReactTouchEvent) => {
-    upgradeBuilding();
     event.stopPropagation();
     event.preventDefault();
+    upgradeBuilding();
   };
 
   return (
@@ -105,20 +105,11 @@ export const BuildingUpgradeIndicator = ({
     return 'white';
   })();
 
+  const ChildComponent = canUpgrade && isHovered ? UpgradeButton : StaticButton;
+
   // TODO: Transitions needs to added here, the icon currently just pops in
-
-  if (canUpgrade && isHovered) {
-    return (
-      <UpgradeButton
-        buildingField={buildingField}
-        backgroundVariant={backgroundVariant}
-        variant={variant}
-      />
-    );
-  }
-
   return (
-    <StaticButton
+    <ChildComponent
       buildingField={buildingField}
       backgroundVariant={backgroundVariant}
       variant={variant}
