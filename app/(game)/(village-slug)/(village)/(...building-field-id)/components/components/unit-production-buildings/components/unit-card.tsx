@@ -199,7 +199,7 @@ export const UnitResearch = () => {
   const { createEvent: createUnitResearchEvent } =
     useCreateEvent('unitResearch');
   const { currentVillage } = useCurrentVillage();
-  const { hasEvents: hasResearchEventsOngoing } =
+  const { hasEvents: hasResearchEventsOngoing, eventsByType: researchEvents } =
     useEventsByType('unitResearch');
 
   const unitResearchDuration = (() => {
@@ -227,6 +227,36 @@ export const UnitResearch = () => {
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =
     useHasEnoughStorageCapacity('granaryCapacity', researchCost);
 
+  const isThisUnitCurrentlyBeingResearched = researchEvents.some(
+    ({ unitId: researchedUnitId }) => unitId === researchedUnitId,
+  );
+
+  if (isThisUnitCurrentlyBeingResearched) {
+    return (
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+        <Text as="h3">{t('Research')}</Text>
+        <Text className="text-green-600">
+          {t('{{unit}} is currently being researched', {
+            unit: t(`UNITS.${unitId}.NAME`),
+          })}
+        </Text>
+      </section>
+    );
+  }
+
+  if (hasResearched) {
+    return (
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+        <Text as="h3">{t('Research')}</Text>
+        <Text className="text-green-600">
+          {t('{{unit}} researched', {
+            unit: t(`UNITS.${unitId}.NAME`),
+          })}
+        </Text>
+      </section>
+    );
+  }
+
   const errorBag = [
     ...hasEnoughResourcesErrorBag,
     ...hasEnoughWarehouseCapacityErrorBag,
@@ -245,19 +275,6 @@ export const UnitResearch = () => {
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
-
-  if (hasResearched) {
-    return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
-        <Text as="h3">{t('Research')}</Text>
-        <Text className="text-green-600">
-          {t('{{unit}} researched', {
-            unit: t(`UNITS.${unitId}.NAME`),
-          })}
-        </Text>
-      </section>
-    );
-  }
 
   return (
     <>
@@ -288,11 +305,9 @@ export const UnitResearch = () => {
             size="fit"
             disabled={!canStartResearch}
           >
-            {hasResearchEventsOngoing && t('Research is already taking place')}
-            {!hasResearchEventsOngoing &&
-              t('Research {{unit}}', {
-                unit: t(`UNITS.${unitId}.NAME`),
-              })}
+            {t('Research {{unit}}', {
+              unit: t(`UNITS.${unitId}.NAME`),
+            })}
           </Button>
         </section>
       )}

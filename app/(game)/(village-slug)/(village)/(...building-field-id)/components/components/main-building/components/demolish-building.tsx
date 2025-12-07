@@ -103,7 +103,7 @@ export const DemolishBuilding = () => {
         </SelectGroup>
       </Select>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {buildingFieldToDemolish.level > 1 && (
           <Button
             size="fit"

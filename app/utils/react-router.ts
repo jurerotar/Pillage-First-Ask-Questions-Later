@@ -1,5 +1,6 @@
 import type { RouteConfigEntry } from '@react-router/dev/routes';
 import routes from '../routes';
+import { kebabCase } from 'moderndash';
 
 export const extractPathsFromRoutes = (
   routeEntries: RouteConfigEntry[],
@@ -36,7 +37,10 @@ export const getGameRoutePaths = (): string[] => {
       continue;
     }
 
-    const normalizedPath = path.replace(/:([^/]+)/g, '$1');
+    const normalizedPath = path.replace(
+      /:([A-Za-z0-9_]+)([?*+]*)/g,
+      (_, name, suffix) => `${kebabCase(name)}${suffix}`,
+    );
 
     gamePaths.push(normalizedPath);
   }
