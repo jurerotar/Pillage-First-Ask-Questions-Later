@@ -35,6 +35,10 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
     };
 
     worker.addEventListener('message', handleWorkerInitializationMessage);
+
+    worker.postMessage({
+      type: 'WORKER_INIT',
+    });
   });
 };
 
