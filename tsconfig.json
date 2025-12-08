@@ -28,8 +28,8 @@
   },
   "include": [
     "app/**/*",
+    "scripts/**/*",
     "*.config.ts",
-    ".react-router/types/**/*",
-    "scripts/**/*"
+    ".react-router/types/**/*"
   ]
 }

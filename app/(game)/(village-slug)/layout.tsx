@@ -120,7 +120,58 @@ const NavigationSideItem = ({
   );
 };
 
-const VillageOverviewLink = () => {
+const DesktopPopulation = () => {
+  const { population, buildingWheatLimit } =
+    useComputedEffect('wheatProduction');
+
+  return (
+    <div className="flex gap-2">
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-border p-1 my-1">
+        <Icon
+          type="population"
+          className="min-w-4"
+        />
+        <span className="text-foreground text-sm">
+          {formatNumber(population)}
+        </span>
+      </div>
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-border p-1 my-1">
+        <Icon
+          type="freeCrop"
+          className="min-w-3"
+        />
+        <span className="text-foreground text-sm">
+          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const VillageOverviewDesktopItem = () => {
+  const { t } = useTranslation();
+
+  return (
+    <NavLink
+      to="overview"
+      aria-label={t('Overview')}
+      data-tooltip-content={t('Overview')}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      className={clsx(
+        'flex items-center justify-center shadow-md rounded-md p-1.5 border border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:transition-colors',
+      )}
+    >
+      <span className="lg:bg-background rounded-md flex items-center justify-center">
+        <CiCircleList className="text-xl" />
+      </span>
+    </NavLink>
+  );
+};
+
+const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
   const { population, buildingWheatLimit } =
     useComputedEffect('wheatProduction');
@@ -524,22 +575,7 @@ const TopNavigation = () => {
               <Suspense fallback={null}>
                 <VillageSelect />
               </Suspense>
-              <NavLink
-                to="overview"
-                aria-label={t('Overview')}
-                data-tooltip-content={t('Overview')}
-                data-tooltip-id="general-tooltip"
-                data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
-                className={clsx(
-                  'flex items-center justify-center shadow-md rounded-md p-1.5 border border-border relative',
-                  'transition-transform active:scale-95 active:shadow-inner',
-                  'lg:transition-colors',
-                )}
-              >
-                <span className=" lg:bg-background rounded-md flex items-center justify-center">
-                  <CiCircleList className="text-xl" />
-                </span>
-              </NavLink>
+              <VillageOverviewDesktopItem />
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
@@ -576,13 +612,15 @@ const TopNavigation = () => {
                 </li>
               </ul>
             </nav>
-            <div className="flex flex-1" />
+            <div className="flex flex-1 justify-end">
+              <DesktopPopulation />
+            </div>
           </div>
         </div>
       )}
       {!isWiderThanLg && (
         <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-8">
-          <VillageOverviewLink />
+          <VillageOverviewMobileItem />
           <VillageSelect />
           <HeroNavigationItem />
         </div>

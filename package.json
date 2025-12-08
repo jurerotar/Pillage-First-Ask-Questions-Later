@@ -116,12 +116,7 @@
     ],
     "project": [
       "app/**/*.{ts,tsx}!"
-    ],
-    "paths": {
-      "app/*": [
-        "app/*"
-      ]
-    }
+    ]
   },
   "commitlint": {
     "extends": [
