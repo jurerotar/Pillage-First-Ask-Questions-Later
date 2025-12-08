@@ -22,21 +22,8 @@ try {
   });
   const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-    // @ts-expect-error
-    forceReinitIfPreviouslyFailed: true,
   });
   const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
-
-  opfsDb.exec(`
-    PRAGMA foreign_keys = ON;        -- keep referential integrity
-    PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
-    PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
-    PRAGMA synchronous = OFF;        -- don't wait for OS to flush (fast, risky)
-    PRAGMA temp_store = MEMORY;      -- temp tables + indices kept in RAM
-    PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
-    PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
-    PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
-  `);
 
   const database = createDbFacade(opfsDb, false);
 
