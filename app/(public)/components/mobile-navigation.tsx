@@ -29,6 +29,7 @@ export const MobileNavigation = () => {
         <img
           alt={t('Pillage First! logo')}
           width="200"
+          height="30"
           src="/pillage-first-logo-horizontal.svg"
         />
       </Link>
@@ -57,6 +58,7 @@ export const MobileNavigation = () => {
                   <img
                     alt={t('Pillage First! logo')}
                     width="200"
+                    height="30"
                     src="/pillage-first-logo-horizontal.svg"
                   />
                 </Link>
