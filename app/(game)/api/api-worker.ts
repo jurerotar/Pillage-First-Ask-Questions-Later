@@ -34,8 +34,6 @@ self.addEventListener('message', async (event: MessageEvent) => {
         const urlParams = new URLSearchParams(self.location.search);
         const serverSlug = urlParams.get('server-slug')!;
 
-        console.log(sqlite3, opfsSahPool, database, dbFacade);
-
         if (sqlite3 === null) {
           const { default: sqlite3InitModule } = await import(
             '@sqlite.org/sqlite-wasm'
@@ -46,13 +44,21 @@ self.addEventListener('message', async (event: MessageEvent) => {
           });
         }
 
+        console.log({ sqlite3 });
+
         opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
           directory: `/pillage-first-ask-questions-later/${serverSlug}`,
         });
 
+        console.log({ opfsSahPool });
+
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
+        console.log({ database });
+
         dbFacade = createDbFacade(database, false);
+
+        console.log({ dbFacade });
 
         scheduleNextEvent(dbFacade);
 

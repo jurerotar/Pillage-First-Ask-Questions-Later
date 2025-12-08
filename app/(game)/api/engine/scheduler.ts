@@ -69,6 +69,16 @@ export const scheduleNextEvent = (database: DbFacade) => {
     return;
   }
 
+  console.log(
+    database.selectValues(`
+  SELECT name
+    FROM sqlite_schema
+    WHERE type = 'table'
+      AND name NOT LIKE 'sqlite_%'
+    ORDER BY name;
+  `),
+  );
+
   schedulingInProgress = true;
   try {
     while (true) {
