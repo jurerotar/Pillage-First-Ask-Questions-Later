@@ -110,7 +110,8 @@ self.addEventListener('message', async (event: MessageEvent) => {
       database = null;
 
       opfsSahPool!.pauseVfs();
-      opfsSahPool = null;
+      console.log(opfsSahPool!.isPaused());
+      // opfsSahPool = null;
 
       self.close();
       break;
