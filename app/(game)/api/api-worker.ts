@@ -34,13 +34,17 @@ self.addEventListener('message', async (event: MessageEvent) => {
         const urlParams = new URLSearchParams(self.location.search);
         const serverSlug = urlParams.get('server-slug')!;
 
-        const { default: sqlite3InitModule } = await import(
-          '@sqlite.org/sqlite-wasm'
-        );
+        console.log(sqlite3, opfsSahPool, database, dbFacade);
 
-        sqlite3 = await sqlite3InitModule({
-          locateFile: () => sqliteWasmUrl,
-        });
+        if (sqlite3 === null) {
+          const { default: sqlite3InitModule } = await import(
+            '@sqlite.org/sqlite-wasm'
+          );
+
+          sqlite3 = await sqlite3InitModule({
+            locateFile: () => sqliteWasmUrl,
+          });
+        }
 
         opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
           directory: `/pillage-first-ask-questions-later/${serverSlug}`,
