@@ -83,6 +83,7 @@ try {
     cancelScheduling();
     database.close();
     opfsDb.close();
+    self.close();
   });
 
   self.postMessage({
