@@ -111,6 +111,8 @@ self.addEventListener('message', async (event: MessageEvent) => {
     case 'WORKER_CLOSE': {
       cancelScheduling();
 
+      sqlite3 = null;
+
       dbFacade!.close();
       dbFacade = null;
 

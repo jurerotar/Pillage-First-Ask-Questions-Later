@@ -70,7 +70,7 @@ export const scheduleNextEvent = (database: DbFacade) => {
   }
 
   console.log(
-    database.selectValues(`
+    database.selectObjects(`
   SELECT name
     FROM sqlite_schema
     WHERE type = 'table'
