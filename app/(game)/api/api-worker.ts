@@ -94,8 +94,6 @@ try {
     cancelScheduling();
     database.close();
     opfsDb.close();
-    opfsSahPool.pauseVfs();
-    self.close();
   });
 
   self.postMessage({
