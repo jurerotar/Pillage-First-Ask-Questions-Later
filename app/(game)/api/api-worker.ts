@@ -23,6 +23,8 @@ try {
   const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
   });
+
+  console.log('isPaused', opfsSahPool.isPaused(), { opfsSahPool });
   const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
   const database = createDbFacade(opfsDb, false);

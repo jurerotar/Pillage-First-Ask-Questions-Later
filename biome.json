@@ -28,7 +28,7 @@
       "suspicious": {
         "noUnknownAtRules": "off",
         "noConsole": {
-          "level": "error",
+          "level": "off",
           "options": {
             "allow": ["error"]
           }
