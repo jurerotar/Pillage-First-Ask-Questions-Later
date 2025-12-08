@@ -9,10 +9,6 @@ import {
   createDbFacade,
   type DbFacade,
 } from 'app/(game)/api/facades/database-facade';
-import {
-  cancelScheduling,
-  scheduleNextEvent,
-} from 'app/(game)/api/engine/scheduler';
 import type { Database } from 'app/interfaces/db';
 import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
@@ -59,8 +55,6 @@ self.addEventListener('message', async (event: MessageEvent) => {
         dbFacade = createDbFacade(database, false);
 
         console.log({ dbFacade });
-
-        scheduleNextEvent(dbFacade);
 
         self.postMessage({
           eventKey: 'event:worker-initialization-success',
@@ -109,10 +103,6 @@ self.addEventListener('message', async (event: MessageEvent) => {
       }
     }
     case 'WORKER_CLOSE': {
-      cancelScheduling();
-
-      sqlite3 = null;
-
       dbFacade!.close();
       dbFacade = null;
 
