@@ -17,12 +17,12 @@ self.addEventListener(
     const sqlite3 = await sqlite3InitModule({
       locateFile: () => sqliteWasmUrl,
     });
-    const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
-      directory: `/pillage-first-ask-questions-later/${server.slug}`,
-    });
-    const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${server.slug}.sqlite3`);
 
-    opfsDb.exec(`
+    const database = new sqlite3.oo1.OpfsDb(
+      `/pillage-first-ask-questions-later/${server.slug}.sqlite3`,
+    );
+
+    database.exec(`
       PRAGMA locking_mode=EXCLUSIVE;
       PRAGMA foreign_keys=OFF;
       PRAGMA journal_mode=OFF;
@@ -31,9 +31,9 @@ self.addEventListener(
       PRAGMA cache_size=-20000;
     `);
 
-    createNewServer(opfsDb, server);
+    createNewServer(database, server);
 
-    opfsDb.close();
+    database.close();
 
     self.postMessage({ resolved: true });
     self.close();

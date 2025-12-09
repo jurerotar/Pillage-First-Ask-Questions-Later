@@ -13,10 +13,8 @@ import type { Database } from 'app/interfaces/db';
 import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 type Sqlite3Module = Awaited<ReturnType<typeof sqlite3InitModule>>;
-type OpfsSahPool = Awaited<ReturnType<Sqlite3Module['installOpfsSAHPoolVfs']>>;
 
 let sqlite3: Sqlite3Module | null = null;
-let opfsSahPool: OpfsSahPool | null = null;
 let database: Database | null = null;
 let dbFacade: DbFacade | null = null;
 
@@ -42,13 +40,9 @@ self.addEventListener('message', async (event: MessageEvent) => {
 
         console.log({ sqlite3 });
 
-        opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
-          directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-        });
-
-        console.log({ opfsSahPool });
-
-        database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
+        database = new sqlite3.oo1.OpfsDb(
+          `/pillage-first-ask-questions-later/${serverSlug}.sqlite3`,
+        );
 
         console.log({ database });
 
@@ -108,10 +102,6 @@ self.addEventListener('message', async (event: MessageEvent) => {
 
       database!.close();
       database = null;
-
-      opfsSahPool!.pauseVfs();
-      console.log(opfsSahPool!.isPaused());
-      // opfsSahPool = null;
 
       self.close();
       break;

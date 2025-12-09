@@ -87,6 +87,17 @@ const viteConfig = defineViteConfig({
         );
       },
     },
+    // TODO: This should be set in server.headers, but for some reason, it does not work for html requests when set there
+    {
+      name: 'html-coop-coep-headers',
+      configureServer(server) {
+        server.middlewares.use((_, res, next) => {
+          res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+          res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+          next();
+        });
+      },
+    },
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {

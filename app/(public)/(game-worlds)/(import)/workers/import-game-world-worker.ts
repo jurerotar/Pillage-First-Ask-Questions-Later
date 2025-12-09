@@ -32,17 +32,16 @@ self.addEventListener(
       const id = crypto.randomUUID();
       const slug = `s-${id.substring(0, 4)}`;
 
-      const destDir = `/pillage-first-ask-questions-later/${slug}`;
-      const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
-        directory: destDir,
-      });
-      const mainDbPath = `/${slug}.sqlite3`;
+      await sqlite3.oo1.OpfsDb.importDb(
+        `/pillage-first-ask-questions-later/${slug}.sqlite3`,
+        new Uint8Array(databaseBuffer),
+      );
 
-      await opfsSahPool.importDb(mainDbPath, new Uint8Array(databaseBuffer));
+      const database = new sqlite3.oo1.OpfsDb(
+        `/pillage-first-ask-questions-later/${slug}.sqlite3`,
+      );
 
-      const opfsDb = new opfsSahPool.OpfsSAHPoolDb(mainDbPath);
-
-      opfsDb.exec({
+      database.exec({
         sql: 'UPDATE servers SET id = $id, slug = $slug;',
         bind: {
           $id: id,
@@ -50,12 +49,11 @@ self.addEventListener(
         },
       });
 
-      const serverRow = opfsDb.selectObject('SELECT * FROM servers;');
+      const serverRow = database.selectObject('SELECT * FROM servers;');
 
       const server = serverDbSchema.parse(serverRow);
 
-      opfsDb.close();
-      opfsSahPool.pauseVfs();
+      database.close();
 
       self.postMessage({
         resolved: true,

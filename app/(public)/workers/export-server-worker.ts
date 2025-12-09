@@ -12,13 +12,13 @@ const sqlite3 = await sqlite3InitModule({
   locateFile: () => sqliteWasmUrl,
 });
 
-const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
-  directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-});
+const database = new sqlite3.oo1.OpfsDb(
+  `/pillage-first-ask-questions-later/${serverSlug}.sqlite3`,
+);
 
-const exportedDb = await opfsSahPool.exportFile(`/${serverSlug}.sqlite3`);
+const byteArray: Uint8Array = sqlite3.capi.sqlite3_js_db_export(database);
 
-const buffer: ArrayBuffer = exportedDb.buffer as ArrayBuffer;
+const buffer: ArrayBuffer = byteArray.buffer as ArrayBuffer;
 
 self.postMessage(
   { databaseBuffer: buffer } satisfies ExportServerWorkerReturn,
