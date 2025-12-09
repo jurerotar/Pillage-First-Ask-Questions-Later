@@ -28,7 +28,7 @@ export type DbFacade = {
   ) => ReturnType<Database['selectObjects']>;
   prepare: (sql: string) => ReturnType<Database['prepare']>;
   transaction: (callback: (db: DbFacade) => void) => void;
-  close: () => void;
+  clear: () => void;
 };
 
 export const createDbFacade = (database: Database, debug = false): DbFacade => {
@@ -219,7 +219,7 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
       }
     },
 
-    close: (): void => {
+    clear: (): void => {
       for (const [key, stmt] of preparedStatementCache) {
         stmt.finalize();
         preparedStatementCache.delete(key);

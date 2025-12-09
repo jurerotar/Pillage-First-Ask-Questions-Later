@@ -11,6 +11,10 @@ import {
 } from 'app/(game)/api/facades/database-facade';
 import type { Database } from 'app/interfaces/db';
 import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import {
+  cancelScheduling,
+  scheduleNextEvent,
+} from 'app/(game)/api/engine/scheduler';
 
 type Sqlite3Module = Awaited<ReturnType<typeof sqlite3InitModule>>;
 
@@ -38,17 +42,24 @@ self.addEventListener('message', async (event: MessageEvent) => {
           });
         }
 
-        console.log({ sqlite3 });
-
         database = new sqlite3.oo1.OpfsDb(
           `/pillage-first-ask-questions-later/${serverSlug}.sqlite3`,
         );
 
-        console.log({ database });
+        database.exec(`
+          PRAGMA foreign_keys = ON;        -- keep referential integrity
+          PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
+          PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
+          PRAGMA synchronous = OFF;        -- don't wait for OS to flush (fast, risky)
+          PRAGMA temp_store = MEMORY;      -- temp tables + indices kept in RAM
+          PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
+          PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
+          PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
+        `);
 
         dbFacade = createDbFacade(database, false);
 
-        console.log({ dbFacade });
+        scheduleNextEvent(dbFacade);
 
         self.postMessage({
           eventKey: 'event:worker-initialization-success',
@@ -97,7 +108,9 @@ self.addEventListener('message', async (event: MessageEvent) => {
       }
     }
     case 'WORKER_CLOSE': {
-      dbFacade!.close();
+      cancelScheduling();
+
+      dbFacade!.clear();
       dbFacade = null;
 
       database!.close();
