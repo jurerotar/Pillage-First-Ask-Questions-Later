@@ -18,9 +18,7 @@ const deleteServerData = async (server: Server) => {
   let sawLockedError = false;
 
   try {
-    await rootHandle.removeEntry(server.slug, {
-      recursive: true,
-    });
+    await rootHandle.removeEntry(`${server.slug}.sqlite3`);
   } catch (error) {
     if (
       error instanceof DOMException &&
