@@ -67,7 +67,7 @@ const MapPage = () => {
   /**
    * List of individual contributions
    * Desktop:
-   *  - Header is 76px tall
+   *  - Header is 80px tall
    * Mobile:
    *  - Top navigation is 128px tall
    *   - Navigation section is 63px tall
@@ -75,7 +75,7 @@ const MapPage = () => {
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
    *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
    */
-  const mapHeight = isWiderThanLg ? height - 76 : height - 218;
+  const mapHeight = isWiderThanLg ? height - 80 : height - 218;
 
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
