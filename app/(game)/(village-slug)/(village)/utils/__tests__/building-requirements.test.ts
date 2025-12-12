@@ -11,7 +11,7 @@ import type {
 } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import {
   villageWithBarracksRequirementsMetBuildingFieldsMock,

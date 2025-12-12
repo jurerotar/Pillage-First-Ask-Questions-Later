@@ -1,6 +1,6 @@
 import { type PropsWithChildren, useMemo } from 'react';
 import { createContext } from 'react';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import type { Building } from 'app/interfaces/models/game/building';
