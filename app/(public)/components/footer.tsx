@@ -13,8 +13,9 @@ export const Footer = () => {
         <div className="flex flex-col gap-2">
           <Link to="/">
             <img
-              alt="Pillage First! logo"
+              alt={t('Pillage First! logo')}
               width="200"
+              height="30"
               src="/pillage-first-logo-horizontal.svg"
             />
           </Link>
@@ -27,7 +28,7 @@ export const Footer = () => {
 
         <nav className="flex flex-col gap-2">
           <Text
-            as="h3"
+            as="span"
             className="font-medium uppercase text-xs text-gray-500"
           >
             {t('Game')}
@@ -59,7 +60,7 @@ export const Footer = () => {
 
         <nav className="flex flex-col gap-2">
           <Text
-            as="h3"
+            as="span"
             className="font-medium uppercase text-xs text-gray-500"
           >
             {t('Resources')}
@@ -89,7 +90,7 @@ export const Footer = () => {
 
         <nav className="flex flex-col gap-2">
           <Text
-            as="h3"
+            as="span"
             className="font-medium uppercase text-xs text-gray-500"
           >
             {t('Community')}
@@ -98,8 +99,9 @@ export const Footer = () => {
             <li>
               <a
                 href="https://discord.gg/Ep7NKVXUZA"
-                rel="noopener"
+                rel="noopener nofollow"
                 className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2"
+                aria-label="Discord"
               >
                 <FaDiscord className="text-2xl md:text-3xl text-white" />
               </a>
@@ -107,7 +109,9 @@ export const Footer = () => {
             <li>
               <a
                 href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                rel="noopener nofollow"
                 className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2"
+                aria-label="GitHub"
               >
                 <FaGithub className="text-2xl md:text-3xl text-white" />
               </a>

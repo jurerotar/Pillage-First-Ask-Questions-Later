@@ -155,12 +155,7 @@ export const CreateNewGameWorldForm = () => {
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="flex flex-col">
-                <Text
-                  className="text-lg"
-                  as="h3"
-                >
-                  Game world configuration
-                </Text>
+                <Text as="h2">Game world configuration</Text>
               </div>
               <FormField
                 control={form.control}
@@ -259,12 +254,7 @@ export const CreateNewGameWorldForm = () => {
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="flex flex-col">
-                <Text
-                  className="text-lg"
-                  as="h3"
-                >
-                  Player configuration
-                </Text>
+                <Text as="h2">Player configuration</Text>
               </div>
               <FormField
                 control={form.control}
