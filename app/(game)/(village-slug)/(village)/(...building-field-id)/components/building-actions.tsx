@@ -18,10 +18,8 @@ import {
   useBuildingConstructionStatus,
   useBuildingUpgradeStatus,
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 
@@ -99,13 +97,10 @@ export const BuildingActions = () => {
     use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
-  const { playerVillages } = usePlayerVillages();
-  const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { maxLevelByBuildingId, buildingIdsInQueue } =
+    use(BuildingFieldContext);
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
     buildingFieldId!,
@@ -126,9 +121,8 @@ export const BuildingActions = () => {
     assessBuildingConstructionReadiness({
       buildingId,
       tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
+      maxLevelByBuildingId,
+      buildingIdsInQueue,
     });
 
   const onBuildingConstruction = async () => {

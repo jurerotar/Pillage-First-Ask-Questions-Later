@@ -1,5 +1,4 @@
 import { getBuildingDefinition } from 'app/assets/utils/buildings';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type {
   AmountBuildingRequirement,
   Building,
@@ -8,10 +7,7 @@ import type {
   TribeBuildingRequirement,
 } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import type {
-  BuildingField,
-  Village,
-} from 'app/interfaces/models/game/village';
+import type { BuildingContextReturn } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;
@@ -24,10 +20,9 @@ export type AssessBuildingConstructionReadinessReturn = {
 
 export type AssessBuildingConstructionReadinessArgs = {
   tribe: Tribe;
-  playerVillages: Village[];
-  currentVillage: Village;
-  currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[];
   buildingId: Building['id'];
+  maxLevelByBuildingId: BuildingContextReturn['maxLevelByBuildingId'];
+  buildingIdsInQueue: BuildingContextReturn['buildingIdsInQueue'];
 };
 
 type AssessFunctionArgs<T extends BuildingRequirement> =
@@ -39,18 +34,15 @@ type AssessFunctionArgs<T extends BuildingRequirement> =
 const assessBuildingLevelRequirement = (
   args: AssessFunctionArgs<BuildingLevelBuildingRequirement>,
 ): boolean => {
-  const {
-    requirement,
-    currentVillage: { buildingFields },
-  } = args;
+  const { requirement, maxLevelByBuildingId } = args;
 
-  for (const { buildingId, level } of buildingFields) {
-    if (buildingId === requirement.buildingId && level >= requirement.level) {
-      return true;
-    }
+  const buildingMaxLevel = maxLevelByBuildingId.get(requirement.buildingId);
+
+  if (!buildingMaxLevel) {
+    return false;
   }
 
-  return false;
+  return buildingMaxLevel >= requirement.level;
 };
 
 const assessBuildingAmountRequirement = (
@@ -59,28 +51,23 @@ const assessBuildingAmountRequirement = (
   const {
     building,
     requirement,
-    currentVillage: { buildingFields },
-    currentVillageBuildingEvents,
+    buildingIdsInQueue,
+    maxLevelByBuildingId,
     buildingId,
   } = args;
 
-  const sameBuildingFields: BuildingField[] = buildingFields.filter(
-    ({ buildingId: id }) => id === buildingId,
-  );
-  const buildingExistsInQueue = !!currentVillageBuildingEvents.find(
-    ({ buildingId: buildingUnderConstructionId }) =>
-      buildingUnderConstructionId === buildingId,
-  );
+  const sameBuildingMaxLevel = maxLevelByBuildingId.get(buildingId);
+  const buildingExistsInQueue = buildingIdsInQueue.has(buildingId);
 
   // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist or isn't being constructed
   if (requirement.amount > 1) {
-    return sameBuildingFields.length === 0 && !buildingExistsInQueue
+    return !sameBuildingMaxLevel && !buildingExistsInQueue
       ? true
-      : sameBuildingFields.some(({ level }) => level === building.maxLevel);
+      : sameBuildingMaxLevel === building.maxLevel;
   }
 
   // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
-  return !(sameBuildingFields.length > 0 || buildingExistsInQueue);
+  return !(sameBuildingMaxLevel || buildingExistsInQueue);
 };
 
 const assessTribeRequirement = (
@@ -96,10 +83,10 @@ export const assessBuildingConstructionReadiness = (
   const { buildingId } = args;
 
   const building = getBuildingDefinition(buildingId);
-  const requirements = building.buildingRequirements;
+  const { buildingRequirements } = building;
 
-  const assessedRequirements: AssessedBuildingRequirement[] = requirements.map(
-    (requirement) => {
+  const assessedRequirements: AssessedBuildingRequirement[] =
+    buildingRequirements.map((requirement) => {
       let fulfilled: boolean;
 
       switch (requirement.type) {
@@ -135,8 +122,7 @@ export const assessBuildingConstructionReadiness = (
         ...requirement,
         fulfilled,
       };
-    },
-  );
+    });
 
   const canBuild =
     assessedRequirements.length > 0

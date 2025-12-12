@@ -7,14 +7,12 @@ import {
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { buildings } from 'app/assets/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -24,11 +22,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 type BuildingCategoryPanelProps = {
@@ -39,26 +33,22 @@ const BuildingCategoryPanel = ({
   buildingCategory,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
-  const { playerVillages } = usePlayerVillages();
-  const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { maxLevelByBuildingId, buildingIdsInQueue } =
+    use(BuildingFieldContext);
 
   const staticBuildingConstructionReadinessArgs: Omit<
     Parameters<typeof assessBuildingConstructionReadiness>[0],
     'buildingId'
   > = {
     tribe,
-    currentVillageBuildingEvents,
-    playerVillages,
-    currentVillage,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
   };
 
-  const buildingsByCategory = buildings.filter(
-    ({ category }) => category === buildingCategory,
-  );
+  const buildingsByCategory = useMemo(() => {
+    return buildings.filter(({ category }) => category === buildingCategory);
+  }, [buildingCategory]);
 
   const assessments = new Map<
     Building['id'],
@@ -157,22 +147,33 @@ export const BuildingConstruction = () => {
           <Tab>{t('Resources')}</Tab>
         </TabList>
         <TabPanel>
-          <Section>
+          <SectionContent>
             <Text as="h2">{t('Infrastructure buildings')}</Text>
+            <Text>
+              {t(
+                'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
+              )}
+            </Text>
             <BuildingCategoryPanel buildingCategory="infrastructure" />
-          </Section>
+          </SectionContent>
         </TabPanel>
         <TabPanel>
-          <Section>
+          <SectionContent>
             <Text as="h2">{t('Military buildings')}</Text>
+            <Text>
+              {t(
+                'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
+              )}
+            </Text>
             <BuildingCategoryPanel buildingCategory="military" />
-          </Section>
+          </SectionContent>
         </TabPanel>
         <TabPanel>
-          <Section>
+          <SectionContent>
             <Text as="h2">{t('Resource buildings')}</Text>
+            <Text>{t('Buildings focused on improving village economy.')}</Text>
             <BuildingCategoryPanel buildingCategory="resource-booster" />
-          </Section>
+          </SectionContent>
         </TabPanel>
       </Tabs>
     </>
