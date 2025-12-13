@@ -249,6 +249,21 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(false);
     });
 
+    test("Can't build a palisade", () => {
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'PALISADE', id: 40, level: 0 },
+        ]),
+        buildingId: 'PALISADE',
+      };
+      const { fulfilled } = getAssessedRequirementByType(
+        'amount',
+        assessBuildingConstructionReadiness(args),
+      );
+      expect(fulfilled).toBe(false);
+    });
+
     test("Can't build a second main building even if first is max level", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
