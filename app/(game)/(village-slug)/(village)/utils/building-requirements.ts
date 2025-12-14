@@ -57,17 +57,18 @@ const assessBuildingAmountRequirement = (
   } = args;
 
   const sameBuildingMaxLevel = maxLevelByBuildingId.get(buildingId);
+  const hasSameBuilding = sameBuildingMaxLevel !== undefined;
   const buildingExistsInQueue = buildingIdsInQueue.has(buildingId);
 
   // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist or isn't being constructed
   if (requirement.amount > 1) {
-    return !sameBuildingMaxLevel && !buildingExistsInQueue
+    return !hasSameBuilding && !buildingExistsInQueue
       ? true
       : sameBuildingMaxLevel === building.maxLevel;
   }
 
   // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
-  return !(sameBuildingMaxLevel || buildingExistsInQueue);
+  return !(hasSameBuilding || buildingExistsInQueue);
 };
 
 const assessTribeRequirement = (
