@@ -1,12 +1,8 @@
 {
-  " How does the game continue running if the app is closed?": " How does the game continue running if the app is closed?",
   "{{title}} | Pillage First!": "{{title}} | Pillage First!",
   "Answers to common questions": "Answers to common questions",
   "App version": "App version",
-  "Are game worlds stable between new releases?": "Are game worlds stable between new releases?",
-  "Are there game design differences between Travian and Pillage First!?": "Are there game design differences between Travian and Pillage First!?",
   "Branch": "Branch",
-  "Can this project be converted to multiplayer?": "Can this project be converted to multiplayer?",
   "Commit ref": "Commit ref",
   "Community": "Community",
   "Contribute or join the community": "Contribute or join the community",
@@ -14,7 +10,6 @@
   "Create": "Create",
   "Create a new game world": "Create a new game world",
   "Create and configure a new world": "Create and configure a new world",
-  "Does the game continue even if I close the app?": "Does the game continue even if I close the app?",
   "Existing game worlds": "Existing game worlds",
   "Frequently asked questions": "Frequently asked questions",
   "Game": "Game",
@@ -26,7 +21,6 @@
   "Import existing game world": "Import existing game world",
   "Import game world": "Import game world",
   "Importing...": "Importing...",
-  "Is there a project roadmap available?": "Is there a project roadmap available?",
   "Join the discussion": "Join the discussion",
   "Manage your existing game worlds": "Manage your existing game worlds",
   "My game worlds": "My game worlds",
@@ -36,9 +30,5 @@
   "Resources": "Resources",
   "Select .json file to import": "Select .json file to import",
   "Try now": "Try now",
-  "We're always on the lookout for new contributors!": "We're always on the lookout for new contributors!",
-  "What's the state of the project?": "What's the state of the project?",
-  "Why not stick with the original?": "Why not stick with the original?",
-  "Why single-player?": "Why single-player?",
   "Wiki (coming soon)": "Wiki (coming soon)"
 }

@@ -1,13 +1,20 @@
 runs:
   using: "composite"
   steps:
-    - name: Use Node.js LTS
-      uses: actions/setup-node@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js LTS
+      uses: actions/setup-node@v6
       with:
         node-version: 'lts/*'
-        cache: npm
+        cache: "npm"
         cache-dependency-path: package-lock.json
 
-    - name: Install modules
+    - name: Install dependencies
       shell: bash
-      run: npm ci --prefer-offline --no-audit --no-fund
+      run: |
+        set -euo pipefail
+        npm ci --prefer-offline --no-audit --no-fund

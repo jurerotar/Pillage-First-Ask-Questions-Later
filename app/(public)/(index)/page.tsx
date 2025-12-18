@@ -5,20 +5,20 @@ import { FaCodeMerge, FaGithub } from 'react-icons/fa6';
 
 const OpenSourceSection = () => {
   return (
-    <section className="bg-gray-700 transition-colors duration-300 overflow-hidden pt-4 lg:pt-0 -mb-4">
+    <section className="bg-gradient-to-t from-[#F5A911] via-[#FFD24A] to-[#FFE345] overflow-hidden pt-4 lg:pt-0 -mb-4">
       <div className="max-w-7xl min-h-[300px] p-4 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
           <div className="inline-flex justify-center items-center w-fit p-4 bg-white rounded-full">
-            <FaCodeMerge className="text-gray-700 size-6" />
+            <FaCodeMerge className="text-[#391600] size-6" />
           </div>
           <Text
             as="h2"
-            className="text-white"
+            className="text-[#391600]"
           >
             Pillage First! is an open-source technology!
           </Text>
 
-          <Text className="text-white">
+          <Text className="text-[#391600]">
             Pillage First! is proudly open-source and released under the
             AGPL-3.0 licence. We believe that openness, collaboration, and
             transparency produce better software and richer player experiences.
@@ -26,7 +26,7 @@ const OpenSourceSection = () => {
             or to serve as the foundation for your own project.
           </Text>
 
-          <Text className="font-medium text-white">
+          <Text className="font-medium text-[#391600]">
             Check the project out on GitHub and get involved in its development!
           </Text>
 
@@ -48,7 +48,7 @@ const OpenSourceSection = () => {
           <FaGithub
             className="
               absolute -right-20 -top-60 md:-right-4 md:-top-8
-              text-gray-800
+              text-[#391600]
               opacity-40 md:opacity-80
               size-80 md:size-100 lg:size-120
             "
