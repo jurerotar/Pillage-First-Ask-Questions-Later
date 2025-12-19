@@ -5,8 +5,8 @@ import { FaCodeMerge, FaGithub } from 'react-icons/fa6';
 
 const OpenSourceSection = () => {
   return (
-    <section className="bg-gradient-to-t from-[#F5A911] via-[#FFD24A] to-[#FFE345] overflow-hidden pt-4 lg:pt-0 -mb-4">
-      <div className="max-w-7xl min-h-[300px] p-4 mx-auto grid grid-cols-1 md:grid-cols-2">
+    <section className="bg-linear-to-t from-[#F5A911] via-[#FFD24A] to-[#FFE345] overflow-hidden pt-4 lg:pt-0 -mb-4">
+      <div className="max-w-7xl min-h-75 p-4 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
           <div className="inline-flex justify-center items-center w-fit p-4 bg-white rounded-full">
             <FaCodeMerge className="text-[#391600] size-6" />
@@ -65,7 +65,7 @@ const HomePage = () => {
     <>
       <title>Pillage First! (Ask Questions Later)</title>
       <main>
-        <div className="max-w-7xl mx-auto flex min-h-[450px] lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
+        <div className="max-w-7xl mx-auto flex min-h-112.5 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
