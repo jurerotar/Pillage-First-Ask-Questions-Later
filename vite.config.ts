@@ -9,6 +9,7 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 // import babel from 'vite-plugin-babel';
 // import { visualizer } from "rollup-plugin-visualizer";
 import { reactIconsSprite } from 'react-icons-sprite/vite';
+import mdx from '@mdx-js/rollup';
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -56,6 +57,7 @@ const viteConfig = defineViteConfig({
     //       plugins: [['babel-plugin-react-compiler']],
     //     },
     //   }),
+    !isInTestMode && mdx({ providerImportSource: '@mdx-js/react' }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
