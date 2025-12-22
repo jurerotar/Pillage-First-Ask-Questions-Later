@@ -80,7 +80,7 @@ const ConstructionQueueBuilding = ({
         key={tooltipKey}
         id={tooltipId}
         clickable
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !w-fit !text-black border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place={tooltipPosition}
         {...(isWiderThanMd && {
@@ -92,7 +92,7 @@ const ConstructionQueueBuilding = ({
         })}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex md:hidden border-b-1 border-border pb-1 text-sm">
+          <div className="flex md:hidden border-b border-border pb-1 text-sm">
             <b>{t('Under construction')}</b>
           </div>
           <div className="flex gap-2">

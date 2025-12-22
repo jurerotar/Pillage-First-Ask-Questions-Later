@@ -41,7 +41,7 @@ const TroopListContent = () => {
       <Tooltip
         key={tooltipKey}
         id={tooltipId}
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !text-black border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place="top-start"
         {...(isWiderThanLg && {

@@ -105,7 +105,7 @@ const NavigationSideItem = ({
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-class-name="hidden lg:flex"
       className={clsx(
-        'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
+        'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
         'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
         'transition-transform active:scale-95 active:shadow-inner',
         'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
@@ -227,7 +227,7 @@ const HeroNavigationItem = () => {
   return (
     <Link
       to="hero"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
       aria-label={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
@@ -294,7 +294,7 @@ const DesktopTopRowItem = ({
       data-tooltip-class-name="hidden lg:flex"
       type="button"
       className="
-        px-3 py-0.5 border-2 border-white rounded-sm bg-gradient-to-t bg-card
+        px-3 py-0.5 border-2 border-white rounded-sm bg-linear-to-t bg-card
         flex items-center justify-center
         transition-transform active:scale-95 active:shadow-inner
         lg:transition-colors lg:hover:bg-gray-50
@@ -322,7 +322,7 @@ const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
           isActive
             ? 'from-[#7da100] to-[#c7e94f] lg:hover:from-[#728f00] lg:hover:to-[#b8dc45]'
             : 'from-[#b8b2a9] to-[#f1f0ee] lg:hover:from-[#aba5a0] lg:hover:to-[#e8e7e5]',
-          'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+          'bg-linear-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
           'transition-transform transform-gpu active:scale-95',
           'lg:transition-colors',
         )
@@ -442,7 +442,7 @@ const ResourceCounters = () => {
         (resource: Resource, index) => (
           <Fragment key={resource}>
             <ResourceCounter resource={resource} />
-            {index !== 3 && <span className="w-[2px] h-full bg-gray-300" />}
+            {index !== 3 && <span className="w-0.5 h-full bg-gray-300" />}
           </Fragment>
         ),
       )}
@@ -645,7 +645,7 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
