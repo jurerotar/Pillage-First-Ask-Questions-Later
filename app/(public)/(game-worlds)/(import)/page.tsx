@@ -12,13 +12,13 @@ import { Button } from 'app/components/ui/button';
 import { useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import { workerFactory } from 'app/utils/workers';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 
 type ImportGameWorldSuccess = Extract<
   ImportGameWorldWorkerResponse,
@@ -28,7 +28,7 @@ type ImportGameWorldSuccess = Extract<
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
   const navigate = useNavigate();
-  const { addServer } = useAvailableServers();
+  const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
@@ -54,7 +54,7 @@ const ImportGameWorld = () => {
       return result;
     },
     onSuccess: async ({ server }) => {
-      addServer({ server });
+      createGameWorld({ server });
 
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
