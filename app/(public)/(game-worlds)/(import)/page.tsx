@@ -11,18 +11,18 @@ import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import { workerFactory } from 'app/utils/workers';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
   const navigate = useNavigate();
-  const { addServer } = useAvailableServers();
+  const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +109,7 @@ const ImportGameWorld = () => {
                   }
 
                   // Add to available servers (localStorage list)
-                  addServer({ server: result.server });
+                  createGameWorld({ server: result.server });
 
                   // Navigate to imported world
                   await navigate(`/game/${result.serverSlug}/v-1/resources`);

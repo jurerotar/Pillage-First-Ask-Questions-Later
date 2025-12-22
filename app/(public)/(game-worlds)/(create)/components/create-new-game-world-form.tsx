@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import { useMutation } from '@tanstack/react-query';
 import type { Server } from 'app/interfaces/models/game/server';
 import { serverFactory } from 'app/factories/server-factory';
@@ -33,6 +32,8 @@ import {
   npcVillageNameNouns,
 } from 'app/assets/village';
 import { randomInt } from 'moderndash';
+import { useEffect } from 'react';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 
 const formSchema = z.object({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -67,7 +68,7 @@ type MutateArgs = {
 
 export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
-  const { addServer, deleteServer } = useAvailableServers();
+  const { createGameWorld, deleteGameWorld } = useGameWorldActions();
 
   const {
     mutate: createServer,
@@ -85,23 +86,17 @@ export const CreateNewGameWorldForm = () => {
       );
     },
     onSuccess: async (_, { server }) => {
-      addServer({ server });
+      createGameWorld({ server });
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
-    onError: (_, { server }) => deleteServer({ server }),
+    onError: (_, { server }) => deleteGameWorld({ server }),
   });
-
-  const adjectiveIndex = randomInt(0, npcVillageNameAdjectives.length - 1);
-  const nounIndex = randomInt(0, npcVillageNameNouns.length - 1);
-
-  const adjective = npcVillageNameAdjectives[adjectiveIndex];
-  const noun = npcVillageNameNouns[nounIndex];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      seed: generateSeed(),
-      name: `${adjective}${noun}`,
+      seed: '',
+      name: '',
       configuration: {
         speed: '1',
         mapSize: '100',
@@ -121,6 +116,17 @@ export const CreateNewGameWorldForm = () => {
     const server = serverFactory({ ...values });
     createServer({ server });
   };
+
+  useEffect(() => {
+    const adjectiveIndex = randomInt(0, npcVillageNameAdjectives.length - 1);
+    const nounIndex = randomInt(0, npcVillageNameNouns.length - 1);
+
+    const adjective = npcVillageNameAdjectives[adjectiveIndex];
+    const noun = npcVillageNameNouns[nounIndex];
+
+    form.setValue('seed', generateSeed());
+    form.setValue('name', `${adjective}${noun}`);
+  }, [form.setValue]);
 
   if (isError) {
     console.error(error);

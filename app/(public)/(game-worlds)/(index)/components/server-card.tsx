@@ -1,5 +1,4 @@
 import { Button } from 'app/components/ui/button';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
 import { formatDistanceToNow } from 'date-fns';
@@ -8,6 +7,7 @@ import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
 import { env } from 'app/env';
 import { Badge } from 'app/components/ui/badge';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 
 type ServerCardProps = {
   server: Server;
@@ -16,7 +16,7 @@ type ServerCardProps = {
 export const ServerCard = (props: ServerCardProps) => {
   const { server } = props;
 
-  const { deleteServer, exportServer } = useAvailableServers();
+  const { exportGameWorld, deleteGameWorld } = useGameWorldActions();
 
   const appVersion = env.VERSION;
 
@@ -36,7 +36,7 @@ export const ServerCard = (props: ServerCardProps) => {
           data-tooltip-id="public-tooltip"
           data-tooltip-content="Export server"
           variant="outline"
-          onClick={() => exportServer({ server })}
+          onClick={() => exportGameWorld({ server })}
         >
           <FaDownload className="text-gray-400" />
         </Button>
@@ -44,7 +44,7 @@ export const ServerCard = (props: ServerCardProps) => {
           data-tooltip-id="public-tooltip"
           data-tooltip-content="Delete server"
           variant="outline"
-          onClick={() => deleteServer({ server })}
+          onClick={() => deleteGameWorld({ server })}
         >
           <FaTrash className="text-red-500" />
         </Button>
