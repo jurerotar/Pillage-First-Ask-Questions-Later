@@ -1,13 +1,11 @@
 import { clsx } from 'clsx';
-import { useEffect } from 'react';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { use, useEffect } from 'react';
 import { useTextDirection } from 'app/hooks/use-text-direction';
 import layoutStyles from '../layout.module.scss';
+import { CookieContext } from 'app/providers/cookie-provider';
 
 export const PreferencesUpdater = () => {
-  const { preferences } = usePreferences();
-
-  const { timeOfDay, skinVariant, colorScheme, locale } = preferences;
+  const { locale, skinVariant, uiColorScheme, timeOfDay } = use(CookieContext);
 
   const { direction } = useTextDirection(locale);
 
@@ -22,14 +20,14 @@ export const PreferencesUpdater = () => {
   }, []);
 
   useEffect(() => {
-    if (!(colorScheme && skinVariant && timeOfDay)) {
+    if (!(uiColorScheme && skinVariant && timeOfDay)) {
       return;
     }
     const html = document.documentElement;
 
     html.setAttribute('dir', direction);
     html.classList.add(
-      colorScheme,
+      uiColorScheme,
       `skin-variant-${skinVariant}`,
       `time-of-day-${timeOfDay}`,
     );
@@ -37,12 +35,12 @@ export const PreferencesUpdater = () => {
     return () => {
       html.removeAttribute('dir');
       html.classList.remove(
-        colorScheme,
+        uiColorScheme,
         `skin-variant-${skinVariant}`,
         `time-of-day-${timeOfDay}`,
       );
     };
-  }, [skinVariant, timeOfDay, colorScheme, direction]);
+  }, [skinVariant, timeOfDay, uiColorScheme, direction]);
 
   return null;
 };

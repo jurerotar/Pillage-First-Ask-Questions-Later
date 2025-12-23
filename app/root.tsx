@@ -1,23 +1,12 @@
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import { StateProvider } from 'app/providers/state-provider';
-import type { Route } from '.react-router/types/app/+types/root';
 import { initFaro } from 'app/faro';
 import 'app/localization/i18n';
 import 'app/styles/app.css';
 import { env } from 'app/env';
+import { clientSessionMiddleware } from 'app/middleware/client-session-middleware';
 
 await initFaro();
-
-const clientSessionMiddleware: Route.ClientMiddlewareFunction = async ({
-  context,
-}) => {
-  const { sessionContext } = await import('app/context/session');
-
-  const sessionCtx = context.get(sessionContext);
-  if (!sessionCtx.sessionId) {
-    sessionCtx.sessionId = window.crypto.randomUUID();
-  }
-};
 
 export const clientMiddleware = [clientSessionMiddleware];
 
@@ -71,7 +60,7 @@ export const Layout = () => {
         />
         <meta
           property="og:url"
-          content="https://pillagefirst.netlify.app"
+          content="https://pillagefirst.com"
         />
         <meta
           property="og:type"

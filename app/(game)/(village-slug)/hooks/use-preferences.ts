@@ -3,9 +3,6 @@ import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-k
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useTranslation } from 'react-i18next';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
-import { loadAppTranslations } from 'app/localization/loaders/app';
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;
@@ -14,7 +11,6 @@ type UpdatePreferenceArgs = {
 
 export const usePreferences = () => {
   const { fetcher } = use(ApiContext);
-  const { i18n } = useTranslation();
 
   const { data: preferences } = useSuspenseQuery<Preferences>({
     queryKey: [preferencesCacheKey],
@@ -39,21 +35,10 @@ export const usePreferences = () => {
         },
       });
     },
-    onSuccess: async (
-      _,
-      { preferenceName, value },
-      _onMutateResult,
-      context,
-    ) => {
+    onSuccess: async (_, _args, _onMutateResult, context) => {
       await context.client.invalidateQueries({
         queryKey: [preferencesCacheKey],
       });
-      if (preferenceName === 'locale') {
-        const locale = value as AvailableLocale;
-
-        await loadAppTranslations(locale);
-        await i18n.changeLanguage(locale);
-      }
     },
   });
 

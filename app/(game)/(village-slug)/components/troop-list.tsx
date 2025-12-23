@@ -4,7 +4,7 @@ import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troo
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
 import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { formatNumber, partition } from 'app/utils/common';
 import { Tooltip } from 'react-tooltip';
 import type { Troop } from 'app/interfaces/models/game/troop';
