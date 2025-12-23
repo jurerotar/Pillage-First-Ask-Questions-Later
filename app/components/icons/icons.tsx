@@ -65,10 +65,12 @@ import type {
   NatureUnitId,
   RomanUnitId,
   TeutonUnitId,
+  Unit,
 } from 'app/interfaces/models/game/unit';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import styles from './icons.module.scss';
 import type { JSX } from 'react';
+import { camelCase } from 'moderndash';
 
 type UncategorizedIconType =
   | 'missingIcon'
@@ -377,4 +379,8 @@ export const icons: Record<IconType, () => JSX.Element> = {
   ),
   adventure: () => <PiPath className="size-full text-blue-500" />,
   findNewVillage: () => <GiPointyHat className="size-full text-blue-500" />,
+};
+
+export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {
+  return camelCase(unitId) as UnitIconType;
 };

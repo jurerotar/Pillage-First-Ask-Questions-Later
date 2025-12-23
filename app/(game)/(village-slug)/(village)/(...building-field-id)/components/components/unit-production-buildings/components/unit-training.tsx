@@ -18,7 +18,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import type { Unit } from 'app/interfaces/models/game/unit';

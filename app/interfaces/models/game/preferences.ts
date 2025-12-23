@@ -6,10 +6,6 @@ export const preferencesSkinVariantSchema = z.enum(['default']);
 export const preferencesLocaleSchema = z.enum(['en-US']);
 
 export const preferencesSchema = z.strictObject({
-  colorScheme: preferencesColorSchemeSchema,
-  locale: preferencesLocaleSchema,
-  timeOfDay: preferencesTimeOfDaySchema,
-  skinVariant: preferencesSkinVariantSchema,
   isAccessibilityModeEnabled: z.boolean(),
   isReducedMotionModeEnabled: z.boolean(),
   shouldShowBuildingNames: z.boolean(),

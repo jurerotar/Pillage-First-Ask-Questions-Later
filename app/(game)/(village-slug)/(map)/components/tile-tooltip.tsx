@@ -4,7 +4,7 @@ import {
   isOccupiedOasisTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import type {
   OasisResourceBonus,
   OasisTile,

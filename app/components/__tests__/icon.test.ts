@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { unitIdToUnitIconMapper } from '../icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 
 describe('unitIdToUnitIconMapper', () => {
   test('converts a basic unit ID to camelCase', () => {
