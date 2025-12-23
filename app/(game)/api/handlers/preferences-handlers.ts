@@ -1,21 +1,11 @@
 import type { ApiHandler } from 'app/interfaces/api';
-import {
-  type Preferences,
-  preferencesColorSchemeSchema,
-  preferencesLocaleSchema,
-  preferencesSkinVariantSchema,
-  preferencesTimeOfDaySchema,
-} from 'app/interfaces/models/game/preferences';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
 
 const getPreferencesSchema = z
   .strictObject({
-    color_scheme: preferencesColorSchemeSchema,
-    locale: preferencesLocaleSchema,
-    time_of_day: preferencesTimeOfDaySchema,
-    skin_variant: preferencesSkinVariantSchema,
     is_accessibility_mode_enabled: z.number(),
     is_reduced_motion_mode_enabled: z.number(),
     should_show_building_names: z.number(),
@@ -27,10 +17,6 @@ const getPreferencesSchema = z
   })
   .transform((t) => {
     return {
-      colorScheme: t.color_scheme,
-      locale: t.locale,
-      timeOfDay: t.time_of_day,
-      skinVariant: t.skin_variant,
       isAccessibilityModeEnabled: Boolean(t.is_accessibility_mode_enabled),
       isReducedMotionModeEnabled: Boolean(t.is_reduced_motion_mode_enabled),
       shouldShowBuildingNames: Boolean(t.should_show_building_names),
@@ -54,10 +40,6 @@ export const getPreferences: ApiHandler = (database) => {
   const row = database.selectObject(
     `
       SELECT
-        color_scheme,
-        locale,
-        time_of_day,
-        skin_variant,
         is_accessibility_mode_enabled,
         is_reduced_motion_mode_enabled,
         should_show_building_names,

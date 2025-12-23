@@ -4,10 +4,6 @@ import { PLAYER_ID } from 'app/constants/player';
 
 export const preferencesSeeder: Seeder = (database): void => {
   const preferences: Preferences = {
-    colorScheme: 'light',
-    locale: 'en-US',
-    timeOfDay: 'day',
-    skinVariant: 'default',
     isAccessibilityModeEnabled: false,
     isReducedMotionModeEnabled: false,
     shouldShowBuildingNames: true,
@@ -22,10 +18,6 @@ export const preferencesSeeder: Seeder = (database): void => {
     sql: `
       INSERT INTO preferences (
                                player_id,
-                               color_scheme,
-                               locale,
-                               time_of_day,
-                               skin_variant,
                                is_accessibility_mode_enabled,
                                is_reduced_motion_mode_enabled,
                                should_show_building_names,
@@ -35,10 +27,6 @@ export const preferencesSeeder: Seeder = (database): void => {
                                should_show_notifications_on_unit_upgrade_completion,
                                should_show_notifications_on_academy_research_completion)
       VALUES ($player_id,
-              $color_scheme,
-              $locale,
-              $time_of_day,
-              $skin_variant,
               $is_accessibility_mode_enabled,
               $is_reduced_motion_mode_enabled,
               $should_show_building_names,
@@ -50,10 +38,6 @@ export const preferencesSeeder: Seeder = (database): void => {
     `,
     bind: {
       $player_id: PLAYER_ID,
-      $color_scheme: preferences.colorScheme,
-      $locale: preferences.locale,
-      $time_of_day: preferences.timeOfDay,
-      $skin_variant: preferences.skinVariant,
       $is_accessibility_mode_enabled: Number(
         preferences.isAccessibilityModeEnabled,
       ),

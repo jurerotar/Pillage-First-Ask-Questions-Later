@@ -2,14 +2,6 @@ CREATE TABLE preferences
 (
   player_id INTEGER PRIMARY KEY,
 
-  -- Appearance
-  color_scheme TEXT NOT NULL CHECK (color_scheme IN ('light', 'dark')),
-  time_of_day TEXT NOT NULL CHECK (time_of_day IN ('day', 'night')),
-  skin_variant TEXT NOT NULL CHECK (skin_variant IN ('default')),
-
-  -- Localization
-  locale TEXT NOT NULL CHECK (locale IN ('en-US')),
-
   -- Accessibility
   is_accessibility_mode_enabled INTEGER NOT NULL CHECK (is_accessibility_mode_enabled IN (0, 1)),
   is_reduced_motion_mode_enabled INTEGER NOT NULL CHECK (is_reduced_motion_mode_enabled IN (0, 1)),
