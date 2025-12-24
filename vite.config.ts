@@ -71,23 +71,6 @@ const viteConfig = defineViteConfig({
           globIgnores: ['**/*.html'],
         },
       }),
-    // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
-    // replacing the dependency. Remove once/if this gets resolved.
-    // https://github.com/juliencrn/usehooks-ts/discussions/669#discussioncomment-11922434
-    {
-      name: 'replace-lodash-debounce',
-      enforce: 'pre',
-      transform: (code, id) => {
-        if (!id.includes('usehooks-ts')) {
-          return;
-        }
-
-        return code.replace(
-          `import debounce from 'lodash.debounce';`,
-          `import { debounce } from 'moderndash';`,
-        );
-      },
-    },
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {
