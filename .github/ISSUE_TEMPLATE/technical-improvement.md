@@ -5,8 +5,6 @@ title: "[Technical Improvement]: "
 labels:
   - enhancement
   - technical-debt
-assignees:
-  - jurerotar
 ---
 
 ### Description
