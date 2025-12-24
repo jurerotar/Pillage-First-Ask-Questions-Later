@@ -84,17 +84,17 @@ export default [
                   '(game)/(village-slug)/(reports)/(...report-id)/page.tsx',
                 ),
               ]),
-            ]),
-            route(
-              'oasis-bonus-finder',
-              '(game)/(village-slug)/(oasis-bonus-finder)/page.tsx',
-            ),
-            ...prefix('players', [
-              index('(game)/(village-slug)/(players)/page.tsx'),
               route(
-                ':playerSlug',
-                '(game)/(village-slug)/(players)/(...player-slug)/page.tsx',
+                'oasis-bonus-finder',
+                '(game)/(village-slug)/(oasis-bonus-finder)/page.tsx',
               ),
+              ...prefix('players', [
+                index('(game)/(village-slug)/(players)/page.tsx'),
+                route(
+                  ':playerSlug',
+                  '(game)/(village-slug)/(players)/(...player-slug)/page.tsx',
+                ),
+              ]),
             ]),
           ]),
         ]),

@@ -83,7 +83,9 @@ export const VillageRankings = () => {
                     </TableCell>
                     <TableCell>
                       <Text variant="link">
-                        <Link to={playerSlug}>{playerName}</Link>
+                        <Link to={`../players/${playerSlug}`}>
+                          {playerName}
+                        </Link>
                       </Text>
                     </TableCell>
                     <TableCell>
