@@ -26,7 +26,9 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink to="../statistics">{t('Statistics')}</BreadcrumbLink>
+            <BreadcrumbLink to="../statistics">
+              {t('Statistics')}
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
