@@ -17,7 +17,6 @@ import {
   FixedSizeList,
   type GridOnScrollProps,
 } from 'react-window';
-import { useEventListener, useWindowSize } from 'usehooks-ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Dialog } from 'app/components/ui/dialog';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -25,6 +24,8 @@ import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/
 import { useTranslation } from 'react-i18next';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useWindowSize } from 'app/hooks/use-window-size';
+import { useWindowEvent } from '@mantine/hooks';
 import { TileOverlay } from 'app/(game)/(village-slug)/(map)/components/overlays/tile-overlay';
 
 // Height/width of ruler on the left-bottom.
@@ -39,7 +40,7 @@ const MapPageContents = () => {
     modalArgs,
   } = useDialog<number>();
   const { map } = useMap();
-  const { height, width } = useWindowSize({ debounceDelay: 150 });
+  const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
@@ -129,38 +130,28 @@ const MapPageContents = () => {
     };
   }, [tileSize]);
 
-  useEventListener(
-    'mousemove',
-    ({ clientX, clientY }) => {
-      if (!isScrolling.current || !mapRef.current) {
-        return;
-      }
+  useWindowEvent('mousemove', ({ clientX, clientY }) => {
+    if (!isScrolling.current || !mapRef.current) {
+      return;
+    }
 
-      const deltaX = clientX - mouseDownPosition.current.x;
-      const deltaY = clientY - mouseDownPosition.current.y;
+    const deltaX = clientX - mouseDownPosition.current.x;
+    const deltaY = clientY - mouseDownPosition.current.y;
 
-      const currentX = mapRef.current.scrollLeft;
-      const currentY = mapRef.current.scrollTop;
+    const currentX = mapRef.current.scrollLeft;
+    const currentY = mapRef.current.scrollTop;
 
-      mouseDownPosition.current = {
-        x: clientX,
-        y: clientY,
-      };
+    mouseDownPosition.current = {
+      x: clientX,
+      y: clientY,
+    };
 
-      mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    window,
-  );
+    mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+  });
 
-  useEventListener(
-    'mouseup',
-    () => {
-      isScrolling.current = false;
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    window,
-  );
+  useWindowEvent('mouseup', () => {
+    isScrolling.current = false;
+  });
 
   const scrollLeft = (tileX: number) => {
     return tileSize * (tileX + gridSize / 2) - width / 2;
