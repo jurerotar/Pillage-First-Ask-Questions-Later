@@ -14,7 +14,7 @@ import { Notifier } from 'app/(game)/components/notifier';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
+import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
