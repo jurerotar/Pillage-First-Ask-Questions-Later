@@ -1,7 +1,6 @@
 import { Button } from 'app/components/ui/button';
 import type { Server } from 'app/interfaces/models/game/server';
 import { Link } from 'react-router';
-import { formatDistanceToNow } from 'date-fns';
 import { FaTrash } from 'react-icons/fa6';
 import { Alert } from 'app/components/ui/alert';
 import { Text } from 'app/components/text';
@@ -9,21 +8,19 @@ import { env } from 'app/env';
 import { Badge } from 'app/components/ui/badge';
 import { FaDownload } from 'react-icons/fa';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import { daysSince } from 'app/utils/time';
+import { use } from 'react';
+import { CookieContext } from 'app/providers/cookie-provider';
 
 type ServerCardProps = {
   server: Server;
 };
 
-export const ServerCard = (props: ServerCardProps) => {
-  const { server } = props;
-
+export const ServerCard = ({ server }: ServerCardProps) => {
+  const { locale } = use(CookieContext);
   const { exportGameWorld, deleteGameWorld } = useGameWorldActions();
 
-  const appVersion = env.VERSION;
-
-  const timeSinceCreation = formatDistanceToNow(new Date(server.createdAt), {
-    addSuffix: false,
-  });
+  const timeSinceCreation = daysSince(server.createdAt, locale);
 
   const serverVersion = server.version ?? '0.0.0';
 
@@ -67,11 +64,11 @@ export const ServerCard = (props: ServerCardProps) => {
           </Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">Age:</Text>
+          <Text className="font-medium">Created:</Text>
           <Text>{timeSinceCreation}</Text>
         </span>
       </div>
-      {serverVersion !== appVersion && (
+      {serverVersion !== env.VERSION && (
         <Alert variant="error">
           Your server version is outdated. It may not work with current version
           of the app. In case of error, delete and recreate server.
