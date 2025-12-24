@@ -12,8 +12,13 @@ import { Text } from 'app/components/text';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
 import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
 import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
+import { ModalRedirect } from './components/modal-redirect';
+import { getFromQueryParam } from './loaders/get-from-query-param';
+import { getRedirectContent } from './utils/get-redirect-content';
 
-const StatisticsPage = ({ params }: Route.ComponentProps) => {
+export const clientLoader = getFromQueryParam;
+
+const StatisticsPage = ({ params, loaderData }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
@@ -24,9 +29,12 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
 
   const title = `${t('Statistics')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
+  const redirectContent = getRedirectContent(loaderData?.from || null);
+
   return (
     <>
       <title>{title}</title>
+      {redirectContent ? <ModalRedirect content={redirectContent} /> : null}
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

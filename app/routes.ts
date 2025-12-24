@@ -89,12 +89,14 @@ export default [
               'oasis-bonus-finder',
               '(game)/(village-slug)/(oasis-bonus-finder)/page.tsx',
             ),
-            ...prefix('players', [
-              index('(game)/(village-slug)/(players)/page.tsx'),
-              route(
-                ':playerSlug',
-                '(game)/(village-slug)/(players)/(...player-slug)/page.tsx',
-              ),
+            layout('(game)/(village-slug)/(players)/layout.tsx', [
+              ...prefix('players', [
+                index('(game)/(village-slug)/(players)/page.tsx'),
+                route(
+                  ':playerSlug',
+                  '(game)/(village-slug)/(players)/(...player-slug)/page.tsx',
+                ),
+              ]),
             ]),
           ]),
         ]),
