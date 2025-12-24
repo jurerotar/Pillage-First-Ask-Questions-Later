@@ -1,5 +1,3 @@
-import { differenceInSeconds } from 'date-fns';
-
 type CalculateCurrentAmountArgs = {
   lastKnownResourceAmount: number;
   lastUpdatedAt: number;
@@ -15,9 +13,8 @@ export const calculateCurrentAmount = ({
   storageCapacity,
   timestamp = Date.now(),
 }: CalculateCurrentAmountArgs) => {
-  const timeSinceLastUpdateInSeconds = differenceInSeconds(
-    new Date(timestamp),
-    new Date(lastUpdatedAt),
+  const timeSinceLastUpdateInSeconds = Math.trunc(
+    (timestamp - lastUpdatedAt) / 1000,
   );
 
   if (hourlyProduction === 0) {
