@@ -1,7 +1,7 @@
+import type { ComponentProps } from 'react';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import { Icon } from 'app/components/icon';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { ComponentProps } from 'react';
 
 type TreasureIconProps = Omit<ComponentProps<typeof Icon>, 'type'> & {
   item: WorldItem;

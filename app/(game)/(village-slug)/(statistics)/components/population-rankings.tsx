@@ -1,9 +1,9 @@
-import { Pagination } from 'app/components/ui/pagination';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'app/components/ui/alert';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
+import { Pagination } from 'app/components/ui/pagination';
 
 export const PopulationRankings = () => {
   const { t } = useTranslation();

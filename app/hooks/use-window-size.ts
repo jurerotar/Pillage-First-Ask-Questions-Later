@@ -1,5 +1,5 @@
-import { useCallback, useLayoutEffect, useState } from 'react';
 import { useWindowEvent } from '@mantine/hooks';
+import { useCallback, useLayoutEffect, useState } from 'react';
 
 const eventListerOptions = {
   passive: true,

@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
 import { use, useCallback } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
 
 export const useMap = () => {
   const { fetcher } = use(ApiContext);

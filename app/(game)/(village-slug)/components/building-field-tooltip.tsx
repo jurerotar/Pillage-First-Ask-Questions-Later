@@ -1,6 +1,9 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   getBuildingDataForLevel,
   getBuildingFieldByBuildingFieldId,
@@ -8,9 +11,6 @@ import {
 import { Icon } from 'app/components/icon';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { formatTime } from 'app/utils/time';
-import { use } from 'react';
-import { useTranslation } from 'react-i18next';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingField['id'];

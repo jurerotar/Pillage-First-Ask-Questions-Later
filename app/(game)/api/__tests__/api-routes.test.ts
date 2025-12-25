@@ -1,5 +1,5 @@
+import { describe, expect, test } from 'vitest';
 import { compiledApiRoutes } from 'app/(game)/api/api-routes';
-import { describe, test, expect } from 'vitest';
 
 describe('API route definitions', () => {
   test('Every route path starts with `/` and does not end with `/` (unless root)', () => {

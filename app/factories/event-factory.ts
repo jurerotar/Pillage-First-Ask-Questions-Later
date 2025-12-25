@@ -1,9 +1,9 @@
+import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type {
   GameEvent,
   GameEventType,
 } from 'app/interfaces/models/game/game-event';
 import type { Server } from 'app/interfaces/models/game/server';
-import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 
 export const eventFactory = <T extends GameEventType>(
   args: Omit<GameEvent<T>, 'id'>,

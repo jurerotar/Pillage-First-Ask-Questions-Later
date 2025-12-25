@@ -1,18 +1,18 @@
+import {
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+  useState,
+} from 'react';
+import { MdUpgrade } from 'react-icons/md';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import {
   BorderIndicator,
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { BuildingField } from 'app/interfaces/models/game/village';
-import {
-  useState,
-  type MouseEvent as ReactMouseEvent,
-  type TouchEvent as ReactTouchEvent,
-} from 'react';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { MdUpgrade } from 'react-icons/md';
+import type { BuildingField } from 'app/interfaces/models/game/village';
 
 type StaticButtonProps = {
   buildingField: BuildingField;

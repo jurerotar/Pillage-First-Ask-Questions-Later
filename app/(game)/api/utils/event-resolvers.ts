@@ -1,10 +1,10 @@
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { QueryClient } from '@tanstack/react-query';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
-import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import { isEventWithResourceCost } from 'app/(game)/guards/event-guards';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 let scheduledTimeout: number | null = null;
 

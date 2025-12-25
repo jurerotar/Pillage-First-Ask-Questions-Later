@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
-import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 export const useUnitResearch = () => {
   const { fetcher } = use(ApiContext);

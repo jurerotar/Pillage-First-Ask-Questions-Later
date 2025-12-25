@@ -1,2 +1,2 @@
-biome check --no-errors-on-unmatched
-npm run localize:ci
+biome ci
+i18next-cli extract --ci --dry-run

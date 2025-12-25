@@ -1,5 +1,5 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 
 export const getResearchedUnits: ApiHandler<

@@ -1,6 +1,6 @@
-import { Toggle as TogglePrimitive } from 'radix-ui';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
+import { Toggle as TogglePrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const toggleVariants = cva(

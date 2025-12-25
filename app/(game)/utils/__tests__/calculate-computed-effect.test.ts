@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import { villageMock } from 'app/tests/mocks/game/village/village-mock';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
+import {
+  newBuildingEffectFactory,
+  newVillageEffectsFactory,
+} from 'app/factories/effect-factory';
 import {
   wheatProductionBaseEffectMock,
   wheatProductionBonusBoosterEffectMock,
@@ -15,11 +19,7 @@ import {
   woodProductionHeroBonusEffectMock,
   woodProductionServerEffectMock,
 } from 'app/tests/mocks/game/effect-mock';
-import {
-  newBuildingEffectFactory,
-  newVillageEffectsFactory,
-} from 'app/factories/effect-factory';
-import { getBuildingDefinition } from 'app/assets/utils/buildings';
+import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 
 const villageId = villageMock.id;
 

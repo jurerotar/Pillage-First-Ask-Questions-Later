@@ -1,12 +1,16 @@
+import { useTranslation } from 'react-i18next';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import type {
-  ArtifactEffect,
-  Effect,
-  HeroEffect,
-  OasisEffect,
-  ResourceProductionEffectId,
-  VillageBuildingEffect,
-} from 'app/interfaces/models/game/effect';
+import {
+  isArtifactEffect,
+  isBuildingEffect,
+  isHeroEffect,
+  isOasisEffect,
+  isServerEffect,
+} from 'app/(game)/guards/effect-guards';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -16,18 +20,14 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { useTranslation } from 'react-i18next';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import {
-  isArtifactEffect,
-  isBuildingEffect,
-  isHeroEffect,
-  isOasisEffect,
-  isServerEffect,
-} from 'app/(game)/guards/effect-guards';
+import type {
+  ArtifactEffect,
+  Effect,
+  HeroEffect,
+  OasisEffect,
+  ResourceProductionEffectId,
+  VillageBuildingEffect,
+} from 'app/interfaces/models/game/effect';
 
 const formatBonus = (number: number): number => {
   return Math.trunc(number * 10000) / 100;

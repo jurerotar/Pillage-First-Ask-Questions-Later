@@ -1,5 +1,5 @@
-import type { Village } from 'app/interfaces/models/game/village';
 import type { Building } from 'app/interfaces/models/game/building';
+import type { Village } from 'app/interfaces/models/game/village';
 
 type GlobalQuestGroup = 'adventureCount' | 'troopCount';
 

@@ -1,17 +1,17 @@
-import type { ApiHandler } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import {
   eventsCacheKey,
   preferencesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
 import {
   isBuildingLevelUpEvent,
   isTroopTrainingEvent,
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from 'app/(game)/guards/event-guards';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
+import type { ApiHandler } from 'app/interfaces/api';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 export const getPreferences: ApiHandler<Preferences> = async (queryClient) => {
   return queryClient.getQueryData<Preferences>([preferencesCacheKey])!;

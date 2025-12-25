@@ -1,5 +1,5 @@
-import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 
 export const parseRFCFromTile = (RFC: OccupiableTile['RFC']) => {
   const [wood, clay, iron, ...wheat] = RFC.split('');

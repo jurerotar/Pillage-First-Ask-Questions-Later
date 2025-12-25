@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 
 describe('unitIdToUnitIconMapper', () => {

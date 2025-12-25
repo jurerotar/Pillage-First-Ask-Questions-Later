@@ -1,6 +1,6 @@
-import type { PlayerVillage } from 'app/interfaces/models/game/village';
 import { useCallback } from 'react';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
+import type { PlayerVillage } from 'app/interfaces/models/game/village';
 
 export const useGameNavigation = () => {
   const { serverSlug } = useRouteSegments();

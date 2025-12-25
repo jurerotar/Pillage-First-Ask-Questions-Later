@@ -1,7 +1,7 @@
 import { describe, test } from 'vitest';
-import { serverMock } from 'app/tests/mocks/game/server-mock';
 import { mapFactory } from 'app/factories/map-factory';
 import { generateNpcPlayers } from 'app/factories/player-factory';
+import { serverMock } from 'app/tests/mocks/game/server-mock';
 
 const npcPlayers = generateNpcPlayers(serverMock);
 

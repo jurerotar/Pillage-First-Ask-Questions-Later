@@ -1,5 +1,5 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { serverCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { Server } from 'app/interfaces/models/game/server';
 
 export const getServer: ApiHandler<Server> = async (queryClient) => {

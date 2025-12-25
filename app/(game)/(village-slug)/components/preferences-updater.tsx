@@ -1,8 +1,8 @@
 import { clsx } from 'clsx';
 import { use, useEffect } from 'react';
 import { useTextDirection } from 'app/hooks/use-text-direction';
-import layoutStyles from '../layout.module.scss';
 import { CookieContext } from 'app/providers/cookie-provider';
+import layoutStyles from '../layout.module.scss';
 
 export const PreferencesUpdater = () => {
   const { locale, skinVariant, uiColorScheme, timeOfDay } = use(CookieContext);

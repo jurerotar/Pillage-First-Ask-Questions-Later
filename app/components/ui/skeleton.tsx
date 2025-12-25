@@ -1,5 +1,5 @@
-import { clsx } from 'clsx';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 
 const skeletonVariants = cva('animate-pulse rounded-md', {

@@ -1,8 +1,8 @@
+import type { Building } from 'app/interfaces/models/game/building';
 import type {
   GlobalQuestDefinition,
   VillageQuestDefinition,
 } from 'app/interfaces/models/game/quest';
-import type { Building } from 'app/interfaces/models/game/building';
 
 const createTroopCountQuest = (count: number): GlobalQuestDefinition => {
   return {

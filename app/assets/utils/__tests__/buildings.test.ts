@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import {
   calculateBuildingCancellationRefundForLevel,
   calculateBuildingCostForLevel,
@@ -6,11 +7,10 @@ import {
   calculatePopulationFromBuildingFields,
   calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
-  getBuildingDefinition,
   getBuildingDataForLevel,
+  getBuildingDefinition,
 } from 'app/assets/utils/buildings';
 import { newVillageBuildingFieldsMock } from 'app/tests/mocks/game/village/building-fields-mock';
-import { describe, expect, test } from 'vitest';
 
 describe('Buildings utils', () => {
   describe('calculatePopulationFromBuildingFields', () => {

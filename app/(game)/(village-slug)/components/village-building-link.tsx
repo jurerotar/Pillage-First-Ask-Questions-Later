@@ -1,9 +1,9 @@
-import type { Building } from 'app/interfaces/models/game/building';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { BuildingField } from 'app/interfaces/models/game/village';
-import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { Text } from 'app/components/text';
+import type { Building } from 'app/interfaces/models/game/building';
+import type { BuildingField } from 'app/interfaces/models/game/village';
 
 type VillageBuildingLinkProps = {
   buildingId: Building['id'];

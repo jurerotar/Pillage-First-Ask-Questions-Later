@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { Tile } from 'app/interfaces/models/game/tile';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Tile } from 'app/interfaces/models/game/tile';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 export const useTileWorldItem = (tileId: Tile['id']) => {

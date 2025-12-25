@@ -1,14 +1,14 @@
+import type { TroopMovementType } from 'app/components/icons/icons';
 import type { Player } from 'app/interfaces/models/game/player';
+import type { Reputation } from 'app/interfaces/models/game/reputation';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type {
   ResourceFieldComposition,
   Village,
   VillageSize,
 } from 'app/interfaces/models/game/village';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import type { TroopMovementType } from 'app/components/icons/icons';
 
 export type BaseTile = {
   id: number;

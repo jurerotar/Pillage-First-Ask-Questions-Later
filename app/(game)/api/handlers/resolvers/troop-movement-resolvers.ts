@@ -1,6 +1,3 @@
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Resolver } from 'app/interfaces/models/common';
-import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
 import {
   effectsCacheKey,
   mapCacheKey,
@@ -11,24 +8,27 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Troop } from 'app/interfaces/models/game/troop';
+import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
+import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import { PLAYER_ID } from 'app/constants/player';
+import { newVillageEffectsFactory } from 'app/factories/effect-factory';
+import { newVillageQuestsFactory } from 'app/factories/quest-factory';
+import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
+import { playerVillageFactory } from 'app/factories/village-factory';
+import type { Resolver } from 'app/interfaces/models/common';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Player } from 'app/interfaces/models/game/player';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import type { Server } from 'app/interfaces/models/game/server';
 import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { Player } from 'app/interfaces/models/game/player';
-import { playerVillageFactory } from 'app/factories/village-factory';
-import { newVillageEffectsFactory } from 'app/factories/effect-factory';
-import type { Quest } from 'app/interfaces/models/game/quest';
-import { newVillageQuestsFactory } from 'app/factories/quest-factory';
+import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
-import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
-import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
-import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
-import { PLAYER_ID } from 'app/constants/player';
-import type { Server } from 'app/interfaces/models/game/server';
+import type { Village } from 'app/interfaces/models/game/village';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = async (
   queryClient,

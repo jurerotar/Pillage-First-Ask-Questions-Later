@@ -1,12 +1,12 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { Village } from 'app/interfaces/models/game/village';
 import {
   effectsCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
+import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
+import type { Effect } from 'app/interfaces/models/game/effect';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const calculateVillageResourcesAt = (
   queryClient: QueryClient,

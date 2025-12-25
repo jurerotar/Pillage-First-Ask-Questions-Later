@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import type { Village } from 'app/interfaces/models/game/village';
-import { villagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useVillages = () => {
   const { fetcher } = use(ApiContext);

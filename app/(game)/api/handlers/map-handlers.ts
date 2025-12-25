@@ -1,5 +1,3 @@
-import type { ApiHandler } from 'app/interfaces/api';
-import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
 import {
   eventsCacheKey,
   mapCacheKey,
@@ -9,21 +7,23 @@ import {
   villagesCacheKey,
   worldItemsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
   isOccupiableOasisTile,
   isOccupiedOasisTile,
   isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { isTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import type { TroopMovementType } from 'app/components/icons/icons';
-import type { Troop } from 'app/interfaces/models/game/troop';
 import { calculatePopulationFromBuildingFields } from 'app/assets/utils/buildings';
+import type { TroopMovementType } from 'app/components/icons/icons';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { OccupiableOasisInRangeDTO } from 'app/interfaces/dtos';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Player } from 'app/interfaces/models/game/player';
+import type { Reputation } from 'app/interfaces/models/game/reputation';
+import type { ContextualTile, Tile } from 'app/interfaces/models/game/tile';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Village } from 'app/interfaces/models/game/village';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 type GetTilePlayerReturn = {
   player: Player;

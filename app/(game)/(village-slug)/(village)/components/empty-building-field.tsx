@@ -1,5 +1,5 @@
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import { Link } from 'react-router';
+import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 
 type EmptyBuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];

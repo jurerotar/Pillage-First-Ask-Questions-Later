@@ -1,20 +1,20 @@
 import {
-  getBuildingDefinition,
+  effectsCacheKey,
+  villagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
+import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
+import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
+import { isBuildingEffect } from 'app/(game)/guards/effect-guards';
+import {
   getBuildingDataForLevel,
+  getBuildingDefinition,
   specialFieldIds,
 } from 'app/assets/utils/buildings';
 import { newBuildingEffectFactory } from 'app/factories/effect-factory';
 import type { Resolver } from 'app/interfaces/models/common';
 import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Village } from 'app/interfaces/models/game/village';
-import {
-  effectsCacheKey,
-  villagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { isBuildingEffect } from 'app/(game)/guards/effect-guards';
-import { createEvent } from 'app/(game)/api/handlers/utils/create-event';
-import { evaluateQuestCompletions } from 'app/(game)/api/utils/quests';
+import type { Village } from 'app/interfaces/models/game/village';
 
 const updateBuildingFieldLevel = (
   villages: Village[],

@@ -1,16 +1,16 @@
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { Suspense, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
+import { Tooltip } from 'react-tooltip';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
-import { formatNumber, partition } from 'app/utils/common';
-import { Tooltip } from 'react-tooltip';
-import type { Troop } from 'app/interfaces/models/game/troop';
 import { Text } from 'app/components/text';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { Suspense, useId } from 'react';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import { formatNumber, partition } from 'app/utils/common';
 
 const TroopListContent = () => {
   const { t } = useTranslation();

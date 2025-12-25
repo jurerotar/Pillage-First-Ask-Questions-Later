@@ -1,5 +1,5 @@
 import { redirect } from 'react-router';
-import type { Route } from '.react-router/types/app/(game)/+types/layout';
+import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { doesGameWorldExist, isGameWorldLocked } from 'app/utils/middleware';
 
 // Check whether server even exists && whether server is already opened in another tab

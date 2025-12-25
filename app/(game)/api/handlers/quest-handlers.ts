@@ -1,16 +1,16 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Quest } from 'app/interfaces/models/game/quest';
+import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
+import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import {
   isHeroExperienceQuestReward,
   isQuestCollectable,
   isResourceQuestReward,
   isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
-import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
-import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
-import type { Village } from 'app/interfaces/models/game/village';
 import { getQuestRewards } from 'app/assets/utils/quests';
+import type { ApiHandler } from 'app/interfaces/api';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const getQuests: ApiHandler<Quest[]> = async (queryClient) => {
   return queryClient.getQueryData<Quest[]>([questsCacheKey])!;

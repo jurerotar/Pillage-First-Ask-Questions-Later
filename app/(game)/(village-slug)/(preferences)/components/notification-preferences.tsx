@@ -1,18 +1,18 @@
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Text } from 'app/components/text';
-import { Trans, useTranslation } from 'react-i18next';
-import { Switch } from 'app/components/ui/switch';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Separator } from 'app/components/ui/separator';
+import {
+  requestNotificationPermission,
+  useNotificationPermission,
+} from 'app/(game)/hooks/use-notification-permission';
+import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
-import {
-  useNotificationPermission,
-  requestNotificationPermission,
-} from 'app/(game)/hooks/use-notification-permission';
+import { Separator } from 'app/components/ui/separator';
+import { Switch } from 'app/components/ui/switch';
 
 export const NotificationPreferences = () => {
   const { t } = useTranslation();

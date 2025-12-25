@@ -1,3 +1,4 @@
+import type { BuildingContextReturn } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { getBuildingDefinition } from 'app/assets/utils/buildings';
 import type {
   AmountBuildingRequirement,
@@ -7,7 +8,6 @@ import type {
   TribeBuildingRequirement,
 } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import type { BuildingContextReturn } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;

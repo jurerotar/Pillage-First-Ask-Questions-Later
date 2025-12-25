@@ -1,4 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
+import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
+import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
   Breadcrumb,
@@ -7,17 +18,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
-import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
 import { Separator } from 'app/components/ui/separator';
 
 const OverviewPage = ({ params }: Route.ComponentProps) => {

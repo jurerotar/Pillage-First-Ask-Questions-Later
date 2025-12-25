@@ -1,18 +1,18 @@
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import {
   canSendTroops,
   modifyTroops,
 } from 'app/(game)/api/handlers/resolvers/utils/troops';
-import type { Village } from 'app/interfaces/models/game/village';
-import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
-import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Village } from 'app/interfaces/models/game/village';
 
 type SendTroopsArgs = Pick<
   GameEvent<'troopMovement'>,

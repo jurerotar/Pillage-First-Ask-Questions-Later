@@ -1,7 +1,7 @@
-import { type ComponentProps, createContext, use } from 'react';
-import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
 import type { VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
+import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
+import { type ComponentProps, createContext, use } from 'react';
 import { toggleVariants } from 'app/components/ui/toggle';
 
 const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({

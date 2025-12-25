@@ -1,23 +1,5 @@
-import {
-  generateNpcPlayers,
-  playerFactory,
-} from 'app/factories/player-factory';
-import {
-  generateVillages,
-  playerVillageFactory,
-} from 'app/factories/village-factory';
-import { heroFactory } from 'app/factories/hero-factory';
-import { generateEffects } from 'app/factories/effect-factory';
-import { mapFiltersFactory } from 'app/factories/map-filters-factory';
-import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
-import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
-import { preferencesFactory } from 'app/factories/preferences-factory';
-import { adventurePointsFactory } from 'app/factories/adventure-points-factory';
-import { generateEvents } from 'app/factories/event-factory';
-import { generateReputations } from 'app/factories/reputation-factory';
-import { generateNewServerQuests } from 'app/factories/quest-factory';
 import { QueryClient } from '@tanstack/react-query';
-import type { Server } from 'app/interfaces/models/game/server';
+import { prngMulberry32 } from 'ts-seedrandom';
 import {
   adventurePointsCacheKey,
   bookmarksCacheKey,
@@ -37,31 +19,49 @@ import {
   villagesCacheKey,
   worldItemsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import type { Hero } from 'app/interfaces/models/game/hero';
-import type { Tile } from 'app/interfaces/models/game/tile';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { MapFilters } from 'app/interfaces/models/game/map-filters';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Quest } from 'app/interfaces/models/game/quest';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
-import { bookmarkFactory } from 'app/factories/bookmark-factory';
-import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
-import { mapFactory } from 'app/factories/map-factory';
 import {
   isOccupiedOccupiableTile,
   isUnoccupiedOasisTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { adventurePointsFactory } from 'app/factories/adventure-points-factory';
+import { bookmarkFactory } from 'app/factories/bookmark-factory';
+import { generateEffects } from 'app/factories/effect-factory';
+import { generateEvents } from 'app/factories/event-factory';
+import { heroFactory } from 'app/factories/hero-factory';
+import { mapFactory } from 'app/factories/map-factory';
+import { mapFiltersFactory } from 'app/factories/map-filters-factory';
+import {
+  generateNpcPlayers,
+  playerFactory,
+} from 'app/factories/player-factory';
+import { preferencesFactory } from 'app/factories/preferences-factory';
+import { generateNewServerQuests } from 'app/factories/quest-factory';
+import { generateReputations } from 'app/factories/reputation-factory';
 import { generateTroops } from 'app/factories/troop-factory';
-import { prngMulberry32 } from 'ts-seedrandom';
+import { unitImprovementFactory } from 'app/factories/unit-improvement-factory';
+import { newVillageUnitResearchFactory } from 'app/factories/unit-research-factory';
+import {
+  generateVillages,
+  playerVillageFactory,
+} from 'app/factories/village-factory';
 import { worldItemsFactory } from 'app/factories/world-items-factory';
+import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
+import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
+import type { Effect } from 'app/interfaces/models/game/effect';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Hero } from 'app/interfaces/models/game/hero';
+import type { MapFilters } from 'app/interfaces/models/game/map-filters';
+import type { Player } from 'app/interfaces/models/game/player';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import type { Reputation } from 'app/interfaces/models/game/reputation';
+import type { Server } from 'app/interfaces/models/game/server';
+import type { Tile } from 'app/interfaces/models/game/tile';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
+import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
+import type { Village } from 'app/interfaces/models/game/village';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 export const initializeServer = async (
   server: Server,

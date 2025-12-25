@@ -1,12 +1,12 @@
 import {
   type ReactTabsFunctionComponent,
   Tab as ReactTabsTab,
-  type TabProps,
   TabList as ReactTabsTabList,
-  type TabListProps,
   TabPanel as ReactTabsTabPanel,
-  type TabPanelProps,
   Tabs as ReactTabsTabs,
+  type TabListProps,
+  type TabPanelProps,
+  type TabProps,
   type TabsProps,
 } from 'react-tabs';
 

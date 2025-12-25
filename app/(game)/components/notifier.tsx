@@ -1,23 +1,23 @@
-import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
-import { useEffect } from 'react';
-import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import {
-  isEventCreatedNotificationMessageEvent,
-  isEventResolvedNotificationMessageEvent,
-} from 'app/(game)/providers/guards/api-notification-event-guards';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { useNotificationPermission } from 'app/(game)/hooks/use-notification-permission';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import {
   isBuildingLevelUpEvent,
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from 'app/(game)/guards/event-guards';
+import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
+import { useNotificationPermission } from 'app/(game)/hooks/use-notification-permission';
 import { useTabFocus } from 'app/(game)/hooks/use-tab-focus';
+import {
+  isEventCreatedNotificationMessageEvent,
+  isEventResolvedNotificationMessageEvent,
+} from 'app/(game)/providers/guards/api-notification-event-guards';
+import type { EventApiNotificationEvent } from 'app/interfaces/api';
 import type { Server } from 'app/interfaces/models/game/server';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 
 type NotificationFactoryArgs = {
   t: TFunction;

@@ -1,21 +1,20 @@
+import { clsx } from 'clsx';
+import { use, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
+import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import type { Building } from 'app/interfaces/models/game/building';
 import type {
   BuildingField as BuildingFieldType,
   ResourceFieldComposition,
 } from 'app/interfaces/models/game/village';
-import { use } from 'react';
-import { useState } from 'react';
-import type { Building } from 'app/interfaces/models/game/building';
-import { clsx } from 'clsx';
-import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
-import { useTranslation } from 'react-i18next';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
-import { Link } from 'react-router';
-import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 const transformBuildingIdIntoCssClass = (
   buildingId: Building['id'],

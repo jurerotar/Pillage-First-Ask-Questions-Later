@@ -1,6 +1,6 @@
+import { kebabCase } from 'moderndash';
 import type { RouteConfigEntry } from '@react-router/dev/routes';
 import routes from '../routes';
-import { kebabCase } from 'moderndash';
 
 export const extractPathsFromRoutes = (
   routeEntries: RouteConfigEntry[],
