@@ -1,29 +1,24 @@
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { Suspense, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
-import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import { formatNumber, partition } from 'app/utils/common';
 import { Tooltip } from 'react-tooltip';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import { Text } from 'app/components/text';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useId } from 'react';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Text } from 'app/components/text';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import { formatNumber, partition } from 'app/utils/common';
 
-export const TroopList = () => {
+const TroopListContent = () => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { playerTroops } = usePlayerTroops();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const tooltipId = useId();
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
+  const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
 
   const currentVillagePlayerTroops = playerTroops.filter(
     ({ tileId }) => tileId === currentVillage.tileId,
@@ -35,7 +30,7 @@ export const TroopList = () => {
   );
 
   return (
-    <div className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs">
+    <aside className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs">
       <div
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer"
@@ -44,8 +39,9 @@ export const TroopList = () => {
       </div>
 
       <Tooltip
+        key={tooltipKey}
         id={tooltipId}
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !text-black border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place="top-start"
         {...(isWiderThanLg && {
@@ -71,7 +67,7 @@ export const TroopList = () => {
 
                   <Text>
                     {formatNumber(troop.amount)}{' '}
-                    {assetsT(`UNITS.${troop.unitId}.NAME`, {
+                    {t(`UNITS.${troop.unitId}.NAME`, {
                       count: troop.amount,
                     })}
                   </Text>
@@ -95,7 +91,7 @@ export const TroopList = () => {
 
                     <Text>
                       {formatNumber(troop.amount)}{' '}
-                      {assetsT(`UNITS.${troop.unitId}.NAME`, {
+                      {t(`UNITS.${troop.unitId}.NAME`, {
                         count: troop.amount,
                       })}
                     </Text>
@@ -106,6 +102,20 @@ export const TroopList = () => {
           )}
         </div>
       </Tooltip>
-    </div>
+    </aside>
+  );
+};
+
+export const TroopList = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <TroopListContent />
+    </Suspense>
   );
 };

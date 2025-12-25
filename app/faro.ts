@@ -1,4 +1,5 @@
 import type { Faro } from '@grafana/faro-web-sdk';
+import { env } from 'app/env';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 
 let instance: Faro | null = null;
@@ -6,9 +7,9 @@ let instance: Faro | null = null;
 export const initFaro = async () => {
   if (
     typeof window === 'undefined' ||
-    import.meta.env.MODE === 'development' ||
-    import.meta.env.VITE_FARO_INGEST_ENDPOINT === undefined ||
-    import.meta.env.BRANCH_ENV !== 'master' ||
+    env.MODE === 'development' ||
+    env.VITE_FARO_INGEST_ENDPOINT === undefined ||
+    env.BRANCH_ENV !== 'master' ||
     instance
   ) {
     return;
@@ -19,11 +20,12 @@ export const initFaro = async () => {
   );
 
   instance = initializeFaro({
-    url: import.meta.env.VITE_FARO_INGEST_ENDPOINT,
+    url: env.VITE_FARO_INGEST_ENDPOINT,
     app: {
       name: 'pillage-first',
-      version: import.meta.env.VERSION,
-      environment: import.meta.env.BRANCH_ENV,
+      version: env.VERSION,
+      environment: env.BRANCH_ENV,
+      release: env.COMMIT_REF,
     },
     instrumentations: getWebInstrumentations({ captureConsole: true }),
     sessionTracking: {

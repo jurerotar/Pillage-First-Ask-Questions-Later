@@ -1,4 +1,9 @@
+import { clsx } from 'clsx';
+import { memo } from 'react';
+import { areEqual, type GridChildComponentProps } from 'react-window';
 import { OccupiableOasisIcon } from 'app/(game)/(village-slug)/(map)/components/occupiable-oasis-icon';
+import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import {
   isContextualOccupiedOccupiableTile,
   isOasisTile,
@@ -8,22 +13,16 @@ import {
   isOccupiedOccupiableTile,
   isUnoccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { Icon } from 'app/components/icon';
+import type { TroopMovementType } from 'app/components/icons/icons';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type {
   ContextualTile,
   Tile as TileType,
 } from 'app/interfaces/models/game/tile';
-import clsx from 'clsx';
-import type React from 'react';
-import { memo } from 'react';
-import { areEqual, type GridChildComponentProps } from 'react-window';
-import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
-import { Icon } from 'app/components/icon';
-import type { TroopMovementType } from 'app/components/icons/icon-maps';
 import cellStyles from './cell.module.scss';
-import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 type CellBaseProps = {
   contextualMap: ContextualTile[];
@@ -39,10 +38,10 @@ type TroopMovementsProps = {
   magnification: number;
 };
 
-const TroopMovements: React.FC<TroopMovementsProps> = ({
+const TroopMovements = ({
   troopMovementIcon,
   magnification,
-}) => {
+}: TroopMovementsProps) => {
   const classes = clsx(
     cellStyles['troop-movements'],
     cellStyles[`troop-movements-magnification-${magnification}`],
@@ -57,13 +56,13 @@ const TroopMovements: React.FC<TroopMovementsProps> = ({
   );
 };
 
-const wheatFields = ['00018', '11115', '3339'];
+const wheatFields = new Set(['00018', '11115', '3339']);
 
 type CellIconsProps = CellBaseProps & {
   tile: ContextualTile;
 };
 
-const CellIcons: React.FC<CellIconsProps> = (props) => {
+const CellIcons = (props: CellIconsProps) => {
   const { tile, mapFilters, magnification } = props;
   const {
     shouldShowTreasureIcons,
@@ -79,7 +78,7 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
   if (
     isOccupiableTile(tile) &&
     shouldShowWheatFields &&
-    wheatFields.includes(tile.RFC)
+    wheatFields.has(tile.RFC)
   ) {
     return (
       <BorderIndicator
@@ -121,26 +120,16 @@ const CellIcons: React.FC<CellIconsProps> = (props) => {
   return null;
 };
 
-type GetTypePropertiesReturn = {
-  classes: React.ComponentProps<'button'>['className'];
-  style: React.ComponentProps<'button'>['style'];
-};
-
-const getTileProperties = (
+const getTileClassNames = (
   tile: ContextualTile,
-  skinVariant: Preferences['skinVariant'],
   magnification: number,
   shouldShowFactionReputation: boolean,
-): GetTypePropertiesReturn => {
+): string => {
   let classes = '';
-  const style: React.ComponentProps<'button'>['style'] = {};
-
-  const baseUrl = `/graphic-packs/${skinVariant}/map`;
 
   if (isUnoccupiedOccupiableTile(tile)) {
     const { RFC } = tile;
-    classes = cellStyles.tile;
-    style.backgroundImage = `url(${baseUrl}/unoccupied-tiles/${RFC}.avif?v=${import.meta.env.GRAPHICS_VERSION})`;
+    classes = clsx(cellStyles.tile, cellStyles[`unoccupied-tile-${RFC}`]);
   } else if (isContextualOccupiedOccupiableTile(tile)) {
     const { reputationLevel } = tile;
 
@@ -154,35 +143,29 @@ const getTileProperties = (
   } else if (isOasisTile(tile)) {
     const { oasisResource, oasisGroup, oasisGroupPositions, variant } =
       decodeGraphicsProperty(tile.graphics);
-    style.backgroundImage = `url(${baseUrl}/oasis/${oasisResource}/${oasisGroup}-${oasisGroupPositions}-${variant}.avif?v=${import.meta.env.GRAPHICS_VERSION})`;
-    classes = cellStyles.tile;
+    classes = clsx(
+      cellStyles.tile,
+      cellStyles[
+        `oasis-tile-${oasisResource}-${oasisGroup}-${oasisGroupPositions}-${variant}`
+      ],
+    );
   }
 
-  return {
-    classes,
-    style,
-  };
+  return classes;
 };
 
 type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(
   ({ data, style, rowIndex, columnIndex }) => {
-    const {
-      contextualMap,
-      gridSize,
-      mapFilters,
-      magnification,
-      onClick,
-      preferences,
-    } = data;
+    const { contextualMap, gridSize, mapFilters, magnification, onClick } =
+      data;
 
     const tile: ContextualTile =
       contextualMap[gridSize * rowIndex + columnIndex];
 
-    const { classes, style: tileStyles } = getTileProperties(
+    const className = getTileClassNames(
       tile,
-      preferences.skinVariant,
       magnification,
       mapFilters.shouldShowFactionReputation,
     );
@@ -191,8 +174,8 @@ export const Cell = memo<CellProps>(
       <button
         onClick={() => onClick(tile)}
         type="button"
-        className={classes}
-        style={{ ...style, ...tileStyles }}
+        className={className}
+        style={style}
         data-tile-id={tile.id}
       >
         <CellIcons

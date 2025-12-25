@@ -1,24 +1,19 @@
+import { use, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
   BuildingBenefits,
   BuildingCard,
   BuildingCost,
   BuildingOverview,
   BuildingRequirements,
+  BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { buildings } from 'app/(game)/(village-slug)/assets/buildings';
-import type {
-  Building,
-  BuildingCategory,
-} from 'app/interfaces/models/game/building';
-import type React from 'react';
-import { use } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
+import { buildings } from 'app/assets/buildings';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -27,44 +22,33 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import type { Building } from 'app/interfaces/models/game/building';
 
 type BuildingCategoryPanelProps = {
-  buildingCategory: BuildingCategory;
+  buildingCategory: Building['category'];
 };
 
-const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
+const BuildingCategoryPanel = ({
   buildingCategory,
-}) => {
+}: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
-  const { playerVillages } = usePlayerVillages();
-  const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
-  const { isGreatBuildingsArtifactActive } = useArtifacts();
+  const { maxLevelByBuildingId, buildingIdsInQueue } =
+    use(BuildingFieldContext);
 
   const staticBuildingConstructionReadinessArgs: Omit<
     Parameters<typeof assessBuildingConstructionReadiness>[0],
     'buildingId'
   > = {
     tribe,
-    currentVillageBuildingEvents,
-    playerVillages,
-    currentVillage,
-    isGreatBuildingsArtifactActive,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
   };
 
-  const buildingsByCategory = buildings.filter(
-    ({ category }) => category === buildingCategory,
-  );
+  const buildingsByCategory = useMemo(() => {
+    return buildings.filter(({ category }) => category === buildingCategory);
+  }, [buildingCategory]);
 
   const assessments = new Map<
     Building['id'],
@@ -115,7 +99,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
     <SectionContent>
       {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
       {!hasNoAvailableBuildings && (
-        <section className="flex flex-col gap-2 mb-2">
+        <section className="flex flex-col gap-2 *:border *:border-border *:p-2">
           {sortedAvailableBuildings.map((building: Building) => (
             <BuildingCard
               key={building.id}
@@ -125,6 +109,7 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
               }
             >
               <BuildingOverview />
+              <BuildingUnfinishedNotice />
               <BuildingBenefits />
               <BuildingCost />
               <BuildingActions />
@@ -139,14 +124,16 @@ const BuildingCategoryPanel: React.FC<BuildingCategoryPanelProps> = ({
 
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
-  const { villagePath } = useGameNavigation();
+  const { buildingFieldId } = use(BuildingFieldContext);
+
+  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
 
   return (
     <>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={villagePath}>{t('Village')}</BreadcrumbLink>
+            <BreadcrumbLink to={backlinkTarget}>{t('Village')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
@@ -160,22 +147,33 @@ export const BuildingConstruction = () => {
           <Tab>{t('Resources')}</Tab>
         </TabList>
         <TabPanel>
-          <Section>
+          <SectionContent>
             <Text as="h2">{t('Infrastructure buildings')}</Text>
+            <Text>
+              {t(
+                'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
+              )}
+            </Text>
             <BuildingCategoryPanel buildingCategory="infrastructure" />
-          </Section>
+          </SectionContent>
         </TabPanel>
         <TabPanel>
-          <Section>
+          <SectionContent>
             <Text as="h2">{t('Military buildings')}</Text>
+            <Text>
+              {t(
+                'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
+              )}
+            </Text>
             <BuildingCategoryPanel buildingCategory="military" />
-          </Section>
+          </SectionContent>
         </TabPanel>
         <TabPanel>
-          <Section>
+          <SectionContent>
             <Text as="h2">{t('Resource buildings')}</Text>
+            <Text>{t('Buildings focused on improving village economy.')}</Text>
             <BuildingCategoryPanel buildingCategory="resource-booster" />
-          </Section>
+          </SectionContent>
         </TabPanel>
       </Tabs>
     </>

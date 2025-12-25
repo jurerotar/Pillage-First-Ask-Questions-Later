@@ -1,17 +1,17 @@
+import {
+  effectsCacheKey,
+  mapCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
+import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import { isOasisEffect } from 'app/(game)/guards/effect-guards';
+import { oasisEffectsFactory } from 'app/factories/effect-factory';
 import type { ApiHandler } from 'app/interfaces/api';
+import type { Effect } from 'app/interfaces/models/game/effect';
 import type {
   OasisTile,
   OccupiedOasisTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import {
-  effectsCacheKey,
-  mapCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import { isOasisEffect } from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
-import { oasisEffectsFactory } from 'app/factories/effect-factory';
-import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 // TODO: Move this to an util function that's called after combat, once combat is added
 export const occupyOasis: ApiHandler<void, 'oasisId' | 'villageId'> = async (

@@ -1,22 +1,39 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.4/schema.json",
+  "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true,
-    "defaultBranch": "develop"
+    "defaultBranch": "master"
   },
   "files": {
     "ignoreUnknown": true,
     "includes": [
       "**",
       "!**/build",
-      "!**/app/**/__mocks__/**/*",
-      "!**/app/asset-preload-paths",
-      "!*.md"
+      "!**/.react-router",
+      "!**/public",
+      "!**/*.css"
     ]
   },
-  "assist": { "actions": { "source": { "organizeImports": "off" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":NODE:",
+              [":PACKAGE:", "!@react-router/**", "!app/**"],
+              "@react-router/**",
+              "app/**",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
+  },
   "formatter": {
     "useEditorconfig": true,
     "formatWithErrors": true,
@@ -26,6 +43,7 @@
     "rules": {
       "recommended": true,
       "suspicious": {
+        "noUnknownAtRules": "off",
         "noConsole": {
           "level": "error",
           "options": {
@@ -67,7 +85,8 @@
   },
   "css": {
     "parser": {
-      "cssModules": true
+      "cssModules": true,
+      "tailwindDirectives": true
     }
   }
 }

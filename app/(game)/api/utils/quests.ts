@@ -1,21 +1,22 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { Village } from 'app/interfaces/models/game/village';
 import {
   heroCacheKey,
   questsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import type { Quest } from 'app/interfaces/models/game/quest';
-import type { Hero } from 'app/interfaces/models/game/hero';
 import {
   isAdventureCountQuestRequirement,
   isBuildingQuestRequirement,
   isTroopCountQuestRequirement,
   isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
+import { getQuestRequirements } from 'app/assets/utils/quests';
 import { PLAYER_ID } from 'app/constants/player';
+import type { Hero } from 'app/interfaces/models/game/hero';
+import type { Quest } from 'app/interfaces/models/game/quest';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const villages = queryClient.getQueryData<Village[]>([villagesCacheKey])!;
@@ -25,11 +26,13 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
   const playerVillages = villages.filter(
     ({ playerId }) => playerId === PLAYER_ID,
   );
-  const playerVillagesIds = playerVillages.map(({ id }) => id);
 
+  const playerVillagesTileIds = new Set(
+    playerVillages.map(({ tileId }) => tileId),
+  );
   // TODO: This does not count troops in transit
   const playerTroops = troops.filter(({ tileId }) =>
-    playerVillagesIds.includes(tileId),
+    playerVillagesTileIds.has(tileId),
   );
 
   const playerVillagesMap = new Map<Village['id'], Village>(
@@ -49,8 +52,9 @@ export const evaluateQuestCompletions = (queryClient: QueryClient) => {
       }
 
       const requirementStatuses: boolean[] = [];
+      const questRequirements = getQuestRequirements(quest.id);
 
-      for (const requirement of quest.requirements) {
+      for (const requirement of questRequirements) {
         if (isVillageQuest(quest) && isBuildingQuestRequirement(requirement)) {
           const village = playerVillagesMap.get(quest.villageId)!;
           const { matcher, buildingId, level } = requirement;

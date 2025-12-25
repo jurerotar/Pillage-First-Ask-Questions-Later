@@ -1,27 +1,12 @@
-import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import type { OccupiableTile } from 'app/interfaces/models/game/tile';
 
-export function parseRFCFromTile(
-  RFC: OccupiableTile['RFC'],
-  as: 'number',
-): number[];
-export function parseRFCFromTile(
-  RFC: OccupiableTile['RFC'],
-  as?: 'string',
-): string[];
-export function parseRFCFromTile(
-  RFC: OccupiableTile['RFC'],
-  as: 'string' | 'number' = 'string',
-) {
+export const parseRFCFromTile = (RFC: OccupiableTile['RFC']) => {
   const [wood, clay, iron, ...wheat] = RFC.split('');
   const values = [wood, clay, iron, wheat.join('')];
 
-  if (as === 'number') {
-    return values.map((value) => Number.parseInt(value));
-  }
-
-  return values;
-}
+  return values.map((value) => Number.parseInt(value, 10));
+};
 
 // Should only be used for bit-packing bellow
 const resourceToId = new Map<Resource, number>([

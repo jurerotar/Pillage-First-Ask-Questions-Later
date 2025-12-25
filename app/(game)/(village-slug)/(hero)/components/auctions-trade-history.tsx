@@ -1,10 +1,10 @@
-import { Alert } from 'app/components/ui/alert';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
 
 export const AuctionsTradeHistory = () => {
   const { t } = useTranslation();
@@ -15,7 +15,7 @@ export const AuctionsTradeHistory = () => {
         <Text as="h2">{t('Trade history')}</Text>
         <Text>
           {t(
-            'Review your recent auctions — see what you’ve bought, sold, and how much silver was exchanged.',
+            "Review your recent auctions — see what you've bought, sold, and how much silver was exchanged.",
           )}
         </Text>
       </SectionContent>

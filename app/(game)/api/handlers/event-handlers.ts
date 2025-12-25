@@ -1,15 +1,13 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import {
   eventsCacheKey,
   playersCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
+import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
+import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
+import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import { partition } from 'app/utils/common';
+import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import {
   isBuildingEvent,
   isScheduledBuildingEvent,
@@ -18,14 +16,16 @@ import {
 import {
   calculateBuildingCancellationRefundForLevel,
   specialFieldIds,
-} from 'app/(game)/(village-slug)/utils/building';
-import type { Village } from 'app/interfaces/models/game/village';
-import { removeBuildingField } from 'app/(game)/api/handlers/resolvers/building-resolvers';
-import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
-import type { Player } from 'app/interfaces/models/game/player';
-import { filterEventsByType } from 'app/(game)/api/handlers/utils/events';
-import { createClientEvents } from 'app/(game)/api/handlers/utils/create-event';
+} from 'app/assets/utils/buildings';
 import { PLAYER_ID } from 'app/constants/player';
+import type { ApiHandler } from 'app/interfaces/api';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
+import type { Player } from 'app/interfaces/models/game/player';
+import type { Village } from 'app/interfaces/models/game/village';
+import { partition } from 'app/utils/common';
 
 export const getVillageEvents: ApiHandler<GameEvent[], 'villageId'> = async (
   queryClient,

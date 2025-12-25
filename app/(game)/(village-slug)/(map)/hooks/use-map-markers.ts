@@ -1,7 +1,7 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { mapMarkersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import type { MapMarker } from 'app/interfaces/models/game/map-marker';
 import type { Tile } from 'app/interfaces/models/game/tile';
-import { mapMarkersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 
 export const useMapMarkers = () => {
   const { data: mapMarkers } = useSuspenseQuery<MapMarker[]>({

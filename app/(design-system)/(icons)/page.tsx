@@ -1,9 +1,8 @@
-import { Icon } from 'app/components/icon';
-import { type IconType, typeToIconMap } from 'app/components/icons/icon-maps';
-
 import { chunk } from 'moderndash';
+import { Icon } from 'app/components/icon';
+import { type IconType, icons } from 'app/components/icons/icons';
 
-const iconNames = Object.keys(typeToIconMap) as IconType[];
+const iconNames = Object.keys(icons) as IconType[];
 const chunkedIconNames = chunk(iconNames, Math.trunc(iconNames.length / 5));
 
 const IconsPage = () => {

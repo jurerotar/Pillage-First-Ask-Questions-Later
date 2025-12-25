@@ -1,7 +1,7 @@
-import type React from 'react';
-import { createContext, use } from 'react';
+import { clsx } from 'clsx';
 import type { Label as LabelPrimitive } from 'radix-ui';
 import { Slot } from 'radix-ui';
+import { type ComponentProps, createContext, use } from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -11,7 +11,6 @@ import {
   useFormContext,
   useFormState,
 } from 'react-hook-form';
-import clsx from 'clsx';
 import { Label } from 'app/components/ui/label';
 
 export const Form = FormProvider;
@@ -71,10 +70,7 @@ const FormItemContext = createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
-export const FormItem: React.FC<React.ComponentProps<'div'>> = ({
-  className,
-  ...props
-}) => {
+export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
   const { name } = use(FormFieldContext);
 
   return (
@@ -88,9 +84,10 @@ export const FormItem: React.FC<React.ComponentProps<'div'>> = ({
   );
 };
 
-export const FormLabel: React.FC<
-  React.ComponentProps<typeof LabelPrimitive.Root>
-> = ({ className, ...props }) => {
+export const FormLabel = ({
+  className,
+  ...props
+}: ComponentProps<typeof LabelPrimitive.Root>) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -104,9 +101,7 @@ export const FormLabel: React.FC<
   );
 };
 
-export const FormControl: React.FC<React.ComponentProps<typeof Slot.Root>> = ({
-  ...props
-}) => {
+export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
@@ -125,10 +120,10 @@ export const FormControl: React.FC<React.ComponentProps<typeof Slot.Root>> = ({
   );
 };
 
-export const FormDescription: React.FC<React.ComponentProps<'p'>> = ({
+export const FormDescription = ({
   className,
   ...props
-}) => {
+}: ComponentProps<'p'>) => {
   const { formDescriptionId } = useFormField();
 
   return (
@@ -141,10 +136,7 @@ export const FormDescription: React.FC<React.ComponentProps<'p'>> = ({
   );
 };
 
-export const FormMessage: React.FC<React.ComponentProps<'p'>> = ({
-  className,
-  ...props
-}) => {
+export const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message ?? '') : props.children;
 

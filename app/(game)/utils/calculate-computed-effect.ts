@@ -15,11 +15,11 @@ const assignEffectValue = (
       break;
     }
     case 'bonus': {
-      effectValuesRef.bonus += effect.value - 1;
+      effectValuesRef.bonus *= effect.value;
       break;
     }
     case 'bonus-booster': {
-      effectValuesRef.bonusBooster += effect.value - 1;
+      effectValuesRef.bonusBooster *= effect.value;
     }
   }
 };
@@ -222,7 +222,7 @@ export function calculateComputedEffect(
   let summedTroopEffectBaseValue = 0;
 
   for (const value of effectBreakdown.troopEffectValues.base) {
-    summedTroopEffectBaseValue += value * serverEffectValue;
+    summedTroopEffectBaseValue += value;
   }
 
   let summedBuildingEffectBasePositiveValue = 0;
@@ -293,7 +293,9 @@ export function calculateComputedEffect(
     return {
       total,
       population: -summedBuildingEffectBaseNegativeValue,
-      buildingWheatLimit: total + summedBuildingEffectBaseNegativeValue,
+      buildingWheatLimit:
+        summedBuildingEffectBasePositiveValue +
+        summedBuildingEffectBaseNegativeValue,
     };
   }
 

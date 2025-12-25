@@ -1,10 +1,12 @@
-import type React from 'react';
+import { clsx } from 'clsx';
 import { Progress as ProgressPrimitive } from 'radix-ui';
-import clsx from 'clsx';
+import type { ComponentProps } from 'react';
 
-export const Progress: React.FC<
-  React.ComponentProps<typeof ProgressPrimitive.Root>
-> = ({ className, value, ...props }) => {
+export const Progress = ({
+  className,
+  value,
+  ...props
+}: ComponentProps<typeof ProgressPrimitive.Root>) => {
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
@@ -23,9 +25,11 @@ export const Progress: React.FC<
   );
 };
 
-export const VerticalProgress: React.FC<
-  React.ComponentProps<typeof ProgressPrimitive.Root>
-> = ({ className, value = 0, ...props }) => {
+export const VerticalProgress = ({
+  className,
+  value = 0,
+  ...props
+}: ComponentProps<typeof ProgressPrimitive.Root>) => {
   return (
     <ProgressPrimitive.Root
       data-slot="progress"

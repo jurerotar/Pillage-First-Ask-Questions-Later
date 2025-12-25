@@ -9,7 +9,7 @@ export type TroopTrainingBuildingId =
   | 'WORKSHOP'
   | 'HOSPITAL';
 
-export type BuildingId =
+type BuildingId =
   | TroopTrainingBuildingId
   | 'CLAY_PIT'
   | 'WHEAT_FIELD'
@@ -19,9 +19,11 @@ export type BuildingId =
   | 'BRICKYARD'
   | 'GRAIN_MILL'
   | 'GRANARY'
+  | 'GREAT_GRANARY'
   | 'IRON_FOUNDRY'
   | 'SAWMILL'
   | 'WAREHOUSE'
+  | 'GREAT_WAREHOUSE'
   | 'WATERWORKS'
   | 'ACADEMY'
   | 'CITY_WALL'
@@ -43,6 +45,8 @@ export type BuildingId =
   | 'TOURNAMENT_SQUARE'
   | 'TRADE_OFFICE'
   | 'SMITHY'
+  | 'TOWN_HALL'
+  | 'EMBASSY'
   | 'TREASURY';
 
 export type BuildingEffect = {
@@ -68,21 +72,14 @@ export type AmountBuildingRequirement = {
   id: number;
   type: 'amount';
   amount: number;
-  appliesGlobally?: true;
-};
-
-export type ArtifactBuildingRequirement = {
-  id: number;
-  type: 'artifact';
 };
 
 export type BuildingRequirement =
-  | ArtifactBuildingRequirement
   | BuildingLevelBuildingRequirement
   | TribeBuildingRequirement
   | AmountBuildingRequirement;
 
-export type BuildingCategory =
+type BuildingCategory =
   | 'infrastructure'
   | 'military'
   | 'resource-booster'
@@ -90,6 +87,8 @@ export type BuildingCategory =
 
 export type Building = {
   id: BuildingId;
+  populationCoefficient: number;
+  culturePointsCoefficient: number;
   buildingDurationBase: number;
   buildingDurationModifier: number;
   buildingDurationReduction: number;

@@ -1,9 +1,9 @@
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
-import type { Resource } from 'app/interfaces/models/game/resource';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
+import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
+import type { Resource } from 'app/interfaces/models/game/resource';
 
 const resourceToResourceEffectMap = new Map<
   Resource,
@@ -25,6 +25,8 @@ export const useCalculatedResource = (
     resourceToResourceEffectMap.get(resource)!,
   );
 
+  const lastKnownResourceAmount = currentVillage.resources[resource];
+
   const timeoutId = useRef<number | null>(null);
   const intervalId = useRef<number | null>(null);
 
@@ -33,8 +35,8 @@ export const useCalculatedResource = (
     secondsForResourceGeneration,
     currentAmount,
   } = calculateCurrentAmount({
-    village: currentVillage,
-    resource,
+    lastKnownResourceAmount,
+    lastUpdatedAt: currentVillage.lastUpdatedAt,
     storageCapacity,
     hourlyProduction,
   });

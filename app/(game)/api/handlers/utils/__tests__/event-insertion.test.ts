@@ -1,6 +1,6 @@
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { describe, expect, test } from 'vitest';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const now = Date.now();
 

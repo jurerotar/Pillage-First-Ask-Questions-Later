@@ -1,27 +1,25 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   getBuildingDataForLevel,
   getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import { Icon } from 'app/components/icon';
 import type { BuildingField } from 'app/interfaces/models/game/village';
 import { formatTime } from 'app/utils/time';
-import type React from 'react';
-import { use } from 'react';
-import { useTranslation } from 'react-i18next';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type BuildingFieldTooltipProps = {
   buildingFieldId: BuildingField['id'];
 };
 
-export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({
+export const BuildingFieldTooltip = ({
   buildingFieldId,
-}) => {
+}: BuildingFieldTooltipProps) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const buildingField = getBuildingFieldByBuildingFieldId(
     currentVillage,
@@ -58,7 +56,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, upgradingToLevel);
 
-  const title = `${assetsT(`BUILDINGS.${buildingId}.NAME`)} - ${t('level {{level}}', { level })}`;
+  const title = `${t(`BUILDINGS.${buildingId}.NAME`)} - ${t('level {{level}}', { level })}`;
   const formattedTime = formatTime(
     buildingDuration * nextLevelBuildingDuration,
   );
@@ -69,7 +67,7 @@ export const BuildingFieldTooltip: React.FC<BuildingFieldTooltipProps> = ({
       {isMaxLevel && (
         <span>
           {t('{{building}} is fully upgraded', {
-            building: assetsT(`BUILDINGS.${buildingId}.NAME`),
+            building: t(`BUILDINGS.${buildingId}.NAME`),
           })}
         </span>
       )}

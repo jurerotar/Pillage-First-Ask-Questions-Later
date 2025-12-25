@@ -4,8 +4,6 @@ about: Suggest a new feature or improvement for the project.
 title: "[Feature Request]: "
 labels:
   - enhancement
-assignees:
-  - jurerotar
 ---
 
 ### Description

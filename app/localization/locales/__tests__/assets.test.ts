@@ -1,17 +1,17 @@
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { icons } from 'app/components/icons/icons';
 import enUSAssets from '../en-US/assets.json' with { type: 'json' };
-import { typeToIconMap } from 'app/components/icons/icon-maps';
 
 const locales = [{ locale: 'en-US', data: enUSAssets }];
 
 describe('Localization completeness check for assets.json', () => {
   locales.forEach(({ locale, data }) => {
     describe(`Locale: ${locale}`, () => {
-      test('UNITS should have NAME_one, NAME_other and DESCRIPTION set', () => {
+      test('UNITS should have NAME, NAME_other and DESCRIPTION set', () => {
         for (const [unitKey, unitData] of Object.entries(data.UNITS)) {
           expect(
-            Object.hasOwn(unitData, 'NAME_one'),
-            `Missing NAME_one in UNITS.${unitKey}`,
+            Object.hasOwn(unitData, 'NAME'),
+            `Missing NAME in UNITS.${unitKey}`,
           ).toBe(true);
           expect(
             Object.hasOwn(unitData, 'NAME_other'),
@@ -22,10 +22,7 @@ describe('Localization completeness check for assets.json', () => {
             `Missing DESCRIPTION in UNITS.${unitKey}`,
           ).toBe(true);
 
-          expect(
-            unitData.NAME_one,
-            `UNITS.${unitKey}.NAME_one is empty`,
-          ).not.toBe('');
+          expect(unitData.NAME, `UNITS.${unitKey}.NAME is empty`).not.toBe('');
           expect(
             unitData.NAME_other,
             `UNITS.${unitKey}.NAME_other is empty`,
@@ -37,13 +34,17 @@ describe('Localization completeness check for assets.json', () => {
         }
       });
 
-      test('BUILDINGS should have NAME and DESCRIPTION set', () => {
+      test('BUILDINGS should have NAME, NAME_other and DESCRIPTION set', () => {
         for (const [buildingKey, buildingData] of Object.entries(
           data.BUILDINGS,
         )) {
           expect(
             Object.hasOwn(buildingData, 'NAME'),
             `Missing NAME in BUILDINGS.${buildingKey}`,
+          ).toBe(true);
+          expect(
+            Object.hasOwn(buildingData, 'NAME_other'),
+            `Missing NAME_other in BUILDINGS.${buildingKey}`,
           ).toBe(true);
           expect(
             Object.hasOwn(buildingData, 'DESCRIPTION'),
@@ -55,36 +56,51 @@ describe('Localization completeness check for assets.json', () => {
             `BUILDINGS.${buildingKey}.NAME is empty`,
           ).not.toEqual('');
           expect(
+            buildingData.NAME_other,
+            `BUILDINGS.${buildingKey}.NAME_other is empty`,
+          ).not.toEqual('');
+          expect(
             buildingData.DESCRIPTION,
             `BUILDINGS.${buildingKey}.DESCRIPTION is empty`,
           ).not.toEqual('');
         }
       });
 
-      test('ITEMS should have TITLE and DESCRIPTION set', () => {
-        // TODO: Fill in the DESCRIPTION fields
+      test('ITEMS should have NAME, NAME_other and DESCRIPTION set', () => {
         for (const [itemKey, itemData] of Object.entries(data.ITEMS)) {
           expect(
-            Object.hasOwn(itemData, 'TITLE'),
-            `Missing TITLE in ITEMS.${itemKey}`,
+            Object.hasOwn(itemData, 'NAME'),
+            `Missing NAME in ITEMS.${itemKey}`,
           ).toBe(true);
-          // expect(itemData.hasOwnProperty('DESCRIPTION'), `Missing DESCRIPTION in ITEMS.${itemKey}`).toBe(true);
-          expect(itemData.TITLE, `ITEMS.${itemKey}.TITLE is empty`).not.toEqual(
+          expect(
+            Object.hasOwn(itemData, 'NAME_other'),
+            `Missing NAME_other in ITEMS.${itemKey}`,
+          ).toBe(true);
+          expect(
+            Object.hasOwn(itemData, 'DESCRIPTION'),
+            `Missing DESCRIPTION in ITEMS.${itemKey}`,
+          ).toBe(true);
+          expect(itemData.NAME, `ITEMS.${itemKey}.NAME is empty`).not.toEqual(
             '',
           );
-          // expect(itemData.TITLE, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toEqual('');
+          expect(
+            itemData.NAME_other,
+            `ITEMS.${itemKey}.NAME_other is empty`,
+          ).not.toEqual('');
+          // TODO: Fill in the DESCRIPTION fields
+          // expect(itemData.NAME, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toEqual('');
         }
       });
 
-      test('EFFECTS should have a localization for all icons in typeToIconMap', () => {
-        const effectLocalizations = data.EFFECTS;
+      test('ICONS should have a localization for all icons in typeToIconMap', () => {
+        const effectLocalizations = data.ICONS;
 
-        for (const iconKey of Object.keys(typeToIconMap)) {
+        for (const iconKey of Object.keys(icons)) {
           // @ts-expect-error: Not sure if we care about this one
           const value = effectLocalizations?.[iconKey];
 
-          expect(value, `Missing EFFECTS key: ${iconKey}`).toBeDefined();
-          expect(value, `EFFECTS.${iconKey} is empty`).not.toEqual('');
+          expect(value, `Missing ICONS key: ${iconKey}`).toBeDefined();
+          expect(value, `ICONS.${iconKey} is empty`).not.toEqual('');
         }
       });
     });

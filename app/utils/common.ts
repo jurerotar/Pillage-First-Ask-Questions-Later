@@ -1,5 +1,5 @@
-import type { Point } from 'app/interfaces/models/common';
 import type { PRNGFunction } from 'ts-seedrandom';
+import type { Point } from 'app/interfaces/models/common';
 
 export const seededRandomIntFromInterval = (
   prng: PRNGFunction,
@@ -59,8 +59,8 @@ export const calculateDistanceBetweenPoints = (
   return Math.sqrt(dx ** 2 + dy ** 2);
 };
 
-export const roundTo2DecimalPoints = (number: number): number => {
-  return Math.round(number * 100) / 100;
+export const roundToNDecimalPoints = (number: number, n = 2): number => {
+  return Math.round(number * 10 ** n) / 10 ** n;
 };
 
 export const roundTo5 = (n: number) => {
@@ -109,20 +109,6 @@ export const partition = <T>(
   );
 };
 
-export const clamp = (value: number, min: number, max: number): number => {
-  return Math.min(Math.max(value, min), max);
-};
-
-export const timeExecution = async (
-  callback: () => void | Promise<void>,
-  name = 'Performance mark',
-) => {
-  performance.mark(`${name} - start`);
-  await callback();
-  performance.mark(`${name} - end`);
-  performance.measure(name, `${name} - start`, `${name} - end`);
-};
-
 export const formatPercentage = (num: number, isIncreasing = true): string => {
   if (num === 1) {
     return isIncreasing ? '0%' : '100%';
@@ -135,5 +121,9 @@ export const formatPercentage = (num: number, isIncreasing = true): string => {
 };
 
 export const formatNumber = (number: number): string => {
+  if (!Number.isInteger(number)) {
+    return 'NaN';
+  }
+
   return number.toLocaleString();
 };

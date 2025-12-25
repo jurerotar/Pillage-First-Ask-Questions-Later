@@ -1,26 +1,25 @@
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import type React from 'react';
-import { use } from 'react';
+import { faro } from '@grafana/faro-web-sdk';
+import { useMutation } from '@tanstack/react-query';
+import { type PropsWithChildren, Suspense, use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
-import { useTranslation } from 'react-i18next';
-import { LuConstruction } from 'react-icons/lu';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { type PlacesType, Tooltip } from 'react-tooltip';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { IoIosArrowRoundForward } from 'react-icons/io';
+import { LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { type PlacesType, Tooltip } from 'react-tooltip';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import {
   eventsCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { faro } from '@grafana/faro-web-sdk';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
@@ -30,14 +29,13 @@ type ConstructionQueueBuildingProps = {
   tooltipPosition: PlacesType;
 };
 
-const ConstructionQueueBuilding: React.FCWithChildren<
-  ConstructionQueueBuildingProps
-> = ({ buildingEvent, tooltipPosition }) => {
-  const { t: assetsT } = useTranslation();
+const ConstructionQueueBuilding = ({
+  buildingEvent,
+  tooltipPosition,
+}: PropsWithChildren<ConstructionQueueBuildingProps>) => {
   const { t } = useTranslation();
   const isWiderThanMd = useMediaQuery('(min-width: 768px)');
   const { fetcher } = use(ApiContext);
-  const queryClient = useQueryClient();
 
   const { mutate: cancelConstruction } = useMutation<
     void,
@@ -49,15 +47,18 @@ const ConstructionQueueBuilding: React.FCWithChildren<
         method: 'DELETE',
       });
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [eventsCacheKey] });
-      await queryClient.invalidateQueries({
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await context.client.invalidateQueries({
         queryKey: [playerVillagesCacheKey],
       });
     },
   });
 
   const tooltipId = `tooltip-${buildingEvent.id}`;
+  const tooltipKey = isWiderThanMd
+    ? 'is-wider-than-md'
+    : 'is-not-wider-than-md';
 
   const isScheduledEvent = isScheduledBuildingEvent(buildingEvent);
 
@@ -67,7 +68,7 @@ const ConstructionQueueBuilding: React.FCWithChildren<
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer"
       >
-        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2 pb-4 pt-0 box-content border border-border rounded-xs" />
+        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs" />
         <Countdown
           className="absolute bottom-0 left-0 text-xs w-full leading-none bg-background border border-border text-center"
           endsAt={buildingEvent.startsAt + buildingEvent.duration}
@@ -75,9 +76,10 @@ const ConstructionQueueBuilding: React.FCWithChildren<
       </div>
 
       <Tooltip
+        key={tooltipKey}
         id={tooltipId}
         clickable
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !w-fit !text-black border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place={tooltipPosition}
         {...(isWiderThanMd && {
@@ -89,7 +91,7 @@ const ConstructionQueueBuilding: React.FCWithChildren<
         })}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex md:hidden border-b-1 border-border pb-1 text-sm">
+          <div className="flex md:hidden border-b border-border pb-1 text-sm">
             <b>{t('Under construction')}</b>
           </div>
           <div className="flex gap-2">
@@ -98,7 +100,7 @@ const ConstructionQueueBuilding: React.FCWithChildren<
             </div>
             <div className="flex flex-col px-2 border-x border-border">
               <span className="inline-flex gap-1 whitespace-nowrap">
-                <b>{assetsT(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
+                <b>{t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
                 <span className="inline-flex items-center text-sm">
                   ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
                   {buildingEvent.level})
@@ -133,9 +135,9 @@ type ConstructionQueueEmptySlotProps = {
   type: 'free' | 'locked';
 };
 
-const ConstructionQueueEmptySlot: React.FCWithChildren<
-  ConstructionQueueEmptySlotProps
-> = ({ type }) => {
+const ConstructionQueueEmptySlot = ({
+  type,
+}: PropsWithChildren<ConstructionQueueEmptySlotProps>) => {
   if (type === 'free') {
     return <ImHammer className={iconClassName} />;
   }
@@ -143,16 +145,11 @@ const ConstructionQueueEmptySlot: React.FCWithChildren<
   return <FaLock className={iconClassName} />;
 };
 
-export const ConstructionQueue = () => {
+const ConstructionQueueContent = () => {
   const tribe = useTribe();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const emptySlots =
     (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
@@ -168,22 +165,38 @@ export const ConstructionQueue = () => {
   }
 
   return (
-    <ul className="fixed left-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
-      {currentVillageBuildingEvents.map((event) => (
-        <li key={event.id}>
-          <ConstructionQueueBuilding
-            tooltipPosition="right-start"
-            buildingEvent={event}
-          />
-        </li>
-      ))}
+    <aside className="fixed left-0 bottom-26 lg:bottom-14">
+      <ul className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
+        {currentVillageBuildingEvents.map((event) => (
+          <li key={event.id}>
+            <ConstructionQueueBuilding
+              tooltipPosition="right-start"
+              buildingEvent={event}
+            />
+          </li>
+        ))}
 
-      {[...Array(emptySlots)].map((_, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: It's fine here
-        <li key={`empty-slot-${i}`}>
-          <ConstructionQueueEmptySlot type="free" />
-        </li>
-      ))}
-    </ul>
+        {[...Array(emptySlots)].map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: It's fine here
+          <li key={`empty-slot-${i}`}>
+            <ConstructionQueueEmptySlot type="free" />
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+};
+
+export const ConstructionQueue = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <ConstructionQueueContent />
+    </Suspense>
   );
 };

@@ -1,64 +1,38 @@
+import { startTransition, use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
+import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import {
-  getBuildingDataForLevel,
-  getBuildingFieldByBuildingFieldId,
-} from 'app/(game)/(village-slug)/utils/building';
-import { Button } from 'app/components/ui/button';
-import type { Building } from 'app/interfaces/models/game/building';
-import type React from 'react';
-import { use } from 'react';
-import { startTransition } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
-import { Text } from 'app/components/text';
 import {
   useBuildingConstructionStatus,
   useBuildingUpgradeStatus,
 } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
-import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-
-type ErrorBagProps = {
-  errorBag: string[];
-};
-
-const ErrorBag: React.FC<ErrorBagProps> = ({ errorBag }) => {
-  if (errorBag.length === 0) {
-    return null;
-  }
-
-  return (
-    <ul className="flex flex-col ml-4 gap-1 list-disc">
-      {errorBag.map((error) => (
-        <li
-          className="text-red-500 text-sm font-medium"
-          key={error}
-        >
-          {error}
-        </li>
-      ))}
-    </ul>
-  );
-};
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import {
+  getBuildingDataForLevel,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/assets/utils/buildings';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
+import type { Building } from 'app/interfaces/models/game/building';
 
 type BuildingCardActionsSectionProps = {
   buildingId: Building['id'];
   onBuildingConstruction: () => void;
 };
 
-const BuildingCardActionsConstruction: React.FC<
-  BuildingCardActionsSectionProps
-> = ({ buildingId, onBuildingConstruction }) => {
+const BuildingCardActionsConstruction = ({
+  buildingId,
+  onBuildingConstruction,
+}: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { errors } = useBuildingConstructionStatus(
     buildingId,
     buildingFieldId!,
@@ -66,10 +40,11 @@ const BuildingCardActionsConstruction: React.FC<
 
   return (
     <>
-      <ErrorBag errorBag={errors} />
+      <BuildingActionsErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
+        size="fit"
         onClick={onBuildingConstruction}
         disabled={errors.length > 0}
       >
@@ -84,12 +59,12 @@ type BuildingCardActionsUpgradeProps = {
   buildingLevel: number;
 };
 
-const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
+const BuildingCardActionsUpgrade = ({
   onBuildingUpgrade,
   buildingLevel,
-}) => {
+}: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(
@@ -101,10 +76,11 @@ const BuildingCardActionsUpgrade: React.FC<BuildingCardActionsUpgradeProps> = ({
 
   return (
     <>
-      <ErrorBag errorBag={errors} />
+      <BuildingActionsErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"
+        size="fit"
         onClick={onBuildingUpgrade}
         disabled={errors.length > 0}
       >
@@ -120,14 +96,10 @@ export const BuildingActions = () => {
     use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
-  const { playerVillages } = usePlayerVillages();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
-  const { isGreatBuildingsArtifactActive } = useArtifacts();
+  const { maxLevelByBuildingId, buildingIdsInQueue } =
+    use(BuildingFieldContext);
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
     buildingFieldId!,
@@ -139,13 +111,8 @@ export const BuildingActions = () => {
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
 
-  const canDemolishBuildings =
-    (currentVillage.buildingFields.find(
-      ({ buildingId }) => buildingId === 'MAIN_BUILDING',
-    )?.level ?? 0) >= 10;
-
-  const navigateBack = () => {
-    navigate('..', { relative: 'path' });
+  const navigateBack = async () => {
+    await navigate('..', { relative: 'path' });
   };
 
   const { canBuild } =
@@ -153,22 +120,20 @@ export const BuildingActions = () => {
     assessBuildingConstructionReadiness({
       buildingId,
       tribe,
-      currentVillageBuildingEvents,
-      playerVillages,
-      currentVillage,
-      isGreatBuildingsArtifactActive,
+      maxLevelByBuildingId,
+      buildingIdsInQueue,
     });
 
-  const onBuildingConstruction = () => {
-    navigateBack();
+  const onBuildingConstruction = async () => {
+    await navigateBack();
     startTransition(() => {
       constructBuilding();
     });
   };
 
-  const onBuildingUpgrade = () => {
+  const onBuildingUpgrade = async () => {
     if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
-      navigateBack();
+      await navigateBack();
     }
 
     startTransition(() => {
@@ -195,7 +160,7 @@ export const BuildingActions = () => {
     );
   }
 
-  if (isMaxLevel && !canDemolishBuildings) {
+  if (isMaxLevel) {
     return null;
   }
 
@@ -205,12 +170,10 @@ export const BuildingActions = () => {
       className="flex flex-col gap-2 pt-2 border-t border-border"
     >
       <Text as="h3">{t('Available actions')}</Text>
-      {!isMaxLevel && (
-        <BuildingCardActionsUpgrade
-          buildingLevel={virtualLevel}
-          onBuildingUpgrade={onBuildingUpgrade}
-        />
-      )}
+      <BuildingCardActionsUpgrade
+        buildingLevel={virtualLevel}
+        onBuildingUpgrade={onBuildingUpgrade}
+      />
     </section>
   );
 };

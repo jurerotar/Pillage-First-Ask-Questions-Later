@@ -1,13 +1,16 @@
+import { useTranslation } from 'react-i18next';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import type {
-  ArtifactEffect,
-  Effect,
-  HeroEffect,
-  OasisEffect,
-  ResourceProductionEffectId,
-  VillageBuildingEffect,
-} from 'app/interfaces/models/game/effect';
-import type React from 'react';
+import {
+  isArtifactEffect,
+  isBuildingEffect,
+  isHeroEffect,
+  isOasisEffect,
+  isServerEffect,
+} from 'app/(game)/guards/effect-guards';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -17,18 +20,14 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { useTranslation } from 'react-i18next';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import {
-  isArtifactEffect,
-  isBuildingEffect,
-  isHeroEffect,
-  isOasisEffect,
-  isServerEffect,
-} from 'app/(game)/(village-slug)/hooks/guards/effect-guards';
+import type {
+  ArtifactEffect,
+  Effect,
+  HeroEffect,
+  OasisEffect,
+  ResourceProductionEffectId,
+  VillageBuildingEffect,
+} from 'app/interfaces/models/game/effect';
 
 const formatBonus = (number: number): number => {
   return Math.trunc(number * 10000) / 100;
@@ -66,11 +65,10 @@ type ResourceBoosterBenefitsProps = {
   effectId: ResourceProductionEffectId;
 };
 
-export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
+export const ProductionOverview = ({
   effectId,
-}) => {
+}: ResourceBoosterBenefitsProps) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { effects } = useEffects();
 
   const relevantEffects = effects.filter(({ id }) => id === effectId);
@@ -278,7 +276,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                       <Text>{t('Artifact')}</Text>
                     </TableCell>
                     <TableCell>
-                      <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
+                      <Text>{t(`ITEMS.${artifactId}.NAME`)}</Text>
                     </TableCell>
                     <TableCell>
                       <Text>{formatBonus(value - 1)}%</Text>
@@ -314,7 +312,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         <Text>{t('Building')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                        <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{formatBonus(value - 1)}%</Text>
@@ -380,7 +378,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         <Text>{t('Artifact')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{assetsT(`ITEMS.${artifactId}.TITLE`)}</Text>
+                        <Text>{t(`ITEMS.${artifactId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{value}</Text>
@@ -425,7 +423,7 @@ export const ProductionOverview: React.FC<ResourceBoosterBenefitsProps> = ({
                         <Text>{t('Building')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{assetsT(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                        <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{value}</Text>

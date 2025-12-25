@@ -1,5 +1,5 @@
-import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
-import { merchants } from 'app/(game)/(village-slug)/assets/merchants';
+import { merchants } from 'app/assets/merchants';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
 import type {
   Building,
   BuildingEffect,
@@ -14,13 +14,13 @@ import type {
   VillageBuildingEffect,
   VillageEffect,
 } from 'app/interfaces/models/game/effect';
+import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Server } from 'app/interfaces/models/game/server';
+import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 import type {
   BuildingField,
   Village,
 } from 'app/interfaces/models/game/village';
-import type { Hero } from 'app/interfaces/models/game/hero';
-import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 
 const heroEffectsFactory = (
   villageId: Village['id'],
@@ -147,7 +147,7 @@ const newVillageBuildingFieldsEffectsFactory = (
 ): VillageBuildingEffect[] => {
   return village.buildingFields.flatMap(
     ({ buildingId, id, level }: BuildingField) => {
-      const building = getBuildingData(buildingId);
+      const building = getBuildingDefinition(buildingId);
       return building.effects.map(
         ({ effectId, valuesPerLevel, type }: BuildingEffect) =>
           newBuildingEffectFactory({
@@ -176,7 +176,7 @@ export const newVillageEffectsFactory = (
       value: 800,
       villageId: village.id,
       buildingId: 'WAREHOUSE',
-      buildingFieldId: 'hidden',
+      buildingFieldId: 0,
       type: 'base',
     } satisfies VillageBuildingEffect,
     {
@@ -186,7 +186,7 @@ export const newVillageEffectsFactory = (
       value: 800,
       villageId: village.id,
       buildingId: 'GRANARY',
-      buildingFieldId: 'hidden',
+      buildingFieldId: 0,
       type: 'base',
     } satisfies VillageBuildingEffect,
     {
@@ -197,6 +197,16 @@ export const newVillageEffectsFactory = (
       villageId: village.id,
       type: 'base',
     },
+    {
+      id: 'wheatProduction',
+      scope: 'village',
+      source: 'building',
+      value: -3,
+      villageId: village.id,
+      type: 'base',
+      buildingFieldId: 0,
+      buildingId: 'MAIN_BUILDING',
+    } satisfies VillageBuildingEffect,
   ];
 };
 
@@ -251,6 +261,8 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
     'workshopTrainingDuration',
     'hospitalTrainingDuration',
     'buildingDuration',
+    'unitResearchDuration',
+    'unitImprovementDuration',
   ];
 
   const serverEffectIds: ServerEffect['id'][] = [

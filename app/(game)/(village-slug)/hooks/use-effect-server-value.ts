@@ -1,12 +1,13 @@
-import type { Effect } from 'app/interfaces/models/game/effect';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import type { Effect } from 'app/interfaces/models/game/effect';
 
-const effectsThatNeedServerValueModificationInDisplay: Effect['id'][] = [
-  'woodProduction',
-  'clayProduction',
-  'ironProduction',
-  'wheatProduction',
-];
+const effectsThatNeedServerValueModificationInDisplay: Set<Effect['id']> =
+  new Set([
+    'woodProduction',
+    'clayProduction',
+    'ironProduction',
+    'wheatProduction',
+  ]);
 
 export const useEffectServerValue = (effectId: Effect['id']) => {
   const { effects } = useEffects();
@@ -16,7 +17,7 @@ export const useEffectServerValue = (effectId: Effect['id']) => {
   return {
     hasEffect:
       !!serverEffect &&
-      effectsThatNeedServerValueModificationInDisplay.includes(effectId),
+      effectsThatNeedServerValueModificationInDisplay.has(effectId),
     serverEffectValue: serverEffect?.value ?? 1,
   };
 };

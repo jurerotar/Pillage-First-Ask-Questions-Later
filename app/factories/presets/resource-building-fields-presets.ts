@@ -1,13 +1,12 @@
-import type { BuildingId } from 'app/interfaces/models/game/building';
+import type { Building } from 'app/interfaces/models/game/building';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type {
   BuildingField,
   ResourceFieldComposition,
-  ResourceFieldId,
   VillageSize,
 } from 'app/interfaces/models/game/village';
 
-type ResourceFieldLayout = Record<ResourceFieldId, Resource>;
+type ResourceFieldLayout = Record<number, Resource>;
 
 // There's a couple of resource fields that never change, namely: 2, 8, 9, 12, 13, 15
 // These resources are the same on every map
@@ -168,7 +167,7 @@ const villageSizeToResourceFieldsLevelMap = new Map<
   ['4xl', 10],
 ]);
 
-const resourceTypeToResourceBuildingIdMap = new Map<Resource, BuildingId>([
+const resourceTypeToResourceBuildingIdMap = new Map<Resource, Building['id']>([
   ['wood', 'WOODCUTTER'],
   ['clay', 'CLAY_PIT'],
   ['iron', 'IRON_MINE'],
@@ -180,10 +179,10 @@ const convertResourceFieldLayoutToResourceField = (
   level: number,
 ): BuildingField[] => {
   return Object.keys(resourceFieldLayout).map((fieldId) => {
-    const buildingFieldId = Number(fieldId) as ResourceFieldId;
+    const buildingFieldId = Number(fieldId);
     const type = resourceFieldLayout[buildingFieldId];
     return {
-      id: Number(buildingFieldId) as ResourceFieldId,
+      id: Number(buildingFieldId),
       level,
       buildingId: resourceTypeToResourceBuildingIdMap.get(type)!,
     };

@@ -1,10 +1,10 @@
+import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
+import { getUnitDefinition } from 'app/assets/utils/units';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getUnitData } from 'app/(game)/(village-slug)/utils/units';
-import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 
 const getImprovedUnitPower = (
   baseValue: number,
@@ -74,11 +74,11 @@ export const resolveBattle = ({
 
   const totalAttackerInfantryAttackPower = attackerUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitData(unitId)!;
+      const { category } = getUnitDefinition(unitId)!;
       return category === 'infantry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
-      const { attack, unitWheatConsumption } = getUnitData(unitId)!;
+      const { attack, unitWheatConsumption } = getUnitDefinition(unitId)!;
       return (
         totalAttack +
         getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount
@@ -87,11 +87,11 @@ export const resolveBattle = ({
 
   const totalAttackerCavalryAttackPower = attackerUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitData(unitId)!;
+      const { category } = getUnitDefinition(unitId)!;
       return category === 'cavalry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
-      const { attack, unitWheatConsumption } = getUnitData(unitId)!;
+      const { attack, unitWheatConsumption } = getUnitDefinition(unitId)!;
       return (
         totalAttack +
         getImprovedUnitPower(attack, unitWheatConsumption, 1) * amount
@@ -107,11 +107,12 @@ export const resolveBattle = ({
 
   const totalDefenderInfantryDefencePower = defenderUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitData(unitId)!;
+      const { category } = getUnitDefinition(unitId)!;
       return category === 'infantry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
-      const { infantryDefence, unitWheatConsumption } = getUnitData(unitId)!;
+      const { infantryDefence, unitWheatConsumption } =
+        getUnitDefinition(unitId)!;
       return (
         totalAttack +
         getImprovedUnitPower(infantryDefence, unitWheatConsumption, 1) * amount
@@ -120,11 +121,12 @@ export const resolveBattle = ({
 
   const totalDefenderCavalryDefencePower = defenderUnits
     .filter(({ unitId }) => {
-      const { category } = getUnitData(unitId)!;
+      const { category } = getUnitDefinition(unitId)!;
       return category === 'cavalry';
     })
     .reduce((totalAttack, { unitId, amount }) => {
-      const { cavalryDefence, unitWheatConsumption } = getUnitData(unitId)!;
+      const { cavalryDefence, unitWheatConsumption } =
+        getUnitDefinition(unitId)!;
       return (
         totalAttack +
         getImprovedUnitPower(cavalryDefence, unitWheatConsumption, 1) * amount

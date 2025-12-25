@@ -1,9 +1,14 @@
-import type React from 'react';
 import { clsx } from 'clsx';
+import type {
+  HTMLAttributes,
+  TableHTMLAttributes,
+  TdHTMLAttributes,
+  ThHTMLAttributes,
+} from 'react';
 
-type TableProps = React.TableHTMLAttributes<HTMLTableElement>;
+type TableProps = TableHTMLAttributes<HTMLTableElement>;
 
-export const Table: React.FC<TableProps> = ({ className, ...props }) => (
+export const Table = ({ className, ...props }: TableProps) => (
   <table
     className={clsx(
       'border border-border table-fixed min-w-full w-max',
@@ -13,15 +18,15 @@ export const Table: React.FC<TableProps> = ({ className, ...props }) => (
   />
 );
 
-type TableHeaderProps = React.HTMLAttributes<HTMLTableSectionElement> & {
+type TableHeaderProps = HTMLAttributes<HTMLTableSectionElement> & {
   sticky?: boolean;
 };
 
-export const TableHeader: React.FC<TableHeaderProps> = ({
+export const TableHeader = ({
   className,
   sticky,
   ...props
-}) => (
+}: TableHeaderProps) => (
   <thead
     className={clsx(
       'bg-muted/50 border-b border-border',
@@ -32,21 +37,18 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   />
 );
 
-type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
+type TableBodyProps = HTMLAttributes<HTMLTableSectionElement>;
 
-export const TableBody: React.FC<TableBodyProps> = ({
-  className,
-  ...props
-}) => (
+export const TableBody = ({ className, ...props }: TableBodyProps) => (
   <tbody
     className={className}
     {...props}
   />
 );
 
-type TableRowProps = React.HTMLAttributes<HTMLTableRowElement>;
+type TableRowProps = HTMLAttributes<HTMLTableRowElement>;
 
-export const TableRow: React.FC<TableRowProps> = ({ className, ...props }) => (
+export const TableRow = ({ className, ...props }: TableRowProps) => (
   <tr
     className={clsx(
       'border-b border-border last:border-0 transition-colors hover:bg-muted/50',
@@ -56,24 +58,21 @@ export const TableRow: React.FC<TableRowProps> = ({ className, ...props }) => (
   />
 );
 
-type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>;
+type TableCellProps = TdHTMLAttributes<HTMLTableCellElement>;
 
-export const TableCell: React.FC<TableCellProps> = ({
-  className,
-  ...props
-}) => (
+export const TableCell = ({ className, ...props }: TableCellProps) => (
   <td
     className={clsx('p-2 text-center border-r last:border-r-0', className)}
     {...props}
   />
 );
 
-type TableHeaderCellProps = React.ThHTMLAttributes<HTMLTableCellElement>;
+type TableHeaderCellProps = ThHTMLAttributes<HTMLTableCellElement>;
 
-export const TableHeaderCell: React.FC<TableHeaderCellProps> = ({
+export const TableHeaderCell = ({
   className,
   ...props
-}) => (
+}: TableHeaderCellProps) => (
   <th
     className={clsx(
       'p-2 font-medium text-center border-r last:border-r-0',

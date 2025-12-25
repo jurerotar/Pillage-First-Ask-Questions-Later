@@ -1,5 +1,7 @@
-import { vi } from 'vitest';
-import '@testing-library/jest-dom';
+import * as matchers from '@testing-library/jest-dom/matchers';
+import { expect, vi } from 'vitest';
+
+expect.extend(matchers);
 
 Object.defineProperty(globalThis, 'crypto', {
   value: {

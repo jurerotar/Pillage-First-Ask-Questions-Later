@@ -1,13 +1,15 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { questsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Quest } from 'app/interfaces/models/game/quest';
+import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
+import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
 import {
   isHeroExperienceQuestReward,
   isQuestCollectable,
   isResourceQuestReward,
+  isVillageQuest,
 } from 'app/(game)/guards/quest-guards';
-import { addVillageResourcesAt } from 'app/(game)/api/utils/village';
-import { addHeroExperience } from 'app/(game)/api/handlers/utils/hero';
+import { getQuestRewards } from 'app/assets/utils/quests';
+import type { ApiHandler } from 'app/interfaces/api';
+import type { Quest } from 'app/interfaces/models/game/quest';
 import type { Village } from 'app/interfaces/models/game/village';
 
 export const getQuests: ApiHandler<Quest[]> = async (queryClient) => {
@@ -35,20 +37,28 @@ export const collectQuest: ApiHandler<
 > = async (queryClient, args) => {
   const {
     params: { questId },
-    body: { villageId: villageIdParam },
+    body: { villageId },
   } = args;
 
   const quests = queryClient.getQueryData<Quest[]>([questsCacheKey])!;
-  const quest = quests.find(({ id }) => id === questId)!;
-  const [villageIdString] = quest.id.split('-');
-  const villageId =
-    quest.scope === 'global'
-      ? villageIdParam
-      : Number.parseInt(villageIdString);
+
+  const quest = quests.find((quest) => {
+    if (quest.id !== questId) {
+      return false;
+    }
+
+    if (isVillageQuest(quest)) {
+      return quest.villageId === villageId;
+    }
+
+    return true;
+  })!;
 
   quest.collectedAt = Date.now();
 
-  for (const reward of quest.rewards) {
+  const questRewards = getQuestRewards(quest.id);
+
+  for (const reward of questRewards) {
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
 

@@ -1,3 +1,7 @@
+import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
+import { usernameRoots } from 'app/assets/player';
+import { PLAYER_ID } from 'app/constants/player';
+import { npcFactions } from 'app/factories/reputation-factory';
 import type { Player, PlayerFaction } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
@@ -5,11 +9,7 @@ import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from 'app/utils/common';
-import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
-import { npcFactions } from 'app/factories/reputation-factory';
-import { usernameRoots } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
-import { PLAYER_ID } from 'app/constants/player';
 
 type PlayerFactoryProps = {
   faction: PlayerFaction;

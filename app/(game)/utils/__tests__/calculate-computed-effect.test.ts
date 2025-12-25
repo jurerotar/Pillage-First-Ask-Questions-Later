@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import { villageMock } from 'app/tests/mocks/game/village/village-mock';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
+import {
+  newBuildingEffectFactory,
+  newVillageEffectsFactory,
+} from 'app/factories/effect-factory';
 import {
   wheatProductionBaseEffectMock,
   wheatProductionBonusBoosterEffectMock,
@@ -15,11 +19,7 @@ import {
   woodProductionHeroBonusEffectMock,
   woodProductionServerEffectMock,
 } from 'app/tests/mocks/game/effect-mock';
-import {
-  newBuildingEffectFactory,
-  newVillageEffectsFactory,
-} from 'app/factories/effect-factory';
-import { getBuildingData } from 'app/(game)/(village-slug)/utils/building';
+import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 
 const villageId = villageMock.id;
 
@@ -297,7 +297,7 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(50);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(0);
+      expect(result.buildingWheatLimit).toBe(50);
     });
 
     test('base + population + bonus + booster – total=100, population=50, limit=50', () => {
@@ -318,7 +318,7 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(100);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(50);
+      expect(result.buildingWheatLimit).toBe(100);
     });
 
     test('base + population + bonus + booster + server – total=250, population=50, limit=200', () => {
@@ -340,7 +340,7 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(250);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(200);
+      expect(result.buildingWheatLimit).toBe(250);
     });
   });
 
@@ -380,7 +380,7 @@ describe('calculateComputedEffect – woodProduction', () => {
   });
 
   test.skip('should have a building duration modifier of 1 on a new village', () => {
-    const { effects: buildingEffects } = getBuildingData('MAIN_BUILDING');
+    const { effects: buildingEffects } = getBuildingDefinition('MAIN_BUILDING');
     const level = 2;
 
     const effects = buildingEffects.map(

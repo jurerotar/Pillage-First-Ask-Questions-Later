@@ -1,2 +1,0 @@
-biome check --no-errors-on-unmatched
-npm run localize:ci

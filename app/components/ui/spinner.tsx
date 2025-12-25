@@ -1,7 +1,7 @@
-import type React from 'react';
-import { type VariantProps, cva } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { clsx } from 'clsx';
+import type { PropsWithChildren } from 'react';
 import { LuLoaderCircle } from 'react-icons/lu';
-import clsx from 'clsx';
 
 const spinnerVariants = cva(
   'flex-col items-center justify-center text-gray-200',
@@ -36,12 +36,12 @@ type SpinnerContentProps = VariantProps<typeof spinnerVariants> &
     className?: string;
   };
 
-export const Spinner: React.FCWithChildren<SpinnerContentProps> = ({
+export const Spinner = ({
   size,
   show,
   children,
   className,
-}) => {
+}: PropsWithChildren<SpinnerContentProps>) => {
   return (
     <span className={spinnerVariants({ show })}>
       <LuLoaderCircle className={clsx(loaderVariants({ size }), className)} />

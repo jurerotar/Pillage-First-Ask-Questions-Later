@@ -1,8 +1,10 @@
+import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import {
   isOccupiableOasisTile,
   isOccupiedOccupiableTile,
   isUnoccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { PLAYER_ID } from 'app/constants/player';
 import { getVillageSize } from 'app/factories/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
 import type {
@@ -29,9 +31,7 @@ import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from 'app/utils/common';
-import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { calculateGridLayout, encodeGraphicsProperty } from 'app/utils/map';
-import { PLAYER_ID } from 'app/constants/player';
 
 type Shape = { group: number; shape: number[] };
 
@@ -48,16 +48,16 @@ const shapes: Shape[] = [
     group: 3,
     shape: [1, 1, 1],
   },
+  {
+    group: 4,
+    shape: [3],
+  },
 ];
 
 const shapesByResource: Record<Resource, Shape[]> = {
-  wood: [...shapes, { group: 4, shape: [3] }],
+  wood: shapes,
   clay: shapes,
-  // Iron doesn't have shape 3
-  iron: [
-    ...shapes.filter(({ group }) => group !== 3),
-    { group: 4, shape: [3] },
-  ],
+  iron: shapes,
   wheat: shapes,
 };
 
@@ -235,7 +235,9 @@ const generateGrid = (server: Server): (BaseTile | OasisTile)[] => {
   let xCoordinateCounter = -halfSize - 1;
   let yCoordinateCounter = halfSize;
 
-  const tiles = new Array(totalTiles);
+  const tiles: (BaseTile | OasisTile | OccupiedOccupiableTile)[] = Array.from({
+    length: totalTiles,
+  });
 
   let id = -1;
 

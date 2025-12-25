@@ -1,27 +1,26 @@
-import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
-import type React from 'react';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import type { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { Text } from 'app/components/text';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 
 type TroopTrainingQueueProps = {
   buildingId: TroopTrainingBuildingId;
 };
 
-export const TroopTrainingQueue: React.FCWithChildren<
-  TroopTrainingQueueProps
-> = ({ buildingId }) => {
+export const TroopTrainingQueue = ({
+  buildingId,
+}: PropsWithChildren<TroopTrainingQueueProps>) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { currentVillage } = useCurrentVillage();
 
   const doesBuildingExists = currentVillage.buildingFields.some(
     ({ buildingId: id }) => buildingId === id,
   );
 
-  const buildingName = assetsT(`BUILDINGS.${buildingId}.NAME`);
+  const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
 
   return (
     <SectionContent>

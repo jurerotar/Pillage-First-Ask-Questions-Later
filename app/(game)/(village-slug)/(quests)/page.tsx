@@ -1,5 +1,11 @@
-import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
+import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,25 +13,16 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { Text } from 'app/components/text';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
-import { partition } from 'app/utils/common';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import type React from 'react';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
+import { partition } from 'app/utils/common';
 
-const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const QuestsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { currentVillage } = useCurrentVillage();
   const { t } = useTranslation();
   const { quests } = useQuests();
-  const { resourcesPath } = useGameNavigation();
 
   const tabs = ['default', 'global'];
 
@@ -44,7 +41,7 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Quests')}</BreadcrumbItem>
@@ -69,7 +66,7 @@ const QuestsPage: React.FC<Route.ComponentProps> = ({ params }) => {
         <TabPanel>
           <SectionContent>
             <Text as="h2">
-              {t('Quests for village {{villageName}}', {
+              {t('Quests for village "{{villageName}}"', {
                 villageName: currentVillage.name,
               })}
             </Text>

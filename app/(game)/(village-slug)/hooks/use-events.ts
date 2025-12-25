@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export const useEvents = () => {
   const { fetcher } = use(ApiContext);

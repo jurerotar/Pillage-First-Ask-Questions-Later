@@ -1,19 +1,3 @@
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
-import type { Village } from 'app/interfaces/models/game/village';
-import {
-  isAdventurePointIncreaseEvent,
-  isBuildingConstructionEvent,
-  isBuildingLevelUpEvent,
-  isEventWithResourceCost,
-  isScheduledBuildingEvent,
-  isTroopTrainingEvent,
-  isUnitImprovementEvent,
-  isUnitResearchEvent,
-  isVillageEvent,
-} from 'app/(game)/guards/event-guards';
 import type { QueryClient } from '@tanstack/react-query';
 import {
   effectsCacheKey,
@@ -24,28 +8,45 @@ import {
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { insertBulkEvent } from 'app/(game)/api/handlers/utils/event-insertion';
 import {
+  calculateVillageResourcesAt,
+  subtractVillageResourcesAt,
+} from 'app/(game)/api/utils/village';
+import {
+  isAdventurePointIncreaseEvent,
+  isBuildingConstructionEvent,
+  isBuildingDestructionEvent,
+  isBuildingLevelUpEvent,
+  isEventWithResourceCost,
+  isScheduledBuildingEvent,
+  isTroopTrainingEvent,
+  isUnitImprovementEvent,
+  isUnitResearchEvent,
+  isVillageEvent,
+} from 'app/(game)/guards/event-guards';
+import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
+import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
-} from 'app/(game)/(village-slug)/utils/building';
+} from 'app/assets/utils/buildings';
 import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
-  getUnitData,
-} from 'app/(game)/(village-slug)/utils/units';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Server } from 'app/interfaces/models/game/server';
+  getUnitDefinition,
+} from 'app/assets/utils/units';
+import { PLAYER_ID } from 'app/constants/player';
 import { calculateAdventurePointIncreaseEventDuration } from 'app/factories/utils/event';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
+import type { Effect } from 'app/interfaces/models/game/effect';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
+import type { Player } from 'app/interfaces/models/game/player';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
-import {
-  calculateVillageResourcesAt,
-  subtractVillageResourcesAt,
-} from 'app/(game)/api/utils/village';
-import { PLAYER_ID } from 'app/constants/player';
+import type { Server } from 'app/interfaces/models/game/server';
+import type { Village } from 'app/interfaces/models/game/village';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
@@ -107,11 +108,11 @@ export const filterEventsByType = <T extends GameEventType>(
   const result: GameEvent<T>[] = [];
 
   for (const event of events) {
-    if (!isVillageEvent(event)) {
+    if (event.type !== type) {
       continue;
     }
 
-    if (event.type === type && event.villageId === villageId) {
+    if (!isVillageEvent(event) || event.villageId === villageId) {
       result.push(event as GameEvent<T>);
     }
   }
@@ -140,7 +141,7 @@ export const getEventCost = (event: GameEvent): number[] => {
 
   if (isTroopTrainingEvent(event)) {
     const { unitId, buildingId, amount } = event;
-    const { baseRecruitmentCost } = getUnitData(unitId);
+    const { baseRecruitmentCost } = getUnitDefinition(unitId);
 
     const costModifier =
       buildingId === 'GREAT_BARRACKS' || buildingId === 'GREAT_STABLE' ? 3 : 1;
@@ -167,6 +168,7 @@ export const getEventDuration = (
     const { villageId, buildingId, level } = event;
 
     const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
     const { total } = calculateComputedEffect(
       'buildingDuration',
       effects,
@@ -189,8 +191,18 @@ export const getEventDuration = (
       return 0;
     }
 
+    const { villageId } = event;
+
+    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+    const { total: unitResearchDurationModifier } = calculateComputedEffect(
+      'unitResearchDuration',
+      effects,
+      villageId,
+    );
+
     const { unitId } = event;
-    return calculateUnitResearchDuration(unitId);
+    return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   }
 
   if (isUnitImprovementEvent(event)) {
@@ -198,11 +210,27 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { unitId, level } = event;
-    return calculateUnitUpgradeDurationForLevel(unitId, level);
+    const { villageId, unitId, level } = event;
+
+    const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
+
+    const { total: unitImprovementDurationModifier } = calculateComputedEffect(
+      'unitImprovementDuration',
+      effects,
+      villageId,
+    );
+
+    return (
+      unitImprovementDurationModifier *
+      calculateUnitUpgradeDurationForLevel(unitId, level)
+    );
   }
 
   if (isTroopTrainingEvent(event)) {
+    if (isDeveloperModeEnabled) {
+      return 0;
+    }
+
     const effects = queryClient.getQueryData<Effect[]>([effectsCacheKey])!;
     const { unitId, villageId, durationEffectId } = event;
     const { total } = calculateComputedEffect(
@@ -211,11 +239,7 @@ export const getEventDuration = (
       villageId,
     );
 
-    if (isDeveloperModeEnabled) {
-      return 5_000 * total;
-    }
-
-    const { baseRecruitmentDuration } = getUnitData(unitId);
+    const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
     return total * baseRecruitmentDuration;
   }
@@ -224,6 +248,10 @@ export const getEventDuration = (
     const server = queryClient.getQueryData<Server>([serverCacheKey])!;
 
     return calculateAdventurePointIncreaseEventDuration(server);
+  }
+
+  if (isBuildingDestructionEvent(event)) {
+    return 0;
   }
 
   console.error('Missing duration calculation for event', event);

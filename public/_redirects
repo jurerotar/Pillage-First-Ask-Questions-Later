@@ -1,12 +1,16 @@
-# === Pre-rendered static pages ===
-/create-new-server                /create-new-server/index.html         200
-/design-system/icons              /design-system/icons/index.html       200
-/error/403                        /error/403/index.html                 200
-/error/404                        /error/404/index.html                 200
-/                                 /index.html                           200
+# === Redirects ===
+/create-new-server                /game-worlds/create                    301
+
+# === Pre-rendered public pages ===
+/                                 /index.html                               200
+/game-worlds                      /game-worlds/index.html                   200
+/game-worlds/create               /game-worlds/create/index.html            200
+/game-worlds/import               /game-worlds/import/index.html            200
+/get-involved                     /get-involved/index.html                  200
+/frequently-asked-questions       /frequently-asked-questions/index.html    200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
-/game/:splat/:splat/resources                        /game/server-slug/village-slug/resources/index.html                         200
+/game/:splat/:splat/resources                       /game/server-slug/village-slug/resources/index.html                        200
 /game/:splat/:splat/village                         /game/server-slug/village-slug/village/index.html                          200
 /game/:splat/:splat/map                             /game/server-slug/village-slug/map/index.html                              200
 /game/:splat/:splat/resources/:splat                /game/server-slug/village-slug/resources/building-field-id/index.html      200

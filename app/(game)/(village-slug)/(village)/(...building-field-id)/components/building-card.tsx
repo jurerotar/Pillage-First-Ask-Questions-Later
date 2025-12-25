@@ -1,31 +1,31 @@
-import type {
-  assessBuildingConstructionReadiness,
-  AssessedBuildingRequirement,
-} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  calculateBuildingEffectValues,
-  type CalculatedCumulativeEffect,
-  getBuildingData,
-  getBuildingDataForLevel,
-} from 'app/(game)/(village-slug)/utils/building';
-import type { Building } from 'app/interfaces/models/game/building';
-import clsx from 'clsx';
-import type React from 'react';
-import { createContext, use } from 'react';
-import { Fragment } from 'react';
+import { clsx } from 'clsx';
+import type { PropsWithChildren } from 'react';
+import { createContext, Fragment, use } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { formatTime } from 'app/utils/time';
+import type {
+  AssessedBuildingRequirement,
+  assessBuildingConstructionReadiness,
+} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { Icon } from 'app/components/icon';
-import { formatNumber, formatPercentage } from 'app/utils/common';
-import type { BuildingField } from 'app/interfaces/models/game/village';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import {
+  type CalculatedCumulativeEffect,
+  calculateBuildingEffectValues,
+  getBuildingDataForLevel,
+  getBuildingDefinition,
+} from 'app/assets/utils/buildings';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
+import type { Building } from 'app/interfaces/models/game/building';
+import type { BuildingField } from 'app/interfaces/models/game/village';
+import { formatNumber, formatPercentage } from 'app/utils/common';
+import { formatTime } from 'app/utils/time';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];
@@ -46,29 +46,32 @@ type BuildingCardProps = {
   >;
 };
 
-export const BuildingCard: React.FCWithChildren<BuildingCardProps> = ({
+export const BuildingCard = ({
   buildingId,
   buildingConstructionReadinessAssessment,
   children,
-}) => {
-  const building = getBuildingData(buildingId);
+}: PropsWithChildren<BuildingCardProps>) => {
+  const building = getBuildingDefinition(buildingId);
 
   return (
     <BuildingCardContext
       value={{ buildingId, building, buildingConstructionReadinessAssessment }}
     >
-      <article className="flex flex-col gap-2 p-2 border border-border">
-        {children}
-      </article>
+      <article className="flex flex-col gap-2">{children}</article>
     </BuildingCardContext>
   );
 };
 
-export const BuildingOverview = () => {
-  const { t: assetsT } = useTranslation();
+type BuildingOverviewProps = {
+  shouldShowTitle?: boolean;
+};
+
+export const BuildingOverview = ({
+  shouldShowTitle = true,
+}: BuildingOverviewProps) => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel } = useBuildingVirtualLevel(
     buildingId,
     buildingFieldId!,
@@ -81,12 +84,14 @@ export const BuildingOverview = () => {
 
   return (
     <section data-testid="building-overview-title-section">
-      <Text
-        as="h2"
-        className="inline-flex"
-      >
-        {assetsT(`BUILDINGS.${building.id}.NAME`)}
-      </Text>
+      {shouldShowTitle && (
+        <Text
+          as="h2"
+          className="inline-flex"
+        >
+          {t(`BUILDINGS.${building.id}.NAME`)}
+        </Text>
+      )}
       <div
         data-testid="building-overview-building-image"
         className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"
@@ -94,14 +99,14 @@ export const BuildingOverview = () => {
         image
       </div>
       <Text data-testid="building-overview-building-description">
-        {assetsT(`BUILDINGS.${building.id}.DESCRIPTION`)}
+        {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
       </Text>
       {actualLevel !== virtualLevel && (
         <span
           data-testid="building-overview-currently-upgrading-span"
           className="inline-flex text-warning mt-2"
         >
-          {assetsT('Currently upgrading to level {{level}}', {
+          {t('Currently upgrading to level {{level}}', {
             level: virtualLevel,
           })}
         </span>
@@ -112,7 +117,7 @@ export const BuildingOverview = () => {
           className="inline-flex text-green-600 mt-2"
         >
           {t('{{building}} is fully upgraded', {
-            building: assetsT(`BUILDINGS.${building.id}.NAME`),
+            building: t(`BUILDINGS.${building.id}.NAME`),
           })}
         </span>
       )}
@@ -122,7 +127,7 @@ export const BuildingOverview = () => {
 
 export const BuildingCost = () => {
   const { t } = useTranslation();
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { buildingId } = use(BuildingCardContext);
   const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
     buildingId,
@@ -171,16 +176,41 @@ export const BuildingCost = () => {
   );
 };
 
+export const BuildingUnfinishedNotice = () => {
+  const { t } = useTranslation();
+  const { buildingId } = use(BuildingCardContext);
+
+  const unfinishedBuildings: Building['id'][] = [
+    'HORSE_DRINKING_TROUGH',
+    'RESIDENCE',
+    'RALLY_POINT',
+    'TOWN_HALL',
+    'EMBASSY',
+    'COMMAND_CENTER',
+    'TRAPPER',
+    'MARKETPLACE',
+  ];
+
+  if (!unfinishedBuildings.includes(buildingId)) {
+    return null;
+  }
+
+  return (
+    <Alert variant="warning">
+      {t(
+        'Building is not fully implemented, some functionality may be missing.',
+      )}
+    </Alert>
+  );
+};
+
 type BuildingBenefitProps = {
   effect: CalculatedCumulativeEffect;
   isMaxLevel: boolean;
   buildingFieldId: BuildingField['id'];
 };
 
-const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
-  effect,
-  isMaxLevel,
-}) => {
+const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
   // TODO: Resource production, warehouse & granary values need to be increased by server effect value
   const { hasEffect, serverEffectValue } = useEffectServerValue(
     effect.effectId,
@@ -188,15 +218,8 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
 
   const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
 
-  const type =
-    effect.effectId === 'wheatProduction' && effect.currentLevelValue <= 0
-      ? 'population'
-      : effect.effectId;
-
   const effectModifier =
-    type !== 'population' && effect.type === 'base' && hasEffect
-      ? serverEffectValue
-      : 1;
+    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
 
   return (
     <span
@@ -204,19 +227,19 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
       className="flex gap-2"
     >
       <Icon
-        type={type}
+        type={effect.effectId}
         className="size-6"
-        variant={
-          effect.areEffectValuesRising || type === 'population'
-            ? 'positive-change'
-            : 'negative-change'
-        }
+        {...(!isMaxLevel && {
+          subIcon: effect.areEffectValuesRising
+            ? 'positiveChange'
+            : 'negativeChange',
+        })}
       />
       <span>
         {!isMaxLevel && effect.currentLevelValue !== effect.nextLevelValue && (
           <>
             {formattingFn(
-              Math.abs(effect.currentLevelValue),
+              Math.abs(effect.currentLevelValue * effectModifier),
               effect.areEffectValuesRising,
             )}
             <span className="mx-0.5">&rarr;</span>
@@ -238,48 +261,64 @@ const BuildingBenefit: React.FC<BuildingBenefitProps> = ({
 export const BuildingBenefits = () => {
   const { t } = useTranslation();
   const { building, buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = useRouteSegments();
+  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, doesBuildingExist } =
     useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
-  const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
+  const {
+    isMaxLevel,
+    population,
+    nextLevelPopulation,
+    culturePoints,
+    nextLevelCulturePoints,
+  } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const cumulativeEffects = calculateBuildingEffectValues(
     building,
     actualLevel,
   );
 
-  const [population, ...rest] = cumulativeEffects;
-
   // In case we have both infantry and cavalry defence, we show combined defence icon instead
   const shouldCombineEffects =
-    rest.length > 0 &&
-    rest.every(
+    cumulativeEffects.length > 0 &&
+    cumulativeEffects.every(
       ({ effectId }) =>
         effectId === 'infantryDefence' || effectId === 'cavalryDefence',
     );
+
   const effectsToShow = (() => {
     if (shouldCombineEffects) {
-      const [infantryDefenceEffect, , infantryBonusEffect] = rest;
+      const staticDefenceEffect = cumulativeEffects.find(
+        ({ effectId, type }) =>
+          type === 'base' &&
+          (effectId === 'infantryDefence' || effectId === 'cavalryDefence'),
+      );
+      const staticDefenceBonusEffect = cumulativeEffects.find(
+        ({ effectId, type }) =>
+          type === 'bonus' &&
+          (effectId === 'infantryDefence' || effectId === 'cavalryDefence'),
+      );
 
-      const effects: CalculatedCumulativeEffect[] = [
-        {
-          ...infantryDefenceEffect,
-          effectId: 'defenceBonus',
-        } satisfies CalculatedCumulativeEffect,
-      ];
+      const effects: CalculatedCumulativeEffect[] = [];
 
-      if (infantryBonusEffect) {
+      if (staticDefenceEffect) {
         effects.push({
-          ...infantryBonusEffect,
+          ...staticDefenceEffect,
           effectId: 'defence',
+        } satisfies CalculatedCumulativeEffect);
+      }
+
+      if (staticDefenceBonusEffect) {
+        effects.push({
+          ...staticDefenceBonusEffect,
+          effectId: 'defenceBonus',
         } satisfies CalculatedCumulativeEffect);
       }
 
       return effects;
     }
 
-    return rest;
+    return cumulativeEffects;
   })();
 
   return (
@@ -292,14 +331,52 @@ export const BuildingBenefits = () => {
             })}
       </Text>
       <div className="flex flex-wrap gap-2">
-        {(isMaxLevel ||
-          population.currentLevelValue !== population.nextLevelValue) && (
-          <BuildingBenefit
-            effect={population}
-            isMaxLevel={isMaxLevel}
-            buildingFieldId={buildingFieldId!}
+        <span className="flex gap-2">
+          <Icon
+            type="population"
+            className="size-6"
+            {...(!isMaxLevel && {
+              subIcon: 'positiveChange',
+            })}
           />
-        )}
+          <span>
+            {!isMaxLevel && (
+              <>
+                {population}
+                {population !== nextLevelPopulation && (
+                  <>
+                    <span className="mx-0.5">&rarr;</span>
+                    {nextLevelPopulation}
+                  </>
+                )}
+              </>
+            )}
+            {isMaxLevel && population}
+          </span>
+        </span>
+        <span className="flex gap-2">
+          <Icon
+            type="culturePoints"
+            className="size-6"
+            {...(!isMaxLevel && {
+              subIcon: 'positiveChange',
+            })}
+          />
+          <span>
+            {!isMaxLevel && (
+              <>
+                {culturePoints}
+                {culturePoints !== nextLevelCulturePoints && (
+                  <>
+                    <span className="mx-0.5">&rarr;</span>
+                    {nextLevelCulturePoints}
+                  </>
+                )}
+              </>
+            )}
+            {isMaxLevel && culturePoints}
+          </span>
+        </span>
         {effectsToShow.map((effect) => (
           <BuildingBenefit
             key={effect.effectId}
@@ -326,7 +403,7 @@ export const BuildingRequirements = () => {
     return null;
   }
 
-  const { maxLevel } = getBuildingData(buildingId);
+  const { maxLevel } = getBuildingDefinition(buildingId);
 
   const sameBuildingInstances = currentVillage.buildingFields.filter(
     ({ buildingId: id }) => id === buildingId,

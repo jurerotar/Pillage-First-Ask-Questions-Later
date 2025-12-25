@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import type { Tile } from 'app/interfaces/models/game/tile';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Tile } from 'app/interfaces/models/game/tile';
+import type { Troop } from 'app/interfaces/models/game/troop';
 
 export const useTileTroops = (tileId: Tile['id']) => {
   const { fetcher } = use(ApiContext);

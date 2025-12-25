@@ -1,17 +1,19 @@
-import type React from 'react';
+import { clsx } from 'clsx';
+import type { ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuEllipsis } from 'react-icons/lu';
+import type { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { type Button, buttonVariants } from 'app/components/ui/button';
-import clsx from 'clsx';
 
-export const Pagination = ({
+export const PaginationWrapper = ({
   className,
   ...props
-}: React.ComponentProps<'nav'>) => {
+}: ComponentProps<'nav'>) => {
   return (
     <nav
       aria-label="pagination"
       data-slot="pagination"
-      className={clsx('mx-auto flex w-full justify-center', className)}
+      className={clsx(className)}
       {...props}
     />
   );
@@ -20,7 +22,7 @@ export const Pagination = ({
 export const PaginationContent = ({
   className,
   ...props
-}: React.ComponentProps<'ul'>) => {
+}: ComponentProps<'ul'>) => {
   return (
     <ul
       data-slot="pagination-content"
@@ -30,7 +32,7 @@ export const PaginationContent = ({
   );
 };
 
-export const PaginationItem = ({ ...props }: React.ComponentProps<'li'>) => {
+export const PaginationItem = (props: ComponentProps<'li'>) => {
   return (
     <li
       data-slot="pagination-item"
@@ -41,8 +43,8 @@ export const PaginationItem = ({ ...props }: React.ComponentProps<'li'>) => {
 
 type PaginationLinkProps = {
   isActive?: boolean;
-} & Pick<React.ComponentProps<typeof Button>, 'size'> &
-  React.ComponentProps<'a'>;
+} & Pick<ComponentProps<typeof Button>, 'size'> &
+  ComponentProps<'button'>;
 
 export const PaginationLink = ({
   className,
@@ -51,7 +53,8 @@ export const PaginationLink = ({
   ...props
 }: PaginationLinkProps) => {
   return (
-    <a
+    <button
+      type="button"
       aria-current={isActive ? 'page' : undefined}
       data-slot="pagination-link"
       data-active={isActive}
@@ -70,16 +73,17 @@ export const PaginationLink = ({
 export const PaginationPrevious = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => {
+}: ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation();
+
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={t('Go to previous page')}
       size="default"
       className={clsx('gap-1 px-2.5 sm:pl-2.5', className)}
       {...props}
     >
       <LuChevronLeft />
-      <span className="hidden sm:block">Previous</span>
     </PaginationLink>
   );
 };
@@ -87,15 +91,16 @@ export const PaginationPrevious = ({
 export const PaginationNext = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => {
+}: ComponentProps<typeof PaginationLink>) => {
+  const { t } = useTranslation();
+
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={t('Go to next page')}
       size="default"
       className={clsx('gap-1 px-2.5 sm:pr-2.5', className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
       <LuChevronRight />
     </PaginationLink>
   );
@@ -104,7 +109,9 @@ export const PaginationNext = ({
 export const PaginationEllipsis = ({
   className,
   ...props
-}: React.ComponentProps<'span'>) => {
+}: ComponentProps<'span'>) => {
+  const { t } = useTranslation();
+
   return (
     <span
       aria-hidden
@@ -113,7 +120,64 @@ export const PaginationEllipsis = ({
       {...props}
     >
       <LuEllipsis className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t('More pages')}</span>
     </span>
+  );
+};
+
+type PaginationProps = ReturnType<typeof usePagination>;
+
+export const Pagination = (props: PaginationProps) => {
+  const {
+    pageCount,
+    isPaginationNextEnabled,
+    isPaginationPreviousEnabled,
+    paginationElements,
+    setPage,
+    page,
+  } = props;
+
+  const { t } = useTranslation();
+
+  return (
+    <PaginationWrapper>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            aria-label={t('Previous')}
+            {...(isPaginationPreviousEnabled && {
+              onClick: () => setPage((p) => Math.max(1, p - 1)),
+            })}
+          />
+        </PaginationItem>
+
+        {paginationElements.map((p) =>
+          typeof p === 'number' ? (
+            <PaginationItem key={p}>
+              <PaginationLink
+                isActive={p === page}
+                onClick={() => setPage(p)}
+                aria-label={t('Page {{n}}', { n: p })}
+              >
+                {p}
+              </PaginationLink>
+            </PaginationItem>
+          ) : (
+            <PaginationItem key={p}>
+              <PaginationEllipsis />
+            </PaginationItem>
+          ),
+        )}
+
+        <PaginationItem>
+          <PaginationNext
+            aria-label={t('Next')}
+            {...(isPaginationNextEnabled && {
+              onClick: () => setPage((p) => Math.min(pageCount, p + 1)),
+            })}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </PaginationWrapper>
   );
 };

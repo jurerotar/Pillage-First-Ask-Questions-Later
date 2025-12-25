@@ -1,5 +1,5 @@
-import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 
 type HeroStats = {
@@ -99,7 +99,8 @@ type HeroItemId =
   | ArtifactId;
 
 export type HeroItem = {
-  id: HeroItemId;
+  id: number;
+  name: HeroItemId;
   slot: HeroItemSlot;
   rarity: HeroItemRarity;
   category: HeroItemCategory;

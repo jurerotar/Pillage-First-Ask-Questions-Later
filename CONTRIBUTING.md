@@ -21,7 +21,7 @@ See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for detai
 - **Routing:** [React Router v7 - framework mode](https://reactrouter.com)
 - **Build System:** [Vite](https://vitejs.dev)
 - **Format and lint:** [Biome.js](https://biomejs.dev)
-- **Localization:** [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) + [i18next-parser](https://github.com/i18next/i18next-parser)
+- **Localization:** [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) + [i18next-cli](https://github.com/i18next/i18next-cli)
 - **Unit testing:** [Vitest](https://vitest.dev)
 - **Deployment:** Netlify ([Master Deploy](https://pillagefirst.netlify.app) | [Dev Deploy](https://develop--pillagefirst.netlify.app))
 - **Version Control:** GitHub ([Repository](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later))
@@ -38,41 +38,11 @@ hooks, providers,... and tests.
 
 Please refer to [directory naming convention](./docs/DIRECTORY_NAMING_CONVENTION.md) for naming convention.
 
-```
-├── .github                 # GitHub-specific configurations and workflows
-├── .husky                  # Git hooks for enforcing code quality
-├── app                     # Main application source code
-│   ├── (design-system)     # Temporary route group allowing you to see a list of icons app uses (/design-system/icons)
-│   ├── (game)              # Game-specific routes and assets
-│   │   ├── (xxx)           # Game routes (/resources, /map,...)
-│   │   ├── providers       # Game engine, game-state,... providers
-│   │   ├── api             # Local-api
-│   │   ├── assets          # Buildings, units, items, ... data
-│   │   ├── layout.ts       # Game-only layout
-│   │   ├── ...
-│   ├── (public)            # Public pages (/, /create-new-server)
-│   │   ├── layout.ts       # Public-pages only layout
-│   │   ├── ...
-│   ├── interfaces          # TypeScript interfaces and types
-│   ├── localization        # Localization files
-│   ├── styles              # Tailwind configuration and global stylesheets
-│   ├── tests               # Unit test environments and mocks
-│   ├── ...
-│   ├── faro.ts             # Grafana Faro configuration file
-│   ├── sw.ts               # Service worker entry file
-│   ├── root.tsx            # Root entry point for the application
-│   ├── routes.ts           # Application route definitions
-│   ├── ...
-├── docs                    # Project documentation
-├── public                  # Static files served by the app (e.g., index.html)
-├── scripts                 # Custom scripts for development and build automation
-```
-
 ## 4. Contribution guide
 
 Before starting, please read through the [architecture documentation](./docs/ARCHITECTURE.md) to gain an understanding on how the app works.
 
-**Pillage First, Ask Questions Later** requires [Node.js version 22.18.0 (LTS)](https://nodejs.org/en/download) or later.
+**Pillage First, Ask Questions Later** requires [Node.js version 22.20.0 (LTS)](https://nodejs.org/en/download) or later.
 
 1. Fork the project
 2. Clone the forked project
@@ -95,11 +65,11 @@ We use git hooks to enforce consistent code standards and checks. Currently, 3 h
 
 `pre-push`: Lint, format and localization is validated before push.
 
-These hooks are managed automatically via `husky`. You can find all scripts in `.husky` folder.
+These hooks are managed automatically via `lefthook`. You can find the configuration in `lefthook.yml`.
 
 ## 6. Localization
 
-Localizations are added automatically with `i18next-parser` module. This script is run on commit.
+Inline localizations are added automatically with `i18next-cli` module. This script is run on commit.
 
 ## 7. GitHub Actions
 

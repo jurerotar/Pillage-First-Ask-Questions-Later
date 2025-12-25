@@ -1,18 +1,18 @@
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
-import { Switch } from 'app/components/ui/switch';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Separator } from 'app/components/ui/separator';
+import {
+  requestNotificationPermission,
+  useNotificationPermission,
+} from 'app/(game)/hooks/use-notification-permission';
+import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
-import {
-  useNotificationPermission,
-  requestNotificationPermission,
-} from 'app/(game)/hooks/use-notification-permission';
+import { Separator } from 'app/components/ui/separator';
+import { Switch } from 'app/components/ui/switch';
 
 export const NotificationPreferences = () => {
   const { t } = useTranslation();
@@ -35,19 +35,26 @@ export const NotificationPreferences = () => {
             )}
             <ul className="flex flex-col gap-4 mt-4">
               <li>
-                <b>Chrome/Edge/Vivaldi/Brave</b>: Click the padlock icon in the
-                address bar {'>'} Site settings {'>'} Set Notifications to
-                "Allow", or manually visit:{' '}
+                <Trans>
+                  <b>Chrome/Edge/Vivaldi/Brave</b>: Click the padlock icon in
+                  the address bar {'>'} Site settings {'>'} Set Notifications to
+                  "Allow", or manually visit:{' '}
+                </Trans>
                 <code>chrome://settings/content/notifications</code>
               </li>
               <li>
-                <b>Firefox</b>: Click the padlock icon in the address bar {'>'}{' '}
-                Click the arrow {'>'} More Information {'>'} Permissions tab{' '}
-                {'>'} Set Send Notifications to "Allow" or manually visit:{' '}
+                <Trans>
+                  <b>Firefox</b>: Click the padlock icon in the address bar{' '}
+                  {'>'} Click the arrow {'>'} More Information {'>'} Permissions
+                  tab {'>'} Set Send Notifications to "Allow" or manually visit:{' '}
+                </Trans>
                 <code>about:preferences#privacy</code>
               </li>
               <li>
-                <b>Safari</b>: Safari {'>'} Settings/Preferences {'>'} Websites{' '}
+                <Trans>
+                  <b>Safari</b>: Safari {'>'} Settings/Preferences {'>'}{' '}
+                  Websites{' '}
+                </Trans>
                 {'>'} Notifications
               </li>
             </ul>
@@ -64,7 +71,10 @@ export const NotificationPreferences = () => {
               </span>
             </Text>
             <div className="flex flex-1 justify-start md:justify-end items-center">
-              <Button onClick={requestNotificationPermission}>
+              <Button
+                size="fit"
+                onClick={requestNotificationPermission}
+              >
                 {t('Enable notifications')}
               </Button>
             </div>

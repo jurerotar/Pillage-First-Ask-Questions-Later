@@ -1,42 +1,64 @@
 import {
   createBuildingQuest,
-  generateVillageQuests,
   globalQuests,
-} from 'app/(game)/(village-slug)/assets/quests';
-import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+  villageQuests,
+} from 'app/assets/quests';
 import type { Building } from 'app/interfaces/models/game/building';
-
-const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
-  ['romans', 'CITY_WALL'],
-  ['gauls', 'PALISADE'],
-  ['teutons', 'EARTH_WALL'],
-  ['huns', 'MAKESHIFT_WALL'],
-  ['egyptians', 'STONE_WALL'],
-]);
+import type { Quest, VillageQuest } from 'app/interfaces/models/game/quest';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const newVillageQuestsFactory = (
   villageId: Village['id'],
   tribe: PlayableTribe,
 ): VillageQuest[] => {
-  const wallBuildingId = tribeToWallBuildingIdMap.get(tribe)!;
+  const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
+    ['romans', 'CITY_WALL'],
+    ['gauls', 'PALISADE'],
+    ['teutons', 'EARTH_WALL'],
+    ['huns', 'MAKESHIFT_WALL'],
+    ['egyptians', 'STONE_WALL'],
+  ]);
 
-  const villageQuests = generateVillageQuests(villageId);
+  const tribalWall = tribeToWallBuildingIdMap.get(tribe)!;
 
-  return [
-    createBuildingQuest(villageId, wallBuildingId, 1),
-    createBuildingQuest(villageId, wallBuildingId, 5),
-    createBuildingQuest(villageId, wallBuildingId, 10),
-    createBuildingQuest(villageId, wallBuildingId, 15),
-    createBuildingQuest(villageId, wallBuildingId, 20),
+  const questsToCreate = [
     ...villageQuests,
+    createBuildingQuest(tribalWall, 1),
+    createBuildingQuest(tribalWall, 5),
+    createBuildingQuest(tribalWall, 10),
+    createBuildingQuest(tribalWall, 15),
+    createBuildingQuest(tribalWall, 20),
   ];
+
+  const questsWithVillageId = questsToCreate.map((quest) => ({
+    ...quest,
+    villageId,
+  }));
+
+  return questsWithVillageId.map((quest) => ({
+    ...quest,
+    collectedAt: null,
+    completedAt: null,
+  }));
 };
 
 export const generateNewServerQuests = (
   villageId: Village['id'],
   tribe: PlayableTribe,
 ): Quest[] => {
-  return [...globalQuests, ...newVillageQuestsFactory(villageId, tribe)];
+  const collectableGlobalQuests = globalQuests.map((quest) => ({
+    ...quest,
+    collectedAt: null,
+    completedAt: null,
+  }));
+
+  const collectableVillageQuests = newVillageQuestsFactory(villageId, tribe);
+
+  const mainBuildingLevel1Quest = collectableVillageQuests.find(
+    ({ id }) => id === 'MAIN_BUILDING-oneOf-1',
+  )!;
+  mainBuildingLevel1Quest.completedAt = Date.now();
+
+  return [...collectableGlobalQuests, ...collectableVillageQuests];
 };

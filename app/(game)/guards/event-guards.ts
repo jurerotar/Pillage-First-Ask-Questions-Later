@@ -1,9 +1,9 @@
+import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 import type {
   GameEvent,
   GameEventType,
   WithVillageIdEvent,
 } from 'app/interfaces/models/game/game-event';
-import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 
 export const isVillageEvent = (
   event: GameEvent,
@@ -15,6 +15,12 @@ export const isBuildingConstructionEvent = (
   event: GameEvent,
 ): event is GameEvent<'buildingConstruction'> => {
   return event.type === 'buildingConstruction';
+};
+
+export const isBuildingDestructionEvent = (
+  event: GameEvent,
+): event is GameEvent<'buildingDestruction'> => {
+  return event.type === 'buildingDestruction';
 };
 
 export const isBuildingLevelUpEvent = (

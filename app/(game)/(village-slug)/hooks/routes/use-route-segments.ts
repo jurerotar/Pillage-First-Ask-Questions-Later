@@ -1,4 +1,3 @@
-import type { BuildingField } from 'app/interfaces/models/game/village';
 import { useParams } from 'react-router';
 
 export const useRouteSegments = () => {
@@ -8,7 +7,7 @@ export const useRouteSegments = () => {
     serverSlug: serverSlug as string,
     villageSlug: villageSlug as string,
     buildingFieldId: buildingFieldId
-      ? (Number.parseInt(buildingFieldId) as BuildingField['id'])
+      ? Number.parseInt(buildingFieldId, 10)
       : null,
     reportId,
   };

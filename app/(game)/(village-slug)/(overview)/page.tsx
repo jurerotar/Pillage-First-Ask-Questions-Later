@@ -1,4 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
+import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
+import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
   Breadcrumb,
@@ -7,24 +18,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
-import { Section } from 'app/(game)/(village-slug)/components/building-layout';
-import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
-import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import type React from 'react';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
 import { Separator } from 'app/components/ui/separator';
 
-const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const OverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
   const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
 
@@ -41,10 +40,10 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
     ({ buildingId }) => buildingId === 'BREWERY',
   );
 
-  const academyName = assetsT('BUILDINGS.ACADEMY.NAME');
-  const smithyName = assetsT('BUILDINGS.SMITHY.NAME');
-  const marketplaceName = assetsT('BUILDINGS.MARKETPLACE.NAME');
-  const breweryName = assetsT('BUILDINGS.BREWERY.NAME');
+  const academyName = t('BUILDINGS.ACADEMY.NAME');
+  const smithyName = t('BUILDINGS.SMITHY.NAME');
+  const marketplaceName = t('BUILDINGS.MARKETPLACE.NAME');
+  const breweryName = t('BUILDINGS.BREWERY.NAME');
 
   const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -54,7 +53,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Village overview')}</BreadcrumbItem>
@@ -67,7 +66,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
             'Village overview allows you to track active troop training, smithy and academy queues, monitor merchant availability and movements and track ongoing celebrations.',
           )}
         </Text>
-        <Section>
+        <SectionContent>
           <Text as="h2">{t('Troop training')}</Text>
           <TroopTrainingQueue buildingId="BARRACKS" />
           <Separator orientation="horizontal" />
@@ -78,9 +77,9 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
           <TroopTrainingQueue buildingId="GREAT_BARRACKS" />
           <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="GREAT_STABLE" />
-        </Section>
+        </SectionContent>
         <Separator orientation="horizontal" />
-        <Section>
+        <SectionContent>
           <Text as="h2">{academyName}</Text>
           {!doesAcademyExist &&
             t(
@@ -88,9 +87,9 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
               { buildingName: academyName },
             )}
           {doesAcademyExist && <AcademyResearchTable />}
-        </Section>
+        </SectionContent>
         <Separator orientation="horizontal" />
-        <Section>
+        <SectionContent>
           <Text as="h2">{smithyName}</Text>
           {!doesSmithyExist &&
             t(
@@ -98,9 +97,9 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
               { buildingName: smithyName },
             )}
           {doesSmithyExist && <SmithyImprovementTable />}
-        </Section>
+        </SectionContent>
         <Separator orientation="horizontal" />
-        <Section>
+        <SectionContent>
           <Text as="h2">{marketplaceName}</Text>
           {!doesMarketplaceExist &&
             t(
@@ -110,7 +109,7 @@ const OverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
           <Alert variant="warning">
             {t('This section is still under development')}
           </Alert>
-        </Section>
+        </SectionContent>
         {tribe === 'teutons' && (
           <>
             <Separator orientation="horizontal" />

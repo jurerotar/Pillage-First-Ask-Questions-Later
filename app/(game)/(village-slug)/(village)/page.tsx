@@ -1,61 +1,40 @@
-import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
-import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { Tooltip } from 'app/components/tooltip';
-import type {
-  BuildingField as BuildingFieldType,
-  ResourceFieldComposition,
-} from 'app/interfaces/models/game/village';
+import clsx from 'clsx';
+import { Activity, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type React from 'react';
-import { useState } from 'react';
-import { useCallback } from 'react';
-import { useEffect } from 'react';
-import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
-import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
+import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
+import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
+import { Tooltip } from 'app/components/tooltip';
+import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 import pageStyles from './page.module.scss';
-import { clsx } from 'clsx';
 
-const resourceViewBuildingFieldIds = [...Array(18)].map(
-  (_, i) => i + 1,
-) as BuildingFieldType['id'][];
-const villageViewBuildingFieldIds = [...Array(22)].map(
-  (_, i) => i + 19,
-) as BuildingFieldType['id'][];
+const resourceViewBuildingFieldIds: BuildingFieldType['id'][] = [
+  ...Array(18),
+].map((_, i) => i + 1);
+const villageViewBuildingFieldIds: BuildingFieldType['id'][] = [
+  ...Array(22),
+].map((_, i) => i + 19);
 
-const resourceFieldCompositions: ResourceFieldComposition[] = [
-  '00018',
-  '11115',
-  '3339',
-  '4437',
-  '4347',
-  '3447',
-  '3456',
-  '4356',
-  '3546',
-  '4536',
-  '5346',
-  '5436',
-  '4446',
-];
+const VillagePage = (props: Route.ComponentProps) => {
+  const { params, matches } = props;
 
-const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
   const { serverSlug, villageSlug } = params;
+
   const { t } = useTranslation();
-  const { villagePath } = useGameNavigation();
-  const { isResourcesPageOpen, isVillagePageOpen } = useActiveRoute();
+  const { currentVillage } = useCurrentVillage();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const buildingFieldIdsToDisplay = isResourcesPageOpen
-    ? resourceViewBuildingFieldIds
-    : villageViewBuildingFieldIds;
-
-  const [resourceFieldComposition, setResourceFieldComposition] =
-    useState<ResourceFieldComposition>('4446');
+  const isResourcesPageOpen = matches.some(
+    (match) => match?.id === 'resources-page',
+  );
+  const isVillagePageOpen = matches.some(
+    (match) => match?.id === 'village-page',
+  );
 
   const renderTooltip = useCallback(
     ({
@@ -101,38 +80,28 @@ const VillagePage: React.FC<Route.ComponentProps> = ({ params }) => {
         <div
           className={clsx(
             'relative aspect-[4/3] scrollbar-hidden max-w-4xl w-full bg-no-repeat bg-center bg-size-[95%]',
-            pageStyles[`rfc-${resourceFieldComposition}`],
+            pageStyles[`rfc-${currentVillage.RFC}`],
           )}
         >
-          {isResourcesPageOpen && (
-            <select
-              className="absolute top-0 left-0"
-              onChange={(e) =>
-                setResourceFieldComposition(
-                  e.target.value as ResourceFieldComposition,
-                )
-              }
-              defaultValue={'4446'}
-            >
-              {resourceFieldCompositions.map((e) => (
-                <option
-                  key={e}
-                  value={e}
-                >
-                  {e}
-                </option>
-              ))}
-            </select>
-          )}
-          {buildingFieldIdsToDisplay.map((buildingFieldId) => (
-            <BuildingField
+          {resourceViewBuildingFieldIds.map((buildingFieldId) => (
+            <Activity
+              mode={isResourcesPageOpen ? 'visible' : 'hidden'}
               key={buildingFieldId}
-              buildingFieldId={buildingFieldId}
-            />
+            >
+              <BuildingField buildingFieldId={buildingFieldId} />
+            </Activity>
+          ))}
+          {villageViewBuildingFieldIds.map((buildingFieldId) => (
+            <Activity
+              mode={isVillagePageOpen ? 'visible' : 'hidden'}
+              key={buildingFieldId}
+            >
+              <BuildingField buildingFieldId={buildingFieldId} />
+            </Activity>
           ))}
           {isResourcesPageOpen && (
             <Link
-              to={villagePath}
+              to="../village"
               className="absolute text-xs lg:size-24 lg:text-sm left-1/2 top-1/2 size-14 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
               aria-label={t('Village')}
             >

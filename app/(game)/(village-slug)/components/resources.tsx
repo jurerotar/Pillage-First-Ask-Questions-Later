@@ -1,19 +1,19 @@
+import { clsx } from 'clsx';
+import type { HTMLAttributes } from 'react';
 import { Icon } from 'app/components/icon';
 import { formatNumber } from 'app/utils/common';
-import clsx from 'clsx';
-import type React from 'react';
 
 type ResourcesProps = {
   resources: number[];
   iconClassName?: string;
-} & React.HTMLAttributes<HTMLSpanElement>;
+} & HTMLAttributes<HTMLSpanElement>;
 
-export const Resources: React.FC<ResourcesProps> = ({
+export const Resources = ({
   resources,
   className,
   iconClassName = 'size-5',
   ...rest
-}) => {
+}: ResourcesProps) => {
   const [wood, clay, iron, wheat] = resources;
 
   return (

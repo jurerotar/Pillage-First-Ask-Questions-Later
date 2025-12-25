@@ -1,5 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/+types/page';
+import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/archived-reports';
+import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
+import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,19 +11,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
-import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/archived-reports';
-import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
-import type React from 'react';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/+types/page';
 
-const ReportsPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const ReportsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
 
   const title = `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -29,7 +26,7 @@ const ReportsPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Reports')}</BreadcrumbItem>

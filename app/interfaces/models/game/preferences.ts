@@ -1,14 +1,10 @@
-import type { AvailableLocale } from 'app/interfaces/models/locale';
+export type TimeOfDay = 'day' | 'night';
 
-type TimeOfDay = 'day' | 'night';
+export type SkinVariant = 'default' | 'snow';
 
-type SkinVariant = 'default' | 'snow';
+export type UIColorScheme = 'light' | 'dark';
 
 export type Preferences = {
-  colorScheme: 'light' | 'dark';
-  locale: AvailableLocale;
-  timeOfDay: TimeOfDay;
-  skinVariant: SkinVariant;
   isAccessibilityModeEnabled: boolean;
   isReducedMotionModeEnabled: boolean;
   shouldShowBuildingNames: boolean;

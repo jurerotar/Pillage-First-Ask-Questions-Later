@@ -1,22 +1,22 @@
+export const LOCALE_COOKIE_NAME = 'pillage-first-locale';
+export const UI_COLOR_SCHEME_COOKIE_NAME = 'pillage-first-ui-color-scheme';
+export const GRAPHICS_SKIN_VARIANT_COOKIE_NAME = 'pillage-first-skin-variant';
+export const GRAPHICS_TIME_OF_DAY_COOKIE_NAME = 'pillage-first-time-of-day';
+
 export const isStandaloneDisplayMode = () => {
   return window.matchMedia('(display-mode: standalone)').matches;
 };
 
-export const _getCookie = async (
-  name: string,
-  fallback: string,
-): Promise<string> => {
-  const cookie = await cookieStore.get(name);
-  return cookie?.value ?? fallback;
-};
-
-export const _setCookie = async (
-  name: string,
-  value: string,
-  days = 365,
+export const setCookie = async <T extends string>(
+  name:
+    | typeof LOCALE_COOKIE_NAME
+    | typeof GRAPHICS_SKIN_VARIANT_COOKIE_NAME
+    | typeof UI_COLOR_SCHEME_COOKIE_NAME
+    | typeof GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+  value: T,
 ): Promise<void> => {
   const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  expires.setTime(expires.getTime() + 365 * 24 * 60 * 60 * 1000);
 
   await cookieStore.set({
     name,

@@ -1,6 +1,7 @@
-import type React from 'react';
-import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
+import { useTranslation } from 'react-i18next';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -9,20 +10,15 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
 
 type TroopTrainingTableProps = {
   buildingId: TroopTrainingBuildingId;
 };
 
-export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
-  buildingId,
-}) => {
+export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { eventsByType } = useEventsByType('troopTraining');
 
   const relevantTrainingEvents = eventsByType.filter((event) => {
@@ -56,8 +52,7 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
 
   const remainingUnitSummary = Object.entries(unitCounts)
     .map(
-      ([unitId, count]) =>
-        `${count} ${assetsT(`UNITS.${unitId}.NAME`, { count })}`,
+      ([unitId, count]) => `${count} ${t(`UNITS.${unitId}.NAME`, { count })}`,
     )
     .join(', ');
 
@@ -88,7 +83,7 @@ export const TroopTrainingTable: React.FC<TroopTrainingTableProps> = ({
                       {/*  type={unitIdToUnitIconMapper(earliestEvent.unitId)}*/}
                       {/*  className="size-4 inline-flex"*/}
                       {/*/>*/}
-                      {assetsT(`UNITS.${earliestEvent.unitId}.NAME`, {
+                      {t(`UNITS.${earliestEvent.unitId}.NAME`, {
                         count: 1,
                       })}
                     </TableCell>

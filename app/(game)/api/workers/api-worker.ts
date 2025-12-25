@@ -1,22 +1,22 @@
 import {
-  dehydrate,
   type DehydratedState,
+  dehydrate,
   hydrate,
   QueryClient,
 } from '@tanstack/react-query';
+import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
+import { matchRoute } from 'app/(game)/api/utils/route-matcher';
+import type {
+  ApiNotificationEvent,
+  EventApiNotificationEvent,
+  WorkerInitializationErrorEvent,
+} from 'app/interfaces/api';
 import {
   enqueueWrite,
   getParsedFileContents,
   getRootHandle,
   writeFileContents,
 } from 'app/utils/opfs';
-import { matchRoute } from 'app/(game)/api/utils/route-matcher';
-import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
-import type {
-  ApiNotificationEvent,
-  EventApiNotificationEvent,
-  WorkerInitializationErrorEvent,
-} from 'app/interfaces/api';
 
 try {
   const urlParams = new URLSearchParams(self.location.search);

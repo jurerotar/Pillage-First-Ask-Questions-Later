@@ -1,19 +1,23 @@
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
-import type { ReportType } from 'app/interfaces/models/game/report';
-import type React from 'react';
 import { useTranslation } from 'react-i18next';
+import { BsShieldFill } from 'react-icons/bs';
+import { CiBag1 } from 'react-icons/ci';
+import { GiSpyglass } from 'react-icons/gi';
+import { LuScale, LuSword } from 'react-icons/lu';
+import { PiPathBold } from 'react-icons/pi';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
+import type { ReportType } from 'app/interfaces/models/game/report';
 
 type ReportFiltersProps = {
   reportFilters: ReportType[];
   onChange: (reportFilters: ReportType[]) => void;
 };
 
-export const ReportFilters: React.FC<ReportFiltersProps> = ({
+export const ReportFilters = ({
   reportFilters,
   onChange,
-}) => {
+}: ReportFiltersProps) => {
   const { t } = useTranslation();
 
   return (
@@ -31,49 +35,49 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
           data-tooltip-content={t('Toggle attack reports')}
           value="attack"
         >
-          <i className="icon icon-[lu-swords] size-4" />
+          <LuSword className="size-4" />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle raid reports')}
           value="raid"
         >
-          <i className="icon icon-[ci-bag1] size-4" />
+          <CiBag1 className="size-4" />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle defence reports')}
           value="defence"
         >
-          <i className="icon icon-[bs-shield-fill] size-4" />
+          <BsShieldFill className="size-4" />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle scouting reports')}
           value="scout-attack"
         >
-          <i className="icon icon-[gi-spyglass] size-4" />
+          <GiSpyglass className="size-4" />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle scouting defence reports')}
           value="scout-defence"
         >
-          <i className="icon icon-[gi-spyglass] size-4" />
+          <GiSpyglass className="size-4" />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle adventure reports')}
           value="adventure"
         >
-          <i className="icon icon-[pi-path-bold] size-4" />
+          <PiPathBold className="size-4" />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle trade reports')}
           value="trade"
         >
-          <i className="icon icon-[lu-scale] size-4" />
+          <LuScale className="size-4" />
         </ToggleGroupItem>
       </ToggleGroup>
     </SectionContent>

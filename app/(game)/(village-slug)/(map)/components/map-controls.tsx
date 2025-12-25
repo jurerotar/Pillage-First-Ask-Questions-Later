@@ -1,14 +1,14 @@
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
+import { clsx } from 'clsx';
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
-  MapContext,
   MAX_MAGNIFICATION,
+  MapContext,
   MIN_MAGNIFICATION,
 } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { Icon } from 'app/components/icon';
-import clsx from 'clsx';
-import { use } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
 const MagnificationButton = ({
   direction,

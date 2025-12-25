@@ -1,12 +1,15 @@
-import {
-  type Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from 'app/components/ui/dialog';
-import type React from 'react';
+import type { ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
+import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
+import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
   isOasisTile,
@@ -15,7 +18,18 @@ import {
   isOccupiedOasisTile,
   isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
+import {
+  type Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
+import { PLAYER_ID } from 'app/constants/player';
 import type {
   OasisResourceBonus,
   OasisTile,
@@ -23,31 +37,18 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import { useTranslation } from 'react-i18next';
-import { parseRFCFromTile } from 'app/utils/map';
-import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { Button } from 'app/components/ui/button';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { Text } from 'app/components/text';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
-import { isPlayerVillage } from 'app/(game)/(village-slug)/(map)/guards/village-guard';
 import {
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import { useNavigate } from 'react-router';
-import { PLAYER_ID } from 'app/constants/player';
+  calculateDistanceBetweenPoints,
+  roundToNDecimalPoints,
+} from 'app/utils/common';
+import { parseRFCFromTile } from 'app/utils/map';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
 };
 
-const TileModalResources: React.FC<TileModalResourcesProps> = ({ tile }) => {
-  const resources = parseRFCFromTile(tile.RFC, 'number');
+const TileModalResources = ({ tile }: TileModalResourcesProps) => {
+  const resources = parseRFCFromTile(tile.RFC);
   return (
     <div className="flex justify-start text-sm">
       <Resources
@@ -62,10 +63,16 @@ type TileModalProps = {
   tile: Tile;
 };
 
-const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
+const TileModalLocation = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
-  const { getDistanceFromCurrentVillage } = useCurrentVillage();
-  const distance = getDistanceFromCurrentVillage(tile.coordinates);
+  const { currentVillage } = useCurrentVillage();
+
+  const distance = roundToNDecimalPoints(
+    calculateDistanceBetweenPoints(
+      currentVillage.coordinates,
+      tile.coordinates,
+    ),
+  );
   const { x, y } = tile.coordinates;
 
   return (
@@ -75,9 +82,8 @@ const TileModalLocation: React.FC<TileModalProps> = ({ tile }) => {
   );
 };
 
-const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
+const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { player, reputation, population } = useTilePlayer(tile.id);
 
   const { name, tribe } = player;
@@ -91,16 +97,16 @@ const TileModalPlayerInfo: React.FC<TileModalProps> = ({ tile }) => {
       {faction !== 'player' && (
         <>
           <span>
-            {t('Faction')} - {assetsT(`FACTIONS.${faction.toUpperCase()}`)}
+            {t('Faction')} - {t(`FACTIONS.${faction.toUpperCase()}`)}
           </span>
           <span>
             {t('Reputation')} -{' '}
-            {assetsT(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
           </span>
         </>
       )}
       <span>
-        {t('Tribe')} - {assetsT(`TRIBES.${tribe.toUpperCase()}`)}
+        {t('Tribe')} - {t(`TRIBES.${tribe.toUpperCase()}`)}
       </span>
       <span>
         {t('Population')} - {population}
@@ -113,9 +119,8 @@ type OasisTileModalProps = {
   tile: OasisTile;
 };
 
-const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
+const OasisTileModal = ({ tile }: OasisTileModalProps) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { getVillageByOasis } = useVillages();
 
   const isOccupiable = isOccupiableOasisTile(tile);
@@ -174,7 +179,7 @@ const OasisTileModal: React.FC<OasisTileModalProps> = ({ tile }) => {
               t(
                 'This is an occupiable oasis. You can occupy this oasis by upgrading {{herosMansion}} to levels 10, 15 or 20.',
                 {
-                  herosMansion: assetsT('BUILDINGS.HEROS_MANSION.NAME'),
+                  herosMansion: t('BUILDINGS.HEROS_MANSION.NAME'),
                 },
               )}
           </>
@@ -188,7 +193,7 @@ type OccupiableTileModalProps = {
   tile: OccupiableTile;
 };
 
-const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
+const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
 
@@ -208,7 +213,6 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       movementType: 'find-new-village',
       targetId: tile.id,
       troops: [],
-      cachesToClearOnResolve: [playerVillagesCacheKey],
       cachesToClearImmediately: [playerTroopsCacheKey],
     });
   };
@@ -227,6 +231,7 @@ const OccupiableTileModal: React.FC<OccupiableTileModalProps> = ({ tile }) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
+        <Text>{t('No actions available')}</Text>
         {hasOngoingVillageFindEventOnThisTile && (
           <span className="text-gray-500">
             {t('Settlers are already on route to this location')}
@@ -250,9 +255,9 @@ type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
 };
 
-const OccupiedOccupiableTileModal: React.FC<
-  OccupiedOccupiableTileModalProps
-> = ({ tile }) => {
+const OccupiedOccupiableTileModal = ({
+  tile,
+}: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { getVillageByCoordinates } = useVillages();
@@ -304,6 +309,7 @@ const OccupiedOccupiableTileModal: React.FC<
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
+        {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
           <>
             <Button
@@ -329,11 +335,11 @@ const OccupiedOccupiableTileModal: React.FC<
   );
 };
 
-type TileDialogProps = React.ComponentProps<typeof Dialog> & {
+type TileDialogProps = ComponentProps<typeof Dialog> & {
   tile: Tile | null;
 };
 
-export const TileDialog: React.FC<TileDialogProps> = ({ tile }) => {
+export const TileDialog = ({ tile }: TileDialogProps) => {
   if (!tile) {
     return null;
   }

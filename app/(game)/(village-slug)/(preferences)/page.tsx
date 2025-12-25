@@ -1,6 +1,9 @@
-import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(preferences)/+types/page';
+import { GeneralPreferences } from 'app/(game)/(village-slug)/(preferences)/components/general-preferences';
+import { NotificationPreferences } from 'app/(game)/(village-slug)/(preferences)/components/notification-preferences';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,18 +11,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import type React from 'react';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(preferences)/+types/page';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { GeneralPreferences } from 'app/(game)/(village-slug)/(preferences)/components/general-preferences';
-import { NotificationPreferences } from 'app/(game)/(village-slug)/(preferences)/components/notification-preferences';
 
-const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const PreferencesPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
 
   const tabs = ['default', 'notifications'];
 
@@ -33,7 +30,7 @@ const PreferencesPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Preferences')}</BreadcrumbItem>

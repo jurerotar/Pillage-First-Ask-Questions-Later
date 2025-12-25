@@ -1,30 +1,32 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
+import { useTranslation } from 'react-i18next';
+import {
+  getQuestTexts,
+  groupQuestsById,
+} from 'app/(game)/(village-slug)/(quests)/utils/quests';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import {
   isHeroExperienceQuestReward,
   isQuestCollectable,
   isResourceQuestReward,
   wasQuestCollected,
 } from 'app/(game)/guards/quest-guards';
+import { getQuestRewards } from 'app/assets/utils/quests';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import type React from 'react';
+import { Pagination } from 'app/components/ui/pagination';
 import type {
   Quest,
   QuestReward as QuestRewardType,
 } from 'app/interfaces/models/game/quest';
-import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
-import { useTranslation } from 'react-i18next';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import {
-  getQuestTexts,
-  groupQuestsById,
-} from 'app/(game)/(village-slug)/(quests)/utils/quests';
-import { Text } from 'app/components/text';
 
 type QuestRewardProps = {
   reward: QuestRewardType;
 };
 
-const QuestReward: React.FC<QuestRewardProps> = ({ reward }) => {
+const QuestReward = ({ reward }: QuestRewardProps) => {
   if (isResourceQuestReward(reward)) {
     const { amount } = reward;
     return <Resources resources={[amount, amount, amount, amount]} />;
@@ -42,9 +44,8 @@ type QuestListProps = {
   quests: Quest[];
 };
 
-export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
+export const QuestList = ({ quests }: QuestListProps) => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
   const { completeQuest } = useQuests();
 
   const grouped = groupQuestsById(quests);
@@ -69,77 +70,74 @@ export const QuestList: React.FC<QuestListProps> = ({ quests }) => {
     return 0;
   });
 
-  // TODO: Add quests groups (resources, infrastructure, military,...) to split up quest list a bit
-  // TODO: Extract QuestGroup and Quest
+  const questsToShow: Quest[] = [];
+
+  for (const sortedGroup of sortedGroups) {
+    for (const quest of sortedGroup.quests) {
+      if (quest.collectedAt !== null) {
+        continue;
+      }
+
+      questsToShow.push(quest);
+      break;
+    }
+  }
+
+  const pagination = usePagination<Quest>(questsToShow, 10);
+
   return (
-    <div className="space-y-2">
-      {sortedGroups.map((group) => (
-        <details
-          key={group.groupKey}
-          className={clsx('border rounded-xs shadow-xs')}
-        >
-          <summary
+    <>
+      {pagination.currentPageItems.map((quest) => {
+        const isCollectable = isQuestCollectable(quest);
+        const isCollected = wasQuestCollected(quest);
+        const { title, description } = getQuestTexts(quest.id, t);
+
+        const rewards = getQuestRewards(quest.id);
+
+        return (
+          <div
+            key={quest.id}
             className={clsx(
-              'flex items-center justify-between cursor-pointer text-lg font-semibold py-2 px-4',
-              group.allCollected && 'opacity-50',
-              group.hasCollectible && 'bg-yellow-100',
+              'border rounded-xs p-2 shadow-xs',
+              isCollected && 'opacity-50',
+              isCollectable && 'bg-yellow-100',
             )}
           >
-            <span>
-              {getQuestTexts(group.groupKey, assetsT).group} ({group.doneQuests}
-              /{group.totalQuests})
-            </span>
-          </summary>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+              <div className="flex flex-col gap-2">
+                <Text className="font-semibold">{title}</Text>
+                <Text>{description}</Text>
+                <div className="inline-flex gap-2">
+                  <Text className="font-medium">{t('Reward')}:</Text>
 
-          <div className="mt-2 space-y-2 px-2">
-            {group.quests.map((quest) => {
-              const isCollectable = isQuestCollectable(quest);
-              const isCollected = wasQuestCollected(quest);
-              const { title, description } = getQuestTexts(quest.id, assetsT);
-
-              return (
-                <details
-                  key={quest.id}
-                  className={clsx(
-                    'border rounded-xs p-2 px-4 shadow-xs',
-                    isCollected && 'opacity-50',
-                    isCollectable && 'bg-yellow-100',
-                  )}
-                >
-                  <summary className="cursor-pointer font-semibold">
-                    {title}
-                  </summary>
-
-                  <div className="flex flex-col gap-2 mt-3">
-                    <Text>{description}</Text>
-                    <Text>{t('Reward')}</Text>
-
-                    <div className="flex flex-col gap-2">
-                      {quest.rewards.map((reward) => (
-                        <QuestReward
-                          key={reward.type}
-                          reward={reward}
-                        />
-                      ))}
-                    </div>
-
-                    {isCollectable && (
-                      <Button
-                        variant="default"
-                        onClick={() => completeQuest({ questId: quest.id })}
-                        type="button"
-                        className="mt-3 w-fit"
-                      >
-                        {t('Collect reward')}
-                      </Button>
-                    )}
+                  <div className="flex flex-col gap-2">
+                    {rewards.map((reward) => (
+                      <QuestReward
+                        key={reward.type}
+                        reward={reward}
+                      />
+                    ))}
                   </div>
-                </details>
-              );
-            })}
+                </div>
+              </div>
+
+              {isCollectable && (
+                <Button
+                  variant="default"
+                  onClick={() => completeQuest({ questId: quest.id })}
+                  type="button"
+                  size="fit"
+                >
+                  {t('Collect reward')}
+                </Button>
+              )}
+            </div>
           </div>
-        </details>
-      ))}
-    </div>
+        );
+      })}
+      <div className="flex w-full justify-end">
+        <Pagination {...pagination} />
+      </div>
+    </>
   );
 };

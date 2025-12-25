@@ -1,35 +1,34 @@
+import { useWindowEvent } from '@mantine/hooks';
+import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useSearchParams } from 'react-router';
+import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import {
+  FixedSizeGrid,
+  FixedSizeList,
+  type GridOnScrollProps,
+} from 'react-window';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
+import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { TileTooltip } from 'app/(game)/(village-slug)/(map)/components/tile-tooltip';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
   MapContext,
   MapProvider,
 } from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Tooltip } from 'app/components/tooltip';
+import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
+import { useWindowSize } from 'app/hooks/use-window-size';
 import type { Point } from 'app/interfaces/models/common';
 import type { Tile as TileType } from 'app/interfaces/models/game/tile';
-import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router';
-import { useSearchParams } from 'react-router';
-import {
-  FixedSizeGrid,
-  FixedSizeList,
-  type GridOnScrollProps,
-} from 'react-window';
-import { useEventListener, useWindowSize } from 'usehooks-ts';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { isStandaloneDisplayMode } from 'app/utils/device';
-import { Dialog } from 'app/components/ui/dialog';
-import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
-import { useTranslation } from 'react-i18next';
-import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -43,7 +42,7 @@ const MapPage = () => {
     modalArgs,
   } = useDialog<TileType | null>();
   const { contextualMap, getTileByTileId } = useMap();
-  const { height, width } = useWindowSize({ debounceDelay: 150 });
+  const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
@@ -53,8 +52,8 @@ const MapPage = () => {
 
   const { x, y } = currentVillage.coordinates;
 
-  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`);
-  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`);
+  const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
+  const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
 
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -65,12 +64,10 @@ const MapPage = () => {
   const leftMapRulerRef = useRef<FixedSizeList>(null);
   const bottomMapRulerRef = useRef<FixedSizeList>(null);
 
-  const isPwa = isStandaloneDisplayMode();
-
   /**
    * List of individual contributions
    * Desktop:
-   *  - Header is 76px tall
+   *  - Header is 80px tall
    * Mobile:
    *  - Top navigation is 128px tall
    *   - Navigation section is 63px tall
@@ -78,9 +75,7 @@ const MapPage = () => {
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
    *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
    */
-  const mapHeight = isWiderThanLg
-    ? height - 76
-    : height - 218 - (isPwa ? 48 : 0);
+  const mapHeight = isWiderThanLg ? height - 80 : height - 218;
 
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
@@ -142,40 +137,30 @@ const MapPage = () => {
     return () => {
       controller.abort();
     };
-  }, [mapRef.current, tileSize]);
+  }, [tileSize]);
 
-  useEventListener(
-    'mousemove',
-    ({ clientX, clientY }) => {
-      if (!isScrolling.current || !mapRef.current) {
-        return;
-      }
+  useWindowEvent('mousemove', ({ clientX, clientY }) => {
+    if (!isScrolling.current || !mapRef.current) {
+      return;
+    }
 
-      const deltaX = clientX - mouseDownPosition.current.x;
-      const deltaY = clientY - mouseDownPosition.current.y;
+    const deltaX = clientX - mouseDownPosition.current.x;
+    const deltaY = clientY - mouseDownPosition.current.y;
 
-      const currentX = mapRef.current.scrollLeft;
-      const currentY = mapRef.current.scrollTop;
+    const currentX = mapRef.current.scrollLeft;
+    const currentY = mapRef.current.scrollTop;
 
-      mouseDownPosition.current = {
-        x: clientX,
-        y: clientY,
-      };
+    mouseDownPosition.current = {
+      x: clientX,
+      y: clientY,
+    };
 
-      mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    window,
-  );
+    mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+  });
 
-  useEventListener(
-    'mouseup',
-    () => {
-      isScrolling.current = false;
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    window,
-  );
+  useWindowEvent('mouseup', () => {
+    isScrolling.current = false;
+  });
 
   const scrollLeft = (tileX: number) => {
     return tileSize * (tileX + gridSize / 2) - width / 2;
@@ -248,7 +233,7 @@ const MapPage = () => {
         return null;
       }
 
-      const tile = getTileByTileId(Number.parseInt(tileId));
+      const tile = getTileByTileId(Number.parseInt(tileId, 10));
       return <TileTooltip tile={tile} />;
     },
     [getTileByTileId],

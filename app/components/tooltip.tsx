@@ -1,11 +1,10 @@
-import clsx from 'clsx';
-import type React from 'react';
+import { clsx } from 'clsx';
 import {
-  type ITooltip as ReactTooltipProps,
   Tooltip as ReactTooltip,
+  type ITooltip as ReactTooltipProps,
 } from 'react-tooltip';
 
-export const Tooltip: React.FC<ReactTooltipProps> = (props) => {
+export const Tooltip = (props: ReactTooltipProps) => {
   const { className, ...rest } = props;
 
   return (

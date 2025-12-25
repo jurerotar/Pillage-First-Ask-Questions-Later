@@ -1,35 +1,27 @@
-import type { Resource } from 'app/interfaces/models/game/resource';
-import type { Village } from 'app/interfaces/models/game/village';
-import { differenceInSeconds } from 'date-fns';
-
-export type CalculateCurrentAmountArgs = {
-  village: Village;
-  resource: Resource;
+type CalculateCurrentAmountArgs = {
+  lastKnownResourceAmount: number;
+  lastUpdatedAt: number;
   hourlyProduction: number;
   storageCapacity: number;
   timestamp?: number;
 };
 
 export const calculateCurrentAmount = ({
-  village,
-  resource,
+  lastKnownResourceAmount,
+  lastUpdatedAt,
   hourlyProduction,
   storageCapacity,
   timestamp = Date.now(),
 }: CalculateCurrentAmountArgs) => {
-  const { resources, lastUpdatedAt } = village;
-  const resourceAmount = resources[resource];
-
-  const timeSinceLastUpdateInSeconds = differenceInSeconds(
-    new Date(timestamp),
-    new Date(lastUpdatedAt),
+  const timeSinceLastUpdateInSeconds = Math.trunc(
+    (timestamp - lastUpdatedAt) / 1000,
   );
 
   if (hourlyProduction === 0) {
     return {
       timeSinceLastUpdateInSeconds,
       secondsForResourceGeneration: Number.POSITIVE_INFINITY,
-      currentAmount: resourceAmount,
+      currentAmount: lastKnownResourceAmount,
       lastEffectiveUpdate: lastUpdatedAt,
     };
   }
@@ -40,7 +32,7 @@ export const calculateCurrentAmount = ({
     timeSinceLastUpdateInSeconds / secondsForResourceGeneration,
   );
   const delta = producedResources * (hasNegativeProduction ? -1 : 1);
-  const calculatedCurrentAmount = resourceAmount + delta;
+  const calculatedCurrentAmount = lastKnownResourceAmount + delta;
   const currentAmount = hasNegativeProduction
     ? Math.max(calculatedCurrentAmount, 0)
     : Math.min(calculatedCurrentAmount, storageCapacity);

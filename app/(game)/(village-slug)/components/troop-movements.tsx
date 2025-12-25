@@ -1,14 +1,14 @@
+import { clsx } from 'clsx';
+import { Suspense } from 'react';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { Icon } from 'app/components/icon';
+import type { IconType } from 'app/components/icons/icons';
+import { Separator } from 'app/components/ui/separator';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Village } from 'app/interfaces/models/game/village';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type React from 'react';
-import type { IconType } from 'app/components/icons/icon-maps';
-import { Icon } from 'app/components/icon';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { Separator } from 'app/components/ui/separator';
-import clsx from 'clsx';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 
 type TroopMovementProps = {
   type: Extract<
@@ -23,7 +23,7 @@ type TroopMovementProps = {
   events: GameEvent<'troopMovement'>[];
 };
 
-const TroopMovement: React.FC<TroopMovementProps> = ({ type, events }) => {
+const TroopMovement = ({ type, events }: TroopMovementProps) => {
   if (events.length === 0) {
     return null;
   }
@@ -110,15 +110,10 @@ const partitionTroopMovementEvents = (
   };
 };
 
-export const TroopMovements = () => {
+const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { eventsByType: troopMovementEvents } =
     useEventsByType('troopMovement');
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const {
     findNewVillageMovementEvents,
@@ -130,7 +125,7 @@ export const TroopMovements = () => {
   } = partitionTroopMovementEvents(troopMovementEvents, currentVillage.id);
 
   return (
-    <div className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-29 lg:top-40 z-20">
+    <aside className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-29 lg:top-40 z-20">
       <TroopMovement
         type="findNewVillage"
         events={findNewVillageMovementEvents}
@@ -155,6 +150,20 @@ export const TroopMovements = () => {
         type="offensiveMovementIncoming"
         events={incomingOffensiveMovementEvents}
       />
-    </div>
+    </aside>
+  );
+};
+
+export const TroopMovements = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <TroopMovementsContent />
+    </Suspense>
   );
 };

@@ -1,10 +1,22 @@
-import type { Building } from 'app/interfaces/models/game/building';
-import type React from 'react';
-import { use } from 'react';
-import { lazy, Suspense } from 'react';
+import { type JSX, type LazyExoticComponent, Suspense, use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import {
+  BuildingBenefits,
+  BuildingCard,
+  BuildingCost,
+  BuildingOverview,
+  BuildingUnfinishedNotice,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,23 +24,10 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
 import { Skeleton } from 'app/components/ui/skeleton';
-import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import {
-  BuildingBenefits,
-  BuildingCard,
-  BuildingCost,
-  BuildingOverview,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import type { Building } from 'app/interfaces/models/game/building';
+import { lazyWithRetry } from 'app/utils/imports';
 
 const BuildingTabFallback = () => {
   return (
@@ -44,109 +43,139 @@ const BuildingTabFallback = () => {
   );
 };
 
-const BuildingStats = lazy(async () => ({
-  default: (await import('./components/building-stats')).BuildingStats,
+const BuildingStats = lazyWithRetry(async () => ({
+  default: (await import('./components/building-stats/building-stats'))
+    .BuildingStats,
 }));
 
-const MainBuildingVillageManagement = lazy(async () => ({
-  default: (await import('./components/main-building-village-management'))
-    .MainBuildingVillageManagement,
+const MainBuildingVillageManagement = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/main-building/main-building-village-management')
+  ).MainBuildingVillageManagement,
 }));
 
-const RallyPointTroopMovements = lazy(async () => ({
-  default: (await import('./components/rally-point-troop-movements'))
-    .RallyPointTroopMovements,
+const RallyPointTroopMovements = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/rally-point/rally-point-troop-movements')
+  ).RallyPointTroopMovements,
 }));
 
-const RallyPointSendTroops = lazy(async () => ({
-  default: (await import('./components/rally-point-send-troops'))
+const RallyPointSendTroops = lazyWithRetry(async () => ({
+  default: (await import('./components/rally-point/rally-point-send-troops'))
     .RallyPointSendTroops,
 }));
 
-const RallyPointSimulator = lazy(async () => ({
-  default: (await import('./components/rally-point-simulator'))
+const RallyPointSimulator = lazyWithRetry(async () => ({
+  default: (await import('./components/rally-point/rally-point-simulator'))
     .RallyPointSimulator,
 }));
 
-const PalaceTrainSettler = lazy(async () => ({
-  default: (await import('./components/palace-settler-training'))
+const PalaceTrainSettler = lazyWithRetry(async () => ({
+  default: (await import('./components/palace/palace-settler-training'))
     .PalaceSettlerTraining,
 }));
 
-const PalaceLoyalty = lazy(async () => ({
-  default: (await import('./components/palace-loyalty')).PalaceLoyalty,
+const PalaceLoyalty = lazyWithRetry(async () => ({
+  default: (await import('./components/palace/palace-loyalty')).PalaceLoyalty,
 }));
 
-const PalaceExpansion = lazy(async () => ({
-  default: (await import('./components/palace-expansion')).PalaceExpansion,
+const PalaceExpansion = lazyWithRetry(async () => ({
+  default: (await import('./components/palace/palace-expansion'))
+    .PalaceExpansion,
 }));
 
-const TreasuryArtifacts = lazy(async () => ({
-  default: (await import('./components/treasury-artifacts')).TreasuryArtifacts,
+const TreasuryArtifacts = lazyWithRetry(async () => ({
+  default: (await import('./components/treasury/treasury-artifacts'))
+    .TreasuryArtifacts,
 }));
 
-const MarketplaceBuy = lazy(async () => ({
-  default: (await import('./components/marketplace-trade')).MarketplaceTrade,
+const EmbassyRelations = lazyWithRetry(async () => ({
+  default: (await import('./components/embassy/embassy-relations'))
+    .EmbassyRelations,
 }));
 
-const MarketplaceTradeRoutes = lazy(async () => ({
-  default: (await import('./components/marketplace-trade-routes'))
+const TownHallCelebrations = lazyWithRetry(async () => ({
+  default: (await import('./components/town-hall/town-hall-celebrations'))
+    .TownHallCelebrations,
+}));
+
+const MarketplaceBuy = lazyWithRetry(async () => ({
+  default: (await import('./components/marketplace/marketplace-trade'))
+    .MarketplaceTrade,
+}));
+
+const MarketplaceTradeRoutes = lazyWithRetry(async () => ({
+  default: (await import('./components/marketplace/marketplace-trade-routes'))
     .MarketplaceTradeRoutes,
 }));
 
-const AcademyUnitResearch = lazy(async () => ({
-  default: (await import('./components/academy-unit-research'))
+const AcademyUnitResearch = lazyWithRetry(async () => ({
+  default: (await import('./components/academy/academy-unit-research'))
     .AcademyUnitResearch,
 }));
 
-const SmithyUnitImprovement = lazy(async () => ({
-  default: (await import('./components/smithy-unit-improvement'))
+const SmithyUnitImprovement = lazyWithRetry(async () => ({
+  default: (await import('./components/smithy/smithy-unit-improvement'))
     .SmithyUnitImprovement,
 }));
 
-const HerosMansionOasis = lazy(async () => ({
-  default: (await import('./components/heros-mansion-oasis')).HerosMansionOasis,
+const HerosMansionOasis = lazyWithRetry(async () => ({
+  default: (await import('./components/heros-mansion/heros-mansion-oasis'))
+    .HerosMansionOasis,
 }));
 
-const BreweryCelebration = lazy(async () => ({
-  default: (await import('./components/brewery-celebrations'))
+const BreweryCelebration = lazyWithRetry(async () => ({
+  default: (await import('./components/brewery/brewery-celebrations'))
     .BreweryCelebration,
 }));
 
-const BarracksTroopTraining = lazy(async () => ({
-  default: (await import('./components/barracks-troop-training'))
-    .BarracksTroopTraining,
+const BarracksTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/unit-production-buildings/barracks-troop-training'
+    )
+  ).BarracksTroopTraining,
 }));
 
-const GreatBarracksTroopTraining = lazy(async () => ({
-  default: (await import('./components/great-barracks-troop-training'))
-    .GreatBarracksTroopTraining,
+const GreatBarracksTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/unit-production-buildings/great-barracks-troop-training'
+    )
+  ).GreatBarracksTroopTraining,
 }));
 
-const StableTroopTraining = lazy(async () => ({
-  default: (await import('./components/stable-troop-training'))
-    .StableTroopTraining,
+const StableTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/unit-production-buildings/stable-troop-training')
+  ).StableTroopTraining,
 }));
 
-const GreatStableTroopTraining = lazy(async () => ({
-  default: (await import('./components/great-stable-troop-training'))
-    .GreatStableTroopTraining,
+const GreatStableTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/unit-production-buildings/great-stable-troop-training'
+    )
+  ).GreatStableTroopTraining,
 }));
 
-const WorkshopTroopTraining = lazy(async () => ({
-  default: (await import('./components/workshop-troop-training'))
-    .WorkshopTroopTraining,
+const WorkshopTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/unit-production-buildings/workshop-troop-training'
+    )
+  ).WorkshopTroopTraining,
 }));
 
-const HospitalTroopTraining = lazy(async () => ({
-  default: (await import('./components/hospital-troop-training'))
-    .HospitalTroopTraining,
+const HospitalTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/unit-production-buildings/hospital-troop-training'
+    )
+  ).HospitalTroopTraining,
 }));
 
-const palaceTabs = new Map<
-  string,
-  React.LazyExoticComponent<() => React.JSX.Element>
->([
+const palaceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([
   ['train-settlers', PalaceTrainSettler],
   ['loyalty', PalaceLoyalty],
   ['expansion', PalaceExpansion],
@@ -154,7 +183,7 @@ const palaceTabs = new Map<
 
 const buildingDetailsTabMap = new Map<
   Building['id'],
-  Map<string, React.LazyExoticComponent<() => React.JSX.Element>>
+  Map<string, LazyExoticComponent<() => JSX.Element>>
 >([
   [
     'MAIN_BUILDING',
@@ -169,6 +198,8 @@ const buildingDetailsTabMap = new Map<
     ]),
   ],
   ['TREASURY', new Map([['artifacts', TreasuryArtifacts]])],
+  ['EMBASSY', new Map([['relations', EmbassyRelations]])],
+  ['TOWN_HALL', new Map([['celebrations', TownHallCelebrations]])],
   [
     'MARKETPLACE',
     new Map([
@@ -204,17 +235,17 @@ const buildingDetailsTabMap = new Map<
 // t('unit-improvement')
 // t('oasis')
 // t('celebration')
+// t('celebrations')
+// t('relations')
 // t('train')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { t: assetsT } = useTranslation();
-  const { t: dynamicT } = useTranslation();
-  const { buildingId, id: buildingFieldId } = use(BuildingContext);
-  const { villagePath, resourcesPath } = useGameNavigation();
-  const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
+  const { buildingField, buildingFieldId } = use(BuildingFieldContext);
 
-  const parentLink = buildingFieldId! > 18 ? villagePath : resourcesPath;
+  const buildingId = buildingField!.buildingId;
+
+  const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId!);
 
   const tabs = Array.from([
     'default',
@@ -230,23 +261,23 @@ export const BuildingDetails = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
+  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
+
   return (
     <>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={parentLink}>
-              {buildingFieldId! > 18 ? t('Village') : t('Resources')}
+            <BreadcrumbLink to={backlinkTarget}>
+              {buildingFieldId > 18 ? t('Village') : t('Resources')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            {assetsT(`BUILDINGS.${buildingId}.NAME`)}
-          </BreadcrumbItem>
+          <BreadcrumbItem>{t(`BUILDINGS.${buildingId}.NAME`)}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">
-        {assetsT(`BUILDINGS.${buildingId}.NAME`)} -{' '}
+        {t(`BUILDINGS.${buildingId}.NAME`)} -{' '}
         {t('level {{level}}', { level: actualLevel })}
       </Text>
       <div className="flex flex-col gap-2">
@@ -260,7 +291,7 @@ export const BuildingDetails = () => {
           <TabList>
             <Tab>{t('Overview')}</Tab>
             {buildingSpecificTabs.map((name: string) => (
-              <Tab key={name}>{dynamicT(name)}</Tab>
+              <Tab key={name}>{t(name)}</Tab>
             ))}
             <Tab>{t('Upgrade details')}</Tab>
           </TabList>
@@ -270,11 +301,12 @@ export const BuildingDetails = () => {
                 <Bookmark tab="default" />
                 <Text as="h2">
                   {t('{{buildingName}} overview', {
-                    buildingName: assetsT(`BUILDINGS.${buildingId}.NAME`),
+                    buildingName: t(`BUILDINGS.${buildingId}.NAME`),
                   })}
                 </Text>
                 <BuildingCard buildingId={buildingId}>
-                  <BuildingOverview />
+                  <BuildingOverview shouldShowTitle={false} />
+                  <BuildingUnfinishedNotice />
                   <BuildingBenefits />
                   <BuildingCost />
                   <BuildingActions />

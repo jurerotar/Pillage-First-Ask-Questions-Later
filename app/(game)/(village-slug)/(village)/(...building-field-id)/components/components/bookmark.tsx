@@ -1,17 +1,18 @@
-import type React from 'react';
 import { use } from 'react';
-import { BuildingContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-provider';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa6';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
 import { Button } from 'app/components/ui/button';
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa6';
 
 type BookmarkProps = {
   tab: string;
 };
 
-export const Bookmark: React.FC<BookmarkProps> = ({ tab }) => {
-  const { buildingId } = use(BuildingContext);
+export const Bookmark = ({ tab }: BookmarkProps) => {
+  const { buildingField } = use(BuildingFieldContext);
   const { bookmarks, updateBookmark } = useBookmarks();
+
+  const buildingId = buildingField!.buildingId;
 
   const isSelected = bookmarks[buildingId] === tab;
 

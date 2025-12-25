@@ -1,11 +1,12 @@
-import type React from 'react';
+import { clsx } from 'clsx';
 import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
+import type { ComponentProps } from 'react';
 import { LuCircle } from 'react-icons/lu';
-import clsx from 'clsx';
 
-export const RadioGroup: React.FC<
-  React.ComponentProps<typeof RadioGroupPrimitive.Root>
-> = ({ className, ...props }) => {
+export const RadioGroup = ({
+  className,
+  ...props
+}: ComponentProps<typeof RadioGroupPrimitive.Root>) => {
   return (
     <RadioGroupPrimitive.Root
       data-slot="radio-group"
@@ -15,9 +16,10 @@ export const RadioGroup: React.FC<
   );
 };
 
-export const RadioGroupItem: React.FC<
-  React.ComponentProps<typeof RadioGroupPrimitive.Item>
-> = ({ className, ...props }) => {
+export const RadioGroupItem = ({
+  className,
+  ...props
+}: ComponentProps<typeof RadioGroupPrimitive.Item>) => {
   return (
     <RadioGroupPrimitive.Item
       data-slot="radio-group-item"

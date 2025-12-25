@@ -1,29 +1,20 @@
-import { Links, Outlet, Scripts } from 'react-router';
-import { StateProvider } from 'app/providers/state-provider';
-import type { Route } from '.react-router/types/app/+types/root';
+import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import { initFaro } from 'app/faro';
+import { StateProvider } from 'app/providers/state-provider';
 import 'app/localization/i18n';
 import 'app/styles/app.css';
+import { env } from 'app/env';
+import { clientSessionMiddleware } from 'app/middleware/client-session-middleware';
 
 await initFaro();
 
-const clientSessionMiddleware: Route.unstable_ClientMiddlewareFunction =
-  async ({ context }) => {
-    const { sessionContext } = await import('app/context/session');
-
-    const sessionCtx = context.get(sessionContext);
-    if (!sessionCtx.sessionId) {
-      sessionCtx.sessionId = window.crypto.randomUUID();
-    }
-  };
-
-export const unstable_clientMiddleware = [clientSessionMiddleware];
+export const clientMiddleware = [clientSessionMiddleware];
 
 export const Layout = () => {
   return (
     <html lang="en-US">
       <head>
-        {import.meta.env.MODE === 'production' && (
+        {env.MODE === 'production' && (
           <>
             <link
               rel="manifest"
@@ -31,7 +22,7 @@ export const Layout = () => {
             />
             <link
               rel="preconnect"
-              href={import.meta.env.VITE_FARO_INGEST_ENDPOINT}
+              href={env.VITE_FARO_INGEST_ENDPOINT}
               crossOrigin="anonymous"
             />
           </>
@@ -39,17 +30,17 @@ export const Layout = () => {
         <link
           rel="icon"
           type="image/png"
-          href={`/favicon-96x96.png?v=${import.meta.env.GRAPHICS_VERSION}`}
+          href={`/favicon-96x96.png?v=${env.GRAPHICS_VERSION}`}
           sizes="96x96"
         />
         <link
           rel="shortcut icon"
-          href={`/favicon.ico?v=${import.meta.env.GRAPHICS_VERSION}`}
+          href={`/favicon.ico?v=${env.GRAPHICS_VERSION}`}
         />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href={`/apple-touch-icon.png?v=${import.meta.env.GRAPHICS_VERSION}`}
+          href={`/apple-touch-icon.png?v=${env.GRAPHICS_VERSION}`}
         />
         <meta
           name="apple-mobile-web-app-title"
@@ -69,7 +60,7 @@ export const Layout = () => {
         />
         <meta
           property="og:url"
-          content="https://pillagefirst.netlify.app"
+          content="https://pillagefirst.com"
         />
         <meta
           property="og:type"
@@ -81,6 +72,7 @@ export const Layout = () => {
         <StateProvider>
           <Outlet />
         </StateProvider>
+        <ScrollRestoration />
         <Scripts />
       </body>
     </html>

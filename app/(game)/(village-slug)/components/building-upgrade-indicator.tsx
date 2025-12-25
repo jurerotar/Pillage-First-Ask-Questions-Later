@@ -1,14 +1,18 @@
+import {
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+  useState,
+} from 'react';
+import { MdUpgrade } from 'react-icons/md';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import {
   BorderIndicator,
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { BuildingField } from 'app/interfaces/models/game/village';
-import type React from 'react';
-import { useState } from 'react';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { BuildingField } from 'app/interfaces/models/game/village';
 
 type StaticButtonProps = {
   buildingField: BuildingField;
@@ -16,11 +20,11 @@ type StaticButtonProps = {
   variant: BorderIndicatorBorderVariant;
 };
 
-const StaticButton: React.FC<StaticButtonProps> = ({
+const StaticButton = ({
   buildingField,
   backgroundVariant,
   variant,
-}) => {
+}: StaticButtonProps) => {
   const { level } = buildingField;
   return (
     <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
@@ -40,21 +44,21 @@ type UpgradeButtonProps = {
   variant: BorderIndicatorBorderVariant;
 };
 
-const UpgradeButton: React.FC<UpgradeButtonProps> = ({
+const UpgradeButton = ({
   buildingField,
   backgroundVariant,
   variant,
-}) => {
+}: UpgradeButtonProps) => {
   const { buildingId, id, level } = buildingField;
   const { upgradeBuilding } = useBuildingActions(buildingId, id);
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] =
     useState<boolean>(false);
 
-  const onUpgradeButtonClick = (event: React.MouseEvent | React.TouchEvent) => {
-    upgradeBuilding();
+  const onUpgradeButtonClick = (event: ReactMouseEvent | ReactTouchEvent) => {
     event.stopPropagation();
     event.preventDefault();
+    upgradeBuilding();
   };
 
   return (
@@ -70,7 +74,7 @@ const UpgradeButton: React.FC<UpgradeButtonProps> = ({
         variant={variant}
       >
         {shouldShowUpgradeButton && (
-          <i className="icon icon-[md-upgrade] size-3/4 rounded-full text-gray-400" />
+          <MdUpgrade className="size-3/4 rounded-full text-gray-400" />
         )}
         {!shouldShowUpgradeButton && level}
       </BorderIndicator>
@@ -84,9 +88,11 @@ type BuildingUpgradeIndicatorProps = {
   buildingEvent: GameEvent<'buildingConstruction'> | undefined;
 };
 
-export const BuildingUpgradeIndicator: React.FC<
-  BuildingUpgradeIndicatorProps
-> = ({ buildingField, isHovered, buildingEvent }) => {
+export const BuildingUpgradeIndicator = ({
+  buildingField,
+  isHovered,
+  buildingEvent,
+}: BuildingUpgradeIndicatorProps) => {
   const { variant, errors } = useBuildingUpgradeStatus(buildingField);
 
   const canUpgrade: boolean = errors.length === 0;
@@ -99,20 +105,11 @@ export const BuildingUpgradeIndicator: React.FC<
     return 'white';
   })();
 
+  const ChildComponent = canUpgrade && isHovered ? UpgradeButton : StaticButton;
+
   // TODO: Transitions needs to added here, the icon currently just pops in
-
-  if (canUpgrade && isHovered) {
-    return (
-      <UpgradeButton
-        buildingField={buildingField}
-        backgroundVariant={backgroundVariant}
-        variant={variant}
-      />
-    );
-  }
-
   return (
-    <StaticButton
+    <ChildComponent
       buildingField={buildingField}
       backgroundVariant={backgroundVariant}
       variant={variant}

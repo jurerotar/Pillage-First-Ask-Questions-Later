@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(production-overview)/+types/page';
 import { ProductionOverview } from 'app/(game)/(village-slug)/(production-overview)/components/production-overview';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,15 +10,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import type React from 'react';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(production-overview)/+types/page';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
-const ProductionOverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
 
   const tabs = ['wood', 'clay', 'iron', 'wheat'];
 
@@ -32,7 +29,7 @@ const ProductionOverviewPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Production overview')}</BreadcrumbItem>

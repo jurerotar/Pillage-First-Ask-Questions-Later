@@ -1,8 +1,9 @@
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'app/components/ui/alert';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
+import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
+import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,17 +11,14 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import type React from 'react';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
-const StatisticsPage: React.FC<Route.ComponentProps> = ({ params }) => {
+const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
 
-  const tabs = ['default', 'villages', 'week-by-week'];
+  const tabs = ['default', 'villages'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
@@ -32,7 +30,7 @@ const StatisticsPage: React.FC<Route.ComponentProps> = ({ params }) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to={resourcesPath}>{t('Resources')}</BreadcrumbLink>
+            <BreadcrumbLink to="../resources">{t('Resources')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>{t('Statistics')}</BreadcrumbItem>
@@ -46,24 +44,14 @@ const StatisticsPage: React.FC<Route.ComponentProps> = ({ params }) => {
         }}
       >
         <TabList>
-          <Tab>{t('Overview')}</Tab>
+          <Tab>{t('Population')}</Tab>
           <Tab>{t('Villages')}</Tab>
-          <Tab>{t('Week by week')}</Tab>
         </TabList>
         <TabPanel>
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
+          <PopulationRankings />
         </TabPanel>
         <TabPanel>
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
-        </TabPanel>
-        <TabPanel>
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
+          <VillageRankings />
         </TabPanel>
       </Tabs>
     </>

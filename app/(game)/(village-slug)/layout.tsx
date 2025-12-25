@@ -1,24 +1,49 @@
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import type { Resource } from 'app/interfaces/models/game/resource';
-import clsx from 'clsx';
-import type React from 'react';
-import { Suspense } from 'react';
-import { Fragment, memo, useEffect, useRef } from 'react';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
+import { clsx } from 'clsx';
+import type { ComponentProps, PropsWithChildren, ReactNode } from 'react';
+import { Fragment, memo, Suspense, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CiCircleList } from 'react-icons/ci';
+import { FaHome } from 'react-icons/fa';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { GiWheat } from 'react-icons/gi';
+import { GoGraph } from 'react-icons/go';
+import { HiStar } from 'react-icons/hi2';
+import { LuBookMarked, LuScrollText } from 'react-icons/lu';
+import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import { PiListChecks, PiPathBold } from 'react-icons/pi';
+import { RiAuctionLine } from 'react-icons/ri';
+import { RxExit } from 'react-icons/rx';
+import { TbMap2, TbShoe } from 'react-icons/tb';
+import {
+  Link,
+  NavLink,
+  type NavLinkProps,
+  Outlet,
+  useNavigate,
+} from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
+import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
+import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
+import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useAdventurePoints } from 'app/(game)/(village-slug)/hooks/use-adventure-points';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/hooks/use-player-villages';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { usePlayerTroops } from 'app/(game)/(village-slug)/hooks/use-player-troops';
-import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
-import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import { Tooltip } from 'app/components/tooltip';
 import {
   Select,
   SelectContent,
@@ -26,21 +51,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { useTranslation } from 'react-i18next';
-import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import layoutStyles from './layout.module.scss';
-import { useActiveRoute } from 'app/(game)/(village-slug)/hooks/routes/use-active-route';
-import { Tooltip } from 'app/components/tooltip';
+import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
-import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { useTextDirection } from 'app/hooks/use-text-direction';
+import type { Resource } from 'app/interfaces/models/game/resource';
+import { formatNumber } from 'app/utils/common';
+import { parseRFCFromTile } from 'app/utils/map';
+
+const TOOLTIP_DELAY_SHOW = 500;
 
 type CounterProps = {
   counter?: number;
 };
 
-const Counter: React.FC<CounterProps> = ({ counter }) => {
+const Counter = ({ counter }: CounterProps) => {
   if (!counter) {
     return null;
   }
@@ -67,48 +90,125 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+type NavigationSideItemProps = Omit<NavLinkProps, 'children'> & {
+  children: ReactNode;
+};
 
-const NavigationSideItem: React.FCWithChildren<NavigationSideItemProps> = memo(
-  ({ children, ...rest }) => {
-    return (
-      <button
-        type="button"
-        className="
-          flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative
-          bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]
-          transition-transform active:scale-95 active:shadow-inner
-          lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:bg-gradient-to-t lg:from-[#a3a3a3] lg:to-[#c8c8c8]
-        "
-        {...rest}
-      >
-        <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-          {children}
-        </span>
-      </button>
-    );
-  },
-);
-
-const DiscordLink = () => {
+const NavigationSideItem = ({
+  children,
+  ...rest
+}: PropsWithChildren<NavigationSideItemProps>) => {
   return (
-    <a
-      href="https://discord.com/invite/Ep7NKVXUZA"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background"
-      title="Discord"
-      rel="noopener"
+    <NavLink
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-class-name="hidden lg:flex"
+      className={clsx(
+        'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
+        'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+        'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
+      )}
+      {...rest}
+    >
+      <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+        {children}
+      </span>
+    </NavLink>
+  );
+};
+
+const DesktopPopulation = () => {
+  const { population, buildingWheatLimit } =
+    useComputedEffect('wheatProduction');
+
+  return (
+    <div className="flex gap-2">
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-border p-1 my-1">
+        <Icon
+          type="population"
+          className="min-w-4"
+        />
+        <span className="text-foreground text-sm">
+          {formatNumber(population)}
+        </span>
+      </div>
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-border p-1 my-1">
+        <Icon
+          type="freeCrop"
+          className="min-w-3"
+        />
+        <span className="text-foreground text-sm">
+          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const VillageOverviewDesktopItem = () => {
+  const { t } = useTranslation();
+
+  return (
+    <NavLink
+      to="overview"
+      aria-label={t('Overview')}
+      data-tooltip-content={t('Overview')}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      className={clsx(
+        'flex items-center justify-center shadow-md rounded-md p-1.5 border border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:transition-colors',
+      )}
+    >
+      <span className="lg:bg-background rounded-md flex items-center justify-center">
+        <CiCircleList className="text-xl" />
+      </span>
+    </NavLink>
+  );
+};
+
+const VillageOverviewMobileItem = () => {
+  const { t } = useTranslation();
+  const { population, buildingWheatLimit } =
+    useComputedEffect('wheatProduction');
+
+  return (
+    <Link
+      to="overview"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background transition-transform active:scale-95"
+      aria-label={t('Village overview')}
     >
       <span className="flex items-center justify-center">
-        <i className="icon icon-[fa-discord] text-2xl text-[#7289da]" />
+        <PiListChecks className="text-2xl" />
       </span>
-    </a>
+      <span className="inline-flex items-center justify-between bg-background px-0.5 absolute top-0 left-8 h-4 w-9 rounded-full border border-border shadow-md">
+        <Icon
+          type="population"
+          className="text-xs"
+        />
+        <span className="text-foreground text-2xs">
+          {formatNumber(population)}
+        </span>
+      </span>
+      <span className="inline-flex items-center justify-between bg-background px-0.5 absolute bottom-0 left-8 h-4 w-9 rounded-full border border-border shadow-md">
+        <Icon
+          type="freeCrop"
+          className="text-2xs"
+        />
+        <span className="text-foreground text-2xs">
+          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </span>
+    </Link>
   );
 };
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
   const { hero, health, experience } = useHero();
-  const { heroPath } = useGameNavigation();
   const { playerTroops } = usePlayerTroops();
 
   const isHeroHome = !!playerTroops.find(({ unitId }) => unitId === 'HERO');
@@ -125,26 +225,21 @@ const HeroNavigationItem = () => {
 
   return (
     <Link
-      to={heroPath}
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]"
+      to="hero"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
       aria-label={t('Hero')}
-      title={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
-        <i className="icon icon-[md-face] text-2xl" />
+        <MdFace className="text-2xl" />
       </span>
       {isLevelUpAvailable && (
         <span className="absolute text-center size-4 bg-background top-0 -right-1.5 rounded-full border border-border shadow-md">
-          <i className="icon icon-[hi-star] text-yellow-300 text-sm" />
+          <HiStar className="text-yellow-300 text-sm" />
         </span>
       )}
       <span className="absolute size-4 bg-background bottom-0 -right-1.5 rounded-full border border-border shadow-md inline-flex justify-center items-center">
-        {isHeroHome && (
-          <i className="icon icon-[fa-home] text-gray-500 text-xs" />
-        )}
-        {!isHeroHome && (
-          <i className="icon icon-[tb-shoe] text-gray-500 text-xs" />
-        )}
+        {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
+        {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
         <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">
@@ -187,16 +282,21 @@ const HeroNavigationItem = () => {
   );
 };
 
-const DesktopTopRowItem: React.FCWithChildren<
-  React.ComponentProps<'button'>
-> = ({ children, ...rest }) => {
+const DesktopTopRowItem = ({
+  children,
+  ...rest
+}: PropsWithChildren<ComponentProps<'button'>>) => {
   return (
     <button
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-class-name="hidden lg:flex"
       type="button"
       className="
-        px-3 py-0.5 rounded-xs bg-gradient-to-t bg-card
+        px-3 py-0.5 border-2 border-white rounded-sm bg-linear-to-t bg-card
         flex items-center justify-center
         transition-transform active:scale-95 active:shadow-inner
+        lg:transition-colors lg:hover:bg-gray-50
       "
       {...rest}
     >
@@ -205,164 +305,143 @@ const DesktopTopRowItem: React.FCWithChildren<
   );
 };
 
-type NavigationMainItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  isActive: boolean;
-  className?: string;
+type NavigationMainItemProps = Omit<NavLinkProps, 'children'> & {
+  children: ReactNode;
 };
 
-const NavigationMainItem: React.FCWithChildren<NavigationMainItemProps> = ({
-  children,
-  ...rest
-}) => {
-  const { isActive, ...htmlProps } = rest;
-
+const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
   return (
-    <button
+    <NavLink
       type="button"
-      className={clsx(
-        isActive
-          ? 'from-[#7da100] to-[#c7e94f]'
-          : 'from-[#b8b2a9] to-[#f1f0ee]',
-        'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-        'transition-transform transform-gpu active:scale-95 lg:active:scale-100',
-      )}
-      {...htmlProps}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-class-name="hidden lg:flex"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      className={({ isActive }) =>
+        clsx(
+          isActive
+            ? 'from-[#7da100] to-[#c7e94f] lg:hover:from-[#728f00] lg:hover:to-[#b8dc45]'
+            : 'from-[#b8b2a9] to-[#f1f0ee] lg:hover:from-[#aba5a0] lg:hover:to-[#e8e7e5]',
+          'bg-linear-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+          'transition-transform transform-gpu active:scale-95',
+          'lg:transition-colors',
+        )
+      }
+      {...rest}
     >
       <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
         {children}
       </span>
-    </button>
+    </NavLink>
   );
 };
 
 const QuestsNavigationItem = () => {
   const { t } = useTranslation();
-  const { questsPath } = useGameNavigation();
 
   return (
-    <Link to={questsPath}>
-      <NavigationSideItem
-        aria-label={t('Quests')}
-        title={t('Quests')}
-      >
-        <Suspense fallback={null}>
-          <QuestsCounter />
-        </Suspense>
-        <i className="icon icon-[lu-book-marked] text-2xl" />
-      </NavigationSideItem>
-    </Link>
+    <NavigationSideItem
+      to="quests"
+      aria-label={t('Quests')}
+      data-tooltip-content={t('Quests')}
+    >
+      <Suspense fallback={null}>
+        <QuestsCounter />
+      </Suspense>
+      <LuBookMarked className="text-2xl" />
+    </NavigationSideItem>
   );
 };
 
 const AdventuresNavigationItem = () => {
   const { t } = useTranslation();
-  const { adventuresPath } = useGameNavigation();
 
   return (
-    <Link to={adventuresPath}>
-      <NavigationSideItem
-        aria-label={t('Adventures')}
-        title={t('Adventures')}
-      >
-        <Suspense fallback={null}>
-          <AdventurePointsCounter />
-        </Suspense>
-        <i className="icon icon-[pi-path-bold] text-2xl" />
-      </NavigationSideItem>
-    </Link>
+    <NavigationSideItem
+      to="hero?tab=adventures"
+      aria-label={t('Adventures')}
+      data-tooltip-content={t('Adventures')}
+    >
+      <Suspense fallback={null}>
+        <AdventurePointsCounter />
+      </Suspense>
+      <PiPathBold className="text-2xl" />
+    </NavigationSideItem>
   );
 };
 
 const ReportsNavigationItem = () => {
   const { t } = useTranslation();
-  const { reportsPath } = useGameNavigation();
 
   return (
-    <Link to={reportsPath}>
-      <NavigationSideItem
-        aria-label={t('Reports')}
-        title={t('Reports')}
-      >
-        <Suspense fallback={null}>
-          <ReportsCounter />
-        </Suspense>
-        <i className="icon icon-[lu-scroll-text] text-2xl" />
-      </NavigationSideItem>
-    </Link>
+    <NavigationSideItem
+      to="reports"
+      aria-label={t('Reports')}
+      data-tooltip-content={t('Reports')}
+    >
+      <Suspense fallback={null}>
+        <ReportsCounter />
+      </Suspense>
+      <LuScrollText className="text-2xl" />
+    </NavigationSideItem>
   );
 };
 
 const ResourcesNavigationItem = () => {
   const { t } = useTranslation();
-  const { resourcesPath } = useGameNavigation();
-  const { isResourcesPageOpen } = useActiveRoute();
 
   return (
-    <Link
-      to={resourcesPath}
+    <NavigationMainItem
+      aria-label={t('Resources')}
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-content={t('Resources')}
+      to="resources"
       prefetch="render"
     >
-      <NavigationMainItem
-        aria-label={t('Resources')}
-        title={t('Resources')}
-        isActive={isResourcesPageOpen}
-      >
-        <i className="icon icon-[gi-wheat] text-3xl" />
-      </NavigationMainItem>
-    </Link>
+      <GiWheat className="text-3xl" />
+    </NavigationMainItem>
   );
 };
 
 const VillageNavigationItem = () => {
   const { t } = useTranslation();
-  const { villagePath } = useGameNavigation();
-  const { isVillagePageOpen } = useActiveRoute();
 
   return (
-    <Link
-      to={villagePath}
+    <NavigationMainItem
+      aria-label={t('Village')}
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-content={t('Village')}
+      to="village"
       prefetch="render"
     >
-      <NavigationMainItem
-        aria-label={t('Village')}
-        title={t('Village')}
-        isActive={isVillagePageOpen}
-      >
-        <i className="icon icon-[md-outline-holiday-village] text-3xl" />
-      </NavigationMainItem>
-    </Link>
+      <MdOutlineHolidayVillage className="text-3xl" />
+    </NavigationMainItem>
   );
 };
 
 const MapNavigationItem = () => {
   const { t } = useTranslation();
-  const { mapPath } = useGameNavigation();
-  const { isMapPageOpen } = useActiveRoute();
 
   return (
-    <NavLink
-      to={mapPath}
+    <NavigationMainItem
+      aria-label={t('Map')}
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      data-tooltip-content={t('Map')}
+      to="map"
       prefetch="render"
     >
-      <NavigationMainItem
-        aria-label={t('Map')}
-        title={t('Map')}
-        isActive={isMapPageOpen}
-      >
-        <i className="icon icon-[tb-map-2] text-3xl" />
-      </NavigationMainItem>
-    </NavLink>
+      <TbMap2 className="text-3xl" />
+    </NavigationMainItem>
   );
 };
 
 const ResourceCounters = () => {
   return (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-1 lg:gap-2">
-      {(['wood', 'clay', 'iron', 'wheat'] as Resource[]).map(
+      {(['wood', 'clay', 'iron', 'wheat'] satisfies Resource[]).map(
         (resource: Resource, index) => (
           <Fragment key={resource}>
             <ResourceCounter resource={resource} />
-            {index !== 3 && <span className="w-[2px] h-full bg-gray-300" />}
+            {index !== 3 && <span className="w-0.5 h-full bg-gray-300" />}
           </Fragment>
         ),
       )}
@@ -370,12 +449,16 @@ const ResourceCounters = () => {
   );
 };
 
-const VillageSelect = memo(() => {
+const VillageSelect = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { getNewVillageUrl } = useGameNavigation();
   const { playerVillages } = usePlayerVillages();
   const { currentVillage } = useCurrentVillage();
+
+  const resourceFieldComposition = parseRFCFromTile(currentVillage.RFC).join(
+    '-',
+  );
 
   return (
     <Select
@@ -383,9 +466,9 @@ const VillageSelect = memo(() => {
       value={currentVillage.slug}
     >
       <SelectTrigger
-        className="w-full"
         title={t('Village select')}
         aria-label={t('Village select')}
+        className="flex flex-1"
       >
         <SelectValue />
       </SelectTrigger>
@@ -398,26 +481,27 @@ const VillageSelect = memo(() => {
               key={id}
               value={slug}
             >
-              {name} ({formattedId})
+              <Text className="text-xs sm:text-sm">
+                {name} ({formattedId}) | {resourceFieldComposition}
+              </Text>
             </SelectItem>
           );
         })}
       </SelectContent>
     </Select>
   );
-});
+};
 
 const TopNavigation = () => {
   const { t } = useTranslation();
-  const gameNavigation = useGameNavigation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   return (
-    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-gradient-to-r from-gray-200 via-white to-gray-200">
+    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
-            <nav className="hidden lg:flex justify-end container mx-auto">
+            <nav className="hidden lg:flex justify-between container mx-auto">
               <ul className="flex gap-1">
                 <li>
                   <Link
@@ -426,7 +510,7 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <i className="icon icon-[fa-github] text-xl text-[#24292e]" />
+                        <FaGithub className="text-xl text-[#24292e]" />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#24292e]">
                           GitHub
                         </span>
@@ -442,7 +526,7 @@ const TopNavigation = () => {
                   >
                     <DesktopTopRowItem>
                       <span className="inline-flex gap-2 items-center">
-                        <i className="icon icon-[fa-discord] text-xl text-[#7289da]" />
+                        <FaDiscord className="text-xl text-[#7289da]" />
                         <span className="text-sm font-semibold hidden xl:inline-flex text-[#7289da]">
                           Discord
                         </span>
@@ -450,66 +534,62 @@ const TopNavigation = () => {
                     </DesktopTopRowItem>
                   </Link>
                 </li>
+              </ul>
+              <ul className="flex gap-1">
                 <li>
-                  <Link to={gameNavigation.preferencesPath}>
+                  <Link to="statistics">
                     <DesktopTopRowItem
-                      aria-label={t('Preferences')}
-                      title={t('Preferences')}
+                      aria-label={t('Statistics')}
+                      data-tooltip-content={t('Statistics')}
                     >
-                      <i className="icon icon-[md-settings] text-xl" />
+                      <GoGraph className="text-xl" />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/">
+                  <Link to="preferences">
+                    <DesktopTopRowItem
+                      aria-label={t('Preferences')}
+                      data-tooltip-content={t('Preferences')}
+                    >
+                      <MdSettings className="text-xl" />
+                    </DesktopTopRowItem>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/game-worlds">
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
-                      title={t('Logout')}
+                      data-tooltip-content={t('Logout')}
                     >
-                      <i className="icon icon-[rx-exit] text-xl text-red-500" />
+                      <RxExit className="text-xl text-red-500" />
                     </DesktopTopRowItem>
                   </Link>
                 </li>
               </ul>
             </nav>
           </div>
-          <div className="flex justify-between container mx-auto">
-            <div className="flex flex-1 items-center">
+          <div className="flex justify-between container mx-2 xl:mx-auto">
+            <div className="flex flex-1 items-center gap-2">
               <Suspense fallback={null}>
                 <VillageSelect />
               </Suspense>
+              <VillageOverviewDesktopItem />
             </div>
-            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-4 max-h-11 pt-1">
-              <ul className="hidden lg:flex gap-1 xl:gap-4 justify-center items-center">
+            <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
+              <ul className="hidden lg:flex gap-3 justify-center items-center">
                 <li>
-                  <Link to={gameNavigation.statisticsPath}>
-                    <NavigationSideItem
-                      aria-label={t('Statistics')}
-                      title={t('Statistics')}
-                    >
-                      <i className="icon icon-[go-graph] text-xl" />
-                    </NavigationSideItem>
-                  </Link>
+                  <ReportsNavigationItem />
                 </li>
                 <li>
                   <QuestsNavigationItem />
                 </li>
                 <li>
-                  <Link to={gameNavigation.overviewPath}>
-                    <NavigationSideItem
-                      aria-label={t('Overview')}
-                      title={t('Overview')}
-                    >
-                      <i className="icon icon-[ci-circle-list] text-xl" />
-                    </NavigationSideItem>
-                  </Link>
-                </li>
-                <li>
-                  <ul className="flex gap-1 xl:gap-2 xl:mx-2">
+                  <ul className="flex mx-1">
                     <li>
                       <ResourcesNavigationItem />
                     </li>
-                    <li>
+                    <li className="z-2 -mx-2">
                       <VillageNavigationItem />
                     </li>
                     <li>
@@ -518,39 +598,33 @@ const TopNavigation = () => {
                   </ul>
                 </li>
                 <li>
-                  <ReportsNavigationItem />
-                </li>
-                <li>
                   <AdventuresNavigationItem />
                 </li>
                 <li>
-                  <Link to={gameNavigation.auctionsPath}>
-                    <NavigationSideItem
-                      aria-label={t('Auctions')}
-                      title={t('Auctions')}
-                    >
-                      <i className="icon icon-[ri-auction-line] text-xl" />
-                    </NavigationSideItem>
-                  </Link>
+                  <NavigationSideItem
+                    to="hero?tab=auctions"
+                    aria-label={t('Auctions')}
+                    data-tooltip-content={t('Auctions')}
+                  >
+                    <RiAuctionLine className="text-xl" />
+                  </NavigationSideItem>
                 </li>
               </ul>
             </nav>
-            <div className="flex flex-1" />
+            <div className="flex flex-1 justify-end">
+              <DesktopPopulation />
+            </div>
           </div>
         </div>
       )}
       {!isWiderThanLg && (
-        <>
-          {/* Empty div to bring down the header on mobile devices */}
-          <div className="hidden standalone:flex h-12 w-full bg-gray-600" />
-          <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-6">
-            <DiscordLink />
-            <VillageSelect />
-            <HeroNavigationItem />
-          </div>
-        </>
+        <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-8">
+          <VillageOverviewMobileItem />
+          <VillageSelect />
+          <HeroNavigationItem />
+        </div>
       )}
-      <div className="flex relative rounded-md lg:rounded-none lg:rounded-b-sm px-2 lg:absolute top-full left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-20 shadow-lg">
+      <div className="flex relative rounded-md px-2 lg:absolute top-full lg:-bottom-16 left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-5 shadow-lg">
         <ResourceCounters />
       </div>
     </header>
@@ -559,7 +633,6 @@ const TopNavigation = () => {
 
 const MobileBottomNavigation = () => {
   const { t } = useTranslation();
-  const gameNavigation = useGameNavigation();
 
   const container = useRef<HTMLDivElement>(null);
   const centeredElement = useRef<HTMLLIElement>(null);
@@ -571,21 +644,34 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
-            <Link to={gameNavigation.statisticsPath}>
-              <NavigationSideItem
-                aria-label={t('Statistics')}
-                title={t('Statistics')}
-              >
-                <i className="icon icon-[go-graph] text-2xl" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              target="_blank"
+              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+              aria-label="GitHub"
+              title="GitHub"
+            >
+              <FaGithub className="text-2xl text-[#24292e]" />
+            </NavigationSideItem>
+          </li>
+          <li>
+            <NavigationSideItem
+              target="_blank"
+              to="https://discord.com/invite/Ep7NKVXUZA"
+              aria-label="Discord"
+              title="Discord"
+            >
+              <FaDiscord className="text-2xl text-[#7289da]" />
+            </NavigationSideItem>
+          </li>
+          <li>
+            <Separator orientation="vertical" />
           </li>
           <li>
             <AdventuresNavigationItem />
@@ -594,21 +680,14 @@ const MobileBottomNavigation = () => {
             <QuestsNavigationItem />
           </li>
           <li>
-            <Link to={gameNavigation.overviewPath}>
-              <NavigationSideItem
-                aria-label={t('Overview')}
-                title={t('Overview')}
-              >
-                <i className="icon icon-[ci-circle-list] text-2xl" />
-              </NavigationSideItem>
-            </Link>
-          </li>
-          <li>
-            <ul className="flex gap-2 -translate-y-3 mx-2">
+            <ul className="flex -translate-y-3 mx-1">
               <li>
                 <ResourcesNavigationItem />
               </li>
-              <li ref={centeredElement}>
+              <li
+                className="z-2 -mx-2"
+                ref={centeredElement}
+              >
                 <VillageNavigationItem />
               </li>
               <li>
@@ -620,33 +699,39 @@ const MobileBottomNavigation = () => {
             <ReportsNavigationItem />
           </li>
           <li>
-            <Link to={gameNavigation.preferencesPath}>
-              <NavigationSideItem
-                aria-label={t('Preferences')}
-                title={t('Preferences')}
-              >
-                <i className="icon icon-[md-settings] text-2xl" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              to="statistics"
+              aria-label={t('Statistics')}
+              title={t('Statistics')}
+            >
+              <GoGraph className="text-2xl" />
+            </NavigationSideItem>
           </li>
           <li>
-            <Link to="/">
-              <NavigationSideItem
-                aria-label={t('Logout')}
-                title={t('Logout')}
-              >
-                <i className="icon icon-[rx-exit] text-2xl text-red-500" />
-              </NavigationSideItem>
-            </Link>
+            <NavigationSideItem
+              to="preferences"
+              aria-label={t('Preferences')}
+              title={t('Preferences')}
+            >
+              <MdSettings className="text-2xl" />
+            </NavigationSideItem>
+          </li>
+          <li>
+            <Separator orientation="vertical" />
+          </li>
+          <li>
+            <NavigationSideItem
+              to="/game-worlds"
+              aria-label={t('Logout')}
+              title={t('Logout')}
+            >
+              <RxExit className="text-2xl text-red-500" />
+            </NavigationSideItem>
           </li>
         </ul>
       </nav>
     </header>
   );
-};
-
-export const ErrorBoundary = () => {
-  return <p>Layout error</p>;
 };
 
 const PageFallback = () => {
@@ -657,68 +742,30 @@ const PageFallback = () => {
   );
 };
 
-const GameLayout = () => {
-  const { preferences } = usePreferences();
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+const GameLayout = memo<Route.ComponentProps>(
+  () => {
+    const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { timeOfDay, skinVariant, colorScheme, locale } = preferences;
-
-  const { direction } = useTextDirection(locale);
-
-  useEffect(() => {
-    const body = document.querySelector('body')!;
-
-    body.classList.add(layoutStyles['background-image']);
-
-    return () => {
-      body.classList.remove(clsx(layoutStyles['background-image']));
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!(colorScheme && skinVariant && timeOfDay)) {
-      return;
-    }
-    const html = document.documentElement;
-
-    html.setAttribute('dir', direction);
-    html.classList.add(
-      colorScheme,
-      `skin-variant-${skinVariant}`,
-      `time-of-day-${timeOfDay}`,
-    );
-
-    return () => {
-      html.removeAttribute('dir');
-      html.classList.remove(
-        colorScheme,
-        `skin-variant-${skinVariant}`,
-        `time-of-day-${timeOfDay}`,
-      );
-    };
-  }, [skinVariant, timeOfDay, colorScheme, direction]);
-
-  return (
-    <CurrentVillageStateProvider>
-      <CurrentVillageBuildingQueueContextProvider>
-        <Tooltip id="general-tooltip" />
-        <TopNavigation />
-        <Suspense fallback={null}>
+    return (
+      <CurrentVillageStateProvider>
+        <CurrentVillageBuildingQueueContextProvider>
+          <Tooltip id="general-tooltip" />
+          <TopNavigation />
           <TroopMovements />
-        </Suspense>
-        <Suspense fallback={<PageFallback />}>
-          <Outlet />
-        </Suspense>
-        <Suspense fallback={null}>
+          <Suspense fallback={<PageFallback />}>
+            <Outlet />
+          </Suspense>
           <ConstructionQueue />
-        </Suspense>
-        <Suspense fallback={null}>
           <TroopList />
-        </Suspense>
-        {!isWiderThanLg && <MobileBottomNavigation />}
-      </CurrentVillageBuildingQueueContextProvider>
-    </CurrentVillageStateProvider>
-  );
-};
+          {!isWiderThanLg && <MobileBottomNavigation />}
+          <PreferencesUpdater />
+        </CurrentVillageBuildingQueueContextProvider>
+      </CurrentVillageStateProvider>
+    );
+  },
+  (prev, next) => {
+    return prev.params.villageSlug === next.params.villageSlug;
+  },
+);
 
 export default GameLayout;

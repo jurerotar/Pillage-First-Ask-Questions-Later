@@ -1,4 +1,6 @@
-import { renderHook, act } from '@testing-library/react';
+// @vitest-environment happy-dom
+
+import { act, renderHook } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 
 describe('useCountdown', () => {

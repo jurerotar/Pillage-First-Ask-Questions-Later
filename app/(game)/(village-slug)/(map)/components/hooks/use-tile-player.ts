@@ -1,10 +1,10 @@
-import type { Tile } from 'app/interfaces/models/game/tile';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Reputation } from 'app/interfaces/models/game/reputation';
-import type { Village } from 'app/interfaces/models/game/village';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Player } from 'app/interfaces/models/game/player';
+import type { Reputation } from 'app/interfaces/models/game/reputation';
+import type { Tile } from 'app/interfaces/models/game/tile';
+import type { Village } from 'app/interfaces/models/game/village';
 
 type UseTilePlayerReturn = {
   player: Player;

@@ -1,29 +1,35 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "$schema": "https://www.schemastore.org/tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["DOM", "ESNext", "WebWorker"],
-    "types": ["vite/client", "vitest"],
+    "target": "esnext",
+    "lib": ["DOM", "ESNext"],
     "rootDirs": [".", "./.react-router/types"],
-    "baseUrl": "./",
     "skipLibCheck": true,
-    "importsNotUsedAsValues": "remove",
+    "assumeChangesOnlyAffectDirectDependencies": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
+    "incremental": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "erasableSyntaxOnly": true,
     "jsx": "react-jsx",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true,
-    "module": "ESNext",
+    "module": "esnext",
     "paths": {
-      "app/*": ["app/*"]
+      "app/*": ["./app/*"],
+      "@react-router/*": ["./.react-router/*"],
+      "happy-dom": ["./app/interfaces/happy-dom-patch.ts"]
     }
   },
-  "include": ["app/**/*", "*.config.ts", ".react-router/types/**/*"]
+  "include": [
+    "app/**/*",
+    "scripts/**/*",
+    "*.config.ts",
+    ".react-router/types/**/*"
+  ]
 }

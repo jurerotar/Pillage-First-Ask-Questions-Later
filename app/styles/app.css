@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin 'react-icons-tailwindcss';
 
 @variant standalone (@media (display-mode: standalone));
 @variant browser (@media (display-mode: browser));
@@ -126,6 +125,7 @@
 
   body {
     @apply bg-background text-foreground;
+    overflow-y: scroll;
   }
 
   /* RTL Support */
@@ -208,4 +208,12 @@ button {
   &:hover {
     cursor: pointer;
   }
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::marker {
+  content: "";
 }
