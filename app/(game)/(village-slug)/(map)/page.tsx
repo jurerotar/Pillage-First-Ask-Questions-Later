@@ -8,6 +8,7 @@ import {
   FixedSizeList,
   type GridOnScrollProps,
 } from 'react-window';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
@@ -26,7 +27,6 @@ import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useWindowSize } from 'app/hooks/use-window-size';
 import type { Point } from 'app/interfaces/models/common';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;

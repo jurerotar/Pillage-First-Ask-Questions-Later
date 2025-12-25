@@ -2,12 +2,12 @@ import { Activity, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { Tooltip } from 'app/components/tooltip';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 
 const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1);
 const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19);

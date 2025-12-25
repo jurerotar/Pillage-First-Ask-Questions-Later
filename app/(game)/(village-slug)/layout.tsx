@@ -28,6 +28,7 @@ import {
   Outlet,
   useNavigate,
 } from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
@@ -62,7 +63,6 @@ import { Spinner } from 'app/components/ui/spinner';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumber } from 'app/utils/common';
 import { parseResourcesFromRFC } from 'app/utils/map';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
 
 const TOOLTIP_DELAY_SHOW = 500;
 

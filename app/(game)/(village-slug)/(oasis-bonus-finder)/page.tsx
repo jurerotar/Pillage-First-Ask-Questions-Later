@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { z } from 'zod';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import {
   Section,
   SectionContent,
@@ -56,7 +57,6 @@ import {
   resourceFieldCompositionSchema,
 } from 'app/interfaces/models/game/resource-field-composition';
 import { calculateGridLayout, parseResourcesFromRFC } from 'app/utils/map';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 
 type OasisBonus =
   | `${25 | 50}-${Resource}`
@@ -303,7 +303,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                         <FormLabel>{t('Start position (x)')}</FormLabel>
                         <FormControl>
                           <Input
-                            className="max-w-[80px]"
+                            className="max-w-20"
                             type="number"
                             min={-halfSize}
                             max={halfSize}
@@ -345,7 +345,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                 { replace: true },
                               );
                             }}
-                            className="max-w-[80px]"
+                            className="max-w-20"
                             type="number"
                             min={-halfSize}
                             max={halfSize}

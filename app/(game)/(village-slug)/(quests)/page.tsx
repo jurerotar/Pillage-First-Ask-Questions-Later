@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -14,7 +15,6 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { partition } from 'app/utils/common';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 
 const QuestsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
