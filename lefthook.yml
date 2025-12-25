@@ -1,0 +1,22 @@
+# https://github.com/evilmartians/lefthook
+
+commit-msg:
+  commands:
+    lint:
+      run: npx commitlint --edit {1}
+
+pre-commit:
+  commands:
+    localize:
+      stage_fixed: true
+      run: npx i18next-cli extract
+    biome:
+      stage_fixed: true
+      run: npx @biomejs/biome check --write --staged --no-errors-on-unmatched
+
+pre-push:
+  commands:
+    biome-ci:
+      run: npx @biomejs/biome ci
+    localize-ci:
+      run: npx i18next-cli extract --ci --dry-run

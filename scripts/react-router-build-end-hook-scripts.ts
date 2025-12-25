@@ -1,6 +1,7 @@
 import { glob, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { load } from 'cheerio';
+import { REACT_ICONS_SPRITE_URL_PLACEHOLDER } from 'react-icons-sprite';
 import type { Config } from '@react-router/dev/config';
 import { getGameRoutePaths } from 'app/utils/react-router';
 
@@ -85,7 +86,7 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
     for (const filePath of preRenderedFileUrls) {
       const content = await readFile(filePath, 'utf8');
       const updatedContent = content.replaceAll(
-        '__SPRITE_URL_PLACEHOLDER__',
+        REACT_ICONS_SPRITE_URL_PLACEHOLDER,
         svgSpriteName,
       );
 
