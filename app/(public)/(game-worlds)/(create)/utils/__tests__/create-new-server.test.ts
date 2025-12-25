@@ -881,7 +881,7 @@ describe('createNewServer', () => {
              AND source_specifier = 0;`,
           {
             $effectId: wheatEffectId,
-            $value: population,
+            $value: -population,
             $villageId: villageId,
           },
         ) as number;
