@@ -1,25 +1,25 @@
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { faro } from '@grafana/faro-web-sdk';
+import { useMutation } from '@tanstack/react-query';
 import { type PropsWithChildren, Suspense, use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
-import { useTranslation } from 'react-i18next';
-import { LuConstruction } from 'react-icons/lu';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { type PlacesType, Tooltip } from 'react-tooltip';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { IoIosArrowRoundForward } from 'react-icons/io';
+import { LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useMutation } from '@tanstack/react-query';
+import { type PlacesType, Tooltip } from 'react-tooltip';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import {
   eventsCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { faro } from '@grafana/faro-web-sdk';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';

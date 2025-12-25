@@ -1,6 +1,6 @@
-import type { Preferences } from 'app/interfaces/models/game/preferences';
-import type { Seeder } from 'app/interfaces/db';
 import { PLAYER_ID } from 'app/constants/player';
+import type { Seeder } from 'app/interfaces/db';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 export const preferencesSeeder: Seeder = (database): void => {
   const preferences: Preferences = {

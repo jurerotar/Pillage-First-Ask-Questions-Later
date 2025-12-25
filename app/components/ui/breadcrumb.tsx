@@ -1,7 +1,7 @@
-import type { ComponentProps } from 'react';
 import { clsx } from 'clsx';
-import { Link } from 'react-router';
+import type { ComponentProps } from 'react';
 import { LuChevronRight } from 'react-icons/lu';
+import { Link } from 'react-router';
 
 export const Breadcrumb = (props: ComponentProps<'nav'>) => {
   return (

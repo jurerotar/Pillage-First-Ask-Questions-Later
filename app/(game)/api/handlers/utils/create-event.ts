@@ -1,7 +1,5 @@
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
+import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import {
   checkAndSubtractVillageResources,
   getEventDuration,
@@ -9,8 +7,10 @@ import {
   insertEvents,
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
-import type { DbFacade } from 'app/(game)/api/facades/database-facade';
-import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 
 const validateAndInsertEvents = (database: DbFacade, events: GameEvent[]) => {
   const hasSuccessfullyValidatedAndSubtractedResources =

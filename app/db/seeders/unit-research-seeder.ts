@@ -1,7 +1,7 @@
-import type { Seeder } from 'app/interfaces/db';
 import { getUnitsByTribe } from 'app/assets/utils/units';
-import type { Village } from 'app/interfaces/models/game/village';
 import { PLAYER_ID } from 'app/constants/player';
+import type { Seeder } from 'app/interfaces/db';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const unitResearchSeeder: Seeder = (database, server): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);

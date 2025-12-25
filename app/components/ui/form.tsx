@@ -1,5 +1,6 @@
-import { createContext, use, type ComponentProps } from 'react';
+import { clsx } from 'clsx';
 import { type Label as LabelPrimitive, Slot } from 'radix-ui';
+import { type ComponentProps, createContext, use } from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -9,7 +10,6 @@ import {
   useFormContext,
   useFormState,
 } from 'react-hook-form';
-import { clsx } from 'clsx';
 import { Label } from 'app/components/ui/label';
 
 export const Form = FormProvider;

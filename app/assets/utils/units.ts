@@ -1,4 +1,3 @@
-import type { Unit } from 'app/interfaces/models/game/unit';
 import {
   egyptianUnits,
   gaulUnits,
@@ -12,6 +11,7 @@ import {
 } from 'app/assets/units';
 import type { Resource, Resources } from 'app/interfaces/models/game/resource';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import type { Unit } from 'app/interfaces/models/game/unit';
 
 export const getUnitDefinition = (unitId: Unit['id']): Unit => {
   return unitsMap.get(unitId)!;

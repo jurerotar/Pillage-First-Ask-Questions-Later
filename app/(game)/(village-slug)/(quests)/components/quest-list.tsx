@@ -1,26 +1,26 @@
 import { clsx } from 'clsx';
+import { useTranslation } from 'react-i18next';
+import {
+  getQuestTexts,
+  groupQuestsById,
+} from 'app/(game)/(village-slug)/(quests)/utils/quests';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import {
   isHeroExperienceQuestReward,
   isQuestCollectable,
   isResourceQuestReward,
   wasQuestCollected,
 } from 'app/(game)/guards/quest-guards';
+import { getQuestRewards } from 'app/assets/utils/quests';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { Pagination } from 'app/components/ui/pagination';
 import type {
   Quest,
   QuestReward as QuestRewardType,
 } from 'app/interfaces/models/game/quest';
-import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
-import { useTranslation } from 'react-i18next';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import {
-  getQuestTexts,
-  groupQuestsById,
-} from 'app/(game)/(village-slug)/(quests)/utils/quests';
-import { Text } from 'app/components/text';
-import { Pagination } from 'app/components/ui/pagination';
-import { getQuestRewards } from 'app/assets/utils/quests';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 
 type QuestRewardProps = {
   reward: QuestRewardType;

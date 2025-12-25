@@ -1,5 +1,5 @@
-import { PLAYER_ID } from 'app/constants/player';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
+import { PLAYER_ID } from 'app/constants/player';
 import type { Building } from 'app/interfaces/models/game/building';
 
 export const assessAdventureCountQuestCompletion = (

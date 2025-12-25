@@ -1,6 +1,6 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
+import type { ApiHandler } from 'app/interfaces/api';
 
 const getMapFiltersSchema = z
   .strictObject({

@@ -1,9 +1,9 @@
-import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import type {
   HeroEffect,
   ServerEffect,
   VillageBuildingEffect,
 } from 'app/interfaces/models/game/effect';
+import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 
 const villageId = villageMock.id;
 

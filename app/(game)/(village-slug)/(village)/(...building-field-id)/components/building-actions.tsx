@@ -1,26 +1,26 @@
+import { startTransition, use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
+import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  useBuildingConstructionStatus,
+  useBuildingUpgradeStatus,
+} from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   getBuildingDataForLevel,
   getBuildingFieldByBuildingFieldId,
 } from 'app/assets/utils/buildings';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import type { Building } from 'app/interfaces/models/game/building';
-import { startTransition, use } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { Text } from 'app/components/text';
-import {
-  useBuildingConstructionStatus,
-  useBuildingUpgradeStatus,
-} from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
-import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 
 type BuildingCardActionsSectionProps = {
   buildingId: Building['id'];

@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { gameWorldNotExistsMiddleware } from 'app/(game)/(not-found)/middleware/game-world-not-locked-middleware';
-import { useTranslation } from 'react-i18next';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 

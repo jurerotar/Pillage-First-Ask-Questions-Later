@@ -1,21 +1,21 @@
-import {
-  getBuildingDefinition,
-  getBuildingDataForLevel,
-  calculatePopulationDifference,
-  specialFieldIds,
-} from 'app/assets/utils/buildings';
-import type { Resolver } from 'app/interfaces/api';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
-import {
-  demolishBuilding,
-  updateVillageResourcesAt,
-} from 'app/(game)/api/utils/village';
-import { assessBuildingQuestCompletion } from 'app/(game)/api/utils/quests';
 import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from 'app/(game)/api/utils/queries/effect-queries';
+import { assessBuildingQuestCompletion } from 'app/(game)/api/utils/quests';
+import {
+  demolishBuilding,
+  updateVillageResourcesAt,
+} from 'app/(game)/api/utils/village';
+import {
+  calculatePopulationDifference,
+  getBuildingDataForLevel,
+  getBuildingDefinition,
+  specialFieldIds,
+} from 'app/assets/utils/buildings';
+import type { Resolver } from 'app/interfaces/api';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>

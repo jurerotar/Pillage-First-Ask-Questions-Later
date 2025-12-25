@@ -1,7 +1,7 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 import { roundToNDecimalPoints } from 'app/utils/common';
 
 const createSqlBindings = (slot: OasisBonus[]) => {

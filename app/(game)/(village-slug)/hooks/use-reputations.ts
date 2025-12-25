@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { reputationsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import type { Faction } from 'app/interfaces/models/game/faction';
 import type { Reputation } from 'app/interfaces/models/game/reputation';
-import { reputationsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useReputations = () => {
   const { fetcher } = use(ApiContext);

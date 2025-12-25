@@ -1,8 +1,8 @@
 import { calculateBuildingDurationForLevel } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 
 type CreateBuildingConstructionEventMockArgs = {
   buildingId: Building['id'];

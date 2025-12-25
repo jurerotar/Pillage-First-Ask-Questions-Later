@@ -1,8 +1,8 @@
-import type { ApiHandler } from 'app/interfaces/api';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
+import type { ApiHandler } from 'app/interfaces/api';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 const getPreferencesSchema = z
   .strictObject({

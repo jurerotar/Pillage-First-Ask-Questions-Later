@@ -1,6 +1,3 @@
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import type { useAuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-auction-filters';
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 import { useTranslation } from 'react-i18next';
 import {
   GiBoots,
@@ -11,7 +8,10 @@ import {
   GiVikingHelmet,
 } from 'react-icons/gi';
 import { PiPantsBold } from 'react-icons/pi';
+import type { useAuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-auction-filters';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
 type AuctionFiltersProps = ReturnType<typeof useAuctionFilters>;
 

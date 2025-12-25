@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'app/components/ui/alert';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
 
 export const MarketplaceTradeRoutes = () => {
   const { t } = useTranslation();

@@ -1,6 +1,6 @@
+import type { Point } from 'app/interfaces/models/common';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
-import type { Point } from 'app/interfaces/models/common';
 
 export const parseResourcesFromRFC = (
   resourceFieldComposition: ResourceFieldComposition,

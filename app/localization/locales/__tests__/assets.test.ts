@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'vitest';
-import enUSAssets from '../en-US/assets.json' with { type: 'json' };
+import { describe, expect, test } from 'vitest';
 import { icons } from 'app/components/icons/icons';
+import enUSAssets from '../en-US/assets.json' with { type: 'json' };
 
 const locales = [{ locale: 'en-US', data: enUSAssets }];
 

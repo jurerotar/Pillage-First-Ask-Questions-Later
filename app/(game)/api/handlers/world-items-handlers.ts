@@ -1,5 +1,5 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { ApiHandler } from 'app/interfaces/api';
 import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,

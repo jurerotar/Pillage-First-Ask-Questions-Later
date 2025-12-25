@@ -1,18 +1,29 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Link, useSearchParams } from 'react-router';
+import { z } from 'zod';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Text } from 'app/components/text';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  type ResourceFieldComposition,
-  resourceFieldCompositionSchema,
-} from 'app/interfaces/models/game/resource-field-composition';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import { Pagination } from 'app/components/ui/pagination';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
+import { Button } from 'app/components/ui/button';
 import {
   Form,
   FormControl,
@@ -21,6 +32,8 @@ import {
   FormLabel,
   FormMessage,
 } from 'app/components/ui/form';
+import { Input } from 'app/components/ui/input';
+import { Pagination } from 'app/components/ui/pagination';
 import {
   Select,
   SelectContent,
@@ -28,16 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { Icon } from 'app/components/icon';
-import { calculateGridLayout, parseResourcesFromRFC } from 'app/utils/map';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import type { Resource } from 'app/interfaces/models/game/resource';
-import { Button } from 'app/components/ui/button';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { coordinatesSchema } from 'app/interfaces/models/common';
 import {
   Table,
   TableBody,
@@ -46,17 +49,14 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { Link, useSearchParams } from 'react-router';
+import { coordinatesSchema } from 'app/interfaces/models/common';
+import type { Resource } from 'app/interfaces/models/game/resource';
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
+  type ResourceFieldComposition,
+  resourceFieldCompositionSchema,
+} from 'app/interfaces/models/game/resource-field-composition';
+import { calculateGridLayout, parseResourcesFromRFC } from 'app/utils/map';
 import type { Route } from '.react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { Input } from 'app/components/ui/input';
 
 type OasisBonus =
   | `${25 | 50}-${Resource}`

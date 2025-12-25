@@ -1,21 +1,21 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { debounce } from 'moderndash';
 import {
   createContext,
+  type PropsWithChildren,
   useEffect,
   useMemo,
-  type PropsWithChildren,
 } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
+import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
+import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import {
   createWorkerFetcher,
   type Fetcher,
 } from 'app/(game)/utils/worker-fetch';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
-import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import type { Server } from 'app/interfaces/models/game/server';
-import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
-import { debounce } from 'moderndash';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];

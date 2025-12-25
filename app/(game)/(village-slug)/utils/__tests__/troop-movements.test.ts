@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
+import type { ComputedEffectReturn } from 'app/(game)/utils/calculate-computed-effect';
 import * as effectUtils from 'app/(game)/utils/calculate-computed-effect';
 import type { Troop } from 'app/interfaces/models/game/troop';
-import type { ComputedEffectReturn } from 'app/(game)/utils/calculate-computed-effect';
 
 describe('calculateTravelDuration', () => {
   const mockOriginVillageId = 0x00_01_00_01; // (1, 1)

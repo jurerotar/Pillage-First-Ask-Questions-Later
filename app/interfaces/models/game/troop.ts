@@ -1,5 +1,5 @@
-import { unitIdSchema } from 'app/interfaces/models/game/unit';
 import { z } from 'zod';
+import { unitIdSchema } from 'app/interfaces/models/game/unit';
 
 export const troopSchema = z.strictObject({
   unitId: unitIdSchema,

@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { heroCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
+import { heroCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { heroSchema } from 'app/interfaces/models/game/hero';
 

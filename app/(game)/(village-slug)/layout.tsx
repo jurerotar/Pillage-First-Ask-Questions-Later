@@ -1,18 +1,26 @@
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import type { Resource } from 'app/interfaces/models/game/resource';
 import { clsx } from 'clsx';
 import {
-  type PropsWithChildren,
   type ComponentProps,
-  type ReactNode,
-  Suspense,
   Fragment,
   memo,
+  type PropsWithChildren,
+  type ReactNode,
+  Suspense,
   useRef,
 } from 'react';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
+import { useTranslation } from 'react-i18next';
+import { CiCircleList } from 'react-icons/ci';
+import { FaHome } from 'react-icons/fa';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { GiWheat } from 'react-icons/gi';
+import { GoGraph } from 'react-icons/go';
+import { HiStar } from 'react-icons/hi2';
+import { LuBookMarked, LuScrollText } from 'react-icons/lu';
+import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import { PiListChecks, PiPathBold } from 'react-icons/pi';
+import { RiAuctionLine } from 'react-icons/ri';
+import { RxExit } from 'react-icons/rx';
+import { TbMap2, TbShoe } from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -20,14 +28,28 @@ import {
   Outlet,
   useNavigate,
 } from 'react-router';
+import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
+import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
+import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
+import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
-import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
-import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import { Tooltip } from 'app/components/tooltip';
 import {
   Select,
   SelectContent,
@@ -35,34 +57,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { useTranslation } from 'react-i18next';
-import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { Tooltip } from 'app/components/tooltip';
-import { Spinner } from 'app/components/ui/spinner';
-import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { TbMap2, TbShoe } from 'react-icons/tb';
-import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
-import { GiWheat } from 'react-icons/gi';
-import { LuBookMarked, LuScrollText } from 'react-icons/lu';
-import { PiListChecks, PiPathBold } from 'react-icons/pi';
-import { FaHome } from 'react-icons/fa';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
-import { RxExit } from 'react-icons/rx';
-import { GoGraph } from 'react-icons/go';
-import { CiCircleList } from 'react-icons/ci';
-import { RiAuctionLine } from 'react-icons/ri';
-import { HiStar } from 'react-icons/hi2';
-import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
-import { parseResourcesFromRFC } from 'app/utils/map';
-import { Text } from 'app/components/text';
-import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
-import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { Icon } from 'app/components/icon';
-import { formatNumber } from 'app/utils/common';
 import { Separator } from 'app/components/ui/separator';
+import { Spinner } from 'app/components/ui/spinner';
+import type { Resource } from 'app/interfaces/models/game/resource';
+import { formatNumber } from 'app/utils/common';
+import { parseResourcesFromRFC } from 'app/utils/map';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
 
 const TOOLTIP_DELAY_SHOW = 500;
 

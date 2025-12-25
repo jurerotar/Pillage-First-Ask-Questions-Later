@@ -1,15 +1,15 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { type Quest, questSchema } from 'app/interfaces/models/game/quest';
+import { use } from 'react';
+import { z } from 'zod';
 import {
   collectableQuestCountCacheKey,
   heroCacheKey,
   playerVillagesCacheKey,
   questsCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { z } from 'zod';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { type Quest, questSchema } from 'app/interfaces/models/game/quest';
 
 export const useQuests = () => {
   const { fetcher } = use(ApiContext);

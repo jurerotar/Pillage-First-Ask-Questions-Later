@@ -1,10 +1,10 @@
+import { PLAYER_ID } from 'app/constants/player';
+import { buildingFieldsFactory } from 'app/db/seeders/factories/building-fields-factory';
+import { batchInsert } from 'app/db/utils/batch-insert';
+import { getVillageSize } from 'app/db/utils/village-size';
 import type { Seeder } from 'app/interfaces/db';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import { buildingFieldsFactory } from 'app/db/seeders/factories/building-fields-factory';
-import { PLAYER_ID } from 'app/constants/player';
-import { getVillageSize } from 'app/db/utils/village-size';
-import { batchInsert } from 'app/db/utils/batch-insert';
 
 type QueryResultRow = {
   village_id: number;

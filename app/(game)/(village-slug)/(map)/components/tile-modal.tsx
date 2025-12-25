@@ -1,11 +1,13 @@
-import {
-  type Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from 'app/components/ui/dialog';
+import type { ComponentProps } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
+import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -13,7 +15,18 @@ import {
   isOccupiedOasisTile,
   isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
 import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
+import {
+  type Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
+import { PLAYER_ID } from 'app/constants/player';
 import type {
   OasisResourceBonus,
   OasisTile,
@@ -21,24 +34,11 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import { useTranslation } from 'react-i18next';
-import { parseResourcesFromRFC } from 'app/utils/map';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { Button } from 'app/components/ui/button';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { Text } from 'app/components/text';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
-import { isFindNewVillageTroopMovementEvent } from 'app/(game)/guards/event-guards';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { useNavigate } from 'react-router';
-import { PLAYER_ID } from 'app/constants/player';
 import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
 } from 'app/utils/common';
-import type { ComponentProps } from 'react';
+import { parseResourcesFromRFC } from 'app/utils/map';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;

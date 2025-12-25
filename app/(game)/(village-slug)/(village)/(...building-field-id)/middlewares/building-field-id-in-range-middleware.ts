@@ -1,5 +1,5 @@
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
 import { redirect } from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
 
 export const buildingFieldIdIsInRangeMiddleware: Route.ClientMiddlewareFunction =
   ({ params }) => {

@@ -1,6 +1,6 @@
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import { StateProvider } from 'app/providers/state-provider';
 import { initFaro } from 'app/faro';
+import { StateProvider } from 'app/providers/state-provider';
 import 'app/localization/i18n';
 import 'app/styles/app.css';
 import { env } from 'app/env';

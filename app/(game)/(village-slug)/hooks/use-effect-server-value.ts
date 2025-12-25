@@ -1,5 +1,5 @@
-import type { Effect } from 'app/interfaces/models/game/effect';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import type { Effect } from 'app/interfaces/models/game/effect';
 
 const effectsThatNeedServerValueModificationInDisplay = new Set<Effect['id']>([
   'woodProduction',

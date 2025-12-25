@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import {
   Table,
   TableBody,
@@ -6,9 +9,6 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { useTranslation } from 'react-i18next';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 
 export const SmithyImprovementTable = () => {
   const { t } = useTranslation();

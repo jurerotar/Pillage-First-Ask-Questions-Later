@@ -1,15 +1,15 @@
-import type { GameEventType } from 'app/interfaces/models/game/game-event';
+import { adventurePointIncreaseResolver } from 'app/(game)/api/handlers/resolvers/adventure-resolvers';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
 } from 'app/(game)/api/handlers/resolvers/building-resolvers';
-import { troopTrainingEventResolver } from 'app/(game)/api/handlers/resolvers/troop-resolvers';
-import { adventurePointIncreaseResolver } from 'app/(game)/api/handlers/resolvers/adventure-resolvers';
-import { unitResearchResolver } from 'app/(game)/api/handlers/resolvers/unit-research-resolvers';
-import { unitImprovementResolver } from 'app/(game)/api/handlers/resolvers/unit-improvement-resolvers';
 import { internalSeedOasisOccupiableByTableResolver } from 'app/(game)/api/handlers/resolvers/internal-resolvers';
+import { troopTrainingEventResolver } from 'app/(game)/api/handlers/resolvers/troop-resolvers';
+import { unitImprovementResolver } from 'app/(game)/api/handlers/resolvers/unit-improvement-resolvers';
+import { unitResearchResolver } from 'app/(game)/api/handlers/resolvers/unit-research-resolvers';
+import type { GameEventType } from 'app/interfaces/models/game/game-event';
 // import { troopMovementResolver } from 'app/(game)/api/handlers/resolvers/troop-movement-resolvers';
 
 export const getGameEventResolver = (gameEventType: GameEventType) => {

@@ -1,10 +1,10 @@
-import type { DbFacade } from 'app/(game)/api/facades/database-facade';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { resolveEvent } from 'app/(game)/api/engine/resolver';
 import {
   markNeedsRescan,
   takeNeedsRescan,
 } from 'app/(game)/api/engine/scheduler-signal';
-import { resolveEvent } from 'app/(game)/api/engine/resolver';
+import type { DbFacade } from 'app/(game)/api/facades/database-facade';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 let scheduledTimeout: number | null = null;
 let schedulingInProgress = false;

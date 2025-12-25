@@ -1,7 +1,7 @@
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { use } from 'react';
 import { z } from 'zod';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { coordinatesSchema } from 'app/interfaces/models/common';
 
 const getVillageRankingsSchema = z.strictObject({

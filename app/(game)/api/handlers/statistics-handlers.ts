@@ -1,7 +1,7 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import type { ApiHandler } from 'app/interfaces/api';
 import { factionSchema } from 'app/interfaces/models/game/faction';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
 
 const getPlayerRankingsSchema = z
   .strictObject({

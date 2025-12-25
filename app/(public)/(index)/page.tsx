@@ -1,7 +1,7 @@
+import { FaCodeMerge, FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { FaCodeMerge, FaGithub } from 'react-icons/fa6';
 
 const OpenSourceSection = () => {
   return (

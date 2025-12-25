@@ -1,5 +1,5 @@
-import { Separator as SeparatorPrimitive } from 'radix-ui';
 import { clsx } from 'clsx';
+import { Separator as SeparatorPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const Separator = ({

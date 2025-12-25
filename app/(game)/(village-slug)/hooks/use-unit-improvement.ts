@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { z } from 'zod';
+import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { unitIdSchema } from 'app/interfaces/models/game/unit';
 
 const getUnitImprovementsSchema = z.strictObject({

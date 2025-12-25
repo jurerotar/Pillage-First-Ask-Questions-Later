@@ -1,24 +1,6 @@
-import type { Building } from 'app/interfaces/models/game/building';
-import { type JSX, type LazyExoticComponent, use, Suspense } from 'react';
+import { type JSX, type LazyExoticComponent, Suspense, use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import { Skeleton } from 'app/components/ui/skeleton';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
   BuildingBenefits,
   BuildingCard,
@@ -26,7 +8,25 @@ import {
   BuildingOverview,
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
+import { Skeleton } from 'app/components/ui/skeleton';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import type { Building } from 'app/interfaces/models/game/building';
 import { lazyWithRetry } from 'app/utils/imports';
 
 const BuildingTabFallback = () => {

@@ -1,8 +1,5 @@
-import type { Route } from '.react-router/types/app/(game)/+types/layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ApiProvider } from 'app/(game)/providers/api-provider';
-import { loadAppTranslations } from 'app/localization/loaders/app';
 import { memo, Suspense, useEffect, useState } from 'react';
 import {
   Link,
@@ -10,12 +7,15 @@ import {
   type ShouldRevalidateFunction,
   useRouteError,
 } from 'react-router';
-import { Notifier } from 'app/(game)/components/notifier';
-import { Skeleton } from 'app/components/ui/skeleton';
 import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
+import { Notifier } from 'app/(game)/components/notifier';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
+import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { Skeleton } from 'app/components/ui/skeleton';
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import type { Route } from '.react-router/types/app/(game)/+types/layout';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');

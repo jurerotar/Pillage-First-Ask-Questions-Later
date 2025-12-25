@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 
-import { renderHook, act } from '@testing-library/react';
-import { useTabParam } from '../use-tab-param';
+import { act, renderHook } from '@testing-library/react';
 import { useSearchParams } from 'react-router';
-import { vi, describe, test, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { useTabParam } from '../use-tab-param';
 
 vi.mock('react-router', () => ({
   useSearchParams: vi.fn(),

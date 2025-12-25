@@ -1,5 +1,5 @@
-import { createElement, type HTMLAttributes, type ReactNode } from 'react';
 import { clsx } from 'clsx';
+import { createElement, type HTMLAttributes, type ReactNode } from 'react';
 
 type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
 

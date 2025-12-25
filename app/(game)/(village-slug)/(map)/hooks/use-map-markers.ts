@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import type { MapMarker } from 'app/interfaces/models/game/map-marker';
 import { mapMarkersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { MapMarker } from 'app/interfaces/models/game/map-marker';
 
 export const useMapMarkers = () => {
   const { data: mapMarkers } = useSuspenseQuery<MapMarker[]>({

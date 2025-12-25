@@ -1,6 +1,6 @@
-import type { Quest } from 'app/interfaces/models/game/quest';
 import type { TFunction } from 'i18next';
 import { kebabCase } from 'moderndash';
+import type { Quest } from 'app/interfaces/models/game/quest';
 
 type QuestGroup = {
   groupKey: string;

@@ -1,12 +1,12 @@
-import { Outlet } from 'react-router';
-import { Tooltip } from 'app/components/tooltip';
-import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
-import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
-import { Footer } from 'app/(public)/components/footer';
 import { MDXProvider } from '@mdx-js/react';
 import type { ComponentProps } from 'react';
-import { Text } from 'app/components/text';
+import { Outlet } from 'react-router';
 import { Toaster } from 'sonner';
+import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
+import { Footer } from 'app/(public)/components/footer';
+import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
+import { Text } from 'app/components/text';
+import { Tooltip } from 'app/components/tooltip';
 
 const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   h1: (props) => (

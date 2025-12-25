@@ -1,16 +1,16 @@
-import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import { clsx } from 'clsx';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
-import { decodeGraphicsProperty } from 'app/utils/map';
-import { Icon } from 'app/components/icon';
-import type { TroopMovementType } from 'app/components/icons/icons';
-import cellStyles from './cell.module.scss';
+import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { getReputationLevel } from 'app/(game)/(village-slug)/utils/reputation';
-import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
+import { Icon } from 'app/components/icon';
+import type { TroopMovementType } from 'app/components/icons/icons';
+import type { MapFilters } from 'app/interfaces/models/game/map-filters';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
+import { decodeGraphicsProperty } from 'app/utils/map';
+import cellStyles from './cell.module.scss';
 
 type Tile = ReturnType<typeof useMap>['map'][0];
 

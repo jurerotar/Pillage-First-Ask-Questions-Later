@@ -1,5 +1,5 @@
-import { getQuestRewards, getQuestRequirements } from 'app/assets/utils/quests';
 import { describe, expect, test } from 'vitest';
+import { getQuestRequirements, getQuestRewards } from 'app/assets/utils/quests';
 
 describe('Quest utils', () => {
   describe('getQuestRequirements', () => {

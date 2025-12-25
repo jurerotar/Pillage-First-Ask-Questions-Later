@@ -1,5 +1,5 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { ApiHandler } from 'app/interfaces/api';
 import { unitIdSchema } from 'app/interfaces/models/game/unit';
 
 const getResearchedUnitsSchema = z

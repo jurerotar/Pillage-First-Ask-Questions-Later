@@ -1,6 +1,13 @@
-import { useArtifactsAroundCurrentVillage } from 'app/(game)/(village-slug)/hooks/use-artifacts-around-current-village';
-import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { useArtifactsAroundCurrentVillage } from 'app/(game)/(village-slug)/hooks/use-artifacts-around-current-village';
+import { getItemDefinition } from 'app/assets/utils/items';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -9,13 +16,6 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { getItemDefinition } from 'app/assets/utils/items';
-import { Link } from 'react-router';
 
 type UnoccupiedArtifactRowProps = {
   item: ReturnType<

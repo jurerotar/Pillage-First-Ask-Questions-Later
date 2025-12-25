@@ -1,7 +1,7 @@
 import {
-  useRef,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
+  useRef,
 } from 'react';
 
 type UseLongPressEvent = {

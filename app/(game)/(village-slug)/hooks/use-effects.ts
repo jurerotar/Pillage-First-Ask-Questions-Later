@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { effectSchema } from 'app/interfaces/models/game/effect';
-import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { z } from 'zod';
+import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import type { Building } from 'app/interfaces/models/game/building';
+import { effectSchema } from 'app/interfaces/models/game/effect';
 
 const getEffectsSchema = effectSchema.extend({
   buildingId: z.string().nullable().optional() as z.ZodType<Building['id']>,

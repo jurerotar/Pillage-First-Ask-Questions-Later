@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import {
   calculateBuildingCancellationRefundForLevel,
   calculateBuildingCostForLevel,
@@ -5,10 +6,9 @@ import {
   calculateBuildingEffectValues,
   calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
-  getBuildingDefinition,
   getBuildingDataForLevel,
+  getBuildingDefinition,
 } from 'app/assets/utils/buildings';
-import { describe, expect, test } from 'vitest';
 
 describe('Buildings utils', () => {
   describe('calculateBuildingEffectValues', () => {

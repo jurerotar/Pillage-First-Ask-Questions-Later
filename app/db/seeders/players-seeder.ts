@@ -1,9 +1,9 @@
-import type { Seeder } from 'app/interfaces/db';
-import { batchInsert } from 'app/db/utils/batch-insert';
 import {
   generateNpcPlayers,
   playerFactory,
 } from 'app/db/seeders/factories/player-factory';
+import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
 import type { Faction } from 'app/interfaces/models/game/faction';
 
 const slugifyPlayerName = (name: string): string => {

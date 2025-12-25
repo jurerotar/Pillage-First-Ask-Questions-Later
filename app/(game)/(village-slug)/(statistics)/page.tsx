@@ -1,6 +1,9 @@
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
+import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
+import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,10 +11,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
-import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
-import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;

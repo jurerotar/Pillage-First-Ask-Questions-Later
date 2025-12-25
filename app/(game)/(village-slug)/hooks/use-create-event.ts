@@ -1,12 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
+import { use } from 'react';
+import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import type {
   GameEventType,
   GameEventTypeToEventArgsMap,
 } from 'app/interfaces/models/game/game-event';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type CreateEventArgs<T extends GameEventType> = Omit<
   GameEventTypeToEventArgsMap<T>,

@@ -1,15 +1,15 @@
-import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
+import {
+  cancelScheduling,
+  scheduleNextEvent,
+} from 'app/(game)/api/engine/scheduler';
+import { createDbFacade } from 'app/(game)/api/facades/database-facade';
+import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
-import { createDbFacade } from 'app/(game)/api/facades/database-facade';
-import {
-  cancelScheduling,
-  scheduleNextEvent,
-} from 'app/(game)/api/engine/scheduler';
 
 const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 

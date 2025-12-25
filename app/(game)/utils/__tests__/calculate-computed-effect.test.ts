@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest';
 import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
-import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import {
   wheatProductionBaseEffectMock,
   wheatProductionBonusBoosterEffectMock,
@@ -15,6 +14,7 @@ import {
   woodProductionHeroBonusEffectMock,
   woodProductionServerEffectMock,
 } from 'app/tests/mocks/game/effect-mock';
+import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 
 const villageId = villageMock.id;
 

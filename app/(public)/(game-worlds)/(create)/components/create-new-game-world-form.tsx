@@ -1,6 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { randomInt } from 'moderndash';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 import { z } from 'zod';
+import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
+import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import {
+  npcVillageNameAdjectives,
+  npcVillageNameNouns,
+} from 'app/assets/village';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,7 +23,6 @@ import {
   FormMessage,
 } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
-import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -18,23 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { useNavigate } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
-import type { Server } from 'app/interfaces/models/game/server';
-import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
-import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
-import { workerFactory } from 'app/utils/workers';
-import { Text } from 'app/components/text';
 import { Switch } from 'app/components/ui/switch';
-import {
-  npcVillageNameAdjectives,
-  npcVillageNameNouns,
-} from 'app/assets/village';
-import { randomInt } from 'moderndash';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
 import { env } from 'app/env';
-import { useEffect } from 'react';
-import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import type { Server } from 'app/interfaces/models/game/server';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { workerFactory } from 'app/utils/workers';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),

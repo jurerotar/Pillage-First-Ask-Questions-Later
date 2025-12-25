@@ -1,9 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
 type UpdateBookmarksArgs = {
   buildingId: keyof Bookmarks;

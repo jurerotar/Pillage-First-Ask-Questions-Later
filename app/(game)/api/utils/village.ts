@@ -1,8 +1,8 @@
-import type { Effect } from 'app/interfaces/models/game/effect';
-import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
-import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import { selectAllRelevantEffectsQuery } from 'app/(game)/api/utils/queries/effect-queries';
+import { calculateComputedEffect } from 'app/(game)/utils/calculate-computed-effect';
+import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
+import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
 export const demolishBuilding = (

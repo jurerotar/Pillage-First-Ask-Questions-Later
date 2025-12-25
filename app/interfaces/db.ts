@@ -1,5 +1,5 @@
-import type { Server } from 'app/interfaces/models/game/server';
 import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import type { Server } from 'app/interfaces/models/game/server';
 
 export type Database = Awaited<
   ReturnType<typeof sqlite3InitModule>

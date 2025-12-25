@@ -1,13 +1,13 @@
-import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import { getBuildingDataForLevel } from 'app/assets/utils/buildings';
-import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useTranslation } from 'react-i18next';
-import type { Building } from 'app/interfaces/models/game/building';
+import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
+import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hooks/current-village/use-has-available-building-queue-slot';
 import { useHasEnoughFreeCrop } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-free-crop';
 import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
-import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hooks/current-village/use-has-available-building-queue-slot';
 import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
+import { getBuildingDataForLevel } from 'app/assets/utils/buildings';
+import type { Building } from 'app/interfaces/models/game/building';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 type UseBuildingRequirementsReturn = {
   variant: BorderIndicatorBorderVariant;

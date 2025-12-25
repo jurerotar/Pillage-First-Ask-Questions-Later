@@ -1,12 +1,12 @@
+import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
+import { usernameAdjectives, usernameNouns } from 'app/assets/player';
+import { PLAYER_ID } from 'app/constants/player';
+import type { Faction } from 'app/interfaces/models/game/faction';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { seededRandomArrayElement } from 'app/utils/common';
-import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
-import { usernameAdjectives, usernameNouns } from 'app/assets/player';
 import { calculateGridLayout } from 'app/utils/map';
-import { PLAYER_ID } from 'app/constants/player';
-import type { Faction } from 'app/interfaces/models/game/faction';
 
 type PlayerFactoryProps = {
   faction: Faction;

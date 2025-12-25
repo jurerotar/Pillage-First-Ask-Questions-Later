@@ -1,8 +1,8 @@
+import { getUnitsByTribe } from 'app/assets/utils/units';
+import { PLAYER_ID } from 'app/constants/player';
+import { batchInsert } from 'app/db/utils/batch-insert';
 import type { Seeder } from 'app/interfaces/db';
 import type { Unit } from 'app/interfaces/models/game/unit';
-import { getUnitsByTribe } from 'app/assets/utils/units';
-import { batchInsert } from 'app/db/utils/batch-insert';
-import { PLAYER_ID } from 'app/constants/player';
 
 const upgradableTiers = new Set<Unit['tier']>([
   'tier-1',

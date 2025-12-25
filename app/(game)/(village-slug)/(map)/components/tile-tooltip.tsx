@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   isOccupiableOasisTile,
@@ -5,12 +7,12 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Skeleton } from 'app/components/ui/skeleton';
 import type {
   OasisResourceBonus,
   OasisTile,
   OccupiedOccupiableTile,
 } from 'app/interfaces/models/game/tile';
-import { useTranslation } from 'react-i18next';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
   calculateDistanceBetweenPoints,
@@ -18,8 +20,6 @@ import {
   roundToNDecimalPoints,
 } from 'app/utils/common';
 import { parseResourcesFromRFC } from 'app/utils/map';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileTooltipProps = {
   tileId: number;

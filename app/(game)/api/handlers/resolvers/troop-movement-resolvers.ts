@@ -1,7 +1,7 @@
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Resolver } from 'app/interfaces/api';
 import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import type { Resolver } from 'app/interfaces/api';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const attackMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
   database,

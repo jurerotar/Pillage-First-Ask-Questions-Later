@@ -1,12 +1,12 @@
-import type { Resource } from 'app/interfaces/models/game/resource';
-import { use } from 'react';
-import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import { formatNumberWithCommas, truncateToShortForm } from 'app/utils/common';
-import { Icon } from 'app/components/icon';
 import { clsx } from 'clsx';
+import { use } from 'react';
 import { Link } from 'react-router';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { Icon } from 'app/components/icon';
+import type { Resource } from 'app/interfaces/models/game/resource';
+import { formatNumberWithCommas, truncateToShortForm } from 'app/utils/common';
 
 type ResourceCounterProps = {
   resource: Resource;

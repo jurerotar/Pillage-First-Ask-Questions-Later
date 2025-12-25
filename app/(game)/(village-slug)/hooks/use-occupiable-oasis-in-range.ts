@@ -1,12 +1,12 @@
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Tile } from 'app/interfaces/models/game/tile';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { z } from 'zod';
-import { resourceSchema } from 'app/interfaces/models/game/resource';
+import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { coordinatesSchema } from 'app/interfaces/models/common';
+import { resourceSchema } from 'app/interfaces/models/game/resource';
+import type { Tile } from 'app/interfaces/models/game/tile';
 
 type AbandonOasisArgs = {
   oasisId: Tile['id'];

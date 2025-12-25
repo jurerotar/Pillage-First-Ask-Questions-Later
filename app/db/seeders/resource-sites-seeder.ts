@@ -1,7 +1,7 @@
+import { batchInsert } from 'app/db/utils/batch-insert';
+import { getVillageSize } from 'app/db/utils/village-size';
 import type { Seeder } from 'app/interfaces/db';
 import type { VillageSize } from 'app/interfaces/models/game/village';
-import { getVillageSize } from 'app/db/utils/village-size';
-import { batchInsert } from 'app/db/utils/batch-insert';
 
 type VillageSelectResultRow = {
   id: number;

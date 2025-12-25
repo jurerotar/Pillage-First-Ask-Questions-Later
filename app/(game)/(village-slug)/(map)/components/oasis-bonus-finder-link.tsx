@@ -1,7 +1,7 @@
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { Link } from 'react-router';
-import { PiListMagnifyingGlass } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
+import { PiListMagnifyingGlass } from 'react-icons/pi';
+import { Link } from 'react-router';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 
 export const OasisBonusFinderLink = () => {
   const { t } = useTranslation();

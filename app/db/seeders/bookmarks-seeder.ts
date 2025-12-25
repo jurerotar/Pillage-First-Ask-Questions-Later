@@ -1,7 +1,7 @@
 import { buildings } from 'app/assets/buildings';
-import type { Seeder } from 'app/interfaces/db';
-import { batchInsert } from 'app/db/utils/batch-insert';
 import { PLAYER_ID } from 'app/constants/player';
+import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
 
 export const bookmarksSeeder: Seeder = (database): void => {
   const playerStartingVillageId = database.selectValue(

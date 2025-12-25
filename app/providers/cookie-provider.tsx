@@ -1,19 +1,19 @@
 import {
-  type PropsWithChildren,
   createContext,
+  type PropsWithChildren,
   useEffect,
   useState,
 } from 'react';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
 import type {
   SkinVariant,
   TimeOfDay,
   UIColorScheme,
 } from 'app/interfaces/models/game/preferences';
+import type { AvailableLocale } from 'app/interfaces/models/locale';
 import {
-  LOCALE_COOKIE_NAME,
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+  LOCALE_COOKIE_NAME,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
 

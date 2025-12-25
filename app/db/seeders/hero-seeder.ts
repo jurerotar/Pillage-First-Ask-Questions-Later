@@ -1,5 +1,5 @@
-import type { Seeder } from 'app/interfaces/db';
 import { PLAYER_ID } from 'app/constants/player';
+import type { Seeder } from 'app/interfaces/db';
 
 export const heroSeeder: Seeder = (database): void => {
   database.exec({

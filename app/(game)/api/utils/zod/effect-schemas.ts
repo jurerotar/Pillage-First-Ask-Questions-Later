@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import {
+  type Building,
+  buildingIdSchema,
+} from 'app/interfaces/models/game/building';
+import {
   type EffectId,
   effectScopeSchema,
   effectSourceSchema,
   effectTypeSchema,
 } from 'app/interfaces/models/game/effect';
-import {
-  type Building,
-  buildingIdSchema,
-} from 'app/interfaces/models/game/building';
 
 // This schema should only be used in /api, due to its signature being different from what FE expects
 export const apiEffectSchema = z

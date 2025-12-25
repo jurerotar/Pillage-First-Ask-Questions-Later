@@ -1,7 +1,7 @@
-import type { Seeder } from 'app/interfaces/db';
-import type { Faction } from 'app/interfaces/models/game/faction';
 import { reputationLevels } from 'app/assets/reputation';
 import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
+import type { Faction } from 'app/interfaces/models/game/faction';
 
 export const factionReputationSeeder: Seeder = (database): void => {
   const rows = database.selectArrays('SELECT faction, id FROM factions;') as [

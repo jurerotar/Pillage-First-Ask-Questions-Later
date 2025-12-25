@@ -1,8 +1,8 @@
 import { createBuildingQuest, villageQuests } from 'app/assets/quests';
-import type { VillageQuest } from 'app/interfaces/models/game/quest';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import type { Building } from 'app/interfaces/models/game/building';
+import type { VillageQuest } from 'app/interfaces/models/game/quest';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const newVillageQuestsFactory = (
   villageId: Village['id'],

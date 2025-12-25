@@ -1,5 +1,5 @@
-import type { Seeder } from 'app/interfaces/db';
 import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export const eventsSeeder: Seeder = (database, server): void => {

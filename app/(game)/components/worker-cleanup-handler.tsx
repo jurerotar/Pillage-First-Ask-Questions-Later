@@ -1,5 +1,5 @@
-import { useNavigation } from 'react-router';
 import { use, useEffect } from 'react';
+import { useNavigation } from 'react-router';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type WorkerCleanupHandlerProps = {

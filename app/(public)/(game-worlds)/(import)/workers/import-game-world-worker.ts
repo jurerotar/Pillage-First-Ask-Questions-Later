@@ -1,5 +1,5 @@
-import { type Server, serverDbSchema } from 'app/interfaces/models/game/server';
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
+import { type Server, serverDbSchema } from 'app/interfaces/models/game/server';
 
 export type ImportGameWorldWorkerPayload = {
   databaseBuffer: ArrayBuffer;

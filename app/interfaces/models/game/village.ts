@@ -1,7 +1,7 @@
-import { buildingFieldSchema } from 'app/interfaces/models/game/building-field';
 import { z } from 'zod';
-import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 import { coordinatesSchema } from 'app/interfaces/models/common';
+import { buildingFieldSchema } from 'app/interfaces/models/game/building-field';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 
 // Used mostly in seeders
 export type VillageSize =
