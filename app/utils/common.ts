@@ -1,5 +1,5 @@
-import type { Point } from 'app/interfaces/models/common';
 import type { PRNGFunction } from 'ts-seedrandom';
+import type { Point } from 'app/interfaces/models/common';
 
 export const seededRandomIntFromInterval = (
   prng: PRNGFunction,

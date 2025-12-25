@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { type Unit, unitIdSchema } from 'app/interfaces/models/game/unit';
-import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { z } from 'zod';
+import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
+import { type Unit, unitIdSchema } from 'app/interfaces/models/game/unit';
 
 const getResearchedUnitsSchema = z.strictObject({
   unitId: unitIdSchema,

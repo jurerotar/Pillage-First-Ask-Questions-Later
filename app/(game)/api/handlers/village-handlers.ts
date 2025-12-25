@@ -1,9 +1,9 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { ApiHandler } from 'app/interfaces/api';
 import { buildingIdSchema } from 'app/interfaces/models/game/building';
-import { decodeGraphicsProperty } from 'app/utils/map';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { decodeGraphicsProperty } from 'app/utils/map';
 
 const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),

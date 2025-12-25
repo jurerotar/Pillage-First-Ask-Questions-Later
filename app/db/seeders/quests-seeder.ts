@@ -1,10 +1,10 @@
-import type { Seeder } from 'app/interfaces/db';
-import { PLAYER_ID } from 'app/constants/player';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import { createUnitTroopCountQuests, globalQuests } from 'app/assets/quests';
+import { PLAYER_ID } from 'app/constants/player';
 import { newVillageQuestsFactory } from 'app/db/seeders/factories/quest-factory';
 import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const questsSeeder: Seeder = (database): void => {
   const playerStartingVillageId = database.selectValue(

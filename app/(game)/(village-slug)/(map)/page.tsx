@@ -1,31 +1,32 @@
-import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
-import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
-import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
-import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
-import {
-  MapContext,
-  MapProvider,
-} from 'app/(game)/(village-slug)/(map)/providers/map-context';
-import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
-import { Tooltip } from 'app/components/tooltip';
-import { useDialog } from 'app/hooks/use-dialog';
-import type { Point } from 'app/interfaces/models/common';
+import { useWindowEvent } from '@mantine/hooks';
 import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useSearchParams, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useSearchParams } from 'react-router';
+import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import {
   FixedSizeGrid,
   FixedSizeList,
   type GridOnScrollProps,
 } from 'react-window';
-import { useEventListener, useWindowSize } from 'usehooks-ts';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { Dialog } from 'app/components/ui/dialog';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
-import { useTranslation } from 'react-i18next';
-import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
+import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
+import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import { TileOverlay } from 'app/(game)/(village-slug)/(map)/components/overlays/tile-overlay';
+import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
+import {
+  MapContext,
+  MapProvider,
+} from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { Tooltip } from 'app/components/tooltip';
+import { Dialog } from 'app/components/ui/dialog';
+import { useDialog } from 'app/hooks/use-dialog';
+import { useWindowSize } from 'app/hooks/use-window-size';
+import type { Point } from 'app/interfaces/models/common';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -39,7 +40,7 @@ const MapPageContents = () => {
     modalArgs,
   } = useDialog<number>();
   const { map } = useMap();
-  const { height, width } = useWindowSize({ debounceDelay: 150 });
+  const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
   const { gridSize, tileSize, magnification } = use(MapContext);
@@ -64,7 +65,7 @@ const MapPageContents = () => {
   /**
    * List of individual contributions
    * Desktop:
-   *  - Header is 76px tall
+   *  - Header is 80px tall
    * Mobile:
    *  - Top navigation is 128px tall
    *   - Navigation section is 63px tall
@@ -72,7 +73,7 @@ const MapPageContents = () => {
    *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
    *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
    */
-  const mapHeight = isWiderThanLg ? height - 76 : height - 218;
+  const mapHeight = isWiderThanLg ? height - 80 : height - 218;
 
   const isScrolling = useRef<boolean>(false);
   const currentCenterTile = useRef<Point>({
@@ -129,38 +130,28 @@ const MapPageContents = () => {
     };
   }, [tileSize]);
 
-  useEventListener(
-    'mousemove',
-    ({ clientX, clientY }) => {
-      if (!isScrolling.current || !mapRef.current) {
-        return;
-      }
+  useWindowEvent('mousemove', ({ clientX, clientY }) => {
+    if (!isScrolling.current || !mapRef.current) {
+      return;
+    }
 
-      const deltaX = clientX - mouseDownPosition.current.x;
-      const deltaY = clientY - mouseDownPosition.current.y;
+    const deltaX = clientX - mouseDownPosition.current.x;
+    const deltaY = clientY - mouseDownPosition.current.y;
 
-      const currentX = mapRef.current.scrollLeft;
-      const currentY = mapRef.current.scrollTop;
+    const currentX = mapRef.current.scrollLeft;
+    const currentY = mapRef.current.scrollTop;
 
-      mouseDownPosition.current = {
-        x: clientX,
-        y: clientY,
-      };
+    mouseDownPosition.current = {
+      x: clientX,
+      y: clientY,
+    };
 
-      mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    window,
-  );
+    mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+  });
 
-  useEventListener(
-    'mouseup',
-    () => {
-      isScrolling.current = false;
-    },
-    // @ts-expect-error - remove once usehooks-ts is R19 compliant
-    window,
-  );
+  useWindowEvent('mouseup', () => {
+    isScrolling.current = false;
+  });
 
   const scrollLeft = (tileX: number) => {
     return tileSize * (tileX + gridSize / 2) - width / 2;

@@ -1,14 +1,14 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'app/components/ui/alert';
+import { GiMetalBar, GiStoneBlock, GiWoodPile } from 'react-icons/gi';
+import { LuWheat } from 'react-icons/lu';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { Text } from 'app/components/text';
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
-import { useState } from 'react';
-import type { Resource } from 'app/interfaces/models/game/resource';
+import { Alert } from 'app/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -16,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { LuWheat } from 'react-icons/lu';
-import { GiMetalBar, GiStoneBlock, GiWoodPile } from 'react-icons/gi';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
+import type { Resource } from 'app/interfaces/models/game/resource';
 
 export const MarketplaceTrade = () => {
   const { t } = useTranslation();
@@ -158,7 +158,7 @@ export const MarketplaceTrade = () => {
           </div>
           <div className="flex flex-col gap-2">
             <Text className="font-medium">{t('Sort by')}</Text>
-            <div className="flex sm:max-w-[250px]">
+            <div className="flex sm:max-w-62.5">
               <Select
                 onValueChange={(value) => setSortBy(value)}
                 value={sortBy}

@@ -1,9 +1,19 @@
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import type {
-  Effect,
-  ResourceProductionEffectId,
-  VillageBuildingEffect,
-} from 'app/interfaces/models/game/effect';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import {
+  isArtifactEffect,
+  isBuildingEffect,
+  isHeroEffect,
+  isOasisEffect,
+  isServerEffect,
+} from 'app/(game)/guards/effect-guards';
+import { getItemDefinition } from 'app/assets/utils/items';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -13,22 +23,12 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { useTranslation } from 'react-i18next';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import {
-  isArtifactEffect,
-  isBuildingEffect,
-  isHeroEffect,
-  isOasisEffect,
-  isServerEffect,
-} from 'app/(game)/guards/effect-guards';
-import { getItemDefinition } from 'app/assets/utils/items';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import type {
+  Effect,
+  ResourceProductionEffectId,
+  VillageBuildingEffect,
+} from 'app/interfaces/models/game/effect';
 import { tileIdToCoordinates } from 'app/utils/map';
-import { Link } from 'react-router';
 
 const formatBonus = (number: number): number => {
   return Math.trunc(number * 10_000) / 100;

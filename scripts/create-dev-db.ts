@@ -1,6 +1,6 @@
+import { glob, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { readFile, rm, mkdir, writeFile, glob } from 'node:fs/promises';
-import { dirname, join, basename, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');

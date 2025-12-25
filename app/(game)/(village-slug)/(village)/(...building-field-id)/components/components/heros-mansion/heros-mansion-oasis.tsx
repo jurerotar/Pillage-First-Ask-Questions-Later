@@ -1,11 +1,17 @@
+import { clsx } from 'clsx';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useOccupiableOasisInRange } from 'app/(game)/(village-slug)/hooks/use-occupiable-oasis-in-range';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Table,
   TableBody,
@@ -15,12 +21,6 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { clsx } from 'clsx';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { Button } from 'app/components/ui/button';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 
 type UnoccupiedOasisSlotProps = {
   heroMansionLevel: number;

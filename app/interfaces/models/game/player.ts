@@ -1,6 +1,6 @@
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
 import { z } from 'zod';
 import { factionSchema } from 'app/interfaces/models/game/faction';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
 
 export const playerSchema = z.strictObject({
   id: z.number(),

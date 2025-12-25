@@ -1,14 +1,15 @@
-import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
-import { defineConfig as defineVitestConfig } from 'vitest/config';
-import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
-import { reactRouter } from '@react-router/dev/vite';
+import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
-import packageJson from './package.json' with { type: 'json' };
-import devtoolsJson from 'vite-plugin-devtools-json';
 // import babel from 'vite-plugin-babel';
 // import { visualizer } from "rollup-plugin-visualizer";
 import { reactIconsSprite } from 'react-icons-sprite/vite';
+import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
+import devtoolsJson from 'vite-plugin-devtools-json';
+import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
+import { defineConfig as defineVitestConfig } from 'vitest/config';
+import { reactRouter } from '@react-router/dev/vite';
+import packageJson from './package.json' with { type: 'json' };
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -56,6 +57,7 @@ const viteConfig = defineViteConfig({
     //       plugins: [['babel-plugin-react-compiler']],
     //     },
     //   }),
+    !isInTestMode && mdx({ providerImportSource: '@mdx-js/react' }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
@@ -70,23 +72,6 @@ const viteConfig = defineViteConfig({
           globIgnores: ['**/*.html'],
         },
       }),
-    // usehooks-ts is bundling lodash.debounce, which adds ~ 10kb of bloat. Until this is resolved, we're manually
-    // replacing the dependency. Remove once/if this gets resolved.
-    // https://github.com/juliencrn/usehooks-ts/discussions/669#discussioncomment-11922434
-    {
-      name: 'replace-lodash-debounce',
-      enforce: 'pre',
-      transform: (code, id) => {
-        if (!id.includes('usehooks-ts')) {
-          return;
-        }
-
-        return code.replace(
-          `import debounce from 'lodash.debounce';`,
-          `import { debounce } from 'moderndash';`,
-        );
-      },
-    },
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {

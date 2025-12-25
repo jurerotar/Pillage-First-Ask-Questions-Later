@@ -1,11 +1,16 @@
+import { describe, expect, test } from 'vitest';
 import {
-  assessBuildingConstructionReadiness,
   type AssessBuildingConstructionReadinessArgs,
   type AssessBuildingConstructionReadinessReturn,
   type AssessedBuildingRequirement,
+  assessBuildingConstructionReadiness,
 } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+import type {
+  Building,
+  BuildingRequirement,
+} from 'app/interfaces/models/game/building';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { BuildingRequirement } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
 import type { Village } from 'app/interfaces/models/game/village';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
@@ -14,7 +19,6 @@ import {
   villageWithWorkshopRequirementsMetBuildingFieldsMock,
 } from 'app/tests/mocks/game/village/building-fields-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
-import { describe, expect, test } from 'vitest';
 
 const buildingConstructionEventMock = createBuildingConstructionEventMock({
   buildingId: 'CRANNY',
@@ -23,16 +27,38 @@ const buildingConstructionEventMock = createBuildingConstructionEventMock({
 });
 
 const currentVillage: Village = villageMock;
-const playerVillages: Village[] = [villageMock, villageMock];
 const tribe: Tribe = 'gauls';
 const currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[] = [];
 
-const defaultArgs = {
-  currentVillage,
-  currentVillageBuildingEvents,
-  playerVillages,
-  tribe,
+const toMaxLevelMap = (buildingFields: BuildingField[]) => {
+  const map = new Map<Building['id'], number>();
+
+  for (const bf of buildingFields) {
+    const prev = map.get(bf.buildingId);
+    if (prev === undefined || bf.level > prev) {
+      map.set(bf.buildingId, bf.level);
+    }
+  }
+
+  return map;
 };
+
+const toIdsInQueue = (events: GameEvent<'buildingConstruction'>[]) => {
+  const set = new Set<Building['id']>();
+
+  for (const ev of events) {
+    set.add(ev.buildingId);
+  }
+
+  return set;
+};
+
+const defaultArgs: Omit<AssessBuildingConstructionReadinessArgs, 'buildingId'> =
+  {
+    tribe,
+    maxLevelByBuildingId: toMaxLevelMap(currentVillage.buildingFields),
+    buildingIdsInQueue: toIdsInQueue(currentVillageBuildingEvents),
+  };
 
 const getAssessedRequirementByType = (
   requirementType: BuildingRequirement['type'],
@@ -212,13 +238,27 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeFalsy();
     });
 
+    test("Can't build a palisade", () => {
+      const args: AssessBuildingConstructionReadinessArgs = {
+        ...defaultArgs,
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'PALISADE', id: 40, level: 0 },
+        ]),
+        buildingId: 'PALISADE',
+      };
+      const { fulfilled } = getAssessedRequirementByType(
+        'amount',
+        assessBuildingConstructionReadiness(args),
+      );
+      expect(fulfilled).toBe(false);
+    });
+
     test("Can't build a second main building even if first is max level", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: [{ buildingId: 'MAIN_BUILDING', id: 1, level: 20 }],
-        },
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'MAIN_BUILDING', id: 1, level: 20 },
+        ]),
         buildingId: 'MAIN_BUILDING',
       };
       const { fulfilled } = getAssessedRequirementByType(
@@ -231,10 +271,9 @@ describe('building-requirements', () => {
     test('Can build a second cranny if first one is max level', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: [{ buildingId: 'CRANNY', id: 1, level: 10 }],
-        },
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'CRANNY', id: 1, level: 10 },
+        ]),
         buildingId: 'CRANNY',
       };
       const { fulfilled } = getAssessedRequirementByType(
@@ -247,13 +286,10 @@ describe('building-requirements', () => {
     test('Can build a third cranny if one is max level, even if other is not max level', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: [
-            { buildingId: 'CRANNY', id: 1, level: 1 },
-            { buildingId: 'CRANNY', id: 2, level: 10 },
-          ],
-        },
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'CRANNY', id: 1, level: 1 },
+          { buildingId: 'CRANNY', id: 2, level: 10 },
+        ]),
         buildingId: 'CRANNY',
       };
       const { fulfilled } = getAssessedRequirementByType(
@@ -266,7 +302,7 @@ describe('building-requirements', () => {
     test("Can't build a cranny if one is already in building queue", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillageBuildingEvents: [buildingConstructionEventMock],
+        buildingIdsInQueue: toIdsInQueue([buildingConstructionEventMock]),
         buildingId: 'CRANNY',
       };
 
@@ -280,11 +316,10 @@ describe('building-requirements', () => {
     test('Can build a third cranny even if one is already in building queue, if you have a max level one', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: [{ buildingId: 'CRANNY', id: 2, level: 10 }],
-        },
-        currentVillageBuildingEvents: [buildingConstructionEventMock],
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'CRANNY', id: 2, level: 10 },
+        ]),
+        buildingIdsInQueue: toIdsInQueue([buildingConstructionEventMock]),
         buildingId: 'CRANNY',
       };
 
@@ -312,10 +347,9 @@ describe('building-requirements', () => {
     test('Can build barracks once main building is upgraded', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: villageWithBarracksRequirementsMetBuildingFieldsMock,
-        },
+        maxLevelByBuildingId: toMaxLevelMap(
+          villageWithBarracksRequirementsMetBuildingFieldsMock,
+        ),
         buildingId: 'BARRACKS',
       };
       const { fulfilled } = getAssessedRequirementByType(
@@ -328,10 +362,9 @@ describe('building-requirements', () => {
     test('Can build workshop with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock,
-        },
+        maxLevelByBuildingId: toMaxLevelMap(
+          villageWithWorkshopRequirementsMetBuildingFieldsMock,
+        ),
         buildingId: 'WORKSHOP',
       };
       const { fulfilled } = getAssessedRequirementByType(
@@ -345,10 +378,9 @@ describe('building-requirements', () => {
     test('Can build stable with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: villageWithWorkshopRequirementsMetBuildingFieldsMock,
-        },
+        maxLevelByBuildingId: toMaxLevelMap(
+          villageWithWorkshopRequirementsMetBuildingFieldsMock,
+        ),
         buildingId: 'STABLE',
       };
       const { fulfilled } = getAssessedRequirementByType(
@@ -361,10 +393,9 @@ describe('building-requirements', () => {
     test("Can not build brickyard with clay pit lvl 10 if it's missing main building", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
-        currentVillage: {
-          ...currentVillage,
-          buildingFields: [{ buildingId: 'CLAY_PIT', id: 1, level: 10 }],
-        },
+        maxLevelByBuildingId: toMaxLevelMap([
+          { buildingId: 'CLAY_PIT', id: 1, level: 10 },
+        ]),
         buildingId: 'BRICKYARD',
       };
       const canBuild = getAssessedRequirementsByType(

@@ -1,18 +1,26 @@
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import type { Resource } from 'app/interfaces/models/game/resource';
 import { clsx } from 'clsx';
 import {
-  type PropsWithChildren,
   type ComponentProps,
-  type ReactNode,
-  Suspense,
   Fragment,
   memo,
+  type PropsWithChildren,
+  type ReactNode,
+  Suspense,
   useRef,
 } from 'react';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
+import { useTranslation } from 'react-i18next';
+import { CiCircleList } from 'react-icons/ci';
+import { FaHome } from 'react-icons/fa';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { GiWheat } from 'react-icons/gi';
+import { GoGraph } from 'react-icons/go';
+import { HiStar } from 'react-icons/hi2';
+import { LuBookMarked, LuScrollText } from 'react-icons/lu';
+import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import { PiListChecks, PiPathBold } from 'react-icons/pi';
+import { RiAuctionLine } from 'react-icons/ri';
+import { RxExit } from 'react-icons/rx';
+import { TbMap2, TbShoe } from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -20,14 +28,28 @@ import {
   Outlet,
   useNavigate,
 } from 'react-router';
+import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
+import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
+import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
+import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
-import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
-import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
+import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
+import { Tooltip } from 'app/components/tooltip';
 import {
   Select,
   SelectContent,
@@ -35,34 +57,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { useTranslation } from 'react-i18next';
-import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { Tooltip } from 'app/components/tooltip';
-import { Spinner } from 'app/components/ui/spinner';
-import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { TbMap2, TbShoe } from 'react-icons/tb';
-import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
-import { GiWheat } from 'react-icons/gi';
-import { LuBookMarked, LuScrollText } from 'react-icons/lu';
-import { PiListChecks, PiPathBold } from 'react-icons/pi';
-import { FaHome } from 'react-icons/fa';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
-import { RxExit } from 'react-icons/rx';
-import { GoGraph } from 'react-icons/go';
-import { CiCircleList } from 'react-icons/ci';
-import { RiAuctionLine } from 'react-icons/ri';
-import { HiStar } from 'react-icons/hi2';
-import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
-import { parseResourcesFromRFC } from 'app/utils/map';
-import { Text } from 'app/components/text';
-import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
-import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { Icon } from 'app/components/icon';
-import { formatNumber } from 'app/utils/common';
 import { Separator } from 'app/components/ui/separator';
+import { Spinner } from 'app/components/ui/spinner';
+import type { Resource } from 'app/interfaces/models/game/resource';
+import { formatNumber } from 'app/utils/common';
+import { parseResourcesFromRFC } from 'app/utils/map';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
 
 const TOOLTIP_DELAY_SHOW = 500;
 
@@ -111,7 +111,7 @@ const NavigationSideItem = ({
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-class-name="hidden lg:flex"
       className={clsx(
-        'bg-gradient-to-t from-[#f2f2f2] to-[#ffffff]',
+        'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
         'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
         'transition-transform active:scale-95 active:shadow-inner',
         'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
@@ -126,7 +126,58 @@ const NavigationSideItem = ({
   );
 };
 
-const VillageOverviewLink = () => {
+const DesktopPopulation = () => {
+  const { population, buildingWheatLimit } =
+    useComputedEffect('wheatProduction');
+
+  return (
+    <div className="flex gap-2">
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-border p-1 my-1">
+        <Icon
+          type="population"
+          className="min-w-4"
+        />
+        <span className="text-foreground text-sm">
+          {formatNumber(population)}
+        </span>
+      </div>
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-border p-1 my-1">
+        <Icon
+          type="freeCrop"
+          className="min-w-3"
+        />
+        <span className="text-foreground text-sm">
+          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const VillageOverviewDesktopItem = () => {
+  const { t } = useTranslation();
+
+  return (
+    <NavLink
+      to="overview"
+      aria-label={t('Overview')}
+      data-tooltip-content={t('Overview')}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      className={clsx(
+        'flex items-center justify-center shadow-md rounded-md p-1.5 border border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:transition-colors',
+      )}
+    >
+      <span className="lg:bg-background rounded-md flex items-center justify-center">
+        <CiCircleList className="text-xl" />
+      </span>
+    </NavLink>
+  );
+};
+
+const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
   const { population, buildingWheatLimit } =
     useComputedEffect('wheatProduction');
@@ -182,7 +233,7 @@ const HeroNavigationItem = () => {
   return (
     <Link
       to="hero"
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-gradient-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
       aria-label={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
@@ -249,7 +300,7 @@ const DesktopTopRowItem = ({
       data-tooltip-class-name="hidden lg:flex"
       type="button"
       className="
-        px-3 py-0.5 border-2 border-white rounded-sm bg-gradient-to-t bg-card
+        px-3 py-0.5 border-2 border-white rounded-sm bg-linear-to-t bg-card
         flex items-center justify-center
         transition-transform active:scale-95 active:shadow-inner
         lg:transition-colors lg:hover:bg-gray-50
@@ -277,7 +328,7 @@ const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
           isActive
             ? 'from-[#7da100] to-[#c7e94f] lg:hover:from-[#728f00] lg:hover:to-[#b8dc45]'
             : 'from-[#b8b2a9] to-[#f1f0ee] lg:hover:from-[#aba5a0] lg:hover:to-[#e8e7e5]',
-          'bg-gradient-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+          'bg-linear-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
           'transition-transform transform-gpu active:scale-95',
           'lg:transition-colors',
         )
@@ -397,7 +448,7 @@ const ResourceCounters = () => {
         (resource: Resource, index) => (
           <Fragment key={resource}>
             <ResourceCounter resource={resource} />
-            {index !== 3 && <span className="w-[2px] h-full bg-gray-300" />}
+            {index !== 3 && <span className="w-0.5 h-full bg-gray-300" />}
           </Fragment>
         ),
       )}
@@ -453,7 +504,7 @@ const TopNavigation = () => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   return (
-    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-gradient-to-r from-gray-200 via-white to-gray-200">
+    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
@@ -530,22 +581,7 @@ const TopNavigation = () => {
               <Suspense fallback={null}>
                 <VillageSelect />
               </Suspense>
-              <NavLink
-                to="overview"
-                aria-label={t('Overview')}
-                data-tooltip-content={t('Overview')}
-                data-tooltip-id="general-tooltip"
-                data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
-                className={clsx(
-                  'flex items-center justify-center shadow-md rounded-md p-2 border border-border relative',
-                  'transition-transform active:scale-95 active:shadow-inner',
-                  'lg:transition-colors',
-                )}
-              >
-                <span className=" lg:bg-background rounded-md flex items-center justify-center">
-                  <CiCircleList className="text-xl" />
-                </span>
-              </NavLink>
+              <VillageOverviewDesktopItem />
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
@@ -582,13 +618,15 @@ const TopNavigation = () => {
                 </li>
               </ul>
             </nav>
-            <div className="flex flex-1" />
+            <div className="flex flex-1 justify-end">
+              <DesktopPopulation />
+            </div>
           </div>
         </div>
       )}
       {!isWiderThanLg && (
         <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-8">
-          <VillageOverviewLink />
+          <VillageOverviewMobileItem />
           <VillageSelect />
           <HeroNavigationItem />
         </div>
@@ -613,7 +651,7 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,_rgba(255,255,255,1)_0%,_rgba(232,232,232,1)_83%,_rgba(255,255,255,1)_83.1%,_rgba(255,255,255,1)_84%,_rgba(255,255,255,0)_84.1%,_rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"

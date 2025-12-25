@@ -1,9 +1,9 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import type { Server } from 'app/interfaces/models/game/server';
-import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
+import type { Server } from 'app/interfaces/models/game/server';
 
 const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
   const root = await navigator.storage.getDirectory();
@@ -59,18 +59,12 @@ const deleteServerData = async (server: Server) => {
   );
 };
 
-export const useAvailableServers = () => {
-  const { data: availableServers } = useQuery<Server[]>({
-    queryKey: [availableServerCacheKey],
-    queryFn: async () => {
-      return JSON.parse(
-        window.localStorage.getItem(availableServerCacheKey) ?? '[]',
-      );
-    },
-    initialData: [],
-  });
-
-  const { mutate: addServer } = useMutation<void, Error, { server: Server }>({
+export const useGameWorldActions = () => {
+  const { mutate: createGameWorld } = useMutation<
+    void,
+    Error,
+    { server: Server }
+  >({
     mutationFn: async ({ server }) => {
       const servers: Server[] = JSON.parse(
         window.localStorage.getItem(availableServerCacheKey) ?? '[]',
@@ -87,20 +81,7 @@ export const useAvailableServers = () => {
     },
   });
 
-  const { mutateAsync: deleteServer } = useMutation<
-    void,
-    Error,
-    { server: Server }
-  >({
-    mutationFn: ({ server }) => deleteServerData(server),
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [availableServerCacheKey],
-      });
-    },
-  });
-
-  const { mutateAsync: exportServer } = useMutation<
+  const { mutateAsync: exportGameWorld } = useMutation<
     void,
     Error,
     { server: Server }
@@ -137,10 +118,22 @@ export const useAvailableServers = () => {
     },
   });
 
+  const { mutateAsync: deleteGameWorld } = useMutation<
+    void,
+    Error,
+    { server: Server }
+  >({
+    mutationFn: ({ server }) => deleteServerData(server),
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({
+        queryKey: [availableServerCacheKey],
+      });
+    },
+  });
+
   return {
-    availableServers,
-    addServer,
-    deleteServer,
-    exportServer,
+    createGameWorld,
+    exportGameWorld,
+    deleteGameWorld,
   };
 };

@@ -1,25 +1,25 @@
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { faro } from '@grafana/faro-web-sdk';
+import { useMutation } from '@tanstack/react-query';
 import { type PropsWithChildren, Suspense, use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
-import { useTranslation } from 'react-i18next';
-import { LuConstruction } from 'react-icons/lu';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { type PlacesType, Tooltip } from 'react-tooltip';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { IoIosArrowRoundForward } from 'react-icons/io';
+import { LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useMutation } from '@tanstack/react-query';
+import { type PlacesType, Tooltip } from 'react-tooltip';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import {
   eventsCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { faro } from '@grafana/faro-web-sdk';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { isScheduledBuildingEvent } from 'app/(game)/guards/event-guards';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
@@ -79,7 +79,7 @@ const ConstructionQueueBuilding = ({
         key={tooltipKey}
         id={tooltipId}
         clickable
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !w-fit !text-black border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place={tooltipPosition}
         {...(isWiderThanMd && {
@@ -91,7 +91,7 @@ const ConstructionQueueBuilding = ({
         })}
       >
         <div className="flex flex-col gap-2">
-          <div className="flex md:hidden border-b-1 border-border pb-1 text-sm">
+          <div className="flex md:hidden border-b border-border pb-1 text-sm">
             <b>{t('Under construction')}</b>
           </div>
           <div className="flex gap-2">
@@ -147,14 +147,9 @@ const ConstructionQueueEmptySlot = ({
 
 const ConstructionQueueContent = () => {
   const tribe = useTribe();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const emptySlots =
     (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
@@ -193,6 +188,12 @@ const ConstructionQueueContent = () => {
 };
 
 export const ConstructionQueue = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
   return (
     <Suspense fallback={null}>
       <ConstructionQueueContent />

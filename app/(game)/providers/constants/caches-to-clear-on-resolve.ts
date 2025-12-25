@@ -1,4 +1,3 @@
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import {
   adventurePointsCacheKey,
   collectableQuestCountCacheKey,
@@ -9,6 +8,7 @@ import {
   unitImprovementCacheKey,
   unitResearchCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export const cachesToClearOnResolve = new Map<GameEvent['type'], string[]>([
   ['__internal__seedOasisOccupiableByTable', []],

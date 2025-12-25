@@ -1,9 +1,9 @@
-import type { Seeder } from 'app/interfaces/db';
 import { prngMulberry32 } from 'ts-seedrandom';
+import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
+import type { Resource } from 'app/interfaces/models/game/resource';
 import { seededRandomIntFromInterval } from 'app/utils/common';
 import { decodeGraphicsProperty } from 'app/utils/map';
-import { batchInsert } from 'app/db/utils/batch-insert';
-import type { Resource } from 'app/interfaces/models/game/resource';
 
 export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);

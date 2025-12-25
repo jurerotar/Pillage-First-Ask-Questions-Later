@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   UnitAttributes,
@@ -5,16 +6,15 @@ import {
   UnitImprovement,
   UnitOverview,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
-import { units } from 'app/assets/units';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { units } from 'app/assets/units';
 import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
-import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();

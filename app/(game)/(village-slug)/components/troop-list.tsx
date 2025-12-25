@@ -1,29 +1,24 @@
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { Suspense, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
-import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import { formatNumber, partition } from 'app/utils/common';
 import { Tooltip } from 'react-tooltip';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import { Text } from 'app/components/text';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { Suspense, useId } from 'react';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Text } from 'app/components/text';
+import type { Troop } from 'app/interfaces/models/game/troop';
+import { formatNumber, partition } from 'app/utils/common';
 
 const TroopListContent = () => {
   const { t } = useTranslation();
-  const { shouldShowSidebars } = useGameLayoutState();
   const { currentVillage } = useCurrentVillage();
   const { villageTroops } = useVillageTroops();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const tooltipId = useId();
   const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
 
   const currentVillagePlayerTroops = villageTroops.filter(
     ({ tileId }) => tileId === currentVillage.tileId,
@@ -46,7 +41,7 @@ const TroopListContent = () => {
       <Tooltip
         key={tooltipKey}
         id={tooltipId}
-        className="!z-20 !rounded-xs !px-2 !py-1 !bg-background !text-black border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place="top-start"
         {...(isWiderThanLg && {
@@ -112,6 +107,12 @@ const TroopListContent = () => {
 };
 
 export const TroopList = () => {
+  const { shouldShowSidebars } = useGameLayoutState();
+
+  if (!shouldShowSidebars) {
+    return null;
+  }
+
   return (
     <Suspense fallback={null}>
       <TroopListContent />

@@ -1,3 +1,9 @@
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
+import { useGameWorldListing } from 'app/(public)/(game-worlds)/(index)/hooks/use-game-world-listing';
+import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -5,18 +11,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
-import type { Server } from 'app/interfaces/models/game/server';
-import { ServerCard } from 'app/(public)/(index)/components/server-card';
 import { Button } from 'app/components/ui/button';
-import { Link } from 'react-router';
-import { Alert } from 'app/components/ui/alert';
+import type { Server } from 'app/interfaces/models/game/server';
 
 const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
-  const { availableServers } = useAvailableServers();
+  const { gameWorldListing } = useGameWorldListing();
 
   const title = t('{{title}} | Pillage First!', { title: 'My game worlds' });
 
@@ -42,14 +42,14 @@ const MyGameWorldsPage = () => {
           </Text>
 
           <div className="flex flex-col gap-2">
-            {availableServers.length > 0 &&
-              availableServers.map((server: Server) => (
+            {gameWorldListing.length > 0 &&
+              gameWorldListing.map((server: Server) => (
                 <ServerCard
                   key={server.id}
                   server={server}
                 />
               ))}
-            {availableServers.length === 0 && (
+            {gameWorldListing.length === 0 && (
               <Alert variant="info">
                 You don't have any existing game worlds. You may create your
                 first one by clicking on the link above.

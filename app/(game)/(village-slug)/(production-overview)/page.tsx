@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(production-overview)/+types/page';
 import { ProductionOverview } from 'app/(game)/(village-slug)/(production-overview)/components/production-overview';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,8 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(production-overview)/+types/page';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;

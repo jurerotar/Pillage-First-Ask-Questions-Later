@@ -1,11 +1,11 @@
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
-import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
-import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
-import { Icon } from 'app/components/icon';
 import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { OasisBonusFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-bonus-finder-link';
+import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
+import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { Icon } from 'app/components/icon';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
 const MagnificationButton = ({
   direction,

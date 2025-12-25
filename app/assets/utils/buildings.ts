@@ -3,9 +3,9 @@ import type {
   Building,
   BuildingEffect,
 } from 'app/interfaces/models/game/building';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Village } from 'app/interfaces/models/game/village';
-import type { BuildingField } from 'app/interfaces/models/game/building-field';
 
 // Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
 export const specialFieldIds: BuildingField['id'][] = [

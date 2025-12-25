@@ -1,8 +1,8 @@
-import type { Resources } from 'app/interfaces/models/game/resource';
 import { use } from 'react';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useTranslation } from 'react-i18next';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import type { Resources } from 'app/interfaces/models/game/resource';
+import { CookieContext } from 'app/providers/cookie-provider';
 import { formatNumber } from 'app/utils/common';
 
 export const getHasEnoughResources = (
@@ -19,8 +19,8 @@ export const getHasEnoughResources = (
 
 export const useHasEnoughResources = (requiredResources: number[]) => {
   const { t } = useTranslation();
-  const { preferences } = usePreferences();
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
+  const { locale } = use(CookieContext);
 
   const resources = { wood, clay, iron, wheat };
 
@@ -64,7 +64,7 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
       );
     }
 
-    const lf = new Intl.ListFormat(preferences.locale, {
+    const lf = new Intl.ListFormat(locale, {
       style: 'long',
       type: 'conjunction',
     });

@@ -1,18 +1,18 @@
+import {
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+  useState,
+} from 'react';
+import { MdUpgrade } from 'react-icons/md';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import {
   BorderIndicator,
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import {
-  useState,
-  type MouseEvent as ReactMouseEvent,
-  type TouchEvent as ReactTouchEvent,
-} from 'react';
 import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { MdUpgrade } from 'react-icons/md';
 
 type StaticButtonProps = {
   buildingField: BuildingField;
@@ -56,9 +56,9 @@ const UpgradeButton = ({
     useState<boolean>(false);
 
   const onUpgradeButtonClick = (event: ReactMouseEvent | ReactTouchEvent) => {
-    upgradeBuilding();
     event.stopPropagation();
     event.preventDefault();
+    upgradeBuilding();
   };
 
   return (
@@ -105,20 +105,11 @@ export const BuildingUpgradeIndicator = ({
     return 'white';
   })();
 
+  const ChildComponent = canUpgrade && isHovered ? UpgradeButton : StaticButton;
+
   // TODO: Transitions needs to added here, the icon currently just pops in
-
-  if (canUpgrade && isHovered) {
-    return (
-      <UpgradeButton
-        buildingField={buildingField}
-        backgroundVariant={backgroundVariant}
-        variant={variant}
-      />
-    );
-  }
-
   return (
-    <StaticButton
+    <ChildComponent
       buildingField={buildingField}
       backgroundVariant={backgroundVariant}
       variant={variant}

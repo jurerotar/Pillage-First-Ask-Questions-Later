@@ -1,19 +1,19 @@
-import { useTranslation } from 'react-i18next';
 import {
   type PropsWithChildren,
   type ReactNode,
   useEffect,
   useState,
 } from 'react';
-import { FaChevronDown } from 'react-icons/fa';
-import { Link, type LinkProps, useLocation } from 'react-router';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { useTranslation } from 'react-i18next';
 import { BiWorld } from 'react-icons/bi';
-import { IoCreate } from 'react-icons/io5';
-import { IoIosChatbubbles } from 'react-icons/io';
-import { PiHandshakeBold } from 'react-icons/pi';
-import { Button } from 'app/components/ui/button';
 import { CiImport } from 'react-icons/ci';
+import { FaChevronDown } from 'react-icons/fa';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { IoIosChatbubbles } from 'react-icons/io';
+import { IoCreate } from 'react-icons/io5';
+import { PiHandshakeBold } from 'react-icons/pi';
+import { Link, type LinkProps, useLocation } from 'react-router';
+import { Button } from 'app/components/ui/button';
 
 const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
@@ -109,6 +109,7 @@ export const DesktopNavigation = () => {
             <img
               alt={t('Pillage First! logo')}
               width="200"
+              height="30"
               src="/pillage-first-logo-horizontal.svg"
             />
           </Link>

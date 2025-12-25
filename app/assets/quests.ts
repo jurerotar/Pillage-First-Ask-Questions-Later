@@ -1,12 +1,12 @@
+import { units } from 'app/assets/units';
+import { getUnitsByTribe } from 'app/assets/utils/units';
+import type { Building } from 'app/interfaces/models/game/building';
 import type {
   GlobalQuest,
   VillageQuest,
 } from 'app/interfaces/models/game/quest';
-import type { Building } from 'app/interfaces/models/game/building';
-import type { Unit } from 'app/interfaces/models/game/unit';
-import { units } from 'app/assets/units';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
-import { getUnitsByTribe } from 'app/assets/utils/units';
+import type { Unit } from 'app/interfaces/models/game/unit';
 
 type VillageQuestDefinition = {
   id: VillageQuest['id'];

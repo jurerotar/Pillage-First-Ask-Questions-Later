@@ -1,6 +1,6 @@
+import { z } from 'zod';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import { z } from 'zod';
 
 type ComputedUnits<
   T extends

@@ -1,7 +1,7 @@
+import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import { getUnitDefinition } from 'app/assets/utils/units';
 import type { Resolver } from 'app/interfaces/api';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { getUnitDefinition } from 'app/assets/utils/units';
-import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
 
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>

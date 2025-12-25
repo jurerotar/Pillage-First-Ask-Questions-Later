@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { artifactsInVicinityCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { z } from 'zod';
+import { artifactsInVicinityCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { coordinatesSchema } from 'app/interfaces/models/common';
 
 const getArtifactsAroundCurrentVillageSchema = z.strictObject({

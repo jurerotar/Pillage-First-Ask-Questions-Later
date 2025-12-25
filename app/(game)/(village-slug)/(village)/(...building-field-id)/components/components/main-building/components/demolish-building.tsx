@@ -1,6 +1,13 @@
-import { Text } from 'app/components/text';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { useDemolishBuildingErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-demolish-building-error-bag';
+import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -10,14 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { Button } from 'app/components/ui/button';
-import { useState } from 'react';
-import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
-import { useNavigate } from 'react-router';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useDemolishBuildingErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-demolish-building-error-bag';
 
 export const DemolishBuilding = () => {
   const navigate = useNavigate();
@@ -103,7 +103,7 @@ export const DemolishBuilding = () => {
         </SelectGroup>
       </Select>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {buildingFieldToDemolish.level > 1 && (
           <Button
             size="fit"

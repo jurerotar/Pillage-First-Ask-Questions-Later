@@ -1,15 +1,14 @@
 import { z } from 'zod';
 
-export const preferencesColorSchemeSchema = z.enum(['light', 'dark']);
-export const preferencesTimeOfDaySchema = z.enum(['day', 'night']);
-export const preferencesSkinVariantSchema = z.enum(['default']);
-export const preferencesLocaleSchema = z.enum(['en-US']);
+const uiColorSchemeSchema = z.enum(['light', 'dark']);
+const timeOfDaySchema = z.enum(['day', 'night']);
+const skinVariantSchema = z.enum(['default']);
+
+export type UIColorScheme = z.infer<typeof uiColorSchemeSchema>;
+export type TimeOfDay = z.infer<typeof timeOfDaySchema>;
+export type SkinVariant = z.infer<typeof skinVariantSchema>;
 
 export const preferencesSchema = z.strictObject({
-  colorScheme: preferencesColorSchemeSchema,
-  locale: preferencesLocaleSchema,
-  timeOfDay: preferencesTimeOfDaySchema,
-  skinVariant: preferencesSkinVariantSchema,
   isAccessibilityModeEnabled: z.boolean(),
   isReducedMotionModeEnabled: z.boolean(),
   shouldShowBuildingNames: z.boolean(),

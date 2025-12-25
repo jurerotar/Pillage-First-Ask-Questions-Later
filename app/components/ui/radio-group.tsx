@@ -1,7 +1,7 @@
-import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
-import { LuCircle } from 'react-icons/lu';
 import { clsx } from 'clsx';
+import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
+import { LuCircle } from 'react-icons/lu';
 
 export const RadioGroup = ({
   className,

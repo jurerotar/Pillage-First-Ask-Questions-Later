@@ -1,5 +1,5 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { Resource } from 'app/interfaces/models/game/resource';
 
 // TODO: Move this to an util function that's called after combat, once combat is added

@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
-import { serverMock } from 'app/tests/mocks/game/server-mock';
-import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
+import { natureUnits } from 'app/assets/units';
 import {
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
 } from 'app/assets/utils/buildings';
 import { getUnitDefinition, getUnitsByTribe } from 'app/assets/utils/units';
 import { PLAYER_ID } from 'app/constants/player';
-import { natureUnits } from 'app/assets/units';
-import type { UnitId } from 'app/interfaces/models/game/unit';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import type { UnitId } from 'app/interfaces/models/game/unit';
+import { serverMock } from 'app/tests/mocks/game/server-mock';
+import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
 
 const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 const sqlite3 = await sqlite3InitModule();

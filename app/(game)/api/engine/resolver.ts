@@ -1,8 +1,8 @@
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { parseEvent } from 'app/(game)/api/utils/zod/event-schemas';
 import { getGameEventResolver } from 'app/(game)/api/utils/event-type-mapper';
+import { parseEvent } from 'app/(game)/api/utils/zod/event-schemas';
 import type { EventApiNotificationEvent } from 'app/interfaces/api';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
   const deletedRow = database.selectObject(

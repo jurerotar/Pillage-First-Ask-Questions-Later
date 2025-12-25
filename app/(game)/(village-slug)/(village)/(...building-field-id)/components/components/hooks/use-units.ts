@@ -1,6 +1,6 @@
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import type { Unit } from 'app/interfaces/models/game/unit';
 import { units } from 'app/assets/units';
+import type { Unit } from 'app/interfaces/models/game/unit';
 
 export const useUnits = () => {
   const tribe = useTribe();

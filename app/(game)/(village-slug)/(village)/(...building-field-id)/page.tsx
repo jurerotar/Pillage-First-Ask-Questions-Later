@@ -1,11 +1,11 @@
+import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
 import { BuildingConstruction } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction';
 import { BuildingDetails } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-details';
+import { buildingFieldIdIsInRangeMiddleware } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/middlewares/building-field-id-in-range-middleware';
+import { BuildingFieldProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
-import { BuildingFieldProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
-import { useTranslation } from 'react-i18next';
-import { buildingFieldIdIsInRangeMiddleware } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/middlewares/building-field-id-in-range-middleware';
 
 export const clientMiddleware = [buildingFieldIdIsInRangeMiddleware];
 

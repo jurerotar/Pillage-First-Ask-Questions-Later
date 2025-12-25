@@ -1,6 +1,6 @@
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { createContext, useState, type PropsWithChildren } from 'react';
+import { createContext, type PropsWithChildren, useState } from 'react';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { calculateGridLayout } from 'app/utils/map';
 
 type MapProviderValues = {

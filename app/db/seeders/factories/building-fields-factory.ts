@@ -1,7 +1,7 @@
-import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
 import type { Building } from 'app/interfaces/models/game/building';
-import type { VillageSize } from 'app/interfaces/models/game/village';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
+import type { PlayableTribe } from 'app/interfaces/models/game/tribe';
+import type { VillageSize } from 'app/interfaces/models/game/village';
 
 type BuildingField = {
   field_id: number;

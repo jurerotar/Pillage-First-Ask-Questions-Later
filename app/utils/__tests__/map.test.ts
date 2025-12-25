@@ -1,12 +1,12 @@
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import type { Resource } from 'app/interfaces/models/game/resource';
 import {
-  encodeGraphicsProperty,
-  decodeGraphicsProperty,
-  parseResourcesFromRFC,
   calculateGridLayout,
+  decodeGraphicsProperty,
+  encodeGraphicsProperty,
+  parseResourcesFromRFC,
   tileIdToCoordinates,
 } from '../map';
-import type { Resource } from 'app/interfaces/models/game/resource';
 
 describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
   test('encoding and decoding is reversible for all valid combinations', () => {

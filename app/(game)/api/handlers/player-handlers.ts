@@ -1,8 +1,8 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { z } from 'zod';
+import type { ApiHandler } from 'app/interfaces/api';
+import { playerSchema } from 'app/interfaces/models/game/player';
 import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 import { unitIdSchema } from 'app/interfaces/models/game/unit';
-import { playerSchema } from 'app/interfaces/models/game/player';
 
 export const getPlayerById: ApiHandler<'playerId'> = (database, args) => {
   const {

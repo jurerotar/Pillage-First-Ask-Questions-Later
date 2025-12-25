@@ -1,5 +1,5 @@
-import type { Seeder } from 'app/interfaces/db';
 import { batchInsert } from 'app/db/utils/batch-insert';
+import type { Seeder } from 'app/interfaces/db';
 import type { Effect } from 'app/interfaces/models/game/effect';
 
 export const effectIdsSeeder: Seeder = (database): void => {

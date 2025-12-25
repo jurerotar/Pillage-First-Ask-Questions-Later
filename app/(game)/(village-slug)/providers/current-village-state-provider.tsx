@@ -1,11 +1,11 @@
+import { createContext, type PropsWithChildren } from 'react';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import type { Resources } from 'app/interfaces/models/game/resource';
-import { type PropsWithChildren, createContext } from 'react';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import type {
   ComputedEffectReturn,
   WheatProductionEffectReturn,
 } from 'app/(game)/utils/calculate-computed-effect';
+import type { Resources } from 'app/interfaces/models/game/resource';
 
 type CurrentVillageStateContextReturn = Resources & {
   computedWheatProductionEffect: WheatProductionEffectReturn;

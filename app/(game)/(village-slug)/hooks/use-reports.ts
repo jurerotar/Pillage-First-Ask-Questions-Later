@@ -1,8 +1,8 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import type { Report, ReportTag } from 'app/interfaces/models/game/report';
-import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
+import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Report, ReportTag } from 'app/interfaces/models/game/report';
 
 export const useReports = () => {
   const { fetcher } = use(ApiContext);

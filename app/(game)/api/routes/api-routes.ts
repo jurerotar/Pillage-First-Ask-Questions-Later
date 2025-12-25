@@ -1,15 +1,31 @@
-import { getTiles, getTile } from 'app/(game)/api/handlers/map-handlers';
+import { match } from 'path-to-regexp';
 import {
-  getPreferences,
-  updatePreference,
-} from 'app/(game)/api/handlers/preferences-handlers';
-import { getServer } from 'app/(game)/api/handlers/server-handlers';
+  getBookmarks,
+  updateBookmark,
+} from 'app/(game)/api/handlers/bookmark-handlers';
+import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
+import {
+  cancelConstructionEvent,
+  createNewEvents,
+  getVillageEvents,
+  getVillageEventsByType,
+} from 'app/(game)/api/handlers/event-handlers';
 import {
   getHero,
   getHeroAdventures,
-  getHeroLoadout,
   getHeroInventory,
+  getHeroLoadout,
 } from 'app/(game)/api/handlers/hero-handlers';
+import {
+  getMapFilters,
+  updateMapFilter,
+} from 'app/(game)/api/handlers/map-filters-handlers';
+import { getTile, getTiles } from 'app/(game)/api/handlers/map-handlers';
+import { getTilesWithBonuses } from 'app/(game)/api/handlers/oasis-bonus-finder-handlers';
+import {
+  abandonOasis,
+  occupyOasis,
+} from 'app/(game)/api/handlers/oasis-handlers';
 import {
   getPlayerById,
   getPlayerVillageListing,
@@ -17,42 +33,26 @@ import {
   renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
 import {
+  getPreferences,
+  updatePreference,
+} from 'app/(game)/api/handlers/preferences-handlers';
+import {
   collectQuest,
   getCollectableQuestCount,
   getQuests,
 } from 'app/(game)/api/handlers/quest-handlers';
+import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import {
-  cancelConstructionEvent,
-  createNewEvents,
-  getVillageEvents,
-  getVillageEventsByType,
-} from 'app/(game)/api/handlers/event-handlers';
-import { getVillageEffects } from 'app/(game)/api/handlers/effect-handlers';
-import {
-  getMapFilters,
-  updateMapFilter,
-} from 'app/(game)/api/handlers/map-filters-handlers';
+  getPlayerRankings,
+  getVillageRankings,
+} from 'app/(game)/api/handlers/statistics-handlers';
+import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
+import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
 import {
   getOccupiableOasisInRange,
   getVillageBySlug,
 } from 'app/(game)/api/handlers/village-handlers';
 import { getArtifactsAroundVillage } from 'app/(game)/api/handlers/world-items-handlers';
-import { match } from 'path-to-regexp';
-import { getResearchedUnits } from 'app/(game)/api/handlers/unit-research-handlers';
-import { getUnitImprovements } from 'app/(game)/api/handlers/unit-improvement-handlers';
-import {
-  getBookmarks,
-  updateBookmark,
-} from 'app/(game)/api/handlers/bookmark-handlers';
-import {
-  abandonOasis,
-  occupyOasis,
-} from 'app/(game)/api/handlers/oasis-handlers';
-import {
-  getPlayerRankings,
-  getVillageRankings,
-} from 'app/(game)/api/handlers/statistics-handlers';
-import { getTilesWithBonuses } from 'app/(game)/api/handlers/oasis-bonus-finder-handlers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 

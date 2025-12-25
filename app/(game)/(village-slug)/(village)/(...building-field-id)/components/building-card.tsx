@@ -1,30 +1,30 @@
-import type {
-  assessBuildingConstructionReadiness,
-  AssessedBuildingRequirement,
-} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  calculateBuildingEffectValues,
-  type CalculatedCumulativeEffect,
-  getBuildingDefinition,
-  getBuildingDataForLevel,
-} from 'app/assets/utils/buildings';
-import type { Building } from 'app/interfaces/models/game/building';
 import { clsx } from 'clsx';
-import { createContext, use, Fragment, type PropsWithChildren } from 'react';
+import { createContext, Fragment, type PropsWithChildren, use } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { formatTime } from 'app/utils/time';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { Icon } from 'app/components/icon';
-import { formatNumber, formatPercentage } from 'app/utils/common';
-import type { BuildingField } from 'app/interfaces/models/game/building-field';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
-import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import type {
+  AssessedBuildingRequirement,
+  assessBuildingConstructionReadiness,
+} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import {
+  type CalculatedCumulativeEffect,
+  calculateBuildingEffectValues,
+  getBuildingDataForLevel,
+  getBuildingDefinition,
+} from 'app/assets/utils/buildings';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
+import type { Building } from 'app/interfaces/models/game/building';
+import type { BuildingField } from 'app/interfaces/models/game/building-field';
+import { formatNumber, formatPercentage } from 'app/utils/common';
+import { formatTime } from 'app/utils/time';
 
 type BuildingCardContextState = {
   buildingId: Building['id'];

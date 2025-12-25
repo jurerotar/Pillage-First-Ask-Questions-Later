@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
 import { use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { formatNumber } from 'app/utils/common';
 

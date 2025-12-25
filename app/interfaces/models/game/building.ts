@@ -1,6 +1,6 @@
+import { z } from 'zod';
 import type { Effect } from 'app/interfaces/models/game/effect';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import { z } from 'zod';
 
 export type TroopTrainingBuildingId =
   | 'BARRACKS'

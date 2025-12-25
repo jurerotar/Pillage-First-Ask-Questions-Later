@@ -1,6 +1,6 @@
-import { formatFutureTimestamp, formatTime } from 'app/utils/time';
-import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
 import type { HTMLAttributes } from 'react';
+import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
+import { formatFutureTimestamp, formatTime } from 'app/utils/time';
 
 type CountdownProps = {
   endsAt: number;

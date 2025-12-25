@@ -1,13 +1,13 @@
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
-import type { ReportType } from 'app/interfaces/models/game/report';
 import { useTranslation } from 'react-i18next';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import { Text } from 'app/components/text';
-import { LuScale, LuSword } from 'react-icons/lu';
-import { PiPathBold } from 'react-icons/pi';
-import { GiSpyglass } from 'react-icons/gi';
 import { BsShieldFill } from 'react-icons/bs';
 import { CiBag1 } from 'react-icons/ci';
+import { GiSpyglass } from 'react-icons/gi';
+import { LuScale, LuSword } from 'react-icons/lu';
+import { PiPathBold } from 'react-icons/pi';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { Text } from 'app/components/text';
+import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
+import type { ReportType } from 'app/interfaces/models/game/report';
 
 type ReportFiltersProps = {
   reportFilters: ReportType[];

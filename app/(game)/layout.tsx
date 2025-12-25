@@ -1,8 +1,5 @@
-import type { Route } from '.react-router/types/app/(game)/+types/layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ApiProvider } from 'app/(game)/providers/api-provider';
-import { loadAppTranslations } from 'app/localization/loaders/app';
 import { memo, Suspense, useEffect, useState } from 'react';
 import {
   Link,
@@ -10,12 +7,15 @@ import {
   type ShouldRevalidateFunction,
   useRouteError,
 } from 'react-router';
-import { Notifier } from 'app/(game)/components/notifier';
-import { Skeleton } from 'app/components/ui/skeleton';
 import { Toaster, type ToasterProps } from 'sonner';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
+import { Notifier } from 'app/(game)/components/notifier';
 import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
+import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { Skeleton } from 'app/components/ui/skeleton';
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import type { Route } from '.react-router/types/app/(game)/+types/layout';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -143,7 +143,7 @@ export const ErrorBoundary = () => {
           to="/"
           className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
         >
-          Go to home
+          Return to homepage
         </Link>
         <button
           type="button"
@@ -174,19 +174,19 @@ const LayoutFallback = () => {
   return (
     <>
       <div className="h-dvh w-full flex flex-col justify-between gap-2 lg:hidden ">
-        <div className="flex flex-col p-2 pt-0 bg-gradient-to-r from-gray-200 via-white to-gray-200">
+        <div className="flex flex-col p-2 pt-0 bg-linear-to-r from-gray-200 via-white to-gray-200">
           <div className="flex gap-6 w-full h-14 items-center">
-            <Skeleton className="size-11.5 !rounded-full" />
+            <Skeleton className="size-11.5 rounded-full!" />
             <Skeleton className="h-10 flex-1" />
-            <Skeleton className="size-11.5 !rounded-full" />
+            <Skeleton className="size-11.5 rounded-full!" />
           </div>
           <Skeleton className="h-13" />
         </div>
-        <Skeleton className="h-24 !rounded-none" />
+        <Skeleton className="h-24 rounded-none!" />
       </div>
       <div className="hidden lg:flex flex-col justify-center relative">
-        <Skeleton className="h-19 w-full !rounded-none" />
-        <Skeleton className="h-16 w-144 mx-auto !rounded-none absolute top-27 absolute-centering" />
+        <Skeleton className="h-19 w-full rounded-none!" />
+        <Skeleton className="h-16 w-xl mx-auto rounded-none! absolute top-27 absolute-centering" />
       </div>
     </>
   );

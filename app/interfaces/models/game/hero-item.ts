@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { Resources } from 'app/interfaces/models/game/resource';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { Resources } from 'app/interfaces/models/game/resource';
 
 type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 

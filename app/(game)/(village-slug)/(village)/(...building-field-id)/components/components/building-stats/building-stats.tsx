@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { BuildingStatsUpgradeCost } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/building-stats/components/building-stats-upgrade-cost';
+import { BuildingStatsUpgradeDuration } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/building-stats/components/building-stats-upgrade-duration';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { BuildingStatsUpgradeCost } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/building-stats/components/building-stats-upgrade-cost';
-import { BuildingStatsUpgradeDuration } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/building-stats/components/building-stats-upgrade-duration';
+import { Text } from 'app/components/text';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 export const BuildingStats = () => {
   const { t } = useTranslation();

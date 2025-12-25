@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { serverSchema } from 'app/interfaces/models/game/server';
-import { serverCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
+import { serverCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { serverSchema } from 'app/interfaces/models/game/server';
 
 export const useServer = () => {
   const { fetcher } = use(ApiContext);

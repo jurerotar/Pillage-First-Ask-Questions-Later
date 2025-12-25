@@ -1,9 +1,12 @@
-import { Pagination } from 'app/components/ui/pagination';
+import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import { Section } from 'app/(game)/(village-slug)/components/building-layout';
-import { Text } from 'app/components/text';
+import { Link } from 'react-router';
 import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/hooks/use-player-rankings';
+import { Section } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { usePlayer } from 'app/(game)/(village-slug)/hooks/use-player';
+import { Text } from 'app/components/text';
+import { Pagination } from 'app/components/ui/pagination';
 import {
   Table,
   TableBody,
@@ -12,9 +15,6 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { usePlayer } from 'app/(game)/(village-slug)/hooks/use-player';
-import { clsx } from 'clsx';
-import { Link } from 'react-router';
 
 // TODO: Consider whether this should be customizable through preferences
 const RESULTS_PER_PAGE = 20;

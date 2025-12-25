@@ -1,17 +1,17 @@
+import { Activity, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BiWorld } from 'react-icons/bi';
+import { CiImport } from 'react-icons/ci';
+import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { GrHelpBook } from 'react-icons/gr';
+import { HiOutlineMenu } from 'react-icons/hi';
+import { IoIosChatbubbles } from 'react-icons/io';
+import { IoCloseOutline, IoCreate } from 'react-icons/io5';
+import { PiHandshakeBold } from 'react-icons/pi';
 import { Link, useLocation } from 'react-router';
 import { Text } from 'app/components/text';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
-import { useDialog } from 'app/hooks/use-dialog';
-import { Activity, useEffect } from 'react';
-import { HiOutlineMenu } from 'react-icons/hi';
-import { IoCloseOutline, IoCreate } from 'react-icons/io5';
-import { BiWorld } from 'react-icons/bi';
-import { IoIosChatbubbles } from 'react-icons/io';
-import { PiHandshakeBold } from 'react-icons/pi';
-import { GrHelpBook } from 'react-icons/gr';
 import { Button } from 'app/components/ui/button';
-import { CiImport } from 'react-icons/ci';
+import { useDialog } from 'app/hooks/use-dialog';
 
 export const MobileNavigation = () => {
   const { t } = useTranslation('public');
@@ -29,6 +29,7 @@ export const MobileNavigation = () => {
         <img
           alt={t('Pillage First! logo')}
           width="200"
+          height="30"
           src="/pillage-first-logo-horizontal.svg"
         />
       </Link>
@@ -57,6 +58,7 @@ export const MobileNavigation = () => {
                   <img
                     alt={t('Pillage First! logo')}
                     width="200"
+                    height="30"
                     src="/pillage-first-logo-horizontal.svg"
                   />
                 </Link>

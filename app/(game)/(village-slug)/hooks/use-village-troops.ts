@@ -1,13 +1,13 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { troopSchema } from 'app/interfaces/models/game/troop';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { Village } from 'app/interfaces/models/game/village';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { z } from 'zod';
+import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import { troopSchema } from 'app/interfaces/models/game/troop';
+import type { Village } from 'app/interfaces/models/game/village';
 
 type SendTroopsArgs = Pick<
   GameEvent<'troopMovement'>,

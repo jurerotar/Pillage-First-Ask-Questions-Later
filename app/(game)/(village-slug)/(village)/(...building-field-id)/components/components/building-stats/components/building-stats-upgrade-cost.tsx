@@ -1,3 +1,15 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  calculateBuildingCostForLevel,
+  calculateTotalCulturePointsForLevel,
+  calculateTotalPopulationForLevel,
+  getBuildingDefinition,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/assets/utils/buildings';
+import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -7,19 +19,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { Icon } from 'app/components/icon';
-import {
-  calculateBuildingCostForLevel,
-  calculateTotalCulturePointsForLevel,
-  calculateTotalPopulationForLevel,
-  getBuildingDefinition,
-  getBuildingFieldByBuildingFieldId,
-} from 'app/assets/utils/buildings';
 import { formatNumber } from 'app/utils/common';
-import { useTranslation } from 'react-i18next';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { use } from 'react';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 export const BuildingStatsUpgradeCost = () => {
   const { t } = useTranslation();

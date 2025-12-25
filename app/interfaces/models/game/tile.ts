@@ -1,9 +1,9 @@
-import type { Player } from 'app/interfaces/models/game/player';
-import type { Resource } from 'app/interfaces/models/game/resource';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import { z } from 'zod';
 import { coordinatesSchema } from 'app/interfaces/models/common';
+import type { Player } from 'app/interfaces/models/game/player';
+import type { Resource } from 'app/interfaces/models/game/resource';
+import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const tileTypeSchema = z.enum(['free', 'oasis']);
 

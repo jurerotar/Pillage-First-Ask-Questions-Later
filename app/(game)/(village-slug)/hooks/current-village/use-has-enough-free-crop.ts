@@ -1,8 +1,8 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { getBuildingDataForLevel } from 'app/assets/utils/buildings';
 import type { Building } from 'app/interfaces/models/game/building';
-import { use } from 'react';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import { useTranslation } from 'react-i18next';
 
 export const getHasEnoughFreeCrop = (
   populationDifference: number,

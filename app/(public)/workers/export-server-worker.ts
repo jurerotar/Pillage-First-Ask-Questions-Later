@@ -1,4 +1,5 @@
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
+
 const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 
 export type ExportServerWorkerReturn = {

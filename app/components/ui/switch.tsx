@@ -1,5 +1,5 @@
-import { Switch as SwitchPrimitive } from 'radix-ui';
 import { clsx } from 'clsx';
+import { Switch as SwitchPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const Switch = ({

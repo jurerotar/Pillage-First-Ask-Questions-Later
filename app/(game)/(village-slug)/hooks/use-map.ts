@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { baseTileSchema } from 'app/interfaces/models/game/tile';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { z } from 'zod';
-import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { resourceSchema } from 'app/interfaces/models/game/resource';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { baseTileSchema } from 'app/interfaces/models/game/tile';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
 
 const freeTileSchema = baseTileSchema.extend({
   type: z.literal('free'),

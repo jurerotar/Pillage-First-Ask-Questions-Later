@@ -1,17 +1,17 @@
-import type { Seeder } from 'app/interfaces/db';
-import type { VillageSize } from 'app/interfaces/models/game/village';
-import { PLAYER_ID } from 'app/constants/player';
 import { prngMulberry32 } from 'ts-seedrandom';
-import {
-  seededRandomArrayElement,
-  seededRandomIntFromInterval,
-} from 'app/utils/common';
-import { getVillageSize } from 'app/db/utils/village-size';
-import { batchInsert } from 'app/db/utils/batch-insert';
 import {
   npcVillageNameAdjectives,
   npcVillageNameNouns,
 } from 'app/assets/village';
+import { PLAYER_ID } from 'app/constants/player';
+import { batchInsert } from 'app/db/utils/batch-insert';
+import { getVillageSize } from 'app/db/utils/village-size';
+import type { Seeder } from 'app/interfaces/db';
+import type { VillageSize } from 'app/interfaces/models/game/village';
+import {
+  seededRandomArrayElement,
+  seededRandomIntFromInterval,
+} from 'app/utils/common';
 
 type OccupiableField = {
   id: number;

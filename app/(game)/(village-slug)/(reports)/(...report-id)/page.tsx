@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,7 +8,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
+import type { Route } from '.react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 
 const ReportPage = ({ params }: Route.ComponentProps) => {
   const { reportId, villageSlug, serverSlug } = params;

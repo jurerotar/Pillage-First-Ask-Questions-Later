@@ -1,6 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { randomInt } from 'moderndash';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod/v4';
+import { useNavigate } from 'react-router';
+import { z } from 'zod';
+import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
+import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import {
+  npcVillageNameAdjectives,
+  npcVillageNameNouns,
+} from 'app/assets/village';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,7 +23,6 @@ import {
   FormMessage,
 } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
-import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -18,22 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { useNavigate } from 'react-router';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
-import { useMutation } from '@tanstack/react-query';
-import type { Server } from 'app/interfaces/models/game/server';
-import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
-import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
-import { workerFactory } from 'app/utils/workers';
-import { Text } from 'app/components/text';
 import { Switch } from 'app/components/ui/switch';
-import {
-  npcVillageNameAdjectives,
-  npcVillageNameNouns,
-} from 'app/assets/village';
-import { randomInt } from 'moderndash';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
 import { env } from 'app/env';
+import type { Server } from 'app/interfaces/models/game/server';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { workerFactory } from 'app/utils/workers';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -68,7 +69,7 @@ type MutateArgs = {
 
 export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
-  const { addServer, deleteServer } = useAvailableServers();
+  const { createGameWorld, deleteGameWorld } = useGameWorldActions();
 
   const {
     mutate: createServer,
@@ -86,23 +87,17 @@ export const CreateNewGameWorldForm = () => {
       );
     },
     onSuccess: async (_, { server }) => {
-      addServer({ server });
+      createGameWorld({ server });
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
-    onError: (_, { server }) => deleteServer({ server }),
+    onError: (_, { server }) => deleteGameWorld({ server }),
   });
-
-  const adjectiveIndex = randomInt(0, npcVillageNameAdjectives.length - 1);
-  const nounIndex = randomInt(0, npcVillageNameNouns.length - 1);
-
-  const adjective = npcVillageNameAdjectives[adjectiveIndex];
-  const noun = npcVillageNameNouns[nounIndex];
 
   const form = useForm<z.infer<typeof createServerFormSchema>>({
     resolver: zodResolver(createServerFormSchema),
     defaultValues: {
-      seed: generateSeed(),
-      name: `${adjective}${noun}`,
+      seed: '',
+      name: '',
       configuration: {
         speed: '1',
         mapSize: '100',
@@ -133,6 +128,17 @@ export const CreateNewGameWorldForm = () => {
     createServer({ server });
   };
 
+  useEffect(() => {
+    const adjectiveIndex = randomInt(0, npcVillageNameAdjectives.length - 1);
+    const nounIndex = randomInt(0, npcVillageNameNouns.length - 1);
+
+    const adjective = npcVillageNameAdjectives[adjectiveIndex];
+    const noun = npcVillageNameNouns[nounIndex];
+
+    form.setValue('seed', generateSeed());
+    form.setValue('name', `${adjective}${noun}`);
+  }, [form.setValue]);
+
   if (isError) {
     console.error(error);
 
@@ -155,12 +161,7 @@ export const CreateNewGameWorldForm = () => {
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="flex flex-col">
-                <Text
-                  className="text-lg"
-                  as="h3"
-                >
-                  Game world configuration
-                </Text>
+                <Text as="h2">Game world configuration</Text>
               </div>
               <FormField
                 control={form.control}
@@ -259,12 +260,7 @@ export const CreateNewGameWorldForm = () => {
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
               <div className="flex flex-col">
-                <Text
-                  className="text-lg"
-                  as="h3"
-                >
-                  Player configuration
-                </Text>
+                <Text as="h2">Player configuration</Text>
               </div>
               <FormField
                 control={form.control}

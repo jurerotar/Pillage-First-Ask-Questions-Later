@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
-import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 import type { Village } from 'app/interfaces/models/game/village';
+import { villageMock } from 'app/tests/mocks/game/village/village-mock';
 
 describe('calculateCurrentAmount', () => {
   const oneHour = 3_600_000; // ms

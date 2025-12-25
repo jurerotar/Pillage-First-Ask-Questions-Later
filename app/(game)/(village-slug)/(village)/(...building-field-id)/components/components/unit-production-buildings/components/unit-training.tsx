@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
 import {
   UnitAttributes,
   UnitCard,
@@ -7,22 +10,19 @@ import {
   UnitRecruitmentNoResearch,
   UnitRequirements,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
-import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
-import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
+import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Text } from 'app/components/text';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 import type { Unit } from 'app/interfaces/models/game/unit';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 const buildingIdToTroopTrainingEffectAndCategoryMap = new Map<
   TroopTrainingBuildingId,

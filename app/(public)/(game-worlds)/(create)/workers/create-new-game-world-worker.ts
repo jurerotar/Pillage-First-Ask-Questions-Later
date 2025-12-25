@@ -1,6 +1,6 @@
-import type { Server } from 'app/interfaces/models/game/server';
-import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
+import { createNewServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
+import type { Server } from 'app/interfaces/models/game/server';
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;

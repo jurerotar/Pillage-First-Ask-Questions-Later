@@ -1,6 +1,6 @@
+import { z } from 'zod';
 import type { Building } from 'app/interfaces/models/game/building';
 import type { Unit } from 'app/interfaces/models/game/unit';
-import { z } from 'zod';
 
 export type ResourceQuestReward = {
   type: 'resources';

@@ -1,9 +1,9 @@
-import { Icon } from 'app/components/icon';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { ComponentProps } from 'react';
-import type { HeroItem } from 'app/interfaces/models/game/hero-item';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import { getItemDefinition } from 'app/assets/utils/items';
+import { Icon } from 'app/components/icon';
+import type { HeroItem } from 'app/interfaces/models/game/hero-item';
+import type { WorldItem } from 'app/interfaces/models/game/world-item';
 
 type TreasureIconProps = Omit<ComponentProps<typeof Icon>, 'type'> & {
   itemId: HeroItem['id'];

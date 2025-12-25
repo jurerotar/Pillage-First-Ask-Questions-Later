@@ -1,5 +1,5 @@
-import { buildingIdSchema } from 'app/interfaces/models/game/building';
 import { z } from 'zod';
+import { buildingIdSchema } from 'app/interfaces/models/game/building';
 
 export const buildingFieldSchema = z.strictObject({
   // Resource building ids [1, 18]

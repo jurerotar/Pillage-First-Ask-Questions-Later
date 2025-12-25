@@ -1,40 +1,40 @@
+import { clsx } from 'clsx';
 import { createContext, Fragment, type PropsWithChildren, use } from 'react';
+import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
-import { Icon } from 'app/components/icon';
-import { Text } from 'app/components/text';
+import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
+import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
+import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
+import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import {
+  calculateMaxUnits,
+  calculateUnitResearchCost,
+  calculateUnitResearchDuration,
+  calculateUnitUpgradeCostForLevel,
+  calculateUnitUpgradeDurationForLevel,
+  getUnitDefinition,
+} from 'app/assets/utils/units';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Input } from 'app/components/ui/input';
 import { Slider } from 'app/components/ui/slider';
-import {
-  getUnitDefinition,
-  calculateMaxUnits,
-  calculateUnitResearchCost,
-  calculateUnitUpgradeCostForLevel,
-  calculateUnitResearchDuration,
-  calculateUnitUpgradeDurationForLevel,
-} from 'app/assets/utils/units';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
-import { useForm } from 'react-hook-form';
-import { formatTime } from 'app/utils/time';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import { clsx } from 'clsx';
-import type { Unit } from 'app/interfaces/models/game/unit';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
-import { unitIdToUnitIconMapper } from 'app/utils/icon';
-import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
-import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
-import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
-import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
-import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
-import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
-import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
+import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
+import type { Unit } from 'app/interfaces/models/game/unit';
+import { formatTime } from 'app/utils/time';
 
 type UnitCardContextState = {
   unitId: Unit['id'];
@@ -199,7 +199,7 @@ export const UnitResearch = () => {
   const { createEvent: createUnitResearchEvent } =
     useCreateEvent('unitResearch');
   const { currentVillage } = useCurrentVillage();
-  const { hasEvents: hasResearchEventsOngoing } =
+  const { hasEvents: hasResearchEventsOngoing, eventsByType: researchEvents } =
     useEventsByType('unitResearch');
 
   const unitResearchDuration = (() => {
@@ -227,6 +227,36 @@ export const UnitResearch = () => {
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =
     useHasEnoughStorageCapacity('granaryCapacity', researchCost);
 
+  const isThisUnitCurrentlyBeingResearched = researchEvents.some(
+    ({ unitId: researchedUnitId }) => unitId === researchedUnitId,
+  );
+
+  if (isThisUnitCurrentlyBeingResearched) {
+    return (
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+        <Text as="h3">{t('Research')}</Text>
+        <Text className="text-green-600">
+          {t('{{unit}} is currently being researched', {
+            unit: t(`UNITS.${unitId}.NAME`),
+          })}
+        </Text>
+      </section>
+    );
+  }
+
+  if (hasResearched) {
+    return (
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+        <Text as="h3">{t('Research')}</Text>
+        <Text className="text-green-600">
+          {t('{{unit}} researched', {
+            unit: t(`UNITS.${unitId}.NAME`),
+          })}
+        </Text>
+      </section>
+    );
+  }
+
   const errorBag = [
     ...hasEnoughResourcesErrorBag,
     ...hasEnoughWarehouseCapacityErrorBag,
@@ -245,19 +275,6 @@ export const UnitResearch = () => {
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
-
-  if (hasResearched) {
-    return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
-        <Text as="h3">{t('Research')}</Text>
-        <Text className="text-green-600">
-          {t('{{unit}} researched', {
-            unit: t(`UNITS.${unitId}.NAME`),
-          })}
-        </Text>
-      </section>
-    );
-  }
 
   return (
     <>
@@ -288,11 +305,9 @@ export const UnitResearch = () => {
             size="fit"
             disabled={!canStartResearch}
           >
-            {hasResearchEventsOngoing && t('Research is already taking place')}
-            {!hasResearchEventsOngoing &&
-              t('Research {{unit}}', {
-                unit: t(`UNITS.${unitId}.NAME`),
-              })}
+            {t('Research {{unit}}', {
+              unit: t(`UNITS.${unitId}.NAME`),
+            })}
           </Button>
         </section>
       )}

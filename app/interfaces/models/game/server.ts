@@ -1,5 +1,5 @@
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
 import { z } from 'zod';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
 
 const mapSizeSchema = z.union([z.literal(100), z.literal(200), z.literal(300)]);
 const speedSchema = z.union([

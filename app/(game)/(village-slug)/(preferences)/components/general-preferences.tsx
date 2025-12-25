@@ -1,8 +1,12 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -10,17 +14,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { Separator } from 'app/components/ui/separator';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
 import { Switch } from 'app/components/ui/switch';
-import { useTranslation } from 'react-i18next';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Button } from 'app/components/ui/button';
+import type {
+  SkinVariant,
+  TimeOfDay,
+  UIColorScheme,
+} from 'app/interfaces/models/game/preferences';
+import type { AvailableLocale } from 'app/interfaces/models/locale';
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import { CookieContext } from 'app/providers/cookie-provider';
+import {
+  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
+  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+  LOCALE_COOKIE_NAME,
+  setCookie,
+  UI_COLOR_SCHEME_COOKIE_NAME,
+} from 'app/utils/device';
 
 export const GeneralPreferences = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
+  const { locale, skinVariant, uiColorScheme, timeOfDay } = use(CookieContext);
 
   return (
     <Section>
@@ -73,10 +88,10 @@ export const GeneralPreferences = () => {
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Select
-              value={preferences.colorScheme}
-              onValueChange={(value: Preferences['colorScheme']) =>
-                updatePreference({ preferenceName: 'colorScheme', value })
-              }
+              value={uiColorScheme}
+              onValueChange={async (value: UIColorScheme) => {
+                await setCookie(UI_COLOR_SCHEME_COOKIE_NAME, value);
+              }}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -99,10 +114,13 @@ export const GeneralPreferences = () => {
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Select
-              value={preferences.timeOfDay}
-              onValueChange={(value: Preferences['timeOfDay']) =>
-                updatePreference({ preferenceName: 'timeOfDay', value })
-              }
+              value={timeOfDay}
+              onValueChange={async (value: TimeOfDay) => {
+                await setCookie<TimeOfDay>(
+                  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+                  value,
+                );
+              }}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -121,10 +139,13 @@ export const GeneralPreferences = () => {
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Select
-              value={preferences.skinVariant}
-              onValueChange={(value: Preferences['skinVariant']) =>
-                updatePreference({ preferenceName: 'skinVariant', value })
-              }
+              value={skinVariant}
+              onValueChange={async (value: SkinVariant) => {
+                await setCookie<SkinVariant>(
+                  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
+                  value,
+                );
+              }}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -146,10 +167,12 @@ export const GeneralPreferences = () => {
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Select
-              value={preferences.locale}
-              onValueChange={(value: AvailableLocale) =>
-                updatePreference({ preferenceName: 'locale', value })
-              }
+              value={locale}
+              onValueChange={async (value: AvailableLocale) => {
+                await setCookie(LOCALE_COOKIE_NAME, value);
+                await loadAppTranslations(locale);
+                await i18n.changeLanguage(locale);
+              }}
             >
               <SelectTrigger>
                 <SelectValue />

@@ -1,43 +1,40 @@
-import { Button } from 'app/components/ui/button';
-import { useAvailableServers } from 'app/(public)/hooks/use-available-servers';
-import type { Server } from 'app/interfaces/models/game/server';
-import { Link } from 'react-router';
-import { formatDistanceToNow } from 'date-fns';
-import { FaTrash } from 'react-icons/fa6';
-import { Alert } from 'app/components/ui/alert';
-import { Text } from 'app/components/text';
-import { env } from 'app/env';
-import { Badge } from 'app/components/ui/badge';
+import { use } from 'react';
 import { FaDownload } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa6';
+import { Link } from 'react-router';
+import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
+import { Badge } from 'app/components/ui/badge';
+import { Button } from 'app/components/ui/button';
+import { env } from 'app/env';
+import type { Server } from 'app/interfaces/models/game/server';
+import { CookieContext } from 'app/providers/cookie-provider';
+import { daysSince } from 'app/utils/time';
 
 type ServerCardProps = {
   server: Server;
 };
 
-export const ServerCard = (props: ServerCardProps) => {
-  const { server } = props;
+export const ServerCard = ({ server }: ServerCardProps) => {
+  const { locale } = use(CookieContext);
+  const { exportGameWorld, deleteGameWorld } = useGameWorldActions();
 
-  const { deleteServer, exportServer } = useAvailableServers();
-
-  const appVersion = env.VERSION;
-
-  const timeSinceCreation = formatDistanceToNow(new Date(server.createdAt), {
-    addSuffix: false,
-  });
+  const timeSinceCreation = daysSince(server.createdAt, locale);
 
   const serverVersion = server.version ?? '0.0.0';
 
   return (
     <div
       key={server.id}
-      className="relative flex flex-col w-full md:w-auto md:min-w-[400px] gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
+      className="relative flex flex-col w-full md:w-auto md:min-w-100 gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
     >
       <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
         <Button
           data-tooltip-id="public-tooltip"
           data-tooltip-content="Export server"
           variant="outline"
-          onClick={() => exportServer({ server })}
+          onClick={() => exportGameWorld({ server })}
         >
           <FaDownload className="text-gray-400" />
         </Button>
@@ -45,7 +42,7 @@ export const ServerCard = (props: ServerCardProps) => {
           data-tooltip-id="public-tooltip"
           data-tooltip-content="Delete server"
           variant="outline"
-          onClick={() => deleteServer({ server })}
+          onClick={() => deleteGameWorld({ server })}
         >
           <FaTrash className="text-red-500" />
         </Button>
@@ -67,11 +64,11 @@ export const ServerCard = (props: ServerCardProps) => {
           </Text>
         </span>
         <span className="flex gap-2">
-          <Text className="font-medium">Age:</Text>
+          <Text className="font-medium">Created:</Text>
           <Text>{timeSinceCreation}</Text>
         </span>
       </div>
-      {serverVersion !== appVersion && (
+      {serverVersion !== env.VERSION && (
         <Alert variant="error">
           Your server version is outdated. It may not work with current version
           of the app. In case of error, delete and recreate server.

@@ -1,7 +1,7 @@
+import { prngMulberry32 } from 'ts-seedrandom';
 import type { Seeder } from 'app/interfaces/db';
 import type { ResourceFieldComposition } from 'app/interfaces/models/game/resource-field-composition';
 import { seededRandomArrayElement } from 'app/utils/common';
-import { prngMulberry32 } from 'ts-seedrandom';
 
 type TilesWith3Unique50PercentWheatBonuses = {
   id: number;

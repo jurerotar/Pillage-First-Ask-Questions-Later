@@ -1,6 +1,6 @@
 import type { Faro } from '@grafana/faro-web-sdk';
-import { isStandaloneDisplayMode } from 'app/utils/device';
 import { env } from 'app/env';
+import { isStandaloneDisplayMode } from 'app/utils/device';
 
 let instance: Faro | null = null;
 

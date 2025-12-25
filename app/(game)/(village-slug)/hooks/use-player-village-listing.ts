@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { villageListing } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { z } from 'zod';
-import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
+import { villageListing } from 'app/(game)/(village-slug)/constants/query-keys';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { coordinatesSchema } from 'app/interfaces/models/common';
+import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 
 const getPlayerVillageListingSchema = z.strictObject({
   id: z.number(),

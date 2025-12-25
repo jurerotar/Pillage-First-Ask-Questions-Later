@@ -1,9 +1,9 @@
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
-import type { Resource } from 'app/interfaces/models/game/resource';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { calculateCurrentAmount } from 'app/(game)/utils/calculate-current-resources';
+import type { ResourceProductionEffectId } from 'app/interfaces/models/game/effect';
+import type { Resource } from 'app/interfaces/models/game/resource';
 
 const resourceToResourceEffectMap = new Map<
   Resource,

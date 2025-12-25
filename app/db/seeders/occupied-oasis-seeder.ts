@@ -1,8 +1,8 @@
+import { prngMulberry32 } from 'ts-seedrandom';
+import { getVillageSize } from 'app/db/utils/village-size';
 import type { Seeder } from 'app/interfaces/db';
 import type { VillageSize } from 'app/interfaces/models/game/village';
-import { prngMulberry32 } from 'ts-seedrandom';
 import { seededRandomIntFromInterval } from 'app/utils/common';
-import { getVillageSize } from 'app/db/utils/village-size';
 
 type OccupiableField = {
   id: number;

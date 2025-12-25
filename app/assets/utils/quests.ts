@@ -1,9 +1,9 @@
+import type { Building } from 'app/interfaces/models/game/building';
 import type {
   Quest,
   QuestRequirement,
   QuestReward,
 } from 'app/interfaces/models/game/quest';
-import type { Building } from 'app/interfaces/models/game/building';
 
 const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['WOODCUTTER', 100],

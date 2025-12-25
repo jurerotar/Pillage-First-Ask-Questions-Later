@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   UnitCard,
@@ -6,7 +8,7 @@ import {
   UnitRequirements,
   UnitResearch,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
-import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
+import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
 import {
   Section,
   SectionContent,
@@ -14,8 +16,6 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
-import { useTranslation } from 'react-i18next';
-import { AcademyResearchTable } from 'app/(game)/(village-slug)/components/academy-research-table';
 
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
