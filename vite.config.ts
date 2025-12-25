@@ -56,7 +56,8 @@ const viteConfig = defineViteConfig({
     //       plugins: [['babel-plugin-react-compiler']],
     //     },
     //   }),
-    !isInTestMode && mdx({ providerImportSource: '@mdx-js/react' }),
+    !isInTestMode &&
+      mdx({ providerImportSource: '@mdx-js/react', development: false }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
