@@ -1,5 +1,5 @@
-import { Progress as ProgressPrimitive } from 'radix-ui';
 import { clsx } from 'clsx';
+import { Progress as ProgressPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const Progress = ({

@@ -1,11 +1,11 @@
 import type { Building } from 'app/interfaces/models/game/building';
+import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
+import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Unit } from 'app/interfaces/models/game/unit';
 import type {
   BuildingField,
   Village,
 } from 'app/interfaces/models/game/village';
-import type { Troop } from 'app/interfaces/models/game/troop';
-import type { TroopTrainingDurationEffectId } from 'app/interfaces/models/game/effect';
 
 type WithVillageId<T> = T & {
   villageId: Village['id'];

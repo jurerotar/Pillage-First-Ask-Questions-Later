@@ -1,7 +1,7 @@
-import { Dialog as DialogPrimitive } from 'radix-ui';
 import { clsx } from 'clsx';
-import { LuX } from 'react-icons/lu';
+import { Dialog as DialogPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
+import { LuX } from 'react-icons/lu';
 
 export const Dialog = ({
   ...props

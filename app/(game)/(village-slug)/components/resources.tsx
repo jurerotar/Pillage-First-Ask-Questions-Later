@@ -1,7 +1,7 @@
-import { Icon } from 'app/components/icon';
-import { formatNumber } from 'app/utils/common';
 import { clsx } from 'clsx';
 import type { HTMLAttributes } from 'react';
+import { Icon } from 'app/components/icon';
+import { formatNumber } from 'app/utils/common';
 
 type ResourcesProps = {
   resources: number[];

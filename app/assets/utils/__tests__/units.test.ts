@@ -1,13 +1,4 @@
-import {
-  getUnitDefinition,
-  getUnitsByTribe,
-  getUnitByTribeAndTier,
-  calculateMaxUnits,
-  calculateUnitUpgradeCostForLevel,
-  calculateUnitUpgradeDurationForLevel,
-  calculateUnitResearchCost,
-  calculateUnitResearchDuration,
-} from 'app/assets/utils/units';
+import { describe, expect, test } from 'vitest';
 import {
   egyptianUnits,
   gaulUnits,
@@ -18,7 +9,16 @@ import {
   spartanUnits,
   teutonUnits,
 } from 'app/assets/units';
-import { describe, expect, test } from 'vitest';
+import {
+  calculateMaxUnits,
+  calculateUnitResearchCost,
+  calculateUnitResearchDuration,
+  calculateUnitUpgradeCostForLevel,
+  calculateUnitUpgradeDurationForLevel,
+  getUnitByTribeAndTier,
+  getUnitDefinition,
+  getUnitsByTribe,
+} from 'app/assets/utils/units';
 
 describe('units', () => {
   const mockUnitId = 'PRAETORIAN';

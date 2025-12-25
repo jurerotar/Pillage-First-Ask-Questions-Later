@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { units } from 'app/assets/units';
 
 const getBuildingIds = (unit: (typeof units)[number]) =>

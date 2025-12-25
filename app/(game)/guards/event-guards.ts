@@ -1,9 +1,9 @@
+import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 import type {
   GameEvent,
   GameEventType,
   WithVillageIdEvent,
 } from 'app/interfaces/models/game/game-event';
-import { getEventCost } from 'app/(game)/api/handlers/utils/events';
 
 export const isVillageEvent = (
   event: GameEvent,

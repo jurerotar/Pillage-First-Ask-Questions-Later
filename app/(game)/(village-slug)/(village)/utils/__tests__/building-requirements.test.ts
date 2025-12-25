@@ -1,24 +1,26 @@
+import { describe, expect, test } from 'vitest';
 import {
-  assessBuildingConstructionReadiness,
   type AssessBuildingConstructionReadinessArgs,
   type AssessBuildingConstructionReadinessReturn,
   type AssessedBuildingRequirement,
+  assessBuildingConstructionReadiness,
 } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type {
   Building,
   BuildingRequirement,
 } from 'app/interfaces/models/game/building';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
-import type { Village } from 'app/interfaces/models/game/village';
-import type { BuildingField } from 'app/interfaces/models/game/village';
+import type {
+  BuildingField,
+  Village,
+} from 'app/interfaces/models/game/village';
 import { createBuildingConstructionEventMock } from 'app/tests/mocks/game/event-mock';
 import {
   villageWithBarracksRequirementsMetBuildingFieldsMock,
   villageWithWorkshopRequirementsMetBuildingFieldsMock,
 } from 'app/tests/mocks/game/village/building-fields-mock';
 import { villageMock } from 'app/tests/mocks/game/village/village-mock';
-import { describe, expect, test } from 'vitest';
 
 const buildingConstructionEventMock = createBuildingConstructionEventMock({
   buildingId: 'CRANNY',

@@ -1,10 +1,10 @@
-import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import type { PropsWithChildren } from 'react';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { Text } from 'app/components/text';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 
 type TroopTrainingQueueProps = {
   buildingId: TroopTrainingBuildingId;

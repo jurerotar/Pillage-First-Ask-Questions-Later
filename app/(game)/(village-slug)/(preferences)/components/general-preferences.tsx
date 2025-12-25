@@ -1,8 +1,12 @@
+import { use } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -10,17 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { Separator } from 'app/components/ui/separator';
+import { Switch } from 'app/components/ui/switch';
 import type {
   SkinVariant,
   TimeOfDay,
   UIColorScheme,
 } from 'app/interfaces/models/game/preferences';
-import { Separator } from 'app/components/ui/separator';
 import type { AvailableLocale } from 'app/interfaces/models/locale';
-import { Switch } from 'app/components/ui/switch';
-import { useTranslation } from 'react-i18next';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Button } from 'app/components/ui/button';
+import { loadAppTranslations } from 'app/localization/loaders/app';
+import { CookieContext } from 'app/providers/cookie-provider';
 import {
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
@@ -28,9 +31,6 @@ import {
   setCookie,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
-import { use } from 'react';
-import { CookieContext } from 'app/providers/cookie-provider';
-import { loadAppTranslations } from 'app/localization/loaders/app';
 
 export const GeneralPreferences = () => {
   const { t, i18n } = useTranslation();

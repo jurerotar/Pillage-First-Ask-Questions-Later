@@ -1,16 +1,16 @@
-import type { Resolver } from 'app/interfaces/models/common';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import type { Troop } from 'app/interfaces/models/game/troop';
 import {
   effectsCacheKey,
   troopsCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { getUnitDefinition } from 'app/assets/utils/units';
 import { modifyTroops } from 'app/(game)/api/handlers/resolvers/utils/troops';
-import type { Effect } from 'app/interfaces/models/game/effect';
-import { isVillageEffect } from 'app/(game)/guards/effect-guards';
 import { updateVillageResourcesAt } from 'app/(game)/api/utils/village';
+import { isVillageEffect } from 'app/(game)/guards/effect-guards';
+import { getUnitDefinition } from 'app/assets/utils/units';
+import type { Resolver } from 'app/interfaces/models/common';
+import type { Effect } from 'app/interfaces/models/game/effect';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
+import type { Troop } from 'app/interfaces/models/game/troop';
 import type { Village } from 'app/interfaces/models/game/village';
 
 export const troopTrainingEventResolver: Resolver<

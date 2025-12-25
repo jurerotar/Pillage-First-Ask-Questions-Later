@@ -1,5 +1,11 @@
-import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
+import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,15 +13,9 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
-import { partition } from 'app/utils/common';
 import type { Quest } from 'app/interfaces/models/game/quest';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
+import { partition } from 'app/utils/common';
 
 const QuestsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;

@@ -1,8 +1,5 @@
-import type { Route } from '.react-router/types/app/(game)/+types/layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ApiProvider } from 'app/(game)/providers/api-provider';
-import { loadAppTranslations } from 'app/localization/loaders/app';
 import { memo, Suspense, useEffect, useState } from 'react';
 import {
   Link,
@@ -10,11 +7,14 @@ import {
   type ShouldRevalidateFunction,
   useRouteError,
 } from 'react-router';
-import { Notifier } from 'app/(game)/components/notifier';
-import { Skeleton } from 'app/components/ui/skeleton';
 import { Toaster, type ToasterProps } from 'sonner';
+import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middlewares/server-already-open-middleware';
+import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { Skeleton } from 'app/components/ui/skeleton';
+import { loadAppTranslations } from 'app/localization/loaders/app';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');

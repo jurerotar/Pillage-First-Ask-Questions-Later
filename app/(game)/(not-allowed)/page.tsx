@@ -1,9 +1,9 @@
-import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { gameWorldNotLockedMiddleware } from 'app/(game)/(not-allowed)/middleware/game-world-not-locked-middleware';
+import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
-import { gameWorldNotLockedMiddleware } from 'app/(game)/(not-allowed)/middleware/game-world-not-locked-middleware';
 
 export const clientMiddleware = [gameWorldNotLockedMiddleware];
 

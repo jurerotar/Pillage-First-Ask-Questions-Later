@@ -1,8 +1,8 @@
 import { clsx } from 'clsx';
 import type { HTMLAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { IconBaseProps } from 'react-icons';
 import { type IconType, icons } from 'app/components/icons/icons';
-import { useTranslation } from 'react-i18next';
 
 type IconProps = IconBaseProps &
   HTMLAttributes<HTMLSpanElement> & {

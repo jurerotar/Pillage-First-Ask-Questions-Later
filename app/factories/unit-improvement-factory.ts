@@ -1,7 +1,7 @@
-import type { Unit } from 'app/interfaces/models/game/unit';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 import { getUnitsByTribe } from 'app/assets/utils/units';
 import type { Tribe } from 'app/interfaces/models/game/tribe';
+import type { Unit } from 'app/interfaces/models/game/unit';
+import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 
 const upgradableTiers: Set<Unit['tier']> = new Set([
   'tier-1',

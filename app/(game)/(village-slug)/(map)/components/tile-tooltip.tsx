@@ -1,3 +1,9 @@
+import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
+import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';
+import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-world-item';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useVillages } from 'app/(game)/(village-slug)/hooks/use-villages';
 import {
@@ -8,6 +14,7 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Skeleton } from 'app/components/ui/skeleton';
 import type {
   OasisResourceBonus,
   OasisTile,
@@ -15,8 +22,6 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import { Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
   calculateDistanceBetweenPoints,
@@ -24,11 +29,6 @@ import {
   roundToNDecimalPoints,
 } from 'app/utils/common';
 import { parseRFCFromTile } from 'app/utils/map';
-import { useTilePlayer } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-player';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { useTileTroops } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-troops';
-import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/components/hooks/use-tile-world-item';
-import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileTooltipProps = {
   tile: Tile;

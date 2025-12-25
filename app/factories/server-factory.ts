@@ -1,5 +1,5 @@
-import type { Server } from 'app/interfaces/models/game/server';
 import { env } from 'app/env';
+import type { Server } from 'app/interfaces/models/game/server';
 
 type ServerFactoryProps = Pick<
   Server,

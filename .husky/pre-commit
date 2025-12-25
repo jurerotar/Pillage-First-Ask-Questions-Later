@@ -1,3 +1,2 @@
-npx i18next-cli extract
+i18next-cli extract
 biome check --write --staged --no-errors-on-unmatched
-git add .

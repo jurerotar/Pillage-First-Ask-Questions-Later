@@ -1,3 +1,4 @@
+import { capitalize } from 'moderndash';
 import { Icon } from 'app/components/icon';
 import type {
   IconType,
@@ -7,7 +8,6 @@ import type {
   OasisResourceBonus,
   OasisTile,
 } from 'app/interfaces/models/game/tile';
-import { capitalize } from 'moderndash';
 
 // Honestly, would be better to just type out every combination and skip the hardcoded assertions
 const getIconType = (oasisResourceBonus: OasisResourceBonus[]): IconType => {

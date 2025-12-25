@@ -1,8 +1,10 @@
+import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import {
   isOccupiableOasisTile,
   isOccupiedOccupiableTile,
   isUnoccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { PLAYER_ID } from 'app/constants/player';
 import { getVillageSize } from 'app/factories/utils/village';
 import type { Player } from 'app/interfaces/models/game/player';
 import type {
@@ -29,9 +31,7 @@ import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from 'app/utils/common';
-import { prngMulberry32, type PRNGFunction } from 'ts-seedrandom';
 import { calculateGridLayout, encodeGraphicsProperty } from 'app/utils/map';
-import { PLAYER_ID } from 'app/constants/player';
 
 type Shape = { group: number; shape: number[] };
 

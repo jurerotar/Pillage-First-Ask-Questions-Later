@@ -1,7 +1,7 @@
+import { dehydrate } from '@tanstack/react-query';
+import { initializeServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getRootHandle, writeFileContents } from 'app/utils/opfs';
-import { initializeServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
-import { dehydrate } from '@tanstack/react-query';
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;

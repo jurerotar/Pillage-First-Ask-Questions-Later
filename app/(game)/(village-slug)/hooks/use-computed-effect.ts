@@ -1,12 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import type { EffectId } from 'app/interfaces/models/game/effect';
-import { useQuery } from '@tanstack/react-query';
 import {
-  calculateComputedEffect,
   type ComputedEffectReturn,
+  calculateComputedEffect,
   type WheatProductionEffectReturn,
 } from 'app/(game)/utils/calculate-computed-effect';
+import type { EffectId } from 'app/interfaces/models/game/effect';
 
 export function useComputedEffect(
   effectId: Exclude<

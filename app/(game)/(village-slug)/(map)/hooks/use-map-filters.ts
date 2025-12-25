@@ -1,8 +1,8 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import type { MapFilters } from 'app/interfaces/models/game/map-filters';
-import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
+import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 
 type UpdateMapFiltersArgs = {
   filterName: keyof MapFilters;

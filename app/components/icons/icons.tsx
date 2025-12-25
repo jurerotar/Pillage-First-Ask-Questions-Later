@@ -1,29 +1,18 @@
-import { RxCross2 } from 'react-icons/rx';
 import {
-  LuClock,
-  LuShield,
-  LuSword,
-  LuSwords,
-  LuWheat,
-  LuWheatOff,
-} from 'react-icons/lu';
-import { CgTimelapse } from 'react-icons/cg';
-import {
-  TbBat,
-  TbBorderCorners,
-  TbBrandSpeedtest,
-  TbHorseshoe,
-  TbLaurelWreath,
-  TbTooltip,
-} from 'react-icons/tb';
-import { PiKeyhole, PiPath, PiWarehouseBold } from 'react-icons/pi';
+  PillageFirstCatapult,
+  PillageFirstHorse,
+} from '@pillage-first/graphics';
+import { camelCase } from 'moderndash';
+import type { JSX } from 'react';
 import { BiShieldQuarter } from 'react-icons/bi';
-import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
 import {
   BsFillPeopleFill,
   BsMinecartLoaded,
   BsShieldFill,
 } from 'react-icons/bs';
+import { CgTimelapse } from 'react-icons/cg';
+import { FaSpider, FaWarehouse } from 'react-icons/fa';
+import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
 import {
   GiBearHead,
   GiBoar,
@@ -45,18 +34,31 @@ import {
   GiWolfTrap,
   GiWoodPile,
 } from 'react-icons/gi';
-import { FaSpider, FaWarehouse } from 'react-icons/fa';
 import { GrDocumentMissing } from 'react-icons/gr';
-import { TiMinus, TiPlus } from 'react-icons/ti';
-import { SiArtifacthub } from 'react-icons/si';
-import { LiaCoinsSolid } from 'react-icons/lia';
-import { SlChemistry } from 'react-icons/sl';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
+import { LiaCoinsSolid } from 'react-icons/lia';
 import {
-  PillageFirstCatapult,
-  PillageFirstHorse,
-} from '@pillage-first/graphics';
-import type { UpperCaseToCamelCase } from 'app/utils/typescript';
+  LuClock,
+  LuShield,
+  LuSword,
+  LuSwords,
+  LuWheat,
+  LuWheatOff,
+} from 'react-icons/lu';
+import { PiKeyhole, PiPath, PiWarehouseBold } from 'react-icons/pi';
+import { RxCross2 } from 'react-icons/rx';
+import { SiArtifacthub } from 'react-icons/si';
+import { SlChemistry } from 'react-icons/sl';
+import {
+  TbBat,
+  TbBorderCorners,
+  TbBrandSpeedtest,
+  TbHorseshoe,
+  TbLaurelWreath,
+  TbTooltip,
+} from 'react-icons/tb';
+import { TiMinus, TiPlus } from 'react-icons/ti';
+import type { Effect } from 'app/interfaces/models/game/effect';
 import type {
   EgyptianUnitId,
   GaulUnitId,
@@ -67,10 +69,8 @@ import type {
   TeutonUnitId,
   Unit,
 } from 'app/interfaces/models/game/unit';
-import type { Effect } from 'app/interfaces/models/game/effect';
+import type { UpperCaseToCamelCase } from 'app/utils/typescript';
 import styles from './icons.module.scss';
-import type { JSX } from 'react';
-import { camelCase } from 'moderndash';
 
 type UncategorizedIconType =
   | 'missingIcon'

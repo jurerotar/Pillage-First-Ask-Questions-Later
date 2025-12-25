@@ -1,4 +1,21 @@
+import { use, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  calculateBuildingDurationForLevel,
+  getBuildingDefinition,
+  getBuildingFieldByBuildingFieldId,
+} from 'app/assets/utils/buildings';
 import { Text } from 'app/components/text';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
 import {
   Table,
   TableBody,
@@ -7,24 +24,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import {
-  calculateBuildingDurationForLevel,
-  getBuildingDefinition,
-  getBuildingFieldByBuildingFieldId,
-} from 'app/assets/utils/buildings';
 import { formatTime } from 'app/utils/time';
-import { useTranslation } from 'react-i18next';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { use, useState } from 'react';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from 'app/components/ui/select';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 
 export const BuildingStatsUpgradeDuration = () => {
   const { t } = useTranslation();

@@ -1,5 +1,5 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import { bookmarksCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { Bookmarks } from 'app/interfaces/models/game/bookmark';
 
 export const getBookmarks: ApiHandler<Bookmarks> = async (queryClient) => {

@@ -1,5 +1,5 @@
-import { getBuildingDefinition } from 'app/assets/utils/buildings';
 import { merchants } from 'app/assets/merchants';
+import { getBuildingDefinition } from 'app/assets/utils/buildings';
 import type {
   Building,
   BuildingEffect,
@@ -14,13 +14,13 @@ import type {
   VillageBuildingEffect,
   VillageEffect,
 } from 'app/interfaces/models/game/effect';
+import type { Hero } from 'app/interfaces/models/game/hero';
 import type { Server } from 'app/interfaces/models/game/server';
+import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 import type {
   BuildingField,
   Village,
 } from 'app/interfaces/models/game/village';
-import type { Hero } from 'app/interfaces/models/game/hero';
-import type { OasisTile, Tile } from 'app/interfaces/models/game/tile';
 
 const heroEffectsFactory = (
   villageId: Village['id'],

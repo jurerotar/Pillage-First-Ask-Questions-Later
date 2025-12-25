@@ -1,5 +1,5 @@
-import { Skeleton } from 'app/components/ui/skeleton';
 import { Outlet } from 'react-router';
+import { Skeleton } from 'app/components/ui/skeleton';
 
 const ErrorLayout = () => {
   return (

@@ -1,5 +1,5 @@
-import type { VillageSize } from 'app/interfaces/models/game/village';
 import type { Tile } from 'app/interfaces/models/game/tile';
+import type { VillageSize } from 'app/interfaces/models/game/village';
 
 const buildVillageSizeLookup = (): VillageSize[] => {
   const bands: VillageSize[] = [

@@ -1,4 +1,9 @@
+import { clsx } from 'clsx';
+import { memo } from 'react';
+import { areEqual, type GridChildComponentProps } from 'react-window';
 import { OccupiableOasisIcon } from 'app/(game)/(village-slug)/(map)/components/occupiable-oasis-icon';
+import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import {
   isContextualOccupiedOccupiableTile,
   isOasisTile,
@@ -8,21 +13,16 @@ import {
   isOccupiedOccupiableTile,
   isUnoccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
+import { Icon } from 'app/components/icon';
+import type { TroopMovementType } from 'app/components/icons/icons';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 import type {
   ContextualTile,
   Tile as TileType,
 } from 'app/interfaces/models/game/tile';
-import { clsx } from 'clsx';
-import { memo } from 'react';
-import { areEqual, type GridChildComponentProps } from 'react-window';
-import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { decodeGraphicsProperty } from 'app/utils/map';
-import { Icon } from 'app/components/icon';
-import type { TroopMovementType } from 'app/components/icons/icons';
 import cellStyles from './cell.module.scss';
-import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 type CellBaseProps = {
   contextualMap: ContextualTile[];

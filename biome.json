@@ -16,7 +16,24 @@
       "!**/*.css"
     ]
   },
-  "assist": { "actions": { "source": { "organizeImports": "off" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":NODE:",
+              [":PACKAGE:", "!@react-router/**", "!app/**"],
+              "@react-router/**",
+              "app/**",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
+  },
   "formatter": {
     "useEditorconfig": true,
     "formatWithErrors": true,

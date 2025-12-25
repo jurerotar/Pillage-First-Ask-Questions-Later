@@ -1,5 +1,5 @@
-import { Label as LabelPrimitive } from 'radix-ui';
 import { clsx } from 'clsx';
+import { Label as LabelPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const Label = ({

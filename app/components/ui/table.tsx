@@ -1,10 +1,10 @@
+import { clsx } from 'clsx';
 import type {
   HTMLAttributes,
   TableHTMLAttributes,
   TdHTMLAttributes,
   ThHTMLAttributes,
 } from 'react';
-import { clsx } from 'clsx';
 
 type TableProps = TableHTMLAttributes<HTMLTableElement>;
 

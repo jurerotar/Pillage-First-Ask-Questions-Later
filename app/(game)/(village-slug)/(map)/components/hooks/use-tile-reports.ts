@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { Report } from 'app/interfaces/models/game/report';
-import type { Tile } from 'app/interfaces/models/game/tile';
 import { use } from 'react';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Report } from 'app/interfaces/models/game/report';
+import type { Tile } from 'app/interfaces/models/game/tile';
 
 export const useTileReports = (tileId: Tile['id']) => {
   const { fetcher } = use(ApiContext);

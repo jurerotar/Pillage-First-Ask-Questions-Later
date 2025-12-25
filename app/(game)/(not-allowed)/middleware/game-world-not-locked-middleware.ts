@@ -1,5 +1,5 @@
-import type { Route } from '.react-router/types/app/(game)/(not-allowed)/+types/page';
 import { redirect } from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(not-allowed)/+types/page';
 import { isGameWorldLocked } from 'app/utils/middleware';
 
 export const gameWorldNotLockedMiddleware: Route.ClientMiddlewareFunction =

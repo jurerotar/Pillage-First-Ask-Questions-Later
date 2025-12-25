@@ -1,5 +1,5 @@
-import { Popover as PopoverPrimitive } from 'radix-ui';
 import { clsx } from 'clsx';
+import { Popover as PopoverPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 export const Popover = ({

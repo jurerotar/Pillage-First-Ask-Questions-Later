@@ -1,8 +1,8 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Preferences } from 'app/interfaces/models/game/preferences';
 import { use } from 'react';
+import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { Preferences } from 'app/interfaces/models/game/preferences';
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;

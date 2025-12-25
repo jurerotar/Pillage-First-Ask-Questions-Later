@@ -1,7 +1,7 @@
-import type { Config } from '@react-router/dev/config';
+import { glob, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { mkdir, readFile, writeFile, rm, glob } from 'node:fs/promises';
 import { load } from 'cheerio';
+import type { Config } from '@react-router/dev/config';
 import { getGameRoutePaths } from 'app/utils/react-router';
 
 export const createSPAPagesWithPreloads: NonNullable<

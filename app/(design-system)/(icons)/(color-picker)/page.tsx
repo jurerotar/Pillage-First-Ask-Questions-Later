@@ -1,7 +1,7 @@
-import { Button } from 'app/components/ui/button';
-import { Icon } from 'app/components/icon';
 import { type JSX, type SetStateAction, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { Icon } from 'app/components/icon';
+import { Button } from 'app/components/ui/button';
 import styles from './horse.module.scss';
 
 const HorseColorPicker = () => {

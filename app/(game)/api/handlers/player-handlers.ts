@@ -1,12 +1,12 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import {
   playersCacheKey,
   troopsCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { Player } from 'app/interfaces/models/game/player';
-import type { Village } from 'app/interfaces/models/game/village';
 import type { Troop } from 'app/interfaces/models/game/troop';
+import type { Village } from 'app/interfaces/models/game/village';
 
 export const getPlayers: ApiHandler<Player[]> = async (queryClient) => {
   return queryClient.getQueryData<Player[]>([playersCacheKey])!;

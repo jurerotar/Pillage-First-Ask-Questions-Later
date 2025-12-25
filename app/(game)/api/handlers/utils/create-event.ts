@@ -1,9 +1,4 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type {
-  GameEvent,
-  GameEventType,
-} from 'app/interfaces/models/game/game-event';
-import { eventFactory } from 'app/factories/event-factory';
 import {
   checkAndSubtractVillageResources,
   getEventDuration,
@@ -12,6 +7,11 @@ import {
   notifyAboutEventCreationFailure,
 } from 'app/(game)/api/handlers/utils/events';
 import { scheduleNextEvent } from 'app/(game)/api/utils/event-resolvers';
+import { eventFactory } from 'app/factories/event-factory';
+import type {
+  GameEvent,
+  GameEventType,
+} from 'app/interfaces/models/game/game-event';
 
 const validateAndInsertEvents = async (
   queryClient: QueryClient,

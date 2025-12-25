@@ -1,10 +1,10 @@
 import type { PropsWithChildren } from 'react';
 import { createContext, useMemo } from 'react';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { partition } from 'app/utils/common';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { BuildingField } from 'app/interfaces/models/game/village';
+import { partition } from 'app/utils/common';
 
 type CurrentVillageBuildingQueueContextReturn = {
   currentVillageBuildingEvents: GameEvent<'buildingLevelChange'>[];

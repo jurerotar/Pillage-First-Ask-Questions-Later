@@ -1,3 +1,6 @@
+import { use, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
   BuildingBenefits,
   BuildingCard,
@@ -6,13 +9,11 @@ import {
   BuildingRequirements,
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { buildings } from 'app/assets/buildings';
-import type { Building } from 'app/interfaces/models/game/building';
-import { use, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -21,9 +22,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import type { Building } from 'app/interfaces/models/game/building';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];

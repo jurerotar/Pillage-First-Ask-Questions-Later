@@ -1,7 +1,7 @@
 import { type DehydratedState, useMutation } from '@tanstack/react-query';
+import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { Server } from 'app/interfaces/models/game/server';
 import { getParsedFileContents, getRootHandle } from 'app/utils/opfs';
-import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 
 const deleteServerData = async (server: Server) => {
   try {

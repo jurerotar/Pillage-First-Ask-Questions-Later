@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'vitest';
-import { encodeGraphicsProperty, decodeGraphicsProperty } from '../map';
+import { describe, expect, test } from 'vitest';
 import type { Resource } from 'app/interfaces/models/game/resource';
+import { decodeGraphicsProperty, encodeGraphicsProperty } from '../map';
 
 describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
   test('encoding and decoding is reversible for all valid combinations', () => {

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -5,7 +6,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useTranslation } from 'react-i18next';
 import FrequentlyAskedQuestionsMdx from './mdx/frequently-asked-questions.mdx';
 
 const FrequentlyAskedQuestionsPage = () => {

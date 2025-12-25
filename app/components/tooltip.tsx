@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import {
-  type ITooltip as ReactTooltipProps,
   Tooltip as ReactTooltip,
+  type ITooltip as ReactTooltipProps,
 } from 'react-tooltip';
 
 export const Tooltip = (props: ReactTooltipProps) => {

@@ -1,3 +1,9 @@
+import type { PRNGFunction } from 'ts-seedrandom';
+import {
+  npcVillageNameAdjectives,
+  npcVillageNameNouns,
+} from 'app/assets/village';
+import { PLAYER_ID } from 'app/constants/player';
 import { createVillageResourceFields } from 'app/factories/presets/resource-building-fields-presets';
 import { playerVillageBuildingFieldsPreset } from 'app/factories/presets/village-building-fields-presets';
 import { getVillageSize } from 'app/factories/utils/village';
@@ -14,13 +20,7 @@ import type {
   VillagePresetId,
   VillageSize,
 } from 'app/interfaces/models/game/village';
-import type { PRNGFunction } from 'ts-seedrandom';
-import {
-  npcVillageNameAdjectives,
-  npcVillageNameNouns,
-} from 'app/assets/village';
 import { seededRandomIntFromInterval } from 'app/utils/common';
-import { PLAYER_ID } from 'app/constants/player';
 
 // TODO: Update these
 const villageSizeToResourceAmountMap = new Map<VillageSize, number>([

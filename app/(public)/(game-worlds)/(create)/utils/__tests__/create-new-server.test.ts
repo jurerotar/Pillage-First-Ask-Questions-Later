@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import {
   isOasisTile,
   isOccupiedOasisTile,
@@ -5,7 +6,6 @@ import {
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import type { OccupiedOasisTile, Tile } from 'app/interfaces/models/game/tile';
 import { serverMock } from 'app/tests/mocks/game/server-mock';
-import { describe, expect, test } from 'vitest';
 import 'opfs-mock';
 import '@vitest/web-worker';
 import {
@@ -18,16 +18,16 @@ import {
   unitResearchCacheKey,
   villagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
+import { initializeServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
 import { getVillageSize } from 'app/factories/utils/village';
-import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Effect } from 'app/interfaces/models/game/effect';
+import type { GameEvent } from 'app/interfaces/models/game/game-event';
 import type { Quest } from 'app/interfaces/models/game/quest';
 import type { Server } from 'app/interfaces/models/game/server';
 import type { Troop } from 'app/interfaces/models/game/troop';
 import type { UnitResearch } from 'app/interfaces/models/game/unit-research';
 import type { Village } from 'app/interfaces/models/game/village';
 import { calculateGridLayout, decodeGraphicsProperty } from 'app/utils/map';
-import { initializeServer } from 'app/(public)/(game-worlds)/(create)/utils/create-new-server';
 
 const queryClient = await initializeServer(serverMock);
 

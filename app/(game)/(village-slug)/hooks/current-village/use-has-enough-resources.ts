@@ -1,9 +1,9 @@
-import type { Resources } from 'app/interfaces/models/game/resource';
 import { use } from 'react';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { useTranslation } from 'react-i18next';
-import { formatNumber } from 'app/utils/common';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import type { Resources } from 'app/interfaces/models/game/resource';
 import { CookieContext } from 'app/providers/cookie-provider';
+import { formatNumber } from 'app/utils/common';
 
 export const getHasEnoughResources = (
   nextLevelResourceCost: number[],

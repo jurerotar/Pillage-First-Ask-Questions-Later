@@ -1,13 +1,13 @@
-import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { DemolishBuilding } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/demolish-building';
 import { RenameVillage } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/rename-village';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { Text } from 'app/components/text';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 export const MainBuildingVillageManagement = () => {
   const { t } = useTranslation();

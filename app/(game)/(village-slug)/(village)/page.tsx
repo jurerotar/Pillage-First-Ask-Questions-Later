@@ -1,15 +1,14 @@
-import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
-import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
-import { Tooltip } from 'app/components/tooltip';
-import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
+import { Activity, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { Activity, useCallback } from 'react';
-import { useEffect } from 'react';
-import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(village)/+types/page';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
+import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
+import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
+import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
+import { Tooltip } from 'app/components/tooltip';
+import type { BuildingField as BuildingFieldType } from 'app/interfaces/models/game/village';
 
 const resourceViewBuildingFieldIds: BuildingFieldType['id'][] = [
   ...Array(18),

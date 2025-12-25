@@ -1,22 +1,22 @@
-import { startTransition, StrictMode } from 'react';
+import { StrictMode, startTransition } from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { HydratedRouter } from 'react-router/dom';
 import { I18nextProvider } from 'react-i18next';
-import { i18n } from 'app/localization/i18n';
-import {
-  LOCALE_COOKIE_NAME,
-  setCookie,
-  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
-  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
-  UI_COLOR_SCHEME_COOKIE_NAME,
-} from 'app/utils/device';
-import type { AvailableLocale } from 'app/interfaces/models/locale';
+import { HydratedRouter } from 'react-router/dom';
 import type {
   SkinVariant,
   TimeOfDay,
   UIColorScheme,
 } from 'app/interfaces/models/game/preferences';
+import type { AvailableLocale } from 'app/interfaces/models/locale';
+import { i18n } from 'app/localization/i18n';
 import { CookieProvider } from 'app/providers/cookie-provider';
+import {
+  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
+  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+  LOCALE_COOKIE_NAME,
+  setCookie,
+  UI_COLOR_SCHEME_COOKIE_NAME,
+} from 'app/utils/device';
 
 const createCookies = async () => {
   const cookieStore = window.cookieStore;

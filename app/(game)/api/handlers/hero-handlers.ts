@@ -1,10 +1,10 @@
-import type { ApiHandler } from 'app/interfaces/api';
 import {
   adventurePointsCacheKey,
   heroCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import type { Hero } from 'app/interfaces/models/game/hero';
+import type { ApiHandler } from 'app/interfaces/api';
 import type { AdventurePoints } from 'app/interfaces/models/game/adventure-points';
+import type { Hero } from 'app/interfaces/models/game/hero';
 
 export const getHero: ApiHandler<Hero> = async (queryClient) => {
   return queryClient.getQueryData<Hero>([heroCacheKey])!;

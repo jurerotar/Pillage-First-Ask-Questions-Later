@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
-import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { use } from 'react';
+import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import type { UnitImprovement } from 'app/interfaces/models/game/unit-improvement';
 
 export const useUnitImprovement = () => {
   const { fetcher } = use(ApiContext);

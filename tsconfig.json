@@ -22,7 +22,7 @@
     "module": "esnext",
     "paths": {
       "app/*": ["./app/*"],
-      ".react-router/*": ["./.react-router/*"],
+      "@react-router/*": ["./.react-router/*"],
       "happy-dom": ["./app/interfaces/happy-dom-patch.ts"]
     }
   },

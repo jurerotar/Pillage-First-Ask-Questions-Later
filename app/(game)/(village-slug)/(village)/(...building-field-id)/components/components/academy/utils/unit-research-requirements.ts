@@ -1,9 +1,9 @@
+import { getUnitDefinition } from 'app/assets/utils/units';
 import type {
   Unit,
   UnitResearchRequirement,
 } from 'app/interfaces/models/game/unit';
 import type { Village } from 'app/interfaces/models/game/village';
-import { getUnitDefinition } from 'app/assets/utils/units';
 
 type AssessedResearchRequirement = UnitResearchRequirement & {
   fulfilled: boolean;

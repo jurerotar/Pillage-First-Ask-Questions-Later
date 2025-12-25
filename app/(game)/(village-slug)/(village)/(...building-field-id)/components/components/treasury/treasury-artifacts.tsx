@@ -1,9 +1,13 @@
-import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
-import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import type { ArtifactId } from 'app/interfaces/models/game/hero';
-import { Text } from 'app/components/text';
 import { useTranslation } from 'react-i18next';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { useArtifacts } from 'app/(game)/(village-slug)/hooks/use-artifacts';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { useWorldItems } from 'app/(game)/(village-slug)/hooks/use-world-items';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -12,12 +16,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
+import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
-import {
-  Section,
-  SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 
 type UnoccupiedArtifactRowProps = {
   item: WorldItem;

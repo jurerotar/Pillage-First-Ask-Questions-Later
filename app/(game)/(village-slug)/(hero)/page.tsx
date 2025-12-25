@@ -1,7 +1,14 @@
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
+import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
+import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
+import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,14 +16,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { Text } from 'app/components/text';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
-import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
-import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const HeroPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;

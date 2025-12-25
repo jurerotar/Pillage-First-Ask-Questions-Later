@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { Text } from 'app/components/text';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -5,9 +8,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
-import { Link } from 'react-router';
 import { Button } from 'app/components/ui/button';
 
 const NotFoundPage = () => {

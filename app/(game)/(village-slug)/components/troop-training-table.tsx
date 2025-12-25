@@ -1,5 +1,7 @@
-import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
+import { useTranslation } from 'react-i18next';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Text } from 'app/components/text';
 import {
   Table,
   TableBody,
@@ -8,10 +10,8 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import type { TroopTrainingBuildingId } from 'app/interfaces/models/game/building';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
-import { useTranslation } from 'react-i18next';
-import { Text } from 'app/components/text';
 
 type TroopTrainingTableProps = {
   buildingId: TroopTrainingBuildingId;

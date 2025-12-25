@@ -1,7 +1,7 @@
 import type { Building } from 'app/interfaces/models/game/building';
+import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { Player } from 'app/interfaces/models/game/player';
 import type { Resources } from 'app/interfaces/models/game/resource';
-import type { ArtifactId } from 'app/interfaces/models/game/hero';
 import type { Tile } from 'app/interfaces/models/game/tile';
 
 export type ResourceFieldComposition =
