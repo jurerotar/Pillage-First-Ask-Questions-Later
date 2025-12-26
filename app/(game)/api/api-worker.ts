@@ -120,6 +120,7 @@ self.addEventListener('message', async (event: MessageEvent) => {
       database!.close();
       database = null;
 
+      self.postMessage({ type: 'WORKER_CLOSE_SUCCESS' });
       self.close();
       break;
     }

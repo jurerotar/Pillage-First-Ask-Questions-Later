@@ -22,8 +22,17 @@ export const WorkerCleanupHandler = ({
     }
 
     if (!navigation.location.pathname.includes(serverSlug)) {
+      const handler = ({ data }: MessageEvent) => {
+        const { type } = data;
+
+        if (type === 'WORKER_CLOSE_SUCCESS') {
+          apiWorker.removeEventListener('message', handler);
+          apiWorker.terminate();
+        }
+      };
+
+      apiWorker.addEventListener('message', handler);
       apiWorker.postMessage({ type: 'WORKER_CLOSE' });
-      apiWorker.terminate();
     }
   }, [apiWorker, navigation, serverSlug]);
 
