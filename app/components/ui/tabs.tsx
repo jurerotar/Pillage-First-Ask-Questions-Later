@@ -1,7 +1,8 @@
-import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { clsx } from 'clsx';
+import { Tabs as TabsPrimitive } from 'radix-ui';
+import type { ComponentProps } from 'react';
 
-type TabsProps = React.ComponentProps<typeof TabsPrimitive.Root>;
+type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;
 
 export const Tabs = ({
   children,
@@ -26,11 +27,11 @@ export const TabList = ({
   children,
   className,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) => {
+}: ComponentProps<typeof TabsPrimitive.List>) => {
   return (
     <TabsPrimitive.List
       className={clsx(
-        'flex mb-[-1px] overflow-x-scroll scrollbar-hidden',
+        'flex -mb-px overflow-x-scroll scrollbar-hidden',
         className,
       )}
       {...props}
@@ -44,7 +45,7 @@ export const Tab = ({
   children,
   className,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) => {
+}: ComponentProps<typeof TabsPrimitive.Trigger>) => {
   return (
     <TabsPrimitive.Trigger
       className={clsx(
@@ -68,7 +69,7 @@ export const TabPanel = ({
   className,
   value,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) => {
+}: ComponentProps<typeof TabsPrimitive.Content>) => {
   return (
     <TabsPrimitive.Content
       value={value}
