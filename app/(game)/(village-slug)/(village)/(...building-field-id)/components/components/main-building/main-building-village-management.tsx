@@ -23,15 +23,15 @@ export const MainBuildingVillageManagement = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs>
+      <Tabs defaultValue="rename-village">
         <TabList>
-          <Tab>{t('Rename village')}</Tab>
-          <Tab>{t('Demolish buildings')}</Tab>
+          <Tab value="rename-village">{t('Rename village')}</Tab>
+          <Tab value="demolish-buildings">{t('Demolish buildings')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="rename-village">
           <RenameVillage />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="demolish-buildings">
           <DemolishBuilding />
         </TabPanel>
       </Tabs>

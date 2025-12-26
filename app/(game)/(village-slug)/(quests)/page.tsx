@@ -54,16 +54,16 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
         )}
       </Text>
       <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          navigateToTab(tabs[index]);
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab>{t('Village')}</Tab>
-          <Tab>{t('Global')}</Tab>
+          <Tab value="default">{t('Village')}</Tab>
+          <Tab value="global">{t('Global')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="default">
           <SectionContent>
             <Text as="h2">
               {t('Quests for village "{{villageName}}"', {
@@ -78,7 +78,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
             <QuestList quests={villageQuests} />
           </SectionContent>
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="global">
           <SectionContent>
             <Text as="h2">{t('Global quests')}</Text>
             <Text>

@@ -18,7 +18,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
 
   const { t } = useTranslation();
 
-  const tabs = ['default', 'villages'];
+  const tabs = ['population', 'villages'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
@@ -38,19 +38,19 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
       </Breadcrumb>
       <Text as="h1">{t('Statistics')}</Text>
       <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          navigateToTab(tabs[index]);
+        value={tabs[tabIndex] ?? 'population'}
+        onValueChange={(value) => {
+          navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab>{t('Population')}</Tab>
-          <Tab>{t('Villages')}</Tab>
+          <Tab value="population">{t('Population')}</Tab>
+          <Tab value="villages">{t('Villages')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="population">
           <PopulationRankings />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="villages">
           <VillageRankings />
         </TabPanel>
       </Tabs>

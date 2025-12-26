@@ -10,7 +10,6 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 export const TownHallCelebrations = () => {
   const { t } = useTranslation();
-
   return (
     <Section>
       <SectionContent>
@@ -65,12 +64,12 @@ export const TownHallCelebrations = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <Tabs>
+        <Tabs defaultValue="small-celebration">
           <TabList>
-            <Tab>{t('Small Celebration')}</Tab>
-            <Tab>{t('Large Celebration')}</Tab>
+            <Tab value="small-celebration">{t('Small Celebration')}</Tab>
+            <Tab value="large-celebration">{t('Large Celebration')}</Tab>
           </TabList>
-          <TabPanel>
+          <TabPanel value="small-celebration">
             <SectionContent>
               <Text as="h2">{t('Small Celebration')}</Text>
               <ul className="list-disc pl-4">
@@ -90,7 +89,7 @@ export const TownHallCelebrations = () => {
               </Alert>
             </SectionContent>
           </TabPanel>
-          <TabPanel>
+          <TabPanel value="large-celebration">
             <SectionContent>
               <Text as="h2">{t('Large Celebration')}</Text>
               <ul className="list-disc pl-4">

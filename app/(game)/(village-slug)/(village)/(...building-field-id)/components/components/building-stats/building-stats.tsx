@@ -23,15 +23,17 @@ export const BuildingStats = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs>
+      <Tabs defaultValue="upgrade-cost-benefits">
         <TabList>
-          <Tab>{t('Upgrade cost & benefits')}</Tab>
-          <Tab>{t('Upgrade duration')}</Tab>
+          <Tab value="upgrade-cost-benefits">
+            {t('Upgrade cost & benefits')}
+          </Tab>
+          <Tab value="upgrade-duration">{t('Upgrade duration')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="upgrade-cost-benefits">
           <BuildingStatsUpgradeCost />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="upgrade-duration">
           <BuildingStatsUpgradeDuration />
         </TabPanel>
       </Tabs>

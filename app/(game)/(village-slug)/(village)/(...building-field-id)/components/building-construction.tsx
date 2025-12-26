@@ -140,13 +140,13 @@ export const BuildingConstruction = () => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Construct new building')}</Text>
-      <Tabs>
+      <Tabs defaultValue="infrastructure">
         <TabList>
-          <Tab>{t('Infrastructure')}</Tab>
-          <Tab>{t('Military')}</Tab>
-          <Tab>{t('Resources')}</Tab>
+          <Tab value="infrastructure">{t('Infrastructure')}</Tab>
+          <Tab value="military">{t('Military')}</Tab>
+          <Tab value="resources">{t('Resources')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="infrastructure">
           <SectionContent>
             <Text as="h2">{t('Infrastructure buildings')}</Text>
             <Text>
@@ -157,7 +157,7 @@ export const BuildingConstruction = () => {
             <BuildingCategoryPanel buildingCategory="infrastructure" />
           </SectionContent>
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="military">
           <SectionContent>
             <Text as="h2">{t('Military buildings')}</Text>
             <Text>
@@ -168,7 +168,7 @@ export const BuildingConstruction = () => {
             <BuildingCategoryPanel buildingCategory="military" />
           </SectionContent>
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="resources">
           <SectionContent>
             <Text as="h2">{t('Resource buildings')}</Text>
             <Text>{t('Buildings focused on improving village economy.')}</Text>
