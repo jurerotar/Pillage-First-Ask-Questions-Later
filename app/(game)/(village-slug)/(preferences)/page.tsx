@@ -38,19 +38,19 @@ const PreferencesPage = ({ params }: Route.ComponentProps) => {
       </Breadcrumb>
       <Text as="h1">{t('Preferences')}</Text>
       <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          navigateToTab(tabs[index]);
+        value={tabs[tabIndex] ?? 'default'}
+        onValueChange={(value) => {
+          navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab>{t('General')}</Tab>
-          <Tab>{t('Notifications')}</Tab>
+          <Tab value="default">{t('General')}</Tab>
+          <Tab value="notifications">{t('Notifications')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="default">
           <GeneralPreferences />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="notifications">
           <NotificationPreferences />
         </TabPanel>
       </Tabs>

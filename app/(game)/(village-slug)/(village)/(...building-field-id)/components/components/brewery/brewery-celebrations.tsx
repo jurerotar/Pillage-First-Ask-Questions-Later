@@ -23,13 +23,13 @@ export const BreweryCelebration = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <Tabs>
+        <Tabs defaultValue="brew-of-war">
           <TabList>
-            <Tab>{t('Brew of war')}</Tab>
-            <Tab>{t('Brew of siege')}</Tab>
-            <Tab>{t('Brew of conquer')}</Tab>
+            <Tab value="brew-of-war">{t('Brew of war')}</Tab>
+            <Tab value="brew-of-siege">{t('Brew of siege')}</Tab>
+            <Tab value="brew-of-conquer">{t('Brew of conquer')}</Tab>
           </TabList>
-          <TabPanel>
+          <TabPanel value="brew-of-war">
             <SectionContent>
               <Text as="h2">{t('Brew of war')}</Text>
               <Text>
@@ -51,7 +51,7 @@ export const BreweryCelebration = () => {
               </ul>
             </SectionContent>
           </TabPanel>
-          <TabPanel>
+          <TabPanel value="brew-of-siege">
             <SectionContent>
               <Text as="h2">{t('Brew of siege')}</Text>
               <Text>
@@ -75,7 +75,7 @@ export const BreweryCelebration = () => {
               </ul>
             </SectionContent>
           </TabPanel>
-          <TabPanel>
+          <TabPanel value="brew-of-conquer">
             <SectionContent>
               <Text as="h2">{t('Brew of conquer')}</Text>
               <Text>

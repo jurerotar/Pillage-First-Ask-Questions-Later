@@ -1,73 +1,84 @@
-import {
-  type ReactTabsFunctionComponent,
-  Tab as ReactTabsTab,
-  TabList as ReactTabsTabList,
-  TabPanel as ReactTabsTabPanel,
-  Tabs as ReactTabsTabs,
-  type TabListProps,
-  type TabPanelProps,
-  type TabProps,
-  type TabsProps,
-} from 'react-tabs';
+import * as TabsPrimitive from '@radix-ui/react-tabs';
+import { clsx } from 'clsx';
 
-export const Tabs: ReactTabsFunctionComponent<TabsProps> = ({
+type TabsProps = React.ComponentProps<typeof TabsPrimitive.Root>;
+
+export const Tabs = ({
   children,
-  ...rest
-}) => {
-  return <ReactTabsTabs {...rest}>{children}</ReactTabsTabs>;
-};
-
-Tabs.tabsRole = 'Tabs';
-
-export const TabList: ReactTabsFunctionComponent<TabListProps> = ({
-  children,
-  ...rest
-}) => {
+  value,
+  onValueChange,
+  defaultValue,
+  ...props
+}: TabsProps) => {
   return (
-    <ReactTabsTabList
-      className="flex mb-[-1px] overflow-x-scroll scrollbar-hidden"
-      {...rest}
+    <TabsPrimitive.Root
+      value={value}
+      onValueChange={onValueChange}
+      defaultValue={defaultValue}
+      {...props}
     >
       {children}
-    </ReactTabsTabList>
+    </TabsPrimitive.Root>
   );
 };
 
-TabList.tabsRole = 'TabList';
-
-export const Tab: ReactTabsFunctionComponent<TabProps> = ({
+export const TabList = ({
   children,
-  ...rest
-}) => {
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List>) => {
   return (
-    <ReactTabsTab
-      selectedClassName="border-b-0 bg-input"
-      className={`
+    <TabsPrimitive.List
+      className={clsx(
+        'flex mb-[-1px] overflow-x-scroll scrollbar-hidden',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </TabsPrimitive.List>
+  );
+};
+
+export const Tab = ({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) => {
+  return (
+    <TabsPrimitive.Trigger
+      className={clsx(
+        `
         flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer
         border-t border-b border-r border-border
         first:rounded-tl-xs last:rounded-tr-xs first:border-l border-l-0
-      `}
-      {...rest}
+        data-[state=active]:border-b-0 data-[state=active]:bg-input
+        `,
+        className,
+      )}
+      {...props}
     >
       {children}
-    </ReactTabsTab>
+    </TabsPrimitive.Trigger>
   );
 };
 
-Tab.tabsRole = 'Tab';
-
-export const TabPanel: ReactTabsFunctionComponent<TabPanelProps> = ({
+export const TabPanel = ({
   children,
-  ...rest
-}) => {
+  className,
+  value,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Content>) => {
   return (
-    <ReactTabsTabPanel
-      selectedClassName="border border-border p-2 rounded-bl-xs rounded-br-xs"
-      {...rest}
+    <TabsPrimitive.Content
+      value={value}
+      className={clsx(
+        'border border-border p-2 rounded-bl-xs rounded-br-xs',
+        className,
+      )}
+      {...props}
     >
       {children}
-    </ReactTabsTabPanel>
+    </TabsPrimitive.Content>
   );
 };
-
-TabPanel.tabsRole = 'TabPanel';
