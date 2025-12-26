@@ -23,6 +23,7 @@ export const WorkerCleanupHandler = ({
 
     if (!navigation.location.pathname.includes(serverSlug)) {
       apiWorker.postMessage({ type: 'WORKER_CLOSE' });
+      apiWorker.terminate();
     }
   }, [apiWorker, navigation, serverSlug]);
 

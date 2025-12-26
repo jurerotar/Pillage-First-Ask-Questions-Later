@@ -1,110 +1,127 @@
+import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 import {
   cancelScheduling,
   scheduleNextEvent,
 } from 'app/(game)/api/engine/scheduler';
-import { createDbFacade } from 'app/(game)/api/facades/database-facade';
+import {
+  createDbFacade,
+  type DbFacade,
+} from 'app/(game)/api/facades/database-facade';
 import { matchRoute } from 'app/(game)/api/utils/route-matcher';
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from 'app/interfaces/api';
+import type { Database } from 'app/interfaces/db';
 
-const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
+type Sqlite3Module = Awaited<ReturnType<typeof sqlite3InitModule>>;
+type OpfsSahPool = Awaited<ReturnType<Sqlite3Module['installOpfsSAHPoolVfs']>>;
 
-try {
-  const urlParams = new URLSearchParams(self.location.search);
-  const serverSlug = urlParams.get('server-slug')!;
+let sqlite3: Sqlite3Module | null = null;
+let opfsSahPool: OpfsSahPool | null = null;
+let database: Database | null = null;
+let dbFacade: DbFacade | null = null;
 
-  const sqlite3 = await sqlite3InitModule({
-    locateFile: () => sqliteWasmUrl,
-  });
-  const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
-    directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-    // @ts-expect-error
-    forceReinitIfPreviouslyFailed: true,
-  });
-  const opfsDb = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
+self.addEventListener('message', async (event: MessageEvent) => {
+  const { data } = event;
+  const { type } = data;
 
-  opfsDb.exec(`
-    PRAGMA foreign_keys = ON;        -- keep referential integrity
-    PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
-    PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
-    PRAGMA synchronous = OFF;        -- don't wait for OS to flush (fast, risky)
-    PRAGMA temp_store = MEMORY;      -- temp tables + indices kept in RAM
-    PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
-    PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
-    PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
-  `);
+  switch (type) {
+    case 'WORKER_INIT': {
+      try {
+        const urlParams = new URLSearchParams(self.location.search);
+        const serverSlug = urlParams.get('server-slug')!;
 
-  const database = createDbFacade(opfsDb, false);
+        if (sqlite3 === null) {
+          const { default: sqlite3InitModule } = await import(
+            '@sqlite.org/sqlite-wasm'
+          );
 
-  scheduleNextEvent(database);
+          sqlite3 = await sqlite3InitModule({
+            locateFile: () => sqliteWasmUrl,
+          });
+        }
 
-  self.addEventListener('message', (event: MessageEvent) => {
-    const { data, ports } = event;
-    const { type } = data;
+        opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+          directory: `/pillage-first-ask-questions-later/${serverSlug}`,
+        });
 
-    if (type !== 'WORKER_MESSAGE') {
-      return;
-    }
+        database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-    event.stopImmediatePropagation();
+        database.exec(`
+          PRAGMA foreign_keys = ON;        -- keep referential integrity
+          PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
+          PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
+          PRAGMA synchronous = OFF;        -- don't wait for OS to flush (fast, risky)
+          PRAGMA temp_store = MEMORY;      -- temp tables + indices kept in RAM
+          PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
+          PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
+          PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
+        `);
 
-    const [port] = ports;
-    const { url, method, body } = data;
+        dbFacade = createDbFacade(database, false);
 
-    try {
-      const { handler, params } = matchRoute(url, method);
-      // @ts-expect-error: Not sure about this one, fix when you can
-      const result = handler(database, { params, body });
+        scheduleNextEvent(dbFacade);
 
-      if (method !== 'GET') {
         self.postMessage({
-          eventKey: 'event:worker-event-creation-success',
-          ...body,
-          ...params,
-        } satisfies EventApiNotificationEvent);
+          eventKey: 'event:worker-initialization-success',
+        } satisfies ApiNotificationEvent);
+        break;
+      } catch (error) {
+        console.error(error);
+        self.postMessage({
+          eventKey: 'event:worker-initialization-error',
+          error: error as Error,
+        } satisfies WorkerInitializationErrorEvent);
+        break;
       }
-
-      port.postMessage({
-        data: result,
-      });
-    } catch (error) {
-      console.error(error);
-      self.postMessage({
-        eventKey: 'event:worker-event-creation-error',
-        ...body,
-      } satisfies EventApiNotificationEvent);
-      return;
     }
-  });
+    case 'WORKER_MESSAGE': {
+      const { data, ports } = event;
 
-  self.addEventListener('message', (event: MessageEvent) => {
-    const { data } = event;
-    const { type } = data;
+      const [port] = ports;
+      const { url, method, body } = data;
 
-    if (type !== 'WORKER_CLOSE') {
-      return;
+      try {
+        const { handler, params } = matchRoute(url, method);
+        // @ts-expect-error: Not sure about this one, fix when you can
+        const result = handler(database, { params, body });
+
+        if (method !== 'GET') {
+          self.postMessage({
+            eventKey: 'event:worker-event-creation-success',
+            ...body,
+            ...params,
+          } satisfies EventApiNotificationEvent);
+        }
+
+        port.postMessage({
+          data: result,
+        });
+
+        break;
+      } catch (error) {
+        console.error(error);
+        self.postMessage({
+          eventKey: 'event:worker-event-creation-error',
+          ...body,
+        } satisfies EventApiNotificationEvent);
+        break;
+      }
     }
+    case 'WORKER_CLOSE': {
+      cancelScheduling();
 
-    event.stopImmediatePropagation();
+      dbFacade!.close();
+      dbFacade = null;
 
-    cancelScheduling();
-    database.close();
-    opfsDb.close();
-    opfsSahPool.pauseVfs();
-    self.close();
-  });
+      database!.close();
+      database = null;
 
-  self.postMessage({
-    eventKey: 'event:worker-initialization-success',
-  } satisfies ApiNotificationEvent);
-} catch (error: unknown) {
-  console.error(error);
-  self.postMessage({
-    eventKey: 'event:worker-initialization-error',
-    error: error as Error,
-  } satisfies WorkerInitializationErrorEvent);
-}
+      self.close();
+      break;
+    }
+  }
+});
