@@ -4,6 +4,7 @@ import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
 import type { Server } from 'app/interfaces/models/game/server';
+import { workerFactory } from 'app/utils/workers';
 
 const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
   const root = await navigator.storage.getDirectory();
@@ -87,34 +88,27 @@ export const useGameWorldActions = () => {
     { server: Server }
   >({
     mutationFn: async ({ server }) => {
-      const { databaseBuffer } = await new Promise<ExportServerWorkerReturn>(
-        (resolve) => {
-          const url = new URL(ExportServerWorker, import.meta.url);
-          url.searchParams.set('server-slug', server.slug);
-          const worker = new Worker(url.toString(), { type: 'module' });
+      const url = new URL(ExportServerWorker, import.meta.url);
+      url.searchParams.set('server-slug', server.slug);
 
-          worker.addEventListener(
-            'message',
-            (event: MessageEvent<ExportServerWorkerReturn>) => {
-              resolve(event.data);
-            },
-          );
-        },
-      );
+      const { databaseBuffer } = await workerFactory<
+        void,
+        ExportServerWorkerReturn
+      >(url);
 
       const blob = new Blob([databaseBuffer], {
         type: 'application/x-sqlite3',
       });
 
-      const url = URL.createObjectURL(blob);
+      const exportUrl = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = exportUrl;
       a.download = `${server.slug}.sqlite3`;
       a.rel = 'noopener';
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(exportUrl);
     },
   });
 

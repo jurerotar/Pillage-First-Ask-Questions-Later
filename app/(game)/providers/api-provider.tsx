@@ -43,7 +43,10 @@ export const ApiProvider = ({
     }
 
     const DEBOUNCE_MS = 150;
-    const debouncedInvalidators = new Map<string, () => void>();
+    const debouncedInvalidators = new Map<
+      string,
+      ReturnType<typeof debounce>
+    >();
 
     const makeDebouncedInvalidator = (
       keyId: string,
@@ -97,12 +100,11 @@ export const ApiProvider = ({
 
     return () => {
       apiWorker.removeEventListener('message', handleMessage);
-      // attempt to cancel pending debounced calls if `debounce` returned a cancellable function
+
+      // Attempt to cancel pending debounced calls
       for (const debounced of debouncedInvalidators.values()) {
-        // many debounce implementations attach `.cancel()` — call it if present
-        const maybeCancelable = debounced as unknown as { cancel?: () => void };
-        if (typeof maybeCancelable.cancel === 'function') {
-          maybeCancelable.cancel();
+        if (typeof debounced.cancel === 'function') {
+          debounced.cancel();
         }
       }
       debouncedInvalidators.clear();
