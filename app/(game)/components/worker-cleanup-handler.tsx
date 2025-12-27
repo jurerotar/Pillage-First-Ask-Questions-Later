@@ -1,5 +1,5 @@
 import { use, useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigation } from 'react-router';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type WorkerCleanupHandlerProps = {
@@ -9,13 +9,12 @@ type WorkerCleanupHandlerProps = {
 export const WorkerCleanupHandler = ({
   serverSlug,
 }: WorkerCleanupHandlerProps) => {
-  const { pathname } = useLocation();
+  const navigation = useNavigation();
+  const location = useLocation();
   const { apiWorker } = use(ApiContext);
 
-  console.log('WorkerCleanupHandler');
-
   useEffect(() => {
-    console.log('WorkerCleanupHandler useEffect start', pathname);
+    console.log('WorkerCleanupHandler useEffect start', location.pathname, navigation);
 
     if (!apiWorker) {
       return;
@@ -23,14 +22,14 @@ export const WorkerCleanupHandler = ({
 
     console.log('WorkerCleanupHandler useEffect !apiWorker');
 
-    if (!pathname) {
+    if (!location.pathname) {
       return;
     }
 
     console.log('WorkerCleanupHandler useEffect pathname');
 
 
-    if (!pathname.includes(serverSlug)) {
+    if (!location.pathname.includes(serverSlug)) {
       console.log('WorkerCleanupHandler useEffect third branch');
 
       const handler = ({ data }: MessageEvent) => {
@@ -47,7 +46,7 @@ export const WorkerCleanupHandler = ({
       console.log('close call');
       apiWorker.postMessage({ type: 'WORKER_CLOSE' });
     }
-  }, [apiWorker, pathname, serverSlug]);
+  }, [apiWorker, location, serverSlug, navigation]);
 
   return null;
 };
