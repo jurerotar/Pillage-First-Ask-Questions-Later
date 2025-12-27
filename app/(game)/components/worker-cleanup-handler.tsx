@@ -15,15 +15,20 @@ export const WorkerCleanupHandler = ({
   console.log('WorkerCleanupHandler');
 
   useEffect(() => {
-    console.log('WorkerCleanupHandler useEffect start');
+    console.log('WorkerCleanupHandler useEffect start', JSON.stringify(navigation));
 
     if (!apiWorker) {
       return;
     }
 
+    console.log('WorkerCleanupHandler useEffect !apiWorker');
+
     if (!navigation.location?.pathname) {
       return;
     }
+
+    console.log('WorkerCleanupHandler useEffect !navigation.location?.pathname');
+
 
     if (!navigation.location.pathname.includes(serverSlug)) {
       console.log('WorkerCleanupHandler useEffect third branch');
