@@ -27,6 +27,7 @@ export const WorkerCleanupHandler = ({
 
         if (type === 'WORKER_CLOSE_SUCCESS') {
           apiWorker.removeEventListener('message', handler);
+          console.log('terminate');
           apiWorker.terminate();
         }
       };
