@@ -674,7 +674,7 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-safe-or-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"

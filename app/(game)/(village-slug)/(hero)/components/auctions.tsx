@@ -22,19 +22,19 @@ export const Auctions = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs>
+      <Tabs defaultValue="buy">
         <TabList>
-          <Tab>{t('Buy')}</Tab>
-          <Tab>{t('Sell')}</Tab>
-          <Tab>{t('History')}</Tab>
+          <Tab value="buy">{t('Buy')}</Tab>
+          <Tab value="sell">{t('Sell')}</Tab>
+          <Tab value="history">{t('History')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="buy">
           <AuctionsBuyItem />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="sell">
           <AuctionsSellItem />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="history">
           <AuctionsTradeHistory />
         </TabPanel>
       </Tabs>

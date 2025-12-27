@@ -49,7 +49,7 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
     buildingIdToTroopTrainingEffectAndCategoryMap.get(buildingId)!;
 
   const units = getTribeUnitsByCategory(category);
-
+  const defaultUnitId = units[0]?.id;
   return (
     <Section>
       <SectionContent>
@@ -62,10 +62,13 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
         </Text>
       </SectionContent>
       <TroopTrainingTable buildingId={buildingId} />
-      <Tabs>
+      <Tabs defaultValue={defaultUnitId}>
         <TabList>
           {units.map(({ id }) => (
-            <Tab key={id}>
+            <Tab
+              key={id}
+              value={id}
+            >
               <div className="inline-flex items-center gap-2">
                 <Icon
                   type={unitIdToUnitIconMapper(id)}
@@ -80,7 +83,10 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
           const hasResearchedUnit = isUnitResearched(id);
 
           return (
-            <TabPanel key={id}>
+            <TabPanel
+              key={id}
+              value={id}
+            >
               <UnitCard
                 unitId={id}
                 buildingId={buildingId}

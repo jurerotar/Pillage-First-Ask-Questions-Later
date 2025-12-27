@@ -282,20 +282,24 @@ export const BuildingDetails = () => {
       </Text>
       <div className="flex flex-col gap-2">
         <Tabs
-          selectedIndex={tabIndex}
-          onSelect={(index) => {
-            const tab = tabs[index];
-            navigateToTab(tab);
+          value={tabs[tabIndex] ?? 'default'}
+          onValueChange={(value) => {
+            navigateToTab(value);
           }}
         >
           <TabList>
-            <Tab>{t('Overview')}</Tab>
+            <Tab value="default">{t('Overview')}</Tab>
             {buildingSpecificTabs.map((name: string) => (
-              <Tab key={name}>{t(name)}</Tab>
+              <Tab
+                key={name}
+                value={name}
+              >
+                {t(name)}
+              </Tab>
             ))}
-            <Tab>{t('Upgrade details')}</Tab>
+            <Tab value="upgrade-cost">{t('Upgrade details')}</Tab>
           </TabList>
-          <TabPanel>
+          <TabPanel value="default">
             <Section>
               <SectionContent>
                 <Bookmark tab="default" />
@@ -317,14 +321,17 @@ export const BuildingDetails = () => {
           {buildingSpecificTabs.map((name: string) => {
             const Panel = buildingDetailsTabMap.get(buildingId)!.get(name)!;
             return (
-              <TabPanel key={name}>
+              <TabPanel
+                key={name}
+                value={name}
+              >
                 <Suspense fallback={<BuildingTabFallback />}>
                   <Panel />
                 </Suspense>
               </TabPanel>
             );
           })}
-          <TabPanel>
+          <TabPanel value="upgrade-cost">
             <Suspense fallback={<BuildingTabFallback />}>
               <BuildingStats />
             </Suspense>
