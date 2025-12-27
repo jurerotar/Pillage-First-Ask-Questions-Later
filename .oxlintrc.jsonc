@@ -25,6 +25,7 @@
     "eslint/*": "error",
     "eslint/no-await-in-loop": "warn",
     "eslint/id-length": "off",
+    "eslint/max-statements": "off",
     "eslint/no-ternary": "off",
     "eslint/prefer-string-slice": "off",
     "eslint/max-lines-per-function": "off",
@@ -38,9 +39,16 @@
     "eslint/no-new": "off",
     "eslint/no-bitwise": "off",
     "eslint/no-labels": "off",
+    "eslint/capitalized-comments": "warn",
     "eslint/no-undefined": "off",
     // TODO: This rule must be re-enabled
     "eslint/sort-imports": "off",
+    "eslint/no-implicit-coercion": [
+      "error",
+      {
+        "allow": ["!!"]
+      }
+    ],
     "eslint/no-unused-vars": [
       "error",
       {
@@ -104,6 +112,7 @@
     "react/no-array-index-key": "warn",
     "react/exhaustive-deps": "warn",
     "react/jsx-filename-extension": "off",
+    "react/jsx-props-no-spreading": "off",
     "react/only-export-components": "off",
     // react-perf
     "react-perf/*": "error",
@@ -118,6 +127,9 @@
     "oxc/no-async-await": "off",
     "oxc/no-rest-spread-properties": "off",
     "oxc/no-optional-chaining": "off",
+    // I've run performance comparisons and this rule doesn't seem to make sense for our use-cases.
+    // Shallow-spreads are way more efficient compared to Object.assign with an intermediate object (which guarantees no side effects).
+    "oxc/no-map-spread": "off",
     // promise
     "promise/*": "error",
     "promise/avoid-new": "off",
