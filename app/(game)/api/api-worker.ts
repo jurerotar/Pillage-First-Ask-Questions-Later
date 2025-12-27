@@ -87,7 +87,7 @@ self.addEventListener('message', async (event: MessageEvent) => {
       try {
         const { handler, params } = matchRoute(url, method);
         // @ts-expect-error: Not sure about this one, fix when you can
-        const result = handler(database, { params, body });
+        const result = handler(dbFacade, { params, body });
 
         if (method !== 'GET') {
           self.postMessage({
@@ -121,7 +121,6 @@ self.addEventListener('message', async (event: MessageEvent) => {
       database = null;
 
       self.postMessage({ type: 'WORKER_CLOSE_SUCCESS' });
-      console.log('close');
       break;
     }
   }

@@ -5,7 +5,8 @@ import {
   memo,
   type PropsWithChildren,
   type ReactNode,
-  Suspense, use,
+  Suspense,
+  use,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +49,7 @@ import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-tr
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
@@ -63,7 +65,6 @@ import { Spinner } from 'app/components/ui/spinner';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumber } from 'app/utils/common';
 import { parseResourcesFromRFC } from 'app/utils/map';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const closeGameWorld = (apiWorker: Worker): void => {
   const handler = ({ data }: MessageEvent) => {
@@ -71,13 +72,11 @@ const closeGameWorld = (apiWorker: Worker): void => {
 
     if (type === 'WORKER_CLOSE_SUCCESS') {
       apiWorker.removeEventListener('message', handler);
-      console.log('terminate');
       apiWorker.terminate();
     }
   };
 
   apiWorker.addEventListener('message', handler);
-  console.log('close call');
   apiWorker.postMessage({ type: 'WORKER_CLOSE' });
 };
 
