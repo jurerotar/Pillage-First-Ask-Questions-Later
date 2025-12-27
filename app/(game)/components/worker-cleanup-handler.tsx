@@ -33,6 +33,7 @@ export const WorkerCleanupHandler = ({
       };
 
       apiWorker.addEventListener('message', handler);
+      console.log('close call');
       apiWorker.postMessage({ type: 'WORKER_CLOSE' });
     }
   }, [apiWorker, navigation, serverSlug]);
