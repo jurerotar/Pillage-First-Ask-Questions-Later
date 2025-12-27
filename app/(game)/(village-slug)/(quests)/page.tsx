@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -14,7 +15,6 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { partition } from 'app/utils/common';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 
 const QuestsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
@@ -53,16 +53,16 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
         )}
       </Text>
       <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          navigateToTab(tabs[index]);
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab>{t('Village')}</Tab>
-          <Tab>{t('Global')}</Tab>
+          <Tab value="default">{t('Village')}</Tab>
+          <Tab value="global">{t('Global')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="default">
           <SectionContent>
             <Text as="h2">
               {t('Quests for village "{{villageName}}"', {
@@ -77,7 +77,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
             <QuestList quests={villageQuests} />
           </SectionContent>
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="global">
           <SectionContent>
             <Text as="h2">{t('Global quests')}</Text>
             <Text>

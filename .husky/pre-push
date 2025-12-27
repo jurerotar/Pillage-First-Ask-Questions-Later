@@ -1,2 +1,0 @@
-biome ci
-i18next-cli extract --ci --dry-run

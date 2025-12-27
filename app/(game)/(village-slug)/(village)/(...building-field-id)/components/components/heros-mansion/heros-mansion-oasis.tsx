@@ -272,16 +272,16 @@ export const HerosMansionOasis = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs>
+      <Tabs defaultValue="occupied-oasis">
         <TabList>
-          <Tab>
+          <Tab value="occupied-oasis">
             <Text>{t('Occupied oasis')}</Text>
           </Tab>
-          <Tab>
+          <Tab value="oasis-within-reach">
             <Text>{t('Oasis within reach')}</Text>
           </Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="occupied-oasis">
           <SectionContent>
             <Text as="h2">{t('Occupied oasis')}</Text>
             <Text>
@@ -337,7 +337,7 @@ export const HerosMansionOasis = () => {
             </div>
           </SectionContent>
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="oasis-within-reach">
           <SectionContent>
             <Text as="h2">{t('Oasis within reach')}</Text>
             <Text>

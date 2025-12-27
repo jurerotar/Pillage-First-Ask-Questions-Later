@@ -8,7 +8,7 @@ export const Footer = () => {
   const { t } = useTranslation('public');
 
   return (
-    <footer className="border-t mt-4">
+    <footer className="border-t mt-4 pb-safe">
       <div className="container max-w-7xl mx-auto grid gap-4 md:gap-8 py-6 lg:py-10 md:grid-cols-4 px-2">
         <div className="flex flex-col gap-2">
           <Link to="/">

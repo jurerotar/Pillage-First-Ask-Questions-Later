@@ -8,14 +8,13 @@ import {
   useRouteError,
 } from 'react-router';
 import { Toaster, type ToasterProps } from 'sonner';
+import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Notifier } from 'app/(game)/components/notifier';
-import { WorkerCleanupHandler } from 'app/(game)/components/worker-cleanup-handler';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import type { Route } from '.react-router/types/app/(game)/+types/layout';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
   const { sessionContext } = await import('app/context/session');
@@ -232,7 +231,6 @@ const Layout = memo<Route.ComponentProps>(
           <ApiProvider serverSlug={serverSlug}>
             <Outlet />
             <Notifier serverSlug={serverSlug} />
-            <WorkerCleanupHandler serverSlug={serverSlug} />
           </ApiProvider>
         </Suspense>
         <Toaster

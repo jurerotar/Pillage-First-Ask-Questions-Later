@@ -65,7 +65,7 @@ We use git hooks to enforce consistent code standards and checks. Currently, 3 h
 
 `pre-push`: Lint, format and localization is validated before push.
 
-These hooks are managed automatically via `husky`. You can find all scripts in `.husky` folder.
+These hooks are managed automatically via `lefthook`. You can find the configuration in `lefthook.yml`.
 
 ## 6. Localization
 

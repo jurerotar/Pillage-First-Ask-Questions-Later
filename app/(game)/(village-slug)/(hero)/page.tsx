@@ -54,27 +54,27 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
         )}
       </Text>
       <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          navigateToTab(tabs[index]);
+        value={tabs[tabIndex] ?? 'default'}
+        onValueChange={(value) => {
+          navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab>{t('Attributes')}</Tab>
-          <Tab>{t('Inventory')}</Tab>
-          <Tab>{t('Adventures')}</Tab>
-          <Tab>{t('Auctions')}</Tab>
+          <Tab value="default">{t('Attributes')}</Tab>
+          <Tab value="inventory">{t('Inventory')}</Tab>
+          <Tab value="adventures">{t('Adventures')}</Tab>
+          <Tab value="auctions">{t('Auctions')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="default">
           <HeroAttributes />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="inventory">
           <HeroInventory />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="adventures">
           <Adventures />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="auctions">
           <Auctions />
         </TabPanel>
       </Tabs>

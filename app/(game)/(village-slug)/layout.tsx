@@ -6,6 +6,7 @@ import {
   type PropsWithChildren,
   type ReactNode,
   Suspense,
+  use,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,7 @@ import {
   Outlet,
   useNavigate,
 } from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
@@ -47,6 +49,7 @@ import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-tr
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
@@ -62,7 +65,20 @@ import { Spinner } from 'app/components/ui/spinner';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumber } from 'app/utils/common';
 import { parseResourcesFromRFC } from 'app/utils/map';
-import type { Route } from '.react-router/types/app/(game)/(village-slug)/+types/layout';
+
+const closeGameWorld = (apiWorker: Worker): void => {
+  const handler = ({ data }: MessageEvent) => {
+    const { type } = data;
+
+    if (type === 'WORKER_CLOSE_SUCCESS') {
+      apiWorker.removeEventListener('message', handler);
+      apiWorker.terminate();
+    }
+  };
+
+  apiWorker.addEventListener('message', handler);
+  apiWorker.postMessage({ type: 'WORKER_CLOSE' });
+};
 
 const TOOLTIP_DELAY_SHOW = 500;
 
@@ -501,6 +517,7 @@ const VillageSelect = () => {
 
 const TopNavigation = () => {
   const { t } = useTranslation();
+  const { apiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   return (
@@ -564,7 +581,12 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/game-worlds">
+                  <Link
+                    to="/game-worlds"
+                    onClick={() => {
+                      closeGameWorld(apiWorker);
+                    }}
+                  >
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
                       data-tooltip-content={t('Logout')}
@@ -640,6 +662,7 @@ const TopNavigation = () => {
 
 const MobileBottomNavigation = () => {
   const { t } = useTranslation();
+  const { apiWorker } = use(ApiContext);
 
   const container = useRef<HTMLDivElement>(null);
   const centeredElement = useRef<HTMLLIElement>(null);
@@ -651,7 +674,7 @@ const MobileBottomNavigation = () => {
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 pb-safe-or-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
@@ -729,6 +752,9 @@ const MobileBottomNavigation = () => {
           <li>
             <NavigationSideItem
               to="/game-worlds"
+              onClick={() => {
+                closeGameWorld(apiWorker);
+              }}
               aria-label={t('Logout')}
               title={t('Logout')}
             >
