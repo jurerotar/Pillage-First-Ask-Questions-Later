@@ -59,8 +59,9 @@ import {
 import { calculateGridLayout, parseResourcesFromRFC } from 'app/utils/map';
 
 type OasisBonus =
-  | `${25 | 50}-${Resource}`
-  | `${25}-${Exclude<Resource, 'wheat'>}-${25}-wheat`;
+  | `25-${Resource}`
+  | `50-${Resource}`
+  | `25-${Exclude<Resource, 'wheat'>}-25-wheat`;
 
 const oasisBonuses: OasisBonus[] = [
   '25-wheat',

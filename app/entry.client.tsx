@@ -19,7 +19,7 @@ import {
 } from 'app/utils/device';
 
 const createCookies = async () => {
-  const cookieStore = window.cookieStore;
+  const { cookieStore } = window;
 
   if ((await cookieStore.get(LOCALE_COOKIE_NAME)) === null) {
     await setCookie<AvailableLocale>(LOCALE_COOKIE_NAME, 'en-US');

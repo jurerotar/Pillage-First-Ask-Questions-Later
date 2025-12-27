@@ -82,9 +82,7 @@ export const ErrorBoundary = () => {
   })();
 
   const copyDetails = async () => {
-    try {
-      await navigator.clipboard?.writeText(error.details ?? '');
-    } catch {}
+    await navigator.clipboard?.writeText(error.details ?? '');
   };
 
   return (

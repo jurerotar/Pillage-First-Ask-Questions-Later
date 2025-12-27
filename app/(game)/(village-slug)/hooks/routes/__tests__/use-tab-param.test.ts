@@ -1,26 +1,20 @@
 // @vitest-environment happy-dom
 
 import { act, renderHook } from '@testing-library/react';
-import { useSearchParams } from 'react-router';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import * as reactRouter from 'react-router';
+import { describe, expect, test, vi } from 'vitest';
 import { useTabParam } from '../use-tab-param';
-
-vi.mock('react-router', () => ({
-  useSearchParams: vi.fn(),
-}));
 
 describe('useTabParam', () => {
   const setSearchParams = vi.fn();
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   test('returns correct tab index from search param', () => {
-    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
-      new URLSearchParams({ tab: 'profile' }),
-      setSearchParams,
-    ]);
+    using _ = vi
+      .spyOn(reactRouter, 'useSearchParams')
+      .mockReturnValue([
+        new URLSearchParams({ tab: 'profile' }),
+        setSearchParams,
+      ]);
 
     const tabs = ['default', 'home', 'profile', 'settings'];
     const { result } = renderHook(() => useTabParam(tabs));
@@ -29,10 +23,9 @@ describe('useTabParam', () => {
   });
 
   test('defaults to index of "default" if tab is missing', () => {
-    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
-      new URLSearchParams(),
-      setSearchParams,
-    ]);
+    using _ = vi
+      .spyOn(reactRouter, 'useSearchParams')
+      .mockReturnValue([new URLSearchParams(), setSearchParams]);
 
     const tabs = ['default', 'home', 'profile'];
     const { result } = renderHook(() => useTabParam(tabs));
@@ -41,10 +34,9 @@ describe('useTabParam', () => {
   });
 
   test('updates search param when navigateToTab is called', () => {
-    (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
-      new URLSearchParams(),
-      setSearchParams,
-    ]);
+    using _ = vi
+      .spyOn(reactRouter, 'useSearchParams')
+      .mockReturnValue([new URLSearchParams(), setSearchParams]);
 
     const tabs = ['default', 'home', 'profile'];
     const { result } = renderHook(() => useTabParam(tabs));

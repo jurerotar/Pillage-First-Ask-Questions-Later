@@ -7,7 +7,7 @@ export const getHasEnoughWarehouseCapacity = (
   calculatedWarehouseCapacity: number,
   nextLevelResourceCost: number[],
 ): boolean => {
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i += 1) {
     if (nextLevelResourceCost[i] > calculatedWarehouseCapacity) {
       return false;
     }

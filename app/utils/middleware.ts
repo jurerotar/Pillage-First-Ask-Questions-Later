@@ -11,7 +11,7 @@ export const isGameWorldLocked = async (
   const lockManager = await window.navigator.locks.query();
 
   const lock = lockManager.held!.find((lock) =>
-    lock?.name?.startsWith(serverSlug!),
+    lock?.name?.startsWith(serverSlug),
   );
 
   if (!lock) {
@@ -41,7 +41,7 @@ export const doesGameWorldExist = async (
   try {
     await rootHandle.getFileHandle(`${serverSlug}.json`);
     return true;
-  } catch (_error) {
+  } catch {
     return false;
   }
 };

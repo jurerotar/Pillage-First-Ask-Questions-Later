@@ -80,7 +80,7 @@ export const updatePreference: ApiHandler<
     },
   );
 
-  if (preferenceName === 'isDeveloperModeEnabled' && value === true) {
+  if (preferenceName === 'isDeveloperModeEnabled' && value) {
     database.exec(
       `
         UPDATE events

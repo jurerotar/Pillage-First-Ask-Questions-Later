@@ -61,11 +61,11 @@ export const guaranteedCroppersSeeder: Seeder = (database, server) => {
     `,
   ) as TilesWith3Unique50PercentWheatBonuses[];
 
-  const tileIdsEligibleForRFCChange = new Set<number>([]);
+  const tileIdsEligibleForRFCChange = new Set<number>();
 
-  const eighteenCropperTileIds = new Set<number>([]);
-  const fifteenCropperTileIds = new Set<number>([]);
-  const nineCropperTileIds = new Set<number>([]);
+  const eighteenCropperTileIds = new Set<number>();
+  const fifteenCropperTileIds = new Set<number>();
+  const nineCropperTileIds = new Set<number>();
 
   for (const {
     id,
