@@ -5,7 +5,7 @@ import {
   memo,
   type PropsWithChildren,
   type ReactNode,
-  Suspense,
+  Suspense, use,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,6 +63,23 @@ import { Spinner } from 'app/components/ui/spinner';
 import type { Resource } from 'app/interfaces/models/game/resource';
 import { formatNumber } from 'app/utils/common';
 import { parseResourcesFromRFC } from 'app/utils/map';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+
+const closeGameWorld = (apiWorker: Worker): void => {
+  const handler = ({ data }: MessageEvent) => {
+    const { type } = data;
+
+    if (type === 'WORKER_CLOSE_SUCCESS') {
+      apiWorker.removeEventListener('message', handler);
+      console.log('terminate');
+      apiWorker.terminate();
+    }
+  };
+
+  apiWorker.addEventListener('message', handler);
+  console.log('close call');
+  apiWorker.postMessage({ type: 'WORKER_CLOSE' });
+};
 
 const TOOLTIP_DELAY_SHOW = 500;
 
@@ -501,6 +518,7 @@ const VillageSelect = () => {
 
 const TopNavigation = () => {
   const { t } = useTranslation();
+  const { apiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   return (
@@ -564,7 +582,12 @@ const TopNavigation = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/game-worlds">
+                  <Link
+                    to="/game-worlds"
+                    onClick={() => {
+                      closeGameWorld(apiWorker);
+                    }}
+                  >
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
                       data-tooltip-content={t('Logout')}
@@ -640,6 +663,7 @@ const TopNavigation = () => {
 
 const MobileBottomNavigation = () => {
   const { t } = useTranslation();
+  const { apiWorker } = use(ApiContext);
 
   const container = useRef<HTMLDivElement>(null);
   const centeredElement = useRef<HTMLLIElement>(null);
@@ -729,6 +753,9 @@ const MobileBottomNavigation = () => {
           <li>
             <NavigationSideItem
               to="/game-worlds"
+              onClick={() => {
+                closeGameWorld(apiWorker);
+              }}
               aria-label={t('Logout')}
               title={t('Logout')}
             >
