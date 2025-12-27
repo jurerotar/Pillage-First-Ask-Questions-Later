@@ -12,7 +12,11 @@ export const WorkerCleanupHandler = ({
   const navigation = useNavigation();
   const { apiWorker } = use(ApiContext);
 
+  console.log('WorkerCleanupHandler');
+
   useEffect(() => {
+    console.log('WorkerCleanupHandler useEffect start');
+
     if (!apiWorker) {
       return;
     }
@@ -22,6 +26,8 @@ export const WorkerCleanupHandler = ({
     }
 
     if (!navigation.location.pathname.includes(serverSlug)) {
+      console.log('WorkerCleanupHandler useEffect third branch');
+
       const handler = ({ data }: MessageEvent) => {
         const { type } = data;
 
