@@ -2,6 +2,7 @@ import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 import {
   cancelScheduling,
+  initScheduler,
   scheduleNextEvent,
 } from 'app/(game)/api/engine/scheduler';
 import {
@@ -63,6 +64,7 @@ self.addEventListener('message', async (event: MessageEvent) => {
 
         dbFacade = createDbFacade(database, false);
 
+        initScheduler(dbFacade);
         scheduleNextEvent(dbFacade);
 
         self.postMessage({

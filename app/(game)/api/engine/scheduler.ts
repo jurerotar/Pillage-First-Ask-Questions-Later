@@ -1,6 +1,7 @@
 import { resolveEvent } from 'app/(game)/api/engine/resolver';
 import {
   markNeedsRescan,
+  registerKickCallback,
   takeNeedsRescan,
 } from 'app/(game)/api/engine/scheduler-signal';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
@@ -19,6 +20,10 @@ export const cancelScheduling = () => {
     self.clearTimeout(scheduledTimeout);
     scheduledTimeout = null;
   }
+};
+
+export const initScheduler = (database: DbFacade) => {
+  registerKickCallback(() => kickSchedulerNow(database));
 };
 
 export const kickSchedulerNow = (database: DbFacade) => {

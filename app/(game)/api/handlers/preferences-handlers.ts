@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
+import { triggerKick } from 'app/(game)/api/engine/scheduler-signal';
 import type { ApiHandler } from 'app/interfaces/api';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
 
@@ -95,6 +95,6 @@ export const updatePreference: ApiHandler<
       },
     );
 
-    kickSchedulerNow(database);
+    triggerKick();
   }
 };
