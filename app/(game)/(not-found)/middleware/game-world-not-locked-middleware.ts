@@ -1,5 +1,5 @@
 import { redirect } from 'react-router';
-import type { Route } from '@react-router/types/app/(game)/(not-allowed)/+types/page';
+import type { Route } from '@react-router/types/app/(game)/(not-found)/+types/page';
 import { doesGameWorldExist } from 'app/utils/middleware';
 
 export const gameWorldNotExistsMiddleware: Route.ClientMiddlewareFunction =
