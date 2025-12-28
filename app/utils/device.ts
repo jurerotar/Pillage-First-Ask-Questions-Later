@@ -22,7 +22,7 @@ export const setCookie = async <T extends string>(
   expires.setTime(expires.getTime() + 365 * 24 * 60 * 60 * 1000);
 
   if (window.cookieStore) {
-    await cookieStore.set({
+    await window.cookieStore.set({
       name,
       value,
       expires: expires.getTime(),
@@ -37,7 +37,7 @@ export const setCookie = async <T extends string>(
 
 export const getCookie = async (name: CookieName): Promise<string | null> => {
   if (window.cookieStore) {
-    const cookie = await cookieStore.get(name);
+    const cookie = await window.cookieStore.get(name);
     return cookie?.value || null;
   }
   const cookie = document.cookie
