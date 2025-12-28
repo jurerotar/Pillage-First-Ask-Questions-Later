@@ -2,7 +2,7 @@ export const LOCALE_COOKIE_NAME = 'pillage-first-locale';
 export const UI_COLOR_SCHEME_COOKIE_NAME = 'pillage-first-ui-color-scheme';
 export const GRAPHICS_SKIN_VARIANT_COOKIE_NAME = 'pillage-first-skin-variant';
 export const GRAPHICS_TIME_OF_DAY_COOKIE_NAME = 'pillage-first-time-of-day';
-export const COOKIE_CUSTOM_EVENT = 'update-pillar-cookies';
+export const COOKIE_CUSTOM_EVENT = 'pillage-update-cookies';
 
 export const isStandaloneDisplayMode = () => {
   return window.matchMedia('(display-mode: standalone)').matches;
