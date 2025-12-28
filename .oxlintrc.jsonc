@@ -19,7 +19,7 @@
     "perf": "error",
     "style": "off",
     "restriction": "off",
-    "suspicious": "off"
+    "suspicious": "error"
   },
   "rules": {
     "eslint/*": "error",
@@ -27,6 +27,7 @@
     "eslint/id-length": "off",
     "eslint/max-statements": "off",
     "eslint/no-ternary": "off",
+    "eslint/no-console": "warn",
     "eslint/prefer-string-slice": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
@@ -85,6 +86,7 @@
     "import/prefer-default-export": "off",
     "import/no-named-export": "off",
     "import/group-exports": "off",
+    "import/unambiguous": "off",
     "import/exports-last": "off",
     "import/max-dependencies": "off",
     // TODO: Investigate this one further, it seems like Biome is properly handling "type {} / { type }" imports, but linter should still flag it
