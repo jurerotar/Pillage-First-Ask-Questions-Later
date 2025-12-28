@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
+type ImportMetaEnv = {
   readonly BRANCH_ENV: 'master' | 'develop';
   readonly VERSION: string;
   readonly GRAPHICS_VERSION: string;
@@ -8,17 +8,17 @@ interface ImportMetaEnv {
   // Injected by Netlify, not available during dev
   readonly COMMIT_REF: string;
   readonly HEAD: string;
-}
+};
 
-export interface ImportMeta {
+export type ImportMeta = {
   readonly env: ImportMetaEnv;
-}
+};
 
-export interface ViteTypeOptions {
+export type ViteTypeOptions = {
   // By adding this line, you can make the type of ImportMetaEnv strict
   // to disallow unknown keys.
   strictImportMetaEnv: unknown;
-}
+};
 
 export const env = {
   MODE: import.meta.env.MODE,

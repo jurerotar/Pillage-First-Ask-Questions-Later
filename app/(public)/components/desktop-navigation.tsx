@@ -194,7 +194,7 @@ export const DesktopNavigation = () => {
                 rel="noopener noreferrer"
               >
                 <DropdownLinkContent
-                  label={'Discord'}
+                  label="Discord"
                   description={t('Join the discussion')}
                   icon={<FaDiscord />}
                 />
@@ -206,7 +206,7 @@ export const DesktopNavigation = () => {
                 rel="noopener noreferrer"
               >
                 <DropdownLinkContent
-                  label={'GitHub'}
+                  label="GitHub"
                   description={t('Contribute or raise issues')}
                   icon={<FaGithub />}
                 />

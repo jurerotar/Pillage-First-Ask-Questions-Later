@@ -33,22 +33,22 @@ describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
 describe('parseResourcesFromRFC', () => {
   test('parses standard resource field composition correctly', () => {
     const result = parseResourcesFromRFC('4446');
-    expect(result).toEqual([4, 4, 4, 6]);
+    expect(result).toStrictEqual([4, 4, 4, 6]);
   });
 
   test('parses composition with double-digit wheat correctly', () => {
     const result = parseResourcesFromRFC('11115');
-    expect(result).toEqual([1, 1, 1, 15]);
+    expect(result).toStrictEqual([1, 1, 1, 15]);
   });
 
   test('parses composition with single-digit wheat correctly', () => {
     const result = parseResourcesFromRFC('3339');
-    expect(result).toEqual([3, 3, 3, 9]);
+    expect(result).toStrictEqual([3, 3, 3, 9]);
   });
 
   test('parses balanced resource composition', () => {
     const result = parseResourcesFromRFC('3456');
-    expect(result).toEqual([3, 4, 5, 6]);
+    expect(result).toStrictEqual([3, 4, 5, 6]);
   });
 });
 
@@ -71,7 +71,7 @@ describe('calculateGridLayout', () => {
     expect(result.totalSize).toBe(104);
     expect(result.halfSize).toBe(52);
     expect(result.borderWidth).toBe(4);
-    expect(result.totalTiles).toBe(11025);
+    expect(result.totalTiles).toBe(11_025);
     expect(result.mapBorderThreshold).toBe(2500);
   });
 

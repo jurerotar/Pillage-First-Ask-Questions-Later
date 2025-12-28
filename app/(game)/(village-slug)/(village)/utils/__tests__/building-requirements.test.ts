@@ -250,7 +250,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBe(false);
+      expect(fulfilled).toBeFalsy();
     });
 
     test("Can't build a second main building even if first is max level", () => {

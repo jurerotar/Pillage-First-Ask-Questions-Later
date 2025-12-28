@@ -1,4 +1,5 @@
 import * as matchers from '@testing-library/jest-dom/matchers';
+import type * as ReactRouter from 'react-router';
 import { expect, vi } from 'vitest';
 
 expect.extend(matchers);
@@ -10,8 +11,7 @@ Object.defineProperty(globalThis, 'crypto', {
 });
 
 vi.mock('react-router', async () => {
-  const actual =
-    await vi.importActual<typeof import('react-router')>('react-router');
+  const actual = await vi.importActual<typeof ReactRouter>('react-router');
 
   return {
     ...actual,

@@ -34,7 +34,9 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
   return false;
 };
 
-export const clientMiddleware = [serverExistAndLockMiddleware];
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  serverExistAndLockMiddleware,
+];
 
 export const ErrorBoundary = () => {
   const routeErr = useRouteError();
@@ -82,9 +84,7 @@ export const ErrorBoundary = () => {
   })();
 
   const copyDetails = async () => {
-    try {
-      await navigator.clipboard?.writeText(error.details ?? '');
-    } catch {}
+    await navigator.clipboard?.writeText(error.details ?? '');
   };
 
   return (

@@ -57,8 +57,8 @@ export const ApiProvider = ({
           await queryClient.invalidateQueries({
             queryKey: Array.from(resolvedKey),
           });
-        } catch (err) {
-          console.error('Failed to invalidate query', resolvedKey, err);
+        } catch (error) {
+          console.error('Failed to invalidate query', resolvedKey, error);
         }
       };
 
