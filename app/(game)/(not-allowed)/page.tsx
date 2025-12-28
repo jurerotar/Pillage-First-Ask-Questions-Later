@@ -1,11 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(not-allowed)/+types/page';
 import { gameWorldNotLockedMiddleware } from 'app/(game)/(not-allowed)/middleware/game-world-not-locked-middleware';
 import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 
-export const clientMiddleware = [gameWorldNotLockedMiddleware];
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  gameWorldNotLockedMiddleware,
+];
 
 const GameWorldEntryNotAllowedPage = () => {
   const { t } = useTranslation();

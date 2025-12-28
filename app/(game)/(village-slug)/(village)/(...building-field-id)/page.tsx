@@ -7,7 +7,9 @@ import { BuildingFieldProvider } from 'app/(game)/(village-slug)/(village)/(...b
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { getBuildingFieldByBuildingFieldId } from 'app/assets/utils/buildings';
 
-export const clientMiddleware = [buildingFieldIdIsInRangeMiddleware];
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  buildingFieldIdIsInRangeMiddleware,
+];
 
 const BuildingPage = ({ params }: Route.ComponentProps) => {
   const {

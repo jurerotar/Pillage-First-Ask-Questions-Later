@@ -1,10 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { Route } from '@react-router/types/app/(game)/(not-found)/+types/page';
 import { gameWorldNotExistsMiddleware } from 'app/(game)/(not-found)/middleware/game-world-not-locked-middleware';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 
-export const clientMiddleware = [gameWorldNotExistsMiddleware];
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  gameWorldNotExistsMiddleware,
+];
 
 const GameWorldNotFoundPage = () => {
   const { t } = useTranslation();

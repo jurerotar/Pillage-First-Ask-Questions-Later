@@ -1,6 +1,6 @@
-import { defineConfig } from 'i18next-cli';
+import { defineConfig, type I18nextToolkitConfig } from 'i18next-cli';
 
-export default defineConfig({
+const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
   locales: ['en-US'],
   extract: {
     input: ['app/**/*.{ts,tsx}'],
@@ -38,3 +38,5 @@ export default defineConfig({
     removeUnusedKeys: true,
   },
 });
+
+export default i18nextCliConfig;
