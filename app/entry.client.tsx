@@ -13,27 +13,26 @@ import { CookieProvider } from 'app/providers/cookie-provider';
 import {
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+  getCookie,
   LOCALE_COOKIE_NAME,
   setCookie,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
 
 const createCookies = async () => {
-  const { cookieStore } = window;
-
-  if ((await cookieStore.get(LOCALE_COOKIE_NAME)) === null) {
+  if ((await getCookie(LOCALE_COOKIE_NAME)) === null) {
     await setCookie<AvailableLocale>(LOCALE_COOKIE_NAME, 'en-US');
   }
 
-  if ((await cookieStore.get(GRAPHICS_SKIN_VARIANT_COOKIE_NAME)) === null) {
+  if ((await getCookie(GRAPHICS_SKIN_VARIANT_COOKIE_NAME)) === null) {
     await setCookie<SkinVariant>(GRAPHICS_SKIN_VARIANT_COOKIE_NAME, 'default');
   }
 
-  if ((await cookieStore.get(UI_COLOR_SCHEME_COOKIE_NAME)) === null) {
+  if ((await getCookie(UI_COLOR_SCHEME_COOKIE_NAME)) === null) {
     await setCookie<UIColorScheme>(UI_COLOR_SCHEME_COOKIE_NAME, 'light');
   }
 
-  if ((await cookieStore.get(GRAPHICS_TIME_OF_DAY_COOKIE_NAME)) === null) {
+  if ((await getCookie(GRAPHICS_TIME_OF_DAY_COOKIE_NAME)) === null) {
     await setCookie<TimeOfDay>(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day');
   }
 };
