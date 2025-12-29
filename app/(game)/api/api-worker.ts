@@ -2,8 +2,10 @@ import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 import {
   cancelScheduling,
+  initScheduler,
   scheduleNextEvent,
 } from 'app/(game)/api/engine/scheduler';
+import { createSchedulerDataSource } from 'app/(game)/api/engine/scheduler-data-source';
 import {
   createDbFacade,
   type DbFacade,
@@ -24,14 +26,14 @@ let opfsSahPool: OpfsSahPool | null = null;
 let database: Database | null = null;
 let dbFacade: DbFacade | null = null;
 
-self.addEventListener('message', async (event: MessageEvent) => {
+globalThis.addEventListener('message', async (event: MessageEvent) => {
   const { data } = event;
   const { type } = data;
 
   switch (type) {
     case 'WORKER_INIT': {
       try {
-        const urlParams = new URLSearchParams(self.location.search);
+        const urlParams = new URLSearchParams(globalThis.location.search);
         const serverSlug = urlParams.get('server-slug')!;
 
         if (sqlite3 === null) {
@@ -63,15 +65,18 @@ self.addEventListener('message', async (event: MessageEvent) => {
 
         dbFacade = createDbFacade(database, false);
 
-        scheduleNextEvent(dbFacade);
+        const dataSource = createSchedulerDataSource(dbFacade);
 
-        self.postMessage({
+        initScheduler(dataSource);
+        scheduleNextEvent(dataSource);
+
+        globalThis.postMessage({
           eventKey: 'event:worker-initialization-success',
         } satisfies ApiNotificationEvent);
         break;
       } catch (error) {
         console.error(error);
-        self.postMessage({
+        globalThis.postMessage({
           eventKey: 'event:worker-initialization-error',
           error: error as Error,
         } satisfies WorkerInitializationErrorEvent);
@@ -90,7 +95,7 @@ self.addEventListener('message', async (event: MessageEvent) => {
         const result = handler(dbFacade, { params, body });
 
         if (method !== 'GET') {
-          self.postMessage({
+          globalThis.postMessage({
             eventKey: 'event:worker-event-creation-success',
             ...body,
             ...params,
@@ -104,7 +109,7 @@ self.addEventListener('message', async (event: MessageEvent) => {
         break;
       } catch (error) {
         console.error(error);
-        self.postMessage({
+        globalThis.postMessage({
           eventKey: 'event:worker-event-creation-error',
           ...body,
         } satisfies EventApiNotificationEvent);
@@ -120,7 +125,7 @@ self.addEventListener('message', async (event: MessageEvent) => {
       database!.close();
       database = null;
 
-      self.postMessage({ type: 'WORKER_CLOSE_SUCCESS' });
+      globalThis.postMessage({ type: 'WORKER_CLOSE_SUCCESS' });
       break;
     }
   }

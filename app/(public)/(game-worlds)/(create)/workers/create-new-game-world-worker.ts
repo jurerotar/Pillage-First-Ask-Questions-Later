@@ -6,7 +6,7 @@ export type CreateNewGameWorldWorkerPayload = {
   server: Server;
 };
 
-self.addEventListener(
+globalThis.addEventListener(
   'message',
   async (event: MessageEvent<CreateNewGameWorldWorkerPayload>) => {
     const { default: sqlite3InitModule } = await import(
@@ -35,7 +35,7 @@ self.addEventListener(
 
     opfsDb.close();
 
-    self.postMessage({ resolved: true });
-    self.close();
+    globalThis.postMessage({ resolved: true });
+    globalThis.close();
   },
 );

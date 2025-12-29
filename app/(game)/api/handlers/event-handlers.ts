@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { scheduleNextEvent } from 'app/(game)/api/engine/scheduler';
+import { triggerKick } from 'app/(game)/api/engine/scheduler-signal';
 import { createEvents } from 'app/(game)/api/handlers/utils/create-event';
 import { getEventStartTime } from 'app/(game)/api/handlers/utils/events';
 import {
@@ -148,5 +148,5 @@ export const cancelConstructionEvent: ApiHandler<'eventId', void> = (
     }
   });
 
-  scheduleNextEvent(database);
+  triggerKick();
 };

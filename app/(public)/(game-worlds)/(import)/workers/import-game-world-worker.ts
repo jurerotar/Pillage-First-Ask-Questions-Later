@@ -15,7 +15,7 @@ export type ImportGameWorldWorkerResponse =
       error: string;
     };
 
-self.addEventListener(
+globalThis.addEventListener(
   'message',
   async (event: MessageEvent<ImportGameWorldWorkerPayload>) => {
     const { default: sqlite3InitModule } = await import(
@@ -57,20 +57,20 @@ self.addEventListener(
       opfsDb.close();
       opfsSahPool.pauseVfs();
 
-      self.postMessage({
+      globalThis.postMessage({
         resolved: true,
         server,
       } satisfies ImportGameWorldWorkerResponse);
 
-      self.close();
+      globalThis.close();
     } catch (error) {
       console.error(error);
-      self.postMessage({
+      globalThis.postMessage({
         resolved: false,
         error:
           'Failed to import game world database. The file may be corrupted or incompatible.',
       } satisfies ImportGameWorldWorkerResponse);
-      self.close();
+      globalThis.close();
     }
   },
 );
