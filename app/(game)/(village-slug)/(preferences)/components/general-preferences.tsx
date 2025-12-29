@@ -98,7 +98,6 @@ export const GeneralPreferences = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="light">{t('Light')}</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
               </SelectContent>
             </Select>
           </div>

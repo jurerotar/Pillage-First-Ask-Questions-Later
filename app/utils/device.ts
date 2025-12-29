@@ -2,7 +2,8 @@ export const LOCALE_COOKIE_NAME = 'pillage-first-locale';
 export const UI_COLOR_SCHEME_COOKIE_NAME = 'pillage-first-ui-color-scheme';
 export const GRAPHICS_SKIN_VARIANT_COOKIE_NAME = 'pillage-first-skin-variant';
 export const GRAPHICS_TIME_OF_DAY_COOKIE_NAME = 'pillage-first-time-of-day';
-export const COOKIE_CUSTOM_EVENT = 'pillage-update-cookies';
+
+export const COOKIE_UPDATE_EVENT_NAME = 'pillage-first-cookies-update-event';
 
 export const isStandaloneDisplayMode = () => {
   return window.matchMedia('(display-mode: standalone)').matches;
@@ -28,11 +29,12 @@ export const setCookie = async <T extends string>(
       expires: expires.getTime(),
       path: '/',
     });
-  } else {
-    document.cookie = `${name}=${value}; expires=${expires.toUTCString()}`;
-    const event = new Event(COOKIE_CUSTOM_EVENT);
-    document.dispatchEvent(event);
+    return;
   }
+
+  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}`;
+  const event = new Event(COOKIE_UPDATE_EVENT_NAME);
+  document.dispatchEvent(event);
 };
 
 export const getCookie = async (name: CookieName): Promise<string | null> => {
@@ -40,6 +42,7 @@ export const getCookie = async (name: CookieName): Promise<string | null> => {
     const cookie = await window.cookieStore.get(name);
     return cookie?.value || null;
   }
+
   const cookie = document.cookie
     .split('; ')
     .find((row) => row.startsWith(name));

@@ -11,7 +11,7 @@ import type {
 } from 'app/interfaces/models/game/preferences';
 import type { AvailableLocale } from 'app/interfaces/models/locale';
 import {
-  COOKIE_CUSTOM_EVENT,
+  COOKIE_UPDATE_EVENT_NAME,
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
   getCookie,
@@ -75,14 +75,14 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
     if (cookieStore) {
       cookieStore.addEventListener('change', updateCookies);
     } else {
-      document.addEventListener(COOKIE_CUSTOM_EVENT, updateCookies);
+      document.addEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
     }
 
     return () => {
       if (cookieStore) {
         cookieStore.removeEventListener('change', updateCookies);
       } else {
-        document.removeEventListener(COOKIE_CUSTOM_EVENT, updateCookies);
+        document.removeEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
       }
     };
   }, []);
