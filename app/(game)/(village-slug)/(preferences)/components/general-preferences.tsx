@@ -53,7 +53,10 @@ export const GeneralPreferences = () => {
             </span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Switch disabled checked={true} />
+            <Switch
+              disabled
+              checked={true}
+            />
           </div>
         </div>
         <Separator orientation="horizontal" />
