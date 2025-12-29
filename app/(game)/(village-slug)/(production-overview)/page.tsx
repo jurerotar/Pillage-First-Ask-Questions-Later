@@ -37,27 +37,27 @@ const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
       </Breadcrumb>
       <Text as="h1">{t('Production overview')}</Text>
       <Tabs
-        selectedIndex={tabIndex}
-        onSelect={(index) => {
-          navigateToTab(tabs[index]);
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab>{t('Wood')}</Tab>
-          <Tab>{t('Clay')}</Tab>
-          <Tab>{t('Iron')}</Tab>
-          <Tab>{t('Wheat')}</Tab>
+          <Tab value="wood">{t('Wood')}</Tab>
+          <Tab value="clay">{t('Clay')}</Tab>
+          <Tab value="iron">{t('Iron')}</Tab>
+          <Tab value="wheat">{t('Wheat')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="wood">
           <ProductionOverview effectId="woodProduction" />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="clay">
           <ProductionOverview effectId="clayProduction" />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="iron">
           <ProductionOverview effectId="ironProduction" />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="wheat">
           <ProductionOverview effectId="wheatProduction" />
         </TabPanel>
       </Tabs>

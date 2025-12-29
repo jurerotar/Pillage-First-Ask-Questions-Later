@@ -173,6 +173,7 @@ export const villageSeeder: Seeder = (database, server): void => {
 
   // precompute weights (static per tile)
   const weights = new Float64Array(n);
+
   for (let i = 0; i < n; i += 1) {
     const t = fields[i];
     const norm = normalizedDistanceForTile(t);
@@ -185,7 +186,10 @@ export const villageSeeder: Seeder = (database, server): void => {
 
   // active indices array (for uniform picks) and index->pos map for O(1) removal
   const activeIndices: number[] = Array.from({ length: n }, (_, i) => i);
-  seededRandomArrayElement(prng, [0]); // just to keep seededRandomArrayElement reference used (safe)
+
+  // just to keep seededRandomArrayElement reference used (safe)
+  seededRandomArrayElement(prng, [0]);
+
   // shuffle activeIndices seeded
   for (let i = activeIndices.length - 1; i > 0; i -= 1) {
     const j = Math.floor(prng() * (i + 1));
@@ -195,12 +199,14 @@ export const villageSeeder: Seeder = (database, server): void => {
   }
 
   const indexToActivePos = new Int32Array(n).fill(-1);
+
   for (let pos = 0; pos < activeIndices.length; pos += 1) {
     indexToActivePos[activeIndices[pos]] = pos;
   }
 
   // coord -> index map
   const coordToIndex = new Map<string, number>();
+
   for (let i = 0; i < n; i += 1) {
     coordToIndex.set(`${fields[i].x}-${fields[i].y}`, i);
   }
@@ -255,7 +261,7 @@ export const villageSeeder: Seeder = (database, server): void => {
     if (!(total > 0)) {
       // fallback uniform
       const idx = pickRandomActiveIndexAndRemove();
-      return idx == null ? undefined : fields[idx];
+      return typeof idx === 'number' ? fields[idx] : undefined;
     }
 
     const r = prng() * total;
@@ -286,7 +292,7 @@ export const villageSeeder: Seeder = (database, server): void => {
         } else {
           // no active found (shouldn't happen because total > 0) -> uniform fallback
           const uni = pickRandomActiveIndexAndRemove();
-          return uni == null ? undefined : fields[uni];
+          return uni === undefined ? undefined : fields[uni];
         }
       }
     }
@@ -404,7 +410,7 @@ export const villageSeeder: Seeder = (database, server): void => {
       if (candidateIdx === -1) {
         // fallback to uniform random
         const idx = pickRandomActiveIndexAndRemove();
-        if (idx == null) {
+        if (!idx) {
           break;
         }
         playerToOccupiedFields.push([playerId, fields[idx]]);

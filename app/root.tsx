@@ -3,12 +3,15 @@ import { initFaro } from 'app/faro';
 import { StateProvider } from 'app/providers/state-provider';
 import 'app/localization/i18n';
 import 'app/styles/app.css';
+import type { Route } from '@react-router/types/app/+types/root';
 import { env } from 'app/env';
 import { clientSessionMiddleware } from 'app/middleware/client-session-middleware';
 
 await initFaro();
 
-export const clientMiddleware = [clientSessionMiddleware];
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  clientSessionMiddleware,
+];
 
 export const Layout = () => {
   return (
@@ -48,7 +51,7 @@ export const Layout = () => {
         />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
         <meta
           name="description"

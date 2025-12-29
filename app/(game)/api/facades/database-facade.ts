@@ -5,7 +5,7 @@ const createPreparedStatementCache = (): Map<
   string,
   ReturnType<Database['prepare']>
 > => {
-  return new Map<string, ReturnType<Database['prepare']>>([]);
+  return new Map<string, ReturnType<Database['prepare']>>();
 };
 
 export type DbFacade = {

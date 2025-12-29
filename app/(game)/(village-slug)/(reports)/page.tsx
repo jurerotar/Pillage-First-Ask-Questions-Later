@@ -33,19 +33,19 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Reports')}</Text>
-      <Tabs>
+      <Tabs defaultValue="all">
         <TabList>
-          <Tab>{t('All')}</Tab>
-          <Tab>{t('Archived')}</Tab>
-          <Tab>{t('This village')}</Tab>
+          <Tab value="all">{t('All')}</Tab>
+          <Tab value="archived">{t('Archived')}</Tab>
+          <Tab value="village">{t('This village')}</Tab>
         </TabList>
-        <TabPanel>
+        <TabPanel value="all">
           <Reports />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="archived">
           <ArchivedReports />
         </TabPanel>
-        <TabPanel>
+        <TabPanel value="village">
           <CurrentVillageReports />
         </TabPanel>
       </Tabs>

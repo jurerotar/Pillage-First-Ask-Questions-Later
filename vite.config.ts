@@ -1,8 +1,6 @@
 import { resolve } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
-// import babel from 'vite-plugin-babel';
-// import { visualizer } from "rollup-plugin-visualizer";
 import { reactIconsSprite } from 'react-icons-sprite/vite';
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
@@ -10,6 +8,8 @@ import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { reactRouter } from '@react-router/dev/vite';
 import packageJson from './package.json' with { type: 'json' };
+
+// import { visualizer } from "rollup-plugin-visualizer";
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -57,7 +57,8 @@ const viteConfig = defineViteConfig({
     //       plugins: [['babel-plugin-react-compiler']],
     //     },
     //   }),
-    !isInTestMode && mdx({ providerImportSource: '@mdx-js/react' }),
+    !isInTestMode &&
+      mdx({ providerImportSource: '@mdx-js/react', development: false }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),

@@ -9,6 +9,11 @@ const DB_EXPORT_PATH = join(EXPORT_PATH, 'schema.sqlite');
 // Text export(s)
 const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
 
+const footer = (): string => ['', 'COMMIT;', ''].join('\n');
+
+const ensureSemicolon = (stmt: string | null): string =>
+  (stmt ?? '').trim().replace(/;?\s*$/u, ';');
+
 await (async (): Promise<void> => {
   await mkdir(dirname(DB_EXPORT_PATH), { recursive: true });
 
@@ -48,9 +53,6 @@ await (async (): Promise<void> => {
 
   db.exec('COMMIT;');
 
-  const ensureSemicolon = (stmt: string | null): string =>
-    (stmt ?? '').trim().replace(/;?\s*$/u, ';');
-
   const header = (): string => {
     const now = new Date().toISOString();
     return [
@@ -63,8 +65,6 @@ await (async (): Promise<void> => {
       '',
     ].join('\n');
   };
-
-  const footer = (): string => ['', 'COMMIT;', ''].join('\n');
 
   const orderCase = `
       CASE type

@@ -788,7 +788,7 @@ describe('createNewServer', () => {
         const parts = qid.split('-');
         // parts[0] = 'unitTroopCount'
         const unitId = parts[1];
-        expect(allowed.has(unitId as UnitId)).toBe(true);
+        expect(allowed.has(unitId as UnitId)).toBeTruthy();
       }
     });
 
@@ -881,7 +881,7 @@ describe('createNewServer', () => {
              AND source_specifier = 0;`,
           {
             $effectId: wheatEffectId,
-            $value: population,
+            $value: -population,
             $villageId: villageId,
           },
         ) as number;

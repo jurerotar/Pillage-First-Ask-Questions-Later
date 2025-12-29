@@ -3,14 +3,14 @@ import { getHasEnoughFreeCrop } from 'app/(game)/(village-slug)/hooks/current-vi
 
 describe('getHasEnoughFreeCrop', () => {
   test('returns true if nextLevelWheatConsumption is 0', () => {
-    expect(getHasEnoughFreeCrop(0, 100)).toBe(true);
+    expect(getHasEnoughFreeCrop(0, 100)).toBeTruthy();
   });
 
   test('returns true if there is enough free crop', () => {
-    expect(getHasEnoughFreeCrop(10, 100)).toBe(true);
+    expect(getHasEnoughFreeCrop(10, 100)).toBeTruthy();
   });
 
   test('returns false if there is not enough free crop', () => {
-    expect(getHasEnoughFreeCrop(20, 10)).toBe(false);
+    expect(getHasEnoughFreeCrop(20, 10)).toBeFalsy();
   });
 });

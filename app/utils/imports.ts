@@ -8,7 +8,7 @@ const retry = async <T>(
   try {
     return await fn();
   } catch {
-    await new Promise((res) => setTimeout(res, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
     return retry(fn, retries - 1);
   }
 };

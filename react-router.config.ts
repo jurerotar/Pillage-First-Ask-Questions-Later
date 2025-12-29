@@ -5,7 +5,7 @@ import {
   replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
 
-export default {
+const reactRouterConfig: Config = {
   ssr: false,
   prerender: {
     unstable_concurrency: 4,
@@ -31,4 +31,6 @@ export default {
     await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
     await deleteSPAPreloadPage(args);
   },
-} satisfies Config;
+};
+
+export default reactRouterConfig;
