@@ -28,7 +28,9 @@ import {
 } from 'app/(game)/api/handlers/oasis-handlers';
 import {
   getPlayerById,
+  getPlayerInfoBySlug,
   getPlayerVillageListing,
+  getPlayerVillagesWithPopulation,
   getTroopsByVillage,
   renameVillage,
 } from 'app/(game)/api/handlers/player-handlers';
@@ -176,6 +178,19 @@ const playerRoutes = [
     path: '/players/:playerId/villages',
     handler: getPlayerVillageListing,
   },
+  {
+    method: 'GET',
+    path: '/players/:playerId/villages-with-population',
+    handler: getPlayerVillagesWithPopulation,
+  },
+];
+
+const playerSlugRoutes = [
+  {
+    method: 'GET',
+    path: '/:serverSlug/:villageSlug/players/:playerSlug',
+    handler: getPlayerInfoBySlug,
+  },
 ];
 
 const villageRoutes = [
@@ -288,6 +303,7 @@ const statisticsRoutes = [
 
 const apiRoutes = [
   ...serverRoutes,
+  ...playerSlugRoutes,
   ...heroRoutes,
   ...questRoutes,
   ...mapRoutes,
