@@ -37,7 +37,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run type check
-        run: npm run type-check
+        run: turbo run type-check
 
   lint:
     name: Lint check
@@ -52,7 +52,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run lint check
-        run: npm run lint:check
+        run: turbo run lint:check
 
   format:
     name: Format check
@@ -67,7 +67,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run format check
-        run: npm run format:check
+        run: turbo run format:check
 
   localize:
     name: Localization check
@@ -81,8 +81,8 @@ jobs:
       - name: Setup environment (node + install)
         uses: ./.github/actions/node-setup
 
-      - name: Run localization check
-        run: npx --workspace="@pillage-first/web" run localize:ci
+      - name: Run @pillage-first/web localization check
+        run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
 
   test:
     name: Run tests
@@ -98,7 +98,7 @@ jobs:
 
       - name: Run tests
         id: run-tests
-        run: npm run test
+        run: turbo run test
 
 #  knip:
 #    name: Unused exports and dependencies check (knip)

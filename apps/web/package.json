@@ -21,7 +21,6 @@
     "format": "biome check --write --no-errors-on-unmatched",
     "knip:ci": "knip --max-issues 29",
     "localize": "i18next-cli extract",
-    "localize:ci": "i18next-cli extract --ci --dry-run",
     "type-check": "react-router typegen && tsgo",
     "test": "vitest",
     "postinstall": "node scripts/postinstall.ts"
