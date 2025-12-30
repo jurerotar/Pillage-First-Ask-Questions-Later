@@ -16,7 +16,7 @@ let schedulingInProgress = false;
 let shutdownController = new AbortController();
 
 /** @internal only for testing */
-export const resetSchedulerForTesting = () => {
+export const resetSchedulerForTesting = (): void => {
   if (scheduledTimeout !== null) {
     globalThis.clearTimeout(scheduledTimeout);
     scheduledTimeout = null;
@@ -25,7 +25,7 @@ export const resetSchedulerForTesting = () => {
   shutdownController = new AbortController();
 };
 
-export const cancelScheduling = () => {
+export const cancelScheduling = (): void => {
   if (!shutdownController.signal.aborted) {
     shutdownController.abort();
   }
@@ -36,11 +36,11 @@ export const cancelScheduling = () => {
   }
 };
 
-export const initScheduler = (dataSource: SchedulerDataSource) => {
+export const initScheduler = (dataSource: SchedulerDataSource): void => {
   registerKickCallback(() => kickSchedulerNow(dataSource));
 };
 
-export const kickSchedulerNow = (dataSource: SchedulerDataSource) => {
+export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
   // Always mark so scheduleNextEvent loop knows something changed.
   markNeedsRescan();
 
@@ -71,7 +71,7 @@ export const kickSchedulerNow = (dataSource: SchedulerDataSource) => {
   }, 0);
 };
 
-export const scheduleNextEvent = (dataSource: SchedulerDataSource) => {
+export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
   // If we've been canceled, bail out immediately.
   if (shutdownController.signal.aborted) {
     return;

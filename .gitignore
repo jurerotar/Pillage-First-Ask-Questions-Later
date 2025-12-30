@@ -15,9 +15,8 @@ yarn-debug.log*
 yarn-error.log*
 .vscode/
 .idea/
-apps/web/public/graphic-packs/
+graphic-packs/
 .react-router/
 stats.html
 tsconfig.tsbuildinfo
 .turbo
-

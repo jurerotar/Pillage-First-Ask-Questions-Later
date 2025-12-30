@@ -4,7 +4,10 @@ import type { DbFacade } from '../facades/database-facade';
 import { getGameEventResolver } from './event-type-mapper';
 import { parseEvent } from './zod/event-schemas';
 
-export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
+export const resolveEvent = (
+  database: DbFacade,
+  eventId: GameEvent['id'],
+): void => {
   const deletedRow = database.selectObject(
     `
       DELETE FROM events

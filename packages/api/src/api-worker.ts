@@ -14,8 +14,8 @@ import {
   initScheduler,
   scheduleNextEvent,
 } from './scheduler/scheduler';
+import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
 import { matchRoute } from './utils/route-matcher';
-import { createSchedulerDataSource } from './utils/scheduler-data-source';
 
 let sqlite3: Sqlite3Module | null = null;
 let opfsSahPool: OpfsSahPool | null = null;

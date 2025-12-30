@@ -4,13 +4,13 @@ import { playerSchema } from '@pillage-first/types/models/player';
 import { playersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-export const usePlayer = () => {
+export const useMe = () => {
   const { fetcher } = use(ApiContext);
 
   const { data: player } = useSuspenseQuery({
     queryKey: [playersCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/me');
+      const { data } = await fetcher('/players/me');
 
       return playerSchema.parse(data);
     },
