@@ -23,7 +23,7 @@
     "localize": "i18next-cli extract",
     "type-check": "react-router typegen && tsgo",
     "test": "vitest",
-    "postinstall": "node scripts/postinstall.ts"
+    "postinstall": "node ../../scripts/postinstall.ts"
   },
   "dependencies": {
     "@pillage-first/db": "*",

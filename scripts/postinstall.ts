@@ -1,10 +1,6 @@
 import { existsSync, rmSync } from 'node:fs';
 import { copyFile, mkdir, readdir, stat } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = join(__dirname, '..', '..', '..');
+import { join } from 'node:path';
 
 const clearDirectory = async (path: string) => {
   if (existsSync(path)) {
@@ -41,11 +37,12 @@ const copyFolderSync = async (source: string, dest: string): Promise<void> => {
   }
 };
 
-const sourceDir = join(
-  rootDir,
-  'node_modules/@pillage-first/graphics/dist/graphic-packs',
-);
-const destDir = join(__dirname, '..', 'public', 'graphic-packs');
+const installWebAppGraphicPacks = async () => {
+  const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
+  const destDir = 'apps/web/public/graphic-packs';
 
-await clearDirectory(destDir);
-await copyFolderSync(sourceDir, destDir);
+  await clearDirectory(destDir);
+  await copyFolderSync(sourceDir, destDir);
+};
+
+await installWebAppGraphicPacks();

@@ -25,7 +25,7 @@
     "type-check": "turbo run type-check",
     "test": "turbo run test",
     "prepare": "lefthook install",
-    "postinstall": "node scripts/create-dev-db.ts && turbo run postinstall",
+    "postinstall": "node scripts/create-dev-db.ts && node scripts/postinstall.ts",
     "create-dev-db": "node scripts/create-dev-db.ts"
   },
   "devDependencies": {

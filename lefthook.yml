@@ -1,5 +1,7 @@
 # https://github.com/evilmartians/lefthook
 
+output: false
+
 commit-msg:
   commands:
     lint:
