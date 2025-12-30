@@ -21,6 +21,7 @@
     "lint": "biome lint --fix --no-errors-on-unmatched",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
+    "test": "vitest",
     "type-check": "tsgo"
   },
   "dependencies": {

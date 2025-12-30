@@ -37,7 +37,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run type check
-        run: turbo run type-check
+        run: npx turbo run type-check
 
   lint:
     name: Lint check
@@ -52,7 +52,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run lint check
-        run: turbo run lint:check
+        run: npx turbo run lint:check
 
   format:
     name: Format check
@@ -67,7 +67,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run format check
-        run: turbo run format:check
+        run: npx turbo run format:check
 
   localize:
     name: Localization check
@@ -98,19 +98,4 @@ jobs:
 
       - name: Run tests
         id: run-tests
-        run: turbo run test
-
-#  knip:
-#    name: Unused exports and dependencies check (knip)
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout repo
-#        uses: actions/checkout@v5
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Setup environment (node + install)
-#        uses: ./.github/actions/node-setup
-#
-#      - name: Run knip
-#        run: npm run knip:ci
+        run: npx turbo run test
