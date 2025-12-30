@@ -1,14 +1,14 @@
+import { Radio, RadioGroup as RadioGroupPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { RadioGroup as RadioGroupPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 import { LuCircle } from 'react-icons/lu';
 
 export const RadioGroup = ({
   className,
   ...props
-}: ComponentProps<typeof RadioGroupPrimitive.Root>) => {
+}: ComponentProps<typeof RadioGroupPrimitive>) => {
   return (
-    <RadioGroupPrimitive.Root
+    <RadioGroupPrimitive
       data-slot="radio-group"
       className={clsx('grid gap-3', className)}
       {...props}
@@ -19,9 +19,9 @@ export const RadioGroup = ({
 export const RadioGroupItem = ({
   className,
   ...props
-}: ComponentProps<typeof RadioGroupPrimitive.Item>) => {
+}: ComponentProps<typeof Radio.Root>) => {
   return (
-    <RadioGroupPrimitive.Item
+    <Radio.Root
       data-slot="radio-group-item"
       className={clsx(
         'border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
@@ -29,12 +29,12 @@ export const RadioGroupItem = ({
       )}
       {...props}
     >
-      <RadioGroupPrimitive.Indicator
+      <Radio.Indicator
         data-slot="radio-group-indicator"
         className="relative flex items-center justify-center"
       >
         <LuCircle className="fill-primary absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
+      </Radio.Indicator>
+    </Radio.Root>
   );
 };

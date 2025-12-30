@@ -55,7 +55,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
       </Text>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}
-        onValueChange={(value) => {
+        onValueChange={(value: string) => {
           navigateToTab(value);
         }}
       >

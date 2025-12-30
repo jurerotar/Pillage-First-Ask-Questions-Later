@@ -1,6 +1,5 @@
+import { Field } from '@base-ui/react';
 import { clsx } from 'clsx';
-import type { Label as LabelPrimitive } from 'radix-ui';
-import { Slot } from 'radix-ui';
 import { type ComponentProps, createContext, use } from 'react';
 import {
   Controller,
@@ -75,7 +74,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
 
   return (
     <FormItemContext value={{ id: name }}>
-      <div
+      <Field.Root
         data-slot="form-item"
         className={clsx('grid gap-2', className)}
         {...props}
@@ -87,7 +86,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
 export const FormLabel = ({
   className,
   ...props
-}: ComponentProps<typeof LabelPrimitive.Root>) => {
+}: ComponentProps<typeof Field.Label>) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -101,12 +100,15 @@ export const FormLabel = ({
   );
 };
 
-export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
+export const FormControl = ({
+  children,
+  ...props
+}: ComponentProps<typeof Field.Control>) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot.Root
+    <Field.Control
       data-slot="form-control"
       id={formItemId}
       aria-describedby={
@@ -115,6 +117,7 @@ export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
+      render={children as React.ReactElement}
       {...props}
     />
   );
@@ -123,11 +126,11 @@ export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
 export const FormDescription = ({
   className,
   ...props
-}: ComponentProps<'p'>) => {
+}: ComponentProps<typeof Field.Description>) => {
   const { formDescriptionId } = useFormField();
 
   return (
-    <p
+    <Field.Description
       data-slot="form-description"
       id={formDescriptionId}
       className={clsx('text-muted-foreground text-sm', className)}
@@ -136,7 +139,10 @@ export const FormDescription = ({
   );
 };
 
-export const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
+export const FormMessage = ({
+  className,
+  ...props
+}: ComponentProps<typeof Field.Error>) => {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message ?? '') : props.children;
 
@@ -145,13 +151,13 @@ export const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
   }
 
   return (
-    <p
+    <Field.Error
       data-slot="form-message"
       id={formMessageId}
       className={clsx('text-destructive text-sm', className)}
       {...props}
     >
       {body}
-    </p>
+    </Field.Error>
   );
 };

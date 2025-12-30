@@ -1,5 +1,5 @@
+import { Dialog as DialogPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { Dialog as DialogPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 import { LuX } from 'react-icons/lu';
 
@@ -52,9 +52,9 @@ export const DialogClose = ({
 export const DialogOverlay = ({
   className,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Overlay>) => {
+}: ComponentProps<typeof DialogPrimitive.Backdrop>) => {
   return (
-    <DialogPrimitive.Overlay
+    <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={clsx(
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
@@ -69,11 +69,11 @@ export const DialogContent = ({
   className,
   children,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Content>) => {
+}: ComponentProps<typeof DialogPrimitive.Popup>) => {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
-      <DialogPrimitive.Content
+      <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={clsx(
           'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xs border p-6 shadow-lg duration-200 sm:max-w-lg',
@@ -86,7 +86,7 @@ export const DialogContent = ({
           <span className="sr-only">Close</span>
           <LuX className="size-4" />
         </DialogPrimitive.Close>
-      </DialogPrimitive.Content>
+      </DialogPrimitive.Popup>
     </DialogPortal>
   );
 };

@@ -54,7 +54,7 @@ export const BuildingStatsUpgradeDuration = () => {
       <div className="flex gap-4 items-center">
         <Text className="font-medium">{t('Main building level')}:</Text>
         <Select
-          onValueChange={(value) =>
+          onValueChange={(value: any) =>
             setMainBuildingLevel(Number.parseInt(value, 10))
           }
           value={mainBuildingLevel.toString()}

@@ -462,7 +462,7 @@ const VillageSelect = () => {
 
   return (
     <Select
-      onValueChange={(value) => navigate(getNewVillageUrl(value))}
+      onValueChange={(value) => navigate(getNewVillageUrl(value as string))}
       value={currentVillage.slug}
     >
       <SelectTrigger
