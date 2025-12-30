@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/hooks/use-player-rankings';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
+import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import { usePlayer } from 'app/(game)/(village-slug)/hooks/use-player';
 import { Text } from 'app/components/text';
 import { Pagination } from 'app/components/ui/pagination';
 import {
@@ -21,7 +21,7 @@ const RESULTS_PER_PAGE = 20;
 
 export const PopulationRankings = () => {
   const { t } = useTranslation();
-  const { player } = usePlayer();
+  const { player } = useMe();
   const { rankedPlayers } = usePlayerRankings();
 
   const currentPlayerIndex = rankedPlayers.findIndex(

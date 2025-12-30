@@ -19,6 +19,7 @@ const getPlayerVillageSchema = z.strictObject({
 
 export const usePlayerVillages = (playerId: number) => {
   const { fetcher } = use(ApiContext);
+
   const { data: playerVillages } = useSuspenseQuery({
     queryKey: ['player-villages', playerId],
     queryFn: async () => {
@@ -28,6 +29,7 @@ export const usePlayerVillages = (playerId: number) => {
       return z.array(getPlayerVillageSchema).parse(response.data);
     },
   });
+
   return {
     playerVillages,
   };

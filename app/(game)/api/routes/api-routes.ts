@@ -27,8 +27,8 @@ import {
   occupyOasis,
 } from 'app/(game)/api/handlers/oasis-handlers';
 import {
-  getPlayerById,
-  getPlayerInfoBySlug,
+  getMe,
+  getPlayerBySlug,
   getPlayerVillageListing,
   getPlayerVillagesWithPopulation,
   getTroopsByVillage,
@@ -170,8 +170,13 @@ const eventRoutes = [
 const playerRoutes = [
   {
     method: 'GET',
-    path: '/players/:playerId',
-    handler: getPlayerById,
+    path: '/players/me',
+    handler: getMe,
+  },
+  {
+    method: 'GET',
+    path: '/players/:playerSlug',
+    handler: getPlayerBySlug,
   },
   {
     method: 'GET',
@@ -182,14 +187,6 @@ const playerRoutes = [
     method: 'GET',
     path: '/players/:playerId/villages-with-population',
     handler: getPlayerVillagesWithPopulation,
-  },
-];
-
-const playerSlugRoutes = [
-  {
-    method: 'GET',
-    path: '/:serverSlug/:villageSlug/players/:playerSlug',
-    handler: getPlayerInfoBySlug,
   },
 ];
 
@@ -303,7 +300,6 @@ const statisticsRoutes = [
 
 const apiRoutes = [
   ...serverRoutes,
-  ...playerSlugRoutes,
   ...heroRoutes,
   ...questRoutes,
   ...mapRoutes,

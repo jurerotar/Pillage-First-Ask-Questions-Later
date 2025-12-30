@@ -1,14 +1,11 @@
 import { z } from 'zod';
+import { PLAYER_ID } from 'app/constants/player';
 import type { ApiHandler } from 'app/interfaces/api';
 import { playerSchema } from 'app/interfaces/models/game/player';
 import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
 import { unitIdSchema } from 'app/interfaces/models/game/unit';
 
-export const getPlayerById: ApiHandler<'playerId'> = (database, args) => {
-  const {
-    params: { playerId },
-  } = args;
-
+export const getMe: ApiHandler = (database) => {
   const row = database.selectObject(
     `
       SELECT
@@ -17,11 +14,13 @@ export const getPlayerById: ApiHandler<'playerId'> = (database, args) => {
         p.slug,
         p.tribe,
         f.faction AS faction
-      FROM players p
-             LEFT JOIN factions f ON f.id = p.faction_id
-      WHERE p.id = $player_id;
+      FROM
+        players p
+          LEFT JOIN factions f ON f.id = p.faction_id
+      WHERE
+        p.id = $player_id;
     `,
-    { $player_id: playerId },
+    { $player_id: PLAYER_ID },
   );
 
   return playerSchema.parse(row);
@@ -202,10 +201,7 @@ export const renameVillage: ApiHandler<
   );
 };
 
-export const getPlayerInfoBySlug: ApiHandler<'serverSlug' | 'playerSlug'> = (
-  database,
-  args,
-) => {
+export const getPlayerBySlug: ApiHandler<'playerSlug'> = (database, args) => {
   const {
     params: { playerSlug },
   } = args;
@@ -217,7 +213,7 @@ export const getPlayerInfoBySlug: ApiHandler<'serverSlug' | 'playerSlug'> = (
         p.name,
         p.slug,
         p.tribe,
-        f.faction AS faction
+        f.faction
       FROM players p
       JOIN villages v
         ON v.player_id = p.id
@@ -231,12 +227,6 @@ export const getPlayerInfoBySlug: ApiHandler<'serverSlug' | 'playerSlug'> = (
       $player_slug: playerSlug,
     },
   );
-
-  if (!row) {
-    throw new Error(
-      `Player "${playerSlug}" not found in village "${villageSlug}"`,
-    );
-  }
 
   return playerSchema.parse(row);
 };
