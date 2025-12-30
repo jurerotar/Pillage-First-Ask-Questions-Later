@@ -1,6 +1,10 @@
 import { existsSync, rmSync } from 'node:fs';
 import { copyFile, mkdir, readdir, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(__dirname, '..', '..', '..');
 
 const clearDirectory = async (path: string) => {
   if (existsSync(path)) {
@@ -37,8 +41,11 @@ const copyFolderSync = async (source: string, dest: string): Promise<void> => {
   }
 };
 
-const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
-const destDir = 'public/graphic-packs';
+const sourceDir = join(
+  rootDir,
+  'node_modules/@pillage-first/graphics/dist/graphic-packs',
+);
+const destDir = join(__dirname, '..', 'public', 'graphic-packs');
 
 await clearDirectory(destDir);
 await copyFolderSync(sourceDir, destDir);

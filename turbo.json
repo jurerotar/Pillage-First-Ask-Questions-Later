@@ -9,6 +9,9 @@
     "lint": {},
     "test": {},
     "type-check": {},
+    "postinstall": {
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false
