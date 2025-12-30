@@ -82,7 +82,7 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run localization check
-        run: npm run localize:ci
+        run: npx --workspace="@pillage-first/web" run localize:ci
 
   test:
     name: Run tests
