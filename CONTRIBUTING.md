@@ -37,7 +37,7 @@ It currently consists of the following apps & packages:
 -
   - utils (shared helper functions)
 
-### 2.1
+### 2.1 Postinstall
 
 On install, a `postinstall` hook runs `postinstall` currently does two things:
 
