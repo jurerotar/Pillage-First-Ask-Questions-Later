@@ -617,7 +617,9 @@ export const UnitRecruitment = () => {
               max={maxUnits}
               value={[amount]}
               disabled={maxUnits === 0}
-              onValueChange={([val]) => setValue('amount', val)}
+              onValueChange={(val: any) =>
+                setValue('amount', Array.isArray(val) ? val[0] : val)
+              }
             />
             <div className="flex w-30">
               <Input

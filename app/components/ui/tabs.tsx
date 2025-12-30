@@ -1,5 +1,5 @@
+import { Tabs as TabsPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { Tabs as TabsPrimitive } from 'radix-ui';
 import type { ComponentProps } from 'react';
 
 type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;
@@ -45,9 +45,9 @@ export const Tab = ({
   children,
   className,
   ...props
-}: ComponentProps<typeof TabsPrimitive.Trigger>) => {
+}: ComponentProps<typeof TabsPrimitive.Tab>) => {
   return (
-    <TabsPrimitive.Trigger
+    <TabsPrimitive.Tab
       className={clsx(
         `
         flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer
@@ -60,7 +60,7 @@ export const Tab = ({
       {...props}
     >
       {children}
-    </TabsPrimitive.Trigger>
+    </TabsPrimitive.Tab>
   );
 };
 
@@ -69,17 +69,17 @@ export const TabPanel = ({
   className,
   value,
   ...props
-}: ComponentProps<typeof TabsPrimitive.Content>) => {
+}: ComponentProps<typeof TabsPrimitive.Panel>) => {
   return (
-    <TabsPrimitive.Content
+    <TabsPrimitive.Panel
       value={value}
       className={clsx(
-        'border border-border p-2 rounded-bl-xs rounded-br-xs',
+        'p-4 bg-input border border-border border-t-0 rounded-b-xs',
         className,
       )}
       {...props}
     >
       {children}
-    </TabsPrimitive.Content>
+    </TabsPrimitive.Panel>
   );
 };

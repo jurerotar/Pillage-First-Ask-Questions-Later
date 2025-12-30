@@ -51,9 +51,8 @@ export const MarketplaceTrade = () => {
           <div className="flex flex-col flex-1 gap-2">
             <Text className="font-medium">{t('Search for')}</Text>
             <ToggleGroup
-              type="single"
-              value={resourceToBuy}
-              onValueChange={onResourceToBuyChange}
+              value={[resourceToBuy]}
+              onValueChange={(val: any[]) => onResourceToBuyChange(val[0])}
               variant="outline"
               size="sm"
             >
@@ -105,9 +104,8 @@ export const MarketplaceTrade = () => {
           <div className="flex flex-col flex-1 gap-2">
             <Text className="font-medium">{t('Offer')}</Text>
             <ToggleGroup
-              type="single"
-              value={resourceToOffer}
-              onValueChange={onResourceToOfferChange}
+              value={[resourceToOffer]}
+              onValueChange={(val: any[]) => onResourceToOfferChange(val[0])}
               variant="outline"
               size="sm"
             >
@@ -160,7 +158,7 @@ export const MarketplaceTrade = () => {
             <Text className="font-medium">{t('Sort by')}</Text>
             <div className="flex sm:max-w-62.5">
               <Select
-                onValueChange={(value) => setSortBy(value)}
+                onValueChange={(value: any) => setSortBy(value)}
                 value={sortBy}
               >
                 <SelectTrigger
