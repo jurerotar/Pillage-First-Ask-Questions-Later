@@ -11,18 +11,26 @@ const numericParams = new Set([
   'y',
 ]);
 
+const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
+
+const getRoutesForMethod = (method: string) => {
+  let cached = routesByMethodCache.get(method);
+
+  if (!cached) {
+    cached = compiledApiRoutes.filter((r) => r.method === method);
+    routesByMethodCache.set(method, cached);
+  }
+
+  return cached;
+};
+
 export const matchRoute = (url: string, method: string) => {
-  for (const route of compiledApiRoutes) {
-    if (route.method !== method) {
-      continue;
-    }
+  // Replace only leading `/me` (either end or followed by slash), preserves trailing slash if present.
+  const path = url.replace(/^\/me(?=\/|$)/, `/players/${PLAYER_ID}`);
 
-    let path = url;
+  const routesForMethod = getRoutesForMethod(method);
 
-    if (path.startsWith('/me')) {
-      path = path.replace('/me', `/players/${PLAYER_ID}`);
-    }
-
+  for (const route of routesForMethod) {
     const result = route.matcher(path) as
       | false
       | { path: string; params: Record<string, string> };
@@ -31,22 +39,30 @@ export const matchRoute = (url: string, method: string) => {
       continue;
     }
 
-    const paramsWithCasting: Record<string, string | number> = {
-      ...result.params,
-    };
+    // Only clone params if we actually need to cast any numeric values
+    let params: Record<string, string | number> | Record<string, string> =
+      result.params;
 
-    for (const key of Object.keys(result.params)) {
-      if (numericParams.has(key)) {
-        const value = Number.parseInt(result.params[key], 10);
-        if (!Number.isNaN(value)) {
-          paramsWithCasting[key] = value;
+    for (const [key, rawValue] of Object.entries(result.params)) {
+      if (!numericParams.has(key)) {
+        continue;
+      }
+
+      const n = Number.parseInt(rawValue, 10);
+      if (!Number.isNaN(n)) {
+        // Clone lazily on first numeric conversion
+        if (params === result.params) {
+          params = {
+            ...result.params,
+          };
         }
+        params[key] = n;
       }
     }
 
     return {
       handler: route.handler,
-      params: paramsWithCasting,
+      params,
     };
   }
 
