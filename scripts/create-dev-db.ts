@@ -29,7 +29,7 @@ await (async (): Promise<void> => {
 
   db.exec('BEGIN;');
 
-  for await (const fullPath of glob('app/db/schemas/**/*.sql')) {
+  for await (const fullPath of glob('packages/db/src/schemas/**/*.sql')) {
     const sql = await readFile(fullPath, 'utf8');
     try {
       db.exec(sql);
@@ -40,7 +40,7 @@ await (async (): Promise<void> => {
     }
   }
 
-  for await (const fullPath of glob('app/db/indexes/**/*.sql')) {
+  for await (const fullPath of glob('packages/db/src/indexes/**/*.sql')) {
     const sql = await readFile(fullPath, 'utf8');
     try {
       db.exec(sql);

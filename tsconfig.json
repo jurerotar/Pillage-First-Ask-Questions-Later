@@ -2,34 +2,28 @@
   "$schema": "https://www.schemastore.org/tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
-    "lib": ["DOM", "ESNext"],
-    "rootDirs": [".", "./.react-router/types"],
+    "lib": ["ESNext"],
     "skipLibCheck": true,
     "assumeChangesOnlyAffectDirectDependencies": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
+    "isolatedDeclarations": true,
+    "declaration": true,
     "incremental": false,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "erasableSyntaxOnly": true,
-    "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true,
     "module": "esnext",
-    "paths": {
-      "app/*": ["./app/*"],
-      "@react-router/*": ["./.react-router/*"],
-      "happy-dom": ["./app/interfaces/happy-dom-patch.ts"]
-    }
   },
   "include": [
-    "app/**/*",
+    "apps/**/*",
+    "packages/**/*",
     "scripts/**/*",
-    "*.config.ts",
-    ".react-router/types/**/*"
   ]
 }

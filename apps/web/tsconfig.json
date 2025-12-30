@@ -1,0 +1,21 @@
+{
+  "$schema": "https://www.schemastore.org/tsconfig.json",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
+    "rootDirs": [".", "./.react-router/types"],
+    "jsx": "react-jsx",
+    "isolatedDeclarations": false,
+    "declaration": false,
+    "paths": {
+      "app/*": ["./app/*"],
+      "@react-router/*": ["./.react-router/*"]
+    }
+  },
+  "include": [
+    "app/**/*",
+    "apps/web/scripts/**/*",
+    "*.config.ts",
+    ".react-router/types/**/*"
+  ]
+}

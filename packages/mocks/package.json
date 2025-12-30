@@ -1,0 +1,52 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/mocks",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "packages/mocks"
+  },
+  "exports": {
+    "./effect": {
+      "default": "./src/effect-mock.ts"
+    },
+    "./event": {
+      "default": "./src/event-mock.ts"
+    },
+    "./player": {
+      "default": "./src/player-mock.ts"
+    },
+    "./server": {
+      "default": "./src/server-mock.ts"
+    },
+    "./village": {
+      "default": "./src/village-mock.ts"
+    },
+    "./building-fields": {
+      "default": "./src/building-fields-mock.ts"
+    },
+    "./resource-fields": {
+      "default": "./src/resource-fields-mock.ts"
+    }
+  },
+  "scripts": {
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "type-check": "tsgo"
+  },
+  "dependencies": {
+    "@pillage-first/types": "*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "*",
+    "@typescript/native-preview": "*",
+    "typescript": "*"
+  }
+}

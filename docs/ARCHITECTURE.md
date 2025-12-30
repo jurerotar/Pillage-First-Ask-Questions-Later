@@ -130,9 +130,9 @@ source (e.g. actual backend for an online app), without having to touch rest of 
 
 ### Important files
 
-- [`api-worker.ts`](/app/(game)/api/api-worker.ts)
-- [`api-routes.ts`](/app/(game)/api/api-routes.ts)
-- [`api-provider.tsx`](/app/(game)/providers/api-provider.tsx)
+- [`api-worker.ts`](/apps/web/app/(game)/api-worker.ts)
+- [`api-routes.ts`](/apps/web/app/(game)/api-routes.ts)
+- [`api-provider.tsx`](/apps/web/app/(game)/providers/api-provider.tsx)
 
 ### How would a multiplayer integration look like?
 

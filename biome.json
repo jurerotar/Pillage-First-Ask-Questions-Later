@@ -8,13 +8,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "**",
-      "!**/build",
-      "!**/.react-router",
-      "!**/public",
-      "!**/*.css"
-    ]
+    "includes": ["**"]
   },
   "assist": {
     "actions": {
@@ -24,7 +18,8 @@
           "options": {
             "groups": [
               ":NODE:",
-              [":PACKAGE:", "!@react-router/**", "!app/**"],
+              [":PACKAGE:", "!@pillage-first/**", "!@react-router/**", "!app/**"],
+              "@pillage-first/**",
               "@react-router/**",
               "app/**",
               ":PATH:"
@@ -81,12 +76,6 @@
       "bracketSameLine": false,
       "quoteStyle": "single",
       "trailingCommas": "all"
-    }
-  },
-  "css": {
-    "parser": {
-      "cssModules": true,
-      "tailwindDirectives": true
     }
   }
 }

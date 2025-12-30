@@ -13,8 +13,24 @@ By contributing to this repository, you agree that your contributions will be li
 
 See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for details.
 
-## 2. Technology Stack
+## 2. Repository
 
+This repository is set up as a monorepo with [Turborepo](https://turborepo.com).
+It currently consists of the following apps & packages:
+
+- **apps**
+- - web (frontend client)
+
+- **packages**
+- - api (worker-based backend)
+- - db (database schemas, migrations & seeders)
+- - game-assets (game object definitions (buildings, units, ...))
+- - mocks (mocks used in tests)
+- - utils (shared helper functions)
+
+## 3. Technology Stack
+
+- **Repository:** [Turborepo](https://turborepo.com)
 - **Frontend:** [React](https://react.dev) + [TypeScript](https://www.typescriptlang.org/)
 - **State Management:** [React Query](https://tanstack.com/query/latest)
 - **UI Framework:** [Tailwind CSS](https://tailwindcss.com)
@@ -26,23 +42,16 @@ See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for detai
 - **Deployment:** Netlify ([Master Deploy](https://pillagefirst.netlify.app) | [Dev Deploy](https://develop--pillagefirst.netlify.app))
 - **Version Control:** GitHub ([Repository](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later))
 
-## 3. Project Structure and important files
+## 4. Project Structure
 
 The project follows a **colocation** principle, meaning files related to a feature (components, tests, hooks,... and utilities) are kept
 close to each other within the same directory. This approach improves maintainability and makes it easier to find and modify related code.
 
-**Keep related files together** – A component's styles, tests, and utilities should be in the same directory.
-
-**Encapsulate logic per feature** – Features should have their own directory inside the app/ folder, containing its related components,
-hooks, providers,... and tests.
-
-Please refer to [directory naming convention](./docs/DIRECTORY_NAMING_CONVENTION.md) for naming convention.
-
-## 4. Contribution guide
+## 5. Contribution guide
 
 Before starting, please read through the [architecture documentation](./docs/ARCHITECTURE.md) to gain an understanding on how the app works.
 
-**Pillage First, Ask Questions Later** requires [Node.js version 22.20.0 (LTS)](https://nodejs.org/en/download) or later.
+**Pillage First, Ask Questions Later** requires [Node.js version 24.12.0 (LTS)](https://nodejs.org/en/download) or later.
 
 1. Fork the project
 2. Clone the forked project
@@ -53,31 +62,33 @@ App will automatically open in your default browser at `http://localhost:5173`.
 
 The latest work is always pushed to the `master` branch.
 
-Implement your changes, then create a pull request against the original repository's `master` branch.
+Implement your changes, then create a pull request against the original repository's `master` or `develop` branches.
 
-## 5. Git Hooks
+Pull requests cannot be merged until all required checks are passing.
+
+## 6. Git Hooks
 
 We use git hooks to enforce consistent code standards and checks. Currently, 3 hooks are used:
 
 `commit-msg`: Commit messages are validated with `commitlint`. We use the [default configuration](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional), without the body length check.
 
-`pre-commit`: Lint, format and localization script are run.
+`pre-commit`: Lint, format and localization-extraction script are run.
 
-`pre-push`: Lint, format and localization is validated before push.
+`pre-push`: Lint and format is validated before push.
 
 These hooks are managed automatically via `lefthook`. You can find the configuration in `lefthook.yml`.
 
-## 6. Localization
+## 7. Localization
 
 Inline localizations are added automatically with `i18next-cli` module. This script is run on commit.
 
-## 7. GitHub Actions
+## 8. GitHub Actions
 
 GitHub Actions are used for CI/CD automation. We check linting, formatting, test status, localization status and TypeScript compiler errors.
 
 Please refer to the `.github/workflows/` directory for details on each action.
 
-## 8. Deployment & CI/CD
+## 9. Deployment & CI/CD
 
-The project is hosted on **Netlify**, with separate environments for master branch and builds per branch and PRs.
+The project is hosted on **Netlify**, with separate environments for master branch and builds per branch and PRs. Posting a pull-request will automatically create a new live deployment.
 

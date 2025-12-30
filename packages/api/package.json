@@ -1,0 +1,43 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/api",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "packages/api"
+  },
+  "exports": {
+    ".": {
+      "default": "./src/api-worker.ts"
+    }
+  },
+  "scripts": {
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "knip:ci": "knip --max-issues 29",
+    "type-check": "tsgo",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@pillage-first/game-assets": "*",
+    "@pillage-first/types": "*",
+    "@pillage-first/utils": "*",
+    "@sqlite.org/sqlite-wasm": "3.50.4-build1",
+    "moderndash": "4.0.0",
+    "path-to-regexp": "8.3.0",
+    "zod": "4.2.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "*",
+    "@typescript/native-preview": "*",
+    "typescript": "*",
+    "vitest": "4.0.16"
+  }
+}
