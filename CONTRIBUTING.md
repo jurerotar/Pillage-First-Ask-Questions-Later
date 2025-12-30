@@ -39,7 +39,7 @@ It currently consists of the following apps & packages:
 
 ### 2.1 Postinstall
 
-On install, a `postinstall` hook runs `postinstall` currently does two things:
+On install, a `postinstall` hook runs. `postinstall` currently does two things:
 
 - Creates a `schema.sql` file inside `node_modules/@pillage-first/dev`. This file contains all table schemas + indexes.
   This is useful because you can feed whole schema to an AI of your choice, and it helps it write good queries. You can
