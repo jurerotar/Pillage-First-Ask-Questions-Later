@@ -1,4 +1,4 @@
-import { kickSchedulerNow } from 'app/(game)/api/engine/scheduler';
+import { triggerKick } from 'app/(game)/api/engine/scheduler-signal';
 import type { DbFacade } from 'app/(game)/api/facades/database-facade';
 import {
   checkAndSubtractVillageResources,
@@ -73,11 +73,11 @@ export const createEvents = <T extends GameEventType>(
 
   if (createdImmediate) {
     // immediate -> we want scheduler to process RIGHT AWAY
-    kickSchedulerNow(database);
+    triggerKick();
   }
 
   // if earliestNewResolvesAt < currentNext.resolvesAt -> kick now:
   if (!currentNext || earliestNewResolvesAt < currentNext.resolvesAt) {
-    kickSchedulerNow(database);
+    triggerKick();
   }
 };

@@ -6,7 +6,7 @@ export type ExportServerWorkerReturn = {
   databaseBuffer: ArrayBuffer;
 };
 
-const urlParams = new URLSearchParams(self.location.search);
+const urlParams = new URLSearchParams(globalThis.location.search);
 const serverSlug = urlParams.get('server-slug')!;
 
 const sqlite3 = await sqlite3InitModule({
@@ -21,7 +21,7 @@ const exportedDb = await opfsSahPool.exportFile(`/${serverSlug}.sqlite3`);
 
 const buffer: ArrayBuffer = exportedDb.buffer as ArrayBuffer;
 
-self.postMessage(
+globalThis.postMessage(
   { databaseBuffer: buffer } satisfies ExportServerWorkerReturn,
   [buffer],
 );

@@ -1,4 +1,5 @@
 let needsRescanFlag = false;
+let kickCallback: (() => void) | null = null;
 
 // Call this when new events that should be processed immediately are inserted.
 export const markNeedsRescan = (): void => {
@@ -11,4 +12,13 @@ export const takeNeedsRescan = (): boolean => {
   const v = needsRescanFlag;
   needsRescanFlag = false;
   return v;
+};
+
+export const registerKickCallback = (callback: () => void): void => {
+  kickCallback = callback;
+};
+
+export const triggerKick = (): void => {
+  markNeedsRescan();
+  kickCallback?.();
 };

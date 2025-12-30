@@ -22,13 +22,13 @@ export const resolveEvent = (database: DbFacade, eventId: GameEvent['id']) => {
     // @ts-expect-error - this is fine, we can't properly type all possible GameEvents
     resolver(database, event);
 
-    self.postMessage({
+    globalThis.postMessage({
       eventKey: 'event:worker-event-resolve-success',
       ...event,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
     console.error(error);
-    self.postMessage({
+    globalThis.postMessage({
       eventKey: 'event:worker-event-resolve-error',
       ...event,
     } satisfies EventApiNotificationEvent);

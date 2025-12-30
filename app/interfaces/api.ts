@@ -52,3 +52,9 @@ export type EventApiNotificationEvent<
 > = GameEvent<T> & {
   eventKey: EventKey;
 };
+
+export type SchedulerDataSource = {
+  getPastEventIds(now: number): GameEvent['id'][];
+  getNextEvent(now: number): Pick<GameEvent, 'id' | 'resolvesAt'> | null;
+  resolveEvent(id: GameEvent['id']): void;
+};

@@ -11,8 +11,10 @@ import type {
 } from 'app/interfaces/models/game/preferences';
 import type { AvailableLocale } from 'app/interfaces/models/locale';
 import {
+  COOKIE_UPDATE_EVENT_NAME,
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
+  getCookie,
   LOCALE_COOKIE_NAME,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
@@ -35,11 +37,7 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    const cookieStore = window.cookieStore;
-
     const updateCookies = async () => {
-      const allCookies = await cookieStore.getAll();
-
       const nextCookies: CookieContextType = {
         locale: 'en-US',
         skinVariant: 'default',
@@ -47,25 +45,24 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
         uiColorScheme: 'light',
       };
 
-      for (const c of allCookies) {
-        switch (c.name) {
-          case LOCALE_COOKIE_NAME: {
-            nextCookies.locale = c.value as AvailableLocale;
-            break;
-          }
-          case GRAPHICS_SKIN_VARIANT_COOKIE_NAME: {
-            nextCookies.skinVariant = c.value as SkinVariant;
-            break;
-          }
-          case GRAPHICS_TIME_OF_DAY_COOKIE_NAME: {
-            nextCookies.timeOfDay = c.value as TimeOfDay;
-            break;
-          }
-          case UI_COLOR_SCHEME_COOKIE_NAME: {
-            nextCookies.uiColorScheme = c.value as UIColorScheme;
-            break;
-          }
-        }
+      const allCookies: Record<keyof CookieContextType, string | null> = {
+        locale: await getCookie(LOCALE_COOKIE_NAME),
+        skinVariant: await getCookie(GRAPHICS_SKIN_VARIANT_COOKIE_NAME),
+        timeOfDay: await getCookie(GRAPHICS_TIME_OF_DAY_COOKIE_NAME),
+        uiColorScheme: await getCookie(UI_COLOR_SCHEME_COOKIE_NAME),
+      };
+
+      if (allCookies.locale) {
+        nextCookies.locale = allCookies.locale as AvailableLocale;
+      }
+      if (allCookies.skinVariant) {
+        nextCookies.skinVariant = allCookies.skinVariant as SkinVariant;
+      }
+      if (allCookies.timeOfDay) {
+        nextCookies.timeOfDay = allCookies.timeOfDay as TimeOfDay;
+      }
+      if (allCookies.uiColorScheme) {
+        nextCookies.uiColorScheme = allCookies.uiColorScheme as UIColorScheme;
       }
 
       setCookies(nextCookies);
@@ -73,10 +70,20 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
 
     updateCookies();
 
-    cookieStore.addEventListener('change', updateCookies);
+    const cookieStore = window.cookieStore;
+
+    if (cookieStore) {
+      cookieStore.addEventListener('change', updateCookies);
+    } else {
+      document.addEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
+    }
 
     return () => {
-      cookieStore.removeEventListener('change', updateCookies);
+      if (cookieStore) {
+        cookieStore.removeEventListener('change', updateCookies);
+      } else {
+        document.removeEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
+      }
     };
   }, []);
 

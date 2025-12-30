@@ -3,14 +3,14 @@
 import { clientsClaim } from 'workbox-core';
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 
-declare let self: ServiceWorkerGlobalScope;
+const sw = globalThis as unknown as ServiceWorkerGlobalScope;
 
 clientsClaim();
 cleanupOutdatedCaches();
 
 const handleInstall = async (): Promise<void> => {
   try {
-    const allClients = await self.clients.matchAll();
+    const allClients = await sw.clients.matchAll();
 
     const isStandalone = allClients.some((client) => {
       return (
@@ -20,13 +20,13 @@ const handleInstall = async (): Promise<void> => {
     });
 
     if (isStandalone) {
-      precacheAndRoute(self.__WB_MANIFEST);
+      precacheAndRoute(sw.__WB_MANIFEST);
     }
   } catch (error) {
     console.error('Service worker install handler failed:', error);
   }
 };
 
-self.addEventListener('install', (event) => {
+sw.addEventListener('install', (event) => {
   event.waitUntil(handleInstall());
 });

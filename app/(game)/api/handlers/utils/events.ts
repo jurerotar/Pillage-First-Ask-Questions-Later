@@ -45,7 +45,7 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]) => {
 
   const [event] = events;
 
-  self.postMessage({
+  globalThis.postMessage({
     eventKey: 'event:worker-event-creation-error',
     ...event,
   } satisfies EventApiNotificationEvent);
