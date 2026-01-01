@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { memo, Suspense, useEffect, useState } from 'react';
 import {
   Link,
@@ -236,10 +235,6 @@ const Layout = memo<Route.ComponentProps>(
         <Toaster
           position={toasterPosition}
           closeButton
-        />
-        <ReactQueryDevtools
-          client={queryClient}
-          initialIsOpen={false}
         />
       </QueryClientProvider>
     );

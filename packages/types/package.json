@@ -108,8 +108,8 @@
     "type-check": "tsgo"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "3.50.4-build1",
-    "zod": "4.2.1"
+    "@sqlite.org/sqlite-wasm": "*",
+    "zod": "4.3.4"
   },
   "devDependencies": {
     "@biomejs/biome": "*",

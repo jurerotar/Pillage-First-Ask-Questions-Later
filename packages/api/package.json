@@ -29,10 +29,10 @@
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.50.4-build1",
+    "@sqlite.org/sqlite-wasm": "*",
     "moderndash": "4.0.0",
     "path-to-regexp": "8.3.0",
-    "zod": "4.2.1"
+    "zod": "4.3.4"
   },
   "devDependencies": {
     "@biomejs/biome": "*",
