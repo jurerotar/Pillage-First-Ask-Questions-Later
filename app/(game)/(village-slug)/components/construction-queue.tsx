@@ -1,11 +1,12 @@
 import { faro } from '@grafana/faro-web-sdk';
+import { useClickOutside } from '@mantine/hooks';
 import { useMutation } from '@tanstack/react-query';
-import { type PropsWithChildren, Suspense, use } from 'react';
+import { type PropsWithChildren, Suspense, use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
-import { LuConstruction } from 'react-icons/lu';
+import { LuChevronLeft, LuChevronRight, LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
 import { type PlacesType, Tooltip } from 'react-tooltip';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
@@ -22,7 +23,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import type { GameEvent } from 'app/interfaces/models/game/game-event';
 
 const iconClassName =
-  'text-2xl lg:text-3xl bg-background text-gray-400 p-2 box-content border border-border rounded-xs';
+  'text-2xl lg:text-3xl bg-background text-gray-400 px-2 py-2.5 box-content border border-border rounded-xs';
 
 type ConstructionQueueBuildingProps = {
   buildingEvent: GameEvent<'buildingConstruction'>;
@@ -70,7 +71,7 @@ const ConstructionQueueBuilding = ({
       >
         <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs" />
         <Countdown
-          className="absolute bottom-0 left-0 text-xs w-full leading-none bg-background border border-border text-center"
+          className="absolute bottom-0 left-0 text-2xs w-full leading-none bg-background border border-border text-center"
           endsAt={buildingEvent.startsAt + buildingEvent.duration}
         />
       </div>
@@ -146,16 +147,28 @@ const ConstructionQueueEmptySlot = ({
 };
 
 const ConstructionQueueContent = () => {
+  const { t } = useTranslation();
   const tribe = useTribe();
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
+  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
+  const [isExtended, setIsExtended] = useState(false);
 
-  const emptySlots =
-    (tribe === 'romans' ? 2 : 1) - currentVillageBuildingEvents.length;
+  const containerRef = useClickOutside<HTMLUListElement>(() => {
+    setIsExtended(false);
+  });
+
+  const totalSlotsCount = 5;
+  const availableSlotsCount = tribe === 'romans' ? 2 : 1;
+
+  const emptySlotsCount = Math.max(
+    0,
+    totalSlotsCount - currentVillageBuildingEvents.length,
+  );
 
   // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
-  if (emptySlots < 0) {
+  if (totalSlotsCount - currentVillageBuildingEvents.length < 0) {
     faro.api.pushError(
       new Error(
         'Invalid array length at ConstructionQueue' +
@@ -164,24 +177,71 @@ const ConstructionQueueContent = () => {
     );
   }
 
+  const slots = [
+    ...currentVillageBuildingEvents.map((event) => ({
+      type: 'building' as const,
+      event,
+    })),
+    ...Array.from({ length: emptySlotsCount }).map((_, i) => {
+      const slotIndex = currentVillageBuildingEvents.length + i;
+      return {
+        type: 'empty' as const,
+        id: `empty-slot-${i}`,
+        status:
+          slotIndex < availableSlotsCount
+            ? ('free' as const)
+            : ('locked' as const),
+      };
+    }),
+  ];
+
   return (
     <aside className="fixed left-0 bottom-26 lg:bottom-14">
-      <ul className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs">
-        {currentVillageBuildingEvents.map((event) => (
-          <li key={event.id}>
+      <ul
+        ref={containerRef}
+        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center"
+      >
+        <li>
+          {slots[0].type === 'building' ? (
             <ConstructionQueueBuilding
               tooltipPosition="right-start"
-              buildingEvent={event}
+              buildingEvent={slots[0].event}
             />
-          </li>
-        ))}
+          ) : (
+            <ConstructionQueueEmptySlot type={slots[0].status} />
+          )}
+        </li>
 
-        {[...Array(emptySlots)].map((_, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: It's fine here
-          <li key={`empty-slot-${i}`}>
-            <ConstructionQueueEmptySlot type="free" />
+        {(isWiderThanMd || isExtended) &&
+          slots.slice(1).map((slot) => (
+            <li key={slot.type === 'building' ? slot.event.id : slot.id}>
+              {slot.type === 'building' ? (
+                <ConstructionQueueBuilding
+                  tooltipPosition="right-start"
+                  buildingEvent={slot.event}
+                />
+              ) : (
+                <ConstructionQueueEmptySlot type={slot.status} />
+              )}
+            </li>
+          ))}
+
+        {!isWiderThanMd && (
+          <li>
+            <button
+              aria-label={
+                isExtended
+                  ? t('Close construction queue')
+                  : t('Expand construction queue')
+              }
+              className="text-2xl bg-muted text-gray-400 py-2.5 box-content border border-border rounded-xs"
+              onClick={() => setIsExtended(!isExtended)}
+              type="button"
+            >
+              {isExtended ? <LuChevronLeft /> : <LuChevronRight />}
+            </button>
           </li>
-        ))}
+        )}
       </ul>
     </aside>
   );
