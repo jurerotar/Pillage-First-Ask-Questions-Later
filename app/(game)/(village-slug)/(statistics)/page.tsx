@@ -1,28 +1,29 @@
-import { useTranslation } from 'react-i18next';
-import type { Route } from '@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
-import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
-import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { Text } from 'app/components/text';
+import { useTranslation } from "react-i18next";
+import type { Route } from "@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page";
+import { PopulationRankings } from "app/(game)/(village-slug)/(statistics)/components/population-rankings";
+import { VillageRankings } from "app/(game)/(village-slug)/(statistics)/components/village-rankings";
+import { ServerOverviewStatistics } from "app/(game)/(village-slug)/(statistics)/components/server-overview-statistics";
+import { useTabParam } from "app/(game)/(village-slug)/hooks/routes/use-tab-param";
+import { Text } from "app/components/text";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+} from "app/components/ui/breadcrumb";
+import { Tab, TabList, TabPanel, Tabs } from "app/components/ui/tabs";
 
 const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
 
-  const tabs = ['population', 'villages'];
+  const tabs = ["population", "villages", "overview"];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
-  const title = `${t('Statistics')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+  const title = `${t("Statistics")} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
     <>
@@ -30,28 +31,32 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
+            <BreadcrumbLink to="../village">{t("Village")}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Statistics')}</BreadcrumbItem>
+          <BreadcrumbItem>{t("Statistics")}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Text as="h1">{t('Statistics')}</Text>
+      <Text as="h1">{t("Statistics")}</Text>
       <Tabs
-        value={tabs[tabIndex] ?? 'population'}
+        value={tabs[tabIndex] ?? "population"}
         onValueChange={(value) => {
           navigateToTab(value);
         }}
       >
         <TabList>
-          <Tab value="population">{t('Population')}</Tab>
-          <Tab value="villages">{t('Villages')}</Tab>
+          <Tab value="population">{t("Population")}</Tab>
+          <Tab value="villages">{t("Villages")}</Tab>
+          <Tab value="overview">{t("Overview")}</Tab>
         </TabList>
         <TabPanel value="population">
           <PopulationRankings />
         </TabPanel>
         <TabPanel value="villages">
           <VillageRankings />
+        </TabPanel>
+        <TabPanel value="overview">
+          <ServerOverviewStatistics />
         </TabPanel>
       </Tabs>
     </>

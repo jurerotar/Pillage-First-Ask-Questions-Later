@@ -1,7 +1,8 @@
-import { z } from 'zod';
-import type { ApiHandler } from 'app/interfaces/api';
-import { factionSchema } from 'app/interfaces/models/game/faction';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { z } from "zod";
+import type { ApiHandler } from "app/interfaces/api";
+import { factionSchema } from "app/interfaces/models/game/faction";
+import { tribeSchema } from "app/interfaces/models/game/tribe";
+import { PLAYER_ID } from "app/constants/player";
 
 const getPlayerRankingsSchema = z
   .strictObject({
@@ -29,7 +30,7 @@ type GetPlayersStatisticsBody = {
   lastPlayerId: number | null;
 };
 
-export const getPlayerRankings: ApiHandler<'', GetPlayersStatisticsBody> = (
+export const getPlayerRankings: ApiHandler<"", GetPlayersStatisticsBody> = (
   database,
   { body },
 ) => {
@@ -131,7 +132,7 @@ type GetVillageStatisticsBody = {
   lastVillageId: number | null;
 };
 
-export const getVillageRankings: ApiHandler<'', GetVillageStatisticsBody> = (
+export const getVillageRankings: ApiHandler<"", GetVillageStatisticsBody> = (
   database,
   { body },
 ) => {
@@ -189,4 +190,73 @@ export const getVillageRankings: ApiHandler<'', GetVillageStatisticsBody> = (
   );
 
   return z.array(getVillageRankingsSchema).parse(rows);
+};
+
+const getServerOverviewStatisticsSchema = z
+  .strictObject({
+    start_date: z.number(),
+    total_players: z.number(),
+    total_villages: z.number(),
+    server_name: z.string(),
+    server_speed: z.number(),
+    map_size: z.number(),
+    player_tribe: z.string(),
+    player_faction: z.string(),
+    village_count: z.number(),
+  })
+  .transform((t) => {
+    return {
+      startDate: new Date(t.start_date).toISOString().split("T")[0],
+      totalPlayers: t.total_players,
+      totalVillages: t.total_villages,
+      serverName: t.server_name,
+      serverSpeed: t.server_speed,
+      mapSize: t.map_size,
+      playersByFaction: {
+        [t.player_faction]: 1,
+      },
+      villagesByFaction: {
+        [t.player_faction]: t.village_count,
+      },
+      tribeDistribution: {
+        [t.player_tribe]: 1,
+      },
+    };
+  });
+
+type GetServerOverviewStatisticsBody = {
+  playerId: number;
+};
+
+export const getServerOverviewStatistics: ApiHandler<
+  "",
+  GetServerOverviewStatisticsBody
+> = (database) => {
+  const rows = database.selectObjects(
+    `
+      SELECT
+        s.created_at AS start_date,
+        s.name AS server_name,
+        s.speed AS server_speed,
+        s.map_size,
+        p.tribe AS player_tribe,
+        1 AS total_players,
+        1 AS total_villages,
+        (SELECT faction FROM factions WHERE id = p.faction_id) AS player_faction,
+        (SELECT COUNT(*) FROM villages WHERE player_id = p.id) AS village_count
+      FROM servers s
+      CROSS JOIN players p
+      WHERE p.id = $player_id
+      LIMIT 1
+    `,
+    {
+      $player_id: PLAYER_ID,
+    },
+  );
+
+  if (rows.length === 0) {
+    throw new Error("Server or player not found");
+  }
+
+  return getServerOverviewStatisticsSchema.parse(rows[0]);
 };
