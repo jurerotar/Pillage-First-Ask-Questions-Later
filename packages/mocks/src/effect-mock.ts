@@ -1,5 +1,7 @@
 import type {
+  ArtifactEffect,
   HeroEffect,
+  OasisEffect,
   ServerEffect,
   VillageBuildingEffect,
 } from '@pillage-first/types/models/effect';
@@ -65,6 +67,26 @@ export const woodProductionHeroBonusEffectMock: HeroEffect = {
   scope: 'village',
   source: 'hero',
   value: 2,
+  type: 'bonus',
+  sourceSpecifier: null,
+};
+
+export const woodProductionArtifactEffectMock: ArtifactEffect = {
+  villageId,
+  id: 'woodProduction',
+  scope: 'village',
+  source: 'artifact',
+  value: 1.1,
+  type: 'bonus',
+  sourceSpecifier: null,
+};
+
+export const woodProductionOasisEffectMock: OasisEffect = {
+  villageId,
+  id: 'woodProduction',
+  scope: 'village',
+  source: 'oasis',
+  value: 1.25,
   type: 'bonus',
   sourceSpecifier: null,
 };

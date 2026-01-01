@@ -5,6 +5,12 @@ const vitestConfig: ViteUserConfig = defineConfig({
     root: './',
     watch: false,
     reporters: ['default'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/guards**/*.ts'],
+    },
   },
 });
 

@@ -20,6 +20,7 @@ const assignEffectValue = (
     }
     case 'bonus-booster': {
       effectValuesRef.bonusBooster *= effect.value;
+      break;
     }
   }
 };

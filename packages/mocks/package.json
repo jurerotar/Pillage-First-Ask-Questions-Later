@@ -32,6 +32,9 @@
     },
     "./resource-fields": {
       "default": "./src/resource-fields-mock.ts"
+    },
+    "./quest": {
+      "default": "./src/quest-mock.ts"
     }
   },
   "scripts": {
