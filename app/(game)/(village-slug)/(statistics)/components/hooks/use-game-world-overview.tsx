@@ -3,9 +3,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { use } from "react";
 import { ApiContext } from "app/(game)/providers/api-provider";
 
-/**
- * Schema for current server statistics
- */
 export const serverOverviewStatisticsSchema = z.object({
   startDate: z.string(),
   totalPlayers: z.number(),
@@ -18,20 +15,13 @@ export const serverOverviewStatisticsSchema = z.object({
   tribeDistribution: z.record(z.string(), z.number()),
 });
 
-export type ServerOverviewStatistics = z.infer<
-  typeof serverOverviewStatisticsSchema
->;
-
-/**
- * Hook to fetch server overview statistics
- */
-export const useServerOverviewStatistics = () => {
+export const useGameWorldOverview = () => {
   const { fetcher } = use(ApiContext);
 
   const { data } = useSuspenseQuery({
     queryKey: ["server-overview-statistics"],
     queryFn: async () => {
-      const { data } = await fetcher("/statistics/servers/overview", {
+      const { data } = await fetcher("/statistics/overview", {
         method: "GET",
       });
       return serverOverviewStatisticsSchema.parse(data);

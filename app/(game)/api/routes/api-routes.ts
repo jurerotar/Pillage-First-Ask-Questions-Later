@@ -47,7 +47,7 @@ import { getServer } from "app/(game)/api/handlers/server-handlers";
 import {
   getPlayerRankings,
   getVillageRankings,
-  getServerOverviewStatistics,
+  getGameWorldOverview,
 } from "app/(game)/api/handlers/statistics-handlers";
 import { getUnitImprovements } from "app/(game)/api/handlers/unit-improvement-handlers";
 import { getResearchedUnits } from "app/(game)/api/handlers/unit-research-handlers";
@@ -299,8 +299,8 @@ const statisticsRoutes = [
   },
   {
     method: "GET",
-    path: "/statistics/servers/overview",
-    handler: getServerOverviewStatistics,
+    path: "/statistics/overview",
+    handler: getGameWorldOverview,
   },
 ];
 

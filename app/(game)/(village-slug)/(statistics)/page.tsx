@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { Route } from "@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page";
 import { PopulationRankings } from "app/(game)/(village-slug)/(statistics)/components/population-rankings";
 import { VillageRankings } from "app/(game)/(village-slug)/(statistics)/components/village-rankings";
-import { ServerOverviewStatistics } from "app/(game)/(village-slug)/(statistics)/components/server-overview-statistics";
+import { GameWorldOverview } from "app/(game)/(village-slug)/(statistics)/components/game-world-overview";
 import { useTabParam } from "app/(game)/(village-slug)/hooks/routes/use-tab-param";
 import { Text } from "app/components/text";
 import {
@@ -56,7 +56,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
           <VillageRankings />
         </TabPanel>
         <TabPanel value="overview">
-          <ServerOverviewStatistics />
+          <GameWorldOverview />
         </TabPanel>
       </Tabs>
     </>
