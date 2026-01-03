@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/hooks/use-player-rankings';
+import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-player-rankings';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';

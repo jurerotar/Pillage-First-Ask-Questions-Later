@@ -39,6 +39,7 @@ import {
 } from '../handlers/quest-handlers';
 import { getServer } from '../handlers/server-handlers';
 import {
+  getGameWorldOverview,
   getPlayerRankings,
   getVillageRankings,
 } from '../handlers/statistics-handlers';
@@ -289,6 +290,11 @@ const statisticsRoutes = [
     method: 'GET',
     path: '/statistics/villages',
     handler: getVillageRankings,
+  },
+  {
+    method: 'GET',
+    path: '/statistics/overview',
+    handler: getGameWorldOverview,
   },
 ];
 
