@@ -1,33 +1,34 @@
-import { z } from "zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { use } from "react";
-import { ApiContext } from "app/(game)/providers/api-provider";
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { z } from 'zod';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { factionSchema } from 'app/interfaces/models/game/faction';
+import { tribeSchema } from 'app/interfaces/models/game/tribe';
 
-export const serverOverviewStatisticsSchema = z.object({
+const gameWorldOverviewStatisticsSchema = z.object({
   playerCount: z.number(),
   villageCount: z.number(),
-  playersByTribe: z.record(z.string(), z.number()),
-  playersByFaction: z.record(z.string(), z.number()),
-  villagesByTribe: z.record(z.string(), z.number()),
-  villagesByFaction: z.record(z.string(), z.number()),
+  playersByTribe: z.record(tribeSchema, z.number()),
+  playersByFaction: z.record(factionSchema, z.number()),
+  villagesByTribe: z.record(tribeSchema, z.number()),
+  villagesByFaction: z.record(factionSchema, z.number()),
 });
-
-export type ServerOverviewStatistics = z.infer<
-  typeof serverOverviewStatisticsSchema
->;
 
 export const useGameWorldOverview = () => {
   const { fetcher } = use(ApiContext);
 
-  const { data } = useSuspenseQuery({
-    queryKey: ["server-overview-statistics"],
+  const { data: gameWorldOverviewStatistics } = useSuspenseQuery({
+    queryKey: ['game-world-overview-statistics'],
     queryFn: async () => {
-      const { data } = await fetcher("/statistics/overview", {
-        method: "GET",
+      const { data } = await fetcher('/statistics/overview', {
+        method: 'GET',
       });
-      return serverOverviewStatisticsSchema.parse(data);
+
+      return gameWorldOverviewStatisticsSchema.parse(data);
     },
   });
 
-  return { data };
+  return {
+    gameWorldOverviewStatistics,
+  };
 };
