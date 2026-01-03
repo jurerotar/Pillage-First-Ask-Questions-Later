@@ -1,7 +1,13 @@
 import { z } from "zod";
 import type { ApiHandler } from "app/interfaces/api";
-import { type Faction, factionSchema } from 'app/interfaces/models/game/faction';
-import { type PlayableTribe, tribeSchema } from 'app/interfaces/models/game/tribe';
+import {
+  type Faction,
+  factionSchema,
+} from "app/interfaces/models/game/faction";
+import {
+  type PlayableTribe,
+  tribeSchema,
+} from "app/interfaces/models/game/tribe";
 
 const getPlayerRankingsSchema = z
   .strictObject({
@@ -191,6 +197,18 @@ export const getVillageRankings: ApiHandler<"", GetVillageStatisticsBody> = (
   return z.array(getVillageRankingsSchema).parse(rows);
 };
 
+const playersStatsRowSchema = z.object({
+  tribe: tribeSchema,
+  faction: factionSchema,
+  player_count: z.number(),
+});
+
+const villagesStatsRowSchema = z.object({
+  tribe: tribeSchema,
+  faction: factionSchema,
+  village_count: z.number(),
+});
+
 const getServerOverviewStatisticsSchema = z
   .strictObject({
     player_count: z.number(),
@@ -212,20 +230,20 @@ const getServerOverviewStatisticsSchema = z
   });
 
 export const getGameWorldOverview: ApiHandler = (database) => {
-  const playersStats = database.selectObjects(`
+  const rawPlayersStats = database.selectObjects(`
     SELECT
-      tribe,
-      f.faction,
+      p.tribe AS tribe,
+      f.faction AS faction,
       COUNT(p.id) AS player_count
     FROM players p
     JOIN factions f ON p.faction_id = f.id
-    GROUP BY tribe, f.faction
+    GROUP BY p.tribe, f.faction
   `);
 
-  const villagesStats = database.selectObjects(`
+  const rawVillagesStats = database.selectObjects(`
     SELECT
-      p.tribe,
-      f.faction,
+      p.tribe AS tribe,
+      f.faction AS faction,
       COUNT(v.id) AS village_count
     FROM villages v
     JOIN players p ON v.player_id = p.id
@@ -233,25 +251,42 @@ export const getGameWorldOverview: ApiHandler = (database) => {
     GROUP BY p.tribe, f.faction
   `);
 
+  const playersStats = z.array(playersStatsRowSchema).parse(rawPlayersStats);
+  const villagesStats = z.array(villagesStatsRowSchema).parse(rawVillagesStats);
+
   console.log({ playersStats }, { villagesStats });
 
   let totalPlayers = 0;
 
-  const playersByTribe: Record<PlayableTribe, number> = {};
-  const playersByFaction: Record<Faction, number> = {};
+  const playersByTribe = Object.fromEntries(
+    tribeSchema.options.map((tribe) => [tribe, 0]),
+  ) as Record<PlayableTribe, number>;
+  const playersByFaction = Object.fromEntries(
+    factionSchema.options.map((faction) => [faction, 0]),
+  ) as Record<Faction, number>;
+
   for (const row of playersStats) {
     totalPlayers += row.player_count;
-    playersByTribe[row.tribe] = (playersByTribe[row.tribe] || 0) + row.player_count;
-    playersByFaction[row.faction] = (playersByFaction[row.faction] || 0) + row.player_count;
+    playersByTribe[row.tribe] =
+      (playersByTribe[row.tribe] || 0) + row.player_count;
+    playersByFaction[row.faction] =
+      (playersByFaction[row.faction] || 0) + row.player_count;
   }
 
   let totalVillages = 0;
-  const villagesByTribe: Record<PlayableTribe, number> = {};
-  const villagesByFaction: Record<Faction, number> = {};
+  const villagesByTribe = Object.fromEntries(
+    tribeSchema.options.map((tribe) => [tribe, 0]),
+  ) as Record<PlayableTribe, number>;
+  const villagesByFaction = Object.fromEntries(
+    factionSchema.options.map((faction) => [faction, 0]),
+  ) as Record<Faction, number>;
+
   for (const row of villagesStats) {
     totalVillages += row.village_count;
-    villagesByTribe[row.tribe] = (villagesByTribe[row.tribe] || 0) + row.village_count;
-    villagesByFaction[row.faction] = (villagesByFaction[row.faction] || 0) + row.village_count;
+    villagesByTribe[row.tribe] =
+      (villagesByTribe[row.tribe] || 0) + row.village_count;
+    villagesByFaction[row.faction] =
+      (villagesByFaction[row.faction] || 0) + row.village_count;
   }
 
   return getServerOverviewStatisticsSchema.parse({
