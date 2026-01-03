@@ -4,16 +4,17 @@ import { use } from "react";
 import { ApiContext } from "app/(game)/providers/api-provider";
 
 export const serverOverviewStatisticsSchema = z.object({
-  startDate: z.string(),
-  totalPlayers: z.number(),
-  totalVillages: z.number(),
-  serverName: z.string(),
-  serverSpeed: z.number(),
-  mapSize: z.number(),
+  playerCount: z.number(),
+  villageCount: z.number(),
+  playersByTribe: z.record(z.string(), z.number()),
   playersByFaction: z.record(z.string(), z.number()),
+  villagesByTribe: z.record(z.string(), z.number()),
   villagesByFaction: z.record(z.string(), z.number()),
-  tribeDistribution: z.record(z.string(), z.number()),
 });
+
+export type ServerOverviewStatistics = z.infer<
+  typeof serverOverviewStatisticsSchema
+>;
 
 export const useGameWorldOverview = () => {
   const { fetcher } = use(ApiContext);
