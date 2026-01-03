@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
+import { GameWorldOverview } from 'app/(game)/(village-slug)/(statistics)/components/game-world-overview';
 import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
 import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
@@ -18,7 +19,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
 
   const { t } = useTranslation();
 
-  const tabs = ['population', 'villages'];
+  const tabs = ['population', 'villages', 'overview'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
@@ -46,12 +47,16 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
         <TabList>
           <Tab value="population">{t('Population')}</Tab>
           <Tab value="villages">{t('Villages')}</Tab>
+          <Tab value="overview">{t('Overview')}</Tab>
         </TabList>
         <TabPanel value="population">
           <PopulationRankings />
         </TabPanel>
         <TabPanel value="villages">
           <VillageRankings />
+        </TabPanel>
+        <TabPanel value="overview">
+          <GameWorldOverview />
         </TabPanel>
       </Tabs>
     </>
