@@ -1,0 +1,29 @@
+{
+  "components": {},
+  "info": {
+    "title": "Pillage First API",
+    "version": "1.0.0",
+    "description": "Worker-API definition for the Pillage First! game.",
+    "license": {
+      "name": "AGPL-3.0-or-later",
+      "url": "https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/main/LICENSE.md"
+    }
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/villages/:villageId/effects": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "villageId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

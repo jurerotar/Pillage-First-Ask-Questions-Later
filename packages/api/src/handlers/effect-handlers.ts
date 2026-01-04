@@ -1,9 +1,13 @@
 import { z } from 'zod';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 import { selectAllRelevantEffectsQuery } from '../utils/queries/effect-queries';
 import { apiEffectSchema } from '../utils/zod/effect-schemas';
 
-export const getVillageEffects: ApiHandler<'villageId'> = (
+/**
+ * GET /villages/:villageId/effects
+ * @pathParam {number} villageId
+ */
+export const getVillageEffects: Controller<'/villages/:villageId/effects'> = (
   database,
   { params },
 ) => {

@@ -17,6 +17,9 @@
     "dev": {
       "persistent": true,
       "cache": false
+    },
+    "open-api:generate": {
+      "outputs": ["open-api.json", "open-api.ts"]
     }
   }
 }

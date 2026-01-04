@@ -23,7 +23,8 @@
     "format": "biome check --write --no-errors-on-unmatched",
     "knip:ci": "knip --max-issues 29",
     "type-check": "tsgo",
-    "test": "vitest"
+    "test": "vitest",
+    "open-api:generate": "node scripts/generate-openapi-definitions.ts"
   },
   "dependencies": {
     "@pillage-first/game-assets": "*",
@@ -37,6 +38,8 @@
   "devDependencies": {
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
+    "@visulima/jsdoc-open-api": "2.0.95",
+    "openapi-typescript": "7.10.1",
     "typescript": "*",
     "vitest": "4.0.16"
   }
