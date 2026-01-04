@@ -79,7 +79,7 @@ export const matchRoute = (url: string, method: string) => {
     }
 
     return {
-      handler: route.handler,
+      controller: route.controller,
       params,
       query,
     };

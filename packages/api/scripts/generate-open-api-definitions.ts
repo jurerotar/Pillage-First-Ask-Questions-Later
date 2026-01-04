@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { glob, writeFile } from 'node:fs/promises';
+import { glob, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -31,7 +31,7 @@ const spec = new SpecBuilder(options.swaggerDefinition);
 
 const rootDir = join(__dirname, '..');
 
-const files = glob('src/handlers/*-handlers.ts', {
+const files = glob('src/controllers/*-controllers.ts', {
   cwd: rootDir,
 });
 
@@ -62,6 +62,27 @@ execSync(
 );
 
 execSync(`biome format --write ${output} ${schemaOutput}`, {
+  cwd: rootDir,
+  stdio: 'inherit',
+});
+
+let content = await readFile(schemaOutput, 'utf8');
+
+const unwantedDefinitions = [
+  'export type webhooks = Record<string, never>;',
+  'export interface components \\{[^}]*\\}',
+  'export type \\$defs = Record<string, never>;',
+  'export type operations = Record<string, never>;',
+];
+
+for (const definition of unwantedDefinitions) {
+  const regex = new RegExp(definition, 'g');
+  content = content.replace(regex, '');
+}
+
+await writeFile(schemaOutput, `${content.trim()}\n`);
+
+execSync(`biome format --write ${schemaOutput}`, {
   cwd: rootDir,
   stdio: 'inherit',
 });

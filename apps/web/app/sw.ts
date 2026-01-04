@@ -23,7 +23,7 @@ const handleInstall = async (): Promise<void> => {
       precacheAndRoute(sw.__WB_MANIFEST);
     }
   } catch (error) {
-    console.error('Service worker install handler failed:', error);
+    console.error('Service worker install controller failed:', error);
   }
 };
 

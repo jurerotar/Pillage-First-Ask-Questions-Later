@@ -183,6 +183,23 @@
         ]
       }
     },
+    "/tiles/:tileId": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tileId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/tiles": {
+      "get": {}
+    },
     "/map-filters": {
       "get": {}
     },
@@ -205,23 +222,6 @@
           "required": true
         }
       }
-    },
-    "/tiles/:tileId": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "tileId",
-            "required": true,
-            "schema": {
-              "type": "number"
-            }
-          }
-        ]
-      }
-    },
-    "/tiles": {
-      "get": {}
     },
     "/oasis-bonus-finder": {
       "get": {

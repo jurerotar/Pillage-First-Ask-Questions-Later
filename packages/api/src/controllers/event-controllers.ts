@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/buildings/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { createEvents } from '../controllers/utils/create-event';
+import { getEventStartTime } from '../controllers/utils/events';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
@@ -14,8 +16,6 @@ import {
   parseEvent,
   parseEvents,
 } from '../utils/zod/event-schemas';
-import { createEvents } from './utils/create-event';
-import { getEventStartTime } from './utils/events';
 
 const eventListSchema = z.array(eventSchema);
 

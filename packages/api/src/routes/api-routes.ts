@@ -1,25 +1,28 @@
 import { match } from 'path-to-regexp';
-import { getBookmarks, updateBookmark } from '../handlers/bookmark-handlers';
-import { getVillageEffects } from '../handlers/effect-handlers';
+import {
+  getBookmarks,
+  updateBookmark,
+} from '../controllers/bookmark-controllers';
+import { getVillageEffects } from '../controllers/effect-controllers';
 import {
   cancelConstructionEvent,
   createNewEvents,
   getVillageEvents,
   getVillageEventsByType,
-} from '../handlers/event-handlers';
+} from '../controllers/event-controllers';
 import {
   getHero,
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
-} from '../handlers/hero-handlers';
+} from '../controllers/hero-controllers';
+import { getTile, getTiles } from '../controllers/map-controllers';
 import {
   getMapFilters,
   updateMapFilter,
-} from '../handlers/map-filters-handlers';
-import { getTile, getTiles } from '../handlers/map-handlers';
-import { getTilesWithBonuses } from '../handlers/oasis-bonus-finder-handlers';
-import { abandonOasis, occupyOasis } from '../handlers/oasis-handlers';
+} from '../controllers/map-filters-controllers';
+import { getTilesWithBonuses } from '../controllers/oasis-bonus-finder-controllers';
+import { abandonOasis, occupyOasis } from '../controllers/oasis-controllers';
 import {
   getMe,
   getPlayerBySlug,
@@ -27,29 +30,29 @@ import {
   getPlayerVillagesWithPopulation,
   getTroopsByVillage,
   renameVillage,
-} from '../handlers/player-handlers';
+} from '../controllers/player-controllers';
 import {
   getPreferences,
   updatePreference,
-} from '../handlers/preferences-handlers';
+} from '../controllers/preferences-controllers';
 import {
   collectQuest,
   getCollectableQuestCount,
   getQuests,
-} from '../handlers/quest-handlers';
-import { getServer } from '../handlers/server-handlers';
+} from '../controllers/quest-controllers';
+import { getServer } from '../controllers/server-controllers';
 import {
   getGameWorldOverview,
   getPlayerRankings,
   getVillageRankings,
-} from '../handlers/statistics-handlers';
-import { getUnitImprovements } from '../handlers/unit-improvement-handlers';
-import { getResearchedUnits } from '../handlers/unit-research-handlers';
+} from '../controllers/statistics-controllers';
+import { getUnitImprovements } from '../controllers/unit-improvement-controllers';
+import { getResearchedUnits } from '../controllers/unit-research-controllers';
 import {
   getOccupiableOasisInRange,
   getVillageBySlug,
-} from '../handlers/village-handlers';
-import { getArtifactsAroundVillage } from '../handlers/world-items-handlers';
+} from '../controllers/village-controllers';
+import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -57,7 +60,7 @@ const serverRoutes = [
   {
     method: 'GET',
     path: '/server',
-    handler: getServer,
+    controller: getServer,
   },
 ];
 
@@ -65,7 +68,7 @@ const auctionRoutes = [
   {
     method: 'GET',
     path: '/auctions',
-    handler: () => {},
+    controller: () => {},
   },
 ];
 
@@ -73,27 +76,27 @@ const heroRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/hero',
-    handler: getHero,
+    controller: getHero,
   },
   {
     method: 'GET',
     path: '/players/:playerId/hero/equipped-items',
-    handler: getHeroLoadout,
+    controller: getHeroLoadout,
   },
   {
     method: 'GET',
     path: '/players/:playerId/hero/inventory',
-    handler: getHeroInventory,
+    controller: getHeroInventory,
   },
   {
     method: 'GET',
     path: '/players/:playerId/hero/adventures',
-    handler: getHeroAdventures,
+    controller: getHeroAdventures,
   },
   {
     method: 'POST',
     path: '/players/:playerId/hero/adventures',
-    handler: () => {},
+    controller: () => {},
   },
 ];
 
@@ -101,7 +104,7 @@ const unitImprovementRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/unit-improvements',
-    handler: getUnitImprovements,
+    controller: getUnitImprovements,
   },
 ];
 
@@ -109,17 +112,17 @@ const questRoutes = [
   {
     method: 'GET',
     path: '/villages/:villageId/quests',
-    handler: getQuests,
+    controller: getQuests,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/quests/collectables/count',
-    handler: getCollectableQuestCount,
+    controller: getCollectableQuestCount,
   },
   {
     method: 'PATCH',
     path: '/villages/:villageId/quests/:questId/collect',
-    handler: collectQuest,
+    controller: collectQuest,
   },
 ];
 
@@ -127,12 +130,12 @@ const mapRoutes = [
   {
     method: 'GET',
     path: '/tiles',
-    handler: getTiles,
+    controller: getTiles,
   },
   {
     method: 'GET',
     path: '/tiles/:tileId',
-    handler: getTile,
+    controller: getTile,
   },
 ];
 
@@ -140,12 +143,12 @@ const preferencesRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/preferences',
-    handler: getPreferences,
+    controller: getPreferences,
   },
   {
     method: 'PATCH',
     path: '/players/:playerId/preferences/:preferenceName',
-    handler: updatePreference,
+    controller: updatePreference,
   },
 ];
 
@@ -153,12 +156,12 @@ const eventRoutes = [
   {
     method: 'POST',
     path: '/events',
-    handler: createNewEvents,
+    controller: createNewEvents,
   },
   {
     method: 'DELETE',
     path: '/events/:eventId',
-    handler: cancelConstructionEvent,
+    controller: cancelConstructionEvent,
   },
 ];
 
@@ -166,22 +169,22 @@ const playerRoutes = [
   {
     method: 'GET',
     path: '/players/me',
-    handler: getMe,
+    controller: getMe,
   },
   {
     method: 'GET',
     path: '/players/:playerSlug',
-    handler: getPlayerBySlug,
+    controller: getPlayerBySlug,
   },
   {
     method: 'GET',
     path: '/players/:playerId/villages',
-    handler: getPlayerVillageListing,
+    controller: getPlayerVillageListing,
   },
   {
     method: 'GET',
     path: '/players/:playerId/villages-with-population',
-    handler: getPlayerVillagesWithPopulation,
+    controller: getPlayerVillagesWithPopulation,
   },
 ];
 
@@ -189,52 +192,52 @@ const villageRoutes = [
   {
     method: 'GET',
     path: '/villages/:villageSlug',
-    handler: getVillageBySlug,
+    controller: getVillageBySlug,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/troops',
-    handler: getTroopsByVillage,
+    controller: getTroopsByVillage,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/effects',
-    handler: getVillageEffects,
+    controller: getVillageEffects,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/events',
-    handler: getVillageEvents,
+    controller: getVillageEvents,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/events/:eventType',
-    handler: getVillageEventsByType,
+    controller: getVillageEventsByType,
   },
   {
     method: 'PATCH',
     path: '/villages/:villageId/rename',
-    handler: renameVillage,
+    controller: renameVillage,
   },
   {
     method: 'POST',
     path: '/villages/:villageId/oasis/:oasisId',
-    handler: occupyOasis,
+    controller: occupyOasis,
   },
   {
     method: 'DELETE',
     path: '/villages/:villageId/oasis/:oasisId',
-    handler: abandonOasis,
+    controller: abandonOasis,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/occupiable-oasis',
-    handler: getOccupiableOasisInRange,
+    controller: getOccupiableOasisInRange,
   },
   {
     method: 'GET',
     path: '/villages/:villageId/researched-units',
-    handler: getResearchedUnits,
+    controller: getResearchedUnits,
   },
 ];
 
@@ -242,12 +245,12 @@ const mapFiltersRoutes = [
   {
     method: 'GET',
     path: '/players/:playerId/map-filters',
-    handler: getMapFilters,
+    controller: getMapFilters,
   },
   {
     method: 'PATCH',
     path: '/players/:playerId/map-filters/:filterName',
-    handler: updateMapFilter,
+    controller: updateMapFilter,
   },
 ];
 
@@ -255,7 +258,7 @@ const worldItemsRoutes = [
   {
     method: 'GET',
     path: '/villages/:villageId/artifacts',
-    handler: getArtifactsAroundVillage,
+    controller: getArtifactsAroundVillage,
   },
 ];
 
@@ -263,12 +266,12 @@ const bookmarkRoutes = [
   {
     method: 'GET',
     path: '/villages/:villageId/bookmarks',
-    handler: getBookmarks,
+    controller: getBookmarks,
   },
   {
     method: 'PATCH',
     path: '/villages/:villageId/bookmarks/:buildingId',
-    handler: updateBookmark,
+    controller: updateBookmark,
   },
 ];
 
@@ -276,7 +279,7 @@ const bonusFinderRoutes = [
   {
     method: 'GET',
     path: '/oasis-bonus-finder',
-    handler: getTilesWithBonuses,
+    controller: getTilesWithBonuses,
   },
 ];
 
@@ -284,17 +287,17 @@ const statisticsRoutes = [
   {
     method: 'GET',
     path: '/statistics/players',
-    handler: getPlayerRankings,
+    controller: getPlayerRankings,
   },
   {
     method: 'GET',
     path: '/statistics/villages',
-    handler: getVillageRankings,
+    controller: getVillageRankings,
   },
   {
     method: 'GET',
     path: '/statistics/overview',
-    handler: getGameWorldOverview,
+    controller: getGameWorldOverview,
   },
 ];
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { roundToNDecimalPoints } from '@pillage-first/utils/math';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const createSqlBindings = (slot: OasisBonus[]) => {
   if (slot.length === 0) {

@@ -3,7 +3,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 /**
  * GET /me

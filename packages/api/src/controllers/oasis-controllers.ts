@@ -1,5 +1,5 @@
 import type { Resource } from '@pillage-first/types/models/resource';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 
 // TODO: Move this to an util function that's called after combat, once combat is added

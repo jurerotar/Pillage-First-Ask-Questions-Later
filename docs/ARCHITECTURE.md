@@ -41,7 +41,7 @@ requests and sending responses.
 It only exists in the offline version of the application, and it's meant to lessen the architectural differences gap an
 offline-first and online app.
 During runtime, API worker listens to worker messages sent by the frontend, parses out the `pathname` and `method`,
-invokes a `handler` and then returns a response using `worker.postMessage`.
+invokes a `controller` and then returns a response using `worker.postMessage`.
 API worker defines a set of "endpoints", which look like this:
 
 ```ts
@@ -49,20 +49,19 @@ const serverRoutes = [
   {
     method: 'GET',
     path: '/server',
-    handler: getServer,
+    controller: getServer,
   },
 ];
 ```
 
-These endpoints mimic traditional RESTful API endpoints. Each of these endpoints invokes a `handler` function. Handlers
-can be thought of as controllers in traditional MVC architecture. Handler functions may receive arguments through
-pathname, search params or body.
+These endpoints mimic traditional RESTful API endpoints. Each of these endpoints invokes a `controller` function.
+Controllers may receive arguments through pathname, search params or body.
 
 ### Frontend
 
 Frontend is built with React and TypeScript. UI components were generated with ShadCN. State management and data
 fetching is
-handled with `tanstack/query`. It's built with async in mind, loading states are handled out of the box.
+handled with `@tanstack/react-query`. It's built with async in mind, loading states are handled out of the box.
 
 Frontend hooks, responsible for fetching data, require a special `fetcher` function. A fetcher is a function that allows
 the frontend to connect to a specified data source. In a typical client-server app,
@@ -130,15 +129,15 @@ source (e.g. actual backend for an online app), without having to touch rest of 
 
 ### Important files
 
-- [`api-worker.ts`](/apps/web/app/(game)/api-worker.ts)
-- [`api-routes.ts`](/apps/web/app/(game)/api-routes.ts)
+- [`api-worker.ts`](/packages/api/src/api-worker.ts)
+- [`api-routes.ts`](/packages/api/src/routes/api-routes.ts)
 - [`api-provider.tsx`](/apps/web/app/(game)/providers/api-provider.tsx)
 
 ### How would a multiplayer integration look like?
 
 Frontend expects a RESTful API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request
 parameters and responses
-are found in `app/(game)/api` folder. To integrate your own backend, you need to implement the API routes (e.g.,
+are found in `/packages/api` package. To integrate your own backend, you need to implement the API routes (e.g.,
 fetching game state,
 interacting with events) and WebSocket support. Once these routes are live, provide a `fetcher` function in the
 `api-provider.tsx`. This
@@ -147,5 +146,5 @@ connected to the
 backend
 for multiplayer functionality.
 
-Optionally, you can remove the `app/(game)/api` folder from your fork, as it will no longer be needed when connecting to
+Optionally, you can remove the `/packages/api` package from your fork, as it will no longer be needed when connecting to
 a real backend.

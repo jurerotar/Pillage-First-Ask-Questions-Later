@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 /**
  * GET /villages/:villageId/bookmarks

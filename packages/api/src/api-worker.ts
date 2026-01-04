@@ -84,9 +84,9 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
-        const { handler, params, query } = matchRoute(url, method);
+        const { controller, params, query } = matchRoute(url, method);
         // @ts-expect-error: Not sure about this one, fix when you can
-        const result = handler(dbFacade, { params, query, body });
+        const result = controller(dbFacade, { params, query, body });
 
         if (method !== 'GET') {
           globalThis.postMessage({

@@ -1,5 +1,5 @@
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../../types/handler';
+import type { Resolver } from '../../types/resolver';
 
 export const internalSeedOasisOccupiableByTableResolver: Resolver<
   GameEvent<'__internal__seedOasisOccupiableByTable'>

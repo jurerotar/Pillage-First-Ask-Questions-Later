@@ -10,7 +10,7 @@ import {
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getFreeTileSchema = baseTileSchema.extend({
   type: z.literal('free'),

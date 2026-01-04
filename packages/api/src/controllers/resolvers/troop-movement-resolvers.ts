@@ -1,5 +1,5 @@
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../../types/handler';
+import type { Resolver } from '../../types/resolver';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
 

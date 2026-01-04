@@ -2,7 +2,7 @@ import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import type { Preferences } from '@pillage-first/types/models/preferences';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getPreferencesSchema = z
   .strictObject({

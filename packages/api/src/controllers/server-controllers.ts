@@ -1,5 +1,5 @@
 import { serverDbSchema } from '@pillage-first/types/models/server';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 /**
  * GET /server

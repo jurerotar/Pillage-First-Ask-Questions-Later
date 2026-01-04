@@ -5,8 +5,6 @@
     "lib": ["DOM", "ESNext"],
     "rootDirs": [".", "./.react-router/types"],
     "jsx": "react-jsx",
-    "isolatedDeclarations": false,
-    "declaration": false,
     "paths": {
       "app/*": ["./app/*"],
       "@react-router/*": ["./.react-router/*"]

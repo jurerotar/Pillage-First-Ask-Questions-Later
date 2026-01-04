@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getMapFiltersSchema = z
   .strictObject({

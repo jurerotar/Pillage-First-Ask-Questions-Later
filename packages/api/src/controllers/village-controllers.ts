@@ -3,7 +3,7 @@ import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),

@@ -5,9 +5,9 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
-import type { Controller } from '../types/handler';
+import { addHeroExperience } from '../controllers/utils/hero';
+import type { Controller } from '../types/controller';
 import { addVillageResourcesAt } from '../utils/village';
-import { addHeroExperience } from './utils/hero';
 
 const getQuestsSchema = z
   .strictObject({

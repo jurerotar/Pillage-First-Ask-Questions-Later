@@ -3,7 +3,7 @@ import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
 } from '@pillage-first/utils/math';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getArtifactsAroundVillageSchema = z
   .strictObject({

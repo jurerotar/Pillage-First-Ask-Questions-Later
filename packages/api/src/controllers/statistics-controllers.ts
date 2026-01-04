@@ -7,7 +7,7 @@ import {
   type PlayableTribe,
   tribeSchema,
 } from '@pillage-first/types/models/tribe';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getPlayerRankingsSchema = z
   .strictObject({

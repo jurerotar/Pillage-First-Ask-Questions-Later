@@ -1,6 +1,6 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../../types/handler';
+import type { Resolver } from '../../types/resolver';
 import { updateVillageResourcesAt } from '../../utils/village';
 
 export const troopTrainingEventResolver: Resolver<

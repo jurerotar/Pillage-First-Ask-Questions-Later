@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 import { selectAllRelevantEffectsQuery } from '../utils/queries/effect-queries';
 import { apiEffectSchema } from '../utils/zod/effect-schemas';
 

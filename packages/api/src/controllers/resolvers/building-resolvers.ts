@@ -5,7 +5,7 @@ import {
 } from '@pillage-first/game-assets/buildings/utils';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../../types/handler';
+import type { Resolver } from '../../types/resolver';
 import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,

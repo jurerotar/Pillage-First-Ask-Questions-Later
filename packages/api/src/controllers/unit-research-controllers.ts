@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getResearchedUnitsSchema = z
   .strictObject({

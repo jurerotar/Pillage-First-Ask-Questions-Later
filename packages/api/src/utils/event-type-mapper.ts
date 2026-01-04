@@ -1,16 +1,16 @@
 import type { GameEventType } from '@pillage-first/types/models/game-event';
-import { adventurePointIncreaseResolver } from '../handlers/resolvers/adventure-resolvers';
+import { adventurePointIncreaseResolver } from '../controllers/resolvers/adventure-resolvers';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
-} from '../handlers/resolvers/building-resolvers';
-import { internalSeedOasisOccupiableByTableResolver } from '../handlers/resolvers/internal-resolvers';
-import { troopTrainingEventResolver } from '../handlers/resolvers/troop-resolvers';
-import { unitImprovementResolver } from '../handlers/resolvers/unit-improvement-resolvers';
-import { unitResearchResolver } from '../handlers/resolvers/unit-research-resolvers';
-// import { troopMovementResolver } from 'app/(game)/api/handlers/resolvers/troop-movement-resolvers';
+} from '../controllers/resolvers/building-resolvers';
+import { internalSeedOasisOccupiableByTableResolver } from '../controllers/resolvers/internal-resolvers';
+import { troopTrainingEventResolver } from '../controllers/resolvers/troop-resolvers';
+import { unitImprovementResolver } from '../controllers/resolvers/unit-improvement-resolvers';
+import { unitResearchResolver } from '../controllers/resolvers/unit-research-resolvers';
+// import { troopMovementResolver } from 'app/(game)/api/controllers/resolvers/troop-movement-resolvers';
 
 export const getGameEventResolver = (gameEventType: GameEventType) => {
   switch (gameEventType) {

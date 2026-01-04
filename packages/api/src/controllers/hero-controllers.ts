@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
-import type { Controller } from '../types/handler';
+import type { Controller } from '../types/controller';
 
 const getHeroSchema = z
   .strictObject({
