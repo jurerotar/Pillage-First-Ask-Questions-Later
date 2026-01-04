@@ -5,7 +5,7 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 import { addVillageResourcesAt } from '../utils/village';
 import { addHeroExperience } from './utils/hero';
 
@@ -29,7 +29,14 @@ const getQuestsSchema = z
     };
   });
 
-export const getQuests: ApiHandler<'villageId'> = (database, { params }) => {
+/**
+ * GET /villages/:villageId/quests
+ * @pathParam {number} villageId
+ */
+export const getQuests: Controller<'/villages/:villageId/quests'> = (
+  database,
+  { params },
+) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(
@@ -60,7 +67,12 @@ export const getQuests: ApiHandler<'villageId'> = (database, { params }) => {
   return z.array(getQuestsSchema).parse(rows);
 };
 
-export const getCollectableQuestCount: ApiHandler = (database) => {
+/**
+ * GET /quests/collectable-count
+ */
+export const getCollectableQuestCount: Controller<
+  '/quests/collectable-count'
+> = (database) => {
   const collectableQuestCount = database.selectValue(
     `
       SELECT COUNT(*) AS count
@@ -77,10 +89,15 @@ export const getCollectableQuestCount: ApiHandler = (database) => {
   };
 };
 
-export const collectQuest: ApiHandler<'questId' | 'villageId'> = (
-  database,
-  args,
-) => {
+/**
+ * POST /villages/:villageId/quests/:questId/collect
+ * @pathParam {number} villageId
+ * @pathParam {string} questId
+ */
+export const collectQuest: Controller<
+  '/villages/:villageId/quests/:questId/collect',
+  'post'
+> = (database, args) => {
   const {
     params: { questId, villageId },
   } = args;

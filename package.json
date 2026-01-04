@@ -32,8 +32,8 @@
     "@biomejs/biome": "2.3.11",
     "@commitlint/cli": "20.3.0",
     "@commitlint/config-conventional": "20.3.0",
-    "@typescript/native-preview": "7.0.0-dev.20260103.1",
     "@sqlite.org/sqlite-wasm": "3.50.4-build1",
+    "@typescript/native-preview": "7.0.0-dev.20260103.1",
     "lefthook": "2.0.13",
     "turbo": "2.7.2",
     "typescript": "5.9.3"

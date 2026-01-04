@@ -25,8 +25,13 @@ const getRoutesForMethod = (method: string) => {
 };
 
 export const matchRoute = (url: string, method: string) => {
+  const [urlPath, queryString] = url.split('?');
+  const query: Record<string, string | number> = Object.fromEntries(
+    new URLSearchParams(queryString),
+  );
+
   // Replace only leading `/me` (either end or followed by slash), preserves trailing slash if present.
-  const path = url.replace(/^\/me(?=\/|$)/, `/players/${PLAYER_ID}`);
+  const path = urlPath.replace(/^\/me(?=\/|$)/, `/players/${PLAYER_ID}`);
 
   const routesForMethod = getRoutesForMethod(method);
 
@@ -60,9 +65,23 @@ export const matchRoute = (url: string, method: string) => {
       }
     }
 
+    // Also cast numeric query params
+    for (const [key, rawValue] of Object.entries(query)) {
+      if (!numericParams.has(key)) {
+        continue;
+      }
+
+      const n =
+        typeof rawValue === 'string' ? Number.parseInt(rawValue, 10) : rawValue;
+      if (!Number.isNaN(n)) {
+        query[key] = n;
+      }
+    }
+
     return {
       handler: route.handler,
       params,
+      query,
     };
   }
 

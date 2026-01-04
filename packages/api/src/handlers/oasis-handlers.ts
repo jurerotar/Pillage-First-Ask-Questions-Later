@@ -1,12 +1,17 @@
 import type { Resource } from '@pillage-first/types/models/resource';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 import { updateVillageResourcesAt } from '../utils/village';
 
 // TODO: Move this to an util function that's called after combat, once combat is added
-export const occupyOasis: ApiHandler<'oasisId' | 'villageId'> = (
-  database,
-  args,
-) => {
+/**
+ * POST /villages/:villageId/oasis/:oasisId
+ * @pathParam {number} villageId
+ * @pathParam {number} oasisId
+ */
+export const occupyOasis: Controller<
+  '/villages/:villageId/oasis/:oasisId',
+  'post'
+> = (database, args) => {
   const {
     params: { oasisId, villageId },
   } = args;
@@ -62,10 +67,15 @@ export const occupyOasis: ApiHandler<'oasisId' | 'villageId'> = (
   });
 };
 
-export const abandonOasis: ApiHandler<'oasisId' | 'villageId'> = (
-  database,
-  args,
-) => {
+/**
+ * DELETE /villages/:villageId/oasis/:oasisId
+ * @pathParam {number} villageId
+ * @pathParam {number} oasisId
+ */
+export const abandonOasis: Controller<
+  '/villages/:villageId/oasis/:oasisId',
+  'delete'
+> = (database, args) => {
   const {
     params: { oasisId, villageId },
   } = args;

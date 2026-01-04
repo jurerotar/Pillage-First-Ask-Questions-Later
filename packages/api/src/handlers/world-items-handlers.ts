@@ -3,7 +3,7 @@ import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
 } from '@pillage-first/utils/math';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getArtifactsAroundVillageSchema = z
   .strictObject({
@@ -30,10 +30,13 @@ const getArtifactsAroundVillageSchema = z
     };
   });
 
-export const getArtifactsAroundVillage: ApiHandler<'villageId'> = (
-  database,
-  { params },
-) => {
+/**
+ * GET /villages/:villageId/artifacts
+ * @pathParam {number} villageId
+ */
+export const getArtifactsAroundVillage: Controller<
+  '/villages/:villageId/artifacts'
+> = (database, { params }) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(

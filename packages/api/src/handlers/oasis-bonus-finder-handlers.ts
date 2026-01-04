@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { roundToNDecimalPoints } from '@pillage-first/utils/math';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const createSqlBindings = (slot: OasisBonus[]) => {
   if (slot.length === 0) {
@@ -60,13 +60,21 @@ type GetTilesWithBonusesBody = {
   };
 };
 
-export const getTilesWithBonuses: ApiHandler<
-  'x' | 'y',
+/**
+ * GET /oasis-bonus-finder
+ * @queryParam {number} x
+ * @queryParam {number} y
+ * @bodyContent application/json GetTilesWithBonusesBody
+ * @bodyRequired
+ */
+export const getTilesWithBonuses: Controller<
+  '/oasis-bonus-finder',
+  'get',
   GetTilesWithBonusesBody
-> = (database, { params, body }) => {
-  const { x, y } = params;
-  const { resourceFieldComposition, bonuses } = body ?? {};
-  const { firstOasis, secondOasis, thirdOasis } = bonuses ?? {};
+> = (database, { query, body }) => {
+  const { x, y } = query;
+  const { resourceFieldComposition, bonuses } = body;
+  const { firstOasis, secondOasis, thirdOasis } = bonuses;
 
   const s1 = createSqlBindings(firstOasis);
   const s2 = createSqlBindings(secondOasis);

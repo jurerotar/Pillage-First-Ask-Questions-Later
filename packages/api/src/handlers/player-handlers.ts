@@ -3,9 +3,12 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
-export const getMe: ApiHandler = (database) => {
+/**
+ * GET /me
+ */
+export const getMe: Controller<'/me'> = (database) => {
   const row = database.selectObject(
     `
       SELECT
@@ -50,10 +53,13 @@ const getVillagesByPlayerSchema = z
     };
   });
 
-export const getPlayerVillageListing: ApiHandler<'playerId'> = (
-  database,
-  args,
-) => {
+/**
+ * GET /players/:playerId/villages
+ * @pathParam {number} playerId
+ */
+export const getPlayerVillageListing: Controller<
+  '/players/:playerId/villages'
+> = (database, args) => {
   const {
     params: { playerId },
   } = args;
@@ -106,10 +112,13 @@ const getPlayerVillagesWithPopulationSchema = z
     };
   });
 
-export const getPlayerVillagesWithPopulation: ApiHandler<'playerId'> = (
-  database,
-  args,
-) => {
+/**
+ * GET /players/:playerId/villages/population
+ * @pathParam {number} playerId
+ */
+export const getPlayerVillagesWithPopulation: Controller<
+  '/players/:playerId/villages/population'
+> = (database, args) => {
   const {
     params: { playerId },
   } = args;
@@ -153,10 +162,14 @@ const getTroopsByVillageSchema = z
     };
   });
 
-export const getTroopsByVillage: ApiHandler<'playerId' | 'villageId'> = (
-  database,
-  args,
-) => {
+/**
+ * GET /players/:playerId/villages/:villageId/troops
+ * @pathParam {number} playerId
+ * @pathParam {number} villageId
+ */
+export const getTroopsByVillage: Controller<
+  '/players/:playerId/villages/:villageId/troops'
+> = (database, args) => {
   const {
     params: { villageId },
   } = args;
@@ -182,14 +195,19 @@ type RenameVillageBody = {
   name: string;
 };
 
-export const renameVillage: ApiHandler<
-  'playerId' | 'villageId',
+/**
+ * PATCH /villages/:villageId/rename
+ * @pathParam {number} villageId
+ * @bodyContent application/json RenameVillageBody
+ * @bodyRequired
+ */
+export const renameVillage: Controller<
+  '/villages/:villageId/rename',
+  'patch',
   RenameVillageBody
-> = (database, args) => {
-  const {
-    params: { villageId },
-    body: { name },
-  } = args;
+> = (database, { params, body }) => {
+  const { villageId } = params;
+  const { name } = body;
 
   database.exec(
     `
@@ -201,7 +219,14 @@ export const renameVillage: ApiHandler<
   );
 };
 
-export const getPlayerBySlug: ApiHandler<'playerSlug'> = (database, args) => {
+/**
+ * GET /players/:playerSlug
+ * @pathParam {string} playerSlug
+ */
+export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
+  database,
+  args,
+) => {
   const {
     params: { playerSlug },
   } = args;

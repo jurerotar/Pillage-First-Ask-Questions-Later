@@ -10,7 +10,7 @@ import {
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getFreeTileSchema = baseTileSchema.extend({
   type: z.literal('free'),
@@ -90,7 +90,14 @@ const _getTileSchema = z.discriminatedUnion('type', [
 //   }),
 // }));
 
-export const getTile: ApiHandler<'tileId'> = (_database, { params }) => {
+/**
+ * GET /tiles/:tileId
+ * @pathParam {number} tileId
+ */
+export const getTile: Controller<'/tiles/:tileId'> = (
+  _database,
+  { params },
+) => {
   const { tileId: _tileId } = params;
 
   // const b = performance.now();
@@ -316,7 +323,10 @@ const getTilesSchema = z
     }),
   }));
 
-export const getTiles: ApiHandler = (database) => {
+/**
+ * GET /tiles
+ */
+export const getTiles: Controller<'/tiles'> = (database) => {
   const rows = database.selectObjects(
     `
       WITH

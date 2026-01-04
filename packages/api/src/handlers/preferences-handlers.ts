@@ -2,7 +2,7 @@ import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import type { Preferences } from '@pillage-first/types/models/preferences';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getPreferencesSchema = z
   .strictObject({
@@ -36,7 +36,10 @@ const getPreferencesSchema = z
     };
   });
 
-export const getPreferences: ApiHandler = (database) => {
+/**
+ * GET /preferences
+ */
+export const getPreferences: Controller<'/preferences'> = (database) => {
   const row = database.selectObject(
     `
       SELECT
@@ -60,8 +63,15 @@ type UpdatePreferenceBody = {
   value: Preferences[keyof Preferences];
 };
 
-export const updatePreference: ApiHandler<
-  'preferenceName',
+/**
+ * PATCH /preferences/:preferenceName
+ * @pathParam {string} preferenceName
+ * @bodyContent application/json UpdatePreferenceBody
+ * @bodyRequired
+ */
+export const updatePreference: Controller<
+  '/preferences/:preferenceName',
+  'patch',
   UpdatePreferenceBody
 > = (database, { body, params }) => {
   const { preferenceName } = params;

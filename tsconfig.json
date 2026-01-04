@@ -8,8 +8,6 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "isolatedDeclarations": true,
-    "declaration": true,
     "incremental": false,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,

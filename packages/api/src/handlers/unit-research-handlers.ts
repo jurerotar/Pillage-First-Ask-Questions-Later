@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getResearchedUnitsSchema = z
   .strictObject({
@@ -14,10 +14,13 @@ const getResearchedUnitsSchema = z
     };
   });
 
-export const getResearchedUnits: ApiHandler<'villageId'> = (
-  database,
-  { params },
-) => {
+/**
+ * GET /villages/:villageId/researched-units
+ * @pathParam {number} villageId
+ */
+export const getResearchedUnits: Controller<
+  '/villages/:villageId/researched-units'
+> = (database, { params }) => {
   const { villageId } = params;
 
   const unitResearchModels = database.selectObjects(

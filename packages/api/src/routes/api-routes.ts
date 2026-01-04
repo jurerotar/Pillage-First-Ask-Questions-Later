@@ -275,7 +275,7 @@ const bookmarkRoutes = [
 const bonusFinderRoutes = [
   {
     method: 'GET',
-    path: '/oasis-bonus-finder\\?x=:x&y=:y',
+    path: '/oasis-bonus-finder',
     handler: getTilesWithBonuses,
   },
 ];

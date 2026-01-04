@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getMapFiltersSchema = z
   .strictObject({
@@ -22,7 +22,10 @@ const getMapFiltersSchema = z
     };
   });
 
-export const getMapFilters: ApiHandler = (database) => {
+/**
+ * GET /map-filters
+ */
+export const getMapFilters: Controller<'/map-filters'> = (database) => {
   const row = database.selectObject(
     `
     SELECT
@@ -42,10 +45,17 @@ type UpdateMapFilterBody = {
   value: boolean;
 };
 
-export const updateMapFilter: ApiHandler<'filterName', UpdateMapFilterBody> = (
-  database,
-  { params, body },
-) => {
+/**
+ * PATCH /map-filters/:filterName
+ * @pathParam {string} filterName
+ * @bodyContent application/json UpdateMapFilterBody
+ * @bodyRequired
+ */
+export const updateMapFilter: Controller<
+  '/map-filters/:filterName',
+  'patch',
+  UpdateMapFilterBody
+> = (database, { params, body }) => {
   const { filterName } = params;
   const { value } = body;
 

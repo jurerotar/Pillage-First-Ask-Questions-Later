@@ -3,7 +3,7 @@ import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),
@@ -58,7 +58,11 @@ const getVillageBySlugSchema = z
     };
   });
 
-export const getVillageBySlug: ApiHandler<'villageSlug'> = (
+/**
+ * GET /villages/:villageSlug
+ * @pathParam {string} villageSlug
+ */
+export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
   database,
   { params },
 ) => {
@@ -183,10 +187,13 @@ const getOccupiableOasisInRangeSchema = z
     };
   });
 
-export const getOccupiableOasisInRange: ApiHandler<'villageId'> = (
-  database,
-  { params },
-) => {
+/**
+ * GET /villages/:villageId/occupiable-oasis
+ * @pathParam {number} villageId
+ */
+export const getOccupiableOasisInRange: Controller<
+  '/villages/:villageId/occupiable-oasis'
+> = (database, { params }) => {
   const { villageId } = params;
 
   const rows = database.selectObjects(

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/buildings/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
@@ -19,7 +19,11 @@ import { getEventStartTime } from './utils/events';
 
 const eventListSchema = z.array(eventSchema);
 
-export const getVillageEvents: ApiHandler<'villageId'> = (
+/**
+ * GET /villages/:villageId/events
+ * @pathParam {number} villageId
+ */
+export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
   database,
   { params },
 ) => {
@@ -32,10 +36,14 @@ export const getVillageEvents: ApiHandler<'villageId'> = (
   return eventListSchema.parse(rows);
 };
 
-export const getVillageEventsByType: ApiHandler<'villageId' | 'eventType'> = (
-  database,
-  { params },
-) => {
+/**
+ * GET /villages/:villageId/events/:eventType
+ * @pathParam {number} villageId
+ * @pathParam {string} eventType
+ */
+export const getVillageEventsByType: Controller<
+  '/villages/:villageId/events/:eventType'
+> = (database, { params }) => {
   const { villageId, eventType } = params;
 
   const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
@@ -50,19 +58,27 @@ type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
   amount: number;
 };
 
-export const createNewEvents: ApiHandler<'', CreateNewEventsBody> = (
-  database,
-  args,
-) => {
-  const { body } = args;
-
+/**
+ * POST /events
+ * @bodyContent application/json CreateNewEventsBody
+ * @bodyRequired
+ */
+export const createNewEvents: Controller<
+  '/events',
+  'post',
+  CreateNewEventsBody
+> = (database, { body }) => {
   createEvents(database, body);
 };
 
-export const cancelConstructionEvent: ApiHandler<'eventId', void> = (
-  database,
-  args,
-) => {
+/**
+ * POST /events/:eventId/cancel
+ * @pathParam {string} eventId
+ */
+export const cancelConstructionEvent: Controller<
+  '/events/:eventId/cancel',
+  'post'
+> = (database, args) => {
   const {
     params: { eventId },
   } = args;

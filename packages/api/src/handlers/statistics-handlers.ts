@@ -7,7 +7,7 @@ import {
   type PlayableTribe,
   tribeSchema,
 } from '@pillage-first/types/models/tribe';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getPlayerRankingsSchema = z
   .strictObject({
@@ -35,10 +35,16 @@ type GetPlayersStatisticsBody = {
   lastPlayerId: number | null;
 };
 
-export const getPlayerRankings: ApiHandler<'', GetPlayersStatisticsBody> = (
-  database,
-  { body },
-) => {
+/**
+ * GET /statistics/players
+ * @bodyContent application/json GetPlayersStatisticsBody
+ * @bodyRequired
+ */
+export const getPlayerRankings: Controller<
+  '/statistics/players',
+  'get',
+  GetPlayersStatisticsBody
+> = (database, { body }) => {
   const { lastPlayerId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
@@ -133,14 +139,20 @@ const getVillageRankingsSchema = z
     };
   });
 
-type GetVillageStatisticsBody = {
+type GetStatisticsVillagesBody = {
   lastVillageId: number | null;
 };
 
-export const getVillageRankings: ApiHandler<'', GetVillageStatisticsBody> = (
-  database,
-  { body },
-) => {
+/**
+ * GET /statistics/villages
+ * @bodyContent application/json GetVillageStatisticsBody
+ * @bodyRequired
+ */
+export const getVillageRankings: Controller<
+  '/statistics/villages',
+  'get',
+  GetStatisticsVillagesBody
+> = (database, { body }) => {
   const { lastVillageId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
@@ -252,7 +264,12 @@ const getServerOverviewStatisticsSchema = z
     };
   });
 
-export const getGameWorldOverview: ApiHandler = (database) => {
+/**
+ * GET /statistics/overview
+ */
+export const getGameWorldOverview: Controller<'/statistics/overview'> = (
+  database,
+) => {
   const rawPlayersStats = database.selectObjects(`
     SELECT
       p.tribe AS tribe,

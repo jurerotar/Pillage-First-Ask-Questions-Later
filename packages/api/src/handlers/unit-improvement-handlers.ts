@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getUnitImprovementsSchema = z
   .strictObject({
@@ -14,10 +14,13 @@ const getUnitImprovementsSchema = z
     };
   });
 
-export const getUnitImprovements: ApiHandler<'playerId'> = (
-  database,
-  { params },
-) => {
+/**
+ * GET /players/:playerId/unit-improvements
+ * @pathParam {number} playerId
+ */
+export const getUnitImprovements: Controller<
+  '/players/:playerId/unit-improvements'
+> = (database, { params }) => {
   const { playerId } = params;
 
   const unitImprovementModel = database.selectObjects(

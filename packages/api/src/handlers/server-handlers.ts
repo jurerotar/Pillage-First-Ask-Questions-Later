@@ -1,7 +1,10 @@
 import { serverDbSchema } from '@pillage-first/types/models/server';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
-export const getServer: ApiHandler = (database) => {
+/**
+ * GET /server
+ */
+export const getServer: Controller<'/server'> = (database) => {
   const serverModel = database.selectObject(`
     SELECT id,
            version,

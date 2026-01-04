@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
-import type { ApiHandler } from '../types/handler';
+import type { Controller } from '../types/handler';
 
 const getHeroSchema = z
   .strictObject({
@@ -30,7 +30,11 @@ const getHeroSchema = z
     };
   });
 
-export const getHero: ApiHandler = (database) => {
+/**
+ * GET /players/:playerId/hero
+ * @pathParam {number} playerId
+ */
+export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
   const hero = database.selectObject(`
     SELECT
       h.health,
@@ -59,7 +63,13 @@ const getHeroLoadoutSchema = z
     amount: t.amount,
   }));
 
-export const getHeroLoadout: ApiHandler = (database) => {
+/**
+ * GET /players/:playerId/hero/equipped-items
+ * @pathParam {number} playerId
+ */
+export const getHeroLoadout: Controller<
+  '/players/:playerId/hero/equipped-items'
+> = (database) => {
   const rows = database.selectObjects(
     `
       SELECT slot, item_id, amount
@@ -87,7 +97,13 @@ const getHeroInventorySchema = z
     amount: t.amount,
   }));
 
-export const getHeroInventory: ApiHandler = (database) => {
+/**
+ * GET /players/:playerId/hero/inventory
+ * @pathParam {number} playerId
+ */
+export const getHeroInventory: Controller<
+  '/players/:playerId/hero/inventory'
+> = (database) => {
   const rows = database.selectObjects(
     `
       SELECT i.item_id, i.amount
@@ -107,7 +123,13 @@ export const getHeroInventory: ApiHandler = (database) => {
   return z.array(getHeroInventorySchema).parse(rows);
 };
 
-export const getHeroAdventures: ApiHandler = (database) => {
+/**
+ * GET /players/:playerId/hero/adventures
+ * @pathParam {number} playerId
+ */
+export const getHeroAdventures: Controller<
+  '/players/:playerId/hero/adventures'
+> = (database) => {
   const row = database.selectObject(
     'SELECT available, completed FROM hero_adventures;',
   );
