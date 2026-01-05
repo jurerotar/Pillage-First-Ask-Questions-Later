@@ -23,6 +23,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  TURBO_CACHE_DIR: .turbo
+
 jobs:
   type-check:
     name: Type check
