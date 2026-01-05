@@ -1,18 +1,6 @@
 runs:
   using: "composite"
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Setup Node.js LTS
-      uses: actions/setup-node@v6
-      with:
-        node-version: 'lts/*'
-        cache: "npm"
-        cache-dependency-path: package-lock.json
-
     - name: Cache Turbo build setup
       uses: actions/cache@v4
       with:
@@ -20,6 +8,13 @@ runs:
         key: ${{ runner.os }}-turbo-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-turbo-
+
+    - name: Setup Node.js LTS
+      uses: actions/setup-node@v6
+      with:
+        node-version: 'lts/*'
+        cache: "npm"
+        cache-dependency-path: package-lock.json
 
     - name: Install dependencies
       shell: bash
