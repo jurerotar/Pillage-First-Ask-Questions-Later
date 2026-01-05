@@ -22,7 +22,6 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from 'app/interfaces/models/game/tile';
-import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
   calculateDistanceBetweenPoints,
   formatNumber,
@@ -89,7 +88,7 @@ const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
 };
 
 type TileTooltipWorldItemProps = {
-  item: WorldItem;
+  item: NonNullable<ReturnType<typeof useTileWorldItem>['worldItem']>;
 };
 
 const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
