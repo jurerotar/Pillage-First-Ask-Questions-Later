@@ -45,4 +45,11 @@ const installWebAppGraphicPacks = async () => {
   await copyFolderSync(sourceDir, destDir);
 };
 
+const removeDeprecatedRootLevelDirectories = async () => {
+  await clearDirectory('./public');
+  await clearDirectory('./build');
+  await clearDirectory('./.react-router');
+};
+
 await installWebAppGraphicPacks();
+await removeDeprecatedRootLevelDirectories();

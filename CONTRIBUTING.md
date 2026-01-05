@@ -23,22 +23,21 @@ It currently consists of the following apps & packages:
 
 - **apps**
 -
-  - `web` (frontend client)
+  - [web](/apps/web/README.md) (frontend client)
 
 - **packages**
 -
-  - `api` (worker-based backend)
+  - [api](/packages/api/README.md) (worker-based backend)
 -
-  - `db` (database schemas, migrations & seeders)
+  - [db](/packages/db/README.md) (database schemas, migrations & seeders)
 -
-  - `game-assets` (game object definitions (buildings, units, ...))
+  - [game-assets](/packages/game-assets/README.md) (game object definitions (buildings, units, ...))
 -
-  - `mocks` (mocks used in tests)
+  - [mocks](/packages/mocks/README.md) (mocks used in tests)
 -
-  - `utils` (shared helper functions)
-
-> [!NOTE]
-> If you've cloned and installed the project before we migrated to a monorepo setup, make sure to delete root-level `public`, `.react-router` & `build` directories, since they are no longer in use.
+  - [types](/packages/types/README.md) (shared types)
+-
+  - [utils](/packages/utils/README.md) (shared helper functions)
 
 ### 2.1 Postinstall
 

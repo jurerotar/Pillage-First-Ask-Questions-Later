@@ -22,8 +22,7 @@
     "knip:ci": "knip --max-issues 29",
     "localize": "i18next-cli extract",
     "type-check": "react-router typegen && tsgo",
-    "test": "vitest",
-    "postinstall": "node ../../scripts/postinstall.ts"
+    "test": "vitest"
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "2.1.0",
