@@ -126,16 +126,13 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
 
   const isOccupiable = isOccupiableOasisTile(tile);
   const isOccupied = isOccupiedOasisTile(tile);
+
   const title = (() => {
     if (!isOccupiable) {
       return t('Wilderness');
     }
     return isOccupied ? t('Occupied oasis') : t('Unoccupied oasis');
   })();
-
-  const { owner, ownerVillage } = tile;
-  const { id: playerId } = owner!;
-  const { name: villageName } = ownerVillage!;
 
   return (
     <DialogHeader>
@@ -163,14 +160,14 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
           <>
             {isOccupied && (
               <>
-                {playerId === PLAYER_ID &&
+                {tile.owner!.id === PLAYER_ID &&
                   t(
                     'This oasis is occupied by you and is producing resources for village {{villageName}}.',
                     {
-                      villageName,
+                      villageName: tile.ownerVillage!.name,
                     },
                   )}
-                {playerId !== PLAYER_ID &&
+                {tile.owner!.id !== PLAYER_ID &&
                   t(
                     'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
                   )}
