@@ -23,19 +23,22 @@ It currently consists of the following apps & packages:
 
 - **apps**
 -
-  - web (frontend client)
+  - `web` (frontend client)
 
 - **packages**
 -
-  - api (worker-based backend)
+  - `api` (worker-based backend)
 -
-  - db (database schemas, migrations & seeders)
+  - `db` (database schemas, migrations & seeders)
 -
-  - game-assets (game object definitions (buildings, units, ...))
+  - `game-assets` (game object definitions (buildings, units, ...))
 -
-  - mocks (mocks used in tests)
+  - `mocks` (mocks used in tests)
 -
-  - utils (shared helper functions)
+  - `utils` (shared helper functions)
+
+> [!NOTE]
+> If you've cloned and installed the project before we migrated to a monorepo setup, make sure to delete root-level `public`, `.react-router` & `build` directories, since they are no longer in use.
 
 ### 2.1 Postinstall
 
