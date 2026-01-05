@@ -4,11 +4,12 @@ import { areEqual, type GridChildComponentProps } from 'react-window';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import type { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
-import { getReputationLevel } from 'app/(game)/(village-slug)/utils/reputation';
+import type { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { Icon } from 'app/components/icon';
 import type { TroopMovementType } from 'app/components/icons/icons';
 import type { MapFilters } from 'app/interfaces/models/game/map-filters';
 import type { Preferences } from 'app/interfaces/models/game/preferences';
+import type { ReputationLevel } from 'app/interfaces/models/game/reputation';
 import { decodeGraphicsProperty } from 'app/utils/map';
 import cellStyles from './cell.module.scss';
 
@@ -21,6 +22,7 @@ type CellBaseProps = {
   magnification: number;
   preferences: Preferences;
   onClick: (tileId: number) => void;
+  getReputation: ReturnType<typeof useReputations>['getReputation'];
 };
 
 type TroopMovementsProps = {
@@ -68,7 +70,7 @@ const CellIcons = (props: CellIconsProps) => {
   if (
     tile.type === 'free' &&
     shouldShowWheatFields &&
-    wheatFields.has(tile.resourceFieldComposition)
+    wheatFields.has(tile.attributes.resourceFieldComposition)
   ) {
     return (
       <BorderIndicator
@@ -86,26 +88,26 @@ const CellIcons = (props: CellIconsProps) => {
   if (
     shouldShowOasisIcons &&
     tile.type === 'oasis' &&
-    tile.oasisResource !== null
+    tile.attributes.oasisResource !== null
   ) {
     return (
       <BorderIndicator
         className={classes}
-        variant={tile.isOccupied ? 'red' : 'green'}
+        variant={tile.owner !== null ? 'red' : 'green'}
       >
         <Icon
-          type={tile.oasisResource}
+          type={tile.attributes.oasisResource}
           shouldShowTooltip={false}
         />
       </BorderIndicator>
     );
   }
 
-  if (shouldShowTreasureIcons && tile.type === 'free' && tile.itemId !== null) {
+  if (shouldShowTreasureIcons && tile.type === 'free' && tile.item !== null) {
     return (
       <TreasureIcon
         className={classes}
-        itemId={tile.itemId}
+        itemId={tile.item.id}
       />
     );
   }
@@ -115,21 +117,28 @@ const CellIcons = (props: CellIconsProps) => {
 
 const getTileClassNames = (
   tile: NonNullable<Tile>,
+  getReputation: CellBaseProps['getReputation'],
   magnification: number,
   shouldShowFactionReputation: boolean,
 ): string => {
   let classes = '';
 
-  if (tile.type === 'free' && !tile.isOccupied) {
-    const { resourceFieldComposition } = tile;
+  if (tile.type === 'free' && tile.owner === null) {
+    const { resourceFieldComposition } = tile.attributes;
     classes = clsx(
       cellStyles.tile,
       cellStyles[`unoccupied-tile-${resourceFieldComposition}`],
     );
-  } else if (tile.type === 'free' && tile.isOccupied) {
-    const { reputation } = tile;
+  } else if (tile.type === 'free' && tile.owner !== null) {
+    const { faction } = tile.owner!;
 
-    const reputationLevel = getReputationLevel(reputation);
+    let reputationLevel: ReputationLevel;
+
+    if (faction === 'player') {
+      reputationLevel = 'player';
+    } else {
+      reputationLevel = getReputation(faction).reputationLevel;
+    }
 
     classes = clsx(
       cellStyles.tile,
@@ -140,7 +149,7 @@ const getTileClassNames = (
     );
   } else if (tile.type === 'oasis') {
     const { oasisResource, oasisGroup, oasisGroupPositions, variant } =
-      decodeGraphicsProperty(tile.oasisGraphics);
+      decodeGraphicsProperty(tile.attributes.oasisGraphics);
     classes = clsx(
       cellStyles.tile,
       cellStyles[
@@ -156,7 +165,8 @@ type CellProps = GridChildComponentProps<CellBaseProps>;
 
 export const Cell = memo<CellProps>(
   ({ data, style, rowIndex, columnIndex }) => {
-    const { map, gridSize, mapFilters, magnification, onClick } = data;
+    const { map, gridSize, mapFilters, magnification, onClick, getReputation } =
+      data;
 
     const tileIndex = gridSize * rowIndex + columnIndex;
     const tileId = tileIndex + 1;
@@ -180,6 +190,7 @@ export const Cell = memo<CellProps>(
         {...(!isBorderTile && {
           className: getTileClassNames(
             tile,
+            getReputation,
             magnification,
             mapFilters.shouldShowFactionReputation,
           ),

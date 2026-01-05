@@ -12,7 +12,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
-import { TileOverlay } from 'app/(game)/(village-slug)/(map)/components/overlays/tile-overlay';
+import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
   MapContext,
@@ -22,11 +22,14 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { Tooltip } from 'app/components/tooltip';
 import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useWindowSize } from 'app/hooks/use-window-size';
 import type { Point } from 'app/interfaces/models/common';
+import type { Tile } from 'app/interfaces/models/game/tile';
+import { TileTooltip } from './components/tile-tooltip';
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
@@ -38,7 +41,7 @@ const MapPageContents = () => {
     openModal,
     toggleModal,
     modalArgs,
-  } = useDialog<number>();
+  } = useDialog<Tile>();
   const { map } = useMap();
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -47,6 +50,7 @@ const MapPageContents = () => {
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
   const { preferences } = usePreferences();
+  const { getReputation } = useReputations();
 
   const { x, y } = currentVillage.coordinates;
 
@@ -92,11 +96,22 @@ const MapPageContents = () => {
       mapFilters,
       magnification,
       preferences,
+      getReputation,
       onClick: (tileId: number) => {
-        openModal(tileId);
+        const tile = map[tileId - 1]!;
+
+        openModal(tile);
       },
     };
-  }, [map, mapFilters, gridSize, magnification, openModal, preferences]);
+  }, [
+    map,
+    mapFilters,
+    gridSize,
+    magnification,
+    openModal,
+    preferences,
+    getReputation,
+  ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {
@@ -226,14 +241,19 @@ const MapPageContents = () => {
 
       const tileId = Number.parseInt(tileIdAttr, 10);
 
+      if (!tileId) {
+        return null;
+      }
+
+      const tile = map[tileId - 1]!;
+
       return (
         <Suspense fallback={null}>
-          <TileOverlay tileId={tileId}>/</TileOverlay>
-          {/*<TileTooltip tileId={tileId} />*/}
+          <TileTooltip tile={tile} />
         </Suspense>
       );
     },
-    [],
+    [map],
   );
 
   return (
@@ -243,7 +263,7 @@ const MapPageContents = () => {
         onOpenChange={toggleModal}
       >
         <Suspense fallback={null}>
-          <TileOverlay tileId={modalArgs.current!} />
+          <TileDialog tile={modalArgs.current!} />
         </Suspense>
       </Dialog>
       <Tooltip

@@ -1,12 +1,13 @@
-import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
+import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
   isOasisTile,
@@ -20,7 +21,6 @@ import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
-  type Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -28,7 +28,6 @@ import {
 } from 'app/components/ui/dialog';
 import { PLAYER_ID } from 'app/constants/player';
 import type {
-  OasisResourceBonus,
   OasisTile,
   OccupiableTile,
   OccupiedOccupiableTile,
@@ -45,7 +44,10 @@ type TileModalResourcesProps = {
 };
 
 const TileModalResources = ({ tile }: TileModalResourcesProps) => {
-  const resources = parseResourcesFromRFC(tile.resourceFieldComposition);
+  const resources = parseResourcesFromRFC(
+    tile.attributes.resourceFieldComposition,
+  );
+
   return (
     <div className="flex justify-start text-sm">
       <Resources
@@ -81,10 +83,10 @@ const TileModalLocation = ({ tile }: TileModalProps) => {
 
 const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
-  const { player, reputation, population } = useTilePlayer(tile.id);
+  const { getReputation } = useReputations();
 
-  const { name, tribe } = player;
-  const { faction, reputationLevel } = reputation;
+  const { tribe, name, faction } = tile.owner!;
+  const { population } = tile.ownerVillage!;
 
   return (
     <div className="flex flex-col gap-2">
@@ -98,7 +100,9 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
           </span>
           <span>
             {t('Reputation')} -{' '}
-            {t(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t(
+              `REPUTATIONS.${getReputation(faction).reputationLevel.toUpperCase()}`,
+            )}
           </span>
         </>
       )}
@@ -118,7 +122,7 @@ type OasisTileModalProps = {
 
 const OasisTileModal = ({ tile }: OasisTileModalProps) => {
   const { t } = useTranslation();
-  const { getVillageByOasis } = useVillages();
+  const { oasisBonuses } = useOasisBonuses(tile.id);
 
   const isOccupiable = isOccupiableOasisTile(tile);
   const isOccupied = isOccupiedOasisTile(tile);
@@ -129,9 +133,9 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
     return isOccupied ? t('Occupied oasis') : t('Unoccupied oasis');
   })();
 
-  const occupiedByVillage =
-    isOccupiable && isOccupied ? getVillageByOasis(tile) : null;
-  const ownedBy = occupiedByVillage?.playerId;
+  const { owner, ownerVillage } = tile;
+  const { id: playerId } = owner!;
+  const { name: villageName } = ownerVillage!;
 
   return (
     <DialogHeader>
@@ -139,7 +143,7 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
       <TileModalLocation tile={tile} />
       {isOccupiable && (
         <div className="flex justify-start gap-2 items-center">
-          {tile.ORB.map(({ resource, bonus }: OasisResourceBonus) => (
+          {oasisBonuses.map(({ resource, bonus }) => (
             <span
               key={resource}
               className="flex items-center gap-1"
@@ -159,14 +163,14 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
           <>
             {isOccupied && (
               <>
-                {ownedBy === PLAYER_ID &&
+                {playerId === PLAYER_ID &&
                   t(
                     'This oasis is occupied by you and is producing resources for village {{villageName}}.',
                     {
-                      villageName: occupiedByVillage!.name,
+                      villageName,
                     },
                   )}
-                {ownedBy !== PLAYER_ID &&
+                {playerId !== PLAYER_ID &&
                   t(
                     'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
                   )}
@@ -257,7 +261,6 @@ const OccupiedOccupiableTileModal = ({
 }: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { getVillageByCoordinates } = useVillages();
   const { currentVillage } = useCurrentVillage();
   const { getNewVillageUrl } = useGameNavigation();
   const { villageTroops, sendTroops } = useVillageTroops();
@@ -271,8 +274,11 @@ const OccupiedOccupiableTileModal = ({
     ({ unitId }) => unitId === 'HERO',
   );
 
-  const village = getVillageByCoordinates(tile.coordinates)!;
-  const isOwnedByPlayer = village.playerId === PLAYER_ID;
+  const { owner, ownerVillage } = tile;
+  const { id: playerId } = owner!;
+  const { name: villageName, slug: villageSlug } = ownerVillage!;
+
+  const isOwnedByPlayer = playerId === PLAYER_ID;
 
   const onSendHero = () => {
     sendTroops({
@@ -292,7 +298,7 @@ const OccupiedOccupiableTileModal = ({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{village.name}</DialogTitle>
+        <DialogTitle>{villageName}</DialogTitle>
         <TileModalLocation tile={tile} />
         <TileModalResources tile={tile} />
         <DialogDescription>
@@ -312,7 +318,7 @@ const OccupiedOccupiableTileModal = ({
             <Button
               size="fit"
               variant="link"
-              onClick={() => navigate(getNewVillageUrl(village.slug))}
+              onClick={() => navigate(getNewVillageUrl(villageSlug!))}
             >
               Enter village
             </Button>
@@ -332,11 +338,7 @@ const OccupiedOccupiableTileModal = ({
   );
 };
 
-type TileDialogProps = ComponentProps<typeof Dialog> & {
-  tile: Tile | null;
-};
-
-export const TileDialog = ({ tile }: TileDialogProps) => {
+export const TileDialog = ({ tile }: TileModalProps) => {
   if (!tile) {
     return null;
   }

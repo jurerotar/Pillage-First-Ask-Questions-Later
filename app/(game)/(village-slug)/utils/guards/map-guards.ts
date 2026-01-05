@@ -7,23 +7,23 @@ import type {
 } from 'app/interfaces/models/game/tile';
 
 export const isOasisTile = (tile: Tile): tile is OasisTile => {
-  return tile.type === 1;
+  return tile.type === 'oasis';
 };
 
 export const isOccupiableOasisTile = (tile: Tile): tile is OasisTile => {
-  return isOasisTile(tile) && tile.ORB.length > 0;
+  return isOasisTile(tile) && tile.attributes.oasisResource !== null;
 };
 
 export const isOccupiedOasisTile = (tile: Tile): tile is OccupiedOasisTile => {
-  return isOccupiableOasisTile(tile) && tile.villageId !== null;
+  return isOccupiableOasisTile(tile) && tile.owner !== null;
 };
 
 export const isOccupiableTile = (tile: Tile): tile is OccupiableTile => {
-  return tile.type === 0;
+  return tile.type === 'free';
 };
 
 export const isOccupiedOccupiableTile = (
   tile: Tile,
 ): tile is OccupiedOccupiableTile => {
-  return isOccupiableTile(tile) && Object.hasOwn(tile, 'ownedBy');
+  return isOccupiableTile(tile) && tile.owner !== null;
 };

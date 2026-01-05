@@ -20,7 +20,12 @@ import {
   getMapFilters,
   updateMapFilter,
 } from 'app/(game)/api/handlers/map-filters-handlers';
-import { getTile, getTiles } from 'app/(game)/api/handlers/map-handlers';
+import {
+  getTileOasisBonuses,
+  getTiles,
+  getTileTroops,
+  getTileWorldItem,
+} from 'app/(game)/api/handlers/map-handlers';
 import { getTilesWithBonuses } from 'app/(game)/api/handlers/oasis-bonus-finder-handlers';
 import {
   abandonOasis,
@@ -43,6 +48,7 @@ import {
   getCollectableQuestCount,
   getQuests,
 } from 'app/(game)/api/handlers/quest-handlers';
+import { getReputations } from 'app/(game)/api/handlers/reputation-handlers';
 import { getServer } from 'app/(game)/api/handlers/server-handlers';
 import {
   getGameWorldOverview,
@@ -137,8 +143,18 @@ const mapRoutes = [
   },
   {
     method: 'GET',
-    path: '/tiles/:tileId',
-    handler: getTile,
+    path: '/tiles/:tileId/troops',
+    handler: getTileTroops,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/bonuses',
+    handler: getTileOasisBonuses,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/world-item',
+    handler: getTileWorldItem,
   },
 ];
 
@@ -304,6 +320,14 @@ const statisticsRoutes = [
   },
 ];
 
+const reputationRoutes = [
+  {
+    method: 'GET',
+    path: '/players/:playerId/reputations',
+    handler: getReputations,
+  },
+];
+
 const apiRoutes = [
   ...serverRoutes,
   ...heroRoutes,
@@ -320,6 +344,7 @@ const apiRoutes = [
   ...bookmarkRoutes,
   ...statisticsRoutes,
   ...bonusFinderRoutes,
+  ...reputationRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

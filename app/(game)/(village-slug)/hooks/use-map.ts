@@ -2,31 +2,10 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { resourceSchema } from 'app/interfaces/models/game/resource';
-import { resourceFieldCompositionSchema } from 'app/interfaces/models/game/resource-field-composition';
-import { baseTileSchema } from 'app/interfaces/models/game/tile';
-import { tribeSchema } from 'app/interfaces/models/game/tribe';
+import { tileSchema } from 'app/interfaces/models/game/tile';
 
-const freeTileSchema = baseTileSchema.extend({
-  type: z.literal('free'),
-  resourceFieldComposition: resourceFieldCompositionSchema,
-  isOccupied: z.boolean(),
-  tribe: tribeSchema.nullable(),
-  population: z.number().nullable(),
-  reputation: z.number().nullable(),
-  itemId: z.number().nullable(),
-});
-
-const oasisTileSchema = baseTileSchema.extend({
-  type: z.literal('oasis'),
-  oasisGraphics: z.number(),
-  oasisResource: resourceSchema.nullable(),
-  isOccupied: z.boolean(),
-});
-
-export const tilesSchema = z
-  .discriminatedUnion('type', [freeTileSchema, oasisTileSchema])
-  .nullable();
+// We don't save border tiles to db, so they come back as null;
+const mapSchema = tileSchema.nullable();
 
 export const useMap = () => {
   const { fetcher } = use(ApiContext);
@@ -36,7 +15,7 @@ export const useMap = () => {
     queryFn: async () => {
       const { data } = await fetcher('/tiles');
 
-      return z.array(tilesSchema).parse(data);
+      return z.array(mapSchema).parse(data);
     },
   });
 

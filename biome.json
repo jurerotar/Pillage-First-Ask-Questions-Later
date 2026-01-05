@@ -43,6 +43,7 @@
     "rules": {
       "recommended": true,
       "suspicious": {
+        "noDocumentCookie": "off",
         "noUnknownAtRules": "off",
         "noConsole": {
           "level": "error",

@@ -8,7 +8,6 @@ import type { HeroItem } from 'app/interfaces/models/game/hero-item';
 import type { VillageSize } from 'app/interfaces/models/game/village';
 import type { WorldItem } from 'app/interfaces/models/game/world-item';
 import {
-  partition,
   seededRandomArrayElement,
   seededRandomArrayElements,
 } from 'app/utils/common';
@@ -26,35 +25,59 @@ type RowWithSize = Row & {
 export const worldItemsSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
-  const results: [HeroItem['id'], number, number, HeroItem['category']][] = [];
+  const results: [HeroItem['id'], number, number][] = [];
 
-  const [miscellaneousHeroItems, wearableAndArtifactItems] = partition(
-    items,
-    ({ category }) => ['consumable', 'resource', 'currency'].includes(category),
-  );
-  const epicHeroItems = wearableAndArtifactItems.filter(
-    ({ rarity }) => rarity === 'epic',
-  );
-  const rareHeroItems = wearableAndArtifactItems.filter(
-    ({ rarity }) => rarity === 'rare',
-  );
-  const uncommonHeroItems = wearableAndArtifactItems.filter(
-    ({ rarity }) => rarity === 'uncommon',
-  );
-  const commonHeroItems = wearableAndArtifactItems.filter(
-    ({ rarity }) => rarity === 'common',
-  );
+  const miscellaneousCategories = new Set([
+    'consumable',
+    'resource',
+    'currency',
+  ]);
+
+  const miscellaneousHeroItems: HeroItem[] = [];
+  const epicHeroItems: HeroItem[] = [];
+  const rareHeroItems: HeroItem[] = [];
+  const uncommonHeroItems: HeroItem[] = [];
+  const commonHeroItems: HeroItem[] = [];
+
+  for (const item of items) {
+    if (miscellaneousCategories.has(item.category)) {
+      miscellaneousHeroItems.push(item);
+      continue;
+    }
+
+    switch (item.rarity) {
+      case 'epic': {
+        epicHeroItems.push(item);
+        break;
+      }
+      case 'rare': {
+        rareHeroItems.push(item);
+        break;
+      }
+      case 'uncommon': {
+        uncommonHeroItems.push(item);
+        break;
+      }
+      case 'common': {
+        commonHeroItems.push(item);
+        break;
+      }
+    }
+  }
 
   const rows = database.selectObjects(
     `
-    SELECT tiles.id AS tile_id,
-           tiles.x,
-           tiles.y
-    FROM villages
-           JOIN players ON villages.player_id = players.id
-           JOIN tiles ON villages.tile_id = tiles.id
-    WHERE players.id != $player_id;
-  `,
+      SELECT
+        tiles.id AS tile_id,
+        tiles.x,
+        tiles.y
+      FROM
+        villages
+          JOIN players ON villages.player_id = players.id
+          JOIN tiles ON villages.tile_id = tiles.id
+      WHERE
+        players.id != $player_id;
+    `,
     {
       $player_id: PLAYER_ID,
     },
@@ -79,11 +102,9 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
 
   const epicHeroItemWorldItems: WorldItem[] = epicHeroItemTiles.map(
     (tile, index) => {
-      const { id, category, name } = epicHeroItems[index];
+      const { id } = epicHeroItems[index];
       return {
         id,
-        name,
-        type: category,
         amount: 1,
         tileId: tile.tile_id,
       };
@@ -101,11 +122,9 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map(
     (tile, index) => {
-      const { id, category, name } = rareHeroItems[index];
+      const { id } = rareHeroItems[index];
       return {
         id,
-        name,
-        type: category,
         tileId: tile.tile_id,
         amount: 1,
       };
@@ -123,11 +142,9 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const uncommonHeroWorldItems: WorldItem[] = uncommonHeroItemTiles.map(
     (tile, index) => {
-      const { id, category, name } = uncommonHeroItems[index];
+      const { id } = uncommonHeroItems[index];
       return {
         id,
-        name,
-        type: category,
         tileId: tile.tile_id,
         amount: 1,
       };
@@ -145,11 +162,9 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map(
     (tile, index) => {
-      const { id, category, name } = commonHeroItems[index];
+      const { id } = commonHeroItems[index];
       return {
         id,
-        name,
-        type: category,
         tileId: tile.tile_id,
         amount: 1,
       };
@@ -177,39 +192,12 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   );
   const consumableHeroWorldItems: WorldItem[] = consumableHeroItemTiles.map(
     (tile) => {
-      const { id, category, name } = seededRandomArrayElement(
-        prng,
-        miscellaneousHeroItems,
-      );
-
-      // TODO: All of these amounts should increase the further we get from the center
-
-      if (category === 'resource') {
-        // TODO: We're adding only a single resource world item, make sure all 4 resources are added to hero's inventory after battle!
-        return {
-          id,
-          name,
-          type: 'resource',
-          tileId: tile.tile_id,
-          amount: 1,
-        };
-      }
-
-      if (category === 'currency') {
-        return {
-          id,
-          name,
-          type: 'currency',
-          tileId: tile.tile_id,
-          amount: 1,
-        };
-      }
+      const { id } = seededRandomArrayElement(prng, miscellaneousHeroItems);
 
       return {
         id,
-        name,
-        type: 'consumable',
         tileId: tile.tile_id,
+        // TODO: All of these amounts should increase the further we get from the center
         amount: 1,
       };
     },
@@ -224,13 +212,13 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
   ];
 
   for (const wi of allWorldItems) {
-    results.push([wi.id, wi.amount, wi.tileId, wi.type]);
+    results.push([wi.id, wi.amount, wi.tileId]);
   }
 
   batchInsert(
     database,
     'world_items',
-    ['item_id', 'amount', 'tile_id', 'type'],
+    ['item_id', 'amount', 'tile_id'],
     results,
   );
 };

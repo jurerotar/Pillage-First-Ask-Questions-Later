@@ -887,11 +887,13 @@
   },
   "REPUTATIONS": {
     "ECSTATIC": "Ecstatic",
+    "HONORED": "Honored",
     "RESPECTED": "Respected",
     "FRIENDLY": "Friendly",
     "NEUTRAL": "Neutral",
     "UNFRIENDLY": "Unfriendly",
-    "HOSTILE": "Hostile"
+    "HOSTILE": "Hostile",
+    "HATED": "Hated"
   },
   "FACTIONS": {
     "PLAYER": "/",
