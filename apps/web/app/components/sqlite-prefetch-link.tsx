@@ -1,9 +1,9 @@
 import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 
-export const SqlitePreloadLink = () => {
+export const SqlitePrefetchLink = () => {
   return (
     <link
-      rel="preload"
+      rel="prefetch"
       crossOrigin="anonymous"
       as="fetch"
       type="application/wasm"

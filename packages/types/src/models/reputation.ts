@@ -15,9 +15,9 @@ export const reputationLevelSchema = z.enum([
 
 export type ReputationLevel = z.infer<typeof reputationLevelSchema>;
 
-const reputationSchema = z.strictObject({
+export const reputationSchema = z.strictObject({
   faction: factionSchema,
-  reputation: z.number().positive(),
+  reputation: z.number().positive().or(z.literal(0)),
   reputationLevel: reputationLevelSchema,
 });
 

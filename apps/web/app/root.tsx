@@ -4,6 +4,7 @@ import { StateProvider } from 'app/providers/state-provider';
 import './localization/i18n';
 import './styles/app.css';
 import type { Route } from '@react-router/types/app/+types/root';
+import { SqlitePrefetchLink } from 'app/components/sqlite-prefetch-link';
 import { env } from 'app/env';
 import { clientSessionMiddleware } from 'app/middleware/client-session-middleware';
 
@@ -69,6 +70,7 @@ export const Layout = () => {
           property="og:type"
           content="website"
         />
+        <SqlitePrefetchLink />
         <Links />
       </head>
       <body>

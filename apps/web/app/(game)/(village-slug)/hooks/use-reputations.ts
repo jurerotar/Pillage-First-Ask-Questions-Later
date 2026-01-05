@@ -1,7 +1,11 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { use } from 'react';
+import { use, useCallback, useMemo } from 'react';
+import { z } from 'zod';
 import type { Faction } from '@pillage-first/types/models/faction';
-import type { Reputation } from '@pillage-first/types/models/reputation';
+import {
+  type Reputation,
+  reputationSchema,
+} from '@pillage-first/types/models/reputation';
 import { reputationsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
@@ -11,32 +15,30 @@ export const useReputations = () => {
   const { data: reputations } = useSuspenseQuery({
     queryKey: [reputationsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Reputation[]>('/me/reputations');
-      return data;
+      const { data } = await fetcher('/me/reputations');
+
+      return z.array(reputationSchema).parse(data);
     },
   });
 
-  const getReputationsMap = () =>
-    new Map(reputations.map((reputation) => [reputation.faction, reputation]));
+  const reputationsMap = useMemo(() => {
+    return new Map<Faction, Reputation>(
+      reputations.map((reputation) => {
+        return [reputation.faction, reputation];
+      }),
+    );
+  }, [reputations]);
 
-  const { data: reputationsMap } = useSuspenseQuery<Map<Faction, Reputation>>({
-    queryKey: [reputations],
-    queryFn: getReputationsMap,
-    initialData: getReputationsMap,
-    initialDataUpdatedAt: Date.now(),
-    gcTime: 10_000,
-    queryKeyHashFn: () => {
-      const reputationsHash = reputations
-        .map(
-          (reputation) => `${reputation.faction}-${reputation.reputationLevel}`,
-        )
-        .join('|');
-      return `reputation-hash-[${reputationsHash}]`;
+  const getReputation = useCallback(
+    (faction: Faction): Reputation => {
+      return reputationsMap.get(faction)!;
     },
-  });
+    [reputationsMap],
+  );
 
   return {
     reputations,
     reputationsMap,
+    getReputation,
   };
 };

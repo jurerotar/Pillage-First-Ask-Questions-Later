@@ -1,31 +1,39 @@
+import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
 import type {
-  OasisResourceBonus,
   OasisTile,
+  OccupiableTile,
   OccupiedOccupiableTile,
+  Tile,
 } from '@pillage-first/types/models/tile';
-import type { WorldItem } from '@pillage-first/types/models/world-item';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
 } from '@pillage-first/utils/math';
+import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
+import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
+import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-world-item';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import {
+  isOasisTile,
   isOccupiableOasisTile,
   isOccupiedOasisTile,
+  isOccupiedOccupiableTile,
 } from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileTooltipProps = {
-  tileId: number;
+  tile: Tile;
 };
 
-const TileTooltipLocation = () => {
+const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const distance = roundToNDecimalPoints(
@@ -44,11 +52,12 @@ const TileTooltipLocation = () => {
   );
 };
 
-const TileTooltipPlayerInfo = () => {
+const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
   const { t } = useTranslation();
+  const { getReputation } = useReputations();
 
-  const { name, tribe } = player;
-  const { faction, reputationLevel } = reputation;
+  const { tribe, name, faction } = tile.owner!;
+  const { population } = tile.ownerVillage!;
 
   return (
     <>
@@ -62,7 +71,9 @@ const TileTooltipPlayerInfo = () => {
           </span>
           <span>
             {t('Reputation')} -{' '}
-            {t(`REPUTATIONS.${reputationLevel.toUpperCase()}`)}
+            {t(
+              `REPUTATIONS.${getReputation(faction).reputationLevel.toUpperCase()}`,
+            )}
           </span>
         </>
       )}
@@ -77,13 +88,15 @@ const TileTooltipPlayerInfo = () => {
 };
 
 type TileTooltipWorldItemProps = {
-  item: WorldItem;
+  item: NonNullable<ReturnType<typeof useTileWorldItem>['worldItem']>;
 };
 
 const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
   const { t } = useTranslation();
 
-  if (item.type === 'resource') {
+  const { category, name } = getItemDefinition(item.id);
+
+  if (category === 'resource') {
     return (
       <span>
         {formatNumber(item.amount)}x {t('resources')}
@@ -93,17 +106,21 @@ const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
 
   return (
     <span>
-      {formatNumber(item.amount)}x {t(`ITEMS.${item.name}.NAME`)}
+      {formatNumber(item.amount)}x {t(`ITEMS.${name}.NAME`)}
     </span>
   );
 };
 
-const TileTooltipAnimals = () => {
-  const { troops } = useTileTroops(tile.id);
+type TileTooltipAnimalsProps = {
+  tile: OasisTile;
+};
+
+const TileTooltipAnimals = ({ tile }: TileTooltipAnimalsProps) => {
+  const { tileTroops } = useTileTroops(tile.id);
 
   return (
     <>
-      {troops.map(({ unitId, amount }) => (
+      {tileTroops.map(({ unitId, amount }) => (
         <span
           key={unitId}
           className="flex gap-1"
@@ -116,8 +133,15 @@ const TileTooltipAnimals = () => {
   );
 };
 
-const TileTooltipResources = () => {
-  const resources = parseResourcesFromRFC(tile.resourceFieldComposition);
+type TileTooltipResourcesProps = {
+  tile: OccupiableTile;
+};
+
+const TileTooltipResources = ({ tile }: TileTooltipResourcesProps) => {
+  const resources = parseResourcesFromRFC(
+    tile.attributes.resourceFieldComposition,
+  );
+
   return (
     <Resources
       iconClassName="size-4"
@@ -130,8 +154,9 @@ type OasisTileTooltipProps = {
   tile: OasisTile;
 };
 
-const _OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
+const OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
   const { t } = useTranslation();
+  const { oasisBonuses } = useOasisBonuses(tile.id);
 
   const isOccupiable = isOccupiableOasisTile(tile);
   const isOccupied = isOccupiedOasisTile(tile);
@@ -145,8 +170,8 @@ const _OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
   return (
     <>
       <span className="font-semibold">{title}</span>
-      <TileTooltipLocation />
-      {tile.ORB.map(({ resource, bonus }: OasisResourceBonus) => (
+      <TileTooltipLocation tile={tile} />
+      {oasisBonuses.map(({ resource, bonus }) => (
         <span
           key={resource}
           className="flex gap-1"
@@ -158,20 +183,24 @@ const _OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
           {bonus}
         </span>
       ))}
-      {isOccupied && <TileTooltipPlayerInfo />}
-      {!isOccupied && <TileTooltipAnimals />}
+      {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
+      {!isOccupied && <TileTooltipAnimals tile={tile} />}
     </>
   );
 };
 
-const _OccupiableTileTooltip = () => {
+type OccupiableTileTooltipProps = {
+  tile: OccupiableTile;
+};
+
+const OccupiableTileTooltip = ({ tile }: OccupiableTileTooltipProps) => {
   const { t } = useTranslation();
 
   return (
     <>
       <span className="font-semibold">{t('Abandoned valley')}</span>
-      <TileTooltipLocation />
-      <TileTooltipResources />
+      <TileTooltipLocation tile={tile} />
+      <TileTooltipResources tile={tile} />
     </>
   );
 };
@@ -180,18 +209,18 @@ type OccupiedOccupiableTileTooltipProps = {
   tile: OccupiedOccupiableTile;
 };
 
-const _OccupiedOccupiableTileTooltip = ({
+const OccupiedOccupiableTileTooltip = ({
   tile,
 }: OccupiedOccupiableTileTooltipProps) => {
+  const { name } = tile.ownerVillage;
   const { worldItem } = useTileWorldItem(tile.id);
-  const title = village.name;
 
   return (
     <>
-      <span className="font-semibold">{title}</span>
-      <TileTooltipLocation />
-      <TileTooltipResources />
-      <TileTooltipPlayerInfo />
+      <span className="font-semibold">{name}</span>
+      <TileTooltipLocation tile={tile} />
+      <TileTooltipResources tile={tile} />
+      <TileTooltipPlayerInfo tile={tile} />
       {!!worldItem && (
         <div className="flex flex-col gap-1 border-t border-border py-1">
           <TileTooltipWorldItem item={worldItem} />
@@ -205,7 +234,7 @@ type TileTooltipSkeletonProps = {
   count: number;
 };
 
-const _TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
+const TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
   return (
     <div className="flex flex-col gap-1">
       <Skeleton
@@ -223,4 +252,30 @@ const _TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
   );
 };
 
-export const TileTooltip = (_props: TileTooltipProps) => {};
+export const TileTooltip = ({ tile }: TileTooltipProps) => {
+  if (isOasisTile(tile)) {
+    return (
+      <div className="flex flex-col gap-1">
+        <Suspense fallback={<TileTooltipSkeleton count={3} />}>
+          <OasisTileTooltip tile={tile} />
+        </Suspense>
+      </div>
+    );
+  }
+
+  if (isOccupiedOccupiableTile(tile)) {
+    return (
+      <div className="flex flex-col gap-1">
+        <Suspense fallback={<TileTooltipSkeleton count={7} />}>
+          <OccupiedOccupiableTileTooltip tile={tile} />
+        </Suspense>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <OccupiableTileTooltip tile={tile as OccupiableTile} />
+    </div>
+  );
+};

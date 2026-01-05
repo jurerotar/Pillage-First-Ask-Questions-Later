@@ -183,7 +183,10 @@
         ]
       }
     },
-    "/tiles/:tileId": {
+    "/tiles": {
+      "get": {}
+    },
+    "/tiles/:tileId/troops": {
       "get": {
         "parameters": [
           {
@@ -197,8 +200,33 @@
         ]
       }
     },
-    "/tiles": {
-      "get": {}
+    "/tiles/:tileId/bonuses": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tileId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/tiles/:tileId/world-item": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tileId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
     },
     "/map-filters": {
       "get": {}
@@ -437,6 +465,20 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/me/reputations": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
             }
           }
         ]

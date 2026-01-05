@@ -1,7 +1,6 @@
 import type { ComponentProps } from 'react';
 import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
-import type { WorldItem } from '@pillage-first/types/models/world-item';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import { Icon } from 'app/components/icon';
 
@@ -10,7 +9,7 @@ type TreasureIconProps = Omit<ComponentProps<typeof Icon>, 'type'> & {
 };
 
 const itemTypeToIconTypeMap = new Map<
-  WorldItem['type'],
+  HeroItem['category'],
   ComponentProps<typeof Icon>['type']
 >([
   ['artifact', 'treasureTileArtifact'],

@@ -1,10 +1,8 @@
-import type { HeroItem } from './hero-item';
-import type { Tile } from './tile';
+import { z } from 'zod';
+import { heroItemSchema } from './hero-item';
 
-export type WorldItem = {
-  id: HeroItem['id'];
-  name: HeroItem['name'];
-  amount: number;
-  tileId: Tile['id'];
-  type: HeroItem['category'];
-};
+export const worldItemSchema = heroItemSchema.extend({
+  tileId: z.number(),
+});
+
+export type WorldItem = z.infer<typeof worldItemSchema>;

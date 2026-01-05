@@ -18,6 +18,9 @@
     "./map": {
       "default": "./src/map.ts"
     },
+    "./reputation": {
+      "default": "./src/reputation.ts"
+    },
     "./random": {
       "default": "./src/random.ts"
     },

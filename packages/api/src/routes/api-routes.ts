@@ -16,7 +16,12 @@ import {
   getHeroInventory,
   getHeroLoadout,
 } from '../controllers/hero-controllers';
-import { getTile, getTiles } from '../controllers/map-controllers';
+import {
+  getTileOasisBonuses,
+  getTiles,
+  getTileTroops,
+  getTileWorldItem,
+} from '../controllers/map-controllers';
 import {
   getMapFilters,
   updateMapFilter,
@@ -40,6 +45,7 @@ import {
   getCollectableQuestCount,
   getQuests,
 } from '../controllers/quest-controllers';
+import { getReputations } from '../controllers/reputation-controllers';
 import { getServer } from '../controllers/server-controllers';
 import {
   getGameWorldOverview,
@@ -134,8 +140,18 @@ const mapRoutes = [
   },
   {
     method: 'GET',
-    path: '/tiles/:tileId',
-    controller: getTile,
+    path: '/tiles/:tileId/troops',
+    controller: getTileTroops,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/bonuses',
+    controller: getTileOasisBonuses,
+  },
+  {
+    method: 'GET',
+    path: '/tiles/:tileId/world-item',
+    controller: getTileWorldItem,
   },
 ];
 
@@ -301,6 +317,14 @@ const statisticsRoutes = [
   },
 ];
 
+const reputationRoutes = [
+  {
+    method: 'GET',
+    path: '/players/:playerId/reputations',
+    controller: getReputations,
+  },
+];
+
 const apiRoutes = [
   ...serverRoutes,
   ...heroRoutes,
@@ -317,6 +341,7 @@ const apiRoutes = [
   ...bookmarkRoutes,
   ...statisticsRoutes,
   ...bonusFinderRoutes,
+  ...reputationRoutes,
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

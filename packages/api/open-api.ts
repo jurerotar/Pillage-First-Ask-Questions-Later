@@ -141,6 +141,33 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly '/me/reputations': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly playerId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly '/oasis-bonus-finder': {
     readonly parameters: {
       readonly query?: never;
@@ -631,7 +658,61 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly '/tiles/:tileId': {
+  readonly '/tiles/:tileId/bonuses': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly tileId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly '/tiles/:tileId/troops': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly tileId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly '/tiles/:tileId/world-item': {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;

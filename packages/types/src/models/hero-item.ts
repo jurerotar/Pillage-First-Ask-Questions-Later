@@ -82,6 +82,6 @@ export type HeroItem = {
 };
 
 export const heroItemSchema = z.strictObject({
-  itemId: z.string(),
+  id: z.number(),
   amount: z.number().int().positive(),
 });
