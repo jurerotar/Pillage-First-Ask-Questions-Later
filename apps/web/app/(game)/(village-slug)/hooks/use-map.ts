@@ -13,6 +13,8 @@ export const useMap = () => {
   const { data: map } = useSuspenseQuery({
     queryKey: ['tiles'],
     queryFn: async () => {
+      // TODO: This query is *really* heavy.
+      // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
       const { data } = await fetcher('/tiles');
 
       return z.array(mapSchema).parse(data);

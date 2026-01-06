@@ -45,10 +45,15 @@ On install, a `postinstall` hook runs. `postinstall` currently does two things:
 
 - Creates a `schema.sql` file inside `node_modules/@pillage-first/dev`. This file contains all table schemas + indexes.
   This is useful because you can feed whole schema to an AI of your choice, and it helps it write good queries. You can
-  trigger the rebuild of `schema.sql` file by running `npm run create-dev-db`.
+  trigger the rebuild of `schema.sql` file by running `npm run extract-sql-schema`.
 
 - Takes the contents of `@pillage-first/graphics` package and copies it in to `web` app's `public` folder. This is
   required because images are served from `public` folder.
+
+### 2.2 Useful scripts
+
+`npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table definitions and indexes. Useful for giving context to AI when building queries.
+`npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL statement the app currently uses. Useful for debugging performance & checking indexing.
 
 ## 3. Technology Stack
 

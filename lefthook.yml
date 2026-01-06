@@ -11,7 +11,7 @@ pre-commit:
   commands:
     localize:
       stage_fixed: true
-      run: npx --workspace="@pillage-first/web" i18next-cli extract
+      run: npx turbo run localize
     biome:
       stage_fixed: true
       run: npx turbo run format

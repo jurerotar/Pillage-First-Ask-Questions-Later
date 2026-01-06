@@ -18,7 +18,6 @@ const getTilesSchema = z
     rfc: resourceFieldCompositionSchema.nullable(),
     oasis_graphics: z.number().nullable(),
     oasis_resource: resourceSchema.nullable(),
-    oasis_occupied: z.number().nullable(),
 
     player_id: z.number().nullable(),
     player_slug: z.string().nullable(),
@@ -94,49 +93,37 @@ export const getTiles: Controller<'/tiles'> = (database) => {
       WITH
         wheat_id AS (
           SELECT id AS wid
-          FROM effect_ids
-          WHERE effect = 'wheatProduction'
+          FROM
+            effect_ids
+          WHERE
+            effect = 'wheatProduction'
           LIMIT 1
           ),
 
-        -- since exactly one wheat effect per village, pick the row directly
         effects_wheat AS (
           SELECT e.village_id, -e.value AS wheat_production_sum
-          FROM effects e
-                 JOIN wheat_id w ON e.effect_id = w.wid
-          WHERE e.scope = 'village'
+          FROM
+            effects e
+              JOIN wheat_id w ON e.effect_id = w.wid
+          WHERE
+            e.scope = 'village'
             AND e.source_specifier = 0
           ),
 
-        -- one (deterministic) item per tile (if any)
+        -- pick a deterministic single item per tile (smallest item_id)
         world_items_single AS (
-          SELECT tile_id, MIN(item_id) AS item_id
-          FROM world_items
-          GROUP BY tile_id
-          ),
-
-        -- preferred non-wheat oasis per tile (seeded order = min(id))
-        oasis_nonwheat_min AS (
-          SELECT tile_id, MIN(id) AS min_nonwheat_id
-          FROM oasis
-          WHERE resource <> 'wheat'
-          GROUP BY tile_id
-          ),
-        oasis_pref AS (
-          SELECT o.tile_id, o.resource AS preferred_non_wheat
-          FROM oasis o
-                 JOIN oasis_nonwheat_min m ON m.tile_id = o.tile_id AND m.min_nonwheat_id = o.id
-          ),
-
-        -- aggregated oasis metrics (counts, occupied, only_resource fallback)
-        oasis_agg AS (
-          SELECT
-            o.tile_id,
-            COUNT(*) AS cnt,
-            SUM(CASE WHEN o.village_id IS NOT NULL THEN 1 ELSE 0 END) AS occupied_count,
-            MIN(o.resource) AS only_resource
-          FROM oasis o
-          GROUP BY o.tile_id
+          SELECT tile_id, item_id
+          FROM
+            (
+              SELECT
+                tile_id,
+                item_id,
+                ROW_NUMBER() OVER (PARTITION BY tile_id ORDER BY item_id) AS rn
+              FROM
+                world_items
+              ) sub_wi
+          WHERE
+            rn = 1
           )
 
       SELECT
@@ -153,31 +140,31 @@ export const getTiles: Controller<'/tiles'> = (database) => {
         p.slug AS player_slug,
         p.name AS player_name,
         p.tribe AS player_tribe,
-        (
-          SELECT f.faction
-          FROM factions f
-          WHERE f.id = p.faction_id
-          ) AS player_faction,
-        CASE WHEN t.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0) END AS population,
-        CASE WHEN t.type = 'free' THEN wi.item_id END AS item_id,
+        f.faction AS player_faction,
 
-        -- pick oasis resource: prefer precomputed non-wheat, else only_resource (when cnt=1) else NULL
         CASE
-          WHEN oa.cnt IS NULL OR oa.cnt = 0 THEN NULL
-          WHEN oa.cnt = 1 THEN oa.only_resource
-          ELSE COALESCE(op.preferred_non_wheat, oa.only_resource)
-          END AS oasis_resource,
-        (oa.occupied_count > 0) AS oasis_occupied
+          WHEN t.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
+          END AS population,
 
-      FROM tiles t
-             LEFT JOIN villages v ON v.tile_id = t.id
-             LEFT JOIN players p ON p.id = v.player_id
-             LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
-             LEFT JOIN effects_wheat ew ON ew.village_id = v.id
-             LEFT JOIN world_items_single wi ON wi.tile_id = t.id
-             LEFT JOIN oasis_agg oa ON oa.tile_id = t.id
-             LEFT JOIN oasis_pref op ON op.tile_id = t.id
-      ORDER BY t.id;
+        CASE
+          WHEN t.type = 'free' THEN wi.item_id
+          END AS item_id,
+
+        -- precomputed resource to show on oasis tiles (NULL when no oasis on tile)
+        otr.resource AS oasis_resource
+
+      FROM
+        tiles t
+          LEFT JOIN villages v ON v.tile_id = t.id
+          LEFT JOIN players p ON p.id = v.player_id
+          LEFT JOIN factions f ON f.id = p.faction_id
+          LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+          LEFT JOIN effects_wheat ew ON ew.village_id = v.id
+          LEFT JOIN world_items_single wi ON wi.tile_id = t.id
+          LEFT JOIN oasis_tile_resource otr ON otr.tile_id = t.id
+
+      ORDER BY
+        t.id;
     `,
   );
 
