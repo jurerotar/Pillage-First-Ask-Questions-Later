@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import ApiWorker from '@pillage-first/api?url';
+import ApiWorker from '@pillage-first/api?worker&url';
 import type { WorkerInitializationErrorEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
 import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
