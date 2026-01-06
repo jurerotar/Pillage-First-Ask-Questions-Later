@@ -1,0 +1,20 @@
+import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { Resolver } from '../../types/resolver';
+
+export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
+  database,
+  args,
+) => {
+  const { unitId } = args;
+
+  database.exec(
+    `
+      UPDATE unit_improvements
+      SET level = level + 1
+      WHERE unit_id = $unit_id;
+    `,
+    {
+      $unit_id: unitId,
+    },
+  );
+};

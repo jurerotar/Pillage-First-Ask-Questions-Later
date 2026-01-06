@@ -23,13 +23,16 @@ defaults:
   run:
     shell: bash
 
+env:
+  TURBO_CACHE_DIR: .turbo
+
 jobs:
   type-check:
     name: Type check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -37,14 +40,14 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run type check
-        run: npm run type-check
+        run: npx turbo run type-check
 
   lint:
     name: Lint check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -52,14 +55,14 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run lint check
-        run: npm run lint:check
+        run: npx turbo run lint:check
 
   format:
     name: Format check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -67,29 +70,29 @@ jobs:
         uses: ./.github/actions/node-setup
 
       - name: Run format check
-        run: npm run format:check
+        run: npx turbo run format:check
 
   localize:
     name: Localization check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup environment (node + install)
         uses: ./.github/actions/node-setup
 
-      - name: Run localization check
-        run: npm run localize:ci
+      - name: Run @pillage-first/web localization check
+        run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
 
   test:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -98,19 +101,4 @@ jobs:
 
       - name: Run tests
         id: run-tests
-        run: npm run test
-
-#  knip:
-#    name: Unused exports and dependencies check (knip)
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout repo
-#        uses: actions/checkout@v5
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Setup environment (node + install)
-#        uses: ./.github/actions/node-setup
-#
-#      - name: Run knip
-#        run: npm run knip:ci
+        run: npx turbo run test
