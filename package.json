@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
-  "name": "@pillage-first",
+  "name": "pillage-first",
   "version": "0.0.16",
   "private": true,
   "type": "module",
