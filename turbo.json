@@ -2,6 +2,10 @@
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["package.json", "tsconfig.json", ".editorconfig", "biome.json"],
   "tasks": {
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
     "build": {
       "outputs": ["build/**"]
     },
@@ -14,10 +18,7 @@
     "lint": {},
     "test": {},
     "type-check": {},
-    "dev": {
-      "persistent": true,
-      "cache": false
-    },
+    "localize": {},
     "open-api:generate": {
       "outputs": ["open-api.json", "open-api.ts"]
     }
