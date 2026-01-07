@@ -114,7 +114,7 @@ export const CreateNewGameWorldForm = () => {
 
   const onSubmit = (values: z.infer<typeof createServerFormSchema>) => {
     const id = crypto.randomUUID();
-    const slug = `s-${id.substring(0, 4)}`;
+    const slug = `s-${id.slice(0, 4)}`;
 
     const server = {
       id: window.crypto.randomUUID(),

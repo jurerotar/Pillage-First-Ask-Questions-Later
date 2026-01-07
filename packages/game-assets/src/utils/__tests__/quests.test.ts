@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { getQuestRequirements, getQuestRewards } from '../quests';
 
-describe('Quest utils', () => {
+describe('quest utils', () => {
   describe('getQuestRequirements', () => {
     test('troopCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('troopCount-5');

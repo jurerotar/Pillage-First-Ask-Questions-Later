@@ -53,8 +53,10 @@ export const effectSourceSchema = z.enum([
 ]);
 export const effectTypeSchema = z.enum(['base', 'bonus', 'bonus-booster']);
 
+export const effectIdSchema = z.string().pipe(z.custom<EffectId>());
+
 export const effectSchema = z.strictObject({
-  id: z.string() as z.ZodType<EffectId>,
+  id: effectIdSchema,
   value: z.number(),
   type: effectTypeSchema,
   scope: effectScopeSchema,

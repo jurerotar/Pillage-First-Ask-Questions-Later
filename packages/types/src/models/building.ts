@@ -101,4 +101,4 @@ export type Building = {
   maxLevel: number;
 };
 
-export const buildingIdSchema = z.string() as z.ZodType<BuildingId>;
+export const buildingIdSchema = z.string().pipe(z.custom<BuildingId>());

@@ -70,7 +70,7 @@ let content = await readFile(schemaOutput, 'utf8');
 
 const unwantedDefinitions = [
   'export type webhooks = Record<string, never>;',
-  'export interface components \\{[^}]*\\}',
+  String.raw`export interface components \{[^}]*\}`,
   'export type \\$defs = Record<string, never>;',
   'export type operations = Record<string, never>;',
 ];

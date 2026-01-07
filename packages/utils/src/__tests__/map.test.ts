@@ -60,7 +60,7 @@ describe('calculateGridLayout', () => {
     expect(result.totalSize).toBe(104);
     expect(result.halfSize).toBe(52);
     expect(result.borderWidth).toBe(4);
-    expect(result.totalTiles).toBe(11025);
+    expect(result.totalTiles).toBe(11_025);
     expect(result.mapBorderThreshold).toBe(2500);
   });
 

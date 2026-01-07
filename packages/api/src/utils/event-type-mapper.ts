@@ -10,7 +10,6 @@ import { internalSeedOasisOccupiableByTableResolver } from '../controllers/resol
 import { troopTrainingEventResolver } from '../controllers/resolvers/troop-resolvers';
 import { unitImprovementResolver } from '../controllers/resolvers/unit-improvement-resolvers';
 import { unitResearchResolver } from '../controllers/resolvers/unit-research-resolvers';
-// import { troopMovementResolver } from 'app/(game)/api/controllers/resolvers/troop-movement-resolvers';
 
 export const getGameEventResolver = (gameEventType: GameEventType) => {
   switch (gameEventType) {
@@ -41,9 +40,6 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     case '__internal__seedOasisOccupiableByTable': {
       return internalSeedOasisOccupiableByTableResolver;
     }
-    // case 'troopMovement': {
-    //   return troopMovementResolver;
-    // }
     default: {
       console.error('No resolver function set for event type', gameEventType);
 

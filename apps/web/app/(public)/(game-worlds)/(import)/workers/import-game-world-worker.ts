@@ -33,7 +33,7 @@ globalThis.addEventListener(
       });
 
       const id = crypto.randomUUID();
-      const slug = `s-${id.substring(0, 4)}`;
+      const slug = `s-${id.slice(0, 4)}`;
 
       const destDir = `/pillage-first-ask-questions-later/${slug}`;
       const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({

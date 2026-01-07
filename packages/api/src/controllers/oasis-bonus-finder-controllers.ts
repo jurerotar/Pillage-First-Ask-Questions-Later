@@ -148,7 +148,7 @@ export const getTilesWithBonuses: Controller<
       `;
     }
 
-    // two bonuses on the same oasis
+    // Two bonuses on the same oasis
     sqlBindings[`$r${idx}`] = slot.r1;
     sqlBindings[`$b${idx}`] = slot.b1;
     sqlBindings[`$r${idx}_2`] = slot.r1_2!;
@@ -173,22 +173,22 @@ export const getTilesWithBonuses: Controller<
   const whereClauses: string[] = [];
 
   if (slots.length === 1) {
-    // single-slot fast path
+    // Single-slot fast path
     const d = buildDerived(slots[0].idx, slots[0].slot);
     whereClauses.push(
       `EXISTS (SELECT 1 FROM ${d} AS s1 WHERE s1.oasis_tile IS NOT NULL)`,
     );
   } else if (slots.length > 1) {
-    // multi-slot: build derived subqueries and join with pairwise inequality in ON clauses
+    // Multi-slot: build derived subqueries and join with pairwise inequality in ON clauses
     const derived = slots.map(({ idx, slot }, i) => ({
       alias: `s${i + 1}`,
       sql: buildDerived(idx, slot),
     }));
-    // build FROM ... JOIN ... ON conditions with pairwise inequality
+    // Build FROM ... JOIN ... ON conditions with pairwise inequality
     let joinSql = `FROM ${derived[0].sql} AS ${derived[0].alias}\n`;
     for (let i = 1; i < derived.length; i += 1) {
       const right = derived[i].alias;
-      // pairwise inequality for the last alias against all previous ones
+      // Pairwise inequality for the last alias against all previous ones
       const onConditions: string[] = [];
       for (let j = 0; j < i; j += 1) {
         onConditions.push(

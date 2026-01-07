@@ -1,10 +1,10 @@
 import { describe, expect, type Mocked, test, vi } from 'vitest';
-import type { SchedulerDataSource } from '../scheduler';
 import {
   cancelScheduling,
   initScheduler,
   kickSchedulerNow,
   resetSchedulerForTesting,
+  type SchedulerDataSource,
   scheduleNextEvent,
 } from '../scheduler';
 import { triggerKick } from '../scheduler-signal';
@@ -88,7 +88,7 @@ describe('scheduler', () => {
     expect(mockDataSource.getPastEventIds).toHaveBeenCalledTimes(2);
   });
 
-  test('kickSchedulerNow clears existing timeout and rescans', async () => {
+  test('kickSchedulerNow clears existing timeout and rescans', () => {
     using context = setupSchedulerTest();
     const { mockDataSource } = context;
 
@@ -141,7 +141,7 @@ describe('scheduler', () => {
     vi.clearAllMocks();
     let callCount = 0;
     mockDataSource.getPastEventIds.mockImplementation(() => {
-      callCount++;
+      callCount += 1;
       if (callCount === 1) {
         // While processing first "batch", trigger a rescan
         triggerKick();
@@ -210,7 +210,7 @@ describe('scheduler', () => {
 
     expect(() => scheduleNextEvent(mockDataSource)).toThrow('Database error');
 
-    // Even if it throws, the finally block should have set schedulingInProgress = false
+    // Even if it throws, the finally block should have set schedulingInProgress = false,
     // and we can verify if it attempted to getNextEvent or if it just died.
     // In current implementation, getNextEvent is AFTER the loop inside the same try.
     // So if the loop throws, getNextEvent is skipped.

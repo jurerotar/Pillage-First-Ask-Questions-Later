@@ -1,28 +1,22 @@
 import { z } from 'zod';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
-  type Building,
-  buildingIdSchema,
-} from '@pillage-first/types/models/building';
-import {
-  type EffectId,
+  effectIdSchema,
   effectScopeSchema,
   effectSourceSchema,
   effectTypeSchema,
 } from '@pillage-first/types/models/effect';
 
-// This schema should only be used in /api, due to its signature being different from what FE expects
 export const apiEffectSchema = z
   .strictObject({
-    id: z.string() as z.ZodType<EffectId>,
+    id: effectIdSchema,
     value: z.number(),
     type: effectTypeSchema,
     scope: effectScopeSchema,
     source: effectSourceSchema,
     villageId: z.number().nullable(),
     source_specifier: z.number().nullable(),
-    buildingId: buildingIdSchema.optional().nullable() as z.ZodType<
-      Building['id']
-    >,
+    buildingId: buildingIdSchema.optional().nullable(),
   })
   .transform((t) => {
     return {
