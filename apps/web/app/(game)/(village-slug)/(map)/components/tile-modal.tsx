@@ -8,6 +8,13 @@ import type {
   Tile,
 } from '@pillage-first/types/models/tile';
 import { isFindNewVillageTroopMovementEvent } from '@pillage-first/utils/guards/event';
+import {
+  isOasisTile,
+  isOccupiableOasisTile,
+  isOccupiableTile,
+  isOccupiedOasisTile,
+  isOccupiedOccupiableTile,
+} from '@pillage-first/utils/guards/map';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import {
   calculateDistanceBetweenPoints,
@@ -22,13 +29,6 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import {
-  isOasisTile,
-  isOccupiableOasisTile,
-  isOccupiableTile,
-  isOccupiedOasisTile,
-  isOccupiedOccupiableTile,
-} from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';

@@ -8,6 +8,12 @@ import type {
   Tile,
 } from '@pillage-first/types/models/tile';
 import { formatNumber } from '@pillage-first/utils/format';
+import {
+  isOasisTile,
+  isOccupiableOasisTile,
+  isOccupiedOasisTile,
+  isOccupiedOccupiableTile,
+} from '@pillage-first/utils/guards/map';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import {
   calculateDistanceBetweenPoints,
@@ -19,12 +25,6 @@ import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/hooks/use-tile
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
-import {
-  isOasisTile,
-  isOccupiableOasisTile,
-  isOccupiedOasisTile,
-  isOccupiedOccupiableTile,
-} from 'app/(game)/(village-slug)/utils/guards/map-guards';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Skeleton } from 'app/components/ui/skeleton';

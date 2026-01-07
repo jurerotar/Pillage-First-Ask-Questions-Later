@@ -44,6 +44,9 @@
     },
     "./guards/quest": {
       "default": "./src/guards/quest-guards.ts"
+    },
+    "./guards/map": {
+      "default": "./src/guards/map-guards.ts"
     }
   },
   "scripts": {
