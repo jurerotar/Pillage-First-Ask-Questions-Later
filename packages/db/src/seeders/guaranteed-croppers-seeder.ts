@@ -64,10 +64,7 @@ export const guaranteedCroppersSeeder: Seeder = (database, server) => {
     eighteenCropperTileIds.size < 4 &&
     tileIdsEligibleForRFCChange.size > 0
   ) {
-    const id = seededRandomArrayElement(
-      prng,
-      Array.from(tileIdsEligibleForRFCChange),
-    );
+    const id = seededRandomArrayElement(prng, [...tileIdsEligibleForRFCChange]);
     eighteenCropperTileIds.add(id);
     tileIdsEligibleForRFCChange.delete(id);
   }
@@ -76,19 +73,13 @@ export const guaranteedCroppersSeeder: Seeder = (database, server) => {
     fifteenCropperTileIds.size < 12 &&
     tileIdsEligibleForRFCChange.size > 0
   ) {
-    const id = seededRandomArrayElement(
-      prng,
-      Array.from(tileIdsEligibleForRFCChange),
-    );
+    const id = seededRandomArrayElement(prng, [...tileIdsEligibleForRFCChange]);
     fifteenCropperTileIds.add(id);
     tileIdsEligibleForRFCChange.delete(id);
   }
 
   while (nineCropperTileIds.size < 20 && tileIdsEligibleForRFCChange.size > 0) {
-    const id = seededRandomArrayElement(
-      prng,
-      Array.from(tileIdsEligibleForRFCChange),
-    );
+    const id = seededRandomArrayElement(prng, [...tileIdsEligibleForRFCChange]);
     nineCropperTileIds.add(id);
     tileIdsEligibleForRFCChange.delete(id);
   }

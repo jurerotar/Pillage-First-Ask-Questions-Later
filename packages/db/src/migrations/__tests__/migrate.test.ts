@@ -39,7 +39,7 @@ database.exec(`
 migrateAndSeed(database, serverMock);
 
 describe('migrateAndSeed', () => {
-  describe('Tiles', () => {
+  describe('tiles', () => {
     test('should create correct amount of tiles', () => {
       const rowCount = database.selectValue(
         'SELECT COUNT(id) AS id FROM tiles;',
@@ -238,7 +238,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Players', () => {
+  describe('players', () => {
     test('slugs are unique and contain only lowercase alphanumeric and dashes', () => {
       const slugs = database.selectValues(
         'SELECT slug FROM players;',
@@ -283,7 +283,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Oasis', () => {
+  describe('oasis', () => {
     test('oasis rows only exist for tiles with type = "oasis"', () => {
       const countForNonOasis = database.selectValue(
         `SELECT COUNT(*) AS c
@@ -432,7 +432,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Map filters', () => {
+  describe('map filters', () => {
     test('map_filters row exists for player', () => {
       const countRow = database.selectObject(
         `SELECT COUNT(*) AS cnt
@@ -447,7 +447,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Preferences', () => {
+  describe('preferences', () => {
     test('preferences row exists for player', () => {
       const countRow = database.selectObject(
         `SELECT COUNT(*) AS cnt
@@ -462,14 +462,14 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Server', () => {
+  describe('server', () => {
     test('servers table contains exactly one server', () => {
       const c = database.selectValue('SELECT COUNT(*) FROM servers;') as number;
       expect(c).toBeGreaterThanOrEqual(1);
     });
   });
 
-  describe('Factions', () => {
+  describe('factions', () => {
     test('factions seeded (>0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM factions;',
@@ -486,7 +486,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Faction reputation', () => {
+  describe('faction reputation', () => {
     test('faction_reputation seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM faction_reputation;',
@@ -495,14 +495,14 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Heroes', () => {
+  describe('heroes', () => {
     test('heroes seeded (>0)', () => {
       const c = database.selectValue('SELECT COUNT(*) FROM heroes;') as number;
       expect(c).toBeGreaterThan(0);
     });
   });
 
-  describe('Hero adventures', () => {
+  describe('hero adventures', () => {
     test('hero_adventures seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM hero_adventures;',
@@ -511,7 +511,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Resource field compositions', () => {
+  describe('resource field compositions', () => {
     test('resource_field_compositions seeded (>0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM resource_field_compositions;',
@@ -531,7 +531,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Guaranteed croppers (oasis_occupiable_by)', () => {
+  describe('guaranteed croppers (oasis_occupiable_by)', () => {
     test('oasis_occupiable_by seeded (>0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM oasis_occupiable_by;',
@@ -556,7 +556,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Villages', () => {
+  describe('villages', () => {
     test('villages seeded (>0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM villages;',
@@ -565,7 +565,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Bookmarks', () => {
+  describe('bookmarks', () => {
     test('bookmarks seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM bookmarks;',
@@ -574,7 +574,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Building fields', () => {
+  describe('building fields', () => {
     test('building_fields seeded (>0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM building_fields;',
@@ -583,7 +583,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Troops', () => {
+  describe('troops', () => {
     test('unoccupied oasis tiles have troops', () => {
       const withoutTroops = database.selectValue(
         `SELECT COUNT(*)
@@ -613,30 +613,36 @@ describe('migrateAndSeed', () => {
     });
 
     test('unoccupied oasis tiles only have nature troops', () => {
+      const natureUnitIds = natureUnits.map(({ id }) => id);
+      const placeholders = natureUnitIds.map(() => '?').join(',');
+
       const invalid = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           troops tr
-             JOIN tiles t ON t.id = tr.tile_id
-         WHERE
-           t.type = 'oasis'
-           AND EXISTS
-           (
-             SELECT 1
-             FROM
-               oasis o
-             WHERE
-               o.tile_id = t.id
-               AND o.village_id IS NULL
-             )
-           AND tr.unit_id NOT IN (${natureUnits.map(({ id }) => `'${id}'`)});`,
+        `
+          SELECT COUNT(*)
+          FROM
+            troops tr
+              JOIN tiles t ON t.id = tr.tile_id
+          WHERE
+            t.type = 'oasis'
+            AND EXISTS
+            (
+              SELECT 1
+              FROM
+                oasis o
+              WHERE
+                o.tile_id = t.id
+                AND o.village_id IS NULL
+              )
+            AND tr.unit_id NOT IN (${placeholders});
+        `,
+        natureUnitIds,
       ) as number;
 
       expect(invalid).toBe(0);
     });
   });
 
-  describe('Effect IDs and Effects', () => {
+  describe('effect ids and effects', () => {
     test('effect_ids seeded (>0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM effect_ids;',
@@ -662,7 +668,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Resource sites', () => {
+  describe('resource sites', () => {
     test('resource_sites seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM resource_sites;',
@@ -671,7 +677,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('World items', () => {
+  describe('world items', () => {
     test('world_items seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM world_items;',
@@ -680,7 +686,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Unit research', () => {
+  describe('unit research', () => {
     test('unit_research seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM unit_research;',
@@ -689,7 +695,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Unit improvement', () => {
+  describe('unit improvement', () => {
     test('unit_improvements seeded (>=0)', () => {
       const c = database.selectValue(
         'SELECT COUNT(*) FROM unit_improvements;',
@@ -698,7 +704,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Quests', () => {
+  describe('quests', () => {
     test('quests seeded (>=0)', () => {
       const c = database.selectValue('SELECT COUNT(*) FROM quests;') as number;
       expect(c).toBeGreaterThanOrEqual(0);
@@ -832,7 +838,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Events', () => {
+  describe('events', () => {
     test('events seeded (>=0)', () => {
       const c = database.selectValue('SELECT COUNT(*) FROM events;') as number;
       expect(c).toBeGreaterThanOrEqual(0);

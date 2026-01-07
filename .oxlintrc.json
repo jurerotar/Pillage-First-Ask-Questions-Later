@@ -7,27 +7,28 @@
     "import",
     "vitest",
     "jest",
-    "react",
-    "react-perf",
-    "jsx-a11y",
     "oxc",
     "promise"
   ],
   "categories": {
-    "correctness": "off",
-    "pedantic": "off",
+    "correctness": "error",
+    "pedantic": "error",
     "perf": "error",
-    "style": "off",
-    "restriction": "off",
+    "style": "error",
+    "restriction": "error",
     "suspicious": "error"
   },
+  "ignorePatterns": [
+    ".turbo",
+    "node_modules"
+  ],
   "rules": {
     "eslint/*": "error",
     "eslint/no-await-in-loop": "warn",
     "eslint/id-length": "off",
     "eslint/max-statements": "off",
     "eslint/no-ternary": "off",
-    "eslint/no-console": "warn",
+    "eslint/no-console": "error",
     "eslint/prefer-string-slice": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
@@ -40,9 +41,10 @@
     "eslint/no-new": "off",
     "eslint/no-bitwise": "off",
     "eslint/no-labels": "off",
-    "eslint/capitalized-comments": "warn",
+    "eslint/capitalized-comments": "off",
     "eslint/no-undefined": "off",
-    // TODO: This rule must be re-enabled
+    "eslint/no-warning-comments": "off",
+    "eslint/no-inline-comments": "off",
     "eslint/sort-imports": "off",
     "eslint/no-implicit-coercion": [
       "error",
@@ -59,7 +61,6 @@
         "caughtErrors": false
       }
     ],
-    // typescript
     "typescript/*": "error",
     "typescript/no-unsafe-type-assertion": "warn",
     "typescript/promise-function-async": "warn",
@@ -67,20 +68,17 @@
     "typescript/explicit-module-boundary-types": "off",
     "typescript/no-non-null-assertion": "warn",
     "typescript/consistent-type-definitions": ["error", "type"],
-    // TODO: This should be enabled, except for arrow fns
     "typescript/no-confusing-void-expression": [
       "off",
       {
         "ignoreArrowShorthand": true
       }
     ],
-    // unicorn
     "unicorn/*": "error",
     "unicorn/no-null": "off",
     "unicorn/prefer-global-this": "off",
     "unicorn/no-await-expression-member": "off",
     "unicorn/require-post-message-target-origin": "off",
-    // import
     "import/*": "error",
     "import/default": "off",
     "import/prefer-default-export": "off",
@@ -89,18 +87,14 @@
     "import/unambiguous": "off",
     "import/exports-last": "off",
     "import/max-dependencies": "off",
-    // TODO: Investigate this one further, it seems like Biome is properly handling "type {} / { type }" imports, but linter should still flag it
     "import/consistent-type-specifier-style": "off",
     "import/no-unassigned-import": "off",
-    // vitest
     "vitest/*": "error",
-    // jest
     "jest/*": "error",
     "jest/valid-expect": "off",
     "jest/valid-title": "warn",
     "jest/require-hook": "off",
     "jest/max-expects": "off",
-    // TODO: This rule must be re-enabled
     "jest/prefer-lowercase-title": "warn",
     "jest/consistent-test-it": [
       "error",
@@ -108,31 +102,11 @@
         "fn": "test"
       }
     ],
-    // react
-    "react/*": "error",
-    "react/react-in-jsx-scope": "off",
-    "react/no-array-index-key": "warn",
-    "react/exhaustive-deps": "warn",
-    "react/jsx-filename-extension": "off",
-    "react/jsx-props-no-spreading": "off",
-    "react/only-export-components": "off",
-    // react-perf
-    "react-perf/*": "error",
-    "react-perf/jsx-no-new-function-as-prop": "off",
-    "react-perf/jsx-no-new-object-as-prop": "off",
-    "react-perf/jsx-no-jsx-as-prop": "off",
-    "react-perf/jsx-no-new-array-as-prop": "off",
-    // jsx-a11y
-    "jsx-a11y/*": "error",
-    // oxc
     "oxc/*": "error",
     "oxc/no-async-await": "off",
     "oxc/no-rest-spread-properties": "off",
     "oxc/no-optional-chaining": "off",
-    // I've run performance comparisons and this rule doesn't seem to make sense for our use-cases.
-    // Shallow-spreads are way more efficient compared to Object.assign with an intermediate object (which guarantees no side effects).
     "oxc/no-map-spread": "off",
-    // promise
     "promise/*": "error",
     "promise/avoid-new": "off",
     "promise/prefer-await-to-callbacks": "off"
@@ -150,12 +124,6 @@
       ],
       "rules": {
         "import/no-default-export": "off"
-      }
-    },
-    {
-      "files": ["scripts/*.ts", "app/game/api/database-facade.ts"],
-      "rules": {
-        "eslint/no-console": "off"
       }
     }
   ]

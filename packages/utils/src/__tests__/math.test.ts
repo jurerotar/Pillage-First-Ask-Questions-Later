@@ -17,19 +17,19 @@ describe('math utils', () => {
       const p1 = { x: -1, y: -1 };
       const p2 = { x: 2, y: 2 };
       // sqrt((2 - -1)^2 + (2 - -1)^2) = sqrt(3^2 + 3^2) = sqrt(18) ≈ 4.24264
-      expect(calculateDistanceBetweenPoints(p1, p2)).toBeCloseTo(4.24264);
+      expect(calculateDistanceBetweenPoints(p1, p2)).toBeCloseTo(4.24_264);
     });
   });
 
   describe('roundToNDecimalPoints', () => {
     test('should round to 2 decimal points by default', () => {
-      expect(roundToNDecimalPoints(1.23456)).toBe(1.23);
+      expect(roundToNDecimalPoints(1.23_456)).toBe(1.23);
       expect(roundToNDecimalPoints(1.235)).toBe(1.24);
     });
 
     test('should round to N decimal points', () => {
-      expect(roundToNDecimalPoints(1.23456, 3)).toBe(1.235);
-      expect(roundToNDecimalPoints(1.23456, 0)).toBe(1);
+      expect(roundToNDecimalPoints(1.23_456, 3)).toBe(1.235);
+      expect(roundToNDecimalPoints(1.23_456, 0)).toBe(1);
     });
   });
 

@@ -91,5 +91,6 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
 export type GameEvent<T extends GameEventType | undefined = undefined> =
   T extends undefined
     ? BaseGameEvent
-    : // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
-      BaseGameEvent & GameEventTypeToEventArgsMap<T>;
+    : BaseGameEvent &
+        // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
+        GameEventTypeToEventArgsMap<T>;

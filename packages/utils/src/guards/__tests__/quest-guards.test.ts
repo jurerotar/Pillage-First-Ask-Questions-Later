@@ -15,27 +15,27 @@ import {
 
 describe('quest guards', () => {
   test('should identify resource quest rewards', () => {
-    expect(isResourceQuestReward(resourceQuestRewardMock)).toBe(true);
-    expect(isResourceQuestReward(heroExperienceQuestRewardMock)).toBe(false);
+    expect(isResourceQuestReward(resourceQuestRewardMock)).toBeTruthy();
+    expect(isResourceQuestReward(heroExperienceQuestRewardMock)).toBeFalsy();
   });
 
   test('should identify hero experience quest rewards', () => {
     expect(isHeroExperienceQuestReward(heroExperienceQuestRewardMock)).toBe(
       true,
     );
-    expect(isHeroExperienceQuestReward(resourceQuestRewardMock)).toBe(false);
+    expect(isHeroExperienceQuestReward(resourceQuestRewardMock)).toBeFalsy();
   });
 
   test('should identify hero item quest rewards', () => {
-    expect(isHeroItemQuestReward(heroItemQuestRewardMock)).toBe(true);
-    expect(isHeroItemQuestReward(resourceQuestRewardMock)).toBe(false);
+    expect(isHeroItemQuestReward(heroItemQuestRewardMock)).toBeTruthy();
+    expect(isHeroItemQuestReward(resourceQuestRewardMock)).toBeFalsy();
   });
 
   test('should identify if quest was collected', () => {
     expect(wasQuestCollected({ ...questMock, collectedAt: Date.now() })).toBe(
       true,
     );
-    expect(wasQuestCollected({ ...questMock, collectedAt: null })).toBe(false);
+    expect(wasQuestCollected({ ...questMock, collectedAt: null })).toBeFalsy();
   });
 
   test('should identify if quest is collectable', () => {
@@ -55,8 +55,8 @@ describe('quest guards', () => {
       collectedAt: Date.now(),
     };
 
-    expect(isQuestCollectable(completedNotCollected)).toBe(true);
-    expect(isQuestCollectable(notCompletedNotCollected)).toBe(false);
-    expect(isQuestCollectable(completedAndCollected)).toBe(false);
+    expect(isQuestCollectable(completedNotCollected)).toBeTruthy();
+    expect(isQuestCollectable(notCompletedNotCollected)).toBeFalsy();
+    expect(isQuestCollectable(completedAndCollected)).toBeFalsy();
   });
 });

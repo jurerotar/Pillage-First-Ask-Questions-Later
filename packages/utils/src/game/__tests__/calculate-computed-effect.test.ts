@@ -524,7 +524,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         source: 'building',
         scope: 'village',
         villageId: 15,
-        sourceSpecifier: 12,
+        sourceSpecifier: null,
       };
 
       const effects = [woodProductionBaseEffectMock, otherVillageEffect];
@@ -545,7 +545,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         source: 'building',
         scope: 'village',
         villageId,
-        sourceSpecifier: 12,
+        sourceSpecifier: null,
       };
 
       const effects = [bonusEffect];
@@ -565,7 +565,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         type: 'base',
         source: 'building',
         scope: 'global',
-        sourceSpecifier: 12,
+        sourceSpecifier: null,
       };
 
       const effects = [woodProductionBaseEffectMock, globalEffect];
