@@ -7,7 +7,7 @@ export const internalSeedOasisOccupiableByTableResolver: Resolver<
   // Create entries for non-50% oasis only, since those were already seeded during server creation
   database.exec(`
     INSERT OR IGNORE INTO
-      oasis_occupiable_by (tile_id, oasis_id)
+      oasis_occupiable_by (occupiable_tile_id, occupiable_oasis_tile_id)
     SELECT t.id AS tile_id, ot.id AS oasis_id
     FROM
       (

@@ -27,7 +27,8 @@
     "prepare": "lefthook install",
     "postinstall": "node scripts/extract-sql-schema.ts && node scripts/postinstall.ts",
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
-    "extract-sql-usage": "node scripts/extract-sql-usage.ts"
+    "extract-sql-usage": "node scripts/extract-sql-usage.ts",
+    "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",

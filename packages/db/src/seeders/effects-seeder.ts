@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
@@ -13,9 +12,8 @@ import type {
   ServerEffect,
   TribalEffect,
 } from '@pillage-first/types/models/effect';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
+import type { Unit } from '@pillage-first/types/models/unit';
 import { isVillageEffect } from '@pillage-first/utils/guards/effect';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
@@ -172,6 +170,12 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
 };
 
 export const effectsSeeder: Seeder = (database, server): void => {
+  const effectIdRows = database.selectArrays(
+    'SELECT effect, id FROM effect_ids',
+  );
+
+  const effectIds = Object.fromEntries(effectIdRows);
+
   const initialPlayerVillageId = database.selectValue(
     `
       SELECT id
@@ -182,7 +186,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     },
   ) as number;
 
-  const effectsToInsert = [];
+  const effectsToInsert: (string | number | null)[][] = [];
 
   // Static effects
   const staticEffects: (HeroEffect | GlobalEffect | ServerEffect)[] = [
@@ -191,61 +195,64 @@ export const effectsSeeder: Seeder = (database, server): void => {
     ...heroEffectsFactory(server, initialPlayerVillageId),
   ];
 
-  effectsToInsert.push(
-    ...staticEffects.map((effect) => {
-      const villageId = isVillageEffect(effect) ? effect.villageId : null;
-      return [
-        effect.id,
-        effect.value,
-        effect.type,
-        effect.scope,
-        effect.source,
-        villageId,
-        null,
-      ];
-    }),
-  );
+  for (const effect of staticEffects) {
+    const villageId = isVillageEffect(effect) ? effect.villageId : null;
+    effectsToInsert.push([
+      effectIds[effect.id],
+      effect.value,
+      effect.type,
+      effect.scope,
+      effect.source,
+      villageId,
+      null,
+    ]);
+  }
 
   // Building effects
-  const buildingFieldsSchema = z.object({
-    village_id: z.number(),
-    field_id: z.number(),
-    building_id: z.string(),
-    level: z.number(),
-  });
-
-  const buildingFieldsListSchema = z.array(buildingFieldsSchema);
-
   const buildingFieldsRows = database.selectObjects(`
     SELECT village_id,
            field_id,
            building_id,
            level
     FROM building_fields
-  `);
+  `) as {
+    village_id: number;
+    field_id: number;
+    building_id: string;
+    level: number;
+  }[];
 
-  const buildingFields = buildingFieldsListSchema.parse(buildingFieldsRows);
+  const groupedBuildingFields = new Map<
+    number,
+    {
+      field_id: number;
+      building_id: string;
+      level: number;
+    }[]
+  >();
 
-  const groupedBuildingFields = Object.groupBy(
-    buildingFields,
-    ({ village_id }) => {
-      return village_id;
-    },
-  );
+  for (const row of buildingFieldsRows) {
+    let group = groupedBuildingFields.get(row.village_id);
+    if (!group) {
+      group = [];
+      groupedBuildingFields.set(row.village_id, group);
+    }
+    group.push(row);
+  }
 
-  for (const [villageId, villageBuildingFields] of Object.entries(
-    groupedBuildingFields,
-  )) {
+  const wheatProductionEffectId = effectIds.wheatProduction;
+
+  for (const [villageId, villageBuildingFields] of groupedBuildingFields) {
     let population = 0;
 
-    for (const { building_id, level, field_id } of villageBuildingFields!) {
+    for (const { building_id, level, field_id } of villageBuildingFields) {
       const buildingId = building_id as Building['id'];
 
       const building = getBuildingDefinition(buildingId);
 
       for (const { effectId, type, valuesPerLevel } of building.effects) {
         effectsToInsert.push([
-          effectId,
+          effectIds[effectId],
           valuesPerLevel[level],
           type,
           'village',
@@ -259,7 +266,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     }
 
     effectsToInsert.push([
-      'wheatProduction',
+      wheatProductionEffectId,
       -population,
       'base',
       'village',
@@ -270,36 +277,45 @@ export const effectsSeeder: Seeder = (database, server): void => {
   }
 
   // Troop effects
-  const troopsSchema = z.object({
-    unit_id: unitIdSchema,
-    amount: z.number(),
-    village_id: z.number(),
-  });
-
   const troopsRows = database.selectObjects(`
     SELECT tr.unit_id,
            tr.amount,
            v.id AS village_id
     FROM troops AS tr
            JOIN villages AS v ON tr.tile_id = v.tile_id;
-  `);
+  `) as {
+    unit_id: string;
+    amount: number;
+    village_id: number;
+  }[];
 
-  const troops = z.array(troopsSchema).parse(troopsRows);
+  const groupedTroops = new Map<
+    number,
+    {
+      unit_id: string;
+      amount: number;
+    }[]
+  >();
 
-  const groupedTroops = Object.groupBy(troops, ({ village_id }) => {
-    return village_id;
-  });
+  for (const row of troopsRows) {
+    let group = groupedTroops.get(row.village_id);
+    if (!group) {
+      group = [];
+      groupedTroops.set(row.village_id, group);
+    }
+    group.push(row);
+  }
 
-  for (const [villageId, villageTroops] of Object.entries(groupedTroops)) {
+  for (const [villageId, villageTroops] of groupedTroops) {
     let troopWheatConsumption = 0;
 
-    for (const { unit_id, amount } of villageTroops!) {
-      const { unitWheatConsumption } = getUnitDefinition(unit_id);
+    for (const { unit_id, amount } of villageTroops) {
+      const { unitWheatConsumption } = getUnitDefinition(unit_id as Unit['id']);
       troopWheatConsumption += unitWheatConsumption * amount;
     }
 
     effectsToInsert.push([
-      'wheatProduction',
+      wheatProductionEffectId,
       troopWheatConsumption,
       'base',
       'village',
@@ -310,13 +326,6 @@ export const effectsSeeder: Seeder = (database, server): void => {
   }
 
   // Oasis effects
-  const oasisFieldsSchema = z.object({
-    tile_id: z.number(),
-    village_id: z.number(),
-    resource: resourceSchema,
-    bonus: z.number(),
-  });
-
   const oasisFieldsRows = database.selectObjects(`
     SELECT tile_id,
            village_id,
@@ -324,38 +333,27 @@ export const effectsSeeder: Seeder = (database, server): void => {
            bonus
     FROM oasis
     WHERE village_id IS NOT NULL;
-  `);
+  `) as {
+    tile_id: number;
+    village_id: number;
+    resource: string;
+    bonus: number;
+  }[];
 
-  const oasisFields = z.array(oasisFieldsSchema).parse(oasisFieldsRows);
+  for (const oasis of oasisFieldsRows) {
+    const effectId = `${oasis.resource}Production`;
+    const value = oasis.bonus === 25 ? 1.25 : 1.5;
 
-  effectsToInsert.push(
-    ...oasisFields.map((oasis) => {
-      const effectId = `${oasis.resource}Production`;
-      const value = oasis.bonus === 25 ? 1.25 : 1.5;
-
-      return [
-        effectId,
-        value,
-        'bonus',
-        'village',
-        'oasis',
-        oasis.village_id,
-        oasis.tile_id,
-      ];
-    }),
-  );
-
-  const effectIdRows = database.selectArrays(
-    'SELECT effect, id FROM effect_ids',
-  );
-
-  const effectIds = Object.fromEntries(effectIdRows);
-
-  const rows = effectsToInsert.map((effect) => {
-    const effectId = effectIds[effect[0]!];
-
-    return effect.with(0, effectId);
-  });
+    effectsToInsert.push([
+      effectIds[effectId],
+      value,
+      'bonus',
+      'village',
+      'oasis',
+      oasis.village_id,
+      oasis.tile_id,
+    ]);
+  }
 
   batchInsert(
     database,
@@ -369,6 +367,6 @@ export const effectsSeeder: Seeder = (database, server): void => {
       'village_id',
       'source_specifier',
     ],
-    rows,
+    effectsToInsert,
   );
 };

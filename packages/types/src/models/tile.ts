@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { playerSchema } from '@pillage-first/types/models/player';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 
 const tileVillageSchema = z.strictObject({
@@ -48,8 +47,7 @@ const baseOasisTileSchema = baseTileSchema.extend({
   type: z.literal('oasis'),
   attributes: z.strictObject({
     oasisGraphics: z.number(),
-    // This may be null, because only occupiable oasis are stored in the database. Oasis resource is calculated from oasisGraphics
-    oasisResource: resourceSchema.nullable(),
+    isOccupiable: z.boolean(),
   }),
 });
 

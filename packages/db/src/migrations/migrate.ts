@@ -2,6 +2,7 @@ import type { Database } from '@pillage-first/types/database';
 import type { Server } from '@pillage-first/types/models/server';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
+import createOasisOccupiableByIndexes from '../indexes/oasis-occupiable-by-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
@@ -20,7 +21,6 @@ import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
 import createOasisOccupiableByTable from '../schemas/oasis-occupiable-by-schema.sql?raw';
 import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
-import createOasisTileResourceTable from '../schemas/oasis-tile-resource-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
@@ -46,8 +46,8 @@ import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder'
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
+import { oasisOccupiableBySeeder } from '../seeders/oasis-occupiable-by-seeder';
 import { oasisSeeder } from '../seeders/oasis-seeder';
-import { oasisTileResourceSeeder } from '../seeders/oasis-tile-resource-seeder';
 import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
@@ -124,11 +124,12 @@ export const migrateAndSeed = (database: Database, server: Server): void => {
     oasisSeeder(db, server);
     db.exec(createOasisBonusesIndexes);
 
-    db.exec(createOasisTileResourceTable);
-    oasisTileResourceSeeder(db, server);
-
     // Oasis-occupiable-by
     db.exec(createOasisOccupiableByTable);
+    oasisOccupiableBySeeder(db, server);
+    db.exec(createOasisOccupiableByIndexes);
+
+    // Guaranteed croppers
     guaranteedCroppersSeeder(db, server);
 
     // Villages

@@ -36,7 +36,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
         const arg = funcMatch[1];
         if (arg.startsWith('`') || arg.startsWith("'") || arg.startsWith('"')) {
           let sql = arg.slice(1, -1).trim();
-          sql = sql.replace(/\${[\s\S]*?}/g, '?');
+          sql = sql.replace(/\$\{([\s\S]*?)\}/g, (_, p1) => `\${${p1}}`);
           sqlStatements.add(sql);
         } else {
           pendingVariableResolutions.push(arg);

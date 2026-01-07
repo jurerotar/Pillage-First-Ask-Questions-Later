@@ -63,15 +63,19 @@ const CellIcons = (props: CellIconsProps) => {
   if (
     shouldShowOasisIcons &&
     tile.type === 'oasis' &&
-    tile.attributes.oasisResource !== null
+    tile.attributes.isOccupiable
   ) {
+    const { oasisResource } = decodeGraphicsProperty(
+      tile.attributes.oasisGraphics,
+    );
+
     return (
       <BorderIndicator
         className={classes}
         variant={tile.owner !== null ? 'red' : 'green'}
       >
         <Icon
-          type={tile.attributes.oasisResource}
+          type={oasisResource}
           shouldShowTooltip={false}
         />
       </BorderIndicator>

@@ -14,6 +14,14 @@ import {
   woodProductionServerEffectMock,
 } from '@pillage-first/mocks/effect';
 import { villageMock } from '@pillage-first/mocks/village';
+import type {
+  ArtifactEffect,
+  GlobalEffect,
+  OasisEffect,
+  TribalEffect,
+  VillageBuildingEffect,
+  VillageEffect,
+} from '@pillage-first/types/models/effect';
 import { calculateComputedEffect } from '../calculate-computed-effect';
 
 const villageId = villageMock.id;
@@ -339,14 +347,15 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('base + troops consumption – total=75', () => {
-      const troopEffect = {
+      const troopEffect: VillageEffect = {
         id: 'wheatProduction',
         value: 25,
         type: 'base',
         source: 'troops',
         scope: 'village',
         villageId,
-      } as any;
+        sourceSpecifier: null,
+      };
 
       const effects = [wheatProductionBaseEffectMock, troopEffect];
       const result = calculateComputedEffect(
@@ -365,22 +374,24 @@ describe('calculateComputedEffect – woodProduction', () => {
 
   describe('Other sources and edge cases', () => {
     test('artifact base and bonus', () => {
-      const artifactBase = {
+      const artifactBase: ArtifactEffect = {
         id: 'woodProduction',
         value: 10,
         type: 'base',
         source: 'artifact',
         scope: 'village',
         villageId,
-      } as any;
-      const artifactBonus = {
+        sourceSpecifier: null,
+      };
+      const artifactBonus: ArtifactEffect = {
         id: 'woodProduction',
         value: 1.1,
         type: 'bonus',
         source: 'artifact',
         scope: 'village',
         villageId,
-      } as any;
+        sourceSpecifier: null,
+      };
 
       const effects = [
         woodProductionBaseEffectMock,
@@ -401,22 +412,24 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('oasis base and bonus', () => {
-      const oasisBase = {
+      const oasisBase: OasisEffect = {
         id: 'woodProduction',
         value: 15,
         type: 'base',
         source: 'oasis',
         scope: 'village',
         villageId,
-      } as any;
-      const oasisBonus = {
+        sourceSpecifier: null,
+      };
+      const oasisBonus: OasisEffect = {
         id: 'woodProduction',
         value: 1.2,
         type: 'bonus',
         source: 'oasis',
         scope: 'village',
         villageId,
-      } as any;
+        sourceSpecifier: null,
+      };
 
       const effects = [woodProductionBaseEffectMock, oasisBase, oasisBonus];
       const result = calculateComputedEffect(
@@ -436,7 +449,7 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('WATERWORKS special case (applies to oasis)', () => {
-      const waterworksEffect = {
+      const waterworksEffect: VillageBuildingEffect = {
         id: 'woodProduction',
         value: 1.25,
         type: 'bonus',
@@ -444,7 +457,8 @@ describe('calculateComputedEffect – woodProduction', () => {
         buildingId: 'WATERWORKS',
         scope: 'village',
         villageId,
-      } as any;
+        sourceSpecifier: null,
+      };
 
       const effects = [woodProductionBaseEffectMock, waterworksEffect];
       const result = calculateComputedEffect(
@@ -459,14 +473,15 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('tribe source (hero)', () => {
-      const tribeEffect = {
+      const tribeEffect: TribalEffect = {
         id: 'woodProduction',
         value: 1.5,
         type: 'bonus',
         source: 'tribe',
-        scope: 'village',
+        scope: 'global',
         villageId,
-      } as any;
+        sourceSpecifier: null,
+      };
 
       const effects = [woodProductionBaseEffectMock, tribeEffect];
       const result = calculateComputedEffect(
@@ -481,14 +496,15 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('troops source base (non-wheat)', () => {
-      const troopBase = {
+      const troopBase: VillageEffect = {
         id: 'woodProduction',
         value: 5,
         type: 'base',
         source: 'troops',
         scope: 'village',
         villageId,
-      } as any;
+        sourceSpecifier: 0,
+      };
 
       const effects = [woodProductionBaseEffectMock, troopBase];
       const result = calculateComputedEffect(
@@ -501,14 +517,15 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('skip effect for different village', () => {
-      const otherVillageEffect = {
+      const otherVillageEffect: VillageEffect = {
         id: 'woodProduction',
         value: 200,
         type: 'base',
         source: 'building',
         scope: 'village',
-        villageId: 'other-village',
-      } as any;
+        villageId: 15,
+        sourceSpecifier: 12,
+      };
 
       const effects = [woodProductionBaseEffectMock, otherVillageEffect];
       const result = calculateComputedEffect(
@@ -521,14 +538,15 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('modifier only (no base building effects)', () => {
-      const bonusEffect = {
+      const bonusEffect: VillageEffect = {
         id: 'buildingDuration',
         value: 0.9,
         type: 'bonus',
         source: 'building',
         scope: 'village',
         villageId,
-      } as any;
+        sourceSpecifier: 12,
+      };
 
       const effects = [bonusEffect];
       const result = calculateComputedEffect(
@@ -541,13 +559,14 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
 
     test('global and server scope effects', () => {
-      const globalEffect = {
+      const globalEffect: GlobalEffect = {
         id: 'woodProduction',
         value: 10,
         type: 'base',
         source: 'building',
         scope: 'global',
-      } as any;
+        sourceSpecifier: 12,
+      };
 
       const effects = [woodProductionBaseEffectMock, globalEffect];
       const result = calculateComputedEffect(

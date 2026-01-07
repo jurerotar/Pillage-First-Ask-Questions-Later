@@ -360,8 +360,8 @@ describe('migrateAndSeed', () => {
               FROM
                 tiles t
                   JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
-                  JOIN oasis_occupiable_by ob ON ob.tile_id = t.id
-                  JOIN oasis o ON o.tile_id = ob.oasis_id
+                  JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
+                  JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
               WHERE
                 rfc.resource_field_composition = '00018'
                 AND o.bonus = 50
@@ -387,8 +387,8 @@ describe('migrateAndSeed', () => {
               FROM
                 tiles t
                   JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
-                  JOIN oasis_occupiable_by ob ON ob.tile_id = t.id
-                  JOIN oasis o ON o.tile_id = ob.oasis_id
+                  JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
+                  JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
               WHERE
                 rfc.resource_field_composition = '11115'
                 AND o.bonus = 50
@@ -414,8 +414,8 @@ describe('migrateAndSeed', () => {
               FROM
                 tiles t
                   JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
-                  JOIN oasis_occupiable_by ob ON ob.tile_id = t.id
-                  JOIN oasis o ON o.tile_id = ob.oasis_id
+                  JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
+                  JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
               WHERE
                 rfc.resource_field_composition = '3339'
                 AND o.bonus = 50
@@ -544,8 +544,8 @@ describe('migrateAndSeed', () => {
         `SELECT COUNT(*)
          FROM
            oasis_occupiable_by ob
-             LEFT JOIN tiles t ON t.id = ob.tile_id
-             LEFT JOIN tiles o ON o.id = ob.oasis_id
+             LEFT JOIN tiles t ON t.id = ob.occupiable_tile_id
+             LEFT JOIN tiles o ON o.id = ob.occupiable_oasis_tile_id
          WHERE
            t.id IS NULL
            OR o.id IS NULL

@@ -139,8 +139,8 @@ export const getTilesWithBonuses: Controller<
         (
           SELECT o.tile_id AS oasis_tile
           FROM oasis o
-          JOIN oasis_occupiable_by ob ON ob.oasis_id = o.tile_id
-          WHERE ob.tile_id = c.id
+          JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = o.tile_id
+          WHERE ob.occupiable_tile_id = c.id
             AND o.resource = $r${idx}
             AND o.bonus = $b${idx}
           GROUP BY o.tile_id
@@ -158,8 +158,8 @@ export const getTilesWithBonuses: Controller<
       (
         SELECT o.tile_id AS oasis_tile
         FROM oasis o
-        JOIN oasis_occupiable_by ob ON ob.oasis_id = o.tile_id
-        WHERE ob.tile_id = c.id
+        JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = o.tile_id
+        WHERE ob.occupiable_tile_id = c.id
           AND (
             (o.resource = $r${idx}   AND o.bonus = $b${idx})
             OR (o.resource = $r${idx}_2 AND o.bonus = $b${idx}_2)

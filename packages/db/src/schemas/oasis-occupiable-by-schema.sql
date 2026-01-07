@@ -1,11 +1,11 @@
+-- This table is used to speed up grid searches used with oasis-bonus-finder feature.
+-- We pre-calculate all occupiable tiles in 3x3 vicinity of each occupiable oasis.
 CREATE TABLE oasis_occupiable_by
 (
-  tile_id    INTEGER NOT NULL,
-  oasis_id INTEGER NOT NULL,
+  occupiable_tile_id INTEGER NOT NULL,
+  occupiable_oasis_tile_id INTEGER NOT NULL,
 
-  PRIMARY KEY (tile_id, oasis_id),
-  FOREIGN KEY (tile_id) REFERENCES tiles(id) ON DELETE CASCADE,
-  FOREIGN KEY (oasis_id) REFERENCES tiles(id) ON DELETE CASCADE
+  PRIMARY KEY (occupiable_tile_id, occupiable_oasis_tile_id),
+  FOREIGN KEY (occupiable_tile_id) REFERENCES tiles (id) ON DELETE CASCADE,
+  FOREIGN KEY (occupiable_oasis_tile_id) REFERENCES tiles (id) ON DELETE CASCADE
 ) STRICT, WITHOUT ROWID;
-
-CREATE INDEX idx_occupiable_by_oasis_tile ON oasis_occupiable_by(oasis_id, tile_id);

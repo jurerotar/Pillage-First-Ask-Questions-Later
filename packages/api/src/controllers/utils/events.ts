@@ -177,44 +177,41 @@ export const _validateEventCreation = (
   if (isUnitResearchEvent(event)) {
     const { unitId, villageId } = event;
 
-    const amountOfOngoingUnitResearchEventsInThisVillage = database.selectValue(
+    const hasOngoingUnitResearchEventsInThisVillage = !!(database.selectValue(
       `
-        SELECT COUNT(1) AS cnt
-        FROM
-          events
-        WHERE
-          type = 'unitResearch'
-          AND village_id = $villageId
+        SELECT EXISTS (
+          SELECT 1
+          FROM events
+          WHERE type = 'unitResearch'
+            AND village_id = $villageId
+          ) AS event_exists;
       `,
       {
         $village_id: villageId,
       },
-    ) as number;
+    ) as number);
 
-    if (amountOfOngoingUnitResearchEventsInThisVillage > 0) {
+    if (hasOngoingUnitResearchEventsInThisVillage) {
       return false;
     }
 
-    const researchedUnitsWithSameIdAndVillage = database.selectValue(
-      `
-        SELECT COUNT(1) AS cnt
-        FROM
-          unit_research
-        WHERE
-          village_id = $villageId
-          AND unit_id = $unitId
+    const hasAlreadyResearchedUnitsWithSameIdAndVillage =
+      !!(database.selectValue(
+        `
+        SELECT EXISTS(
+          SELECT 1
+          FROM unit_research
+          WHERE village_id = $villageId
+            AND unit_id = $unitId
+          ) AS is_researched;
       `,
-      {
-        $villageId: villageId,
-        $unitId: unitId,
-      },
-    ) as number;
+        {
+          $villageId: villageId,
+          $unitId: unitId,
+        },
+      ) as number);
 
-    if (researchedUnitsWithSameIdAndVillage > 0) {
-      return false;
-    }
-
-    return true;
+    return !hasAlreadyResearchedUnitsWithSameIdAndVillage;
   }
 
   if (isTroopTrainingEvent(event)) {
@@ -242,7 +239,7 @@ export const _validateEventCreation = (
       return false;
     }
 
-    const doesUnitTrainingBuildingExist = database.selectValue(
+    const doesUnitTrainingBuildingExist = !!(database.selectValue(
       `
         SELECT
           EXISTS
@@ -260,13 +257,9 @@ export const _validateEventCreation = (
         $village_id: villageId,
         $building_id: buildingId,
       },
-    ) as number;
+    ) as number);
 
-    if (!doesUnitTrainingBuildingExist) {
-      return false;
-    }
-
-    return true;
+    return doesUnitTrainingBuildingExist;
   }
 
   if (isBuildingLevelUpEvent(event)) {

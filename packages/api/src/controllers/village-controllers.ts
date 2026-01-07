@@ -217,7 +217,7 @@ export const getOccupiableOasisInRange: Controller<
             MAX(o.village_id) AS occupying_village_id
           FROM tiles ot
                  JOIN src_village sv ON 1=1
-                 JOIN oasis_occupiable_by ob ON ob.oasis_id = ot.id AND ob.tile_id = sv.vtile
+                 JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = ot.id AND ob.occupiable_tile_id = sv.vtile
                  JOIN oasis o ON o.tile_id = ot.id
           WHERE ot.type = 'oasis'
             AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
