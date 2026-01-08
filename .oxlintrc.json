@@ -110,21 +110,5 @@
     "promise/*": "error",
     "promise/avoid-new": "off",
     "promise/prefer-await-to-callbacks": "off"
-  },
-  "overrides": [
-    {
-      "files": [
-        "**/page.tsx",
-        "**/*layout.tsx",
-        "app/root.tsx",
-        "vite.config.ts",
-        "react-router.config.ts",
-        "i18next.config.ts",
-        "app/routes.ts"
-      ],
-      "rules": {
-        "import/no-default-export": "off"
-      }
-    }
-  ]
+  }
 }
