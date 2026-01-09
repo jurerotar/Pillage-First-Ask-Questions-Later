@@ -300,6 +300,7 @@ export const getEventCost = (event: GameEvent): number[] => {
   return [0, 0, 0, 0];
 };
 
+const DEFAULT_DURATION = 0;
 export const getEventDuration = (
   database: DbFacade,
   event: GameEvent,
@@ -308,11 +309,15 @@ export const getEventDuration = (
     ' SELECT is_developer_mode_enabled FROM preferences;',
   );
 
-  if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
-    if (isDeveloperModeEnabled) {
-      return 0;
-    }
+  let duration: number | null = null;
 
+  if (
+    isDeveloperModeEnabled ||
+    isBuildingConstructionEvent(event) ||
+    isBuildingDestructionEvent(event)
+  ) {
+    duration = DEFAULT_DURATION;
+  } else if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     const { villageId, buildingId, level } = event;
 
     const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
@@ -332,16 +337,9 @@ export const getEventDuration = (
       buildingId,
       level,
     );
-    return baseBuildingDuration * total;
-  }
-  if (isBuildingConstructionEvent(event)) {
-    return 0;
-  }
-  if (isUnitResearchEvent(event)) {
-    if (isDeveloperModeEnabled) {
-      return 0;
-    }
 
+    duration = baseBuildingDuration * total;
+  } else if (isUnitResearchEvent(event)) {
     const { villageId, unitId } = event;
 
     const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
@@ -357,13 +355,9 @@ export const getEventDuration = (
       villageId,
     );
 
-    return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
-  }
-  if (isUnitImprovementEvent(event)) {
-    if (isDeveloperModeEnabled) {
-      return 0;
-    }
-
+    duration =
+      unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
+  } else if (isUnitImprovementEvent(event)) {
     const { villageId, unitId, level } = event;
 
     const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
@@ -379,16 +373,10 @@ export const getEventDuration = (
       villageId,
     );
 
-    return (
+    duration =
       unitImprovementDurationModifier *
-      calculateUnitUpgradeDurationForLevel(unitId, level)
-    );
-  }
-  if (isTroopTrainingEvent(event)) {
-    if (isDeveloperModeEnabled) {
-      return 0;
-    }
-
+      calculateUnitUpgradeDurationForLevel(unitId, level);
+  } else if (isTroopTrainingEvent(event)) {
     const { unitId, villageId, durationEffectId } = event;
 
     const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
@@ -406,21 +394,20 @@ export const getEventDuration = (
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
-    return total * baseRecruitmentDuration;
-  }
-  if (isAdventurePointIncreaseEvent(event)) {
+    duration = total * baseRecruitmentDuration;
+  } else if (isAdventurePointIncreaseEvent(event)) {
     const [createdAt, speed] = database.selectValues(
       'SELECT created_at, speed FROM servers LIMIT 1;',
     ) as [Server['createdAt'], Server['configuration']['speed']];
 
-    return calculateAdventurePointIncreaseEventDuration(createdAt, speed);
-  }
-  if (isBuildingDestructionEvent(event)) {
-    return 0;
+    duration = calculateAdventurePointIncreaseEventDuration(createdAt, speed);
   }
 
-  console.error('Missing duration calculation for event', event);
-  return 0;
+  if (duration === null) {
+    console.error('Missing duration calculation for event', event);
+    return DEFAULT_DURATION;
+  }
+  return Math.ceil(duration);
 };
 
 export const getEventStartTime = (
