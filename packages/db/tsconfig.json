@@ -1,9 +1,8 @@
 {
-  "$schema": "https://www.schemastore.org/tsconfig.json",
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "isolatedDeclarations": true,
-    "declaration": true
+    "lib": ["ESNext", "WebWorker", "DOM.Iterable", "DOM.AsyncIterable"],
+    "types": []
   },
   "include": ["src/**/*"]
 }

@@ -1,4 +1,3 @@
-import type { SQLOutputValue } from 'node:sqlite';
 import { z } from 'zod';
 import {
   calculateBuildingCostForLevel,
@@ -35,6 +34,10 @@ import {
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { calculateAdventurePointIncreaseEventDuration } from '../resolvers/utils/adventures';
+
+// This type actually exists in node:sqlite module, but we disabled node types in this package,
+// because it otherwise pollutes some of the globals (setTimeout,...)
+type SQLOutputValue = number | bigint | string | null;
 
 const effectsListSchema = z.array(apiEffectSchema);
 const eventsListSchema = z.array(eventSchema);
@@ -179,12 +182,16 @@ export const _validateEventCreation = (
 
     const hasOngoingUnitResearchEventsInThisVillage = !!(database.selectValue(
       `
-        SELECT EXISTS (
-          SELECT 1
-          FROM events
-          WHERE type = 'unitResearch'
-            AND village_id = $villageId
-          ) AS event_exists;
+        SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              events
+            WHERE
+              type = 'unitResearch'
+              AND village_id = $villageId
+            ) AS event_exists;
       `,
       {
         $village_id: villageId,
@@ -198,13 +205,17 @@ export const _validateEventCreation = (
     const hasAlreadyResearchedUnitsWithSameIdAndVillage =
       !!(database.selectValue(
         `
-        SELECT EXISTS(
-          SELECT 1
-          FROM unit_research
-          WHERE village_id = $villageId
-            AND unit_id = $unitId
-          ) AS is_researched;
-      `,
+          SELECT
+            EXISTS
+            (
+              SELECT 1
+              FROM
+                unit_research
+              WHERE
+                village_id = $villageId
+                AND unit_id = $unitId
+              ) AS is_researched;
+        `,
         {
           $villageId: villageId,
           $unitId: unitId,
@@ -443,13 +454,13 @@ export const getEventStartTime = (
 
     const lastResolvesAtForThisUnitId = database.selectValue(
       `
-          SELECT COALESCE(MAX(resolves_at), $now) AS last_resolves_at
-          FROM
-            events
-          WHERE
-            type = 'unitImprovement'
-            AND JSON_EXTRACT(meta, '$.unitId') = $unit_id
-        `,
+        SELECT COALESCE(MAX(resolves_at), $now) AS last_resolves_at
+        FROM
+          events
+        WHERE
+          type = 'unitImprovement'
+          AND JSON_EXTRACT(meta, '$.unitId') = $unit_id
+      `,
       {
         $unit_id: unitId,
         $now: now,

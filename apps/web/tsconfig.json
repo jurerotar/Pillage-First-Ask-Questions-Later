@@ -2,7 +2,7 @@
   "$schema": "https://www.schemastore.org/tsconfig.json",
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "lib": ["ESNext", "WebWorker", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
     "rootDirs": [".", "./.react-router/types"],
     "jsx": "react-jsx",
     "paths": {
@@ -12,7 +12,7 @@
   },
   "include": [
     "app/**/*",
-    "apps/web/scripts/**/*",
+    "scripts/**/*",
     "*.config.ts",
     ".react-router/types/**/*"
   ]

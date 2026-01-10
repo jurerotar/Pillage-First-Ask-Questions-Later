@@ -146,7 +146,7 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
 
       dataSource.resolveEvent(next.id);
       scheduleNextEvent(dataSource);
-    }, delay) as unknown as number;
+    }, delay);
   } finally {
     schedulingInProgress = false;
 
