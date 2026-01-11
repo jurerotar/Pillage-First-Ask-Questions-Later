@@ -6,7 +6,10 @@ import type { Preferences } from '@pillage-first/types/models/preferences';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
-import type { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
+import {
+  BORDER_TILES_OASIS_VARIANTS,
+  type useMap,
+} from 'app/(game)/(village-slug)/hooks/use-map';
 import type { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { Icon } from 'app/components/icon';
 import cellStyles from './cell.module.scss';
@@ -148,13 +151,15 @@ export const Cell = memo<CellProps>(
     const tileId = tileIndex + 1;
 
     const tile = map[tileIndex];
-    const isBorderTile = tile === null;
+    const isBorderTile =
+      tile.type === 'oasis' &&
+      tile.attributes.isOccupiable === false &&
+      BORDER_TILES_OASIS_VARIANTS.has(tile.attributes.oasisGraphics);
 
     const className = isBorderTile
       ? clsx(
           cellStyles.tile,
-          // We have to do + 1, because 0 is reserved for 1x1 oasis icon
-          cellStyles[`border-tile-${(tileIndex % 4) + 1}`],
+          cellStyles[`border-tile-${tile.attributes.oasisGraphics}`],
         )
       : getTileClassNames(
           tile,
