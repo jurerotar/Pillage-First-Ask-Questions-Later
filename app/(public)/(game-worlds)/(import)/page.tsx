@@ -82,15 +82,22 @@ const ImportGameWorld = () => {
               onChange={async (e) => {
                 setError(null);
                 const file = e.target.files?.[0];
+
                 if (!file) {
                   return;
                 }
 
                 if (!file.name.endsWith('.json')) {
                   setError('Please select a .json file');
-                  e.currentTarget.value = '';
+
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+
                   return;
                 }
+
+                const inputEl = fileInputRef.current;
 
                 try {
                   setIsImporting(true);
@@ -98,6 +105,7 @@ const ImportGameWorld = () => {
                   const payload: ImportGameWorldWorkerPayload = {
                     fileText: text,
                   };
+
                   const result = await workerFactory<
                     ImportGameWorldWorkerPayload,
                     ImportGameWorldWorkerResponse
@@ -108,11 +116,9 @@ const ImportGameWorld = () => {
                     return;
                   }
 
-                  // Add to available servers (localStorage list)
                   createGameWorld({ server: result.server });
 
-                  // Navigate to imported world
-                  await navigate(`/game/${result.serverSlug}/v-1/resources`);
+                  navigate(`/game/${result.serverSlug}/v-1/resources`);
                 } catch (err) {
                   console.error(err);
                   setError(
@@ -120,8 +126,9 @@ const ImportGameWorld = () => {
                   );
                 } finally {
                   setIsImporting(false);
-                  // Reset the input so selecting the same file again triggers change
-                  e.currentTarget.value = '';
+                  if (inputEl) {
+                    inputEl.value = '';
+                  }
                 }
               }}
             />
