@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { use, useCallback } from 'react';
+import { use } from 'react';
 import { z } from 'zod';
 import { tileSchema } from '@pillage-first/types/models/tile';
 import {
@@ -22,9 +22,17 @@ export const useMap = () => {
   const { fetcher } = use(ApiContext);
   const { mapSize } = useServer();
 
-  const mapNullTilesToOasisTiles = useCallback(
-    (data: z.infer<typeof tilesApiSchema>): z.infer<typeof mapSchema> => {
-      return data.map(
+  const { data: map } = useSuspenseQuery({
+    queryKey: ['tiles'],
+    queryFn: async () => {
+      // TODO: This query is *really* heavy.
+      // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
+      const { data } = await fetcher('/tiles');
+
+      return tilesApiSchema.parse(data);
+    },
+    select: (data) => {
+      const mappedBorderTilesToOasisTiles = data.map(
         (item, idx) =>
           item || {
             type: 'oasis',
@@ -38,20 +46,8 @@ export const useMap = () => {
             },
           },
       );
+      return mapSchema.parse(mappedBorderTilesToOasisTiles);
     },
-    [mapSize],
-  );
-
-  const { data: map } = useSuspenseQuery({
-    queryKey: ['tiles'],
-    queryFn: async () => {
-      // TODO: This query is *really* heavy.
-      // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
-      const { data } = await fetcher('/tiles');
-
-      return tilesApiSchema.parse(data);
-    },
-    select: mapNullTilesToOasisTiles,
   });
 
   return {
