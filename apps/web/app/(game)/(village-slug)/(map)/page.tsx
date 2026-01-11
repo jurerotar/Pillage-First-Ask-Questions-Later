@@ -98,7 +98,7 @@ const MapPageContents = () => {
       preferences,
       getReputation,
       onClick: (tileId: number) => {
-        const tile = map[tileId - 1]!;
+        const tile = map[tileId - 1];
 
         openModal(tile);
       },
@@ -245,7 +245,7 @@ const MapPageContents = () => {
         return null;
       }
 
-      const tile = map[tileId - 1]!;
+      const tile = map[tileId - 1];
 
       return (
         <Suspense fallback={null}>
