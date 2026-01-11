@@ -81,6 +81,7 @@ export type OccupiedOccupiableTile = z.infer<
 export type OccupiableTile = z.infer<typeof occupiableTileSchema>;
 
 export type OccupiedOasisTile = z.infer<typeof occupiedOasisTileSchema>;
+export type UnoccupiedOasisTile = z.infer<typeof unoccupiedOasisTileSchema>;
 export type OasisTile = z.infer<typeof oasisTileSchema>;
 
 export type Tile = z.infer<typeof tileSchema>;
