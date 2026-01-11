@@ -13,10 +13,10 @@ import { useServer } from './use-server';
 const tilesApiSchema = z.array(tileSchema.nullable());
 const mapSchema = z.array(tileSchema);
 
-export const BORDER_TILES_OASIS_VARIANTS = [1, 2, 3, 4];
-const BORDER_TILES_OASIS_GRAPHICS = BORDER_TILES_OASIS_VARIANTS.map((variant) =>
-  encodeGraphicsProperty('wood', 0, 0, 0, variant),
-);
+export const BORDER_TILES_OASIS_VARIANTS = new Set([1, 2, 3, 4]);
+const BORDER_TILES_OASIS_GRAPHICS = Array.from([
+  ...BORDER_TILES_OASIS_VARIANTS,
+]).map((variant) => encodeGraphicsProperty('wood', 0, 0, 0, variant));
 
 export const useMap = () => {
   const { fetcher } = use(ApiContext);
