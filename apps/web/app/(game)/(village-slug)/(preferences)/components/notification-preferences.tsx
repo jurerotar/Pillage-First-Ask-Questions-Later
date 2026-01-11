@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   Section,
   SectionContent,
@@ -29,36 +29,45 @@ export const NotificationPreferences = () => {
           </Alert>
         )}
         {notificationPermission === 'denied' && (
-          <Alert variant="error">
-            {t(
-              "You've blocked notifications for this site. To receive alerts, you'll need to re-enable them in your browser settings.",
-            )}
+          <>
+            <Alert variant="error">
+              {t(
+                "You've blocked notifications for this site. To receive alerts, you'll need to re-enable them in your browser settings.",
+              )}
+            </Alert>
             <ul className="flex flex-col gap-4 mt-4">
               <li>
-                <Trans>
-                  <b>Chrome/Edge/Vivaldi/Brave</b>: Click the padlock icon in
-                  the address bar {'>'} Site settings {'>'} Set Notifications to
-                  "Allow", or manually visit:{' '}
-                </Trans>
-                <code>chrome://settings/content/notifications</code>
+                <Text>
+                  <b>Chrome/Edge/Vivaldi/Brave: </b>
+                  {t(
+                    'Click the padlock icon in the address bar > Site settings > Set Notifications to "Allow", or manually visit: ',
+                  )}
+                  <span className="flex overflow-x-scroll scrollbar-hidden">
+                    <code>chrome://settings/content/notifications</code>
+                  </span>
+                </Text>
               </li>
               <li>
-                <Trans>
-                  <b>Firefox</b>: Click the padlock icon in the address bar{' '}
-                  {'>'} Click the arrow {'>'} More Information {'>'} Permissions
-                  tab {'>'} Set Send Notifications to "Allow" or manually visit:{' '}
-                </Trans>
-                <code>about:preferences#privacy</code>
+                <Text>
+                  <b>Firefox: </b>
+                  {t(
+                    'Click the padlock icon in the address bar > Click the arrow > More Information > Permissions tab > Set Send Notifications to "Allow" or manually visit: ',
+                  )}
+                  <span className="flex overflow-x-scroll scrollbar-hidden">
+                    <code>about:preferences#privacy</code>
+                  </span>
+                </Text>
               </li>
               <li>
-                <Trans>
-                  <b>Safari</b>: Safari {'>'} Settings/Preferences {'>'}{' '}
-                  Websites{' '}
-                </Trans>
-                {'>'} Notifications
+                <Text>
+                  <b>Safari: </b>
+                  {t(
+                    'Safari > Settings/Preferences > Websites > Notifications',
+                  )}
+                </Text>
               </li>
             </ul>
-          </Alert>
+          </>
         )}
         {notificationPermission === 'default' && (
           <div className="flex flex-col md:flex-row gap-2">
