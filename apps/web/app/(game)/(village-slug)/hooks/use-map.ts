@@ -92,11 +92,13 @@ export const useMap = () => {
       length: tiles.length,
     });
 
-    const borderTileIndex = 0;
+    let borderTileIndex = 0;
 
     for (const [index, tile] of tiles.entries()) {
       if (tile === null) {
         completeTiles[index] = borderTiles[borderTileIndex];
+
+        borderTileIndex += 1;
         continue;
       }
 
