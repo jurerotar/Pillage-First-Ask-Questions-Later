@@ -5,9 +5,9 @@
 This document provides an overview of map functionality in **Pillage First, Ask Questions Later**. It covers
 implementation details, notes important files, and caveats.
 
-The map size is configurable per game world, and the coordinates system is centered around (0,0).
-
 ## 2. Overview
+
+The map size is configurable per game world, and the coordinates system is centered around (0,0).
 
 The map is designed to be a static, square grid of tiles.
 
@@ -93,10 +93,23 @@ Shaped oasis group #4:
 
 ### Oasis images
 
-Each individual tile in this has a position. Position includes `x` and `y` component and is 0-indexed.
+Every tile in a group has a position. Position is constructed with an integer `x` and an integer `y`, which represent
+where in the group is this tile positioned.
 
-A top-left most tile has position of `0-0`, a tile on the right of it would have a position of `1-0` and a tile,
-directly below it, would have a position of `0-1`.
+Example of position: `1-2`
+
+`x` starts at `0` at the beginning of each row and is incremented as you move to the right.
+`y` starts at `0` at the beginning of each column and is incremented as you move downwards.
+
+Example:
+
+```
+0-0 | 1-0 | 2-0
+————|—————|————
+0-1 | 1-1 | 2-1
+————|—————|————
+0-2 | 1-2 | 2-2
+```
 
 Each individual tile also supports a variant.
 
@@ -105,6 +118,9 @@ All together, resource, group number, position within this group and a variant a
 Tile image names are generated in the following format:
 
 `{resource}/{oasis-group}-{oasis-group-position-x}-{oasis-group-position-y}-{variant}.avif`
+
+In database, this all of this information is saved as a bit-packed number in `oasis_graphics` column. We provide
+functions to encode and decode this value.
 
 ### Occupiable fields
 
