@@ -39,6 +39,9 @@
     "./player": {
       "default": "./src/player.ts"
     },
+    "./factions": {
+      "default": "./src/factions.ts"
+    },
     "./reputation": {
       "default": "./src/reputation.ts"
     },

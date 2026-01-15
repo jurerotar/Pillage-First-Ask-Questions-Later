@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
+import { villageRankingsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getVillageRankingsSchema = z.strictObject({
@@ -18,7 +19,7 @@ export const useVillageRankings = () => {
   const { fetcher } = use(ApiContext);
 
   const { data: rankedVillages } = useSuspenseQuery({
-    queryKey: ['player-villages'],
+    queryKey: [villageRankingsCacheKey],
     queryFn: async () => {
       const { data } = await fetcher('/statistics/villages', {
         body: {

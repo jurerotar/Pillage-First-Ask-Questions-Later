@@ -16,14 +16,14 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['default', 'global'];
+
 const QuestsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { currentVillage } = useCurrentVillage();
   const { t } = useTranslation();
   const { quests } = useQuests();
-
-  const tabs = ['default', 'global'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
