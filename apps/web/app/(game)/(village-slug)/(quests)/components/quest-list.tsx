@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getQuestRewards } from '@pillage-first/game-assets/quests/utils';
 import type {
@@ -48,40 +49,44 @@ export const QuestList = ({ quests }: QuestListProps) => {
   const { t } = useTranslation();
   const { completeQuest } = useQuests();
 
-  const grouped = groupQuestsById(quests);
+  const questsToShow = useMemo(() => {
+    const grouped = groupQuestsById(quests);
 
-  const sortedGroups = [...grouped].toSorted((a, b) => {
-    // Group with collectable quests should come first
-    if (a.hasCollectible && !b.hasCollectible) {
-      return -1;
-    }
-    if (!a.hasCollectible && b.hasCollectible) {
-      return 1;
-    }
-
-    // Group with all quests collected should go last
-    if (a.allCollected && !b.allCollected) {
-      return 1;
-    }
-    if (!a.allCollected && b.allCollected) {
-      return -1;
-    }
-
-    return 0;
-  });
-
-  const questsToShow: Quest[] = [];
-
-  for (const sortedGroup of sortedGroups) {
-    for (const quest of sortedGroup.quests) {
-      if (quest.collectedAt !== null) {
-        continue;
+    const sortedGroups = [...grouped].toSorted((a, b) => {
+      // Group with collectable quests should come first
+      if (a.hasCollectible && !b.hasCollectible) {
+        return -1;
+      }
+      if (!a.hasCollectible && b.hasCollectible) {
+        return 1;
       }
 
-      questsToShow.push(quest);
-      break;
+      // Group with all quests collected should go last
+      if (a.allCollected && !b.allCollected) {
+        return 1;
+      }
+      if (!a.allCollected && b.allCollected) {
+        return -1;
+      }
+
+      return 0;
+    });
+
+    const result: Quest[] = [];
+
+    for (const sortedGroup of sortedGroups) {
+      for (const quest of sortedGroup.quests) {
+        if (quest.collectedAt !== null) {
+          continue;
+        }
+
+        result.push(quest);
+        break;
+      }
     }
-  }
+
+    return result;
+  }, [quests]);
 
   const pagination = usePagination<Quest>(questsToShow, 10);
 

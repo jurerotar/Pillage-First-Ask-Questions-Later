@@ -37,61 +37,64 @@ const BuildingCategoryPanel = ({
   const { maxLevelByBuildingId, buildingIdsInQueue } =
     use(BuildingFieldContext);
 
-  const staticBuildingConstructionReadinessArgs: Omit<
-    Parameters<typeof assessBuildingConstructionReadiness>[0],
-    'buildingId'
-  > = {
-    tribe,
-    maxLevelByBuildingId,
-    buildingIdsInQueue,
-  };
-
   const buildingsByCategory = useMemo(() => {
     return buildings.filter(({ category }) => category === buildingCategory);
   }, [buildingCategory]);
 
-  const assessments = new Map<
-    Building['id'],
-    ReturnType<typeof assessBuildingConstructionReadiness>
-  >(
-    buildingsByCategory.map((building) => [
-      building.id,
-      assessBuildingConstructionReadiness({
-        buildingId: building.id,
-        ...staticBuildingConstructionReadinessArgs,
-      }),
-    ]),
-  );
+  const assessments = useMemo(() => {
+    return new Map<
+      Building['id'],
+      ReturnType<typeof assessBuildingConstructionReadiness>
+    >(
+      buildingsByCategory.map((building) => [
+        building.id,
+        assessBuildingConstructionReadiness({
+          buildingId: building.id,
+          tribe,
+          maxLevelByBuildingId,
+          buildingIdsInQueue,
+        }),
+      ]),
+    );
+  }, [buildingsByCategory, tribe, maxLevelByBuildingId, buildingIdsInQueue]);
 
-  const availableBuildings = buildingsByCategory.filter((building) => {
-    const buildingConstructionReadinessAssessment = assessments.get(
-      building.id,
-    )!;
+  const availableBuildings = useMemo(() => {
+    return buildingsByCategory.filter((building) => {
+      const buildingConstructionReadinessAssessment = assessments.get(
+        building.id,
+      )!;
 
-    if (buildingConstructionReadinessAssessment.canBuild) {
-      return true;
-    }
-
-    for (const assessment of buildingConstructionReadinessAssessment.assessedRequirements) {
-      if (
-        (assessment.type === 'tribe' && assessment.tribe !== tribe) ||
-        (assessment.type === 'amount' &&
-          assessment.amount === 1 &&
-          !assessment.fulfilled)
-      ) {
-        return false;
+      if (buildingConstructionReadinessAssessment.canBuild) {
+        return true;
       }
-    }
 
-    return true;
-  });
+      for (const assessment of buildingConstructionReadinessAssessment.assessedRequirements) {
+        if (
+          (assessment.type === 'tribe' && assessment.tribe !== tribe) ||
+          (assessment.type === 'amount' &&
+            assessment.amount === 1 &&
+            !assessment.fulfilled)
+        ) {
+          return false;
+        }
+      }
 
-  const sortedAvailableBuildings = availableBuildings.toSorted((prev, next) => {
-    const prevAssessment = assessments.get(prev.id)!;
-    const nextAssessment = assessments.get(next.id)!;
+      return true;
+    });
+  }, [buildingsByCategory, assessments, tribe]);
 
-    return Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild);
-  });
+  const sortedAvailableBuildings = useMemo(
+    () =>
+      availableBuildings.toSorted((prev, next) => {
+        const prevAssessment = assessments.get(prev.id)!;
+        const nextAssessment = assessments.get(next.id)!;
+
+        return (
+          Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild)
+        );
+      }),
+    [availableBuildings, assessments],
+  );
 
   const hasNoAvailableBuildings = availableBuildings.length === 0;
 

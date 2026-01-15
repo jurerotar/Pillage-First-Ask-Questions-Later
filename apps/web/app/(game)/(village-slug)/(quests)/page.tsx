@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { partition } from '@pillage-first/utils/array';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
@@ -27,10 +28,9 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
-  const [villageQuests, globalQuests] = partition(
-    quests,
-    (quest) => quest.scope === 'village',
-  );
+  const [villageQuests, globalQuests] = useMemo(() => {
+    return partition(quests, (quest) => quest.scope === 'village');
+  }, [quests]);
 
   const title = `${t('Quests')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 

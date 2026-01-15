@@ -11,10 +11,12 @@ export const usePagination = <T>(
     return Math.max(1, Math.ceil(items.length / resultsPerPage));
   }, [items.length, resultsPerPage]);
 
-  const isPaginationPreviousEnabled = pageCount >= 2 && page !== 1;
-  const isPaginationNextEnabled = pageCount >= 2 && page < pageCount;
+  const actualPage = page > pageCount ? pageCount : page;
 
-  const start = (page - 1) * resultsPerPage;
+  const isPaginationPreviousEnabled = pageCount >= 2 && actualPage !== 1;
+  const isPaginationNextEnabled = pageCount >= 2 && actualPage < pageCount;
+
+  const start = (actualPage - 1) * resultsPerPage;
 
   const currentPageItems = useMemo(() => {
     return items.slice(start, start + resultsPerPage);
@@ -29,32 +31,32 @@ export const usePagination = <T>(
       }
     } else {
       elements.push(1);
-      if (page > 3) {
+      if (actualPage > 3) {
         elements.push('ellipsis-left');
       }
-      const midStart = Math.max(2, page - 1);
-      const midEnd = Math.min(pageCount - 1, page + 1);
+      const midStart = Math.max(2, actualPage - 1);
+      const midEnd = Math.min(pageCount - 1, actualPage + 1);
       for (let i = midStart; i <= midEnd; i += 1) {
         elements.push(i);
       }
-      if (page < pageCount - 2) {
+      if (actualPage < pageCount - 2) {
         elements.push('ellipsis-right');
       }
       elements.push(pageCount);
     }
 
     return elements;
-  }, [page, pageCount]);
+  }, [actualPage, pageCount]);
 
   useEffect(() => {
     if (page > pageCount) {
       setPage(pageCount);
     }
-  }, [page, pageCount]);
+  }, [pageCount, page]);
 
   return useMemo(
     () => ({
-      page,
+      page: actualPage,
       setPage,
       pageCount,
       resultsPerPage,
@@ -64,7 +66,7 @@ export const usePagination = <T>(
       isPaginationNextEnabled,
     }),
     [
-      page,
+      actualPage,
       pageCount,
       resultsPerPage,
       paginationElements,

@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { use, useState } from 'react';
+import { memo, use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { Building } from '@pillage-first/types/models/building';
@@ -53,74 +53,74 @@ type OccupiedBuildingFieldProps = {
   buildingField: BuildingFieldType;
 };
 
-export const OccupiedBuildingField = ({
-  buildingField,
-}: OccupiedBuildingFieldProps) => {
-  const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { preferences } = usePreferences();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-  const { bookmarks } = useBookmarks();
+export const OccupiedBuildingField = memo(
+  ({ buildingField }: OccupiedBuildingFieldProps) => {
+    const { t } = useTranslation();
+    const { currentVillage } = useCurrentVillage();
+    const { preferences } = usePreferences();
+    const { currentVillageBuildingEvents } = use(
+      CurrentVillageBuildingQueueContext,
+    );
+    const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+    const { bookmarks } = useBookmarks();
 
-  const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  const { id: buildingFieldId, buildingId } = buildingField;
-  const { shouldShowBuildingNames } = preferences;
+    const { id: buildingFieldId, buildingId } = buildingField;
+    const { shouldShowBuildingNames } = preferences;
 
-  const tab = bookmarks[buildingId] ?? 'default';
+    const tab = bookmarks[buildingId] ?? 'default';
 
-  const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
-    ({ buildingFieldId: buildingEventBuildingFieldId }) =>
-      buildingEventBuildingFieldId === buildingFieldId,
-  );
+    const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
+      ({ buildingFieldId: buildingEventBuildingFieldId }) =>
+        buildingEventBuildingFieldId === buildingFieldId,
+    );
 
-  const hasEvent = !!currentBuildingFieldBuildingEvent;
+    const hasEvent = !!currentBuildingFieldBuildingEvent;
 
-  return (
-    <Link
-      to={{
-        pathname: `${buildingFieldId}`,
-        search: `tab=${tab}`,
-      }}
-      aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
-      data-building-field-id={buildingFieldId}
-      {...(isWiderThanLg && {
-        onMouseEnter: () => setIsHovered(true),
-        onMouseLeave: () => setIsHovered(false),
-      })}
-      className={clsx(
-        buildingFieldId <= 18 &&
-          dynamicCellClasses({
-            buildingField,
-            resourceFieldComposition: currentVillage.resourceFieldComposition,
-          }),
-        buildingFieldId > 18 && 'border border-red-500',
-        'relative size-10 lg:size-16 rounded-full',
-      )}
-    >
-      <div className="absolute absolute-centering">
-        <BuildingUpgradeIndicator
-          isHovered={isHovered}
-          buildingField={buildingField}
-          buildingEvent={currentBuildingFieldBuildingEvent}
-        />
-      </div>
-      {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
-          {hasEvent && (
-            <Countdown
-              endsAt={
-                currentBuildingFieldBuildingEvent.startsAt +
-                currentBuildingFieldBuildingEvent.duration
-              }
-            />
-          )}
-          {!hasEvent && t(`BUILDINGS.${buildingId}.NAME`)}
-        </span>
-      )}
-    </Link>
-  );
-};
+    return (
+      <Link
+        to={{
+          pathname: `${buildingFieldId}`,
+          search: `tab=${tab}`,
+        }}
+        aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
+        data-building-field-id={buildingFieldId}
+        {...(isWiderThanLg && {
+          onMouseEnter: () => setIsHovered(true),
+          onMouseLeave: () => setIsHovered(false),
+        })}
+        className={clsx(
+          buildingFieldId <= 18 &&
+            dynamicCellClasses({
+              buildingField,
+              resourceFieldComposition: currentVillage.resourceFieldComposition,
+            }),
+          buildingFieldId > 18 && 'border border-red-500',
+          'relative size-10 lg:size-16 rounded-full',
+        )}
+      >
+        <div className="absolute absolute-centering">
+          <BuildingUpgradeIndicator
+            isHovered={isHovered}
+            buildingField={buildingField}
+            buildingEvent={currentBuildingFieldBuildingEvent}
+          />
+        </div>
+        {shouldShowBuildingNames && (
+          <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
+            {hasEvent && (
+              <Countdown
+                endsAt={
+                  currentBuildingFieldBuildingEvent.startsAt +
+                  currentBuildingFieldBuildingEvent.duration
+                }
+              />
+            )}
+            {!hasEvent && t(`BUILDINGS.${buildingId}.NAME`)}
+          </span>
+        )}
+      </Link>
+    );
+  },
+);
