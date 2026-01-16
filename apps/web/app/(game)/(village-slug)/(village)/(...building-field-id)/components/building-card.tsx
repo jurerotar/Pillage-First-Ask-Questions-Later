@@ -298,7 +298,7 @@ export const BuildingBenefits = () => {
         effectId === 'infantryDefence' || effectId === 'cavalryDefence',
     );
 
-  const effectsToShow = (() => {
+  const effectsToShow = useMemo(() => {
     if (shouldCombineEffects) {
       const staticDefenceEffect = cumulativeEffects.find(
         ({ effectId, type }) =>
@@ -331,7 +331,7 @@ export const BuildingBenefits = () => {
     }
 
     return cumulativeEffects;
-  })();
+  }, [shouldCombineEffects, cumulativeEffects]);
 
   return (
     <section className="flex flex-col gap-2 pt-2 justify-center border-t border-border">

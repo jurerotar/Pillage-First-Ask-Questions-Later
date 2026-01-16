@@ -1,4 +1,4 @@
-import { use } from 'react';
+import { use, useCallback } from 'react';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
@@ -30,7 +30,7 @@ export const useBuildingActions = (
   const hasCurrentVillageBuildingEvents =
     currentVillageBuildingEventsQueue.length > 0;
 
-  const constructBuilding = () => {
+  const constructBuilding = useCallback(() => {
     createBuildingConstructionEvent({
       buildingFieldId,
       buildingId,
@@ -38,9 +38,9 @@ export const useBuildingActions = (
       previousLevel: 0,
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
-  };
+  }, [createBuildingConstructionEvent, buildingFieldId, buildingId]);
 
-  const upgradeBuilding = () => {
+  const upgradeBuilding = useCallback(() => {
     const args = {
       buildingFieldId,
       buildingId,
@@ -55,9 +55,16 @@ export const useBuildingActions = (
     }
 
     createBuildingLevelChangeEvent(args);
-  };
+  }, [
+    buildingFieldId,
+    buildingId,
+    virtualLevel,
+    hasCurrentVillageBuildingEvents,
+    createBuildingScheduledConstructionEvent,
+    createBuildingLevelChangeEvent,
+  ]);
 
-  const downgradeBuilding = () => {
+  const downgradeBuilding = useCallback(() => {
     createBuildingLevelChangeEvent({
       buildingFieldId,
       level: virtualLevel - 1,
@@ -65,16 +72,26 @@ export const useBuildingActions = (
       buildingId,
       cachesToClearImmediately: [],
     });
-  };
+  }, [
+    createBuildingLevelChangeEvent,
+    buildingFieldId,
+    buildingId,
+    virtualLevel,
+  ]);
 
-  const demolishBuilding = () => {
+  const demolishBuilding = useCallback(() => {
     createBuildingDestructionEvent({
       buildingFieldId,
       buildingId,
       previousLevel: virtualLevel,
       cachesToClearImmediately: [],
     });
-  };
+  }, [
+    createBuildingDestructionEvent,
+    buildingFieldId,
+    buildingId,
+    virtualLevel,
+  ]);
 
   return {
     constructBuilding,

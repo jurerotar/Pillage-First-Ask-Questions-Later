@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { memo, use, useState } from 'react';
+import { memo, use, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { Building } from '@pillage-first/types/models/building';
@@ -71,10 +71,12 @@ export const OccupiedBuildingField = memo(
 
     const tab = bookmarks[buildingId] ?? 'default';
 
-    const currentBuildingFieldBuildingEvent = currentVillageBuildingEvents.find(
-      ({ buildingFieldId: buildingEventBuildingFieldId }) =>
-        buildingEventBuildingFieldId === buildingFieldId,
-    );
+    const currentBuildingFieldBuildingEvent = useMemo(() => {
+      return currentVillageBuildingEvents.find(
+        ({ buildingFieldId: buildingEventBuildingFieldId }) =>
+          buildingEventBuildingFieldId === buildingFieldId,
+      );
+    }, [currentVillageBuildingEvents, buildingFieldId]);
 
     const hasEvent = !!currentBuildingFieldBuildingEvent;
 

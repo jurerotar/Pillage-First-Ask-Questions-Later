@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
@@ -122,12 +123,14 @@ const OccupiableOasisSlotActions = ({
   const { villageTroops } = useVillageTroops();
   const { currentVillage } = useCurrentVillage();
 
-  const isHeroAvailable = !!villageTroops.find(
-    ({ unitId, tileId, source }) =>
-      unitId === 'HERO' &&
-      tileId === currentVillage.tileId &&
-      source === currentVillage.tileId,
-  );
+  const isHeroAvailable = useMemo(() => {
+    return villageTroops.some(
+      ({ unitId, tileId, source }) =>
+        unitId === 'HERO' &&
+        tileId === currentVillage.tileId &&
+        source === currentVillage.tileId,
+    );
+  }, [villageTroops, currentVillage.tileId]);
 
   const isOccupiedByPlayer = player !== null && player.id === 0;
 
@@ -225,10 +228,13 @@ export const HerosMansionOasis = () => {
   const { occupiableOasisInRange } = useOccupiableOasisInRange();
   const { currentVillage } = useCurrentVillage();
 
-  const heroMansionLevel =
-    currentVillage.buildingFields.find(
-      ({ buildingId }) => buildingId === 'HEROS_MANSION',
-    )?.level ?? 0;
+  const heroMansionLevel = useMemo(() => {
+    return (
+      currentVillage.buildingFields.find(
+        ({ buildingId }) => buildingId === 'HEROS_MANSION',
+      )?.level ?? 0
+    );
+  }, [currentVillage.buildingFields]);
 
   const oasisOccupiedByCurrentVillage = occupiableOasisInRange.filter(
     ({ village }) => {
