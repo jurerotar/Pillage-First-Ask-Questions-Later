@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(overview)/+types/page';
 import { TroopTrainingQueue } from 'app/(game)/(village-slug)/(overview)/components/troop-training-queue';
@@ -27,18 +28,49 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
 
-  const doesAcademyExist = currentVillage.buildingFields.some(
-    ({ buildingId }) => buildingId === 'ACADEMY',
-  );
-  const doesSmithyExist = currentVillage.buildingFields.some(
-    ({ buildingId }) => buildingId === 'SMITHY',
-  );
-  const doesMarketplaceExist = currentVillage.buildingFields.some(
-    ({ buildingId }) => buildingId === 'MARKETPLACE',
-  );
-  const doesBreweryExist = currentVillage.buildingFields.some(
-    ({ buildingId }) => buildingId === 'BREWERY',
-  );
+  const [
+    doesAcademyExist,
+    doesSmithyExist,
+    doesMarketplaceExist,
+    doesBreweryExist,
+  ] = useMemo(() => {
+    const fields = currentVillage.buildingFields;
+
+    let doesAcademyExist = false;
+    let doesSmithyExist = false;
+    let doesMarketplaceExist = false;
+    let doesBreweryExist = false;
+
+    for (const field of fields) {
+      const id = field.buildingId;
+
+      switch (id) {
+        case 'ACADEMY': {
+          doesAcademyExist = true;
+          break;
+        }
+        case 'SMITHY': {
+          doesSmithyExist = true;
+          break;
+        }
+        case 'MARKETPLACE': {
+          doesMarketplaceExist = true;
+          break;
+        }
+        case 'BREWERY': {
+          doesBreweryExist = true;
+          break;
+        }
+      }
+    }
+
+    return [
+      doesAcademyExist,
+      doesSmithyExist,
+      doesMarketplaceExist,
+      doesBreweryExist,
+    ];
+  }, [currentVillage.buildingFields]);
 
   const academyName = t('BUILDINGS.ACADEMY.NAME');
   const smithyName = t('BUILDINGS.SMITHY.NAME');

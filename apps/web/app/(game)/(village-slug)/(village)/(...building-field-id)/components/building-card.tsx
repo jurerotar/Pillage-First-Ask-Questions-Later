@@ -1,5 +1,11 @@
 import { clsx } from 'clsx';
-import { createContext, Fragment, type PropsWithChildren, use } from 'react';
+import {
+  createContext,
+  Fragment,
+  type PropsWithChildren,
+  use,
+  useMemo,
+} from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   type CalculatedCumulativeEffect,
@@ -52,10 +58,17 @@ export const BuildingCard = ({
 }: PropsWithChildren<BuildingCardProps>) => {
   const building = getBuildingDefinition(buildingId);
 
+  const value = useMemo(
+    () => ({
+      buildingId,
+      building,
+      buildingConstructionReadinessAssessment,
+    }),
+    [buildingId, building, buildingConstructionReadinessAssessment],
+  );
+
   return (
-    <BuildingCardContext
-      value={{ buildingId, building, buildingConstructionReadinessAssessment }}
-    >
+    <BuildingCardContext value={value}>
       <article className="flex flex-col gap-2">{children}</article>
     </BuildingCardContext>
   );
@@ -285,7 +298,7 @@ export const BuildingBenefits = () => {
         effectId === 'infantryDefence' || effectId === 'cavalryDefence',
     );
 
-  const effectsToShow = (() => {
+  const effectsToShow = useMemo(() => {
     if (shouldCombineEffects) {
       const staticDefenceEffect = cumulativeEffects.find(
         ({ effectId, type }) =>
@@ -318,7 +331,7 @@ export const BuildingBenefits = () => {
     }
 
     return cumulativeEffects;
-  })();
+  }, [shouldCombineEffects, cumulativeEffects]);
 
   return (
     <section className="flex flex-col gap-2 pt-2 justify-center border-t border-border">

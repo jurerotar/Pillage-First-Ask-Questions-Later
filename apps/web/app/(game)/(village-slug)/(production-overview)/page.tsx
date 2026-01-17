@@ -12,12 +12,12 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['wood', 'clay', 'iron', 'wheat'];
+
 const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-
-  const tabs = ['wood', 'clay', 'iron', 'wheat'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 

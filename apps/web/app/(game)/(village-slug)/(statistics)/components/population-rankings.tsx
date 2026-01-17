@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-player-rankings';
@@ -24,11 +25,13 @@ export const PopulationRankings = () => {
   const { player } = useMe();
   const { rankedPlayers } = usePlayerRankings();
 
-  const currentPlayerIndex = rankedPlayers.findIndex(
-    ({ id }) => id === player.id,
-  );
-  const startingPage =
-    Math.max(0, Math.floor(currentPlayerIndex / RESULTS_PER_PAGE)) + 1;
+  const startingPage = useMemo(() => {
+    const currentPlayerIndex = rankedPlayers.findIndex(
+      ({ id }) => id === player.id,
+    );
+
+    return Math.max(0, Math.floor(currentPlayerIndex / RESULTS_PER_PAGE)) + 1;
+  }, [rankedPlayers, player.id]);
 
   const pagination = usePagination(
     rankedPlayers,

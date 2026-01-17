@@ -1,4 +1,10 @@
-import { createContext, type PropsWithChildren, useState } from 'react';
+import {
+  createContext,
+  type PropsWithChildren,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
@@ -30,31 +36,40 @@ export const MapProvider = ({ children }: PropsWithChildren) => {
   const tileBaseSize = isWiderThanLg ? 20 : 15;
   const tileSize = tileBaseSize * magnification;
 
-  const increaseMagnification = () => {
+  const increaseMagnification = useCallback(() => {
     if (magnification === MAX_MAGNIFICATION) {
       return;
     }
 
     setMagnification((prevState) => prevState + 1);
-  };
+  }, [magnification]);
 
-  const decreaseMagnification = () => {
+  const decreaseMagnification = useCallback(() => {
     if (magnification === MIN_MAGNIFICATION) {
       return;
     }
 
     setMagnification((prevState) => prevState - 1);
-  };
+  }, [magnification]);
 
-  const value = {
-    magnification,
-    increaseMagnification,
-    decreaseMagnification,
-    tileSize,
-    gridSize,
-    MAX_MAGNIFICATION,
-    MIN_MAGNIFICATION,
-  };
+  const value = useMemo(
+    () => ({
+      magnification,
+      increaseMagnification,
+      decreaseMagnification,
+      tileSize,
+      gridSize,
+      MAX_MAGNIFICATION,
+      MIN_MAGNIFICATION,
+    }),
+    [
+      magnification,
+      tileSize,
+      gridSize,
+      increaseMagnification,
+      decreaseMagnification,
+    ],
+  );
 
   return <MapContext value={value}>{children}</MapContext>;
 };

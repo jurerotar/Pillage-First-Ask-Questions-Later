@@ -20,20 +20,37 @@ import {
 } from 'app/utils/device';
 
 const createCookies = async () => {
-  if ((await getCookie(LOCALE_COOKIE_NAME)) === null) {
-    await setCookie<AvailableLocale>(LOCALE_COOKIE_NAME, 'en-US');
+  const [locale, skinVariant, colorScheme, timeOfDay] = await Promise.all([
+    getCookie(LOCALE_COOKIE_NAME),
+    getCookie(GRAPHICS_SKIN_VARIANT_COOKIE_NAME),
+    getCookie(UI_COLOR_SCHEME_COOKIE_NAME),
+    getCookie(GRAPHICS_TIME_OF_DAY_COOKIE_NAME),
+  ]);
+
+  const setters: Promise<void>[] = [];
+
+  if (locale === null) {
+    setters.push(setCookie<AvailableLocale>(LOCALE_COOKIE_NAME, 'en-US'));
   }
 
-  if ((await getCookie(GRAPHICS_SKIN_VARIANT_COOKIE_NAME)) === null) {
-    await setCookie<SkinVariant>(GRAPHICS_SKIN_VARIANT_COOKIE_NAME, 'default');
+  if (skinVariant === null) {
+    setters.push(
+      setCookie<SkinVariant>(GRAPHICS_SKIN_VARIANT_COOKIE_NAME, 'default'),
+    );
   }
 
-  if ((await getCookie(UI_COLOR_SCHEME_COOKIE_NAME)) === null) {
-    await setCookie<UIColorScheme>(UI_COLOR_SCHEME_COOKIE_NAME, 'light');
+  if (colorScheme === null) {
+    setters.push(
+      setCookie<UIColorScheme>(UI_COLOR_SCHEME_COOKIE_NAME, 'light'),
+    );
   }
 
-  if ((await getCookie(GRAPHICS_TIME_OF_DAY_COOKIE_NAME)) === null) {
-    await setCookie<TimeOfDay>(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day');
+  if (timeOfDay === null) {
+    setters.push(setCookie<TimeOfDay>(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day'));
+  }
+
+  if (setters.length > 0) {
+    await Promise.all(setters);
   }
 };
 

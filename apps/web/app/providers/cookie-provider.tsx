@@ -2,6 +2,7 @@ import {
   createContext,
   type PropsWithChildren,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import type {
@@ -87,7 +88,7 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  return (
-    <CookieContext.Provider value={cookies}>{children}</CookieContext.Provider>
-  );
+  const value = useMemo(() => cookies, [cookies]);
+
+  return <CookieContext value={value}>{children}</CookieContext>;
 };

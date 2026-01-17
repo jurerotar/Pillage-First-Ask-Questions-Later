@@ -14,12 +14,12 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['population', 'villages', 'overview'];
+
 const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-
-  const tabs = ['population', 'villages', 'overview'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 

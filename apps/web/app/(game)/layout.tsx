@@ -16,12 +16,14 @@ import { Skeleton } from 'app/components/ui/skeleton';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 
 export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
-  const { sessionContext } = await import('app/context/session');
-  // const locale = await getCookie('locale', 'en-US');
   const locale = 'en-US';
 
-  await loadAppTranslations(locale);
+  const [sessionModule] = await Promise.all([
+    import('app/context/session'),
+    loadAppTranslations(locale),
+  ]);
 
+  const { sessionContext } = sessionModule;
   const { sessionId } = context.get(sessionContext);
 
   return {
