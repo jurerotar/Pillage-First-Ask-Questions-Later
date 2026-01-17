@@ -12,6 +12,16 @@ import { env } from 'app/env';
 import { CookieContext } from 'app/providers/cookie-provider';
 import { daysSince } from 'app/utils/time';
 
+const parseVersion = (version: string) => {
+  const [major, minor, patch] = version.split('.');
+
+  return [
+    Number.parseInt(major, 10),
+    Number.parseInt(minor, 10),
+    Number.parseInt(patch, 10),
+  ];
+};
+
 type ServerCardProps = {
   server: Server;
 };
@@ -20,9 +30,17 @@ export const ServerCard = ({ server }: ServerCardProps) => {
   const { locale } = use(CookieContext);
   const { exportGameWorld, deleteGameWorld } = useGameWorldActions();
 
+  const appVersion = env.VERSION;
+
   const timeSinceCreation = daysSince(server.createdAt, locale);
 
-  const serverVersion = server.version ?? '0.0.0';
+  const gameWorldVersion = server.version ?? '0.0.0';
+
+  const [appMajor, appMinor] = parseVersion(appVersion);
+  const [gameWorldMajor, gameWorldMinor] = parseVersion(gameWorldVersion);
+
+  const shouldDisplayGameWorldOutdatedAlert =
+    appMajor !== gameWorldMajor || appMinor !== gameWorldMinor;
 
   return (
     <div
@@ -54,7 +72,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
         <Badge variant="successive">
           {server.configuration.mapSize}x{server.configuration.mapSize}
         </Badge>
-        <Badge variant="successive">v{serverVersion}</Badge>
+        <Badge variant="successive">v{gameWorldVersion}</Badge>
       </div>
       <div className="flex gap-2 flex-wrap">
         <span className="flex gap-2">
@@ -68,10 +86,10 @@ export const ServerCard = ({ server }: ServerCardProps) => {
           <Text>{timeSinceCreation}</Text>
         </span>
       </div>
-      {serverVersion !== env.VERSION && (
+      {shouldDisplayGameWorldOutdatedAlert && (
         <Alert variant="error">
-          Your server version is outdated. It may not work with current version
-          of the app. In case of error, delete and recreate server.
+          This game world is incompatible with the latest version of the app. In
+          case of error, create a new game world.
         </Alert>
       )}
       <Link to={`/game/${server.slug}/v-1/resources`}>

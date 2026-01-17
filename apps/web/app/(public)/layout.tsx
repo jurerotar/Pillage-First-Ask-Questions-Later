@@ -19,7 +19,6 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
     <Text
       {...props}
       as="h2"
-      className="mb-2"
     />
   ),
   h3: (props) => (
@@ -31,6 +30,7 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   h4: (props) => (
     <Text
       {...props}
+      className="text-gray-400 font-medium text-sm"
       as="h4"
     />
   ),
@@ -47,6 +47,24 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
     />
   ),
   p: (props) => <Text {...props} />,
+  ul: (props) => (
+    <ul
+      {...props}
+      className="list-disc ml-4 flex flex-col gap-1 my-2"
+    />
+  ),
+  ol: (props) => (
+    <ol
+      {...props}
+      className="list-decimal ml-6 flex flex-col gap-2"
+    />
+  ),
+  li: (props) => (
+    <li
+      {...props}
+      className="text-foreground"
+    />
+  ),
 };
 
 const PublicLayout = () => {

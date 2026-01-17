@@ -9,6 +9,7 @@ import { BiWorld } from 'react-icons/bi';
 import { CiImport } from 'react-icons/ci';
 import { FaChevronDown } from 'react-icons/fa';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { GrHelpBook } from 'react-icons/gr';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { IoCreate } from 'react-icons/io5';
 import { PiHandshakeBold } from 'react-icons/pi';
@@ -79,7 +80,7 @@ const NavMenu = ({
   );
 };
 
-const _NavLink = (props: PropsWithChildren<LinkProps>) => {
+const NavLink = (props: PropsWithChildren<LinkProps>) => {
   return (
     <Link
       className="text-sm font-medium text-slate-700 hover:text-slate-900 py-4 px-1"
@@ -179,6 +180,13 @@ export const DesktopNavigation = () => {
                   icon={<PiHandshakeBold />}
                 />
               </Link>
+              <div className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors opacity-50">
+                <DropdownLinkContent
+                  label={t('Wiki (coming soon)')}
+                  description={t('Learn about the game')}
+                  icon={<GrHelpBook />}
+                />
+              </div>
             </NavMenu>
 
             <NavMenu
@@ -212,10 +220,7 @@ export const DesktopNavigation = () => {
                 />
               </a>
             </NavMenu>
-
-            <span className="text-sm font-medium text-slate-700 hover:text-slate-900 py-4 px-1">
-              Wiki (coming soon)
-            </span>
+            <NavLink to="/latest-updates">{t('Latest updates')}</NavLink>
           </div>
         </div>
 

@@ -5,25 +5,23 @@
 
   Project is still pretty heavy in development! It's still missing a lot of major features. What's currently available
   is building construction, unit training, a couple of building interfaces, as well as secondary pages like
-  production-overview, village-overview, map, preferences,...
+  production-overview, village-overview, map, preferences, statistics, player pages, oasis bonus finder,...
 
-  I'm currently working on a rework of the game engine. This rework will allow us to scale properly, which we need to
-  simulate thousands of villages. This work is sadly taking the majority of my time, so other features are currently
-  blocked due to that.
+  **We've recently completed a rework of the game engine**, which has been a massive undertaking. This was previously
+  taking the majority of development efforts, which will now go to new features!
 </section>
 
 <section>
   ## Is there a project roadmap available?
 
   Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific
-  timeline for any features. That being said, here's the general plan for upcoming development:
+  timeline for any features. That being said, here's some of the **prioritized features**:
 
-  - Engine rework (currently in development)
-  - Combat mechanics
-  - Trading mechanics
-  - Hero adventures, inventory,...
+  * Combat mechanics
+  * Trading mechanics
+  * Hero adventures & inventory
 
-  Bug fixing and other minor works will be made between these features.
+  **Bug fixing and minor quality-of-life updates will take priority**.
 </section>
 
 <section>
@@ -31,7 +29,11 @@
 
   Yes, there are a few! The main ones include planned new buildings, the removal of the capital village mechanic,
   expanded artifact system, planned new hero items and more NPC interactions. Mechanics are always up for discussion, so
-  feel free to leave your thoughts! Game design is an ongoing conversation in <a rel="noopener noreferrer" className="text-blue-500 underline" target="_blank" href="https://discord.gg/Ep7NKVXUZA">our Discord server</a>, so feel free to hop in and share your thoughts!
+  feel free to leave your thoughts! Game design is an ongoing conversation in <a rel="noopener noreferrer"
+                                                                                 className="text-blue-500 underline"
+                                                                                 target="_blank"
+                                                                                 href="https://discord.gg/Ep7NKVXUZA">our
+  Discord server</a>, so feel free to hop in and share your thoughts!
 </section>
 
 <section>
@@ -47,7 +49,7 @@
   connect it to a backend, enabling a multiplayer experience. Most of the frontend can be completely reused, making the
   transition easier than starting from scratch.
 
-  If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!
+  **If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!**
 </section>
 
 <section>
@@ -79,7 +81,8 @@
   We've made a lot of effort to differentiate this game from Travian. Even though Pillage First! is inspired by Travian,
   we've made (and plan for more) **fundamental gameplay, technological & design differences** between games.
 
-  **Codebase has been written completely from scratch**. We're not using Travian codebase as a reference or any other reason
+  **Codebase has been written completely from scratch**. We're not using Travian codebase as a reference or any other
+  reason
   in any stage of development.
 
   Art is completely handmade. We don't use or allow any Travian assets. Furthermore, we don't use and don't allow
@@ -104,12 +107,13 @@
   completely safe and don't affect the underlying data structures that the app requires, but not always. Sometimes, even
   minor changes break the game world, either completely, or partially.
   <br />
-  **Until full release** - Until the full release of the game, I don't intend to keep worlds compatible between changes.
+  * **Until full release** - Until the full release of the game, I don't intend to keep worlds compatible between
+  changes.
   This means game worlds should be expected to break relatively regularly and should only be used for testing the game
   out. I can't afford to spend time migrating old game states to new structures to keep compatibility, due to this
   slowing down development quite a bit.
 
-  **After full release** - After the game is officially released, I will commit to keeping game worlds stable between
+  * **After full release** - After the game is officially released, I will commit to keeping game worlds stable between
   releases. This means that with each a game change, I'll also provide a script to migrate old game states to new ones.
   This process should be completely transparent to users.
 </section>

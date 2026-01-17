@@ -66,8 +66,8 @@
   "devDependencies": {
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
-    "vitest": "4.0.16",
-    "@vitest/coverage-v8": "4.0.16",
+    "vitest": "4.0.17",
+    "@vitest/coverage-v8": "4.0.17",
     "typescript": "*"
   }
 }

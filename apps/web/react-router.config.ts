@@ -16,6 +16,7 @@ const reactRouterConfig: Config = {
       '/game-worlds/import',
       '/frequently-asked-questions',
       '/get-involved',
+      '/latest-updates',
       '/__spa-preload',
     ],
   },

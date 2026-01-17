@@ -43,6 +43,6 @@
     "@visulima/jsdoc-open-api": "2.0.95",
     "openapi-typescript": "7.10.1",
     "typescript": "*",
-    "vitest": "4.0.16"
+    "vitest": "4.0.17"
   }
 }

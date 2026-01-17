@@ -9,6 +9,12 @@ runs:
         restore-keys: |
           ${{ runner.os }}-turbo-
 
+    - name: Cache Node Modules
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
     - name: Setup Node.js LTS
       uses: actions/setup-node@v6
       with:
