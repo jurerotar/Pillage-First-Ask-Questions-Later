@@ -182,8 +182,8 @@ export const DesktopNavigation = () => {
               </Link>
               <div className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors opacity-50">
                 <DropdownLinkContent
-                  label={t('Wiki')}
-                  description={t('Coming soon')}
+                  label={t('Wiki (coming soon)')}
+                  description={t('Learn about the game')}
                   icon={<GrHelpBook />}
                 />
               </div>

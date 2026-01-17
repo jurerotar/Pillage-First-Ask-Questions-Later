@@ -10,8 +10,7 @@ commit-msg:
 pre-commit:
   commands:
     localize:
-      stage_fixed: true
-      run: npx turbo run localize
+      run: npx turbo run localize && git add "apps/web/app/localization/locales/*/extracted/*.json"
     biome:
       stage_fixed: true
       run: npx turbo run format
