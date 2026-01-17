@@ -8,6 +8,7 @@
 /game-worlds/import               /game-worlds/import/index.html            200
 /get-involved                     /get-involved/index.html                  200
 /frequently-asked-questions       /frequently-asked-questions/index.html    200
+/latest-updates                   /latest-updates/index.html                200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/:splat/resources                       /game/server-slug/village-slug/resources/index.html                        200
@@ -23,6 +24,8 @@
 /game/:splat/:splat/quests                          /game/server-slug/village-slug/quests/index.html                           200
 /game/:splat/:splat/reports                         /game/server-slug/village-slug/reports/index.html                          200
 /game/:splat/:splat/reports/:splat                  /game/server-slug/village-slug/reports/report-id/index.html                200
+/game/:splat/:splat/players/:splat                  /game/server-slug/village-slug/players/player-id/index.html                200
+/game/:splat/:splat/oasis-bonus-finder              /game/server-slug/village-slug/oasis-bonus-finder/index.html               200
 
 # === Dynamic fallback for game routes not statically pre-rendered ===
 /game/*                                    /__spa-fallback.html                                      200

@@ -1,0 +1,14 @@
+@reference '../../styles/app.css';
+
+.changelog {
+  @apply relative ml-2 pl-4 border-l-2 border-success flex flex-col gap-4;
+
+  & > div {
+    @apply relative flex flex-col gap-2;
+
+    &::before {
+      content: "";
+      @apply absolute -left-8.25 size-3 rounded-full bg-success border-10 border-background box-content;
+    }
+  }
+}

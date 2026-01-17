@@ -81,6 +81,13 @@ export const Footer = () => {
               </Link>
             </li>
             <li>
+              <Link to="/latest-updates">
+                <Text className="font-medium text-gray-800">
+                  {t('Latest updates')}
+                </Text>
+              </Link>
+            </li>
+            <li className="opacity-50">
               <Text className="font-medium text-gray-800">
                 {t('Wiki (coming soon)')}
               </Text>

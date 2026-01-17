@@ -2,7 +2,7 @@ import { Activity, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BiWorld } from 'react-icons/bi';
 import { CiImport } from 'react-icons/ci';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { FaDiscord, FaGithub, FaRegNewspaper } from 'react-icons/fa6';
 import { GrHelpBook } from 'react-icons/gr';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { IoIosChatbubbles } from 'react-icons/io';
@@ -104,6 +104,23 @@ export const MobileNavigation = () => {
                     </li>
                   </ul>
                 </div>
+
+                <div className="border border-dashed border-border w-full" />
+
+                <ul className="flex flex-col gap-2">
+                  <li>
+                    <Link
+                      className="inline-flex gap-2 items-center"
+                      to="/latest-updates"
+                    >
+                      <FaRegNewspaper className="text-gray-400 text-lg" />
+                      <Text className="font-medium text-gray-800">
+                        {t('Latest updates')}
+                      </Text>
+                    </Link>
+                  </li>
+                </ul>
+
                 <div className="border border-dashed border-border w-full" />
                 <div className="flex flex-col gap-2">
                   <Text className="text-2xs font-semibold uppercase text-gray-400">
@@ -132,17 +149,8 @@ export const MobileNavigation = () => {
                         </Text>
                       </Link>
                     </li>
-                  </ul>
-                </div>
-
-                <div className="border border-dashed border-border w-full" />
-                <div className="flex flex-col gap-2">
-                  <Text className="text-2xs font-semibold uppercase text-gray-400">
-                    {t('Guides')}
-                  </Text>
-                  <ul className="flex flex-col gap-2">
                     <li>
-                      <span className="inline-flex gap-2 items-center">
+                      <span className="inline-flex gap-2 items-center opacity-50">
                         <GrHelpBook className="text-gray-400 text-lg" />
                         <Text className="font-medium text-gray-800">
                           {t('Wiki (coming soon)')}
@@ -151,6 +159,7 @@ export const MobileNavigation = () => {
                     </li>
                   </ul>
                 </div>
+
                 <div className="border border-dashed border-border w-full" />
                 <div className="flex flex-col gap-2">
                   <Text className="text-2xs font-semibold uppercase text-gray-400">

@@ -12,7 +12,7 @@ const variantStyles: Record<AlertVariant, { bg: string; text: string }> = {
 
 const AlertIcon = () => (
   <svg
-    className="w-5 h-5 inline mr-3 flex-shrink-0"
+    className="w-5 h-5 inline mr-3 shrink-0"
     fill="currentColor"
     viewBox="0 0 20 20"
     height={20}
