@@ -89,7 +89,14 @@ export const ServerCard = ({ server }: ServerCardProps) => {
       {shouldDisplayGameWorldOutdatedAlert && (
         <Alert variant="error">
           This game world is incompatible with the latest version of the app. In
-          case of error, create a new game world.
+          case of error, create a new game world. Check the{' '}
+          <Link
+            className="underline"
+            to="../latest-updates"
+          >
+            latest updates page
+          </Link>{' '}
+          for more information.
         </Alert>
       )}
       <Link to={`/game/${server.slug}/v-1/resources`}>
