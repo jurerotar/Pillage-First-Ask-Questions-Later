@@ -6,8 +6,7 @@ type EventKey =
   | 'event:worker-event-creation-success'
   | 'event:worker-event-creation-error'
   | 'event:worker-event-resolve-success'
-  | 'event:worker-event-resolve-error'
-  | 'event:locale-changed';
+  | 'event:worker-event-resolve-error';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
