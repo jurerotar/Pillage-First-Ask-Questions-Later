@@ -73,7 +73,7 @@ export const Layout = () => {
         <SqlitePrefetchLink />
         <Links />
       </head>
-      <body className="[-webkit-touch-callout:none]">
+      <body>
         <StateProvider>
           <Outlet />
         </StateProvider>

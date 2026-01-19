@@ -797,20 +797,22 @@ const GameLayout = memo<Route.ComponentProps>(
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     return (
-      <CurrentVillageStateProvider>
-        <CurrentVillageBuildingQueueContextProvider>
-          <Tooltip id="general-tooltip" />
-          <TopNavigation />
-          <TroopMovements />
-          <Suspense fallback={<PageFallback />}>
-            <Outlet />
-          </Suspense>
-          <ConstructionQueue />
-          <TroopList />
-          {!isWiderThanLg && <MobileBottomNavigation />}
-          <PreferencesUpdater />
-        </CurrentVillageBuildingQueueContextProvider>
-      </CurrentVillageStateProvider>
+      <div className="[-webkit-touch-callout:none]">
+        <CurrentVillageStateProvider>
+          <CurrentVillageBuildingQueueContextProvider>
+            <Tooltip id="general-tooltip" />
+            <TopNavigation />
+            <TroopMovements />
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
+            <ConstructionQueue />
+            <TroopList />
+            {!isWiderThanLg && <MobileBottomNavigation />}
+            <PreferencesUpdater />
+          </CurrentVillageBuildingQueueContextProvider>
+        </CurrentVillageStateProvider>
+      </div>
     );
   },
   (prev, next) => {
