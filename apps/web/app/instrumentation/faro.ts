@@ -1,16 +1,11 @@
-import type { Faro } from '@grafana/faro-web-sdk';
 import { env } from 'app/env';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 
-let instance: Faro | null = null;
+// This is only injected by Netlify, so we're safe to run this on development
+const isAllowedBranch = ['master', 'develop'].includes(env.HEAD);
 
 export const initFaro = async () => {
-  if (
-    typeof window === 'undefined' ||
-    env.MODE === 'development' ||
-    env.BRANCH_ENV !== 'master' ||
-    instance
-  ) {
+  if (typeof window === 'undefined' || !isAllowedBranch) {
     return;
   }
 
@@ -18,7 +13,7 @@ export const initFaro = async () => {
     '@grafana/faro-web-sdk'
   );
 
-  instance = initializeFaro({
+  initializeFaro({
     url: env.VITE_FARO_INGEST_ENDPOINT,
     app: {
       name: 'pillage-first',
@@ -26,7 +21,10 @@ export const initFaro = async () => {
       environment: env.BRANCH_ENV,
       release: env.COMMIT_REF,
     },
-    instrumentations: getWebInstrumentations({ captureConsole: true }),
+    instrumentations: getWebInstrumentations({
+      captureConsole: true,
+      enablePerformanceInstrumentation: true,
+    }),
     sessionTracking: {
       session: {
         attributes: {
