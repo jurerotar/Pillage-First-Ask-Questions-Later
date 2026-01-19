@@ -114,32 +114,37 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = Omit<NavLinkProps, 'children'> & {
-  children: ReactNode;
+type NavigationSideItemProps = NavLinkProps & {
+  counter?: ReactNode;
 };
 
 const NavigationSideItem = ({
   children,
+  counter,
   ...rest
 }: PropsWithChildren<NavigationSideItemProps>) => {
   return (
-    <NavLink
-      data-tooltip-id="general-tooltip"
-      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
-      data-tooltip-class-name="hidden lg:flex"
-      className={clsx(
-        'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
-        'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
-        'transition-transform active:scale-95 active:shadow-inner',
-        'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
-        'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
-      )}
-      {...rest}
-    >
-      <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-        {children}
-      </span>
-    </NavLink>
+    <div className="relative">
+      {counter}
+      <NavLink
+        data-tooltip-id="general-tooltip"
+        data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+        data-tooltip-class-name="hidden lg:flex"
+        tabIndex={0}
+        className={clsx(
+          'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
+          'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
+          'transition-transform active:scale-95 active:shadow-inner',
+          'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+          'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
+        )}
+        {...rest}
+      >
+        <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+          {children}
+        </span>
+      </NavLink>
+    </div>
   );
 };
 
@@ -181,6 +186,7 @@ const VillageOverviewDesktopItem = () => {
       data-tooltip-content={t('Overview')}
       data-tooltip-id="general-tooltip"
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      tabIndex={0}
       className={clsx(
         'flex items-center justify-center shadow-md rounded-md p-1.5 border border-border relative',
         'transition-transform active:scale-95 active:shadow-inner',
@@ -202,6 +208,7 @@ const VillageOverviewMobileItem = () => {
   return (
     <Link
       to="overview"
+      tabIndex={0}
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-background transition-transform active:scale-95"
       aria-label={t('Village overview')}
     >
@@ -252,6 +259,7 @@ const HeroNavigationItem = () => {
   return (
     <Link
       to="hero"
+      tabIndex={0}
       className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] transition-transform active:scale-95"
       aria-label={t('Hero')}
     >
@@ -338,10 +346,10 @@ type NavigationMainItemProps = Omit<NavLinkProps, 'children'> & {
 const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
   return (
     <NavLink
-      type="button"
       data-tooltip-id="general-tooltip"
       data-tooltip-class-name="hidden lg:flex"
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      tabIndex={0}
       className={({ isActive }) =>
         clsx(
           isActive
@@ -369,10 +377,12 @@ const QuestsNavigationItem = () => {
       to="quests"
       aria-label={t('Quests')}
       data-tooltip-content={t('Quests')}
+      counter={
+        <Suspense fallback={null}>
+          <QuestsCounter />
+        </Suspense>
+      }
     >
-      <Suspense fallback={null}>
-        <QuestsCounter />
-      </Suspense>
       <LuBookMarked className="text-2xl" />
     </NavigationSideItem>
   );
@@ -386,10 +396,12 @@ const AdventuresNavigationItem = () => {
       to="hero?tab=adventures"
       aria-label={t('Adventures')}
       data-tooltip-content={t('Adventures')}
+      counter={
+        <Suspense fallback={null}>
+          <AdventurePointsCounter />
+        </Suspense>
+      }
     >
-      <Suspense fallback={null}>
-        <AdventurePointsCounter />
-      </Suspense>
       <PiPathBold className="text-2xl" />
     </NavigationSideItem>
   );
@@ -403,10 +415,12 @@ const ReportsNavigationItem = () => {
       to="reports"
       aria-label={t('Reports')}
       data-tooltip-content={t('Reports')}
+      counter={
+        <Suspense fallback={null}>
+          <ReportsCounter />
+        </Suspense>
+      }
     >
-      <Suspense fallback={null}>
-        <ReportsCounter />
-      </Suspense>
       <LuScrollText className="text-2xl" />
     </NavigationSideItem>
   );
@@ -783,20 +797,22 @@ const GameLayout = memo<Route.ComponentProps>(
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     return (
-      <CurrentVillageStateProvider>
-        <CurrentVillageBuildingQueueContextProvider>
-          <Tooltip id="general-tooltip" />
-          <TopNavigation />
-          <TroopMovements />
-          <Suspense fallback={<PageFallback />}>
-            <Outlet />
-          </Suspense>
-          <ConstructionQueue />
-          <TroopList />
-          {!isWiderThanLg && <MobileBottomNavigation />}
-          <PreferencesUpdater />
-        </CurrentVillageBuildingQueueContextProvider>
-      </CurrentVillageStateProvider>
+      <div className="[-webkit-touch-callout:none]">
+        <CurrentVillageStateProvider>
+          <CurrentVillageBuildingQueueContextProvider>
+            <Tooltip id="general-tooltip" />
+            <TopNavigation />
+            <TroopMovements />
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
+            <ConstructionQueue />
+            <TroopList />
+            {!isWiderThanLg && <MobileBottomNavigation />}
+            <PreferencesUpdater />
+          </CurrentVillageBuildingQueueContextProvider>
+        </CurrentVillageStateProvider>
+      </div>
     );
   },
   (prev, next) => {

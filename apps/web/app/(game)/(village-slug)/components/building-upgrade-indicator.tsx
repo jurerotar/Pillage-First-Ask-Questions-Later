@@ -1,6 +1,8 @@
 import {
+  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
+  use,
   useState,
 } from 'react';
 import { MdUpgrade } from 'react-icons/md';
@@ -12,7 +14,7 @@ import {
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';
 
 type StaticButtonProps = {
   buildingField: BuildingField;
@@ -27,7 +29,7 @@ const StaticButton = ({
 }: StaticButtonProps) => {
   const { level } = buildingField;
   return (
-    <div className="rounded-full cursor-pointer transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
+    <div className="rounded-full select-none transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
       <BorderIndicator
         backgroundVariant={backgroundVariant}
         variant={variant}
@@ -61,11 +63,21 @@ const UpgradeButton = ({
     upgradeBuilding();
   };
 
+  const onKeyDown = (event: ReactKeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.stopPropagation();
+      event.preventDefault();
+      upgradeBuilding();
+    }
+  };
+
   return (
     <button
-      className="hover:scale-125 rounded-full cursor-pointer transition-transform duration-300 relative"
+      className="hover:scale-125 rounded-full select-none cursor-pointer transition-transform duration-300 relative focus:outline-hidden focus:ring-2 focus:ring-black/80"
       type="button"
+      tabIndex={0}
       onClick={onUpgradeButtonClick}
+      onKeyDown={onKeyDown}
       onMouseEnter={() => setShouldShowUpgradeButton(true)}
       onMouseLeave={() => setShouldShowUpgradeButton(false)}
     >
@@ -93,7 +105,7 @@ export const BuildingUpgradeIndicator = ({
   isHovered,
   buildingEvent,
 }: BuildingUpgradeIndicatorProps) => {
-  const { variant, errors } = useBuildingUpgradeStatus(buildingField);
+  const { variant, errors } = use(BuildingUpgradeStatusContext);
 
   const canUpgrade: boolean = errors.length === 0;
 

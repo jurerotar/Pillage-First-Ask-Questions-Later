@@ -46,7 +46,8 @@ export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
   return (
     <Link
       to={{ pathname: 'production-overview', search: `?tab=${resource}` }}
-      className="flex w-full flex-col gap-1"
+      tabIndex={0}
+      className="flex w-full flex-col gap-1 focus:outline-hidden focus:ring-2 focus:ring-black/80 ring-offset-2 rounded-sm"
     >
       <div className="flex w-full items-center justify-between">
         <Icon

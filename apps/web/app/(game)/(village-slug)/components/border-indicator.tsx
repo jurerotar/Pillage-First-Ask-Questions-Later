@@ -63,7 +63,7 @@ export const BorderIndicator = (
           !backgroundVariant
             ? 'bg-background'
             : backgroundVariantToClassNameMap[backgroundVariant],
-          'relative inline-flex size-5 items-center justify-center rounded-full bg-background text-xs',
+          'relative inline-flex size-5 items-center justify-center rounded-full text-xs outline outline-white/50',
         )}
       >
         {children}
