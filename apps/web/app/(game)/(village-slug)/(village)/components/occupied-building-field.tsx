@@ -114,7 +114,7 @@ export const OccupiedBuildingField = ({
               resourceFieldComposition: currentVillage.resourceFieldComposition,
             }),
           buildingFieldId > 18 && 'border border-red-500',
-          'relative size-10 lg:size-16 rounded-full',
+          'relative size-10 lg:size-16 rounded-full select-none [webkit-touch-callout:none]',
         )}
       >
         <div className="absolute absolute-centering">
