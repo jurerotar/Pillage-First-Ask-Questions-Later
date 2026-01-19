@@ -53,12 +53,15 @@ export const BuildingFieldProvider = ({
     return buildingIdsInQueue;
   }, [currentVillageBuildingEvents]);
 
-  const value = {
-    buildingFieldId,
-    buildingField,
-    maxLevelByBuildingId,
-    buildingIdsInQueue,
-  };
+  const value = useMemo(
+    () => ({
+      buildingFieldId,
+      buildingField,
+      maxLevelByBuildingId,
+      buildingIdsInQueue,
+    }),
+    [buildingFieldId, buildingField, maxLevelByBuildingId, buildingIdsInQueue],
+  );
 
   return <BuildingFieldContext value={value}>{children}</BuildingFieldContext>;
 };

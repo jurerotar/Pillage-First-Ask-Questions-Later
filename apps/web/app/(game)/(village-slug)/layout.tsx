@@ -7,6 +7,7 @@ import {
   type ReactNode,
   Suspense,
   use,
+  useMemo,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -263,7 +264,9 @@ const HeroNavigationItem = () => {
   const { hero, health, experience } = useHero();
   const { villageTroops } = useVillageTroops();
 
-  const isHeroHome = !!villageTroops.find(({ unitId }) => unitId === 'HERO');
+  const isHeroHome = useMemo(() => {
+    return villageTroops.some(({ unitId }) => unitId === 'HERO');
+  }, [villageTroops]);
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 

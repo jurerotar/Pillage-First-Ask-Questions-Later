@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
@@ -26,90 +26,60 @@ export const useCalculatedResource = (
   );
 
   const lastKnownResourceAmount = currentVillage.resources[resource];
+  const lastUpdatedAt = currentVillage.lastUpdatedAt;
 
-  const timeoutId = useRef<number | null>(null);
-  const intervalId = useRef<number | null>(null);
+  const subscribe = useMemo(() => {
+    return (callback: () => void) => {
+      if (hourlyProduction === 0) {
+        return () => {};
+      }
 
-  const {
-    timeSinceLastUpdateInSeconds,
-    secondsForResourceGeneration,
-    currentAmount,
-  } = calculateCurrentAmount({
+      const { timeSinceLastUpdateInSeconds, secondsForResourceGeneration } =
+        calculateCurrentAmount({
+          lastKnownResourceAmount,
+          lastUpdatedAt,
+          storageCapacity,
+          hourlyProduction,
+        });
+
+      const remainingTimeForNextUnit =
+        secondsForResourceGeneration -
+        (timeSinceLastUpdateInSeconds % secondsForResourceGeneration);
+
+      const timeoutId = window.setTimeout(() => {
+        callback();
+        const intervalId = window.setInterval(
+          callback,
+          secondsForResourceGeneration * 1000,
+        );
+        return () => window.clearInterval(intervalId);
+      }, remainingTimeForNextUnit * 1000);
+
+      return () => {
+        window.clearTimeout(timeoutId);
+      };
+    };
+  }, [
     lastKnownResourceAmount,
-    lastUpdatedAt: currentVillage.lastUpdatedAt,
+    lastUpdatedAt,
     storageCapacity,
     hourlyProduction,
-  });
+  ]);
 
-  const [calculatedResourceAmount, setCalculatedResourceAmount] =
-    useState<number>(currentAmount);
+  const getSnapshot = () => {
+    const { currentAmount } = calculateCurrentAmount({
+      lastKnownResourceAmount,
+      lastUpdatedAt,
+      storageCapacity,
+      hourlyProduction,
+    });
+    return currentAmount;
+  };
+
+  const calculatedResourceAmount = useSyncExternalStore(subscribe, getSnapshot);
 
   const hasNegativeProduction = hourlyProduction < 0;
   const isFull = calculatedResourceAmount === storageCapacity;
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
-  useEffect(() => {
-    startTransition(() => {
-      setCalculatedResourceAmount(currentAmount);
-    });
-
-    if (timeoutId.current) {
-      window.clearTimeout(timeoutId.current);
-    }
-    if (intervalId.current) {
-      window.clearInterval(intervalId.current);
-    }
-
-    if (hourlyProduction === 0) {
-      return;
-    }
-
-    const updateResourceAmount = () => {
-      const perTickAmount = hourlyProduction / 3600;
-
-      startTransition(() => {
-        setCalculatedResourceAmount((prevAmount) => {
-          let newAmount =
-            prevAmount + perTickAmount * secondsForResourceGeneration;
-
-          if (newAmount > storageCapacity) {
-            newAmount = storageCapacity;
-          }
-          if (newAmount < 0) {
-            newAmount = 0;
-          }
-
-          return newAmount;
-        });
-      });
-    };
-
-    const remainingTimeForNextUnit =
-      secondsForResourceGeneration -
-      (timeSinceLastUpdateInSeconds % secondsForResourceGeneration);
-
-    timeoutId.current = window.setTimeout(() => {
-      updateResourceAmount();
-      intervalId.current = window.setInterval(
-        updateResourceAmount,
-        secondsForResourceGeneration * 1000,
-      );
-    }, remainingTimeForNextUnit * 1000);
-
-    return () => {
-      if (timeoutId.current) {
-        window.clearTimeout(timeoutId.current);
-      }
-      if (intervalId.current) {
-        window.clearInterval(intervalId.current);
-      }
-    };
-  }, [
-    currentVillage.lastUpdatedAt,
-    hourlyProduction,
-    storageCapacity,
-    secondsForResourceGeneration,
-  ]);
 
   return {
     calculatedResourceAmount,

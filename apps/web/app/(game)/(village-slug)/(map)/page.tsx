@@ -1,5 +1,13 @@
 import { useWindowEvent } from '@mantine/hooks';
-import { Suspense, use, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  lazy,
+  Suspense,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
@@ -14,7 +22,6 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
-import { TileDialog } from 'app/(game)/(village-slug)/(map)/components/tile-modal';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import {
   MapContext,
@@ -30,6 +37,12 @@ import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useWindowSize } from 'app/hooks/use-window-size';
 import { TileTooltip } from './components/tile-tooltip';
+
+const TileDialog = lazy(async () => ({
+  default: (
+    await import('app/(game)/(village-slug)/(map)/components/tile-modal')
+  ).TileDialog,
+}));
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
