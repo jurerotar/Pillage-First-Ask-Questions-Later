@@ -1,7 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import type { Preferences } from '@pillage-first/types/models/preferences';
-import { triggerKick } from '../scheduler/scheduler-signal';
 import type { Controller } from '../types/controller';
 
 const getPreferencesSchema = z
@@ -10,7 +9,7 @@ const getPreferencesSchema = z
     is_reduced_motion_mode_enabled: z.number(),
     should_show_building_names: z.number(),
     is_automatic_navigation_after_building_level_change_enabled: z.number(),
-    is_developer_mode_enabled: z.number(),
+    is_developer_tools_console_enabled: z.number(),
     should_show_notifications_on_building_upgrade_completion: z.number(),
     should_show_notifications_on_unit_upgrade_completion: z.number(),
     should_show_notifications_on_academy_research_completion: z.number(),
@@ -23,7 +22,9 @@ const getPreferencesSchema = z
       isAutomaticNavigationAfterBuildingLevelChangeEnabled: Boolean(
         t.is_automatic_navigation_after_building_level_change_enabled,
       ),
-      isDeveloperModeEnabled: Boolean(t.is_developer_mode_enabled),
+      isDeveloperToolsConsoleEnabled: Boolean(
+        t.is_developer_tools_console_enabled,
+      ),
       shouldShowNotificationsOnBuildingUpgradeCompletion: Boolean(
         t.should_show_notifications_on_building_upgrade_completion,
       ),
@@ -47,7 +48,7 @@ export const getPreferences: Controller<'/preferences'> = (database) => {
         is_reduced_motion_mode_enabled,
         should_show_building_names,
         is_automatic_navigation_after_building_level_change_enabled,
-        is_developer_mode_enabled,
+        is_developer_tools_console_enabled,
         should_show_notifications_on_building_upgrade_completion,
         should_show_notifications_on_unit_upgrade_completion,
         should_show_notifications_on_academy_research_completion
@@ -89,22 +90,4 @@ export const updatePreference: Controller<
       $value: value,
     },
   );
-
-  if (preferenceName === 'isDeveloperModeEnabled' && value) {
-    database.exec(
-      `
-        UPDATE events
-        SET
-          starts_at = $now,
-          duration = 0
-        WHERE
-          type IN ('buildingLevelChange', 'buildingScheduledConstruction', 'unitResearch', 'unitImprovement')
-      `,
-      {
-        $now: Date.now(),
-      },
-    );
-
-    triggerKick();
-  }
 };

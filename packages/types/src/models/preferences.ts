@@ -13,7 +13,7 @@ export const preferencesSchema = z.strictObject({
   isReducedMotionModeEnabled: z.boolean(),
   shouldShowBuildingNames: z.boolean(),
   isAutomaticNavigationAfterBuildingLevelChangeEnabled: z.boolean(),
-  isDeveloperModeEnabled: z.boolean(),
+  isDeveloperToolsConsoleEnabled: z.boolean(),
   shouldShowNotificationsOnBuildingUpgradeCompletion: z.boolean(),
   shouldShowNotificationsOnUnitUpgradeCompletion: z.boolean(),
   shouldShowNotificationsOnAcademyResearchCompletion: z.boolean(),

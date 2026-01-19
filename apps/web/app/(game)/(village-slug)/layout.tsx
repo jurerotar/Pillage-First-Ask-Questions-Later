@@ -34,6 +34,10 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import {
+  DeveloperToolsButton,
+  DeveloperToolsConsole,
+} from 'app/(game)/(village-slug)/components/developer-tools-console';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
@@ -65,6 +69,7 @@ import {
 } from 'app/components/ui/select';
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
+import { useDialog } from 'app/hooks/use-dialog';
 
 const closeGameWorld = (apiWorker: Worker): void => {
   const handler = ({ data }: MessageEvent) => {
@@ -113,7 +118,10 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = Omit<NavLinkProps, 'children'> & {
+type NavigationSideItemProps = (
+  | Omit<NavLinkProps, 'children'>
+  | ComponentProps<'button'>
+) & {
   children: ReactNode;
 };
 
@@ -121,24 +129,45 @@ const NavigationSideItem = ({
   children,
   ...rest
 }: PropsWithChildren<NavigationSideItemProps>) => {
+  const content = (
+    <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+      {children}
+    </span>
+  );
+
+  const commonClasses = clsx(
+    'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
+    'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
+    'transition-transform active:scale-95 active:shadow-inner',
+    'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+    'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
+  );
+
+  if ('to' in rest) {
+    return (
+      <NavLink
+        data-tooltip-id="general-tooltip"
+        data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+        data-tooltip-class-name="hidden lg:flex"
+        className={commonClasses}
+        {...rest}
+      >
+        {content}
+      </NavLink>
+    );
+  }
+
   return (
-    <NavLink
+    <button
+      type="button"
       data-tooltip-id="general-tooltip"
       data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
       data-tooltip-class-name="hidden lg:flex"
-      className={clsx(
-        'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
-        'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
-        'transition-transform active:scale-95 active:shadow-inner',
-        'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
-        'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
-      )}
+      className={commonClasses}
       {...rest}
     >
-      <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-        {children}
-      </span>
-    </NavLink>
+      {content}
+    </button>
   );
 };
 
@@ -515,7 +544,7 @@ const VillageSelect = () => {
   );
 };
 
-const TopNavigation = () => {
+const TopNavigation = ({ onOpenDevTools }: { onOpenDevTools: () => void }) => {
   const { t } = useTranslation();
   const { apiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -559,7 +588,16 @@ const TopNavigation = () => {
                   </Link>
                 </li>
               </ul>
-              <ul className="flex gap-1">
+              <ul className="flex gap-1 items-center">
+                <li>
+                  <DesktopTopRowItem
+                    onClick={onOpenDevTools}
+                    aria-label={t('Developer tools')}
+                    data-tooltip-content={t('Developer tools')}
+                  >
+                    <DeveloperToolsButton className="text-xl" />
+                  </DesktopTopRowItem>
+                </li>
                 <li>
                   <Link to="statistics">
                     <DesktopTopRowItem
@@ -660,7 +698,11 @@ const TopNavigation = () => {
   );
 };
 
-const MobileBottomNavigation = () => {
+const MobileBottomNavigation = ({
+  onOpenDevTools,
+}: {
+  onOpenDevTools: () => void;
+}) => {
   const { t } = useTranslation();
   const { apiWorker } = use(ApiContext);
 
@@ -747,6 +789,15 @@ const MobileBottomNavigation = () => {
             </NavigationSideItem>
           </li>
           <li>
+            <NavigationSideItem
+              onClick={onOpenDevTools}
+              aria-label={t('Developer tools')}
+              title={t('Developer tools')}
+            >
+              <DeveloperToolsButton className="text-2xl" />
+            </NavigationSideItem>
+          </li>
+          <li>
             <Separator orientation="vertical" />
           </li>
           <li>
@@ -778,20 +829,27 @@ const PageFallback = () => {
 const GameLayout = memo<Route.ComponentProps>(
   () => {
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+    const { isOpen, openModal, closeModal } = useDialog();
 
     return (
       <CurrentVillageStateProvider>
         <CurrentVillageBuildingQueueContextProvider>
           <Tooltip id="general-tooltip" />
-          <TopNavigation />
+          <TopNavigation onOpenDevTools={openModal} />
           <TroopMovements />
           <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
           <ConstructionQueue />
           <TroopList />
-          {!isWiderThanLg && <MobileBottomNavigation />}
+          {!isWiderThanLg && (
+            <MobileBottomNavigation onOpenDevTools={openModal} />
+          )}
           <PreferencesUpdater />
+          <DeveloperToolsConsole
+            isOpen={isOpen}
+            onOpenChange={closeModal}
+          />
         </CurrentVillageBuildingQueueContextProvider>
       </CurrentVillageStateProvider>
     );

@@ -11,7 +11,7 @@ CREATE TABLE preferences
 
   -- Functionality
   is_automatic_navigation_after_building_level_change_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_building_level_change_enabled IN (0,1)),
-  is_developer_mode_enabled INTEGER NOT NULL CHECK (is_developer_mode_enabled IN (0,1)),
+  is_developer_tools_console_enabled INTEGER NOT NULL CHECK (is_developer_tools_console_enabled IN (0,1)),
 
   -- Notifications
   should_show_notifications_on_building_upgrade_completion INTEGER NOT NULL CHECK (should_show_notifications_on_building_upgrade_completion IN (0,1)),

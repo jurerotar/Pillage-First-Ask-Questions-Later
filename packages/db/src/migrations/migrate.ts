@@ -8,6 +8,7 @@ import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
+import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
 import createEffectIdsTable from '../schemas/effect-ids-schema.sql?raw';
 import createEffectsTable from '../schemas/effects-schema.sql?raw';
 import createEventsTable from '../schemas/events-schema.sql?raw';
@@ -37,6 +38,7 @@ import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
 import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
+import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
 import { effectIdsSeeder } from '../seeders/effect-ids-seeder';
 import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
@@ -71,6 +73,10 @@ export const migrateAndSeed = (database: Database, server: Server): void => {
     // Preferences
     db.exec(createPreferencesTable);
     preferencesSeeder(db, server);
+
+    // Developer settings
+    db.exec(createDeveloperSettingsTable);
+    developerSettingsSeeder(db, server);
 
     // Map filters
     db.exec(createMapFiltersTable);
