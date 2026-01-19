@@ -29,7 +29,7 @@ const StaticButton = ({
 }: StaticButtonProps) => {
   const { level } = buildingField;
   return (
-    <div className="rounded-full transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
+    <div className="rounded-full select-none transition-transform duration-300 relative pointer-events-none lg:pointer-events-auto">
       <BorderIndicator
         backgroundVariant={backgroundVariant}
         variant={variant}
@@ -73,7 +73,7 @@ const UpgradeButton = ({
 
   return (
     <button
-      className="hover:scale-125 rounded-full cursor-pointer transition-transform duration-300 relative focus:outline-hidden focus:ring-2 focus:ring-black/80"
+      className="hover:scale-125 rounded-full select-none cursor-pointer transition-transform duration-300 relative focus:outline-hidden focus:ring-2 focus:ring-black/80"
       type="button"
       tabIndex={0}
       onClick={onUpgradeButtonClick}
