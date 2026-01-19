@@ -55,7 +55,7 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
       </Text>
       <Tabs
         value={tabs[tabIndex] ?? 'default'}
-        onValueChange={(value) => {
+        onValueChange={(value: string) => {
           navigateToTab(value);
         }}
       >

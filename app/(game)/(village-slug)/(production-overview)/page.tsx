@@ -38,7 +38,7 @@ const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
       <Text as="h1">{t('Production overview')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}
-        onValueChange={(value) => {
+        onValueChange={(value: string) => {
           navigateToTab(value);
         }}
       >
