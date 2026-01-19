@@ -38,13 +38,11 @@ import { useDialog } from 'app/hooks/use-dialog';
 import { useWindowSize } from 'app/hooks/use-window-size';
 import { TileTooltip } from './components/tile-tooltip';
 
-const TileDialog = lazy(() =>
-  import('app/(game)/(village-slug)/(map)/components/tile-modal').then(
-    (module) => ({
-      default: module.TileDialog,
-    }),
-  ),
-);
+const TileDialog = lazy(async () => ({
+  default: (
+    await import('app/(game)/(village-slug)/(map)/components/tile-modal')
+  ).TileDialog,
+}));
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
