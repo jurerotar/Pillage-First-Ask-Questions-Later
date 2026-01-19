@@ -1,6 +1,7 @@
 import {
   type MouseEvent as ReactMouseEvent,
   type TouchEvent as ReactTouchEvent,
+  use,
   useState,
 } from 'react';
 import { MdUpgrade } from 'react-icons/md';
@@ -12,7 +13,7 @@ import {
   type BorderIndicatorBackgroundVariant,
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
-import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';
 
 type StaticButtonProps = {
   buildingField: BuildingField;
@@ -93,7 +94,7 @@ export const BuildingUpgradeIndicator = ({
   isHovered,
   buildingEvent,
 }: BuildingUpgradeIndicatorProps) => {
-  const { variant, errors } = useBuildingUpgradeStatus(buildingField);
+  const { variant, errors } = use(BuildingUpgradeStatusContext);
 
   const canUpgrade: boolean = errors.length === 0;
 
