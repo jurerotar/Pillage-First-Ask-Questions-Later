@@ -124,7 +124,7 @@ export const OccupiedBuildingField = memo(
                 resourceFieldComposition:
                   currentVillage.resourceFieldComposition,
               }),
-            'relative size-10 lg:size-16 rounded-full select-none [-webkit-touch-callout:none] focus:outline-hidden focus:ring-2 focus:ring-black/80 border border-black/10',
+            'relative size-10 lg:size-16 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 border border-black/10',
           )}
         >
           <div className="absolute absolute-centering">
