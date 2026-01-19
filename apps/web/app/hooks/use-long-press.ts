@@ -43,11 +43,13 @@ export const useLongPress = (
 
   const onMouseDown = (e: ReactMouseEvent | ReactTouchEvent) => {
     if (e.type === 'mousedown' || e.type === 'touchstart') {
+      e.preventDefault();
       start(e);
     }
   };
 
   const onTouchStart = (e: ReactTouchEvent) => {
+    e.preventDefault();
     start(e);
   };
 
