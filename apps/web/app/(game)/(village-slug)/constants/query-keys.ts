@@ -2,17 +2,14 @@ export const serverCacheKey = 'server';
 export const effectsCacheKey = 'effects';
 export const heroCacheKey = 'hero';
 export const heroInventoryCacheKey = 'hero-inventory';
-export const mapCacheKey = 'map';
 export const playersCacheKey = 'players';
 export const preferencesCacheKey = 'preferences';
 export const questsCacheKey = 'quests';
 export const collectableQuestCountCacheKey = 'collectable-quests';
 export const reportsCacheKey = 'reports';
 export const reputationsCacheKey = 'reputations';
-export const troopsCacheKey = 'units';
 export const unitImprovementCacheKey = 'unit-improvement';
 export const unitResearchCacheKey = 'unit-research';
-export const villagesCacheKey = 'villages';
 export const villageListing = 'village-listing';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
@@ -23,3 +20,8 @@ export const bookmarksCacheKey = 'bookmarks';
 
 export const playerVillagesCacheKey = 'player-villages';
 export const playerTroopsCacheKey = 'player-units';
+
+export const playerRankingsCacheKey = 'player-rankings';
+export const villageRankingsCacheKey = 'village-rankings';
+export const gameWorldOverviewStatisticsCacheKey =
+  'game-world-overview-statistics';

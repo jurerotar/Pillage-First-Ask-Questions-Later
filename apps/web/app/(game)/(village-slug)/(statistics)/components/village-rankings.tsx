@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useVillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-village-rankings';
@@ -24,12 +25,13 @@ export const VillageRankings = () => {
   const { currentVillage } = useCurrentVillage();
   const { rankedVillages } = useVillageRankings();
 
-  const currentVillageIndex = rankedVillages.findIndex(
-    ({ id }) => id === currentVillage.id,
-  );
+  const startingPage = useMemo(() => {
+    const currentVillageIndex = rankedVillages.findIndex(
+      ({ id }) => id === currentVillage.id,
+    );
 
-  const startingPage =
-    Math.max(0, Math.floor(currentVillageIndex / RESULTS_PER_PAGE)) + 1;
+    return Math.max(0, Math.floor(currentVillageIndex / RESULTS_PER_PAGE)) + 1;
+  }, [rankedVillages, currentVillage.id]);
 
   const pagination = usePagination(
     rankedVillages,

@@ -18,6 +18,8 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['default', 'inventory', 'adventures', 'auctions'];
+
 const HeroPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
@@ -26,8 +28,6 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
   const { server } = useServer();
   const { level } = calculateHeroLevel(experience);
   const { name } = server.playerConfiguration;
-
-  const tabs = ['default', 'inventory', 'adventures', 'auctions'];
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 

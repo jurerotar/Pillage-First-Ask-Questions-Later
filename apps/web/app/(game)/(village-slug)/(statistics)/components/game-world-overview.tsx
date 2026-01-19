@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Bar,
@@ -11,9 +12,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { Faction } from '@pillage-first/types/models/faction';
+import {
+  FACTION_COLORS,
+  TRIBE_COLORS,
+} from '@pillage-first/game-assets/factions';
 import { factionSchema } from '@pillage-first/types/models/faction';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { useGameWorldOverview } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-game-world-overview';
 import {
@@ -30,50 +33,42 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-const FACTION_COLORS: Record<Faction, string> = {
-  player: '#ef4444',
-  npc1: '#3b82f6',
-  npc2: '#22c55e',
-  npc3: '#f59e0b',
-  npc4: '#8b5cf6',
-  npc5: '#ec4899',
-  npc6: '#14b8a6',
-  npc7: '#f97316',
-  npc8: '#6366f1',
-};
-
-const TRIBE_COLORS: Record<PlayableTribe, string> = {
-  romans: '#ef4444',
-  gauls: '#3b82f6',
-  teutons: '#22c55e',
-  huns: '#f59e0b',
-  egyptians: '#8b5cf6',
-};
-
 export const GameWorldOverview = () => {
   const { t } = useTranslation();
   const { server } = useServer();
   const { gameWorldOverviewStatistics } = useGameWorldOverview();
 
-  const playersByFactionData = factionSchema.options.map((name) => ({
-    name,
-    value: gameWorldOverviewStatistics.playersByFaction[name],
-  }));
+  const playersByFactionData = useMemo(() => {
+    return factionSchema.options.map((name) => ({
+      name,
+      value: gameWorldOverviewStatistics.playersByFaction[name],
+    }));
+  }, [gameWorldOverviewStatistics.playersByFaction]);
 
-  const villagesByFactionData = factionSchema.options.map((name) => ({
-    name,
-    value: gameWorldOverviewStatistics.villagesByFaction[name],
-  }));
+  const villagesByFactionData = useMemo(() => {
+    return factionSchema.options.map((name) => ({
+      name,
+      value: gameWorldOverviewStatistics.villagesByFaction[name],
+    }));
+  }, [gameWorldOverviewStatistics.villagesByFaction]);
 
-  const playersByTribeData = tribeSchema.options.map((name) => ({
-    name,
-    value: gameWorldOverviewStatistics.playersByTribe[name],
-  }));
+  const playersByTribeData = useMemo(() => {
+    return tribeSchema.options.map((name) => ({
+      name,
+      value: gameWorldOverviewStatistics.playersByTribe[name],
+    }));
+  }, [gameWorldOverviewStatistics.playersByTribe]);
 
-  const villagesByTribeData = tribeSchema.options.map((name) => ({
-    name,
-    value: gameWorldOverviewStatistics.villagesByTribe[name],
-  }));
+  const villagesByTribeData = useMemo(() => {
+    return tribeSchema.options.map((name) => ({
+      name,
+      value: gameWorldOverviewStatistics.villagesByTribe[name],
+    }));
+  }, [gameWorldOverviewStatistics.villagesByTribe]);
+
+  const serverStartDate = useMemo(() => {
+    return new Date(server.createdAt).toLocaleDateString();
+  }, [server.createdAt]);
 
   return (
     <Section>
@@ -104,7 +99,7 @@ export const GameWorldOverview = () => {
                 <Text>{t('Start date')}</Text>
               </TableHeaderCell>
               <TableCell>
-                <Text>{new Date(server.createdAt).toLocaleDateString()}</Text>
+                <Text>{serverStartDate}</Text>
               </TableCell>
             </TableRow>
             <TableRow>
