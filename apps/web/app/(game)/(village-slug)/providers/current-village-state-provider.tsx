@@ -1,4 +1,4 @@
-import { createContext, type PropsWithChildren } from 'react';
+import { createContext, type PropsWithChildren, useMemo } from 'react';
 import type { Resources } from '@pillage-first/types/models/resource';
 import type {
   ComputedEffectReturn,
@@ -40,15 +40,26 @@ export const CurrentVillageStateProvider = ({
     computedGranaryCapacityEffect.total,
   );
 
-  const value = {
-    wood,
-    clay,
-    iron,
-    wheat,
-    computedWheatProductionEffect,
-    computedWarehouseCapacityEffect,
-    computedGranaryCapacityEffect,
-  };
+  const value = useMemo(
+    () => ({
+      wood,
+      clay,
+      iron,
+      wheat,
+      computedWheatProductionEffect,
+      computedWarehouseCapacityEffect,
+      computedGranaryCapacityEffect,
+    }),
+    [
+      wood,
+      clay,
+      iron,
+      wheat,
+      computedWheatProductionEffect,
+      computedWarehouseCapacityEffect,
+      computedGranaryCapacityEffect,
+    ],
+  );
 
   return (
     <CurrentVillageStateContext value={value}>
