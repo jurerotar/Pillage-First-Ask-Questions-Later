@@ -9,6 +9,7 @@ type UseLongPressEvent = {
   onMouseUp: (e: ReactMouseEvent | ReactTouchEvent) => void;
   onTouchStart: (e: ReactTouchEvent) => void;
   onTouchEnd: (e: ReactTouchEvent) => void;
+  onContextMenu: (e: ReactMouseEvent | ReactTouchEvent) => void;
 };
 
 export const useLongPress = (
@@ -42,15 +43,18 @@ export const useLongPress = (
 
   const onMouseDown = (e: ReactMouseEvent | ReactTouchEvent) => {
     if (e.type === 'mousedown' || e.type === 'touchstart') {
+      e.preventDefault();
       start(e);
     }
   };
 
   const onTouchStart = (e: ReactTouchEvent) => {
-    if (e.cancelable) {
-      e.preventDefault();
-    }
+    e.preventDefault();
     start(e);
+  };
+
+  const onContextMenu = (e: ReactMouseEvent | ReactTouchEvent) => {
+    e.preventDefault();
   };
 
   return {
@@ -58,5 +62,6 @@ export const useLongPress = (
     onMouseUp: stop,
     onTouchStart,
     onTouchEnd: stop,
+    onContextMenu,
   };
 };
