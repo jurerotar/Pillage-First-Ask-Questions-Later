@@ -79,7 +79,7 @@ export const OccupiedBuildingField = memo(
       }
     };
 
-    const longPress = useLongPress(onLongPress);
+    const longPress = useLongPress(onLongPress, 500);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const { shouldShowBuildingNames } = preferences;
