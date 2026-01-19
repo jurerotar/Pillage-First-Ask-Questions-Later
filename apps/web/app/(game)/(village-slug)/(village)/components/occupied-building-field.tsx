@@ -74,11 +74,13 @@ export const OccupiedBuildingField = ({
   const { errors } = useBuildingUpgradeStatus(buildingField);
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
-  const longPress = useLongPress(() => {
+  const onLongPress = () => {
     if (errors.length === 0) {
       upgradeBuilding();
     }
-  });
+  };
+
+  const longPress = useLongPress(onLongPress);
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const { shouldShowBuildingNames } = preferences;
@@ -101,10 +103,17 @@ export const OccupiedBuildingField = ({
         }}
         aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
         data-building-field-id={buildingFieldId}
+        tabIndex={0}
         {...(isWiderThanLg
           ? {
               onMouseEnter: () => setIsHovered(true),
               onMouseLeave: () => setIsHovered(false),
+              onFocus: () => setIsHovered(true),
+              onBlur: (e) => {
+                if (!e.currentTarget.contains(e.relatedTarget)) {
+                  setIsHovered(false);
+                }
+              },
             }
           : longPress)}
         className={clsx(
@@ -113,8 +122,7 @@ export const OccupiedBuildingField = ({
               buildingField,
               resourceFieldComposition: currentVillage.resourceFieldComposition,
             }),
-          buildingFieldId > 18 && 'border border-red-500',
-          'relative size-10 lg:size-16 rounded-full select-none [-webkit-touch-callout:none]',
+          'relative size-10 lg:size-16 rounded-full select-none [-webkit-touch-callout:none] focus:outline-hidden focus:ring-2 focus:ring-black/80 border border-black/10',
         )}
       >
         <div className="absolute absolute-centering">
