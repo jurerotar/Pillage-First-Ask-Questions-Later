@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { memo, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getQuestRewards } from '@pillage-first/game-assets/quests/utils';
 import type {
@@ -46,7 +46,7 @@ type QuestListItemProps = {
   onComplete: (questId: Quest['id']) => void;
 };
 
-const QuestListItem = memo(({ quest, onComplete }: QuestListItemProps) => {
+const QuestListItem = ({ quest, onComplete }: QuestListItemProps) => {
   const { t } = useTranslation();
   const isCollectable = isQuestCollectable(quest);
   const isCollected = wasQuestCollected(quest);
@@ -93,7 +93,7 @@ const QuestListItem = memo(({ quest, onComplete }: QuestListItemProps) => {
       </div>
     </div>
   );
-});
+};
 
 type QuestListProps = {
   quests: Quest[];

@@ -1,5 +1,4 @@
 import { clsx } from 'clsx';
-import { memo } from 'react';
 import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/buildings/utils';
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import { EmptyBuildingField } from 'app/(game)/(village-slug)/(village)/components/empty-building-field';
@@ -11,7 +10,7 @@ type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-export const BuildingField = memo(({ buildingFieldId }: BuildingFieldProps) => {
+export const BuildingField = ({ buildingFieldId }: BuildingFieldProps) => {
   const { currentVillage } = useCurrentVillage();
 
   const buildingField = getBuildingFieldByBuildingFieldId(
@@ -36,4 +35,4 @@ export const BuildingField = memo(({ buildingFieldId }: BuildingFieldProps) => {
       )}
     </div>
   );
-});
+};
