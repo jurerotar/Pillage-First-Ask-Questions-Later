@@ -53,7 +53,7 @@ App will automatically open in your default browser at `http://localhost:5173`.
 
 The latest work is always pushed to the `master` branch.
 
-Implement your changes, then create a pull request against the original repository's `master` branch.
+Implement your changes, then create a pull request against the original repository's `develop` branch.
 
 ## 5. Git Hooks
 
