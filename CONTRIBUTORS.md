@@ -7,3 +7,4 @@ I am grateful to our contributors for dedicating their time and effort in to mak
 * [Kumari040](https://github.com/Kumari040)
 * [mkzxc](https://github.com/mkzxc)
 * [KareemAlaa1](https://github.com/KareemAlaa1)
+* [Wejdenemk](https://github.com/wejdenemk)

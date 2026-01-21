@@ -85,14 +85,16 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
         return resolve(clientDir, `.${path}`, 'index.html');
       });
 
-    for (const filePath of preRenderedFileUrls) {
-      const content = await readFile(filePath, 'utf8');
-      const updatedContent = content.replaceAll(
-        REACT_ICONS_SPRITE_URL_PLACEHOLDER,
-        svgSpriteName,
-      );
+    await Promise.all(
+      preRenderedFileUrls.map(async (filePath) => {
+        const content = await readFile(filePath, 'utf8');
+        const updatedContent = content.replaceAll(
+          REACT_ICONS_SPRITE_URL_PLACEHOLDER,
+          svgSpriteName,
+        );
 
-      await writeFile(filePath, updatedContent, 'utf8');
-    }
+        await writeFile(filePath, updatedContent, 'utf8');
+      }),
+    );
   }
 };
