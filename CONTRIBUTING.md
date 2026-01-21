@@ -8,13 +8,27 @@ In case you have any questions, feel free
 to [open a GitHub issue](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose), or post your
 question to the [Discord server](https://discord.gg/Ep7NKVXUZA).
 
-## 1. License Agreement
+### License Agreement
 
 This project is licensed under the GNU Affero General Public License v3.0.
 By contributing to this repository, you agree that your contributions will be licensed under the terms of the project
 license.
 
 See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for details.
+
+## 1. Installation
+
+**Pillage First, Ask Questions Later** requires [Node.js version 24.12.0 (LTS)](https://nodejs.org/en/download) or
+later.
+
+1. Fork the project
+2. Clone the forked project
+3. Run `npm install` at the root of the repository
+4. Run `npm run inject-graphics` at the root of the repository
+5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
+   sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
+6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table
+   definitions and indexes. Useful for giving context to AI when building queries.
 
 ## 2. Repository
 
@@ -39,21 +53,17 @@ It currently consists of the following apps & packages:
 -
   - [utils](/packages/utils/README.md) (shared helper functions)
 
-### 2.1 Postinstall
+### 2.1 Useful scripts
 
-On install, a `postinstall` hook runs. `postinstall` currently does two things:
-
-- Creates a `schema.sql` file inside `node_modules/@pillage-first/dev`. This file contains all table schemas + indexes.
-  This is useful because you can feed whole schema to an AI of your choice, and it helps it write good queries. You can
-  trigger the rebuild of `schema.sql` file by running `npm run extract-sql-schema`.
-
-- Takes the contents of `@pillage-first/graphics` package and copies it in to `web` app's `public` folder. This is
-  required because images are served from `public` folder.
-
-### 2.2 Useful scripts
-
-`npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table definitions and indexes. Useful for giving context to AI when building queries.
-`npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL statement the app currently uses. Useful for debugging performance & checking indexing.
+- `npm run inject-graphics` - app graphics are stored in `@pillage-first/graphics` npm package. This commands takes the
+graphic contents of `@pillage-first/graphics` and injects it to `apps/web/public`. This is required for graphics to be
+displayed correctly.
+- `npm run remove-deprecated-directories` - if you cloned the repository before we migrated to a monorepo, you will have
+some orphaned directories sticking around. Run this command to remove these unneeded files.
+- `npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table
+definitions and indexes. Useful for giving context to AI when building queries.
+- `npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL statement
+the app currently uses. Useful for debugging performance & checking indexing.
 
 ## 3. Technology Stack
 
@@ -78,23 +88,15 @@ utilities) are kept
 close to each other within the same directory. This approach improves maintainability and makes it easier to find and
 modify related code.
 
-## 5. Contribution guide
+## 5. Contributing
 
 Before starting, please read through the [architecture documentation](./docs/ARCHITECTURE.md) to gain an understanding
 on how the app works.
 
-**Pillage First, Ask Questions Later** requires [Node.js version 24.12.0 (LTS)](https://nodejs.org/en/download) or
-later.
-
-1. Fork the project
-2. Clone the forked project
-3. Run `npm install` at the root of the repository
-4. Run `turbo run dev` at the root of the repository
-
-A development server will now start, and the app will be available on `http://localhost:5173`. A link to it will also be
+Run `turbo run dev` at the root of the repository to start a development server, and the app will be available on `http://localhost:5173`. A link to it will also be
 posted to your terminal.
 
-Implement your changes, then create a pull request against the original repository's `master` or `develop` branches.
+Implement your changes, then create a pull request against the upstream repository's `develop` branch.
 
 Pull requests cannot be merged until all required checks are passing.
 

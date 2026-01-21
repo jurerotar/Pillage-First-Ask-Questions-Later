@@ -15,8 +15,8 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
-    "build:dev": "turbo run build:dev",
+    "build": "npm run inject-graphics && turbo run build",
+    "build:dev": "npm run inject-graphics && turbo run build:dev",
     "start": "turbo run start",
     "lint:check": "turbo run lint:check",
     "lint": "turbo run lint",
@@ -25,7 +25,8 @@
     "type-check": "turbo run type-check",
     "test": "turbo run test",
     "prepare": "lefthook install",
-    "postinstall": "node scripts/extract-sql-schema.ts && node scripts/postinstall.ts",
+    "inject-graphics": "node scripts/inject-graphics.ts",
+    "remove-deprecated-directories": "node scripts/remove-deprecated-directories.ts",
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
