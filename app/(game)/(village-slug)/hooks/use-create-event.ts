@@ -40,9 +40,12 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
       _onMutateResult,
       context,
     ) => {
-      for (const queryKey of cachesToClearImmediately) {
-        await context.client.invalidateQueries({ queryKey: [queryKey] });
-      }
+      await Promise.allSettled(
+        cachesToClearImmediately.map((queryKey) =>
+          context.client.invalidateQueries({ queryKey: [queryKey] }),
+        ),
+      );
+
       await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
     },
   });
