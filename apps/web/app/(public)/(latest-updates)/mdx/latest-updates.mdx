@@ -1,0 +1,91 @@
+import { Alert } from 'app/components/ui/alert.tsx';
+
+<div>
+  ## Version 0.1.0
+  #### Jan 17, 2026
+
+  **Long awaited engine rework is finally here!**
+  <Alert variant="error">
+    <span>This version introduces breaking changes</span>
+  </Alert>
+</div>
+
+<div>
+  ## Version 0.0.48
+  #### Jan 19, 2026
+
+  * You’ll now be able to start building upgrades faster on mobile! Simply press the building upgrade indicator for a
+  second and the building will start upgrading, without you having to open the building interface and clicking the build
+  button.
+</div>
+
+<div>
+  ## Version 0.0.47
+  #### Jan 7, 2026
+
+  * We transitioned repository to a monorepo. This came with some technical challenges, but also a ton of clarity.
+  Project
+  is now much simpler to navigate and reason about!
+
+  * I've added oxlint to the project. This a new linting tool and its very promising. Plan is to use it side-by-side
+  with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
+
+  * I've reworked some of the scripts used in game-world generation and as a result, generation is now about 10-15%
+  faster. This is especially important on larger worlds or when using a lower-end device, where generation may take a
+  couple of seconds.
+</div>
+
+<div>
+  ## Version 0.0.46
+  #### Jan 4, 2026
+
+  * An external contributor added game-world-overview page. Thank you very much for your contribution!
+</div>
+
+<div>
+  ## Version 0.0.45
+  #### Dec 30, 2025
+
+  * @Uzumaki added player pages! You'll now be able to see general information about each player, along with a list of
+  their villages. Thank you very much for your contribution!
+</div>
+
+<div>
+  ## Version 0.0.44
+  #### Dec 24, 2025
+
+  * UI color scheme (dark/light mode), graphic skin variant (default, snow,...), locale & graphics day-night setting are
+  now persistent between game worlds. This doesn't mean much yet, because we don't have graphics, only support a single
+  locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once and have the
+  setting persist through all game worlds.
+
+  * I've done a minor clean up. In this case, we managed to remove a minor dependency, which reduced the final bundle by
+  about ~60kb.
+</div>
+
+<div>
+  ## Version 0.0.43
+  #### Dec 19, 2025
+
+  * We now have a global not-found page. I've been seeing a small rise of routing errors lately. I'm not sure if these
+  are just bots trying different subpages, but in case some real users are getting lost, this should help them out a
+  bit.
+
+  * I've reworked the in-game error pages for game world not found and game world is already opened errors. Instead of
+  being redirected to /404 or /403, you'll now remain inside the relevant game world url. This reduces the amount of
+  clicks needed to solve a particular error.
+</div>
+
+<div>
+  ## Version 0.0.42
+  #### Dec 12, 2025
+
+  * I've merged the proposed fix for the layout shift by @Freeman! Thank you for your contribution, I really appreciate
+  it!
+
+  * I've substantially improved performance of the construct new building page. This page was actually flagged as one of
+  the slowest pages we have. The reason for this is because in order to determine which buildings you're allowed to
+  construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to run these
+  checks multiple times for each building, which added up quickly. I've now reworked this to make it more efficient. You
+  should be seeing faster page renders, especially on mid/lower-end devices.
+</div>

@@ -1,0 +1,167 @@
+# Frequently asked questions
+
+<section>
+  ## What's the state of the project?
+
+  Project is still pretty heavy in development! It's still missing a lot of major features. What's currently available
+  is building construction, unit training, a couple of building interfaces, as well as secondary pages like
+  production-overview, village-overview, map, preferences, statistics, player pages, oasis bonus finder,...
+
+  **We've recently completed a rework of the game engine**, which has been a massive undertaking. This was previously
+  taking the majority of development efforts, which will now go to new features!
+</section>
+
+<section>
+  ## Is there a project roadmap available?
+
+  Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific
+  timeline for any features. That being said, here's some of the **prioritized features**:
+
+  * Combat mechanics
+  * Trading mechanics
+  * Hero adventures & inventory
+
+  **Bug fixing and minor quality-of-life updates will take priority**.
+</section>
+
+<section>
+  ## Are there game design differences between Travian and Pillage First!?
+
+  Yes, there are a few! The main ones include planned new buildings, the removal of the capital village mechanic,
+  expanded artifact system, planned new hero items and more NPC interactions. Mechanics are always up for discussion, so
+  feel free to leave your thoughts! Game design is an ongoing conversation in <a rel="noopener noreferrer"
+                                                                                 className="text-blue-500 underline"
+                                                                                 target="_blank"
+                                                                                 href="https://discord.gg/Ep7NKVXUZA">our
+  Discord server</a>, so feel free to hop in and share your thoughts!
+</section>
+
+<section>
+  ## Can this project be converted to multiplayer?
+
+  **Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential
+  backend integration.
+
+  That being said, the current goal is to keep this repository as a **standalone, offline-first app focused on
+  single-player gameplay**.
+
+  One of the hopes for the future of this project is that someone might eventually fork the project, restructure it, and
+  connect it to a backend, enabling a multiplayer experience. Most of the frontend can be completely reused, making the
+  transition easier than starting from scratch.
+
+  **If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!**
+</section>
+
+<section>
+  ## How does the game continue running if the app is closed?
+
+  In a nutshell, whenever you open a game world, we simulate every event that would have taken place, had the app been
+  open all this time. These events would happen at some time in the past, but since app can't run without the browser
+  being open, we resolve these events now. This means you can be attacked while offline, since this attack would also
+  have happened if you were online.
+  The major downside is that we can't know which events have happened until we actually open the game world and simulate
+  the timeline. This means we can't let the player know if they're under attack, because the only way for us to know
+  whether an attack has been triggered is to actually open the game.
+</section>
+
+<section>
+  ## Why not stick with the original?
+
+  While I love Travian, I (and many more like me) just don't have the time to commit to it anymore. Pulling
+  all-nighters, finding duals from across the world and making sure account is covered 24/7 was fun in middle school,
+  but it's not something I want to (or even can?) engage in now. I want to be able to take a break, whenever life gets
+  in the way, and for the game to respect that.
+
+  I want this game to be a **more accessible, customizable and time-friendly version of Travian**.
+</section>
+
+<section>
+  ## Is this project in danger of being taken down due to copyright violations?
+
+  We've made a lot of effort to differentiate this game from Travian. Even though Pillage First! is inspired by Travian,
+  we've made (and plan for more) **fundamental gameplay, technological & design differences** between games.
+
+  **Codebase has been written completely from scratch**. We're not using Travian codebase as a reference or any other
+  reason
+  in any stage of development.
+
+  Art is completely handmade. We don't use or allow any Travian assets. Furthermore, we don't use and don't allow
+  AI-transformed Travian assets to be used in this project.
+
+  We also include legal notices on the page to explicitly differentiate this project from Travian.
+</section>
+
+<section>
+  ## Does the game continue even if I close the app?
+
+  **Yes!** You're free to close the app at any time and the game will pick off right next time you open it again! Units
+  will continue to be trained, buildings will continue to be constructed and troops will continue to raid exactly as
+  they would if you kept the app running.
+</section>
+
+<section>
+  ## Are game worlds stable between new releases?
+
+  **Sometimes, but most often not**. Despite this project being developed in my free-time only, we still have a
+  relatively high update cadence. Typically, we push out 3-5 (mostly minor) updates per week. Most of these updates are
+  completely safe and don't affect the underlying data structures that the app requires, but not always. Sometimes, even
+  minor changes break the game world, either completely, or partially.
+  <br />
+  * **Until full release** - Until the full release of the game, I don't intend to keep worlds compatible between
+  changes.
+  This means game worlds should be expected to break relatively regularly and should only be used for testing the game
+  out. I can't afford to spend time migrating old game states to new structures to keep compatibility, due to this
+  slowing down development quite a bit.
+
+  * **After full release** - After the game is officially released, I will commit to keeping game worlds stable between
+  releases. This means that with each a game change, I'll also provide a script to migrate old game states to new ones.
+  This process should be completely transparent to users.
+</section>
+
+<section>
+  ## Why single-player?
+
+  There are a few key reasons I chose to focus on single-player:
+
+  - **Customizable gameplay** - Each of us has a different expectation of the game. Some players prefer speedier game
+  worlds, some prefer more difficult opponents, while others look for a more peaceful coexisting with their neighbors.
+  This isn't something that we can offer in a multiplayer setting, where you have no control of other players' actions.
+  Thus, one of the goals of this app is to give you the power to customize your gameplay as much as possible. You'll be
+  able to choose speed, difficulty (NPC troop levels,...) and more at server creation form!
+
+  - **Respecting your time** - Most of us are not in high school anymore. Waking up at 3am to send out attacks may have
+  been a valid strategy 10 years ago, but it's out of the question now. Because we realize real-life takes priority, we
+  plan on adding multiple mechanism to help you balance game needs:
+  - Unlimited vacation mode, available at any point for any reason
+  - Ability to disable attacks while you're offline
+
+  - **Moderation cost & complexity** - multiplayer comes with a whole layer of moderation challenges, things like chat
+  filters, reporting tools, cheat prevention, account and support systems. They're not just one-time features either;
+  they need constant upkeep and care. For a solo developer, that's a massive investment of time and energy that could
+  easily overshadow the development of the actual game. Single-player allows me to limit the scope of the project and
+  deliver faster.
+
+  - **Offline-first** - One of the goals of this project is to allows players to load the app once and then have it work
+  fully offline. This makes it more accessible to players with limited or unreliable internet access, and ensures the
+  experience is consistent regardless of connection quality.
+</section>
+
+<section>
+  ## Is there an in-game Wiki available?
+
+  Not yet, but I can (officially?) confirm there's one in the making!
+
+  It's going to include units (cost, attack and defence upgrade tables and durations), buildings (cost, upgrade
+  durations), hero (exp tables and revive cost) and some general advice and tips.
+</section>
+
+<section>
+  ## Is 10x the highest supporter game world speed?
+
+  Yes. This might get revised upwards in the future. The limiting factor here is players' own devices. Since the app
+  runs 100% on your device, we can't really guarantee good performance. Higher speed game worlds require more device
+  resources, and maxing these out could cause lag, excessive battery drain and other issues.
+
+  A 10x speed appears stable even on lower-end devices, which is why this speed was determined to be the higher limit
+  for now.
+</section>

@@ -32,13 +32,24 @@ const copyFolderSync = async (source: string, dest: string): Promise<void> => {
         await copyFile(sourcePath, destPath);
       }
     }
-  } catch (err) {
-    console.error(`Error while copying folder: ${err}`);
+  } catch (error) {
+    console.error(`Error while copying folder: ${error}`);
   }
 };
 
-const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
-const destDir = 'public/graphic-packs';
+const installWebAppGraphicPacks = async () => {
+  const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
+  const destDir = 'apps/web/public/graphic-packs';
 
-await clearDirectory(destDir);
-await copyFolderSync(sourceDir, destDir);
+  await clearDirectory(destDir);
+  await copyFolderSync(sourceDir, destDir);
+};
+
+const removeDeprecatedRootLevelDirectories = async () => {
+  await clearDirectory('./public');
+  await clearDirectory('./build');
+  await clearDirectory('./.react-router');
+};
+
+await installWebAppGraphicPacks();
+await removeDeprecatedRootLevelDirectories();

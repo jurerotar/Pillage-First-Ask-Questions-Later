@@ -1,0 +1,114 @@
+{
+  "$schema": "node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "import",
+    "vitest",
+    "jest",
+    "oxc",
+    "promise"
+  ],
+  "categories": {
+    "correctness": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "style": "error",
+    "restriction": "error",
+    "suspicious": "error"
+  },
+  "ignorePatterns": [
+    ".turbo",
+    "node_modules"
+  ],
+  "rules": {
+    "eslint/*": "error",
+    "eslint/no-await-in-loop": "warn",
+    "eslint/id-length": "off",
+    "eslint/max-statements": "off",
+    "eslint/no-ternary": "off",
+    "eslint/no-console": "error",
+    "eslint/prefer-string-slice": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-lines": "off",
+    "eslint/max-dependencies": "off",
+    "eslint/no-magic-numbers": "off",
+    "eslint/arrow-body-style": "off",
+    "eslint/sort-keys": "off",
+    "eslint/max-params": "off",
+    "eslint/no-continue": "off",
+    "eslint/no-new": "off",
+    "eslint/no-bitwise": "off",
+    "eslint/no-labels": "off",
+    "eslint/capitalized-comments": "off",
+    "eslint/no-undefined": "off",
+    "eslint/no-warning-comments": "off",
+    "eslint/no-inline-comments": "off",
+    "eslint/sort-imports": "off",
+    "eslint/no-implicit-coercion": [
+      "error",
+      {
+        "allow": ["!!"]
+      }
+    ],
+    "eslint/no-unused-vars": [
+      "error",
+      {
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "ignoreRestSiblings": true,
+        "caughtErrors": false
+      }
+    ],
+    "typescript/*": "error",
+    "typescript/no-unsafe-type-assertion": "warn",
+    "typescript/promise-function-async": "warn",
+    "typescript/explicit-function-return-type": "off",
+    "typescript/explicit-module-boundary-types": "off",
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/consistent-type-definitions": ["error", "type"],
+    "typescript/no-confusing-void-expression": [
+      "off",
+      {
+        "ignoreArrowShorthand": true
+      }
+    ],
+    "unicorn/*": "error",
+    "unicorn/no-null": "off",
+    "unicorn/prefer-global-this": "off",
+    "unicorn/no-await-expression-member": "off",
+    "unicorn/require-post-message-target-origin": "off",
+    "import/*": "error",
+    "import/default": "off",
+    "import/prefer-default-export": "off",
+    "import/no-named-export": "off",
+    "import/group-exports": "off",
+    "import/unambiguous": "off",
+    "import/exports-last": "off",
+    "import/max-dependencies": "off",
+    "import/consistent-type-specifier-style": "off",
+    "import/no-unassigned-import": "off",
+    "vitest/*": "error",
+    "jest/*": "error",
+    "jest/valid-expect": "off",
+    "jest/valid-title": "warn",
+    "jest/require-hook": "off",
+    "jest/max-expects": "off",
+    "jest/prefer-lowercase-title": "warn",
+    "jest/consistent-test-it": [
+      "error",
+      {
+        "fn": "test"
+      }
+    ],
+    "oxc/*": "error",
+    "oxc/no-async-await": "off",
+    "oxc/no-rest-spread-properties": "off",
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-map-spread": "off",
+    "promise/*": "error",
+    "promise/avoid-new": "off",
+    "promise/prefer-await-to-callbacks": "off"
+  }
+}

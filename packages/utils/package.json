@@ -1,0 +1,73 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/utils",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "packages/utils"
+  },
+  "exports": {
+    "./math": {
+      "default": "./src/math.ts"
+    },
+    "./map": {
+      "default": "./src/map.ts"
+    },
+    "./reputation": {
+      "default": "./src/reputation.ts"
+    },
+    "./random": {
+      "default": "./src/random.ts"
+    },
+    "./format": {
+      "default": "./src/format.ts"
+    },
+    "./array": {
+      "default": "./src/array.ts"
+    },
+    "./game/calculate-computed-effect": {
+      "default": "./src/game/calculate-computed-effect.ts"
+    },
+    "./game/calculate-current-resources": {
+      "default": "./src/game/calculate-current-resources.ts"
+    },
+    "./guards/effect": {
+      "default": "./src/guards/effect-guards.ts"
+    },
+    "./guards/event": {
+      "default": "./src/guards/event-guards.ts"
+    },
+    "./guards/quest": {
+      "default": "./src/guards/quest-guards.ts"
+    },
+    "./guards/map": {
+      "default": "./src/guards/map-guards.ts"
+    }
+  },
+  "scripts": {
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "lint:check/oxlint": "oxlint --type-aware",
+    "lint/oxlint": "oxlint --type-aware --fix",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "test": "vitest",
+    "type-check": "tsgo"
+  },
+  "dependencies": {
+    "@pillage-first/types": "*",
+    "ts-seedrandom": "1.4.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "*",
+    "@typescript/native-preview": "*",
+    "vitest": "4.0.17",
+    "@vitest/coverage-v8": "4.0.17",
+    "typescript": "*"
+  }
+}

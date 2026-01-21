@@ -1,0 +1,66 @@
+$breakpoints: (
+  'xs': 425px,
+  'sm': 640px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+  '2xl': 1536px,
+);
+
+$skinVariantPaths: (
+  'default': '/graphic-packs/default',
+);
+
+$resourceCompositions: '4446', '5436', '5346', '4536', '3546', '4356', '3456', '4437', '4347', '3447', '3339', '11115', '00018';
+
+$resources: 'wood', 'clay', 'iron', 'wheat';
+
+$tribes: 'romans', 'gauls', 'teutons', 'huns', 'egyptians', 'nature', 'natars', 'spartans';
+
+$villageSizes: 'xs', 'sm', 'md', 'lg';
+
+$factionReputationColors: (
+  player:     #4338CA,
+  ecstatic:   #16A34A,
+  honored:    #22C55E,
+  respected:  #34D399,
+  friendly:   #8CEBAF,
+  neutral:    #FBBF24,
+  unfriendly: #FB923C,
+  hostile:    #F04438,
+  hated:      #DC2626,
+);
+
+$buildings: "bakery",
+"brickyard",
+"grain-mill",
+"granary",
+"iron-foundry",
+"sawmill",
+"warehouse",
+"waterworks",
+"academy",
+"barracks",
+"city-wall",
+"earth-wall",
+"great-barracks",
+"great-stable",
+"heros-mansion",
+"hospital",
+"makeshift-wall",
+"palisade",
+"rally-point",
+"stable",
+"stone-wall",
+"trapper",
+"workshop",
+"brewery",
+"command-center",
+"cranny",
+"horse-drinking-trough",
+"main-building",
+"marketplace",
+"palace",
+"residence",
+"tournament-square",
+"treasury";

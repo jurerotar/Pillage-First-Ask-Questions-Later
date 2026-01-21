@@ -1,0 +1,71 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/game-assets",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "packages/game-assets"
+  },
+  "exports": {
+    "./buildings": {
+      "default": "./src/buildings.ts"
+    },
+    "./buildings/utils": {
+      "default": "./src/utils/buildings.ts"
+    },
+    "./units": {
+      "default": "./src/units.ts"
+    },
+    "./units/utils": {
+      "default": "./src/utils/units.ts"
+    },
+    "./items": {
+      "default": "./src/items.ts"
+    },
+    "./items/utils": {
+      "default": "./src/utils/items.ts"
+    },
+    "./quests": {
+      "default": "./src/quests.ts"
+    },
+    "./quests/utils": {
+      "default": "./src/utils/quests.ts"
+    },
+    "./player": {
+      "default": "./src/player.ts"
+    },
+    "./factions": {
+      "default": "./src/factions.ts"
+    },
+    "./reputation": {
+      "default": "./src/reputation.ts"
+    },
+    "./village": {
+      "default": "./src/village.ts"
+    },
+    "./merchants": {
+      "default": "./src/merchants.ts"
+    }
+  },
+  "scripts": {
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "lint:check/oxlint": "oxlint --type-aware",
+    "lint/oxlint": "oxlint --type-aware --fix",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "test": "vitest",
+    "type-check": "tsgo"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "*",
+    "@typescript/native-preview": "*",
+    "typescript": "*",
+    "vitest": "4.0.17"
+  }
+}
