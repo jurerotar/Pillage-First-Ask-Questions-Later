@@ -797,9 +797,7 @@ describe('migrateAndSeed', () => {
 
       for (const qid of unitTroopCountQuests) {
         // Format: unitTroopCount-<UNIT>-<COUNT>
-        const parts = qid.split('-');
-        // parts[0] = 'unitTroopCount'
-        const unitId = parts[1];
+        const [_, unitId] = qid.split('-');
         expect(allowed.has(unitId as UnitId)).toBeTruthy();
       }
     });

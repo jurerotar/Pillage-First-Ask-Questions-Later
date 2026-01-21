@@ -39,12 +39,12 @@ describe('random utils', () => {
     test('should return all elements if n >= array length', () => {
       const array = ['a', 'b', 'c'];
       const prng = prngMulberry32('seed');
-      expect(seededRandomArrayElements(prng, array, 3)).toEqual([
+      expect(seededRandomArrayElements(prng, array, 3)).toStrictEqual([
         'a',
         'b',
         'c',
       ]);
-      expect(seededRandomArrayElements(prng, array, 5)).toEqual([
+      expect(seededRandomArrayElements(prng, array, 5)).toStrictEqual([
         'a',
         'b',
         'c',

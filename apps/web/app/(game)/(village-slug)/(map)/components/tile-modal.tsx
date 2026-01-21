@@ -160,14 +160,14 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
           <>
             {isOccupied && (
               <>
-                {tile.owner!.id === PLAYER_ID &&
+                {tile.owner.id === PLAYER_ID &&
                   t(
                     'This oasis is occupied by you and is producing resources for village {{villageName}}.',
                     {
-                      villageName: tile.ownerVillage!.name,
+                      villageName: tile.ownerVillage.name,
                     },
                   )}
-                {tile.owner!.id !== PLAYER_ID &&
+                {tile.owner.id !== PLAYER_ID &&
                   t(
                     'This oasis is occupied by another player. You can raid it, but doing so may trigger retaliations.',
                   )}
@@ -272,8 +272,8 @@ const OccupiedOccupiableTileModal = ({
   );
 
   const { owner, ownerVillage } = tile;
-  const { id: playerId } = owner!;
-  const { name: villageName, slug: villageSlug } = ownerVillage!;
+  const { id: playerId } = owner;
+  const { name: villageName, slug: villageSlug } = ownerVillage;
 
   const isOwnedByPlayer = playerId === PLAYER_ID;
 

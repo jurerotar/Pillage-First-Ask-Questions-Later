@@ -96,6 +96,7 @@
     "jest/require-hook": "off",
     "jest/max-expects": "off",
     "jest/prefer-lowercase-title": "warn",
+    "jest/no-conditional-in-test": "off",
     "jest/consistent-test-it": [
       "error",
       {

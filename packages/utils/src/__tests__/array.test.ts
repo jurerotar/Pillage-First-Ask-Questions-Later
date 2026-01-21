@@ -8,8 +8,8 @@ describe('array utils', () => {
       const isEven = (n: number) => n % 2 === 0;
       const [even, odd] = partition(array, isEven);
 
-      expect(even).toEqual([2, 4, 6]);
-      expect(odd).toEqual([1, 3, 5]);
+      expect(even).toStrictEqual([2, 4, 6]);
+      expect(odd).toStrictEqual([1, 3, 5]);
     });
 
     test('should handle empty arrays', () => {
@@ -17,8 +17,8 @@ describe('array utils', () => {
       const isEven = (n: number) => n % 2 === 0;
       const [even, odd] = partition(array, isEven);
 
-      expect(even).toEqual([]);
-      expect(odd).toEqual([]);
+      expect(even).toStrictEqual([]);
+      expect(odd).toStrictEqual([]);
     });
 
     test('should handle arrays where all elements match the predicate', () => {
@@ -26,8 +26,8 @@ describe('array utils', () => {
       const isEven = (n: number) => n % 2 === 0;
       const [even, odd] = partition(array, isEven);
 
-      expect(even).toEqual([2, 4, 6]);
-      expect(odd).toEqual([]);
+      expect(even).toStrictEqual([2, 4, 6]);
+      expect(odd).toStrictEqual([]);
     });
 
     test('should handle arrays where no elements match the predicate', () => {
@@ -35,8 +35,8 @@ describe('array utils', () => {
       const isEven = (n: number) => n % 2 === 0;
       const [even, odd] = partition(array, isEven);
 
-      expect(even).toEqual([]);
-      expect(odd).toEqual([1, 3, 5]);
+      expect(even).toStrictEqual([]);
+      expect(odd).toStrictEqual([1, 3, 5]);
     });
   });
 });

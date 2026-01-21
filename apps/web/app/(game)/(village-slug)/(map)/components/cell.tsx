@@ -153,7 +153,7 @@ export const Cell = memo<CellProps>(
     const tile = map[tileIndex];
     const isBorderTile =
       tile.type === 'oasis' &&
-      tile.attributes.isOccupiable === false &&
+      !tile.attributes.isOccupiable &&
       BORDER_TILES_OASIS_VARIANTS.has(tile.attributes.oasisGraphics);
 
     const className = isBorderTile
