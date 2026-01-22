@@ -12,9 +12,6 @@
     "directory": "packages/types"
   },
   "exports": {
-    "./database": {
-      "default": "./src/database.ts"
-    },
     "./api-events": {
       "default": "./src/api-events.ts"
     },

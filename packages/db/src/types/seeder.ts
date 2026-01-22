@@ -1,8 +1,8 @@
-import type { Database } from '@pillage-first/types/database';
+import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
 import type { Server } from '@pillage-first/types/models/server';
 
 export type Seeder = <TArgs = void>(
-  database: Database,
+  database: OpfsSAHPoolDatabase,
   server: Server,
   args?: TArgs,
 ) => void;

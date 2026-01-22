@@ -1,40 +1,48 @@
 /** biome-ignore-all lint/suspicious/noConsole: We're using debug statements to test query performance in development */
-import type { Database } from '@pillage-first/types/database';
+import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
 
 const createPreparedStatementCache = (): Map<
   string,
-  ReturnType<Database['prepare']>
+  ReturnType<OpfsSAHPoolDatabase['prepare']>
 > => {
-  return new Map<string, ReturnType<Database['prepare']>>();
+  return new Map<string, ReturnType<OpfsSAHPoolDatabase['prepare']>>();
 };
 
 export type DbFacade = {
-  exec: (sql: string, bind?: Parameters<Database['selectValue']>[1]) => void;
+  exec: (
+    sql: string,
+    bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1],
+  ) => void;
   selectValue: (
     sql: string,
-    bind?: Parameters<Database['selectValue']>[1],
-  ) => ReturnType<Database['selectValue']>;
+    bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1],
+  ) => ReturnType<OpfsSAHPoolDatabase['selectValue']>;
   selectValues: (
     sql: string,
-    bind?: Parameters<Database['selectValues']>[1],
-  ) => ReturnType<Database['selectValues']>;
+    bind?: Parameters<OpfsSAHPoolDatabase['selectValues']>[1],
+  ) => ReturnType<OpfsSAHPoolDatabase['selectValues']>;
   selectObject: (
     sql: string,
-    bind?: Parameters<Database['selectObject']>[1],
-  ) => ReturnType<Database['selectObject']>;
+    bind?: Parameters<OpfsSAHPoolDatabase['selectObject']>[1],
+  ) => ReturnType<OpfsSAHPoolDatabase['selectObject']>;
   selectObjects: (
     sql: string,
-    bind?: Parameters<Database['selectObjects']>[1],
-  ) => ReturnType<Database['selectObjects']>;
-  prepare: (sql: string) => ReturnType<Database['prepare']>;
+    bind?: Parameters<OpfsSAHPoolDatabase['selectObjects']>[1],
+  ) => ReturnType<OpfsSAHPoolDatabase['selectObjects']>;
+  prepare: (sql: string) => ReturnType<OpfsSAHPoolDatabase['prepare']>;
   transaction: (callback: (db: DbFacade) => void) => void;
   close: () => void;
 };
 
-export const createDbFacade = (database: Database, debug = false): DbFacade => {
+export const createDbFacade = (
+  database: OpfsSAHPoolDatabase,
+  debug = false,
+): DbFacade => {
   const preparedStatementCache = createPreparedStatementCache();
 
-  const getStatement = (sql: string): ReturnType<Database['prepare']> => {
+  const getStatement = (
+    sql: string,
+  ): ReturnType<OpfsSAHPoolDatabase['prepare']> => {
     const statement = preparedStatementCache.get(sql);
 
     if (!statement) {
@@ -50,7 +58,7 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
   const facade: DbFacade = {
     exec: (
       sql: string,
-      bind?: Parameters<Database['selectValue']>[1],
+      bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1],
     ): void => {
       const t0 = performance.now();
       const statement = getStatement(sql);
@@ -67,8 +75,8 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
 
     selectValue: (
       sql: string,
-      bind?: Parameters<Database['selectValue']>[1],
-    ): ReturnType<Database['selectValue']> => {
+      bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1],
+    ): ReturnType<OpfsSAHPoolDatabase['selectValue']> => {
       const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
@@ -92,8 +100,8 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
 
     selectValues: (
       sql: string,
-      bind?: Parameters<Database['selectValues']>[1],
-    ): ReturnType<Database['selectValues']> => {
+      bind?: Parameters<OpfsSAHPoolDatabase['selectValues']>[1],
+    ): ReturnType<OpfsSAHPoolDatabase['selectValues']> => {
       const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
@@ -131,8 +139,8 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
 
     selectObject: (
       sql: string,
-      bind?: Parameters<Database['selectObject']>[1],
-    ): ReturnType<Database['selectObject']> => {
+      bind?: Parameters<OpfsSAHPoolDatabase['selectObject']>[1],
+    ): ReturnType<OpfsSAHPoolDatabase['selectObject']> => {
       const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
@@ -170,14 +178,14 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
 
     selectObjects: (
       sql: string,
-      bind?: Parameters<Database['selectObjects']>[1],
-    ): ReturnType<Database['selectObjects']> => {
+      bind?: Parameters<OpfsSAHPoolDatabase['selectObjects']>[1],
+    ): ReturnType<OpfsSAHPoolDatabase['selectObjects']> => {
       const t0 = performance.now();
       const statement = getStatement(sql);
       if (bind) {
         statement.bind(bind);
       }
-      const rows: ReturnType<Database['selectObjects']> = [];
+      const rows: ReturnType<OpfsSAHPoolDatabase['selectObjects']> = [];
       while (statement.step()) {
         rows.push(statement.get({}));
       }
@@ -194,7 +202,7 @@ export const createDbFacade = (database: Database, debug = false): DbFacade => {
       return rows;
     },
 
-    prepare: (sql: string): ReturnType<Database['prepare']> => {
+    prepare: (sql: string): ReturnType<OpfsSAHPoolDatabase['prepare']> => {
       const t0 = performance.now();
       const statement = getStatement(sql);
       const t1 = performance.now();

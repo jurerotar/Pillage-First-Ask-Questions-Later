@@ -32,7 +32,7 @@
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "3.51.2-build3"
+    "@sqlite.org/sqlite-wasm": "3.51.2-build4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",

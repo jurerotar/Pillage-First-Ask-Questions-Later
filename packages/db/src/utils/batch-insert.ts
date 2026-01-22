@@ -1,11 +1,11 @@
-import type { Database } from '@pillage-first/types/database';
-
-type SqlValue = string | number | bigint | null;
-
-type PreparedStmt = ReturnType<Database['prepare']>;
+import type {
+  OpfsSAHPoolDatabase,
+  PreparedStatement,
+  SqlValue,
+} from '@sqlite.org/sqlite-wasm';
 
 export const batchInsert = (
-  database: Database,
+  database: OpfsSAHPoolDatabase,
   table: string,
   columns: readonly string[],
   rows: readonly SqlValue[][],
@@ -30,10 +30,10 @@ export const batchInsert = (
 
   const sqlBase = `INSERT INTO ${table} (${columns.join(', ')}) VALUES `;
 
-  const stmts = new Map<number, PreparedStmt>();
+  const stmts = new Map<number, PreparedStatement>();
   const tuple = `(${Array.from({ length: colsPerRow }).fill('?').join(',')})`;
 
-  const getStmt = (count: number): PreparedStmt => {
+  const getStmt = (count: number): PreparedStatement => {
     const existing = stmts.get(count);
     if (existing) {
       return existing;
