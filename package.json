@@ -14,16 +14,6 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "npm run inject-graphics && turbo run build",
-    "build:dev": "npm run inject-graphics && turbo run build:dev",
-    "start": "turbo run start",
-    "lint:check": "turbo run lint:check",
-    "lint": "turbo run lint",
-    "format:check": "turbo run format:check",
-    "format": "turbo run format",
-    "type-check": "turbo run type-check",
-    "test": "turbo run test",
     "prepare": "lefthook install",
     "inject-graphics": "node scripts/inject-graphics.ts",
     "remove-deprecated-directories": "node scripts/remove-deprecated-directories.ts",
