@@ -28,7 +28,12 @@
     "eslint/id-length": "off",
     "eslint/max-statements": "off",
     "eslint/no-ternary": "off",
-    "eslint/no-console": "error",
+    "eslint/no-console": [
+      "error",
+      {
+        "allow": ["error"]
+      }
+    ],
     "eslint/prefer-string-slice": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
