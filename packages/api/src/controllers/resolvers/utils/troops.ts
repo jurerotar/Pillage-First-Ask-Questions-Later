@@ -39,5 +39,5 @@ export const modifyTroops = (
     }
   }
 
-  return Array.from(troopMap.values());
+  return [...troopMap.values()];
 };

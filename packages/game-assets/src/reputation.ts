@@ -1,6 +1,6 @@
 import type { ReputationLevel } from '@pillage-first/types/models/reputation';
 
-export const reputationLevels: Map<ReputationLevel, number> = new Map([
+export const reputationLevels = new Map<ReputationLevel, number>([
   ['ecstatic', 63_000],
   ['honored', 57_000],
   ['respected', 48_000],

@@ -93,21 +93,19 @@ export const BuildingStatsUpgradeDuration = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...Array(building.maxLevel)].map((_, index) => {
+            {Array.from({ length: Math.max(0, building.maxLevel) }, (_, i) => {
+              const levelNum = i + 1;
               const duration = calculateBuildingDurationForLevel(
                 buildingId,
-                index + 1,
+                levelNum,
               );
 
               return (
                 <TableRow
-                  // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
-                  key={index}
-                  {...(index + 1 === level && {
-                    className: 'bg-gray-100',
-                  })}
+                  key={levelNum}
+                  {...(levelNum === level && { className: 'bg-gray-100' })}
                 >
-                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{levelNum}</TableCell>
                   <TableCell>
                     {formatTime(duration * buildingDurationModifier)}
                   </TableCell>

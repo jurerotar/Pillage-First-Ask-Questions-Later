@@ -11,7 +11,7 @@ import {
 } from '../buildings';
 
 describe('Buildings utils', () => {
-  describe('calculateBuildingEffectValues', () => {
+  describe(calculateBuildingEffectValues, () => {
     test('CITY_WALL effect values', () => {
       const building = getBuildingDefinition('CITY_WALL');
       const result = calculateBuildingEffectValues(building, 20);
@@ -63,7 +63,7 @@ describe('Buildings utils', () => {
     });
   });
 
-  describe('getBuildingDataForLevel', () => {
+  describe(getBuildingDataForLevel, () => {
     test('Main building level 1', () => {
       const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
@@ -78,14 +78,14 @@ describe('Buildings utils', () => {
     });
   });
 
-  describe('calculateBuildingCostForLevel', () => {
+  describe(calculateBuildingCostForLevel, () => {
     test('Should calculate correct building cost', () => {
       const cost = calculateBuildingCostForLevel('MAIN_BUILDING', 1);
       expect(cost).toStrictEqual([70, 40, 60, 20]);
     });
   });
 
-  describe('calculateBuildingCancellationRefundForLevel', () => {
+  describe(calculateBuildingCancellationRefundForLevel, () => {
     test('Should calculate correct refund amount', () => {
       const refund = calculateBuildingCancellationRefundForLevel(
         'MAIN_BUILDING',
@@ -95,14 +95,14 @@ describe('Buildings utils', () => {
     });
   });
 
-  describe('calculateBuildingDurationForLevel', () => {
+  describe(calculateBuildingDurationForLevel, () => {
     test('Should calculate correct duration for level 1', () => {
       const duration = calculateBuildingDurationForLevel('MAIN_BUILDING', 1);
       expect(duration).toBe(2_000_000);
     });
   });
 
-  describe('calculateTotalCulturePointsForLevel', () => {
+  describe(calculateTotalCulturePointsForLevel, () => {
     test('MAIN_BUILDING produces X culture points at level 0', () => {
       const totalCulturePoints = calculateTotalCulturePointsForLevel(
         'MAIN_BUILDING',
@@ -122,7 +122,7 @@ describe('Buildings utils', () => {
     });
   });
 
-  describe('calculateTotalPopulationForLevel', () => {
+  describe(calculateTotalPopulationForLevel, () => {
     test('MAIN_BUILDING produces X population at level 0', () => {
       const totalPopulation = calculateTotalPopulationForLevel(
         'MAIN_BUILDING',

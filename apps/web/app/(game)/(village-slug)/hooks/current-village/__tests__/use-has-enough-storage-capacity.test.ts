@@ -4,7 +4,7 @@ import {
   getHasEnoughWarehouseCapacity,
 } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 
-describe('getHasEnoughWarehouseCapacity', () => {
+describe(getHasEnoughWarehouseCapacity, () => {
   test('returns true if all first 3 resource costs are below or equal to capacity', () => {
     expect(
       getHasEnoughWarehouseCapacity(800, [500, 600, 700, 200]),
@@ -24,7 +24,7 @@ describe('getHasEnoughWarehouseCapacity', () => {
   });
 });
 
-describe('getHasEnoughGranaryCapacity', () => {
+describe(getHasEnoughGranaryCapacity, () => {
   test('returns true if granary capacity is equal to or greater than wheat cost', () => {
     expect(getHasEnoughGranaryCapacity(300, 300)).toBeTruthy();
     expect(getHasEnoughGranaryCapacity(400, 300)).toBeTruthy();

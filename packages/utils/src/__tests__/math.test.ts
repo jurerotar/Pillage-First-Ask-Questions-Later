@@ -6,7 +6,7 @@ import {
 } from '../math';
 
 describe('math utils', () => {
-  describe('calculateDistanceBetweenPoints', () => {
+  describe(calculateDistanceBetweenPoints, () => {
     test('should calculate distance between two points', () => {
       const p1 = { x: 0, y: 0 };
       const p2 = { x: 3, y: 4 };
@@ -21,7 +21,7 @@ describe('math utils', () => {
     });
   });
 
-  describe('roundToNDecimalPoints', () => {
+  describe(roundToNDecimalPoints, () => {
     test('should round to 2 decimal points by default', () => {
       expect(roundToNDecimalPoints(1.23_456)).toBe(1.23);
       expect(roundToNDecimalPoints(1.235)).toBe(1.24);
@@ -33,7 +33,7 @@ describe('math utils', () => {
     });
   });
 
-  describe('roundTo5', () => {
+  describe(roundTo5, () => {
     test('should round to the nearest 5', () => {
       expect(roundTo5(2)).toBe(0);
       expect(roundTo5(3)).toBe(5);

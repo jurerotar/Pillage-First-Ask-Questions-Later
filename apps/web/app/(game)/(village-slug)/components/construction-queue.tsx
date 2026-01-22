@@ -182,16 +182,15 @@ const ConstructionQueueContent = () => {
       type: 'building' as const,
       event,
     })),
-    ...Array.from({ length: emptySlotsCount }).map((_, i) => {
+    ...Array.from({ length: emptySlotsCount }, (_, i) => {
       const slotIndex = currentVillageBuildingEvents.length + i;
+      const isFree = slotIndex < availableSlotsCount;
+
       return {
-        type: 'empty' as const,
-        id: `empty-slot-${i}`,
-        status:
-          slotIndex < availableSlotsCount
-            ? ('free' as const)
-            : ('locked' as const),
-      };
+        type: 'empty',
+        id: `empty-slot-${slotIndex}`,
+        status: isFree ? 'free' : 'locked',
+      } as const;
     }),
   ];
 

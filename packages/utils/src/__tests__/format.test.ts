@@ -7,7 +7,7 @@ import {
 } from '../format';
 
 describe('format utils', () => {
-  describe('formatNumberWithCommas', () => {
+  describe(formatNumberWithCommas, () => {
     test('should format numbers with commas', () => {
       expect(formatNumberWithCommas(1000)).toBe('1,000');
       expect(formatNumberWithCommas(1_000_000)).toBe('1,000,000');
@@ -15,7 +15,7 @@ describe('format utils', () => {
     });
   });
 
-  describe('truncateToShortForm', () => {
+  describe(truncateToShortForm, () => {
     test('should truncate numbers to K for thousands', () => {
       expect(truncateToShortForm(1000)).toBe('1K');
       expect(truncateToShortForm(1500)).toBe('1.5K');
@@ -42,7 +42,7 @@ describe('format utils', () => {
     });
   });
 
-  describe('formatPercentage', () => {
+  describe(formatPercentage, () => {
     test('should return 0% or 100% when num is 1', () => {
       expect(formatPercentage(1, true)).toBe('0%');
       expect(formatPercentage(1, false)).toBe('100%');
@@ -55,7 +55,7 @@ describe('format utils', () => {
     });
   });
 
-  describe('formatNumber', () => {
+  describe(formatNumber, () => {
     test('should return NaN for non-integer numbers', () => {
       expect(formatNumber(1.5)).toBe('NaN');
     });

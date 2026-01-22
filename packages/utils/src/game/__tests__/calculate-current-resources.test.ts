@@ -3,7 +3,7 @@ import { villageMock } from '@pillage-first/mocks/village';
 import type { Village } from '@pillage-first/types/models/village';
 import { calculateCurrentAmount } from '../calculate-current-resources';
 
-describe('calculateCurrentAmount', () => {
+describe(calculateCurrentAmount, () => {
   const oneHour = 3_600_000; // ms
   const baseTime = Date.now();
   const storageCapacity = 1000;

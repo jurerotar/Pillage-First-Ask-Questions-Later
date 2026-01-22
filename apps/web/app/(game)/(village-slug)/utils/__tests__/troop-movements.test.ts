@@ -4,7 +4,7 @@ import type { ComputedEffectReturn } from '@pillage-first/utils/game/calculate-c
 import * as effectUtils from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateTravelDuration } from 'app/(game)/(village-slug)/utils/troop-movements';
 
-describe('calculateTravelDuration', () => {
+describe(calculateTravelDuration, () => {
   const mockOriginVillageId = 0x00_01_00_01; // (1, 1)
   const mockOriginVillageCoordinates = {
     x: 1,

@@ -38,7 +38,7 @@ database.exec(`
 
 migrateAndSeed(database, serverMock);
 
-describe('migrateAndSeed', () => {
+describe(migrateAndSeed, () => {
   describe('tiles', () => {
     test('should create correct amount of tiles', () => {
       const rowCount = database.selectValue(

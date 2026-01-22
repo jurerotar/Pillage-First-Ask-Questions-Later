@@ -30,7 +30,7 @@ describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
   });
 });
 
-describe('parseResourcesFromRFC', () => {
+describe(parseResourcesFromRFC, () => {
   test('parses standard resource field composition correctly', () => {
     const result = parseResourcesFromRFC('4446');
     expect(result).toStrictEqual([4, 4, 4, 6]);
@@ -52,7 +52,7 @@ describe('parseResourcesFromRFC', () => {
   });
 });
 
-describe('calculateGridLayout', () => {
+describe(calculateGridLayout, () => {
   test('calculates grid layout for even map size', () => {
     const result = calculateGridLayout(100);
 
@@ -87,7 +87,7 @@ describe('calculateGridLayout', () => {
   });
 });
 
-describe('tileIdToCoordinates', () => {
+describe(tileIdToCoordinates, () => {
   test('converts center tile id to (0, 0) coordinates', () => {
     const mapSize = 10;
     const { gridSize, halfSize } = calculateGridLayout(mapSize);

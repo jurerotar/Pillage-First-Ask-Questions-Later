@@ -5,7 +5,7 @@ import type {
   QuestReward,
 } from '@pillage-first/types/models/quest';
 
-const buildingIdToResourceRewardMap: Map<Building['id'], number> = new Map([
+const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['WOODCUTTER', 100],
   ['CLAY_PIT', 150],
   ['IRON_MINE', 120],

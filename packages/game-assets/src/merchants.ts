@@ -49,6 +49,6 @@ export const merchants: Merchant[] = [
   },
 ];
 
-export const merchantsMap: Map<Merchant['tribe'], Merchant> = new Map(
+export const merchantsMap = new Map<Merchant['tribe'], Merchant>(
   merchants.map((merchant) => [merchant.tribe, merchant]),
 );
