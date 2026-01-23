@@ -99,7 +99,7 @@
     "vitest/prefer-called-once": "off",
     "jest/*": "error",
     "jest/valid-expect": "off",
-    "jest/valid-title": "warn",
+    "jest/valid-title": "off",
     "jest/require-hook": "off",
     "jest/max-expects": "off",
     "jest/prefer-called-with": "off",
