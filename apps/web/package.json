@@ -59,6 +59,7 @@
     "react-tooltip": "5.30.0",
     "react-window": "1.8.11",
     "recharts": "3.6.0",
+    "rehype-slug": "6.0.0",
     "sonner": "2.0.7",
     "ts-seedrandom": "1.4.0",
     "zod": "4.3.5"

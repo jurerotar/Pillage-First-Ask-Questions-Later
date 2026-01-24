@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
 import { reactIconsSprite } from 'react-icons-sprite/vite';
+import rehypeSlug from 'rehype-slug';
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
@@ -59,7 +60,11 @@ const viteConfig = defineViteConfig({
     //     },
     //   }),
     !isInTestMode &&
-      mdx({ providerImportSource: '@mdx-js/react', development: false }),
+      mdx({
+        providerImportSource: '@mdx-js/react',
+        development: false,
+        rehypePlugins: [rehypeSlug],
+      }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
