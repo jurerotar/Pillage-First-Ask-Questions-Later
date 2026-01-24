@@ -1,8 +1,9 @@
 import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   type ResourceFieldComposition,
-  resourceFieldCompositionSchema
+  resourceFieldCompositionSchema,
 } from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
 import {
@@ -15,7 +16,6 @@ import {
 } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
-import { z } from 'zod';
 
 type TileModel = {
   id: number;
@@ -97,12 +97,12 @@ type GenerateOasisTileArgs = {
 };
 
 const generateOasisTile = ({
-                             tile,
-                             oasisGroup,
-                             oasisGroupPosition,
-                             prng,
-                             preGeneratedResourceType,
-                           }: GenerateOasisTileArgs): TileModel => {
+  tile,
+  oasisGroup,
+  oasisGroupPosition,
+  prng,
+  preGeneratedResourceType,
+}: GenerateOasisTileArgs): TileModel => {
   const oasisResource = (() => {
     if (preGeneratedResourceType) {
       return preGeneratedResourceType;
@@ -317,8 +317,9 @@ export const tilesSeeder: Seeder = (database, server): void => {
     }),
   });
 
-  const rfcs =
-    Object.fromEntries(rfcRows.map((t) => [t.resource_field_composition, t.id]));
+  const rfcs = Object.fromEntries(
+    rfcRows.map((t) => [t.resource_field_composition, t.id]),
+  );
 
   const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
     const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;

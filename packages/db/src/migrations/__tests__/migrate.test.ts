@@ -75,7 +75,6 @@ describe(migrateAndSeed, () => {
       database.selectObjects({
         sql: `
           SELECT
-            t.id,
             rfc.resource_field_composition AS resource_field_composition,
             t.oasis_graphics
           FROM
@@ -98,7 +97,6 @@ describe(migrateAndSeed, () => {
       database.selectObjects({
         sql: `
           SELECT
-            t.id,
             rfc.resource_field_composition AS resource_field_composition,
             t.oasis_graphics
           FROM
@@ -171,7 +169,6 @@ describe(migrateAndSeed, () => {
       const center = database.selectObject({
         sql: `
           SELECT
-            t.id,
             t.type,
             rfc.resource_field_composition AS resource_field_composition,
             t.oasis_graphics
@@ -267,6 +264,7 @@ describe(migrateAndSeed, () => {
         sql: 'SELECT slug FROM players;',
         schema: z.string(),
       });
+
       const distinctCount = database.selectValue({
         sql: 'SELECT COUNT(DISTINCT slug) AS c FROM players;',
         schema: z.number(),

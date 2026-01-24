@@ -48,7 +48,7 @@ export const getPlayerRankings: Controller<
   const { lastPlayerId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
       WITH player_pop AS (
         SELECT
@@ -108,9 +108,8 @@ export const getPlayerRankings: Controller<
     bind: {
       $last_player_id: lastPlayerId,
     },
+    schema: getPlayerRankingsSchema,
   });
-
-  return z.array(getPlayerRankingsSchema).parse(rows);
 };
 
 const getVillageRankingsSchema = z
@@ -156,7 +155,7 @@ export const getVillageRankings: Controller<
   const { lastVillageId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
       WITH
         village_pop AS (
@@ -227,9 +226,8 @@ export const getVillageRankings: Controller<
     bind: {
       $last_village_id: lastVillageId,
     },
+    schema: getVillageRankingsSchema,
   });
-
-  return z.array(getVillageRankingsSchema).parse(rows);
 };
 
 const playersStatsRowSchema = z.object({
@@ -270,7 +268,7 @@ const getServerOverviewStatisticsSchema = z
 export const getGameWorldOverview: Controller<'/statistics/overview'> = (
   database,
 ) => {
-  const rawPlayersStats = database.selectObjects({
+  const playersStats = database.selectObjects({
     sql: `
     SELECT
       p.tribe AS tribe,
@@ -280,9 +278,10 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
   `,
+    schema: playersStatsRowSchema,
   });
 
-  const rawVillagesStats = database.selectObjects({
+  const villagesStats = database.selectObjects({
     sql: `
     SELECT
       p.tribe AS tribe,
@@ -293,10 +292,8 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
   `,
+    schema: villagesStatsRowSchema,
   });
-
-  const playersStats = z.array(playersStatsRowSchema).parse(rawPlayersStats);
-  const villagesStats = z.array(villagesStatsRowSchema).parse(rawVillagesStats);
 
   let totalPlayers = 0;
 

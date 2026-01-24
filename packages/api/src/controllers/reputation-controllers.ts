@@ -24,7 +24,7 @@ export const getReputations: Controller<'/me/reputations'> = (
 ) => {
   const { playerId } = params;
 
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
     SELECT f.faction, fr.reputation
     FROM faction_reputation fr
@@ -34,7 +34,6 @@ export const getReputations: Controller<'/me/reputations'> = (
     bind: {
       $player_id: playerId,
     },
+    schema: getReputationsSchema,
   });
-
-  return z.array(getReputationsSchema).parse(rows);
 };

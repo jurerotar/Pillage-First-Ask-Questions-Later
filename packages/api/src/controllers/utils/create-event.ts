@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type {
   GameEvent,
   GameEventType,
@@ -64,7 +65,8 @@ export const createEvents = <T extends GameEventType>(
       LIMIT 1;
     `,
     bind: { $now: now },
-  }) as { id: string; resolvesAt: number } | undefined;
+    schema: z.object({ id: z.string(), resolvesAt: z.number() }),
+  });
 
   validateAndInsertEvents(database, events);
 

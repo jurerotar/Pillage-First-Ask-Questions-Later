@@ -1,6 +1,6 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Seeder } from '../types/seeder';
-import { z } from 'zod';
 
 export const heroAdventuresSeeder: Seeder = (database): void => {
   const heroId = database.selectValue({

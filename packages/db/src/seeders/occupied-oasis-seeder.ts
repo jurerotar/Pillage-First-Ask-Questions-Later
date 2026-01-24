@@ -1,9 +1,9 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import type { VillageSize } from '@pillage-first/types/models/village';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { getVillageSize } from '../utils/village-size';
-import { z } from 'zod';
 
 const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
   ['xxs', 0],
@@ -36,9 +36,10 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
     schema,
   });
 
-  const occupiableOasisMap = new Map<`${number}-${number}`, z.infer<typeof schema>>(
-    occupiableOasis.map((oasis) => [`${oasis.x}-${oasis.y}`, oasis]),
-  );
+  const occupiableOasisMap = new Map<
+    `${number}-${number}`,
+    z.infer<typeof schema>
+  >(occupiableOasis.map((oasis) => [`${oasis.x}-${oasis.y}`, oasis]));
 
   const oasisByVillages: [number, number][] = [];
 

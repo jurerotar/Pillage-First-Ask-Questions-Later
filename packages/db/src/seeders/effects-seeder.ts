@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
@@ -5,7 +6,10 @@ import {
 import { merchants } from '@pillage-first/game-assets/merchants';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
-import { type Building, buildingIdSchema } from '@pillage-first/types/models/building';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import {
   effectIdSchema,
   type GlobalEffect,
@@ -13,13 +17,12 @@ import {
   type ServerEffect,
   type TribalEffect,
 } from '@pillage-first/types/models/effect';
+import { resourceSchema } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { isVillageEffect } from '@pillage-first/utils/guards/effect';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
-import { z } from 'zod';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 
 const heroEffectsFactory = (
   server: Server,
@@ -183,9 +186,11 @@ export const effectsSeeder: Seeder = (database, server): void => {
     }),
   });
 
-  const effectIds = Object.fromEntries(effectIdRows.map((t) => {
-    return [t.effect, t.id];
-  }));
+  const effectIds = Object.fromEntries(
+    effectIdRows.map((t) => {
+      return [t.effect, t.id];
+    }),
+  );
 
   const initialPlayerVillageId = database.selectValue({
     sql: `

@@ -1,10 +1,10 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
-import { z } from 'zod';
 
 export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);

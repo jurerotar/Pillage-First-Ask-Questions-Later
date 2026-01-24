@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -15,6 +16,7 @@ export const resolveEvent = (
       RETURNING id, type, starts_at, duration, village_id, resolves_at, meta;
     `,
     bind: { $id: eventId },
+    schema: z.unknown(),
   });
 
   const event = parseEvent(deletedRow);

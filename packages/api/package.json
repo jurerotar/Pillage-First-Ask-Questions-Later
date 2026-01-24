@@ -35,7 +35,7 @@
     "@sqlite.org/sqlite-wasm": "*",
     "moderndash": "4.0.0",
     "path-to-regexp": "8.3.0",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "*",

@@ -1,14 +1,11 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import {
-  type ResourceFieldComposition,
-  resourceFieldCompositionSchema
-} from '@pillage-first/types/models/resource-field-composition';
-import { type PlayableTribe, tribeSchema } from '@pillage-first/types/models/tribe';
+import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 import { buildingFieldsFactory } from './factories/building-fields-factory';
-import { z } from 'zod';
 
 export const buildingFieldsSeeder: Seeder = (database, server): void => {
   // villageId, fieldId, buildingId, level
@@ -35,7 +32,7 @@ export const buildingFieldsSeeder: Seeder = (database, server): void => {
       y: z.number(),
       resource_field_composition: resourceFieldCompositionSchema,
       tribe: tribeSchema,
-      player_id: z.number()
+      player_id: z.number(),
     }),
   });
 

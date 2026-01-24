@@ -1,5 +1,5 @@
-import type { Effect } from '@pillage-first/types/models/effect';
-import type { Resource } from '@pillage-first/types/models/resource';
+import { z } from 'zod';
+import { effectSchema } from '@pillage-first/types/models/effect';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
@@ -55,6 +55,14 @@ type CalculateVillageResourcesAtReturn = {
   lastEffectiveWheatUpdate: number;
 };
 
+const currentResourcesSchema = z.strictObject({
+  last_updated_at: z.number(),
+  wood: z.number(),
+  clay: z.number(),
+  iron: z.number(),
+  wheat: z.number(),
+});
+
 export const calculateVillageResourcesAt = (
   database: DbFacade,
   villageId: number,
@@ -65,7 +73,8 @@ export const calculateVillageResourcesAt = (
     bind: {
       $village_id: villageId,
     },
-  }) as Effect[];
+    schema: effectSchema,
+  });
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
@@ -113,7 +122,8 @@ export const calculateVillageResourcesAt = (
       WHERE v.id = $village_id;
     `,
     bind: { $village_id: villageId },
-  }) as Record<Resource | 'last_updated_at', number>;
+    schema: currentResourcesSchema,
+  })!;
 
   const {
     currentAmount: currentWood,

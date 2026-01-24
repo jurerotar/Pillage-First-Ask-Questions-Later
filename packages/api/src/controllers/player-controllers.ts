@@ -9,7 +9,7 @@ import type { Controller } from '../types/controller';
  * GET /me
  */
 export const getMe: Controller<'/me'> = (database) => {
-  const row = database.selectObject({
+  return database.selectObject({
     sql: `
       SELECT
         p.id,
@@ -24,9 +24,8 @@ export const getMe: Controller<'/me'> = (database) => {
         p.id = $player_id;
     `,
     bind: { $player_id: PLAYER_ID },
-  });
-
-  return playerSchema.parse(row);
+    schema: playerSchema,
+  })!;
 };
 
 const getVillagesByPlayerSchema = z
@@ -64,7 +63,7 @@ export const getPlayerVillageListing: Controller<
     params: { playerId },
   } = args;
 
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
       SELECT v.id,
              v.tile_id,
@@ -81,9 +80,8 @@ export const getPlayerVillageListing: Controller<
       WHERE v.player_id = $player_id;
     `,
     bind: { $player_id: playerId },
+    schema: getVillagesByPlayerSchema,
   });
-
-  return z.array(getVillagesByPlayerSchema).parse(rows);
 };
 
 const getPlayerVillagesWithPopulationSchema = z
@@ -123,7 +121,7 @@ export const getPlayerVillagesWithPopulation: Controller<
     params: { playerId },
   } = args;
 
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
       SELECT v.id,
              v.tile_id,
@@ -141,9 +139,8 @@ export const getPlayerVillagesWithPopulation: Controller<
       WHERE v.player_id = $player_id;
     `,
     bind: { $player_id: playerId },
+    schema: getPlayerVillagesWithPopulationSchema,
   });
-
-  return z.array(getPlayerVillagesWithPopulationSchema).parse(rows);
 };
 
 const getTroopsByVillageSchema = z
@@ -174,7 +171,7 @@ export const getTroopsByVillage: Controller<
     params: { villageId },
   } = args;
 
-  const troopModels = database.selectObjects({
+  return database.selectObjects({
     sql: `
       SELECT unit_id,
              amount,
@@ -186,9 +183,8 @@ export const getTroopsByVillage: Controller<
                               WHERE villages.id = $village_id);
     `,
     bind: { $village_id: villageId },
+    schema: getTroopsByVillageSchema,
   });
-
-  return z.array(getTroopsByVillageSchema).parse(troopModels);
 };
 
 type RenameVillageBody = {
@@ -231,7 +227,7 @@ export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
     params: { playerSlug },
   } = args;
 
-  const row = database.selectObject({
+  return database.selectObject({
     sql: `
       SELECT
         p.id,
@@ -251,7 +247,6 @@ export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
     bind: {
       $player_slug: playerSlug,
     },
-  });
-
-  return playerSchema.parse(row);
+    schema: playerSchema,
+  })!;
 };

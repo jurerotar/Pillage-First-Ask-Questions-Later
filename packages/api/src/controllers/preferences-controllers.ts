@@ -40,7 +40,7 @@ const getPreferencesSchema = z
  * GET /preferences
  */
 export const getPreferences: Controller<'/preferences'> = (database) => {
-  const row = database.selectObject({
+  return database.selectObject({
     sql: `
       SELECT
         is_accessibility_mode_enabled,
@@ -54,9 +54,8 @@ export const getPreferences: Controller<'/preferences'> = (database) => {
       FROM
         preferences
     `,
-  });
-
-  return getPreferencesSchema.parse(row);
+    schema: getPreferencesSchema,
+  })!;
 };
 
 type UpdatePreferenceBody = {

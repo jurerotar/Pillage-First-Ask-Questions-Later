@@ -1,11 +1,11 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import {
   type ResourceFieldComposition,
-  resourceFieldCompositionSchema
+  resourceFieldCompositionSchema,
 } from '@pillage-first/types/models/resource-field-composition';
 import { seededRandomArrayElement } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
-import { z } from 'zod';
 
 // There should be at least some "good" croppers. This means 18c/15c with 150% bonus
 export const guaranteedCroppersSeeder: Seeder = (database, server) => {

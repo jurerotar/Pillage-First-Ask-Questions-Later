@@ -1,3 +1,4 @@
+import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import {
   calculateBuildingCostForLevel,
@@ -12,7 +13,7 @@ import {
 } from '@pillage-first/game-assets/units/utils';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Server } from '@pillage-first/types/models/server';
+import { speedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import {
@@ -34,13 +35,6 @@ import {
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { calculateAdventurePointIncreaseEventDuration } from '../resolvers/utils/adventures';
-
-// This type actually exists in node:sqlite module, but we disabled node types in this package,
-// because it otherwise pollutes some of the globals (setTimeout,...)
-type SQLOutputValue = number | bigint | string | null;
-
-const effectsListSchema = z.array(apiEffectSchema);
-const eventsListSchema = z.array(eventSchema);
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]): void => {
@@ -111,7 +105,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 
   const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
 
-  const params: SQLOutputValue[] = Array.from({
+  const params: SqlValue[] = Array.from({
     length: events.length * amountOfColumnsToInsert,
   });
 
@@ -127,7 +121,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     params[base + 3] = event.duration;
     params[base + 4] = event.villageId ?? null;
 
-    let metaObj: Record<string, SQLOutputValue> | undefined;
+    let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
       if (requiredEventProperties.has(property)) {
         continue;
@@ -144,7 +138,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     params[base + 5] = metaObj ? JSON.stringify(metaObj) : null;
   }
 
-  const stmt = database.prepare(sql);
+  const stmt = database.prepare({ sql });
   stmt.bind(params).stepReset();
 };
 
@@ -338,15 +332,14 @@ export const getEventDuration = (
   } else if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     const { villageId, buildingId, level } = event;
 
-    const rows = database.selectObjects({
+    const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'buildingDuration',
         $village_id: villageId,
       },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       'buildingDuration',
@@ -363,15 +356,14 @@ export const getEventDuration = (
   } else if (isUnitResearchEvent(event)) {
     const { villageId, unitId } = event;
 
-    const rows = database.selectObjects({
+    const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'buildingDuration',
         $village_id: villageId,
       },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
       'unitResearchDuration',
@@ -384,15 +376,14 @@ export const getEventDuration = (
   } else if (isUnitImprovementEvent(event)) {
     const { villageId, unitId, level } = event;
 
-    const rows = database.selectObjects({
+    const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'unitImprovementDuration',
         $village_id: villageId,
       },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
       'unitImprovementDuration',
@@ -406,15 +397,14 @@ export const getEventDuration = (
   } else if (isTroopTrainingEvent(event)) {
     const { unitId, villageId, durationEffectId } = event;
 
-    const rows = database.selectObjects({
+    const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
         $effect_id: 'buildingDuration',
         $village_id: villageId,
       },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       durationEffectId,
@@ -426,9 +416,13 @@ export const getEventDuration = (
 
     duration = total * baseRecruitmentDuration;
   } else if (isAdventurePointIncreaseEvent(event)) {
-    const [createdAt, speed] = database.selectValues({
+    const { createdAt, speed } = database.selectObject({
       sql: 'SELECT created_at, speed FROM servers LIMIT 1;',
-    }) as [Server['createdAt'], Server['configuration']['speed']];
+      schema: z.strictObject({
+        createdAt: z.number(),
+        speed: speedSchema,
+      }),
+    })!;
 
     duration = calculateAdventurePointIncreaseEventDuration(createdAt, speed);
   }
@@ -447,15 +441,14 @@ export const getEventStartTime = (
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
 
-    const rows = database.selectObjects({
+    const events = database.selectObjects({
       sql: selectAllVillageEventsByTypeQuery,
       bind: {
         $village_id: villageId,
         $type: 'troopTraining',
       },
-    });
-
-    const events = eventsListSchema.parse(rows) as GameEvent<'troopTraining'>[];
+      schema: eventSchema,
+    }) as GameEvent<'troopTraining'>[];
 
     const relevantTrainingEvents = events.filter((event) => {
       return event.buildingId === buildingId;
@@ -488,7 +481,7 @@ export const getEventStartTime = (
         $now: now,
       },
       schema: z.number(),
-    });
+    })!;
 
     return lastResolvesAtForThisUnitId;
   }
@@ -537,7 +530,7 @@ export const getEventStartTime = (
         $now: Date.now(),
       },
       schema: z.number(),
-    });
+    })!;
 
     return resolvesAt;
   }

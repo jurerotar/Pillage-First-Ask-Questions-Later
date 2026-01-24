@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noConsole: We're using debug statements to test query performance in development */
-import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
-import { type ZodType, z, type ZodEnum } from 'zod';
+import type { OpfsSAHPoolDatabase, SqlValue } from '@sqlite.org/sqlite-wasm';
+import { z } from 'zod';
 
 const createPreparedStatementCache = (): Map<
   string,
@@ -14,7 +14,7 @@ type ExecArgs = {
   bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1];
 };
 
-type SelectArgs<T extends ZodType> = {
+type SelectArgs<T extends z.ZodType> = {
   sql: string;
   bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1];
   schema: T;
@@ -24,20 +24,20 @@ export type DbFacade = {
   exec: (args: ExecArgs) => void;
 
   /** returns a single *value* validated against `schema`. undefined if not found */
-  selectValue: <T extends ZodType>(
+  selectValue: <T extends z.ZodType>(
     args: SelectArgs<T>,
   ) => z.infer<T> | undefined;
 
   /** returns an array of values validated against `schema` (empty array if nothing found) */
-  selectValues: <T extends ZodType>(args: SelectArgs<T>) => z.infer<T>[];
+  selectValues: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
   /** single row object validated against schema (use a z.object(...) schema) */
-  selectObject: <T extends ZodType>(
+  selectObject: <T extends z.ZodType>(
     args: SelectArgs<T>,
   ) => z.infer<T> | undefined;
 
   /** many row objects validated against schema */
-  selectObjects: <T extends ZodType>(args: SelectArgs<T>) => z.infer<T>[];
+  selectObjects: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
   prepare: ({
     sql,
@@ -103,7 +103,7 @@ export const createDbFacade = (
 
       const data = row.at(0);
 
-      if (!data) {
+      if (data === undefined) {
         return undefined;
       }
 
@@ -116,34 +116,26 @@ export const createDbFacade = (
       if (bind) {
         statement.bind(bind);
       }
-      const isDataAvailable = statement.step();
 
-      if (isDataAvailable) {
-        const rows = statement.get([]);
-        statement.reset();
-        const t1 = performance.now();
-        if (debug) {
-          console.log(
-            `DbFacade.selectValues — sql=${sql} took ${(t1 - t0).toFixed(
-              3,
-            )} ms; rows=${Array.isArray(rows) ? rows.length : 'unknown'}`,
-          );
-        }
+      const values: SqlValue[] = [];
 
-        return z.array(schema).parse(rows);
+      while (statement.step()) {
+        const row = statement.get([]);
+        values.push(row.at(0)!);
       }
 
       statement.reset();
+
       const t1 = performance.now();
       if (debug) {
         console.log(
           `DbFacade.selectValues — sql=${sql} took ${(t1 - t0).toFixed(
             3,
-          )} ms; rows=0`,
+          )} ms; rows=${values.length}`,
         );
       }
 
-      return [];
+      return z.array(schema).parse(values);
     },
 
     selectObject: ({ sql, bind, schema }) => {

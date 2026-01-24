@@ -35,22 +35,21 @@ const getHeroSchema = z
  * @pathParam {number} playerId
  */
 export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
-  const hero = database.selectObject({
+  return database.selectObject({
     sql: `
-    SELECT
-      h.health,
-      h.experience,
-      h.attack_power,
-      h.resource_production,
-      h.attack_bonus,
-      h.defence_bonus,
-      h.resource_to_produce
-    FROM
-      heroes h;
-  `,
+      SELECT
+        h.health,
+        h.experience,
+        h.attack_power,
+        h.resource_production,
+        h.attack_bonus,
+        h.defence_bonus,
+        h.resource_to_produce
+      FROM
+        heroes h;
+    `,
+    schema: getHeroSchema,
   });
-
-  return getHeroSchema.parse(hero);
 };
 
 const getHeroLoadoutSchema = z
@@ -72,7 +71,7 @@ const getHeroLoadoutSchema = z
 export const getHeroLoadout: Controller<
   '/players/:playerId/hero/equipped-items'
 > = (database) => {
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
       SELECT slot, item_id, amount
       FROM
@@ -80,13 +79,13 @@ export const getHeroLoadout: Controller<
       WHERE
         hero_id = (
           SELECT id
-          FROM heroes
+          FROM
+            heroes
           LIMIT 1
           )
     `,
+    schema: getHeroLoadoutSchema,
   });
-
-  return z.array(getHeroLoadoutSchema).parse(rows);
 };
 
 const getHeroInventorySchema = z
@@ -106,7 +105,7 @@ const getHeroInventorySchema = z
 export const getHeroInventory: Controller<
   '/players/:playerId/hero/inventory'
 > = (database) => {
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
       SELECT i.item_id, i.amount
       FROM
@@ -120,9 +119,8 @@ export const getHeroInventory: Controller<
           LIMIT 1
           )
     `,
+    schema: getHeroInventorySchema,
   });
-
-  return z.array(getHeroInventorySchema).parse(rows);
 };
 
 /**
@@ -132,9 +130,8 @@ export const getHeroInventory: Controller<
 export const getHeroAdventures: Controller<
   '/players/:playerId/hero/adventures'
 > = (database) => {
-  const row = database.selectObject({
+  return database.selectObject({
     sql: 'SELECT available, completed FROM hero_adventures;',
+    schema: heroAdventuresSchema,
   });
-
-  return heroAdventuresSchema.parse(row);
 };

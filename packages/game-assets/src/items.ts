@@ -1,7 +1,7 @@
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 
 // All artifacts begin with the 100_ prefix
-const artifacts: HeroItem[] = [
+export const artifacts: HeroItem[] = [
   {
     id: 1001,
     name: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',

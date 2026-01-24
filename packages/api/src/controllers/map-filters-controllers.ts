@@ -26,7 +26,7 @@ const getMapFiltersSchema = z
  * GET /map-filters
  */
 export const getMapFilters: Controller<'/map-filters'> = (database) => {
-  const row = database.selectObject({
+  return database.selectObject({
     sql: `
     SELECT
       should_show_faction_reputation,
@@ -36,9 +36,8 @@ export const getMapFilters: Controller<'/map-filters'> = (database) => {
       should_show_tile_tooltips,
       should_show_treasure_icons
     FROM map_filters`,
-  });
-
-  return getMapFiltersSchema.parse(row);
+    schema: getMapFiltersSchema,
+  })!;
 };
 
 type UpdateMapFilterBody = {

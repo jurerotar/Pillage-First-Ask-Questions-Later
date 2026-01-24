@@ -1,8 +1,8 @@
+import { z } from 'zod';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
-import { z } from 'zod';
 
 export const bookmarksSeeder: Seeder = (database): void => {
   const playerStartingVillageId = database.selectValue({

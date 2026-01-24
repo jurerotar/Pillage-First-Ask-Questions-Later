@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { artifacts } from '@pillage-first/game-assets/items';
 import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
@@ -30,6 +31,8 @@ const getArtifactsAroundVillageSchema = z
     };
   });
 
+const artifactIds = artifacts.map((item) => item.id);
+
 /**
  * GET /villages/:villageId/artifacts
  * @pathParam {number} villageId
@@ -39,21 +42,23 @@ export const getArtifactsAroundVillage: Controller<
 > = (database, { params }) => {
   const { villageId } = params;
 
-  const rows = database.selectObjects({
+  return database.selectObjects({
     sql: `
-      SELECT wi.item_id,
-             t.x,
-             t.y,
-             vt.x AS vx,
-             vt.y AS vy
-      FROM world_items wi
-             JOIN tiles t ON t.id = wi.tile_id
-             JOIN villages v ON v.id = $village_id
-             JOIN tiles vt ON vt.id = v.tile_id
-      WHERE wi.type = 'artifact';
+      SELECT
+        wi.item_id,
+        t.x,
+        t.y,
+        vt.x AS vx,
+        vt.y AS vy
+      FROM
+        world_items wi
+          JOIN tiles t ON t.id = wi.tile_id
+          JOIN villages v ON v.id = $village_id
+          JOIN tiles vt ON vt.id = v.tile_id
+      WHERE
+        wi.item_id IN (${artifactIds.join(',')});
     `,
     bind: { $village_id: villageId },
+    schema: getArtifactsAroundVillageSchema,
   });
-
-  return z.array(getArtifactsAroundVillageSchema).parse(rows);
 };
