@@ -1,6 +1,6 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Building } from '@pillage-first/types/models/building';
-import type { DbFacade } from '../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const assessAdventureCountQuestCompletion = (
   database: DbFacade,

@@ -2,7 +2,7 @@ import type {
   GameEvent,
   GameEventType,
 } from '@pillage-first/types/models/game-event';
-import type { DbFacade } from '../../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
 import {
   checkAndSubtractVillageResources,

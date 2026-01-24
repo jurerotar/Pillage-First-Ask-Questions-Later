@@ -1,6 +1,6 @@
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { DbFacade } from '../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getGameEventResolver } from './event-type-mapper';
 import { parseEvent } from './zod/event-schemas';
 

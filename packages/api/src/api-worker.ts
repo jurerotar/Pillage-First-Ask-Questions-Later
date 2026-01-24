@@ -8,7 +8,7 @@ import type {
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
-import { createDbFacade, type DbFacade } from './facades/database-facade';
+import { createDbFacade, type DbFacade } from '@pillage-first/utils/facades/database';
 import {
   cancelScheduling,
   initScheduler,

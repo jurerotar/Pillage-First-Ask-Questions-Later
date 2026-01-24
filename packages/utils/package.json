@@ -47,6 +47,9 @@
     },
     "./guards/map": {
       "default": "./src/guards/map-guards.ts"
+    },
+    "./facades/database": {
+      "default": "./src/facades/database-facade.ts"
     }
   },
   "scripts": {
@@ -68,6 +71,7 @@
     "@typescript/native-preview": "*",
     "vitest": "4.0.17",
     "@vitest/coverage-v8": "4.0.17",
-    "typescript": "*"
+    "typescript": "*",
+    "zod": "4.3.6"
   }
 }

@@ -24,7 +24,7 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
-import type { DbFacade } from '../../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import {

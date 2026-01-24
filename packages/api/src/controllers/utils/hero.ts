@@ -1,5 +1,5 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { DbFacade } from '../../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const addHeroExperience = (
   database: DbFacade,

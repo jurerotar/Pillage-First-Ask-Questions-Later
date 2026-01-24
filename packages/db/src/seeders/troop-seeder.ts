@@ -1,7 +1,7 @@
 import { prngMulberry32 } from 'ts-seedrandom';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitByTribeAndTier } from '@pillage-first/game-assets/units/utils';
-import type { Resource } from '@pillage-first/types/models/resource';
+import { type Resource, resourceSchema } from '@pillage-first/types/models/resource';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type {
   NatureUnitId,
@@ -12,6 +12,7 @@ import type { VillageSize } from '@pillage-first/types/models/village';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
+import { z } from 'zod';
 
 const oasisTroopCombinations = new Map<
   Resource,
@@ -286,14 +287,16 @@ export const troopSeeder: Seeder = (database, server): void => {
   const results: [Unit['id'], number, number, number][] = [];
 
   const villages = database.selectObjects(`
-    SELECT players.id as player_id,
-           players.tribe,
-           tiles.id   AS tile_id,
-           tiles.x,
-           tiles.y
-    FROM villages
-           INNER JOIN players ON villages.player_id = players.id
-           INNER JOIN tiles ON villages.tile_id = tiles.id;
+    SELECT
+      players.id AS player_id,
+      players.tribe,
+      tiles.id AS tile_id,
+      tiles.x,
+      tiles.y
+    FROM
+      villages
+        INNER JOIN players ON villages.player_id = players.id
+        INNER JOIN tiles ON villages.tile_id = tiles.id;
   `) as VillagesSelectRow[];
 
   for (const { tribe, tile_id, player_id } of villages) {
@@ -326,13 +329,23 @@ export const troopSeeder: Seeder = (database, server): void => {
     }
   }
 
-  const oasis = database.selectObjects(`
-    SELECT o.tile_id AS tile_id,
-           MAX(o.resource) AS resource
-    FROM oasis o
-    WHERE o.village_id IS NULL
-    GROUP BY o.tile_id;
-  `) as OasisSelectRow[];
+  const oasis = database.selectObjects({
+    sql: `
+      SELECT
+        o.tile_id AS tile_id,
+        MAX(o.resource) AS resource
+      FROM
+        oasis o
+      WHERE
+        o.village_id IS NULL
+      GROUP BY
+        o.tile_id;
+    `,
+    schema: z.strictObject({
+      tile_id: z.number(),
+      resource: resourceSchema,
+    }),
+  });
 
   for (const { tile_id, resource } of oasis) {
     const troopIdsWithAmount = oasisTroopCombinations.get(resource)!;

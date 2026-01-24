@@ -2,7 +2,7 @@ import type { Effect } from '@pillage-first/types/models/effect';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
-import type { DbFacade } from '../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectAllRelevantEffectsQuery } from './queries/effect-queries';
 
 export const demolishBuilding = (
