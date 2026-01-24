@@ -1,6 +1,9 @@
 import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import type { Resource } from '@pillage-first/types/models/resource';
-import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
+import {
+  type ResourceFieldComposition,
+  resourceFieldCompositionSchema
+} from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
 import {
   calculateGridLayout,
@@ -12,6 +15,7 @@ import {
 } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
+import { z } from 'zod';
 
 type TileModel = {
   id: number;
@@ -93,12 +97,12 @@ type GenerateOasisTileArgs = {
 };
 
 const generateOasisTile = ({
-  tile,
-  oasisGroup,
-  oasisGroupPosition,
-  prng,
-  preGeneratedResourceType,
-}: GenerateOasisTileArgs): TileModel => {
+                             tile,
+                             oasisGroup,
+                             oasisGroupPosition,
+                             prng,
+                             preGeneratedResourceType,
+                           }: GenerateOasisTileArgs): TileModel => {
   const oasisResource = (() => {
     if (preGeneratedResourceType) {
       return preGeneratedResourceType;
@@ -305,12 +309,16 @@ export const tilesSeeder: Seeder = (database, server): void => {
   const tilesWithSingleOasisAndFreeTileTypes =
     assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
 
-  const rfcRows = database.selectArrays(
-    'SELECT resource_field_composition, id FROM resource_field_compositions;',
-  );
+  const rfcRows = database.selectObjects({
+    sql: 'SELECT resource_field_composition, id FROM resource_field_compositions;',
+    schema: z.strictObject({
+      resource_field_composition: resourceFieldCompositionSchema,
+      id: z.number(),
+    }),
+  });
 
-  const rfcs: Record<ResourceFieldComposition, number> =
-    Object.fromEntries(rfcRows);
+  const rfcs =
+    Object.fromEntries(rfcRows.map((t) => [t.resource_field_composition, t.id]));
 
   const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
     const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;

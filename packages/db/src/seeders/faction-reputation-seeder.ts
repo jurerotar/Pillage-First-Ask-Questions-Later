@@ -1,15 +1,21 @@
 import { reputationLevels } from '@pillage-first/game-assets/reputation';
-import type { Faction } from '@pillage-first/types/models/faction';
+import { factionSchema } from '@pillage-first/types/models/faction';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
+import { z } from 'zod';
 
 export const factionReputationSeeder: Seeder = (database): void => {
-  const rows = database.selectArrays('SELECT faction, id FROM factions;') as [
-    Faction,
-    number,
-  ][];
+  const rows = database.selectObjects({
+    sql: 'SELECT faction, id FROM factions;',
+    schema: z.strictObject({
+      faction: factionSchema,
+      id: z.number(),
+    }),
+  });
 
-  const factionToIdMap = Object.fromEntries(rows);
+  const factionToIdMap = Object.fromEntries(
+    rows.map((r) => [r.faction, r.id] as const),
+  );
 
   const playerFactionId = factionToIdMap.player;
 

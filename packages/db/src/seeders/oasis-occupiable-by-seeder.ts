@@ -2,8 +2,8 @@ import type { Seeder } from '../types/seeder';
 
 export const oasisOccupiableBySeeder: Seeder = (database) => {
   // Create oasis_occupiable_by entries for 50% wheat oasis only. We'll create the rest of the entries later
-  database.exec(
-    `
+  database.exec({
+    sql: `
       INSERT OR IGNORE INTO
         oasis_occupiable_by (occupiable_tile_id, occupiable_oasis_tile_id)
       SELECT t.id, o.tile_id
@@ -19,5 +19,5 @@ export const oasisOccupiableBySeeder: Seeder = (database) => {
         AND t.type = 'free'
       ;
     `,
-  );
+  });
 };

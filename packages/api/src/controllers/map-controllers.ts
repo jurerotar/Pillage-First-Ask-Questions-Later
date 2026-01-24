@@ -88,7 +88,8 @@ const getTilesSchema = z
  * GET /tiles
  */
 export const getTiles: Controller<'/tiles'> = (database) => {
-  const rows = database.selectObjects(`
+  const rows = database.selectObjects({
+    sql: `
     WITH
       wheat_id AS (
         SELECT id AS wid
@@ -156,13 +157,15 @@ export const getTiles: Controller<'/tiles'> = (database) => {
 
     ORDER BY
       t.id;
-  `);
+  `,
+  });
 
   const parsedTiles = z.array(getTilesSchema).parse(rows);
 
-  const mapSize = database.selectValue(
-    'SELECT map_size FROM servers LIMIT 1;',
-  ) as number;
+  const mapSize = database.selectValue({
+    sql: 'SELECT map_size FROM servers LIMIT 1;',
+    schema: z.number(),
+  });
 
   const { totalTiles } = calculateGridLayout(mapSize);
 
@@ -199,17 +202,17 @@ export const getTileTroops: Controller<'/tiles/:tileId/troops'> = (
 ) => {
   const { tileId } = params;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
     SELECT unit_id, amount, tile_id, source_tile_id
     FROM troops
     WHERE tile_id = $tile_id
     GROUP BY unit_id;
     `,
-    {
+    bind: {
       $tile_id: tileId,
     },
-  );
+  });
 
   return z.array(getTileTroopsSchema).parse(rows);
 };
@@ -234,16 +237,16 @@ export const getTileOasisBonuses: Controller<'/tiles/:tileId/bonuses'> = (
 ) => {
   const { tileId } = params;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
     SELECT resource, bonus
     FROM oasis
     WHERE tile_id = $tile_id;
     `,
-    {
+    bind: {
       $tile_id: tileId,
     },
-  );
+  });
 
   return z.array(getTileOasisBonusesSchema).parse(rows);
 };
@@ -268,17 +271,17 @@ export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
 ) => {
   const { tileId } = params;
 
-  const row = database.selectObject(
-    `
+  const row = database.selectObject({
+    sql: `
     SELECT item_id, amount
     FROM world_items
     WHERE tile_id = $tile_id
     LIMIT 1;
     `,
-    {
+    bind: {
       $tile_id: tileId,
     },
-  );
+  });
 
   if (!row) {
     return null;

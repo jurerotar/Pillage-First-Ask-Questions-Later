@@ -13,8 +13,11 @@ export const getVillageEffects: Controller<'/villages/:villageId/effects'> = (
 ) => {
   const { villageId } = params;
 
-  const rows = database.selectObjects(selectAllRelevantEffectsQuery, {
-    $village_id: villageId,
+  const rows = database.selectObjects({
+    sql: selectAllRelevantEffectsQuery,
+    bind: {
+      $village_id: villageId,
+    },
   });
 
   return z.array(apiEffectSchema).parse(rows);

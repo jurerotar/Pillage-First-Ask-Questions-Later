@@ -5,15 +5,15 @@ export const addHeroExperience = (
   database: DbFacade,
   experience: number,
 ): void => {
-  database.exec(
-    `
+  database.exec({
+    sql: `
     UPDATE heroes
     SET experience = experience + $experience
     WHERE player_id = $player_id;
   `,
-    {
+    bind: {
       $experience: experience,
       $player_id: PLAYER_ID,
     },
-  );
+  });
 };

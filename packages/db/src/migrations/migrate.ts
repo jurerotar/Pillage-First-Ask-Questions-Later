@@ -1,4 +1,5 @@
 import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createOasisOccupiableByIndexes from '../indexes/oasis-occupiable-by-indexes.sql?raw';
@@ -60,12 +61,8 @@ import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
-import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const migrateAndSeed = (
-  database: DbFacade,
-  server: Server,
-): void => {
+export const migrateAndSeed = (database: DbFacade, server: Server): void => {
   database.transaction((db) => {
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });

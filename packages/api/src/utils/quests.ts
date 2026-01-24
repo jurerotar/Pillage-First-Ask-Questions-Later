@@ -6,8 +6,8 @@ export const assessAdventureCountQuestCompletion = (
   database: DbFacade,
   timestamp: number,
 ): void => {
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE quests
       SET completed_at = $completed_at
       WHERE completed_at IS NULL
@@ -24,11 +24,11 @@ export const assessAdventureCountQuestCompletion = (
         WHERE h.player_id = $player_id
       );
     `,
-    {
+    bind: {
       $completed_at: timestamp,
       $player_id: PLAYER_ID,
     },
-  );
+  });
 };
 
 export const assessTroopCountQuestCompletion = (
@@ -46,8 +46,8 @@ export const assessBuildingQuestCompletion = (
   const everyQuestId = `every-${buildingId}-${level}`;
 
   // complete the oneOf quest if any building of that type in the village has level >= required level
-  database.exec(
-    `
+  database.exec({
+    sql: `
     UPDATE quests
     SET completed_at = $completed_at
     WHERE completed_at IS NULL
@@ -61,19 +61,19 @@ export const assessBuildingQuestCompletion = (
           AND bf.level >= $level
       );
   `,
-    {
+    bind: {
       $completed_at: timestamp,
       $oneOfQuestId: oneOfQuestId,
       $village_id: villageId,
       $building_id: buildingId,
       $level: level,
     },
-  );
+  });
 
   // complete the every quest if all existing buildings of that type in the village have level >= required level
   // (ensures there is at least one such building)
-  database.exec(
-    `
+  database.exec({
+    sql: `
     UPDATE quests
     SET completed_at = $completed_at
     WHERE completed_at IS NULL
@@ -95,12 +95,12 @@ export const assessBuildingQuestCompletion = (
           AND building_id = $building_id
       ) > 0;
   `,
-    {
+    bind: {
       $completed_at: timestamp,
       $everyQuestId: everyQuestId,
       $village_id: villageId,
       $building_id: buildingId,
       $level: level,
     },
-  );
+  });
 };

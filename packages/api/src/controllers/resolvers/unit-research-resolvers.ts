@@ -7,14 +7,14 @@ export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
 ) => {
   const { villageId, unitId } = args;
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       INSERT INTO unit_research (village_id, unit_id)
       VALUES ($village_id, $unit_id);
     `,
-    {
+    bind: {
       $village_id: villageId,
       $unit_id: unitId,
     },
-  );
+  });
 };

@@ -24,17 +24,17 @@ export const getReputations: Controller<'/me/reputations'> = (
 ) => {
   const { playerId } = params;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
     SELECT f.faction, fr.reputation
     FROM faction_reputation fr
     JOIN factions f ON fr.target_faction_id = f.id
     WHERE fr.source_faction_id = (SELECT faction_id FROM players WHERE id = $player_id);
     `,
-    {
+    bind: {
       $player_id: playerId,
     },
-  );
+  });
 
   return z.array(getReputationsSchema).parse(rows);
 };

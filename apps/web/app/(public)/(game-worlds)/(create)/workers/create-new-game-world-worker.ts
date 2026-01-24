@@ -11,7 +11,7 @@ globalThis.addEventListener(
   async (event: MessageEvent<CreateNewGameWorldWorkerPayload>) => {
     const { default: sqlite3InitModule } = await import(
       '@sqlite.org/sqlite-wasm'
-      );
+    );
     const { server } = event.data;
 
     const sqlite3 = await sqlite3InitModule();
@@ -31,7 +31,7 @@ globalThis.addEventListener(
         PRAGMA synchronous=OFF;
         PRAGMA temp_store=MEMORY;
         PRAGMA cache_size=-20000;
-      `
+      `,
     });
 
     migrateAndSeed(dbFacade, server);

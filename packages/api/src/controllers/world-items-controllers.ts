@@ -39,8 +39,8 @@ export const getArtifactsAroundVillage: Controller<
 > = (database, { params }) => {
   const { villageId } = params;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       SELECT wi.item_id,
              t.x,
              t.y,
@@ -52,8 +52,8 @@ export const getArtifactsAroundVillage: Controller<
              JOIN tiles vt ON vt.id = v.tile_id
       WHERE wi.type = 'artifact';
     `,
-    { $village_id: villageId },
-  );
+    bind: { $village_id: villageId },
+  });
 
   return z.array(getArtifactsAroundVillageSchema).parse(rows);
 };

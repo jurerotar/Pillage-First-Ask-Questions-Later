@@ -4,17 +4,19 @@ import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
+import { z } from 'zod';
 
 export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
-  const oasisTiles = database.selectObjects(
-    'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
-    { $type: 'oasis' },
-  ) as {
-    id: number;
-    oasis_graphics: number;
-  }[];
+  const oasisTiles = database.selectObjects({
+    sql: 'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
+    bind: { $type: 'oasis' },
+    schema: z.strictObject({
+      id: z.number(),
+      oasis_graphics: z.number(),
+    }),
+  });
 
   const oasisBonuses: [number, Resource, number, null][] = [];
 

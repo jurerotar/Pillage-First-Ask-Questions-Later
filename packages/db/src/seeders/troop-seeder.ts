@@ -1,8 +1,12 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitByTribeAndTier } from '@pillage-first/game-assets/units/utils';
-import { type Resource, resourceSchema } from '@pillage-first/types/models/resource';
-import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
+import {
+  type Resource,
+  resourceSchema,
+} from '@pillage-first/types/models/resource';
+import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
 import type {
   NatureUnitId,
   Unit,
@@ -12,7 +16,6 @@ import type { VillageSize } from '@pillage-first/types/models/village';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
-import { z } from 'zod';
 
 const oasisTroopCombinations = new Map<
   Resource,
@@ -265,28 +268,13 @@ const npcUnitCompositionByTribeAndSize = new Map<
   ],
 ]);
 
-type VillagesSelectRow = {
-  player_id: number;
-  tile_id: number;
-  tribe: PlayableTribe;
-  x: number;
-  y: number;
-};
-
-type OasisSelectRow = {
-  tile_id: number;
-  x: number;
-  y: number;
-  resource: Resource;
-  bonus: number;
-};
-
 export const troopSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
   const results: [Unit['id'], number, number, number][] = [];
 
-  const villages = database.selectObjects(`
+  const villages = database.selectObjects({
+    sql: `
     SELECT
       players.id AS player_id,
       players.tribe,
@@ -297,7 +285,15 @@ export const troopSeeder: Seeder = (database, server): void => {
       villages
         INNER JOIN players ON villages.player_id = players.id
         INNER JOIN tiles ON villages.tile_id = tiles.id;
-  `) as VillagesSelectRow[];
+  `,
+    schema: z.strictObject({
+      player_id: z.number(),
+      tribe: tribeSchema,
+      tile_id: z.number(),
+      x: z.number(),
+      y: z.number(),
+    }),
+  });
 
   for (const { tribe, tile_id, player_id } of villages) {
     if (player_id === PLAYER_ID) {

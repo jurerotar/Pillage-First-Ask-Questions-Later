@@ -1,5 +1,5 @@
-import type { paths } from '../../open-api';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { paths } from '../../open-api';
 
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 

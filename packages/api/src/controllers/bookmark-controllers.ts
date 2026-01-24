@@ -12,14 +12,15 @@ export const getBookmarks: Controller<'/villages/:villageId/bookmarks'> = (
 ) => {
   const { villageId } = params;
 
-  const bookmarks = database.selectObjects(
-    'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
-    {
+  const bookmarks = database.selectObjects({
+    sql: 'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
+    bind: {
       $village_id: villageId,
     },
-  );
+    schema: getBookmarksSchema,
+  });
 
-  return Object.fromEntries(z.array(getBookmarksSchema).parse(bookmarks));
+  return Object.fromEntries(bookmarks);
 };
 
 const getBookmarksSchema = z
@@ -50,17 +51,17 @@ export const updateBookmark: Controller<
   const { villageId, buildingId } = params;
   const { tab } = body;
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
     UPDATE bookmarks
       SET tab_name = $tab_name
       WHERE building_id = $building_id
         AND village_id = $village_id;
   `,
-    {
+    bind: {
       $tab_name: tab,
       $village_id: villageId,
       $building_id: buildingId,
     },
-  );
+  });
 };

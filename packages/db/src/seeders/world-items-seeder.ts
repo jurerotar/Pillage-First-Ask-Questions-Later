@@ -1,4 +1,5 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
@@ -10,7 +11,6 @@ import {
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
-import { z } from 'zod';
 
 const rowSchema = z.strictObject({
   tile_id: z.number(),

@@ -1,4 +1,5 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   npcVillageNameAdjectives,
@@ -12,7 +13,6 @@ import {
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
-import { z } from 'zod';
 
 type OccupiableField = {
   id: number;
@@ -158,7 +158,7 @@ export const villageSeeder: Seeder = (database, server): void => {
         id != $player_id
     `,
     bind: {
-      $player_id: PLAYER_ID
+      $player_id: PLAYER_ID,
     },
     schema: z.number(),
   });

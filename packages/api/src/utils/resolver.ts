@@ -8,14 +8,14 @@ export const resolveEvent = (
   database: DbFacade,
   eventId: GameEvent['id'],
 ): void => {
-  const deletedRow = database.selectObject(
-    `
+  const deletedRow = database.selectObject({
+    sql: `
       DELETE FROM events
       WHERE id = $id
       RETURNING id, type, starts_at, duration, village_id, resolves_at, meta;
     `,
-    { $id: eventId },
-  );
+    bind: { $id: eventId },
+  });
 
   const event = parseEvent(deletedRow);
 

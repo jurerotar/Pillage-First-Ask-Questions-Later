@@ -212,7 +212,10 @@ export const getTilesWithBonuses: Controller<
 
   const sql = sqlParts.join('\n');
 
-  const rows = database.selectObjects(sql, sqlBindings);
+  const rows = database.selectObjects({
+    sql: sql,
+    bind: sqlBindings,
+  });
 
   return z.array(getTilesWithBonusesSchema).parse(rows);
 };

@@ -48,8 +48,8 @@ export const getPlayerRankings: Controller<
   const { lastPlayerId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       WITH player_pop AS (
         SELECT
           p.id,
@@ -105,10 +105,10 @@ export const getPlayerRankings: Controller<
           )
       ORDER BY total_population DESC, id;
     `,
-    {
+    bind: {
       $last_player_id: lastPlayerId,
     },
-  );
+  });
 
   return z.array(getPlayerRankingsSchema).parse(rows);
 };
@@ -156,8 +156,8 @@ export const getVillageRankings: Controller<
   const { lastVillageId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       WITH
         village_pop AS (
           SELECT
@@ -224,10 +224,10 @@ export const getVillageRankings: Controller<
       ORDER BY
         population DESC, village_id
     `,
-    {
+    bind: {
       $last_village_id: lastVillageId,
     },
-  );
+  });
 
   return z.array(getVillageRankingsSchema).parse(rows);
 };
@@ -270,7 +270,8 @@ const getServerOverviewStatisticsSchema = z
 export const getGameWorldOverview: Controller<'/statistics/overview'> = (
   database,
 ) => {
-  const rawPlayersStats = database.selectObjects(`
+  const rawPlayersStats = database.selectObjects({
+    sql: `
     SELECT
       p.tribe AS tribe,
       f.faction AS faction,
@@ -278,9 +279,11 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     FROM players p
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
-  `);
+  `,
+  });
 
-  const rawVillagesStats = database.selectObjects(`
+  const rawVillagesStats = database.selectObjects({
+    sql: `
     SELECT
       p.tribe AS tribe,
       f.faction AS faction,
@@ -289,7 +292,8 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     JOIN players p ON v.player_id = p.id
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
-  `);
+  `,
+  });
 
   const playersStats = z.array(playersStatsRowSchema).parse(rawPlayersStats);
   const villagesStats = z.array(villagesStatsRowSchema).parse(rawVillagesStats);

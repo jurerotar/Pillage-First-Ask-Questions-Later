@@ -9,8 +9,8 @@ import type { Controller } from '../types/controller';
  * GET /me
  */
 export const getMe: Controller<'/me'> = (database) => {
-  const row = database.selectObject(
-    `
+  const row = database.selectObject({
+    sql: `
       SELECT
         p.id,
         p.name,
@@ -23,8 +23,8 @@ export const getMe: Controller<'/me'> = (database) => {
       WHERE
         p.id = $player_id;
     `,
-    { $player_id: PLAYER_ID },
-  );
+    bind: { $player_id: PLAYER_ID },
+  });
 
   return playerSchema.parse(row);
 };
@@ -64,8 +64,8 @@ export const getPlayerVillageListing: Controller<
     params: { playerId },
   } = args;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       SELECT v.id,
              v.tile_id,
              t.x AS coordinates_x,
@@ -80,8 +80,8 @@ export const getPlayerVillageListing: Controller<
                        ON t.resource_field_composition_id = rfc.id
       WHERE v.player_id = $player_id;
     `,
-    { $player_id: playerId },
-  );
+    bind: { $player_id: playerId },
+  });
 
   return z.array(getVillagesByPlayerSchema).parse(rows);
 };
@@ -123,8 +123,8 @@ export const getPlayerVillagesWithPopulation: Controller<
     params: { playerId },
   } = args;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       SELECT v.id,
              v.tile_id,
              t.x AS coordinates_x,
@@ -140,8 +140,8 @@ export const getPlayerVillagesWithPopulation: Controller<
                        ON t.resource_field_composition_id = rfc.id
       WHERE v.player_id = $player_id;
     `,
-    { $player_id: playerId },
-  );
+    bind: { $player_id: playerId },
+  });
 
   return z.array(getPlayerVillagesWithPopulationSchema).parse(rows);
 };
@@ -174,8 +174,8 @@ export const getTroopsByVillage: Controller<
     params: { villageId },
   } = args;
 
-  const troopModels = database.selectObjects(
-    `
+  const troopModels = database.selectObjects({
+    sql: `
       SELECT unit_id,
              amount,
              tile_id,
@@ -185,8 +185,8 @@ export const getTroopsByVillage: Controller<
                               FROM villages
                               WHERE villages.id = $village_id);
     `,
-    { $village_id: villageId },
-  );
+    bind: { $village_id: villageId },
+  });
 
   return z.array(getTroopsByVillageSchema).parse(troopModels);
 };
@@ -209,14 +209,14 @@ export const renameVillage: Controller<
   const { villageId } = params;
   const { name } = body;
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE villages
       SET name = $name
       WHERE id = $village_id
     `,
-    { $name: name, $village_id: villageId },
-  );
+    bind: { $name: name, $village_id: villageId },
+  });
 };
 
 /**
@@ -231,8 +231,8 @@ export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
     params: { playerSlug },
   } = args;
 
-  const row = database.selectObject(
-    `
+  const row = database.selectObject({
+    sql: `
       SELECT
         p.id,
         p.name,
@@ -248,10 +248,10 @@ export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
         p.slug = $player_slug
       LIMIT 1;
     `,
-    {
+    bind: {
       $player_slug: playerSlug,
     },
-  );
+  });
 
   return playerSchema.parse(row);
 };

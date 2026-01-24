@@ -1,7 +1,8 @@
-import type { Faction } from '@pillage-first/types/models/faction';
+import { factionSchema } from '@pillage-first/types/models/faction';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { generateNpcPlayers, playerFactory } from './factories/player-factory';
+import { z } from 'zod';
 
 const slugifyPlayerName = (name: string): string => {
   return name
@@ -12,13 +13,17 @@ const slugifyPlayerName = (name: string): string => {
 };
 
 export const playersSeeder: Seeder = (database, server): void => {
-  const playerFaction = database.selectValue(
-    `SELECT id FROM factions WHERE faction = 'player'`,
-  ) as Faction;
+  const playerFaction = database.selectValue({
+    sql: "SELECT id FROM factions WHERE faction = 'player'",
+    schema: z.number(),
+  })!;
 
-  const npcFactions = database.selectValues(
-    `SELECT id FROM factions WHERE faction != 'player';`,
-  ) as Faction[];
+  const npcFactions = database.selectValues({
+    sql: "SELECT id FROM factions WHERE faction != 'player';",
+    schema: z.number(),
+  });
+
+  console.log(playerFaction, npcFactions);
 
   const player = playerFactory(server, playerFaction);
   const npcPlayers = generateNpcPlayers(server, npcFactions);

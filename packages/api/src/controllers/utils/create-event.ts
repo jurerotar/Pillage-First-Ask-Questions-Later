@@ -55,16 +55,16 @@ export const createEvents = <T extends GameEventType>(
   const earliestNewResolvesAt = events[0].startsAt + events[0].duration;
 
   // read current next event BEFORE we insert, using the same "now" snapshot
-  const currentNext = database.selectObject(
-    `
+  const currentNext = database.selectObject({
+    sql: `
       SELECT id, resolves_at as resolvesAt
       FROM events
       WHERE resolves_at > $now
       ORDER BY resolves_at
       LIMIT 1;
     `,
-    { $now: now },
-  ) as { id: string; resolvesAt: number } | undefined;
+    bind: { $now: now },
+  }) as { id: string; resolvesAt: number } | undefined;
 
   validateAndInsertEvents(database, events);
 

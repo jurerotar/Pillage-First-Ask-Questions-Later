@@ -8,7 +8,10 @@ import type {
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
-import { createDbFacade, type DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  createDbFacade,
+  type DbFacade,
+} from '@pillage-first/utils/facades/database';
 import {
   cancelScheduling,
   initScheduler,
@@ -46,7 +49,8 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-        database.exec(`
+        database.exec({
+          sql: `
           PRAGMA foreign_keys = ON;        -- keep referential integrity
           PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
           PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
@@ -55,7 +59,8 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
           PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
           PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
-        `);
+        `,
+        });
 
         dbFacade = createDbFacade(database, false);
 

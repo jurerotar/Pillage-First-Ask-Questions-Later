@@ -68,8 +68,8 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
 ) => {
   const { villageSlug } = params;
 
-  const row = database.selectObject(
-    `
+  const row = database.selectObject({
+    sql: `
       SELECT
         v.id,
         v.tile_id,
@@ -110,8 +110,8 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
         v.slug = $slug
       LIMIT 1;
     `,
-    { $slug: villageSlug },
-  );
+    bind: { $slug: villageSlug },
+  });
 
   return getVillageBySlugSchema.parse(row);
 };
@@ -196,8 +196,8 @@ export const getOccupiableOasisInRange: Controller<
 > = (database, { params }) => {
   const { villageId } = params;
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       WITH src_village AS (
         SELECT t.id AS vtile, t.x AS vx, t.y AS vy
         FROM villages v
@@ -249,11 +249,11 @@ export const getOccupiableOasisInRange: Controller<
         (ABS(oa.x - sv.vx) + ABS(oa.y - sv.vy)),
         oa.tile_id;
     `,
-    {
+    bind: {
       $village_id: villageId,
       $radius: 3,
     },
-  );
+  });
 
   return z.array(getOccupiableOasisInRangeSchema).parse(rows);
 };

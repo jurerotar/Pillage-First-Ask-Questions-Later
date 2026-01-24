@@ -3,12 +3,7 @@ import type { VillageSize } from '@pillage-first/types/models/village';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import type { Seeder } from '../types/seeder';
 import { getVillageSize } from '../utils/village-size';
-
-type OccupiableField = {
-  id: number;
-  x: number;
-  y: number;
-};
+import { z } from 'zod';
 
 const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
   ['xxs', 0],
@@ -22,17 +17,26 @@ const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
   ['4xl', 3],
 ]);
 
+const schema = z.strictObject({
+  id: z.number(),
+  x: z.number(),
+  y: z.number(),
+});
+
 export const occupiedOasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
-  const villageFields = database.selectObjects(
-    'SELECT villages.id, x, y FROM tiles INNER JOIN villages ON tiles.id = villages.tile_id;',
-  ) as OccupiableField[];
-  const occupiableOasis = database.selectObjects(
-    'SELECT oasis.id, x, y FROM tiles INNER JOIN oasis ON tiles.id = oasis.tile_id;',
-  ) as OccupiableField[];
+  const villageFields = database.selectObjects({
+    sql: 'SELECT villages.id, x, y FROM tiles INNER JOIN villages ON tiles.id = villages.tile_id;',
+    schema,
+  });
 
-  const occupiableOasisMap = new Map<`${number}-${number}`, OccupiableField>(
+  const occupiableOasis = database.selectObjects({
+    sql: 'SELECT oasis.id, x, y FROM tiles INNER JOIN oasis ON tiles.id = oasis.tile_id;',
+    schema,
+  });
+
+  const occupiableOasisMap = new Map<`${number}-${number}`, z.infer<typeof schema>>(
     occupiableOasis.map((oasis) => [`${oasis.x}-${oasis.y}`, oasis]),
   );
 
@@ -77,9 +81,9 @@ export const occupiedOasisSeeder: Seeder = (database, server): void => {
     }
   }
 
-  const stmt = database.prepare(
-    'UPDATE oasis SET village_id = $village_id WHERE id = $oasis_id;',
-  );
+  const stmt = database.prepare({
+    sql: 'UPDATE oasis SET village_id = $village_id WHERE id = $oasis_id;',
+  });
 
   for (const resultSet of oasisByVillages) {
     const [villageId, oasisId] = resultSet;

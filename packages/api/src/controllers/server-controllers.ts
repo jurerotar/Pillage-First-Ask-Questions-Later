@@ -5,7 +5,8 @@ import type { Controller } from '../types/controller';
  * GET /server
  */
 export const getServer: Controller<'/server'> = (database) => {
-  const serverModel = database.selectObject(`
+  const serverModel = database.selectObject({
+    sql: `
     SELECT id,
            version,
            name,
@@ -17,7 +18,8 @@ export const getServer: Controller<'/server'> = (database) => {
            player_name,
            player_tribe
     FROM servers;
-  `);
+  `,
+  });
 
   return serverDbSchema.parse(serverModel);
 };

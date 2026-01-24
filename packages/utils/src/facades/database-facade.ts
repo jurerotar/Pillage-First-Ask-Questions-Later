@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noConsole: We're using debug statements to test query performance in development */
 import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
-import { z, type ZodType } from 'zod';
+import { type ZodType, z, type ZodEnum } from 'zod';
 
 const createPreparedStatementCache = (): Map<
   string,
@@ -24,18 +24,24 @@ export type DbFacade = {
   exec: (args: ExecArgs) => void;
 
   /** returns a single *value* validated against `schema`. undefined if not found */
-  selectValue: <T extends ZodType>(args: SelectArgs<T>) => z.infer<T> | undefined;
+  selectValue: <T extends ZodType>(
+    args: SelectArgs<T>,
+  ) => z.infer<T> | undefined;
 
   /** returns an array of values validated against `schema` (empty array if nothing found) */
   selectValues: <T extends ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
   /** single row object validated against schema (use a z.object(...) schema) */
-  selectObject: <T extends ZodType>(args: SelectArgs<T>) => z.infer<T> | undefined;
+  selectObject: <T extends ZodType>(
+    args: SelectArgs<T>,
+  ) => z.infer<T> | undefined;
 
   /** many row objects validated against schema */
   selectObjects: <T extends ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
-  prepare: ({ sql }: Pick<ExecArgs, 'sql'>) => ReturnType<OpfsSAHPoolDatabase['prepare']>;
+  prepare: ({
+    sql,
+  }: Pick<ExecArgs, 'sql'>) => ReturnType<OpfsSAHPoolDatabase['prepare']>;
   transaction: (callback: (db: DbFacade) => void) => void;
   close: () => void;
 };

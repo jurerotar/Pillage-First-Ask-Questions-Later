@@ -35,7 +35,8 @@ const getHeroSchema = z
  * @pathParam {number} playerId
  */
 export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
-  const hero = database.selectObject(`
+  const hero = database.selectObject({
+    sql: `
     SELECT
       h.health,
       h.experience,
@@ -46,7 +47,8 @@ export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
       h.resource_to_produce
     FROM
       heroes h;
-  `);
+  `,
+  });
 
   return getHeroSchema.parse(hero);
 };
@@ -70,8 +72,8 @@ const getHeroLoadoutSchema = z
 export const getHeroLoadout: Controller<
   '/players/:playerId/hero/equipped-items'
 > = (database) => {
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       SELECT slot, item_id, amount
       FROM
         hero_equipped_items
@@ -82,7 +84,7 @@ export const getHeroLoadout: Controller<
           LIMIT 1
           )
     `,
-  );
+  });
 
   return z.array(getHeroLoadoutSchema).parse(rows);
 };
@@ -104,8 +106,8 @@ const getHeroInventorySchema = z
 export const getHeroInventory: Controller<
   '/players/:playerId/hero/inventory'
 > = (database) => {
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       SELECT i.item_id, i.amount
       FROM
         hero_inventory i
@@ -118,7 +120,7 @@ export const getHeroInventory: Controller<
           LIMIT 1
           )
     `,
-  );
+  });
 
   return z.array(getHeroInventorySchema).parse(rows);
 };
@@ -130,9 +132,9 @@ export const getHeroInventory: Controller<
 export const getHeroAdventures: Controller<
   '/players/:playerId/hero/adventures'
 > = (database) => {
-  const row = database.selectObject(
-    'SELECT available, completed FROM hero_adventures;',
-  );
+  const row = database.selectObject({
+    sql: 'SELECT available, completed FROM hero_adventures;',
+  });
 
   return heroAdventuresSchema.parse(row);
 };

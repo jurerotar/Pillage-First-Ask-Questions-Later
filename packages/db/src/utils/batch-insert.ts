@@ -1,7 +1,4 @@
-import type {
-  PreparedStatement,
-  SqlValue,
-} from '@sqlite.org/sqlite-wasm';
+import type { PreparedStatement, SqlValue } from '@sqlite.org/sqlite-wasm';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const batchInsert = (

@@ -8,22 +8,22 @@ export const createSchedulerDataSource = (
 ): SchedulerDataSource => {
   return {
     getPastEventIds: (now: number) => {
-      return database.selectValues(
-        'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at;',
-        { $now: now },
-      ) as GameEvent['id'][];
+      return database.selectValues({
+        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at;',
+        bind: { $now: now },
+      }) as GameEvent['id'][];
     },
     getNextEvent: (now: number) => {
-      return database.selectObject(
-        `
+      return database.selectObject({
+        sql: `
           SELECT id, resolves_at as resolvesAt
           FROM events
           WHERE resolves_at > $now
           ORDER BY resolves_at
           LIMIT 1;
         `,
-        { $now: now },
-      ) as Pick<GameEvent, 'id' | 'resolvesAt'> | null;
+        bind: { $now: now },
+      }) as Pick<GameEvent, 'id'> & { resolvesAt: number };
     },
     resolveEvent: (id: GameEvent['id']) => {
       database.transaction((tx) => {
