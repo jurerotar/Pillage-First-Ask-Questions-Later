@@ -2,13 +2,22 @@
 /create-new-server                /game-worlds/create                    301
 
 # === Pre-rendered public pages ===
-/                                 /index.html                               200
-/game-worlds                      /game-worlds/index.html                   200
-/game-worlds/create               /game-worlds/create/index.html            200
-/game-worlds/import               /game-worlds/import/index.html            200
-/get-involved                     /get-involved/index.html                  200
-/frequently-asked-questions       /frequently-asked-questions/index.html    200
-/latest-updates                   /latest-updates/index.html                200
+/                                 /en-US/index.html                               200
+/game-worlds                      /en-US/game-worlds/index.html                   200
+/game-worlds/create               /en-US/game-worlds/create/index.html            200
+/game-worlds/import               /en-US/game-worlds/import/index.html            200
+/get-involved                     /en-US/get-involved/index.html                  200
+/frequently-asked-questions       /en-US/frequently-asked-questions/index.html    200
+/latest-updates                   /en-US/latest-updates/index.html                200
+
+/en-US                                  /en-US/index.html                               200
+/en-US/game-worlds                      /en-US/game-worlds/index.html                   200
+/en-US/game-worlds/create               /en-US/game-worlds/create/index.html            200
+/en-US/game-worlds/import               /en-US/game-worlds/import/index.html            200
+/en-US/get-involved                     /en-US/get-involved/index.html                  200
+/en-US/frequently-asked-questions       /en-US/frequently-asked-questions/index.html    200
+/en-US/latest-updates                   /en-US/latest-updates/index.html                200
+
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/:splat/resources                       /game/server-slug/village-slug/resources/index.html                        200

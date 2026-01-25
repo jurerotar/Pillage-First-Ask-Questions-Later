@@ -1,22 +1,33 @@
 import type { Config } from '@react-router/dev/config';
+import { locales } from 'app/localization/i18n.ts';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,
   replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
 
+const publicPagesToPrerender = [
+  '/',
+  '/game-worlds',
+  '/game-worlds/create',
+  '/game-worlds/import',
+  '/frequently-asked-questions',
+  '/get-involved',
+  '/latest-updates',
+  '/404',
+];
+
+const localizedPagesToPrerender = locales.flatMap((locale) => {
+  return publicPagesToPrerender.map((page) => `/${locale}${page}`);
+});
+
 const reactRouterConfig: Config = {
   ssr: false,
   prerender: {
     unstable_concurrency: 4,
     paths: [
-      '/',
-      '/game-worlds',
-      '/game-worlds/create',
-      '/game-worlds/import',
-      '/frequently-asked-questions',
-      '/get-involved',
-      '/latest-updates',
+      ...publicPagesToPrerender,
+      ...localizedPagesToPrerender,
       '/__spa-preload',
     ],
   },
