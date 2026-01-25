@@ -13,8 +13,6 @@ import { eventSchema, parseEvent } from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event.ts';
 import { getEventStartTime } from './utils/events.ts';
 
-const eventListSchema = z.array(eventSchema);
-
 /**
  * GET /villages/:villageId/events
  * @pathParam {number} villageId
@@ -30,7 +28,7 @@ export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
     bind: {
       $village_id: villageId,
     },
-    schema: eventListSchema,
+    schema: eventSchema,
   });
 };
 
@@ -50,7 +48,7 @@ export const getVillageEventsByType: Controller<
       $village_id: villageId,
       $type: eventType,
     },
-    schema: eventListSchema,
+    schema: eventSchema,
   });
 };
 
