@@ -23,7 +23,6 @@
     "lint/oxlint": "oxlint --type-aware --fix .",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
-    "knip:ci": "knip --max-issues 29",
     "type-check": "tsgo",
     "test": "vitest",
     "open-api:generate": "node scripts/generate-open-api-definitions.ts"

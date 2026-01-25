@@ -1,7 +1,10 @@
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
-import { migrateAndSeed } from '@pillage-first/db';
 import { serverMock } from '@pillage-first/mocks/server';
-import { createDbFacade, type DbFacade } from './facades/database-facade.ts';
+import {
+  createDbFacade,
+  type DbFacade,
+} from '@pillage-first/utils/facades/database';
+import { migrateAndSeed } from '../index.ts';
 
 let cachedDb: Uint8Array | null = null;
 let preparePromise: Promise<Uint8Array> | null = null;

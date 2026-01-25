@@ -19,11 +19,11 @@ import { resourceFieldCompositionSchema } from '@pillage-first/types/models/reso
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
-import { prepareTestDatabase } from '@pillage-first/utils/database';
 import {
   calculateGridLayout,
   decodeGraphicsProperty,
 } from '@pillage-first/utils/map';
+import { prepareTestDatabase } from '../../';
 
 const database = await prepareTestDatabase();
 
@@ -943,22 +943,22 @@ describe('migrateAndSeed', () => {
       // For each village, compute expected population from building_fields using the same logic as seeder
       const villages = database.selectObjects({
         sql: `
-SELECT id
-              FROM
-                villages;
-`,
+          SELECT id
+          FROM
+            villages;
+        `,
         schema: z.strictObject({ id: z.number() }),
       });
 
       for (const { id: villageId } of villages) {
         const fields = database.selectObjects({
           sql: `
-SELECT building_id, level
-                FROM
-                  building_fields
-                WHERE
-                  village_id = $villageId;
-`,
+            SELECT building_id, level
+            FROM
+              building_fields
+            WHERE
+              village_id = $villageId;
+          `,
           bind: { $villageId: villageId },
           schema: z.strictObject({
             building_id: buildingIdSchema,
@@ -974,18 +974,18 @@ SELECT building_id, level
 
         const exists = database.selectValue({
           sql: `
-SELECT COUNT(*)
-                FROM
-                  effects
-                WHERE
-                  effect_id = $effectId
-                  AND value = $value
-                  AND type = 'base'
-                  AND scope = 'village'
-                  AND source = 'building'
-                  AND village_id = $villageId
-                  AND source_specifier = 0;
-`,
+            SELECT COUNT(*)
+            FROM
+              effects
+            WHERE
+              effect_id = $effectId
+              AND value = $value
+              AND type = 'base'
+              AND scope = 'village'
+              AND source = 'building'
+              AND village_id = $villageId
+              AND source_specifier = 0;
+          `,
           bind: {
             $effectId: wheatEffectId,
             $value: -population,
@@ -1002,33 +1002,33 @@ SELECT COUNT(*)
       // Preload effect id for wheatProduction
       const wheatEffectId = database.selectValue({
         sql: `
-SELECT id
-              FROM
-                effect_ids
-              WHERE
-                effect = 'wheatProduction';
-`,
+          SELECT id
+          FROM
+            effect_ids
+          WHERE
+            effect = 'wheatProduction';
+        `,
         schema: z.number(),
       });
 
       const villages = database.selectObjects({
         sql: `
-SELECT id, tile_id
-              FROM
-                villages;
-`,
+          SELECT id, tile_id
+          FROM
+            villages;
+        `,
         schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
       });
 
       for (const { id: villageId, tile_id } of villages) {
         const troopRows = database.selectObjects({
           sql: `
-SELECT unit_id, amount
-                FROM
-                  troops
-                WHERE
-                  tile_id = $tileId;
-`,
+            SELECT unit_id, amount
+            FROM
+              troops
+            WHERE
+              tile_id = $tileId;
+          `,
           bind: { $tileId: tile_id },
           schema: z.strictObject({ unit_id: unitIdSchema, amount: z.number() }),
         });
@@ -1041,18 +1041,18 @@ SELECT unit_id, amount
 
         const exists = database.selectValue({
           sql: `
-SELECT COUNT(*)
-                FROM
-                  effects
-                WHERE
-                  effect_id = $effectId
-                  AND value = $value
-                  AND type = 'base'
-                  AND scope = 'village'
-                  AND source = 'troops'
-                  AND village_id = $villageId
-                  AND source_specifier IS NULL;
-`,
+            SELECT COUNT(*)
+            FROM
+              effects
+            WHERE
+              effect_id = $effectId
+              AND value = $value
+              AND type = 'base'
+              AND scope = 'village'
+              AND source = 'troops'
+              AND village_id = $villageId
+              AND source_specifier IS NULL;
+          `,
           bind: {
             $effectId: wheatEffectId,
             $value: troopWheatConsumption,
