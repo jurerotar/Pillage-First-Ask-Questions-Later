@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { resolve } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
@@ -46,6 +47,23 @@ const manifest: Partial<ManifestOptions> = {
   categories: ['games', 'strategy', 'browser-game'],
 };
 
+// Custom plugin to run i18n hashing after build in production
+const i18nHashPlugin = () => ({
+  name: 'i18n-hash',
+  closeBundle() {
+    if (process.env.NODE_ENV === 'production' && process.env.USE_I18N_HASHED === 'true') {
+      console.log('Running i18n hash transformation...');
+      try {
+        execSync('node scripts/i18n-transform-to-hashed.ts', { stdio: 'inherit' });
+        console.log('i18n hash transformation completed');
+      } catch (error) {
+        console.error('Error during i18n hash transformation:', error);
+        throw error;
+      }
+    }
+  },
+});
+
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
@@ -74,6 +92,8 @@ const viteConfig = defineViteConfig({
           globIgnores: ['**/*.html'],
         },
       }),
+    // Add i18n hash plugin only for production builds
+    process.env.NODE_ENV === 'production' && process.env.USE_I18N_HASHED === 'true' && i18nHashPlugin(),
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {
@@ -120,6 +140,7 @@ const viteConfig = defineViteConfig({
     ),
     'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
+    'import.meta.env.USE_I18N_HASHED': JSON.stringify(process.env.USE_I18N_HASHED),
   },
 });
 
