@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitsByTribe } from '@pillage-first/game-assets/units/utils';
-import type { Village } from '@pillage-first/types/models/village';
 import type { Seeder } from '../types/seeder';
 
 export const unitResearchSeeder: Seeder = (database, server): void => {
@@ -18,7 +17,7 @@ export const unitResearchSeeder: Seeder = (database, server): void => {
     `,
     bind: { $player_id: PLAYER_ID },
     schema: z.number(),
-  }) as Village['id'];
+  });
 
   database.exec({
     sql: `

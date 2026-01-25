@@ -13,7 +13,7 @@ export const bookmarksSeeder: Seeder = (database): void => {
   `,
     bind: { $player_id: PLAYER_ID },
     schema: z.number(),
-  }) as number;
+  })!;
 
   const rows = buildings.map(({ id: buildingId }) => [
     playerStartingVillageId,

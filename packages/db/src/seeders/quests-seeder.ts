@@ -4,11 +4,7 @@ import {
   createUnitTroopCountQuests,
   globalQuests,
 } from '@pillage-first/game-assets/quests';
-import {
-  type PlayableTribe,
-  tribeSchema,
-} from '@pillage-first/types/models/tribe';
-import type { Village } from '@pillage-first/types/models/village';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { newVillageQuestsFactory } from './factories/quest-factory';
@@ -24,7 +20,7 @@ export const questsSeeder: Seeder = (database): void => {
     `,
     bind: { $player_id: PLAYER_ID },
     schema: z.number(),
-  }) as Village['id'];
+  })!;
 
   const playerTribe = database.selectValue({
     sql: `
@@ -36,7 +32,7 @@ export const questsSeeder: Seeder = (database): void => {
     `,
     bind: { $player_id: PLAYER_ID },
     schema: tribeSchema,
-  }) as PlayableTribe;
+  })!;
 
   const questsToSeed = [];
 
