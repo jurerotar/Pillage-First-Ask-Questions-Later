@@ -9,7 +9,7 @@ import {
   selectEventByIdQuery,
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
-import { eventSchema, parseEvent } from '../utils/zod/event-schemas';
+import { eventSchema } from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event.ts';
 import { getEventStartTime } from './utils/events.ts';
 
@@ -82,15 +82,13 @@ export const cancelConstructionEvent: Controller<
   } = args;
 
   database.transaction((db) => {
-    const cancelledEventRow = db.selectObject({
+    const cancelledEvent = db.selectObject({
       sql: selectEventByIdQuery,
       bind: {
         $event_id: eventId,
       },
       schema: eventSchema,
-    });
-
-    const cancelledEvent = parseEvent<'buildingLevelChange'>(cancelledEventRow);
+    })! as GameEvent<'buildingLevelChange'>;
 
     const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
       cancelledEvent;
