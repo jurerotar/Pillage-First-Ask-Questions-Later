@@ -53,16 +53,16 @@ export class I18nFallbackHandler {
   public registerFallbackHandler(): void {
     // This adds a middleware-like functionality to intercept missing keys
     const originalT = i18n.t.bind(i18n);
-    
+
     // Override the t function to add fallback logic
     i18n.t = (key: string, options?: any) => {
       let result = originalT(key, options);
-      
+
       // If the result is the same as the key (indicating it wasn't found), try fallback
       if (result === key) {
         result = this.getFallbackValue(key, key);
       }
-      
+
       // If options were passed, apply interpolation
       if (options && typeof result === 'string') {
         // Apply interpolation if options contain interpolation variables
@@ -73,7 +73,7 @@ export class I18nFallbackHandler {
           }
         }
       }
-      
+
       return result;
     };
   }
