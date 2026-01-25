@@ -108,7 +108,7 @@
   },
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "*",
-    "zod": "4.3.6"
+    "zod": "*"
   },
   "devDependencies": {
     "@biomejs/biome": "*",
