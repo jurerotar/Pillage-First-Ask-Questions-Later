@@ -55,7 +55,8 @@ export class I18nFallbackHandler {
     const originalT = i18n.t.bind(i18n);
 
     // Override the t function to add fallback logic
-    i18n.t = (key: string, options?: any) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Type assertion needed to override i18n.t with fallback logic
+    (i18n as any).t = (key: string, options?: any) => {
       let result = originalT(key, options);
 
       // If the result is the same as the key (indicating it wasn't found), try fallback
