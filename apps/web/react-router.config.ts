@@ -25,7 +25,11 @@ const reactRouterConfig: Config = {
   ssr: false,
   prerender: {
     unstable_concurrency: 4,
-    paths: ['/', '/__spa-preload', ...localizedPagesToPrerender],
+    paths: [
+      ...publicPagesToPrerender,
+      ...localizedPagesToPrerender,
+      '/__spa-preload',
+    ],
   },
   future: {
     v8_middleware: true,
