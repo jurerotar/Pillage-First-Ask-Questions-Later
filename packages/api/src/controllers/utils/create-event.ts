@@ -32,6 +32,11 @@ type CreateNewEventsArgs<T extends GameEventType> = Omit<
   amount?: number;
 };
 
+const createEventsSchema = z.strictObject({
+  id: z.number(),
+  resolvesAt: z.number(),
+});
+
 export const createEvents = <T extends GameEventType>(
   database: DbFacade,
   args: CreateNewEventsArgs<T>,
@@ -58,14 +63,17 @@ export const createEvents = <T extends GameEventType>(
   // read current next event BEFORE we insert, using the same "now" snapshot
   const currentNext = database.selectObject({
     sql: `
-      SELECT id, resolves_at as resolvesAt
-      FROM events
-      WHERE resolves_at > $now
-      ORDER BY resolves_at
+      SELECT id, resolves_at AS resolvesAt
+      FROM
+        events
+      WHERE
+        resolves_at > $now
+      ORDER BY
+        resolves_at
       LIMIT 1;
     `,
     bind: { $now: now },
-    schema: z.object({ id: z.string(), resolvesAt: z.number() }),
+    schema: createEventsSchema,
   });
 
   validateAndInsertEvents(database, events);

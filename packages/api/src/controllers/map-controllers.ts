@@ -268,8 +268,9 @@ export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
 ) => {
   const { tileId } = params;
 
-  return database.selectObject({
-    sql: `
+  return (
+    database.selectObject({
+      sql: `
       SELECT item_id, amount
       FROM
         world_items
@@ -277,9 +278,10 @@ export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
         tile_id = $tile_id
       LIMIT 1;
     `,
-    bind: {
-      $tile_id: tileId,
-    },
-    schema: getTileWorldItemSchema,
-  });
+      bind: {
+        $tile_id: tileId,
+      },
+      schema: getTileWorldItemSchema,
+    }) ?? null
+  );
 };

@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { effectSchema } from '@pillage-first/types/models/effect';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 import { selectAllRelevantEffectsQuery } from './queries/effect-queries';
+import { apiEffectSchema } from './zod/effect-schemas.ts';
 
 export const demolishBuilding = (
   database: DbFacade,
@@ -15,8 +15,10 @@ export const demolishBuilding = (
   database.exec({
     sql: `
       UPDATE building_fields
-      SET level = 0
-      WHERE village_id = $village_id
+      SET
+        level = 0
+      WHERE
+        village_id = $village_id
         AND field_id = $building_field_id
         AND (field_id BETWEEN 1 AND 18 OR field_id IN (39, 40));
     `,
@@ -29,8 +31,10 @@ export const demolishBuilding = (
   database.exec({
     sql: `
       DELETE
-      FROM building_fields
-      WHERE village_id = $village_id
+      FROM
+        building_fields
+      WHERE
+        village_id = $village_id
         AND field_id = $building_field_id
         AND field_id BETWEEN 19 AND 38;
     `,
@@ -73,7 +77,7 @@ export const calculateVillageResourcesAt = (
     bind: {
       $village_id: villageId,
     },
-    schema: effectSchema,
+    schema: apiEffectSchema,
   });
 
   const { total: warehouseCapacity } = calculateComputedEffect(
@@ -109,17 +113,20 @@ export const calculateVillageResourcesAt = (
 
   const { wood, clay, iron, wheat, last_updated_at } = database.selectObject({
     sql: `
-      SELECT rs.updated_at AS last_updated_at,
-             rs.wood       AS wood,
-             rs.clay       AS clay,
-             rs.iron       AS iron,
-             rs.wheat      AS wheat
-      FROM villages v
-             JOIN tiles t
-                  ON t.id = v.tile_id
-             LEFT JOIN resource_sites rs
-                       ON rs.tile_id = v.tile_id
-      WHERE v.id = $village_id;
+      SELECT
+        rs.updated_at AS last_updated_at,
+        rs.wood AS wood,
+        rs.clay AS clay,
+        rs.iron AS iron,
+        rs.wheat AS wheat
+      FROM
+        villages v
+          JOIN tiles t
+               ON t.id = v.tile_id
+          LEFT JOIN resource_sites rs
+                    ON rs.tile_id = v.tile_id
+      WHERE
+        v.id = $village_id;
     `,
     bind: { $village_id: villageId },
     schema: currentResourcesSchema,
@@ -207,12 +214,18 @@ export const updateVillageResourcesAt = (
   database.exec({
     sql: `
       UPDATE resource_sites
-      SET wood = $wood,
-          clay = $clay,
-          iron = $iron,
-          wheat = $wheat,
-          updated_at = $updated_at
-      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);
+      SET
+        wood = $wood,
+        clay = $clay,
+        iron = $iron,
+        wheat = $wheat,
+        updated_at = $updated_at
+      WHERE
+        tile_id = (
+          SELECT tile_id
+          FROM villages
+          WHERE id = $village_id
+          );
     `,
     bind: {
       $village_id: villageId,
@@ -250,14 +263,20 @@ export const addVillageResourcesAt = (
   database.exec({
     sql: `
       UPDATE resource_sites
-      SET wood = $wood,
-          clay = $clay,
-          iron = $iron,
-          wheat = $wheat,
-          updated_at = $ts
-      WHERE tile_id = (SELECT tile_id
-                       FROM villages
-                       WHERE id = $village_id);
+      SET
+        wood = $wood,
+        clay = $clay,
+        iron = $iron,
+        wheat = $wheat,
+        updated_at = $ts
+      WHERE
+        tile_id = (
+          SELECT tile_id
+          FROM
+            villages
+          WHERE
+            id = $village_id
+          );
     `,
     bind: {
       $village_id: villageId,
@@ -289,14 +308,20 @@ export const subtractVillageResourcesAt = (
   database.exec({
     sql: `
       UPDATE resource_sites
-      SET wood = $wood,
-          clay = $clay,
-          iron = $iron,
-          wheat = $wheat,
-          updated_at = $ts
-      WHERE tile_id = (SELECT tile_id
-                       FROM villages
-                       WHERE id = $village_id);
+      SET
+        wood = $wood,
+        clay = $clay,
+        iron = $iron,
+        wheat = $wheat,
+        updated_at = $ts
+      WHERE
+        tile_id = (
+          SELECT tile_id
+          FROM
+            villages
+          WHERE
+            id = $village_id
+          );
     `,
     bind: {
       $village_id: villageId,
