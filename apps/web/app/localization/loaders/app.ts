@@ -1,11 +1,18 @@
 import i18n from 'i18next';
+import { env } from 'app/env.ts';
 import type { AvailableLocale } from 'app/localization/i18n';
 
 export const loadAppTranslations = async (locale: AvailableLocale) => {
   if (!i18n.hasResourceBundle(locale, 'app')) {
+    // Check if we're in production mode and should use hashed files
+    const localizationFilesTarget =
+      env.NODE_ENV === 'production' ? 'extracted' : 'hashed';
+
+    const appPath = `app/localization/locales/${locale}/${localizationFilesTarget}/app.json`;
+
     const [{ default: appResources }, { default: assetResources }] =
       await Promise.all([
-        import(`app/localization/locales/${locale}/extracted/app.json`),
+        import(appPath),
         import(`app/localization/locales/${locale}/assets.json`),
       ]);
 
