@@ -4,7 +4,7 @@ import {
   recommendedAcceptedAttributes,
   recommendedAcceptedTags,
 } from 'i18next-cli';
-import { locales } from 'app/localization/i18n';
+import { locales } from './app/localization/i18n.ts';
 
 const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
   locales,
