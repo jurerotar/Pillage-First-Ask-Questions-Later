@@ -30,6 +30,9 @@
     "./array": {
       "default": "./src/array.ts"
     },
+    "./database": {
+      "default": "./src/database.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },

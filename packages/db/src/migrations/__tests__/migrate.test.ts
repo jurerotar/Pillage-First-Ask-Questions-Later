@@ -19,37 +19,15 @@ import { resourceFieldCompositionSchema } from '@pillage-first/types/models/reso
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
-import { createDbFacade } from '@pillage-first/utils/facades/database';
+import { prepareTestDatabase } from '@pillage-first/utils/database';
 import {
   calculateGridLayout,
   decodeGraphicsProperty,
 } from '@pillage-first/utils/map';
-import { migrateAndSeed } from '../migrate';
 
-const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
-const sqlite3 = await sqlite3InitModule();
+const database = await prepareTestDatabase();
 
-const oo1Db = new sqlite3.oo1.DB(':memory:', 'c');
-
-const database = createDbFacade(oo1Db, false);
-
-// Since this only runs in test environment, we can select best performance settings
-database.exec({
-  sql: `
-    PRAGMA page_size = 8192;          -- set before creating tables (optional)
-    PRAGMA locking_mode = EXCLUSIVE;  -- avoid file locks
-    PRAGMA journal_mode = OFF;        -- no rollback journal
-    PRAGMA synchronous = OFF;         -- don't wait on disk
-    PRAGMA foreign_keys = OFF;        -- skip FK checks
-    PRAGMA temp_store = MEMORY;       -- temp tables in RAM
-    PRAGMA cache_size = -200000;      -- negative = KB, here ~200MB cache
-    PRAGMA secure_delete = OFF;       -- don't wipe deleted content
-`,
-});
-
-migrateAndSeed(database, serverMock);
-
-describe(migrateAndSeed, () => {
+describe('migrateAndSeed', () => {
   describe('tiles', () => {
     test('should create correct amount of tiles', () => {
       const rowCount = database.selectValue({
