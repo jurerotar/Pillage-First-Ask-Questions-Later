@@ -1,7 +1,8 @@
 import { defineConfig, type I18nextToolkitConfig } from 'i18next-cli';
+import { locales } from 'app/localization/i18n';
 
 const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
-  locales: ['en-US'],
+  locales,
   extract: {
     input: ['app/**/*.{ts,tsx}'],
     preservePatterns: [
