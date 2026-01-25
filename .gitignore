@@ -20,3 +20,4 @@ graphic-packs/
 stats.html
 tsconfig.tsbuildinfo
 .turbo
+**/hashed/

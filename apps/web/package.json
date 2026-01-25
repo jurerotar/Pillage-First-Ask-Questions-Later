@@ -12,8 +12,8 @@
   },
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build",
-    "build:dev": "react-router build --mode development",
+    "build": "node scripts/hash-localization-files.ts && react-router build",
+    "build:dev": "node scripts/hash-localization-files.ts && react-router build --mode development",
     "start": "react-router-serve ./build/server/index.js",
     "lint:check": "biome lint --no-errors-on-unmatched",
     "lint": "biome lint --fix --no-errors-on-unmatched",
@@ -23,7 +23,6 @@
     "format": "biome check --write --no-errors-on-unmatched",
     "knip:ci": "knip --max-issues 29",
     "localize": "i18next-cli extract",
-    "localize:hash": "node scripts/i18n-transform-to-hashed.ts",
     "type-check": "react-router typegen && tsgo",
     "test": "vitest"
   },
@@ -88,7 +87,8 @@
     "vite": "npm:rolldown-vite@7.3.1",
     "vite-plugin-devtools-json": "1.0.0",
     "vite-plugin-pwa": "1.2.0",
-    "vitest": "4.0.17"
+    "vitest": "4.0.17",
+    "@pillage-first/i18n-hashing": "*"
   },
   "browserslist": {
     "production": [

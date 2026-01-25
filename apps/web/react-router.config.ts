@@ -6,7 +6,7 @@ import {
 } from './scripts/react-router-build-end-hook-scripts';
 
 const reactRouterConfig: Config = {
-  ssr: false,
+  ssr: true,
   prerender: {
     unstable_concurrency: 4,
     paths: [
@@ -28,6 +28,13 @@ const reactRouterConfig: Config = {
     v8_splitRouteModules: 'enforce',
   },
   buildEnd: async (args) => {
+    const { reactRouterConfig } = args;
+
+    // This is used when testing the build locally. Since the pages are never pre-rendered with ssr enabled, bellow hooks throw
+    if (reactRouterConfig.ssr) {
+      return;
+    }
+
     await createSPAPagesWithPreloads(args);
     await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
     await deleteSPAPreloadPage(args);

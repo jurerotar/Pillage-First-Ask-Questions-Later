@@ -1,4 +1,3 @@
-import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
@@ -7,6 +6,7 @@ import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
+import { vitePluginI18nHashing } from '@pillage-first/i18n-hashing';
 import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import packageJson from './package.json' with { type: 'json' };
@@ -47,28 +47,6 @@ const manifest: Partial<ManifestOptions> = {
   categories: ['games', 'strategy', 'browser-game'],
 };
 
-// Custom plugin to run i18n hashing after build in production
-const i18nHashPlugin = () => ({
-  name: 'i18n-hash',
-  closeBundle() {
-    if (
-      process.env.NODE_ENV === 'production' &&
-      process.env.USE_I18N_HASHED === 'true'
-    ) {
-      console.log('Running i18n hash transformation...');
-      try {
-        execSync('node scripts/i18n-transform-to-hashed.ts', {
-          stdio: 'inherit',
-        });
-        console.log('i18n hash transformation completed');
-      } catch (error) {
-        console.error('Error during i18n hash transformation:', error);
-        throw error;
-      }
-    }
-  },
-});
-
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
@@ -97,10 +75,7 @@ const viteConfig = defineViteConfig({
           globIgnores: ['**/*.html'],
         },
       }),
-    // Add i18n hash plugin only for production builds
-    process.env.NODE_ENV === 'production' &&
-      process.env.USE_I18N_HASHED === 'true' &&
-      i18nHashPlugin(),
+    vitePluginI18nHashing(),
     // visualizer({ open: true }) as PluginOption,
   ],
   server: {
@@ -147,9 +122,6 @@ const viteConfig = defineViteConfig({
     ),
     'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
-    'import.meta.env.USE_I18N_HASHED': JSON.stringify(
-      process.env.USE_I18N_HASHED,
-    ),
   },
 });
 

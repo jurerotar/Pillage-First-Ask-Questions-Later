@@ -1,4 +1,9 @@
-import { defineConfig, type I18nextToolkitConfig } from 'i18next-cli';
+import {
+  defineConfig,
+  type I18nextToolkitConfig,
+  recommendedAcceptedAttributes,
+  recommendedAcceptedTags,
+} from 'i18next-cli';
 
 const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
   locales: ['en-US'],
@@ -36,6 +41,10 @@ const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
     functions: ['t'],
     transComponents: ['Trans'],
     removeUnusedKeys: true,
+  },
+  lint: {
+    acceptedTags: recommendedAcceptedTags,
+    acceptedAttributes: recommendedAcceptedAttributes,
   },
 });
 
