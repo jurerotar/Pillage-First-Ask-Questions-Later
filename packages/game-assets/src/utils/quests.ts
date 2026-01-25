@@ -5,7 +5,7 @@ import type {
   QuestReward,
 } from '@pillage-first/types/models/quest';
 
-const buildingIdToResourceRewardMap: Map<Building['id'], number> = new Map([
+const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['WOODCUTTER', 100],
   ['CLAY_PIT', 150],
   ['IRON_MINE', 120],
@@ -35,7 +35,7 @@ const buildingIdToResourceRewardMap: Map<Building['id'], number> = new Map([
 
 export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   if (questId.startsWith('troopCount')) {
-    const [, cnt] = questId.split('-');
+    const cnt = questId.split('-').at(1)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -47,7 +47,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   }
 
   if (questId.startsWith('unitTroopCount')) {
-    const [, , cnt] = questId.split('-');
+    const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -59,7 +59,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   }
 
   if (questId.startsWith('adventureCount')) {
-    const [, cnt] = questId.split('-');
+    const cnt = questId.split('-').at(1)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -129,7 +129,7 @@ export const getQuestRequirements = (
   questId: Quest['id'],
 ): QuestRequirement[] => {
   if (questId.startsWith('troopCount')) {
-    const [, cnt] = questId.split('-');
+    const cnt = questId.split('-').at(1)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -153,7 +153,7 @@ export const getQuestRequirements = (
   }
 
   if (questId.startsWith('adventureCount')) {
-    const [, cnt] = questId.split('-');
+    const cnt = questId.split('-').at(1)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
@@ -165,7 +165,7 @@ export const getQuestRequirements = (
   }
 
   if (questId.startsWith('killCount')) {
-    const [, cnt] = questId.split('-');
+    const cnt = questId.split('-').at(1)!;
     const count = Number.parseInt(cnt, 10);
 
     return [

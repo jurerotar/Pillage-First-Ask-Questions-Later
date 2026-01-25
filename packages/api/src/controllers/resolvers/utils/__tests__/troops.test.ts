@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { modifyTroops } from '../troops';
 
-describe('modifyTroops', () => {
+describe(modifyTroops, () => {
   test('adds amount to existing troop', () => {
     const base: Troop[] = [
       { unitId: 'PHALANX', amount: 100, tileId: 0, source: 0 },

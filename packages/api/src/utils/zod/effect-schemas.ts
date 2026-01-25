@@ -26,7 +26,7 @@ export const apiEffectSchema = z
       scope: t.scope,
       source: t.source,
       sourceSpecifier: t.source_specifier,
-      ...(t.villageId ? { villageId: t.villageId } : {}),
-      ...(t.buildingId ? { buildingId: t.buildingId } : {}),
+      ...(t.villageId !== null ? { villageId: t.villageId } : {}),
+      ...(t.buildingId !== null ? { buildingId: t.buildingId } : {}),
     };
   });

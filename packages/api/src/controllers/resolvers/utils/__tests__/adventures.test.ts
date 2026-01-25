@@ -3,7 +3,7 @@ import { serverMock } from '@pillage-first/mocks/server';
 import type { Server } from '@pillage-first/types/models/server';
 import { calculateAdventurePointIncreaseEventDuration } from '../adventures';
 
-describe('calculateAdventurePointIncreaseFrequency', () => {
+describe(calculateAdventurePointIncreaseEventDuration, () => {
   test('should return event duration of 8 hours for server younger than 1 week (1x speed)', () => {
     const testServer = {
       ...serverMock,

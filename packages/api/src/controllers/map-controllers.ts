@@ -36,7 +36,7 @@ const getTilesSchema = z
     const isOccupiableTile = t.type === 'free';
     const isOasisTile = !isOccupiableTile;
 
-    const isOccupied = !!t.player_id;
+    const isOccupied = t.player_id !== null;
 
     return {
       id: t.id,
@@ -59,7 +59,7 @@ const getTilesSchema = z
       ...(isOasisTile && {
         attributes: {
           oasisGraphics: t.oasis_graphics,
-          isOccupiable: !!t.oasis_is_occupiable,
+          isOccupiable: t.oasis_is_occupiable !== null,
         },
       }),
       ...(isOccupied && {

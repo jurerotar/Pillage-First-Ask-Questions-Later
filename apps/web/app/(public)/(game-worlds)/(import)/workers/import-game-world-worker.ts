@@ -1,4 +1,3 @@
-import sqliteWasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url';
 import {
   type Server,
   serverDbSchema,
@@ -28,9 +27,7 @@ globalThis.addEventListener(
     const { databaseBuffer } = event.data;
 
     try {
-      const sqlite3 = await sqlite3InitModule({
-        locateFile: () => sqliteWasmUrl,
-      });
+      const sqlite3 = await sqlite3InitModule();
 
       const id = crypto.randomUUID();
       const slug = `s-${id.slice(0, 4)}`;

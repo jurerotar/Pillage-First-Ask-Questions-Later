@@ -77,8 +77,8 @@ export const generateNpcPlayers = (
   // Subtract 1 player to account for player
   const npcCount = totalPlayerCount - 1;
 
-  return [...Array(npcCount)].map((_, index) => {
-    const faction = seededRandomArrayElement<Faction>(prng, npcFactions);
+  return Array.from({ length: npcCount }, (_, index) => {
+    const faction = seededRandomArrayElement(prng, npcFactions);
     // We do +2 because user's player always has the id of 1
     return npcPlayerFactory({ faction, prng, id: index + 2 });
   });

@@ -266,13 +266,15 @@ export const buildingFieldsFactory = (
 
   return [
     // Resource fields
-    ...Array.from(rfc).map(([buildingFieldId, buildingId]) => {
-      return {
-        building_id: buildingId,
-        level: resourceBuildingsLevel,
-        field_id: buildingFieldId,
-      } satisfies BuildingField;
-    }),
+    ...Array.from(
+      rfc,
+      ([buildingFieldId, buildingId]) =>
+        ({
+          building_id: buildingId,
+          level: resourceBuildingsLevel,
+          field_id: buildingFieldId,
+        }) satisfies BuildingField,
+    ),
     // Village fields
     ...villageBuildingFields,
     // Wall

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { getQuestRequirements, getQuestRewards } from '../quests';
 
 describe('quest utils', () => {
-  describe('getQuestRequirements', () => {
+  describe(getQuestRequirements, () => {
     test('troopCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('troopCount-5');
       expect(reqs).toHaveLength(1);
@@ -44,7 +44,7 @@ describe('quest utils', () => {
     });
   });
 
-  describe('getQuestRewards', () => {
+  describe(getQuestRewards, () => {
     test('troopCount rewards produce resources = count * 10', () => {
       const rewards = getQuestRewards('troopCount-5');
       expect(rewards).toHaveLength(1);

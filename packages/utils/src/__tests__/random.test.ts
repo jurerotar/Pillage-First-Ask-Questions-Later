@@ -7,7 +7,7 @@ import {
 } from '../random';
 
 describe('random utils', () => {
-  describe('seededRandomIntFromInterval', () => {
+  describe(seededRandomIntFromInterval, () => {
     test('should return a random integer within the interval', () => {
       const prng = prngMulberry32('seed');
       expect(seededRandomIntFromInterval(prng, 1, 10)).toBe(8);
@@ -16,7 +16,7 @@ describe('random utils', () => {
     });
   });
 
-  describe('seededRandomArrayElement', () => {
+  describe(seededRandomArrayElement, () => {
     test('should return a random element from the array', () => {
       const array = ['a', 'b', 'c'];
       const prng = prngMulberry32('seed');
@@ -26,7 +26,7 @@ describe('random utils', () => {
     });
   });
 
-  describe('seededRandomArrayElements', () => {
+  describe(seededRandomArrayElements, () => {
     test('should return n random elements from the array', () => {
       const array = ['a', 'b', 'c', 'd', 'e'];
       const prng = prngMulberry32('seed');
@@ -39,12 +39,12 @@ describe('random utils', () => {
     test('should return all elements if n >= array length', () => {
       const array = ['a', 'b', 'c'];
       const prng = prngMulberry32('seed');
-      expect(seededRandomArrayElements(prng, array, 3)).toEqual([
+      expect(seededRandomArrayElements(prng, array, 3)).toStrictEqual([
         'a',
         'b',
         'c',
       ]);
-      expect(seededRandomArrayElements(prng, array, 5)).toEqual([
+      expect(seededRandomArrayElements(prng, array, 5)).toStrictEqual([
         'a',
         'b',
         'c',

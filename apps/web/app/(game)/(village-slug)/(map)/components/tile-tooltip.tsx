@@ -241,9 +241,10 @@ const TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
         variant="dark"
         className="w-25 h-2.5 rounded-xs"
       />
-      {[...Array(count).keys()].map((el) => (
+      {Array.from({ length: count }, (_, i) => (
         <Skeleton
-          key={el}
+          // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
+          key={`skeleton-${i}`}
           variant="dark"
           className="w-20 h-2.5 rounded-xs"
         />

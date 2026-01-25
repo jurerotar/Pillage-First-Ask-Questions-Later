@@ -23,7 +23,7 @@ const getQuestsSchema = z
       scope: t.scope,
       collectedAt: t.collected_at,
       completedAt: t.completed_at,
-      ...(t.village_id && {
+      ...(t.village_id !== null && {
         villageId: t.village_id,
       }),
     };

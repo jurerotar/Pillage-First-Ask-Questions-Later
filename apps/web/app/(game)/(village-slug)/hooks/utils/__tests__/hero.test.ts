@@ -61,7 +61,7 @@ describe('calculateHeroLevel (level starts at 0)', () => {
   });
 });
 
-describe('calculateHeroRevivalCost', () => {
+describe(calculateHeroRevivalCost, () => {
   test('should calculate revival cost for romans at level 0', () => {
     const result = calculateHeroRevivalCost('romans', 0);
     expect(result).toStrictEqual([130, 115, 180, 75]);
@@ -80,7 +80,7 @@ describe('calculateHeroRevivalCost', () => {
   });
 });
 
-describe('calculateHeroRevivalTime', () => {
+describe(calculateHeroRevivalTime, () => {
   test('should calculate 15 minutes at level 1', () => {
     expect(calculateHeroRevivalTime(1)).toBe(15 * 60 * 1000);
   });

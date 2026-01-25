@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "incremental": false,
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "noUnusedParameters": true,
@@ -16,7 +17,7 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "strict": true,
-    "module": "esnext",
+    "module": "esnext"
   },
   "include": [
     "apps/**/*",

@@ -1,4 +1,4 @@
-import type { Database } from '@pillage-first/types/database';
+import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
 import type { Server } from '@pillage-first/types/models/server';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
@@ -64,7 +64,10 @@ import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 
-export const migrateAndSeed = (database: Database, server: Server): void => {
+export const migrateAndSeed = (
+  database: OpfsSAHPoolDatabase,
+  server: Server,
+): void => {
   database.transaction((db) => {
     // Statistics
     db.exec(createUnitTrainingHistoryTable);

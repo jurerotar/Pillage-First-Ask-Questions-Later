@@ -9,8 +9,14 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { Tooltip } from 'app/components/tooltip';
 
-const resourceViewBuildingFieldIds = [...Array(18)].map((_, i) => i + 1);
-const villageViewBuildingFieldIds = [...Array(22)].map((_, i) => i + 19);
+const resourceViewBuildingFieldIds = Array.from(
+  { length: 18 },
+  (_, i) => i + 1,
+);
+const villageViewBuildingFieldIds = Array.from(
+  { length: 22 },
+  (_, i) => i + 19,
+);
 
 const VillagePage = (props: Route.ComponentProps) => {
   const { params, matches } = props;

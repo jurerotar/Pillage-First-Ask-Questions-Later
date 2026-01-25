@@ -2,13 +2,13 @@ import { existsSync, rmSync } from 'node:fs';
 import { copyFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const clearDirectory = async (path: string) => {
+export const clearDirectory = async (path: string) => {
   if (existsSync(path)) {
     rmSync(path, { recursive: true, force: true });
   }
 };
 
-const copyFolderSync = async (source: string, dest: string): Promise<void> => {
+export const copyFolderSync = async (source: string, dest: string): Promise<void> => {
   try {
     // Ensure the destination directory exists, if not, create it
     await mkdir(dest, { recursive: true });
@@ -36,20 +36,3 @@ const copyFolderSync = async (source: string, dest: string): Promise<void> => {
     console.error(`Error while copying folder: ${error}`);
   }
 };
-
-const installWebAppGraphicPacks = async () => {
-  const sourceDir = 'node_modules/@pillage-first/graphics/dist/graphic-packs';
-  const destDir = 'apps/web/public/graphic-packs';
-
-  await clearDirectory(destDir);
-  await copyFolderSync(sourceDir, destDir);
-};
-
-const removeDeprecatedRootLevelDirectories = async () => {
-  await clearDirectory('./public');
-  await clearDirectory('./build');
-  await clearDirectory('./.react-router');
-};
-
-await installWebAppGraphicPacks();
-await removeDeprecatedRootLevelDirectories();

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { getHasEnoughFreeCrop } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-free-crop';
 
-describe('getHasEnoughFreeCrop', () => {
+describe(getHasEnoughFreeCrop, () => {
   test('returns true if nextLevelWheatConsumption is 0', () => {
     expect(getHasEnoughFreeCrop(0, 100)).toBeTruthy();
   });

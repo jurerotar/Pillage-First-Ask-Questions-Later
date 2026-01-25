@@ -5,7 +5,7 @@ import * as reactRouter from 'react-router';
 import { describe, expect, test, vi } from 'vitest';
 import { useTabParam } from '../use-tab-param';
 
-describe('useTabParam', () => {
+describe(useTabParam, () => {
   const setSearchParams = vi.fn();
 
   test('returns correct tab index from search param', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 
-describe('unitIdToUnitIconMapper', () => {
+describe(unitIdToUnitIconMapper, () => {
   test('converts a basic unit ID to camelCase', () => {
     expect(unitIdToUnitIconMapper('LEGIONNAIRE')).toBe('legionnaire');
     expect(unitIdToUnitIconMapper('PRAETORIAN')).toBe('praetorian');

@@ -30,7 +30,7 @@
     "@pillage-first/types": "*",
     "@pillage-first/game-assets": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.50.4-build1"
+    "@sqlite.org/sqlite-wasm": "*"
   },
   "devDependencies": {
     "@biomejs/biome": "*",

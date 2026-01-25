@@ -169,6 +169,8 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
   });
 };
 
+type EffectToInsert = (string | number | null)[];
+
 export const effectsSeeder: Seeder = (database, server): void => {
   const effectIdRows = database.selectArrays(
     'SELECT effect, id FROM effect_ids',
@@ -186,7 +188,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     },
   ) as number;
 
-  const effectsToInsert: (string | number | null)[][] = [];
+  const effectsToInsert: EffectToInsert[] = [];
 
   // Static effects
   const staticEffects: (HeroEffect | GlobalEffect | ServerEffect)[] = [
@@ -205,7 +207,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
       effect.source,
       villageId,
       null,
-    ]);
+    ] satisfies EffectToInsert);
   }
 
   // Building effects
@@ -259,7 +261,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
           'building',
           villageId,
           field_id,
-        ]);
+        ] satisfies EffectToInsert);
       }
 
       population += calculateTotalPopulationForLevel(buildingId, level);
@@ -273,7 +275,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
       'building',
       villageId,
       0,
-    ]);
+    ] satisfies EffectToInsert);
   }
 
   // Troop effects
@@ -322,7 +324,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
       'troops',
       villageId,
       null,
-    ]);
+    ] satisfies EffectToInsert);
   }
 
   // Oasis effects
@@ -352,7 +354,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
       'oasis',
       oasis.village_id,
       oasis.tile_id,
-    ]);
+    ] satisfies EffectToInsert);
   }
 
   batchInsert(

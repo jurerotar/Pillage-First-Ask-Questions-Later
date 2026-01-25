@@ -99,7 +99,7 @@ const createLinearEffectValues = (
 ): BuildingEffect => {
   return {
     effectId,
-    valuesPerLevel: [...Array.from({ length: 21 }).keys()],
+    valuesPerLevel: Array.from({ length: 21 }, (_, i) => i),
     type: 'base',
   };
 };
@@ -1434,6 +1434,6 @@ export const buildings: Building[] = [
 ];
 
 // Use this for faster lookups
-export const buildingMap: Map<Building['id'], Building> = new Map(
+export const buildingMap = new Map<Building['id'], Building>(
   buildings.map((building) => [building.id, building]),
 );

@@ -1,5 +1,5 @@
 [build]
-command = "turbo run build"
+command = "npm run inject-graphics && turbo run build"
 publish = "apps/web/build/client"
 image = "ubuntu-24.04"
 
@@ -13,14 +13,14 @@ BRANCH_ENV = "master"
 
 # branch-deploy
 [context.branch-deploy]
-command = "turbo run build:dev"
+command = "npm run inject-graphics && turbo run build:dev"
 
 [context.branch-deploy.environment]
 BRANCH_ENV = "develop"
 
 # deploy-preview
 [context.deploy-preview]
-command = "turbo run build:dev"
+command = "npm run inject-graphics && turbo run build:dev"
 
 [context.deploy-preview.environment]
 BRANCH_ENV = "develop"

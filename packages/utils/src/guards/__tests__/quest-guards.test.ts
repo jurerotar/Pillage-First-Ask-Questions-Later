@@ -20,9 +20,9 @@ describe('quest guards', () => {
   });
 
   test('should identify hero experience quest rewards', () => {
-    expect(isHeroExperienceQuestReward(heroExperienceQuestRewardMock)).toBe(
-      true,
-    );
+    expect(
+      isHeroExperienceQuestReward(heroExperienceQuestRewardMock),
+    ).toBeTruthy();
     expect(isHeroExperienceQuestReward(resourceQuestRewardMock)).toBeFalsy();
   });
 
@@ -32,9 +32,9 @@ describe('quest guards', () => {
   });
 
   test('should identify if quest was collected', () => {
-    expect(wasQuestCollected({ ...questMock, collectedAt: Date.now() })).toBe(
-      true,
-    );
+    expect(
+      wasQuestCollected({ ...questMock, collectedAt: Date.now() }),
+    ).toBeTruthy();
     expect(wasQuestCollected({ ...questMock, collectedAt: null })).toBeFalsy();
   });
 

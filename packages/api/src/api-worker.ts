@@ -1,13 +1,13 @@
 import type {
+  OpfsSAHPoolDatabase,
+  SAHPoolUtil,
+  Sqlite3Static,
+} from '@sqlite.org/sqlite-wasm';
+import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
-import type {
-  Database,
-  OpfsSahPool,
-  Sqlite3Module,
-} from '@pillage-first/types/database';
 import { createDbFacade, type DbFacade } from './facades/database-facade';
 import {
   cancelScheduling,
@@ -17,9 +17,9 @@ import {
 import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
 import { matchRoute } from './utils/route-matcher';
 
-let sqlite3: Sqlite3Module | null = null;
-let opfsSahPool: OpfsSahPool | null = null;
-let database: Database | null = null;
+let sqlite3: Sqlite3Static | null = null;
+let opfsSahPool: SAHPoolUtil | null = null;
+let database: OpfsSAHPoolDatabase | null = null;
 let dbFacade: DbFacade | null = null;
 
 globalThis.addEventListener('message', async (event: MessageEvent) => {

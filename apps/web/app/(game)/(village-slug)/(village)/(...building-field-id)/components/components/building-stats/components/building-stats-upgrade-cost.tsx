@@ -84,7 +84,7 @@ export const BuildingStatsUpgradeCost = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...Array(building.maxLevel)].map((_, index) => {
+            {Array.from({ length: building.maxLevel }, (_, index) => {
               const buildingLevel = index + 1;
 
               const cost = calculateBuildingCostForLevel(
