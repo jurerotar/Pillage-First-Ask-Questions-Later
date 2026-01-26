@@ -11,6 +11,7 @@ import { HeadLinks } from 'app/components/head-links.tsx';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { type AvailableLocale, i18n, locales } from 'app/localization/i18n.ts';
+import { loadPublicTranslations } from 'app/localization/loaders/public';
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   let { locale = 'en-US' } = params;
@@ -19,7 +20,10 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     locale = 'en-US';
   }
 
-  await i18n.changeLanguage(locale);
+  await Promise.all([
+    loadPublicTranslations(locale as AvailableLocale),
+    i18n.changeLanguage(locale),
+  ]);
 
   return {
     locale,
