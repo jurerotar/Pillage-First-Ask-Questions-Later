@@ -416,15 +416,15 @@ export const getEventDuration = (
 
     duration = total * baseRecruitmentDuration;
   } else if (isAdventurePointIncreaseEvent(event)) {
-    const { createdAt, speed } = database.selectObject({
+    const { created_at, speed } = database.selectObject({
       sql: 'SELECT created_at, speed FROM servers LIMIT 1;',
       schema: z.strictObject({
-        createdAt: z.number(),
+        created_at: z.number(),
         speed: speedSchema,
       }),
     })!;
 
-    duration = calculateAdventurePointIncreaseEventDuration(createdAt, speed);
+    duration = calculateAdventurePointIncreaseEventDuration(created_at, speed);
   }
 
   if (duration === null) {
