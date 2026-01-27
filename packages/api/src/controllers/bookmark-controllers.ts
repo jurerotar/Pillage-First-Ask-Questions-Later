@@ -39,7 +39,7 @@ type UpdateBookmarkBody = {
 /**
  * PATCH /villages/:villageId/bookmarks/:buildingId
  * @pathParam {number} villageId
- * @pathParam {number} buildingId
+ * @pathParam {string} buildingId
  * @bodyContent application/json UpdateBookmarkBody
  * @bodyRequired
  */

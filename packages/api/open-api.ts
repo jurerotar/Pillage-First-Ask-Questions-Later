@@ -811,7 +811,7 @@ export interface paths {
         readonly query?: never;
         readonly header?: never;
         readonly path: {
-          readonly buildingId: number;
+          readonly buildingId: string;
           readonly villageId: number;
         };
         readonly cookie?: never;
