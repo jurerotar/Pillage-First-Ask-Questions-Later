@@ -103,7 +103,8 @@ jobs:
         id: run-tests
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            npx turbo run test --filter="[origin/${{ github.base_ref }}...HEAD]" -- --changed="origin/${{ github.base_ref }}"
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
           else
             npx turbo run test
           fi
