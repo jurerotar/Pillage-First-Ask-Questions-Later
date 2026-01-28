@@ -26,8 +26,8 @@ const getMapFiltersSchema = z
  * GET /map-filters
  */
 export const getMapFilters: Controller<'/map-filters'> = (database) => {
-  const row = database.selectObject(
-    `
+  return database.selectObject({
+    sql: `
     SELECT
       should_show_faction_reputation,
       should_show_oasis_icons,
@@ -36,9 +36,8 @@ export const getMapFilters: Controller<'/map-filters'> = (database) => {
       should_show_tile_tooltips,
       should_show_treasure_icons
     FROM map_filters`,
-  );
-
-  return getMapFiltersSchema.parse(row);
+    schema: getMapFiltersSchema,
+  })!;
 };
 
 type UpdateMapFilterBody = {
@@ -61,13 +60,13 @@ export const updateMapFilter: Controller<
 
   const column = snakeCase(filterName);
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
     UPDATE map_filters
       SET ${column} = $value
     `,
-    {
+    bind: {
       $value: value,
     },
-  );
+  });
 };

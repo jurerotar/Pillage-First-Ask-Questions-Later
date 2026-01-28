@@ -40,8 +40,8 @@ const getPreferencesSchema = z
  * GET /preferences
  */
 export const getPreferences: Controller<'/preferences'> = (database) => {
-  const row = database.selectObject(
-    `
+  return database.selectObject({
+    sql: `
       SELECT
         is_accessibility_mode_enabled,
         is_reduced_motion_mode_enabled,
@@ -54,9 +54,8 @@ export const getPreferences: Controller<'/preferences'> = (database) => {
       FROM
         preferences
     `,
-  );
-
-  return getPreferencesSchema.parse(row);
+    schema: getPreferencesSchema,
+  })!;
 };
 
 type UpdatePreferenceBody = {
@@ -79,20 +78,20 @@ export const updatePreference: Controller<
 
   const column = snakeCase(preferenceName);
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE preferences
       SET
         ${column} = $value
     `,
-    {
+    bind: {
       $value: value,
     },
-  );
+  });
 
   if (preferenceName === 'isDeveloperModeEnabled' && value) {
-    database.exec(
-      `
+    database.exec({
+      sql: `
         UPDATE events
         SET
           starts_at = $now,
@@ -100,10 +99,10 @@ export const updatePreference: Controller<
         WHERE
           type IN ('buildingLevelChange', 'buildingScheduledConstruction', 'unitResearch', 'unitImprovement')
       `,
-      {
+      bind: {
         $now: Date.now(),
       },
-    );
+    });
 
     triggerKick();
   }

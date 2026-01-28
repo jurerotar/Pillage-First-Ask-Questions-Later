@@ -30,7 +30,3 @@ export const eventSchema = z
 export const parseEvent = <T extends GameEventType>(row: unknown) => {
   return eventSchema.parse(row) as GameEvent<T>;
 };
-
-export const parseEvents = <T extends GameEventType>(row: unknown[]) => {
-  return z.array(eventSchema).parse(row) as GameEvent<T>[];
-};

@@ -1,11 +1,8 @@
-import type {
-  OpfsSAHPoolDatabase,
-  PreparedStatement,
-  SqlValue,
-} from '@sqlite.org/sqlite-wasm';
+import type { PreparedStatement, SqlValue } from '@sqlite.org/sqlite-wasm';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const batchInsert = (
-  database: OpfsSAHPoolDatabase,
+  database: DbFacade,
   table: string,
   columns: readonly string[],
   rows: readonly SqlValue[][],
@@ -40,7 +37,7 @@ export const batchInsert = (
     }
 
     const valuesClause = Array.from({ length: count }).fill(tuple).join(',');
-    const stmt = database.prepare(`${sqlBase}${valuesClause};`);
+    const stmt = database.prepare({ sql: `${sqlBase}${valuesClause};` });
     stmts.set(count, stmt);
     return stmt;
   };

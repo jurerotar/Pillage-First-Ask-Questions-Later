@@ -27,7 +27,7 @@ export const useWindowSize = () => {
   useWindowEvent('resize', setSize, eventListerOptions);
   useWindowEvent('orientationchange', setSize, eventListerOptions);
 
-  useLayoutEffect(setSize, []);
+  useLayoutEffect(setSize, [setSize]);
 
   return windowSize;
 };

@@ -5,7 +5,8 @@ export const internalSeedOasisOccupiableByTableResolver: Resolver<
   GameEvent<'__internal__seedOasisOccupiableByTable'>
 > = (database) => {
   // Create entries for non-50% oasis only, since those were already seeded during server creation
-  database.exec(`
+  database.exec({
+    sql: `
     INSERT OR IGNORE INTO
       oasis_occupiable_by (occupiable_tile_id, occupiable_oasis_tile_id)
     SELECT t.id AS tile_id, ot.id AS oasis_id
@@ -24,5 +25,6 @@ export const internalSeedOasisOccupiableByTableResolver: Resolver<
              ON t.x BETWEEN ot.x - 3 AND ot.x + 3
                AND t.y BETWEEN ot.y - 3 AND ot.y + 3
     ;
-  `);
+  `,
+  });
 };

@@ -49,7 +49,7 @@ type OasisBonus = {
   resource: Resource;
 };
 
-type GetTilesWithBonusesBody = {
+export type GetTilesWithBonusesBody = {
   resourceFieldComposition:
     | z.infer<typeof resourceFieldCompositionSchema>
     | 'any-cropper';
@@ -212,7 +212,9 @@ export const getTilesWithBonuses: Controller<
 
   const sql = sqlParts.join('\n');
 
-  const rows = database.selectObjects(sql, sqlBindings);
-
-  return z.array(getTilesWithBonusesSchema).parse(rows);
+  return database.selectObjects({
+    sql: sql,
+    bind: sqlBindings,
+    schema: getTilesWithBonusesSchema,
+  });
 };

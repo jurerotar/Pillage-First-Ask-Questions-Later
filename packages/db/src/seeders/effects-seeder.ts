@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
@@ -5,15 +6,20 @@ import {
 import { merchants } from '@pillage-first/game-assets/merchants';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
-import type { Building } from '@pillage-first/types/models/building';
-import type {
-  GlobalEffect,
-  HeroEffect,
-  ServerEffect,
-  TribalEffect,
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
+import {
+  effectIdSchema,
+  type GlobalEffect,
+  type HeroEffect,
+  type ServerEffect,
+  type TribalEffect,
 } from '@pillage-first/types/models/effect';
+import { resourceSchema } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
-import type { Unit } from '@pillage-first/types/models/unit';
+import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { isVillageEffect } from '@pillage-first/utils/guards/effect';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
@@ -172,21 +178,32 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
 type EffectToInsert = (string | number | null)[];
 
 export const effectsSeeder: Seeder = (database, server): void => {
-  const effectIdRows = database.selectArrays(
-    'SELECT effect, id FROM effect_ids',
+  const effectIdRows = database.selectObjects({
+    sql: 'SELECT effect, id FROM effect_ids',
+    schema: z.strictObject({
+      effect: effectIdSchema,
+      id: z.number(),
+    }),
+  });
+
+  const effectIds = Object.fromEntries(
+    effectIdRows.map((t) => {
+      return [t.effect, t.id];
+    }),
   );
 
-  const effectIds = Object.fromEntries(effectIdRows);
-
-  const initialPlayerVillageId = database.selectValue(
-    `
+  const initialPlayerVillageId = database.selectValue({
+    sql: `
       SELECT id
-      FROM villages
-      WHERE player_id = $player_id;`,
-    {
+      FROM
+        villages
+      WHERE
+        player_id = $player_id;`,
+    bind: {
       $player_id: PLAYER_ID,
     },
-  ) as number;
+    schema: z.number(),
+  })!;
 
   const effectsToInsert: EffectToInsert[] = [];
 
@@ -211,18 +228,23 @@ export const effectsSeeder: Seeder = (database, server): void => {
   }
 
   // Building effects
-  const buildingFieldsRows = database.selectObjects(`
-    SELECT village_id,
-           field_id,
-           building_id,
-           level
-    FROM building_fields
-  `) as {
-    village_id: number;
-    field_id: number;
-    building_id: string;
-    level: number;
-  }[];
+  const buildingFieldsRows = database.selectObjects({
+    sql: `
+      SELECT
+        village_id,
+        field_id,
+        building_id,
+        level
+      FROM
+        building_fields
+    `,
+    schema: z.strictObject({
+      building_id: buildingIdSchema,
+      field_id: z.number(),
+      village_id: z.number(),
+      level: z.number(),
+    }),
+  });
 
   const groupedBuildingFields = new Map<
     number,
@@ -279,17 +301,22 @@ export const effectsSeeder: Seeder = (database, server): void => {
   }
 
   // Troop effects
-  const troopsRows = database.selectObjects(`
-    SELECT tr.unit_id,
-           tr.amount,
-           v.id AS village_id
-    FROM troops AS tr
-           JOIN villages AS v ON tr.tile_id = v.tile_id;
-  `) as {
-    unit_id: string;
-    amount: number;
-    village_id: number;
-  }[];
+  const troopsRows = database.selectObjects({
+    sql: `
+      SELECT
+        tr.unit_id,
+        tr.amount,
+        v.id AS village_id
+      FROM
+        troops AS tr
+          JOIN villages AS v ON tr.tile_id = v.tile_id;
+    `,
+    schema: z.strictObject({
+      unit_id: unitIdSchema,
+      amount: z.number(),
+      village_id: z.number(),
+    }),
+  });
 
   const groupedTroops = new Map<
     number,
@@ -328,19 +355,25 @@ export const effectsSeeder: Seeder = (database, server): void => {
   }
 
   // Oasis effects
-  const oasisFieldsRows = database.selectObjects(`
-    SELECT tile_id,
-           village_id,
-           resource,
-           bonus
-    FROM oasis
-    WHERE village_id IS NOT NULL;
-  `) as {
-    tile_id: number;
-    village_id: number;
-    resource: string;
-    bonus: number;
-  }[];
+  const oasisFieldsRows = database.selectObjects({
+    sql: `
+      SELECT
+        tile_id,
+        village_id,
+        resource,
+        bonus
+      FROM
+        oasis
+      WHERE
+        village_id IS NOT NULL;
+    `,
+    schema: z.strictObject({
+      tile_id: z.number(),
+      village_id: z.number(),
+      resource: resourceSchema,
+      bonus: z.number(),
+    }),
+  });
 
   for (const oasis of oasisFieldsRows) {
     const effectId = `${oasis.resource}Production`;

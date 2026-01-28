@@ -41,7 +41,7 @@
             "name": "buildingId",
             "required": true,
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],

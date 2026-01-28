@@ -88,7 +88,8 @@ const getTilesSchema = z
  * GET /tiles
  */
 export const getTiles: Controller<'/tiles'> = (database) => {
-  const rows = database.selectObjects(`
+  const parsedTiles = database.selectObjects({
+    sql: `
     WITH
       wheat_id AS (
         SELECT id AS wid
@@ -156,13 +157,14 @@ export const getTiles: Controller<'/tiles'> = (database) => {
 
     ORDER BY
       t.id;
-  `);
+  `,
+    schema: getTilesSchema,
+  });
 
-  const parsedTiles = z.array(getTilesSchema).parse(rows);
-
-  const mapSize = database.selectValue(
-    'SELECT map_size FROM servers LIMIT 1;',
-  ) as number;
+  const mapSize = database.selectValue({
+    sql: 'SELECT map_size FROM servers LIMIT 1;',
+    schema: z.number(),
+  })!;
 
   const { totalTiles } = calculateGridLayout(mapSize);
 
@@ -199,19 +201,18 @@ export const getTileTroops: Controller<'/tiles/:tileId/troops'> = (
 ) => {
   const { tileId } = params;
 
-  const rows = database.selectObjects(
-    `
+  return database.selectObjects({
+    sql: `
     SELECT unit_id, amount, tile_id, source_tile_id
     FROM troops
     WHERE tile_id = $tile_id
     GROUP BY unit_id;
     `,
-    {
+    bind: {
       $tile_id: tileId,
     },
-  );
-
-  return z.array(getTileTroopsSchema).parse(rows);
+    schema: getTileTroopsSchema,
+  });
 };
 
 const getTileOasisBonusesSchema = z
@@ -234,18 +235,17 @@ export const getTileOasisBonuses: Controller<'/tiles/:tileId/bonuses'> = (
 ) => {
   const { tileId } = params;
 
-  const rows = database.selectObjects(
-    `
-    SELECT resource, bonus
-    FROM oasis
-    WHERE tile_id = $tile_id;
+  return database.selectObjects({
+    sql: `
+      SELECT resource, bonus
+      FROM oasis
+      WHERE tile_id = $tile_id;
     `,
-    {
+    bind: {
       $tile_id: tileId,
     },
-  );
-
-  return z.array(getTileOasisBonusesSchema).parse(rows);
+    schema: getTileOasisBonusesSchema,
+  });
 };
 
 const getTileWorldItemSchema = z
@@ -268,21 +268,20 @@ export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
 ) => {
   const { tileId } = params;
 
-  const row = database.selectObject(
-    `
-    SELECT item_id, amount
-    FROM world_items
-    WHERE tile_id = $tile_id
-    LIMIT 1;
+  return (
+    database.selectObject({
+      sql: `
+      SELECT item_id, amount
+      FROM
+        world_items
+      WHERE
+        tile_id = $tile_id
+      LIMIT 1;
     `,
-    {
-      $tile_id: tileId,
-    },
+      bind: {
+        $tile_id: tileId,
+      },
+      schema: getTileWorldItemSchema,
+    }) ?? null
   );
-
-  if (!row) {
-    return null;
-  }
-
-  return getTileWorldItemSchema.parse(row);
 };

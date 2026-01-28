@@ -23,7 +23,6 @@
     "lint/oxlint": "oxlint --type-aware --fix .",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
-    "knip:ci": "knip --max-issues 29",
     "type-check": "tsgo",
     "test": "vitest",
     "open-api:generate": "node scripts/generate-open-api-definitions.ts"
@@ -35,7 +34,7 @@
     "@sqlite.org/sqlite-wasm": "*",
     "moderndash": "4.0.0",
     "path-to-regexp": "8.3.0",
-    "zod": "4.3.5"
+    "zod": "*"
   },
   "devDependencies": {
     "@biomejs/biome": "*",
@@ -43,6 +42,6 @@
     "@visulima/jsdoc-open-api": "2.0.95",
     "openapi-typescript": "7.10.1",
     "typescript": "*",
-    "vitest": "4.0.17"
+    "vitest": "*"
   }
 }

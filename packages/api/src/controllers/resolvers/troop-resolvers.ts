@@ -8,8 +8,8 @@ export const troopTrainingEventResolver: Resolver<
 > = (database, args) => {
   const { unitId, villageId, resolvesAt } = args;
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       WITH v AS (SELECT tile_id
                  FROM villages
                  WHERE id = $village_id)
@@ -21,28 +21,28 @@ export const troopTrainingEventResolver: Resolver<
       ON CONFLICT(unit_id, tile_id, source_tile_id)
         DO UPDATE SET amount = amount + excluded.amount;
     `,
-    {
+    bind: {
       $unit_id: unitId,
       $amount: 1,
       $village_id: villageId,
     },
-  );
+  });
 
   const { unitWheatConsumption } = getUnitDefinition(unitId);
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE effects
       SET value = value + $increase_amount
       WHERE effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
         AND source = 'troops'
         AND village_id = $village_id;
     `,
-    {
+    bind: {
       $increase_amount: unitWheatConsumption,
       $village_id: villageId,
     },
-  );
+  });
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
 };

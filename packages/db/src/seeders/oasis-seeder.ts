@@ -1,4 +1,5 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
@@ -8,13 +9,14 @@ import { batchInsert } from '../utils/batch-insert';
 export const oasisSeeder: Seeder = (database, server): void => {
   const prng = prngMulberry32(server.seed);
 
-  const oasisTiles = database.selectObjects(
-    'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
-    { $type: 'oasis' },
-  ) as {
-    id: number;
-    oasis_graphics: number;
-  }[];
+  const oasisTiles = database.selectObjects({
+    sql: 'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
+    bind: { $type: 'oasis' },
+    schema: z.strictObject({
+      id: z.number(),
+      oasis_graphics: z.number(),
+    }),
+  });
 
   const oasisBonuses: [number, Resource, number, null][] = [];
 

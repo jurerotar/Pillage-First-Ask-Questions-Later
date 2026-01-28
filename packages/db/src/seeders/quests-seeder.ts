@@ -1,36 +1,38 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   createUnitTroopCountQuests,
   globalQuests,
 } from '@pillage-first/game-assets/quests';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import type { Village } from '@pillage-first/types/models/village';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { newVillageQuestsFactory } from './factories/quest-factory';
 
 export const questsSeeder: Seeder = (database): void => {
-  const playerStartingVillageId = database.selectValue(
-    `
+  const playerStartingVillageId = database.selectValue({
+    sql: `
       SELECT id
       FROM
         villages
       WHERE
         player_id = $player_id;
     `,
-    { $player_id: PLAYER_ID },
-  ) as Village['id'];
+    bind: { $player_id: PLAYER_ID },
+    schema: z.number(),
+  })!;
 
-  const playerTribe = database.selectValue(
-    `
+  const playerTribe = database.selectValue({
+    sql: `
       SELECT tribe
       FROM
         players
       WHERE
         id = $player_id;
     `,
-    { $player_id: PLAYER_ID },
-  ) as PlayableTribe;
+    bind: { $player_id: PLAYER_ID },
+    schema: tribeSchema,
+  })!;
 
   const questsToSeed = [];
 

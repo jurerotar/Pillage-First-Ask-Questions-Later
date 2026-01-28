@@ -5,6 +5,7 @@ const vitestConfig: ViteUserConfig = defineConfig({
     root: './',
     watch: false,
     reporters: ['default'],
+    globalSetup: './src/testing/global-setup.ts',
   },
 });
 
