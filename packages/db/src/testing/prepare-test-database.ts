@@ -5,6 +5,12 @@ import {
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
 
+declare module 'vitest' {
+  export interface ProvidedContext {
+    seededDbBuffer: Uint8Array;
+  }
+}
+
 const sqlite3 = await sqlite3InitModule();
 
 export const prepareTestDatabase = async (): Promise<DbFacade> => {

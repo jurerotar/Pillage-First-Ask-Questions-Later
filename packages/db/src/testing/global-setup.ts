@@ -4,12 +4,6 @@ import { serverMock } from '@pillage-first/mocks/server';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
 import { migrateAndSeed } from '../index.ts';
 
-declare module 'vitest' {
-  export interface ProvidedContext {
-    seededDbBuffer: Uint8Array;
-  }
-}
-
 const setup = async ({ provide }: TestProject): Promise<void> => {
   const sqlite3 = await sqlite3InitModule();
   const oo1Db = new sqlite3.oo1.DB(':memory:', 'c');
