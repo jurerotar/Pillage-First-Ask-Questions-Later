@@ -35,16 +35,16 @@ export const prepareTestDatabase = async (): Promise<DbFacade> => {
 
     database.exec({
       sql: `
-        PRAGMA page_size = 8192;          -- set before creating tables (optional)
-        PRAGMA locking_mode = EXCLUSIVE;  -- avoid file locks
-        PRAGMA journal_mode = OFF;        -- no rollback journal
-        PRAGMA synchronous = OFF;         -- don't wait on disk
-        PRAGMA foreign_keys = OFF;        -- skip FK checks
-        PRAGMA temp_store = MEMORY;       -- temp tables in RAM
+        PRAGMA page_size = 4096;
+        PRAGMA locking_mode = EXCLUSIVE;
+        PRAGMA journal_mode = OFF;
+        PRAGMA synchronous = OFF;
+        PRAGMA foreign_keys = OFF;
+        PRAGMA temp_store = MEMORY;
         PRAGMA cache_spill = OFF;
         PRAGMA count_changes = OFF;
-        PRAGMA cache_size = -200000;      -- negative = KB, here ~200MB cache
-        PRAGMA secure_delete = OFF;       -- don't wipe deleted content
+        PRAGMA cache_size = -2000;
+        PRAGMA secure_delete = OFF;
       `,
     });
 

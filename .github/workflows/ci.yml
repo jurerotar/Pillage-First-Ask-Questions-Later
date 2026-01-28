@@ -104,7 +104,20 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             BASE_SHA="${{ github.event.pull_request.base.sha }}"
-            npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
+
+            # Check if package.json or schemas changed
+            CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD)
+            FORCE_ALL=false
+            if echo "$CHANGED_FILES" | grep -q "package.json" || echo "$CHANGED_FILES" | grep -q "^packages/db/src/schemas/"; then
+              FORCE_ALL=true
+            fi
+
+            if [ "$FORCE_ALL" = true ]; then
+              echo "Important files changed, running all tests..."
+              npx turbo run test
+            else
+              npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
+            fi
           else
             npx turbo run test
           fi

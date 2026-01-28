@@ -182,7 +182,5 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
     // Events
     db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
-
-    db.exec({ sql: 'ANALYZE;' });
   });
 };
