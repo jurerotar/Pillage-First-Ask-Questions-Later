@@ -940,61 +940,55 @@ describe('migrateAndSeed', () => {
         schema: z.number(),
       });
 
-      // For each village, compute expected population from building_fields using the same logic as seeder
-      const villages = database.selectObjects({
+      // Fetch all building fields and group them by village_id in-memory
+      const buildingFields = database.selectObjects({
         sql: `
-          SELECT id
+          SELECT village_id, building_id, level
           FROM
-            villages;
+            building_fields
+          ORDER BY village_id;
         `,
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.strictObject({
+          village_id: z.number(),
+          building_id: buildingIdSchema,
+          level: z.number(),
+        }),
       });
 
-      for (const { id: villageId } of villages) {
-        const fields = database.selectObjects({
-          sql: `
-            SELECT building_id, level
-            FROM
-              building_fields
-            WHERE
-              village_id = $villageId;
-          `,
-          bind: { $villageId: villageId },
-          schema: z.strictObject({
-            building_id: buildingIdSchema,
-            level: z.number(),
-          }),
-        });
+      const villagePopulations = new Map<number, number>();
+      for (const { village_id, building_id, level } of buildingFields) {
+        const def = getBuildingDefinition(building_id as Building['id']);
+        const pop = calculateTotalPopulationForLevel(def.id, level);
+        villagePopulations.set(
+          village_id,
+          (villagePopulations.get(village_id) ?? 0) + pop,
+        );
+      }
 
-        let population = 0;
-        for (const { building_id, level } of fields) {
-          const def = getBuildingDefinition(building_id as Building['id']);
-          population += calculateTotalPopulationForLevel(def.id, level);
-        }
+      // Fetch all building-based wheat production effects for source_specifier = 0
+      const effects = database.selectObjects({
+        sql: `
+          SELECT village_id, value
+          FROM
+            effects
+          WHERE
+            effect_id = $effectId
+            AND type = 'base'
+            AND scope = 'village'
+            AND source = 'building'
+            AND source_specifier = 0;
+        `,
+        bind: { $effectId: wheatEffectId },
+        schema: z.strictObject({
+          village_id: z.number(),
+          value: z.number(),
+        }),
+      });
 
-        const exists = database.selectValue({
-          sql: `
-            SELECT COUNT(*)
-            FROM
-              effects
-            WHERE
-              effect_id = $effectId
-              AND value = $value
-              AND type = 'base'
-              AND scope = 'village'
-              AND source = 'building'
-              AND village_id = $villageId
-              AND source_specifier = 0;
-          `,
-          bind: {
-            $effectId: wheatEffectId,
-            $value: -population,
-            $villageId: villageId,
-          },
-          schema: z.number(),
-        });
+      const effectValues = new Map(effects.map((e) => [e.village_id, e.value]));
 
-        expect(exists).toBeGreaterThan(0);
+      for (const [villageId, population] of villagePopulations) {
+        expect(effectValues.get(villageId)).toBe(-population);
       }
     });
 
@@ -1011,57 +1005,56 @@ describe('migrateAndSeed', () => {
         schema: z.number(),
       });
 
-      const villages = database.selectObjects({
+      // Fetch all troops and group them by village_id in-memory
+      // Note: we need to join with villages to get the village_id
+      const troopRows = database.selectObjects({
         sql: `
-          SELECT id, tile_id
+          SELECT v.id AS village_id, tr.unit_id, tr.amount
           FROM
-            villages;
+            troops AS tr
+              JOIN villages AS v ON tr.tile_id = v.tile_id;
         `,
-        schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+        schema: z.strictObject({
+          village_id: z.number(),
+          unit_id: unitIdSchema,
+          amount: z.number(),
+        }),
       });
 
-      for (const { id: villageId, tile_id } of villages) {
-        const troopRows = database.selectObjects({
-          sql: `
-            SELECT unit_id, amount
-            FROM
-              troops
-            WHERE
-              tile_id = $tileId;
-          `,
-          bind: { $tileId: tile_id },
-          schema: z.strictObject({ unit_id: unitIdSchema, amount: z.number() }),
-        });
+      const villageTroopConsumption = new Map<number, number>();
+      for (const { village_id, unit_id, amount } of troopRows) {
+        const { unitWheatConsumption } = getUnitDefinition(unit_id as UnitId);
+        villageTroopConsumption.set(
+          village_id,
+          (villageTroopConsumption.get(village_id) ?? 0) +
+            unitWheatConsumption * amount,
+        );
+      }
 
-        let troopWheatConsumption = 0;
-        for (const { unit_id, amount } of troopRows) {
-          const { unitWheatConsumption } = getUnitDefinition(unit_id as UnitId);
-          troopWheatConsumption += unitWheatConsumption * amount;
-        }
+      // Fetch all troop-based wheat production effects
+      const effects = database.selectObjects({
+        sql: `
+          SELECT village_id, value
+          FROM
+            effects
+          WHERE
+            effect_id = $effectId
+            AND type = 'base'
+            AND scope = 'village'
+            AND source = 'troops'
+            AND source_specifier IS NULL;
+        `,
+        bind: { $effectId: wheatEffectId },
+        schema: z.strictObject({
+          village_id: z.number(),
+          value: z.number(),
+        }),
+      });
 
-        const exists = database.selectValue({
-          sql: `
-            SELECT COUNT(*)
-            FROM
-              effects
-            WHERE
-              effect_id = $effectId
-              AND value = $value
-              AND type = 'base'
-              AND scope = 'village'
-              AND source = 'troops'
-              AND village_id = $villageId
-              AND source_specifier IS NULL;
-          `,
-          bind: {
-            $effectId: wheatEffectId,
-            $value: troopWheatConsumption,
-            $villageId: villageId,
-          },
-          schema: z.number(),
-        });
+      const effectValues = new Map(effects.map((e) => [e.village_id, e.value]));
 
-        expect(exists).toBeGreaterThan(0);
+      for (const [villageId, consumption] of villageTroopConsumption) {
+        expect(effectValues.get(villageId)).toBe(consumption);
       }
     });
   });
