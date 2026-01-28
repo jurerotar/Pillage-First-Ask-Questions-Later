@@ -49,7 +49,7 @@ type OasisBonus = {
   resource: Resource;
 };
 
-type GetTilesWithBonusesBody = {
+export type GetTilesWithBonusesBody = {
   resourceFieldComposition:
     | z.infer<typeof resourceFieldCompositionSchema>
     | 'any-cropper';
