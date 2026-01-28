@@ -1,4 +1,4 @@
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import sqlite3InitModule, { type Sqlite3Static } from '@sqlite.org/sqlite-wasm';
 import { inject } from 'vitest';
 import {
   createDbFacade,
@@ -11,9 +11,13 @@ declare module 'vitest' {
   }
 }
 
-const sqlite3 = await sqlite3InitModule();
+let sqlite3: Sqlite3Static | null = null;
 
 export const prepareTestDatabase = async (): Promise<DbFacade> => {
+  if (!sqlite3) {
+    sqlite3 = await sqlite3InitModule();
+  }
+
   const injectedBuffer = inject('seededDbBuffer');
 
   const oo1Db = new sqlite3.oo1.DB();
