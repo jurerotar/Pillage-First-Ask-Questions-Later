@@ -11,10 +11,7 @@ import {
   getUnitsByTribe,
 } from '@pillage-first/game-assets/units/utils';
 import { serverMock } from '@pillage-first/mocks/server';
-import {
-  type Building,
-  buildingIdSchema,
-} from '@pillage-first/types/models/building';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -957,7 +954,7 @@ describe('migrateAndSeed', () => {
 
       const villagePopulations = new Map<number, number>();
       for (const { village_id, building_id, level } of buildingFields) {
-        const def = getBuildingDefinition(building_id as Building['id']);
+        const def = getBuildingDefinition(building_id);
         const pop = calculateTotalPopulationForLevel(def.id, level);
         villagePopulations.set(
           village_id,
@@ -1023,7 +1020,7 @@ describe('migrateAndSeed', () => {
 
       const villageTroopConsumption = new Map<number, number>();
       for (const { village_id, unit_id, amount } of troopRows) {
-        const { unitWheatConsumption } = getUnitDefinition(unit_id as UnitId);
+        const { unitWheatConsumption } = getUnitDefinition(unit_id);
         villageTroopConsumption.set(
           village_id,
           (villageTroopConsumption.get(village_id) ?? 0) +

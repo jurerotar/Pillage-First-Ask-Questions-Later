@@ -36,7 +36,7 @@ export const resourceSitesSeeder: Seeder = (database, server): void => {
   const playerStartingTileId = database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
     schema: z.number(),
-  })! as number;
+  })!;
 
   results.push([playerStartingTileId, 750, 750, 750, 750, updatedAt]);
 

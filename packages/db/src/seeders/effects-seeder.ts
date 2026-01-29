@@ -250,7 +250,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     number,
     {
       field_id: number;
-      building_id: string;
+      building_id: Building['id'];
       level: number;
     }[]
   >();
@@ -270,9 +270,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
     let population = 0;
 
     for (const { building_id, level, field_id } of villageBuildingFields) {
-      const buildingId = building_id as Building['id'];
-
-      const building = getBuildingDefinition(buildingId);
+      const building = getBuildingDefinition(building_id);
 
       for (const { effectId, type, valuesPerLevel } of building.effects) {
         effectsToInsert.push([
@@ -286,7 +284,7 @@ export const effectsSeeder: Seeder = (database, server): void => {
         ] satisfies EffectToInsert);
       }
 
-      population += calculateTotalPopulationForLevel(buildingId, level);
+      population += calculateTotalPopulationForLevel(building_id, level);
     }
 
     effectsToInsert.push([
