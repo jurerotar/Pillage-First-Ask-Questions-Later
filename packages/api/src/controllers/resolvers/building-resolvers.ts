@@ -3,7 +3,7 @@ import {
   getBuildingDataForLevel,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/buildings/utils';
-import type { BuildingField } from '@pillage-first/types/models/building-field';
+import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
 import {
@@ -16,11 +16,6 @@ import {
   updateVillageResourcesAt,
 } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-
-// Some fields are special and cannot be destroyed, because they must exist on a specific field: all resource fields, rally point & wall.
-export const specialFieldIds: BuildingField['id'][] = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 39, 40,
-];
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>

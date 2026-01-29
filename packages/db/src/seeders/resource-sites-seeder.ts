@@ -47,13 +47,16 @@ export const resourceSitesSeeder: Seeder = (database, server): void => {
 
   const oasis = database.selectObjects({
     sql: `
-    SELECT tiles.id,
-           COUNT(oasis.tile_id) AS count_per_tile,
-           MAX(oasis.bonus)     AS bonus
-    FROM tiles
-           INNER JOIN oasis ON tiles.id = oasis.tile_id
-    GROUP BY tiles.id;
-  `,
+      SELECT
+        tiles.id,
+        COUNT(oasis.tile_id) AS count_per_tile,
+        MAX(oasis.bonus) AS bonus
+      FROM
+        tiles
+          INNER JOIN oasis ON tiles.id = oasis.tile_id
+      GROUP BY
+        tiles.id;
+    `,
     schema: OasisSelectResultRowSchema,
   });
 

@@ -566,6 +566,20 @@
         ]
       }
     },
+    "/villages/:villageId/building-fields": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "villageId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
     "/villages/:villageId/artifacts": {
       "get": {
         "parameters": [

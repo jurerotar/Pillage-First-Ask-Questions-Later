@@ -825,6 +825,33 @@ export interface paths {
     };
     readonly trace?: never;
   };
+  readonly '/villages/:villageId/building-fields': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly villageId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly trace?: never;
+  };
   readonly '/villages/:villageId/effects': {
     readonly parameters: {
       readonly query?: never;
