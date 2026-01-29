@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { factionSchema } from '@pillage-first/types/models/faction';
+import {
+  type Faction,
+  factionSchema,
+} from '@pillage-first/types/models/faction';
 import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { generateNpcPlayers, playerFactory } from './factories/player-factory';
@@ -13,28 +16,30 @@ const slugifyPlayerName = (name: string): string => {
 };
 
 export const playersSeeder: Seeder = (database, server): void => {
-  const playerFaction = database.selectValue({
-    sql: "SELECT faction FROM factions WHERE faction = 'player'",
-    schema: factionSchema,
-  })!;
-
-  const npcFactions = database.selectValues({
-    sql: "SELECT faction FROM factions WHERE faction != 'player';",
-    schema: factionSchema,
+  const factions = database.selectObjects({
+    sql: 'SELECT id, faction FROM factions',
+    schema: z.strictObject({
+      id: z.number(),
+      faction: factionSchema,
+    }),
   });
 
+  const factionMap = new Map<Faction, number>(
+    factions.map((f) => [f.faction, f.id]),
+  );
+
+  const playerFaction = factionMap.get('player')!;
+  // We only have 1 "real" player, so we can delete this faction
+  factionMap.delete('player');
+
+  const npcFactionIds = [...factionMap.values()];
+
   const player = playerFactory(server, playerFaction);
-  const npcPlayers = generateNpcPlayers(server, npcFactions);
+  const npcPlayers = generateNpcPlayers(server, npcFactionIds);
 
   const players = [player, ...npcPlayers];
 
-  const playersToInsert = players.map(({ id, name, tribe, faction }) => {
-    const factionId = database.selectValue({
-      sql: 'SELECT id FROM factions WHERE faction = $faction',
-      bind: { $faction: faction },
-      schema: z.number(),
-    })!;
-
+  const playersToInsert = players.map(({ id, name, tribe, factionId }) => {
     return [id, name, slugifyPlayerName(name), tribe, factionId];
   });
 
