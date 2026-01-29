@@ -42,11 +42,23 @@ export const batchInsert = (
     return stmt;
   };
 
-  for (let i = 0; i < rows.length; i += rowsPerBatch) {
-    const chunk = rows.slice(i, i + rowsPerBatch);
-    const params: SqlValue[] = chunk.flat(); // flatten rows -> params
+  const params: SqlValue[] = [];
+  const totalRows = rows.length;
 
-    const stmt = getStmt(chunk.length);
+  for (let i = 0; i < totalRows; i += rowsPerBatch) {
+    const batchEnd = Math.min(totalRows, i + rowsPerBatch);
+
+    let idx = 0;
+    params.length = 0;
+
+    for (let r = i; r < batchEnd; r++) {
+      const row = rows[r];
+      for (let c = 0; c < row.length; c++) {
+        params[idx++] = row[c];
+      }
+    }
+
+    const stmt = getStmt(batchEnd - i);
     stmt.bind(params).stepReset();
   }
 
