@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'vitest';
+import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  type EquipHeroItemBody,
+  equipHeroItem,
   getHero,
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  unequipHeroItem,
 } from '../hero-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -62,5 +66,315 @@ describe('hero-controllers', () => {
     );
 
     expect(true).toBeTruthy();
+  });
+
+  describe('equipHeroItem', () => {
+    test('should equip an item and remove it from inventory', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const itemId = 1011; // COMMON_HORSE
+      const slot = 'horse';
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items',
+          'patch',
+          EquipHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, slot, amount: 1 },
+        }),
+      );
+
+      // Verify equipped
+      const equipped = database.selectObject({
+        sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
+        bind: { $heroId: heroId, $slot: slot },
+        schema: z.object({ item_id: z.number(), amount: z.number() }),
+      });
+      expect(equipped?.item_id).toBe(itemId);
+      expect(equipped?.amount).toBe(1);
+
+      // Verify removed from inventory
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(inventory).toBeUndefined();
+    });
+
+    test('should move existing item to inventory when equipping a different one', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const oldItemId = 1011; // COMMON_HORSE
+      const newItemId = 1012; // UNCOMMON_HORSE
+      const slot = 'horse';
+
+      // Seed equipped
+      database.exec({
+        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($heroId, $slot, $itemId, 1)',
+        bind: { $heroId: heroId, $slot: slot, $itemId: oldItemId },
+      });
+
+      // Seed inventory with new item
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
+        bind: { $heroId: heroId, $itemId: String(newItemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items',
+          'patch',
+          EquipHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId: newItemId, slot, amount: 1 },
+        }),
+      );
+
+      // Verify new item equipped
+      const equipped = database.selectObject({
+        sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
+        bind: { $heroId: heroId, $slot: slot },
+        schema: z.object({ item_id: z.number() }),
+      });
+      expect(equipped?.item_id).toBe(newItemId);
+
+      // Verify old item moved to inventory
+      const inventoryOld = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(oldItemId) },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(inventoryOld?.amount).toBe(1);
+    });
+
+    test('should add effects when equipping an item with effects', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const itemId = 1001; // UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED (has effects)
+      const slot = 'consumable'; // Using consumable because non-equipable items can't be equipped, but for testing we use a valid slot
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items',
+          'patch',
+          EquipHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, slot, amount: 1 },
+        }),
+      );
+
+      // Verify effects added
+      const effects = database.selectObjects({
+        sql: "SELECT effect_id FROM effects WHERE source = 'hero' AND source_specifier = $itemId",
+        bind: { $itemId: itemId },
+        schema: z.object({ effect_id: z.number() }),
+      });
+      expect(effects.length).toBeGreaterThan(0);
+    });
+
+    test('should allow multiple items for consumables slot', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const itemId = 1021; // HEALING_POTION
+      const slot = 'consumable';
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 10)',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+
+      // Equip 5
+      equipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items',
+          'patch',
+          EquipHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, slot, amount: 5 },
+        }),
+      );
+
+      // Verify equipped
+      let equipped = database.selectObject({
+        sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
+        bind: { $heroId: heroId, $slot: slot },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(equipped?.amount).toBe(5);
+
+      // Equip another 3 of the SAME item
+      equipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items',
+          'patch',
+          EquipHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, slot, amount: 3 },
+        }),
+      );
+
+      equipped = database.selectObject({
+        sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
+        bind: { $heroId: heroId, $slot: slot },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(equipped?.amount).toBe(8);
+
+      // Verify inventory
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(inventory?.amount).toBe(2);
+    });
+  });
+
+  describe('unequipHeroItem', () => {
+    test('should unequip an item and move it to inventory', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const itemId = 1011; // COMMON_HORSE
+      const slot = 'horse';
+
+      // Seed equipped
+      database.exec({
+        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($heroId, $slot, $itemId, 1)',
+        bind: { $heroId: heroId, $slot: slot, $itemId: itemId },
+      });
+
+      unequipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items/:slot',
+          'delete'
+        >({
+          params: { playerId, slot: 'horse' },
+        }),
+      );
+
+      // Verify unequipped
+      const equipped = database.selectObject({
+        sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
+        bind: { $heroId: heroId, $slot: slot },
+        schema: z.object({ item_id: z.number() }),
+      });
+      expect(equipped).toBeUndefined();
+
+      // Verify moved to inventory
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(inventory?.amount).toBe(1);
+    });
+
+    test('should remove effects when unequipping an item', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const itemId = 1001;
+      const slot = 'consumable';
+
+      // Seed equipped
+      database.exec({
+        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($heroId, $slot, $itemId, 1)',
+        bind: { $heroId: heroId, $slot: slot, $itemId: itemId },
+      });
+
+      // Seed effects
+      database.exec({
+        sql: `
+          INSERT INTO effects (effect_id, value, type, scope, source, source_specifier)
+          VALUES ((SELECT id FROM effect_ids LIMIT 1), 1, 'bonus', 'global', 'hero', $itemId)
+        `,
+        bind: { $itemId: itemId },
+      });
+
+      unequipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items/:slot',
+          'delete'
+        >({
+          params: { playerId, slot },
+        }),
+      );
+
+      // Verify effects removed
+      const effects = database.selectObjects({
+        sql: "SELECT effect_id FROM effects WHERE source = 'hero' AND source_specifier = $itemId",
+        bind: { $itemId: itemId },
+        schema: z.object({ effect_id: z.number() }),
+      });
+      expect(effects.length).toBe(0);
+    });
   });
 });

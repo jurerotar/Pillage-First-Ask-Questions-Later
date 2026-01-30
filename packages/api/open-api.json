@@ -153,6 +153,18 @@
             }
           }
         ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
       }
     },
     "/players/:playerId/hero/inventory": {
@@ -178,6 +190,28 @@
             "required": true,
             "schema": {
               "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/players/:playerId/hero/equipped-items/:slot": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slot",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ]

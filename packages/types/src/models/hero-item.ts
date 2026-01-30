@@ -11,7 +11,7 @@ type HeroItemCategory =
   | 'wearable'
   | 'artifact';
 
-type HeroItemSlot =
+export type HeroItemSlot =
   | 'head'
   | 'torso'
   | 'legs'
