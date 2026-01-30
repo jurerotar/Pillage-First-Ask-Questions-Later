@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitsByTribe } from '@pillage-first/game-assets/units/utils';
-import type { Seeder } from '../types/seeder';
+import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const unitResearchSeeder: Seeder = (database, server): void => {
+export const unitResearchSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
   const tier1Unit = unitsByTribe.find(({ tier }) => tier === 'tier-1')!;
 

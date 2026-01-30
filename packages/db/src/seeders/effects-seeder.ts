@@ -20,8 +20,8 @@ import {
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { isVillageEffect } from '@pillage-first/utils/guards/effect';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 
 const heroEffectsFactory = (
@@ -177,7 +177,7 @@ const serverEffectsFactory = (server: Server): ServerEffect[] => {
 
 type EffectToInsert = (string | number | null)[];
 
-export const effectsSeeder: Seeder = (database, server): void => {
+export const effectsSeeder = (database: DbFacade, server: Server): void => {
   const effectIdRows = database.selectObjects({
     sql: 'SELECT effect, id FROM effect_ids',
     schema: z.strictObject({

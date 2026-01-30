@@ -1,8 +1,8 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Preferences } from '@pillage-first/types/models/preferences';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const preferencesSeeder: Seeder = (database): void => {
+export const preferencesSeeder = (database: DbFacade): void => {
   const preferences: Preferences = {
     isAccessibilityModeEnabled: false,
     isReducedMotionModeEnabled: false,

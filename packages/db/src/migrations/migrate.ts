@@ -70,11 +70,11 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // Preferences
     db.exec({ sql: createPreferencesTable });
-    preferencesSeeder(db, server);
+    preferencesSeeder(db);
 
     // Map filters
     db.exec({ sql: createMapFiltersTable });
-    mapFiltersSeeder(db, server);
+    mapFiltersSeeder(db);
 
     // Map markers
     db.exec({ sql: createMapMarkersTable });
@@ -85,19 +85,19 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // Factions
     db.exec({ sql: createFactionsTable });
-    factionsSeeder(db, server);
+    factionsSeeder(db);
 
     // Faction reputations
     db.exec({ sql: createFactionReputationTable });
-    factionReputationSeeder(db, server);
+    factionReputationSeeder(db);
 
     // Heroes
     db.exec({ sql: createHeroesTable });
-    heroSeeder(db, server);
+    heroSeeder(db);
 
     // Hero adventures
     db.exec({ sql: createHeroAdventuresTable });
-    heroAdventuresSeeder(db, server);
+    heroAdventuresSeeder(db);
 
     // Hero equipped items
     db.exec({ sql: createHeroEquippedItemsTable });
@@ -112,7 +112,7 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // RFC reference table
     db.exec({ sql: createResourceFieldCompositionsTable });
-    resourceFieldCompositionsSeeder(db, server);
+    resourceFieldCompositionsSeeder(db);
 
     // Tiles
     db.exec({ sql: createTilesTable });
@@ -126,7 +126,7 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // Oasis-occupiable-by
     db.exec({ sql: createOasisOccupiableByTable });
-    oasisOccupiableBySeeder(db, server);
+    oasisOccupiableBySeeder(db);
     db.exec({ sql: createOasisOccupiableByIndexes });
 
     // Guaranteed croppers
@@ -139,7 +139,7 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // Bookmarks
     db.exec({ sql: createBookmarksTable });
-    bookmarksSeeder(db, server);
+    bookmarksSeeder(db);
 
     // Building fields
     db.exec({ sql: createBuildingFieldsTable });
@@ -152,7 +152,7 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // Effect ids
     db.exec({ sql: createEffectIdsTable });
-    effectIdsSeeder(db, server);
+    effectIdsSeeder(db);
 
     // Effects
     db.exec({ sql: createEffectsTable });
@@ -177,7 +177,7 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
 
     // Quests
     db.exec({ sql: createQuestsTable });
-    questsSeeder(db, server);
+    questsSeeder(db);
 
     // Events
     db.exec({ sql: createEventsTable });

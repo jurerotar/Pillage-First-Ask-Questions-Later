@@ -1,6 +1,7 @@
-import type { Seeder } from '../types/seeder';
+import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const serverSeeder: Seeder = (database, server): void => {
+export const serverSeeder = (database: DbFacade, server: Server): void => {
   const {
     id,
     seed,

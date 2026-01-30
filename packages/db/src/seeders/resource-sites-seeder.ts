@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import type { Server } from '@pillage-first/types/models/server';
 import type { VillageSize } from '@pillage-first/types/models/village';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 
@@ -28,7 +29,10 @@ const villageSizeToResourceAmountMap = new Map<VillageSize, number>([
   ['4xl', 160_000],
 ]);
 
-export const resourceSitesSeeder: Seeder = (database, server): void => {
+export const resourceSitesSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   const results: [number, number, number, number, number, number][] = [];
 
   const updatedAt = Date.now();

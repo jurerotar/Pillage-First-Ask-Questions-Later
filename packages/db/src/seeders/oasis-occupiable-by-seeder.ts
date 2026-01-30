@@ -1,6 +1,6 @@
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const oasisOccupiableBySeeder: Seeder = (database) => {
+export const oasisOccupiableBySeeder = (database: DbFacade): void => {
   // Create oasis_occupiable_by entries for 50% wheat oasis only. We'll create the rest of the entries later
   database.exec({
     sql: `

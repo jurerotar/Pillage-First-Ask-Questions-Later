@@ -3,12 +3,13 @@ import { z } from 'zod';
 import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
+import type { Server } from '@pillage-first/types/models/server';
 import type { WorldItem } from '@pillage-first/types/models/world-item';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   seededRandomArrayElement,
   seededRandomArrayElements,
 } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 
@@ -18,7 +19,7 @@ const rowSchema = z.strictObject({
   y: z.number(),
 });
 
-export const worldItemsSeeder: Seeder = (database, server): void => {
+export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const results: [HeroItem['id'], number, number][] = [];

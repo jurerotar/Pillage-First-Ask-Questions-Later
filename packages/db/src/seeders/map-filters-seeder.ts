@@ -1,7 +1,7 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const mapFiltersSeeder: Seeder = (database): void => {
+export const mapFiltersSeeder = (database: DbFacade): void => {
   const stmt = database.prepare({
     sql: `
       INSERT INTO

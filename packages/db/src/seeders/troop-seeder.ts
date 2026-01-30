@@ -6,6 +6,7 @@ import {
   type Resource,
   resourceSchema,
 } from '@pillage-first/types/models/resource';
+import type { Server } from '@pillage-first/types/models/server';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
 import type {
   NatureUnitId,
@@ -13,8 +14,8 @@ import type {
   UnitId,
 } from '@pillage-first/types/models/unit';
 import type { VillageSize } from '@pillage-first/types/models/village';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 
 const oasisTroopCombinations = new Map<
@@ -268,7 +269,7 @@ const npcUnitCompositionByTribeAndSize = new Map<
   ],
 ]);
 
-export const troopSeeder: Seeder = (database, server): void => {
+export const troopSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const results: [Unit['id'], number, number, number][] = [];

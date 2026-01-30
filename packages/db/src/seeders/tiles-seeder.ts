@@ -6,6 +6,7 @@ import {
   resourceFieldCompositionSchema,
 } from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   calculateGridLayout,
   encodeGraphicsProperty,
@@ -14,7 +15,6 @@ import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 
 type TileModel = {
@@ -300,7 +300,7 @@ const assignOasisAndFreeTileComposition = (
   });
 };
 
-export const tilesSeeder: Seeder = (database, server): void => {
+export const tilesSeeder = (database: DbFacade, server: Server): void => {
   const emptyTiles = generateGrid(server);
   const tilesWithShapedOasisFields = generateShapedOasisFields(
     server,

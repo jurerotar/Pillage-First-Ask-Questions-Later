@@ -3,7 +3,8 @@ import {
   type Faction,
   factionSchema,
 } from '@pillage-first/types/models/faction';
-import type { Seeder } from '../types/seeder';
+import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { generateNpcPlayers, playerFactory } from './factories/player-factory';
 
@@ -15,7 +16,7 @@ const slugifyPlayerName = (name: string): string => {
     .replaceAll(/^-+|-+$/g, ''); // trim leading/trailing dashes
 };
 
-export const playersSeeder: Seeder = (database, server): void => {
+export const playersSeeder = (database: DbFacade, server: Server): void => {
   const factions = database.selectObjects({
     sql: 'SELECT id, faction FROM factions',
     schema: z.strictObject({

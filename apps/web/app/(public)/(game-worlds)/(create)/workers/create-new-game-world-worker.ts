@@ -36,7 +36,9 @@ globalThis.addEventListener(
 
     migrateAndSeed(dbFacade, server);
 
+    dbFacade.close();
     database.close();
+    opfsSahPool.pauseVfs();
 
     globalThis.postMessage({ resolved: true });
     globalThis.close();

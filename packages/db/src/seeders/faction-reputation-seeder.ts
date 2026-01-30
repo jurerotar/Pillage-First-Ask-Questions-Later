@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { reputationLevels } from '@pillage-first/game-assets/reputation';
 import { factionSchema } from '@pillage-first/types/models/faction';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const factionReputationSeeder: Seeder = (database): void => {
+export const factionReputationSeeder = (database: DbFacade): void => {
   const rows = database.selectObjects({
     sql: 'SELECT faction, id FROM factions;',
     schema: z.strictObject({

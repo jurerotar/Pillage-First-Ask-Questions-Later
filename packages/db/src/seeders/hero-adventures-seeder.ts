@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const heroAdventuresSeeder: Seeder = (database): void => {
+export const heroAdventuresSeeder = (database: DbFacade): void => {
   const heroId = database.selectValue({
     sql: 'SELECT id FROM heroes WHERE player_id = $player_id;',
     bind: {

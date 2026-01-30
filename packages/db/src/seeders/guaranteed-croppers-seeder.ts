@@ -4,11 +4,15 @@ import {
   type ResourceFieldComposition,
   resourceFieldCompositionSchema,
 } from '@pillage-first/types/models/resource-field-composition';
+import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { seededRandomArrayElement } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 
 // There should be at least some "good" croppers. This means 18c/15c with 150% bonus
-export const guaranteedCroppersSeeder: Seeder = (database, server) => {
+export const guaranteedCroppersSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   const prng = prngMulberry32(server.seed);
 
   const tilesWith3Unique50PercentWheatBonuses = database.selectObjects({

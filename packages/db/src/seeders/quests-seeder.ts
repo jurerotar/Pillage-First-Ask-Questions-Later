@@ -5,11 +5,11 @@ import {
   globalQuests,
 } from '@pillage-first/game-assets/quests';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { newVillageQuestsFactory } from './factories/quest-factory';
 
-export const questsSeeder: Seeder = (database): void => {
+export const questsSeeder = (database: DbFacade): void => {
   const playerStartingVillageId = database.selectValue({
     sql: `
       SELECT id

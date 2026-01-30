@@ -5,12 +5,13 @@ import {
   npcVillageNameAdjectives,
   npcVillageNameNouns,
 } from '@pillage-first/game-assets/village';
+import type { Server } from '@pillage-first/types/models/server';
 import type { VillageSize } from '@pillage-first/types/models/village';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 
@@ -115,7 +116,7 @@ const computeScaledRadius = (base: number, mapSize: number) => {
   return Math.max(0, Math.round(base * scale));
 };
 
-export const villageSeeder: Seeder = (database, server): void => {
+export const villageSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const usableRadius = server.configuration.mapSize / 2;

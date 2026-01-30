@@ -1,13 +1,17 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 import { buildingFieldsFactory } from './factories/building-fields-factory';
 
-export const buildingFieldsSeeder: Seeder = (database, server): void => {
+export const buildingFieldsSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   // villageId, fieldId, buildingId, level
   const results = [];
 

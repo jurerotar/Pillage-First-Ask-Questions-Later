@@ -1,8 +1,8 @@
 import type { Effect } from '@pillage-first/types/models/effect';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const effectIdsSeeder: Seeder = (database): void => {
+export const effectIdsSeeder = (database: DbFacade): void => {
   const effectIds: Effect['id'][] = [
     // !! wheatProduction must always remain at the top, because we use its id of 1 as a partial index in effects table !!
     'wheatProduction',
