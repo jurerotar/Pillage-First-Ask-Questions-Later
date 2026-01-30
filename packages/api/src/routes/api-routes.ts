@@ -15,6 +15,7 @@ import {
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  useHeroItem,
 } from '../controllers/hero-controllers';
 import {
   getTileOasisBonuses,
@@ -98,6 +99,11 @@ const heroRoutes = [
     method: 'GET',
     path: '/players/:playerId/hero/adventures',
     controller: getHeroAdventures,
+  },
+  {
+    method: 'POST',
+    path: '/players/:playerId/hero/item',
+    controller: useHeroItem,
   },
   {
     method: 'POST',

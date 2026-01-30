@@ -347,6 +347,33 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly '/players/:playerId/hero/item': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly playerId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly '/players/:playerId/unit-improvements': {
     readonly parameters: {
       readonly query?: never;

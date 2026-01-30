@@ -217,6 +217,20 @@
         ]
       }
     },
+    "/players/:playerId/hero/item": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
     "/tiles": {
       "get": {}
     },

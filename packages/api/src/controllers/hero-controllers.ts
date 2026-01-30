@@ -5,6 +5,7 @@ import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventure
 import type { HeroItemSlot } from '@pillage-first/types/models/hero-item';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import type { Controller } from '../types/controller';
+import { addVillageResourcesAt } from '../utils/village';
 
 const getHeroSchema = z
   .strictObject({
@@ -312,6 +313,107 @@ export const unequipHeroItem: Controller<
       database.exec({
         sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
         bind: { $heroId: heroId, $slot: slot },
+      });
+    }
+  });
+};
+
+export type UseHeroItemBody = {
+  itemId: number;
+  amount: number;
+};
+
+/**
+ * POST /players/:playerId/hero/item
+ * @pathParam {number} playerId
+ * @body { { itemId: number, amount: number } }
+ */
+export const useHeroItem: Controller<
+  '/players/:playerId/hero/item',
+  'post',
+  UseHeroItemBody
+> = (database, { params, body }) => {
+  const { playerId } = params;
+  const { itemId, amount } = body;
+
+  database.transaction(() => {
+    const heroId = database.selectObject({
+      sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+      bind: { $playerId: playerId },
+      schema: z.object({ id: z.number() }),
+    })?.id;
+
+    if (heroId === undefined) {
+      throw new Error('Hero not found');
+    }
+
+    // Check inventory
+    const inventoryAmount =
+      database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      })?.amount ?? 0;
+
+    if (inventoryAmount < amount) {
+      throw new Error('Not enough items in inventory');
+    }
+
+    let itemsToUse = amount;
+
+    if (itemId === 1021) {
+      // HEALING_POTION
+      const currentHealth = database.selectObject({
+        sql: 'SELECT health FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ health: z.number() }),
+      })!.health;
+
+      const healthNeeded = 100 - currentHealth;
+      if (healthNeeded <= 0) {
+        return; // Already at full health
+      }
+      itemsToUse = Math.min(amount, healthNeeded);
+
+      database.exec({
+        sql: 'UPDATE heroes SET health = health + $healthToAdd WHERE id = $heroId',
+        bind: { $heroId: heroId, $healthToAdd: itemsToUse },
+      });
+    } else if ([1026, 1027, 1028, 1029].includes(itemId)) {
+      // WOOD, CLAY, IRON, WHEAT
+      const villageId = database.selectObject({
+        sql: 'SELECT id FROM villages WHERE player_id = $playerId LIMIT 1',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })?.id;
+
+      if (!villageId) {
+        throw new Error('Village not found');
+      }
+
+      const resourcesToAdd = [0, 0, 0, 0];
+      const resourceIndex = itemId - 1026; // 0 for Wood, 1 for Clay, 2 for Iron, 3 for Wheat
+      resourcesToAdd[resourceIndex] = amount;
+
+      addVillageResourcesAt(database, villageId, Date.now(), resourcesToAdd);
+    } else {
+      throw new Error('Item effect not implemented');
+    }
+
+    // Remove used items from inventory
+    if (inventoryAmount === itemsToUse) {
+      database.exec({
+        sql: 'DELETE FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+    } else {
+      database.exec({
+        sql: 'UPDATE hero_inventory SET amount = amount - $itemsUsed WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: {
+          $heroId: heroId,
+          $itemId: String(itemId),
+          $itemsUsed: itemsToUse,
+        },
       });
     }
   });

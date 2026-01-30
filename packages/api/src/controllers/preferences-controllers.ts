@@ -58,7 +58,7 @@ export const getPreferences: Controller<'/preferences'> = (database) => {
   })!;
 };
 
-type UpdatePreferenceBody = {
+export type UpdatePreferenceBody = {
   value: Preferences[keyof Preferences];
 };
 

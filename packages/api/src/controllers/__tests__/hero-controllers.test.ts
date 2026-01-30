@@ -9,7 +9,9 @@ import {
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  type UseHeroItemBody,
   unequipHeroItem,
+  useHeroItem,
 } from '../hero-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -375,6 +377,197 @@ describe('hero-controllers', () => {
         schema: z.object({ effect_id: z.number() }),
       });
       expect(effects.length).toBe(0);
+    });
+  });
+
+  describe('useHeroItem', () => {
+    test('should use healing potion and increase health', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      // Set health to 50
+      database.exec({
+        sql: 'UPDATE heroes SET health = 50 WHERE id = $heroId',
+        bind: { $heroId: heroId },
+      });
+
+      const itemId = 1021; // HEALING_POTION
+      const amount = 20;
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 30)',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+
+      useHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/item',
+          'post',
+          UseHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, amount },
+        }),
+      );
+
+      // Verify health
+      const updatedHero = database.selectObject({
+        sql: 'SELECT health FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ health: z.number() }),
+      })!;
+      expect(updatedHero.health).toBe(70);
+
+      // Verify inventory
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      })!;
+      expect(inventory.amount).toBe(10);
+    });
+
+    test('should not use more healing potions than needed to reach 100 health', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      // Set health to 90
+      database.exec({
+        sql: 'UPDATE heroes SET health = 90 WHERE id = $heroId',
+        bind: { $heroId: heroId },
+      });
+
+      const itemId = 1021; // HEALING_POTION
+      const amount = 20;
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 30)',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+
+      useHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/item',
+          'post',
+          UseHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, amount },
+        }),
+      );
+
+      // Verify health
+      const updatedHero = database.selectObject({
+        sql: 'SELECT health FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ health: z.number() }),
+      })!;
+      expect(updatedHero.health).toBe(100);
+
+      // Verify inventory (only 10 should be used)
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      })!;
+      expect(inventory.amount).toBe(20);
+    });
+
+    test('should use resource items and increase village resources', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      const village = database.selectObject({
+        sql: 'SELECT id, tile_id FROM villages WHERE player_id = $playerId LIMIT 1',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number(), tile_id: z.number() }),
+      })!;
+
+      // Seed initial resources
+      database.exec({
+        sql: 'UPDATE resource_sites SET wood = 100, updated_at = $ts WHERE tile_id = $tileId',
+        bind: { $tileId: village.tile_id, $ts: Date.now() },
+      });
+
+      const itemId = 1026; // WOOD
+      const amount = 500;
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, $amount)',
+        bind: { $heroId: heroId, $itemId: String(itemId), $amount: amount },
+      });
+
+      useHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/item',
+          'post',
+          UseHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, amount },
+        }),
+      );
+
+      // Verify resources
+      const resources = database.selectObject({
+        sql: 'SELECT wood FROM resource_sites WHERE tile_id = $tileId',
+        bind: { $tileId: village.tile_id },
+        schema: z.object({ wood: z.number() }),
+      })!;
+      expect(resources.wood).toBe(600);
+
+      // Verify inventory (deleted if all used)
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(inventory).toBeUndefined();
+    });
+
+    test('should throw error if not enough items in inventory', async () => {
+      const database = await prepareTestDatabase();
+
+      const itemId = 1021; // HEALING_POTION
+      const amount = 10;
+
+      await expect(async () => {
+        useHeroItem(
+          database,
+          createControllerArgs<
+            '/players/:playerId/hero/item',
+            'post',
+            UseHeroItemBody
+          >({
+            params: { playerId },
+            body: { itemId, amount },
+          }),
+        );
+      }).rejects.toThrow('Not enough items in inventory');
     });
   });
 });

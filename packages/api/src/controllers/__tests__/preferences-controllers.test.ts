@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { getPreferences, updatePreference } from '../preferences-controllers';
+import {
+  getPreferences,
+  type UpdatePreferenceBody,
+  updatePreference,
+} from '../preferences-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('preferences-controllers', () => {
@@ -20,7 +24,7 @@ describe('preferences-controllers', () => {
       createControllerArgs<
         '/preferences/:preferenceName',
         'patch',
-        { value: any }
+        UpdatePreferenceBody
       >({
         params: { preferenceName: 'isAccessibilityModeEnabled' },
         body: { value: true },
