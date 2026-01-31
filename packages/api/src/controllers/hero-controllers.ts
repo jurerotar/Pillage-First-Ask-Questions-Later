@@ -139,6 +139,42 @@ export const getHeroAdventures: Controller<
   });
 };
 
+export type ChangeHeroAttributesBody = {
+  attribute:
+    | 'attackPower'
+    | 'resourceProduction'
+    | 'attackBonus'
+    | 'defenceBonus';
+};
+
+/**
+ * PATCH /players/:playerId/hero/attributes
+ * @pathParam {number} playerId
+ * @body { { attribute: 'attackPower' | 'resourceProduction' | 'attackBonus' | 'defenceBonus' } }
+ */
+export const changeHeroAttributes: Controller<
+  '/players/:playerId/hero/attributes',
+  'patch',
+  ChangeHeroAttributesBody
+> = (database, { params, body }) => {
+  const { playerId } = params;
+  const { attribute } = body;
+
+  const attributeMap: Record<string, string> = {
+    attackPower: 'attack_power',
+    resourceProduction: 'resource_production',
+    attackBonus: 'attack_bonus',
+    defenceBonus: 'defence_bonus',
+  };
+
+  const dbAttribute = attributeMap[attribute];
+
+  database.exec({
+    sql: `UPDATE heroes SET ${dbAttribute} = ${dbAttribute} + 1 WHERE player_id = $playerId`,
+    bind: { $playerId: playerId },
+  });
+};
+
 export type EquipHeroItemBody = {
   itemId: number;
   slot: HeroItemSlot;
@@ -378,6 +414,22 @@ export const useHeroItem: Controller<
       database.exec({
         sql: 'UPDATE heroes SET health = health + $healthToAdd WHERE id = $heroId',
         bind: { $heroId: heroId, $healthToAdd: itemsToUse },
+      });
+    } else if (itemId === 1022) {
+      // BOOK_OF_WISDOM
+      itemsToUse = 1;
+
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET
+            attack_power = 0,
+            resource_production = 0,
+            attack_bonus = 0,
+            defence_bonus = 0
+          WHERE id = $heroId
+        `,
+        bind: { $heroId: heroId },
       });
     } else if ([1026, 1027, 1028, 1029].includes(itemId)) {
       // WOOD, CLAY, IRON, WHEAT

@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  type ChangeHeroAttributesBody,
+  changeHeroAttributes,
   type EquipHeroItemBody,
   equipHeroItem,
   getHero,
@@ -68,6 +70,32 @@ describe('hero-controllers', () => {
     );
 
     expect(true).toBeTruthy();
+  });
+
+  describe('changeHeroAttributes', () => {
+    test('should increment hero attribute', async () => {
+      const database = await prepareTestDatabase();
+
+      changeHeroAttributes(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/attributes',
+          'patch',
+          ChangeHeroAttributesBody
+        >({
+          params: { playerId },
+          body: { attribute: 'attackPower' },
+        }),
+      );
+
+      const hero = database.selectObject({
+        sql: 'SELECT attack_power FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ attack_power: z.number() }),
+      })!;
+
+      expect(hero.attack_power).toBe(1);
+    });
   });
 
   describe('equipHeroItem', () => {
@@ -487,6 +515,76 @@ describe('hero-controllers', () => {
         schema: z.object({ amount: z.number() }),
       })!;
       expect(inventory.amount).toBe(20);
+    });
+
+    test('should use book of wisdom and reset attributes', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      // Set attributes to some values
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET
+            attack_power = 10,
+            resource_production = 10,
+            attack_bonus = 10,
+            defence_bonus = 10
+          WHERE id = $heroId
+        `,
+        bind: { $heroId: heroId },
+      });
+
+      const itemId = 1022; // BOOK_OF_WISDOM
+      const amount = 1;
+
+      // Seed inventory
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+      });
+
+      useHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/item',
+          'post',
+          UseHeroItemBody
+        >({
+          params: { playerId },
+          body: { itemId, amount },
+        }),
+      );
+
+      // Verify attributes
+      const updatedHero = database.selectObject({
+        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({
+          attack_power: z.number(),
+          resource_production: z.number(),
+          attack_bonus: z.number(),
+          defence_bonus: z.number(),
+        }),
+      })!;
+      expect(updatedHero.attack_power).toBe(0);
+      expect(updatedHero.resource_production).toBe(0);
+      expect(updatedHero.attack_bonus).toBe(0);
+      expect(updatedHero.defence_bonus).toBe(0);
+
+      // Verify inventory (deleted)
+      const inventory = database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
+        bind: { $heroId: heroId, $itemId: String(itemId) },
+        schema: z.object({ amount: z.number() }),
+      });
+      expect(inventory).toBeUndefined();
     });
 
     test('should use resource items and increase village resources', async () => {

@@ -195,6 +195,20 @@
         ]
       }
     },
+    "/players/:playerId/hero/attributes": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
     "/players/:playerId/hero/equipped-items/:slot": {
       "delete": {
         "parameters": [
