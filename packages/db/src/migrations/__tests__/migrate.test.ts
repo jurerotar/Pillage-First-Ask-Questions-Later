@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { z } from 'zod';
 import {
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
@@ -10,46 +11,35 @@ import {
   getUnitsByTribe,
 } from '@pillage-first/game-assets/units/utils';
 import { serverMock } from '@pillage-first/mocks/server';
-import type { Building } from '@pillage-first/types/models/building';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import type { UnitId } from '@pillage-first/types/models/unit';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { tileTypeSchema } from '@pillage-first/types/models/tile';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
+import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   calculateGridLayout,
   decodeGraphicsProperty,
 } from '@pillage-first/utils/map';
-import { migrateAndSeed } from '../migrate';
+import { prepareTestDatabase } from '../../';
 
-const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
-const sqlite3 = await sqlite3InitModule();
+const database = await prepareTestDatabase();
 
-const database = new sqlite3.oo1.DB(':memory:', 'c');
-
-// Since this only runs in test environment, we can select best performance settings
-database.exec(`
-  PRAGMA page_size = 8192;          -- set before creating tables (optional)
-  PRAGMA locking_mode = EXCLUSIVE;  -- avoid file locks
-  PRAGMA journal_mode = OFF;        -- no rollback journal
-  PRAGMA synchronous = OFF;         -- don't wait on disk
-  PRAGMA foreign_keys = OFF;        -- skip FK checks
-  PRAGMA temp_store = MEMORY;       -- temp tables in RAM
-  PRAGMA cache_size = -200000;      -- negative = KB, here ~200MB cache
-  PRAGMA secure_delete = OFF;       -- don't wipe deleted content
-`);
-
-migrateAndSeed(database, serverMock);
-
-describe(migrateAndSeed, () => {
+describe('migrateAndSeed', () => {
   describe('tiles', () => {
     test('should create correct amount of tiles', () => {
-      const rowCount = database.selectValue(
-        'SELECT COUNT(id) AS id FROM tiles;',
-      );
+      const rowCount = database.selectValue({
+        sql: 'SELECT COUNT(id) AS id FROM tiles;',
+        schema: z.number(),
+      });
 
       expect(rowCount).toBe(7825);
     });
 
     test('every tile should be of type free or oasis', () => {
-      const types = database.selectValues('SELECT type FROM tiles;');
+      const types = database.selectValues({
+        sql: 'SELECT type FROM tiles;',
+        schema: tileTypeSchema,
+      });
 
       expect(
         types.every((type) => type === 'free' || type === 'oasis'),
@@ -57,10 +47,9 @@ describe(migrateAndSeed, () => {
     });
 
     test('every free tile should have resource_field_composition as not null and oasis_graphics as null', () => {
-      const rows = database.selectObjects(
-        `
+      database.selectObjects({
+        sql: `
           SELECT
-            t.id,
             rfc.resource_field_composition AS resource_field_composition,
             t.oasis_graphics
           FROM
@@ -70,25 +59,19 @@ describe(migrateAndSeed, () => {
           WHERE
             t.type = 'free';
         `,
-      ) as { resource_field_composition: string; oasis_graphics: null }[];
+        schema: z.strictObject({
+          resource_field_composition: resourceFieldCompositionSchema,
+          oasis_graphics: z.null(),
+        }),
+      });
 
-      const areTypesCorrect = rows.every(
-        ({ resource_field_composition, oasis_graphics }) => {
-          return (
-            typeof resource_field_composition === 'string' &&
-            oasis_graphics === null
-          );
-        },
-      );
-
-      expect(areTypesCorrect).toBeTruthy();
+      expect(true).toBeTruthy();
     });
 
     test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', () => {
-      const rows = database.selectObjects(
-        `
+      database.selectObjects({
+        sql: `
           SELECT
-            t.id,
             rfc.resource_field_composition AS resource_field_composition,
             t.oasis_graphics
           FROM
@@ -98,28 +81,27 @@ describe(migrateAndSeed, () => {
           WHERE
             t.type = 'oasis';
         `,
-      ) as { resource_field_composition: null; oasis_graphics: number }[];
+        schema: z.strictObject({
+          resource_field_composition: z.null(),
+          oasis_graphics: z.number(),
+        }),
+      });
 
-      const areTypesCorrect = rows.every(
-        ({ resource_field_composition, oasis_graphics }) => {
-          return (
-            resource_field_composition === null &&
-            typeof oasis_graphics === 'number'
-          );
-        },
-      );
-
-      expect(areTypesCorrect).toBeTruthy();
+      expect(true).toBeTruthy();
     });
 
     test('oasis groups tile counts are multiples of expected shape sizes', () => {
-      const rows = database.selectObjects(
-        `SELECT id, oasis_graphics
-         FROM
-           tiles
-         WHERE
-           type = 'oasis';`,
-      ) as { id: number; oasis_graphics: number }[];
+      const rows = database.selectObjects({
+        sql: `SELECT id, oasis_graphics
+              FROM
+                tiles
+              WHERE
+                type = 'oasis';`,
+        schema: z.strictObject({
+          id: z.number(),
+          oasis_graphics: z.number(),
+        }),
+      });
 
       const counts = new Map<number, number>();
 
@@ -146,18 +128,22 @@ describe(migrateAndSeed, () => {
     });
 
     test('no duplicate coordinates (x,y)', () => {
-      const duplicates = database.selectObjects(
-        'SELECT x, y, COUNT(*) AS c FROM tiles GROUP BY x, y HAVING c > 1;',
-      );
+      const duplicates = database.selectObjects({
+        sql: 'SELECT x, y, COUNT(*) AS c FROM tiles GROUP BY x, y HAVING c > 1;',
+        schema: z.strictObject({
+          x: z.number(),
+          y: z.number(),
+          c: z.number(),
+        }),
+      });
 
       expect(duplicates).toHaveLength(0);
     });
 
     test('center tile (0,0) exists, is free and has composition "4446"', () => {
-      const center = database.selectObject(
-        `
+      const center = database.selectObject({
+        sql: `
           SELECT
-            t.id,
             t.type,
             rfc.resource_field_composition AS resource_field_composition,
             t.oasis_graphics
@@ -169,22 +155,24 @@ describe(migrateAndSeed, () => {
             t.x = 0
             AND t.y = 0;
         `,
-      ) as {
-        type: string;
-        resource_field_composition: string | null;
-        oasis_graphics: number | null;
-      };
+        schema: z.strictObject({
+          type: tileTypeSchema,
+          resource_field_composition: resourceFieldCompositionSchema.nullable(),
+          oasis_graphics: z.number().nullable(),
+        }),
+      });
 
       expect(center).toBeTruthy();
-      expect(center.type).toBe('free');
-      expect(center.resource_field_composition).toBe('4446');
-      expect(center.oasis_graphics).toBeNull();
+      expect(center?.type).toBe('free');
+      expect(center?.resource_field_composition).toBe('4446');
+      expect(center?.oasis_graphics).toBeNull();
     });
 
     test('no tile has both resource_field_composition_id AND oasis_graphics non-null', () => {
-      const bothNonNull = database.selectValue(
-        'SELECT COUNT(*) AS c FROM tiles WHERE resource_field_composition_id IS NOT NULL AND oasis_graphics IS NOT NULL;',
-      );
+      const bothNonNull = database.selectValue({
+        sql: 'SELECT COUNT(*) AS c FROM tiles WHERE resource_field_composition_id IS NOT NULL AND oasis_graphics IS NOT NULL;',
+        schema: z.number(),
+      });
 
       expect(bothNonNull).toBe(0);
     });
@@ -206,8 +194,8 @@ describe(migrateAndSeed, () => {
         '4446',
       ]);
 
-      const distinctComps = database.selectValues(
-        `
+      const distinctComps = database.selectValues({
+        sql: `
           SELECT DISTINCT rfc.resource_field_composition
           FROM
             tiles t
@@ -216,7 +204,8 @@ describe(migrateAndSeed, () => {
           WHERE
             t.resource_field_composition_id IS NOT NULL;
         `,
-      ) as string[];
+        schema: resourceFieldCompositionSchema,
+      });
 
       const invalid = distinctComps.filter((c) => !allowed.has(c));
       expect(invalid).toStrictEqual([]);
@@ -227,25 +216,34 @@ describe(migrateAndSeed, () => {
         serverMock.configuration.mapSize,
       );
 
-      const bounds = database.selectObject(
-        'SELECT MIN(x) AS minX, MAX(x) AS maxX, MIN(y) AS minY, MAX(y) AS maxY FROM tiles;',
-      ) as { minX: number; minY: number; maxX: number; maxY: number };
+      const bounds = database.selectObject({
+        sql: 'SELECT MIN(x) AS minX, MAX(x) AS maxX, MIN(y) AS minY, MAX(y) AS maxY FROM tiles;',
+        schema: z.strictObject({
+          minX: z.number(),
+          minY: z.number(),
+          maxX: z.number(),
+          maxY: z.number(),
+        }),
+      });
 
-      expect(bounds.minX).toBeGreaterThanOrEqual(-halfSize);
-      expect(bounds.maxX).toBeLessThanOrEqual(halfSize);
-      expect(bounds.minY).toBeGreaterThanOrEqual(-halfSize);
-      expect(bounds.maxY).toBeLessThanOrEqual(halfSize);
+      expect(bounds?.minX).toBeGreaterThanOrEqual(-halfSize);
+      expect(bounds?.maxX).toBeLessThanOrEqual(halfSize);
+      expect(bounds?.minY).toBeGreaterThanOrEqual(-halfSize);
+      expect(bounds?.maxY).toBeLessThanOrEqual(halfSize);
     });
   });
 
   describe('players', () => {
     test('slugs are unique and contain only lowercase alphanumeric and dashes', () => {
-      const slugs = database.selectValues(
-        'SELECT slug FROM players;',
-      ) as string[];
-      const distinctCount = database.selectValue(
-        'SELECT COUNT(DISTINCT slug) AS c FROM players;',
-      );
+      const slugs = database.selectValues({
+        sql: 'SELECT slug FROM players;',
+        schema: z.string(),
+      });
+
+      const distinctCount = database.selectValue({
+        sql: 'SELECT COUNT(DISTINCT slug) AS c FROM players;',
+        schema: z.number(),
+      });
 
       expect(distinctCount).toBe(slugs.length);
 
@@ -259,9 +257,10 @@ describe(migrateAndSeed, () => {
     });
 
     test('only one player has faction_id = 1 and that player has id = 1', () => {
-      const count = database.selectValue(
-        'SELECT COUNT(*) AS c FROM players WHERE faction_id = 1;',
-      ) as number;
+      const count = database.selectValue({
+        sql: 'SELECT COUNT(*) AS c FROM players WHERE faction_id = 1;',
+        schema: z.number(),
+      });
       expect(count).toBe(1);
     });
 
@@ -274,9 +273,10 @@ describe(migrateAndSeed, () => {
       const expectedTotalPlayers =
         Math.round((playerDensity * totalTiles) / 100) * 100; // +1 human player
 
-      const actualCount = database.selectValue(
-        'SELECT COUNT(*) AS c FROM players;',
-      );
+      const actualCount = database.selectValue({
+        sql: 'SELECT COUNT(*) AS c FROM players;',
+        schema: z.number(),
+      });
 
       // The generator uses that formula; assert equality so seeder didn't accidentally change counts.
       expect(actualCount).toBe(expectedTotalPlayers);
@@ -285,24 +285,28 @@ describe(migrateAndSeed, () => {
 
   describe('oasis', () => {
     test('oasis rows only exist for tiles with type = "oasis"', () => {
-      const countForNonOasis = database.selectValue(
-        `SELECT COUNT(*) AS c
-         FROM
-           oasis o
-             JOIN tiles t ON o.tile_id = t.id
-         WHERE
-           t.type != 'oasis';`,
-      );
+      const countForNonOasis = database.selectValue({
+        sql: `
+          SELECT COUNT(*) AS c
+          FROM
+            oasis o
+              JOIN tiles t ON o.tile_id = t.id
+          WHERE
+            t.type != 'oasis';
+        `,
+        schema: z.number(),
+      });
       expect(countForNonOasis).toBe(0);
     });
 
     test('oasis bonus values are only 25 or 50 and resource strings are lowercase', () => {
-      const rows = database.selectObjects(
-        'SELECT resource, bonus FROM oasis;',
-      ) as {
-        resource: string;
-        bonus: number;
-      }[];
+      const rows = database.selectObjects({
+        sql: 'SELECT resource, bonus FROM oasis;',
+        schema: z.strictObject({
+          resource: z.string(),
+          bonus: z.number(),
+        }),
+      });
 
       for (const r of rows) {
         expect(typeof r.resource).toBe('string');
@@ -313,46 +317,53 @@ describe(migrateAndSeed, () => {
     });
 
     test('there is at least one oasis that has BOTH its resource bonus and a separate wheat bonus (composite)', () => {
-      const count = database.selectValue(`
-        SELECT COUNT(*)
-        FROM
-          oasis
-        GROUP BY
-          tile_id
-        HAVING
-          SUM(CASE WHEN resource = 'wheat' THEN 1 ELSE 0 END) >= 1
-          AND SUM(CASE WHEN resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
-      `) as number;
+      const count = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            oasis
+          GROUP BY
+            tile_id
+          HAVING
+            SUM(CASE WHEN resource = 'wheat' THEN 1 ELSE 0 END) >= 1
+            AND SUM(CASE WHEN resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
+        `,
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThan(0);
     });
 
     test('there is at least one oasis that has a resource bonus WITHOUT any wheat bonus (resource-only)', () => {
-      const count = database.selectValue(`
-        SELECT COUNT(*)
-        FROM
-          oasis
-        GROUP BY
-          tile_id
-        HAVING
-          SUM(CASE WHEN resource = 'wheat' THEN 1 ELSE 0 END) = 0
-          AND SUM(CASE WHEN resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
-      `) as number;
+      const count = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            oasis
+          GROUP BY
+            tile_id
+          HAVING
+            SUM(CASE WHEN resource = 'wheat' THEN 1 ELSE 0 END) = 0
+            AND SUM(CASE WHEN resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
+        `,
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThan(0);
     });
 
     test('there is at least one oasis that has a 50% bonus', () => {
-      const count = database.selectValue(
-        'SELECT COUNT(*) FROM oasis WHERE bonus = 50;',
-      ) as number;
+      const count = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM oasis WHERE bonus = 50;',
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThan(0);
     });
 
     test('at least 4 tiles with RFC 00018 (18c) have >= 3 distinct 50% wheat oases (150% total)', () => {
-      const count = database.selectValue(
-        `
+      const count = database.selectValue({
+        sql: `
           SELECT COUNT(*)
           FROM
             (
@@ -372,14 +383,15 @@ describe(migrateAndSeed, () => {
                 COUNT(DISTINCT o.tile_id) >= 3
               );
         `,
-      ) as number;
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThanOrEqual(4);
     });
 
     test('at least 12 tiles with RFC 11115 (15c) have >= 3 distinct 50% wheat oases (150% total)', () => {
-      const count = database.selectValue(
-        `
+      const count = database.selectValue({
+        sql: `
           SELECT COUNT(*)
           FROM
             (
@@ -399,14 +411,15 @@ describe(migrateAndSeed, () => {
                 COUNT(DISTINCT o.tile_id) >= 3
               );
         `,
-      ) as number;
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThanOrEqual(12);
     });
 
     test('at least 20 tiles with RFC 3339 have >= 3 distinct 50% wheat oases', () => {
-      const count = database.selectValue(
-        `
+      const count = database.selectValue({
+        sql: `
           SELECT COUNT(*)
           FROM
             (
@@ -426,7 +439,8 @@ describe(migrateAndSeed, () => {
                 COUNT(DISTINCT o.tile_id) >= 3
               );
         `,
-      ) as number;
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThanOrEqual(20);
     });
@@ -434,181 +448,210 @@ describe(migrateAndSeed, () => {
 
   describe('map filters', () => {
     test('map_filters row exists for player', () => {
-      const countRow = database.selectObject(
-        `SELECT COUNT(*) AS cnt
-         FROM
-           map_filters
-         WHERE
-           player_id = $player_id;`,
-        { $player_id: PLAYER_ID },
-      ) as { cnt: number };
+      const countRow = database.selectObject({
+        sql: `
+          SELECT COUNT(*) AS cnt
+          FROM
+            map_filters
+          WHERE
+            player_id = $player_id;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.strictObject({ cnt: z.number() }),
+      });
 
-      expect(countRow.cnt).toBeGreaterThan(0);
+      expect(countRow?.cnt).toBeGreaterThan(0);
     });
   });
 
   describe('preferences', () => {
     test('preferences row exists for player', () => {
-      const countRow = database.selectObject(
-        `SELECT COUNT(*) AS cnt
-         FROM
-           preferences
-         WHERE
-           player_id = $player_id;`,
-        { $player_id: PLAYER_ID },
-      ) as { cnt: number };
+      const countRow = database.selectObject({
+        sql: `
+          SELECT COUNT(*) AS cnt
+          FROM
+            preferences
+          WHERE
+            player_id = $player_id;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.strictObject({ cnt: z.number() }),
+      });
 
-      expect(countRow.cnt).toBeGreaterThan(0);
+      expect(countRow?.cnt).toBeGreaterThan(0);
     });
   });
 
   describe('server', () => {
     test('servers table contains exactly one server', () => {
-      const c = database.selectValue('SELECT COUNT(*) FROM servers;') as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM servers;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe('factions', () => {
     test('factions seeded (>0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM factions;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM factions;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
 
     test('faction ids are unique', () => {
-      const distinct = database.selectValue(
-        'SELECT COUNT(DISTINCT id) FROM factions;',
-      ) as number;
-      const total = database.selectValue('SELECT COUNT(*) FROM factions;');
+      const distinct = database.selectValue({
+        sql: 'SELECT COUNT(DISTINCT id) FROM factions;',
+        schema: z.number(),
+      });
+      const total = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM factions;',
+        schema: z.number(),
+      });
       expect(distinct).toBe(total);
     });
   });
 
   describe('faction reputation', () => {
     test('faction_reputation seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM faction_reputation;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM faction_reputation;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('heroes', () => {
     test('heroes seeded (>0)', () => {
-      const c = database.selectValue('SELECT COUNT(*) FROM heroes;') as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM heroes;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
   });
 
   describe('hero adventures', () => {
     test('hero_adventures seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM hero_adventures;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM hero_adventures;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('resource field compositions', () => {
     test('resource_field_compositions seeded (>0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM resource_field_compositions;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM resource_field_compositions;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
 
     test('contains well-known composition 4446', () => {
-      const c = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           resource_field_compositions
-         WHERE
-           resource_field_composition = '4446';`,
-      ) as number;
+      const c = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            resource_field_compositions
+          WHERE
+            resource_field_composition = '4446';
+        `,
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
   });
 
   describe('guaranteed croppers (oasis_occupiable_by)', () => {
     test('oasis_occupiable_by seeded (>0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM oasis_occupiable_by;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM oasis_occupiable_by;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
 
     test('links reference free tiles and oasis tiles', () => {
-      const invalid = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           oasis_occupiable_by ob
-             LEFT JOIN tiles t ON t.id = ob.occupiable_tile_id
-             LEFT JOIN tiles o ON o.id = ob.occupiable_oasis_tile_id
-         WHERE
-           t.id IS NULL
-           OR o.id IS NULL
-           OR t.type != 'free'
-           OR o.type != 'oasis';`,
-      ) as number;
+      const invalid = database.selectValue({
+        sql: `SELECT COUNT(*)
+              FROM
+                oasis_occupiable_by ob
+                  LEFT JOIN tiles t ON t.id = ob.occupiable_tile_id
+                  LEFT JOIN tiles o ON o.id = ob.occupiable_oasis_tile_id
+              WHERE
+                t.id IS NULL
+                OR o.id IS NULL
+                OR t.type != 'free'
+                OR o.type != 'oasis';`,
+        schema: z.number(),
+      });
       expect(invalid).toBe(0);
     });
   });
 
   describe('villages', () => {
     test('villages seeded (>0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM villages;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM villages;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
   });
 
   describe('bookmarks', () => {
     test('bookmarks seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM bookmarks;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM bookmarks;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('building fields', () => {
     test('building_fields seeded (>0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM building_fields;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM building_fields;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
   });
 
   describe('troops', () => {
     test('unoccupied oasis tiles have troops', () => {
-      const withoutTroops = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           tiles t
-         WHERE
-           t.type = 'oasis'
-           AND EXISTS
-           (
-             SELECT 1
-             FROM
-               oasis o
-             WHERE
-               o.tile_id = t.id
-               AND o.village_id IS NULL
-             )
-           AND NOT EXISTS
-           (
-             SELECT 1
-             FROM
-               troops tr
-             WHERE
-               tr.tile_id = t.id
-             );`,
-      ) as number;
+      const withoutTroops = database.selectValue({
+        sql: `SELECT COUNT(*)
+              FROM
+                tiles t
+              WHERE
+                t.type = 'oasis'
+                AND EXISTS
+                (
+                  SELECT 1
+                  FROM
+                    oasis o
+                  WHERE
+                    o.tile_id = t.id
+                    AND o.village_id IS NULL
+                  )
+                AND NOT EXISTS
+                (
+                  SELECT 1
+                  FROM
+                    troops tr
+                  WHERE
+                    tr.tile_id = t.id
+                  );`,
+        schema: z.number(),
+      });
       expect(withoutTroops).toBe(0);
     });
 
@@ -616,8 +659,8 @@ describe(migrateAndSeed, () => {
       const natureUnitIds = natureUnits.map(({ id }) => id);
       const placeholders = natureUnitIds.map(() => '?').join(',');
 
-      const invalid = database.selectValue(
-        `
+      const invalid = database.selectValue({
+        sql: `
           SELECT COUNT(*)
           FROM
             troops tr
@@ -635,8 +678,9 @@ describe(migrateAndSeed, () => {
               )
             AND tr.unit_id NOT IN (${placeholders});
         `,
-        natureUnitIds,
-      ) as number;
+        bind: natureUnitIds,
+        schema: z.number(),
+      });
 
       expect(invalid).toBe(0);
     });
@@ -644,144 +688,175 @@ describe(migrateAndSeed, () => {
 
   describe('effect ids and effects', () => {
     test('effect_ids seeded (>0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM effect_ids;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM effect_ids;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThan(0);
     });
 
     test('effects seeded (>0) and reference valid effect_ids', () => {
-      const effectsCount = database.selectValue(
-        'SELECT COUNT(*) FROM effects;',
-      ) as number;
+      const effectsCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM effects;',
+        schema: z.number(),
+      });
       expect(effectsCount).toBeGreaterThan(0);
 
-      const invalid = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           effects e
-             LEFT JOIN effect_ids ei ON ei.id = e.effect_id
-         WHERE
-           ei.id IS NULL;`,
-      ) as number;
+      const invalid = database.selectValue({
+        sql: `SELECT COUNT(*)
+              FROM
+                effects e
+                  LEFT JOIN effect_ids ei ON ei.id = e.effect_id
+              WHERE
+                ei.id IS NULL;`,
+        schema: z.number(),
+      });
       expect(invalid).toBe(0);
     });
   });
 
   describe('resource sites', () => {
     test('resource_sites seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM resource_sites;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM resource_sites;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('world items', () => {
     test('world_items seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM world_items;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM world_items;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('unit research', () => {
     test('unit_research seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM unit_research;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM unit_research;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('unit improvement', () => {
     test('unit_improvements seeded (>=0)', () => {
-      const c = database.selectValue(
-        'SELECT COUNT(*) FROM unit_improvements;',
-      ) as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM unit_improvements;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('quests', () => {
     test('quests seeded (>=0)', () => {
-      const c = database.selectValue('SELECT COUNT(*) FROM quests;') as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM quests;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
 
     test('village building quests exist (WOODCUTTER oneOf)', () => {
-      const count = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           quests
-         WHERE
-           village_id IS NOT NULL
-           AND quest_id LIKE 'oneOf-WOODCUTTER-%';`,
-      ) as number;
+      const count = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            quests
+          WHERE
+            village_id IS NOT NULL
+            AND quest_id LIKE 'oneOf-WOODCUTTER-%';
+        `,
+        schema: z.number(),
+      });
       expect(count).toBeGreaterThan(0);
     });
 
     test('global quests include troopCount, adventureCount, killCount, unitKillCount', () => {
-      const troopCount = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           quests
-         WHERE
-           village_id IS NULL
-           AND quest_id LIKE 'troopCount-%';`,
-      ) as number;
+      const troopCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'troopCount-%';
+        `,
+        schema: z.number(),
+      });
       expect(troopCount).toBeGreaterThan(0);
 
-      const adventureCount = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           quests
-         WHERE
-           village_id IS NULL
-           AND quest_id LIKE 'adventureCount-%';`,
-      ) as number;
+      const adventureCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'adventureCount-%';
+        `,
+        schema: z.number(),
+      });
       expect(adventureCount).toBeGreaterThan(0);
 
-      const killCount = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           quests
-         WHERE
-           village_id IS NULL
-           AND quest_id LIKE 'killCount-%';`,
-      ) as number;
+      const killCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'killCount-%';
+        `,
+        schema: z.number(),
+      });
       expect(killCount).toBeGreaterThan(0);
 
-      const unitKillCount = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           quests
-         WHERE
-           village_id IS NULL
-           AND quest_id LIKE 'unitKillCount-%';`,
-      ) as number;
+      const unitKillCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'unitKillCount-%';
+        `,
+        schema: z.number(),
+      });
       expect(unitKillCount).toBeGreaterThan(0);
     });
 
     test('unitTroopCount quests exist and only for the player tribe units', () => {
-      const tribe = database.selectValue(
-        `SELECT tribe
-         FROM
-           players
-         WHERE
-           id = $playerId;`,
-        { $playerId: PLAYER_ID },
-      ) as PlayableTribe;
+      const tribe = database.selectValue({
+        sql: `
+          SELECT tribe
+          FROM
+            players
+          WHERE
+            id = $playerId;
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: tribeSchema,
+      })!;
 
-      const unitTroopCountQuests = database.selectValues(
-        `SELECT quest_id
-         FROM
-           quests
-         WHERE
-           village_id IS NULL
-           AND quest_id LIKE 'unitTroopCount-%';`,
-      ) as string[];
+      const unitTroopCountQuests = database.selectValues({
+        sql: `
+          SELECT quest_id
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'unitTroopCount-%';
+        `,
+        schema: z.string(),
+      });
 
       // Must exist
       expect(unitTroopCountQuests.length).toBeGreaterThan(0);
@@ -803,14 +878,17 @@ describe(migrateAndSeed, () => {
     });
 
     test('tribal wall building quests exist for starting village', () => {
-      const tribe = database.selectValue(
-        `SELECT tribe
-         FROM
-           players
-         WHERE
-           id = $playerId;`,
-        { $playerId: PLAYER_ID },
-      ) as PlayableTribe;
+      const tribe = database.selectValue({
+        sql: `
+          SELECT tribe
+          FROM
+            players
+          WHERE
+            id = $playerId;
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: tribeSchema,
+      })!;
 
       const wallByTribe: Record<string, string> = {
         romans: 'CITY_WALL',
@@ -822,15 +900,16 @@ describe(migrateAndSeed, () => {
 
       const wall = wallByTribe[tribe];
 
-      const count = database.selectValue(
-        `SELECT COUNT(*)
-         FROM
-           quests
-         WHERE
-           village_id IS NOT NULL
-           AND quest_id = $qid;`,
-        { $qid: `oneOf-${wall}-1` },
-      ) as number;
+      const count = database.selectValue({
+        sql: `SELECT COUNT(*)
+              FROM
+                quests
+              WHERE
+                village_id IS NOT NULL
+                AND quest_id = $qid;`,
+        bind: { $qid: `oneOf-${wall}-1` },
+        schema: z.number(),
+      });
 
       expect(count).toBeGreaterThan(0);
     });
@@ -838,7 +917,10 @@ describe(migrateAndSeed, () => {
 
   describe('events', () => {
     test('events seeded (>=0)', () => {
-      const c = database.selectValue('SELECT COUNT(*) FROM events;') as number;
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM events;',
+        schema: z.number(),
+      });
       expect(c).toBeGreaterThanOrEqual(0);
     });
   });
@@ -846,112 +928,130 @@ describe(migrateAndSeed, () => {
   describe('Effects per village', () => {
     test('has building-based wheatProduction matching population (source_specifier = 0)', () => {
       // Preload effect id for wheatProduction
-      const wheatEffectId = database.selectValue(
-        `SELECT id
-         FROM
-           effect_ids
-         WHERE
-           effect = 'wheatProduction';`,
-      ) as number;
+      const wheatEffectId = database.selectValue({
+        sql: `SELECT id
+              FROM
+                effect_ids
+              WHERE
+                effect = 'wheatProduction';`,
+        schema: z.number(),
+      });
 
-      // For each village, compute expected population from building_fields using the same logic as seeder
-      const villages = database.selectObjects(
-        `SELECT id
-         FROM
-           villages;`,
-      ) as { id: number }[];
+      // Fetch all building fields and group them by village_id in-memory
+      const buildingFields = database.selectObjects({
+        sql: `
+          SELECT village_id, building_id, level
+          FROM
+            building_fields
+          ORDER BY village_id;
+        `,
+        schema: z.strictObject({
+          village_id: z.number(),
+          building_id: buildingIdSchema,
+          level: z.number(),
+        }),
+      });
 
-      for (const { id: villageId } of villages) {
-        const fields = database.selectObjects(
-          `SELECT building_id, level
-           FROM
-             building_fields
-           WHERE
-             village_id = $villageId;`,
-          { $villageId: villageId },
-        ) as { building_id: string; level: number }[];
+      const villagePopulations = new Map<number, number>();
+      for (const { village_id, building_id, level } of buildingFields) {
+        const def = getBuildingDefinition(building_id);
+        const pop = calculateTotalPopulationForLevel(def.id, level);
+        villagePopulations.set(
+          village_id,
+          (villagePopulations.get(village_id) ?? 0) + pop,
+        );
+      }
 
-        let population = 0;
-        for (const { building_id, level } of fields) {
-          const def = getBuildingDefinition(building_id as Building['id']);
-          population += calculateTotalPopulationForLevel(def.id, level);
-        }
+      // Fetch all building-based wheat production effects for source_specifier = 0
+      const effects = database.selectObjects({
+        sql: `
+          SELECT village_id, value
+          FROM
+            effects
+          WHERE
+            effect_id = $effectId
+            AND type = 'base'
+            AND scope = 'village'
+            AND source = 'building'
+            AND source_specifier = 0;
+        `,
+        bind: { $effectId: wheatEffectId },
+        schema: z.strictObject({
+          village_id: z.number(),
+          value: z.number(),
+        }),
+      });
 
-        const exists = database.selectValue(
-          `SELECT COUNT(*)
-           FROM
-             effects
-           WHERE
-             effect_id = $effectId
-             AND value = $value
-             AND type = 'base'
-             AND scope = 'village'
-             AND source = 'building'
-             AND village_id = $villageId
-             AND source_specifier = 0;`,
-          {
-            $effectId: wheatEffectId,
-            $value: -population,
-            $villageId: villageId,
-          },
-        ) as number;
+      const effectValues = new Map(effects.map((e) => [e.village_id, e.value]));
 
-        expect(exists).toBeGreaterThan(0);
+      for (const [villageId, population] of villagePopulations) {
+        expect(effectValues.get(villageId)).toBe(-population);
       }
     });
 
     test('has troops-based wheatProduction matching troop wheat consumption (source_specifier IS NULL)', () => {
       // Preload effect id for wheatProduction
-      const wheatEffectId = database.selectValue(
-        `SELECT id
-         FROM
-           effect_ids
-         WHERE
-           effect = 'wheatProduction';`,
-      ) as number;
+      const wheatEffectId = database.selectValue({
+        sql: `
+          SELECT id
+          FROM
+            effect_ids
+          WHERE
+            effect = 'wheatProduction';
+        `,
+        schema: z.number(),
+      });
 
-      const villages = database.selectObjects(
-        `SELECT id, tile_id
-         FROM
-           villages;`,
-      ) as { id: number; tile_id: number }[];
+      // Fetch all troops and group them by village_id in-memory
+      // Note: we need to join with villages to get the village_id
+      const troopRows = database.selectObjects({
+        sql: `
+          SELECT v.id AS village_id, tr.unit_id, tr.amount
+          FROM
+            troops AS tr
+              JOIN villages AS v ON tr.tile_id = v.tile_id;
+        `,
+        schema: z.strictObject({
+          village_id: z.number(),
+          unit_id: unitIdSchema,
+          amount: z.number(),
+        }),
+      });
 
-      for (const { id: villageId, tile_id } of villages) {
-        const troopRows = database.selectObjects(
-          `SELECT unit_id, amount
-           FROM
-             troops
-           WHERE
-             tile_id = $tileId;`,
-          { $tileId: tile_id },
-        ) as { unit_id: string; amount: number }[];
+      const villageTroopConsumption = new Map<number, number>();
+      for (const { village_id, unit_id, amount } of troopRows) {
+        const { unitWheatConsumption } = getUnitDefinition(unit_id);
+        villageTroopConsumption.set(
+          village_id,
+          (villageTroopConsumption.get(village_id) ?? 0) +
+            unitWheatConsumption * amount,
+        );
+      }
 
-        let troopWheatConsumption = 0;
-        for (const { unit_id, amount } of troopRows) {
-          const { unitWheatConsumption } = getUnitDefinition(unit_id as UnitId);
-          troopWheatConsumption += unitWheatConsumption * amount;
-        }
+      // Fetch all troop-based wheat production effects
+      const effects = database.selectObjects({
+        sql: `
+          SELECT village_id, value
+          FROM
+            effects
+          WHERE
+            effect_id = $effectId
+            AND type = 'base'
+            AND scope = 'village'
+            AND source = 'troops'
+            AND source_specifier IS NULL;
+        `,
+        bind: { $effectId: wheatEffectId },
+        schema: z.strictObject({
+          village_id: z.number(),
+          value: z.number(),
+        }),
+      });
 
-        const exists = database.selectValue(
-          `SELECT COUNT(*)
-           FROM
-             effects
-           WHERE
-             effect_id = $effectId
-             AND value = $value
-             AND type = 'base'
-             AND scope = 'village'
-             AND source = 'troops'
-             AND village_id = $villageId
-             AND source_specifier IS NULL;`,
-          {
-            $effectId: wheatEffectId,
-            $value: troopWheatConsumption,
-            $villageId: villageId,
-          },
-        ) as number;
+      const effectValues = new Map(effects.map((e) => [e.village_id, e.value]));
 
-        expect(exists).toBeGreaterThan(0);
+      for (const [villageId, consumption] of villageTroopConsumption) {
+        expect(effectValues.get(villageId)).toBe(consumption);
       }
     });
   });

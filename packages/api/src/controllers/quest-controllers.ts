@@ -39,8 +39,8 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
 ) => {
   const { villageId } = params;
 
-  const rows = database.selectObjects(
-    `
+  return database.selectObjects({
+    sql: `
       SELECT *
       FROM
         (
@@ -59,12 +59,11 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
             village_id IS NULL
           ) AS q
     `,
-    {
+    bind: {
       $village_id: villageId,
     },
-  );
-
-  return z.array(getQuestsSchema).parse(rows);
+    schema: getQuestsSchema,
+  });
 };
 
 /**
@@ -73,8 +72,8 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
 export const getCollectableQuestCount: Controller<
   '/quests/collectable-count'
 > = (database) => {
-  const collectableQuestCount = database.selectValue(
-    `
+  const collectableQuestCount = database.selectValue({
+    sql: `
       SELECT COUNT(*) AS count
       FROM
         quests
@@ -82,7 +81,8 @@ export const getCollectableQuestCount: Controller<
         completed_at IS NOT NULL
         AND collected_at IS NULL;
     `,
-  ) as number;
+    schema: z.number(),
+  });
 
   return {
     collectableQuestCount,
@@ -102,8 +102,8 @@ export const collectQuest: Controller<
     params: { questId, villageId },
   } = args;
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE quests
       SET
         collected_at = $collected_at
@@ -119,12 +119,12 @@ export const collectQuest: Controller<
           LIMIT 1
           );
     `,
-    {
+    bind: {
       $collected_at: Date.now(),
       $quest_id: questId,
       $village_id: villageId,
     },
-  );
+  });
 
   const questRewards = getQuestRewards(questId as Quest['id']);
 

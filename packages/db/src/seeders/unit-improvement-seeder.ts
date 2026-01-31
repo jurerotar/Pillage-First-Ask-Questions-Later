@@ -1,7 +1,8 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitsByTribe } from '@pillage-first/game-assets/units/utils';
+import type { Server } from '@pillage-first/types/models/server';
 import type { Unit } from '@pillage-first/types/models/unit';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
 const upgradableTiers = new Set<Unit['tier']>([
@@ -15,7 +16,10 @@ const upgradableTiers = new Set<Unit['tier']>([
   'siege-catapult',
 ]);
 
-export const unitImprovementSeeder: Seeder = (database, server): void => {
+export const unitImprovementSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
 
   const upgradableUnits = unitsByTribe.filter(({ tier }) => {

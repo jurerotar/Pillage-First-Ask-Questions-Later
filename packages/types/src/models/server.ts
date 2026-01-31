@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { tribeSchema } from './tribe';
 
-const mapSizeSchema = z.union([z.literal(100), z.literal(200), z.literal(300)]);
+export const mapSizeSchema = z.union([
+  z.literal(100),
+  z.literal(200),
+  z.literal(300),
+]);
 
-const speedSchema = z.union([
+export const speedSchema = z.union([
   z.literal(1),
   z.literal(2),
   z.literal(3),

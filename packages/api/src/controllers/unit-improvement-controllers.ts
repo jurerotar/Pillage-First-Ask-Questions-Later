@@ -23,12 +23,11 @@ export const getUnitImprovements: Controller<
 > = (database, { params }) => {
   const { playerId } = params;
 
-  const unitImprovementModel = database.selectObjects(
-    'SELECT unit_id, level FROM unit_improvements WHERE player_id = $player_id;',
-    {
+  return database.selectObjects({
+    sql: 'SELECT unit_id, level FROM unit_improvements WHERE player_id = $player_id;',
+    bind: {
       $player_id: playerId,
     },
-  );
-
-  return z.array(getUnitImprovementsSchema).parse(unitImprovementModel);
+    schema: getUnitImprovementsSchema,
+  });
 };

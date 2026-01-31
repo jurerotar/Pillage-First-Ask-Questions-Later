@@ -36,6 +36,7 @@
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
     "typescript": "*",
-    "vitest": "4.0.17"
+    "vitest": "*",
+    "zod": "*"
   }
 }

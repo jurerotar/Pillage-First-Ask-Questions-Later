@@ -8,7 +8,9 @@ export const adventurePointIncreaseResolver: Resolver<
 > = (database, args) => {
   const { startsAt, duration } = args;
 
-  database.exec('UPDATE hero_adventures SET available = available + 1;');
+  database.exec({
+    sql: 'UPDATE hero_adventures SET available = available + 1;',
+  });
 
   assessAdventureCountQuestCompletion(database, startsAt + duration);
 

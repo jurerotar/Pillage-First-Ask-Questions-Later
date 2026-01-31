@@ -41,8 +41,8 @@ const getPreferencesSchema = z
  * GET /preferences
  */
 export const getPreferences: Controller<'/preferences'> = (database) => {
-  const row = database.selectObject(
-    `
+  return database.selectObject({
+    sql: `
       SELECT
         is_accessibility_mode_enabled,
         is_reduced_motion_mode_enabled,
@@ -55,12 +55,11 @@ export const getPreferences: Controller<'/preferences'> = (database) => {
       FROM
         preferences
     `,
-  );
-
-  return getPreferencesSchema.parse(row);
+    schema: getPreferencesSchema,
+  })!;
 };
 
-type UpdatePreferenceBody = {
+export type UpdatePreferenceBody = {
   value: Preferences[keyof Preferences];
 };
 
@@ -80,14 +79,14 @@ export const updatePreference: Controller<
 
   const column = snakeCase(preferenceName);
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE preferences
       SET
         ${column} = $value
     `,
-    {
+    bind: {
       $value: value,
     },
-  );
+  });
 };

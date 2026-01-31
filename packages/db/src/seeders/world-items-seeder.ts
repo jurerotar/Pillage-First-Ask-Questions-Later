@@ -1,28 +1,25 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
-import type { VillageSize } from '@pillage-first/types/models/village';
+import type { Server } from '@pillage-first/types/models/server';
 import type { WorldItem } from '@pillage-first/types/models/world-item';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   seededRandomArrayElement,
   seededRandomArrayElements,
 } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 
-type Row = {
-  tile_id: number;
-  x: number;
-  y: number;
-};
+const rowSchema = z.strictObject({
+  tile_id: z.number(),
+  x: z.number(),
+  y: z.number(),
+});
 
-type RowWithSize = Row & {
-  size: VillageSize;
-};
-
-export const worldItemsSeeder: Seeder = (database, server): void => {
+export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const results: [HeroItem['id'], number, number][] = [];
@@ -65,8 +62,8 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
     }
   }
 
-  const rows = database.selectObjects(
-    `
+  const rows = database.selectObjects({
+    sql: `
       SELECT
         tiles.id AS tile_id,
         tiles.x,
@@ -78,12 +75,13 @@ export const worldItemsSeeder: Seeder = (database, server): void => {
       WHERE
         players.id != $player_id;
     `,
-    {
+    bind: {
       $player_id: PLAYER_ID,
     },
-  ) as Row[];
+    schema: rowSchema,
+  });
 
-  const rowsWithSize: RowWithSize[] = rows.map((row) => {
+  const rowsWithSize = rows.map((row) => {
     return {
       ...row,
       size: getVillageSize(server.configuration.mapSize, row.x, row.y),

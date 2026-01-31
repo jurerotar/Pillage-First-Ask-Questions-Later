@@ -1,5 +1,5 @@
-import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
 import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createOasisOccupiableByIndexes from '../indexes/oasis-occupiable-by-indexes.sql?raw';
@@ -64,134 +64,129 @@ import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 
-export const migrateAndSeed = (
-  database: OpfsSAHPoolDatabase,
-  server: Server,
-): void => {
+export const migrateAndSeed = (database: DbFacade, server: Server): void => {
   database.transaction((db) => {
     // Statistics
-    db.exec(createUnitTrainingHistoryTable);
-    db.exec(createBuildingLevelChangeHistoryTable);
+    db.exec({ sql: createUnitTrainingHistoryTable });
+    db.exec({ sql: createBuildingLevelChangeHistoryTable });
 
     // Preferences
-    db.exec(createPreferencesTable);
-    preferencesSeeder(db, server);
+    db.exec({ sql: createPreferencesTable });
+    preferencesSeeder(db);
 
     // Developer settings
     db.exec(createDeveloperSettingsTable);
     developerSettingsSeeder(db, server);
 
     // Map filters
-    db.exec(createMapFiltersTable);
-    mapFiltersSeeder(db, server);
+    db.exec({ sql: createMapFiltersTable });
+    mapFiltersSeeder(db);
 
     // Map markers
-    db.exec(createMapMarkersTable);
+    db.exec({ sql: createMapMarkersTable });
 
     // Server
-    db.exec(createServersTable);
+    db.exec({ sql: createServersTable });
     serverSeeder(db, server);
 
     // Factions
-    db.exec(createFactionsTable);
-    factionsSeeder(db, server);
+    db.exec({ sql: createFactionsTable });
+    factionsSeeder(db);
 
     // Faction reputations
-    db.exec(createFactionReputationTable);
-    factionReputationSeeder(db, server);
+    db.exec({ sql: createFactionReputationTable });
+    factionReputationSeeder(db);
 
     // Heroes
-    db.exec(createHeroesTable);
-    heroSeeder(db, server);
+    db.exec({ sql: createHeroesTable });
+    heroSeeder(db);
 
     // Hero adventures
-    db.exec(createHeroAdventuresTable);
-    heroAdventuresSeeder(db, server);
+    db.exec({ sql: createHeroAdventuresTable });
+    heroAdventuresSeeder(db);
 
     // Hero equipped items
-    db.exec(createHeroEquippedItemsTable);
+    db.exec({ sql: createHeroEquippedItemsTable });
 
     // Hero inventories
-    db.exec(createHeroInventoriesTable);
+    db.exec({ sql: createHeroInventoriesTable });
 
     // Players
-    db.exec(createPlayersTable);
+    db.exec({ sql: createPlayersTable });
     playersSeeder(db, server);
-    db.exec(createPlayersIndexes);
+    db.exec({ sql: createPlayersIndexes });
 
     // RFC reference table
-    db.exec(createResourceFieldCompositionsTable);
-    resourceFieldCompositionsSeeder(db, server);
+    db.exec({ sql: createResourceFieldCompositionsTable });
+    resourceFieldCompositionsSeeder(db);
 
     // Tiles
-    db.exec(createTilesTable);
+    db.exec({ sql: createTilesTable });
     tilesSeeder(db, server);
-    db.exec(createTilesIndexes);
+    db.exec({ sql: createTilesIndexes });
 
     // Oasis bonuses
-    db.exec(createOasisBonusesTable);
+    db.exec({ sql: createOasisBonusesTable });
     oasisSeeder(db, server);
-    db.exec(createOasisBonusesIndexes);
+    db.exec({ sql: createOasisBonusesIndexes });
 
     // Oasis-occupiable-by
-    db.exec(createOasisOccupiableByTable);
-    oasisOccupiableBySeeder(db, server);
-    db.exec(createOasisOccupiableByIndexes);
+    db.exec({ sql: createOasisOccupiableByTable });
+    oasisOccupiableBySeeder(db);
+    db.exec({ sql: createOasisOccupiableByIndexes });
 
     // Guaranteed croppers
     guaranteedCroppersSeeder(db, server);
 
     // Villages
-    db.exec(createVillagesTable);
+    db.exec({ sql: createVillagesTable });
     villageSeeder(db, server);
     occupiedOasisSeeder(db, server);
 
     // Bookmarks
-    db.exec(createBookmarksTable);
-    bookmarksSeeder(db, server);
+    db.exec({ sql: createBookmarksTable });
+    bookmarksSeeder(db);
 
     // Building fields
-    db.exec(createBuildingFieldsTable);
+    db.exec({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
 
     // Troops
-    db.exec(createTroopsTable);
+    db.exec({ sql: createTroopsTable });
     troopSeeder(db, server);
-    db.exec(createTroopsIndexes);
+    db.exec({ sql: createTroopsIndexes });
 
     // Effect ids
-    db.exec(createEffectIdsTable);
-    effectIdsSeeder(db, server);
+    db.exec({ sql: createEffectIdsTable });
+    effectIdsSeeder(db);
 
     // Effects
-    db.exec(createEffectsTable);
+    db.exec({ sql: createEffectsTable });
     effectsSeeder(db, server);
-    db.exec(createEffectsIndexes);
+    db.exec({ sql: createEffectsIndexes });
 
     // Resource sites
-    db.exec(createResourceSitesTable);
+    db.exec({ sql: createResourceSitesTable });
     resourceSitesSeeder(db, server);
 
     // World items
-    db.exec(createWorldItemsTable);
+    db.exec({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
 
     // Unit research
-    db.exec(createUnitResearchTable);
+    db.exec({ sql: createUnitResearchTable });
     unitResearchSeeder(db, server);
 
     // Unit improvement
-    db.exec(createUnitImprovementTable);
+    db.exec({ sql: createUnitImprovementTable });
     unitImprovementSeeder(db, server);
 
     // Quests
-    db.exec(createQuestsTable);
-    questsSeeder(db, server);
+    db.exec({ sql: createQuestsTable });
+    questsSeeder(db);
 
     // Events
-    db.exec(createEventsTable);
+    db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
-
-    db.exec('ANALYZE;');
   });
 };

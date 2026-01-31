@@ -21,3 +21,5 @@ globalThis.postMessage(
   { databaseBuffer: buffer } satisfies ExportServerWorkerReturn,
   [buffer],
 );
+
+opfsSahPool.pauseVfs();

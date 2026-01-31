@@ -1,19 +1,22 @@
 import { prngMulberry32 } from 'ts-seedrandom';
-import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
+import { z } from 'zod';
+import {
+  type ResourceFieldComposition,
+  resourceFieldCompositionSchema,
+} from '@pillage-first/types/models/resource-field-composition';
+import type { Server } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { seededRandomArrayElement } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
-
-type TilesWith3Unique50PercentWheatBonuses = {
-  id: number;
-  resource_field_composition: ResourceFieldComposition;
-};
 
 // There should be at least some "good" croppers. This means 18c/15c with 150% bonus
-export const guaranteedCroppersSeeder: Seeder = (database, server) => {
+export const guaranteedCroppersSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   const prng = prngMulberry32(server.seed);
 
-  const tilesWith3Unique50PercentWheatBonuses = database.selectObjects(
-    `
+  const tilesWith3Unique50PercentWheatBonuses = database.selectObjects({
+    sql: `
       SELECT
         t.id,
         rfc.resource_field_composition
@@ -30,7 +33,11 @@ export const guaranteedCroppersSeeder: Seeder = (database, server) => {
       HAVING
         COUNT(DISTINCT ob.occupiable_oasis_tile_id) >= 3;
     `,
-  ) as TilesWith3Unique50PercentWheatBonuses[];
+    schema: z.strictObject({
+      id: z.number(),
+      resource_field_composition: resourceFieldCompositionSchema,
+    }),
+  });
 
   const tileIdsEligibleForRFCChange = new Set<number>();
 

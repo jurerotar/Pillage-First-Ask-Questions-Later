@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
@@ -68,8 +71,8 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
 ) => {
   const { villageSlug } = params;
 
-  const row = database.selectObject(
-    `
+  return database.selectObject({
+    sql: `
       SELECT
         v.id,
         v.tile_id,
@@ -110,10 +113,9 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
         v.slug = $slug
       LIMIT 1;
     `,
-    { $slug: villageSlug },
-  );
-
-  return getVillageBySlugSchema.parse(row);
+    bind: { $slug: villageSlug },
+    schema: getVillageBySlugSchema,
+  })!;
 };
 
 const getOccupiableOasisInRangeSchema = z
@@ -196,8 +198,8 @@ export const getOccupiableOasisInRange: Controller<
 > = (database, { params }) => {
   const { villageId } = params;
 
-  const rows = database.selectObjects(
-    `
+  return database.selectObjects({
+    sql: `
       WITH src_village AS (
         SELECT t.id AS vtile, t.x AS vx, t.y AS vy
         FROM villages v
@@ -249,11 +251,93 @@ export const getOccupiableOasisInRange: Controller<
         (ABS(oa.x - sv.vx) + ABS(oa.y - sv.vy)),
         oa.tile_id;
     `,
-    {
+    bind: {
       $village_id: villageId,
       $radius: 3,
     },
-  );
+    schema: getOccupiableOasisInRangeSchema,
+  });
+};
 
-  return z.array(getOccupiableOasisInRangeSchema).parse(rows);
+export type RearrangeBuildingFieldsBody = {
+  buildingFieldId: number;
+  buildingId: Building['id'] | null;
+}[];
+
+/**
+ * PATCH /villages/:villageId/building-fields
+ * @pathParam {number} villageId
+ * @body { { buildingFieldId: number, buildingId: Building['id'] | null }[] }
+ */
+export const rearrangeBuildingFields: Controller<
+  '/villages/:villageId/building-fields',
+  'patch',
+  RearrangeBuildingFieldsBody
+> = (database, { params, body }) => {
+  const { villageId } = params;
+  const updates = body;
+
+  database.transaction(() => {
+    // 1. Update building_fields
+    database.exec({
+      sql: `
+        DELETE FROM building_fields
+        WHERE village_id = $village_id
+          AND field_id IN (SELECT value ->> '$.buildingFieldId' FROM JSON_EACH($updates));
+      `,
+      bind: { $village_id: villageId, $updates: JSON.stringify(updates) },
+    });
+
+    database.exec({
+      sql: `
+        WITH updates(field_id, building_id) AS (
+          SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+          FROM JSON_EACH($updates)
+        ),
+        current_state AS (
+          SELECT building_id, level
+          FROM building_fields
+          WHERE village_id = $village_id
+        ),
+        new_state AS (
+          SELECT
+            u.field_id,
+            u.building_id,
+            COALESCE(cs.level, 0) as level
+          FROM updates u
+          LEFT JOIN current_state cs ON cs.building_id = u.building_id
+          WHERE u.building_id IS NOT NULL
+        )
+        INSERT INTO building_fields (village_id, field_id, building_id, level)
+        SELECT $village_id, field_id, building_id, level
+        FROM new_state;
+      `,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
+    });
+
+    // 2. Update events
+    // We only update events of types that have buildingFieldId and buildingId in meta
+    database.exec({
+      sql: `
+        WITH updates(field_id, building_id) AS (
+          SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+          FROM JSON_EACH($updates)
+        )
+        UPDATE events
+        SET meta = JSON_SET(meta, '$.buildingFieldId', u.field_id)
+        FROM updates u
+        WHERE events.village_id = $village_id
+          AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
+          AND JSON_EXTRACT(meta, '$.buildingId') = u.building_id
+          AND u.building_id IS NOT NULL;
+      `,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
+    });
+  });
 };

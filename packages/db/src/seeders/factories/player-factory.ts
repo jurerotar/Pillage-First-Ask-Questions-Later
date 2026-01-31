@@ -4,7 +4,6 @@ import {
   usernameAdjectives,
   usernameNouns,
 } from '@pillage-first/game-assets/player';
-import type { Faction } from '@pillage-first/types/models/faction';
 import type { Player } from '@pillage-first/types/models/player';
 import type { Server } from '@pillage-first/types/models/server';
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
@@ -12,16 +11,20 @@ import { calculateGridLayout } from '@pillage-first/utils/map';
 import { seededRandomArrayElement } from '@pillage-first/utils/random';
 
 type PlayerFactoryProps = {
-  faction: Faction;
   prng: PRNGFunction;
   id: number;
+  factionId: number;
+};
+
+type PlayerModel = Omit<Player, 'slug' | 'faction'> & {
+  factionId: number;
 };
 
 const npcPlayerFactory = ({
-  faction,
   prng,
   id,
-}: PlayerFactoryProps): Omit<Player, 'slug'> => {
+  factionId,
+}: PlayerFactoryProps): PlayerModel => {
   const adjective = seededRandomArrayElement(prng, usernameAdjectives);
   const noun = seededRandomArrayElement(prng, usernameNouns);
 
@@ -39,29 +42,30 @@ const npcPlayerFactory = ({
     id,
     name: `${adjective}${noun}#${paddedDiscriminator}`,
     tribe,
-    faction,
+    factionId,
   };
 };
 
 export const playerFactory = (
   server: Server,
-  faction: Faction,
-): Omit<Player, 'slug'> => {
+  factionId: number,
+): PlayerModel => {
   const {
     playerConfiguration: { name, tribe },
   } = server;
+
   return {
     id: PLAYER_ID,
     name,
     tribe,
-    faction,
+    factionId,
   };
 };
 
 export const generateNpcPlayers = (
   server: Server,
-  npcFactions: Faction[],
-): Omit<Player, 'slug'>[] => {
+  npcFactionIds: number[],
+): PlayerModel[] => {
   const prng = prngMulberry32(server.seed);
 
   const { mapSize } = server.configuration;
@@ -78,8 +82,8 @@ export const generateNpcPlayers = (
   const npcCount = totalPlayerCount - 1;
 
   return Array.from({ length: npcCount }, (_, index) => {
-    const faction = seededRandomArrayElement(prng, npcFactions);
+    const factionId = seededRandomArrayElement(prng, npcFactionIds);
     // We do +2 because user's player always has the id of 1
-    return npcPlayerFactory({ faction, prng, id: index + 2 });
+    return npcPlayerFactory({ prng, id: index + 2, factionId });
   });
 };

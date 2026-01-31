@@ -1,3 +1,4 @@
+import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import {
   calculateBuildingCostForLevel,
@@ -12,7 +13,8 @@ import {
 } from '@pillage-first/game-assets/units/utils';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Server } from '@pillage-first/types/models/server';
+import { speedSchema } from '@pillage-first/types/models/server';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import {
   isAdventurePointIncreaseEvent,
@@ -24,7 +26,6 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
-import type { DbFacade } from '../../facades/database-facade';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import {
@@ -34,13 +35,6 @@ import {
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { calculateAdventurePointIncreaseEventDuration } from '../resolvers/utils/adventures';
-
-// This type actually exists in node:sqlite module, but we disabled node types in this package,
-// because it otherwise pollutes some of the globals (setTimeout,...)
-type SQLOutputValue = number | bigint | string | null;
-
-const effectsListSchema = z.array(apiEffectSchema);
-const eventsListSchema = z.array(eventSchema);
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (events: GameEvent[]): void => {
@@ -106,7 +100,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 
   const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
 
-  const params: SQLOutputValue[] = Array.from({
+  const params: SqlValue[] = Array.from({
     length: events.length * amountOfColumnsToInsert,
   });
 
@@ -122,7 +116,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     params[base + 3] = event.duration;
     params[base + 4] = event.villageId ?? null;
 
-    let metaObj: Record<string, SQLOutputValue> | undefined;
+    let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
       if (requiredEventProperties.has(property)) {
         continue;
@@ -139,7 +133,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     params[base + 5] = metaObj ? JSON.stringify(metaObj) : null;
   }
 
-  const stmt = database.prepare(sql);
+  const stmt = database.prepare({ sql });
   stmt.bind(params).stepReset();
 };
 
@@ -150,8 +144,8 @@ export const _validateEventCreation = (
   if (isUnitImprovementEvent(event)) {
     const { villageId } = event;
 
-    const hasOngoingUnitImprovementEventsInThisVillage = database.selectValue(
-      `
+    const hasOngoingUnitImprovementEventsInThisVillage = database.selectValue({
+      sql: `
         SELECT
           EXISTS
           (
@@ -163,10 +157,11 @@ export const _validateEventCreation = (
               AND village_id = $villageId
             ) AS event_exists;
       `,
-      {
+      bind: {
         $village_id: villageId,
       },
-    ) as number;
+      schema: z.number(),
+    });
 
     if (hasOngoingUnitImprovementEventsInThisVillage) {
       return false;
@@ -176,8 +171,8 @@ export const _validateEventCreation = (
   if (isUnitResearchEvent(event)) {
     const { unitId, villageId } = event;
 
-    const hasOngoingUnitResearchEventsInThisVillage = !!(database.selectValue(
-      `
+    const hasOngoingUnitResearchEventsInThisVillage = !!database.selectValue({
+      sql: `
         SELECT
           EXISTS
           (
@@ -189,18 +184,19 @@ export const _validateEventCreation = (
               AND village_id = $villageId
             ) AS event_exists;
       `,
-      {
+      bind: {
         $village_id: villageId,
       },
-    ) as number);
+      schema: z.number(),
+    });
 
     if (hasOngoingUnitResearchEventsInThisVillage) {
       return false;
     }
 
     const hasAlreadyResearchedUnitsWithSameIdAndVillage =
-      !!(database.selectValue(
-        `
+      !!database.selectValue({
+        sql: `
           SELECT
             EXISTS
             (
@@ -212,11 +208,12 @@ export const _validateEventCreation = (
                 AND unit_id = $unitId
               ) AS is_researched;
         `,
-        {
+        bind: {
           $villageId: villageId,
           $unitId: unitId,
         },
-      ) as number);
+        schema: z.number(),
+      });
 
     return !hasAlreadyResearchedUnitsWithSameIdAndVillage;
   }
@@ -224,8 +221,8 @@ export const _validateEventCreation = (
   if (isTroopTrainingEvent(event)) {
     const { villageId, unitId, buildingId } = event;
 
-    const isUnitResearched = database.selectValue(
-      `
+    const isUnitResearched = !!database.selectValue({
+      sql: `
         SELECT
           EXISTS
           (
@@ -236,18 +233,19 @@ export const _validateEventCreation = (
               village_id = $village_id
               AND unit_id = $unit_id
             ) AS is_researched;`,
-      {
+      bind: {
         $village_id: villageId,
         $unit_id: unitId,
       },
-    ) as number;
+      schema: z.number(),
+    });
 
     if (!isUnitResearched) {
       return false;
     }
 
-    const doesUnitTrainingBuildingExist = !!(database.selectValue(
-      `
+    const doesUnitTrainingBuildingExist = !!database.selectValue({
+      sql: `
         SELECT
           EXISTS
           (
@@ -260,11 +258,12 @@ export const _validateEventCreation = (
               AND level > 0
             ) AS building_exists;
       `,
-      {
+      bind: {
         $village_id: villageId,
         $building_id: buildingId,
       },
-    ) as number);
+      schema: z.number(),
+    });
 
     return doesUnitTrainingBuildingExist;
   }
@@ -350,9 +349,10 @@ export const getEventDuration = (
     return 0;
   }
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
-    const isInstantBuildingConstructionEnabled = database.selectValue(
-      'SELECT is_instant_building_construction_enabled FROM developer_settings',
-    );
+    const isInstantBuildingConstructionEnabled = database.selectValue({
+      sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isInstantBuildingConstructionEnabled) {
       return 0;
@@ -360,12 +360,14 @@ export const getEventDuration = (
 
     const { villageId, buildingId, level } = event;
 
-    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
-      $effect_id: 'buildingDuration',
-      $village_id: villageId,
+    const effects = database.selectObjects({
+      sql: selectAllRelevantEffectsByIdQuery,
+      bind: {
+        $effect_id: 'buildingDuration',
+        $village_id: villageId,
+      },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       'buildingDuration',
@@ -391,12 +393,14 @@ export const getEventDuration = (
 
     const { villageId, unitId } = event;
 
-    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
-      $effect_id: 'unitResearchDuration',
-      $village_id: villageId,
+    const effects = database.selectObjects({
+      sql: selectAllRelevantEffectsByIdQuery,
+      bind: {
+        $effect_id: 'buildingDuration',
+        $village_id: villageId,
+      },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
       'unitResearchDuration',
@@ -417,12 +421,14 @@ export const getEventDuration = (
 
     const { villageId, unitId, level } = event;
 
-    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
-      $effect_id: 'unitImprovementDuration',
-      $village_id: villageId,
+    const effects = database.selectObjects({
+      sql: selectAllRelevantEffectsByIdQuery,
+      bind: {
+        $effect_id: 'unitImprovementDuration',
+        $village_id: villageId,
+      },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
       'unitImprovementDuration',
@@ -446,12 +452,14 @@ export const getEventDuration = (
 
     const { unitId, villageId, durationEffectId } = event;
 
-    const rows = database.selectObjects(selectAllRelevantEffectsByIdQuery, {
-      $effect_id: 'buildingDuration',
-      $village_id: villageId,
+    const effects = database.selectObjects({
+      sql: selectAllRelevantEffectsByIdQuery,
+      bind: {
+        $effect_id: 'buildingDuration',
+        $village_id: villageId,
+      },
+      schema: apiEffectSchema,
     });
-
-    const effects = effectsListSchema.parse(rows);
 
     const { total } = calculateComputedEffect(
       durationEffectId,
@@ -464,11 +472,15 @@ export const getEventDuration = (
     return total * baseRecruitmentDuration;
   }
   if (isAdventurePointIncreaseEvent(event)) {
-    const [createdAt, speed] = database.selectValues(
-      'SELECT created_at, speed FROM servers LIMIT 1;',
-    ) as [Server['createdAt'], Server['configuration']['speed']];
+    const { created_at, speed } = database.selectObject({
+      sql: 'SELECT created_at, speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        created_at: z.number(),
+        speed: speedSchema,
+      }),
+    })!;
 
-    return calculateAdventurePointIncreaseEventDuration(createdAt, speed);
+    return calculateAdventurePointIncreaseEventDuration(created_at, speed);
   }
 
   console.error('Missing duration calculation for event', event);
@@ -482,12 +494,14 @@ export const getEventStartTime = (
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
 
-    const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
-      $village_id: villageId,
-      $type: 'troopTraining',
-    });
-
-    const events = eventsListSchema.parse(rows) as GameEvent<'troopTraining'>[];
+    const events = database.selectObjects({
+      sql: selectAllVillageEventsByTypeQuery,
+      bind: {
+        $village_id: villageId,
+        $type: 'troopTraining',
+      },
+      schema: eventSchema,
+    }) as GameEvent<'troopTraining'>[];
 
     const relevantTrainingEvents = events.filter((event) => {
       return event.buildingId === buildingId;
@@ -506,8 +520,8 @@ export const getEventStartTime = (
 
     const now = Date.now();
 
-    const lastResolvesAtForThisUnitId = database.selectValue(
-      `
+    const lastResolvesAtForThisUnitId = database.selectValue({
+      sql: `
         SELECT COALESCE(MAX(resolves_at), $now) AS last_resolves_at
         FROM
           events
@@ -515,11 +529,12 @@ export const getEventStartTime = (
           type = 'unitImprovement'
           AND JSON_EXTRACT(meta, '$.unitId') = $unit_id
       `,
-      {
+      bind: {
         $unit_id: unitId,
         $now: now,
       },
-    ) as number;
+      schema: z.number(),
+    })!;
 
     return lastResolvesAtForThisUnitId;
   }
@@ -527,8 +542,8 @@ export const getEventStartTime = (
   if (isScheduledBuildingEvent(event)) {
     const { villageId, buildingFieldId } = event;
 
-    const resolvesAt = database.selectValue(
-      `
+    const resolvesAt = database.selectValue({
+      sql: `
         WITH
           player_tribe AS (
             SELECT p.tribe AS tribe
@@ -560,14 +575,15 @@ export const getEventStartTime = (
                   )
               ),
             $now
-          ) AS resolves_at;
+            ) AS resolves_at;
       `,
-      {
+      bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
         $now: Date.now(),
       },
-    ) as number;
+      schema: z.number(),
+    })!;
 
     return resolvesAt;
   }

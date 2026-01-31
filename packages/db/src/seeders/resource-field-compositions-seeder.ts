@@ -1,8 +1,8 @@
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const resourceFieldCompositionsSeeder: Seeder = (database): void => {
+export const resourceFieldCompositionsSeeder = (database: DbFacade): void => {
   const rfc: ResourceFieldComposition[] = [
     '4446',
     '5436',

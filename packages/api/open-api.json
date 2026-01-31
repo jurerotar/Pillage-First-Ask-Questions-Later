@@ -41,7 +41,7 @@
             "name": "buildingId",
             "required": true,
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -196,6 +196,18 @@
             }
           }
         ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
       }
     },
     "/players/:playerId/hero/inventory": {
@@ -214,6 +226,56 @@
     },
     "/players/:playerId/hero/adventures": {
       "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/players/:playerId/hero/attributes": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/players/:playerId/hero/equipped-items/:slot": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "playerId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slot",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/players/:playerId/hero/item": {
+      "post": {
         "parameters": [
           {
             "in": "path",
@@ -597,6 +659,20 @@
     },
     "/villages/:villageId/occupiable-oasis": {
       "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "villageId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/villages/:villageId/building-fields": {
+      "patch": {
         "parameters": [
           {
             "in": "path",

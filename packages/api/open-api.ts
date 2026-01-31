@@ -341,6 +341,33 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly '/players/:playerId/hero/attributes': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly playerId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly trace?: never;
+  };
   readonly '/players/:playerId/hero/equipped-items': {
     readonly parameters: {
       readonly query?: never;
@@ -363,6 +390,45 @@ export interface paths {
     readonly put?: never;
     readonly post?: never;
     readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly playerId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly trace?: never;
+  };
+  readonly '/players/:playerId/hero/equipped-items/:slot': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly playerId: number;
+          readonly slot: string;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
     readonly options?: never;
     readonly head?: never;
     readonly patch?: never;
@@ -389,6 +455,33 @@ export interface paths {
     };
     readonly put?: never;
     readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly '/players/:playerId/hero/item': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly playerId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
     readonly delete?: never;
     readonly options?: never;
     readonly head?: never;
@@ -898,7 +991,7 @@ export interface paths {
         readonly query?: never;
         readonly header?: never;
         readonly path: {
-          readonly buildingId: number;
+          readonly buildingId: string;
           readonly villageId: number;
         };
         readonly cookie?: never;
@@ -908,6 +1001,33 @@ export interface paths {
           readonly 'application/json': unknown;
         };
       };
+      readonly responses: never;
+    };
+    readonly trace?: never;
+  };
+  readonly '/villages/:villageId/building-fields': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly villageId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
       readonly responses: never;
     };
     readonly trace?: never;

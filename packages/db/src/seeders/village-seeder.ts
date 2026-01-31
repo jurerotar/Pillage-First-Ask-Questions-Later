@@ -1,15 +1,17 @@
 import { prngMulberry32 } from 'ts-seedrandom';
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   npcVillageNameAdjectives,
   npcVillageNameNouns,
 } from '@pillage-first/game-assets/village';
+import type { Server } from '@pillage-first/types/models/server';
 import type { VillageSize } from '@pillage-first/types/models/village';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
 } from '@pillage-first/utils/random';
-import type { Seeder } from '../types/seeder';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 
@@ -23,6 +25,7 @@ type OccupiableField = {
 class Fenwick {
   n: number;
   bit: Float64Array;
+
   constructor(arrOrLen: number | number[]) {
     if (typeof arrOrLen === 'number') {
       this.n = arrOrLen;
@@ -113,7 +116,7 @@ const computeScaledRadius = (base: number, mapSize: number) => {
   return Math.max(0, Math.round(base * scale));
 };
 
-export const villageSeeder: Seeder = (database, server): void => {
+export const villageSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const usableRadius = server.configuration.mapSize / 2;
@@ -125,9 +128,12 @@ export const villageSeeder: Seeder = (database, server): void => {
   };
 
   // Player village (fixed)
-  const playerStartingTileId = database.selectValue(
-    'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
-  )!;
+  const { id: playerStartingTileId } = database.selectObject({
+    sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
+    schema: z.strictObject({
+      id: z.number(),
+    }),
+  })!;
 
   database.exec({
     sql: `
@@ -144,19 +150,22 @@ export const villageSeeder: Seeder = (database, server): void => {
     },
   });
 
-  const playerIds = database.selectValues(
-    `
+  const playerIds = database.selectValues({
+    sql: `
       SELECT id
       FROM
         players
       WHERE
         id != $player_id
     `,
-    { $player_id: PLAYER_ID },
-  ) as number[];
+    bind: {
+      $player_id: PLAYER_ID,
+    },
+    schema: z.number(),
+  });
 
-  const occupiableFields = database.selectObjects(
-    `
+  const occupiableFields = database.selectObjects({
+    sql: `
       SELECT t.id, t.x, t.y
       FROM
         tiles AS t
@@ -164,8 +173,12 @@ export const villageSeeder: Seeder = (database, server): void => {
         t.type = 'free'
         AND NOT (t.x = 0 AND t.y = 0);
     `,
-    {},
-  ) as OccupiableField[];
+    schema: z.strictObject({
+      id: z.number(),
+      x: z.number(),
+      y: z.number(),
+    }),
+  });
 
   // keep arrays static for indexing
   const n = occupiableFields.length;

@@ -1,11 +1,11 @@
-import { glob, readFile, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { glob, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { join, resolve, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
 const SEEDER_STATEMENTS_EXPORT_PATH = join(EXPORT_PATH, 'seeder-statements.sql');
 
-const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject', 'exec', 'selectArrays', 'prepare'];
+const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject', 'exec', 'prepare'];
 
 (async (): Promise<void> => {
   const sqlStatements = new Set<string>();
@@ -28,10 +28,6 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
     // Find function calls
     for (const func of FUNCTIONS) {
       // Matches:
-      // database.func('sql')
-      // database.func(`sql`)
-      // database.func("sql")
-      // database.func(variable)
       // database.func({ sql: 'sql' })
       // database.func({ sql: `sql` })
       // database.func({ sql: variable })
@@ -55,10 +51,6 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
       while ((shorthandMatch = shorthandRegex.exec(content)) !== null) {
         const arg = shorthandMatch[1];
         if (arg === 'sql') {
-          // This matches { sql } or { sql, bind: ... }
-          // We already have 'sql' in pendingVariableResolutions if it matched the first regex?
-          // Actually the first regex (?:\{\s*sql:\s*)? expects a colon for the { part.
-          // So { sql } won't match the first one.
           pendingVariableResolutions.push('sql');
         }
       }
@@ -107,6 +99,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
     ]),
   ].join('\n');
 
+  await mkdir(dirname(SEEDER_STATEMENTS_EXPORT_PATH), { recursive: true });
   await writeFile(SEEDER_STATEMENTS_EXPORT_PATH, output, 'utf8');
 
   const statementsUrl = pathToFileURL(resolve(SEEDER_STATEMENTS_EXPORT_PATH)).href;
