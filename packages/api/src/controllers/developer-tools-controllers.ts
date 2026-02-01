@@ -15,6 +15,7 @@ const getDeveloperSettingsSchema = z
     is_instant_unit_training_enabled: z.number(),
     is_instant_unit_improvement_enabled: z.number(),
     is_instant_unit_research_enabled: z.number(),
+    is_instant_unit_travel_enabled: z.number(),
     is_free_building_construction_enabled: z.number(),
     is_free_unit_training_enabled: z.number(),
     is_free_unit_improvement_enabled: z.number(),
@@ -30,6 +31,7 @@ const getDeveloperSettingsSchema = z
         t.is_instant_unit_improvement_enabled,
       ),
       isInstantUnitResearchEnabled: Boolean(t.is_instant_unit_research_enabled),
+      isInstantUnitTravelEnabled: Boolean(t.is_instant_unit_travel_enabled),
       isFreeBuildingConstructionEnabled: Boolean(
         t.is_free_building_construction_enabled,
       ),
@@ -45,13 +47,14 @@ const getDeveloperSettingsSchema = z
 export const getDeveloperSettings: Controller<'/developer-settings'> = (
   database,
 ) => {
-  const row = database.selectObject(
-    `
+  return database.selectObject({
+    sql: `
       SELECT
         is_instant_building_construction_enabled,
         is_instant_unit_training_enabled,
         is_instant_unit_improvement_enabled,
         is_instant_unit_research_enabled,
+        is_instant_unit_travel_enabled,
         is_free_building_construction_enabled,
         is_free_unit_training_enabled,
         is_free_unit_improvement_enabled,
@@ -59,12 +62,11 @@ export const getDeveloperSettings: Controller<'/developer-settings'> = (
       FROM
         developer_settings
     `,
-  );
-
-  return getDeveloperSettingsSchema.parse(row);
+    schema: getDeveloperSettingsSchema,
+  });
 };
 
-type UpdateDeveloperSettingsBody = {
+export type UpdateDeveloperSettingsBody = {
   value: DeveloperSettings[keyof DeveloperSettings];
 };
 
@@ -84,34 +86,93 @@ export const updateDeveloperSettings: Controller<
 
   const column = snakeCase(developerSettingName);
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE developer_settings
       SET
         ${column} = $value
     `,
-    {
+    bind: {
       $value: value,
     },
-  );
+  });
 
-  if (developerSettingName === 'isDeveloperModeEnabled' && value) {
-    database.exec(
-      `
-        UPDATE events
-        SET
-          starts_at = $now,
-          duration = 0
-        WHERE
-          type IN ('buildingLevelChange', 'buildingScheduledConstruction', 'unitResearch', 'unitImprovement')
-      `,
-      {
-        $now: Date.now(),
-      },
-    );
+  if (value) {
+    let eventTypes: string[] = [];
 
-    triggerKick();
+    switch (developerSettingName) {
+      case 'isInstantBuildingConstructionEnabled':
+        eventTypes = [
+          'buildingLevelChange',
+          'buildingScheduledConstruction',
+          'buildingConstruction',
+          'buildingDestruction',
+        ];
+        break;
+      case 'isInstantUnitTrainingEnabled':
+        eventTypes = ['troopTraining'];
+        break;
+      case 'isInstantUnitImprovementEnabled':
+        eventTypes = ['unitImprovement'];
+        break;
+      case 'isInstantUnitResearchEnabled':
+        eventTypes = ['unitResearch'];
+        break;
+      case 'isInstantUnitTravelEnabled':
+        eventTypes = ['troopMovement'];
+        break;
+    }
+
+    if (eventTypes.length > 0) {
+      database.exec({
+        sql: `
+          UPDATE events
+          SET
+            starts_at = $now,
+            duration = 0
+          WHERE
+            type IN (${eventTypes.map((t) => `'${t}'`).join(', ')})
+        `,
+        bind: {
+          $now: Date.now(),
+        },
+      });
+
+      triggerKick();
+    }
   }
+};
+
+type SpawnHeroItemBody = {
+  itemId: string;
+};
+
+/**
+ * PATCH /developer-settings/:heroId/spawn-item
+ * @pathParam {number} heroId
+ * @bodyContent application/json SpawnHeroItemBody
+ * @bodyRequired
+ */
+export const spawnHeroItem: Controller<
+  '/developer-settings/:heroId/spawn-item',
+  'patch',
+  SpawnHeroItemBody
+> = (database, { body, params }) => {
+  const { heroId } = params;
+  const { itemId } = body;
+
+  database.exec({
+    sql: `
+      INSERT INTO hero_inventory (hero_id, item_id, amount)
+      VALUES ($heroId, $itemId, 1)
+      ON CONFLICT (hero_id, item_id) DO UPDATE SET
+        amount = amount + 1
+    `,
+    bind: {
+      $heroId: heroId,
+      $itemId: itemId,
+    },
+  });
 };
 
 const updateVillageResourcesSchema = z.strictObject({

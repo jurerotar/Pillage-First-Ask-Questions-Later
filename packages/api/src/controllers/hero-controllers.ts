@@ -5,7 +5,6 @@ import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventure
 import type { HeroItemSlot } from '@pillage-first/types/models/hero-item';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import type { Controller } from '../types/controller';
-import { addVillageResourcesAt } from '../utils/village';
 
 const getHeroSchema = z
   .strictObject({
@@ -431,23 +430,6 @@ export const useHeroItem: Controller<
         `,
         bind: { $heroId: heroId },
       });
-    } else if ([1026, 1027, 1028, 1029].includes(itemId)) {
-      // WOOD, CLAY, IRON, WHEAT
-      const villageId = database.selectObject({
-        sql: 'SELECT id FROM villages WHERE player_id = $playerId LIMIT 1',
-        bind: { $playerId: playerId },
-        schema: z.object({ id: z.number() }),
-      })?.id;
-
-      if (!villageId) {
-        throw new Error('Village not found');
-      }
-
-      const resourcesToAdd = [0, 0, 0, 0];
-      const resourceIndex = itemId - 1026; // 0 for Wood, 1 for Clay, 2 for Iron, 3 for Wheat
-      resourcesToAdd[resourceIndex] = amount;
-
-      addVillageResourcesAt(database, villageId, Date.now(), resourcesToAdd);
     } else {
       throw new Error('Item effect not implemented');
     }

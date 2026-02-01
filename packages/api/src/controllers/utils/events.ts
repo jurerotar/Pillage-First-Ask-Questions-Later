@@ -282,9 +282,10 @@ export const getEventCost = (
   event: GameEvent,
 ): number[] => {
   if (isBuildingLevelUpEvent(event)) {
-    const isFreeBuildingConstructionEnabled = database.selectValue(
-      'SELECT is_free_building_construction_enabled FROM developer_settings',
-    );
+    const isFreeBuildingConstructionEnabled = database.selectValue({
+      sql: 'SELECT is_free_building_construction_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isFreeBuildingConstructionEnabled) {
       return [0, 0, 0, 0];
@@ -295,9 +296,10 @@ export const getEventCost = (
   }
 
   if (isUnitResearchEvent(event)) {
-    const isFreeUnitResearchEnabled = database.selectValue(
-      'SELECT is_free_unit_research_enabled FROM developer_settings',
-    );
+    const isFreeUnitResearchEnabled = database.selectValue({
+      sql: 'SELECT is_free_unit_research_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isFreeUnitResearchEnabled) {
       return [0, 0, 0, 0];
@@ -308,9 +310,10 @@ export const getEventCost = (
   }
 
   if (isUnitImprovementEvent(event)) {
-    const isFreeUnitImprovementEnabled = database.selectValue(
-      'SELECT is_free_unit_improvement_enabled FROM developer_settings',
-    );
+    const isFreeUnitImprovementEnabled = database.selectValue({
+      sql: 'SELECT is_free_unit_improvement_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isFreeUnitImprovementEnabled) {
       return [0, 0, 0, 0];
@@ -321,9 +324,10 @@ export const getEventCost = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const isFreeUnitTrainingEnabled = database.selectValue(
-      'SELECT is_free_unit_training_enabled FROM developer_settings',
-    );
+    const isFreeUnitTrainingEnabled = database.selectValue({
+      sql: 'SELECT is_free_unit_training_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isFreeUnitTrainingEnabled) {
       return [0, 0, 0, 0];
@@ -383,9 +387,10 @@ export const getEventDuration = (
     return baseBuildingDuration * total;
   }
   if (isUnitResearchEvent(event)) {
-    const isInstantUnitResearchEnabled = database.selectValue(
-      'SELECT is_instant_building_construction_enabled FROM developer_settings',
-    );
+    const isInstantUnitResearchEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_research_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isInstantUnitResearchEnabled) {
       return 0;
@@ -396,7 +401,7 @@ export const getEventDuration = (
     const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
-        $effect_id: 'buildingDuration',
+        $effect_id: 'unitResearchDuration',
         $village_id: villageId,
       },
       schema: apiEffectSchema,
@@ -411,9 +416,10 @@ export const getEventDuration = (
     return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
   }
   if (isUnitImprovementEvent(event)) {
-    const isInstantUnitImprovementEnabled = database.selectValue(
-      'SELECT is_instant_building_construction_enabled FROM developer_settings',
-    );
+    const isInstantUnitImprovementEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_improvement_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isInstantUnitImprovementEnabled) {
       return 0;
@@ -442,9 +448,10 @@ export const getEventDuration = (
     );
   }
   if (isTroopTrainingEvent(event)) {
-    const isInstantUnitTrainingEnabled = database.selectValue(
-      'SELECT is_instant_unit_training_enabled FROM developer_settings',
-    );
+    const isInstantUnitTrainingEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_training_enabled FROM developer_settings',
+      schema: z.number(),
+    });
 
     if (isInstantUnitTrainingEnabled) {
       return 0;

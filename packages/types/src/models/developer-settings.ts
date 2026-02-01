@@ -5,6 +5,7 @@ export const developerSettingsSchema = z.strictObject({
   isInstantUnitTrainingEnabled: z.boolean(),
   isInstantUnitImprovementEnabled: z.boolean(),
   isInstantUnitResearchEnabled: z.boolean(),
+  isInstantUnitTravelEnabled: z.boolean(),
   isFreeBuildingConstructionEnabled: z.boolean(),
   isFreeUnitTrainingEnabled: z.boolean(),
   isFreeUnitImprovementEnabled: z.boolean(),

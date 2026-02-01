@@ -76,6 +76,26 @@
         }
       }
     },
+    "/developer-settings/:heroId/spawn-item": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "heroId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {}
+          },
+          "required": true
+        }
+      }
+    },
     "/developer-settings/:villageId/resources": {
       "patch": {
         "parameters": [

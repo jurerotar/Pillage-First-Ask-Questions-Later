@@ -75,8 +75,8 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
     preferencesSeeder(db);
 
     // Developer settings
-    db.exec(createDeveloperSettingsTable);
-    developerSettingsSeeder(db, server);
+    db.exec({ sql: createDeveloperSettingsTable });
+    developerSettingsSeeder(db);
 
     // Map filters
     db.exec({ sql: createMapFiltersTable });
