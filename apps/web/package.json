@@ -27,9 +27,9 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@grafana/faro-web-sdk": "2.2.0",
+    "@grafana/faro-web-sdk": "2.2.2",
     "@hookform/resolvers": "5.2.2",
-    "@mantine/hooks": "8.3.13",
+    "@mantine/hooks": "8.3.14",
     "@mdx-js/react": "3.1.1",
     "@mdx-js/rollup": "3.1.1",
     "@pillage-first/api": "*",
@@ -76,7 +76,7 @@
     "@typescript/native-preview": "*",
     "cheerio": "1.2.0",
     "happy-dom": "20.4.0",
-    "i18next-cli": "1.39.12",
+    "i18next-cli": "1.41.1",
     "knip": "5.82.1",
     "rolldown-vite": "7.3.1",
     "rollup-plugin-visualizer": "6.0.5",
