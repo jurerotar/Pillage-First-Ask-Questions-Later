@@ -21,6 +21,9 @@
     "./models/building": {
       "default": "./src/models/building.ts"
     },
+    "./models/developer-settings": {
+      "default": "./src/models/developer-settings.ts"
+    },
     "./models/building-field": {
       "default": "./src/models/building-field.ts"
     },

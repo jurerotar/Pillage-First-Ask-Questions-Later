@@ -31,6 +31,7 @@
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
+    "@pillage-first/db": "*",
     "@sqlite.org/sqlite-wasm": "*",
     "moderndash": "4.0.0",
     "path-to-regexp": "8.3.0",

@@ -9,6 +9,7 @@ export const heroResourceToProduceSchema = z.enum([
 ]);
 
 export const heroSchema = z.strictObject({
+  id: z.number(),
   stats: z.strictObject({
     health: z.number(),
     experience: z.number(),

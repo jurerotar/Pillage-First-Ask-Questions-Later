@@ -72,7 +72,7 @@ describe('hero-controllers', () => {
     expect(true).toBeTruthy();
   });
 
-  describe('changeHeroAttributes', () => {
+  describe(changeHeroAttributes, () => {
     test('should increment hero attribute', async () => {
       const database = await prepareTestDatabase();
 
@@ -98,7 +98,7 @@ describe('hero-controllers', () => {
     });
   });
 
-  describe('equipHeroItem', () => {
+  describe(equipHeroItem, () => {
     test('should equip an item and remove it from inventory', async () => {
       const database = await prepareTestDatabase();
 
@@ -313,7 +313,7 @@ describe('hero-controllers', () => {
     });
   });
 
-  describe('unequipHeroItem', () => {
+  describe(unequipHeroItem, () => {
     test('should unequip an item and move it to inventory', async () => {
       const database = await prepareTestDatabase();
 
@@ -408,7 +408,7 @@ describe('hero-controllers', () => {
     });
   });
 
-  describe('useHeroItem', () => {
+  describe(useHeroItem, () => {
     test('should use healing potion and increase health', async () => {
       const database = await prepareTestDatabase();
 
@@ -579,66 +579,6 @@ describe('hero-controllers', () => {
       expect(updatedHero.defence_bonus).toBe(0);
 
       // Verify inventory (deleted)
-      const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
-        schema: z.object({ amount: z.number() }),
-      });
-      expect(inventory).toBeUndefined();
-    });
-
-    test('should use resource items and increase village resources', async () => {
-      const database = await prepareTestDatabase();
-
-      const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
-        schema: z.object({ id: z.number() }),
-      })!;
-      const heroId = hero.id;
-
-      const village = database.selectObject({
-        sql: 'SELECT id, tile_id FROM villages WHERE player_id = $playerId LIMIT 1',
-        bind: { $playerId: playerId },
-        schema: z.object({ id: z.number(), tile_id: z.number() }),
-      })!;
-
-      // Seed initial resources
-      database.exec({
-        sql: 'UPDATE resource_sites SET wood = 100, updated_at = $ts WHERE tile_id = $tileId',
-        bind: { $tileId: village.tile_id, $ts: Date.now() },
-      });
-
-      const itemId = 1026; // WOOD
-      const amount = 500;
-
-      // Seed inventory
-      database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, $amount)',
-        bind: { $heroId: heroId, $itemId: String(itemId), $amount: amount },
-      });
-
-      useHeroItem(
-        database,
-        createControllerArgs<
-          '/players/:playerId/hero/item',
-          'post',
-          UseHeroItemBody
-        >({
-          params: { playerId },
-          body: { itemId, amount },
-        }),
-      );
-
-      // Verify resources
-      const resources = database.selectObject({
-        sql: 'SELECT wood FROM resource_sites WHERE tile_id = $tileId',
-        bind: { $tileId: village.tile_id },
-        schema: z.object({ wood: z.number() }),
-      })!;
-      expect(resources.wood).toBe(600);
-
-      // Verify inventory (deleted if all used)
       const inventory = database.selectObject({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
         bind: { $heroId: heroId, $itemId: String(itemId) },

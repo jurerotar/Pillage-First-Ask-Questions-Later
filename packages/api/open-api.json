@@ -53,6 +53,83 @@
         }
       }
     },
+    "/developer-settings": {
+      "get": {}
+    },
+    "/developer-settings/:developerSettingName": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "developerSettingName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {}
+          },
+          "required": true
+        }
+      }
+    },
+    "/developer-settings/:heroId/spawn-item": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "heroId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {}
+          },
+          "required": true
+        }
+      }
+    },
+    "/developer-settings/:villageId/resources": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "villageId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {}
+          },
+          "required": true
+        }
+      }
+    },
+    "/developer-settings/:heroId/increment-adventure-points": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "heroId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
     "/villages/:villageId/effects": {
       "get": {
         "parameters": [

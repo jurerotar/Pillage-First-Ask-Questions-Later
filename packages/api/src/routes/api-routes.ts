@@ -3,6 +3,13 @@ import {
   getBookmarks,
   updateBookmark,
 } from '../controllers/bookmark-controllers';
+import {
+  getDeveloperSettings,
+  incrementHeroAdventurePoints,
+  spawnHeroItem,
+  updateDeveloperSettings,
+  updateVillageResources,
+} from '../controllers/developer-tools-controllers';
 import { getVillageEffects } from '../controllers/effect-controllers';
 import {
   cancelConstructionEvent,
@@ -68,6 +75,34 @@ const serverRoutes = [
     method: 'GET',
     path: '/server',
     controller: getServer,
+  },
+];
+
+const developerToolsRoutes = [
+  {
+    method: 'GET',
+    path: '/developer-settings',
+    controller: getDeveloperSettings,
+  },
+  {
+    method: 'PATCH',
+    path: '/developer-settings/:developerSettingName',
+    controller: updateDeveloperSettings,
+  },
+  {
+    method: 'PATCH',
+    path: '/developer-settings/:villageId/resources',
+    controller: updateVillageResources,
+  },
+  {
+    method: 'PATCH',
+    path: '/developer-settings/:heroId/spawn-item',
+    controller: spawnHeroItem,
+  },
+  {
+    method: 'PATCH',
+    path: '/developer-settings/:heroId/increment-adventure-points',
+    controller: incrementHeroAdventurePoints,
   },
 ];
 
@@ -333,6 +368,7 @@ const reputationRoutes = [
 
 const apiRoutes = [
   ...serverRoutes,
+  ...developerToolsRoutes,
   ...heroRoutes,
   ...questRoutes,
   ...mapRoutes,

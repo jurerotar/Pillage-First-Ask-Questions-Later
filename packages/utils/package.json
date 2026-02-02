@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "@pillage-first/types": "*",
-    "ts-seedrandom": "1.4.0"
+    "ts-seedrandom": "1.4.1"
   },
   "devDependencies": {
     "@biomejs/biome": "*",

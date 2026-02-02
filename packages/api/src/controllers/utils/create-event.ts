@@ -43,7 +43,7 @@ export const createEvents = <T extends GameEventType>(
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
   const startsAt = getEventStartTime(database, args as GameEvent<T>);
-  const duration = getEventDuration(database, args as GameEvent<T>);
+  const duration = Math.ceil(getEventDuration(database, args as GameEvent<T>));
 
   const amount = args?.amount ?? 1;
   const events: GameEvent<T>[] = Array.from({ length: amount });

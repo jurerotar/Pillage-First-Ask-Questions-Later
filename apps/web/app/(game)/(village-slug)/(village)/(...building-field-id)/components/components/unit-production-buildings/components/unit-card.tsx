@@ -23,7 +23,7 @@ import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-v
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
+import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
@@ -191,7 +191,7 @@ export const UnitResearch = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
-  const { isDeveloperModeEnabled } = useDeveloperMode();
+  const { developerSettings } = useDeveloperSettings();
   const { total: unitResearchDurationModifier } = useComputedEffect(
     'unitResearchDuration',
   );
@@ -202,8 +202,11 @@ export const UnitResearch = () => {
   const { hasEvents: hasResearchEventsOngoing, eventsByType: researchEvents } =
     useEventsByType('unitResearch');
 
+  const { isFreeUnitResearchEnabled, isInstantUnitResearchEnabled } =
+    developerSettings;
+
   const unitResearchDuration = (() => {
-    if (isDeveloperModeEnabled) {
+    if (isInstantUnitResearchEnabled) {
       return 0;
     }
 
@@ -211,7 +214,7 @@ export const UnitResearch = () => {
   })();
 
   const researchCost = (() => {
-    if (isDeveloperModeEnabled) {
+    if (isFreeUnitResearchEnabled) {
       return [0, 0, 0, 0];
     }
 
@@ -318,7 +321,7 @@ export const UnitResearch = () => {
 export const UnitImprovement = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
-  const { isDeveloperModeEnabled } = useDeveloperMode();
+  const { developerSettings } = useDeveloperSettings();
   const { currentVillage } = useCurrentVillage();
   const { total: unitImprovementDurationModifier } = useComputedEffect(
     'unitImprovementDuration',
@@ -329,8 +332,11 @@ export const UnitImprovement = () => {
   const { hasEvents: hasImprovementEventsOngoing } =
     useEventsByType('unitImprovement');
 
+  const { isFreeUnitImprovementEnabled, isInstantUnitImprovementEnabled } =
+    developerSettings;
+
   const unitUpgradeDuration = (() => {
-    if (isDeveloperModeEnabled) {
+    if (isInstantUnitImprovementEnabled) {
       return 0;
     }
 
@@ -341,7 +347,7 @@ export const UnitImprovement = () => {
   })();
 
   const upgradeCost = (() => {
-    if (isDeveloperModeEnabled) {
+    if (isFreeUnitImprovementEnabled) {
       return [0, 0, 0, 0];
     }
 
@@ -525,7 +531,7 @@ export const UnitRecruitmentNoResearch = () => {
 export const UnitRecruitment = () => {
   const { t } = useTranslation();
   const { unitId, durationEffect, buildingId } = use(UnitCardContext);
-  const { isDeveloperModeEnabled } = useDeveloperMode();
+  const { developerSettings } = useDeveloperSettings();
   const currentResources = use(CurrentVillageStateContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitDefinition(unitId);
@@ -533,8 +539,11 @@ export const UnitRecruitment = () => {
   const { createEvent: createTroopTrainingEvent } =
     useCreateEvent('troopTraining');
 
+  const { isFreeUnitTrainingEnabled, isInstantUnitTrainingEnabled } =
+    developerSettings;
+
   const individualUnitRecruitmentCost = (() => {
-    if (isDeveloperModeEnabled) {
+    if (isFreeUnitTrainingEnabled) {
       return [0, 0, 0, 0];
     }
 
@@ -551,14 +560,14 @@ export const UnitRecruitment = () => {
   })();
 
   const individualUnitRecruitmentDuration = (() => {
-    if (isDeveloperModeEnabled) {
+    if (isInstantUnitTrainingEnabled) {
       return 0;
     }
 
     return baseRecruitmentDuration;
   })();
 
-  const maxUnits = isDeveloperModeEnabled
+  const maxUnits = isFreeUnitTrainingEnabled
     ? 1000
     : calculateMaxUnits(currentResources, individualUnitRecruitmentCost);
 

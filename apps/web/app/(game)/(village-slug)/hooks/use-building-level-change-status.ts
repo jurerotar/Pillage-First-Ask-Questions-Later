@@ -7,7 +7,7 @@ import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hook
 import { useHasEnoughFreeCrop } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-free-crop';
 import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
-import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
+import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 
 type UseBuildingRequirementsReturn = {
   variant: BorderIndicatorBorderVariant;
@@ -20,11 +20,13 @@ const useBuildingRequirements = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
   const { t } = useTranslation();
-  const { isDeveloperModeEnabled } = useDeveloperMode();
+  const { developerSettings } = useDeveloperSettings();
   const { errorBag: hasEnoughFreeCropErrorBag } = useHasEnoughFreeCrop(
     buildingId,
     level,
   );
+
+  const { isFreeBuildingConstructionEnabled } = developerSettings;
 
   const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(
     buildingId,
@@ -56,7 +58,7 @@ const useBuildingRequirements = (
     };
   }
 
-  if (isDeveloperModeEnabled) {
+  if (isFreeBuildingConstructionEnabled) {
     return {
       errors: [],
       variant: 'red',
