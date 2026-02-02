@@ -191,8 +191,7 @@ export const UnitResearch = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { isUnitResearched } = useUnitResearch();
-  const { isFreeUnitResearchEnabled, isInstantUnitResearchEnabled } =
-    useDeveloperSettings();
+  const { developerSettings } = useDeveloperSettings();
   const { total: unitResearchDurationModifier } = useComputedEffect(
     'unitResearchDuration',
   );
@@ -202,6 +201,9 @@ export const UnitResearch = () => {
   const { currentVillage } = useCurrentVillage();
   const { hasEvents: hasResearchEventsOngoing, eventsByType: researchEvents } =
     useEventsByType('unitResearch');
+
+  const { isFreeUnitResearchEnabled, isInstantUnitResearchEnabled } =
+    developerSettings;
 
   const unitResearchDuration = (() => {
     if (isInstantUnitResearchEnabled) {
@@ -319,8 +321,7 @@ export const UnitResearch = () => {
 export const UnitImprovement = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
-  const { isFreeUnitImprovementEnabled, isInstantUnitImprovementEnabled } =
-    useDeveloperSettings();
+  const { developerSettings } = useDeveloperSettings();
   const { currentVillage } = useCurrentVillage();
   const { total: unitImprovementDurationModifier } = useComputedEffect(
     'unitImprovementDuration',
@@ -330,6 +331,9 @@ export const UnitImprovement = () => {
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
   const { hasEvents: hasImprovementEventsOngoing } =
     useEventsByType('unitImprovement');
+
+  const { isFreeUnitImprovementEnabled, isInstantUnitImprovementEnabled } =
+    developerSettings;
 
   const unitUpgradeDuration = (() => {
     if (isInstantUnitImprovementEnabled) {
@@ -527,14 +531,16 @@ export const UnitRecruitmentNoResearch = () => {
 export const UnitRecruitment = () => {
   const { t } = useTranslation();
   const { unitId, durationEffect, buildingId } = use(UnitCardContext);
-  const { isInstantUnitTrainingEnabled, isFreeUnitTrainingEnabled } =
-    useDeveloperSettings();
+  const { developerSettings } = useDeveloperSettings();
   const currentResources = use(CurrentVillageStateContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitDefinition(unitId);
   const { total } = useComputedEffect(durationEffect!);
   const { createEvent: createTroopTrainingEvent } =
     useCreateEvent('troopTraining');
+
+  const { isFreeUnitTrainingEnabled, isInstantUnitTrainingEnabled } =
+    developerSettings;
 
   const individualUnitRecruitmentCost = (() => {
     if (isFreeUnitTrainingEnabled) {

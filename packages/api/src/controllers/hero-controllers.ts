@@ -8,6 +8,7 @@ import type { Controller } from '../types/controller';
 
 const getHeroSchema = z
   .strictObject({
+    id: z.number(),
     health: z.number(),
     experience: z.number(),
     attack_power: z.number(),
@@ -18,6 +19,7 @@ const getHeroSchema = z
   })
   .transform((t) => {
     return {
+      id: t.id,
       stats: {
         health: t.health,
         experience: t.experience,
@@ -40,6 +42,7 @@ export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
   return database.selectObject({
     sql: `
       SELECT
+        h.id,
         h.health,
         h.experience,
         h.attack_power,

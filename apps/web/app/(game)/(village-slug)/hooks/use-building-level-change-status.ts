@@ -20,11 +20,13 @@ const useBuildingRequirements = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
   const { t } = useTranslation();
-  const { isFreeBuildingConstructionEnabled } = useDeveloperSettings();
+  const { developerSettings } = useDeveloperSettings();
   const { errorBag: hasEnoughFreeCropErrorBag } = useHasEnoughFreeCrop(
     buildingId,
     level,
   );
+
+  const { isFreeBuildingConstructionEnabled } = developerSettings;
 
   const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(
     buildingId,

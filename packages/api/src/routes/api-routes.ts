@@ -5,6 +5,8 @@ import {
 } from '../controllers/bookmark-controllers';
 import {
   getDeveloperSettings,
+  incrementHeroAdventurePoints,
+  spawnHeroItem,
   updateDeveloperSettings,
   updateVillageResources,
 } from '../controllers/developer-tools-controllers';
@@ -84,13 +86,23 @@ const developerToolsRoutes = [
   },
   {
     method: 'PATCH',
-    path: '/developer-settings',
+    path: '/developer-settings/:developerSettingName',
     controller: updateDeveloperSettings,
   },
   {
     method: 'PATCH',
     path: '/developer-settings/:villageId/resources',
     controller: updateVillageResources,
+  },
+  {
+    method: 'PATCH',
+    path: '/developer-settings/:heroId/spawn-item',
+    controller: spawnHeroItem,
+  },
+  {
+    method: 'PATCH',
+    path: '/developer-settings/:heroId/increment-adventure-points',
+    controller: incrementHeroAdventurePoints,
   },
 ];
 

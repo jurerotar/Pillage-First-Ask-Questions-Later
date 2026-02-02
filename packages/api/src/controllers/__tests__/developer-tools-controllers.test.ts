@@ -4,6 +4,7 @@ import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import * as schedulerSignal from '../../scheduler/scheduler-signal';
 import {
+  incrementHeroAdventurePoints,
   spawnHeroItem,
   type UpdateDeveloperSettingsBody,
   updateDeveloperSettings,
@@ -270,6 +271,45 @@ describe('developer-tools-controllers', () => {
         item_id: 'test-item',
         amount: 2,
       });
+    });
+  });
+
+  describe(incrementHeroAdventurePoints, () => {
+    test('should increment hero adventure points', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      // Initial points (should be 0 or some seeded value)
+      const initialPoints =
+        database.selectObject({
+          sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
+          bind: { $heroId: heroId },
+          schema: z.object({ available: z.number() }),
+        })?.available ?? 0;
+
+      incrementHeroAdventurePoints(
+        database,
+        createControllerArgs<
+          '/developer-settings/:heroId/increment-adventure-points',
+          'patch'
+        >({
+          params: { heroId },
+        }),
+      );
+
+      const points = database.selectObject({
+        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ available: z.number() }),
+      })!;
+
+      expect(points.available).toBe(initialPoints + 1);
     });
   });
 });

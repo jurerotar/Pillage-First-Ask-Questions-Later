@@ -116,6 +116,20 @@
         }
       }
     },
+    "/developer-settings/:heroId/increment-adventure-points": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "heroId",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
     "/villages/:villageId/effects": {
       "get": {
         "parameters": [

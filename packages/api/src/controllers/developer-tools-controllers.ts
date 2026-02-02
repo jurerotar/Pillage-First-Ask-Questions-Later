@@ -214,3 +214,27 @@ export const updateVillageResources: Controller<
 
   updaterFn(database, villageId, now, resources);
 };
+
+/**
+ * PATCH /developer-settings/:heroId/increment-adventure-points
+ * @pathParam {number} heroId
+ */
+export const incrementHeroAdventurePoints: Controller<
+  '/developer-settings/:heroId/increment-adventure-points',
+  'patch'
+> = (database, { params }) => {
+  const { heroId } = params;
+
+  database.exec({
+    sql: `
+      UPDATE hero_adventures
+      SET
+        available = available + 1
+      WHERE
+        hero_id = $heroId
+    `,
+    bind: {
+      $heroId: heroId,
+    },
+  });
+};

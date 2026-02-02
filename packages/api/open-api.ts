@@ -60,6 +60,33 @@ export interface paths {
     };
     readonly trace?: never;
   };
+  readonly '/developer-settings/:heroId/increment-adventure-points': {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch: {
+      readonly parameters: {
+        readonly query?: never;
+        readonly header?: never;
+        readonly path: {
+          readonly heroId: number;
+        };
+        readonly cookie?: never;
+      };
+      readonly requestBody?: never;
+      readonly responses: never;
+    };
+    readonly trace?: never;
+  };
   readonly '/developer-settings/:heroId/spawn-item': {
     readonly parameters: {
       readonly query?: never;
