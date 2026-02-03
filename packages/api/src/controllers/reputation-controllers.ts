@@ -1,18 +1,5 @@
-import { z } from 'zod';
-import { factionSchema } from '@pillage-first/types/models/faction';
-import { getReputationLevel } from '@pillage-first/utils/reputation';
 import type { Controller } from '../types/controller';
-
-const getReputationsSchema = z
-  .strictObject({
-    faction: factionSchema,
-    reputation: z.number(),
-  })
-  .transform((t) => ({
-    faction: t.faction,
-    reputation: t.reputation,
-    reputationLevel: getReputationLevel(t.reputation),
-  }));
+import { getReputationsSchema } from './schemas/reputation-schemas.ts';
 
 /**
  * GET /players/:playerId/reputations

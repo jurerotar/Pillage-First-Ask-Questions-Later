@@ -1,38 +1,13 @@
 import { z } from 'zod';
 import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
-import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import type { HeroItemSlot } from '@pillage-first/types/models/hero-item';
-import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import type { Controller } from '../types/controller';
-
-const getHeroSchema = z
-  .strictObject({
-    id: z.number(),
-    health: z.number(),
-    experience: z.number(),
-    attack_power: z.number(),
-    resource_production: z.number(),
-    attack_bonus: z.number(),
-    defence_bonus: z.number(),
-    resource_to_produce: heroResourceToProduceSchema,
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      stats: {
-        health: t.health,
-        experience: t.experience,
-      },
-      selectableAttributes: {
-        attackPower: t.attack_power,
-        resourceProduction: t.resource_production,
-        attackBonus: t.attack_bonus,
-        defenceBonus: t.defence_bonus,
-      },
-      resourceToProduce: t.resource_to_produce,
-    };
-  });
+import {
+  getHeroInventorySchema,
+  getHeroLoadoutSchema,
+  getHeroSchema,
+} from './schemas/hero-schemas.ts';
 
 /**
  * GET /players/:playerId/hero
@@ -57,18 +32,6 @@ export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
   });
 };
 
-const getHeroLoadoutSchema = z
-  .strictObject({
-    item_id: z.number(),
-    slot: heroLoadoutSlotSchema,
-    amount: z.number().min(1),
-  })
-  .transform((t) => ({
-    itemId: t.item_id,
-    slot: t.slot,
-    amount: t.amount,
-  }));
-
 /**
  * GET /players/:playerId/hero/equipped-items
  * @pathParam {number} playerId
@@ -92,16 +55,6 @@ export const getHeroLoadout: Controller<
     schema: getHeroLoadoutSchema,
   });
 };
-
-const getHeroInventorySchema = z
-  .strictObject({
-    item_id: z.string(),
-    amount: z.number().int().positive(),
-  })
-  .transform((t) => ({
-    itemId: t.item_id,
-    amount: t.amount,
-  }));
 
 /**
  * GET /players/:playerId/hero/inventory

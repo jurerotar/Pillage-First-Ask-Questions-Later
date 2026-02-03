@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import type {
-  GameEvent,
-  GameEventType,
-} from '@pillage-first/types/models/game-event';
+import type { GameEvent } from '@pillage-first/types/models/game-event';
 
 export const eventSchema = z
   .strictObject({
@@ -26,7 +23,3 @@ export const eventSchema = z
         ...(t.meta !== null ? JSON.parse(t.meta) : {}),
       }) as GameEvent,
   );
-
-export const parseEvent = <T extends GameEventType>(row: unknown) => {
-  return eventSchema.parse(row) as GameEvent<T>;
-};

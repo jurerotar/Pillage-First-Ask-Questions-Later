@@ -7,27 +7,8 @@ import {
 } from '@pillage-first/utils/guards/quest';
 import type { Controller } from '../types/controller';
 import { addVillageResourcesAt } from '../utils/village';
+import { getQuestsSchema } from './schemas/quest-schemas.ts';
 import { addHeroExperience } from './utils/hero';
-
-const getQuestsSchema = z
-  .strictObject({
-    quest_id: z.string().brand<Quest['id']>(),
-    scope: z.enum(['village', 'global']),
-    collected_at: z.number().nullable(),
-    completed_at: z.number().nullable(),
-    village_id: z.number().nullable(),
-  })
-  .transform((t) => {
-    return {
-      id: t.quest_id,
-      scope: t.scope,
-      collectedAt: t.collected_at,
-      completedAt: t.completed_at,
-      ...(t.village_id !== null && {
-        villageId: t.village_id,
-      }),
-    };
-  });
 
 /**
  * GET /villages/:villageId/quests

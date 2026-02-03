@@ -1,9 +1,11 @@
-import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
-import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { Controller } from '../types/controller';
+import {
+  getPlayerVillagesWithPopulationSchema,
+  getTroopsByVillageSchema,
+  getVillagesByPlayerSchema,
+} from './schemas/player-schemas.ts';
 
 /**
  * GET /players/me
@@ -27,30 +29,6 @@ export const getMe: Controller<'/players/me'> = (database) => {
     schema: playerSchema,
   })!;
 };
-
-const getVillagesByPlayerSchema = z
-  .strictObject({
-    id: z.number(),
-    tile_id: z.number(),
-    coordinates_x: z.number(),
-    coordinates_y: z.number(),
-    name: z.string(),
-    slug: z.string().nullable(),
-    resource_field_composition: resourceFieldCompositionSchema,
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      tileId: t.tile_id,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      name: t.name,
-      slug: t.slug ?? `v-${t.id}`,
-      resourceFieldComposition: t.resource_field_composition,
-    };
-  });
 
 /**
  * GET /players/:playerId/villages
@@ -84,32 +62,6 @@ export const getPlayerVillageListing: Controller<
   });
 };
 
-const getPlayerVillagesWithPopulationSchema = z
-  .strictObject({
-    id: z.number(),
-    tile_id: z.number(),
-    coordinates_x: z.number(),
-    coordinates_y: z.number(),
-    name: z.string(),
-    slug: z.string().nullable(),
-    resource_field_composition: resourceFieldCompositionSchema,
-    population: z.number(),
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      tileId: t.tile_id,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      name: t.name,
-      slug: t.slug ?? `v-${t.id}`,
-      resourceFieldComposition: t.resource_field_composition,
-      population: t.population,
-    };
-  });
-
 /**
  * GET /players/:playerId/villages-with-population
  * @pathParam {number} playerId
@@ -142,22 +94,6 @@ export const getPlayerVillagesWithPopulation: Controller<
     schema: getPlayerVillagesWithPopulationSchema,
   });
 };
-
-const getTroopsByVillageSchema = z
-  .strictObject({
-    unit_id: unitIdSchema,
-    amount: z.number().min(1),
-    tile_id: z.number(),
-    source_tile_id: z.number(),
-  })
-  .transform((t) => {
-    return {
-      unitId: t.unit_id,
-      amount: t.amount,
-      tileId: t.tile_id,
-      source: t.source_tile_id,
-    };
-  });
 
 /**
  * GET /villages/:villageId/troops

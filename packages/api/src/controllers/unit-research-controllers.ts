@@ -1,22 +1,8 @@
-import { z } from 'zod';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { Controller } from '../types/controller';
-
-const getResearchedUnitsSchema = z
-  .strictObject({
-    unit_id: unitIdSchema,
-    village_id: z.number(),
-  })
-  .transform((t) => {
-    return {
-      unitId: t.unit_id,
-      villageId: t.village_id,
-    };
-  });
+import { getResearchedUnitsSchema } from './schemas/unit-research-schemas.ts';
 
 /**
  * GET /villages/:villageId/researched-units
- * @pathParam {number} villageId
  */
 export const getResearchedUnits: Controller<
   '/villages/:villageId/researched-units'

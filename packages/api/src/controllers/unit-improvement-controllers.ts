@@ -1,22 +1,8 @@
-import { z } from 'zod';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { Controller } from '../types/controller';
-
-const getUnitImprovementsSchema = z
-  .strictObject({
-    unit_id: unitIdSchema,
-    level: z.number(),
-  })
-  .transform((t) => {
-    return {
-      unitId: t.unit_id,
-      level: t.level,
-    };
-  });
+import { getUnitImprovementsSchema } from './schemas/unit-improvement-schemas.ts';
 
 /**
  * GET /players/:playerId/unit-improvements
- * @pathParam {number} playerId
  */
 export const getUnitImprovements: Controller<
   '/players/:playerId/unit-improvements'

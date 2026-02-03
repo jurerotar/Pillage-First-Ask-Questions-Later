@@ -80,7 +80,14 @@ type Route<T extends RoutePath = RoutePath> = {
   [K in T]: {
     path: K;
     method: Uppercase<RouteMethod<K> & string>;
-    controller: (database: DbFacade, args: any) => unknown;
+    controller: (
+      database: DbFacade,
+      args: {
+        params: Record<string, string | number> | any;
+        body: Record<string, string | number> | any;
+        query: Record<string, string | number> | any;
+      },
+    ) => unknown;
   };
 }[T];
 
