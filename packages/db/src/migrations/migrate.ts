@@ -14,6 +14,8 @@ import createEffectsTable from '../schemas/effects-schema.sql?raw';
 import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFactionsTable from '../schemas/factions-schema.sql?raw';
+import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
+import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
@@ -146,6 +148,10 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
     // Bookmarks
     db.exec({ sql: createBookmarksTable });
     bookmarksSeeder(db);
+
+    // Farm lists
+    db.exec({ sql: createFarmListsTable });
+    db.exec({ sql: createFarmListTilesTable });
 
     // Building fields
     db.exec({ sql: createBuildingFieldsTable });

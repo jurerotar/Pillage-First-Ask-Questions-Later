@@ -7,6 +7,7 @@ const numericParams = new Set([
   'villageId',
   'tileId',
   'oasisId',
+  'itemId',
   'x',
   'y',
 ]);

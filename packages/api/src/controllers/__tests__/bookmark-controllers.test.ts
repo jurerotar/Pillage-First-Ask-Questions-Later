@@ -2,7 +2,11 @@ import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
-import { getBookmarks, updateBookmark } from '../bookmark-controllers';
+import {
+  getBookmarks,
+  type UpdateBookmarkBody,
+  updateBookmark,
+} from '../bookmark-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('bookmark-controllers', () => {
@@ -36,7 +40,7 @@ describe('bookmark-controllers', () => {
       createControllerArgs<
         '/villages/:villageId/bookmarks/:buildingId',
         'patch',
-        { tab: string }
+        UpdateBookmarkBody
       >({
         params: { villageId, buildingId },
         body: { tab: newTabName },

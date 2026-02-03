@@ -5,6 +5,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import * as schedulerSignal from '../../scheduler/scheduler-signal';
 import {
   incrementHeroAdventurePoints,
+  type SpawnHeroItemBody,
   spawnHeroItem,
   type UpdateDeveloperSettingsBody,
   updateDeveloperSettings,
@@ -233,20 +234,20 @@ describe('developer-tools-controllers', () => {
         createControllerArgs<
           '/developer-settings/:heroId/spawn-item',
           'patch',
-          { itemId: string }
+          SpawnHeroItemBody
         >({
           params: { heroId },
-          body: { itemId: 'test-item' },
+          body: { itemId: 1 },
         }),
       );
 
       const inventory = database.selectObjects({
         sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $heroId',
         bind: { $heroId: heroId },
-        schema: z.object({ item_id: z.string(), amount: z.number() }),
+        schema: z.object({ item_id: z.number(), amount: z.number() }),
       });
 
-      expect(inventory).toContainEqual({ item_id: 'test-item', amount: 1 });
+      expect(inventory).toContainEqual({ item_id: 1, amount: 1 });
 
       // Spawn again
       spawnHeroItem(
@@ -254,21 +255,21 @@ describe('developer-tools-controllers', () => {
         createControllerArgs<
           '/developer-settings/:heroId/spawn-item',
           'patch',
-          { itemId: string }
+          SpawnHeroItemBody
         >({
           params: { heroId },
-          body: { itemId: 'test-item' },
+          body: { itemId: 1 },
         }),
       );
 
       const inventoryUpdated = database.selectObjects({
         sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $heroId',
         bind: { $heroId: heroId },
-        schema: z.object({ item_id: z.string(), amount: z.number() }),
+        schema: z.object({ item_id: z.number(), amount: z.number() }),
       });
 
       expect(inventoryUpdated).toContainEqual({
-        item_id: 'test-item',
+        item_id: 1,
         amount: 2,
       });
     });
@@ -286,12 +287,11 @@ describe('developer-tools-controllers', () => {
       const heroId = hero.id;
 
       // Initial points (should be 0 or some seeded value)
-      const initialPoints =
-        database.selectObject({
-          sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
-          bind: { $heroId: heroId },
-          schema: z.object({ available: z.number() }),
-        })?.available ?? 0;
+      const initialPoints = database.selectObject({
+        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ available: z.number() }),
+      })!.available;
 
       incrementHeroAdventurePoints(
         database,

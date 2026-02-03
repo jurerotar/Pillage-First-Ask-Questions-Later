@@ -9,7 +9,7 @@ import {
   villagesStatsRowSchema,
 } from './schemas/statistics-schemas.ts';
 
-type GetPlayersStatisticsBody = {
+export type GetPlayersStatisticsBody = {
   lastPlayerId: number | null;
 };
 
@@ -90,7 +90,7 @@ export const getPlayerRankings: Controller<
   });
 };
 
-type GetStatisticsVillagesBody = {
+export type GetStatisticsVillagesBody = {
   lastVillageId: number | null;
 };
 

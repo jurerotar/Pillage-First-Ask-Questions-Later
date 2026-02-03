@@ -8,6 +8,7 @@ import {
   getPlayerVillageListing,
   getPlayerVillagesWithPopulation,
   getTroopsByVillage,
+  type RenameVillageBody,
   renameVillage,
 } from '../player-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -82,7 +83,7 @@ describe('player-controllers', () => {
       createControllerArgs<
         '/villages/:villageId/rename',
         'patch',
-        { name: string }
+        RenameVillageBody
       >({
         params: { villageId: village.id },
         body: { name: 'New Village Name' },

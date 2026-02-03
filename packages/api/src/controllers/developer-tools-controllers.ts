@@ -1,5 +1,6 @@
 import { snakeCase } from 'moderndash';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
+import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import type { Controller } from '../types/controller';
 import {
@@ -110,8 +111,8 @@ export const updateDeveloperSettings: Controller<
   }
 };
 
-type SpawnHeroItemBody = {
-  itemId: string;
+export type SpawnHeroItemBody = {
+  itemId: HeroItem['id'];
 };
 
 /**
@@ -142,7 +143,7 @@ export const spawnHeroItem: Controller<
   });
 };
 
-type UpdateVillageResourcesBody = {
+export type UpdateVillageResourcesBody = {
   resource: 'wood' | 'clay' | 'iron' | 'wheat';
   amount: 100 | 1000 | 10000;
   direction: 'add' | 'subtract';

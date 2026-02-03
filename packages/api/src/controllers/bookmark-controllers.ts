@@ -22,7 +22,7 @@ export const getBookmarks: Controller<'/villages/:villageId/bookmarks'> = (
   return Object.fromEntries(bookmarks);
 };
 
-type UpdateBookmarkBody = {
+export type UpdateBookmarkBody = {
   tab: string;
 };
 

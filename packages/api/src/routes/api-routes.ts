@@ -20,6 +20,15 @@ import {
   getVillageEventsByType,
 } from '../controllers/event-controllers';
 import {
+  addTileToFarmList,
+  createFarmList,
+  deleteFarmList,
+  getFarmList,
+  getFarmLists,
+  removeTileFromFarmList,
+  renameFarmList,
+} from '../controllers/farm-list-controllers';
+import {
   getHero,
   getHeroAdventures,
   getHeroInventory,
@@ -217,6 +226,44 @@ const mapRoutes: Route[] = [
   },
 ];
 
+const farmListRoutes: Route[] = [
+  {
+    method: 'GET',
+    path: '/players/:playerId/farm-lists',
+    controller: getFarmLists,
+  },
+  {
+    method: 'POST',
+    path: '/players/:playerId/farm-lists',
+    controller: createFarmList,
+  },
+  {
+    method: 'GET',
+    path: '/farm-lists/:farmListId',
+    controller: getFarmList,
+  },
+  {
+    method: 'DELETE',
+    path: '/farm-lists/:farmListId',
+    controller: deleteFarmList,
+  },
+  {
+    method: 'POST',
+    path: '/farm-lists/:farmListId/tiles',
+    controller: addTileToFarmList,
+  },
+  {
+    method: 'DELETE',
+    path: '/farm-lists/:farmListId/tiles/:tileId',
+    controller: removeTileFromFarmList,
+  },
+  {
+    method: 'PATCH',
+    path: '/farm-lists/:farmListId/rename',
+    controller: renameFarmList,
+  },
+];
+
 const preferencesRoutes: Route[] = [
   {
     method: 'GET',
@@ -396,6 +443,7 @@ const apiRoutes: Route[] = [
   ...playerRoutes,
   ...eventRoutes,
   ...villageRoutes,
+  ...farmListRoutes,
   ...preferencesRoutes,
   ...mapFiltersRoutes,
   ...worldItemsRoutes,

@@ -124,7 +124,7 @@ export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
   });
 };
 
-type RenameVillageBody = {
+export type RenameVillageBody = {
   name: string;
 };
 
