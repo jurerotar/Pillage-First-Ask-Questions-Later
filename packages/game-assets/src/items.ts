@@ -674,6 +674,14 @@ const consumables: HeroItem[] = [
     category: 'resource',
     basePrice: null,
   },
+  {
+    id: 1030,
+    name: 'EXPERIENCE_SCROLL',
+    slot: 'non-equipable',
+    rarity: 'common',
+    category: 'consumable',
+    basePrice: 50,
+  },
 ];
 
 export const items: HeroItem[] = [...artifacts, ...horses, ...consumables];
