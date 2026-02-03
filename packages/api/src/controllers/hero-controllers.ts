@@ -386,6 +386,20 @@ export const useHeroItem: Controller<
         `,
         bind: { $heroId: heroId },
       });
+    } else if (itemId === 1030) {
+      // EXPERIENCE_SCROLL
+      itemsToUse = 1;
+      const experienceToAdd = 10 * amount; // 10 experience per scroll
+
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET
+            experience = experience + $experienceToAdd
+          WHERE id = $heroId
+        `,
+        bind: { $heroId: heroId, $experienceToAdd: experienceToAdd },
+      });
     } else {
       throw new Error('Item effect not implemented');
     }
