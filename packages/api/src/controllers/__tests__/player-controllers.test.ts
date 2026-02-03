@@ -18,7 +18,7 @@ describe('player-controllers', () => {
   test('getMe should return current player details', async () => {
     const database = await prepareTestDatabase();
 
-    getMe(database, createControllerArgs<'/me'>({}));
+    getMe(database, createControllerArgs<'/players/me'>({}));
 
     expect(true).toBeTruthy();
   });
@@ -41,7 +41,7 @@ describe('player-controllers', () => {
 
     getPlayerVillagesWithPopulation(
       database,
-      createControllerArgs<'/players/:playerId/villages/population'>({
+      createControllerArgs<'/players/:playerId/villages-with-population'>({
         params: { playerId },
       }),
     );
@@ -60,7 +60,7 @@ describe('player-controllers', () => {
 
     getTroopsByVillage(
       database,
-      createControllerArgs<'/players/:playerId/villages/:villageId/troops'>({
+      createControllerArgs<'/villages/:villageId/troops'>({
         params: { playerId, villageId: village.id },
       }),
     );

@@ -32,7 +32,9 @@ describe('quest-controllers', () => {
 
     getCollectableQuestCount(
       database,
-      createControllerArgs<'/quests/collectable-count'>({}),
+      createControllerArgs<'/villages/:villageId/quests/collectables/count'>(
+        {},
+      ),
     );
 
     expect(true).toBeTruthy();
@@ -57,7 +59,7 @@ describe('quest-controllers', () => {
         database,
         createControllerArgs<
           '/villages/:villageId/quests/:questId/collect',
-          'post'
+          'patch'
         >({
           params: { villageId: village.id, questId: quest.quest_id },
         }),

@@ -70,12 +70,12 @@ export const createNewEvents: Controller<
 };
 
 /**
- * POST /events/:eventId/cancel
+ * DELETE /events/:eventId
  * @pathParam {string} eventId
  */
 export const cancelConstructionEvent: Controller<
-  '/events/:eventId/cancel',
-  'post'
+  '/events/:eventId',
+  'delete'
 > = (database, args) => {
   const {
     params: { eventId },

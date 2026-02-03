@@ -7,7 +7,10 @@ describe('map-filters-controllers', () => {
   test('getMapFilters should return map filters', async () => {
     const database = await prepareTestDatabase();
 
-    getMapFilters(database, createControllerArgs<'/map-filters'>({}));
+    getMapFilters(
+      database,
+      createControllerArgs<'/players/:playerId/map-filters'>({}),
+    );
 
     expect(true).toBeTruthy();
   });
@@ -18,7 +21,7 @@ describe('map-filters-controllers', () => {
     updateMapFilter(
       database,
       createControllerArgs<
-        '/map-filters/:filterName',
+        '/players/:playerId/map-filters/:filterName',
         'patch',
         { value: boolean }
       >({

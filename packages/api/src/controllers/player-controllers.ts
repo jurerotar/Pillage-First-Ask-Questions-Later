@@ -6,9 +6,9 @@ import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { Controller } from '../types/controller';
 
 /**
- * GET /me
+ * GET /players/me
  */
-export const getMe: Controller<'/me'> = (database) => {
+export const getMe: Controller<'/players/me'> = (database) => {
   return database.selectObject({
     sql: `
       SELECT
@@ -111,11 +111,11 @@ const getPlayerVillagesWithPopulationSchema = z
   });
 
 /**
- * GET /players/:playerId/villages/population
+ * GET /players/:playerId/villages-with-population
  * @pathParam {number} playerId
  */
 export const getPlayerVillagesWithPopulation: Controller<
-  '/players/:playerId/villages/population'
+  '/players/:playerId/villages-with-population'
 > = (database, args) => {
   const {
     params: { playerId },
@@ -160,13 +160,14 @@ const getTroopsByVillageSchema = z
   });
 
 /**
- * GET /players/:playerId/villages/:villageId/troops
+ * GET /villages/:villageId/troops
  * @pathParam {number} playerId
  * @pathParam {number} villageId
  */
-export const getTroopsByVillage: Controller<
-  '/players/:playerId/villages/:villageId/troops'
-> = (database, args) => {
+export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
+  database,
+  args,
+) => {
   const {
     params: { villageId },
   } = args;

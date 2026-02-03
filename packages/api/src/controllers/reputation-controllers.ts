@@ -15,10 +15,10 @@ const getReputationsSchema = z
   }));
 
 /**
- * GET /me/reputations
+ * GET /players/:playerId/reputations
  * @pathParam {number} playerId
  */
-export const getReputations: Controller<'/me/reputations'> = (
+export const getReputations: Controller<'/players/:playerId/reputations'> = (
   database,
   { params },
 ) => {

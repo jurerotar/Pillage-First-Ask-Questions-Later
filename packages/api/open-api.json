@@ -190,8 +190,8 @@
         }
       }
     },
-    "/events/:eventId/cancel": {
-      "post": {
+    "/events/:eventId": {
+      "delete": {
         "parameters": [
           {
             "in": "path",
@@ -367,10 +367,10 @@
         ]
       }
     },
-    "/map-filters": {
+    "/players/:playerId/map-filters": {
       "get": {}
     },
-    "/map-filters/:filterName": {
+    "/players/:playerId/map-filters/:filterName": {
       "patch": {
         "parameters": [
           {
@@ -460,7 +460,7 @@
         ]
       }
     },
-    "/me": {
+    "/players/me": {
       "get": {}
     },
     "/players/:playerId/villages": {
@@ -477,7 +477,7 @@
         ]
       }
     },
-    "/players/:playerId/villages/population": {
+    "/players/:playerId/villages-with-population": {
       "get": {
         "parameters": [
           {
@@ -491,7 +491,7 @@
         ]
       }
     },
-    "/players/:playerId/villages/:villageId/troops": {
+    "/villages/:villageId/troops": {
       "get": {
         "parameters": [
           {
@@ -547,10 +547,10 @@
         ]
       }
     },
-    "/preferences": {
+    "/players/:playerId/preferences": {
       "get": {}
     },
-    "/preferences/:preferenceName": {
+    "/players/:playerId/preferences/:preferenceName": {
       "patch": {
         "parameters": [
           {
@@ -584,11 +584,11 @@
         ]
       }
     },
-    "/quests/collectable-count": {
+    "/villages/:villageId/quests/collectables/count": {
       "get": {}
     },
     "/villages/:villageId/quests/:questId/collect": {
-      "post": {
+      "patch": {
         "parameters": [
           {
             "in": "path",
@@ -609,7 +609,7 @@
         ]
       }
     },
-    "/me/reputations": {
+    "/players/:playerId/reputations": {
       "get": {
         "parameters": [
           {

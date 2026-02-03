@@ -1,4 +1,6 @@
 import { match } from 'path-to-regexp';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { paths } from '../../open-api';
 import {
   getBookmarks,
   updateBookmark,
@@ -70,7 +72,19 @@ import { getArtifactsAroundVillage } from '../controllers/world-items-controller
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
-const serverRoutes = [
+type RoutePath = keyof paths;
+type RouteMethod<T extends RoutePath> = keyof paths[T] &
+  ('get' | 'post' | 'put' | 'delete' | 'patch');
+
+type Route<T extends RoutePath = RoutePath> = {
+  [K in T]: {
+    path: K;
+    method: Uppercase<RouteMethod<K> & string>;
+    controller: (database: DbFacade, args: any) => unknown;
+  };
+}[T];
+
+const serverRoutes: Route[] = [
   {
     method: 'GET',
     path: '/server',
@@ -78,7 +92,7 @@ const serverRoutes = [
   },
 ];
 
-const developerToolsRoutes = [
+const developerToolsRoutes: Route[] = [
   {
     method: 'GET',
     path: '/developer-settings',
@@ -106,15 +120,15 @@ const developerToolsRoutes = [
   },
 ];
 
-const auctionRoutes = [
-  {
-    method: 'GET',
-    path: '/auctions',
-    controller: () => {},
-  },
+const auctionRoutes: Route[] = [
+  // {
+  //   method: 'GET',
+  //   path: '/auctions',
+  //   controller: () => {},
+  // },
 ];
 
-const heroRoutes = [
+const heroRoutes: Route[] = [
   {
     method: 'GET',
     path: '/players/:playerId/hero',
@@ -147,7 +161,7 @@ const heroRoutes = [
   },
 ];
 
-const unitImprovementRoutes = [
+const unitImprovementRoutes: Route[] = [
   {
     method: 'GET',
     path: '/players/:playerId/unit-improvements',
@@ -155,7 +169,7 @@ const unitImprovementRoutes = [
   },
 ];
 
-const questRoutes = [
+const questRoutes: Route[] = [
   {
     method: 'GET',
     path: '/villages/:villageId/quests',
@@ -173,7 +187,7 @@ const questRoutes = [
   },
 ];
 
-const mapRoutes = [
+const mapRoutes: Route[] = [
   {
     method: 'GET',
     path: '/tiles',
@@ -196,7 +210,7 @@ const mapRoutes = [
   },
 ];
 
-const preferencesRoutes = [
+const preferencesRoutes: Route[] = [
   {
     method: 'GET',
     path: '/players/:playerId/preferences',
@@ -209,7 +223,7 @@ const preferencesRoutes = [
   },
 ];
 
-const eventRoutes = [
+const eventRoutes: Route[] = [
   {
     method: 'POST',
     path: '/events',
@@ -222,7 +236,7 @@ const eventRoutes = [
   },
 ];
 
-const playerRoutes = [
+const playerRoutes: Route[] = [
   {
     method: 'GET',
     path: '/players/me',
@@ -245,7 +259,7 @@ const playerRoutes = [
   },
 ];
 
-const villageRoutes = [
+const villageRoutes: Route[] = [
   {
     method: 'GET',
     path: '/villages/:villageSlug',
@@ -298,7 +312,7 @@ const villageRoutes = [
   },
 ];
 
-const mapFiltersRoutes = [
+const mapFiltersRoutes: Route[] = [
   {
     method: 'GET',
     path: '/players/:playerId/map-filters',
@@ -311,7 +325,7 @@ const mapFiltersRoutes = [
   },
 ];
 
-const worldItemsRoutes = [
+const worldItemsRoutes: Route[] = [
   {
     method: 'GET',
     path: '/villages/:villageId/artifacts',
@@ -319,7 +333,7 @@ const worldItemsRoutes = [
   },
 ];
 
-const bookmarkRoutes = [
+const bookmarkRoutes: Route[] = [
   {
     method: 'GET',
     path: '/villages/:villageId/bookmarks',
@@ -332,7 +346,7 @@ const bookmarkRoutes = [
   },
 ];
 
-const bonusFinderRoutes = [
+const bonusFinderRoutes: Route[] = [
   {
     method: 'GET',
     path: '/oasis-bonus-finder',
@@ -340,7 +354,7 @@ const bonusFinderRoutes = [
   },
 ];
 
-const statisticsRoutes = [
+const statisticsRoutes: Route[] = [
   {
     method: 'GET',
     path: '/statistics/players',
@@ -358,7 +372,7 @@ const statisticsRoutes = [
   },
 ];
 
-const reputationRoutes = [
+const reputationRoutes: Route[] = [
   {
     method: 'GET',
     path: '/players/:playerId/reputations',
@@ -366,7 +380,7 @@ const reputationRoutes = [
   },
 ];
 
-const apiRoutes = [
+const apiRoutes: Route[] = [
   ...serverRoutes,
   ...developerToolsRoutes,
   ...heroRoutes,

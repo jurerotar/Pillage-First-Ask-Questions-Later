@@ -23,9 +23,11 @@ const getMapFiltersSchema = z
   });
 
 /**
- * GET /map-filters
+ * GET /players/:playerId/map-filters
  */
-export const getMapFilters: Controller<'/map-filters'> = (database) => {
+export const getMapFilters: Controller<'/players/:playerId/map-filters'> = (
+  database,
+) => {
   return database.selectObject({
     sql: `
     SELECT
@@ -45,13 +47,13 @@ type UpdateMapFilterBody = {
 };
 
 /**
- * PATCH /map-filters/:filterName
+ * PATCH /players/:playerId/map-filters/:filterName
  * @pathParam {string} filterName
  * @bodyContent application/json UpdateMapFilterBody
  * @bodyRequired
  */
 export const updateMapFilter: Controller<
-  '/map-filters/:filterName',
+  '/players/:playerId/map-filters/:filterName',
   'patch',
   UpdateMapFilterBody
 > = (database, { params, body }) => {

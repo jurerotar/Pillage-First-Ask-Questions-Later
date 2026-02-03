@@ -7,7 +7,10 @@ describe('reputation-controllers', () => {
   test('getReputations should return reputations for a player', async () => {
     const database = await prepareTestDatabase();
 
-    getReputations(database, createControllerArgs<'/me/reputations'>({}));
+    getReputations(
+      database,
+      createControllerArgs<'/players/:playerId/reputations'>({}),
+    );
 
     expect(true).toBeTruthy();
   });

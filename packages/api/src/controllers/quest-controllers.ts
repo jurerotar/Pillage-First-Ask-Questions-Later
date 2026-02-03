@@ -67,10 +67,10 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
 };
 
 /**
- * GET /quests/collectable-count
+ * GET /villages/:villageId/quests/collectables/count
  */
 export const getCollectableQuestCount: Controller<
-  '/quests/collectable-count'
+  '/villages/:villageId/quests/collectables/count'
 > = (database) => {
   const collectableQuestCount = database.selectValue({
     sql: `
@@ -90,13 +90,13 @@ export const getCollectableQuestCount: Controller<
 };
 
 /**
- * POST /villages/:villageId/quests/:questId/collect
+ * PATCH /villages/:villageId/quests/:questId/collect
  * @pathParam {number} villageId
  * @pathParam {string} questId
  */
 export const collectQuest: Controller<
   '/villages/:villageId/quests/:questId/collect',
-  'post'
+  'patch'
 > = (database, args) => {
   const {
     params: { questId, villageId },

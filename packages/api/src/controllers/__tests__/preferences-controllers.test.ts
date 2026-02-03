@@ -11,7 +11,10 @@ describe('preferences-controllers', () => {
   test('getPreferences should return preferences', async () => {
     const database = await prepareTestDatabase();
 
-    getPreferences(database, createControllerArgs<'/preferences'>({}));
+    getPreferences(
+      database,
+      createControllerArgs<'/players/:playerId/preferences'>({}),
+    );
 
     expect(true).toBeTruthy();
   });
@@ -22,7 +25,7 @@ describe('preferences-controllers', () => {
     updatePreference(
       database,
       createControllerArgs<
-        '/preferences/:preferenceName',
+        '/players/:playerId/preferences/:preferenceName',
         'patch',
         UpdatePreferenceBody
       >({

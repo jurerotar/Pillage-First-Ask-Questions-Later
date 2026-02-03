@@ -38,9 +38,11 @@ const getPreferencesSchema = z
   });
 
 /**
- * GET /preferences
+ * GET /players/:playerId/preferences
  */
-export const getPreferences: Controller<'/preferences'> = (database) => {
+export const getPreferences: Controller<'/players/:playerId/preferences'> = (
+  database,
+) => {
   return database.selectObject({
     sql: `
       SELECT
@@ -64,13 +66,13 @@ export type UpdatePreferenceBody = {
 };
 
 /**
- * PATCH /preferences/:preferenceName
+ * PATCH /players/:playerId/preferences/:preferenceName
  * @pathParam {string} preferenceName
  * @bodyContent application/json UpdatePreferenceBody
  * @bodyRequired
  */
 export const updatePreference: Controller<
-  '/preferences/:preferenceName',
+  '/players/:playerId/preferences/:preferenceName',
   'patch',
   UpdatePreferenceBody
 > = (database, { body, params }) => {
