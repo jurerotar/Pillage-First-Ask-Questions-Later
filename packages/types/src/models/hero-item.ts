@@ -42,6 +42,7 @@ type HeroConsumableItemId =
   | 'BOOK_OF_WISDOM'
   | 'ANIMAL_CAGE'
   | 'REVIVAL_POTION'
+  | 'EXPERIENCE_SCROLL'
   | Uppercase<keyof Resources>;
 
 type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
