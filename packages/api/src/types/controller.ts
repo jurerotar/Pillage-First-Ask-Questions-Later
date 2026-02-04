@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import type { paths } from '../../open-api';
+import type { paths } from '../open-api.ts';
 
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 

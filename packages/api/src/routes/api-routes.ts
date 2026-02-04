@@ -1,6 +1,5 @@
 import { match } from 'path-to-regexp';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import type { paths } from '../../open-api';
 import {
   getBookmarks,
   updateBookmark,
@@ -78,6 +77,7 @@ import {
   getVillageBySlug,
 } from '../controllers/village-controllers';
 import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
+import type { paths } from '../open-api.ts';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 

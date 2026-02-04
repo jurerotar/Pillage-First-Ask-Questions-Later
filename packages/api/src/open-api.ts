@@ -5,45 +5,45 @@ import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { serverDbSchema } from '@pillage-first/types/models/server';
-import { getDeveloperSettingsSchema } from './src/controllers/schemas/developer-tools-schemas';
+import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas.ts';
 import {
   farmListSchema,
   farmListTileSchema,
-} from './src/controllers/schemas/farm-list-schemas';
+} from './controllers/schemas/farm-list-schemas.ts';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
-} from './src/controllers/schemas/hero-schemas';
-import { getMapFiltersSchema } from './src/controllers/schemas/map-filters-schemas';
+} from './controllers/schemas/hero-schemas.ts';
+import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas.ts';
 import {
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
   getTileWorldItemSchema,
-} from './src/controllers/schemas/map-schemas';
-import { getTilesWithBonusesSchema } from './src/controllers/schemas/oasis-bonus-finder-schemas';
+} from './controllers/schemas/map-schemas.ts';
+import { getTilesWithBonusesSchema } from './controllers/schemas/oasis-bonus-finder-schemas.ts';
 import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
-} from './src/controllers/schemas/player-schemas';
-import { getPreferencesSchema } from './src/controllers/schemas/preferences-schemas';
-import { getQuestsSchema } from './src/controllers/schemas/quest-schemas';
-import { getReputationsSchema } from './src/controllers/schemas/reputation-schemas';
+} from './controllers/schemas/player-schemas.ts';
+import { getPreferencesSchema } from './controllers/schemas/preferences-schemas.ts';
+import { getQuestsSchema } from './controllers/schemas/quest-schemas.ts';
+import { getReputationsSchema } from './controllers/schemas/reputation-schemas.ts';
 import {
   getPlayerRankingsSchema,
   getServerOverviewStatisticsSchema,
   getVillageRankingsSchema,
-} from './src/controllers/schemas/statistics-schemas';
-import { getUnitImprovementsSchema } from './src/controllers/schemas/unit-improvement-schemas';
-import { getResearchedUnitsSchema } from './src/controllers/schemas/unit-research-schemas';
+} from './controllers/schemas/statistics-schemas.ts';
+import { getUnitImprovementsSchema } from './controllers/schemas/unit-improvement-schemas.ts';
+import { getResearchedUnitsSchema } from './controllers/schemas/unit-research-schemas.ts';
 import {
   getOccupiableOasisInRangeSchema,
   getVillageBySlugSchema,
-} from './src/controllers/schemas/village-schemas';
-import { getArtifactsAroundVillageSchema } from './src/controllers/schemas/world-items-schemas';
-import { apiEffectSchema } from './src/utils/zod/effect-schemas';
+} from './controllers/schemas/village-schemas.ts';
+import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas.ts';
+import { apiEffectSchema } from './utils/zod/effect-schemas.ts';
 
 export const paths = {
   '/server': {
