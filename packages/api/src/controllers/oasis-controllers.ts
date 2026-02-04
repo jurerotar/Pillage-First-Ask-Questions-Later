@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 
 export const occupyOasis = createController(

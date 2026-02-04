@@ -33,7 +33,7 @@ describe('farm-list-controllers', () => {
       createControllerArgs<'/players/:playerId/farm-lists'>({
         path: { playerId },
       }),
-    ) as any[];
+    );
 
     expect(farmLists).toHaveLength(1);
     expect(farmLists[0].name).toBe('My Farm List');
@@ -61,7 +61,7 @@ describe('farm-list-controllers', () => {
       createControllerArgs<'/farm-lists/:farmListId'>({
         path: { farmListId },
       }),
-    ) as any;
+    );
 
     expect(farmList.name).toBe('My Farm List');
     expect(farmList.tileIds).toContain(101);

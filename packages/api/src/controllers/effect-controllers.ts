@@ -1,4 +1,4 @@
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { selectAllRelevantEffectsQuery } from '../utils/queries/effect-queries';
 import { apiEffectSchema } from '../utils/zod/effect-schemas';
 

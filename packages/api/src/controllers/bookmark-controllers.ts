@@ -1,4 +1,4 @@
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getBookmarksSchema } from './schemas/bookmark-schemas';
 
 export const getBookmarks = createController('/villages/:villageId/bookmarks')(

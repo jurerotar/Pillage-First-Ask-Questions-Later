@@ -1,5 +1,5 @@
 import type { Resource } from '@pillage-first/types/models/resource';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getTilesWithBonusesSchema } from './schemas/oasis-bonus-finder-schemas';
 
 const createSqlBindings = (slot: OasisBonus[]) => {

@@ -1,4 +1,4 @@
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getUnitImprovementsSchema } from './schemas/unit-improvement-schemas';
 
 export const getUnitImprovements = createController(

@@ -1,6 +1,6 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,

@@ -1,5 +1,5 @@
 import { snakeCase } from 'moderndash';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getMapFiltersSchema } from './schemas/map-filters-schemas';
 
 export const getMapFilters = createController('/players/:playerId/map-filters')(

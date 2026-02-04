@@ -1,4 +1,4 @@
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getReputationsSchema } from './schemas/reputation-schemas';
 
 export const getReputations = createController(

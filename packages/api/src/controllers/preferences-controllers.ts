@@ -1,5 +1,5 @@
 import { snakeCase } from 'moderndash';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getPreferencesSchema } from './schemas/preferences-schemas';
 
 export const getPreferences = createController(

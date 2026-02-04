@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,

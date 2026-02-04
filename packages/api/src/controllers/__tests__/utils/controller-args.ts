@@ -1,5 +1,5 @@
 import type { paths } from '../../../open-api.ts';
-import type { ControllerArgs } from '../../../types/controller';
+import type { ControllerArgs } from '../../../utils/controller';
 
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { calculateGridLayout } from '@pillage-first/utils/map';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getTileOasisBonusesSchema,
   getTilesSchema,

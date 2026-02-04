@@ -1,5 +1,5 @@
 import { artifacts } from '@pillage-first/game-assets/items';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { getArtifactsAroundVillageSchema } from './schemas/world-items-schemas';
 
 const artifactIds = artifacts.map((item) => item.id);

@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,

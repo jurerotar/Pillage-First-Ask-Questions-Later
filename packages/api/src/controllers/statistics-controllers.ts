@@ -1,6 +1,6 @@
 import type { Faction } from '@pillage-first/types/models/faction';
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getPlayerRankingsSchema,
   getServerOverviewStatisticsSchema,

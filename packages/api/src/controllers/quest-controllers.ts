@@ -5,7 +5,7 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import { addVillageResourcesAt } from '../utils/village';
 import { getQuestsSchema } from './schemas/quest-schemas';
 import { addHeroExperience } from './utils/hero';

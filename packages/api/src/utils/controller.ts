@@ -2,7 +2,7 @@ import type { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { paths } from '../open-api.ts';
 
-type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
+export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 export type ControllerArgs<
   TPath extends string,
@@ -38,30 +38,46 @@ export type ControllerArgs<
             };
           }
           ? z.infer<B>
-          : Record<string, any>
-        : Record<string, any>
-      : Record<string, any>
+          : Record<string, unknown>
+        : Record<string, unknown>
+      : Record<string, unknown>
     : TBody;
+};
+
+export type Controller<
+  TPath extends keyof typeof paths = keyof typeof paths,
+  TMethod extends Method = Method,
+  TReturn = unknown,
+> = {
+  (database: DbFacade, args: ControllerArgs<TPath, TMethod>): TReturn;
+  path: TPath;
+  method: TMethod;
 };
 
 export const createController = <
   TPath extends keyof typeof paths,
   TMethod extends Method = 'get',
 >(
-  _path: TPath,
-  _method: TMethod = 'get' as TMethod,
+  path: TPath,
+  method: TMethod = 'get' as TMethod,
 ) => {
   return <TReturn>(
     fn: (
       args: ControllerArgs<TPath, TMethod> & { database: DbFacade },
     ) => TReturn,
-  ): ((
-    database: DbFacade,
-    args: ControllerArgs<TPath, TMethod>,
-  ) => TReturn) => {
-    return (
+  ): Controller<TPath, TMethod, TReturn> => {
+    const controller = ((
       database: DbFacade,
       args: ControllerArgs<TPath, TMethod>,
-    ): TReturn => fn({ database, ...args });
+    ): TReturn => fn({ database, ...args })) as Controller<
+      TPath,
+      TMethod,
+      TReturn
+    >;
+
+    controller.path = path;
+    controller.method = method;
+
+    return controller;
   };
 };

@@ -1,5 +1,5 @@
 import { serverDbSchema } from '@pillage-first/types/models/server';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 
 export const getServer = createController('/server')(({ database }) => {
   return database.selectObject({

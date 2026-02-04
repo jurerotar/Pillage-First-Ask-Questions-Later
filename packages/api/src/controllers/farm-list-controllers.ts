@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createController } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   farmListSchema,
   farmListTileSchema,
