@@ -8,6 +8,6 @@ export const playerSchema = z.strictObject({
   slug: z.string(),
   tribe: tribeSchema,
   faction: factionSchema,
-});
+}).meta({ id: 'Player' });
 
 export type Player = z.infer<typeof playerSchema>;

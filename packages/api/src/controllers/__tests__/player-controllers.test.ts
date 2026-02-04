@@ -27,27 +27,38 @@ describe('player-controllers', () => {
   test('getPlayerVillageListing should return village listing for a player', async () => {
     const database = await prepareTestDatabase();
 
-    getPlayerVillageListing(
+    const result = await getPlayerVillageListing(
       database,
       createControllerArgs<'/players/:playerId/villages'>({
         params: { playerId },
       }),
-    );
+    ) as any[];
 
-    expect(true).toBeTruthy();
+    expect(result).toBeDefined();
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0]).toHaveProperty('id');
+    expect(result[0]).toHaveProperty('tileId');
+    expect(result[0]).toHaveProperty('coordinates');
+    expect(result[0].coordinates).toHaveProperty('x');
+    expect(result[0].coordinates).toHaveProperty('y');
+    expect(result[0]).toHaveProperty('resourceFieldComposition');
   });
 
   test('getPlayerVillagesWithPopulation should return villages with population', async () => {
     const database = await prepareTestDatabase();
 
-    getPlayerVillagesWithPopulation(
+    const result = await getPlayerVillagesWithPopulation(
       database,
       createControllerArgs<'/players/:playerId/villages-with-population'>({
         params: { playerId },
       }),
-    );
+    ) as any[];
 
-    expect(true).toBeTruthy();
+    expect(result).toBeDefined();
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0]).toHaveProperty('id');
+    expect(result[0]).toHaveProperty('population');
+    expect(result[0]).toHaveProperty('coordinates');
   });
 
   test('getTroopsByVillage should return troops by village for a player', async () => {
@@ -102,13 +113,16 @@ describe('player-controllers', () => {
       schema: z.object({ slug: z.string() }),
     })!;
 
-    getPlayerBySlug(
+    const result = await getPlayerBySlug(
       database,
       createControllerArgs<'/players/:playerSlug'>({
         params: { playerSlug: player.slug },
       }),
-    );
+    ) as any;
 
-    expect(true).toBeTruthy();
+    expect(result).toBeDefined();
+    expect(result.slug).toBe(player.slug);
+    expect(result).toHaveProperty('id');
+    expect(result).toHaveProperty('name');
   });
 });

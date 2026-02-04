@@ -5,7 +5,7 @@ export const mapSizeSchema = z.union([
   z.literal(100),
   z.literal(200),
   z.literal(300),
-]);
+]).meta({ id: 'ServerMapSize' });
 
 export const speedSchema = z.union([
   z.literal(1),
@@ -13,7 +13,7 @@ export const speedSchema = z.union([
   z.literal(3),
   z.literal(5),
   z.literal(10),
-]);
+]).meta({ id: 'ServerSpeed' });
 
 export const serverDbSchema = z
   .strictObject({
@@ -62,6 +62,6 @@ export const serverSchema = z.strictObject({
     name: z.string(),
     tribe: tribeSchema,
   }),
-});
+}).meta({ id: 'Server' });
 
 export type Server = z.infer<typeof serverSchema>;

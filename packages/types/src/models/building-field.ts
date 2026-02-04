@@ -13,6 +13,6 @@ export const buildingFieldSchema = z.strictObject({
   id: z.number(),
   buildingId: buildingIdSchema,
   level: z.number(),
-});
+}).meta({ id: 'BuildingField' });
 
 export type BuildingField = z.infer<typeof buildingFieldSchema>;

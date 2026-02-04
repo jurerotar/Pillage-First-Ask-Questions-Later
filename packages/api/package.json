@@ -25,17 +25,19 @@
     "format": "biome check --write --no-errors-on-unmatched",
     "type-check": "tsgo",
     "test": "vitest",
-    "open-api:generate": "node scripts/generate-open-api-definitions.ts"
+    "open-api:generate": "tsx scripts/generate-open-api-definitions.ts"
   },
   "dependencies": {
+    "@pillage-first/db": "*",
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@pillage-first/db": "*",
     "@sqlite.org/sqlite-wasm": "*",
     "moderndash": "4.0.0",
     "path-to-regexp": "8.3.0",
-    "zod": "*"
+    "tsx": "4.21.0",
+    "zod": "*",
+    "zod-openapi": "5.4.6"
   },
   "devDependencies": {
     "@biomejs/biome": "*",

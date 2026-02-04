@@ -10,6 +10,6 @@ export const developerSettingsSchema = z.strictObject({
   isFreeUnitTrainingEnabled: z.boolean(),
   isFreeUnitImprovementEnabled: z.boolean(),
   isFreeUnitResearchEnabled: z.boolean(),
-});
+}).meta({ id: 'DeveloperSettings' });
 
 export type DeveloperSettings = z.infer<typeof developerSettingsSchema>;

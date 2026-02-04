@@ -10,6 +10,6 @@ export const factionSchema = z.enum([
   'npc6',
   'npc7',
   'npc8',
-]);
+]).meta({ id: 'Faction' });
 
 export type Faction = z.infer<typeof factionSchema>;

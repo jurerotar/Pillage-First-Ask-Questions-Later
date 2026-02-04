@@ -16,6 +16,6 @@ export const tribeSchema = z.enum([
   'teutons',
   'egyptians',
   'huns',
-]);
+]).meta({ id: 'Tribe' });
 
 export type PlayableTribe = z.infer<typeof tribeSchema>;

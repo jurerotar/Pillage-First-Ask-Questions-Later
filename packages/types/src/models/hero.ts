@@ -6,7 +6,7 @@ export const heroResourceToProduceSchema = z.enum([
   'iron',
   'wheat',
   'shared',
-]);
+]).meta({ id: 'HeroResourceToProduce' });
 
 export const heroSchema = z.strictObject({
   id: z.number(),
@@ -21,6 +21,6 @@ export const heroSchema = z.strictObject({
     defenceBonus: z.number(),
   }),
   resourceToProduce: heroResourceToProduceSchema,
-});
+}).meta({ id: 'Hero' });
 
 export type Hero = z.infer<typeof heroSchema>;

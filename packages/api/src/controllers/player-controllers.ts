@@ -5,7 +5,7 @@ import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
-} from './schemas/player-schemas.ts';
+} from './schemas/player-schemas';
 
 /**
  * GET /players/me
@@ -32,7 +32,6 @@ export const getMe: Controller<'/players/me'> = (database) => {
 
 /**
  * GET /players/:playerId/villages
- * @pathParam {number} playerId
  */
 export const getPlayerVillageListing: Controller<
   '/players/:playerId/villages'
@@ -43,19 +42,22 @@ export const getPlayerVillageListing: Controller<
 
   return database.selectObjects({
     sql: `
-      SELECT v.id,
-             v.tile_id,
-             t.x AS coordinates_x,
-             t.y AS coordinates_y,
-             v.name,
-             v.slug,
-             rfc.resource_field_composition AS resource_field_composition
-      FROM villages v
-             JOIN tiles t
-                  ON t.id = v.tile_id
-             LEFT JOIN resource_field_compositions rfc
-                       ON t.resource_field_composition_id = rfc.id
-      WHERE v.player_id = $player_id;
+      SELECT
+        v.id,
+        v.tile_id,
+        t.x AS coordinates_x,
+        t.y AS coordinates_y,
+        v.name,
+        v.slug,
+        rfc.resource_field_composition AS resource_field_composition
+      FROM
+        villages v
+          JOIN tiles t
+               ON t.id = v.tile_id
+          LEFT JOIN resource_field_compositions rfc
+                    ON t.resource_field_composition_id = rfc.id
+      WHERE
+        v.player_id = $player_id;
     `,
     bind: { $player_id: playerId },
     schema: getVillagesByPlayerSchema,
@@ -64,7 +66,6 @@ export const getPlayerVillageListing: Controller<
 
 /**
  * GET /players/:playerId/villages-with-population
- * @pathParam {number} playerId
  */
 export const getPlayerVillagesWithPopulation: Controller<
   '/players/:playerId/villages-with-population'
@@ -75,20 +76,25 @@ export const getPlayerVillagesWithPopulation: Controller<
 
   return database.selectObjects({
     sql: `
-      SELECT v.id,
-             v.tile_id,
-             t.x AS coordinates_x,
-             t.y AS coordinates_y,
-             v.name,
-             v.slug,
-             rfc.resource_field_composition AS resource_field_composition,
-             (SELECT COALESCE(SUM(level), 0) FROM building_fields WHERE village_id = v.id) AS population
-      FROM villages v
-             JOIN tiles t
-                  ON t.id = v.tile_id
-             LEFT JOIN resource_field_compositions rfc
-                       ON t.resource_field_composition_id = rfc.id
-      WHERE v.player_id = $player_id;
+      SELECT
+        v.id,
+        v.tile_id,
+        t.x AS coordinates_x,
+        t.y AS coordinates_y,
+        v.name,
+        v.slug,
+        rfc.resource_field_composition AS resource_field_composition,
+        (
+          SELECT COALESCE(SUM(level), 0) FROM building_fields WHERE village_id = v.id
+          ) AS population
+      FROM
+        villages v
+          JOIN tiles t
+               ON t.id = v.tile_id
+          LEFT JOIN resource_field_compositions rfc
+                    ON t.resource_field_composition_id = rfc.id
+      WHERE
+        v.player_id = $player_id;
     `,
     bind: { $player_id: playerId },
     schema: getPlayerVillagesWithPopulationSchema,
@@ -110,14 +116,21 @@ export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
 
   return database.selectObjects({
     sql: `
-      SELECT unit_id,
-             amount,
-             tile_id,
-             source_tile_id
-      FROM troops
-      WHERE troops.tile_id = (SELECT villages.tile_id
-                              FROM villages
-                              WHERE villages.id = $village_id);
+      SELECT
+        unit_id,
+        amount,
+        tile_id,
+        source_tile_id
+      FROM
+        troops
+      WHERE
+        troops.tile_id = (
+          SELECT villages.tile_id
+          FROM
+            villages
+          WHERE
+            villages.id = $village_id
+          );
     `,
     bind: { $village_id: villageId },
     schema: getTroopsByVillageSchema,
@@ -154,7 +167,6 @@ export const renameVillage: Controller<
 
 /**
  * GET /players/:playerSlug
- * @pathParam {string} playerSlug
  */
 export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
   database,

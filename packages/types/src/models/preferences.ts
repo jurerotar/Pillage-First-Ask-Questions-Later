@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-const uiColorSchemeSchema = z.enum(['light', 'dark']);
-const timeOfDaySchema = z.enum(['day', 'night']);
-const skinVariantSchema = z.enum(['default']);
+const uiColorSchemeSchema = z.enum(['light', 'dark']).meta({ id: 'UIColorScheme' });
+const timeOfDaySchema = z.enum(['day', 'night']).meta({ id: 'TimeOfDay' });
+const skinVariantSchema = z.enum(['default']).meta({ id: 'SkinVariant' });
 
 export type UIColorScheme = z.infer<typeof uiColorSchemeSchema>;
 export type TimeOfDay = z.infer<typeof timeOfDaySchema>;
@@ -17,6 +17,6 @@ export const preferencesSchema = z.strictObject({
   shouldShowNotificationsOnBuildingUpgradeCompletion: z.boolean(),
   shouldShowNotificationsOnUnitUpgradeCompletion: z.boolean(),
   shouldShowNotificationsOnAcademyResearchCompletion: z.boolean(),
-});
+}).meta({ id: 'Preferences' });
 
 export type Preferences = z.infer<typeof preferencesSchema>;

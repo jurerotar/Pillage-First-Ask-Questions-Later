@@ -24,7 +24,7 @@ export const getVillagesByPlayerSchema = z
       slug: t.slug ?? `v-${t.id}`,
       resourceFieldComposition: t.resource_field_composition,
     };
-  });
+  }).meta({ id: 'GetVillagesByPlayer' });
 
 export const getPlayerVillagesWithPopulationSchema = z
   .strictObject({

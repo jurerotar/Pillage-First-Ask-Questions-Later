@@ -1,30 +1,49 @@
+import type { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { paths } from '../../open-api';
 
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 export type ControllerArgs<
-  TPath extends keyof paths,
+  TPath extends string,
   TMethod extends Method = 'get',
   TBody = undefined,
 > = {
-  params: paths[TPath][TMethod] extends { parameters: { path: infer P } }
-    ? P
-    : Record<string, never>;
-  query: paths[TPath][TMethod] extends { parameters: { query: infer Q } }
-    ? Q
-    : Record<string, never>;
+  params: TPath extends keyof typeof paths
+    ? TMethod extends keyof (typeof paths)[TPath]
+      ? (typeof paths)[TPath][TMethod] extends {
+          requestParams: { path: infer P extends z.ZodTypeAny };
+        }
+        ? z.infer<P>
+        : Record<string, string | number>
+      : Record<string, string | number>
+    : Record<string, string | number>;
+  query: TPath extends keyof typeof paths
+    ? TMethod extends keyof (typeof paths)[TPath]
+      ? (typeof paths)[TPath][TMethod] extends {
+          requestParams: { query: infer Q extends z.ZodTypeAny };
+        }
+        ? z.infer<Q>
+        : Record<string, string | number>
+      : Record<string, string | number>
+    : Record<string, string | number>;
   body: TBody extends undefined
-    ? paths[TPath][TMethod] extends {
-        requestBody: { content: { 'application/json': infer B } };
-      }
-      ? B
-      : Record<string, never>
+    ? TPath extends keyof typeof paths
+      ? TMethod extends keyof (typeof paths)[TPath]
+        ? (typeof paths)[TPath][TMethod] extends {
+            requestBody: {
+              content: { 'application/json': { schema: infer B extends z.ZodTypeAny } };
+            };
+          }
+          ? z.infer<B>
+          : Record<string, any>
+        : Record<string, any>
+      : Record<string, any>
     : TBody;
 };
 
 export type Controller<
-  TPath extends keyof paths,
+  TPath extends string,
   TMethod extends Method = 'get',
   TBody = undefined,
 > = (

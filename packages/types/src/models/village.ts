@@ -31,6 +31,6 @@ export const villageSchema = z.strictObject({
   }),
   resourceFieldComposition: resourceFieldCompositionSchema,
   buildingFields: z.array(buildingFieldSchema),
-});
+}).meta({ id: 'Village' });
 
 export type Village = z.infer<typeof villageSchema>;

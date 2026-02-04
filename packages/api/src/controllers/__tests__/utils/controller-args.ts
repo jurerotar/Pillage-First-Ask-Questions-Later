@@ -4,7 +4,7 @@ import type { ControllerArgs } from '../../../types/controller';
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
 export const createControllerArgs = <
-  TPath extends keyof paths,
+  TPath extends keyof typeof paths,
   TMethod extends Method = 'get',
   TBody = undefined,
 >(

@@ -86,20 +86,20 @@ const villageQuestsSchema = baseQuestSchema.extend({
   id: z.string().pipe(z.custom<VillageQuestId>()),
   scope: z.literal('village'),
   villageId: z.number(),
-});
+}).meta({ id: 'VillageQuest' });
 
 export type VillageQuest = z.infer<typeof villageQuestsSchema>;
 
 const globalQuestsSchema = baseQuestSchema.extend({
   id: z.string().pipe(z.custom<GlobalQuestId>()),
   scope: z.literal('global'),
-});
+}).meta({ id: 'GlobalQuest' });
 
 export type GlobalQuest = z.infer<typeof globalQuestsSchema>;
 
 export const questSchema = z.discriminatedUnion('scope', [
   villageQuestsSchema,
   globalQuestsSchema,
-]);
+]).meta({ id: 'Quest' });
 
 export type Quest = z.infer<typeof questSchema>;
