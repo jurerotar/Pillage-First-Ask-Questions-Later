@@ -27,8 +27,7 @@
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
     "type-check": "tsgo",
-    "test": "vitest",
-    "open-api:generate": "tsx scripts/generate-open-api-definitions.ts"
+    "test": "vitest"
   },
   "dependencies": {
     "@pillage-first/db": "*",
