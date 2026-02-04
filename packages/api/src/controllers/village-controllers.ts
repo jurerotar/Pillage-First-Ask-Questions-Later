@@ -1,17 +1,13 @@
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import {
   getOccupiableOasisInRangeSchema,
   getVillageBySlugSchema,
 } from './schemas/village-schemas';
 
-export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
-  database,
-  { params },
-) => {
-  const { villageSlug } = params;
-
-  return database.selectObject({
-    sql: `
+export const getVillageBySlug = createController('/villages/:villageSlug')(
+  ({ database, path: { villageSlug } }) => {
+    return database.selectObject({
+      sql: `
       SELECT
         v.id,
         v.tile_id,
@@ -52,16 +48,15 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
         v.slug = $slug
       LIMIT 1;
     `,
-    bind: { $slug: villageSlug },
-    schema: getVillageBySlugSchema,
-  })!;
-};
+      bind: { $slug: villageSlug },
+      schema: getVillageBySlugSchema,
+    })!;
+  },
+);
 
-export const getOccupiableOasisInRange: Controller<
-  '/villages/:villageId/occupiable-oasis'
-> = (database, { params }) => {
-  const { villageId } = params;
-
+export const getOccupiableOasisInRange = createController(
+  '/villages/:villageId/occupiable-oasis',
+)(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
       WITH src_village AS (
@@ -121,15 +116,12 @@ export const getOccupiableOasisInRange: Controller<
     },
     schema: getOccupiableOasisInRangeSchema,
   });
-};
+});
 
-export const rearrangeBuildingFields: Controller<
+export const rearrangeBuildingFields = createController(
   '/villages/:villageId/building-fields',
-  'patch'
-> = (database, { params, body }) => {
-  const { villageId } = params;
-  const updates = body;
-
+  'patch',
+)(({ database, path: { villageId }, body: updates }) => {
   database.transaction(() => {
     // 1. Update building_fields
     database.exec({
@@ -193,4 +185,4 @@ export const rearrangeBuildingFields: Controller<
       },
     });
   });
-};
+});

@@ -17,7 +17,7 @@ describe('world-items-controllers', () => {
     getArtifactsAroundVillage(
       database,
       createControllerArgs<'/villages/:villageId/artifacts'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 

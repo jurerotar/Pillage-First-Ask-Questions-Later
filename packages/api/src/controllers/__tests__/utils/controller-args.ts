@@ -11,11 +11,7 @@ export const createControllerArgs = <
   args: Partial<ControllerArgs<TPath, TMethod, TBody>>,
 ): ControllerArgs<TPath, TMethod, TBody> => {
   return {
-    params: (args.params ?? {}) as ControllerArgs<
-      TPath,
-      TMethod,
-      TBody
-    >['params'],
+    path: (args.path ?? {}) as ControllerArgs<TPath, TMethod, TBody>['path'],
     query: (args.query ?? {}) as ControllerArgs<TPath, TMethod, TBody>['query'],
     body: (args.body ?? {}) as ControllerArgs<TPath, TMethod, TBody>['body'],
   };

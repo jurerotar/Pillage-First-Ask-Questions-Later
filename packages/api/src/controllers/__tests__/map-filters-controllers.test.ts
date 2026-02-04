@@ -13,7 +13,7 @@ describe('map-filters-controllers', () => {
     getMapFilters(
       database,
       createControllerArgs<'/players/:playerId/map-filters'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
@@ -29,7 +29,7 @@ describe('map-filters-controllers', () => {
         '/players/:playerId/map-filters/:filterName',
         'patch'
       >({
-        params: { playerId, filterName: 'shouldShowOasisIcons' },
+        path: { playerId, filterName: 'shouldShowOasisIcons' },
         body: { value: true },
       }),
     );

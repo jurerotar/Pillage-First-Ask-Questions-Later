@@ -17,7 +17,7 @@ describe('effect-controllers', () => {
     getVillageEffects(
       database,
       createControllerArgs<'/villages/:villageId/effects'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 

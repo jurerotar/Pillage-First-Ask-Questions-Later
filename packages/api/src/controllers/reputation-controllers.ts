@@ -1,12 +1,9 @@
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getReputationsSchema } from './schemas/reputation-schemas';
 
-export const getReputations: Controller<'/players/:playerId/reputations'> = (
-  database,
-  { params },
-) => {
-  const { playerId } = params;
-
+export const getReputations = createController(
+  '/players/:playerId/reputations',
+)(({ database, path: { playerId } }) => {
   return database.selectObjects({
     sql: `
     SELECT f.faction, fr.reputation
@@ -19,4 +16,4 @@ export const getReputations: Controller<'/players/:playerId/reputations'> = (
     },
     schema: getReputationsSchema,
   });
-};
+});

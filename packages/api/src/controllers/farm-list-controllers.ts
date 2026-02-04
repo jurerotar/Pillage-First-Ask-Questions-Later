@@ -1,79 +1,65 @@
 import { z } from 'zod';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import {
   farmListSchema,
   farmListTileSchema,
 } from './schemas/farm-list-schemas';
 
-export const getFarmLists: Controller<'/players/:playerId/farm-lists'> = (
-  database,
-  { params },
-) => {
-  const { playerId } = params;
+export const getFarmLists = createController('/players/:playerId/farm-lists')(
+  ({ database, path: { playerId } }) => {
+    return database.selectObjects({
+      sql: 'SELECT id, name FROM farm_lists WHERE player_id = $playerId',
+      bind: { $playerId: playerId },
+      schema: farmListSchema,
+    });
+  },
+);
 
-  return database.selectObjects({
-    sql: 'SELECT id, name FROM farm_lists WHERE player_id = $playerId',
-    bind: { $playerId: playerId },
-    schema: farmListSchema,
-  });
-};
-
-export const createFarmList: Controller<
+export const createFarmList = createController(
   '/players/:playerId/farm-lists',
-  'post'
-> = (database, { params, body }) => {
-  const { playerId } = params;
-  const { name } = body;
-
+  'post',
+)(({ database, path: { playerId }, body: { name } }) => {
   database.exec({
     sql: 'INSERT INTO farm_lists (player_id, name) VALUES ($playerId, $name)',
     bind: { $playerId: playerId, $name: name },
   });
-};
+});
 
-export const getFarmList: Controller<'/farm-lists/:farmListId'> = (
-  database,
-  { params },
-) => {
-  const { farmListId } = params;
+export const getFarmList = createController('/farm-lists/:farmListId')(
+  ({ database, path: { farmListId } }) => {
+    const farmList = database.selectObject({
+      sql: 'SELECT id, name FROM farm_lists WHERE id = $farmListId',
+      bind: { $farmListId: farmListId },
+      schema: farmListSchema,
+    })!;
 
-  const farmList = database.selectObject({
-    sql: 'SELECT id, name FROM farm_lists WHERE id = $farmListId',
-    bind: { $farmListId: farmListId },
-    schema: farmListSchema,
-  })!;
+    const tiles = database.selectObjects({
+      sql: 'SELECT tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
+      bind: { $farmListId: farmListId },
+      schema: farmListTileSchema,
+    });
 
-  const tiles = database.selectObjects({
-    sql: 'SELECT tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
-    bind: { $farmListId: farmListId },
-    schema: farmListTileSchema,
-  });
+    return {
+      ...farmList,
+      tileIds: tiles,
+    };
+  },
+);
 
-  return {
-    ...farmList,
-    tileIds: tiles,
-  };
-};
-
-export const deleteFarmList: Controller<'/farm-lists/:farmListId', 'delete'> = (
-  database,
-  { params },
-) => {
-  const { farmListId } = params;
-
+export const deleteFarmList = createController(
+  '/farm-lists/:farmListId',
+  'delete',
+)(({ database, path: { farmListId } }) => {
   database.exec({
     sql: 'DELETE FROM farm_lists WHERE id = $farmListId',
     bind: { $farmListId: farmListId },
   });
-};
+});
 
-export const addTileToFarmList: Controller<
+export const addTileToFarmList = createController(
   '/farm-lists/:farmListId/tiles',
-  'post'
-> = (database, { params, body }) => {
-  const { farmListId } = params;
-  const { tileId } = body;
-
+  'post',
+)(({ database, path: { farmListId }, body: { tileId } }) => {
   database.transaction(() => {
     const count = database.selectValue({
       sql: 'SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = $farmListId',
@@ -90,29 +76,24 @@ export const addTileToFarmList: Controller<
       bind: { $farmListId: farmListId, $tileId: tileId },
     });
   });
-};
+});
 
-export const removeTileFromFarmList: Controller<
+export const removeTileFromFarmList = createController(
   '/farm-lists/:farmListId/tiles/:tileId',
-  'delete'
-> = (database, { params }) => {
-  const { farmListId, tileId } = params;
-
+  'delete',
+)(({ database, path: { farmListId, tileId } }) => {
   database.exec({
     sql: 'DELETE FROM farm_list_tiles WHERE farm_list_id = $farmListId AND tile_id = $tileId',
     bind: { $farmListId: farmListId, $tileId: tileId },
   });
-};
+});
 
-export const renameFarmList: Controller<
+export const renameFarmList = createController(
   '/farm-lists/:farmListId/rename',
-  'patch'
-> = (database, { params, body }) => {
-  const { farmListId } = params;
-  const { name } = body;
-
+  'patch',
+)(({ database, path: { farmListId }, body: { name } }) => {
   database.exec({
     sql: 'UPDATE farm_lists SET name = $name WHERE id = $farmListId',
     bind: { $name: name, $farmListId: farmListId },
   });
-};
+});

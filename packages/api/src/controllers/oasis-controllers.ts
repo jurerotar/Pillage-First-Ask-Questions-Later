@@ -1,15 +1,12 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 
-export const occupyOasis: Controller<
+export const occupyOasis = createController(
   '/villages/:villageId/oasis/:oasisId',
-  'post'
-> = (database, args) => {
-  const {
-    params: { oasisId, villageId },
-  } = args;
+  'post',
+)(({ database, path: { oasisId, villageId } }) => {
   // TODO: Add Hero's mansion level & empty oasis slot check
 
   database.transaction((db) => {
@@ -64,16 +61,12 @@ export const occupyOasis: Controller<
       },
     });
   });
-};
+});
 
-export const abandonOasis: Controller<
+export const abandonOasis = createController(
   '/villages/:villageId/oasis/:oasisId',
-  'delete'
-> = (database, args) => {
-  const {
-    params: { oasisId, villageId },
-  } = args;
-
+  'delete',
+)(({ database, path: { oasisId, villageId } }) => {
   database.transaction((db) => {
     updateVillageResourcesAt(db, villageId, Date.now());
 
@@ -104,4 +97,4 @@ export const abandonOasis: Controller<
       },
     });
   });
-};
+});

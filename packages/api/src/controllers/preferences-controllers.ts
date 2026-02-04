@@ -1,10 +1,10 @@
 import { snakeCase } from 'moderndash';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getPreferencesSchema } from './schemas/preferences-schemas';
 
-export const getPreferences: Controller<'/players/:playerId/preferences'> = (
-  database,
-) => {
+export const getPreferences = createController(
+  '/players/:playerId/preferences',
+)(({ database }) => {
   return database.selectObject({
     sql: `
       SELECT
@@ -21,15 +21,12 @@ export const getPreferences: Controller<'/players/:playerId/preferences'> = (
     `,
     schema: getPreferencesSchema,
   })!;
-};
+});
 
-export const updatePreference: Controller<
+export const updatePreference = createController(
   '/players/:playerId/preferences/:preferenceName',
-  'patch'
-> = (database, { body, params }) => {
-  const { preferenceName } = params;
-  const { value } = body;
-
+  'patch',
+)(({ database, path: { preferenceName }, body: { value } }) => {
   const column = snakeCase(preferenceName);
 
   database.exec({
@@ -42,4 +39,4 @@ export const updatePreference: Controller<
       $value: value,
     },
   });
-};
+});

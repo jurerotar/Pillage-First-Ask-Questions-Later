@@ -81,7 +81,7 @@ export const matchRoute = (url: string, method: string) => {
 
     return {
       controller: route.controller,
-      params,
+      path: params,
       query,
     };
   }

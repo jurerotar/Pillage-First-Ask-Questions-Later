@@ -26,12 +26,12 @@ describe('player-controllers', () => {
   test('getPlayerVillageListing should return village listing for a player', async () => {
     const database = await prepareTestDatabase();
 
-    const result = (await getPlayerVillageListing(
+    const result = getPlayerVillageListing(
       database,
       createControllerArgs<'/players/:playerId/villages'>({
-        params: { playerId },
+        path: { playerId },
       }),
-    )) as any[];
+    );
 
     expect(result).toBeDefined();
     expect(result.length).toBeGreaterThan(0);
@@ -46,12 +46,12 @@ describe('player-controllers', () => {
   test('getPlayerVillagesWithPopulation should return villages with population', async () => {
     const database = await prepareTestDatabase();
 
-    const result = (await getPlayerVillagesWithPopulation(
+    const result = getPlayerVillagesWithPopulation(
       database,
       createControllerArgs<'/players/:playerId/villages-with-population'>({
-        params: { playerId },
+        path: { playerId },
       }),
-    )) as any[];
+    );
 
     expect(result).toBeDefined();
     expect(result.length).toBeGreaterThan(0);
@@ -72,7 +72,7 @@ describe('player-controllers', () => {
     getTroopsByVillage(
       database,
       createControllerArgs<'/villages/:villageId/troops'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 
@@ -91,7 +91,7 @@ describe('player-controllers', () => {
     renameVillage(
       database,
       createControllerArgs<'/villages/:villageId/rename', 'patch'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
         body: { name: 'New Village Name' },
       }),
     );
@@ -108,12 +108,12 @@ describe('player-controllers', () => {
       schema: z.object({ slug: z.string() }),
     })!;
 
-    const result = (await getPlayerBySlug(
+    const result = getPlayerBySlug(
       database,
       createControllerArgs<'/players/:playerSlug'>({
-        params: { playerSlug: player.slug },
+        path: { playerSlug: player.slug },
       }),
-    )) as any;
+    );
 
     expect(result).toBeDefined();
     expect(result.slug).toBe(player.slug);

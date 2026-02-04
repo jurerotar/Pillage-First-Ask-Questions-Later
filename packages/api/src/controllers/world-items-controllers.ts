@@ -1,14 +1,12 @@
 import { artifacts } from '@pillage-first/game-assets/items';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getArtifactsAroundVillageSchema } from './schemas/world-items-schemas';
 
 const artifactIds = artifacts.map((item) => item.id);
 
-export const getArtifactsAroundVillage: Controller<
-  '/villages/:villageId/artifacts'
-> = (database, { params }) => {
-  const { villageId } = params;
-
+export const getArtifactsAroundVillage = createController(
+  '/villages/:villageId/artifacts',
+)(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
       SELECT
@@ -28,4 +26,4 @@ export const getArtifactsAroundVillage: Controller<
     bind: { $village_id: villageId },
     schema: getArtifactsAroundVillageSchema,
   });
-};
+});

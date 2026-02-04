@@ -1,5 +1,5 @@
 import type { Resource } from '@pillage-first/types/models/resource';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getTilesWithBonusesSchema } from './schemas/oasis-bonus-finder-schemas';
 
 const createSqlBindings = (slot: OasisBonus[]) => {
@@ -29,27 +29,25 @@ type OasisBonus = {
   resource: Resource;
 };
 
-export const getTilesWithBonuses: Controller<'/oasis-bonus-finder'> = (
-  database,
-  { query, body },
-) => {
-  const { x, y } = query;
-  const { resourceFieldComposition, bonuses } = body;
-  const { firstOasis, secondOasis, thirdOasis } = bonuses;
+export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
+  ({ database, query, body }) => {
+    const { x, y } = query;
+    const { resourceFieldComposition, bonuses } = body;
+    const { firstOasis, secondOasis, thirdOasis } = bonuses;
 
-  const s1 = createSqlBindings(firstOasis);
-  const s2 = createSqlBindings(secondOasis);
-  const s3 = createSqlBindings(thirdOasis);
+    const s1 = createSqlBindings(firstOasis);
+    const s2 = createSqlBindings(secondOasis);
+    const s3 = createSqlBindings(thirdOasis);
 
-  const sqlBindings: Record<string, number | string> = {
-    $tile_x: x,
-    $tile_y: y,
-    $rfc_param: resourceFieldComposition,
-  };
+    const sqlBindings: Record<string, number | string> = {
+      $tile_x: x,
+      $tile_y: y,
+      $rfc_param: resourceFieldComposition,
+    };
 
-  const sqlParts: string[] = [];
+    const sqlParts: string[] = [];
 
-  sqlParts.push(`
+    sqlParts.push(`
     WITH
       src_village AS (
         VALUES ($tile_x, $tile_y)
@@ -74,29 +72,29 @@ export const getTilesWithBonuses: Controller<'/oasis-bonus-finder'> = (
            CROSS JOIN src_village sv
   `);
 
-  const slots: {
-    idx: number;
-    slot: NonNullable<ReturnType<typeof createSqlBindings>>;
-  }[] = [];
+    const slots: {
+      idx: number;
+      slot: NonNullable<ReturnType<typeof createSqlBindings>>;
+    }[] = [];
 
-  if (s1) {
-    slots.push({ idx: 1, slot: s1 });
-  }
-  if (s2) {
-    slots.push({ idx: 2, slot: s2 });
-  }
-  if (s3) {
-    slots.push({ idx: 3, slot: s3 });
-  }
+    if (s1) {
+      slots.push({ idx: 1, slot: s1 });
+    }
+    if (s2) {
+      slots.push({ idx: 2, slot: s2 });
+    }
+    if (s3) {
+      slots.push({ idx: 3, slot: s3 });
+    }
 
-  const buildDerived = (
-    idx: number,
-    slot: NonNullable<ReturnType<typeof createSqlBindings>>,
-  ) => {
-    if (slot.count === 1) {
-      sqlBindings[`$r${idx}`] = slot.r1;
-      sqlBindings[`$b${idx}`] = slot.b1;
-      return `
+    const buildDerived = (
+      idx: number,
+      slot: NonNullable<ReturnType<typeof createSqlBindings>>,
+    ) => {
+      if (slot.count === 1) {
+        sqlBindings[`$r${idx}`] = slot.r1;
+        sqlBindings[`$b${idx}`] = slot.b1;
+        return `
         (
           SELECT o.tile_id AS oasis_tile
           FROM oasis o
@@ -107,15 +105,15 @@ export const getTilesWithBonuses: Controller<'/oasis-bonus-finder'> = (
           GROUP BY o.tile_id
         )
       `;
-    }
+      }
 
-    // Two bonuses on the same oasis
-    sqlBindings[`$r${idx}`] = slot.r1;
-    sqlBindings[`$b${idx}`] = slot.b1;
-    sqlBindings[`$r${idx}_2`] = slot.r1_2!;
-    sqlBindings[`$b${idx}_2`] = slot.b1_2!;
+      // Two bonuses on the same oasis
+      sqlBindings[`$r${idx}`] = slot.r1;
+      sqlBindings[`$b${idx}`] = slot.b1;
+      sqlBindings[`$r${idx}_2`] = slot.r1_2!;
+      sqlBindings[`$b${idx}_2`] = slot.b1_2!;
 
-    return `
+      return `
       (
         SELECT o.tile_id AS oasis_tile
         FROM oasis o
@@ -129,53 +127,54 @@ export const getTilesWithBonuses: Controller<'/oasis-bonus-finder'> = (
         HAVING COUNT(DISTINCT (o.resource || '-' || o.bonus)) = 2
       )
     `;
-  };
+    };
 
-  const whereClauses: string[] = [];
+    const whereClauses: string[] = [];
 
-  if (slots.length === 1) {
-    // Single-slot fast path
-    const d = buildDerived(slots[0].idx, slots[0].slot);
-    whereClauses.push(
-      `EXISTS (SELECT 1 FROM ${d} AS s1 WHERE s1.oasis_tile IS NOT NULL)`,
-    );
-  } else if (slots.length > 1) {
-    // Multi-slot: build derived subqueries and join with pairwise inequality in ON clauses
-    const derived = slots.map(({ idx, slot }, i) => ({
-      alias: `s${i + 1}`,
-      sql: buildDerived(idx, slot),
-    }));
-    // Build FROM ... JOIN ... ON conditions with pairwise inequality
-    let joinSql = `FROM ${derived[0].sql} AS ${derived[0].alias}\n`;
-    for (let i = 1; i < derived.length; i += 1) {
-      const right = derived[i].alias;
-      // Pairwise inequality for the last alias against all previous ones
-      const onConditions: string[] = [];
-      for (let j = 0; j < i; j += 1) {
-        onConditions.push(
-          `${right}.oasis_tile <> ${derived[j].alias}.oasis_tile`,
-        );
+    if (slots.length === 1) {
+      // Single-slot fast path
+      const d = buildDerived(slots[0].idx, slots[0].slot);
+      whereClauses.push(
+        `EXISTS (SELECT 1 FROM ${d} AS s1 WHERE s1.oasis_tile IS NOT NULL)`,
+      );
+    } else if (slots.length > 1) {
+      // Multi-slot: build derived subqueries and join with pairwise inequality in ON clauses
+      const derived = slots.map(({ idx, slot }, i) => ({
+        alias: `s${i + 1}`,
+        sql: buildDerived(idx, slot),
+      }));
+      // Build FROM ... JOIN ... ON conditions with pairwise inequality
+      let joinSql = `FROM ${derived[0].sql} AS ${derived[0].alias}\n`;
+      for (let i = 1; i < derived.length; i += 1) {
+        const right = derived[i].alias;
+        // Pairwise inequality for the last alias against all previous ones
+        const onConditions: string[] = [];
+        for (let j = 0; j < i; j += 1) {
+          onConditions.push(
+            `${right}.oasis_tile <> ${derived[j].alias}.oasis_tile`,
+          );
+        }
+        joinSql += `JOIN ${derived[i].sql} AS ${right} ON (${onConditions.join(' AND ')})\n`;
       }
-      joinSql += `JOIN ${derived[i].sql} AS ${right} ON (${onConditions.join(' AND ')})\n`;
+      whereClauses.push(`EXISTS (SELECT 1\n${joinSql} )`);
     }
-    whereClauses.push(`EXISTS (SELECT 1\n${joinSql} )`);
-  }
 
-  if (whereClauses.length > 0) {
-    sqlParts.push(`WHERE ${whereClauses.join('\n  AND ')}`);
-  }
+    if (whereClauses.length > 0) {
+      sqlParts.push(`WHERE ${whereClauses.join('\n  AND ')}`);
+    }
 
-  sqlParts.push(
-    `
+    sqlParts.push(
+      `
       ORDER BY distance_squared ASC;
     `,
-  );
+    );
 
-  const sql = sqlParts.join('\n');
+    const sql = sqlParts.join('\n');
 
-  return database.selectObjects({
-    sql: sql,
-    bind: sqlBindings,
-    schema: getTilesWithBonusesSchema,
-  });
-};
+    return database.selectObjects({
+      sql: sql,
+      bind: sqlBindings,
+      schema: getTilesWithBonusesSchema,
+    });
+  },
+);

@@ -9,7 +9,7 @@ export type ControllerArgs<
   TMethod extends Method = 'get',
   TBody = undefined,
 > = {
-  params: TPath extends keyof typeof paths
+  path: TPath extends keyof typeof paths
     ? TMethod extends keyof (typeof paths)[TPath]
       ? (typeof paths)[TPath][TMethod] extends {
           requestParams: { path: infer P extends z.ZodTypeAny };
@@ -44,11 +44,24 @@ export type ControllerArgs<
     : TBody;
 };
 
-export type Controller<
-  TPath extends string,
+export const createController = <
+  TPath extends keyof typeof paths,
   TMethod extends Method = 'get',
-  TBody = undefined,
-> = (
-  database: DbFacade,
-  args: ControllerArgs<TPath, TMethod, TBody>,
-) => unknown;
+>(
+  _path: TPath,
+  _method: TMethod = 'get' as TMethod,
+) => {
+  return <TReturn>(
+    fn: (
+      args: ControllerArgs<TPath, TMethod> & { database: DbFacade },
+    ) => TReturn,
+  ): ((
+    database: DbFacade,
+    args: ControllerArgs<TPath, TMethod>,
+  ) => TReturn) => {
+    return (
+      database: DbFacade,
+      args: ControllerArgs<TPath, TMethod>,
+    ): TReturn => fn({ database, ...args });
+  };
+};

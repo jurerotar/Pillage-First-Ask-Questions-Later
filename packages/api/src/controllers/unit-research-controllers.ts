@@ -1,11 +1,9 @@
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getResearchedUnitsSchema } from './schemas/unit-research-schemas';
 
-export const getResearchedUnits: Controller<
-  '/villages/:villageId/researched-units'
-> = (database, { params }) => {
-  const { villageId } = params;
-
+export const getResearchedUnits = createController(
+  '/villages/:villageId/researched-units',
+)(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
     SELECT unit_id, village_id
@@ -15,4 +13,4 @@ export const getResearchedUnits: Controller<
     bind: { $village_id: villageId },
     schema: getResearchedUnitsSchema,
   });
-};
+});

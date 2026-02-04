@@ -13,9 +13,9 @@ describe('bookmark-controllers', () => {
     const result = getBookmarks(
       database,
       createControllerArgs<'/villages/:villageId/bookmarks'>({
-        params: { villageId },
+        path: { villageId },
       }),
-    ) as Record<Building['id'], string>;
+    );
 
     const buildingIds = buildings.map((b) => b.id);
 
@@ -37,7 +37,7 @@ describe('bookmark-controllers', () => {
         '/villages/:villageId/bookmarks/:buildingId',
         'patch'
       >({
-        params: { villageId, buildingId },
+        path: { villageId, buildingId },
         body: { tab: newTabName },
       }),
     );
@@ -45,9 +45,9 @@ describe('bookmark-controllers', () => {
     const result = getBookmarks(
       database,
       createControllerArgs<'/villages/:villageId/bookmarks'>({
-        params: { villageId },
+        path: { villageId },
       }),
-    ) as Record<Building['id'], string>;
+    );
 
     expect(result[buildingId]).toBe(newTabName);
   });

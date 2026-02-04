@@ -1,30 +1,24 @@
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getBookmarksSchema } from './schemas/bookmark-schemas';
 
-export const getBookmarks: Controller<'/villages/:villageId/bookmarks'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
+export const getBookmarks = createController('/villages/:villageId/bookmarks')(
+  ({ database, path: { villageId } }) => {
+    const bookmarks = database.selectObjects({
+      sql: 'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
+      bind: {
+        $village_id: villageId,
+      },
+      schema: getBookmarksSchema,
+    });
 
-  const bookmarks = database.selectObjects({
-    sql: 'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
-    bind: {
-      $village_id: villageId,
-    },
-    schema: getBookmarksSchema,
-  });
+    return Object.fromEntries(bookmarks);
+  },
+);
 
-  return Object.fromEntries(bookmarks);
-};
-
-export const updateBookmark: Controller<
+export const updateBookmark = createController(
   '/villages/:villageId/bookmarks/:buildingId',
-  'patch'
-> = (database, { params, body }) => {
-  const { villageId, buildingId } = params;
-  const { tab } = body;
-
+  'patch',
+)(({ database, path: { villageId, buildingId }, body: { tab } }) => {
   database.exec({
     sql: `
     UPDATE bookmarks
@@ -38,4 +32,4 @@ export const updateBookmark: Controller<
       $building_id: buildingId,
     },
   });
-};
+});

@@ -23,7 +23,7 @@ describe('hero-controllers', () => {
     getHero(
       database,
       createControllerArgs<'/players/:playerId/hero'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
@@ -36,7 +36,7 @@ describe('hero-controllers', () => {
     getHeroLoadout(
       database,
       createControllerArgs<'/players/:playerId/hero/equipped-items'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
@@ -49,7 +49,7 @@ describe('hero-controllers', () => {
     getHeroInventory(
       database,
       createControllerArgs<'/players/:playerId/hero/inventory'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
@@ -62,7 +62,7 @@ describe('hero-controllers', () => {
     getHeroAdventures(
       database,
       createControllerArgs<'/players/:playerId/hero/adventures'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
@@ -76,7 +76,7 @@ describe('hero-controllers', () => {
       changeHeroAttributes(
         database,
         createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
-          params: { playerId },
+          path: { playerId },
           body: { attribute: 'attackPower' },
         }),
       );
@@ -115,7 +115,7 @@ describe('hero-controllers', () => {
         database,
         createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
           {
-            params: { playerId },
+            path: { playerId },
             body: { itemId, slot, amount: 1 },
           },
         ),
@@ -169,7 +169,7 @@ describe('hero-controllers', () => {
         database,
         createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
           {
-            params: { playerId },
+            path: { playerId },
             body: { itemId: newItemId, slot, amount: 1 },
           },
         ),
@@ -215,7 +215,7 @@ describe('hero-controllers', () => {
         database,
         createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
           {
-            params: { playerId },
+            path: { playerId },
             body: { itemId, slot, amount: 1 },
           },
         ),
@@ -254,7 +254,7 @@ describe('hero-controllers', () => {
         database,
         createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
           {
-            params: { playerId },
+            path: { playerId },
             body: { itemId, slot, amount: 5 },
           },
         ),
@@ -273,7 +273,7 @@ describe('hero-controllers', () => {
         database,
         createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
           {
-            params: { playerId },
+            path: { playerId },
             body: { itemId, slot, amount: 3 },
           },
         ),
@@ -322,7 +322,7 @@ describe('hero-controllers', () => {
           '/players/:playerId/hero/equipped-items/:slot',
           'delete'
         >({
-          params: { playerId, slot: 'horse' },
+          path: { playerId, slot: 'horse' },
         }),
       );
 
@@ -377,7 +377,7 @@ describe('hero-controllers', () => {
           '/players/:playerId/hero/equipped-items/:slot',
           'delete'
         >({
-          params: { playerId, slot },
+          path: { playerId, slot },
         }),
       );
 
@@ -420,7 +420,7 @@ describe('hero-controllers', () => {
       useHeroItem(
         database,
         createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          params: { playerId },
+          path: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -470,7 +470,7 @@ describe('hero-controllers', () => {
       useHeroItem(
         database,
         createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          params: { playerId },
+          path: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -528,7 +528,7 @@ describe('hero-controllers', () => {
       useHeroItem(
         database,
         createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-          params: { playerId },
+          path: { playerId },
           body: { itemId, amount },
         }),
       );
@@ -568,7 +568,7 @@ describe('hero-controllers', () => {
         useHeroItem(
           database,
           createControllerArgs<'/players/:playerId/hero/item', 'post'>({
-            params: { playerId },
+            path: { playerId },
             body: { itemId, amount },
           }),
         );

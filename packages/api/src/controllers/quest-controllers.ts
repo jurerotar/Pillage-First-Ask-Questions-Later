@@ -5,19 +5,15 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { addVillageResourcesAt } from '../utils/village';
 import { getQuestsSchema } from './schemas/quest-schemas';
 import { addHeroExperience } from './utils/hero';
 
-export const getQuests: Controller<'/villages/:villageId/quests'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
-
-  return database.selectObjects({
-    sql: `
+export const getQuests = createController('/villages/:villageId/quests')(
+  ({ database, path: { villageId } }) => {
+    return database.selectObjects({
+      sql: `
       SELECT *
       FROM
         (
@@ -36,16 +32,17 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
             village_id IS NULL
           ) AS q
     `,
-    bind: {
-      $village_id: villageId,
-    },
-    schema: getQuestsSchema,
-  });
-};
+      bind: {
+        $village_id: villageId,
+      },
+      schema: getQuestsSchema,
+    });
+  },
+);
 
-export const getCollectableQuestCount: Controller<
-  '/villages/:villageId/quests/collectables/count'
-> = (database) => {
+export const getCollectableQuestCount = createController(
+  '/villages/:villageId/quests/collectables/count',
+)(({ database }) => {
   const collectableQuestCount = database.selectValue({
     sql: `
       SELECT COUNT(*) AS count
@@ -61,16 +58,12 @@ export const getCollectableQuestCount: Controller<
   return {
     collectableQuestCount,
   };
-};
+});
 
-export const collectQuest: Controller<
+export const collectQuest = createController(
   '/villages/:villageId/quests/:questId/collect',
-  'patch'
-> = (database, args) => {
-  const {
-    params: { questId, villageId },
-  } = args;
-
+  'patch',
+)(({ database, path: { questId, villageId } }) => {
   database.exec({
     sql: `
       UPDATE quests
@@ -114,4 +107,4 @@ export const collectQuest: Controller<
       addHeroExperience(database, reward.amount);
     }
   }
-};
+});

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/buildings/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
@@ -13,26 +13,21 @@ import { eventSchema } from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event';
 import { getEventStartTime } from './utils/events';
 
-export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
+export const getVillageEvents = createController('/villages/:villageId/events')(
+  ({ database, path: { villageId } }) => {
+    return database.selectObjects({
+      sql: selectAllVillageEventsQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: eventSchema,
+    });
+  },
+);
 
-  return database.selectObjects({
-    sql: selectAllVillageEventsQuery,
-    bind: {
-      $village_id: villageId,
-    },
-    schema: eventSchema,
-  });
-};
-
-export const getVillageEventsByType: Controller<
-  '/villages/:villageId/events/:eventType'
-> = (database, { params }) => {
-  const { villageId, eventType } = params;
-
+export const getVillageEventsByType = createController(
+  '/villages/:villageId/events/:eventType',
+)(({ database, path: { villageId, eventType } }) => {
   return database.selectObjects({
     sql: selectAllVillageEventsByTypeQuery,
     bind: {
@@ -41,23 +36,19 @@ export const getVillageEventsByType: Controller<
     },
     schema: eventSchema,
   });
-};
+});
 
-export const createNewEvents: Controller<'/events', 'post'> = (
-  database,
-  { body },
-) => {
+export const createNewEvents = createController(
+  '/events',
+  'post',
+)(({ database, body }) => {
   createEvents(database, body);
-};
+});
 
-export const cancelConstructionEvent: Controller<
+export const cancelConstructionEvent = createController(
   '/events/:eventId',
-  'delete'
-> = (database, args) => {
-  const {
-    params: { eventId },
-  } = args;
-
+  'delete',
+)(({ database, path: { eventId } }) => {
   database.transaction((db) => {
     const cancelledEvent = db.selectObject({
       sql: selectEventByIdQuery,
@@ -144,4 +135,4 @@ export const cancelConstructionEvent: Controller<
   });
 
   triggerKick();
-};
+});

@@ -92,7 +92,7 @@ type Route<T extends RoutePath = RoutePath> = {
     controller: (
       database: DbFacade,
       args: {
-        params: Record<string, string | number> | any;
+        path: Record<string, string | number> | any;
         body: Record<string, string | number> | any;
         query: Record<string, string | number> | any;
       },

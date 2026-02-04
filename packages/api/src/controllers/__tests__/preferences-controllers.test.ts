@@ -13,7 +13,7 @@ describe('preferences-controllers', () => {
     getPreferences(
       database,
       createControllerArgs<'/players/:playerId/preferences'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
@@ -29,7 +29,7 @@ describe('preferences-controllers', () => {
         '/players/:playerId/preferences/:preferenceName',
         'patch'
       >({
-        params: {
+        path: {
           playerId,
           preferenceName: 'isAccessibilityModeEnabled',
         },

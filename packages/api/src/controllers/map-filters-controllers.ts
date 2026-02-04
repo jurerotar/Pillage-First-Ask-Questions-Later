@@ -1,12 +1,11 @@
 import { snakeCase } from 'moderndash';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getMapFiltersSchema } from './schemas/map-filters-schemas';
 
-export const getMapFilters: Controller<'/players/:playerId/map-filters'> = (
-  database,
-) => {
-  return database.selectObject({
-    sql: `
+export const getMapFilters = createController('/players/:playerId/map-filters')(
+  ({ database }) => {
+    return database.selectObject({
+      sql: `
     SELECT
       should_show_faction_reputation,
       should_show_oasis_icons,
@@ -15,17 +14,15 @@ export const getMapFilters: Controller<'/players/:playerId/map-filters'> = (
       should_show_tile_tooltips,
       should_show_treasure_icons
     FROM map_filters`,
-    schema: getMapFiltersSchema,
-  })!;
-};
+      schema: getMapFiltersSchema,
+    })!;
+  },
+);
 
-export const updateMapFilter: Controller<
+export const updateMapFilter = createController(
   '/players/:playerId/map-filters/:filterName',
-  'patch'
-> = (database, { params, body }) => {
-  const { filterName } = params;
-  const { value } = body;
-
+  'patch',
+)(({ database, path: { filterName }, body: { value } }) => {
   const column = snakeCase(filterName);
 
   database.exec({
@@ -37,4 +34,4 @@ export const updateMapFilter: Controller<
       $value: value,
     },
   });
-};
+});

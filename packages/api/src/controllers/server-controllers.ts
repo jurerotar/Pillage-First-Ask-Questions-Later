@@ -1,7 +1,7 @@
 import { serverDbSchema } from '@pillage-first/types/models/server';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 
-export const getServer: Controller<'/server'> = (database) => {
+export const getServer = createController('/server')(({ database }) => {
   return database.selectObject({
     sql: `
       SELECT
@@ -20,4 +20,4 @@ export const getServer: Controller<'/server'> = (database) => {
     `,
     schema: serverDbSchema,
   })!;
-};
+});

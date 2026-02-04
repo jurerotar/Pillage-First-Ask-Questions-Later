@@ -1,6 +1,6 @@
 import type { Faction } from '@pillage-first/types/models/faction';
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import {
   getPlayerRankingsSchema,
   getServerOverviewStatisticsSchema,
@@ -9,15 +9,13 @@ import {
   villagesStatsRowSchema,
 } from './schemas/statistics-schemas';
 
-export const getPlayerRankings: Controller<'/statistics/players'> = (
-  database,
-  { body },
-) => {
-  const { lastPlayerId = null } = body;
+export const getPlayerRankings = createController('/statistics/players')(
+  ({ database, body }) => {
+    const { lastPlayerId = null } = body;
 
-  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  return database.selectObjects({
-    sql: `
+    // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
+    return database.selectObjects({
+      sql: `
       WITH player_pop AS (
         SELECT
           p.id,
@@ -73,22 +71,21 @@ export const getPlayerRankings: Controller<'/statistics/players'> = (
           )
       ORDER BY total_population DESC, id;
     `,
-    bind: {
-      $last_player_id: lastPlayerId,
-    },
-    schema: getPlayerRankingsSchema,
-  });
-};
+      bind: {
+        $last_player_id: lastPlayerId,
+      },
+      schema: getPlayerRankingsSchema,
+    });
+  },
+);
 
-export const getVillageRankings: Controller<'/statistics/villages'> = (
-  database,
-  { body },
-) => {
-  const { lastVillageId = null } = body;
+export const getVillageRankings = createController('/statistics/villages')(
+  ({ database, body }) => {
+    const { lastVillageId = null } = body;
 
-  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  return database.selectObjects({
-    sql: `
+    // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
+    return database.selectObjects({
+      sql: `
       WITH
         village_pop AS (
           SELECT
@@ -155,18 +152,18 @@ export const getVillageRankings: Controller<'/statistics/villages'> = (
       ORDER BY
         population DESC, village_id
     `,
-    bind: {
-      $last_village_id: lastVillageId,
-    },
-    schema: getVillageRankingsSchema,
-  });
-};
+      bind: {
+        $last_village_id: lastVillageId,
+      },
+      schema: getVillageRankingsSchema,
+    });
+  },
+);
 
-export const getGameWorldOverview: Controller<'/statistics/overview'> = (
-  database,
-) => {
-  const playersStats = database.selectObjects({
-    sql: `
+export const getGameWorldOverview = createController('/statistics/overview')(
+  ({ database }) => {
+    const playersStats = database.selectObjects({
+      sql: `
     SELECT
       p.tribe AS tribe,
       f.faction AS faction,
@@ -175,11 +172,11 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
   `,
-    schema: playersStatsRowSchema,
-  });
+      schema: playersStatsRowSchema,
+    });
 
-  const villagesStats = database.selectObjects({
-    sql: `
+    const villagesStats = database.selectObjects({
+      sql: `
     SELECT
       p.tribe AS tribe,
       f.faction AS faction,
@@ -189,71 +186,72 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
   `,
-    schema: villagesStatsRowSchema,
-  });
+      schema: villagesStatsRowSchema,
+    });
 
-  let totalPlayers = 0;
+    let totalPlayers = 0;
 
-  const playersByTribe: Record<PlayableTribe, number> = {
-    gauls: 0,
-    romans: 0,
-    teutons: 0,
-    egyptians: 0,
-    huns: 0,
-  };
+    const playersByTribe: Record<PlayableTribe, number> = {
+      gauls: 0,
+      romans: 0,
+      teutons: 0,
+      egyptians: 0,
+      huns: 0,
+    };
 
-  const playersByFaction: Record<Faction, number> = {
-    player: 0,
-    npc1: 0,
-    npc2: 0,
-    npc3: 0,
-    npc4: 0,
-    npc5: 0,
-    npc6: 0,
-    npc7: 0,
-    npc8: 0,
-  };
+    const playersByFaction: Record<Faction, number> = {
+      player: 0,
+      npc1: 0,
+      npc2: 0,
+      npc3: 0,
+      npc4: 0,
+      npc5: 0,
+      npc6: 0,
+      npc7: 0,
+      npc8: 0,
+    };
 
-  for (const row of playersStats) {
-    totalPlayers += row.player_count;
-    playersByTribe[row.tribe] += row.player_count;
-    playersByFaction[row.faction] += row.player_count;
-  }
+    for (const row of playersStats) {
+      totalPlayers += row.player_count;
+      playersByTribe[row.tribe] += row.player_count;
+      playersByFaction[row.faction] += row.player_count;
+    }
 
-  let totalVillages = 0;
+    let totalVillages = 0;
 
-  const villagesByTribe: Record<PlayableTribe, number> = {
-    gauls: 0,
-    romans: 0,
-    teutons: 0,
-    egyptians: 0,
-    huns: 0,
-  };
+    const villagesByTribe: Record<PlayableTribe, number> = {
+      gauls: 0,
+      romans: 0,
+      teutons: 0,
+      egyptians: 0,
+      huns: 0,
+    };
 
-  const villagesByFaction: Record<Faction, number> = {
-    player: 0,
-    npc1: 0,
-    npc2: 0,
-    npc3: 0,
-    npc4: 0,
-    npc5: 0,
-    npc6: 0,
-    npc7: 0,
-    npc8: 0,
-  };
+    const villagesByFaction: Record<Faction, number> = {
+      player: 0,
+      npc1: 0,
+      npc2: 0,
+      npc3: 0,
+      npc4: 0,
+      npc5: 0,
+      npc6: 0,
+      npc7: 0,
+      npc8: 0,
+    };
 
-  for (const row of villagesStats) {
-    totalVillages += row.village_count;
-    villagesByTribe[row.tribe] += row.village_count;
-    villagesByFaction[row.faction] += row.village_count;
-  }
+    for (const row of villagesStats) {
+      totalVillages += row.village_count;
+      villagesByTribe[row.tribe] += row.village_count;
+      villagesByFaction[row.faction] += row.village_count;
+    }
 
-  return getServerOverviewStatisticsSchema.parse({
-    player_count: totalPlayers,
-    village_count: totalVillages,
-    players_by_tribe: playersByTribe,
-    players_by_faction: playersByFaction,
-    villages_by_tribe: villagesByTribe,
-    villages_by_faction: villagesByFaction,
-  });
-};
+    return getServerOverviewStatisticsSchema.parse({
+      player_count: totalPlayers,
+      village_count: totalVillages,
+      players_by_tribe: playersByTribe,
+      players_by_faction: playersByFaction,
+      villages_by_tribe: villagesByTribe,
+      villages_by_faction: villagesByFaction,
+    });
+  },
+);

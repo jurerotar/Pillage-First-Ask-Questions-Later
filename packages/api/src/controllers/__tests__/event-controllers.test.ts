@@ -16,7 +16,7 @@ describe('event-controllers', () => {
     getVillageEvents(
       database,
       createControllerArgs<'/villages/:villageId/events'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 
@@ -34,7 +34,7 @@ describe('event-controllers', () => {
     getVillageEventsByType(
       database,
       createControllerArgs<'/villages/:villageId/events/:eventType'>({
-        params: { villageId: village.id, eventType: 'buildingLevelChange' },
+        path: { villageId: village.id, eventType: 'buildingLevelChange' },
       }),
     );
 

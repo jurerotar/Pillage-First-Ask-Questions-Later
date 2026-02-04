@@ -1,11 +1,9 @@
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import { getUnitImprovementsSchema } from './schemas/unit-improvement-schemas';
 
-export const getUnitImprovements: Controller<
-  '/players/:playerId/unit-improvements'
-> = (database, { params }) => {
-  const { playerId } = params;
-
+export const getUnitImprovements = createController(
+  '/players/:playerId/unit-improvements',
+)(({ database, path: { playerId } }) => {
   return database.selectObjects({
     sql: 'SELECT unit_id, level FROM unit_improvements WHERE player_id = $player_id;',
     bind: {
@@ -13,4 +11,4 @@ export const getUnitImprovements: Controller<
     },
     schema: getUnitImprovementsSchema,
   });
-};
+});

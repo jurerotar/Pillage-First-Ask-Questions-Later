@@ -1,13 +1,13 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
-import type { Controller } from '../types/controller';
+import { createController } from '../types/controller';
 import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
 } from './schemas/player-schemas';
 
-export const getMe: Controller<'/players/me'> = (database) => {
+export const getMe = createController('/players/me')(({ database }) => {
   return database.selectObject({
     sql: `
       SELECT
@@ -25,15 +25,11 @@ export const getMe: Controller<'/players/me'> = (database) => {
     bind: { $player_id: PLAYER_ID },
     schema: playerSchema,
   })!;
-};
+});
 
-export const getPlayerVillageListing: Controller<
-  '/players/:playerId/villages'
-> = (database, args) => {
-  const {
-    params: { playerId },
-  } = args;
-
+export const getPlayerVillageListing = createController(
+  '/players/:playerId/villages',
+)(({ database, path: { playerId } }) => {
   return database.selectObjects({
     sql: `
       SELECT
@@ -56,15 +52,11 @@ export const getPlayerVillageListing: Controller<
     bind: { $player_id: playerId },
     schema: getVillagesByPlayerSchema,
   });
-};
+});
 
-export const getPlayerVillagesWithPopulation: Controller<
-  '/players/:playerId/villages-with-population'
-> = (database, args) => {
-  const {
-    params: { playerId },
-  } = args;
-
+export const getPlayerVillagesWithPopulation = createController(
+  '/players/:playerId/villages-with-population',
+)(({ database, path: { playerId } }) => {
   return database.selectObjects({
     sql: `
       SELECT
@@ -90,16 +82,11 @@ export const getPlayerVillagesWithPopulation: Controller<
     bind: { $player_id: playerId },
     schema: getPlayerVillagesWithPopulationSchema,
   });
-};
+});
 
-export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
-  database,
-  args,
-) => {
-  const {
-    params: { villageId },
-  } = args;
-
+export const getTroopsByVillage = createController(
+  '/villages/:villageId/troops',
+)(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
       SELECT
@@ -121,15 +108,12 @@ export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
     bind: { $village_id: villageId },
     schema: getTroopsByVillageSchema,
   });
-};
+});
 
-export const renameVillage: Controller<
+export const renameVillage = createController(
   '/villages/:villageId/rename',
-  'patch'
-> = (database, { params, body }) => {
-  const { villageId } = params;
-  const { name } = body;
-
+  'patch',
+)(({ database, path: { villageId }, body: { name } }) => {
   database.exec({
     sql: `
       UPDATE villages
@@ -138,18 +122,12 @@ export const renameVillage: Controller<
     `,
     bind: { $name: name, $village_id: villageId },
   });
-};
+});
 
-export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
-  database,
-  args,
-) => {
-  const {
-    params: { playerSlug },
-  } = args;
-
-  return database.selectObject({
-    sql: `
+export const getPlayerBySlug = createController('/players/:playerSlug')(
+  ({ database, path: { playerSlug } }) => {
+    return database.selectObject({
+      sql: `
       SELECT
         p.id,
         p.name,
@@ -165,9 +143,10 @@ export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
         p.slug = $player_slug
       LIMIT 1;
     `,
-    bind: {
-      $player_slug: playerSlug,
-    },
-    schema: playerSchema,
-  })!;
-};
+      bind: {
+        $player_slug: playerSlug,
+      },
+      schema: playerSchema,
+    })!;
+  },
+);

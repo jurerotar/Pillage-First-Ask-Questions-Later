@@ -33,7 +33,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:developerSettingName',
           'patch'
         >({
-          params: {
+          path: {
             developerSettingName: 'isInstantBuildingConstructionEnabled',
           },
           body: { value: true },
@@ -66,7 +66,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:developerSettingName',
           'patch'
         >({
-          params: {
+          path: {
             developerSettingName: 'isInstantBuildingConstructionEnabled',
           },
           body: { value: true },
@@ -112,7 +112,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:developerSettingName',
           'patch'
         >({
-          params: { developerSettingName: 'isInstantUnitTrainingEnabled' },
+          path: { developerSettingName: 'isInstantUnitTrainingEnabled' },
           body: { value: true },
         }),
       );
@@ -140,7 +140,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:developerSettingName',
           'patch'
         >({
-          params: { developerSettingName: 'isInstantUnitImprovementEnabled' },
+          path: { developerSettingName: 'isInstantUnitImprovementEnabled' },
           body: { value: true },
         }),
       );
@@ -168,7 +168,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:developerSettingName',
           'patch'
         >({
-          params: { developerSettingName: 'isInstantUnitResearchEnabled' },
+          path: { developerSettingName: 'isInstantUnitResearchEnabled' },
           body: { value: true },
         }),
       );
@@ -196,7 +196,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:developerSettingName',
           'patch'
         >({
-          params: { developerSettingName: 'isInstantUnitTravelEnabled' },
+          path: { developerSettingName: 'isInstantUnitTravelEnabled' },
           body: { value: true },
         }),
       );
@@ -225,7 +225,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
           {
-            params: { heroId },
+            path: { heroId },
             body: { itemId: 1 },
           },
         ),
@@ -244,7 +244,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
           {
-            params: { heroId },
+            path: { heroId },
             body: { itemId: 1 },
           },
         ),
@@ -287,7 +287,7 @@ describe('developer-tools-controllers', () => {
           '/developer-settings/:heroId/increment-adventure-points',
           'patch'
         >({
-          params: { heroId },
+          path: { heroId },
         }),
       );
 
