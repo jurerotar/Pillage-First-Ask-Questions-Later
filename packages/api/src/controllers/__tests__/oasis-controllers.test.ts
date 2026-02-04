@@ -21,7 +21,7 @@ describe('oasis-controllers', () => {
     occupyOasis(
       database,
       createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'post'>({
-        params: { villageId: village.id, oasisId: oasis.tile_id },
+        path: { villageId: village.id, oasisId: oasis.tile_id },
       }),
     );
 
@@ -45,7 +45,7 @@ describe('oasis-controllers', () => {
     abandonOasis(
       database,
       createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'delete'>({
-        params: { villageId: village.id, oasisId: oasis.tile_id },
+        path: { villageId: village.id, oasisId: oasis.tile_id },
       }),
     );
 

@@ -1,17 +1,10 @@
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import { selectAllRelevantEffectsQuery } from '../utils/queries/effect-queries';
 import { apiEffectSchema } from '../utils/zod/effect-schemas';
 
-/**
- * GET /villages/:villageId/effects
- * @pathParam {number} villageId
- */
-export const getVillageEffects: Controller<'/villages/:villageId/effects'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
-
+export const getVillageEffects = createController(
+  '/villages/:villageId/effects',
+)(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: selectAllRelevantEffectsQuery,
     bind: {
@@ -19,4 +12,4 @@ export const getVillageEffects: Controller<'/villages/:villageId/effects'> = (
     },
     schema: apiEffectSchema,
   });
-};
+});

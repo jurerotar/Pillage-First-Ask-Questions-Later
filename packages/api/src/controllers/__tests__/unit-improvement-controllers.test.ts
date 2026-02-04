@@ -13,7 +13,7 @@ describe('unit-improvement-controllers', () => {
     getUnitImprovements(
       database,
       createControllerArgs<'/players/:playerId/unit-improvements'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 

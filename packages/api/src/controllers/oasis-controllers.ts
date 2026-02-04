@@ -1,21 +1,12 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 
-// TODO: Move this to an util function that's called after combat, once combat is added
-/**
- * POST /villages/:villageId/oasis/:oasisId
- * @pathParam {number} villageId
- * @pathParam {number} oasisId
- */
-export const occupyOasis: Controller<
+export const occupyOasis = createController(
   '/villages/:villageId/oasis/:oasisId',
-  'post'
-> = (database, args) => {
-  const {
-    params: { oasisId, villageId },
-  } = args;
+  'post',
+)(({ database, path: { oasisId, villageId } }) => {
   // TODO: Add Hero's mansion level & empty oasis slot check
 
   database.transaction((db) => {
@@ -70,21 +61,12 @@ export const occupyOasis: Controller<
       },
     });
   });
-};
+});
 
-/**
- * DELETE /villages/:villageId/oasis/:oasisId
- * @pathParam {number} villageId
- * @pathParam {number} oasisId
- */
-export const abandonOasis: Controller<
+export const abandonOasis = createController(
   '/villages/:villageId/oasis/:oasisId',
-  'delete'
-> = (database, args) => {
-  const {
-    params: { oasisId, villageId },
-  } = args;
-
+  'delete',
+)(({ database, path: { oasisId, villageId } }) => {
   database.transaction((db) => {
     updateVillageResourcesAt(db, villageId, Date.now());
 
@@ -115,4 +97,4 @@ export const abandonOasis: Controller<
       },
     });
   });
-};
+});

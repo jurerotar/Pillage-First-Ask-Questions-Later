@@ -8,7 +8,6 @@ import {
   getPlayerVillageListing,
   getPlayerVillagesWithPopulation,
   getTroopsByVillage,
-  type RenameVillageBody,
   renameVillage,
 } from '../player-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -27,27 +26,38 @@ describe('player-controllers', () => {
   test('getPlayerVillageListing should return village listing for a player', async () => {
     const database = await prepareTestDatabase();
 
-    getPlayerVillageListing(
+    const result = getPlayerVillageListing(
       database,
       createControllerArgs<'/players/:playerId/villages'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(result).toBeDefined();
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0]).toHaveProperty('id');
+    expect(result[0]).toHaveProperty('tileId');
+    expect(result[0]).toHaveProperty('coordinates');
+    expect(result[0].coordinates).toHaveProperty('x');
+    expect(result[0].coordinates).toHaveProperty('y');
+    expect(result[0]).toHaveProperty('resourceFieldComposition');
   });
 
   test('getPlayerVillagesWithPopulation should return villages with population', async () => {
     const database = await prepareTestDatabase();
 
-    getPlayerVillagesWithPopulation(
+    const result = getPlayerVillagesWithPopulation(
       database,
       createControllerArgs<'/players/:playerId/villages-with-population'>({
-        params: { playerId },
+        path: { playerId },
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(result).toBeDefined();
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0]).toHaveProperty('id');
+    expect(result[0]).toHaveProperty('population');
+    expect(result[0]).toHaveProperty('coordinates');
   });
 
   test('getTroopsByVillage should return troops by village for a player', async () => {
@@ -62,7 +72,7 @@ describe('player-controllers', () => {
     getTroopsByVillage(
       database,
       createControllerArgs<'/villages/:villageId/troops'>({
-        params: { playerId, villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 
@@ -80,12 +90,8 @@ describe('player-controllers', () => {
 
     renameVillage(
       database,
-      createControllerArgs<
-        '/villages/:villageId/rename',
-        'patch',
-        RenameVillageBody
-      >({
-        params: { villageId: village.id },
+      createControllerArgs<'/villages/:villageId/rename', 'patch'>({
+        path: { villageId: village.id },
         body: { name: 'New Village Name' },
       }),
     );
@@ -102,13 +108,16 @@ describe('player-controllers', () => {
       schema: z.object({ slug: z.string() }),
     })!;
 
-    getPlayerBySlug(
+    const result = getPlayerBySlug(
       database,
       createControllerArgs<'/players/:playerSlug'>({
-        params: { playerSlug: player.slug },
+        path: { playerSlug: player.slug },
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(result).toBeDefined();
+    expect(result.slug).toBe(player.slug);
+    expect(result).toHaveProperty('id');
+    expect(result).toHaveProperty('name');
   });
 });

@@ -18,4 +18,16 @@ export const getTilesWithBonusesSchema = z
     },
     resourceFieldComposition: t.resource_field_composition,
     distance: roundToNDecimalPoints(Math.sqrt(t.distance_squared), 2),
-  }));
+  }))
+  .pipe(
+    z.object({
+      tileId: z.number(),
+      coordinates: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      resourceFieldComposition: resourceFieldCompositionSchema,
+      distance: z.number(),
+    }),
+  )
+  .meta({ id: 'GetTilesWithBonuses' });

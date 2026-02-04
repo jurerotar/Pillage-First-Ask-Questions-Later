@@ -2,14 +2,11 @@ import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
-  type AddTileToFarmListBody,
   addTileToFarmList,
-  type CreateFarmListBody,
   createFarmList,
   deleteFarmList,
   getFarmList,
   getFarmLists,
-  type RenameFarmListBody,
   removeTileFromFarmList,
   renameFarmList,
 } from '../farm-list-controllers';
@@ -24,12 +21,8 @@ describe('farm-list-controllers', () => {
     // 1. Create a farm list
     createFarmList(
       database,
-      createControllerArgs<
-        '/players/:playerId/farm-lists',
-        'post',
-        CreateFarmListBody
-      >({
-        params: { playerId },
+      createControllerArgs<'/players/:playerId/farm-lists', 'post'>({
+        path: { playerId },
         body: { name: 'My Farm List' },
       }),
     );
@@ -38,9 +31,9 @@ describe('farm-list-controllers', () => {
     const farmLists = getFarmLists(
       database,
       createControllerArgs<'/players/:playerId/farm-lists'>({
-        params: { playerId },
+        path: { playerId },
       }),
-    ) as any[];
+    );
 
     expect(farmLists).toHaveLength(1);
     expect(farmLists[0].name).toBe('My Farm List');
@@ -49,23 +42,15 @@ describe('farm-list-controllers', () => {
     // 3. Add tiles to farm list
     addTileToFarmList(
       database,
-      createControllerArgs<
-        '/farm-lists/:farmListId/tiles',
-        'post',
-        AddTileToFarmListBody
-      >({
-        params: { farmListId },
+      createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+        path: { farmListId },
         body: { tileId: 101 },
       }),
     );
     addTileToFarmList(
       database,
-      createControllerArgs<
-        '/farm-lists/:farmListId/tiles',
-        'post',
-        AddTileToFarmListBody
-      >({
-        params: { farmListId },
+      createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+        path: { farmListId },
         body: { tileId: 102 },
       }),
     );
@@ -74,9 +59,9 @@ describe('farm-list-controllers', () => {
     let farmList = getFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId'>({
-        params: { farmListId },
+        path: { farmListId },
       }),
-    ) as any;
+    );
 
     expect(farmList.name).toBe('My Farm List');
     expect(farmList.tileIds).toContain(101);
@@ -86,36 +71,32 @@ describe('farm-list-controllers', () => {
     // 5. Unique tile IDs (INSERT OR IGNORE)
     addTileToFarmList(
       database,
-      createControllerArgs<
-        '/farm-lists/:farmListId/tiles',
-        'post',
-        AddTileToFarmListBody
-      >({
-        params: { farmListId },
+      createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+        path: { farmListId },
         body: { tileId: 101 },
       }),
     );
     farmList = getFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId'>({
-        params: { farmListId },
+        path: { farmListId },
       }),
-    ) as any;
+    );
     expect(farmList.tileIds).toHaveLength(2);
 
     // 6. Remove a tile
     removeTileFromFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId/tiles/:tileId', 'delete'>({
-        params: { farmListId, tileId: 101 },
+        path: { farmListId, tileId: 101 },
       }),
     );
     farmList = getFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId'>({
-        params: { farmListId },
+        path: { farmListId },
       }),
-    ) as any;
+    );
     expect(farmList.tileIds).not.toContain(101);
     expect(farmList.tileIds).toHaveLength(1);
 
@@ -124,12 +105,8 @@ describe('farm-list-controllers', () => {
       // We already have 1 tile (102). Adding 99 more makes it 100.
       addTileToFarmList(
         database,
-        createControllerArgs<
-          '/farm-lists/:farmListId/tiles',
-          'post',
-          AddTileToFarmListBody
-        >({
-          params: { farmListId },
+        createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+          path: { farmListId },
           body: { tileId: 1000 + i },
         }),
       );
@@ -138,12 +115,8 @@ describe('farm-list-controllers', () => {
     expect(() => {
       addTileToFarmList(
         database,
-        createControllerArgs<
-          '/farm-lists/:farmListId/tiles',
-          'post',
-          AddTileToFarmListBody
-        >({
-          params: { farmListId },
+        createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+          path: { farmListId },
           body: { tileId: 9999 },
         }),
       );
@@ -152,37 +125,33 @@ describe('farm-list-controllers', () => {
     // 8. Rename farm list
     renameFarmList(
       database,
-      createControllerArgs<
-        '/farm-lists/:farmListId/rename',
-        'patch',
-        RenameFarmListBody
-      >({
-        params: { farmListId },
+      createControllerArgs<'/farm-lists/:farmListId/rename', 'patch'>({
+        path: { farmListId },
         body: { name: 'New Farm List Name' },
       }),
     );
     farmList = getFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId'>({
-        params: { farmListId },
+        path: { farmListId },
       }),
-    ) as any;
+    );
     expect(farmList.name).toBe('New Farm List Name');
 
     // 9. Delete farm list
     deleteFarmList(
       database,
       createControllerArgs<'/farm-lists/:farmListId', 'delete'>({
-        params: { farmListId },
+        path: { farmListId },
       }),
     );
 
     const farmListsAfterDelete = getFarmLists(
       database,
       createControllerArgs<'/players/:playerId/farm-lists'>({
-        params: { playerId },
+        path: { playerId },
       }),
-    ) as any[];
+    );
     expect(farmListsAfterDelete).toHaveLength(0);
   });
 });

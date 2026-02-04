@@ -17,7 +17,7 @@ describe('unit-research-controllers', () => {
     getResearchedUnits(
       database,
       createControllerArgs<'/villages/:villageId/researched-units'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 

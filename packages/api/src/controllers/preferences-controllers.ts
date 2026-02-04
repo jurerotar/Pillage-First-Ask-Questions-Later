@@ -1,14 +1,10 @@
 import { snakeCase } from 'moderndash';
-import type { Preferences } from '@pillage-first/types/models/preferences';
-import type { Controller } from '../types/controller';
-import { getPreferencesSchema } from './schemas/preferences-schemas.ts';
+import { createController } from '../utils/controller';
+import { getPreferencesSchema } from './schemas/preferences-schemas';
 
-/**
- * GET /players/:playerId/preferences
- */
-export const getPreferences: Controller<'/players/:playerId/preferences'> = (
-  database,
-) => {
+export const getPreferences = createController(
+  '/players/:playerId/preferences',
+)(({ database }) => {
   return database.selectObject({
     sql: `
       SELECT
@@ -25,26 +21,12 @@ export const getPreferences: Controller<'/players/:playerId/preferences'> = (
     `,
     schema: getPreferencesSchema,
   })!;
-};
+});
 
-export type UpdatePreferenceBody = {
-  value: Preferences[keyof Preferences];
-};
-
-/**
- * PATCH /players/:playerId/preferences/:preferenceName
- * @pathParam {string} preferenceName
- * @bodyContent application/json UpdatePreferenceBody
- * @bodyRequired
- */
-export const updatePreference: Controller<
+export const updatePreference = createController(
   '/players/:playerId/preferences/:preferenceName',
   'patch',
-  UpdatePreferenceBody
-> = (database, { body, params }) => {
-  const { preferenceName } = params;
-  const { value } = body;
-
+)(({ database, path: { preferenceName }, body: { value } }) => {
   const column = snakeCase(preferenceName);
 
   database.exec({
@@ -57,4 +39,4 @@ export const updatePreference: Controller<
       $value: value,
     },
   });
-};
+});

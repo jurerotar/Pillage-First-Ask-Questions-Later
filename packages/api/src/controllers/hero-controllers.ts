@@ -1,21 +1,17 @@
 import { z } from 'zod';
 import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
-import type { HeroItemSlot } from '@pillage-first/types/models/hero-item';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
-} from './schemas/hero-schemas.ts';
+} from './schemas/hero-schemas';
 
-/**
- * GET /players/:playerId/hero
- * @pathParam {number} playerId
- */
-export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
-  return database.selectObject({
-    sql: `
+export const getHero = createController('/players/:playerId/hero')(
+  ({ database }) => {
+    return database.selectObject({
+      sql: `
       SELECT
         h.id,
         h.health,
@@ -28,17 +24,14 @@ export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
       FROM
         heroes h;
     `,
-    schema: getHeroSchema,
-  });
-};
+      schema: getHeroSchema,
+    })!;
+  },
+);
 
-/**
- * GET /players/:playerId/hero/equipped-items
- * @pathParam {number} playerId
- */
-export const getHeroLoadout: Controller<
-  '/players/:playerId/hero/equipped-items'
-> = (database) => {
+export const getHeroLoadout = createController(
+  '/players/:playerId/hero/equipped-items',
+)(({ database }) => {
   return database.selectObjects({
     sql: `
       SELECT slot, item_id, amount
@@ -53,16 +46,12 @@ export const getHeroLoadout: Controller<
           )
     `,
     schema: getHeroLoadoutSchema,
-  });
-};
+  })!;
+});
 
-/**
- * GET /players/:playerId/hero/inventory
- * @pathParam {number} playerId
- */
-export const getHeroInventory: Controller<
-  '/players/:playerId/hero/inventory'
-> = (database) => {
+export const getHeroInventory = createController(
+  '/players/:playerId/hero/inventory',
+)(({ database }) => {
   return database.selectObjects({
     sql: `
       SELECT i.item_id, i.amount
@@ -78,43 +67,22 @@ export const getHeroInventory: Controller<
           )
     `,
     schema: getHeroInventorySchema,
-  });
-};
+  })!;
+});
 
-/**
- * GET /players/:playerId/hero/adventures
- * @pathParam {number} playerId
- */
-export const getHeroAdventures: Controller<
-  '/players/:playerId/hero/adventures'
-> = (database) => {
+export const getHeroAdventures = createController(
+  '/players/:playerId/hero/adventures',
+)(({ database }) => {
   return database.selectObject({
     sql: 'SELECT available, completed FROM hero_adventures;',
     schema: heroAdventuresSchema,
-  });
-};
+  })!;
+});
 
-export type ChangeHeroAttributesBody = {
-  attribute:
-    | 'attackPower'
-    | 'resourceProduction'
-    | 'attackBonus'
-    | 'defenceBonus';
-};
-
-/**
- * PATCH /players/:playerId/hero/attributes
- * @pathParam {number} playerId
- * @body { { attribute: 'attackPower' | 'resourceProduction' | 'attackBonus' | 'defenceBonus' } }
- */
-export const changeHeroAttributes: Controller<
+export const changeHeroAttributes = createController(
   '/players/:playerId/hero/attributes',
   'patch',
-  ChangeHeroAttributesBody
-> = (database, { params, body }) => {
-  const { playerId } = params;
-  const { attribute } = body;
-
+)(({ database, path: { playerId }, body: { attribute } }) => {
   const attributeMap: Record<string, string> = {
     attackPower: 'attack_power',
     resourceProduction: 'resource_production',
@@ -127,28 +95,13 @@ export const changeHeroAttributes: Controller<
   database.exec({
     sql: `UPDATE heroes SET ${dbAttribute} = ${dbAttribute} + 1 WHERE player_id = $playerId`,
     bind: { $playerId: playerId },
-  });
-};
+  })!;
+});
 
-export type EquipHeroItemBody = {
-  itemId: number;
-  slot: HeroItemSlot;
-  amount: number;
-};
-
-/**
- * PATCH /players/:playerId/hero/equipped-items
- * @pathParam {number} playerId
- * @body { { itemId: number, slot: HeroItemSlot, amount: number } }
- */
-export const equipHeroItem: Controller<
+export const equipHeroItem = createController(
   '/players/:playerId/hero/equipped-items',
   'patch',
-  EquipHeroItemBody
-> = (database, { params, body }) => {
-  const { playerId } = params;
-  const { itemId, slot, amount } = body;
-
+)(({ database, path: { playerId }, body: { itemId, slot, amount } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
@@ -252,20 +205,13 @@ export const equipHeroItem: Controller<
         });
       }
     }
-  });
-};
+  })!;
+});
 
-/**
- * DELETE /players/:playerId/hero/equipped-items/:slot
- * @pathParam {number} playerId
- * @pathParam {string} slot
- */
-export const unequipHeroItem: Controller<
+export const unequipHeroItem = createController(
   '/players/:playerId/hero/equipped-items/:slot',
-  'delete'
-> = (database, { params }) => {
-  const { playerId, slot } = params;
-
+  'delete',
+)(({ database, path: { playerId, slot } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
@@ -306,27 +252,13 @@ export const unequipHeroItem: Controller<
         bind: { $heroId: heroId, $slot: slot },
       });
     }
-  });
-};
+  })!;
+});
 
-export type UseHeroItemBody = {
-  itemId: number;
-  amount: number;
-};
-
-/**
- * POST /players/:playerId/hero/item
- * @pathParam {number} playerId
- * @body { { itemId: number, amount: number } }
- */
-export const useHeroItem: Controller<
+export const useHeroItem = createController(
   '/players/:playerId/hero/item',
   'post',
-  UseHeroItemBody
-> = (database, { params, body }) => {
-  const { playerId } = params;
-  const { itemId, amount } = body;
-
+)(({ database, path: { playerId }, body: { itemId, amount } }) => {
   database.transaction(() => {
     const heroId = database.selectObject({
       sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
@@ -420,5 +352,5 @@ export const useHeroItem: Controller<
         },
       });
     }
-  });
-};
+  })!;
+});

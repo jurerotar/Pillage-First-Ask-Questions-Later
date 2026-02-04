@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
-import {
-  type GetTilesWithBonusesBody,
-  getTilesWithBonuses,
-} from '../oasis-bonus-finder-controllers';
+import { getTilesWithBonuses } from '../oasis-bonus-finder-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('oasis-bonus-finder-controllers', () => {
@@ -12,11 +9,7 @@ describe('oasis-bonus-finder-controllers', () => {
 
     getTilesWithBonuses(
       database,
-      createControllerArgs<
-        '/oasis-bonus-finder',
-        'get',
-        GetTilesWithBonusesBody
-      >({
+      createControllerArgs<'/oasis-bonus-finder'>({
         query: { x: 0, y: 0 },
         body: {
           resourceFieldComposition: 'any-cropper',

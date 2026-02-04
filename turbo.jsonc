@@ -20,9 +20,6 @@
     "lint/oxlint": {},
     "test": {},
     "type-check": {},
-    "localize": {},
-    "open-api:generate": {
-      "outputs": ["open-api.json", "open-api.ts"]
-    }
+    "localize": {}
   }
 }

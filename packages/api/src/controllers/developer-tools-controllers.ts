@@ -1,22 +1,16 @@
 import { snakeCase } from 'moderndash';
-import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
-import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
 } from '../utils/village';
-import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas.ts';
+import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas';
 
-/**
- * GET /developer-settings
- */
-export const getDeveloperSettings: Controller<'/developer-settings'> = (
-  database,
-) => {
-  return database.selectObject({
-    sql: `
+export const getDeveloperSettings = createController('/developer-settings')(
+  ({ database }) => {
+    return database.selectObject({
+      sql: `
       SELECT
         is_instant_building_construction_enabled,
         is_instant_unit_training_enabled,
@@ -30,28 +24,15 @@ export const getDeveloperSettings: Controller<'/developer-settings'> = (
       FROM
         developer_settings
     `,
-    schema: getDeveloperSettingsSchema,
-  });
-};
+      schema: getDeveloperSettingsSchema,
+    });
+  },
+);
 
-export type UpdateDeveloperSettingsBody = {
-  value: DeveloperSettings[keyof DeveloperSettings];
-};
-
-/**
- * PATCH /developer-settings/:developerSettingName
- * @pathParam {string} developerSettingName
- * @bodyContent application/json UpdateDeveloperSettingsBody
- * @bodyRequired
- */
-export const updateDeveloperSettings: Controller<
+export const updateDeveloperSettings = createController(
   '/developer-settings/:developerSettingName',
   'patch',
-  UpdateDeveloperSettingsBody
-> = (database, { body, params }) => {
-  const { developerSettingName } = params;
-  const { value } = body;
-
+)(({ database, body: { value }, path: { developerSettingName } }) => {
   const column = snakeCase(developerSettingName);
 
   database.exec({
@@ -109,26 +90,12 @@ export const updateDeveloperSettings: Controller<
       triggerKick();
     }
   }
-};
+});
 
-export type SpawnHeroItemBody = {
-  itemId: HeroItem['id'];
-};
-
-/**
- * PATCH /developer-settings/:heroId/spawn-item
- * @pathParam {number} heroId
- * @bodyContent application/json SpawnHeroItemBody
- * @bodyRequired
- */
-export const spawnHeroItem: Controller<
+export const spawnHeroItem = createController(
   '/developer-settings/:heroId/spawn-item',
   'patch',
-  SpawnHeroItemBody
-> = (database, { body, params }) => {
-  const { heroId } = params;
-  const { itemId } = body;
-
+)(({ database, body: { itemId }, path: { heroId } }) => {
   database.exec({
     sql: `
       INSERT INTO hero_inventory (hero_id, item_id, amount)
@@ -141,26 +108,12 @@ export const spawnHeroItem: Controller<
       $itemId: itemId,
     },
   });
-};
+});
 
-export type UpdateVillageResourcesBody = {
-  resource: 'wood' | 'clay' | 'iron' | 'wheat';
-  amount: 100 | 1000 | 10000;
-  direction: 'add' | 'subtract';
-};
-
-/**
- * PATCH /developer-settings/:villageId/resources
- * @pathParam {number} villageId
- * @bodyContent application/json UpdateVillageResourcesBody
- * @bodyRequired
- */
-export const updateVillageResources: Controller<
+export const updateVillageResources = createController(
   '/developer-settings/:villageId/resources',
   'patch',
-  UpdateVillageResourcesBody
-> = (database, { body, params }) => {
-  const { villageId } = params;
+)(({ database, body, path: { villageId } }) => {
   const { resource, amount, direction } = body;
 
   const now = Date.now();
@@ -179,18 +132,12 @@ export const updateVillageResources: Controller<
     direction === 'add' ? addVillageResourcesAt : subtractVillageResourcesAt;
 
   updaterFn(database, villageId, now, resources);
-};
+});
 
-/**
- * PATCH /developer-settings/:heroId/increment-adventure-points
- * @pathParam {number} heroId
- */
-export const incrementHeroAdventurePoints: Controller<
+export const incrementHeroAdventurePoints = createController(
   '/developer-settings/:heroId/increment-adventure-points',
-  'patch'
-> = (database, { params }) => {
-  const { heroId } = params;
-
+  'patch',
+)(({ database, path: { heroId } }) => {
   database.exec({
     sql: `
       UPDATE hero_adventures
@@ -203,4 +150,4 @@ export const incrementHeroAdventurePoints: Controller<
       $heroId: heroId,
     },
   });
-};
+});

@@ -28,7 +28,24 @@ export const getHeroSchema = z
       },
       resourceToProduce: t.resource_to_produce,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      stats: z.object({
+        health: z.number(),
+        experience: z.number(),
+      }),
+      selectableAttributes: z.object({
+        attackPower: z.number(),
+        resourceProduction: z.number(),
+        attackBonus: z.number(),
+        defenceBonus: z.number(),
+      }),
+      resourceToProduce: heroResourceToProduceSchema,
+    }),
+  )
+  .meta({ id: 'GetHero' });
 
 export const getHeroLoadoutSchema = z
   .strictObject({
@@ -40,7 +57,15 @@ export const getHeroLoadoutSchema = z
     itemId: t.item_id,
     slot: t.slot,
     amount: t.amount,
-  }));
+  }))
+  .pipe(
+    z.object({
+      itemId: z.number(),
+      slot: heroLoadoutSlotSchema,
+      amount: z.number(),
+    }),
+  )
+  .meta({ id: 'GetHeroLoadout' });
 
 export const getHeroInventorySchema = z
   .strictObject({
@@ -50,4 +75,11 @@ export const getHeroInventorySchema = z
   .transform((t) => ({
     itemId: t.item_id,
     amount: t.amount,
-  }));
+  }))
+  .pipe(
+    z.object({
+      itemId: z.string(),
+      amount: z.number(),
+    }),
+  )
+  .meta({ id: 'GetHeroInventory' });

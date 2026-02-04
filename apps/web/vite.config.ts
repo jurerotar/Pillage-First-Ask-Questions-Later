@@ -78,6 +78,7 @@ const viteConfig = defineViteConfig({
   ],
   server: {
     open: false,
+    port: 5173,
   },
   build: {
     target: 'esnext',

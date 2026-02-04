@@ -1,46 +1,24 @@
-import type { Controller } from '../types/controller';
-import { getBookmarksSchema } from './schemas/bookmark-schemas.ts';
+import { createController } from '../utils/controller';
+import { getBookmarksSchema } from './schemas/bookmark-schemas';
 
-/**
- * GET /villages/:villageId/bookmarks
- * @pathParam {number} villageId
- */
-export const getBookmarks: Controller<'/villages/:villageId/bookmarks'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
+export const getBookmarks = createController('/villages/:villageId/bookmarks')(
+  ({ database, path: { villageId } }) => {
+    const bookmarks = database.selectObjects({
+      sql: 'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
+      bind: {
+        $village_id: villageId,
+      },
+      schema: getBookmarksSchema,
+    });
 
-  const bookmarks = database.selectObjects({
-    sql: 'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
-    bind: {
-      $village_id: villageId,
-    },
-    schema: getBookmarksSchema,
-  });
+    return Object.fromEntries(bookmarks);
+  },
+);
 
-  return Object.fromEntries(bookmarks);
-};
-
-export type UpdateBookmarkBody = {
-  tab: string;
-};
-
-/**
- * PATCH /villages/:villageId/bookmarks/:buildingId
- * @pathParam {number} villageId
- * @pathParam {string} buildingId
- * @bodyContent application/json UpdateBookmarkBody
- * @bodyRequired
- */
-export const updateBookmark: Controller<
+export const updateBookmark = createController(
   '/villages/:villageId/bookmarks/:buildingId',
   'patch',
-  UpdateBookmarkBody
-> = (database, { params, body }) => {
-  const { villageId, buildingId } = params;
-  const { tab } = body;
-
+)(({ database, path: { villageId, buildingId }, body: { tab } }) => {
   database.exec({
     sql: `
     UPDATE bookmarks
@@ -54,4 +32,4 @@ export const updateBookmark: Controller<
       $building_id: buildingId,
     },
   });
-};
+});

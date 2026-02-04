@@ -38,7 +38,7 @@ describe('map-controllers', () => {
     getTileTroops(
       database,
       createControllerArgs<'/tiles/:tileId/troops'>({
-        params: { tileId: tileWithAnimals.tile_id },
+        path: { tileId: tileWithAnimals.tile_id },
       }),
     );
 
@@ -57,7 +57,7 @@ describe('map-controllers', () => {
     getTileOasisBonuses(
       database,
       createControllerArgs<'/tiles/:tileId/bonuses'>({
-        params: { tileId: tileWithBonuses.tile_id },
+        path: { tileId: tileWithBonuses.tile_id },
       }),
     );
 
@@ -76,7 +76,7 @@ describe('map-controllers', () => {
     getTileWorldItem(
       database,
       createControllerArgs<'/tiles/:tileId/world-item'>({
-        params: { tileId: tileWithItem.tile_id },
+        path: { tileId: tileWithItem.tile_id },
       }),
     );
 

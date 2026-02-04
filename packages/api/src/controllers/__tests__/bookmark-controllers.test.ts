@@ -2,11 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
-import {
-  getBookmarks,
-  type UpdateBookmarkBody,
-  updateBookmark,
-} from '../bookmark-controllers';
+import { getBookmarks, updateBookmark } from '../bookmark-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('bookmark-controllers', () => {
@@ -17,9 +13,9 @@ describe('bookmark-controllers', () => {
     const result = getBookmarks(
       database,
       createControllerArgs<'/villages/:villageId/bookmarks'>({
-        params: { villageId },
+        path: { villageId },
       }),
-    ) as Record<Building['id'], string>;
+    );
 
     const buildingIds = buildings.map((b) => b.id);
 
@@ -39,10 +35,9 @@ describe('bookmark-controllers', () => {
       database,
       createControllerArgs<
         '/villages/:villageId/bookmarks/:buildingId',
-        'patch',
-        UpdateBookmarkBody
+        'patch'
       >({
-        params: { villageId, buildingId },
+        path: { villageId, buildingId },
         body: { tab: newTabName },
       }),
     );
@@ -50,9 +45,9 @@ describe('bookmark-controllers', () => {
     const result = getBookmarks(
       database,
       createControllerArgs<'/villages/:villageId/bookmarks'>({
-        params: { villageId },
+        path: { villageId },
       }),
-    ) as Record<Building['id'], string>;
+    );
 
     expect(result[buildingId]).toBe(newTabName);
   });

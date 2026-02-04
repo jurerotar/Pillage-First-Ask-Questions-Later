@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getResearchedUnitsSchema = z
   .strictObject({
-    unit_id: unitIdSchema,
+    unit_id: z.string(),
     village_id: z.number(),
   })
   .transform((t) => {
@@ -11,4 +10,11 @@ export const getResearchedUnitsSchema = z
       unitId: t.unit_id,
       villageId: t.village_id,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      unitId: z.string(),
+      villageId: z.number(),
+    }),
+  )
+  .meta({ id: 'GetResearchedUnits' });

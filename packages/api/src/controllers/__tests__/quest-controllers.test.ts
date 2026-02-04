@@ -20,7 +20,7 @@ describe('quest-controllers', () => {
     getQuests(
       database,
       createControllerArgs<'/villages/:villageId/quests'>({
-        params: { villageId: village.id },
+        path: { villageId: village.id },
       }),
     );
 
@@ -52,19 +52,17 @@ describe('quest-controllers', () => {
     const quest = database.selectObject({
       sql: 'SELECT quest_id FROM quests WHERE completed_at IS NOT NULL AND collected_at IS NULL LIMIT 1',
       schema: z.object({ quest_id: z.string() }),
-    });
+    })!;
 
-    if (quest) {
-      collectQuest(
-        database,
-        createControllerArgs<
-          '/villages/:villageId/quests/:questId/collect',
-          'patch'
-        >({
-          params: { villageId: village.id, questId: quest.quest_id },
-        }),
-      );
-    }
+    collectQuest(
+      database,
+      createControllerArgs<
+        '/villages/:villageId/quests/:questId/collect',
+        'patch'
+      >({
+        path: { villageId: village.id, questId: quest.quest_id },
+      }),
+    );
 
     expect(true).toBeTruthy();
   });

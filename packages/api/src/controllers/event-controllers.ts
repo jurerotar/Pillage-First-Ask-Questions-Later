@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/buildings/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
@@ -10,38 +10,24 @@ import {
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
-import { createEvents } from './utils/create-event.ts';
-import { getEventStartTime } from './utils/events.ts';
+import { createEvents } from './utils/create-event';
+import { getEventStartTime } from './utils/events';
 
-/**
- * GET /villages/:villageId/events
- * @pathParam {number} villageId
- */
-export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
+export const getVillageEvents = createController('/villages/:villageId/events')(
+  ({ database, path: { villageId } }) => {
+    return database.selectObjects({
+      sql: selectAllVillageEventsQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: eventSchema,
+    });
+  },
+);
 
-  return database.selectObjects({
-    sql: selectAllVillageEventsQuery,
-    bind: {
-      $village_id: villageId,
-    },
-    schema: eventSchema,
-  });
-};
-
-/**
- * GET /villages/:villageId/events/:eventType
- * @pathParam {number} villageId
- * @pathParam {string} eventType
- */
-export const getVillageEventsByType: Controller<
-  '/villages/:villageId/events/:eventType'
-> = (database, { params }) => {
-  const { villageId, eventType } = params;
-
+export const getVillageEventsByType = createController(
+  '/villages/:villageId/events/:eventType',
+)(({ database, path: { villageId, eventType } }) => {
   return database.selectObjects({
     sql: selectAllVillageEventsByTypeQuery,
     bind: {
@@ -50,37 +36,19 @@ export const getVillageEventsByType: Controller<
     },
     schema: eventSchema,
   });
-};
+});
 
-type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
-  amount: number;
-};
-
-/**
- * POST /events
- * @bodyContent application/json CreateNewEventsBody
- * @bodyRequired
- */
-export const createNewEvents: Controller<
+export const createNewEvents = createController(
   '/events',
   'post',
-  CreateNewEventsBody
-> = (database, { body }) => {
+)(({ database, body }) => {
   createEvents(database, body);
-};
+});
 
-/**
- * DELETE /events/:eventId
- * @pathParam {string} eventId
- */
-export const cancelConstructionEvent: Controller<
+export const cancelConstructionEvent = createController(
   '/events/:eventId',
-  'delete'
-> = (database, args) => {
-  const {
-    params: { eventId },
-  } = args;
-
+  'delete',
+)(({ database, path: { eventId } }) => {
   database.transaction((db) => {
     const cancelledEvent = db.selectObject({
       sql: selectEventByIdQuery,
@@ -167,4 +135,4 @@ export const cancelConstructionEvent: Controller<
   });
 
   triggerKick();
-};
+});

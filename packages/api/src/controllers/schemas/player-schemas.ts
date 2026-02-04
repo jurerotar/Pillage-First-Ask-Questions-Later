@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getVillagesByPlayerSchema = z
   .strictObject({
@@ -24,7 +23,21 @@ export const getVillagesByPlayerSchema = z
       slug: t.slug ?? `v-${t.id}`,
       resourceFieldComposition: t.resource_field_composition,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      tileId: z.number(),
+      coordinates: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      name: z.string(),
+      slug: z.string(),
+      resourceFieldComposition: resourceFieldCompositionSchema,
+    }),
+  )
+  .meta({ id: 'GetVillagesByPlayer' });
 
 export const getPlayerVillagesWithPopulationSchema = z
   .strictObject({
@@ -50,11 +63,26 @@ export const getPlayerVillagesWithPopulationSchema = z
       resourceFieldComposition: t.resource_field_composition,
       population: t.population,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      tileId: z.number(),
+      coordinates: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      name: z.string(),
+      slug: z.string(),
+      resourceFieldComposition: resourceFieldCompositionSchema,
+      population: z.number(),
+    }),
+  )
+  .meta({ id: 'GetPlayerVillagesWithPopulation' });
 
 export const getTroopsByVillageSchema = z
   .strictObject({
-    unit_id: unitIdSchema,
+    unit_id: z.string(),
     amount: z.number().min(1),
     tile_id: z.number(),
     source_tile_id: z.number(),
@@ -66,4 +94,13 @@ export const getTroopsByVillageSchema = z
       tileId: t.tile_id,
       source: t.source_tile_id,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      unitId: z.string(),
+      amount: z.number(),
+      tileId: z.number(),
+      source: z.number(),
+    }),
+  )
+  .meta({ id: 'GetTroopsByVillage' });

@@ -1,17 +1,14 @@
 import { z } from 'zod';
 import { calculateGridLayout } from '@pillage-first/utils/map';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
   getTileWorldItemSchema,
-} from './schemas/map-schemas.ts';
+} from './schemas/map-schemas';
 
-/**
- * GET /tiles
- */
-export const getTiles: Controller<'/tiles'> = (database) => {
+export const getTiles = createController('/tiles')(({ database }) => {
   const parsedTiles = database.selectObjects({
     sql: `
     WITH
@@ -99,68 +96,46 @@ export const getTiles: Controller<'/tiles'> = (database) => {
   }
 
   return tiles;
-};
+});
 
-/**
- * GET /tiles/:tileId/troops
- * @pathParam {number} tileId
- */
-export const getTileTroops: Controller<'/tiles/:tileId/troops'> = (
-  database,
-  { params },
-) => {
-  const { tileId } = params;
-
-  return database.selectObjects({
-    sql: `
+export const getTileTroops = createController('/tiles/:tileId/troops')(
+  ({ database, path: { tileId } }) => {
+    return database.selectObjects({
+      sql: `
     SELECT unit_id, amount, tile_id, source_tile_id
     FROM troops
     WHERE tile_id = $tile_id
     GROUP BY unit_id;
     `,
-    bind: {
-      $tile_id: tileId,
-    },
-    schema: getTileTroopsSchema,
-  });
-};
+      bind: {
+        $tile_id: tileId,
+      },
+      schema: getTileTroopsSchema,
+    });
+  },
+);
 
-/**
- * GET /tiles/:tileId/bonuses
- * @pathParam {number} tileId
- */
-export const getTileOasisBonuses: Controller<'/tiles/:tileId/bonuses'> = (
-  database,
-  { params },
-) => {
-  const { tileId } = params;
-
-  return database.selectObjects({
-    sql: `
+export const getTileOasisBonuses = createController('/tiles/:tileId/bonuses')(
+  ({ database, path: { tileId } }) => {
+    return database.selectObjects({
+      sql: `
       SELECT resource, bonus
       FROM oasis
       WHERE tile_id = $tile_id;
     `,
-    bind: {
-      $tile_id: tileId,
-    },
-    schema: getTileOasisBonusesSchema,
-  });
-};
+      bind: {
+        $tile_id: tileId,
+      },
+      schema: getTileOasisBonusesSchema,
+    });
+  },
+);
 
-/**
- * GET /tiles/:tileId/world-item
- * @pathParam {number} tileId
- */
-export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
-  database,
-  { params },
-) => {
-  const { tileId } = params;
-
-  return (
-    database.selectObject({
-      sql: `
+export const getTileWorldItem = createController('/tiles/:tileId/world-item')(
+  ({ database, path: { tileId } }) => {
+    return (
+      database.selectObject({
+        sql: `
       SELECT item_id, amount
       FROM
         world_items
@@ -168,10 +143,11 @@ export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
         tile_id = $tile_id
       LIMIT 1;
     `,
-      bind: {
-        $tile_id: tileId,
-      },
-      schema: getTileWorldItemSchema,
-    }) ?? null
-  );
-};
+        bind: {
+          $tile_id: tileId,
+        },
+        schema: getTileWorldItemSchema,
+      }) ?? null
+    );
+  },
+);

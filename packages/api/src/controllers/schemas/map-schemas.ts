@@ -4,7 +4,6 @@ import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getTilesSchema = z
   .strictObject({
@@ -80,11 +79,12 @@ export const getTilesSchema = z
         ownerVillage: null,
       }),
     };
-  });
+  })
+  .meta({ id: 'GetTiles' });
 
 export const getTileTroopsSchema = z
   .strictObject({
-    unit_id: unitIdSchema,
+    unit_id: z.string(),
     amount: z.number(),
     tile_id: z.number(),
     source_tile_id: z.number(),
@@ -94,7 +94,16 @@ export const getTileTroopsSchema = z
     amount: t.amount,
     tileId: t.tile_id,
     source: t.source_tile_id,
-  }));
+  }))
+  .pipe(
+    z.object({
+      unitId: z.string(),
+      amount: z.number(),
+      tileId: z.number(),
+      source: z.number(),
+    }),
+  )
+  .meta({ id: 'GetTileTroops' });
 
 export const getTileOasisBonusesSchema = z
   .strictObject({
@@ -104,7 +113,14 @@ export const getTileOasisBonusesSchema = z
   .transform((t) => ({
     resource: t.resource,
     bonus: t.bonus,
-  }));
+  }))
+  .pipe(
+    z.object({
+      resource: resourceSchema,
+      bonus: z.number(),
+    }),
+  )
+  .meta({ id: 'GetTileOasisBonuses' });
 
 export const getTileWorldItemSchema = z
   .strictObject({
@@ -114,4 +130,11 @@ export const getTileWorldItemSchema = z
   .transform((t) => ({
     id: t.item_id,
     amount: t.amount,
-  }));
+  }))
+  .pipe(
+    z.object({
+      id: z.number(),
+      amount: z.number(),
+    }),
+  )
+  .meta({ id: 'GetTileWorldItem' });

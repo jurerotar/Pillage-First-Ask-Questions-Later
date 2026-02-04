@@ -89,14 +89,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
-        const { controller, params, query } = matchRoute(url, method);
-        const result = controller(dbFacade!, { params, query, body });
+        const { controller, path, query } = matchRoute(url, method);
+        const result = controller(dbFacade!, { path, query, body });
 
         if (method !== 'GET') {
           globalThis.postMessage({
             eventKey: 'event:worker-event-creation-success',
             ...body,
-            ...params,
+            ...path,
           } satisfies EventApiNotificationEvent);
         }
 

@@ -1,22 +1,13 @@
-import type { Building } from '@pillage-first/types/models/building';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   getOccupiableOasisInRangeSchema,
   getVillageBySlugSchema,
-} from './schemas/village-schemas.ts';
+} from './schemas/village-schemas';
 
-/**
- * GET /villages/:villageSlug
- * @pathParam {string} villageSlug
- */
-export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
-  database,
-  { params },
-) => {
-  const { villageSlug } = params;
-
-  return database.selectObject({
-    sql: `
+export const getVillageBySlug = createController('/villages/:villageSlug')(
+  ({ database, path: { villageSlug } }) => {
+    return database.selectObject({
+      sql: `
       SELECT
         v.id,
         v.tile_id,
@@ -57,20 +48,15 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
         v.slug = $slug
       LIMIT 1;
     `,
-    bind: { $slug: villageSlug },
-    schema: getVillageBySlugSchema,
-  })!;
-};
+      bind: { $slug: villageSlug },
+      schema: getVillageBySlugSchema,
+    })!;
+  },
+);
 
-/**
- * GET /villages/:villageId/occupiable-oasis
- * @pathParam {number} villageId
- */
-export const getOccupiableOasisInRange: Controller<
-  '/villages/:villageId/occupiable-oasis'
-> = (database, { params }) => {
-  const { villageId } = params;
-
+export const getOccupiableOasisInRange = createController(
+  '/villages/:villageId/occupiable-oasis',
+)(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
       WITH src_village AS (
@@ -130,26 +116,12 @@ export const getOccupiableOasisInRange: Controller<
     },
     schema: getOccupiableOasisInRangeSchema,
   });
-};
+});
 
-export type RearrangeBuildingFieldsBody = {
-  buildingFieldId: number;
-  buildingId: Building['id'] | null;
-}[];
-
-/**
- * PATCH /villages/:villageId/building-fields
- * @pathParam {number} villageId
- * @body { { buildingFieldId: number, buildingId: Building['id'] | null }[] }
- */
-export const rearrangeBuildingFields: Controller<
+export const rearrangeBuildingFields = createController(
   '/villages/:villageId/building-fields',
   'patch',
-  RearrangeBuildingFieldsBody
-> = (database, { params, body }) => {
-  const { villageId } = params;
-  const updates = body;
-
+)(({ database, path: { villageId }, body: updates }) => {
   database.transaction(() => {
     // 1. Update building_fields
     database.exec({
@@ -213,4 +185,4 @@ export const rearrangeBuildingFields: Controller<
       },
     });
   });
-};
+});

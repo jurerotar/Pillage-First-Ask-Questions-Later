@@ -32,4 +32,17 @@ export const getPreferencesSchema = z
         t.should_show_notifications_on_academy_research_completion,
       ),
     };
-  });
+  })
+  .pipe(
+    z.object({
+      isAccessibilityModeEnabled: z.boolean(),
+      isReducedMotionModeEnabled: z.boolean(),
+      shouldShowBuildingNames: z.boolean(),
+      isAutomaticNavigationAfterBuildingLevelChangeEnabled: z.boolean(),
+      isDeveloperToolsConsoleEnabled: z.boolean(),
+      shouldShowNotificationsOnBuildingUpgradeCompletion: z.boolean(),
+      shouldShowNotificationsOnUnitUpgradeCompletion: z.boolean(),
+      shouldShowNotificationsOnAcademyResearchCompletion: z.boolean(),
+    }),
+  )
+  .meta({ id: 'GetPreferences' });

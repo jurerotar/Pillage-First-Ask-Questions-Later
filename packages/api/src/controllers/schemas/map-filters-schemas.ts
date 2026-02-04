@@ -18,4 +18,15 @@ export const getMapFiltersSchema = z
       shouldShowTroopMovements: Boolean(t.should_show_troop_movements),
       shouldShowWheatFields: Boolean(t.should_show_wheat_fields),
     };
-  });
+  })
+  .pipe(
+    z.object({
+      shouldShowFactionReputation: z.boolean(),
+      shouldShowOasisIcons: z.boolean(),
+      shouldShowTileTooltips: z.boolean(),
+      shouldShowTreasureIcons: z.boolean(),
+      shouldShowTroopMovements: z.boolean(),
+      shouldShowWheatFields: z.boolean(),
+    }),
+  )
+  .meta({ id: 'GetMapFilters' });
