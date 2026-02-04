@@ -1,18 +1,13 @@
 import { z } from 'zod';
 import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
-import type { HeroItemSlot } from '@pillage-first/types/models/hero-item';
 import type { Controller } from '../types/controller';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
-} from './schemas/hero-schemas.ts';
+} from './schemas/hero-schemas';
 
-/**
- * GET /players/:playerId/hero
- * @pathParam {number} playerId
- */
 export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
   return database.selectObject({
     sql: `
@@ -32,10 +27,6 @@ export const getHero: Controller<'/players/:playerId/hero'> = (database) => {
   });
 };
 
-/**
- * GET /players/:playerId/hero/equipped-items
- * @pathParam {number} playerId
- */
 export const getHeroLoadout: Controller<
   '/players/:playerId/hero/equipped-items'
 > = (database) => {
@@ -56,10 +47,6 @@ export const getHeroLoadout: Controller<
   });
 };
 
-/**
- * GET /players/:playerId/hero/inventory
- * @pathParam {number} playerId
- */
 export const getHeroInventory: Controller<
   '/players/:playerId/hero/inventory'
 > = (database) => {
@@ -81,10 +68,6 @@ export const getHeroInventory: Controller<
   });
 };
 
-/**
- * GET /players/:playerId/hero/adventures
- * @pathParam {number} playerId
- */
 export const getHeroAdventures: Controller<
   '/players/:playerId/hero/adventures'
 > = (database) => {
@@ -94,23 +77,9 @@ export const getHeroAdventures: Controller<
   });
 };
 
-export type ChangeHeroAttributesBody = {
-  attribute:
-    | 'attackPower'
-    | 'resourceProduction'
-    | 'attackBonus'
-    | 'defenceBonus';
-};
-
-/**
- * PATCH /players/:playerId/hero/attributes
- * @pathParam {number} playerId
- * @body { { attribute: 'attackPower' | 'resourceProduction' | 'attackBonus' | 'defenceBonus' } }
- */
 export const changeHeroAttributes: Controller<
   '/players/:playerId/hero/attributes',
-  'patch',
-  ChangeHeroAttributesBody
+  'patch'
 > = (database, { params, body }) => {
   const { playerId } = params;
   const { attribute } = body;
@@ -130,21 +99,9 @@ export const changeHeroAttributes: Controller<
   });
 };
 
-export type EquipHeroItemBody = {
-  itemId: number;
-  slot: HeroItemSlot;
-  amount: number;
-};
-
-/**
- * PATCH /players/:playerId/hero/equipped-items
- * @pathParam {number} playerId
- * @body { { itemId: number, slot: HeroItemSlot, amount: number } }
- */
 export const equipHeroItem: Controller<
   '/players/:playerId/hero/equipped-items',
-  'patch',
-  EquipHeroItemBody
+  'patch'
 > = (database, { params, body }) => {
   const { playerId } = params;
   const { itemId, slot, amount } = body;
@@ -255,11 +212,6 @@ export const equipHeroItem: Controller<
   });
 };
 
-/**
- * DELETE /players/:playerId/hero/equipped-items/:slot
- * @pathParam {number} playerId
- * @pathParam {string} slot
- */
 export const unequipHeroItem: Controller<
   '/players/:playerId/hero/equipped-items/:slot',
   'delete'
@@ -309,21 +261,10 @@ export const unequipHeroItem: Controller<
   });
 };
 
-export type UseHeroItemBody = {
-  itemId: number;
-  amount: number;
-};
-
-/**
- * POST /players/:playerId/hero/item
- * @pathParam {number} playerId
- * @body { { itemId: number, amount: number } }
- */
-export const useHeroItem: Controller<
-  '/players/:playerId/hero/item',
-  'post',
-  UseHeroItemBody
-> = (database, { params, body }) => {
+export const useHeroItem: Controller<'/players/:playerId/hero/item', 'post'> = (
+  database,
+  { params, body },
+) => {
   const { playerId } = params;
   const { itemId, amount } = body;
 

@@ -9,7 +9,9 @@ export const farmListTileSchema = z
   .strictObject({
     tile_id: z.number(),
   })
-  .transform((t) => t.tile_id);
+  .transform((t) => t.tile_id)
+  .pipe(z.number())
+  .meta({ id: 'FarmListTile' });
 
 export const createFarmListSchema = z.strictObject({
   name: z.string().min(1),

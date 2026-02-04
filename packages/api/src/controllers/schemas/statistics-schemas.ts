@@ -22,7 +22,19 @@ export const getPlayerRankingsSchema = z
       totalPopulation: t.total_population,
       villageCount: t.village_count,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      faction: factionSchema,
+      name: z.string(),
+      slug: z.string(),
+      tribe: tribeSchema,
+      totalPopulation: z.number(),
+      villageCount: z.number(),
+    }),
+  )
+  .meta({ id: 'GetPlayerRankings' });
 
 export const getVillageRankingsSchema = z
   .strictObject({
@@ -48,7 +60,22 @@ export const getVillageRankingsSchema = z
       playerName: t.player_name,
       playerSlug: t.player_slug,
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      coordinates: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      population: z.number(),
+      playerId: z.number(),
+      playerName: z.string(),
+      playerSlug: z.string(),
+    }),
+  )
+  .meta({ id: 'GetVillageRankings' });
 
 export const playersStatsRowSchema = z.object({
   tribe: tribeSchema,
@@ -80,4 +107,5 @@ export const getServerOverviewStatisticsSchema = z
       villagesByTribe: t.villages_by_tribe,
       villagesByFaction: t.villages_by_faction,
     };
-  });
+  })
+  .meta({ id: 'GetServerOverviewStatistics' });

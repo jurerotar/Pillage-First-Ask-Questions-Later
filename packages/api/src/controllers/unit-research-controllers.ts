@@ -1,9 +1,6 @@
 import type { Controller } from '../types/controller';
-import { getResearchedUnitsSchema } from './schemas/unit-research-schemas.ts';
+import { getResearchedUnitsSchema } from './schemas/unit-research-schemas';
 
-/**
- * GET /villages/:villageId/researched-units
- */
 export const getResearchedUnits: Controller<
   '/villages/:villageId/researched-units'
 > = (database, { params }) => {

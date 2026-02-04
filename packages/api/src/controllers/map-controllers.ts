@@ -6,11 +6,8 @@ import {
   getTilesSchema,
   getTileTroopsSchema,
   getTileWorldItemSchema,
-} from './schemas/map-schemas.ts';
+} from './schemas/map-schemas';
 
-/**
- * GET /tiles
- */
 export const getTiles: Controller<'/tiles'> = (database) => {
   const parsedTiles = database.selectObjects({
     sql: `
@@ -101,10 +98,6 @@ export const getTiles: Controller<'/tiles'> = (database) => {
   return tiles;
 };
 
-/**
- * GET /tiles/:tileId/troops
- * @pathParam {number} tileId
- */
 export const getTileTroops: Controller<'/tiles/:tileId/troops'> = (
   database,
   { params },
@@ -125,10 +118,6 @@ export const getTileTroops: Controller<'/tiles/:tileId/troops'> = (
   });
 };
 
-/**
- * GET /tiles/:tileId/bonuses
- * @pathParam {number} tileId
- */
 export const getTileOasisBonuses: Controller<'/tiles/:tileId/bonuses'> = (
   database,
   { params },
@@ -148,10 +137,6 @@ export const getTileOasisBonuses: Controller<'/tiles/:tileId/bonuses'> = (
   });
 };
 
-/**
- * GET /tiles/:tileId/world-item
- * @pathParam {number} tileId
- */
 export const getTileWorldItem: Controller<'/tiles/:tileId/world-item'> = (
   database,
   { params },

@@ -3,15 +3,12 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
-  type ChangeHeroAttributesBody,
   changeHeroAttributes,
-  type EquipHeroItemBody,
   equipHeroItem,
   getHero,
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
-  type UseHeroItemBody,
   unequipHeroItem,
   useHeroItem,
 } from '../hero-controllers';
@@ -78,11 +75,7 @@ describe('hero-controllers', () => {
 
       changeHeroAttributes(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/attributes',
-          'patch',
-          ChangeHeroAttributesBody
-        >({
+        createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
           params: { playerId },
           body: { attribute: 'attackPower' },
         }),
@@ -120,14 +113,12 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items',
-          'patch',
-          EquipHeroItemBody
-        >({
-          params: { playerId },
-          body: { itemId, slot, amount: 1 },
-        }),
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            params: { playerId },
+            body: { itemId, slot, amount: 1 },
+          },
+        ),
       );
 
       // Verify equipped
@@ -176,14 +167,12 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items',
-          'patch',
-          EquipHeroItemBody
-        >({
-          params: { playerId },
-          body: { itemId: newItemId, slot, amount: 1 },
-        }),
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            params: { playerId },
+            body: { itemId: newItemId, slot, amount: 1 },
+          },
+        ),
       );
 
       // Verify new item equipped
@@ -224,14 +213,12 @@ describe('hero-controllers', () => {
 
       equipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items',
-          'patch',
-          EquipHeroItemBody
-        >({
-          params: { playerId },
-          body: { itemId, slot, amount: 1 },
-        }),
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            params: { playerId },
+            body: { itemId, slot, amount: 1 },
+          },
+        ),
       );
 
       // Verify effects added
@@ -265,14 +252,12 @@ describe('hero-controllers', () => {
       // Equip 5
       equipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items',
-          'patch',
-          EquipHeroItemBody
-        >({
-          params: { playerId },
-          body: { itemId, slot, amount: 5 },
-        }),
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            params: { playerId },
+            body: { itemId, slot, amount: 5 },
+          },
+        ),
       );
 
       // Verify equipped
@@ -286,14 +271,12 @@ describe('hero-controllers', () => {
       // Equip another 3 of the SAME item
       equipHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/equipped-items',
-          'patch',
-          EquipHeroItemBody
-        >({
-          params: { playerId },
-          body: { itemId, slot, amount: 3 },
-        }),
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            params: { playerId },
+            body: { itemId, slot, amount: 3 },
+          },
+        ),
       );
 
       equipped = database.selectObject({
@@ -436,11 +419,7 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/item',
-          'post',
-          UseHeroItemBody
-        >({
+        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
           params: { playerId },
           body: { itemId, amount },
         }),
@@ -490,11 +469,7 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/item',
-          'post',
-          UseHeroItemBody
-        >({
+        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
           params: { playerId },
           body: { itemId, amount },
         }),
@@ -552,11 +527,7 @@ describe('hero-controllers', () => {
 
       useHeroItem(
         database,
-        createControllerArgs<
-          '/players/:playerId/hero/item',
-          'post',
-          UseHeroItemBody
-        >({
+        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
           params: { playerId },
           body: { itemId, amount },
         }),
@@ -596,11 +567,7 @@ describe('hero-controllers', () => {
       await expect(async () => {
         useHeroItem(
           database,
-          createControllerArgs<
-            '/players/:playerId/hero/item',
-            'post',
-            UseHeroItemBody
-          >({
+          createControllerArgs<'/players/:playerId/hero/item', 'post'>({
             params: { playerId },
             body: { itemId, amount },
           }),

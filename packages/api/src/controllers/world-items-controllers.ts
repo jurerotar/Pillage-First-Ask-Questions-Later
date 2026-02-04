@@ -1,13 +1,9 @@
 import { artifacts } from '@pillage-first/game-assets/items';
 import type { Controller } from '../types/controller';
-import { getArtifactsAroundVillageSchema } from './schemas/world-items-schemas.ts';
+import { getArtifactsAroundVillageSchema } from './schemas/world-items-schemas';
 
 const artifactIds = artifacts.map((item) => item.id);
 
-/**
- * GET /villages/:villageId/artifacts
- * @pathParam {number} villageId
- */
 export const getArtifactsAroundVillage: Controller<
   '/villages/:villageId/artifacts'
 > = (database, { params }) => {

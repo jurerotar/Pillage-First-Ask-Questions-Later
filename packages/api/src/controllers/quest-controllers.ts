@@ -7,13 +7,9 @@ import {
 } from '@pillage-first/utils/guards/quest';
 import type { Controller } from '../types/controller';
 import { addVillageResourcesAt } from '../utils/village';
-import { getQuestsSchema } from './schemas/quest-schemas.ts';
+import { getQuestsSchema } from './schemas/quest-schemas';
 import { addHeroExperience } from './utils/hero';
 
-/**
- * GET /villages/:villageId/quests
- * @pathParam {number} villageId
- */
 export const getQuests: Controller<'/villages/:villageId/quests'> = (
   database,
   { params },
@@ -47,9 +43,6 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
   });
 };
 
-/**
- * GET /villages/:villageId/quests/collectables/count
- */
 export const getCollectableQuestCount: Controller<
   '/villages/:villageId/quests/collectables/count'
 > = (database) => {
@@ -70,11 +63,6 @@ export const getCollectableQuestCount: Controller<
   };
 };
 
-/**
- * PATCH /villages/:villageId/quests/:questId/collect
- * @pathParam {number} villageId
- * @pathParam {string} questId
- */
 export const collectQuest: Controller<
   '/villages/:villageId/quests/:questId/collect',
   'patch'

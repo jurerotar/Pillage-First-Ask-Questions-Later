@@ -1,9 +1,6 @@
 import type { Controller } from '../types/controller';
-import { getUnitImprovementsSchema } from './schemas/unit-improvement-schemas.ts';
+import { getUnitImprovementsSchema } from './schemas/unit-improvement-schemas';
 
-/**
- * GET /players/:playerId/unit-improvements
- */
 export const getUnitImprovements: Controller<
   '/players/:playerId/unit-improvements'
 > = (database, { params }) => {

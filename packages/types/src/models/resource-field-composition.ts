@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import 'zod-openapi';
 
 export const resourceFieldCompositionSchema = z
   .enum([

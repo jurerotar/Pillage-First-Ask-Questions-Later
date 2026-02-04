@@ -1,10 +1,7 @@
 import { snakeCase } from 'moderndash';
 import type { Controller } from '../types/controller';
-import { getMapFiltersSchema } from './schemas/map-filters-schemas.ts';
+import { getMapFiltersSchema } from './schemas/map-filters-schemas';
 
-/**
- * GET /players/:playerId/map-filters
- */
 export const getMapFilters: Controller<'/players/:playerId/map-filters'> = (
   database,
 ) => {
@@ -22,20 +19,9 @@ export const getMapFilters: Controller<'/players/:playerId/map-filters'> = (
   })!;
 };
 
-type UpdateMapFilterBody = {
-  value: boolean;
-};
-
-/**
- * PATCH /players/:playerId/map-filters/:filterName
- * @pathParam {string} filterName
- * @bodyContent application/json UpdateMapFilterBody
- * @bodyRequired
- */
 export const updateMapFilter: Controller<
   '/players/:playerId/map-filters/:filterName',
-  'patch',
-  UpdateMapFilterBody
+  'patch'
 > = (database, { params, body }) => {
   const { filterName } = params;
   const { value } = body;

@@ -7,22 +7,12 @@ import {
   getVillageRankingsSchema,
   playersStatsRowSchema,
   villagesStatsRowSchema,
-} from './schemas/statistics-schemas.ts';
+} from './schemas/statistics-schemas';
 
-export type GetPlayersStatisticsBody = {
-  lastPlayerId: number | null;
-};
-
-/**
- * GET /statistics/players
- * @bodyContent application/json GetPlayersStatisticsBody
- * @bodyRequired
- */
-export const getPlayerRankings: Controller<
-  '/statistics/players',
-  'get',
-  GetPlayersStatisticsBody
-> = (database, { body }) => {
+export const getPlayerRankings: Controller<'/statistics/players'> = (
+  database,
+  { body },
+) => {
   const { lastPlayerId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
@@ -90,20 +80,10 @@ export const getPlayerRankings: Controller<
   });
 };
 
-export type GetStatisticsVillagesBody = {
-  lastVillageId: number | null;
-};
-
-/**
- * GET /statistics/villages
- * @bodyContent application/json GetVillageStatisticsBody
- * @bodyRequired
- */
-export const getVillageRankings: Controller<
-  '/statistics/villages',
-  'get',
-  GetStatisticsVillagesBody
-> = (database, { body }) => {
+export const getVillageRankings: Controller<'/statistics/villages'> = (
+  database,
+  { body },
+) => {
   const { lastVillageId = null } = body;
 
   // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
@@ -182,9 +162,6 @@ export const getVillageRankings: Controller<
   });
 };
 
-/**
- * GET /statistics/overview
- */
 export const getGameWorldOverview: Controller<'/statistics/overview'> = (
   database,
 ) => {

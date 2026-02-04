@@ -125,4 +125,7 @@ export type Unit = {
   researchRequirements: UnitResearchRequirement[];
 };
 
-export const unitIdSchema = z.string().pipe(z.custom<UnitId>()).meta({ id: 'UnitId' });
+export const unitIdSchema = z
+  .string()
+  .pipe(z.custom<UnitId>())
+  .meta({ id: 'UnitId' });

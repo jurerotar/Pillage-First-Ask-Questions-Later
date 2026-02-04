@@ -10,13 +10,9 @@ import {
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
-import { createEvents } from './utils/create-event.ts';
-import { getEventStartTime } from './utils/events.ts';
+import { createEvents } from './utils/create-event';
+import { getEventStartTime } from './utils/events';
 
-/**
- * GET /villages/:villageId/events
- * @pathParam {number} villageId
- */
 export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
   database,
   { params },
@@ -32,11 +28,6 @@ export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
   });
 };
 
-/**
- * GET /villages/:villageId/events/:eventType
- * @pathParam {number} villageId
- * @pathParam {string} eventType
- */
 export const getVillageEventsByType: Controller<
   '/villages/:villageId/events/:eventType'
 > = (database, { params }) => {
@@ -52,27 +43,13 @@ export const getVillageEventsByType: Controller<
   });
 };
 
-type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
-  amount: number;
-};
-
-/**
- * POST /events
- * @bodyContent application/json CreateNewEventsBody
- * @bodyRequired
- */
-export const createNewEvents: Controller<
-  '/events',
-  'post',
-  CreateNewEventsBody
-> = (database, { body }) => {
+export const createNewEvents: Controller<'/events', 'post'> = (
+  database,
+  { body },
+) => {
   createEvents(database, body);
 };
 
-/**
- * DELETE /events/:eventId
- * @pathParam {string} eventId
- */
 export const cancelConstructionEvent: Controller<
   '/events/:eventId',
   'delete'

@@ -1,19 +1,20 @@
 import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
-import {
-  getPreferences,
-  type UpdatePreferenceBody,
-  updatePreference,
-} from '../preferences-controllers';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { getPreferences, updatePreference } from '../preferences-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('preferences-controllers', () => {
+  const playerId = PLAYER_ID;
+
   test('getPreferences should return preferences', async () => {
     const database = await prepareTestDatabase();
 
     getPreferences(
       database,
-      createControllerArgs<'/players/:playerId/preferences'>({}),
+      createControllerArgs<'/players/:playerId/preferences'>({
+        params: { playerId },
+      }),
     );
 
     expect(true).toBeTruthy();
@@ -26,10 +27,12 @@ describe('preferences-controllers', () => {
       database,
       createControllerArgs<
         '/players/:playerId/preferences/:preferenceName',
-        'patch',
-        UpdatePreferenceBody
+        'patch'
       >({
-        params: { preferenceName: 'isAccessibilityModeEnabled' },
+        params: {
+          playerId,
+          preferenceName: 'isAccessibilityModeEnabled',
+        },
         body: { value: true },
       }),
     );

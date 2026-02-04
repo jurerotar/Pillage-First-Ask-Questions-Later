@@ -7,9 +7,6 @@ import {
   getVillagesByPlayerSchema,
 } from './schemas/player-schemas';
 
-/**
- * GET /players/me
- */
 export const getMe: Controller<'/players/me'> = (database) => {
   return database.selectObject({
     sql: `
@@ -30,9 +27,6 @@ export const getMe: Controller<'/players/me'> = (database) => {
   })!;
 };
 
-/**
- * GET /players/:playerId/villages
- */
 export const getPlayerVillageListing: Controller<
   '/players/:playerId/villages'
 > = (database, args) => {
@@ -64,9 +58,6 @@ export const getPlayerVillageListing: Controller<
   });
 };
 
-/**
- * GET /players/:playerId/villages-with-population
- */
 export const getPlayerVillagesWithPopulation: Controller<
   '/players/:playerId/villages-with-population'
 > = (database, args) => {
@@ -101,11 +92,6 @@ export const getPlayerVillagesWithPopulation: Controller<
   });
 };
 
-/**
- * GET /villages/:villageId/troops
- * @pathParam {number} playerId
- * @pathParam {number} villageId
- */
 export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
   database,
   args,
@@ -137,20 +123,9 @@ export const getTroopsByVillage: Controller<'/villages/:villageId/troops'> = (
   });
 };
 
-export type RenameVillageBody = {
-  name: string;
-};
-
-/**
- * PATCH /villages/:villageId/rename
- * @pathParam {number} villageId
- * @bodyContent application/json RenameVillageBody
- * @bodyRequired
- */
 export const renameVillage: Controller<
   '/villages/:villageId/rename',
-  'patch',
-  RenameVillageBody
+  'patch'
 > = (database, { params, body }) => {
   const { villageId } = params;
   const { name } = body;
@@ -165,9 +140,6 @@ export const renameVillage: Controller<
   });
 };
 
-/**
- * GET /players/:playerSlug
- */
 export const getPlayerBySlug: Controller<'/players/:playerSlug'> = (
   database,
   args,

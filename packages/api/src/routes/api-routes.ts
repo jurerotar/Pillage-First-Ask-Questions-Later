@@ -81,8 +81,8 @@ import { getArtifactsAroundVillage } from '../controllers/world-items-controller
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
-type RoutePath = keyof paths;
-type RouteMethod<T extends RoutePath> = keyof paths[T] &
+type RoutePath = keyof typeof paths;
+type RouteMethod<T extends RoutePath> = keyof (typeof paths)[T] &
   ('get' | 'post' | 'put' | 'delete' | 'patch');
 
 type Route<T extends RoutePath = RoutePath> = {

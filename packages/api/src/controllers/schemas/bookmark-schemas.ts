@@ -7,5 +7,7 @@ export const getBookmarksSchema = z
     tab_name: z.string(),
   })
   .transform((t) => {
-    return [t.building_id, t.tab_name];
-  });
+    return [t.building_id, t.tab_name] as [string, string];
+  })
+  .pipe(z.tuple([z.string(), z.string()]))
+  .meta({ id: 'GetBookmarks' });

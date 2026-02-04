@@ -1,14 +1,9 @@
-import type { Building } from '@pillage-first/types/models/building';
 import type { Controller } from '../types/controller';
 import {
   getOccupiableOasisInRangeSchema,
   getVillageBySlugSchema,
-} from './schemas/village-schemas.ts';
+} from './schemas/village-schemas';
 
-/**
- * GET /villages/:villageSlug
- * @pathParam {string} villageSlug
- */
 export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
   database,
   { params },
@@ -62,10 +57,6 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
   })!;
 };
 
-/**
- * GET /villages/:villageId/occupiable-oasis
- * @pathParam {number} villageId
- */
 export const getOccupiableOasisInRange: Controller<
   '/villages/:villageId/occupiable-oasis'
 > = (database, { params }) => {
@@ -132,20 +123,9 @@ export const getOccupiableOasisInRange: Controller<
   });
 };
 
-export type RearrangeBuildingFieldsBody = {
-  buildingFieldId: number;
-  buildingId: Building['id'] | null;
-}[];
-
-/**
- * PATCH /villages/:villageId/building-fields
- * @pathParam {number} villageId
- * @body { { buildingFieldId: number, buildingId: Building['id'] | null }[] }
- */
 export const rearrangeBuildingFields: Controller<
   '/villages/:villageId/building-fields',
-  'patch',
-  RearrangeBuildingFieldsBody
+  'patch'
 > = (database, { params, body }) => {
   const { villageId } = params;
   const updates = body;

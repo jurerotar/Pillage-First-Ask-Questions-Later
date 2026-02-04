@@ -82,7 +82,9 @@ export type HeroItem = {
   heroBonus?: HeroBonus[];
 };
 
-export const heroItemSchema = z.strictObject({
-  id: z.number(),
-  amount: z.number().int().positive(),
-}).meta({ id: 'HeroItem' });
+export const heroItemSchema = z
+  .strictObject({
+    id: z.number(),
+    amount: z.number().int().positive(),
+  })
+  .meta({ id: 'HeroItem' });

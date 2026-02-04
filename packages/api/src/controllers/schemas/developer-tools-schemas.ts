@@ -31,7 +31,21 @@ export const getDeveloperSettingsSchema = z
       isFreeUnitImprovementEnabled: Boolean(t.is_free_unit_improvement_enabled),
       isFreeUnitResearchEnabled: Boolean(t.is_free_unit_research_enabled),
     };
-  });
+  })
+  .pipe(
+    z.object({
+      isInstantBuildingConstructionEnabled: z.boolean(),
+      isInstantUnitTrainingEnabled: z.boolean(),
+      isInstantUnitImprovementEnabled: z.boolean(),
+      isInstantUnitResearchEnabled: z.boolean(),
+      isInstantUnitTravelEnabled: z.boolean(),
+      isFreeBuildingConstructionEnabled: z.boolean(),
+      isFreeUnitTrainingEnabled: z.boolean(),
+      isFreeUnitImprovementEnabled: z.boolean(),
+      isFreeUnitResearchEnabled: z.boolean(),
+    }),
+  )
+  .meta({ id: 'GetDeveloperSettings' });
 
 export const updateVillageResourcesSchema = z.strictObject({
   resource: resourceSchema,

@@ -1,12 +1,14 @@
 import { z } from 'zod';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
-import type { Resource } from '@pillage-first/types/models/resource';
+import {
+  type Resource,
+  resourceSchema,
+} from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 
 export const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),
-  building_id: buildingIdSchema,
+  building_id: z.string(),
   level: z.number(),
 });
 
@@ -55,7 +57,36 @@ export const getVillageBySlugSchema = z
         level: bf.level,
       })),
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      tileId: z.number(),
+      playerId: z.number(),
+      name: z.string(),
+      slug: z.string(),
+      coordinates: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      lastUpdatedAt: z.number(),
+      resources: z.object({
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+      }),
+      resourceFieldComposition: resourceFieldCompositionSchema,
+      buildingFields: z.array(
+        z.object({
+          id: z.number(),
+          buildingId: z.string(),
+          level: z.number(),
+        }),
+      ),
+    }),
+  )
+  .meta({ id: 'GetVillageBySlug' });
 
 export const getOccupiableOasisInRangeSchema = z
   .strictObject({
@@ -126,4 +157,40 @@ export const getOccupiableOasisInRangeSchema = z
               slug: t.occupying_village_slug,
             },
     };
-  });
+  })
+  .pipe(
+    z.object({
+      oasis: z.object({
+        id: z.number(),
+        coordinates: z.object({
+          x: z.number(),
+          y: z.number(),
+        }),
+        bonuses: z.array(
+          z.object({
+            resource: resourceSchema,
+            bonus: z.number(),
+          }),
+        ),
+      }),
+      player: z
+        .object({
+          id: z.number(),
+          name: z.string().nullable(),
+          slug: z.string().nullable(),
+        })
+        .nullable(),
+      village: z
+        .object({
+          id: z.number(),
+          coordinates: z.object({
+            x: z.number().nullable(),
+            y: z.number().nullable(),
+          }),
+          name: z.string().nullable(),
+          slug: z.string().nullable(),
+        })
+        .nullable(),
+    }),
+  )
+  .meta({ id: 'GetOccupiableOasisInRange' });

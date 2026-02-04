@@ -19,4 +19,5 @@ export const getQuestsSchema = z
         villageId: t.village_id,
       }),
     };
-  });
+  })
+  .meta({ id: 'GetQuests' });

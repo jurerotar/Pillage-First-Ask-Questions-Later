@@ -1,10 +1,6 @@
 import type { Controller } from '../types/controller';
-import { getBookmarksSchema } from './schemas/bookmark-schemas.ts';
+import { getBookmarksSchema } from './schemas/bookmark-schemas';
 
-/**
- * GET /villages/:villageId/bookmarks
- * @pathParam {number} villageId
- */
 export const getBookmarks: Controller<'/villages/:villageId/bookmarks'> = (
   database,
   { params },
@@ -22,21 +18,9 @@ export const getBookmarks: Controller<'/villages/:villageId/bookmarks'> = (
   return Object.fromEntries(bookmarks);
 };
 
-export type UpdateBookmarkBody = {
-  tab: string;
-};
-
-/**
- * PATCH /villages/:villageId/bookmarks/:buildingId
- * @pathParam {number} villageId
- * @pathParam {string} buildingId
- * @bodyContent application/json UpdateBookmarkBody
- * @bodyRequired
- */
 export const updateBookmark: Controller<
   '/villages/:villageId/bookmarks/:buildingId',
-  'patch',
-  UpdateBookmarkBody
+  'patch'
 > = (database, { params, body }) => {
   const { villageId, buildingId } = params;
   const { tab } = body;

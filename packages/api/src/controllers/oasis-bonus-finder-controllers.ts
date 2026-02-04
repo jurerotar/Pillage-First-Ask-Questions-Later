@@ -1,8 +1,6 @@
-import type { z } from 'zod';
 import type { Resource } from '@pillage-first/types/models/resource';
-import type { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import type { Controller } from '../types/controller';
-import { getTilesWithBonusesSchema } from './schemas/oasis-bonus-finder-schemas.ts';
+import { getTilesWithBonusesSchema } from './schemas/oasis-bonus-finder-schemas';
 
 const createSqlBindings = (slot: OasisBonus[]) => {
   if (slot.length === 0) {
@@ -31,29 +29,10 @@ type OasisBonus = {
   resource: Resource;
 };
 
-export type GetTilesWithBonusesBody = {
-  resourceFieldComposition:
-    | z.infer<typeof resourceFieldCompositionSchema>
-    | 'any-cropper';
-  bonuses: {
-    firstOasis: OasisBonus[];
-    secondOasis: OasisBonus[];
-    thirdOasis: OasisBonus[];
-  };
-};
-
-/**
- * GET /oasis-bonus-finder
- * @queryParam {number} x
- * @queryParam {number} y
- * @bodyContent application/json GetTilesWithBonusesBody
- * @bodyRequired
- */
-export const getTilesWithBonuses: Controller<
-  '/oasis-bonus-finder',
-  'get',
-  GetTilesWithBonusesBody
-> = (database, { query, body }) => {
+export const getTilesWithBonuses: Controller<'/oasis-bonus-finder'> = (
+  database,
+  { query, body },
+) => {
   const { x, y } = query;
   const { resourceFieldComposition, bonuses } = body;
   const { firstOasis, secondOasis, thirdOasis } = bonuses;

@@ -5,7 +5,6 @@ import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   getOccupiableOasisInRange,
   getVillageBySlug,
-  type RearrangeBuildingFieldsBody,
   rearrangeBuildingFields,
 } from '../village-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -85,11 +84,7 @@ describe('village-controllers', () => {
 
       rearrangeBuildingFields(
         database,
-        createControllerArgs<
-          '/villages/:villageId/building-fields',
-          'patch',
-          RearrangeBuildingFieldsBody
-        >({
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           params: { villageId },
           body: [
             { buildingFieldId: fieldId1, buildingId: 'BARRACKS' },
@@ -139,11 +134,7 @@ describe('village-controllers', () => {
 
       rearrangeBuildingFields(
         database,
-        createControllerArgs<
-          '/villages/:villageId/building-fields',
-          'patch',
-          RearrangeBuildingFieldsBody
-        >({
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           params: { villageId },
           body: [
             { buildingFieldId: fieldId1, buildingId: null },

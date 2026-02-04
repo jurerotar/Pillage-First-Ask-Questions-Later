@@ -1,11 +1,7 @@
 import { snakeCase } from 'moderndash';
-import type { Preferences } from '@pillage-first/types/models/preferences';
 import type { Controller } from '../types/controller';
-import { getPreferencesSchema } from './schemas/preferences-schemas.ts';
+import { getPreferencesSchema } from './schemas/preferences-schemas';
 
-/**
- * GET /players/:playerId/preferences
- */
 export const getPreferences: Controller<'/players/:playerId/preferences'> = (
   database,
 ) => {
@@ -27,20 +23,9 @@ export const getPreferences: Controller<'/players/:playerId/preferences'> = (
   })!;
 };
 
-export type UpdatePreferenceBody = {
-  value: Preferences[keyof Preferences];
-};
-
-/**
- * PATCH /players/:playerId/preferences/:preferenceName
- * @pathParam {string} preferenceName
- * @bodyContent application/json UpdatePreferenceBody
- * @bodyRequired
- */
 export const updatePreference: Controller<
   '/players/:playerId/preferences/:preferenceName',
-  'patch',
-  UpdatePreferenceBody
+  'patch'
 > = (database, { body, params }) => {
   const { preferenceName } = params;
   const { value } = body;

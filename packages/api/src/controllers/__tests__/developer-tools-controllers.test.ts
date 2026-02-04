@@ -5,9 +5,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import * as schedulerSignal from '../../scheduler/scheduler-signal';
 import {
   incrementHeroAdventurePoints,
-  type SpawnHeroItemBody,
   spawnHeroItem,
-  type UpdateDeveloperSettingsBody,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -33,8 +31,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<
           '/developer-settings/:developerSettingName',
-          'patch',
-          UpdateDeveloperSettingsBody
+          'patch'
         >({
           params: {
             developerSettingName: 'isInstantBuildingConstructionEnabled',
@@ -67,8 +64,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<
           '/developer-settings/:developerSettingName',
-          'patch',
-          UpdateDeveloperSettingsBody
+          'patch'
         >({
           params: {
             developerSettingName: 'isInstantBuildingConstructionEnabled',
@@ -114,8 +110,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<
           '/developer-settings/:developerSettingName',
-          'patch',
-          UpdateDeveloperSettingsBody
+          'patch'
         >({
           params: { developerSettingName: 'isInstantUnitTrainingEnabled' },
           body: { value: true },
@@ -143,8 +138,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<
           '/developer-settings/:developerSettingName',
-          'patch',
-          UpdateDeveloperSettingsBody
+          'patch'
         >({
           params: { developerSettingName: 'isInstantUnitImprovementEnabled' },
           body: { value: true },
@@ -172,8 +166,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<
           '/developer-settings/:developerSettingName',
-          'patch',
-          UpdateDeveloperSettingsBody
+          'patch'
         >({
           params: { developerSettingName: 'isInstantUnitResearchEnabled' },
           body: { value: true },
@@ -201,8 +194,7 @@ describe('developer-tools-controllers', () => {
         database,
         createControllerArgs<
           '/developer-settings/:developerSettingName',
-          'patch',
-          UpdateDeveloperSettingsBody
+          'patch'
         >({
           params: { developerSettingName: 'isInstantUnitTravelEnabled' },
           body: { value: true },
@@ -231,14 +223,12 @@ describe('developer-tools-controllers', () => {
 
       spawnHeroItem(
         database,
-        createControllerArgs<
-          '/developer-settings/:heroId/spawn-item',
-          'patch',
-          SpawnHeroItemBody
-        >({
-          params: { heroId },
-          body: { itemId: 1 },
-        }),
+        createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
+          {
+            params: { heroId },
+            body: { itemId: 1 },
+          },
+        ),
       );
 
       const inventory = database.selectObjects({
@@ -252,14 +242,12 @@ describe('developer-tools-controllers', () => {
       // Spawn again
       spawnHeroItem(
         database,
-        createControllerArgs<
-          '/developer-settings/:heroId/spawn-item',
-          'patch',
-          SpawnHeroItemBody
-        >({
-          params: { heroId },
-          body: { itemId: 1 },
-        }),
+        createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
+          {
+            params: { heroId },
+            body: { itemId: 1 },
+          },
+        ),
       );
 
       const inventoryUpdated = database.selectObjects({

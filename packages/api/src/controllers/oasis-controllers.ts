@@ -3,12 +3,6 @@ import { resourceSchema } from '@pillage-first/types/models/resource';
 import type { Controller } from '../types/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 
-// TODO: Move this to an util function that's called after combat, once combat is added
-/**
- * POST /villages/:villageId/oasis/:oasisId
- * @pathParam {number} villageId
- * @pathParam {number} oasisId
- */
 export const occupyOasis: Controller<
   '/villages/:villageId/oasis/:oasisId',
   'post'
@@ -72,11 +66,6 @@ export const occupyOasis: Controller<
   });
 };
 
-/**
- * DELETE /villages/:villageId/oasis/:oasisId
- * @pathParam {number} villageId
- * @pathParam {number} oasisId
- */
 export const abandonOasis: Controller<
   '/villages/:villageId/oasis/:oasisId',
   'delete'

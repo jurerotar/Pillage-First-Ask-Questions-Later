@@ -41,29 +41,32 @@ export type EffectId =
   | TroopTrainingDurationEffectId;
 
 // 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
-export const effectScopeSchema = z.enum(['global', 'village', 'server']).meta({ id: 'EffectScope' });
-export const effectSourceSchema = z.enum([
-  'hero',
-  'oasis',
-  'artifact',
-  'building',
-  'tribe',
-  'server',
-  'troops',
-]).meta({ id: 'EffectSource' });
-export const effectTypeSchema = z.enum(['base', 'bonus', 'bonus-booster']).meta({ id: 'EffectType' });
+export const effectScopeSchema = z
+  .enum(['global', 'village', 'server'])
+  .meta({ id: 'EffectScope' });
+export const effectSourceSchema = z
+  .enum(['hero', 'oasis', 'artifact', 'building', 'tribe', 'server', 'troops'])
+  .meta({ id: 'EffectSource' });
+export const effectTypeSchema = z
+  .enum(['base', 'bonus', 'bonus-booster'])
+  .meta({ id: 'EffectType' });
 
-export const effectIdSchema = z.string().pipe(z.custom<EffectId>()).meta({ id: 'EffectId' });
+export const effectIdSchema = z
+  .string()
+  .pipe(z.custom<EffectId>())
+  .meta({ id: 'EffectId' });
 
-export const effectSchema = z.strictObject({
-  id: effectIdSchema,
-  value: z.number(),
-  type: effectTypeSchema,
-  scope: effectScopeSchema,
-  source: effectSourceSchema,
-  villageId: z.number().nullable().optional(),
-  sourceSpecifier: z.number().nullable(),
-}).meta({ id: 'Effect' });
+export const effectSchema = z
+  .strictObject({
+    id: effectIdSchema,
+    value: z.number(),
+    type: effectTypeSchema,
+    scope: effectScopeSchema,
+    source: effectSourceSchema,
+    villageId: z.number().nullable().optional(),
+    sourceSpecifier: z.number().nullable(),
+  })
+  .meta({ id: 'Effect' });
 
 export type Effect = z.infer<typeof effectSchema>;
 

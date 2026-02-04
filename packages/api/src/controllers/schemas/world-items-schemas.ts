@@ -27,4 +27,15 @@ export const getArtifactsAroundVillageSchema = z
         2,
       ),
     };
-  });
+  })
+  .pipe(
+    z.object({
+      id: z.number(),
+      coordinates: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      distance: z.number(),
+    }),
+  )
+  .meta({ id: 'GetArtifactsAroundVillage' });

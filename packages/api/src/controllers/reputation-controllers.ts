@@ -1,10 +1,6 @@
 import type { Controller } from '../types/controller';
-import { getReputationsSchema } from './schemas/reputation-schemas.ts';
+import { getReputationsSchema } from './schemas/reputation-schemas';
 
-/**
- * GET /players/:playerId/reputations
- * @pathParam {number} playerId
- */
 export const getReputations: Controller<'/players/:playerId/reputations'> = (
   database,
   { params },

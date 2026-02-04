@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
-  type GetPlayersStatisticsBody,
-  type GetStatisticsVillagesBody,
   getGameWorldOverview,
   getPlayerRankings,
   getVillageRankings,
@@ -15,11 +13,7 @@ describe('statistics-controllers', () => {
 
     getPlayerRankings(
       database,
-      createControllerArgs<
-        '/statistics/players',
-        'get',
-        GetPlayersStatisticsBody
-      >({
+      createControllerArgs<'/statistics/players'>({
         body: { lastPlayerId: null },
       }),
     );
@@ -32,11 +26,7 @@ describe('statistics-controllers', () => {
 
     getVillageRankings(
       database,
-      createControllerArgs<
-        '/statistics/villages',
-        'get',
-        GetStatisticsVillagesBody
-      >({
+      createControllerArgs<'/statistics/villages'>({
         body: { lastVillageId: null },
       }),
     );

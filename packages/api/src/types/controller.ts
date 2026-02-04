@@ -32,7 +32,9 @@ export type ControllerArgs<
       ? TMethod extends keyof (typeof paths)[TPath]
         ? (typeof paths)[TPath][TMethod] extends {
             requestBody: {
-              content: { 'application/json': { schema: infer B extends z.ZodTypeAny } };
+              content: {
+                'application/json': { schema: infer B extends z.ZodTypeAny };
+              };
             };
           }
           ? z.infer<B>

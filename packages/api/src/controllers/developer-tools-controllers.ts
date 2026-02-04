@@ -1,17 +1,12 @@
 import { snakeCase } from 'moderndash';
-import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
-import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import type { Controller } from '../types/controller';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
 } from '../utils/village';
-import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas.ts';
+import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas';
 
-/**
- * GET /developer-settings
- */
 export const getDeveloperSettings: Controller<'/developer-settings'> = (
   database,
 ) => {
@@ -34,20 +29,9 @@ export const getDeveloperSettings: Controller<'/developer-settings'> = (
   });
 };
 
-export type UpdateDeveloperSettingsBody = {
-  value: DeveloperSettings[keyof DeveloperSettings];
-};
-
-/**
- * PATCH /developer-settings/:developerSettingName
- * @pathParam {string} developerSettingName
- * @bodyContent application/json UpdateDeveloperSettingsBody
- * @bodyRequired
- */
 export const updateDeveloperSettings: Controller<
   '/developer-settings/:developerSettingName',
-  'patch',
-  UpdateDeveloperSettingsBody
+  'patch'
 > = (database, { body, params }) => {
   const { developerSettingName } = params;
   const { value } = body;
@@ -111,20 +95,9 @@ export const updateDeveloperSettings: Controller<
   }
 };
 
-export type SpawnHeroItemBody = {
-  itemId: HeroItem['id'];
-};
-
-/**
- * PATCH /developer-settings/:heroId/spawn-item
- * @pathParam {number} heroId
- * @bodyContent application/json SpawnHeroItemBody
- * @bodyRequired
- */
 export const spawnHeroItem: Controller<
   '/developer-settings/:heroId/spawn-item',
-  'patch',
-  SpawnHeroItemBody
+  'patch'
 > = (database, { body, params }) => {
   const { heroId } = params;
   const { itemId } = body;
@@ -143,22 +116,9 @@ export const spawnHeroItem: Controller<
   });
 };
 
-export type UpdateVillageResourcesBody = {
-  resource: 'wood' | 'clay' | 'iron' | 'wheat';
-  amount: 100 | 1000 | 10000;
-  direction: 'add' | 'subtract';
-};
-
-/**
- * PATCH /developer-settings/:villageId/resources
- * @pathParam {number} villageId
- * @bodyContent application/json UpdateVillageResourcesBody
- * @bodyRequired
- */
 export const updateVillageResources: Controller<
   '/developer-settings/:villageId/resources',
-  'patch',
-  UpdateVillageResourcesBody
+  'patch'
 > = (database, { body, params }) => {
   const { villageId } = params;
   const { resource, amount, direction } = body;
@@ -181,10 +141,6 @@ export const updateVillageResources: Controller<
   updaterFn(database, villageId, now, resources);
 };
 
-/**
- * PATCH /developer-settings/:heroId/increment-adventure-points
- * @pathParam {number} heroId
- */
 export const incrementHeroAdventurePoints: Controller<
   '/developer-settings/:heroId/increment-adventure-points',
   'patch'
