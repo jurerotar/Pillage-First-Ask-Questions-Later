@@ -3,6 +3,7 @@ import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { getDeveloperSettingsSchema } from './src/controllers/schemas/developer-tools-schemas';
 import {
@@ -1180,10 +1181,9 @@ export const paths = {
         content: {
           'application/json': {
             schema: z.strictObject({
-              resourceFieldComposition: z.union([
-                z.string(),
+              resourceFieldComposition: resourceFieldCompositionSchema.or(
                 z.literal('any-cropper'),
-              ]),
+              ),
               bonuses: z.strictObject({
                 firstOasis: z.array(
                   z.strictObject({

@@ -103,5 +103,4 @@ export type Building = {
 
 export const buildingIdSchema = z
   .string()
-  .pipe(z.custom<BuildingId>())
-  .meta({ id: 'BuildingId' });
+  .meta({ id: 'BuildingId' }) as unknown as z.ZodType<BuildingId>;

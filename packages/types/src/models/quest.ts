@@ -84,7 +84,7 @@ const baseQuestSchema = z.strictObject({
 
 const villageQuestsSchema = baseQuestSchema
   .extend({
-    id: z.string().pipe(z.custom<VillageQuestId>()),
+    id: z.string() as unknown as z.ZodType<VillageQuestId>,
     scope: z.literal('village'),
     villageId: z.number(),
   })
@@ -94,7 +94,7 @@ export type VillageQuest = z.infer<typeof villageQuestsSchema>;
 
 const globalQuestsSchema = baseQuestSchema
   .extend({
-    id: z.string().pipe(z.custom<GlobalQuestId>()),
+    id: z.string() as unknown as z.ZodType<GlobalQuestId>,
     scope: z.literal('global'),
   })
   .meta({ id: 'GlobalQuest' });

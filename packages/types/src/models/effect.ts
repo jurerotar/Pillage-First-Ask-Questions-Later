@@ -53,8 +53,7 @@ export const effectTypeSchema = z
 
 export const effectIdSchema = z
   .string()
-  .pipe(z.custom<EffectId>())
-  .meta({ id: 'EffectId' });
+  .meta({ id: 'EffectId' }) as unknown as z.ZodType<EffectId>;
 
 export const effectSchema = z
   .strictObject({

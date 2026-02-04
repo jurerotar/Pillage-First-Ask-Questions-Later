@@ -137,7 +137,7 @@ export const CreateNewGameWorldForm = () => {
 
     form.setValue('seed', generateSeed());
     form.setValue('name', `${adjective}${noun}`);
-  }, [form.setValue]);
+  }, [form]);
 
   if (isError) {
     console.error(error);

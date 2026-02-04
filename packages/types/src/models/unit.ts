@@ -127,5 +127,4 @@ export type Unit = {
 
 export const unitIdSchema = z
   .string()
-  .pipe(z.custom<UnitId>())
-  .meta({ id: 'UnitId' });
+  .meta({ id: 'UnitId' }) as unknown as z.ZodType<UnitId>;
