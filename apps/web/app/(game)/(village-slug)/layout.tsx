@@ -48,7 +48,6 @@ import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-c
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
@@ -57,7 +56,10 @@ import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import {
+  CurrentVillageStateContext,
+  CurrentVillageStateProvider,
+} from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -176,8 +178,9 @@ const NavigationSideItem = ({
 };
 
 const DesktopPopulation = () => {
-  const { population, buildingWheatLimit } =
-    useComputedEffect('wheatProduction');
+  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+
+  const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
   return (
     <div className="flex gap-2">
@@ -229,8 +232,9 @@ const VillageOverviewDesktopItem = () => {
 
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
-  const { population, buildingWheatLimit } =
-    useComputedEffect('wheatProduction');
+  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+
+  const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
   return (
     <Link
