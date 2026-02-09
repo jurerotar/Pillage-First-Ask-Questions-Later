@@ -1,6 +1,0 @@
-# https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Disallow:
-
-Sitemap: https://pillagefirst.com/sitemap.xml
-

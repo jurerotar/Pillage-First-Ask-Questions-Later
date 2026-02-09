@@ -3,14 +3,12 @@
 Pillage First! (Ask Questions Later) is an **open-source**, **single-player** **strategy game** inspired by Travian.
 
 Build villages, manage resources, train troops, and wage war in **persistent**, **massive**, **offline-first** game
-worlds. It requires no account or
-download.
+worlds. It requires no account or download.
 
 Game mechanics are inspired by both Travian Legends and Travian Kingdoms. It's designed to be as light-weight as
 possible, giving you a
 great experience even on older devices. It is not a Travian clone per se, because it iterates on the original design and
-introduces new
-features.
+introduces new features.
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
@@ -102,8 +100,7 @@ I want this game to be a more accessible, customizable and time-friendly version
 # Contributing
 
 All contributions to **Pillage First! (Ask Questions Later)** are welcome! We're always on the lookout for contributors
-in development, game
-design and UI/UX design.
+in development, game design and UI/UX design.
 
 > [!WARNING]
 > We currently only accept localization changes for the English language.
@@ -118,7 +115,10 @@ Other ways to help the project are:
 - Sharing ideas, feedback, or suggestions either on GitHub issue tracker, or in Discord.
 - Asking questions. Your interest helps us shape the game faster and better.
 
-Thanks for your interest!
+We want to thank our ever-increasing list of contributors.
+**Thank you to everybody who has already done their part in making this project better!**
+
+[Contributors](./CONTRIBUTORS.md)
 
 # License
 

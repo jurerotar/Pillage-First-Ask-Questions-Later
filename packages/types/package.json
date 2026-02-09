@@ -1,0 +1,121 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/types",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "packages/types"
+  },
+  "exports": {
+    "./api-events": {
+      "default": "./src/api-events.ts"
+    },
+    "./models/bookmark": {
+      "default": "./src/models/bookmark.ts"
+    },
+    "./models/building": {
+      "default": "./src/models/building.ts"
+    },
+    "./models/developer-settings": {
+      "default": "./src/models/developer-settings.ts"
+    },
+    "./models/building-field": {
+      "default": "./src/models/building-field.ts"
+    },
+    "./models/coordinates": {
+      "default": "./src/models/coordinates.ts"
+    },
+    "./models/effect": {
+      "default": "./src/models/effect.ts"
+    },
+    "./models/faction": {
+      "default": "./src/models/faction.ts"
+    },
+    "./models/game-event": {
+      "default": "./src/models/game-event.ts"
+    },
+    "./models/hero": {
+      "default": "./src/models/hero.ts"
+    },
+    "./models/hero-adventures": {
+      "default": "./src/models/hero-adventures.ts"
+    },
+    "./models/hero-item": {
+      "default": "./src/models/hero-item.ts"
+    },
+    "./models/hero-loadout": {
+      "default": "./src/models/hero-loadout.ts"
+    },
+    "./models/map-filters": {
+      "default": "./src/models/map-filters.ts"
+    },
+    "./models/map-marker": {
+      "default": "./src/models/map-marker.ts"
+    },
+    "./models/player": {
+      "default": "./src/models/player.ts"
+    },
+    "./models/preferences": {
+      "default": "./src/models/preferences.ts"
+    },
+    "./models/quest": {
+      "default": "./src/models/quest.ts"
+    },
+    "./models/report": {
+      "default": "./src/models/report.ts"
+    },
+    "./models/reputation": {
+      "default": "./src/models/reputation.ts"
+    },
+    "./models/resource": {
+      "default": "./src/models/resource.ts"
+    },
+    "./models/resource-field-composition": {
+      "default": "./src/models/resource-field-composition.ts"
+    },
+    "./models/server": {
+      "default": "./src/models/server.ts"
+    },
+    "./models/tile": {
+      "default": "./src/models/tile.ts"
+    },
+    "./models/tribe": {
+      "default": "./src/models/tribe.ts"
+    },
+    "./models/troop": {
+      "default": "./src/models/troop.ts"
+    },
+    "./models/unit": {
+      "default": "./src/models/unit.ts"
+    },
+    "./models/village": {
+      "default": "./src/models/village.ts"
+    },
+    "./models/world-item": {
+      "default": "./src/models/world-item.ts"
+    }
+  },
+  "scripts": {
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "lint:check/oxlint": "oxlint --type-aware",
+    "lint/oxlint": "oxlint --type-aware --fix",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "type-check": "tsgo"
+  },
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "*",
+    "zod": "*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "*",
+    "@typescript/native-preview": "*",
+    "typescript": "*"
+  }
+}
