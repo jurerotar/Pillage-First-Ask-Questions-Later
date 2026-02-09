@@ -9,8 +9,8 @@ import {
   heroCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
+import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider.tsx';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type UpdateDeveloperSettingArgs = {
@@ -31,7 +31,7 @@ type SpawnHeroItemArgs = {
 
 export const useDeveloperSettings = () => {
   const { fetcher } = use(ApiContext);
-  const { villageSlug } = useRouteSegments();
+  const { villageSlug } = use(VillageSlugContext);
   const { hero } = useHero();
 
   const { data: developerSettings } = useSuspenseQuery({

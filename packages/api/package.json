@@ -45,7 +45,7 @@
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
     "@visulima/jsdoc-open-api": "2.0.95",
-    "openapi-typescript": "7.10.1",
+    "openapi-typescript": "7.12.0",
     "typescript": "*",
     "vitest": "*"
   }

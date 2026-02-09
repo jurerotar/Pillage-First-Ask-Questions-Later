@@ -28,6 +28,7 @@ import {
   NavLink,
   type NavLinkProps,
   Outlet,
+  type ShouldRevalidateFunction,
   useNavigate,
 } from 'react-router';
 import type { Resource } from '@pillage-first/types/models/resource';
@@ -60,6 +61,7 @@ import {
   CurrentVillageStateContext,
   CurrentVillageStateProvider,
 } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -857,33 +859,51 @@ const PageFallback = () => {
   );
 };
 
+export const clientLoader = async ({ params }: Route.ClientLoaderArgs) => {
+  const { villageSlug } = params;
+
+  return {
+    villageSlug,
+  };
+};
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentParams,
+  nextParams,
+}) => {
+  return currentParams.villageSlug !== nextParams.villageSlug;
+};
+
 const GameLayout = memo<Route.ComponentProps>(
-  () => {
+  ({ params }) => {
+    const { villageSlug } = params;
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
     const { isOpen, toggleModal } = useDialog();
 
     return (
       <div className="[-webkit-touch-callout:none]">
-        <CurrentVillageStateProvider>
-          <CurrentVillageBuildingQueueContextProvider>
-            <Tooltip id="general-tooltip" />
-            <TopNavigation onDeveloperToolsToggle={toggleModal} />
-            <TroopMovements />
-            <Suspense fallback={<PageFallback />}>
-              <Outlet />
-            </Suspense>
-            <ConstructionQueue />
-            <TroopList />
-            {!isWiderThanLg && (
-              <MobileBottomNavigation onDeveloperToolsToggle={toggleModal} />
-            )}
-            <PreferencesUpdater />
-            <DeveloperToolsConsole
-              isOpen={isOpen}
-              onOpenChange={toggleModal}
-            />
-          </CurrentVillageBuildingQueueContextProvider>
-        </CurrentVillageStateProvider>
+        <VillageSlugProvider villageSlug={villageSlug}>
+          <CurrentVillageStateProvider>
+            <CurrentVillageBuildingQueueContextProvider>
+              <Tooltip id="general-tooltip" />
+              <TopNavigation onDeveloperToolsToggle={toggleModal} />
+              <TroopMovements />
+              <Suspense fallback={<PageFallback />}>
+                <Outlet />
+              </Suspense>
+              <ConstructionQueue />
+              <TroopList />
+              {!isWiderThanLg && (
+                <MobileBottomNavigation onDeveloperToolsToggle={toggleModal} />
+              )}
+              <PreferencesUpdater />
+              <DeveloperToolsConsole
+                isOpen={isOpen}
+                onOpenChange={toggleModal}
+              />
+            </CurrentVillageBuildingQueueContextProvider>
+          </CurrentVillageStateProvider>
+        </VillageSlugProvider>
       </div>
     );
   },

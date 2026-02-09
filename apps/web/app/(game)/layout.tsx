@@ -20,7 +20,12 @@ import { HeadLinks } from 'app/components/head-links.tsx';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 
-export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
+export const clientLoader = async ({
+  context,
+  params,
+}: Route.ClientLoaderArgs) => {
+  const { serverSlug } = params;
+
   const locale = 'en-US';
 
   const [sessionModule] = await Promise.all([
@@ -33,6 +38,7 @@ export const clientLoader = async ({ context }: Route.ClientLoaderArgs) => {
 
   return {
     sessionId,
+    serverSlug,
   };
 };
 

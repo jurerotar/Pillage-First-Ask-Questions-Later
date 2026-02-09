@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { getBuildingDataForLevel } from '@pillage-first/game-assets/buildings/utils';
+import {
+  getBuildingDataForLevel,
+  getBuildingDefinition,
+} from '@pillage-first/game-assets/buildings/utils';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
@@ -25,13 +28,7 @@ const useBuildingRequirements = (
     buildingId,
     level,
   );
-
-  const { isFreeBuildingConstructionEnabled } = developerSettings;
-
-  const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(
-    buildingId,
-    level,
-  );
+  const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, level);
 
   const { errorBag: hasEnoughResourcesErrorBag } = useHasEnoughResources(
     nextLevelResourceCost,
@@ -43,13 +40,9 @@ const useBuildingRequirements = (
   const { errorBag: hasHasAvailableBuildingQueueSlotErrorBag } =
     useHasAvailableBuildingQueueSlot(buildingFieldId);
 
-  const errorBag = [
-    ...hasEnoughFreeCropErrorBag,
-    ...hasEnoughResourcesErrorBag,
-    ...hasEnoughWarehouseCapacityErrorBag,
-    ...hasEnoughGranaryCapacityErrorBag,
-    ...hasHasAvailableBuildingQueueSlotErrorBag,
-  ];
+  const { isFreeBuildingConstructionEnabled } = developerSettings;
+  const buildingDefinition = getBuildingDefinition(buildingId);
+  const isMaxLevel = buildingDefinition.maxLevel === level;
 
   if (isMaxLevel) {
     return {
@@ -65,9 +58,22 @@ const useBuildingRequirements = (
     };
   }
 
-  const variant: BorderIndicatorBorderVariant = isMaxLevel
-    ? 'blue'
-    : errorBag.length === 0
+  if (hasEnoughFreeCropErrorBag.length > 0) {
+    return {
+      errors: hasEnoughFreeCropErrorBag,
+      variant: 'gray',
+    };
+  }
+
+  const errorBag = [
+    ...hasEnoughResourcesErrorBag,
+    ...hasEnoughWarehouseCapacityErrorBag,
+    ...hasEnoughGranaryCapacityErrorBag,
+    ...hasHasAvailableBuildingQueueSlotErrorBag,
+  ];
+
+  const variant: BorderIndicatorBorderVariant =
+    errorBag.length === 0
       ? 'green'
       : errorBag.includes(t('Not enough resources available.')) ||
           errorBag.includes(t('Building construction queue is full.'))
