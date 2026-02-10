@@ -13,7 +13,6 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
     "preview": "vite preview",
     "lint:check": "biome lint --no-errors-on-unmatched",
     "lint": "biome lint --fix --no-errors-on-unmatched",

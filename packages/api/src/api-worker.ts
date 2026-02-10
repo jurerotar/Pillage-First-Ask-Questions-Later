@@ -12,6 +12,7 @@ import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
+import { DatabaseNotFoundError } from './errors';
 import {
   cancelScheduling,
   initScheduler,
@@ -47,6 +48,11 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           directory: `/pillage-first-ask-questions-later/${serverSlug}`,
         });
 
+        // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
+        if (opfsSahPool.getFileCount() === 0) {
+          throw new DatabaseNotFoundError();
+        }
+
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
         database.exec({
@@ -74,7 +80,6 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         } satisfies ApiNotificationEvent);
         break;
       } catch (error) {
-        console.error(error);
         globalThis.postMessage({
           eventKey: 'event:worker-initialization-error',
           error: error as Error,

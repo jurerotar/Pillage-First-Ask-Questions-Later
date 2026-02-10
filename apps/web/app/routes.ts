@@ -28,10 +28,8 @@ export default [
   // Game routes
   ...prefix('game', [
     ...prefix(':serverSlug', [
-      layout('(game)/error-layout.tsx', [
-        route('not-allowed', '(game)/(not-allowed)/page.tsx'),
-        route('not-found', '(game)/(not-found)/page.tsx'),
-      ]),
+      route('not-allowed', '(game)/(not-allowed)/page.tsx'),
+      route('not-found', '(game)/(not-found)/page.tsx'),
       // We need this route for relative navigation to work, it's otherwise completely empty
       route(':villageSlug', '(game)/(village-slug)/page.tsx', [
         layout('(game)/layout.tsx', [
