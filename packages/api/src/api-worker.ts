@@ -12,7 +12,7 @@ import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
-import { DatabaseNotFoundError } from './errors';
+import { DatabaseInitializationError } from './errors';
 import {
   cancelScheduling,
   initScheduler,
@@ -50,7 +50,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
         if (opfsSahPool.getFileCount() === 0) {
-          throw new DatabaseNotFoundError();
+          throw new DatabaseInitializationError();
         }
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);

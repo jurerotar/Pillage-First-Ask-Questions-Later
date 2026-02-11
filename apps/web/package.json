@@ -75,7 +75,7 @@
     "@types/react-window": "1.8.8",
     "@typescript/native-preview": "*",
     "cheerio": "1.2.0",
-    "happy-dom": "20.6.0",
+    "happy-dom": "20.6.1",
     "i18next-cli": "1.42.6",
     "knip": "5.83.1",
     "rolldown-vite": "7.3.1",

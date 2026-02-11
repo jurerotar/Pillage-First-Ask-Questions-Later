@@ -5,15 +5,16 @@ import {
   ScrollRestoration,
   useRouteError,
 } from 'react-router';
-import { DatabaseNotFoundError } from '@pillage-first/api/errors';
+import { DatabaseInitializationError } from '@pillage-first/api/errors';
 import { HeadLinks } from 'app/components/head-links.tsx';
 
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;
 
-  const isDatabaseNotFoundError = error instanceof DatabaseNotFoundError;
+  const isDatabaseInitializationError =
+    error instanceof DatabaseInitializationError;
 
-  const isErrorWithCustomSteps = isDatabaseNotFoundError;
+  const isErrorWithCustomSteps = isDatabaseInitializationError;
 
   const { message, name, cause, stack } = error;
 
@@ -45,11 +46,20 @@ export const ErrorBoundary = () => {
             <p className="mt-1">{message}</p>
           </div>
 
-          <p className="text-sm text-muted-foreground">Try these steps:</p>
-          <ul className="list-disc pl-6 space-y-1 text-sm">
+          {isDatabaseInitializationError && (
+            <p className="text-foreground">
+              We've recently released a new version of the app that introduced
+              breaking changes in existing game worlds. If you're seeing this
+              error message, it's likely your game world is not compatible with
+              latest version of the app.
+            </p>
+          )}
+
+          <p className="text-foreground font-medium">Try these steps:</p>
+          <ul className="list-disc pl-6 space-y-1">
             {isErrorWithCustomSteps && (
               <>
-                {isDatabaseNotFoundError && (
+                {isDatabaseInitializationError && (
                   <>
                     <li>
                       If you've opened this game world through a link on{' '}
@@ -140,7 +150,7 @@ export const ErrorBoundary = () => {
 
           <details
             open
-            className="rounded-md border bg-white p-3 text-sm"
+            className="rounded-md border bg-white p-3"
           >
             <summary className="cursor-pointer select-none font-medium">
               Technical details

@@ -6,6 +6,10 @@
       "persistent": true,
       "cache": false
     },
+    "swagger": {
+      "persistent": true,
+      "cache": false
+    },
     "build": {
       "outputs": ["build/**"]
     },

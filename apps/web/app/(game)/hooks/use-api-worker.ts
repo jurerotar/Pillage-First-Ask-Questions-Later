@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { DatabaseNotFoundError } from '@pillage-first/api/errors';
+import { DatabaseInitializationError } from '@pillage-first/api/errors';
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { WorkerInitializationErrorEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
@@ -31,7 +31,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
           'message',
           handleWorkerInitializationMessage,
         );
-        reject(new DatabaseNotFoundError());
+        reject(new DatabaseInitializationError());
       }
     };
 

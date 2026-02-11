@@ -12,8 +12,7 @@
     "directory": "apps/swagger-ui"
   },
   "scripts": {
-    "dev": "vite",
-    "preview": "vite preview",
+    "swagger": "vite",
     "lint:check": "biome lint --no-errors-on-unmatched",
     "lint": "biome lint --fix --no-errors-on-unmatched",
     "lint:check/oxlint": "oxlint --type-aware",

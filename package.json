@@ -31,8 +31,8 @@
     "@typescript/native-preview": "7.0.0-dev.20260210.1",
     "lefthook": "2.1.0",
     "oxlint": "1.46.0",
-    "oxlint-tsgolint": "0.11.5",
-    "turbo": "2.8.4",
+    "oxlint-tsgolint": "0.12.0",
+    "turbo": "2.8.5",
     "typescript": "5.9.3",
     "vitest": "4.0.18",
     "zod": "4.3.6"

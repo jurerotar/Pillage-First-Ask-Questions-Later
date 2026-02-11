@@ -1,1 +1,1 @@
-export { DatabaseNotFoundError } from './database-not-found-error.ts';
+export { DatabaseInitializationError } from './database-initialization-error.ts';
