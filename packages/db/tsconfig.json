@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["ESNext", "WebWorker", "DOM.Iterable", "DOM.AsyncIterable"],
+    "lib": ["ESNext", "WebWorker"],
     "types": []
   },
   "include": ["src/**/*"]
