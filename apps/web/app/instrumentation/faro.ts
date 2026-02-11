@@ -1,8 +1,10 @@
 import { env } from 'app/env';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 
+const allowedBranches = new Set(['master', 'develop']);
+
 // This is only injected by Netlify, so we're safe to run this on development
-const isAllowedBranch = ['master', 'develop'].includes(env.HEAD);
+const isAllowedBranch = allowedBranches.has(env.HEAD);
 
 export const initFaro = async () => {
   if (typeof window === 'undefined' || !isAllowedBranch) {
