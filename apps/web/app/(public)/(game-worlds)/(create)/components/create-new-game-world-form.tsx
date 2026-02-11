@@ -1,3 +1,4 @@
+import { faro } from '@grafana/faro-web-sdk';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { randomInt } from 'moderndash';
@@ -79,12 +80,19 @@ export const CreateNewGameWorldForm = () => {
     isSuccess,
   } = useMutation<void, Error, MutateArgs>({
     mutationFn: async ({ server }) => {
-      await workerFactory<CreateNewGameWorldWorkerPayload>(
-        CreateNewGameWorldWorker,
-        {
-          server,
+      const { migrationDuration } = await workerFactory<
+        CreateNewGameWorldWorkerPayload,
+        { migrationDuration: number }
+      >(CreateNewGameWorldWorker, {
+        server,
+      });
+
+      faro.api.pushMeasurement({
+        type: 'performance',
+        values: {
+          migration_and_seed_duration: migrationDuration,
         },
-      );
+      });
     },
     onSuccess: async (_, { server }) => {
       createGameWorld({ server });

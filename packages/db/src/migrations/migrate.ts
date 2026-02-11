@@ -66,7 +66,9 @@ import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 
-export const migrateAndSeed = (database: DbFacade, server: Server): void => {
+export const migrateAndSeed = (database: DbFacade, server: Server): number => {
+  const t0 = performance.now();
+
   database.transaction((db) => {
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
@@ -195,4 +197,8 @@ export const migrateAndSeed = (database: DbFacade, server: Server): void => {
     db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
   });
+
+  const t1 = performance.now();
+
+  return t1 - t0;
 };
